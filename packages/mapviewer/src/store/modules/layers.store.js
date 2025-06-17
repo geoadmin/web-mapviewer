@@ -4,7 +4,7 @@ import { ErrorMessage } from '@geoadmin/log/Message'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { EXTERNAL_PROVIDER_WHITELISTED_URL_REGEXES } from '@/config/layers.config'
+import { EXTERNAL_PROVIDER_WHITELISTED_URL_REGEXES } from '@/config/regex.config'
 import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 import { getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
 import { getGpxExtent } from '@/utils/gpxUtils'

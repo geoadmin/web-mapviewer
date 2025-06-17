@@ -1,7 +1,6 @@
 /// <reference types="cypress" />
 
 import { isMobile } from 'tests/cypress/support/utils'
-
 describe('The Import Maps Tool', () => {
     const bgLayer = 'test.background.layer2'
     beforeEach(() => {
@@ -330,29 +329,14 @@ describe('The Import Maps Tool', () => {
         //---------------------------------------------------------------------
         cy.log('Check layer map attribution')
         cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
-        cy.get('[data-cy="menu-external-disclaimer-icon-cloud"]')
-            .should('have.length', 3)
-            .first()
-            .should('be.visible')
-            .click()
-        cy.get('[data-cy="modal-content"]').contains(
-            'Warning: Third party data and/or style shown (Das Geoportal des Bundes)'
-        )
-        cy.get('[data-cy="modal-close-button"]').should('be.visible').click()
-        if (isMobile()) {
-            cy.get('[data-cy="menu-button"]').click()
-        }
+        cy.get('[data-cy="menu-external-disclaimer-icon-cloud"]').should('have.length', 0)
         cy.get('[data-cy="layer-copyright-Das Geoportal des Bundes"]')
             .should('be.visible')
             .contains('Das Geoportal des Bundes')
         cy.get('[data-cy="layer-copyright-Das Geoportal des Bundes"]').realHover()
         cy.get('[data-cy="layer-copyright-Das Geoportal des Bundes"]')
             .should('have.css', 'cursor', 'pointer')
-            .should('have.class', 'text-primary')
             .should('have.attr', 'href', 'http://www.geo.admin.ch/')
-        cy.get('[data-cy="floating-third-party-disclaimer"]')
-            .should('be.visible')
-            .contains('Dataset and/or style provided by third party')
 
         //---------------------------------------------------------------------
         cy.log('Reload should keep the layers')
@@ -369,6 +353,8 @@ describe('The Import Maps Tool', () => {
         )
         cy.get(`[data-cy^="active-layer-name-${itemId}-"]`).should('be.visible')
         cy.get(`[data-cy^="button-loading-metadata-spinner-${itemId}-"]`).should('not.exist')
+
+        // -----------------------------------------------------------
     })
     it('Import external WMTS layers', () => {
         cy.intercept(
@@ -485,15 +471,7 @@ describe('The Import Maps Tool', () => {
         //---------------------------------------------------------------------
         cy.log('Check layer map attribution')
         cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
-        cy.get('[data-cy="menu-external-disclaimer-icon-cloud"]')
-            .should('have.length', 2)
-            .first()
-            .should('be.visible')
-            .click()
-        cy.get('[data-cy="modal-content"]').contains(
-            'Warning: Third party data and/or style shown (My Organization)'
-        )
-        cy.get('[data-cy="modal-close-button"]').should('be.visible').click()
+        cy.get('[data-cy="menu-external-disclaimer-icon-cloud"]').should('have.length', 0)
         cy.openMenuIfMobile()
         if (isMobile()) {
             cy.get('[data-cy="menu-button"]').click()
@@ -554,6 +532,59 @@ describe('The Import Maps Tool', () => {
         cy.get('[data-cy="active-layer-name-layer4-2"]').should('be.visible')
         cy.get('[data-cy="time-selector-layer4-2"]').should('not.exist')
     })
+
+    it('Import an external WMS when it is in the URL and shows its third party disclaimer correctly', () => {
+        // here : intercept fake.wms.base-1.url to give what we want
+        cy.intercept(
+            {
+                https: true,
+                hostname: 'fake.wms.base-1.url',
+                query: { REQUEST: 'GetCapabilities' },
+            },
+            { fixture: 'external-wms-getcap-1.fixture.xml' }
+        ).as('wms-get-capabilities')
+        cy.intercept(
+            {
+                method: 'GET',
+                hostname: 'fake.wms.base-1.url',
+                query: { REQUEST: 'GetMap', LAYERS: 'ch.swisstopo-vd.official-survey' },
+                middleware: true,
+            },
+            (request) => request.reply({ fixture: '256.png' })
+        ).as('layer-1-getMap')
+        cy.goToMapView(
+            {
+                layers: 'WMS|https://fake.wms.base-1.url/?|ch.swisstopo-vd.official-survey',
+            },
+            true
+        )
+        cy.openMenuIfMobile()
+        cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+        //cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
+        cy.get('[data-cy="menu-external-disclaimer-icon-cloud"]')
+            .should('have.length', 1)
+            .first()
+            .should('be.visible')
+            .click()
+        cy.get('[data-cy="modal-content"]').contains('Warning: Third party data and/or style shown')
+        cy.get('[data-cy="modal-close-button"]').should('be.visible').click()
+        if (isMobile()) {
+            cy.get('[data-cy="menu-button"]').click()
+        }
+        cy.get('[data-cy="layer-copyright-The federal geoportal"]')
+            .should('be.visible')
+            .contains('The federal geoportal')
+        cy.get('[data-cy="layer-copyright-The federal geoportal"]')
+            .should('have.css', 'cursor', 'pointer')
+            .should('have.class', 'text-primary')
+            .should('have.attr', 'href', 'https://www.geo.admin.ch/attribution')
+        cy.get('[data-cy="layer-copyright-The federal geoportal"]').trigger('mouseover')
+
+        cy.get('[data-cy="floating-third-party-disclaimer"]')
+            .should('be.visible')
+            .contains('Dataset and/or style provided by third party')
+    })
+
     it('handles error correctly', () => {
         //-----------------------------------------------------------------------------------------
         cy.log('Select an unreachable external WMTS provider')
