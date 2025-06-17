@@ -37,22 +37,18 @@ watch(currentProjection, () => layer.setSource(createVectorSourceForProjection()
 watch(selectionRectangleCoordinates, () => layer.setSource(createVectorSourceForProjection()))
 
 function createVectorSourceForProjection() {
-    console.log('Creating vector source for rectangle selection with coordinates:', selectionRectangleCoordinates.value)
     if(!selectionRectangleCoordinates.value || selectionRectangleCoordinates.value.length === 0) {
         return new VectorSource({
             projection: currentProjection.value.epsg,
         })
     } else {
-        const sr = new VectorSource({
+        return new VectorSource({
             projection: currentProjection.value.epsg,
             features: [new Feature({
                 geometry: new Polygon(selectionRectangleCoordinates.value),
                 name: 'Rectangle Selection',
             })],
         })
-        window.sr = sr
-        console.log('Selection rectangle polygon:', sr)
-        return sr
     }
 }
 </script>

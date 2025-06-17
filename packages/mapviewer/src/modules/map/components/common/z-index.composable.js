@@ -51,7 +51,8 @@ export function useLayerZIndexCalculation() {
     const zIndexGeolocation = computed(() => zIndexCrossHair.value + 1)
     const zIndexTileInfo = computed(() => zIndexGeolocation.value + 1)
     const zIndexLayerExtents = computed(() => zIndexTileInfo.value + 1)
-    const nextAvailableZIndex = computed(() => zIndexLayerExtents.value + 1)
+    const zIndexSelectionRectangle = computed(() => zIndexLayerExtents.value + 1)
+    const nextAvailableZIndex = computed(() => zIndexSelectionRectangle.value + 1)
 
     /**
      * Gives the z-index of a layer, taking into account if the map is shown in 3D or not. This
@@ -91,6 +92,7 @@ export function useLayerZIndexCalculation() {
         zIndexGeolocation,
         zIndexTileInfo,
         zIndexLayerExtents,
+        zIndexSelectionRectangle,
         nextAvailableZIndex,
         getZIndexForLayer,
     }
