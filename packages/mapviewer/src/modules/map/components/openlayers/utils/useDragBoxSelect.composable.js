@@ -94,7 +94,7 @@ export function useDragBoxSelect() {
             })
             .map(({ feature, layer }) => createLayerFeature(feature, layer))
 
-        store.dispatch('setSelectionRectangle', {'coordinates': dragBoxCoordinates, ...dispatcher,})
+        store.dispatch('setSelectionRectangleCoordinates', {'coordinates': dragBoxCoordinates, ...dispatcher,})
         store.dispatch('click', {
             clickInfo: new ClickInfo({ coordinate: selectExtent, features: vectorFeatures }),
             ...dispatcher,

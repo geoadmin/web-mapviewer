@@ -247,9 +247,9 @@ export default {
             { layers, coordinate, vectorFeatures = [], identifyMode = IdentifyMode.NEW, dispatcher }
         ) {
             if (identifyMode === IdentifyMode.TOGGLE) {
-                dispatch('setSelectionRectangleVisible', { visible: true })
+                dispatch('setSelectionRectangleVisible', { visible: true, dispatcher })
             } else {
-                dispatch('setSelectionRectangleVisible', { visible: false })
+                dispatch('setSelectionRectangleVisible', { visible: false, dispatcher })
             }
             const featureCount = getFeatureCountForCoordinate(coordinate)
             const features = [
@@ -374,8 +374,6 @@ export default {
             if (rootState.profile.feature) {
                 dispatch('setProfileFeature', { feature: null, dispatcher })
             }
-            // clearing the selection rectangle
-            // commit('clearSelectionRectangle', { dispatcher })
         },
         setHighlightedFeatureId({ commit }, { highlightedFeatureId = null, dispatcher }) {
             commit('setHighlightedFeatureId', { highlightedFeatureId, dispatcher })
@@ -704,11 +702,11 @@ export default {
                 }
             }
         },
-        setSelectionRectangle({ commit }, { coordinates }) {
-            commit('setSelectionRectangle', { coordinates })
+        setSelectionRectangleCoordinates({ commit }, { coordinates, dispatcher }) {
+            commit('setSelectionRectangleCoordinates', { coordinates, dispatcher })
         },
-        setSelectionRectangleVisible({ commit }, { visible }) {
-            commit('setSelectionRectangleVisible', { visible })
+        setSelectionRectangleVisible({ commit }, { visible, dispatcher }) {
+            commit('setSelectionRectangleVisible', { visible, dispatcher })
         },
     },
     mutations: {
@@ -763,11 +761,7 @@ export default {
         changeFeatureIsDragged(state, { feature, isDragged }) {
             feature.isDragged = isDragged
         },
-        clearSelectionRectangle(state) {
-            state.selectionRectangleCoordinates = null
-            state.selectionRectangleVisible = false
-        },
-        setSelectionRectangle(state, { coordinates }) {
+        setSelectionRectangleCoordinates(state, { coordinates }) {
             state.selectionRectangleCoordinates = coordinates
         },
         setSelectionRectangleVisible(state, { visible }) {
