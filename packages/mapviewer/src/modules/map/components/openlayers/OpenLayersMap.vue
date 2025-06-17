@@ -15,6 +15,7 @@ import OpenLayersCrossHair from '@/modules/map/components/openlayers/OpenLayersC
 import OpenLayersGeolocationFeedback from '@/modules/map/components/openlayers/OpenLayersGeolocationFeedback.vue'
 import OpenLayersHighlightedFeature from '@/modules/map/components/openlayers/OpenLayersHighlightedFeatures.vue'
 import OpenLayersPinnedLocation from '@/modules/map/components/openlayers/OpenLayersPinnedLocation.vue'
+import OpenLayersRectangleSelection from '@/modules/map/components/openlayers/OpenLayersRectangleSelection.vue'
 import OpenLayersRectangleSelectionFeedback from '@/modules/map/components/openlayers/OpenLayersRectangleSelectionFeedback.vue'
 import OpenLayersVisibleLayers from '@/modules/map/components/openlayers/OpenLayersVisibleLayers.vue'
 import useMapInteractions from '@/modules/map/components/openlayers/utils/useMapInteractions.composable'
@@ -37,6 +38,7 @@ const mapElement = useTemplateRef('mapElement')
 const store = useStore()
 const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
 const showLayerExtents = computed(() => store.state.debug.showLayerExtents)
+const showRectangleSelection = computed(() => store.state.features.selectionRectangleVisible)
 const geolocationActive = computed(() => store.state.geolocation.active)
 const geoPosition = computed(() => store.state.geolocation.position)
 const visibleLayers = computed(() => store.getters.visibleLayers)
@@ -46,9 +48,9 @@ useViewBasedOnProjection(map)
 
 provide('olMap', map)
 
-if (IS_TESTING_WITH_CYPRESS) {
+// if (IS_TESTING_WITH_CYPRESS) {
     window.map = map
-}
+// }
 
 function triggerReadyFlagIfAllRendered() {
     if (
@@ -99,6 +101,11 @@ const { zIndexTileInfo, zIndexLayerExtents } = useLayerZIndexCalculation()
             v-if="showLayerExtents"
             :z-index="zIndexLayerExtents"
         />
+        <OpenLayersRectangleSelection
+            v-if="showRectangleSelection"
+            :z-index="zIndexLayerExtents + 1"
+        />
+
     </div>
     <!-- So that external modules can have access to the map instance through the provided 'olMap' -->
     <slot />
