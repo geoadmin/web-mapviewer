@@ -41,10 +41,11 @@ export function highlightGroup(viewer, geometries) {
 }
 
 export function highlightPolygon(viewer, coordinates) {
-    coordinates = coordinates[0]
-    if (!coordinates.length) return
-    let entity
-    const createPolygon = (coords) => {
+    if (!coordinates.length) {
+        return
+    }
+    // Helper function to create a polygon entity
+    function createPolygon(coords) {
         const convertedCoords = coords.map((c) => {
             const degCoords = proj4(WEBMERCATOR.epsg, WGS84.epsg, c)
             return Cartesian3.fromDegrees(degCoords[0], degCoords[1])
@@ -56,18 +57,22 @@ export function highlightPolygon(viewer, coordinates) {
             },
         })
     }
-    if (typeof coordinates[0][0] === 'number') {
-        //for polygon
-        entity = createPolygon(coordinates)
-    } else {
-        //for multipolygon
-        entity = new Entity()
-        coordinates.forEach((coords) => {
-            entity.merge(createPolygon(coords))
-        })
+    // Recursively handle polygons of any nesting level
+    function handlePolygonCoords(coords) {
+        if (typeof coords[0][0] === 'number') {
+            // Base case: polygon
+            return [createPolygon(coords)]
+        } else {
+            // Recursive case: multipolygon or deeper
+            return coords.flatMap(handlePolygonCoords)
+        }
     }
-    viewer.entities.add(entity)
-    highlightedEntities.push(entity)
+    // Add each polygon entity separately to the viewer
+    const polygonEntities = handlePolygonCoords(coordinates)
+    polygonEntities.forEach((polyEntity) => {
+        viewer.entities.add(polyEntity)
+        highlightedEntities.push(polyEntity)
+    })
     viewer.scene.requestRender()
 }
 
