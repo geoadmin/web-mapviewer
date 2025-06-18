@@ -40,35 +40,38 @@ export function highlightGroup(viewer, geometries) {
     geometries.forEach((g) => highlightSelectedArea(viewer, g))
 }
 
+// Create a Cesium Entity representing a polygon from an array of coordinates
+function createPolygon(coords) {
+    const convertedCoords = coords.map((c) => {
+        const degCoords = proj4(WEBMERCATOR.epsg, WGS84.epsg, c)
+        return Cartesian3.fromDegrees(degCoords[0], degCoords[1])
+    })
+    return new Entity({
+        polygon: {
+            hierarchy: convertedCoords,
+            material: highlightFill,
+        },
+    })
+}
+
+// Recursively extract all polygon entities from coordinates of any nesting level (Polygon, MultiPolygon, etc.)
+function getAllPolygonEntities(coords) {
+    if (typeof coords[0][0] === 'number') {
+        // Base case: polygon
+        return [createPolygon(coords)]
+    } else {
+        // Recursive case: multipolygon or deeper
+        return coords.flatMap(getAllPolygonEntities)
+    }
+}
+
+// Highlight all polygons represented by the coordinates by adding each as a separate entity to the viewer
 export function highlightPolygon(viewer, coordinates) {
     if (!coordinates.length) {
         return
     }
-    // Helper function to create a polygon entity
-    function createPolygon(coords) {
-        const convertedCoords = coords.map((c) => {
-            const degCoords = proj4(WEBMERCATOR.epsg, WGS84.epsg, c)
-            return Cartesian3.fromDegrees(degCoords[0], degCoords[1])
-        })
-        return new Entity({
-            polygon: {
-                hierarchy: convertedCoords,
-                material: highlightFill,
-            },
-        })
-    }
-    // Recursively handle polygons of any nesting level
-    function handlePolygonCoords(coords) {
-        if (typeof coords[0][0] === 'number') {
-            // Base case: polygon
-            return [createPolygon(coords)]
-        } else {
-            // Recursive case: multipolygon or deeper
-            return coords.flatMap(handlePolygonCoords)
-        }
-    }
     // Add each polygon entity separately to the viewer
-    const polygonEntities = handlePolygonCoords(coordinates)
+    const polygonEntities = getAllPolygonEntities(coordinates)
     polygonEntities.forEach((polyEntity) => {
         viewer.entities.add(polyEntity)
         highlightedEntities.push(polyEntity)
