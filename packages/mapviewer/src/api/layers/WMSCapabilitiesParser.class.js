@@ -444,9 +444,17 @@ export default class WMSCapabilitiesParser {
                 this.Capability.Request.GetLegendGraphic?.DCPType[0]?.HTTP?.Get?.OnlineResource
             const getLegendGraphicFormat = this.Capability.Request.GetLegendGraphic?.Format[0]
             if (!!getLegendGraphicBaseUrl && !!getLegendGraphicFormat) {
+                const getLegendParams = new URLSearchParams({
+                    SERVICE: 'WMS',
+                    REQUEST: 'GetLegendGraphic',
+                    VERSION: this.version,
+                    FORMAT: getLegendGraphicFormat,
+                    LAYER: layerId,
+                    SLD_VERSION: '1.1.0',
+                })
                 return [
                     {
-                        url: `${getLegendGraphicBaseUrl}SERVICE=WMS&REQUEST=GetLegendGraphic&ERSION=${this.version}&FORMAT=${getLegendGraphicFormat}&LAYER=${layerId}&SLD_VERSION=1.1.0`,
+                        url: `${getLegendGraphicBaseUrl}${getLegendParams.toString()}`,
                         format: getLegendGraphicFormat,
                     },
                 ]
