@@ -6,21 +6,22 @@ import AbstractParamConfig, {
 } from '@/router/storeSync/abstractParamConfig.class'
 function dispatchTimeSliderFromUrlParam(to, store, urlParamValue) {
     const promisesForAllDispatch = []
-    if (
+    const isValidYear =
         urlParamValue &&
         !isNaN(urlParamValue) &&
         Number.isInteger(urlParamValue) &&
         store.getters.oldestYear <= urlParamValue &&
         store.getters.youngestYear >= urlParamValue
-    ) {
+
+    // In case the timeSlider param is set to a string urlParamValue will be null so we set the value also to null
+    if (urlParamValue === null || isValidYear) {
         promisesForAllDispatch.push(
             store.dispatch('setPreviewYear', {
                 year: urlParamValue,
                 dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
             })
         )
-        // if there are no time enabled layers amongst visible layers, we don't activate the timeSlider
-        if (store.getters.visibleLayers.filter((layer) => layer.hasMultipleTimestamps).length > 0) {
+        if (store.getters.visibleLayers.some(layer => layer.hasMultipleTimestamps)) {
             promisesForAllDispatch.push(
                 store.dispatch('setTimeSliderActive', {
                     timeSliderActive: true,
