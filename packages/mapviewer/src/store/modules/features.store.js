@@ -25,7 +25,6 @@ export const IdentifyMode = {
     TOGGLE: 'TOGGLE',
 }
 
-
 const getEditableFeatureWithId = (state, featureId) => {
     return state.selectedEditableFeatures.find(
         (selectedFeature) => selectedFeature.id === featureId
@@ -143,7 +142,6 @@ export default {
         /** @type Array<EditableFeature> */
         selectedEditableFeatures: [],
         highlightedFeatureId: null,
-        selectionRectangleCoordinates: null, // used to draw a rectangle selection on the map
     },
     getters: {
         /** @type Array<SelectableFeature> */
@@ -236,7 +234,8 @@ export default {
          * @param {[Number, Number] | [Number, Number, Number, Number]} coordinate A point ([x,y]),
          *   or a rectangle described by a flat extent ([minX, maxX, minY, maxY]). 10 features will
          *   be requested for a point, 50 for a rectangle.
-         * @param {IdentifyMode} [identifyMode=IdentifyMode.NEW] - The selection mode: NEW (replace selection) or TOGGLE (toggle features in selection).
+         * @param {IdentifyMode} [identifyMode=IdentifyMode.NEW] - The selection mode: NEW (replace
+         *   selection) or TOGGLE (toggle features in selection). Default is `IdentifyMode.NEW`
          * @param dispatcher
          * @returns {Promise<void>} As some callers might want to know when identify has been
          *   done/finished, this returns a promise that will be resolved when this is the case
@@ -272,12 +271,14 @@ export default {
                     const oldFeatures = getters.selectedLayerFeatures
                     const newFeatures = features
                     // Use feature.id for comparison
-                    const oldFeatureIds = new Set(oldFeatures.map(f => f.id))
-                    const newFeatureIds = new Set(newFeatures.map(f => f.id))
+                    const oldFeatureIds = new Set(oldFeatures.map((f) => f.id))
+                    const newFeatureIds = new Set(newFeatures.map((f) => f.id))
                     // Remove features that are in both old and new
-                    let toggledFeatures = oldFeatures.filter(f => !newFeatureIds.has(f.id))
+                    let toggledFeatures = oldFeatures.filter((f) => !newFeatureIds.has(f.id))
                     // Add features that are in new but not in old
-                    toggledFeatures = toggledFeatures.concat(newFeatures.filter(f => !oldFeatureIds.has(f.id)))
+                    toggledFeatures = toggledFeatures.concat(
+                        newFeatures.filter((f) => !oldFeatureIds.has(f.id))
+                    )
                     if (toggledFeatures.length > 0) {
                         dispatch('setSelectedFeatures', {
                             features: toggledFeatures,
@@ -696,9 +697,6 @@ export default {
                 }
             }
         },
-        setSelectionRectangleCoordinates({ commit }, { coordinates, dispatcher }) {
-            commit('setSelectionRectangleCoordinates', { coordinates, dispatcher })
-        },
     },
     mutations: {
         setSelectedFeatures(state, { layerFeaturesByLayerId, drawingFeatures }) {
@@ -751,9 +749,6 @@ export default {
         },
         changeFeatureIsDragged(state, { feature, isDragged }) {
             feature.isDragged = isDragged
-        },
-        setSelectionRectangleCoordinates(state, { coordinates }) {
-            state.selectionRectangleCoordinates = coordinates
         },
     },
 }

@@ -1,9 +1,9 @@
 <script setup>
 import Feature from 'ol/Feature'
-import { Polygon } from 'ol/geom'
+import { fromExtent } from 'ol/geom/Polygon'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import {  Stroke, Style } from 'ol/style'
+import { Stroke, Style } from 'ol/style'
 import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
 
@@ -18,7 +18,7 @@ const { zIndex } = defineProps({
 
 const store = useStore()
 const currentProjection = computed(() => store.state.position.projection)
-const selectionRectangleCoordinates = computed(() => store.state.features.selectionRectangleCoordinates)
+const selectionExtent = computed(() => store.state.map.rectangleSelectionExtent || [])
 
 const layer = new VectorLayer({
     source: createVectorSourceForProjection(),
@@ -34,20 +34,22 @@ const olMap = inject('olMap', null)
 useAddLayerToMap(layer, olMap, () => zIndex)
 
 watch(currentProjection, () => layer.setSource(createVectorSourceForProjection()))
-watch(selectionRectangleCoordinates, () => layer.setSource(createVectorSourceForProjection()))
+watch(selectionExtent, () => layer.setSource(createVectorSourceForProjection()))
 
 function createVectorSourceForProjection() {
-    if(!selectionRectangleCoordinates.value || selectionRectangleCoordinates.value.length === 0) {
+    if (!selectionExtent.value) {
         return new VectorSource({
             projection: currentProjection.value.epsg,
         })
     } else {
         return new VectorSource({
             projection: currentProjection.value.epsg,
-            features: [new Feature({
-                geometry: new Polygon(selectionRectangleCoordinates.value),
-                name: 'Rectangle Selection',
-            })],
+            features: [
+                new Feature({
+                    geometry: fromExtent(selectionExtent.value),
+                    name: 'Rectangle Selection',
+                }),
+            ],
         })
     }
 }
