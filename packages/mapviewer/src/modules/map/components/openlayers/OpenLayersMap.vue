@@ -38,7 +38,7 @@ const mapElement = useTemplateRef('mapElement')
 const store = useStore()
 const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
 const showLayerExtents = computed(() => store.state.debug.showLayerExtents)
-const showSelectionRectangle = computed(() => store.state.features.selectionRectangleCoordinates)
+const showSelectionRectangle = computed(() => !!store.state.map.rectangleSelectionExtent)
 const geolocationActive = computed(() => store.state.geolocation.active)
 const geoPosition = computed(() => store.state.geolocation.position)
 const visibleLayers = computed(() => store.getters.visibleLayers)
@@ -105,7 +105,6 @@ const { zIndexTileInfo, zIndexLayerExtents, zIndexSelectionRectangle } = useLaye
             v-if="showSelectionRectangle"
             :z-index="zIndexSelectionRectangle"
         />
-
     </div>
     <!-- So that external modules can have access to the map instance through the provided 'olMap' -->
     <slot />

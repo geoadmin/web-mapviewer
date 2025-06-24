@@ -74,6 +74,12 @@ export default {
          * @type Boolean
          */
         printMode: false,
+        /**
+         * Coordinates of the rectangle selection extent, if null no rectangle selection is active.
+         *
+         * @type Array<Number>
+         */
+        rectangleSelectionExtent: null,
     },
     actions: {
         /**
@@ -82,11 +88,19 @@ export default {
          * @param commit
          * @param {ClickInfo} clickInfo
          */
-        click: ({ commit }, { clickInfo, dispatcher }) =>
-            commit('setClickInfo', { clickInfo, dispatcher }),
+        click: ({ commit }, { clickInfo, dispatcher }) => {
+            commit('setClickInfo', { clickInfo, dispatcher })
+            if (clickInfo.clickType === ClickType.CTRL_LEFT_SINGLECLICK) {
+                // eslint-disable-next-line no-console
+                console.log('Keep the rectangle selection extent')
+            } else {
+                commit('setRectangleSelectionExtent', { extent: clickInfo.coordinate, dispatcher })
+            }
+        },
 
         clearClick: ({ commit }, { dispatcher }) => {
             commit('setClickInfo', { clickInfo: null, dispatcher })
+            commit('setRectangleSelectionExtent', { extent: null, dispatcher })
         },
         /**
          * Sets the dropped pin on the map, if coordinates are null the dropped pin is removed
@@ -133,6 +147,13 @@ export default {
         },
         setPrintMode: ({ commit }, { mode, dispatcher }) =>
             commit('setPrintMode', { mode: !!mode, dispatcher }),
+        setRectangleSelectionExtent: ({ commit }, { extent, dispatcher }) => {
+            if (Array.isArray(extent) && extent.length === 4) {
+                commit('setRectangleSelectionExtent', { extent, dispatcher })
+            } else {
+                commit('setRectangleSelectionExtent', { extent: null, dispatcher })
+            }
+        },
     },
     mutations: {
         setClickInfo: (state, { clickInfo }) => (state.clickInfo = clickInfo),
@@ -142,5 +163,7 @@ export default {
         setLocationPopupCoordinates: (state, { coordinates }) =>
             (state.locationPopupCoordinates = coordinates),
         setPrintMode: (state, { mode }) => (state.printMode = mode),
+        setRectangleSelectionExtent: (state, { extent }) =>
+            (state.rectangleSelectionExtent = extent),
     },
 }
