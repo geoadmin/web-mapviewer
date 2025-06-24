@@ -17,7 +17,7 @@ import { useStore } from 'vuex'
 
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@/config/map.config'
-import { ClickInfo } from '@/store/modules/map.store'
+import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { parseGpx } from '@/utils/gpxUtils'
 import { parseKml } from '@/utils/kmlUtils'
 import { createLayerFeature } from '@/utils/layerUtils'
@@ -98,7 +98,7 @@ export function useDragBoxSelect() {
             clickInfo: new ClickInfo({
                 coordinate: selectExtent,
                 features: vectorFeatures,
-                // clickType: ClickType.CTRL_LEFT_SINGLECLICK
+                clickType: ClickType.DRAW_BOX
             }),
             ...dispatcher,
         })

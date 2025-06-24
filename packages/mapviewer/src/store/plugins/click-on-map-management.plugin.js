@@ -24,10 +24,12 @@ const clickOnMapManagementPlugin = (store) => {
         // when the user is not currently drawing something on the map.
         else if (mutation.type === 'setClickInfo' && !state.drawing.drawingOverlay.show) {
             const clickInfo = mutation.payload.clickInfo
-            const isLeftSingleClick = clickInfo?.clickType === ClickType.LEFT_SINGLECLICK
             const isCtrlLeftSingleClick = clickInfo?.clickType === ClickType.CTRL_LEFT_SINGLECLICK
             const isContextMenuClick = clickInfo?.clickType === ClickType.CONTEXTMENU
-            if (isLeftSingleClick || isCtrlLeftSingleClick) {
+            const isIdentifyingFeature = [
+                ClickType.LEFT_SINGLECLICK, ClickType.CTRL_LEFT_SINGLECLICK, ClickType.DRAW_BOX
+            ].includes(clickInfo?.clickType)
+            if (isIdentifyingFeature) {
                 const identifyMode = isCtrlLeftSingleClick ? IdentifyMode.TOGGLE : IdentifyMode.NEW
                 store
                     .dispatch('identifyFeatureAt', {

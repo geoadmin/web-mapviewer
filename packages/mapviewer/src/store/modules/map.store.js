@@ -7,6 +7,8 @@ export const ClickType = {
     LEFT_SINGLECLICK: 'LEFT_SINGLECLICK',
     /* A single click with CTRL button pressed */
     CTRL_LEFT_SINGLECLICK: 'CTRL_LEFT_SINGLECLICK',
+    /* Drawing a box with ctrl and dragging a left click */
+    DRAW_BOX: 'DRAW_BOX',
 }
 
 export class ClickInfo {
@@ -90,11 +92,16 @@ export default {
          */
         click: ({ commit }, { clickInfo, dispatcher }) => {
             commit('setClickInfo', { clickInfo, dispatcher })
-            if (clickInfo.clickType === ClickType.CTRL_LEFT_SINGLECLICK) {
-                // eslint-disable-next-line no-console
-                console.log('Keep the rectangle selection extent')
-            } else {
+
+            if (clickInfo.clickType === ClickType.DRAW_BOX) {
+                // If the click is a box selection, we set the rectangle selection extent to the
+                // coordinates of the click.
                 commit('setRectangleSelectionExtent', { extent: clickInfo.coordinate, dispatcher })
+            } else if (clickInfo.clickType === ClickType.CTRL_LEFT_SINGLECLICK){
+                // If the click is a ctrl left single click, we keep the rectangle selection extent
+            } else {
+                // For any other click type, we clear the rectangle selection extent
+                commit('setRectangleSelectionExtent', { extent: null, dispatcher })
             }
         },
 
