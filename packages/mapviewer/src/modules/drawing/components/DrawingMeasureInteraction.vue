@@ -25,9 +25,5 @@ defineExpose({
 </script>
 
 <template>
-    <!-- This div is used to add a single root element to the component to prevent warnings in Vue 3.
-    See https://mokkapps.de/vue-tips/use-fallthrough-attributes for more details. -->
-    <div>
-        <slot />
-    </div>
+    <slot />
 </template>
