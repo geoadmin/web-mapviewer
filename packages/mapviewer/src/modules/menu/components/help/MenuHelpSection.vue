@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
+import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { languages } from '@/modules/i18n/index.js'
 import FeedbackButton from '@/modules/menu/components/help/feedback/FeedbackButton.vue'
 import HelpLink from '@/modules/menu/components/help/HelpLink.vue'
@@ -12,6 +13,7 @@ import UpdateInfo from '@/modules/menu/components/help/UpdateInfo.vue'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import AppVersion from '@/utils/components/AppVersion.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+import OfflineReadinessStatus from '@/utils/offline/OfflineReadinessStatus.vue'
 
 const dispatcher = { dispatcher: 'MenuHelpSection.vue' }
 
@@ -90,6 +92,12 @@ defineExpose({
             >
                 {{ t('about_us') }}
             </button>
+            <div>
+                <OfflineReadinessStatus
+                    v-if="!IS_TESTING_WITH_CYPRESS"
+                    with-text
+                />
+            </div>
             <ModalWithBackdrop
                 v-if="showAboutUs"
                 :title="t('about_us')"

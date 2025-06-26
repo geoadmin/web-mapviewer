@@ -1,4 +1,4 @@
-import log from '@geoadmin/log'
+import log, { LogPreDefinedColor } from '@geoadmin/log'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 
@@ -27,15 +27,16 @@ function getPayload(actionOrMutation) {
 }
 
 function logActionOrMutation(actionOrMutation, type, logColor) {
-    log.debug(
-        `%c[store ${type}]%c ${actionOrMutation.type}%c\ndispatcher: %c${getDispatcher(actionOrMutation)}%c\npayload`,
-        `color: #000; font-weight: bold; background-color: ${logColor}; padding: 2px 4px; border-radius: 4px;`,
-        'font-weight: bold;',
-        'font-weight: unset;',
-        'font-weight: bold;',
-        'font-weight: unset;',
-        getPayload(actionOrMutation)
-    )
+    log.debug({
+        title: `store ${type}`,
+        titleColor: logColor,
+        messages: [
+            `${actionOrMutation.type}`,
+            `\ndispatcher: ${getDispatcher(actionOrMutation)}`,
+            '\npayload',
+            getPayload(actionOrMutation),
+        ],
+    })
 }
 
 /**
@@ -44,8 +45,12 @@ function logActionOrMutation(actionOrMutation, type, logColor) {
  * @param {Vuex.Store} store
  */
 const vuexLogPlugin = (store) => {
-    store.subscribe((mutation) => logActionOrMutation(mutation, 'mutation', '#66afe9'))
-    store.subscribeAction((action, _state) => logActionOrMutation(action, 'action', '#dc0018'))
+    store.subscribe((mutation) =>
+        logActionOrMutation(mutation, 'mutation', LogPreDefinedColor.Cyan)
+    )
+    store.subscribeAction((action, _state) =>
+        logActionOrMutation(action, 'action', LogPreDefinedColor.Red)
+    )
 }
 
 export default vuexLogPlugin

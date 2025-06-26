@@ -1,7 +1,7 @@
 import type { CoordinatesChunk, CoordinateSystem, SingleCoordinate } from '@geoadmin/coordinates'
 
 import { LV95, removeZValues } from '@geoadmin/coordinates'
-import { log } from '@geoadmin/log'
+import log from '@geoadmin/log'
 import axios from 'axios'
 import proj4 from 'proj4'
 
