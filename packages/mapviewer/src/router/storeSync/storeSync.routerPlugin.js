@@ -36,17 +36,6 @@ const isRoutePushNeeded = (store, currentRoute) => {
     return aRoutePushIsNeeded
 }
 
-const logColor = '#198754'
-const logTitleStyle = `color: #000; font-weight: bold; background-color: ${logColor}; padding: 2px 4px; border-radius: 4px;`
-
-function logInfo(message, ...args) {
-    log.info(`%c[store sync router]%c ${message}`, logTitleStyle, '', ...args)
-}
-
-function logDebug(message, ...args) {
-    log.debug(`%c[store sync router]%c ${message}`, logTitleStyle, '', ...args)
-}
-
 // flag to distinguish URL change originated by this module or by another source
 let routeChangeIsTriggeredByThisModule = false
 /**
@@ -59,7 +48,12 @@ let routeChangeIsTriggeredByThisModule = false
 function storeMutationWatcher(store, mutation, router) {
     // Ignore mutation that has been triggered by the router plugin
     if (mutationNotTriggeredByModule(mutation) && mutationWatched(mutation)) {
-        logDebug('store mutation', mutation, 'Current route', router.currentRoute.value)
+        log.debug(
+            '[store sync router] store mutation',
+            mutation,
+            'Current route',
+            router.currentRoute.value
+        )
 
         // if the value in the store differs from the one in the URL
         if (isRoutePushNeeded(store, router.currentRoute.value)) {
@@ -68,8 +62,8 @@ function storeMutationWatcher(store, mutation, router) {
             storeSyncConfig.forEach((paramConfig) =>
                 paramConfig.populateQueryWithStoreValue(query, store)
             )
-            logInfo(
-                'Store has changed, rerouting app to query',
+            log.info(
+                '[store sync router] Store has changed, rerouting app to query',
                 query,
                 router.currentRoute.value.name
             )
@@ -109,15 +103,15 @@ function storeMutationWatcher(store, mutation, router) {
  *   parameter.
  */
 function urlQueryWatcher(store, to, from) {
-    logDebug(`[URL query watcher] entry in the url query watcher function`)
+    log.debug(`[URL query watcher] entry in the url query watcher function`)
     if (routeChangeIsTriggeredByThisModule) {
-        logDebug('Url query watcher triggered by itself ignore it', to)
+        log.debug(`[Router store plugin] Url query watcher triggered by itself ignore it`, to)
         // Only sync route params when the route change has not been
         // triggered by the sync from store mutations watcher above.
         routeChangeIsTriggeredByThisModule = false
         return undefined
     }
-    logDebug(`[URL query watcher] queries 'from' and 'to' are :`, from?.query, to.query)
+    log.debug(`[URL query watcher] queries 'from' and 'to' are :`, from?.query, to.query)
     const pendingStoreDispatch = []
     let requireQueryUpdate = false
     const newQuery = { ...to.query }
@@ -140,7 +134,7 @@ function urlQueryWatcher(store, to, from) {
             !(queryValue === undefined && storeValue === null)
         ) {
             // dispatching URL value to the store
-            logDebug(
+            log.debug(
                 '[URL query watcher] param',
                 paramConfig.urlParamName,
                 ': dispatching to store with value',
@@ -150,7 +144,7 @@ function urlQueryWatcher(store, to, from) {
         } else if (!queryValue && storeValue) {
             if (paramConfig.keepInUrlWhenDefault) {
                 // if we don't have a query value but a store value update the url query with it
-                logDebug(
+                log.debug(
                     '[URL query watcher] param',
                     paramConfig.urlParamName,
                     ': was not present in URL, setting it back with value',
@@ -160,7 +154,7 @@ function urlQueryWatcher(store, to, from) {
             } else {
                 // if the query value has been removed (or set to false for a Boolean) and is meant to disappear from
                 // the URL with this value, we set it to a falsy value in the store and remove it from the URL
-                logDebug(
+                log.debug(
                     '[URL query watcher] param',
                     paramConfig.urlParamName,
                     ': has been removed from the URL, setting it to falsy value in the store'
@@ -188,7 +182,7 @@ function urlQueryWatcher(store, to, from) {
     }
 
     if (requireQueryUpdate) {
-        logDebug(`[URL query watcher] Update URL query to ${JSON.stringify(newQuery)}`)
+        log.debug(`[URL query watcher] Update URL query to ${JSON.stringify(newQuery)}`)
         // NOTE: this rewrite of query currently don't work when navigating manually got the `/#/`
         // URL. This should actually change the url to `/#/map?...` with the correct query, but it
         // stays on `/#/`. When manually changing any query param it works though.
@@ -218,9 +212,9 @@ function initialUrlQueryWatcher(to, store, router) {
 const storeSyncRouterPlugin = (router, store) => {
     let unsubscribeStoreMutation = null
     router.beforeEach((to, from) => {
-        const logPrefix = '[beforeEach] '
-        logDebug(
-            `${logPrefix} Entering the store sync plugin with the following 'from' and 'to': `,
+        const logPrefix = '[Router store plugin/beforeEach] '
+        log.debug(
+            `${logPrefix}Entering the store sync plugin with the following 'from' and 'to': `,
             from,
             to
         )
@@ -228,29 +222,29 @@ const storeSyncRouterPlugin = (router, store) => {
         let retVal = undefined
 
         if (!MAP_VIEWS.includes(to.name)) {
-            logDebug(`${logPrefix}leaving the map view`, from, to)
+            log.debug(`${logPrefix}leaving the map view`, from, to)
             // leaving MapView make sure to unsubscribe the store mutation
             if (unsubscribeStoreMutation) {
-                logInfo(`${logPrefix} Leaving ${to.name}, unregister store mutation watcher`)
+                log.info(`${logPrefix}Leaving ${to.name}, unregister store mutation watcher`)
 
                 unsubscribeStoreMutation()
                 retVal = undefined
             }
         } else if (store.state.app.isReady) {
-            logDebug(`${logPrefix} URL change while app is ready, process new url`, from, to)
+            log.debug(`${logPrefix}URL change while app is ready, process new url`, from, to)
             // Synchronize the store with the url query only on MapView and when the application
             // is ready
             retVal = urlQueryWatcher(store, to, from)
         } else {
-            logInfo(
-                `${logPrefix} URL change while app is not ready, do not process new url`,
+            log.info(
+                `${logPrefix}URL change while app is not ready, do not process new url`,
                 from,
                 to
             )
         }
 
-        logDebug(
-            `${logPrefix} exiting navigation guard`,
+        log.debug(
+            `${logPrefix}exiting navigation guard`,
             from,
             to,
             `with the following value`,
@@ -265,15 +259,15 @@ const storeSyncRouterPlugin = (router, store) => {
     // which was LEGACY. By moving this subscription to the after Each loop, we ensure the 'currentRoute'
     // is always set to MAPVIEW, avoiding a lock of the viewer.
     router.afterEach((to) => {
-        const logPrefix = '[afterEach]'
+        const logPrefix = '[Router store plugin/afterEach]'
         if (MAP_VIEWS.includes(to.name) && !unsubscribeStoreMutation) {
-            logInfo(`${logPrefix} MapView entered, register store mutation watcher`)
+            log.info(`${logPrefix}MapView entered, register store mutation watcher`)
             // listening to store mutation in order to update URL
             unsubscribeStoreMutation = store.subscribe((mutation) => {
                 if (mutation.type === 'setAppIsReady') {
                     // If the app was not yet ready after entering the map view, we need to
                     // trigger the initial urlQuery watcher otherwise we have a blank application.
-                    logInfo('App is ready, trigger initial URL query watcher')
+                    log.info(`[store sync router] App is ready, trigger initial URL query watcher`)
                     initialUrlQueryWatcher(to, store, router)
                 } else if (store.state.app.isReady) {
                     storeMutationWatcher(store, mutation, router)
@@ -286,9 +280,7 @@ const storeSyncRouterPlugin = (router, store) => {
                 // otherwise the query parameter will not have any effect on the application leaving
                 // it blank until a reload or a user action (e.g. adding a layer)
                 log.warn(
-                    `%c${logPrefix}%c MapView entered, while app was already ready ! Trigger initial URL query watcher`,
-                    'color: #000; font-weight: bold; background-color: #198754; padding: 2px 4px; border-radius: 4px;',
-                    'font-weight: bold;'
+                    `${logPrefix}MapView entered, while app was already ready ! Trigger initial URL query watcher`
                 )
                 initialUrlQueryWatcher(to, store, router)
             }

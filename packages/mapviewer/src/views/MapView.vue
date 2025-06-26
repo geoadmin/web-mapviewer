@@ -2,6 +2,7 @@
 import { computed, defineAsyncComponent } from 'vue'
 import { useStore } from 'vuex'
 
+import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config.js'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import CesiumMouseTracker from '@/modules/map/components/cesium/CesiumMouseTracker.vue'
 import BackgroundSelector from '@/modules/map/components/footer/backgroundSelector/BackgroundSelector.vue'
@@ -18,6 +19,7 @@ import { UIModes } from '@/store/modules/ui.store'
 import AppVersion from '@/utils/components/AppVersion.vue'
 import DragDropOverlay from '@/utils/components/DragDropOverlay.vue'
 import LoadingBar from '@/utils/components/LoadingBar.vue'
+import OfflineReadinessStatus from '@/utils/offline/OfflineReadinessStatus.vue'
 
 const DrawingModule = defineAsyncComponent(() => import('@/modules/drawing/DrawingModule.vue'))
 
@@ -55,7 +57,7 @@ const loadDrawingModule = computed(() => {
                         #top-left
                     >
                         <div class="d-flex flex-column align-items-start">
-                            <BackgroundSelector class="p-2 background-selector" />
+                            <BackgroundSelector class="background-selector p-2" />
                             <OpenLayersScale
                                 v-if="!is3DActive"
                                 class="p-1"
@@ -66,7 +68,7 @@ const loadDrawingModule = computed(() => {
                         <div class="d-flex flex-column align-items-end">
                             <BackgroundSelector
                                 v-if="!isPhoneMode"
-                                class="p-2 background-selector"
+                                class="background-selector p-2"
                             />
                             <MapFooterAttributionList class="rounded-top-2 rounded-end-0" />
                         </div>
@@ -92,6 +94,7 @@ const loadDrawingModule = computed(() => {
                     >
                         <AppVersion />
                         <MapFooterAppCopyright />
+                        <OfflineReadinessStatus v-if="!IS_TESTING_WITH_CYPRESS" />
                     </template>
                 </MapFooter>
             </template>

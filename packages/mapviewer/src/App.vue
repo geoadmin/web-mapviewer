@@ -13,7 +13,6 @@ import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
 import FeedbackPopup from '@/utils/components/FeedbackPopup.vue'
 import debounce from '@/utils/debounce'
-import OfflinePrompt from '@/utils/offline/OfflinePrompt.vue'
 
 const withOutline = ref(false)
 
@@ -61,7 +60,6 @@ function refreshPageTitle() {
         <router-view />
         <FeedbackPopup v-if="showFeedbackPopup" />
         <DebugToolbar v-if="showDebugToolbar" />
-        <OfflinePrompt v-if="!IS_TESTING_WITH_CYPRESS" />
     </div>
 </template>
 

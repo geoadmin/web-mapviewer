@@ -1,9 +1,10 @@
 /**
- * Enum that tells for which (deployment) environment the app has been built.
+ * Tells which (deployment) environment the app has been built with.
  *
  * @see https://en.wikipedia.org/wiki/Deployment_environment
  */
-export const ENVIRONMENT = __VITE_ENVIRONMENT__
+export const ENVIRONMENT: 'development' | 'integration' | 'production' =
+    __VITE_ENVIRONMENT__ ?? 'development'
 
 /** Flag that tells if the app is currently running in a Cypress environment for E2E testing */
 export const IS_TESTING_WITH_CYPRESS: boolean = __IS_TESTING_WITH_CYPRESS__
