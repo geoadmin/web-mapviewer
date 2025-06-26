@@ -13,8 +13,8 @@ export const ClickType = {
 
 export class ClickInfo {
     /**
-     * @param {[Number, Number]} clickInfo.coordinate Of the last click expressed in the current
-     *   mapping projection
+     * @param {[Number, Number] | [Number, Number, Number, Number]} clickInfo.coordinate Coordinate
+     *   or extent Of the last click expressed in the current mapping projection
      * @param {[Number, Number]} [clickInfo.pixelCoordinate=[]] Position of the last click on the
      *   screen [x, y] in pixels (counted from top left corner). Default is `[]`
      * @param {SelectableFeature[]} [clickInfo.features=[]] List of potential features (geoJSON or
@@ -97,7 +97,7 @@ export default {
                 // If the click is a box selection, we set the rectangle selection extent to the
                 // coordinates of the click.
                 commit('setRectangleSelectionExtent', { extent: clickInfo.coordinate, dispatcher })
-            } else if (clickInfo.clickType === ClickType.CTRL_LEFT_SINGLECLICK){
+            } else if (clickInfo.clickType === ClickType.CTRL_LEFT_SINGLECLICK) {
                 // If the click is a ctrl left single click, we keep the rectangle selection extent
             } else {
                 // For any other click type, we clear the rectangle selection extent
