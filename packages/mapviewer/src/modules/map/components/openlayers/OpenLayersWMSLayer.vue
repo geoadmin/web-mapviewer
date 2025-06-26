@@ -6,7 +6,7 @@ import { cloneDeep } from 'lodash'
 import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
 import { ImageWMS, TileWMS } from 'ol/source'
 import TileGrid from 'ol/tilegrid/TileGrid'
-import { computed, inject, watch } from 'vue'
+import { computed, inject, watch, watchEffect } from 'vue'
 import { useStore } from 'vuex'
 
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
@@ -113,7 +113,9 @@ watch(projection, () => {
 
 watch(wmsUrlParams, () => layer.getSource().updateParams(wmsUrlParams.value))
 
-watch(() => wmsLayerConfig.extent, setExtent)
+watchEffect(() => {
+    setExtent()
+})
 
 function createSourceForProjection() {
     let source = null

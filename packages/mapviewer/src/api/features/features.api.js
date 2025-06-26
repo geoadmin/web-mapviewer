@@ -472,7 +472,7 @@ async function identifyOnExternalWmsLayer(config) {
                 label = null,
             } = feature.properties ?? {}
             const featureId = feature.id ?? id ?? identifier ?? title ?? name ?? label
-            const featureName = label ?? name ?? title ?? identifier ?? id
+            const featureName = label ?? name ?? title ?? identifier ?? id ?? featureId
             return new LayerFeature({
                 layer,
                 id: featureId,
