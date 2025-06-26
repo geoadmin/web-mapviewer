@@ -273,15 +273,25 @@ export default {
                     // Use feature.id for comparison
                     const oldFeatureIds = new Set(oldFeatures.map((f) => f.id))
                     const newFeatureIds = new Set(newFeatures.map((f) => f.id))
-                    // Remove features that are in both old and new
-                    let toggledFeatures = oldFeatures.filter((f) => !newFeatureIds.has(f.id))
-                    // Add features that are in new but not in old
-                    toggledFeatures = toggledFeatures.concat(
-                        newFeatures.filter((f) => !oldFeatureIds.has(f.id))
-                    )
-                    if (toggledFeatures.length > 0) {
+                    // features that are present on the map AND in the identify-request result are meant to be toggled
+                    const deselectedFeatures = oldFeatures.filter((f) => newFeatureIds.has(f.id))
+                    const newlyAddedFeatures = newFeatures.filter((f) => !oldFeatureIds.has(f.id))
+                    if (
+                        // Do not add new features if one existing feature was toggled off. Doing so would confuse
+                        // the user, as it would look like the CTRL+Click had no effect (a new feature was added at
+                        // the same spot as the one that was just toggled off)
+                        deselectedFeatures.length > 0
+                    ) {
+                        // Set features to all existing features minus those that were toggled off
                         dispatch('setSelectedFeatures', {
-                            features: toggledFeatures,
+                            features: oldFeatures.filter((f) => !deselectedFeatures.includes(f)),
+                            paginationSize: featureCount,
+                            dispatcher,
+                        })
+                    } else if (newlyAddedFeatures.length > 0) {
+                        // no feature was "deactivated" we can add the newly selected features
+                        dispatch('setSelectedFeatures', {
+                            features: newlyAddedFeatures.concat(oldFeatures),
                             paginationSize: featureCount,
                             dispatcher,
                         })
