@@ -73,3 +73,10 @@ export const DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION = 50
  * @type {string}
  */
 export const CESIUM_STATIC_PATH = __CESIUM_STATIC_PATH__
+
+/**
+ * In pixels
+ *
+ * @type {Number}
+ */
+export const DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE = 10

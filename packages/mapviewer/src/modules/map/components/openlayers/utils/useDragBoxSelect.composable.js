@@ -16,7 +16,8 @@ import { DragBox } from 'ol/interaction'
 import { useStore } from 'vuex'
 
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { ClickInfo } from '@/store/modules/map.store'
+import { DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@/config/map.config'
+import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { parseGpx } from '@/utils/gpxUtils'
 import { parseKml } from '@/utils/kmlUtils'
 import { createLayerFeature } from '@/utils/layerUtils'
@@ -32,14 +33,20 @@ export function useDragBoxSelect() {
         condition: platformModifierKeyOnly,
     })
 
-    dragBoxSelect.on('boxstart', () =>
-        store.dispatch('clearAllSelectedFeatures', { ...dispatcher })
-    )
     dragBoxSelect.on('boxend', () => {
         const selectExtent = dragBoxSelect.getGeometry()?.getExtent()
         if (selectExtent?.length !== 4) {
             return
         }
+        // Check if the box has a non-zero area
+        const resolution = store.getters.resolution
+        const minDragDistance = DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE * resolution
+        const [minX, minY, maxX, maxY] = selectExtent
+        if (Math.abs(minX - maxX) < minDragDistance || Math.abs(minY - maxY) < minDragDistance) {
+            return
+        }
+        // Only clear selection if a real box was drawn
+        store.dispatch('clearAllSelectedFeatures', { ...dispatcher })
         const dragBoxCoordinates = dragBoxSelect.getGeometry()?.getCoordinates()
 
         if (
@@ -88,7 +95,11 @@ export function useDragBoxSelect() {
             .map(({ feature, layer }) => createLayerFeature(feature, layer))
 
         store.dispatch('click', {
-            clickInfo: new ClickInfo({ coordinate: selectExtent, features: vectorFeatures }),
+            clickInfo: new ClickInfo({
+                coordinate: selectExtent,
+                features: vectorFeatures,
+                clickType: ClickType.DRAW_BOX
+            }),
             ...dispatcher,
         })
     })

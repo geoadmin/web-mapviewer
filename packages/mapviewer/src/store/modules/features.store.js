@@ -17,6 +17,14 @@ import {
     allStylingTextPlacementsWithUnknown,
 } from '@/utils/featureStyleUtils'
 
+/** @enum */
+export const IdentifyMode = {
+    /* Clear previous selection and identify features at the given coordinate */
+    NEW: 'NEW',
+    // Toggle selection: remove if already selected, add if not
+    TOGGLE: 'TOGGLE',
+}
+
 const getEditableFeatureWithId = (state, featureId) => {
     return state.selectedEditableFeatures.find(
         (selectedFeature) => selectedFeature.id === featureId
@@ -226,13 +234,15 @@ export default {
          * @param {[Number, Number] | [Number, Number, Number, Number]} coordinate A point ([x,y]),
          *   or a rectangle described by a flat extent ([minX, maxX, minY, maxY]). 10 features will
          *   be requested for a point, 50 for a rectangle.
+         * @param {IdentifyMode} [identifyMode=IdentifyMode.NEW] - The selection mode: NEW (replace
+         *   selection) or TOGGLE (toggle features in selection). Default is `IdentifyMode.NEW`
          * @param dispatcher
          * @returns {Promise<void>} As some callers might want to know when identify has been
          *   done/finished, this returns a promise that will be resolved when this is the case
          */
         async identifyFeatureAt(
             { dispatch, getters, rootState },
-            { layers, coordinate, vectorFeatures = [], dispatcher }
+            { layers, coordinate, vectorFeatures = [], identifyMode = IdentifyMode.NEW, dispatcher }
         ) {
             const featureCount = getFeatureCountForCoordinate(coordinate)
             const features = [
@@ -250,11 +260,45 @@ export default {
                 })),
             ]
             if (features.length > 0) {
-                dispatch('setSelectedFeatures', {
-                    features,
-                    paginationSize: featureCount,
-                    dispatcher,
-                })
+                if (identifyMode === IdentifyMode.NEW) {
+                    dispatch('setSelectedFeatures', {
+                        features,
+                        paginationSize: featureCount,
+                        dispatcher,
+                    })
+                } else if (identifyMode === IdentifyMode.TOGGLE) {
+                    // Toggle features: remove if already selected, add if not
+                    const oldFeatures = getters.selectedLayerFeatures
+                    const newFeatures = features
+                    // Use feature.id for comparison
+                    const oldFeatureIds = new Set(oldFeatures.map((f) => f.id))
+                    const newFeatureIds = new Set(newFeatures.map((f) => f.id))
+                    // features that are present on the map AND in the identify-request result are meant to be toggled
+                    const deselectedFeatures = oldFeatures.filter((f) => newFeatureIds.has(f.id))
+                    const newlyAddedFeatures = newFeatures.filter((f) => !oldFeatureIds.has(f.id))
+                    if (
+                        // Do not add new features if one existing feature was toggled off. Doing so would confuse
+                        // the user, as it would look like the CTRL+Click had no effect (a new feature was added at
+                        // the same spot as the one that was just toggled off)
+                        deselectedFeatures.length > 0
+                    ) {
+                        // Set features to all existing features minus those that were toggled off
+                        dispatch('setSelectedFeatures', {
+                            features: oldFeatures.filter((f) => !deselectedFeatures.includes(f)),
+                            paginationSize: featureCount,
+                            dispatcher,
+                        })
+                    } else if (newlyAddedFeatures.length > 0) {
+                        // no feature was "deactivated" we can add the newly selected features
+                        dispatch('setSelectedFeatures', {
+                            features: newlyAddedFeatures.concat(oldFeatures),
+                            paginationSize: featureCount,
+                            dispatcher,
+                        })
+                    } else {
+                        dispatch('clearAllSelectedFeatures', { dispatcher })
+                    }
+                }
             } else {
                 dispatch('clearAllSelectedFeatures', { dispatcher })
             }
