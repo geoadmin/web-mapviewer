@@ -112,7 +112,7 @@ describe('WMSCapabilitiesParser of wms-geoadmin-sample.xml', () => {
         expect(layer.legends.length).toBe(1)
         expect(layer.legends[0]).toBeInstanceOf(LayerLegend)
         expect(layer.legends[0].url).toBe(
-            'https://wms.geo.admin.ch/?version=1.3.0&service=WMS&request=GetLegendGraphic&sld_version=1.1.0&layer=ch.swisstopo-vd.geometa-periodische_nachfuehrung&format=image/png&STYLE=default'
+            'https://wms.geo.admin.ch/?version=1.3.0&service=WMS&request=GetLegend&layer=ch.swisstopo-vd.geometa-periodische_nachfuehrung&format=image/png&STYLE=default'
         )
         expect(layer.legends[0].format).toBe('image/png')
         expect(layer.legends[0].width).toBe(168)
@@ -124,6 +124,123 @@ describe('WMSCapabilitiesParser of wms-geoadmin-sample.xml', () => {
         expect(layer.hasDescription).toBeFalsy()
         expect(layer.hasLegend).toBeFalsy()
         expect(layer.legends.length).toBe(0)
+    })
+})
+
+describe('WMSCapabilitiesParser of wms-geoadmin-sample-sld-enabled.xml', () => {
+    let capabilities
+    beforeAll(async () => {
+        const content = await readFile(`${__dirname}/wms-geoadmin-sample-sld-enabled.xml`, 'utf8')
+        capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+    })
+    it('Parse Capabilities', async () => {
+        expect(capabilities.version).toBe('1.3.0')
+        expect(capabilities.Capability).toBeTypeOf('object')
+        expect(capabilities.Service).toBeTypeOf('object')
+        expect(capabilities.originUrl).toBeInstanceOf(URL)
+        expect(capabilities.originUrl.toString()).toBe('https://wms.geo.admin.ch/')
+    })
+    it('Parse layer attributes', () => {
+        // Base layer
+        let layer = capabilities.getExternalLayerObject('wms-bgdi', WGS84)
+        expect(layer.id).toBe('wms-bgdi')
+        expect(layer.name).toBe('WMS BGDI')
+        expect(layer.abstract).toBe('Public Federal Geo Infrastructure (BGDI)')
+        expect(layer.baseUrl).toBe('https://wms.geo.admin.ch/?')
+
+        // General layer
+        layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
+        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
+        expect(layer.name).toBe('OpenData-AV')
+        expect(layer.abstract).toBe('The official survey (AV).')
+        expect(layer.baseUrl).toBe('https://wms.geo.admin.ch/?')
+
+        // Layer without .Name
+        layer = capabilities.getExternalLayerObject('Periodic-Tracking', WGS84)
+        expect(layer.id).toBe('Periodic-Tracking')
+        expect(layer.name).toBe('Periodic-Tracking')
+        expect(layer.abstract).toBe('Layer without Name element should use the Title')
+        expect(layer.baseUrl).toBe('https://wms.geo.admin.ch/?')
+    })
+    it('Parse layer attribution', () => {
+        // Attribution in root layer
+        let layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
+        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
+        expectTypeOf(layer.attributions).toBeArray()
+        expect(layer.attributions.length).toBe(1)
+        expectTypeOf(layer.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
+        expect(layer.attributions[0].name).toBe('The federal geoportal')
+        expect(layer.attributions[0].url).toBe('https://www.geo.admin.ch/attribution')
+
+        // Attribution in layer
+        layer = capabilities.getExternalLayerObject('Periodic-Tracking', WGS84)
+        expect(layer.id).toBe('Periodic-Tracking')
+        expectTypeOf(layer.attributions).toBeArray()
+        expect(layer.attributions.length).toBe(1)
+        expectTypeOf(layer.attributions[0]).toEqualTypeOf({ name: 'string', url: 'string' })
+        expect(layer.attributions[0].name).toBe('BGDI')
+        expect(layer.attributions[0].url).toBe('https://www.geo.admin.ch/attribution-bgdi')
+    })
+    it('Get Layer Extent in LV95', () => {
+        const externalLayers = capabilities.getAllExternalLayerObjects(LV95)
+        // Extent from matching CRS BoundingBox
+        expect(externalLayers[0].id).toBe('ch.swisstopo-vd.official-survey')
+        let expected = [
+            [2100000, 1030000],
+            [2900000, 1400000],
+        ]
+        // Here we should not do any re-projection therefore do an exact match
+        expect(externalLayers[0].extent).toEqual(expected)
+
+        // Extent from non matching CRS BoundingBox
+        expect(externalLayers[1].id).toBe('Periodic-Tracking')
+        expected = [
+            [2485071.58, 1075346.3],
+            [2828515.82, 1299941.79],
+        ]
+        expect(externalLayers[1].extent.length).toBe(2)
+        expect(externalLayers[1].extent[0].length).toBe(2)
+        expect(externalLayers[1].extent[1].length).toBe(2)
+        expect(externalLayers[1].extent[0][0]).toBeCloseTo(expected[0][0], 1)
+        expect(externalLayers[1].extent[0][1]).toBeCloseTo(expected[0][1], 1)
+        expect(externalLayers[1].extent[1][0]).toBeCloseTo(expected[1][0], 1)
+        expect(externalLayers[1].extent[1][1]).toBeCloseTo(expected[1][1], 1)
+    })
+    it('Parse layer legend', () => {
+        // General layer
+        let layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.official-survey', WGS84)
+        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
+        expect(layer.abstract).not.empty
+        expect(layer.hasDescription).toBeTruthy()
+        expect(layer.hasLegend).toBeTruthy()
+        expect(layer.legends.length).toBe(1)
+        expect(layer.legends[0].url).toBe(
+            'https://wms.geo.admin.ch/?SERVICE=WMS&REQUEST=GetLegendGraphic&VERSION=1.3.0&FORMAT=image%2Fpng&LAYER=ch.swisstopo-vd.official-survey&SLD_VERSION=1.1.0'
+        )
+
+        // Layer without .Name
+        layer = capabilities.getExternalLayerObject('Periodic-Tracking', WGS84)
+        expect(layer.id).toBe('Periodic-Tracking')
+        expect(layer.hasDescription).toBeTruthy()
+        expect(layer.hasLegend).toBeTruthy()
+        expect(layer.legends.length).toBe(1)
+        expect(layer.legends[0]).toBeInstanceOf(LayerLegend)
+        expect(layer.legends[0].url).toBe(
+            'https://wms.geo.admin.ch/?version=1.3.0&service=WMS&request=GetLegendGraphic&sld_version=1.1.0&layer=ch.swisstopo-vd.geometa-periodische_nachfuehrung&format=image/png&STYLE=default'
+        )
+        expect(layer.legends[0].format).toBe('image/png')
+        expect(layer.legends[0].width).toBe(168)
+        expect(layer.legends[0].height).toBe(22)
+
+        // Layer without abstract and legend in styles, but with a SLD enabled legend
+        layer = capabilities.getExternalLayerObject('ch.swisstopo-vd.stand-oerebkataster', WGS84)
+        expect(layer.id).toBe('ch.swisstopo-vd.stand-oerebkataster')
+        expect(layer.hasDescription).toBeTruthy()
+        expect(layer.hasLegend).toBeTruthy()
+        expect(layer.legends.length).toBe(1)
+        expect(layer.legends[0].url).toBe(
+            'https://wms.geo.admin.ch/?SERVICE=WMS&REQUEST=GetLegendGraphic&VERSION=1.3.0&FORMAT=image%2Fpng&LAYER=ch.swisstopo-vd.stand-oerebkataster&SLD_VERSION=1.1.0'
+        )
     })
 })
 
