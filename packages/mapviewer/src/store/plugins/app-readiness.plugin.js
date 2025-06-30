@@ -1,7 +1,4 @@
-import log from '@geoadmin/log'
-
 import { sendMapReadyEventToParent } from '@/api/iframePostMessageEvent.api'
-import { ENVIRONMENT } from '@/config/staging.config'
 
 const dispatcher = { dispatcher: 'app-readiness-plugin' }
 
@@ -20,12 +17,6 @@ const dispatcher = { dispatcher: 'app-readiness-plugin' }
  */
 const appReadinessPlugin = (store) => {
     const unsubscribe = store.subscribe((mutation, state) => {
-        // Log all mutations for debugging
-        log.debug(
-            `[store mutation]: type=${mutation.type} dispatcher=${mutation.payload?.dispatcher ?? null} payload=`,
-            mutation.payload
-        )
-
         // if app is not ready yet, we go through the checklist
         if (!state.app.isReady) {
             if (
@@ -39,28 +30,16 @@ const appReadinessPlugin = (store) => {
         }
 
         if (mutation.type === 'mapModuleReady') {
-            store.dispatch('clearLoadingBar4MapLoading', { dispatcher })
+            store.dispatch('clearLoadingBar4MapLoading', dispatcher)
             sendMapReadyEventToParent()
         }
 
-        // In production build we are not interested anymore in the mutation logs
-        // therefore unsubscribe when the app is ready and map is ready
-        if (state.app.isReady && state.app.isMapReady && ENVIRONMENT === 'production') {
+        if (state.app.isReady && state.app.isMapReady) {
             unsubscribe()
         }
 
         // otherwise we ignore all mutations, our job is already done
     })
-
-    // only subscribe to action logs for non productive build
-    if (ENVIRONMENT !== 'production') {
-        store.subscribeAction((action, _state) => {
-            log.debug(
-                `[store action]: type=${action.type} dispatcher=${action.payload?.dispatcher ?? null} payload=`,
-                action.payload
-            )
-        })
-    }
 }
 
 export default appReadinessPlugin
