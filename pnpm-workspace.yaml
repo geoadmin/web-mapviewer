@@ -76,7 +76,7 @@ catalog:
     maplibre-gl: ^5.5.0
     mime-types: ^3.0.1
     mocha-junit-reporter: ^2.2.1
-    ol: ^10.5.0
+    ol: ^10.6.0
     pako: ^2.1.0
     postcss-html: ^1.8.0
     prettier: ^3.5.3
