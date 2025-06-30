@@ -305,8 +305,8 @@ export class PrintError extends Error {
  *   on the map. Default is `[]`
  * @param {String} config.qrCodeUrl URL to a QR-code encoded short link of the current view of the
  *   map
- * @param {AbstractLayer[]} [config.layersWithLegends=[]] Layers that have legends that must be
- *   added to the map. Default is `[]`
+ * @param {Layer[]} [config.layersWithLegends=[]] Layers that have legends that must be added to the
+ *   map. Default is `[]`
  * @param {String} config.lang Current lang of the map expressed as ISO code
  * @param {PrintLayout} config.layout Current printing layout selected by the user
  * @param {Number} config.scale Current scale selected by the user to print the map, must be part of
@@ -463,8 +463,8 @@ function printSpecReplacer(key, value) {
  *   on the map. Default is `[]`
  * @param {String} config.qrCodeUrl URL to a QR-code encoded short link of the current view of the
  *   map
- * @param {AbstractLayer[]} [config.layersWithLegends=[]] Layers that have legends that must be
- *   added to the map. Default is `[]`
+ * @param {Layer[]} [config.layersWithLegends=[]] Layers that have legends that must be added to the
+ *   map. Default is `[]`
  * @param {String} config.lang Current lang of the map expressed as ISO code
  * @param {Boolean} [config.printGrid=false] Whether the coordinate grid should be printed or not.
  *   Default is `false`

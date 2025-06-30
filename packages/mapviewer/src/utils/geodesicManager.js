@@ -643,7 +643,9 @@ class AutoSplitArray {
                 if (this.lineStrNr === 1) {
                     /* The polygon goes through north or south pol. The coloring will be correct as
                     long as the shape is not too complex (no overlapping) */
-                    if (coords.length <= 1) return [coords]
+                    if (coords.length <= 1) {
+                        return [coords]
+                    }
                     const last = coords[coords.length - 1]
                     // Drawing at 90deg breaks things, thats why we stop at 89
                     const lat = geographicMath.copysign(89, this.worldNr * geodesic.totalArea)

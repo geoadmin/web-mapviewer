@@ -1,11 +1,11 @@
 <script setup>
+import { CapabilitiesError } from '@geoadmin/layers'
+import { useCapabilities } from '@geoadmin/layers/vue'
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { CapabilitiesError } from '@/api/layers/layers-external.api'
 import ProviderList from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderList.vue'
-import { useCapabilities } from '@/modules/menu/components/advancedTools/ImportCatalogue/useCapabilities'
 import { useProviders } from '@/modules/menu/components/advancedTools/ImportCatalogue/useProviders'
 import { isValidUrl } from '@/utils/utils'
 
@@ -17,20 +17,22 @@ const store = useStore()
 // Reactive data
 const url = ref('')
 const capabilitiesParsed = ref(false)
-const errorMessage = ref(null)
-const providerList = useTemplateRef('providerList')
+const errorMessage = ref()
 const isLoading = ref(false)
-const providerInput = useTemplateRef('providerInput')
 
-const { groupedProviders, showProviders, filterApplied, toggleProviders, filterText } =
-    useProviders(url)
-const { loadCapabilities } = useCapabilities(url)
+const providerList = useTemplateRef('providerList')
+const providerInput = useTemplateRef('providerInput')
 
 // Computed properties
 const isValid = computed(() => !errorMessage.value && capabilitiesParsed.value)
 const isInvalid = computed(() => errorMessage.value)
 const connectButtonKey = computed(() => (isLoading.value ? 'loading' : 'connect'))
+const currentProjection = computed(() => store.state.position.projection)
 const lang = computed(() => store.state.i18n.lang)
+
+const { groupedProviders, showProviders, filterApplied, toggleProviders, filterText } =
+    useProviders(url)
+const { loadCapabilities } = useCapabilities(url, currentProjection, lang)
 
 watch(lang, () => {
     if (isValid.value) {
@@ -42,7 +44,7 @@ watch(lang, () => {
 // Methods
 function onUrlChange(_event) {
     capabilitiesParsed.value = false
-    errorMessage.value = null
+    errorMessage.value = undefined
 }
 
 function validateUrl() {
@@ -56,7 +58,7 @@ function clearUrl(event) {
     capabilitiesParsed.value = false
     url.value = ''
     showProviders.value = false
-    errorMessage.value = null
+    errorMessage.value = undefined
     if (event.screenX !== 0 || event.screenY !== 0) {
         // only focus on the provider input when the clear button has been clicked
         // and when it is a real click event (not a key stroke)
@@ -76,24 +78,25 @@ function goToProviderList() {
     }
 }
 
-async function connect() {
+function connect() {
     showProviders.value = false
-    errorMessage.value = null
-    try {
-        isLoading.value = true
-        const { layers, wmsMaxSize } = await loadCapabilities()
-        isLoading.value = false
-        capabilitiesParsed.value = true
-        emit('capabilities:parsed', layers, wmsMaxSize)
-    } catch (error) {
-        isLoading.value = false
-        if (error instanceof CapabilitiesError) {
-            errorMessage.value = error.key
-        } else {
-            errorMessage.value = 'error'
-            throw error
-        }
-    }
+    errorMessage.value = undefined
+    isLoading.value = true
+    loadCapabilities()
+        .then(({ layers, wmsMaxSize }) => {
+            isLoading.value = false
+            capabilitiesParsed.value = true
+            emit('capabilities:parsed', layers, wmsMaxSize)
+        })
+        .catch((error) => {
+            isLoading.value = false
+            if (error instanceof CapabilitiesError) {
+                errorMessage.value = error.key
+            } else {
+                errorMessage.value = 'error'
+                throw error
+            }
+        })
 }
 
 function onToggleProviders(event) {

@@ -1,12 +1,10 @@
+import { LayerType } from '@geoadmin/layers'
 import { centroid } from '@turf/turf'
 import GeoJSON from 'ol/format/GeoJSON'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
-import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
-import { normalizeExtent } from '@/utils/extentUtils'
+import { normalizeExtent } from '@/utils/extentUtils.js'
 
 /**
  * Minimalist description of an active layer. Is useful when parsing layers from the URL, but we do
@@ -17,8 +15,8 @@ import { normalizeExtent } from '@/utils/extentUtils'
  *
  * @typedef ActiveLayerConfig
  * @property {String} id The layer ID
- * @property {LayerTypes} [type] The layer type (for external layers)
- * @property {Boolean} [visible] Flag telling if the layer should be visible on the map
+ * @property {LayerType} [type] The layer type (for external layers)
+ * @property {Boolean} [isVisible] Flag telling if the layer should be visible on the map
  * @property {Number} [opacity] The opacity that the layers should have, when `undefined` uses the
  *   default opacity for the layer.
  * @property {String} [baseUrl] The base URL of this layer, if applicable (only for external layers)
@@ -50,15 +48,12 @@ import { normalizeExtent } from '@/utils/extentUtils'
 /**
  * Returns timestamp for WMS or WMTS layer from config data
  *
- * @param {AbstractLayer} layer
+ * @param {Layer} layer
  * @returns {String | null | LayerTimeConfig.currentTimeEntry.timestamp}
  */
 export function getTimestampFromConfig(layer) {
     let timestamp = layer.timeConfig?.currentTimestamp ?? null
-    if (
-        timestamp === null &&
-        (layer instanceof ExternalWMTSLayer || layer instanceof GeoAdminWMTSLayer)
-    ) {
+    if (timestamp === null && layer.type === LayerType.WMTS) {
         // for WMTS layer fallback to current
         timestamp = 'current'
     }
@@ -75,7 +70,7 @@ export function getTimestampFromConfig(layer) {
  */
 export function getWmtsXyzUrl(wmtsLayerConfig, projection, options = {}) {
     const { addTimestamp = false } = options ?? {}
-    if (wmtsLayerConfig?.type === LayerTypes.WMTS && projection) {
+    if (wmtsLayerConfig?.type === LayerType.WMTS && projection) {
         let timestamp = '{Time}'
         if (addTimestamp) {
             timestamp = getTimestampFromConfig(wmtsLayerConfig)
@@ -112,7 +107,7 @@ export function indexOfMaxResolution(projection, layerMaxResolution) {
  * Creates a LayerFeature object from an OpenLayers feature and a layer.
  *
  * @param {ol.Feature} olFeature - The OpenLayers feature to convert.
- * @param {AbstractLayer} layer - The layer associated with the feature.
+ * @param {Layer} layer - The layer associated with the feature.
  * @returns {LayerFeature | null} The created LayerFeature object or null if the feature has no
  *   geometry.
  */

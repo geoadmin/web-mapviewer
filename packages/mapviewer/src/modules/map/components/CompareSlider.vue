@@ -1,11 +1,10 @@
 <script setup>
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { LayerType } from '@geoadmin/layers'
 import { round } from '@geoadmin/numbers'
 import { getRenderPixel } from 'ol/render'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
-
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 
 const dispatcher = { dispatcher: 'CompareSlider.vue' }
 

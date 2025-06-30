@@ -196,7 +196,7 @@ const chartJsScalesConfiguration: ComputedRef<
     { [key: string]: ScaleOptions<'linear'> } | undefined
 > = computed(() => {
     if (!profileMetadata.value) {
-        return undefined
+        return
     }
     const scales: { [key: string]: ScaleOptions<'linear'> } = {
         x: {
@@ -276,7 +276,7 @@ const chartJsTooltipConfiguration = computed(() => {
 /** Configuration for the pinch/zoom function */
 const chartJsZoomOptions: ComputedRef<ZoomPluginOptions | undefined> = computed(() => {
     if (!profileMetadata.value) {
-        return undefined
+        return
     }
     const zoomOptions: ZoomPluginOptions = {
         limits: {
@@ -327,7 +327,7 @@ const chartJsOptions: ComputedRef<ChartOptions<'line'> | undefined> = computed((
         !chartJsZoomOptions.value ||
         !profile
     ) {
-        return undefined
+        return
     }
     const options: ChartOptions<'line'> = {
         animation: {
