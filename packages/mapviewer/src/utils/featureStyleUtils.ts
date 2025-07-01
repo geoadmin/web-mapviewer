@@ -1,77 +1,65 @@
+import type OLFeature from 'ol/Feature'
+
 import { fromString } from 'ol/color'
 import { Fill, Stroke, Text } from 'ol/style'
 import Style from 'ol/style/Style'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class.js'
-import { DEFAULT_TITLE_OFFSET } from '@/api/icon.api'
+import { DEFAULT_TITLE_OFFSET } from '@/api/icon.api.js'
 import { dashedRedStroke, whiteSketchFill } from '@/utils/styleUtils.ts'
 
-/** A color that can be used to style a feature (comprised of a fill and a border color) */
-export class FeatureStyleColor {
-    /**
-     * @param name {String} Name of the color in english lower cased
-     * @param fill {String} HTML color code for the fill color (starting with a # sign)
-     * @param border {String} HTML color code for the border color (starting with a # sign)
-     */
-    constructor(name, fill, border) {
-        this._name = name
-        this._fill = fill
-        this._border = border
-    }
-
-    /** @returns {String} Name of this color in lower case english */
-    get name() {
-        return this._name
-    }
-
-    /**
-     * @returns {String} HTML color (with # prefix) describing this color (usable in CSS or other
-     *   styling context)
-     */
-    get fill() {
-        return this._fill
-    }
-
-    /**
-     * @returns {String} HTML color (with # prefix) describing the border color (usable in CSS or
-     *   other styling context)
-     */
-    get border() {
-        return this._border
-    }
-
-    /** @returns {Number[]} Array representing the fill color as RGB values */
-    get rgb() {
-        return fromString(this._fill)
-    }
-
-    /** @returns {String} RGB properties but represented as a string "r,g,b" */
-    get rgbString() {
-        return `${this.rgb[0]},${this.rgb[1]},${this.rgb[2]}`
-    }
-
-    /**
-     * @returns {String} CSS string describing the text shadow that must be applied when coloring a
-     *   text with this color
-     */
-    get textShadow() {
-        return `-1px -1px 0 ${this._border}, 1px -1px 0 ${this._border}, -1px 1px 0 ${this._border},1px 1px 0 ${this._border}`
-    }
+/**
+ * @returns CSS string describing the text shadow that must be applied when coloring a text with
+ *   this color
+ */
+export function generateTextShadow(style: FeatureStyleColor): string {
+    return `-1px -1px 0 ${style.border}, 1px -1px 0 ${style.border}, -1px 1px 0 ${style.border},1px 1px 0 ${style.border}`
 }
 
-export const BLACK = new FeatureStyleColor('black', '#000000', '#ffffff')
-export const BLUE = new FeatureStyleColor('blue', '#0000ff', '#ffffff')
-export const GRAY = new FeatureStyleColor('gray', '#808080', '#ffffff')
-export const GREEN = new FeatureStyleColor('green', '#008000', '#ffffff')
-export const ORANGE = new FeatureStyleColor('orange', '#ffa500', '#000000')
-export const RED = new FeatureStyleColor('red', '#ff0000', '#ffffff')
-export const WHITE = new FeatureStyleColor('white', '#ffffff', '#000000')
-export const YELLOW = new FeatureStyleColor('yellow', '#ffff00', '#000000')
+export function generateRGBFillString(style: FeatureStyleColor): string {
+    const rgb = fromString(style.fill)
+    return `${rgb[0]},${rgb[1]},${rgb[2]}`
+}
 
-export const allStylingColors = [BLACK, BLUE, GRAY, GREEN, ORANGE, RED, WHITE, YELLOW]
+/** A color that can be used to style a feature (comprised of a fill and a border color) */
+export interface FeatureStyleColor {
+    /** Name of the color in english lower cased */
+    name: string
+    /** HTML color (with # prefix) describing this color (usable in CSS or other styling context) */
+    fill: string
+    /**
+     * HTML color (with # prefix) describing the border color (usable in CSS or other styling
+     * context)
+     */
+    border: string
+}
+
+export const BLACK: FeatureStyleColor = { name: 'black', fill: '#000000', border: '#ffffff' }
+export const BLUE: FeatureStyleColor = { name: 'blue', fill: '#0000ff', border: '#ffffff' }
+export const GRAY: FeatureStyleColor = { name: 'gray', fill: '#808080', border: '#ffffff' }
+export const GREEN: FeatureStyleColor = { name: 'green', fill: '#008000', border: '#ffffff' }
+export const ORANGE: FeatureStyleColor = { name: 'orange', fill: '#ffa500', border: '#000000' }
+export const RED: FeatureStyleColor = { name: 'red', fill: '#ff0000', border: '#ffffff' }
+export const WHITE: FeatureStyleColor = { name: 'white', fill: '#ffffff', border: '#000000' }
+export const YELLOW: FeatureStyleColor = { name: 'yellow', fill: '#ffff00', border: '#000000' }
+
+export const allStylingColors: FeatureStyleColor[] = [
+    BLACK,
+    BLUE,
+    GRAY,
+    GREEN,
+    ORANGE,
+    RED,
+    WHITE,
+    YELLOW,
+]
 export const FEATURE_FONT_SIZE = 16
 export const FEATURE_FONT_SIZE_SMALL = 14
 export const FEATURE_FONT = 'Helvetica'
+
+export function generateFontString(size: FeatureStyleSize, font = FEATURE_FONT) {
+    return `normal ${FEATURE_FONT_SIZE * size.textScale}px ${font}`
+}
 /**
  * Representation of a size for feature style
  *
@@ -79,48 +67,16 @@ export const FEATURE_FONT = 'Helvetica'
  * scale is the one used by open layer and is scaled up by the factor icon_size/32, see
  * https://github.com/openlayers/openlayers/issues/12670
  */
-export class FeatureStyleSize {
+export interface FeatureStyleSize {
     /**
-     * @param {String} label Translation key for this size (must go through the i18n service to have
-     *   a human-readable value)
-     * @param {Number} textScale Scale to apply to a text when choosing this size (related to
-     *   KML/GeoJSON styling)
-     * @param {Number} iconScale Scale to apply to an icon when choosing this size (related to
-     *   KML/GeoJSON styling)
+     * Translation key for this size (must go through the i18n service to have a human-readable
+     * value)
      */
-    constructor(label, textScale, iconScale) {
-        this._label = label
-        this._textScale = textScale
-        this._iconScale = iconScale
-    }
-
-    /**
-     * @returns {String} Translation key for this size (has to go through the i18n service to have a
-     *   human-readable value)
-     */
-    get label() {
-        return this._label
-    }
-
-    /**
-     * @returns {Number} Scale to apply to a text when choosing this size (related to KML/GeoJSON
-     *   styling)
-     */
-    get textScale() {
-        return this._textScale
-    }
-
-    /**
-     * @returns {Number} Scale to apply to an icon when choosing this size (related to KML/GeoJSON
-     *   styling)
-     */
-    get iconScale() {
-        return this._iconScale
-    }
-
-    get font() {
-        return `normal ${FEATURE_FONT_SIZE * this.textScale}px ${FEATURE_FONT}`
-    }
+    label: string
+    /** Scale to apply to a text when choosing this size (related to KML/GeoJSON styling) */
+    textScale: number
+    /** Scale to apply to an icon when choosing this size (related to KML/GeoJSON styling) */
+    iconScale: number
 }
 
 /**
@@ -128,44 +84,43 @@ export class FeatureStyleSize {
  * file. In the kml the scale will be set with a factor icon_size/32 => 48/32 => 1.5. The text scale
  * is unchanged and the scale in openlayer match the KML scale.
  */
-export const SMALL = new FeatureStyleSize('small_size', 1, 0.5)
-export const MEDIUM = new FeatureStyleSize('medium_size', 1.5, 0.75)
-export const LARGE = new FeatureStyleSize('large_size', 2.0, 1)
-export const EXTRA_LARGE = new FeatureStyleSize('extra_large_size', 2.5, 1.25)
+export const SMALL: FeatureStyleSize = { label: 'small_size', textScale: 1, iconScale: 0.5 }
+export const MEDIUM: FeatureStyleSize = { label: 'medium_size', textScale: 1.5, iconScale: 0.75 }
+export const LARGE: FeatureStyleSize = { label: 'large_size', textScale: 2.0, iconScale: 1 }
+export const EXTRA_LARGE: FeatureStyleSize = {
+    label: 'extra_large_size',
+    textScale: 2.5,
+    iconScale: 1.25,
+}
 
-/**
- * List of all available sizes for drawing style
- *
- * @type {FeatureStyleSize[]}
- */
-export const allStylingSizes = [SMALL, MEDIUM, LARGE, EXTRA_LARGE]
-export const allStylingTextPlacements = [
-    TOP_LEFT,
-    TOP,
-    TOP_RIGHT,
-    LEFT,
-    CENTER,
-    RIGHT,
-    BOTTOM_LEFT,
-    BOTTOM,
-    BOTTOM_RIGHT,
-]
-export const allStylingTextPlacementsWithUnknown = [...allStylingTextPlacements, UNKNOWN]
+/** List of all available sizes for drawing style */
+export const allStylingSizes: FeatureStyleSize[] = [SMALL, MEDIUM, LARGE, EXTRA_LARGE]
+export enum TextPlacements {
+    TOP_LEFT = 'TOP_LEFT',
+    TOP = 'TOP',
+    TOP_RIGHT = 'TOP_RIGHT',
+    LEFT = 'LEFT',
+    CENTER = 'CENTER',
+    RIGHT = 'RIGHT',
+    BOTTOM_LEFT = 'BOTTOM_LEFT',
+    BOTTOM = 'BOTTOM',
+    BOTTOM_RIGHT = 'BOTTOM_RIGHT',
+    UNKNOWN = 'UNKNOWN',
+}
 
 /**
  * Get Feature style from feature
  *
- * @param {Feature} olFeature
- * @returns {Style}
  */
-export function getStyle(olFeature) {
+export function getStyle(olFeature: OLFeature): Style | undefined {
+    
     const styles = olFeature.getStyleFunction()(olFeature)
     if (Array.isArray(styles)) {
         return styles[0]
     } else if (styles instanceof Style) {
         return styles
     }
-    return null
+    return 
 }
 
 /**
@@ -424,7 +379,7 @@ export function geoadminStyleFunction(feature, resolution) {
             fill: isDrawing
                 ? whiteSketchFill
                 : new Fill({
-                      color: [...styleConfig.fillColor.rgb.slice(0, 3), 0.4],
+                      color: [...fromString(styleConfig.fillColor).slice(0, 3), 0.4],
                   }),
             zIndex: 10,
         }),
@@ -456,7 +411,7 @@ export function geoadminStyleFunction(feature, resolution) {
                 fill: isDrawing
                     ? whiteSketchFill
                     : new Fill({
-                          color: [...styleConfig.fillColor.rgb.slice(0, 3), 0.4],
+                          color: [...fromString(styleConfig.fillColor).slice(0, 3), 0.4],
                       }),
                 zIndex: 0,
                 stroke: new Stroke({

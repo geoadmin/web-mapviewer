@@ -1,6 +1,6 @@
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
-import { unzipKmz } from '@/utils/kmlUtils'
+import { unzipKmz } from '@/utils/kmlUtils.js'
 
 const ZIP_FILE_LITTLE_ENDIAN_SIGNATURE = [0x50, 0x4b, 0x03, 0x04]
 

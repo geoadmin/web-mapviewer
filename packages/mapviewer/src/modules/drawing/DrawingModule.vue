@@ -29,7 +29,7 @@ import useKmlDataManagement from '@/modules/drawing/useKmlDataManagement.composa
 import { EditMode } from '@/store/modules/drawing.store.js'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
-import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
+import { getIcon, parseIconUrl } from '@/utils/kmlUtils.js'
 
 const dispatcher = { dispatcher: 'DrawingModule.vue' }
 

@@ -2,7 +2,7 @@ import type EditableFeature from '@/api/features/EditableFeature.class.ts'
 import type LayerFeature from '@/api/features/LayerFeature.class.ts'
 import type SelectableFeature from '@/api/features/SelectableFeature.class.ts'
 
-import { DrawingIconSet } from '@/api/icon.api'
+import { DrawingIconSet } from '@/api/icon.api.ts'
 
 /**
  * To better keep track of who's the "trigger" of an action, each action comes attached with the

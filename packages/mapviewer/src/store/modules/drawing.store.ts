@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import type EditableFeature from '@/api/features/EditableFeature.class.ts'
 import type { ActionDispatcher } from '@/store/store'
 
-import { DrawingIconSet, loadAllIconSetsFromBackend } from '@/api/icon.api'
+import { DrawingIconSet, loadAllIconSetsFromBackend } from '@/api/icon.api.ts'
 
 const defaultDrawingTitle = 'draw_mode_title'
 

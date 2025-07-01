@@ -20,7 +20,7 @@ import MediaTypes from '@/modules/infobox/DrawingStyleMediaTypes.enum.js'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import allFormats from '@/utils/coordinates/coordinateFormat'
 import debounce from '@/utils/debounce'
-import { calculateTextOffset } from '@/utils/featureStyleUtils'
+import { calculateTextOffset } from '@/utils/featureStyleUtils.js'
 
 const dispatcher = { dispatcher: 'FeatureStyleEdit.vue' }
 

@@ -1,5 +1,5 @@
 import type { SingleCoordinate } from '@geoadmin/coordinates'
-import type { GPXLayer, KMLLayer } from '@geoadmin/layers/dist/types'
+import type { GPXLayer, KMLLayer } from '@geoadmin/layers'
 
 import {
     constants,
@@ -18,7 +18,7 @@ import type { ActionDispatcher } from '@/store/store'
 
 import getFeature from '@/api/features/features.api'
 import LayerFeature from '@/api/features/LayerFeature.class'
-import reframe from '@/api/lv03Reframe.api.ts'
+import reframe from '@/api/lv03Reframe.api'
 import search, {
     type LayerFeatureSearchResult,
     type LayerSearchResult,
@@ -27,16 +27,16 @@ import search, {
     SearchResultTypes,
 } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
-import useFeaturesStore from '@/store/modules/features.store.ts'
-import { useI18nStore } from '@/store/modules/i18n.store.ts'
-import useLayersStore from '@/store/modules/layers.store.ts'
-import useMapStore from '@/store/modules/map.store.ts'
+import useFeaturesStore from '@/store/modules/features.store'
+import { useI18nStore } from '@/store/modules/i18n.store'
+import useLayersStore from '@/store/modules/layers.store'
+import useMapStore from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'
 import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
-import coordinateFromString from '@/utils/coordinates/coordinateExtractors.ts'
+import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
 import { flattenExtent, normalizeExtent } from '@/utils/extentUtils'
-import { parseGpx } from '@/utils/gpxUtils.ts'
-import { parseKml } from '@/utils/kmlUtils'
+import { parseGpx } from '@/utils/gpxUtils'
+import { parseKml } from '@/utils/kmlUtils.ts'
 
 function zoomToSearchResult(
     entry: LocationSearchResult | LayerFeatureSearchResult,
@@ -285,7 +285,7 @@ export const useSearchStore = defineStore('search', {
                         // For imported KML and GPX files
                         let features = []
                         if (featureEntry.layer.type === LayerType.KML) {
-                            const kmlLayer = featureEntry.layer as KMLLayer
+                            const kmlLayer: KMLLayer = featureEntry.layer as KMLLayer
                             features = parseKml(kmlLayer, positionStore.projection, [])
                         } else if (featureEntry.layer.type === LayerType.GPX) {
                             const gpxLayer = featureEntry.layer as GPXLayer
@@ -307,11 +307,8 @@ export const useSearchStore = defineStore('search', {
                     log.error('Error getting feature:', error)
                 }
             }
-            if (state.autoSelect) {
-                dispatch('setAutoSelect', {
-                    value: false,
-                    dispatcher: dispatcherSelectResultEntry,
-                })
+            if (this.autoSelect) {
+                this.setAutoSelect(false, dispatcher)
             }
         },
     },
@@ -324,10 +321,10 @@ export const useSearchStore = defineStore('search', {
  * the resultType of LOCATION. If such a result is found, it returns that result. If no result with
  * resultType LOCATION is found, it returns the first result in the list.
  *
- * @param {SearchResult[]} results - The list of search results.
- * @returns {SearchResult} - The selected search result for autoselection.
+ * @param results - The list of search results.
+ * @returns The selected search result for autoselection.
  */
-function getResultForAutoselect(results) {
+function getResultForAutoselect(results: SearchResult[]): SearchResult {
     if (results.length === 1) {
         return results[0]
     }
@@ -340,7 +337,7 @@ function getResultForAutoselect(results) {
     return locationResult ?? results[0]
 }
 
-function createLayerFeature(olFeature, layer) {
+function createLayerFeature(olFeature: Feature, layer) {
     if (!olFeature.getGeometry()) {
         return null
     }

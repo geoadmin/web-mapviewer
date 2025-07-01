@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 import DropdownButton from '@/utils/components/DropdownButton.vue'
 import DropdownButtonItem from '@/utils/components/DropdownButtonItem.vue'
-import { allStylingSizes, FeatureStyleSize } from '@/utils/featureStyleUtils'
+import { allStylingSizes, FeatureStyleSize } from '@/utils/featureStyleUtils.js'
 
 const { currentSize } = defineProps({
     currentSize: {

@@ -1,3 +1,6 @@
+import type { Extent as OLExtent } from 'ol/extent'
+import type { Size } from 'ol/size'
+
 import { WGS84 } from '@geoadmin/coordinates'
 import { KmlStyle } from '@geoadmin/layers'
 import { layerUtils } from '@geoadmin/layers/utils'
@@ -11,7 +14,7 @@ import {
     extend as extendExtent,
     isEmpty as isExtentEmpty,
 } from 'ol/extent'
-import Feature from 'ol/Feature'
+import OLFeature from 'ol/Feature'
 import GeoJSON from 'ol/format/GeoJSON'
 import IconStyle from 'ol/style/Icon'
 import Style from 'ol/style/Style'
@@ -19,7 +22,7 @@ import Style from 'ol/style/Style'
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class.js'
 import { extractOlFeatureCoordinates } from '@/api/features/features.api.js'
 import { proxifyUrl } from '@/api/file-proxy.api'
-import { DEFAULT_TITLE_OFFSET, DrawingIcon } from '@/api/icon.api'
+import { DEFAULT_TITLE_OFFSET, DrawingIcon, generateURL } from '@/api/icon.api.ts'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config.js'
 import {
     allStylingSizes,
@@ -34,7 +37,7 @@ import {
     RED,
     SMALL,
     UNKNOWN,
-} from '@/utils/featureStyleUtils'
+} from '@/utils/featureStyleUtils.ts'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
 // FIXME: as soon as https://github.com/openlayers/openlayers/pull/15964 is merged and released, go back to using OL files
 import KML, { getDefaultStyle } from '@/utils/ol/format/KML'
@@ -53,23 +56,17 @@ export const LEGACY_ICON_XML_SCALE_FACTOR = 1.5
 
 const kmlReader = new KML({ extractStyles: false })
 
-/**
- * Read the KML name
- *
- * @param {string} content Kml content
- * @returns {string} Return KML name
- */
-export function parseKmlName(content) {
+/** Read the KML name */
+export function parseKmlName(content: string): string | undefined {
     return kmlReader.readName(content)
 }
 
 /**
  * Get KML extent
  *
- * @param {string} content KML content
- * @returns {ol/extent|null} KML layer extent in WGS84 projection or null if the KML has no features
+ * @returns KML layer extent in WGS84 projection or undfeind if the KML has no features
  */
-export function getKmlExtent(content) {
+export function getKmlExtent(content: string): OLExtent | undefined {
     const features = kmlReader.readFeatures(content, {
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: WGS84.epsg,
@@ -77,12 +74,12 @@ export function getKmlExtent(content) {
     const extent = emptyExtent()
     features
         // guarding against empty/null geometry (in case the KML feature doesn't declare any coordinate)
-        .filter((feature) => !!feature.getGeometry()?.getExtent())
+        .filter((feature) => feature.getGeometry() && feature.getGeometry()!.getExtent())
         .forEach((feature) => {
-            extendExtent(extent, feature.getGeometry().getExtent())
+            extendExtent(extent, feature.getGeometry()!.getExtent())
         })
     if (isExtentEmpty(extent)) {
-        return null
+        return
     }
     return extent
 }
@@ -91,10 +88,9 @@ export function getKmlExtent(content) {
  * Get the description of all features in the KML content in form of a Map with the feature ID as
  * key
  *
- * @param {string} content KML content
- * @returns {Map<string, string>} Map of feature ID to description
+ * @returns Map of feature ID to description
  */
-export function getFeatureDescriptionMap(content) {
+export function getFeatureDescriptionMap(content: string): Map<string, string> {
     const features = kmlReader.readFeatures(content, {
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: WGS84.epsg,
@@ -114,20 +110,21 @@ export function getFeatureDescriptionMap(content) {
  * Get the KML feature type
  *
  * The type is taken from the geoadmin proprietary "type" property, and if this property is not
- * available it means that it is not a Geoadmin drawing and is therefore returning null.
+ * available, it means that it is not a Geoadmin drawing and is therefore returning null.
  *
- * @param {ol/Feature} kmlFeature Open layer kml feature
- * @returns {String | null} KML feature type or null if this is not a geoadmin kml feature
+ * @param kmlFeature Open layer kml feature
+ * @returns KML feature type or null if this is not a geoadmin kml feature
  */
-export function getFeatureType(kmlFeature) {
+export function getFeatureType(kmlFeature: OLFeature): string | undefined {
     let featureType = kmlFeature.get('type')?.toUpperCase() // only set by geoadmin's kml
-    if (!featureType) {
+    const kmlFeatureId = kmlFeature.getId()
+    if (!featureType && kmlFeatureId !== undefined) {
         // Very old geoadmin KML don't have the type property but the type can be taken from the
         // id
         log.debug(
             `Missing feature type property trying to guess it from the feature ID: ${kmlFeature.getId()}`
         )
-        featureType = /(?<type>\w+)_\d+/.exec(kmlFeature.getId())?.groups?.type?.toUpperCase()
+        featureType = /(?<type>\w+)_\d+/.exec(`${kmlFeatureId}`)?.groups?.type?.toUpperCase()
     }
 
     if (!Object.values(EditableFeatureTypes).includes(featureType)) {
@@ -135,7 +132,7 @@ export function getFeatureType(kmlFeature) {
             `Type ${featureType} of feature in kml not recognized, not a geoadmin feature ignoring it`,
             kmlFeature
         )
-        return null
+        return
     }
     return featureType
 }
@@ -143,14 +140,14 @@ export function getFeatureType(kmlFeature) {
 /**
  * Get feature text scale from style
  *
- * @param {Style} style
- * @returns {number | null} Return text scale or null if not found
+ * @param style
+ * @returns Return text scale or null if not found
  */
-export function getTextScale(style) {
+export function getTextScale(style: Style): number | Size | undefined {
     // When exporting the kml, the parser does not put a scale property when the scale is 1.
     // But when importing the kml, it seems that the parser interprets the lack of a scale
     // property as if the scale was 0.8, which is strange. The code below tries to fix that.
-    let textScale = style.getText()?.getScale() ?? null
+    const textScale = style.getText()?.getScale()
     if (textScale === getDefaultStyle()?.getText()?.getScale()) {
         return 1
     }
@@ -160,16 +157,16 @@ export function getTextScale(style) {
 /**
  * Get KML icon style
  *
- * @param {Style} style
- * @returns {IconStyle | null} Returns the KML icon style if present otherwise null
+ * @param style
+ * @returns Returns the KML icon style if present otherwise null
  */
-export function getIconStyle(style) {
-    if (!(style instanceof Style)) {
-        return null
+export function getIconStyle(style: Style): IconStyle | undefined {
+    if (!style) {
+        return
     }
-    let icon = style.getImage()
+    const icon = style.getImage()
     if (!(icon instanceof IconStyle)) {
-        return null
+        return
     }
     // To interpret the KMLs the same way as GoogleEarth, the kml parser automatically adds a Google icon
     // if no icon is present (i.e. for our text feature type), but we do not want that.
@@ -177,37 +174,22 @@ export function getIconStyle(style) {
         icon?.getSrc()?.match(/google/) ||
         icon?.getSrc() === getDefaultStyle()?.getImage()?.getSrc()
     ) {
-        return null
+        return
     }
     return icon
 }
 
-class IconColorArg {
-    /**
-     * @param {Number} r
-     * @param {Number} g
-     * @param {Number} b
-     */
-    constructor(r, g, b) {
-        this.r = r
-        this.g = g
-        this.b = b
-    }
+interface IconColorArgs {
+    r: number
+    g: number
+    b: number
 }
 
-class IconArgs {
-    /**
-     * @param {string} set
-     * @param {string} name
-     * @param {IconColorArg} color
-     * @param {Boolean} isLegacy
-     */
-    constructor(set, name, color, isLegacy) {
-        this.set = set
-        this.name = name
-        this.color = color
-        this.isLegacy = isLegacy
-    }
+interface IconArgs {
+    set: string
+    name: string
+    color: IconColorArgs
+    isLegacy: boolean
 }
 
 /**
@@ -223,10 +205,10 @@ class IconArgs {
  *
  * - /api/icons/sets/{set_name}/icons/{icon_name}@{icon_scale}-{red},{green},{blue}.png
  *
- * @param {string} url URL string
- * @returns {IconArgs | null} Returns the parsed URL or null in case of invalid non recognize url
+ * @param url URL string
+ * @returns Returns the parsed URL or null in case of invalid non recognize url
  */
-export function parseIconUrl(url) {
+export function parseIconUrl(url: string): IconArgs | undefined {
     // legacy icon urls pattern
     // default set := /color/{r},{g},{b}/{image}-{size}@{scale}x.png
     // default set legacy versioned url := /{version}/img/maki/{image}-{size}@{scale}x.png
@@ -251,39 +233,35 @@ export function parseIconUrl(url) {
 
     const match = legacyDefaultMatch ?? legacyUrlDefaultMatch ?? legacySetMatch ?? setMatch
 
-    if (!match) {
+    if (!match || !match.groups) {
         log.warn(`Could not retrieve icon infos from URL ${url}`)
-        return null
+        return
     }
 
     const setName = match.groups.set ?? 'default'
     const name = match.groups.name ?? 'unknown'
     const isLegacy = !!(legacyDefaultMatch || legacyUrlDefaultMatch || legacySetMatch)
 
-    return new IconArgs(
-        setName,
+    return {
+        set: setName,
         name,
-        new IconColorArg(
-            parseRGBColor(match.groups.r ?? 255, 'R'),
-            parseRGBColor(match.groups.g ?? 0, 'B'),
-            parseRGBColor(match.groups.b ?? 0, 'G')
-        ),
-        isLegacy
-    )
+        color: {
+            r: parseRGBColor(match.groups.r ?? 255),
+            g: parseRGBColor(match.groups.g ?? 0),
+            b: parseRGBColor(match.groups.b ?? 0),
+        },
+        isLegacy,
+    }
 }
 
 /**
  * Generates an icon that has the url of the given olIcon
  *
  * This is used for non geoadmin KMLs
- *
- * @param {IconStyle} iconStyle
- * @param {IconArgs} iconArgs
- * @returns {DrawingIcon}
  */
-function generateIconFromStyle(iconStyle, iconArgs) {
+function generateIconFromStyle(iconStyle: IconStyle, iconArgs: IconArgs): DrawingIcon | undefined {
     if (!iconStyle || !iconArgs) {
-        return null
+        return
     }
     iconStyle.setDisplacement([0, 0])
     const url = iconStyle.getSrc()
@@ -293,11 +271,14 @@ function generateIconFromStyle(iconStyle, iconArgs) {
         anchor[0] /= size[0]
         anchor[1] /= size[1]
     } catch (error) {
-        log.error(`Failed to compute icon anchor: anchor=${anchor}, size=${size}`, error)
+        log.error(`Failed to compute icon anchor: anchor=${anchor.join(',')}, size=${size.join(',')}`, error)
         anchor = [0, 0]
     }
 
-    return url && anchor ? new DrawingIcon(iconArgs.name, url, url, iconArgs.set, anchor) : null
+    if (!url || !anchor) {
+        return
+    }
+    return new DrawingIcon(iconArgs.name, url, url, iconArgs.set, null, anchor, size)
 }
 
 /**
@@ -473,7 +454,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
             anchorOrigin: iconStyle.anchorOrigin,
             anchorXUnits: iconStyle.anchorXUnits,
             anchorYUnits: iconStyle.anchorYUnits,
-            src: icon.generateURL(fillColor),
+            src: generateURL(icon, fillColor),
         })
         style.setImage(newIconStyle)
     }
@@ -519,7 +500,7 @@ function detectTextPlacement(textScale, iconScale, anchor, iconSize, text, curre
         text
     )
 
-    for (let placementOption of allStylingTextPlacements) {
+    for (const placementOption of allStylingTextPlacements) {
         const [xOffset, yOffset] = calculateTextOffsetFromPlacement(
             textPlacementX,
             textPlacementY,

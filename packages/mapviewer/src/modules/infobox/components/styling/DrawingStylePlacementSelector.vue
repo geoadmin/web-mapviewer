@@ -1,7 +1,7 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 
-import { allStylingTextPlacements } from '@/utils/featureStyleUtils'
+import { allStylingTextPlacements } from '@/utils/featureStyleUtils.js'
 
 const { currentPlacement } = defineProps({
     currentPlacement: {

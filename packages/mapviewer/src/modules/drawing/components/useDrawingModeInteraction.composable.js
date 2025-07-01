@@ -11,12 +11,12 @@ import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, toValue } 
 import { useStore } from 'vuex'
 
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class.js'
-import { DEFAULT_MARKER_TITLE_OFFSET } from '@/api/icon.api'
+import { DEFAULT_MARKER_TITLE_OFFSET } from '@/api/icon.api.js'
 import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { EditMode } from '@/store/modules/drawing.store.js'
-import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
+import { geoadminStyleFunction } from '@/utils/featureStyleUtils.js'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
 
 const dispatcher = { dispatcher: 'useDrawingModeIntercation.composable' }

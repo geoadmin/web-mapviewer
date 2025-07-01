@@ -28,7 +28,7 @@ import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config
 import usePositionStore from '@/store/modules/position.store'
 import { type FlatExtent, getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
 import { getGpxExtent } from '@/utils/gpxUtils.ts'
-import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
+import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils.ts'
 
 export interface LayersState {
     /** Current background layer ID */

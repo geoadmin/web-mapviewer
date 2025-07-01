@@ -4,7 +4,7 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class.js'
-import { DEFAULT_MARKER_TITLE_OFFSET } from '@/api/icon.api'
+import { DEFAULT_MARKER_TITLE_OFFSET } from '@/api/icon.api.js'
 import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable'
 
 const emits = defineEmits({

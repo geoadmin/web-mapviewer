@@ -1,7 +1,7 @@
 import { LineString, MultiPoint, Point, Polygon } from 'ol/geom'
 import { Circle, Fill, Style } from 'ol/style'
 
-import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
+import { geoadminStyleFunction } from '@/utils/featureStyleUtils.js'
 import {
     dashedRedStroke,
     redStroke,

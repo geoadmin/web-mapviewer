@@ -5,7 +5,7 @@ import { cloneDeep } from 'lodash'
 
 import { getKmlMetadataByAdminId } from '@/api/files.api.js'
 import storeSyncConfig from '@/router/storeSync/storeSync.config.js'
-import { makeKmlLayer } from '@/utils/kmlUtils'
+import { makeKmlLayer } from '@/utils/kmlUtils.js'
 
 const standardURLParams = storeSyncConfig.map((param) => {
     return param.urlParamName

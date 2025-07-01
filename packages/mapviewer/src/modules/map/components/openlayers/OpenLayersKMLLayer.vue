@@ -11,7 +11,7 @@ import { useStore } from 'vuex'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import { iconUrlProxyFy, parseKml } from '@/utils/kmlUtils'
+import { iconUrlProxyFy, parseKml } from '@/utils/kmlUtils.js'
 
 const dispatcher = { dispatcher: 'OpenLayersKMLLayer.vue' }
 

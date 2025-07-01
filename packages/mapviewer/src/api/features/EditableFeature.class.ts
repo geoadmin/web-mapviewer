@@ -5,16 +5,16 @@ import { Icon as olIcon } from 'ol/style'
 import SelectableFeature, {
     type SelectableFeatureData,
 } from '@/api/features/SelectableFeature.class'
-import { DEFAULT_ICON_URL_PARAMS, DEFAULT_TITLE_OFFSET, DrawingIcon } from '@/api/icon.api'
+import { DEFAULT_ICON_URL_PARAMS, DEFAULT_TITLE_OFFSET, DrawingIcon, generateURL } from '@/api/icon.api.ts'
 import {
     allStylingColors,
     allStylingSizes,
     allStylingTextPlacementsWithUnknown,
     FeatureStyleColor,
-    FeatureStyleSize,
+    FeatureStyleSize, generateFontString,
     MEDIUM,
     RED,
-} from '@/utils/featureStyleUtils'
+} from '@/utils/featureStyleUtils.ts'
 
 export enum EditableFeatureTypes {
     MARKER = 'MARKER',
@@ -160,7 +160,10 @@ export default class EditableFeature extends SelectableFeature {
     }
 
     get font(): string | undefined {
-        return this._textSize?.font
+        if (!this._textSize) {
+            return
+        }
+        return generateFontString(this._textSize)
     }
 
     get icon(): DrawingIcon | undefined {
@@ -173,11 +176,14 @@ export default class EditableFeature extends SelectableFeature {
     }
 
     get iconUrl(): string | undefined {
+        if (!this._icon) {
+            return
+        }
         // For simplification and backward compatibility with the old viewer
         // as well as to use browser cache more efficiently we get all the
         // icons at the default scale of 1 (48x48px) and do the scaling
         // on the client
-        return this._icon?.generateURL(this.fillColor, DEFAULT_ICON_URL_PARAMS.scale)
+        return generateURL(this._icon, this.fillColor, DEFAULT_ICON_URL_PARAMS.scale)
     }
 
     generateOpenlayersIcon(): olIcon | undefined {

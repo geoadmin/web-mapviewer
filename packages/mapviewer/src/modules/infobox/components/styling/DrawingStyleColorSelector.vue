@@ -6,7 +6,7 @@
 
 import { ref } from 'vue'
 
-import { allStylingColors, FeatureStyleColor } from '@/utils/featureStyleUtils'
+import { allStylingColors, FeatureStyleColor } from '@/utils/featureStyleUtils.js'
 
 const { inline, currentColor } = defineProps({
     inline: {

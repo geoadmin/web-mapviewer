@@ -7,7 +7,7 @@ import { containsCoordinate, getIntersection as getExtentIntersection } from 'ol
 import { defineStore } from 'pinia'
 
 import type SelectableFeature from '@/api/features/SelectableFeature.class'
-import type { DrawingIcon } from '@/api/icon.api'
+import type { DrawingIcon } from '@/api/icon.api.ts'
 import type { ActionDispatcher } from '@/store/store'
 
 import EditableFeature, {
@@ -37,7 +37,7 @@ import {
     allStylingTextPlacementsWithUnknown,
     FeatureStyleColor,
     FeatureStyleSize,
-} from '@/utils/featureStyleUtils'
+} from '@/utils/featureStyleUtils.ts'
 
 import usePositionStore from './position.store'
 
