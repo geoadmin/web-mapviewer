@@ -2,7 +2,7 @@ import { WGS84 } from '@geoadmin/coordinates'
 import { KmlStyle } from '@geoadmin/layers'
 import { layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
-import { kml as kmlToGeoJSON } from '@mapbox/togeojson'
+import { kml as kmlToGeoJSON } from '@tmcw/togeojson'
 import { booleanValid } from '@turf/turf'
 import axios from 'axios'
 import JSZip from 'jszip'
@@ -16,11 +16,11 @@ import GeoJSON from 'ol/format/GeoJSON'
 import IconStyle from 'ol/style/Icon'
 import Style from 'ol/style/Style'
 
-import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
-import { extractOlFeatureCoordinates } from '@/api/features/features.api'
+import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class.js'
+import { extractOlFeatureCoordinates } from '@/api/features/features.api.js'
 import { proxifyUrl } from '@/api/file-proxy.api'
 import { DEFAULT_TITLE_OFFSET, DrawingIcon } from '@/api/icon.api'
-import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
+import { getServiceKmlBaseUrl } from '@/config/baseUrl.config.js'
 import {
     allStylingSizes,
     allStylingTextPlacements,
@@ -88,8 +88,9 @@ export function getKmlExtent(content) {
 }
 
 /**
- * Get the description of all features in the KML content in form of a Map with the feature ID as key
- * 
+ * Get the description of all features in the KML content in form of a Map with the feature ID as
+ * key
+ *
  * @param {string} content KML content
  * @returns {Map<string, string>} Map of feature ID to description
  */
@@ -600,7 +601,7 @@ function handleIconUrl(url, iconUrlProxy = iconUrlProxyFy, files = new Map()) {
  */
 export function parseKml(kmlLayer, projection, iconSets, iconUrlProxy = iconUrlProxyFy) {
     const kmlData = kmlLayer.kmlData
-    const files = kmlLayer.linkFiles
+    const files = kmlLayer.internalFiles
     const features = new KML({
         iconUrlFunction: (url) => handleIconUrl(url, iconUrlProxy, files),
     }).readFeatures(kmlData, {

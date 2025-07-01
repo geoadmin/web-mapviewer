@@ -2,9 +2,9 @@ import { fromString } from 'ol/color'
 import { Fill, Stroke, Text } from 'ol/style'
 import Style from 'ol/style/Style'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class.js'
 import { DEFAULT_TITLE_OFFSET } from '@/api/icon.api'
-import { dashedRedStroke, whiteSketchFill } from '@/utils/styleUtils.js'
+import { dashedRedStroke, whiteSketchFill } from '@/utils/styleUtils.ts'
 
 /** A color that can be used to style a feature (comprised of a fill and a border color) */
 export class FeatureStyleColor {
@@ -132,17 +132,6 @@ export const SMALL = new FeatureStyleSize('small_size', 1, 0.5)
 export const MEDIUM = new FeatureStyleSize('medium_size', 1.5, 0.75)
 export const LARGE = new FeatureStyleSize('large_size', 2.0, 1)
 export const EXTRA_LARGE = new FeatureStyleSize('extra_large_size', 2.5, 1.25)
-
-export const LEFT = 'left'
-export const RIGHT = 'right'
-export const TOP = 'top'
-export const BOTTOM = 'bottom'
-export const CENTER = 'center'
-export const UNKNOWN = 'unknown'
-export const TOP_LEFT = 'top-left'
-export const TOP_RIGHT = 'top-right'
-export const BOTTOM_LEFT = 'bottom-left'
-export const BOTTOM_RIGHT = 'bottom-right'
 
 /**
  * List of all available sizes for drawing style

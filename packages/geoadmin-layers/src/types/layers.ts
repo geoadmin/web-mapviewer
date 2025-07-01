@@ -20,6 +20,11 @@ export enum LayerType {
     COG = 'COG',
 }
 
+export enum KMLStyles {
+    DEFAULT = 'DEFAULT',
+    GEOADMIN = 'GEOADMIN',
+}
+
 export interface LayerAttribution {
     name: string
     url?: string
@@ -32,7 +37,33 @@ export interface LayerLegend {
     height?: number
 }
 
-/** @interface Layer */
+export interface LayerCustomAttributes {
+    /**
+     * Selected year of the time-enabled layer. Can be one of the following values:
+     *
+     * - Undefined := either the layer has no timeConfig or we use the default year defined in
+     *   layerConfig.timeBehaviour
+     * - 'none': = no year is selected, which means that the layer won't be visible. This happens when
+     *   using the TimeSlider where a user can select a year that has no data for this layer.
+     * - 'all': = load all years for this layer (for WMS this means that no TIME param is added and
+     *   for WMTS we use the geoadmin definition YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA as timestamp)
+     * - 'current': = load current year, only valid for WMTS layer where 'current' is a valid
+     *   timestamp.
+     * - YYYY: = any valid year entry for this layer, this will load the data only for this year.
+     *
+     * Affects only time-enabled layers (including External WMS/WMTS layer with timestamp)
+     */
+    year?: string | number
+    /** Automatic refresh time in milliseconds of the layer. Affects GeoAdminGeoJsonLayer only. */
+    updateDelay?: number
+    /** Colon-separated list of feature IDs to select.` */
+    features?: string
+    /** KML style to be applied (in case this layer is a KML layer) */
+    style?: KMLStyles
+    /** Any unlisted param will go here */
+    [key: string]: string | number | boolean | undefined
+}
+
 export interface Layer {
     /** A unique identifier for each object of this interface * */
     uuid: string
@@ -78,7 +109,7 @@ export interface Layer {
      * The custom attributes (except the well known updateDelays, adminId, features and year) passed
      * with the layer id in url.
      */
-    customAttributes?: Record<string, string>
+    customAttributes?: LayerCustomAttributes
 
     /** List of error linked to this layer (i.e. network error, unparsable data, etc...) */
     errorMessages?: Set<ErrorMessage>
@@ -92,12 +123,10 @@ export interface Layer {
 }
 
 // #region: GeoAdminLayers
-/**
- * This interface unifies the shared properties of the layers that speak to an API like WMS and WMTS
- *
- * @interface GeoAdminLayer
- */
+/** This interface unifies the shared properties of the layers that speak to an API like WMS and WMTS */
 export interface GeoAdminLayer extends Layer {
+    /** If this layer should be treated as a background layer. */
+    readonly isBackground: boolean
     /**
      * Tells if this layer possess features that should be highlighted on the map after a click (and
      * if the backend will provide valuable information on the
@@ -123,11 +152,7 @@ export interface GeoAdminLayer extends Layer {
     /* oh OK this is determined by the _3d suffix. Why then isn't it made a 3d layer? */
 }
 
-/**
- * Represent a WMS Layer from geo.admin.ch
- *
- * @interface GeoAdminWmsLayer
- */
+/** Represent a WMS Layer from geo.admin.ch */
 export interface GeoAdminWMSLayer extends GeoAdminLayer {
     /**
      * How much of a gutter (extra pixels around the image) we want. This is specific for tiled WMS,
@@ -146,14 +171,8 @@ export interface GeoAdminWMSLayer extends GeoAdminLayer {
     readonly type: LayerType.WMS
 }
 
-/**
- * Represent a WMTS layer from geo.admin.ch
- *
- * @interface GeoAdminWMTSLayer
- */
+/** Represent a WMTS layer from geo.admin.ch */
 export interface GeoAdminWMTSLayer extends GeoAdminLayer {
-    /** If this layer should be treated as a background layer. */
-    readonly isBackground: boolean
     /** Define the maximum resolution the layer can reach */
     readonly maxResolution: number
     /** In which image format the backend must be requested. */
@@ -169,7 +188,7 @@ export interface GeoAdmin3DLayer extends GeoAdminLayer {
     /* If this layers' JSON is stored in a
        dedicated timed folder, it can be described with this property. This will be added at the
        end of the URL, before the /tileset.json (or /style.json, depending on the layer type) */
-    readonly urlTimestampToUse?: boolean
+    readonly urlTimestampToUse?: string
 }
 
 export interface GeoAdminGeoJSONLayer extends GeoAdminLayer {
@@ -211,22 +230,54 @@ export interface CloudOptimizedGeoTIFFLayer extends Layer {
     extent?: [number, number, number, number]
 }
 
-export interface KmlMetadata {
-    readonly id: string
-    readonly adminId?: string
-    links: [
-        {
-            metadata: string
-            kml: string
-        },
-    ]
-    readonly created: Date
-    updated: Date
-    readonly author: string
-    readonly authorVersion: string
+/** Links to service-kml's entries for this KML */
+export interface KMLMetadataLinks {
+    /** URL link to the KML's metadata (which is used to set the KMLMetadata values up) */
+    readonly metadata: string
+    /** URL link to the file itself */
+    readonly kml: string
 }
 
-export enum KmlStyle {
+/**
+ * All info from the metadata endpoint of service-kml
+ *
+ * @see https://github.com/geoadmin/service-kml/blob/56286ea029b1b01054d0d7e1288279acd0aa9b4b/app/routes.py#L80-L83
+ */
+export interface KMLMetadata {
+    /** The file ID to use to access the resource and metadata */
+    readonly id: string
+    /**
+     * The file admin ID to use if the user wants to modify this file later (without changing his
+     * previously generated share links)
+     */
+    readonly adminId?: string
+    readonly created: Date
+    updated: Date
+    /**
+     * Author of the KML.
+     *
+     * Is used to detect if a KML is from the "legacy" viewer (a.k.a. mf-geoadmin3) or was generated
+     * with the current version of the code.
+     *
+     * To be flagged as "current", this value must be exactly "web-mapviewer". Any other value will
+     * be considered a legacy KML.
+     *
+     * This is especially important for icon URLs, as we've changed service-icons' URL scheme while
+     * going live with web-mapviewer's project.
+     */
+    readonly author: string
+    /**
+     * Version of the KML drawing
+     *
+     * This is set by the viewer's code to 1.0.0 (backend will default to 0.0.0) here:
+     * https://github.com/geoadmin/web-mapviewer/blob/8fa2cf2ad273779265d2dfad91c8c4b96f47b90f/packages/mapviewer/src/api/files.api.js#L125
+     */
+    readonly authorVersion: string
+    /** URL links to this KML's resource */
+    readonly links: KMLMetadataLinks
+}
+
+export enum KMLStyle {
     DEFAULT = 'DEFAULT',
     GEOADMIN = 'GEOADMIN',
 }
@@ -238,7 +289,7 @@ export interface KMLLayer extends Layer {
     /* Data/content of the KML file, as a string. */
     kmlData?: string
     /* Metadata of the KML drawing. This object contains all the metadata returned by the backend. */
-    kmlMetadata?: KmlMetadata
+    kmlMetadata?: KMLMetadata
 
     extent?: [number, number, number, number]
     /* Flag defining if the KML should be clamped to
@@ -248,13 +299,16 @@ export interface KMLLayer extends Layer {
        wanted to have their flat surface visible on the ground, so that is the way to please both
        crowds. */
     clampToGround: boolean
-    style?: KmlStyle
+    style?: KMLStyle
     isExternal: boolean
     isLocalFile: boolean
     attributions: LayerAttribution[]
-    /* Map of KML link files. Those files are usually sent with the kml inside a KMZ archive and can
-       be referenced inside the KML (e.g. icon, image, ...). */
-    linkFiles: Map<String, ArrayBuffer>
+    /**
+     * Map of KMZ icons subfiles. Those files are usually sent with the KML inside a KMZ archive and
+     * can be referenced inside the KML (e.g., icon, image, ...), so that they are available
+     * "offline"
+     */
+    internalFiles: Map<String, ArrayBuffer>
 }
 
 export interface GPXLink {
@@ -291,14 +345,14 @@ export interface GPXLayer extends Layer {
 // #endregion
 
 // #region: external layers
-export interface WMTSDimension {
+export interface ExternalLayerTimeDimension {
     /* Dimension identifier */
     readonly id: string
     /* Dimension default value */
     readonly default: string
     /* All dimension values */
     readonly values: string[]
-    /* Boolean flag if the dimension support current (see WMTS OGC spec) */
+    /* Boolean flag if the dimension support current (see WMTS/WMS OGC spec) */
     current?: boolean
 }
 
@@ -332,14 +386,22 @@ export enum WMTSEncodingType {
     REST = 'REST',
 }
 
-export interface ExternalWMTSLayer extends Layer {
-    /* Abstract of this layer to be shown to the user. */
+export interface ExternalLayer extends Layer {
     readonly abstract?: string
-    readonly extent?: LayerExtent
+    readonly availableProjections?: CoordinateSystem[]
+    /* Configuration describing how to request this layer's server to get feature information. */
+    readonly getFeatureInfoCapability?: any // TODO type this properly
+    readonly dimensions: ExternalLayerTimeDimension[]
+    /* Current year of the time series config to use. This parameter is needed as it is set in the
+       URL while the timeConfig parameter is not yet available and parse later on from the
+       GetCapabilities. */
+    currentYear?: number
     /* Layer legends. */
     readonly legends?: LayerLegend[]
-    /* All projection that can be used to request this layer. */
-    readonly availableProjections?: CoordinateSystem[]
+    readonly extent?: LayerExtent
+}
+
+export interface ExternalWMTSLayer extends ExternalLayer {
     /* WMTS Get Capabilities options */
     readonly options?: Options
     /* WMTS Get Tile encoding (KVP or REST). */
@@ -350,47 +412,16 @@ export interface ExternalWMTSLayer extends Layer {
     readonly style?: string
     /* WMTS tile matrix sets */
     readonly tileMatrixSets?: TileMatrixSet[]
-    /* WMTS tile dimensions */
-    readonly dimensions?: WMTSDimension[]
-    /* Current year of the time series config to use. This parameter is needed as it is set in the
-       URL while the timeConfig parameter is not yet available and parse later on from the
-       GetCapabilities. */
-    currentYear?: number
     readonly type: LayerType.WMTS
 }
 
-export interface WMSDimension {
-    readonly id: string
-    readonly dft: string
-    readonly values?: string[]
-    readonly current?: boolean
-}
-
-export interface ExternalWMSLayer extends Layer {
-    /* Abstract of this layer to be shown to the user. */
-    readonly abstract?: string
-    /* WMS Dimensions */
-    readonly dimensions: WMSDimension[]
-    /*All projection that can   be used to request this layer. */
-    readonly availableProjections?: CoordinateSystem[]
-    /* Configuration describing how to request this layer's server to get feature information. */
-    readonly getFeatureInfoCapability?: any
-    /* The custom attributes (except the well known updateDelays, adminId, features and year)
-       passed with the layer id in url. */
-    readonly customAttributes?: Record<string, any>
+export interface ExternalWMSLayer extends ExternalLayer {
     /* Description of the layers being part of this WMS layer (they will all be displayed at the
        same time, in contrast to an aggregate layer) */
     readonly layers?: ExternalWMSLayer[]
     /* WMS protocol version to be used when querying this server.  */
     readonly wmsVersion: string
     readonly format: 'png' | 'jpeg'
-    readonly extent?: LayerExtent
-    /* Layer legends */
-    readonly legends?: LayerLegend[]
-    /* Current year of the time series config to use. This parameter is needed as it is set in the
-       URL while the timeConfig parameter is not yet available and parse later on from the
-       GetCapabilities. */
-    currentYear?: number
 }
 
 // #endregion
@@ -423,4 +454,3 @@ export interface GeoAdminGroupOfLayers extends Layer {
 // #endregion
 
 export type FileLayer = KMLLayer | GPXLayer | CloudOptimizedGeoTIFFLayer
-export type ExternalLayer = ExternalWMSLayer | ExternalWMTSLayer

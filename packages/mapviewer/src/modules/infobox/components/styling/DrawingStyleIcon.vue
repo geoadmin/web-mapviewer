@@ -3,7 +3,7 @@ import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
-import EditableFeature from '@/api/features/EditableFeature.class'
+import EditableFeature from '@/api/features/EditableFeature.class.js'
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
 
 const { icon, currentFeature, currentIconSet, tooltipDisabled } = defineProps({

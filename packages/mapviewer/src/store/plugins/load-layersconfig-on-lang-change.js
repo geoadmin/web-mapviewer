@@ -3,8 +3,8 @@ import log from '@geoadmin/log'
 
 import { loadTopics, parseTopics } from '@/api/topics.api'
 import { ENVIRONMENT } from '@/config/staging.config'
-import { SET_HAS_URL_OVERRIDES_MUTATION_KEY } from '@/store/debug.store'
-import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
+import { SET_HAS_URL_OVERRIDES_MUTATION_KEY } from '@/store/modules/debug.store.ts'
+import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store.js'
 
 const dispatcher = { dispatcher: 'load-layersconfig-on-lang-change' }
 

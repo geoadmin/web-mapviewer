@@ -20,7 +20,7 @@ import { DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@/config/map.config'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { parseGpx } from '@/utils/gpxUtils'
 import { parseKml } from '@/utils/kmlUtils'
-import { createLayerFeature } from '@/utils/layerUtils'
+import { createLayerFeature } from '@/utils/layerUtils.js'
 
 const dispatcher = {
     dispatcher: 'useDragBoxSelect.composable',

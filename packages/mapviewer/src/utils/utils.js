@@ -1,7 +1,7 @@
 import log from '@geoadmin/log'
 import { format } from '@geoadmin/numbers'
 
-import { internalDomainRegex } from '@/config/baseUrl.config'
+import { internalDomainRegex } from '@/config/baseUrl.config.js'
 
 /**
  * Check if the provided string is a valid URL

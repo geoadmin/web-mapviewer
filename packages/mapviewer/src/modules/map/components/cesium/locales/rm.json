@@ -1,6 +1,5 @@
 {
     "ch.swisstopo.swissbuildings3d.3d_EGID": "EGID",
-
     "ch.swisstopo.swissbuildings3d.3d_GESAMTHOEHE": "Gebäudehöhe [m]",
     "ch.swisstopo.swissbuildings3d.3d_DACH_MAX": "Maximale Dachhöhe [m ü. M.]",
     "ch.swisstopo.swissbuildings3d.3d_GELAENDEPUNKT": "Geländehöhe [m ü. M.]",

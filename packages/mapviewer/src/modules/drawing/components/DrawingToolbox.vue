@@ -6,7 +6,7 @@ import { computed, inject, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class.js'
 import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
 import DrawingHeader from '@/modules/drawing/components/DrawingHeader.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
@@ -14,7 +14,7 @@ import SharePopup from '@/modules/drawing/components/SharePopup.vue'
 import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
-import { EditMode } from '@/store/modules/drawing.store'
+import { EditMode } from '@/store/modules/drawing.store.js'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import debounce from '@/utils/debounce'
 
@@ -163,7 +163,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
         />
         <div :class="[{ 'drawing-toolbox-closed': !drawMenuOpen }, 'drawing-toolbox']">
             <div
-                class="card text-center drawing-toolbox-content shadow-lg rounded-bottom rounded-top-0 rounded-start-0"
+                class="card drawing-toolbox-content rounded-bottom rounded-top-0 rounded-start-0 text-center shadow-lg"
                 :class="{ 'rounded-bottom-0': isPhoneMode }"
             >
                 <GeoadminTooltip
@@ -173,7 +173,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                 >
                     <div
                         v-if="online"
-                        class="d-flex justify-content-center align-items-center gap-2 mt-3 mx-4"
+                        class="d-flex justify-content-center align-items-center mx-4 mt-3 gap-2"
                     >
                         <label
                             for="drawing-name"
@@ -282,7 +282,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                         class="row mt-2"
                     >
                         <div
-                            class="col text-center text-muted"
+                            class="col text-muted text-center"
                             data-cy="drawing-toolbox-disclaimer"
                         >
                             <!-- eslint-disable vue/no-v-html-->
@@ -297,7 +297,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                 class="text-center"
             >
                 <button
-                    class="button-open-close-draw-menu btn btn-dark m-auto ps-4 pe-4 rounded-0 rounded-bottom"
+                    class="button-open-close-draw-menu btn btn-dark rounded-0 rounded-bottom m-auto pe-4 ps-4"
                     data-cy="menu-button"
                     @click="drawMenuOpen = !drawMenuOpen"
                 >

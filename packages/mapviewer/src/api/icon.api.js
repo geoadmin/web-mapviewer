@@ -1,7 +1,7 @@
 import log from '@geoadmin/log'
 import axios from 'axios'
 
-import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'
+import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config.js'
 import { calculateTextOffset, MEDIUM, RED } from '@/utils/featureStyleUtils'
 
 /** Default Icon parameters for the URL. */

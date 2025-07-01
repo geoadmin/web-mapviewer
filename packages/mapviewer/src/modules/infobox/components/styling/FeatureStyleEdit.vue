@@ -6,7 +6,7 @@ import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class.js'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import ShowGeometryProfileButton from '@/modules/infobox/components/ShowGeometryProfileButton.vue'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'

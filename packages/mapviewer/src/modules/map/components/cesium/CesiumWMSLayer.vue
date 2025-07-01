@@ -7,10 +7,10 @@ import { cloneDeep } from 'lodash'
 import { computed, inject, toRef, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import { getBaseUrlOverride } from '@/config/baseUrl.config'
+import { getBaseUrlOverride } from '@/config/baseUrl.config.js'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useAddImageryLayer from '@/modules/map/components/cesium/utils/useAddImageryLayer.composable'
-import { getTimestampFromConfig } from '@/utils/layerUtils'
+import { getTimestampFromConfig } from '@/utils/layerUtils.js'
 
 const MAXIMUM_LEVEL_OF_DETAILS = 18
 

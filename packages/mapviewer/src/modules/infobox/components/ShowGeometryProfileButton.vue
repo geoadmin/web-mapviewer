@@ -4,8 +4,8 @@ import { LayerType } from '@geoadmin/layers'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import LayerFeature from '@/api/features/LayerFeature.class'
-import SelectableFeature from '@/api/features/SelectableFeature.class'
+import LayerFeature from '@/api/features/LayerFeature.class.js'
+import SelectableFeature from '@/api/features/SelectableFeature.class.js'
 
 const dispatcher = { dispatcher: 'ShowGeometryProfileButton.vue' }
 

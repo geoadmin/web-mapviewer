@@ -2,7 +2,7 @@ import { LV03 } from '@geoadmin/coordinates'
 import { round } from '@geoadmin/numbers'
 import proj4 from 'proj4'
 
-import i18n from '@/modules/i18n'
+import i18n from '@/modules/i18n/index.js'
 import { LV03Format, LV95Format } from '@/utils/coordinates/coordinateFormat'
 
 /**

@@ -3,8 +3,8 @@ import { timeConfigUtils, layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import { cloneDeep } from 'lodash'
 
-import { getKmlMetadataByAdminId } from '@/api/files.api'
-import storeSyncConfig from '@/router/storeSync/storeSync.config'
+import { getKmlMetadataByAdminId } from '@/api/files.api.js'
+import storeSyncConfig from '@/router/storeSync/storeSync.config.js'
 import { makeKmlLayer } from '@/utils/kmlUtils'
 
 const standardURLParams = storeSyncConfig.map((param) => {

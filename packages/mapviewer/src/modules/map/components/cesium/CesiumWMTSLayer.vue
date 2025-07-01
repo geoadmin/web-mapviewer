@@ -9,7 +9,7 @@ import { useStore } from 'vuex'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useAddImageryLayer from '@/modules/map/components/cesium/utils/useAddImageryLayer.composable'
-import { getWmtsXyzUrl } from '@/utils/layerUtils'
+import { getWmtsXyzUrl } from '@/utils/layerUtils.js'
 
 const dispatcher = { dispatcher: 'CesiumWMTSLayer.vue' }
 

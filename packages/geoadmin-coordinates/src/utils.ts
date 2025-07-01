@@ -4,7 +4,7 @@ import proj4 from 'proj4'
 import CoordinateSystem from '@/proj/CoordinateSystem'
 
 export type SingleCoordinate = [number, number]
-type Single3DCoordinate = [number, number, number]
+export type Single3DCoordinate = [number, number, number]
 
 /**
  * Returns rounded coordinate with thousands separator and comma.

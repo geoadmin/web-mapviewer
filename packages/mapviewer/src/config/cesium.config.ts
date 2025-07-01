@@ -1,4 +1,4 @@
-import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
+import { get3dTilesBaseUrl } from '@/config/baseUrl.config.ts'
 
 /** 3D terrain URL */
 export const TERRAIN_URL: string = `${get3dTilesBaseUrl()}/ch.swisstopo.terrain.3d/v1/`

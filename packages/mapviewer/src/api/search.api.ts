@@ -5,14 +5,14 @@ import { CoordinateSystem, LV95, WGS84 } from '@geoadmin/coordinates'
 import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { bbox, center, points } from '@turf/turf'
-import axios, { type CancelToken } from 'axios'
+import axios, { type CancelToken, type CancelTokenSource } from 'axios'
 import proj4 from 'proj4'
 
-import { extractOlFeatureCoordinates } from '@/api/features/features.api'
-import { getServiceSearchBaseUrl } from '@/config/baseUrl.config'
+import { extractOlFeatureCoordinates } from '@/api/features/features.api.ts'
+import { getServiceSearchBaseUrl } from '@/config/baseUrl.config.ts'
 import i18n from '@/modules/i18n'
 import { type FlatExtent, normalizeExtent } from '@/utils/extentUtils.ts'
-import { parseGpx } from '@/utils/gpxUtils'
+import { parseGpx } from '@/utils/gpxUtils.ts'
 import { parseKml } from '@/utils/kmlUtils'
 
 const KML_GPX_SEARCH_FIELDS = ['name', 'description', 'id']
@@ -230,7 +230,7 @@ async function searchLocation(
     outputProjection: CoordinateSystem,
     queryString: string,
     lang: string,
-    cancelToken: CancelToken,
+    cancelToken: CancelTokenSource,
     limit?: number
 ): Promise<LocationSearchResult[]> {
     try {
@@ -264,7 +264,7 @@ async function searchLayerFeatures(
     queryString: string,
     layer: Layer,
     lang: string,
-    cancelToken: CancelToken
+    cancelToken: CancelTokenSource
 ): Promise<LayerFeatureSearchResult[]> {
     try {
         const layerFeatureResponse = await generateAxiosSearchRequest(

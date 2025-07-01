@@ -1,8 +1,8 @@
 import log from '@geoadmin/log'
 import axios from 'axios'
 
-import { getKmlFromUrl } from '@/api/files.api'
-import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'
+import { getKmlFromUrl } from '@/api/files.api.js'
+import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config.js'
 import { APP_VERSION } from '@/config/staging.config'
 
 /** Maximum size allowed by the backend, can be used to do validation up front */

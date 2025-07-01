@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
-import { stitchMultiLine } from '../profile.store.js'
+import { stitchMultiLine } from '../profile.store.ts'
 
 function checkLines(expectedResult, result) {
     expect(result).to.be.an('Array')

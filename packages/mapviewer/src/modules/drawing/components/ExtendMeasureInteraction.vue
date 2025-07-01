@@ -1,7 +1,7 @@
 <script setup>
 import Feature from 'ol/Feature'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class.js'
 import useExtendLineInteraction from '@/modules/drawing/components/useExtendLineInteraction.composable'
 import { drawMeasureStyle } from '@/modules/drawing/lib/style'
 

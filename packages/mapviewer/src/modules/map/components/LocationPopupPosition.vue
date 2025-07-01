@@ -8,8 +8,8 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { requestHeight } from '@/api/height.api'
-import reframe from '@/api/lv03Reframe.api'
-import { registerWhat3WordsLocation } from '@/api/what3words.api'
+import reframe from '@/api/lv03Reframe.api.js'
+import { registerWhat3WordsLocation } from '@/api/what3words.api.js'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import {
     LV03Format,
@@ -127,7 +127,7 @@ async function updateHeight() {
         role="tabpanel"
         aria-labelledby="nav-local-tab"
     >
-        <div class="pb-2 location-popup-coordinates align-items-center">
+        <div class="location-popup-coordinates align-items-center pb-2">
             <CoordinateCopySlot
                 identifier="location-popup-lv95"
                 :value="coordinate"
