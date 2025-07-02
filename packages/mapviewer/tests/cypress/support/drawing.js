@@ -2,13 +2,13 @@ import { randomIntBetween } from '@geoadmin/numbers'
 import pako from 'pako'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
-import { GREEN, RED } from '@/utils/featureStyleUtils'
+import { generateRGBFillString, GREEN, RED } from '@/utils/featureStyleUtils'
 
 export const addIconFixtureAndIntercept = () => {
-    cy.intercept(`**/api/icons/sets/default/icons/**${RED.rgbString}.png`, {
+    cy.intercept(`**/api/icons/sets/default/icons/**${generateRGBFillString(RED)}.png`, {
         fixture: 'service-icons/placeholder.png',
     }).as('icon-default')
-    cy.intercept(`**/api/icons/sets/default/icons/**${GREEN.rgbString}.png`, {
+    cy.intercept(`**/api/icons/sets/default/icons/**${generateRGBFillString(GREEN)}.png`, {
         fixture: 'service-icons/placeholder.png',
     }).as('icon-default-green')
     cy.intercept(`**/api/icons/sets/babs/icons/*@*.png`, {

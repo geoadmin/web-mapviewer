@@ -7,25 +7,17 @@ import { Interval } from 'luxon'
  * For WMTS : as we want this year to be passed along year by year, we can't use the actual year
  * (today would be 2025) as otherwise this link opened in 2030 won't show "current" data but 2025
  * data, so we store it the same way WMS does, with 9999 as a year
- *
- * @type {number}
  */
-export const YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA = 9999
+export const YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA: number = 9999
 
-/**
- * Timestamp to describe "all data" for time enabled WMS layer
- *
- * @type {string}
- */
-export const ALL_YEARS_TIMESTAMP = 'all'
+/** Timestamp to describe "all data" for time enabled WMS layer */
+export const ALL_YEARS_TIMESTAMP: string = 'all'
 /**
  * Timestamp to describe "current" or latest available data for a time enabled WMTS layer (and also
  * is the default value to give any WMTS layer that is not time enabled, as this timestamp is
  * required in the URL scheme)
- *
- * @type {string}
  */
-export const CURRENT_YEAR_TIMESTAMP = 'current'
+export const CURRENT_YEAR_TIMESTAMP: string = 'current'
 
 /**
  * Duration of time for when to show data on this layer. Can be a set of instant (expressed as an

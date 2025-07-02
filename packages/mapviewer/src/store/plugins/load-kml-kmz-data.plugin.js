@@ -8,7 +8,11 @@ import log from '@geoadmin/log'
 import { ErrorMessage } from '@geoadmin/log/Message'
 
 import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api'
-import { loadKmlMetadata, checkOnlineFileCompliance, getFileContentFromUrl } from '@/api/files.api'
+import {
+    loadKmlMetadata,
+    checkOnlineFileCompliance,
+    getFileContentFromUrl,
+} from '@/api/files.api.js'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
@@ -51,7 +55,7 @@ function sendLayerToStore(store, layer) {
             kmlData: layer.kmlData,
             extent: layer.extent,
             extentProjection: layer.extentProjection,
-            linkFiles: layer.linkFiles,
+            linkFiles: layer.internalFiles,
             isLoading: false,
         },
         ...dispatcher,

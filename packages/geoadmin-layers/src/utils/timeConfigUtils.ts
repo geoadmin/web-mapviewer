@@ -30,7 +30,7 @@ export const getTimeEntryForYear = (
 
 export const updateCurrentTimeEntry = (
     timeConfig: LayerTimeConfig,
-    entryOrTimestamp: LayerTimeConfigEntry | string
+    entryOrTimestamp: LayerTimeConfigEntry | string | undefined
 ) => {
     let currentTimeEntry: LayerTimeConfigEntry | undefined
 
@@ -143,4 +143,29 @@ export const makeTimeConfig = (
 
 export const hasMultipleTimestamps = (layer: Layer): boolean => {
     return (layer.timeConfig?.timeEntries?.length || 0) > 1
+}
+
+export const getYearFromLayerTimeEntry = (timeEntry: LayerTimeConfigEntry): number | undefined => {
+    if (timeEntry.nonTimeBasedValue && ['all', 'current'].includes(timeEntry.nonTimeBasedValue)) {
+        return YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA
+    }
+    if (timeEntry.interval && timeEntry.interval.start?.year !== undefined) {
+        return timeEntry.interval.start.year
+    }
+    return undefined
+}
+
+export const getTimeEntryForInterval = (
+    layer: Layer,
+    interval: Interval
+): LayerTimeConfigEntry | undefined => {
+    if (!interval?.isValid || !layer.timeConfig?.timeEntries?.length) {
+        return
+    }
+    return layer.timeConfig.timeEntries.find((entry) => {
+        if (entry.interval) {
+            return entry.interval.overlaps(interval)
+        }
+        return false
+    })
 }

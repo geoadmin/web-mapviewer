@@ -4,7 +4,7 @@ import { LineString, Point, Polygon } from 'ol/geom'
 import {
     extractOlFeatureCoordinates,
     extractOlFeatureGeodesicCoordinates,
-} from '@/api/features/features.api'
+} from '@/api/features/features.api.js'
 
 /**
  * Checks if point is at target within tolerance.

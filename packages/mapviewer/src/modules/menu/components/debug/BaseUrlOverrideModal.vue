@@ -8,7 +8,7 @@ import {
     getDefaultBaseUrl,
     hasBaseUrlOverrides,
     setBaseUrlOverrides,
-} from '@/config/baseUrl.config'
+} from '@/config/baseUrl.config.js'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 
 const dispatcher = { dispatcher: 'BaseUrlOverrideModal.vue' }

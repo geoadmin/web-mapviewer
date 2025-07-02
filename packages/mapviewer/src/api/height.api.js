@@ -4,7 +4,7 @@ import { round } from '@geoadmin/numbers'
 import axios from 'axios'
 import proj4 from 'proj4'
 
-import { getServiceAltiBaseUrl } from '@/config/baseUrl.config'
+import { getServiceAltiBaseUrl } from '@/config/baseUrl.config.js'
 
 export const meterToFeetFactor = 3.28084
 

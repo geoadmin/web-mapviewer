@@ -1,32 +1,36 @@
-<script setup>
+<script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import DropdownButton from '@/utils/components/DropdownButton.vue'
+import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
 import { allStylingSizes, FeatureStyleSize } from '@/utils/featureStyleUtils'
 
-const { currentSize } = defineProps({
-    currentSize: {
-        type: FeatureStyleSize,
-        required: true,
-    },
-})
+const { currentSize } = defineProps<{
+    currentSize: FeatureStyleSize
+}>()
 
-const emits = defineEmits(['change'])
+const emits = defineEmits<{
+    change: [size: FeatureStyleSize]
+}>()
 
 const { t } = useI18n()
 
-const sizes = ref(allStylingSizes)
+const sizes = ref<FeatureStyleSize[]>(allStylingSizes)
 
-const sizeLabel = computed(() => currentSize?.label)
-const dropdownItems = computed(() =>
+const dropdownItems = computed<DropdownItem[]>(() =>
     sizes.value.map((size) => {
-        return { id: size.label, title: size.label, value: size }
+        return {
+            id: size.label,
+            title: size.label,
+            value: size,
+            selected: size.label === currentSize?.label,
+        }
     })
 )
 
-function onSizeSelect(dropdownItem) {
-    emits('change', dropdownItem.value)
+function onSizeSelect(dropdownItem: DropdownItem): void {
+    const size: FeatureStyleSize = dropdownItem.value as FeatureStyleSize
+    emits('change', size)
 }
 </script>
 
@@ -41,7 +45,7 @@ function onSizeSelect(dropdownItem) {
         <DropdownButton
             id="drawing-style-text-size-selector"
             data-cy="drawing-style-size-selector"
-            :title="sizeLabel"
+            :title="currentSize.label"
             :items="dropdownItems"
             :current-value="currentSize"
             @select-item="onSizeSelect"

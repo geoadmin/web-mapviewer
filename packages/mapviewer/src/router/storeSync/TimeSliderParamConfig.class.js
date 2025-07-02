@@ -1,10 +1,10 @@
 import { timeConfigUtils } from '@geoadmin/layers/utils'
 import { WarningMessage } from '@geoadmin/log/Message'
 
-import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
-} from '@/router/storeSync/abstractParamConfig.class'
+} from '@/router/storeSync/UrlParamConfig.class.ts'
+import { getDefaultValidationResponse } from '@/router/storeSync/validation.ts'
 function dispatchTimeSliderFromUrlParam(to, store, urlParamValue) {
     const promisesForAllDispatch = []
     const isValidYear =
@@ -39,7 +39,7 @@ function generateTimeSliderUrlParamFromStore(store) {
 }
 
 function validateUrlInput(store, query) {
-    const validationObject = getStandardValidationResponse(
+    const validationObject = getDefaultValidationResponse(
         query,
         !isNaN(query) &&
             Number.isInteger(Number(query)) &&

@@ -7,7 +7,7 @@ import InvalidFileContentError from '@/modules/menu/components/advancedTools/Imp
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
 import { getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
-import { getGpxExtent } from '@/utils/gpxUtils'
+import { getGpxExtent } from '@/utils/gpxUtils.js'
 
 /**
  * Checks if file is GPX

@@ -1,7 +1,7 @@
-import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
-} from '@/router/storeSync/abstractParamConfig.class'
+} from '@/router/storeSync/UrlParamConfig.class.ts'
+import { getDefaultValidationResponse } from '@/router/storeSync/validation.ts'
 
 export function readCenterFromUrlParam(urlParamValue) {
     if (urlParamValue) {
@@ -40,13 +40,13 @@ function generateCenterUrlParamFromStoreValues(store) {
 function validateUrlInput(store, query) {
     if (query) {
         const center = query.split(',')
-        return getStandardValidationResponse(
+        return getDefaultValidationResponse(
             query,
             center.length === 2 && store.state.position.projection.isInBounds(center[0], center[1]),
             this.urlParamName
         )
     }
-    return getStandardValidationResponse(query, false, this.urlParamName)
+    return getDefaultValidationResponse(query, false, this.urlParamName)
 }
 
 /**

@@ -8,7 +8,7 @@ import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import { getTimestampFromConfig, getWmtsXyzUrl, indexOfMaxResolution } from '@/utils/layerUtils'
+import { getTimestampFromConfig, getWmtsXyzUrl, indexOfMaxResolution } from '@/utils/layerUtils.js'
 
 const { wmtsLayerConfig, parentLayerOpacity, zIndex } = defineProps({
     wmtsLayerConfig: {

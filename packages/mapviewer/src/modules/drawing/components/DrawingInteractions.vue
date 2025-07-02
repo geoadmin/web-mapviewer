@@ -3,7 +3,7 @@ import log from '@geoadmin/log'
 import { computed, ref, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class.js'
 import DrawingLineInteraction from '@/modules/drawing/components/DrawingLineInteraction.vue'
 import DrawingMarkerInteraction from '@/modules/drawing/components/DrawingMarkerInteraction.vue'
 import DrawingMeasureInteraction from '@/modules/drawing/components/DrawingMeasureInteraction.vue'
@@ -11,7 +11,7 @@ import DrawingSelectInteraction from '@/modules/drawing/components/DrawingSelect
 import DrawingTextInteraction from '@/modules/drawing/components/DrawingTextInteraction.vue'
 import ExtendLineInteraction from '@/modules/drawing/components/ExtendLineInteraction.vue'
 import ExtendMeasureInteraction from '@/modules/drawing/components/ExtendMeasureInteraction.vue'
-import { EditMode } from '@/store/modules/drawing.store'
+import { EditMode } from '@/store/modules/drawing.store.js'
 
 // DOM References
 const selectInteraction = useTemplateRef('selectInteraction')

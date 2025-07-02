@@ -7,7 +7,7 @@ import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class.js'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import ShowGeometryProfileButton from '@/modules/infobox/components/ShowGeometryProfileButton.vue'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
@@ -21,7 +21,7 @@ import MediaTypes from '@/modules/infobox/DrawingStyleMediaTypes.enum.js'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import allFormats from '@/utils/coordinates/coordinateFormat'
 import debounce from '@/utils/debounce'
-import { calculateTextOffset } from '@/utils/featureStyleUtils'
+import { calculateTextOffset } from '@/utils/featureStyleUtils.js'
 
 const dispatcher = { dispatcher: 'FeatureStyleEdit.vue' }
 

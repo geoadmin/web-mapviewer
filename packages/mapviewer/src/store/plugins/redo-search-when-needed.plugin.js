@@ -1,4 +1,4 @@
-import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store'
+import { SET_LANG_MUTATION_KEY } from '@/store/modules/i18n.store.js'
 
 /**
  * Redo the search results on lang change if the search query is defined

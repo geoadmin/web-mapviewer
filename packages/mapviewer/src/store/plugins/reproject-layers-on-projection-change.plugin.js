@@ -1,8 +1,8 @@
 import log from '@geoadmin/log'
 import proj4 from 'proj4'
 
-import EditableFeature from '@/api/features/EditableFeature.class'
-import LayerFeature from '@/api/features/LayerFeature.class'
+import EditableFeature from '@/api/features/EditableFeature.class.js'
+import LayerFeature from '@/api/features/LayerFeature.class.js'
 import { flattenExtent, projExtent } from '@/utils/extentUtils'
 
 const dispatcher = { dispatcher: 'reproject-layers-on-projection-change.plugin' }
@@ -137,15 +137,15 @@ function reprojectLayerExtent(oldProjection, newProjection, activeLayers, store)
 
 /**
  * Verify if the parameter is an array of depth one
- * 
- * @param {Array | any} arr 
- * @returns {boolean} if the arr is an array of depth one
+ *
+ * @param {Array | any} arr
+ * @returns {boolean} If the arr is an array of depth one
  */
 function isDepthOne(arr) {
-  if (!Array.isArray(arr)) {
-    return false
-  }
-  return arr.every(item => !Array.isArray(item))
+    if (!Array.isArray(arr)) {
+        return false
+    }
+    return arr.every((item) => !Array.isArray(item))
 }
 
 export default reprojectLayersOnProjectionChangePlugin

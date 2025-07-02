@@ -1,6 +1,6 @@
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
-} from '@/router/storeSync/abstractParamConfig.class'
+} from '@/router/storeSync/UrlParamConfig.class.ts'
 
 const URL_PARAM_NAME = 'noSimpleZoom'
 

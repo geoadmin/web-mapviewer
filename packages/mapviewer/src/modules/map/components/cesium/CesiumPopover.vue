@@ -1,60 +1,69 @@
-<script setup>
+<script lang="ts" setup>
 /**
  * Places a popover on the cesium viewer at the given position (coordinates) and with the slot as
  * the content of the popover
  */
 
+import type { SingleCoordinate } from '@geoadmin/coordinates'
+
 import { CoordinateSystem, WGS84 } from '@geoadmin/coordinates'
-import log from '@geoadmin/log'
-import { Cartesian3, Cartographic, defined, Ellipsoid, SceneTransforms } from 'cesium'
+import log, { LogPreDefinedColor } from '@geoadmin/log'
+import { Cartesian3, Cartographic, defined, Ellipsoid, SceneTransforms, Viewer } from 'cesium'
 import proj4 from 'proj4'
 import { computed, inject, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 
 import MapPopover from '@/modules/map/components/MapPopover.vue'
 
-const { coordinates, projection, authorizePrint, title, useContentPadding } = defineProps({
-    coordinates: {
-        type: Array,
-        required: true,
-    },
-    projection: {
-        type: CoordinateSystem,
-        required: true,
-    },
-    authorizePrint: {
-        type: Boolean,
-        default: false,
-    },
-    title: {
-        type: String,
-        default: '',
-    },
-    useContentPadding: {
-        type: Boolean,
-        default: false,
-    },
-})
+const {
+    coordinates,
+    projection,
+    authorizePrint = false,
+    title = '',
+    useContentPadding = false,
+} = defineProps<{
+    coordinates: SingleCoordinate
+    projection: CoordinateSystem
+    authorizePrint?: boolean
+    title?: string
+    useContentPadding?: boolean
+}>()
 
-const emits = defineEmits(['close'])
+const emits = defineEmits<{
+    close: [void]
+}>()
 
-const getViewer = inject('getViewer')
+const getViewer = inject<() => Viewer | undefined>('getViewer')
 
 // Cesium will create an instance of Cartesian3 or Cartographic each time a calculation is made if
 // we do not provide one, so here we declare two "buffer" instances that will be used throughout this component
 const tempCartesian3 = new Cartesian3()
 const tempCartographic = new Cartographic()
 
-const popoverAnchor = useTemplateRef('popoverAnchor')
+const popoverAnchor = useTemplateRef<InstanceType<typeof MapPopover>>('popoverAnchor')
 
-const anchorPosition = ref({
+const anchorPosition = ref<{ top: number; left: number }>({
     top: 0,
     left: 0,
 })
-const coordinatesHeight = ref(null)
+const coordinatesHeight = ref<number | undefined>()
 
-const wgs84Coordinates = computed(() => proj4(projection.epsg, WGS84.epsg, coordinates))
+const wgs84Coordinates = computed<SingleCoordinate>(() =>
+    proj4(projection.epsg, WGS84.epsg, coordinates)
+)
 
 onMounted(() => {
+    if (!getViewer) {
+        log.error({
+            title: 'CesiumPopover',
+            titleStyle: {
+                backgroundColor: LogPreDefinedColor.Teal,
+            },
+            messages: [
+                'CesiumPopover could not be mounted because the getViewer function is not defined',
+            ],
+        })
+        return
+    }
     const viewer = getViewer()
     if (viewer) {
         // By default, the `camera.changed` event will trigger when the camera has changed by 50%
@@ -66,17 +75,27 @@ onMounted(() => {
         // if the user zooms in (or out) we want to be sure that the new loaded terrain
         // is taken into account for the tooltip positioning
         viewer.scene.globe.tileLoadProgressEvent.addEventListener(onTileLoadProgress)
-        // implementing something similar to the sandcastle found on https://github.com/CesiumGS/cesium/issues/3247#issuecomment-1533505387
+        // Implementing something similar to the sandcastle found on https://github.com/CesiumGS/cesium/issues/3247#issuecomment-1533505387
         // but taking into account height using globe.getHeight for the given coordinate
-        // without taking height into account, the anchor for the tooltip will be the virtual bottom of the map (at sea level), rendering poorly as
+        // without taking height into account.
+        // The anchor for the tooltip will be the virtual bottom of the map (at sea level), rendering poorly as
         // there will be a gap between the tooltip and the selected feature
         updateCoordinateHeight()
         updatePosition()
     } else {
-        log.error('Cesium viewer unavailable, could not hook up popover to Cesium')
+        log.error({
+            title: 'CesiumPopover',
+            titleStyle: {
+                backgroundColor: LogPreDefinedColor.Teal,
+            },
+            messages: ['Cesium viewer unavailable, could not hook up popover to Cesium'],
+        })
     }
 })
 onUnmounted(() => {
+    if (!getViewer) {
+        return
+    }
     const viewer = getViewer()
     if (viewer) {
         viewer.camera.changed.removeEventListener(updatePosition)
@@ -95,10 +114,13 @@ watch(
 )
 
 /**
- * Grabs the height on the terrain (no backend request) for the given coordinates, and stores it in
+ * Grabs the height on the terrain (no backend request) for the given coordinates and stores it in
  * this.coordinatesHeight
  */
 function updateCoordinateHeight() {
+    if (!getViewer) {
+        return
+    }
     coordinatesHeight.value = getViewer()?.scene.globe.getHeight(
         Cartographic.fromDegrees(
             wgs84Coordinates.value[0],
@@ -110,12 +132,13 @@ function updateCoordinateHeight() {
 }
 
 function updatePosition() {
-    if (!coordinates?.length) {
+    if (!coordinates?.length || !getViewer || !getViewer()) {
         emits('close')
         return
     }
+    const viewer = getViewer()
     const cartesianCoords = SceneTransforms.worldToWindowCoordinates(
-        getViewer().scene,
+        viewer.scene,
         Cartesian3.fromDegrees(
             wgs84Coordinates.value[0],
             wgs84Coordinates.value[1],
@@ -133,9 +156,12 @@ function updatePosition() {
 }
 
 function onTileLoadProgress() {
+    if (!getViewer) {
+        return
+    }
     const viewer = getViewer()
     // recalculating height and position as soon as all new terrain tiles are loaded (after camera movement, or at init)
-    if (viewer.scene.globe.tilesLoaded) {
+    if (viewer?.scene?.globe?.tilesLoaded) {
         updateCoordinateHeight()
         updatePosition()
     }

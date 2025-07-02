@@ -34,26 +34,29 @@ const humanReadableCurrentTimestamp = computed<string>(() => {
     return renderHumanReadableTimestamp(timeConfig.currentTimeEntry)
 })
 
-function renderHumanReadableTimestamp(timeEntry: LayerTimeConfigEntry): string {
+function renderHumanReadableTimestamp(timeEntry?: LayerTimeConfigEntry): string {
     if (!timeEntry) {
         return '-'
     }
-    if (timeEntry.year === CURRENT_YEAR_TIMESTAMP) {
+    if (timeEntry.timestamp === CURRENT_YEAR_TIMESTAMP) {
         return t(`time_current`)
     }
-    if (timeEntry.year === ALL_YEARS_TIMESTAMP) {
+    if (timeEntry.timestamp === ALL_YEARS_TIMESTAMP) {
         return t('time_all')
     }
-    return `${timeEntry.year}`
+    if (timeEntry.interval) {
+        return `${timeEntry.interval.toFormat('YYYY')}}`
+    }
+    return timeEntry.timestamp
 }
 
-function handleClickOnTimestamp(year: number): void {
+function handleClickOnTimestamp(timeEntry: LayerTimeConfigEntry): void {
     // deactivating the time slider, as a change on this time selector is incompatible with
     // the time slider being shown and active
     if (isTimeSliderActive.value) {
         store.dispatch('setTimeSliderActive', { timeSliderActive: false, ...dispatcher })
     }
-    store.dispatch('setTimedLayerCurrentYear', { index: layerIndex, year, ...dispatcher })
+    store.dispatch('setTimedLayerCurrentTimeEntry', { index: layerIndex, timeEntry, ...dispatcher })
 }
 
 function isSelected(timeEntry: LayerTimeConfigEntry): boolean {
@@ -103,7 +106,7 @@ function isSelected(timeEntry: LayerTimeConfigEntry): boolean {
                                 'btn-light': !isSelected(timeEntry),
                             }"
                             :data-cy="`time-select-${timeEntry.timestamp}`"
-                            @click="handleClickOnTimestamp(timeEntry.year)"
+                            @click="handleClickOnTimestamp(timeEntry.timestamp)"
                         >
                             <TextTruncate>
                                 {{ renderHumanReadableTimestamp(timeEntry) }}

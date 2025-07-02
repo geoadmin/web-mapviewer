@@ -1,43 +1,56 @@
-<script setup>
+<script lang="ts" setup>
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
+import type { SingleCoordinate } from '@geoadmin/coordinates'
+
+import { CoordinateSystem } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { useStore } from 'vuex'
 
-import { createShortLink } from '@/api/shortlink.api'
+import type { SupportedLang } from '@/modules/i18n'
+import type { ActionDispatcher } from '@/store/store'
+
+import { createShortLink } from '@/api/shortlink.api.ts'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
 import LocationPopupPosition from '@/modules/map/components/LocationPopupPosition.vue'
 import LocationPopupShare from '@/modules/map/components/LocationPopupShare.vue'
 import { MapPopoverMode } from '@/modules/map/components/MapPopover.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
+import useCesiumStore from '@/store/modules/cesium.store'
+import { useI18nStore } from '@/store/modules/i18n.store'
+import { type ClickInfo, useMapStore } from '@/store/modules/map.store'
+import usePositionStore from '@/store/modules/position.store'
 import { stringifyQuery } from '@/utils/url-router'
 
-const dispatcher = { dispatcher: 'LocationPopup.vue' }
+const dispatcher: ActionDispatcher = { name: 'LocationPopup.vue' }
 
 const { t } = useI18n()
-const store = useStore()
 const route = useRoute()
 
-const clickInfo = computed(() => store.state.map.clickInfo)
-const projection = computed(() => store.state.position.projection)
-const showIn3d = computed(() => store.state.cesium.active)
-const currentLang = computed(() => store.state.i18n.lang)
-const showEmbedSharing = computed(() => selectedTab.value === 'share')
-const coordinate = computed(() => store.state.map.locationPopupCoordinates)
+const cesiumStore = useCesiumStore()
+const i18nStore = useI18nStore()
+const mapStore = useMapStore()
+const positionStore = usePositionStore()
 
-const selectedTab = ref('position')
-const shareTooltip = useTemplateRef('shareTooltip')
-const newClickInfo = ref(true)
-const requestClipboard = ref(false)
-const shareLinkCopied = ref(false)
-const shareLinkUrl = ref(null)
-const shareLinkUrlShorten = ref(null)
+const clickInfo = computed<ClickInfo | undefined>(() => mapStore.clickInfo)
+const projection = computed<CoordinateSystem>(() => positionStore.projection)
+const showIn3d = computed<boolean>(() => cesiumStore.active)
+const currentLang = computed<SupportedLang>(() => i18nStore.lang)
+const showEmbedSharing = computed<boolean>(() => selectedTab.value === 'share')
+const coordinate = computed<SingleCoordinate | undefined>(() => mapStore.locationPopupCoordinates)
 
-const mappingFrameworkSpecificPopup = computed(() => {
+const selectedTab = ref<'position' | 'share'>('position')
+const shareTooltip = useTemplateRef<GeoadminTooltip>('shareTooltip')
+const newClickInfo = ref<boolean>(true)
+const requestClipboard = ref<boolean>(false)
+const shareLinkCopied = ref<boolean>(false)
+const shareLinkUrl = ref<string | undefined>()
+const shareLinkUrlShorten = ref<string | undefined>()
+
+const mappingFrameworkSpecificPopup = computed<CesiumPopover | OpenLayersPopover>(() => {
     if (showIn3d.value) {
         return CesiumPopover
     }
@@ -143,7 +156,7 @@ async function copyShareLink() {
 }
 
 function clearClick() {
-    store.dispatch('clearLocationPopupCoordinates', dispatcher)
+    mapStore.clearLocationPopupCoordinates(dispatcher)
     requestClipboard.value = false
 }
 </script>
@@ -196,7 +209,7 @@ function clearClick() {
                 >
                     <button
                         ref="shareTabButton"
-                        class="nav-link py-1 px-0"
+                        class="nav-link px-0 py-1"
                         :class="{
                             active: selectedTab === 'share',
                         }"
@@ -215,7 +228,7 @@ function clearClick() {
                         >
                             {{ t('link_bowl_crosshair') }} &nbsp;&nbsp;<FontAwesomeIcon
                                 data-cy="location-popup-share-tab-check"
-                                class="px-0 icon"
+                                class="icon px-0"
                                 :icon="copyButtonIcon"
                             />
                         </div>

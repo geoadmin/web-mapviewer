@@ -2,7 +2,7 @@ import { layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import axios from 'axios'
 
-import { getApi3BaseUrl } from '@/config/baseUrl.config'
+import { getApi3BaseUrl } from '@/config/baseUrl.config.js'
 import { ENVIRONMENT } from '@/config/staging.config'
 import {
     getBackgroundLayerFromLegacyUrlParams,

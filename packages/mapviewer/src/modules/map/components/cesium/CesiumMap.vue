@@ -1,7 +1,7 @@
-<script setup>
+<script lang="ts" setup>
 import '@geoblocks/cesium-compass'
 import { WEBMERCATOR } from '@geoadmin/coordinates'
-import log from '@geoadmin/log'
+import log, { LogPreDefinedColor } from '@geoadmin/log'
 import {
     CesiumTerrainProvider,
     Color,
@@ -19,9 +19,10 @@ import {
     useTemplateRef,
     watch,
 } from 'vue'
-import { useStore } from 'vuex'
 
-import { TERRAIN_URL } from '@/config/cesium.config.js'
+import type { ActionDispatcher } from '@/store/store'
+
+import { TERRAIN_URL } from '@/config/cesium.config'
 import { CESIUM_STATIC_PATH } from '@/config/map.config'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import CesiumBackgroundLayer from '@/modules/map/components/cesium/CesiumBackgroundLayer.vue'
@@ -30,19 +31,26 @@ import CesiumGeolocationFeedback from '@/modules/map/components/cesium/CesiumGeo
 import CesiumHighlightedFeatures from '@/modules/map/components/cesium/CesiumHighlightedFeatures.vue'
 import CesiumInteractions from '@/modules/map/components/cesium/CesiumInteractions.vue'
 import CesiumVisibleLayers from '@/modules/map/components/cesium/CesiumVisibleLayers.vue'
+import { useAppStore } from '@/store/modules/app.store'
+import { useCesiumStore } from '@/store/modules/cesium.store'
+import { usePositionStore } from '@/store/modules/position.store'
+import { useUIStore } from '@/store/modules/ui.store'
 
-const dispatcher = { dispatcher: 'CesiumMap.vue' }
+const dispatcher: ActionDispatcher = { name: 'CesiumMap.vue' }
 
-let viewer = null
+let viewer: Viewer | undefined
 
-const viewerElement = useTemplateRef('viewerElement')
+const viewerElement = useTemplateRef<HTMLDivElement>('viewerElement')
 const compassElement = useTemplateRef('compassElement')
-const viewerCreated = ref(false)
+const viewerCreated = ref<boolean>(false)
 
-const store = useStore()
-const projection = computed(() => store.state.position.projection)
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
-const isDesktopMode = computed(() => store.getters.isDesktopMode)
+const appStore = useAppStore()
+const cesiumStore = useCesiumStore()
+const positionStore = usePositionStore()
+const uiStore = useUIStore()
+const projection = computed(() => positionStore.projection)
+const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
+const isDesktopMode = computed(() => uiStore.isDesktopMode)
 const isProjectionWebMercator = computed(() => projection.value.epsg === WEBMERCATOR.epsg)
 
 watch(
@@ -63,25 +71,32 @@ watch(
 )
 
 onBeforeMount(() => {
-    // Global variable required for Cesium and point to the URL where four static directories (see vite.config) are served
-    // https://cesium.com/learn/cesiumjs-learn/cesiumjs-quickstart/#install-with-npm
-    window['CESIUM_BASE_URL'] = CESIUM_STATIC_PATH
+    window.CESIUM_BASE_URL = CESIUM_STATIC_PATH
 })
 onMounted(() => {
     if (isProjectionWebMercator.value) {
-        log.debug('[Cesium] Projection is now WebMercator, Cesium will start loading')
+        log.debug({
+            title: 'Cesium',
+            titleStyle: {
+                backgroundColor: LogPreDefinedColor.Teal,
+            },
+            messages: ['Projection is now WebMercator, Cesium will start loading'],
+        })
         createViewer()
     } else {
-        log.warn('[Cesium] Projection is not set to WebMercator, Cesium will not load yet')
+        log.warn({
+            title: 'Cesium',
+            titleStyle: {
+                backgroundColor: LogPreDefinedColor.Teal,
+            },
+            messages: ['Projection is not set to WebMercator, Cesium will not load yet'],
+        })
     }
 })
 onUnmounted(() => {
     if (viewer) {
-        store.dispatch('setCameraPosition', { position: null, ...dispatcher })
-        store.dispatch('setViewerReady', {
-            isViewerReady: false,
-            ...dispatcher,
-        })
+        positionStore.setCameraPosition(undefined, dispatcher)
+        cesiumStore.setViewerReady(false, dispatcher)
         viewer.destroy()
     }
 })
@@ -142,20 +157,24 @@ async function createViewer() {
         // reduce screen space error to downgrade visual quality but speed up tests
         globe.maximumScreenSpaceError = 30
     }
-    await store.dispatch('mapModuleReady', dispatcher)
-    await store.dispatch('setViewerReady', {
-        isViewerReady: true,
-        ...dispatcher,
-    })
+
+    appStore.setMapModuleReady(dispatcher)
+    cesiumStore.setViewerReady(true, dispatcher)
 
     if (compassElement.value) {
         compassElement.value.scene = viewer.scene
         compassElement.value.clock = viewer.clock
     }
-    log.info('[Cesium] CesiumMap component mounted and ready')
+    log.info({
+        title: 'Cesium',
+        titleStyle: {
+            backgroundColor: LogPreDefinedColor.Teal,
+        },
+        messages: ['CesiumMap component mounted and ready'],
+    })
 }
 
-provide('getViewer', () => viewer)
+provide<() => Viewer | undefined>('getViewer', () => viewer)
 </script>
 
 <template>

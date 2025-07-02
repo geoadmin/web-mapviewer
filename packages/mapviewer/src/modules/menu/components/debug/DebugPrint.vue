@@ -1,27 +1,29 @@
-<script setup>
+<script lang="ts" setup>
 import { ref, watch } from 'vue'
-import { useStore } from 'vuex'
 
-import { PRINT_DIMENSIONS } from '@/config/print.config'
+import type { ActionDispatcher } from '@/store/store'
+
+import { PrintLayouts } from '@/config/print.config'
+import { usePrintStore } from '@/store/modules/print.store'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 import debounce from '@/utils/debounce'
 
-const dispatcher = { dispatcher: 'DebugPrint.vue' }
+const dispatcher: ActionDispatcher = { name: 'DebugPrint.vue' }
 
-const store = useStore()
+const printStore = usePrintStore()
 
-const currentLayout = ref(store.state.print.config.layout.split('_')[0])
-const isCurrentLayoutLandscape = ref(store.state.print.config.layout.includes('_L'))
-const currentDpi = ref(store.state.print.config.dpi)
+const currentLayout = ref<string>(printStore.config.layout.split('_')[0])
+const isCurrentLayoutLandscape = ref<boolean>(printStore.config.layout.includes('_L'))
+const currentDpi = ref<number>(printStore.config.dpi)
 
 function updatePrintConfig() {
-    store.dispatch('setPrintConfig', {
-        config: {
+    printStore.setConfig(
+        {
             layout: `${currentLayout.value}${isCurrentLayoutLandscape.value ? '_L' : '_P'}`,
             dpi: currentDpi.value,
         },
-        ...dispatcher,
-    })
+        dispatcher
+    )
 }
 
 watch(isCurrentLayoutLandscape, updatePrintConfig)
@@ -45,7 +47,7 @@ watch(currentDpi, debounce(updatePrintConfig, 500))
                     class="form-control"
                 >
                     <option
-                        v-for="layout in Object.keys(PRINT_DIMENSIONS)"
+                        v-for="layout in PrintLayouts"
                         :key="layout"
                         :selected="layout === currentLayout"
                     >
@@ -56,7 +58,7 @@ watch(currentDpi, debounce(updatePrintConfig, 500))
                     <input
                         id="is-layout-landscape"
                         v-model="isCurrentLayoutLandscape"
-                        class="form-check-input mt-0 me-1"
+                        class="form-check-input me-1 mt-0"
                         type="checkbox"
                     />
                     <label

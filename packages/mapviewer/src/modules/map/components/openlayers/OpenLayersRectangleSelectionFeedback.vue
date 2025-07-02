@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import { selectionBoxStyle } from '@/utils/styleUtils'
+import { selectionBoxStyle } from '@/utils/styleUtils.js'
 
 const store = useStore()
 const lastClick = computed(() => store.state.map.clickInfo)

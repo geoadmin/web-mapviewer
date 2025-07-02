@@ -21,6 +21,7 @@ import {
     allStylingColors,
     allStylingSizes,
     BLACK,
+    generateRGBFillString,
     GREEN,
     LARGE,
     RED,
@@ -132,7 +133,7 @@ describe('Drawing module tests', () => {
                 cy.wait('@icon-default')
                     .its('request.url')
                     .should('include', '/api/icons/sets/default/icons/')
-                    .should('include', `${RED.rgbString}.png`)
+                    .should('include', `${generateRGBFillString(RED)}.png`)
 
                 cy.log('clicking on the "Edit icon" button')
                 cy.get('[data-cy="drawing-style-marker-button"]:visible').click()
@@ -176,7 +177,7 @@ describe('Drawing module tests', () => {
 
                 cy.log('the color of the marker already placed on the map must switch to green')
                 waitForKmlUpdate(
-                    `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
+                    `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${generateRGBFillString(GREEN)}.png</href>`
                 )
 
                 cy.log('opening up the icon size selector')
@@ -198,7 +199,7 @@ describe('Drawing module tests', () => {
                     `<IconStyle><scale>${LARGE.iconScale * LEGACY_ICON_XML_SCALE_FACTOR}</scale>`,
                     `<Icon>.*?<gx:w>48</gx:w>.*?</Icon>`,
                     `<Icon>.*?<gx:h>48</gx:h>.*?</Icon>`,
-                    `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
+                    `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${generateRGBFillString(GREEN)}.png</href>`
                 )
 
                 cy.log('opening up all icons of the current sets so that we may choose a new one')
@@ -212,7 +213,7 @@ describe('Drawing module tests', () => {
                         `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-icon-selector-${fourthIcon.name}"]:visible`
                     ).click()
                     waitForKmlUpdate(
-                        `<href>https?://.*/api/icons/sets/default/icons/${fourthIcon.name}@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
+                        `<href>https?://.*/api/icons/sets/default/icons/${fourthIcon.name}@${DEFAULT_ICON_URL_SCALE}-${generateRGBFillString(GREEN)}.png</href>`
                     )
                 })
                 cy.log('closing the icons')

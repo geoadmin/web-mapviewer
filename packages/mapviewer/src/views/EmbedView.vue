@@ -1,32 +1,37 @@
-<script setup>
+<script lang="ts" setup>
 import log from '@geoadmin/log'
 import { computed, onBeforeMount, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { useStore } from 'vuex'
 
-import { sendChangeEventToParent } from '@/api/iframePostMessageEvent.api.js'
+import type { ActionDispatcher } from '@/store/store'
+
+import { sendChangeEventToParent } from '@/api/iframePostMessageEvent.api'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
 import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'
 import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale.vue'
 import MapToolbox from '@/modules/map/components/toolbox/MapToolbox.vue'
 import MapModule from '@/modules/map/MapModule.vue'
+import useCesiumStore from '@/store/modules/cesium.store'
+import useUIStore from '@/store/modules/ui.store'
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 import OpenFullAppLink from '@/utils/components/OpenFullAppLink.vue'
 
-const dispatcher = { dispatcher: 'EmbedView.vue' }
+const dispatcher: ActionDispatcher = { name: 'EmbedView.vue' }
 
-const store = useStore()
 const route = useRoute()
 
-const is3DActive = computed(() => store.state.cesium.active)
+const cesiumStore = useCesiumStore()
+const uiStore = useUIStore()
+
+const is3DActive = computed(() => cesiumStore.active)
 
 const { t } = useI18n()
 
-const noSimpleZoomEmbed = computed(() => store.getters.hasNoSimpleZoomEmbedEnabled)
-const hideEmbedUI = computed(() => store.getters.hideEmbedUI)
-const showSimpleZoomHint = ref(false)
+const noSimpleZoomEmbed = computed<boolean>(() => uiStore.hasNoSimpleZoomEmbedEnabled)
+const hideEmbedUI = computed<boolean>(() => uiStore.hideEmbedUI)
+const showSimpleZoomHint = ref<boolean>(false)
 let simpleZoomHintTimeout = null
 
 function onWheel(event) {
@@ -45,7 +50,7 @@ function onWheel(event) {
 }
 
 onBeforeMount(() => {
-    store.dispatch('setEmbed', { embed: true, ...dispatcher })
+    uiStore.setEmbed(true, dispatcher)
 })
 
 onMounted(() => {

@@ -7,7 +7,7 @@ import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
 import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
-import { EditMode } from '@/store/modules/drawing.store'
+import { EditMode } from '@/store/modules/drawing.store.js'
 import { segmentExtent, subsegments } from '@/utils/geodesicManager'
 
 const dispatcher = { dispatcher: 'useModifyInteraction.composable' }

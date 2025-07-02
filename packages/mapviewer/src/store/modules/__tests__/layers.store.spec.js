@@ -132,7 +132,7 @@ describe('Add layer creates copy of layers config (so that we may add multiple t
         expect(store.state.layers.activeLayers).to.have.lengthOf(2)
         store.dispatch(`toggleLayerVisibility`, { index: 0, ...dispatcher })
         store.dispatch(`setLayerOpacity`, { index: 1, opacity: 0.65, ...dispatcher })
-        store.dispatch(`setTimedLayerCurrentYear`, { index: 0, year: 1900, ...dispatcher })
+        store.dispatch(`setTimedLayerCurrentTimeEntry`, { index: 0, year: 1900, ...dispatcher })
         expect(store.state.layers.activeLayers[0].isVisible).to.be.false
         expect(store.state.layers.activeLayers[1].isVisible).to.be.true
         expect(store.state.layers.activeLayers[0].opacity).to.be.equal(1)

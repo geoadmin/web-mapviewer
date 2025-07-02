@@ -1,20 +1,17 @@
-<script setup>
+<script lang="ts" setup>
 import { computed } from 'vue'
-import { useStore } from 'vuex'
 
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
+import useUIStore from '@/store/modules/ui.store'
 import LoadingBar from '@/utils/components/LoadingBar.vue'
 
-const store = useStore()
+const { embed = false } = defineProps<{
+    embed?: boolean
+}>()
 
-const { embed } = defineProps({
-    embed: {
-        type: Boolean,
-        default: false,
-    },
-})
+const uiStore = useUIStore()
 
-const showLoadingBar = computed(() => store.getters.showLoadingBar)
+const showLoadingBar = computed<boolean>(() => uiStore.showLoadingBar)
 </script>
 
 <template>

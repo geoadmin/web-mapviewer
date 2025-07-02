@@ -2,9 +2,15 @@ import CoordinateSystem, {
     STANDARD_ZOOM_LEVEL_1_25000_MAP,
     SWISS_ZOOM_LEVEL_1_25000_MAP,
 } from '@/proj/CoordinateSystem'
+import CoordinateSystemBounds from '@/proj/CoordinateSystemBounds'
+import CustomCoordinateSystem from '@/proj/CustomCoordinateSystem'
 import LV03CoordinateSystem from '@/proj/LV03CoordinateSystem'
 import LV95CoordinateSystem from '@/proj/LV95CoordinateSystem'
-import { LV95_RESOLUTIONS, SWISSTOPO_TILEGRID_RESOLUTIONS } from '@/proj/SwissCoordinateSystem'
+import StandardCoordinateSystem from '@/proj/StandardCoordinateSystem'
+import SwissCoordinateSystem, {
+    LV95_RESOLUTIONS,
+    SWISSTOPO_TILEGRID_RESOLUTIONS,
+} from '@/proj/SwissCoordinateSystem'
 import WebMercatorCoordinateSystem from '@/proj/WebMercatorCoordinateSystem'
 import WGS84CoordinateSystem from '@/proj/WGS84CoordinateSystem'
 
@@ -32,5 +38,13 @@ const crs = {
     WEBMERCATOR,
     allCoordinateSystems,
 }
-export { crs, constants, CoordinateSystem }
+export {
+    crs,
+    constants,
+    CoordinateSystem,
+    CoordinateSystemBounds,
+    CustomCoordinateSystem,
+    StandardCoordinateSystem,
+    SwissCoordinateSystem,
+}
 export default crs

@@ -12,7 +12,7 @@ import {
     type LayerLegend,
     LayerType,
     type TileMatrixSet,
-    type WMTSDimension,
+    type ExternalLayerTimeDimension,
     WMTSEncodingType,
 } from '@/types'
 import { type LayerTimeConfig } from '@/types/timeConfig'
@@ -522,7 +522,7 @@ export class ExternalWMTSCapabilitiesParser {
             .filter((set) => !!set)
     }
 
-    _getDimensions(layer: CapabilityLayer): WMTSDimension[] {
+    _getDimensions(layer: CapabilityLayer): ExternalLayerTimeDimension[] {
         return layer.Dimension?.map((d: { Identifier: any; Default: any; Value: any }) => ({
             id: d.Identifier,
             default: d.Default,

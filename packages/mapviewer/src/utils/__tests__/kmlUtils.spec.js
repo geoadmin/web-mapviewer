@@ -13,7 +13,8 @@ import { BLUE } from '@/utils/featureStyleUtils'
 import { makeKmlLayer } from '@/utils/kmlUtils'
 import { getIcon, getKmlExtent, parseIconUrl, parseKml } from '@/utils/kmlUtils'
 
-import { isKmlFeaturesValid } from '../kmlUtils'
+import { generateURL } from '../../api/icon.api.js'
+import { isKmlFeaturesValid } from '../kmlUtils.js'
 
 describe('Test KML utils', () => {
     describe('get KML Extent', () => {
@@ -325,7 +326,7 @@ describe('Test KML utils', () => {
             expect(icon).to.be.not.null.and.not.undefined
             expect(icon.name).to.be.equal('001-marker')
             expect(icon.iconSetName).to.be.equal('default')
-            expect(icon.generateURL()).to.be.equal(
+            expect(generateURL(icon)).to.be.equal(
                 'https://fake.image.url/api/icons/sets/default/icons/001-marker@1x-255,0,0.png'
             )
         })
@@ -342,7 +343,7 @@ describe('Test KML utils', () => {
             expect(icon).to.be.not.null.and.not.undefined
             expect(icon.name).to.be.equal('001-marker')
             expect(icon.iconSetName).to.be.equal('default')
-            expect(icon.generateURL(BLUE, 1.5)).to.be.equal(
+            expect(generateURL(icon, BLUE, 1.5)).to.be.equal(
                 'https://fake.image.url/api/icons/sets/default/icons/001-marker@1.5x-0,0,255.png'
             )
         })
@@ -359,7 +360,7 @@ describe('Test KML utils', () => {
             expect(icon).to.be.not.null.and.not.undefined
             expect(icon.name).to.be.equal('babs-3')
             expect(icon.iconSetName).to.be.equal('babs')
-            expect(icon.generateURL()).to.be.equal(
+            expect(generateURL(icon)).to.be.equal(
                 'https://fake.image.url/api/icons/sets/babs/icons/babs-3@1x-255,0,0.png'
             )
         })
@@ -389,7 +390,7 @@ describe('Test KML utils', () => {
             expect(icon).to.be.not.null.and.not.undefined
             expect(icon.name).to.be.equal('001-marker')
             expect(icon.iconSetName).to.be.equal('default')
-            expect(icon.generateURL()).to.be.equal(
+            expect(generateURL(icon)).to.be.equal(
                 'https://fake.image.url/api/icons/sets/default/icons/001-marker@1x-255,0,0.png'
             )
         })
@@ -407,7 +408,7 @@ describe('Test KML utils', () => {
             expect(icon).to.be.not.null.and.not.undefined
             expect(icon.name).to.be.equal('star')
             expect(icon.iconSetName).to.be.equal('default')
-            expect(icon.generateURL()).to.be.equal(
+            expect(generateURL(icon)).to.be.equal(
                 'https://api3.geo.admin.ch/color/45,600,800/star-24@2x.png'
             )
         })

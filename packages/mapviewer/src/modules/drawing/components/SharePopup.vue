@@ -5,9 +5,9 @@ import { computed, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { createShortLink } from '@/api/shortlink.api'
+import { createShortLink } from '@/api/shortlink.api.js'
 import router from '@/router'
-import { encodeLayerId } from '@/router/storeSync/layersParamParser'
+import { encodeLayerId } from '@/router/storeSync/layersParamParser.js'
 
 const dispatcher = { dispatcher: 'SharePopup.vue' }
 
@@ -114,7 +114,7 @@ async function updateAdminShareUrl() {
     <div class="ga-share">
         <div class="form-group">
             <label>{{ t('draw_share_user_link') }}:</label>
-            <div class="input-group input-group mb-3 share-link-input">
+            <div class="input-group input-group share-link-input mb-3">
                 <input
                     type="text"
                     class="form-control"
@@ -138,7 +138,7 @@ async function updateAdminShareUrl() {
             class="form-group"
         >
             <label>{{ t('draw_share_admin_link') }}:</label>
-            <div class="input-group input-group mb-3 share-link-input">
+            <div class="input-group input-group share-link-input mb-3">
                 <input
                     type="text"
                     class="form-control"
