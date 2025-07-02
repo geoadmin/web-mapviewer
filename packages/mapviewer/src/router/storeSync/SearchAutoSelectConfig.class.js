@@ -1,7 +1,7 @@
+import { URL_PARAM_NAME_SWISSSEARCH } from '@/router/storeSync/SearchParamConfig.class'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
-} from '@/router/storeSync/abstractParamConfig.class'
-import { URL_PARAM_NAME_SWISSSEARCH } from '@/router/storeSync/SearchParamConfig.class'
+} from '@/router/storeSync/UrlParamConfig.class.ts'
 import { removeQueryParamFromHref } from '@/utils/searchParamUtils'
 
 const URL_PARAM_NAME = 'swisssearch_autoselect'

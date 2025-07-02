@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import EditableFeature from '@/api/features/EditableFeature.class'
-import LayerFeature from '@/api/features/LayerFeature.class'
+import EditableFeature from '@/api/features/EditableFeature.class.js'
+import LayerFeature from '@/api/features/LayerFeature.class.js'
 import FeatureListCategoryItem from '@/modules/infobox/components/FeatureListCategoryItem.vue'
 
 const { name, children, canLoadMore } = defineProps({
@@ -35,7 +35,7 @@ const { t } = useI18n()
 <template>
     <div class="feature-list-category border-start">
         <div
-            class="p-2 sticky-top bg-secondary-subtle border-bottom border-secondary-subtle d-flex align-items-center cursor-pointer"
+            class="sticky-top bg-secondary-subtle border-bottom border-secondary-subtle d-flex align-items-center cursor-pointer p-2"
             @click="showContent = !showContent"
         >
             <FontAwesomeIcon

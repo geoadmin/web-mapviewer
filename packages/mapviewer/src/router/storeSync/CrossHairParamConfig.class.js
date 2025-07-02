@@ -1,10 +1,10 @@
 import { round } from '@geoadmin/numbers'
 
-import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import AbstractParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
-} from '@/router/storeSync/abstractParamConfig.class'
-import { CrossHairs } from '@/store/modules/position.store'
+} from '@/router/storeSync/UrlParamConfig.class.ts'
+import { getDefaultValidationResponse } from '@/router/storeSync/validation.ts'
+import { CrossHairs } from '@/store/modules/position.store.js'
 
 /**
  * The function used to dispatch the URL parameters to the store. The following options are accepted
@@ -92,7 +92,7 @@ function validateUrlInput(store, query) {
         const parts = query.split(',')
         let crossHair = parts[0]
         let crossHairPosition = [parseFloat(parts[1]), parseFloat(parts[2])]
-        return getStandardValidationResponse(
+        return getDefaultValidationResponse(
             query,
             (crossHair ||
                 crossHairPosition.filter((coordinate) => !isNaN(coordinate)).length === 2) &&
@@ -100,7 +100,7 @@ function validateUrlInput(store, query) {
             this.urlParamName
         )
     }
-    return getStandardValidationResponse(query, false, this.urlParamName)
+    return getDefaultValidationResponse(query, false, this.urlParamName)
 }
 
 /**

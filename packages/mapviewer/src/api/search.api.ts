@@ -1,19 +1,21 @@
-import type CustomCoordinateSystem, { SingleCoordinate } from '@geoadmin/coordinates'
-import type { GeoAdminLayer, Layer } from '@geoadmin/layers'
+import type { SingleCoordinate } from '@geoadmin/coordinates'
+import type { Layer } from '@geoadmin/layers'
+import type { GeoAdminLayer } from '@geoadmin/layers/dist/types'
+import type Feature from 'ol/Feature'
 
-import { CoordinateSystem, LV95, WGS84 } from '@geoadmin/coordinates'
+import { CoordinateSystem, CustomCoordinateSystem, LV95, WGS84 } from '@geoadmin/coordinates'
 import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { bbox, center, points } from '@turf/turf'
-import axios, { type CancelToken } from 'axios'
+import axios, { type CancelToken, type CancelTokenSource } from 'axios'
 import proj4 from 'proj4'
 
 import { extractOlFeatureCoordinates } from '@/api/features/features.api'
 import { getServiceSearchBaseUrl } from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
-import { type FlatExtent, normalizeExtent } from '@/utils/extentUtils.ts'
+import { type FlatExtent, normalizeExtent } from '@/utils/extentUtils'
 import { parseGpx } from '@/utils/gpxUtils'
-import { parseKml } from '@/utils/kmlUtils'
+import { parseKml } from '@/utils/kmlUtils.ts'
 
 const KML_GPX_SEARCH_FIELDS = ['name', 'description', 'id']
 
@@ -89,7 +91,7 @@ export interface LocationSearchResult extends SearchResult {
 
 export interface LayerFeatureSearchResult extends LayerSearchResult, LocationSearchResult {
     /** The layer of this feature. */
-    layer: GeoAdminLayer
+    layer: Layer
 }
 
 const generateAxiosSearchRequest = (
@@ -147,10 +149,8 @@ function parseLocationResult(
     if (outputProjection.epsg !== LV95.epsg) {
         // re-projecting result coordinate and zoom to wanted projection
         zoom = LV95.transformCustomZoomLevelToStandard(zoom)
-        if (!outputProjection.usesMercatorPyramid) {
-            zoom = (outputProjection as CustomCoordinateSystem).transformStandardZoomLevelToCustom(
-                zoom
-            )
+        if (outputProjection instanceof CustomCoordinateSystem) {
+            zoom = outputProjection.transformStandardZoomLevelToCustom(zoom)
         }
     }
     // reading the extent from the LineString (if defined)
@@ -230,7 +230,7 @@ async function searchLocation(
     outputProjection: CoordinateSystem,
     queryString: string,
     lang: string,
-    cancelToken: CancelToken,
+    cancelToken: CancelTokenSource,
     limit?: number
 ): Promise<LocationSearchResult[]> {
     try {
@@ -264,7 +264,7 @@ async function searchLayerFeatures(
     queryString: string,
     layer: Layer,
     lang: string,
-    cancelToken: CancelToken
+    cancelToken: CancelTokenSource
 ): Promise<LayerFeatureSearchResult[]> {
     try {
         const layerFeatureResponse = await generateAxiosSearchRequest(
@@ -278,9 +278,11 @@ async function searchLayerFeatures(
             }
         )
         // checking that there is something of interest to parse
-        const resultWithAttrs = layerFeatureResponse?.data.results?.filter((result) => result.attrs)
+        const resultWithAttrs = layerFeatureResponse?.data.results?.filter(
+            (result: any) => result.attrs
+        )
         return (
-            resultWithAttrs.map((layerFeature) => {
+            resultWithAttrs.map((layerFeature: any) => {
                 const layerContent = parseLayerResult(layerFeature)
                 const locationContent = parseLocationResult(layerFeature, outputProjection)
                 const title = `<strong>${layer.name}</strong><br/>${layerContent.title}`
@@ -302,22 +304,15 @@ async function searchLayerFeatures(
     }
 }
 
-/**
- * Searches for the query string in the feature inside the provided search fields
- *
- * @param {ol/Feature} feature
- * @param {String} queryString
- * @param {String[]} searchFields
- * @returns {Boolean}
- */
-function isQueryInFeature(feature, queryString, searchFields) {
+/** Searches for the query string in the feature inside the provided search fields */
+function isQueryInFeature(feature: Feature, queryString: string, searchFields: string[]): boolean {
     const queryStringClean = queryString
         .trim()
         .toLowerCase()
         .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '') // replaces all special characters and accents
     return searchFields.some((field) => {
-        const value = feature.values_[field]?.toString()
+        const value = feature.get(field)?.toString()
         return !!value && value.trim().toLowerCase().includes(queryStringClean)
     })
 }
@@ -325,14 +320,23 @@ function isQueryInFeature(feature, queryString, searchFields) {
 /**
  * Searches for the query string in the layer
  *
- * @param {CoordinateSystem} outputProjection
- * @param {String} queryString
- * @param {GeoAdminLayer} layer
- * @param {any} parseData Data needed in the parseFunction
- * @param {Function} parseFunction Function to parse the data
- * @returns {SearchResult[]}
+ * @param outputProjection
+ * @param queryString
+ * @param layer
+ * @param parseData Data needed in the parseFunction
+ * @param parseFunction Function to parse the data
  */
-function searchFeatures(outputProjection, queryString, layer, parseData, parseFunction) {
+function searchFeatures(
+    outputProjection: CoordinateSystem,
+    queryString: string,
+    layer: Layer,
+    parseData: any,
+    parseFunction: (
+        data: any,
+        outputProjection: CoordinateSystem,
+        searchFields: string[]
+    ) => Feature[]
+): SearchResult[] {
     try {
         const features = parseFunction(parseData, outputProjection, [])
         if (!features || !features.length) {
@@ -356,15 +360,12 @@ function searchFeatures(outputProjection, queryString, layer, parseData, parseFu
     }
 }
 
-/**
- * Searches for features in KML and GPX layers based on a query string and output projection
- *
- * @param {GeoAdminLayer[]} layersToSearch - The layers to search through
- * @param {string} queryString - The query string to search for
- * @param {string} outputProjection - The projection to use for the output
- * @returns {SearchResult[]}
- */
-function searchLayerFeaturesKMLGPX(layersToSearch, queryString, outputProjection) {
+/** Searches for features in KML and GPX layers based on a query string and output projection */
+function searchLayerFeaturesKMLGPX(
+    layersToSearch: Layer[],
+    queryString: string,
+    outputProjection: CoordinateSystem
+): SearchResult[] {
     return layersToSearch.reduce((returnLayers, currentLayer) => {
         if (currentLayer.type === LayerType.KML) {
             return returnLayers.concat(

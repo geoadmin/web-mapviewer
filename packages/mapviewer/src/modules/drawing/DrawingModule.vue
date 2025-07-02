@@ -17,7 +17,7 @@ import {
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { EditableFeatureTypes } from '@/api/features/EditableFeature.class.js'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import AddVertexButtonOverlay from '@/modules/drawing/components/AddVertexButtonOverlay.vue'
 import DrawingInteractions from '@/modules/drawing/components/DrawingInteractions.vue'
@@ -26,10 +26,10 @@ import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useKmlDataManagement from '@/modules/drawing/useKmlDataManagement.composable'
-import { EditMode } from '@/store/modules/drawing.store'
+import { EditMode } from '@/store/modules/drawing.store.js'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
-import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
+import { getIcon, parseIconUrl } from '@/utils/kmlUtils.js'
 
 const dispatcher = { dispatcher: 'DrawingModule.vue' }
 

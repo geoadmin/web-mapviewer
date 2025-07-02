@@ -9,7 +9,7 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ShareNetwork } from 'vue3-social-sharing'
 
-import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
+import { getGenerateQRCodeUrl } from '@/api/qrcode.api.js'
 
 const { shortLink } = defineProps({
     shortLink: {

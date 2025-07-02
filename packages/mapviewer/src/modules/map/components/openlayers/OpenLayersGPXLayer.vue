@@ -10,7 +10,7 @@ import { useStore } from 'vuex'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import { parseGpx } from '@/utils/gpxUtils'
+import { parseGpx } from '@/utils/gpxUtils.js'
 
 const { gpxLayerConfig, parentLayerOpacity, zIndex } = defineProps({
     gpxLayerConfig: {

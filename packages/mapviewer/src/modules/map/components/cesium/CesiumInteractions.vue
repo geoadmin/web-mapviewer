@@ -17,15 +17,15 @@ import proj4 from 'proj4'
 import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import LayerFeature from '@/api/features/LayerFeature.class'
-import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
+import LayerFeature from '@/api/features/LayerFeature.class.js'
+import { get3dTilesBaseUrl } from '@/config/baseUrl.config.js'
 import {
     clicked3DFeatureFill,
     hovered3DFeatureFill,
     unhighlightGroup,
 } from '@/modules/map/components/cesium/utils/highlightUtils'
 import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
-import { ClickInfo, ClickType } from '@/store/modules/map.store'
+import { ClickInfo, ClickType } from '@/store/modules/map.store.js'
 import { createPixelExtentAround } from '@/utils/extentUtils.js'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
 

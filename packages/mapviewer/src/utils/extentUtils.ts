@@ -10,18 +10,17 @@ export type FlatExtent = [number, number, number, number]
 export type NormalizedExtent = [[number, number], [number, number]]
 
 /**
- * Projection of an extent, described as [minx, miny, maxx, maxy].
- *
  * @param fromProj Current projection used to describe the extent
  * @param toProj Target projection we want the extent be expressed in
- * @param extent An extent, described as `[minx, miny, maxx, maxy].`
- * @returns The reprojected extent, or undefined if the given extent is not an array of four numbers
+ * @param extent An extent, described as `[minx, miny, maxx, maxy].` or `[[minx, miny], [maxx,
+ *   maxy]]`
+ * @returns The reprojected extent
  */
-export function projExtent(
+export function projExtent<T extends FlatExtent | NormalizedExtent>(
     fromProj: CoordinateSystem,
     toProj: CoordinateSystem,
-    extent: FlatExtent
-): FlatExtent {
+    extent: T
+): T {
     if (extent.length === 4) {
         const bottomLeft = proj4(fromProj.epsg, toProj.epsg, [
             extent[0],
@@ -31,9 +30,15 @@ export function projExtent(
             extent[2],
             extent[3],
         ]) as SingleCoordinate
-        return [...bottomLeft, ...topRight].map((value) =>
+        return [...bottomLeft, ...topRight].map((value) => toProj.roundCoordinateValue(value)) as T
+    } else if (extent.length === 2) {
+        const bottomLeft = proj4(fromProj.epsg, toProj.epsg, extent[0]).map((value) =>
             toProj.roundCoordinateValue(value)
-        ) as FlatExtent
+        )
+        const topRight = proj4(fromProj.epsg, toProj.epsg, extent[1]).map((value) =>
+            toProj.roundCoordinateValue(value)
+        )
+        return [bottomLeft, topRight] as T
     }
     return extent
 }

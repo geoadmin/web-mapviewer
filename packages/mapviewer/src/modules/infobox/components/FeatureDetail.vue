@@ -5,7 +5,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import SelectableFeature from '@/api/features/SelectableFeature.class.js'
+import SelectableFeature from '@/api/features/SelectableFeature.class.ts'
 import { BLOCKED_EXTENSIONS, WHITELISTED_HOSTNAMES } from '@/config/security.config'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import FeatureDetailDisclaimer from '@/modules/infobox/components/FeatureDetailDisclaimer.vue'

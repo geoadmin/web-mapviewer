@@ -233,7 +233,7 @@ function setPreviewYearToLayers() {
         ) {
             // if there is not timeEntry for the given year we need to set the year to
             // null which will result to setting the currentTimeEntry to null as well
-            store.dispatch('setTimedLayerCurrentYear', {
+            store.dispatch('setTimedLayerCurrentTimeEntry', {
                 index,
                 year: year,
                 ...dispatcher,
@@ -384,7 +384,7 @@ function handleKeyDownEvent(event) {
         class="time-slider card"
         :class="{ grabbed: yearCursorIsGrabbed }"
     >
-        <div class="p-2 d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center justify-content-between p-2">
             <div
                 class="time-slider-bar px-5"
                 data-cy="time-slider-bar"
@@ -392,11 +392,11 @@ function handleKeyDownEvent(event) {
                 <div
                     ref="yearCursor"
                     data-cy="times-slider-cursor"
-                    class="time-slider-bar-cursor py-1 user-select-none d-flex gap-1 bg-body border rounded"
+                    class="time-slider-bar-cursor user-select-none d-flex bg-body gap-1 rounded border py-1"
                     :style="{ left: cursorPosition }"
                 >
                     <div
-                        class="px-2 border-end d-flex align-items-center"
+                        class="border-end d-flex align-items-center px-2"
                         data-cy="time-slider-bar-cursor-grab"
                         @touchstart.passive="grabCursor"
                         @mousedown.passive="grabCursor"
@@ -422,7 +422,7 @@ function handleKeyDownEvent(event) {
                         />
                     </GeoadminTooltip>
                     <div
-                        class="px-2 border-start d-flex align-items-center"
+                        class="border-start d-flex align-items-center px-2"
                         @touchstart.passive="grabCursor"
                         @mousedown.passive="grabCursor"
                     >
@@ -511,7 +511,7 @@ function handleKeyDownEvent(event) {
                 <button
                     id="timeSliderPlayButton"
                     data-cy="time-slider-play-button"
-                    class="btn btn-light btn-lg d-flex align-self-center p-3 m-1 border"
+                    class="btn btn-light btn-lg d-flex align-self-center m-1 border p-3"
                     @click="togglePlayYearsWithData"
                 >
                     <FontAwesomeIcon :icon="playYearsWithData ? 'pause' : 'play'" />

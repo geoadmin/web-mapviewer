@@ -5,7 +5,7 @@ import { onMounted, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { EditMode } from '@/store/modules/drawing.store'
+import { EditMode } from '@/store/modules/drawing.store.js'
 
 const { t } = useI18n()
 

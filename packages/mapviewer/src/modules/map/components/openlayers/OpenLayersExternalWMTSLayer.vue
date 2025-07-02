@@ -10,7 +10,7 @@ import { computed, inject, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import { getTimestampFromConfig } from '@/utils/layerUtils'
+import { getTimestampFromConfig } from '@/utils/layerUtils.js'
 
 const { externalWmtsLayerConfig, parentLayerOpacity, zIndex } = defineProps({
     externalWmtsLayerConfig: {

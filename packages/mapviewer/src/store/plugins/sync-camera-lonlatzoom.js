@@ -7,7 +7,7 @@ import {
     calculateHeight,
     calculateResolution,
 } from '@/modules/map/components/cesium/utils/cameraUtils'
-import { normalizeAngle } from '@/store/modules/position.store'
+import { normalizeAngle } from '@/store/modules/position.store.js'
 
 /**
  * Plugin to synchronize the 3d camera position and orientation with the center and zoom.

@@ -3,8 +3,8 @@ import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 
-import EditableFeature from '@/api/features/EditableFeature.class'
-import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
+import EditableFeature from '@/api/features/EditableFeature.class.js'
+import { DrawingIcon, DrawingIconSet, generateURL } from '@/api/icon.api.js'
 
 const { icon, currentFeature, currentIconSet, tooltipDisabled } = defineProps({
     icon: {
@@ -47,7 +47,7 @@ function onCurrentIconChange(icon) {
  * @returns {String} An icon URL
  */
 function generateColorizedURL(icon) {
-    return icon.generateURL(currentFeature.fillColor)
+    return generateURL(icon, currentFeature.fillColor)
 }
 
 function getImageStrokeStyle(isColorable, isSelected, color) {

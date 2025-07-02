@@ -6,9 +6,9 @@ import { LineString, Polygon } from 'ol/geom'
 import { Circle, Icon } from 'ol/style'
 import Style from 'ol/style/Style'
 
-import i18n from '@/modules/i18n/index'
-import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
-import { EMPTY_KML_DATA } from '@/utils/kmlUtils'
+import i18n from '@/modules/i18n/index.js'
+import { geoadminStyleFunction } from '@/utils/featureStyleUtils.js'
+import { EMPTY_KML_DATA } from '@/utils/kmlUtils.js'
 // FIXME: as soon as https://github.com/openlayers/openlayers/pull/15964 is merged and released, go back to using OL files
 import KML from '@/utils/ol/format/KML'
 

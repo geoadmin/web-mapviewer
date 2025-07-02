@@ -1,24 +1,24 @@
-<script setup>
-import { ref } from 'vue'
+<script lang="ts" setup>
 import { useI18n } from 'vue-i18n'
 
-import { allStylingColors, FeatureStyleColor, MEDIUM } from '@/utils/featureStyleUtils'
+import {
+    allStylingColors,
+    FeatureStyleColor, generateFontString,
+    generateTextShadow,
+    MEDIUM,
+} from '@/utils/featureStyleUtils'
 
-const { currentColor } = defineProps({
-    currentColor: {
-        type: FeatureStyleColor,
-        required: true,
-    },
-})
+const { currentColor } = defineProps<{
+    currentColor: FeatureStyleColor
+}>()
 
-const emits = defineEmits(['change'])
-
-const colors = ref(allStylingColors)
-const font = ref(MEDIUM.font)
+const emits = defineEmits<{
+    change: [color: FeatureStyleColor]
+}>()
 
 const { t } = useI18n()
 
-function onColorChange(color) {
+function onColorChange(color: FeatureStyleColor) {
     emits('change', color)
 }
 </script>
@@ -31,12 +31,9 @@ function onColorChange(color) {
         >
             {{ t('modify_text_color_label') }}
         </label>
-        <div
-            id="drawing-style-text-color-selector"
-            class="rounded bg-light"
-        >
+        <div class="tw:grid tw:grid-cols-4 bg-light tw:rounded">
             <button
-                v-for="color in colors"
+                v-for="color in allStylingColors"
                 :key="color.name"
                 class="btn btn-sm m-1"
                 :class="{
@@ -45,8 +42,8 @@ function onColorChange(color) {
                 }"
                 :style="{
                     color: color.name,
-                    font,
-                    'text-shadow': color.textShadow,
+                    font: generateFontString(MEDIUM),
+                    'text-shadow': generateTextShadow(color),
                 }"
                 :data-cy="`drawing-style-text-color-${color.name}`"
                 @click="onColorChange(color)"
@@ -56,12 +53,3 @@ function onColorChange(color) {
         </div>
     </div>
 </template>
-
-<style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
-
-#drawing-style-text-color-selector {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-}
-</style>

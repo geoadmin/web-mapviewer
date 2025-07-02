@@ -2,7 +2,7 @@ import log from '@geoadmin/log'
 import axios from 'axios'
 import { isString } from 'lodash'
 
-import { getServiceProxyBaseUrl } from '@/config/baseUrl.config'
+import { getServiceProxyBaseUrl } from '@/config/baseUrl.config.js'
 
 /**
  * Transform a Dropbox URL to a direct download link, replacing dl=0 by dl=1

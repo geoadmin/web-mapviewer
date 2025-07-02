@@ -1,7 +1,7 @@
 import log from '@geoadmin/log'
 
 import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api'
-import { checkOnlineFileCompliance, getFileContentFromUrl } from '@/api/files.api'
+import { checkOnlineFileCompliance, getFileContentFromUrl } from '@/api/files.api.js'
 
 /**
  * @function
@@ -251,9 +251,8 @@ export default class FileParser {
      * @param {ArrayBuffer} [options.loadedContent] File content already loaded (most likely by
      *   service-proxy). When given, no other request will be made on the file source, but this
      *   content will be used instead.
-     * @returns {Promise<Layer>} A promise to layer config derived from the file's
-     *   metadata/content, ready to be added to the map. Or a rejected promise if the file wasn't
-     *   compatible.
+     * @returns {Promise<Layer>} A promise to layer config derived from the file's metadata/content,
+     *   ready to be added to the map. Or a rejected promise if the file wasn't compatible.
      * @throws OutOfBoundsError if the imported file is out of bound of the current projection
      * @throws EmptyFileContentError if missing data (or no data) while reading the file
      */

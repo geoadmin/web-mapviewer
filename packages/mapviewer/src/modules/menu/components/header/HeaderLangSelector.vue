@@ -3,7 +3,7 @@ import log from '@geoadmin/log'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 
-import { languages as availableLanguages } from '@/modules/i18n'
+import { languages as availableLanguages } from '@/modules/i18n/index.js'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 
 const dispatcher = { dispatcher: 'HeaderLangSelector.vue' }

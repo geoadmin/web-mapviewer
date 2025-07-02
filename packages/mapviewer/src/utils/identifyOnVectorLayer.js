@@ -5,7 +5,7 @@ import proj4 from 'proj4'
 import { reproject } from 'reproject'
 
 import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
-import { createLayerFeature } from '@/utils/layerUtils'
+import { createLayerFeature } from '@/utils/layerUtils.js'
 
 const pixelToleranceForIdentify = 20
 

@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import EditableFeature from '@/api/features/EditableFeature.class'
+import EditableFeature from '@/api/features/EditableFeature.class.js'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIcon from '@/modules/infobox/components/styling/DrawingStyleIcon.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'

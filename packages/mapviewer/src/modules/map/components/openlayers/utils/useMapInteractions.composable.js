@@ -10,8 +10,8 @@ import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
 import { useDragBoxSelect } from '@/modules/map/components/openlayers/utils/useDragBoxSelect.composable'
-import { ClickInfo, ClickType } from '@/store/modules/map.store'
-import { createLayerFeature } from '@/utils/layerUtils'
+import { ClickInfo, ClickType } from '@/store/modules/map.store.js'
+import { createLayerFeature } from '@/utils/layerUtils.js'
 
 const dispatcher = {
     dispatcher: 'useMapInteractions.composable',
