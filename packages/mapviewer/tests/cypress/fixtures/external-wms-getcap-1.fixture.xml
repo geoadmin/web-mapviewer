@@ -19,7 +19,7 @@
         </KeywordList>
         <OnlineResource
             xmlns:xlink="http://www.w3.org/1999/xlink"
-            xlink:href="https://wms.geo.admin.ch/?"
+            xlink:href="https://fake.wms.base-1.url/?"
         />
         <ContactInformation>
             <ContactPersonPrimary>

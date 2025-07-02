@@ -19,6 +19,7 @@ import { extractOlFeatureCoordinates } from '@/api/features/features.api'
 import { proxifyUrl } from '@/api/file-proxy.api'
 import { DEFAULT_TITLE_OFFSET, DrawingIcon } from '@/api/icon.api'
 import KmlStyles from '@/api/layers/KmlStyles.enum'
+import { LOCAL_OR_INTERNAL_URL_REGEX } from '@/config/regex.config'
 import {
     allStylingSizes,
     allStylingTextPlacements,
@@ -86,8 +87,9 @@ export function getKmlExtent(content) {
 }
 
 /**
- * Get the description of all features in the KML content in form of a Map with the feature ID as key
- * 
+ * Get the description of all features in the KML content in form of a Map with the feature ID as
+ * key
+ *
  * @param {string} content KML content
  * @returns {Map<string, string>} Map of feature ID to description
  */
@@ -532,7 +534,7 @@ function detectTextPlacement(textScale, iconScale, anchor, iconSize, text, curre
 const nonGeoadminIconUrls = new Set()
 export function iconUrlProxyFy(url, corsIssueCallback = null, httpIssueCallBack = null) {
     // We only proxyfy URL that are not from our backend.
-    if (!/^(https:\/\/[^/]*(bgdi\.ch|geo\.admin\.ch)|https?:\/\/localhost)/.test(url)) {
+    if (!LOCAL_OR_INTERNAL_URL_REGEX.test(url)) {
         if (url.startsWith('http:') && httpIssueCallBack) {
             log.warn(`KML Icon url ${url} has an http scheme`)
             httpIssueCallBack(url)
