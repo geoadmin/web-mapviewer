@@ -5,12 +5,16 @@ export const ClickType = {
     CONTEXTMENU: 'CONTEXTMENU',
     /* A single click, with the left mouse button or with the finger on a touch device */
     LEFT_SINGLECLICK: 'LEFT_SINGLECLICK',
+    /* A single click with CTRL button pressed */
+    CTRL_LEFT_SINGLECLICK: 'CTRL_LEFT_SINGLECLICK',
+    /* Drawing a box with ctrl and dragging a left click */
+    DRAW_BOX: 'DRAW_BOX',
 }
 
 export class ClickInfo {
     /**
-     * @param {[Number, Number]} clickInfo.coordinate Of the last click expressed in the current
-     *   mapping projection
+     * @param {[Number, Number] | [Number, Number, Number, Number]} clickInfo.coordinate Coordinate
+     *   or extent Of the last click expressed in the current mapping projection
      * @param {[Number, Number]} [clickInfo.pixelCoordinate=[]] Position of the last click on the
      *   screen [x, y] in pixels (counted from top left corner). Default is `[]`
      * @param {SelectableFeature[]} [clickInfo.features=[]] List of potential features (geoJSON or
@@ -72,6 +76,12 @@ export default {
          * @type Boolean
          */
         printMode: false,
+        /**
+         * Coordinates of the rectangle selection extent, if null no rectangle selection is active.
+         *
+         * @type Array<Number>
+         */
+        rectangleSelectionExtent: null,
     },
     actions: {
         /**
@@ -80,11 +90,24 @@ export default {
          * @param commit
          * @param {ClickInfo} clickInfo
          */
-        click: ({ commit }, { clickInfo, dispatcher }) =>
-            commit('setClickInfo', { clickInfo, dispatcher }),
+        click: ({ commit }, { clickInfo, dispatcher }) => {
+            commit('setClickInfo', { clickInfo, dispatcher })
+
+            if (clickInfo.clickType === ClickType.DRAW_BOX) {
+                // If the click is a box selection, we set the rectangle selection extent to the
+                // coordinates of the click.
+                commit('setRectangleSelectionExtent', { extent: clickInfo.coordinate, dispatcher })
+            } else if (clickInfo.clickType === ClickType.CTRL_LEFT_SINGLECLICK) {
+                // If the click is a ctrl left single click, we keep the rectangle selection extent
+            } else {
+                // For any other click type, we clear the rectangle selection extent
+                commit('setRectangleSelectionExtent', { extent: null, dispatcher })
+            }
+        },
 
         clearClick: ({ commit }, { dispatcher }) => {
             commit('setClickInfo', { clickInfo: null, dispatcher })
+            commit('setRectangleSelectionExtent', { extent: null, dispatcher })
         },
         /**
          * Sets the dropped pin on the map, if coordinates are null the dropped pin is removed
@@ -131,6 +154,13 @@ export default {
         },
         setPrintMode: ({ commit }, { mode, dispatcher }) =>
             commit('setPrintMode', { mode: !!mode, dispatcher }),
+        setRectangleSelectionExtent: ({ commit }, { extent, dispatcher }) => {
+            if (Array.isArray(extent) && extent.length === 4) {
+                commit('setRectangleSelectionExtent', { extent, dispatcher })
+            } else {
+                commit('setRectangleSelectionExtent', { extent: null, dispatcher })
+            }
+        },
     },
     mutations: {
         setClickInfo: (state, { clickInfo }) => (state.clickInfo = clickInfo),
@@ -140,5 +170,7 @@ export default {
         setLocationPopupCoordinates: (state, { coordinates }) =>
             (state.locationPopupCoordinates = coordinates),
         setPrintMode: (state, { mode }) => (state.printMode = mode),
+        setRectangleSelectionExtent: (state, { extent }) =>
+            (state.rectangleSelectionExtent = extent),
     },
 }

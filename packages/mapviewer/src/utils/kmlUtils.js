@@ -19,6 +19,7 @@ import { extractOlFeatureCoordinates } from '@/api/features/features.api'
 import { proxifyUrl } from '@/api/file-proxy.api'
 import { DEFAULT_TITLE_OFFSET, DrawingIcon } from '@/api/icon.api'
 import KmlStyles from '@/api/layers/KmlStyles.enum'
+import { LOCAL_OR_INTERNAL_URL_REGEX } from '@/config/regex.config'
 import {
     allStylingSizes,
     allStylingTextPlacements,
@@ -83,6 +84,29 @@ export function getKmlExtent(content) {
         return null
     }
     return extent
+}
+
+/**
+ * Get the description of all features in the KML content in form of a Map with the feature ID as
+ * key
+ *
+ * @param {string} content KML content
+ * @returns {Map<string, string>} Map of feature ID to description
+ */
+export function getFeatureDescriptionMap(content) {
+    const features = kmlReader.readFeatures(content, {
+        dataProjection: WGS84.epsg, // KML files should always be in WGS84
+        featureProjection: WGS84.epsg,
+    })
+    const descriptionMap = new Map()
+    features.forEach((feature) => {
+        const description = feature.get('description')
+        if (description) {
+            const featureId = feature.getId()
+            descriptionMap.set(featureId, description)
+        }
+    })
+    return descriptionMap
 }
 
 /**
@@ -398,7 +422,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
     const textScale = getTextScale(style)
     const textSize = getTextSize(textScale)
     const textColor = getTextColor(style)
-    const textOffset = kmlFeature?.get('textOffset')?.split(',').map(Number) ?? DEFAULT_TITLE_OFFSET
+    const textOffset = kmlFeature.get('textOffset')?.split(',').map(Number) ?? DEFAULT_TITLE_OFFSET
 
     const description = kmlFeature.get('description') ?? ''
 
@@ -427,6 +451,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
         title,
         textOffset
     )
+    const showDescriptionOnMap = kmlFeature.get('showDescriptionOnMap') ?? false
     if (iconArgs?.isLegacy && iconStyle && icon) {
         // The legacy drawing uses icons from old URLs, some of them have already been removed
         // like the versioned URLs (/{version}/img/maki/{image}-{size}@{scale}x.png) while others
@@ -466,6 +491,7 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
         icon,
         iconSize,
         textPlacement,
+        showDescriptionOnMap,
     })
 }
 
@@ -508,7 +534,7 @@ function detectTextPlacement(textScale, iconScale, anchor, iconSize, text, curre
 const nonGeoadminIconUrls = new Set()
 export function iconUrlProxyFy(url, corsIssueCallback = null, httpIssueCallBack = null) {
     // We only proxyfy URL that are not from our backend.
-    if (!/^(https:\/\/[^/]*(bgdi\.ch|geo\.admin\.ch)|https?:\/\/localhost)/.test(url)) {
+    if (!LOCAL_OR_INTERNAL_URL_REGEX.test(url)) {
         if (url.startsWith('http:') && httpIssueCallBack) {
             log.warn(`KML Icon url ${url} has an http scheme`)
             httpIssueCallBack(url)
@@ -616,7 +642,7 @@ export function isKmlFeaturesValid(kmlData) {
         const kmlDom = new DOMParser().parseFromString(kmlData, 'text/xml')
         const kmlGeoJson = kmlToGeoJSON(kmlDom, { styles: false })
 
-        const invalidFeatures = kmlGeoJson.features.filter(feature => !booleanValid(feature))
+        const invalidFeatures = kmlGeoJson.features.filter((feature) => !booleanValid(feature))
         const errorsCount = invalidFeatures.length
         if (errorsCount > 0) {
             log.warn(`KML file contains ${errorsCount} invalid feature(s)`)

@@ -58,45 +58,47 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <div
-        v-if="inputText"
-        ref="copyButton"
-    >
-        <label v-if="labelText">{{ t(labelText) }}: </label>
+    <div>
         <div
-            class="input-group"
-            :class="{ 'input-group-sm': small }"
+            v-if="inputText"
+            ref="copyButton"
         >
-            <input
-                type="text"
-                class="form-control"
-                :class="{ 'border-warning': hasWarning }"
-                readonly="readonly"
-                :value="inputText"
-                data-cy="menu-share-input-copy-text"
-                @focus="(event) => event.target.select()"
-            />
-            <button
-                class="btn rounded-start-0"
-                :class="{
-                    'btn-warning': hasWarning,
-                    'btn-outline-group': !hasWarning,
-                }"
-                data-cy="menu-share-input-copy-button"
-                @click="copyInputToClipboard"
+            <label v-if="labelText">{{ t(labelText) }}: </label>
+            <div
+                class="input-group"
+                :class="{ 'input-group-sm': small }"
             >
-                {{ buttonText }}
-            </button>
+                <input
+                    type="text"
+                    class="form-control"
+                    :class="{ 'border-warning': hasWarning }"
+                    readonly="readonly"
+                    :value="inputText"
+                    data-cy="menu-share-input-copy-text"
+                    @focus="(event) => event.target.select()"
+                />
+                <button
+                    class="btn rounded-start-0"
+                    :class="{
+                        'btn-warning': hasWarning,
+                        'btn-outline-group': !hasWarning,
+                    }"
+                    data-cy="menu-share-input-copy-button"
+                    @click="copyInputToClipboard"
+                >
+                    {{ buttonText }}
+                </button>
+            </div>
         </div>
-    </div>
-    <div
-        v-if="hasWarning"
-        class="d-flex align-items-center mt-1 gap-1"
-        data-cy="share-warning-local-files"
-    >
-        <span class="text-warning">
-            <FontAwesomeIcon icon="circle-exclamation" />
-        </span>
-        {{ t('warn_share_local_file') }}
+        <div
+            v-if="hasWarning"
+            class="d-flex align-items-center mt-1 gap-1"
+            data-cy="share-warning-local-files"
+        >
+            <span class="text-warning">
+                <FontAwesomeIcon icon="circle-exclamation" />
+            </span>
+            {{ t('warn_share_local_file') }}
+        </div>
     </div>
 </template>

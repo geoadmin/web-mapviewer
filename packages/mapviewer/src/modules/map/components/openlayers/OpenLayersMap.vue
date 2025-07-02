@@ -16,6 +16,7 @@ import OpenLayersGeolocationFeedback from '@/modules/map/components/openlayers/O
 import OpenLayersHighlightedFeature from '@/modules/map/components/openlayers/OpenLayersHighlightedFeatures.vue'
 import OpenLayersPinnedLocation from '@/modules/map/components/openlayers/OpenLayersPinnedLocation.vue'
 import OpenLayersRectangleSelectionFeedback from '@/modules/map/components/openlayers/OpenLayersRectangleSelectionFeedback.vue'
+import OpenLayersSelectionRectangle from '@/modules/map/components/openlayers/OpenLayersSelectionRectangle.vue'
 import OpenLayersVisibleLayers from '@/modules/map/components/openlayers/OpenLayersVisibleLayers.vue'
 import useMapInteractions from '@/modules/map/components/openlayers/utils/useMapInteractions.composable'
 import usePrintAreaRenderer from '@/modules/map/components/openlayers/utils/usePrintAreaRenderer.composable'
@@ -37,6 +38,7 @@ const mapElement = useTemplateRef('mapElement')
 const store = useStore()
 const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
 const showLayerExtents = computed(() => store.state.debug.showLayerExtents)
+const showSelectionRectangle = computed(() => !!store.state.map.rectangleSelectionExtent)
 const geolocationActive = computed(() => store.state.geolocation.active)
 const geoPosition = computed(() => store.state.geolocation.position)
 const visibleLayers = computed(() => store.getters.visibleLayers)
@@ -73,7 +75,7 @@ onMounted(() => {
     log.info('OpenLayersMap component mounted and ready')
 })
 
-const { zIndexTileInfo, zIndexLayerExtents } = useLayerZIndexCalculation()
+const { zIndexTileInfo, zIndexLayerExtents, zIndexSelectionRectangle } = useLayerZIndexCalculation()
 </script>
 
 <template>
@@ -98,6 +100,10 @@ const { zIndexTileInfo, zIndexLayerExtents } = useLayerZIndexCalculation()
         <OpenLayersLayerExtents
             v-if="showLayerExtents"
             :z-index="zIndexLayerExtents"
+        />
+        <OpenLayersSelectionRectangle
+            v-if="showSelectionRectangle"
+            :z-index="zIndexSelectionRectangle"
         />
     </div>
     <!-- So that external modules can have access to the map instance through the provided 'olMap' -->

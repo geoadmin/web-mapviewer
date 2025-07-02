@@ -178,6 +178,10 @@ export default {
                         50.0 /* m */
                     )
                 }
+                // if the geometry is a MultiPolygon, we need to flatten it one level, so it can get processed as segments
+                if (profileFeature.geometry.type === 'MultiPolygon') {
+                    profileFeature.geometry.coordinates = profileFeature.geometry.coordinates.flat(1)
+                }
                 commit('setProfileFeature', { feature: profileFeature, dispatcher })
             } else {
                 log.warn('Geometry type not supported to show a profile, ignoring', feature)

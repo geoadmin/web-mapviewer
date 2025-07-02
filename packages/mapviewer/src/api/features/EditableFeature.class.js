@@ -2,8 +2,7 @@ import { Icon as olIcon } from 'ol/style'
 
 import { extractOlFeatureGeodesicCoordinates } from '@/api/features/features.api'
 import SelectableFeature from '@/api/features/SelectableFeature.class'
-import { DEFAULT_ICON_URL_PARAMS } from '@/api/icon.api'
-import { DEFAULT_TITLE_OFFSET } from '@/api/icon.api'
+import { DEFAULT_ICON_URL_PARAMS, DEFAULT_TITLE_OFFSET } from '@/api/icon.api'
 import {
     allStylingColors,
     allStylingSizes,
@@ -69,6 +68,7 @@ export default class EditableFeature extends SelectableFeature {
             icon = null,
             iconSize = MEDIUM,
             textPlacement = TOP,
+            showDescriptionOnMap = false,
         } = featureData
         super({ id, coordinates, title, description, geometry, isEditable: true })
         this._featureType = featureType
@@ -81,6 +81,7 @@ export default class EditableFeature extends SelectableFeature {
         this._geodesicCoordinates = null
         this._isDragged = false
         this._textPlacement = textPlacement
+        this._showDescriptionOnMap = showDescriptionOnMap
     }
 
     /**
@@ -255,5 +256,14 @@ export default class EditableFeature extends SelectableFeature {
 
     set geodesicCoordinates(coordinates) {
         this._geodesicCoordinates = coordinates
+    }
+
+    get showDescriptionOnMap() {
+        return this._showDescriptionOnMap
+    }
+
+    set showDescriptionOnMap(newValue) {
+        this._showDescriptionOnMap = newValue
+        this.emitStylingChangeEvent('showDescriptionOnMap')
     }
 }

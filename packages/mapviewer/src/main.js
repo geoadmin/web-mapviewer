@@ -8,7 +8,7 @@ import './setup-fontawesome'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { registerProj4 } from '@geoadmin/coordinates'
 import GeoadminElevationProfile from '@geoadmin/elevation-profile'
-import log from '@geoadmin/log'
+import log, { LogLevel } from '@geoadmin/log'
 import { register } from 'ol/proj/proj4'
 import proj4 from 'proj4'
 import { createApp } from 'vue'
@@ -36,6 +36,11 @@ import router from '@/router'
 import store from '@/store'
 import clickOutside from '@/utils/click-outside'
 
+if (ENVIRONMENT !== 'production') {
+    // when not on PROD, we want all log levels available
+    log.wantedLevels = [LogLevel.Debug, LogLevel.Info, LogLevel.Warn, LogLevel.Error]
+}
+
 log.debug('Config is', {
     ENVIRONMENT,
     IS_TESTING_WITH_CYPRESS,
@@ -52,6 +57,7 @@ log.debug('Config is', {
     BREAKPOINT_PHONE_WIDTH,
     BREAKPOINT_PHONE_HEIGHT,
     BREAKPOINT_TABLET,
+    env: import.meta.env,
 })
 
 registerProj4(proj4)
@@ -60,12 +66,9 @@ register(proj4)
 
 const app = createApp(App)
 
-if (ENVIRONMENT !== 'production') {
+if (ENVIRONMENT === 'production') {
     app.config.performance = true
     // by default, index levels are ERROR and WARNING; that goes well for PROD staging (no changes)
-} else {
-    // when not on PROD, we want all index levels available
-    log.wantedLevels = Object.values(log.LogLevels)
 }
 
 app.use(router)

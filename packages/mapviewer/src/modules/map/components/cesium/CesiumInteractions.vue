@@ -1,8 +1,17 @@
 <script setup>
 import { WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
-import { Cartesian2, Cartographic, PostProcessStageLibrary, ScreenSpaceEventType } from 'cesium'
-import { Point } from 'ol/geom'
+import { bbox } from '@turf/turf'
+import { centroid } from '@turf/turf'
+import {
+    Cartesian2,
+    Cartographic,
+    Math,
+    PostProcessStageLibrary,
+    ScreenSpaceEventType,
+} from 'cesium'
+import GeoJSON from 'ol/format/GeoJSON'
+import { LineString, Point, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
 import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 import { useStore } from 'vuex'
@@ -183,7 +192,7 @@ function onClick(event) {
         'with objects',
         objects
     )
-    const kmlFeatures = {}
+
     // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
     visiblePrimitiveLayers.value
         .filter((l) => l instanceof GeoAdminGeoJsonLayer)
@@ -197,6 +206,7 @@ function onClick(event) {
                 )
             )
         })
+
     visiblePrimitiveLayers.value
         .filter((l) => l instanceof KMLLayer)
         .forEach((kmlLayer) => {
@@ -209,10 +219,13 @@ function onClick(event) {
                         'for KML layer',
                         kmlLayer
                     )
-                    // TODO PB-1300 implement KML features selection here
+                    const kmlLayerFeature = create3dKmlFeature(viewer, kmlFeature, kmlLayer)
+                    if (kmlLayerFeature) {
+                        features.push(kmlLayerFeature)
+                    }
                 })
-            features.push(...Object.values(kmlFeatures))
         })
+
     handleClickHighlight(features, coordinates)
 
     if (!coordinates.length && features.length) {
@@ -231,6 +244,72 @@ function onClick(event) {
         ...dispatcher,
     })
     viewer.scene.requestRender()
+}
+
+/**
+ * This function creates a LayerFeature from a KML feature in 3D.
+ *
+ * @param {Viewer} viewer Cesium viewer
+ * @param {KmlFeatureData} kmlFeature KML feature
+ * @param {KMLLayer} kmlLayer KML layer
+ * @returns {LayerFeature} LayerFeature
+ */
+function create3dKmlFeature(viewer, kmlFeature, kmlLayer) {
+    if (!kmlFeature || !kmlFeature.id) {
+        return
+    }
+    let geometry
+    let featureCoordinates
+    if (kmlFeature.id.position) {
+        const position = kmlFeature.id.position.getValue(viewer.clock.currentTime)
+        const cartographic = Cartographic.fromCartesian(position)
+        // position is in Cartesian then it is converted to WGS84 to project it then to WEBMERCATOR
+        featureCoordinates = proj4(WGS84.epsg, WEBMERCATOR.epsg, [
+            Math.toDegrees(cartographic.longitude),
+            Math.toDegrees(cartographic.latitude),
+        ])
+        geometry = new Point(featureCoordinates)
+    }
+    if (kmlFeature.id.polyline) {
+        const positions = kmlFeature.id.polyline.positions.getValue(viewer.clock.currentTime)
+        featureCoordinates = positions.map((pos) => {
+            // pos is in Cartesian then it is converted to WGS84 to project it then to WEBMERCATOR
+            const carto = Cartographic.fromCartesian(pos)
+            const lon = Math.toDegrees(carto.longitude)
+            const lat = Math.toDegrees(carto.latitude)
+
+            return proj4(WGS84.epsg, WEBMERCATOR.epsg, [lon, lat])
+        })
+        geometry = new LineString(featureCoordinates)
+    }
+    if (kmlFeature.id.polygon) {
+        const hierarchy = kmlFeature.id.polygon.hierarchy.getValue(viewer.clock.currentTime)
+
+        featureCoordinates = hierarchy.positions.map((pos) => {
+            // pos is in Cartesian then it is converted to WGS84 to project it then to WEBMERCATOR
+            const carto = Cartographic.fromCartesian(pos)
+            const lon = Math.toDegrees(carto.longitude)
+            const lat = Math.toDegrees(carto.latitude)
+
+            return proj4(WGS84.epsg, WEBMERCATOR.epsg, [lon, lat])
+        })
+
+        geometry = new Polygon([featureCoordinates])
+    }
+    const geoJsonGeometry = new GeoJSON().writeGeometryObject(geometry)
+    const extent = bbox(geoJsonGeometry)
+    return new LayerFeature({
+        layer: kmlLayer,
+        id: kmlFeature.id.id,
+        data: {
+            title: kmlFeature.id.name,
+            description: kmlFeature.id.description,
+        },
+        title: kmlFeature.id.name || kmlFeature.id.id,
+        coordinates: centroid(geoJsonGeometry).geometry.coordinates,
+        extent,
+        geometry: geoJsonGeometry,
+    })
 }
 
 function onContextMenu(event) {

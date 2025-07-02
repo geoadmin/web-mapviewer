@@ -23,9 +23,7 @@ const compareSliderPosition = computed(() => {
     }
 })
 const visibleLayerOnTop = computed(() => store.getters.visibleLayerOnTop)
-const shouldUseWebGlContext = computed(
-    () => visibleLayerOnTop.value.type === LayerTypes.COG
-)
+const shouldUseWebGlContext = computed(() => visibleLayerOnTop.value.type === LayerTypes.COG)
 
 watch(storeCompareRatio, (newValue) => {
     compareRatio.value = newValue
@@ -35,25 +33,25 @@ watch(storeCompareRatio, (newValue) => {
 watch(
     visibleLayerOnTop,
     (newLayerOnTop, oldLayerOnTop) => {
-
         if (oldLayerOnTop) {
             unRegisterRenderingEvents(oldLayerOnTop.id, oldLayerOnTop.uuid)
         }
-
         if (getLayerFromMapById(newLayerOnTop.id, newLayerOnTop.uuid)) {
             registerRenderingEvents(newLayerOnTop.id, newLayerOnTop.uuid)
             olMap.render()
-
         } else {
-            // The layer config is always modified before the map, which means the
-            // visible layer on top according to the config could not exist within
-            // the map. This means that if we have layers that loads after the component is
-            // instantiated, most often COG layers.
+            // There are cases where the layer config and layer store are
+            // modified and updated before the map. This means we need to delay
+            // the event which bind the rendering event to the layer. This
+            // happens in general at startup, especially if the layer itself is
+            // quite big.
 
-            // to mitigate the issue, we ask the map to register the events once after the first render,
-            // after all layers have been loaded, and re-render it.
-            // We should arrive here ONLY if we arrive on startup on a map with an active compare slider.
-            olMap?.once('rendercomplete', () => {
+            // To mitigate the issue, we ask the map add the rendering functions
+            // either when the 'precompose' event is fired (for WebGL layers) or
+            // a 'rendercomplete' event is fired (for canvas layers).
+            // This ensure we link the rendering function to the layer as soon
+            // as possible.git
+            olMap?.once(shouldUseWebGlContext.value ? 'precompose' : 'rendercomplete', () => {
                 registerRenderingEvents(newLayerOnTop.id, newLayerOnTop.uuid)
                 olMap.render()
             })
@@ -195,7 +193,7 @@ function releaseSlider() {
 
 <template>
     <div
-        class="compare-slider position-absolute top-0 translate-middle-x h-100 d-inline-block"
+        class="compare-slider position-absolute translate-middle-x h-100 d-inline-block top-0"
         data-cy="compareSlider"
         :style="compareSliderPosition"
         @touchstart.passive="grabSlider"
@@ -204,12 +202,12 @@ function releaseSlider() {
         @mouseleave="showLayerName = false"
     >
         <FontAwesomeIcon
-            class="compare-slider-caret-left bg-primary text-white rounded-start"
+            class="compare-slider-caret-left bg-primary rounded-start text-white"
             :icon="['fas', 'caret-left']"
         />
         <div class="compare-slider-line" />
         <FontAwesomeIcon
-            class="compare-slider-caret-right bg-primary text-white rounded-end"
+            class="compare-slider-caret-right bg-primary rounded-end text-white"
             :icon="['fas', 'caret-right']"
         />
         <div

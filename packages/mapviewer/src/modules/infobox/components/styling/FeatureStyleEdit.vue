@@ -39,6 +39,16 @@ const { t } = useI18n()
 
 const title = ref(feature.title)
 const description = ref(feature.description)
+const showDescriptionOnMap = computed({
+    get: () => !!feature.showDescriptionOnMap,
+    set: (value) => {
+        store.dispatch('changeFeatureShownDescriptionOnMap', {
+            feature: feature,
+            showDescriptionOnMap: value,
+            ...dispatcher,
+        })
+    },
+})
 const mediaPopovers = useTemplateRef('mediaPopovers')
 const isEditingText = computed(() => {
     const titleElement = document.getElementById('drawing-style-feature-title')
@@ -108,6 +118,7 @@ function updateFeatureDescription() {
     store.dispatch('changeFeatureDescription', {
         feature: feature,
         description: description.value,
+        showDescriptionOnMap: showDescriptionOnMap.value,
         ...dispatcher,
     })
 }
@@ -211,7 +222,7 @@ function mediaTypes() {
     <div data-cy="drawing-style-popup">
         <div
             v-if="isFeatureMarker || isFeatureText"
-            class="form-group mb-2"
+            class="form-group mb-3"
         >
             <label
                 class="form-label"
@@ -234,7 +245,7 @@ function mediaTypes() {
 
         <div
             v-if="!isFeatureText"
-            class="form-group mb-2"
+            class="form-group mb-3"
         >
             <div class="d-flex justify-content-between">
                 <label
@@ -279,8 +290,22 @@ function mediaTypes() {
                     rows="2"
                 />
             </div>
+            <div class="form-check form-switch">
+                <label
+                    class="menu-layer-options form-check-label me-2"
+                    for="checkbox-show-on-map"
+                >
+                    {{ t('display_on_map') }}
+                </label>
+                <input
+                    id="checkbox-show-on-map"
+                    v-model="showDescriptionOnMap"
+                    type="checkbox"
+                    class="form-check-input"
+                />
+            </div>
         </div>
-        <div class="d-flex small gap-1 justify-content-start align-items-center">
+        <div class="d-flex small justify-content-start align-items-center mb-1 gap-1">
             <CoordinateCopySlot
                 v-if="isFeatureMarker || isFeatureText"
                 identifier="feature-style-edit-coordinate-copy"
@@ -300,7 +325,7 @@ function mediaTypes() {
         <div class="d-flex justify-content-end align-items-center">
             <div
                 v-if="!readOnly"
-                class="d-flex gap-1 feature-style-edit-control"
+                class="d-flex feature-style-edit-control gap-1"
             >
                 <ShowGeometryProfileButton
                     v-if="isFeatureLine || isFeatureMeasure"

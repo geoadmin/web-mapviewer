@@ -60,6 +60,15 @@ const specializedInteractionComponent = computed(() => {
     return selectedInteraction
 })
 
+const specializedProps = computed(() => {
+    if (editMode.value === EditMode.EXTEND) {
+        return {
+            startingFeature: selectedLineFeature.value,
+        }
+    }
+    return {}
+})
+
 function onDrawEnd(feature) {
     selectInteraction.value.selectFeature(feature)
 }
@@ -93,7 +102,7 @@ defineExpose({
         :is="specializedInteractionComponent"
         v-if="specializedInteractionComponent"
         ref="currentInteraction"
-        :starting-feature="selectedLineFeature"
+        v-bind="specializedProps"
         @draw-end="onDrawEnd"
     />
 </template>

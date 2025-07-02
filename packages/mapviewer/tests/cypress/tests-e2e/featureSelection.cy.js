@@ -1,6 +1,11 @@
 /// <reference types="cypress" />
+import { registerProj4 } from '@geoadmin/coordinates'
+import proj4 from 'proj4'
+
 import { DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION } from '@/config/map.config'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
+
+registerProj4(proj4)
 
 describe('Testing the feature selection', () => {
     context('Feature pre-selection in the URL', () => {
@@ -344,6 +349,12 @@ describe('Testing the feature selection', () => {
             })
         }
 
+        // This function simulates a click on the map at the specified location {x, y}
+        // The ctrlKey parameter allows for simulating a click with the CTRL key pressed.
+        function clickOnMap(location, ctrlKey = false) {
+            cy.get('@olMap').click(location[0], location[1], { ctrlKey })
+        }
+
         it('can select an area to identify features inside it', () => {
             // Import KML file
             const fileName = 'external-kml-file.kml'
@@ -504,6 +515,68 @@ describe('Testing the feature selection', () => {
             cy.get('@identify.all').should('have.length', 2)
             cy.get('@identifySingleFeature.all').should('have.length', 1)
             cy.get('@emptyIdentify.all').should('have.length', 1)
+        })
+
+        it('can select feature by click, add more feature, and deselect feature', () => {
+            // Import KML file
+            const fileName = '4-points.kml'
+            const localKmlFile = `import-tool/${fileName}`
+            cy.goToMapView()
+            cy.wait(['@routeChange', '@layerConfig', '@topics', '@topic-ech'])
+
+            cy.openMenuIfMobile()
+            cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+            cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+            cy.get('[data-cy="import-file-local-btn"]:visible').click()
+
+            cy.fixture(localKmlFile).as('kmlFile')
+            cy.get('[data-cy="file-input"]').selectFile(
+                { contents: '@kmlFile', fileName: fileName },
+                { force: true }
+            )
+
+            cy.get('[data-cy="import-file-load-button"]:visible').click()
+
+            cy.wait(['@icon-sets', '@icon-set-babs', '@icon-set-default'])
+
+            cy.get('[data-cy="file-input-text"]').should('contain.value', fileName)
+            cy.get('[data-cy="import-file-close-button"]:visible').click()
+            cy.readStoreValue('state.layers.activeLayers.length').should('eq', 1)
+            cy.readStoreValue('getters.visibleLayers.length').should('eq', 1)
+
+            cy.closeMenuIfMobile()
+
+            cy.checkOlLayer(['test.background.layer2', fileName])
+
+            cy.get('[data-cy="ol-map"]').as('olMap').should('be.visible')
+            cy.readStoreValue('getters.selectedFeatures.length').should('eq', 0)
+
+            cy.window()
+                .its('map')
+                .then((olMap) => {
+                    const mapProjection = olMap.getView().getProjection().getCode()
+
+                    // values from 4-points.kml
+                    const point1 = [7.5176682524165095, 47.10172318866241]
+                    const point3 = [7.674246396589141, 46.759691186931235]
+
+                    const pixel1 = olMap.getPixelFromCoordinate(
+                        proj4('EPSG:4326', mapProjection, point1)
+                    )
+                    const pixel3 = olMap.getPixelFromCoordinate(
+                        proj4('EPSG:4326', mapProjection, point3)
+                    )
+
+                    // Click feature 3 without CTRL, it should select it
+                    clickOnMap(pixel3, false)
+                    cy.readStoreValue('getters.selectedFeatures.length').should('eq', 1)
+                    // Click feature 1 with CTRL, select it
+                    clickOnMap(pixel1, true)
+                    cy.readStoreValue('getters.selectedFeatures.length').should('eq', 2)
+                    // Click feature 1 again with CTRL, deselect it
+                    clickOnMap(pixel1, true)
+                    cy.readStoreValue('getters.selectedFeatures.length').should('eq', 1)
+                })
         })
 
         it('can print feature information', () => {

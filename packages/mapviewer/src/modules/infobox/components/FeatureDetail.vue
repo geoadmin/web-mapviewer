@@ -122,7 +122,7 @@ function getIframeHosts(value) {
             >
                 <FeatureDetailDisclaimer
                     v-if="externalIframeHosts.length"
-                    class="mb-2 fw-bold"
+                    class="fw-bold mb-2"
                     :external-iframe-hosts="externalIframeHosts"
                     :title="key"
                 />
@@ -143,7 +143,7 @@ function getIframeHosts(value) {
                 {{ t('no_more_information') }}
             </div>
         </div>
-        <div class="d-flex pb-2 px-2 gap-1 justify-content-start align-items-center">
+        <div class="d-flex justify-content-start align-items-center gap-1 px-2 pb-2">
             <FeatureAreaInfo
                 v-if="feature.geometry?.type === 'Polygon'"
                 :geometry="feature.geometry"

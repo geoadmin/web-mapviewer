@@ -433,6 +433,34 @@ export default class WMSCapabilitiesParser {
 
     _getLayerLegends(layerId, layer) {
         const styles = layer.Style?.filter((s) => s.LegendURL?.length > 0) ?? []
+
+        // if we do not have access to the legend in pure WMS fashion, we check if this
+        // WMS follows the SLD specification, and if we can get it from there.
+        if (
+            styles.length === 0 &&
+            layer.queryable &&
+            !!this.Capability.UserDefinedSymbolization?.SupportSLD
+        ) {
+            const getLegendGraphicBaseUrl =
+                this.Capability.Request.GetLegendGraphic?.DCPType[0]?.HTTP?.Get?.OnlineResource
+            const getLegendGraphicFormat = this.Capability.Request.GetLegendGraphic?.Format[0]
+            if (!!getLegendGraphicBaseUrl && !!getLegendGraphicFormat) {
+                const getLegendParams = new URLSearchParams({
+                    SERVICE: 'WMS',
+                    REQUEST: 'GetLegendGraphic',
+                    VERSION: this.version,
+                    FORMAT: getLegendGraphicFormat,
+                    LAYER: layerId,
+                    SLD_VERSION: '1.1.0',
+                })
+                return [
+                    {
+                        url: `${getLegendGraphicBaseUrl}${getLegendParams.toString()}`,
+                        format: getLegendGraphicFormat,
+                    },
+                ]
+            }
+        }
         return styles
             .map((style) =>
                 style.LegendURL.map((legend) => {

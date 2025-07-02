@@ -20,7 +20,7 @@ import TextAreaInput from '@/utils/components/TextAreaInput.vue'
 const dispatcher = { dispatcher: 'ReportProblemButton.vue' }
 const temporaryKmlId = getKmlUrl('temporary-kml-for-reporting-a-problem')
 
-const acceptedFileTypes = ['.kml', '.gpx', '.pdf', '.zip', '.jpg', '.jpeg', '.kmz']
+const acceptedFileTypes = ['.kml', '.gpx', '.pdf', '.zip', '.jpg', '.jpeg', '.png', '.kmz']
 
 const { t } = useI18n()
 const store = useStore()
@@ -237,7 +237,7 @@ function selectItem(dropdownItem) {
             class="report-problem"
             data-cy="report-problem-form"
         >
-            <div class="mb-2 fw-bold">
+            <div class="fw-bold mb-2">
                 {{ t('feedback_category') }}
             </div>
             <DropdownButton
@@ -367,14 +367,14 @@ function selectItem(dropdownItem) {
             />
             <div
                 ref="validationResult"
-                class="invalid-feedback text-end mt-2"
+                class="invalid-feedback mt-2 text-end"
             >
                 {{ t('form_invalid') }}
             </div>
             <div
                 v-if="request.failed"
                 ref="requestResults"
-                class="text-end text-danger mt-2"
+                class="text-danger mt-2 text-end"
                 data-cy="report-problem-failed-text"
             >
                 <small>{{ t('send_failed') }}</small>
@@ -392,7 +392,7 @@ function selectItem(dropdownItem) {
             </h6>
             <button
                 ref="reportProblemCloseSuccessful"
-                class="my-2 btn btn-light float-end"
+                class="btn btn-light float-end my-2"
                 data-cy="report-problem-close-successful"
                 @click="closeAndCleanForm"
             >

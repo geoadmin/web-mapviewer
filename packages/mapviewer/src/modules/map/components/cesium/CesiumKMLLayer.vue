@@ -1,10 +1,20 @@
 <script setup>
 import log from '@geoadmin/log'
-import { ArcType, Color, HeightReference, KmlDataSource, LabelStyle, VerticalOrigin } from 'cesium'
+import {
+    ArcType,
+    Color,
+    HeightReference,
+    HorizontalOrigin,
+    KmlDataSource,
+    LabelStyle,
+    VerticalOrigin,
+} from 'cesium'
 import { computed, inject, toRef, watch } from 'vue'
 
 import KMLLayer from '@/api/layers/KMLLayer.class'
+import { DEFAULT_MARKER_HORIZONTAL_OFFSET } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
+import { getFeatureDescriptionMap } from '@/utils/kmlUtils'
 
 const { kmlLayerConfig } = defineProps({
     kmlLayerConfig: {
@@ -25,13 +35,31 @@ const viewer = getViewer()
 /** @returns {Promise<KmlDataSource>} */
 async function createSource() {
     try {
-        return await KmlDataSource.load(new Blob([kmlData.value]), {
+        const kmlDataSource = await KmlDataSource.load(new Blob([kmlData.value]), {
             clampToGround: isClampedToGround.value,
         })
+        resetKmlDescription(kmlDataSource)
+        return kmlDataSource
     } catch (error) {
         log.error(`[Cesium] Error while parsing KML data for layer ${layerId.value}`, error)
         throw error
     }
+}
+
+/**
+ * This function is used to reset the description of the KML entities after the KML data has been
+ * loaded. It is necessary because the cesium loader creates an html description for each entity. If
+ * the KML description is not set it uses the geometry type as description. This is not the desired
+ * behavior. Therefore we need to reset the description to the original KML description. The
+ * description is changed in place.
+ *
+ * @param {KmlDataSource} kmlDataSource The KML data source
+ */
+function resetKmlDescription(kmlDataSource) {
+    const descriptionMap = getFeatureDescriptionMap(kmlData.value)
+    kmlDataSource.entities.values.forEach((entity) => {
+        entity.description = descriptionMap.get(entity.id)
+    })
 }
 
 // adding some visual improvements to KML feature, depending on their type
@@ -53,8 +81,24 @@ function applyStyleToKmlEntity(entity, opacity) {
         }
     }
     if (entity.billboard) {
+        let imageUrl = null
+
+        if (entity.billboard.image) {
+            const imageValue = entity.billboard.image.getValue()
+
+            if (typeof imageValue === 'string') {
+                imageUrl = imageValue
+            } else if (imageValue && imageValue.url) {
+                imageUrl = imageValue.url
+            }
+        }
+
+        const isDefaultMarker = !!imageUrl?.includes('001-marker')
+
         entity.billboard.heightReference = HeightReference.CLAMP_TO_GROUND
-        entity.billboard.verticalOrigin = VerticalOrigin.BOTTOM
+        entity.billboard.verticalOrigin = VerticalOrigin.CENTER
+        entity.billboard.horizontalOrigin =
+            HorizontalOrigin.CENTER + isDefaultMarker * DEFAULT_MARKER_HORIZONTAL_OFFSET
         entity.billboard.color = Color.WHITE.withAlpha(opacity)
     }
     if (entity.label) {

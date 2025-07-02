@@ -15,7 +15,8 @@
         "lib": [
             "DOM",
             "ESNext.Array",
-            "ESNext"
+            "ESNext",
+            "webworker"
         ],
 
         // see https://vite.dev/guide/features.html#typescript-compiler-options

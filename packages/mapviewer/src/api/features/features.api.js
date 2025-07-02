@@ -14,7 +14,7 @@ import {
     CURRENT_YEAR_TIMESTAMP,
 } from '@/api/layers/LayerTimeConfigEntry.class'
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
-import { DEFAULT_FEATURE_COUNT_SINGLE_POINT } from '@/config/map.config'
+import { DEFAULT_FEATURE_COUNT_SINGLE_POINT, DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@/config/map.config'
 import { createPixelExtentAround, projExtent } from '@/utils/extentUtils'
 import { getGeoJsonFeatureCoordinates, reprojectGeoJsonData } from '@/utils/geoJsonUtils'
 
@@ -25,12 +25,6 @@ const APPLICATION_GML_3_TYPE = 'application/vnd.ogc.gml'
 const APPLICATION_OGC_WMS_XML_TYPE = 'application/vnd.ogc.wms_xml'
 const PLAIN_TEXT_TYPE = 'text/plain'
 
-/**
- * In pixels
- *
- * @type {Number}
- */
-const DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE = 10
 
 function getApi3TimeInstantParam(layer) {
     // The api3 identify endpoint timeInstant parameter doesn't support the "all" and "current"
@@ -478,7 +472,7 @@ async function identifyOnExternalWmsLayer(config) {
                 label = null,
             } = feature.properties ?? {}
             const featureId = feature.id ?? id ?? identifier ?? title ?? name ?? label
-            const featureName = label ?? name ?? title ?? identifier ?? id
+            const featureName = label ?? name ?? title ?? identifier ?? id ?? featureId
             return new LayerFeature({
                 layer,
                 id: featureId,

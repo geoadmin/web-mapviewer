@@ -55,9 +55,9 @@ const isTouching = ref<boolean>(false)
 
 const isOpen = computed<boolean>(() => !disabled && isShown.value)
 
-const tooltipElementRef = useTemplateRef('tooltipElement')
-const floatingElementRef = useTemplateRef('floatingElement')
-const arrowElementRef = useTemplateRef('arrowElement')
+const tooltipElementRef = useTemplateRef<HTMLElement>('tooltipElement')
+const floatingElementRef = useTemplateRef<HTMLElement>('floatingElement')
+const arrowElementRef = useTemplateRef<HTMLElement>('arrowElement')
 
 const slots = useSlots()
 

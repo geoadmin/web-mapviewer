@@ -1,7 +1,10 @@
 <script setup>
+import TileLayer from 'ol/layer/Tile'
 import WebGLTileLayer from 'ol/layer/WebGLTile'
 import GeoTIFFSource from 'ol/source/GeoTIFF'
-import { computed, inject, watch } from 'vue'
+import TileDebug from 'ol/source/TileDebug'
+import { computed, inject, onMounted, watch } from 'vue'
+import { useStore } from 'vuex'
 
 import CloudOptimizedGeoTIFFLayer from '@/api/layers/CloudOptimizedGeoTIFFLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
@@ -22,11 +25,12 @@ const { geotiffConfig, parentLayerOpacity, zIndex } = defineProps({
 })
 
 const olMap = inject('olMap')
-const noDataValue = computed(() => geotiffConfig.noDataValue)
+
+const store = useStore()
+const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
+
 const source = computed(() => {
-    const base = {
-        nodata: noDataValue.value,
-    }
+    const base = {}
     if (geotiffConfig.isLocalFile) {
         base.blob = geotiffConfig.data
     } else {
@@ -36,17 +40,51 @@ const source = computed(() => {
 })
 const opacity = computed(() => parentLayerOpacity ?? geotiffConfig.opacity)
 
+const cogSource = createLayerSource()
 const layer = new WebGLTileLayer({
-    source: createLayerSource(),
+    source: cogSource,
     opacity: opacity.value,
-    id: source.value.url,
+    // local files do not have an url so we take the blob name
+    id: source.value.url ?? source.value.blob?.name,
     uuid: geotiffConfig.uuid,
 })
 
+// If we want to have debug tiles for COG, it requires a TileLayer per COG source.
+// So it is easier to manage that directly here (where we have access to the source) instead of letting
+// OpenLayersTileDebugInfo.vue do it.
+const debugSource = new TileDebug({
+    source: cogSource,
+    color: 'red',
+})
+const debugLayer = new TileLayer({
+    source: debugSource,
+})
+
 useAddLayerToMap(layer, olMap, () => zIndex)
+const { removeLayerFromMap: removeDebugLayer, addLayerToMap: addDebugLayer } = useAddLayerToMap(
+    debugLayer,
+    olMap,
+    () => zIndex + 1
+)
+onMounted(() => {
+    if (!showTileDebugInfo.value) {
+        removeDebugLayer()
+    }
+})
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
-watch(source, () => layer.setSource(createLayerSource()))
+watch(source, () => {
+    const newSource = createLayerSource()
+    layer.setSource(newSource)
+    debugSource.setSource(newSource)
+})
+watch(showTileDebugInfo, () => {
+    if (showTileDebugInfo.value) {
+        addDebugLayer()
+    } else {
+        removeDebugLayer()
+    }
+})
 
 function createLayerSource() {
     return new GeoTIFFSource({
