@@ -1,5 +1,5 @@
 // NOTE: This file can be removed and we can use the ol/format/KML.js once the PR
-// https://github.com/openlayers/openlayers/pull/15964 has been merged and released.
+// https://github.com/openlayers/openlayers/pull/16953 and https://github.com/openlayers/openlayers/pull/16957 have been merged and released.
 /* eslint-disable */
 // @ts-nocheck
 
@@ -30,7 +30,7 @@ import ImageState from 'ol/ImageState'
 import { toRadians } from 'ol/math'
 import { get as getProjection } from 'ol/proj'
 import Fill from 'ol/style/Fill'
-import Icon from 'ol/style/Icon'
+import Icon from '../style/Icon'
 import Stroke from 'ol/style/Stroke'
 import Style from 'ol/style/Style'
 import Text from 'ol/style/Text'
