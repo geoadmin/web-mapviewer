@@ -14,6 +14,7 @@ import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
 import DropdownButtonItem from '@/utils/components/DropdownButtonItem.vue'
 import ProgressBar from '@/utils/components/ProgressBar.vue'
+import { downloadFile } from '@/utils/utils'
 
 const dispatcher = { dispatcher: 'MapPrintSection.vue' }
 
@@ -29,6 +30,7 @@ const { printStatus, print, abortCurrentJob, printError } = usePrint(olMap)
 
 const { t } = useI18n()
 const store = useStore()
+const hostname = computed(() => store.state.ui.hostname)
 const selectedLayout = computed(() => store.state.print.selectedLayout)
 const availablePrintLayouts = computed(() =>
     store.state.print.layouts.map((layout) => ({
@@ -119,13 +121,10 @@ function close() {
 
 async function printMap() {
     try {
-        const documentUrl = await print(printGrid.value, printLegend.value)
-        if (documentUrl) {
-            if (window.navigator.userAgent.indexOf('MSIE ') > -1) {
-                window.open(documentUrl)
-            } else {
-                window.location = documentUrl
-            }
+        const fileName = `${hostname.value}_${new Date().toISOString()}.pdf`.replaceAll(':', '_')
+        const printDownloadUrl = await print(printGrid.value, printLegend.value)
+        if (printDownloadUrl) {
+            downloadFile(printDownloadUrl, fileName)
         } else {
             if (printStatus.value === PrintStatus.FINISHED_ABORTED) {
                 log.debug('Print is aborted by the user')
@@ -170,7 +169,7 @@ defineExpose({
         @open-menu-section="onOpenMenuSection"
     >
         <div
-            class="p-2 d-grid gap-2 menu-print-settings mx-4"
+            class="d-grid menu-print-settings mx-4 gap-2 p-2"
             data-cy="menu-print-form"
         >
             <label

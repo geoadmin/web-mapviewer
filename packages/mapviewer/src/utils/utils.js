@@ -322,3 +322,27 @@ export function getLongestCommonPrefix(urls) {
 
     return prefix
 }
+
+/**
+ * @param {string | Blob} urlOrBlob
+ * @param {string} filename
+ */
+export function downloadFile(urlOrBlob, filename) {
+    const a = document.createElement('a')
+
+    let downloadUrl
+    if (typeof urlOrBlob === 'string') {
+        downloadUrl = urlOrBlob
+    } else {
+        downloadUrl = window.URL.createObjectURL(urlOrBlob)
+    }
+
+    a.href = downloadUrl
+    a.download = filename
+    a.click()
+
+    a.remove()
+    if (typeof urlOrBlob !== 'string') {
+        window.URL.revokeObjectURL(downloadUrl)
+    }
+}
