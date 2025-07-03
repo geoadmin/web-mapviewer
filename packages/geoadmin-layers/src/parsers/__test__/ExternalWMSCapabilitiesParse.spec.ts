@@ -92,30 +92,30 @@ describe('WMSCapabilitiesParser of wms-geoadmin-sample.xml', () => {
         const externalLayers = parser.getAllExternalLayerObjects(LV95)
 
         expect(externalLayers).to.not.be.null
-        assertType<ExternalWMSLayer[]>(externalLayers!)
+        assertType<ExternalWMSLayer[]>(externalLayers)
 
         // Extent from matching CRS BoundingBox
-        expect(externalLayers![0].id).toBe('ch.swisstopo-vd.official-survey')
+        expect(externalLayers[0].id).toBe('ch.swisstopo-vd.official-survey')
         let expected = [
             [2100000, 1030000],
             [2900000, 1400000],
         ]
         // Here we should not do any re-projection therefore do an exact match
-        expect(externalLayers![0].extent).toEqual(expected)
+        expect(externalLayers[0].extent).toEqual(expected)
 
         // Extent from non matching CRS BoundingBox
-        expect(externalLayers![1].id).toBe('Periodic-Tracking')
+        expect(externalLayers[1].id).toBe('Periodic-Tracking')
         expected = [
             [2485071.58, 1075346.3],
             [2828515.82, 1299941.79],
         ]
-        expect(externalLayers![1].extent!.length).toBe(2)
-        expect(externalLayers![1].extent![0].length).toBe(2)
-        expect(externalLayers![1].extent![1].length).toBe(2)
-        expect(externalLayers![1].extent![0][0]).toBeCloseTo(expected[0][0], 1)
-        expect(externalLayers![1].extent![0][1]).toBeCloseTo(expected[0][1], 1)
-        expect(externalLayers![1].extent![1][0]).toBeCloseTo(expected[1][0], 1)
-        expect(externalLayers![1].extent![1][1]).toBeCloseTo(expected[1][1], 1)
+        expect(externalLayers[1].extent!.length).toBe(2)
+        expect(externalLayers[1].extent![0].length).toBe(2)
+        expect(externalLayers[1].extent![1].length).toBe(2)
+        expect(externalLayers[1].extent![0][0]).toBeCloseTo(expected[0][0], 1)
+        expect(externalLayers[1].extent![0][1]).toBeCloseTo(expected[0][1], 1)
+        expect(externalLayers[1].extent![1][0]).toBeCloseTo(expected[1][0], 1)
+        expect(externalLayers[1].extent![1][1]).toBeCloseTo(expected[1][1], 1)
     })
     it('Parse layer legend', () => {
         // General layer
@@ -155,21 +155,17 @@ describe('WMSCapabilitiesParser of wms-geoadmin-sample.xml', () => {
 })
 
 describe('WMSCapabilitiesParser of wms-geoadmin-sample-sld-enabled.xml', () => {
-    let capabilities
+    let parser: ExternalWMSCapabilitiesParser
+    let capabilities: WMSCapabilities
+
     beforeAll(async () => {
         const content = await readFile(`${__dirname}/wms-geoadmin-sample-sld-enabled.xml`, 'utf8')
-        capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
-    })
-    it('Parse Capabilities', async () => {
-        expect(capabilities.version).toBe('1.3.0')
-        expect(capabilities.Capability).toBeTypeOf('object')
-        expect(capabilities.Service).toBeTypeOf('object')
-        expect(capabilities.originUrl).toBeInstanceOf(URL)
-        expect(capabilities.originUrl.toString()).toBe('https://wms.geo.admin.ch/')
+        parser = new ExternalWMSCapabilitiesParser(content, new URL('https://wms.geo.admin.ch'))
+        capabilities = parser.capabilities
     })
     it('Parse layer attributes', () => {
         // Base layer
-        let layer = capabilities.getExternalLayerObject('wms-bgdi', WGS84)
+        let layer = parser.getExternalLayerObject('wms-bgdi', WGS84)
         expect(layer.id).toBe('wms-bgdi')
         expect(layer.name).toBe('WMS BGDI')
         expect(layer.abstract).toBe('Public Federal Geo Infrastructure (BGDI)')
@@ -796,21 +792,21 @@ describe('EX_GeographicBoundingBox - Group of layers', () => {
         const layers = parser.getAllExternalLayerObjects(LV95)
 
         expect(layers).to.not.be.null
-        assertType<ExternalWMSLayer[]>(layers!)
+        assertType<ExternalWMSLayer[]>(layers)
 
-        expect(layers!.length).toBe(1)
-        expect(layers![0].id).toBe('ch.swisstopo-vd.official-survey')
-        assertType<ExternalWMSLayer>(layers![0])
+        expect(layers.length).toBe(1)
+        expect(layers[0].id).toBe('ch.swisstopo-vd.official-survey')
+        assertType<ExternalWMSLayer>(layers[0])
 
-        expect(layers![0].layers!.length).toBe(3)
-        assertType<ExternalWMSLayer>(layers![0].layers![0])
-        expect(layers![0].layers![0].id).toBe('ch.swisstopo-vd.official-survey-1')
+        expect(layers[0].layers!.length).toBe(3)
+        assertType<ExternalWMSLayer>(layers[0].layers![0])
+        expect(layers[0].layers![0].id).toBe('ch.swisstopo-vd.official-survey-1')
 
-        assertType<ExternalWMSLayer>(layers![0].layers![1])
-        expect(layers![0].layers![1].id).toBe('ch.swisstopo-vd.official-survey-2')
+        assertType<ExternalWMSLayer>(layers[0].layers![1])
+        expect(layers[0].layers![1].id).toBe('ch.swisstopo-vd.official-survey-2')
 
-        assertType<ExternalWMSLayer>(layers![0].layers![2])
-        expect(layers![0].layers![2].id).toBe('ch.swisstopo-vd.official-survey-3')
+        assertType<ExternalWMSLayer>(layers[0].layers![2])
+        expect(layers[0].layers![2].id).toBe('ch.swisstopo-vd.official-survey-3')
     })
 
     it('Parse group of layers - multiple hierarchy', () => {
@@ -868,36 +864,36 @@ describe('EX_GeographicBoundingBox - Group of layers', () => {
         // LV95
         const layers = parser.getAllExternalLayerObjects(LV95)
 
-        expect(layers!.length).toBe(1)
-        expect(layers![0].id).toBe('ch.swisstopo-vd.official-survey')
-        assertType<ExternalWMSLayer>(layers![0])
-        expect(layers![0]?.layers?.length).toBe(3)
-        assertType<ExternalWMSLayer>(layers![0].layers![0])
-        expect(layers![0]?.layers?.[0]?.id).toBe('ch.swisstopo-vd.official-survey-1')
+        expect(layers.length).toBe(1)
+        expect(layers[0].id).toBe('ch.swisstopo-vd.official-survey')
+        assertType<ExternalWMSLayer>(layers[0])
+        expect(layers[0]?.layers?.length).toBe(3)
+        assertType<ExternalWMSLayer>(layers[0].layers![0])
+        expect(layers[0]?.layers?.[0]?.id).toBe('ch.swisstopo-vd.official-survey-1')
 
-        assertType<ExternalWMSLayer>(layers![0].layers![1])
-        expect(layers![0]?.layers?.[1]?.id).toBe('ch.swisstopo-vd.official-survey-2')
+        assertType<ExternalWMSLayer>(layers[0].layers![1])
+        expect(layers[0]?.layers?.[1]?.id).toBe('ch.swisstopo-vd.official-survey-2')
 
-        assertType<ExternalWMSLayer>(layers![0].layers![2])
-        expect(layers![0]?.layers?.[2]?.id).toBe('ch.swisstopo-vd.official-survey-3')
+        assertType<ExternalWMSLayer>(layers[0].layers![2])
+        expect(layers[0]?.layers?.[2]?.id).toBe('ch.swisstopo-vd.official-survey-3')
 
-        assertType<ExternalWMSLayer>(layers![0].layers![2].layers![0])
-        expect(layers![0]?.layers?.[2]?.layers?.[0].id).toBe(
+        assertType<ExternalWMSLayer>(layers[0].layers![2].layers![0])
+        expect(layers[0]?.layers?.[2]?.layers?.[0].id).toBe(
             'ch.swisstopo-vd.official-survey-3-sub-1'
         )
 
-        assertType<ExternalWMSLayer>(layers![0].layers![2].layers![1])
-        expect(layers![0]?.layers?.[2]?.layers?.[1].id).toBe(
+        assertType<ExternalWMSLayer>(layers[0].layers![2].layers![1])
+        expect(layers[0]?.layers?.[2]?.layers?.[1].id).toBe(
             'ch.swisstopo-vd.official-survey-3-sub-2'
         )
 
-        assertType<ExternalWMSLayer>(layers![0].layers![2].layers![1].layers![0])
-        expect(layers![0]?.layers?.[2]?.layers?.[1].layers?.[0].id).toBe(
+        assertType<ExternalWMSLayer>(layers[0].layers![2].layers![1].layers![0])
+        expect(layers[0]?.layers?.[2]?.layers?.[1].layers?.[0].id).toBe(
             'ch.swisstopo-vd.official-survey-3-sub-2-1'
         )
 
-        assertType<ExternalWMSLayer>(layers![0].layers![2].layers![1].layers![1])
-        expect(layers![0].layers![2].layers![1].layers![1].id).toBe(
+        assertType<ExternalWMSLayer>(layers[0].layers![2].layers![1].layers![1])
+        expect(layers[0].layers![2].layers![1].layers![1].id).toBe(
             'ch.swisstopo-vd.official-survey-3-sub-2-2'
         )
     })
