@@ -1,10 +1,11 @@
 import log from '@geoadmin/log'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { useStore } from 'vuex'
 
 import { abortPrintJob, createPrintJob, waitForPrintJobCompletion } from '@/api/print.api.js'
 import { getGenerateQRCodeUrl } from '@/api/qrcode.api.js'
 import { createShortLink } from '@/api/shortlink.api.js'
+import { generateFilename } from '@/utils/utils'
 
 const dispatcher = { dispatcher: 'usePrint.composable' }
 
@@ -33,8 +34,6 @@ export function usePrint(map) {
 
     const store = useStore()
 
-    const hostname = computed(() => store.state.ui.hostname)
-
     /**
      * @param {Boolean} printGrid Print the coordinate grid on the finished PDF, true or false
      * @param {Boolean} printLegend Print all visible layer legend (if they have one) on the map,
@@ -53,11 +52,8 @@ export function usePrint(map) {
             // using store values directly (instead of going through computed) so that it is a bit more performant
             // (we do not need to have reactivity on these values, if they change while printing we do nothing)
             const printJob = await createPrintJob(map, {
-                // NOTE: below we use the '-' instead of ':' for hours, minutes and seconds separator
-                // because chrome and firefox will anyway replace the ':' characters to either space
-                // or '_'. The ${yyyy-MM-dd'T'HH-mm-ss'Z'} placeholder is used by mapfish print see
-                // https://mapfish.github.io/mapfish-print-doc/configuration.html
-                outputFilename: `${hostname.value}_\${yyyy-MM-dd'T'HH-mm-ss'Z'}`,
+                // .pdf extension will be written by MapFish too, so we remove it to not have it twice in a row
+                outputFilename: generateFilename('pdf').replace('.pdf', ''),
                 layout: store.state.print.selectedLayout,
                 scale: store.state.print.selectedScale,
                 attributions: store.getters.visibleLayers
