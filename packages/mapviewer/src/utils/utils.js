@@ -80,20 +80,35 @@ export function parseRGBColor(color) {
 }
 
 /**
+ * Using Date's toISOString outputs an ISO8601 timestamp that is UTC only.
+ *
+ * This function uses the local time and export is as ISO8601
+ *
+ * @returns {string}
+ */
+function getLocalIso8601() {
+    const now = new Date()
+
+    const year = now.getFullYear()
+    const month = `${now.getMonth() + 1}`.padStart(2, '0')
+    const day = `${now.getDate()}`.padStart(2, '0')
+    const hour = `${now.getHours()}`.padStart(2, '0')
+    const minute = `${now.getMinutes()}`.padStart(2, '0')
+    const second = `${now.getSeconds()}`.padStart(2, '0')
+
+    return `${year}-${month}-${day}T${hour}:${minute}:${second}`
+}
+
+/**
  * Generate file name for exports
  *
  * @param {String} fileExtension
  * @returns {String}
  */
 export function generateFilename(fileExtension) {
-    fileExtension = fileExtension.replace(/^\./, '')
-    const date = new Date()
-        .toISOString()
-        .split('.')[0]
-        .replaceAll('-', '')
-        .replaceAll(':', '')
-        .replace('T', '')
-    return `map.geo.admin.ch_${fileExtension.toUpperCase()}_${date}.${fileExtension.toLowerCase()}`
+    const fileExtensionWithoutDot = fileExtension.replace(/^\./, '')
+    const timeWithoutColumns = getLocalIso8601().replace(/:/g, '_')
+    return `map.geo.admin.ch_${fileExtensionWithoutDot.toUpperCase()}_${timeWithoutColumns}.${fileExtensionWithoutDot.toLowerCase()}`
 }
 
 /**
