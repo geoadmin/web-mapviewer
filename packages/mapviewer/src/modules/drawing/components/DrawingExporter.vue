@@ -1,12 +1,11 @@
 <script setup>
-import { saveAs } from 'file-saver'
 import { computed, inject, ref } from 'vue'
 import { useStore } from 'vuex'
 
 import { generateGpxString, generateKmlString } from '@/modules/drawing/lib/export-utils'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
 import DropdownButtonItem from '@/utils/components/DropdownButtonItem.vue'
-import { generateFilename } from '@/utils/utils'
+import { downloadFile, generateFilename } from '@/utils/utils'
 
 /** @type {DropdownItem[]} */
 const exportOptions = [
@@ -34,17 +33,15 @@ function exportDrawing() {
         return
     }
     const features = drawingLayer.getSource().getFeatures()
-    let content, type, fileName
+    let content, fileName
     if (exportSelection.value === 'GPX') {
         fileName = generateFilename('.gpx')
         content = generateGpxString(projection.value, features)
-        type = 'application/gpx+xml;charset=UTF-8'
     } else {
         fileName = generateFilename('.kml')
         content = generateKmlString(projection.value, features, activeKmlLayer.value?.name)
-        type = 'application/vnd.google-earth.kml+xml;charset=UTF-8'
     }
-    saveAs(new Blob([content], { type }), fileName)
+    downloadFile(new Blob([content]), fileName)
 }
 </script>
 

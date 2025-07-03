@@ -58,10 +58,9 @@ function checkPrintRequest(body, expectedValues = {}) {
     expect(body.layout).to.equal(layout, 'wrong print layer')
     expect(body.format).to.equal(format, 'wrong print format')
     expect(body.lang).to.equal(lang, 'wrong print lang')
-
-    cy.location('hostname').then((hostname) => {
-        expect(body.outputFilename).to.equal(`${hostname}_\${yyyy-MM-dd'T'HH-mm-ss'Z'}`)
-    })
+    expect(body.outputFilename).to.match(
+        /map\.geo\.admin\.ch_PDF_20[0-9]{2}-[0-9]{2}-[0-9]{2}T[0-9]{2}_[0-9]{2}_[0-9]{2}/
+    )
 
     const { attributes } = body
     expect(attributes).to.be.an('object')

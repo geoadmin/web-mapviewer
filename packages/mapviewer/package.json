@@ -64,7 +64,6 @@
         "chart.js": "catalog:",
         "chartjs-plugin-zoom": "catalog:",
         "dompurify": "catalog:",
-        "file-saver": "catalog:",
         "form-data": "catalog:",
         "geographiclib-geodesic": "catalog:",
         "geotiff": "catalog:",
