@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 
 import { CacheableResponsePlugin } from 'workbox-cacheable-response'
-import { clientsClaim, setCacheNameDetails } from 'workbox-core'
+import { clientsClaim } from 'workbox-core'
 import { ExpirationPlugin } from 'workbox-expiration'
 import {
     cleanupOutdatedCaches,
@@ -11,7 +11,7 @@ import {
 import { NavigationRoute, registerRoute, Route } from 'workbox-routing'
 import { StaleWhileRevalidate } from 'workbox-strategies'
 
-import { getWmsBaseUrl, getWmtsBaseUrl } from '@/config/baseUrl.config'
+import { CURRENT_APP_BASE_URL, getWmsBaseUrl, getWmtsBaseUrl } from '@/config/baseUrl.config'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 
 declare let self: ServiceWorkerGlobalScope
@@ -31,11 +31,6 @@ if (!IS_TESTING_WITH_CYPRESS) {
     // see https://developer.chrome.com/docs/workbox/modules/workbox-core#clients_claim
     clientsClaim()
 
-    setCacheNameDetails({
-        // will prefix any cache instance in the browser with "geoadmin-"
-        prefix: 'geoadmin',
-    })
-
     // self.__WB_MANIFEST is the default injection point
     precacheAndRoute(self.__WB_MANIFEST)
 
@@ -50,14 +45,14 @@ if (!IS_TESTING_WITH_CYPRESS) {
 
     // setting up a cache instance for offline app assets (HTML/JS/CSS)
     registerRoute(
-        new NavigationRoute(createHandlerBoundToURL('index.html'), {
+        new NavigationRoute(createHandlerBoundToURL(`${CURRENT_APP_BASE_URL}index.html`), {
             allowlist,
             // exclude print explicitly as SW is sometimes messing with the download URL on Firefox
             // (injecting the cached index.html file instead of providing the PDF from the server)
             denylist: [/.*\/api\/print3\/.*/],
         }),
         new StaleWhileRevalidate({
-            cacheName: 'app-cache',
+            cacheName: 'geoadmin-app-cache',
         })
     )
 
@@ -76,7 +71,7 @@ if (!IS_TESTING_WITH_CYPRESS) {
                 return configItemPathNames.includes(url.pathname)
             },
             new StaleWhileRevalidate({
-                cacheName: 'app-config',
+                cacheName: 'geoadmin-app-config',
             })
         )
     )
@@ -98,7 +93,7 @@ if (!IS_TESTING_WITH_CYPRESS) {
                 return imageryBackends.includes(url.origin)
             },
             new StaleWhileRevalidate({
-                cacheName: 'map-images-cache',
+                cacheName: 'geoadmin-map-images-cache',
                 plugins: [
                     new CacheableResponsePlugin({
                         // only cache valid responses (do not cache "no data" responses)
