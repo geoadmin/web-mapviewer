@@ -50,7 +50,12 @@ if (!IS_TESTING_WITH_CYPRESS) {
 
     // setting up a cache instance for offline app assets (HTML/JS/CSS)
     registerRoute(
-        new NavigationRoute(createHandlerBoundToURL('index.html'), { allowlist }),
+        new NavigationRoute(createHandlerBoundToURL('index.html'), {
+            allowlist,
+            // exclude print explicitly as SW is sometimes messing with the download URL on Firefox
+            // (injecting the cached index.html file instead of providing the PDF from the server)
+            denylist: [/.*\/api\/print3\/.*/],
+        }),
         new StaleWhileRevalidate({
             cacheName: 'app-cache',
         })
