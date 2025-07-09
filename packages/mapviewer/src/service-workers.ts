@@ -9,9 +9,9 @@ import {
     precacheAndRoute,
 } from 'workbox-precaching'
 import { NavigationRoute, registerRoute, Route } from 'workbox-routing'
-import { StaleWhileRevalidate } from 'workbox-strategies'
+import { NetworkFirst } from 'workbox-strategies'
 
-import { CURRENT_APP_BASE_URL, getWmsBaseUrl, getWmtsBaseUrl } from '@/config/baseUrl.config'
+import { getWmsBaseUrl, getWmtsBaseUrl } from '@/config/baseUrl.config'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 
 declare let self: ServiceWorkerGlobalScope
@@ -27,10 +27,6 @@ self.__WB_DISABLE_DEV_LOGS = true
 // Cypress doesn't handle well Service Worker API being active, so we skip the setup if we
 // are testing things with Cypress
 if (!IS_TESTING_WITH_CYPRESS) {
-    // should stay at the "top" of the setup
-    // see https://developer.chrome.com/docs/workbox/modules/workbox-core#clients_claim
-    clientsClaim()
-
     // self.__WB_MANIFEST is the default injection point
     precacheAndRoute(self.__WB_MANIFEST)
 
@@ -45,13 +41,13 @@ if (!IS_TESTING_WITH_CYPRESS) {
 
     // setting up a cache instance for offline app assets (HTML/JS/CSS)
     registerRoute(
-        new NavigationRoute(createHandlerBoundToURL(`${CURRENT_APP_BASE_URL}index.html`), {
+        new NavigationRoute(createHandlerBoundToURL(`index.html`), {
             allowlist,
             // exclude print explicitly as SW is sometimes messing with the download URL on Firefox
             // (injecting the cached index.html file instead of providing the PDF from the server)
-            denylist: [/.*\/api\/print3\/.*/],
+            denylist: [/^\/api\/print3/],
         }),
-        new StaleWhileRevalidate({
+        new NetworkFirst({
             cacheName: 'geoadmin-app-cache',
         })
     )
@@ -70,7 +66,7 @@ if (!IS_TESTING_WITH_CYPRESS) {
             ({ url }) => {
                 return configItemPathNames.includes(url.pathname)
             },
-            new StaleWhileRevalidate({
+            new NetworkFirst({
                 cacheName: 'geoadmin-app-config',
             })
         )
@@ -92,7 +88,7 @@ if (!IS_TESTING_WITH_CYPRESS) {
             ({ url }) => {
                 return imageryBackends.includes(url.origin)
             },
-            new StaleWhileRevalidate({
+            new NetworkFirst({
                 cacheName: 'geoadmin-map-images-cache',
                 plugins: [
                     new CacheableResponsePlugin({
@@ -110,4 +106,5 @@ if (!IS_TESTING_WITH_CYPRESS) {
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     self.skipWaiting()
+    clientsClaim()
 }

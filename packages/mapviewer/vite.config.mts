@@ -116,8 +116,6 @@ export default defineConfig(({ mode }) => {
                 : VitePWA({
                       devOptions: {
                           enabled: true,
-                          navigateFallback: 'index.html',
-                          suppressWarnings: true,
                           type: 'module',
                       },
 
