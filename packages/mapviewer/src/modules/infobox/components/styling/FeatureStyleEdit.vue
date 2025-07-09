@@ -340,65 +340,81 @@ function mediaTypes() {
                     v-if="isFeatureLine || isFeatureMeasure"
                     :feature="feature"
                 />
-                <DrawingStylePopoverButton
+                <GeoadminTooltip
                     v-if="isFeatureMarker || isFeatureText"
-                    data-cy="drawing-style-text-button"
-                    icon="font"
+                    :tooltip-content="t('text_style')"
                 >
-                    <div data-cy="drawing-style-text-popup">
-                        <DrawingStyleSizeSelector
-                            class="mb-3"
-                            :current-size="feature.textSize"
-                            @change="onTextSizeChange"
-                        />
-                        <DrawingStylePositionSelector
-                            v-if="isFeatureMarker"
-                            class="mb-3"
-                            :current-placement="feature.textPlacement"
-                            @change="onPlacementChange"
-                        />
-                        <DrawingStyleTextColorSelector
-                            :current-color="feature.textColor"
-                            @change="onTextColorChange"
-                        />
-                    </div>
-                </DrawingStylePopoverButton>
+                    <DrawingStylePopoverButton
+                        data-cy="drawing-style-text-button"
+                        icon="font"
+                    >
+                        <div data-cy="drawing-style-text-popup">
+                            <DrawingStyleSizeSelector
+                                class="mb-3"
+                                :current-size="feature.textSize"
+                                @change="onTextSizeChange"
+                            />
+                            <DrawingStylePositionSelector
+                                v-if="isFeatureMarker"
+                                class="mb-3"
+                                :current-placement="feature.textPlacement"
+                                @change="onPlacementChange"
+                            />
+                            <DrawingStyleTextColorSelector
+                                :current-color="feature.textColor"
+                                @change="onTextColorChange"
+                            />
+                        </div>
+                    </DrawingStylePopoverButton>
+                </GeoadminTooltip>
 
-                <DrawingStylePopoverButton
+                <GeoadminTooltip
                     v-if="isFeatureMarker"
-                    data-cy="drawing-style-marker-button"
-                    icon="fas fa-map-marker-alt"
+                    :tooltip-content="t('marker_style')"
                 >
-                    <DrawingStyleIconSelector
+
+                    <DrawingStylePopoverButton
+                        data-cy="drawing-style-marker-button"
+                        icon="fas fa-map-marker-alt"
+                    >
+                        <DrawingStyleIconSelector
                         data-cy="drawing-style-marker-popup"
                         :feature="feature"
                         :icon-sets="availableIconSets"
                         @change:icon="onIconChange"
                         @change:icon-color="onColorChange"
                         @change:icon-size="onIconSizeChange"
-                    />
-                </DrawingStylePopoverButton>
+                        />
+                    </DrawingStylePopoverButton>
+                </GeoadminTooltip>
 
-                <DrawingStylePopoverButton
+                <GeoadminTooltip
                     v-if="isFeatureLine"
-                    data-cy="drawing-style-line-button"
-                    :popover-title="t('modify_color_label')"
-                    icon="paint-brush"
+                    :tooltip-content="t('edit_line_color')"
                 >
-                    <DrawingStyleColorSelector
-                        data-cy="drawing-style-line-popup"
-                        :current-color="feature.fillColor"
-                        @change="onColorChange"
-                    />
-                </DrawingStylePopoverButton>
-
-                <button
-                    class="btn btn-sm btn-light d-flex align-items-center"
-                    data-cy="drawing-style-delete-button"
-                    @click="onDelete"
+                    <DrawingStylePopoverButton
+                        data-cy="drawing-style-line-button"
+                        :popover-title="t('modify_color_label')"
+                        icon="paint-brush"
+                    >
+                        <DrawingStyleColorSelector
+                            data-cy="drawing-style-line-popup"
+                            :current-color="feature.fillColor"
+                            @change="onColorChange"
+                        />
+                    </DrawingStylePopoverButton>
+                </GeoadminTooltip>
+                <GeoadminTooltip
+                    :tooltip-content="t('draw_delete')"
                 >
-                    <FontAwesomeIcon icon="far fa-trash-alt" />
-                </button>
+                    <button
+                        class="btn btn-sm btn-light d-flex align-items-center"
+                        data-cy="drawing-style-delete-button"
+                        @click="onDelete"
+                    >
+                        <FontAwesomeIcon icon="far fa-trash-alt" />
+                    </button>
+                </GeoadminTooltip>
             </div>
         </div>
     </div>
