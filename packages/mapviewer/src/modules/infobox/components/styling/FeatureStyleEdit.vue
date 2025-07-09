@@ -2,10 +2,10 @@
 /** Tools necessary to edit a feature from the drawing module. */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import GeoadminTooltip from '@geoadmin/tooltip'
 
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
@@ -204,16 +204,19 @@ function mediaTypes() {
             buttonClassOptions: 'rounded-0 rounded-top-2 rounded-end-0',
             icon: 'fa-link',
             extraUrlDescription: 'text_to_display',
+            tooltip: 'Add a link',
         },
         {
             type: MediaTypes.image,
             buttonClassOptions: 'rounded-0',
             icon: 'fa-image',
+            tooltip: 'Add image',
         },
         {
             type: MediaTypes.video,
             buttonClassOptions: 'rounded-0 rounded-top-2 rounded-start-0',
             icon: 'fa-film',
+            tooltip: 'Add video',
         },
     ]
 }
@@ -260,21 +263,23 @@ function mediaTypes() {
                         v-for="(media, index) in mediaTypes()"
                         :key="media.type"
                     >
-                        <DrawingStylePopoverButton
-                            ref="mediaPopovers"
-                            :data-cy="`drawing-style-${media.type}-button`"
-                            :button-class-options="media.buttonClassOptions"
-                            :icon="media.icon"
-                        >
-                            <DrawingStyleMediaLink
-                                :media-type="media.type"
-                                :url-label="`url_${media.type}`"
-                                :description-label="
-                                    media.extraUrlDescription ? media.extraUrlDescription : ''
-                                "
-                                @generated-media-link="onAddMediaLink(index, $event)"
-                            />
-                        </DrawingStylePopoverButton>
+                        <GeoadminTooltip :tooltip-content="t('add') + ' ' + t(`url_${media.type}`)">
+                            <DrawingStylePopoverButton
+                                ref="mediaPopovers"
+                                :data-cy="`drawing-style-${media.type}-button`"
+                                :button-class-options="media.buttonClassOptions"
+                                :icon="media.icon"
+                            >
+                                <DrawingStyleMediaLink
+                                    :media-type="media.type"
+                                    :url-label="`url_${media.type}`"
+                                    :description-label="
+                                        media.extraUrlDescription ? media.extraUrlDescription : ''
+                                    "
+                                    @generated-media-link="onAddMediaLink(index, $event)"
+                                />
+                            </DrawingStylePopoverButton>
+                        </GeoadminTooltip>
                     </div>
                 </div>
             </div>
@@ -293,12 +298,13 @@ function mediaTypes() {
             </div>
             <GeoadminTooltip
                 placement="left"
-                :tooltip-content="t('display_on_map')">
-                    <FontAwesomeIcon
+                :tooltip-content="t('display_on_map')"
+            >
+                <FontAwesomeIcon
                     :icon="showDescriptionOnMap ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash'"
-                    class="small align-text-top p-2"
+                    class="small p-2 align-text-top"
                     @click="showDescriptionOnMap = !showDescriptionOnMap"
-                    />
+                />
             </GeoadminTooltip>
         </div>
         <div class="d-flex small justify-content-start align-items-center mb-1 gap-1">
