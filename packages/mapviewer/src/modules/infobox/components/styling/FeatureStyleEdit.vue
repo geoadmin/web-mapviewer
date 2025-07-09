@@ -252,13 +252,29 @@ function mediaTypes() {
             class="form-group mb-3"
         >
             <div class="d-flex justify-content-between">
-                <label
-                    class="form-label"
-                    for="drawing-style-feature-description"
-                >
-                    {{ t('modify_description') }}
-                </label>
-                <div class="d-flex justify-content-end align-items-center">
+                <div class="d-flex justify-content-between align-items-center gap-1">
+                    <label
+                        class="form-label"
+                        for="drawing-style-feature-description"
+                    >
+                        {{ t('modify_description') }}
+                    </label>
+                    <GeoadminTooltip
+                        placement="left"
+                        :tooltip-content="t('display_on_map')"
+                    >
+                        <button
+                            class="btn btn-sm btn-light d-flex align-items-center mb-2"
+                            @click="showDescriptionOnMap = !showDescriptionOnMap"
+                        >
+                            <FontAwesomeIcon
+                                :icon="showDescriptionOnMap ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash'"
+                                class="small"
+                            />
+                        </button>
+                    </GeoadminTooltip>
+                </div>
+                <div class="d-flex justify-content-end align-items-center mb-2">
                     <div
                         v-for="(media, index) in mediaTypes()"
                         :key="media.type"
@@ -296,16 +312,7 @@ function mediaTypes() {
                     rows="2"
                 />
             </div>
-            <GeoadminTooltip
-                placement="left"
-                :tooltip-content="t('display_on_map')"
-            >
-                <FontAwesomeIcon
-                    :icon="showDescriptionOnMap ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash'"
-                    class="small p-2 align-text-top"
-                    @click="showDescriptionOnMap = !showDescriptionOnMap"
-                />
-            </GeoadminTooltip>
+
         </div>
         <div class="d-flex small justify-content-start align-items-center mb-1 gap-1">
             <CoordinateCopySlot
