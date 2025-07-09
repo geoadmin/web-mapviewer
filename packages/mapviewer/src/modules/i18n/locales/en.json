@@ -181,6 +181,7 @@
     "drawing_line_style": "Line style",
     "drawing_marker_style": "Marker style",
     "drawing_not_shared_admin_warning": "Warning, you have not copied/saved the link enabling you to edit your drawing at a later date. You risk not being able to edit your drawing if you reload or close the page.",
+    "drawing_polygon_style": "Polygon style",
     "drawing_text_style": "Text style",
     "drawing_too_large": "Your drawing is too large, remove some features",
     "drop_invalid_url": "URL is not valid.",

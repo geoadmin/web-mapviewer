@@ -138,8 +138,9 @@ const coordinateFormat = computed(() => {
  */
 const isFeatureMarker = computed(() => feature.featureType === EditableFeatureTypes.MARKER)
 const isFeatureText = computed(() => feature.featureType === EditableFeatureTypes.ANNOTATION)
-const isFeatureLine = computed(() => feature.featureType === EditableFeatureTypes.LINEPOLYGON)
+const isFeatureLinePolygon = computed(() => feature.featureType === EditableFeatureTypes.LINEPOLYGON)
 const isFeatureMeasure = computed(() => feature.featureType === EditableFeatureTypes.MEASURE)
+const isLine = computed(() => feature.geometry.type === 'LineString')
 
 const store = useStore()
 const availableIconSets = computed(() => store.state.drawing.iconSets)
@@ -337,7 +338,7 @@ function mediaTypes() {
                 class="d-flex feature-style-edit-control gap-1"
             >
                 <ShowGeometryProfileButton
-                    v-if="isFeatureLine || isFeatureMeasure"
+                    v-if="isFeatureLinePolygon || isFeatureMeasure"
                     :feature="feature"
                 />
                 <GeoadminTooltip
@@ -389,8 +390,8 @@ function mediaTypes() {
                 </GeoadminTooltip>
 
                 <GeoadminTooltip
-                    v-if="isFeatureLine"
-                    :tooltip-content="t('drawing_line_style')"
+                    v-if="isFeatureLinePolygon"
+                    :tooltip-content="isLine ? t('drawing_line_style') : t('drawing_polygon_style')"
                 >
                     <DrawingStylePopoverButton
                         data-cy="drawing-style-line-button"

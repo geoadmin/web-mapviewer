@@ -181,6 +181,7 @@
     "drawing_line_style": "Stile linea",
     "drawing_marker_style": "Stile marcatore",
     "drawing_not_shared_admin_warning": "Attenzione, non avete copiato/salvato il link che vi consente di modificare il vostro disegno più tardi. Se ricarica o chiude la pagina, rischia di perdere la possibilità di modificare il disegno ulteriormente.",
+    "drawing_polygon_style": "Stile poligono",
     "drawing_text_style": "Stile testo",
     "drawing_too_large": "Il suo disegno è troppo grande, rimuova alcuni elementi",
     "drop_invalid_url": "URL non valido",
