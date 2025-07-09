@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+import GeoadminTooltip from '@geoadmin/tooltip'
 
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
@@ -290,12 +291,15 @@ function mediaTypes() {
                     rows="2"
                 />
             </div>
-            <FontAwesomeIcon
-                :icon="showDescriptionOnMap ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash'"
-                class="small align-text-top p-2"
-                :title="t('display_on_map')"
-                @click="showDescriptionOnMap = !showDescriptionOnMap"
-            />
+            <GeoadminTooltip
+                placement="left"
+                :tooltip-content="t('display_on_map')">
+                    <FontAwesomeIcon
+                    :icon="showDescriptionOnMap ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash'"
+                    class="small align-text-top p-2"
+                    @click="showDescriptionOnMap = !showDescriptionOnMap"
+                    />
+            </GeoadminTooltip>
         </div>
         <div class="d-flex small justify-content-start align-items-center mb-1 gap-1">
             <CoordinateCopySlot
