@@ -290,20 +290,12 @@ function mediaTypes() {
                     rows="2"
                 />
             </div>
-            <div class="form-check form-switch">
-                <label
-                    class="menu-layer-options form-check-label me-2"
-                    for="checkbox-show-on-map"
-                >
-                    {{ t('display_on_map') }}
-                </label>
-                <input
-                    id="checkbox-show-on-map"
-                    v-model="showDescriptionOnMap"
-                    type="checkbox"
-                    class="form-check-input"
-                />
-            </div>
+            <FontAwesomeIcon
+                :icon="showDescriptionOnMap ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash'"
+                class="small align-text-top p-2"
+                :title="t('display_on_map')"
+                @click="showDescriptionOnMap = !showDescriptionOnMap"
+            />
         </div>
         <div class="d-flex small justify-content-start align-items-center mb-1 gap-1">
             <CoordinateCopySlot
