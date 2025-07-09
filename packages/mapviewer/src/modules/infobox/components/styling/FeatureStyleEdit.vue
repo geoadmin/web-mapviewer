@@ -342,7 +342,7 @@ function mediaTypes() {
                 />
                 <GeoadminTooltip
                     v-if="isFeatureMarker || isFeatureText"
-                    :tooltip-content="t('text_style')"
+                    :tooltip-content="t('drawing_text_style')"
                 >
                     <DrawingStylePopoverButton
                         data-cy="drawing-style-text-button"
@@ -370,7 +370,7 @@ function mediaTypes() {
 
                 <GeoadminTooltip
                     v-if="isFeatureMarker"
-                    :tooltip-content="t('marker_style')"
+                    :tooltip-content="t('drawing_marker_style')"
                 >
 
                     <DrawingStylePopoverButton
@@ -390,7 +390,7 @@ function mediaTypes() {
 
                 <GeoadminTooltip
                     v-if="isFeatureLine"
-                    :tooltip-content="t('edit_line_color')"
+                    :tooltip-content="t('drawing_line_style')"
                 >
                     <DrawingStylePopoverButton
                         data-cy="drawing-style-line-button"
