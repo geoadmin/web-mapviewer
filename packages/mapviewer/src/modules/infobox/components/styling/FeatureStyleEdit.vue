@@ -205,19 +205,16 @@ function mediaTypes() {
             buttonClassOptions: 'rounded-0 rounded-top-2 rounded-end-0',
             icon: 'fa-link',
             extraUrlDescription: 'text_to_display',
-            tooltip: 'Add a link',
         },
         {
             type: MediaTypes.image,
             buttonClassOptions: 'rounded-0',
             icon: 'fa-image',
-            tooltip: 'Add image',
         },
         {
             type: MediaTypes.video,
             buttonClassOptions: 'rounded-0 rounded-top-2 rounded-start-0',
             icon: 'fa-film',
-            tooltip: 'Add video',
         },
     ]
 }
