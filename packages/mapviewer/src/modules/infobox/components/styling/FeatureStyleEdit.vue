@@ -258,7 +258,6 @@ function mediaTypes() {
                         {{ t('modify_description') }}
                     </label>
                     <GeoadminTooltip
-                        placement="left"
                         :tooltip-content="t('display_on_map')"
                         v-if="isFeatureMarker || isFeatureText"
                     >
