@@ -207,7 +207,5 @@ export function getVectorTilesBaseUrl() {
     return getBaseUrl('vectorTiles')
 }
 
-export const CURRENT_APP_BASE_URL = enforceEndingSlashInUrl(window.location.origin)
-
 export const internalDomainRegex =
     import.meta.env.VITE_APP_INTERNAL_DOMAIN_REGEX ?? /^https:\/\/[^/]*(bgdi|geo\.admin)\.ch/

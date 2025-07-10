@@ -234,8 +234,7 @@ OlStyleForPropertyValue.prototype.getOlStyleForResolution_ = function (olStyles,
 
 OlStyleForPropertyValue.prototype.log_ = function (value, id) {
     const logValue = value === '' ? '<empty string>' : value
-    log(
-        'debug',
+    log.debug(
         `Feature ID: ${id}. No matching style found for key ${this.key} and value ${logValue}.`
     )
 }

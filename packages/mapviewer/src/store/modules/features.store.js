@@ -730,8 +730,12 @@ export default {
         changeFeatureTitle(state, { feature, title }) {
             feature.title = title
         },
-        changeFeatureDescription(state, { feature, description }) {
+        changeFeatureDescription(state, { feature, description, showDescriptionOnMap }) {
             feature.description = description
+            // Only update showDescriptionOnMap if it's provided
+            if (showDescriptionOnMap !== undefined) {
+                feature.showDescriptionOnMap = showDescriptionOnMap
+            }
         },
         changeFeatureShownDescriptionOnMap(state, { feature, showDescriptionOnMap }) {
             feature.showDescriptionOnMap = showDescriptionOnMap
