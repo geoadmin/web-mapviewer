@@ -260,6 +260,7 @@ function mediaTypes() {
                     <GeoadminTooltip
                         placement="left"
                         :tooltip-content="t('display_on_map')"
+                        v-if="isFeatureMarker || isFeatureText"
                     >
                         <button
                             class="btn btn-sm btn-light d-flex align-items-center mb-2"
