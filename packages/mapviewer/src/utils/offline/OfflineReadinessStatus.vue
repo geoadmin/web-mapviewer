@@ -49,12 +49,27 @@ function registerPeriodicSync(serviceWorkerUrl: string, registration: ServiceWor
 const { offlineReady, needRefresh, updateServiceWorker } = useRegisterSW({
     immediate: true,
     onRegisteredSW(serviceWorkerUrl, registration) {
+        log.debug({
+            title: 'OfflineReadinessStatus',
+            titleColor: LogPreDefinedColor.Sky,
+            messages: ['ServiceWorker registration pending', registration],
+        })
         if (registration?.active?.state === 'activated') {
+            log.debug({
+                title: 'OfflineReadinessStatus',
+                titleColor: LogPreDefinedColor.Sky,
+                messages: ['ServiceWorker activated', registration],
+            })
             isServiceWorkerActive.value = true
             registerPeriodicSync(serviceWorkerUrl, registration)
         } else if (registration?.installing) {
             registration.installing.addEventListener('statechange', (e) => {
                 const sw = e.target as ServiceWorker
+                log.debug({
+                    title: 'OfflineReadinessStatus',
+                    titleColor: LogPreDefinedColor.Sky,
+                    messages: ['ServiceWorker state change', sw.state],
+                })
                 isServiceWorkerActive.value = sw.state === 'activated'
                 if (isServiceWorkerActive.value) {
                     registerPeriodicSync(serviceWorkerUrl, registration)
@@ -65,7 +80,7 @@ const { offlineReady, needRefresh, updateServiceWorker } = useRegisterSW({
 })
 
 const statusIcon = computed<string>(() => {
-    if (offlineReady.value) {
+    if (isServiceWorkerActive.value) {
         return 'check'
     }
     if (needRefresh.value) {
@@ -73,14 +88,16 @@ const statusIcon = computed<string>(() => {
     }
     return 'circle-notch'
 })
-const shouldStatusIconSpin = computed<boolean>(() => !offlineReady.value && !needRefresh.value)
+const shouldStatusIconSpin = computed<boolean>(
+    () => !isServiceWorkerActive.value && !needRefresh.value
+)
 const tooltipContent = computed<string>(() => {
     const title = t('offline_modal_title')
     let extraInfoKey = 'wait_data_loading'
     if (needRefresh.value) {
         extraInfoKey = 'offline_cache_obsolete'
     }
-    if (offlineReady.value) {
+    if (isServiceWorkerActive.value || offlineReady.value) {
         extraInfoKey = 'offline_dl_succeed'
     }
     return `${title}: ${t(extraInfoKey)}`
@@ -109,8 +126,19 @@ function refreshCache() {
 </script>
 
 <template>
-    <GeoadminTooltip :tooltip-content="tooltipContent">
+    <GeoadminTooltip>
+        <template #content>
+            <div class="p-2">
+                <small class="bg-secondary text-light fw-bold rounded p-1">Beta</small>
+                <div class="mt-1">{{ tooltipContent }}</div>
+            </div>
+        </template>
         <div class="tw:flex tw:gap-1 tw:justify-around tw:items-center tw:p-1">
+            <small
+                v-if="withText"
+                class="bg-secondary text-light fw-bold rounded p-1"
+                >Beta</small
+            >
             <FontAwesomeLayers>
                 <FontAwesomeIcon
                     icon="slash"
