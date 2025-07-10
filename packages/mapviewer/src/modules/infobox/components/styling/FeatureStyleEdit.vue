@@ -2,6 +2,7 @@
 /** Tools necessary to edit a feature from the drawing module. */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
@@ -137,8 +138,9 @@ const coordinateFormat = computed(() => {
  */
 const isFeatureMarker = computed(() => feature.featureType === EditableFeatureTypes.MARKER)
 const isFeatureText = computed(() => feature.featureType === EditableFeatureTypes.ANNOTATION)
-const isFeatureLine = computed(() => feature.featureType === EditableFeatureTypes.LINEPOLYGON)
+const isFeatureLinePolygon = computed(() => feature.featureType === EditableFeatureTypes.LINEPOLYGON)
 const isFeatureMeasure = computed(() => feature.featureType === EditableFeatureTypes.MEASURE)
+const isLine = computed(() => feature.geometry.type === 'LineString')
 
 const store = useStore()
 const availableIconSets = computed(() => store.state.drawing.iconSets)
@@ -248,32 +250,50 @@ function mediaTypes() {
             class="form-group mb-3"
         >
             <div class="d-flex justify-content-between">
-                <label
-                    class="form-label"
-                    for="drawing-style-feature-description"
-                >
-                    {{ t('modify_description') }}
-                </label>
-                <div class="d-flex justify-content-end align-items-center">
+                <div class="d-flex justify-content-between align-items-center gap-1">
+                    <label
+                        class="form-label"
+                        for="drawing-style-feature-description"
+                    >
+                        {{ t('modify_description') }}
+                    </label>
+                    <GeoadminTooltip
+                        :tooltip-content="t('display_on_map')"
+                        v-if="isFeatureMarker || isFeatureText"
+                    >
+                        <button
+                            class="btn btn-sm btn-light d-flex align-items-center mb-2"
+                            @click="showDescriptionOnMap = !showDescriptionOnMap"
+                        >
+                            <FontAwesomeIcon
+                                :icon="showDescriptionOnMap ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash'"
+                                class="small"
+                            />
+                        </button>
+                    </GeoadminTooltip>
+                </div>
+                <div class="d-flex justify-content-end align-items-center mb-2">
                     <div
                         v-for="(media, index) in mediaTypes()"
                         :key="media.type"
                     >
-                        <DrawingStylePopoverButton
-                            ref="mediaPopovers"
-                            :data-cy="`drawing-style-${media.type}-button`"
-                            :button-class-options="media.buttonClassOptions"
-                            :icon="media.icon"
-                        >
-                            <DrawingStyleMediaLink
-                                :media-type="media.type"
-                                :url-label="`url_${media.type}`"
-                                :description-label="
-                                    media.extraUrlDescription ? media.extraUrlDescription : ''
-                                "
-                                @generated-media-link="onAddMediaLink(index, $event)"
-                            />
-                        </DrawingStylePopoverButton>
+                        <GeoadminTooltip :tooltip-content="t('add') + ' ' + t(`url_${media.type}`)">
+                            <DrawingStylePopoverButton
+                                ref="mediaPopovers"
+                                :data-cy="`drawing-style-${media.type}-button`"
+                                :button-class-options="media.buttonClassOptions"
+                                :icon="media.icon"
+                            >
+                                <DrawingStyleMediaLink
+                                    :media-type="media.type"
+                                    :url-label="`url_${media.type}`"
+                                    :description-label="
+                                        media.extraUrlDescription ? media.extraUrlDescription : ''
+                                    "
+                                    @generated-media-link="onAddMediaLink(index, $event)"
+                                />
+                            </DrawingStylePopoverButton>
+                        </GeoadminTooltip>
                     </div>
                 </div>
             </div>
@@ -290,20 +310,7 @@ function mediaTypes() {
                     rows="2"
                 />
             </div>
-            <div class="form-check form-switch">
-                <label
-                    class="menu-layer-options form-check-label me-2"
-                    for="checkbox-show-on-map"
-                >
-                    {{ t('display_on_map') }}
-                </label>
-                <input
-                    id="checkbox-show-on-map"
-                    v-model="showDescriptionOnMap"
-                    type="checkbox"
-                    class="form-check-input"
-                />
-            </div>
+
         </div>
         <div class="d-flex small justify-content-start align-items-center mb-1 gap-1">
             <CoordinateCopySlot
@@ -328,68 +335,84 @@ function mediaTypes() {
                 class="d-flex feature-style-edit-control gap-1"
             >
                 <ShowGeometryProfileButton
-                    v-if="isFeatureLine || isFeatureMeasure"
+                    v-if="isFeatureLinePolygon || isFeatureMeasure"
                     :feature="feature"
                 />
-                <DrawingStylePopoverButton
+                <GeoadminTooltip
                     v-if="isFeatureMarker || isFeatureText"
-                    data-cy="drawing-style-text-button"
-                    icon="font"
+                    :tooltip-content="t('drawing_text_style')"
                 >
-                    <div data-cy="drawing-style-text-popup">
-                        <DrawingStyleSizeSelector
-                            class="mb-3"
-                            :current-size="feature.textSize"
-                            @change="onTextSizeChange"
-                        />
-                        <DrawingStylePositionSelector
-                            v-if="isFeatureMarker"
-                            class="mb-3"
-                            :current-placement="feature.textPlacement"
-                            @change="onPlacementChange"
-                        />
-                        <DrawingStyleTextColorSelector
-                            :current-color="feature.textColor"
-                            @change="onTextColorChange"
-                        />
-                    </div>
-                </DrawingStylePopoverButton>
+                    <DrawingStylePopoverButton
+                        data-cy="drawing-style-text-button"
+                        icon="font"
+                    >
+                        <div data-cy="drawing-style-text-popup">
+                            <DrawingStyleSizeSelector
+                                class="mb-3"
+                                :current-size="feature.textSize"
+                                @change="onTextSizeChange"
+                            />
+                            <DrawingStylePositionSelector
+                                v-if="isFeatureMarker"
+                                class="mb-3"
+                                :current-placement="feature.textPlacement"
+                                @change="onPlacementChange"
+                            />
+                            <DrawingStyleTextColorSelector
+                                :current-color="feature.textColor"
+                                @change="onTextColorChange"
+                            />
+                        </div>
+                    </DrawingStylePopoverButton>
+                </GeoadminTooltip>
 
-                <DrawingStylePopoverButton
+                <GeoadminTooltip
                     v-if="isFeatureMarker"
-                    data-cy="drawing-style-marker-button"
-                    icon="fas fa-map-marker-alt"
+                    :tooltip-content="t('drawing_marker_style')"
                 >
-                    <DrawingStyleIconSelector
+
+                    <DrawingStylePopoverButton
+                        data-cy="drawing-style-marker-button"
+                        icon="fas fa-map-marker-alt"
+                    >
+                        <DrawingStyleIconSelector
                         data-cy="drawing-style-marker-popup"
                         :feature="feature"
                         :icon-sets="availableIconSets"
                         @change:icon="onIconChange"
                         @change:icon-color="onColorChange"
                         @change:icon-size="onIconSizeChange"
-                    />
-                </DrawingStylePopoverButton>
+                        />
+                    </DrawingStylePopoverButton>
+                </GeoadminTooltip>
 
-                <DrawingStylePopoverButton
-                    v-if="isFeatureLine"
-                    data-cy="drawing-style-line-button"
-                    :popover-title="t('modify_color_label')"
-                    icon="paint-brush"
+                <GeoadminTooltip
+                    v-if="isFeatureLinePolygon"
+                    :tooltip-content="isLine ? t('drawing_line_style') : t('drawing_polygon_style')"
                 >
-                    <DrawingStyleColorSelector
-                        data-cy="drawing-style-line-popup"
-                        :current-color="feature.fillColor"
-                        @change="onColorChange"
-                    />
-                </DrawingStylePopoverButton>
-
-                <button
-                    class="btn btn-sm btn-light d-flex align-items-center"
-                    data-cy="drawing-style-delete-button"
-                    @click="onDelete"
+                    <DrawingStylePopoverButton
+                        data-cy="drawing-style-line-button"
+                        :popover-title="t('modify_color_label')"
+                        icon="paint-brush"
+                    >
+                        <DrawingStyleColorSelector
+                            data-cy="drawing-style-line-popup"
+                            :current-color="feature.fillColor"
+                            @change="onColorChange"
+                        />
+                    </DrawingStylePopoverButton>
+                </GeoadminTooltip>
+                <GeoadminTooltip
+                    :tooltip-content="t('draw_delete')"
                 >
-                    <FontAwesomeIcon icon="far fa-trash-alt" />
-                </button>
+                    <button
+                        class="btn btn-sm btn-light d-flex align-items-center"
+                        data-cy="drawing-style-delete-button"
+                        @click="onDelete"
+                    >
+                        <FontAwesomeIcon icon="far fa-trash-alt" />
+                    </button>
+                </GeoadminTooltip>
             </div>
         </div>
     </div>
