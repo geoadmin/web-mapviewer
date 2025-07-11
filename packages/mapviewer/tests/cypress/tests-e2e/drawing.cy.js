@@ -126,71 +126,74 @@ describe('Drawing module tests', () => {
                 const kmlId = `${getServiceKmlBaseUrl()}api/kml/files/${interception.response.body.id}`
                 const bgLayer = 'test.background.layer2'
 
-                // it should show the default icon set by default with the red color in the icon style popup
+                cy.log(
+                    'it should show the default icon set by default with the red color in the icon style popup'
+                )
                 cy.wait('@icon-default')
                     .its('request.url')
                     .should('include', '/api/icons/sets/default/icons/')
                     .should('include', `${RED.rgbString}.png`)
 
-                // clicking on the "Edit icon" button
+                cy.log('clicking on the "Edit icon" button')
                 cy.get('[data-cy="drawing-style-marker-button"]:visible').click()
-                // opening up the icon set selector
+                cy.log('opening up the icon set selector')
                 cy.get(
                     '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]:visible'
                 ).click()
-                // the list of icon sets should contain all backend's possibilities
+                cy.log("the list of icon sets should contain all backend's possibilities")
                 cy.get(`[data-cy="dropdown-item-default"]`).should('be.visible')
                 cy.get(`[data-cy="dropdown-item-babs"]`).should('be.visible')
 
-                // selecting babs icon set
+                cy.log('selecting babs icon set')
                 cy.get('[data-cy="dropdown-item-babs"]').click()
-                // all icons in the selector must swap to the newly selected icon set
+                cy.log('all icons in the selector must swap to the newly selected icon set')
                 cy.wait('@icon-set-babs')
                 cy.wait('@icon-babs')
-                // as babs icon set is not colorable, the color box should have disappeared
+                cy.log('as babs icon set is not colorable, the color box should have disappeared')
                 cy.get(
                     '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"]'
                 ).should('not.exist')
-                // babs icon should have a tooltip describing the icon
+                cy.log('babs icon should have a tooltip describing the icon')
                 cy.get('[data-cy="drawing-style-icon-selector-babs-1"]').realHover()
-                // going back to the default icon set
+
+                cy.log('going back to the default icon set')
                 cy.get(
                     '[data-cy="drawing-style-icon-set-button"] [data-cy="dropdown-main-button"]:visible'
                 ).click()
                 cy.get('[data-cy="dropdown-item-default"]:visible').click()
-                cy.get('[data-cy="dropdown-item-default"]').should('not.be.visible')
-                // color selector should be back
+                cy.get('[data-cy="dropdown-item-default"]').should('not.exist')
+                cy.log('color selector should be back')
                 cy.get(
                     '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"]'
                 ).should('be.visible')
 
-                // changing icon list's color to green
+                cy.log("changing icon list's color to green")
                 cy.get(
                     `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"] [data-cy="color-selector-${GREEN.name}"]:visible`
                 ).click()
-                // it should load all icons with the green color
+                cy.log('it should load all icons with the green color')
                 cy.wait('@icon-default-green')
 
-                // the color of the marker already placed on the map must switch to green
+                cy.log('the color of the marker already placed on the map must switch to green')
                 waitForKmlUpdate(
                     `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
                 )
 
-                // opening up the icon size selector
+                cy.log('opening up the icon size selector')
                 cy.get(
                     '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-main-button"]:visible'
                 ).click()
-                // all sizes should be represented
+                cy.log('all sizes should be represented')
                 allStylingSizes.forEach((size) => {
                     cy.get(
                         `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${size.label}"]`
                     ).should('be.visible')
                 })
-                // selecting large size
+                cy.log('selecting large size')
                 cy.get(
                     `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${LARGE.label}"]`
                 ).click()
-                // the existing icon on the map must be updated to large and green
+                cy.log('the existing icon on the map must be updated to large and green')
                 waitForKmlUpdate(
                     `<IconStyle><scale>${LARGE.iconScale * LEGACY_ICON_XML_SCALE_FACTOR}</scale>`,
                     `<Icon>.*?<gx:w>48</gx:w>.*?</Icon>`,
@@ -198,11 +201,11 @@ describe('Drawing module tests', () => {
                     `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
                 )
 
-                // opening up all icons of the current sets so that we may choose a new one
+                cy.log('opening up all icons of the current sets so that we may choose a new one')
                 cy.get(
                     '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-toggle-all-icons-button"]:visible'
                 ).click()
-                // picking up the 4th icon of the set
+                cy.log('picking up the 4th icon of the set')
                 cy.fixture('service-icons/set-default.fixture.json').then((defaultIconSet) => {
                     const fourthIcon = defaultIconSet.items[3]
                     cy.get(
@@ -212,19 +215,18 @@ describe('Drawing module tests', () => {
                         `<href>https?://.*/api/icons/sets/default/icons/${fourthIcon.name}@${DEFAULT_ICON_URL_SCALE}-${GREEN.rgbString}.png</href>`
                     )
                 })
-                // closing the icons
+                cy.log('closing the icons')
                 cy.get(
                     '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-toggle-all-icons-button"]:visible'
                 ).click()
-                // closing the icon style popup
+                cy.log('closing the icon style popup')
                 cy.get(
                     '[data-cy="drawing-style-popover"] [data-cy="close-popover-button"]:visible'
                 ).click()
 
-                // changing/editing the title of this marker
+                cy.log('changing/editing the title of this marker')
                 testTitleEdit()
 
-                // changing text placement
                 cy.log('Test text placement and offset')
                 cy.get('[data-cy="drawing-style-text-button"]').click()
                 cy.get('[data-cy="drawing-style-placement-selector-top-left"]').click()
@@ -236,7 +238,7 @@ describe('Drawing module tests', () => {
                     cy.wrap(offset[0]).should('be.lessThan', 0)
                     cy.wrap(offset[1]).should('be.lessThan', 0)
                 })
-                // Test if both values are floats
+                cy.log('Test if both values are floats')
                 waitForKmlUpdate(
                     `<Data name="textOffset"><value>(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)</value></Data>`
                 )
@@ -248,7 +250,7 @@ describe('Drawing module tests', () => {
                 cy.get('[data-cy="drawing-style-text-popup"]').should('not.exist')
                 cy.viewport(320, 568)
 
-                // changing/editing the description of this marker
+                cy.log('changing/editing the description of this marker')
                 const description = 'A description for this marker'
                 cy.get('[data-cy="drawing-style-feature-description"]').type(description)
                 cy.get('[data-cy="drawing-style-feature-description"]').should(
@@ -1204,6 +1206,74 @@ describe('Drawing module tests', () => {
             // checking that it updates the existing KML, and not creating a new copy of it
             cy.wait('@update-kml').its('response.body.id').should('eq', kmlFileId)
         })
+        it('receives an empty KML and can use drawing mode', () => {
+            function verifyActiveKmlLayerEmptyWithError() {
+                cy.window()
+                    .its('store.getters.activeKmlLayer')
+                    .then((layer) => {
+                        expect(layer.fileId).to.eq(fileId)
+                        expect(layer.name).to.eq('KML')
+                        expect(layer.hasError).to.be.true
+                        expect(layer.kmlData).to.be.null
+                        expect(layer.errorMessages).not.to.be.undefined
+                        expect(layer.errorMessages).not.to.be.undefined
+                        expect(layer.errorMessages.size).to.eq(1)
+                        expect(layer.errorMessages.values().next().value.msg).to.eq(
+                            'kml_gpx_file_empty'
+                        )
+                    })
+            }
+            cy.intercept('GET', `**/api/kml/files/**`, (req) => {
+                const headers = { 'Cache-Control': 'no-cache' }
+                req.reply(EMPTY_KML_DATA, headers)
+            }).as('get-empty-kml')
+
+            cy.intercept('POST', `**/api/kml/admin**`).as('post-new-kml')
+
+            const fileId = 'zBnMZymwTLSNg__5f8yv6g'
+            // load map with an injected kml layer containing an empty KML
+            cy.goToMapView({
+                layers: [`KML|https://sys-public.dev.bgdi.ch/api/kml/files/${fileId}`].join(';'),
+            })
+
+            cy.wait('@get-empty-kml')
+            // there should be only one KML layer left in the layers, and it's the one just saved
+            verifyActiveKmlLayerEmptyWithError()
+
+            cy.openMenuIfMobile()
+
+            cy.get('[data-cy^="button-has-error"]').should('be.visible')
+
+            cy.openDrawingMode()
+
+            cy.get('[data-cy="drawing-toolbox-file-name-input"]', { timeout: 15000 }).should(
+                'be.visible'
+            )
+            cy.closeDrawingMode()
+
+            // saving the drawing without drawing anything should not change the empty KML layer
+            verifyActiveKmlLayerEmptyWithError()
+
+            cy.openDrawingMode()
+
+            cy.get('[data-cy="drawing-toolbox-file-name-input"]', { timeout: 15000 }).should(
+                'be.visible'
+            )
+            cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+            cy.get('[data-cy="ol-map"]').click(120, 240)
+            cy.closeDrawingMode()
+            cy.wait('@post-new-kml')
+            // drawing a marker should create a new KML layer and overwrite the empty one
+            cy.window()
+                .its('store.getters.activeKmlLayer')
+                .then((layer) => {
+                    expect(layer.fileId).not.to.eq(fileId)
+                    expect(layer.name).to.eq('Drawing')
+                    expect(layer.hasError).to.be.false
+                    expect(layer.kmlData).not.to.be.null
+                    expect(layer.errorMessages.size).to.eq(0)
+                })
+        })
     })
     context('others', () => {
         it("doesn't save an empty drawing (if not modified)", () => {
@@ -1300,7 +1370,7 @@ describe('Drawing module tests', () => {
                 '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]'
             ).click()
             cy.get(
-                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-kml"]'
+                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-KML"]'
             ).click()
             checkFiles('kml', (content) => {
                 expect(content).to.contains(
@@ -1315,7 +1385,7 @@ describe('Drawing module tests', () => {
                 '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]'
             ).click()
             cy.get(
-                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-gpx"]'
+                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-GPX"]'
             ).click()
             checkFiles('gpx', (content) => {
                 // 1 <rte> (routes), for the single LINEPOLYGON
@@ -1464,11 +1534,12 @@ describe('Drawing module tests', () => {
             })
             cy.get('[data-cy="profile-graph"]').trigger('mouseenter')
             cy.get('[data-cy="profile-graph"]').trigger('mousemove', 'center')
-            cy.get('[data-cy="profile-popup-tooltip"] [data-cy="profile-popup-tooltip-distance"]').should('contain.text', '2.5 m')
-            cy.get('[data-cy="profile-popup-tooltip"] [data-cy="profile-popup-tooltip-elevation"]').should(
-                'contain.text',
-                '1341.8 m'
-            )
+            cy.get(
+                '[data-cy="profile-popup-tooltip"] [data-cy="profile-popup-tooltip-distance"]'
+            ).should('contain.text', '2.5 m')
+            cy.get(
+                '[data-cy="profile-popup-tooltip"] [data-cy="profile-popup-tooltip-elevation"]'
+            ).should('contain.text', '1341.8 m')
             cy.get('[data-cy="profile-graph"]').trigger('mouseleave')
 
             cy.log(
@@ -1573,74 +1644,5 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="infobox"] [data-cy="drawing-style-popup"]').should('not.exist')
             cy.get('[data-cy="popover"] [data-cy="drawing-style-popup"]').should('not.exist')
         })
-    })
-
-    it('receives an empty KML and can use drawing mode', () => {
-        function verifyActiveKmlLayerEmptyWithError() {
-            cy.window()
-                .its('store.getters.activeKmlLayer')
-                .then((layer) => {
-                    expect(layer.fileId).to.eq(fileId)
-                    expect(layer.name).to.eq('KML')
-                    expect(layer.hasError).to.be.true
-                    expect(layer.kmlData).to.be.null
-                    expect(layer.errorMessages).not.to.be.undefined
-                    expect(layer.errorMessages).not.to.be.undefined
-                    expect(layer.errorMessages.size).to.eq(1)
-                    expect(layer.errorMessages.values().next().value.msg).to.eq(
-                        'kml_gpx_file_empty'
-                    )
-                })
-        }
-        cy.intercept('GET', `**/api/kml/files/**`, (req) => {
-            const headers = { 'Cache-Control': 'no-cache' }
-            req.reply(EMPTY_KML_DATA, headers)
-        }).as('get-empty-kml')
-
-        cy.intercept('POST', `**/api/kml/admin**`).as('post-new-kml')
-
-        const fileId = 'zBnMZymwTLSNg__5f8yv6g'
-        // load map with an injected kml layer containing an empty KML
-        cy.goToMapView({
-            layers: [`KML|https://sys-public.dev.bgdi.ch/api/kml/files/${fileId}`].join(';'),
-        })
-
-        cy.wait('@get-empty-kml')
-        // there should be only one KML layer left in the layers, and it's the one just saved
-        verifyActiveKmlLayerEmptyWithError()
-
-        cy.openMenuIfMobile()
-
-        cy.get('[data-cy^="button-has-error"]').should('be.visible')
-
-        cy.openDrawingMode()
-
-        cy.get('[data-cy="drawing-toolbox-file-name-input"]', { timeout: 15000 }).should(
-            'be.visible'
-        )
-        cy.closeDrawingMode()
-
-        // saving the drawing without drawing anything should not change the empty KML layer
-        verifyActiveKmlLayerEmptyWithError()
-
-        cy.openDrawingMode()
-
-        cy.get('[data-cy="drawing-toolbox-file-name-input"]', { timeout: 15000 }).should(
-            'be.visible'
-        )
-        cy.clickDrawingTool(EditableFeatureTypes.MARKER)
-        cy.get('[data-cy="ol-map"]').click(120, 240)
-        cy.closeDrawingMode()
-        cy.wait('@post-new-kml')
-        // drawing a marker should create a new KML layer and overwrite the empty one
-        cy.window()
-            .its('store.getters.activeKmlLayer')
-            .then((layer) => {
-                expect(layer.fileId).not.to.eq(fileId)
-                expect(layer.name).to.eq('Drawing')
-                expect(layer.hasError).to.be.false
-                expect(layer.kmlData).not.to.be.null
-                expect(layer.errorMessages.size).to.eq(0)
-            })
     })
 })
