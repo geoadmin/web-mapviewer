@@ -3,7 +3,6 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import DropdownButton from '@/utils/components/DropdownButton.vue'
-import DropdownButtonItem from '@/utils/components/DropdownButtonItem.vue'
 import { allStylingSizes, FeatureStyleSize } from '@/utils/featureStyleUtils'
 
 const { currentSize } = defineProps({
@@ -43,14 +42,9 @@ function onSizeSelect(dropdownItem) {
             id="drawing-style-text-size-selector"
             data-cy="drawing-style-size-selector"
             :title="sizeLabel"
-        >
-            <DropdownButtonItem
-                v-for="item in dropdownItems"
-                :key="item.id"
-                v-bind="item"
-                :current-value="currentSize"
-                @select-item="onSizeSelect"
-            />
-        </DropdownButton>
+            :items="dropdownItems"
+            :current-value="currentSize"
+            @select-item="onSizeSelect"
+        />
     </div>
 </template>
