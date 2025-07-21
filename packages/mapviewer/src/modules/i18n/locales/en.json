@@ -474,7 +474,7 @@
     "offline_cache_obsolete": "A newer version of the application is available. Please reload the page via the refresh button.",
     "offline_clear_db_error": "Error clearing  saved maps. Please try again.",
     "offline_delete_data": "Delete map",
-    "offline_dl_succeed": "Download successfull!",
+    "offline_dl_succeed": "Download successful!",
     "offline_hide_extent": "Hide extent",
     "offline_kml_too_big": "A KML flle is too large (> 1MB). It will be not saved.",
     "offline_less_than_95": "Problem: the map was not stored completely. Please retry.",
