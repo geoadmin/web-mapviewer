@@ -45,7 +45,7 @@ if (!IS_TESTING_WITH_CYPRESS) {
             allowlist,
             // exclude print explicitly as SW is sometimes messing with the download URL on Firefox
             // (injecting the cached index.html file instead of providing the PDF from the server)
-            denylist: [/^\/api\/print3/],
+            denylist: [/^\/api\/print3/, /^\/api\/qrcode/],
         }),
         new NetworkFirst({
             cacheName: 'geoadmin-app-cache',
