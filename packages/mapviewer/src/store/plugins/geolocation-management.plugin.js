@@ -73,7 +73,7 @@ const handlePositionAndDispatchToStore = (position, store) => {
         store.state.geolocation,
         `error count=${errorCount}`
     )
-    errorCount = 0 // reset the error count on each successfull position
+    errorCount = 0 // reset the error count on each successful position
     const positionProjected = readPosition(position, store.state.position.projection)
     // Accuracy in in meter, so we don't need the decimal part and avoid dispatching event
     // if the accuracy did not change more than one metter
