@@ -237,7 +237,8 @@ async function getAndDispatchFeatures(to, featuresPromise, store) {
                     maxZoom: store.state.position.projection.get1_25000ZoomLevel(),
                     dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
                 })
-            } else {
+                // if the center is not specifically set, we center on the middle of the extent
+            } else if (!query.center) {
                 const center = [
                     [(extent[0][0] + extent[1][0]) / 2],
                     [(extent[0][1] + extent[1][1]) / 2],
