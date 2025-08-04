@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 /**
- * Manages a Bootstrap dropdown.
+ * Component to render a dropdown button.
  *
  * It is possible to have the dropdown attached to an extra button with a caret, instead of all
- * inline. For that you have to add the with-toggle-button HTML attribute to the component use
+ * inline. For that you have to add the with-toggle-button props to the component use.
  */
 import { size, useFloating } from '@floating-ui/vue'
 import { randomIntBetween } from '@geoadmin/numbers'
