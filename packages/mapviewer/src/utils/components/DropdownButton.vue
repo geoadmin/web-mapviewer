@@ -29,7 +29,7 @@ const {
 } = defineProps<{
     title: string
     items: DropdownItem[]
-    currentValue: string | number | object
+    currentValue: null | string | number | object
     withToggleButton?: boolean
     disabled?: boolean
     small?: boolean
@@ -106,7 +106,11 @@ function onToggleButtonClick(): void {
     isOpen.value = !isOpen.value
 }
 
-function onItemClick(item: DropdownItem): void {
+function onItemClick(event: MouseEvent, item: DropdownItem): void {
+    // Stopping the propagation (bubbling up) of the event here.
+    // This is to keep any floating parent from receiving the click too, and closing because of that.
+    // (Was happening in the context of feature edit, where icon style edit is in a floatingUI element with dropdowns)
+    event.stopPropagation()
     emits('selectItem', item)
     isOpen.value = false
 }
@@ -165,7 +169,7 @@ function getItemDescription(description?: string): string | undefined {
                         active: currentValue === (item.value ?? title),
                     }"
                     :data-cy="`dropdown-item-${item.id}`"
-                    @click="() => onItemClick(item)"
+                    @click="(e) => onItemClick(e, item)"
                 >
                     {{ t(item.title) }}
                 </div>
