@@ -43,9 +43,15 @@ if (!IS_TESTING_WITH_CYPRESS) {
     registerRoute(
         new NavigationRoute(createHandlerBoundToURL(`index.html`), {
             allowlist,
-            // exclude print explicitly as SW is sometimes messing with the download URL on Firefox
-            // (injecting the cached index.html file instead of providing the PDF from the server)
-            denylist: [/^\/api\/print3/, /^\/api\/qrcode/],
+            denylist: [
+                // exclude all api calls, as the service worker might interacts with those in a way
+                // that can shut down the service from the user's perspective
+                // (injecting the cached index.html file instead of providing the expected output)
+                /^\/api\//,
+                // excluding the embed legacy endpoint, as it stops the redirection to the
+                // `legacyEmbed` route and display map views instead of embed views
+                /^\/embed/,
+            ],
         }),
         new NetworkFirst({
             cacheName: 'geoadmin-app-cache',
