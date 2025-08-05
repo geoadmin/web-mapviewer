@@ -51,6 +51,8 @@ if (!IS_TESTING_WITH_CYPRESS) {
                 // excluding the embed legacy endpoint, as it stops the redirection to the
                 // `legacyEmbed` route and display map views instead of embed views
                 /^\/embed/,
+                // preview sites must be excluded too (we want the latest code, not some cached version)
+                /^\/preview\//,
             ],
         }),
         new NetworkFirst({
