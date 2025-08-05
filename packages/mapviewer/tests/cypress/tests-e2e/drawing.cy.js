@@ -470,16 +470,16 @@ describe('Drawing module tests', () => {
 
             testTitleEdit()
 
-            // Opening text style edit popup
+            cy.log('Opening text style edit popup')
             cy.get('[data-cy="drawing-style-text-button"]').click()
             cy.get('[data-cy="drawing-style-placement-selector-top-left"]').should('not.exist')
             cy.get('[data-cy="drawing-style-text-popup"]').should('be.visible')
 
-            // all available colors must have a dedicated element/button
+            cy.log('all available colors must have a dedicated element/button')
             allStylingColors.forEach((color) => {
                 cy.get(`[data-cy="drawing-style-text-color-${color.name}"]`).should('be.visible')
             })
-            // when clicking on another color, the text color in the KML must change
+            cy.log('when clicking on another color, the text color in the KML must change')
             cy.get(`[data-cy="drawing-style-text-color-${BLACK.name}"]`)
                 .should('be.visible')
                 .click()
@@ -496,13 +496,13 @@ describe('Drawing module tests', () => {
             cy.get(
                 '[data-cy="drawing-style-text-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-main-button"]'
             ).click({ force: true })
-            // checking that all (text) sizes are represented in the size selector
+            cy.log('checking that all (text) sizes are represented in the size selector')
             allStylingSizes.forEach((size) => {
                 cy.get(
                     `[data-cy="drawing-style-text-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${size.label}"]`
                 ).should('exist')
             })
-            // selecting "very small" size
+            cy.log('selecting "very small" size')
             cy.get(
                 `[data-cy="drawing-style-text-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${SMALL.label}"]`
             ).click({ force: true })
@@ -657,7 +657,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-delete-first-point-button"]').should('not.exist')
             cy.get('[data-cy="drawing-delete-last-point-button"]').should('not.exist')
 
-            // Create measurement line
+            cy.log('Create measurement line')
             cy.clickDrawingTool(EditableFeatureTypes.MEASURE)
 
             const measurementCoordinates = [
@@ -673,7 +673,7 @@ describe('Drawing module tests', () => {
             measurementCoordinates.forEach((coordinate) => {
                 cy.get('[data-cy="ol-map"]').click(...coordinate)
             })
-            // should create a line by re-clicking the last point
+            cy.log('should create a line by re-clicking the last point')
             cy.get('[data-cy="ol-map"]').click(
                 ...measurementCoordinates.at(measurementCoordinates.length - 1)
             )
@@ -687,7 +687,7 @@ describe('Drawing module tests', () => {
                 EditableFeatureTypes.MEASURE
             )
 
-            // Extend from the last node of line
+            cy.log('Extend from the last node of line')
             cy.get('[data-cy="extend-from-last-node-button"] button').click()
             cy.get('[data-cy="ol-map"]').dblclick(1400, 450)
             checkDrawnFeature(
@@ -697,7 +697,7 @@ describe('Drawing module tests', () => {
                 EditableFeatureTypes.MEASURE
             )
 
-            // check if the first feature still there
+            cy.log('check if the first feature still there')
             checkDrawnFeature(
                 firstFeatureDescription,
                 9,
@@ -711,14 +711,16 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click(150, 250)
             cy.get('[data-cy="ol-map"]').click(150, 280)
 
-            // checking that we can delete the last point by either clicking the button or using right-click
+            cy.log(
+                'checking that we can delete the last point by either clicking the button or using right-click'
+            )
             cy.get('[data-cy="drawing-delete-last-point-button"]').click()
             cy.get('[data-cy="ol-map"]').click(150, 280)
 
             cy.get('[data-cy="ol-map"]').rightclick()
             cy.get('[data-cy="ol-map"]').click(150, 280)
 
-            // should create a polygon by re-clicking the first point
+            cy.log('should create a polygon by re-clicking the first point')
             cy.get('[data-cy="ol-map"]').click(100, 250)
 
             let kmlId = null
@@ -751,7 +753,9 @@ describe('Drawing module tests', () => {
                     expect(polygonCoordinates).to.be.an('Array').lengthOf(4)
                 })
 
-            // Changing the color of the polygon and checking that the KMl was updated accordingly
+            cy.log(
+                'Changing the color of the polygon and checking that the KMl was updated accordingly'
+            )
             cy.get('[data-cy="drawing-style-line-button"]').click()
             cy.get(
                 `[data-cy="drawing-style-line-popup"] [data-cy="color-selector-${BLACK.name}"]`
@@ -775,10 +779,12 @@ describe('Drawing module tests', () => {
                     )
                 )
 
-            // close the drawing mode to close the popover else it is not possible to close it since the drawing header is overlapping the popover
+            cy.log(
+                'close the drawing mode to close the popover else it is not possible to close it since the drawing header is overlapping the popover'
+            )
             cy.closeDrawingMode()
             cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
-            // Now creating a line, and finishing it by double-clicking the same spot
+            cy.log('Now creating a line, and finishing it by double-clicking the same spot')
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
             cy.get('[data-cy="ol-map"]').click(120, 270)
             cy.get('[data-cy="ol-map"]').dblclick(120, 290)
@@ -859,7 +865,7 @@ describe('Drawing module tests', () => {
             ).should('have.attr', 'disabled')
             cy.get('[data-cy="drawing-toolbox-share-button"]').should('have.attr', 'disabled')
 
-            // Draw something new to verify that the KML ID being sent is different
+            cy.log('Draw something new to verify that the KML ID being sent is different')
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
             cy.get('[data-cy="ol-map"]').click(100, 250)
             cy.get('[data-cy="ol-map"]').click(150, 250)
@@ -884,9 +890,9 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click()
             cy.wait(['@post-kml', '@layerConfig', '@topics', '@topic-ech', '@routeChange'])
 
-            // checks that it adds the kml file ID in the URL while in drawing mode
+            cy.log('checks that it adds the kml file ID in the URL while in drawing mode')
             cy.url().should('match', /layers=[^;&]*KML|[^|,f1]+/)
-            // checks that it doesn't add adminId to the url
+            cy.log("checks that it doesn't add adminId to the url")
             cy.url().should('not.contain', 'adminId')
 
             cy.closeDrawingMode(false)
@@ -1078,14 +1084,18 @@ describe('Drawing module tests', () => {
             const kmlFileUrl = `${getServiceKmlBaseUrl()}api/kml/files/${kmlFileId}`
             const kmlUrlParam = `KML|${kmlFileUrl}@adminId=${kmlFileAdminId}`
 
-            // opening up the app and centering it directly on the single marker feature from the fixture
+            cy.log(
+                'opening up the app and centering it directly on the single marker feature from the fixture'
+            )
             cy.goToDrawing({ layers: kmlUrlParam, center: center.join(',') }, true)
             cy.wait(['@get-kml-metadata', '@get-kml'])
 
-            // the app must open the drawing module at startup whenever an adminId is found in the URL
+            cy.log(
+                'the app must open the drawing module at startup whenever an adminId is found in the URL'
+            )
             cy.readStoreValue('state.drawing.drawingOverlay.show').should('be.true')
 
-            // checking that the KML was correctly loaded
+            cy.log('checking that the KML was correctly loaded')
             cy.readStoreValue('getters.selectedFeatures').should('have.length', 0)
             cy.waitUntil(() =>
                 cy
@@ -1093,18 +1103,18 @@ describe('Drawing module tests', () => {
                     .its('drawingLayer')
                     .then((drawingLayer) => drawingLayer.getSource().getFeatures().length === 1)
             )
-            // clicking on the single feature of the fixture
+            cy.log('clicking on the single feature of the fixture')
             cy.get('[data-cy="ol-map"]').click('center')
             cy.readStoreValue('getters.selectedFeatures').should('have.length', 1)
             cy.readWindowValue('drawingLayer')
                 .then((layer) => layer.getSource().getFeatures())
                 .should('have.length', 1)
 
-            // creating another feature
+            cy.log('creating another feature')
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
             cy.get('[data-cy="ol-map"]').click(200, 200)
 
-            // checking that it updates the existing KML, and not creating a new copy of it
+            cy.log('checking that it updates the existing KML, and not creating a new copy of it')
             cy.wait('@update-kml').its('response.body.id').should('eq', kmlFileId)
         })
         it('manages the KML layer correctly if it comes attached with an adminId at startup from a legacy URL', () => {
@@ -1161,7 +1171,9 @@ describe('Drawing module tests', () => {
                 fixture: 'service-kml/legacy-mf-geoadmin3.kml',
             }).as('get-legacy-kml')
 
-            // opening up the app and centering it directly on the single marker feature from the fixture
+            cy.log(
+                'opening up the app and centering it directly on the single marker feature from the fixture'
+            )
             cy.goToMapView({ adminId: kmlFileAdminId, E: center[0], N: center[1] }, false)
             cy.wait([
                 '@get-kml-metadata-by-admin-id',
@@ -1173,16 +1185,18 @@ describe('Drawing module tests', () => {
             ])
             cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
 
-            // the app must open the drawing module at startup whenever an adminId is found in the URL
+            cy.log(
+                'the app must open the drawing module at startup whenever an adminId is found in the URL'
+            )
             cy.readStoreValue('state.drawing.drawingOverlay.show').should('be.true')
 
-            // checking that the KML was correctly loaded
+            cy.log('checking that the KML was correctly loaded')
             cy.readStoreValue('getters.selectedFeatures').should('have.length', 0)
             cy.readWindowValue('drawingLayer')
                 .then((layer) => layer.getSource().getFeatures())
                 .should('have.length', 3)
 
-            // clicking on the single feature of the fixture
+            cy.log('clicking on the single feature of the fixture')
             cy.log('Test clicking on the square feature in center should select it')
             cy.get('[data-cy="ol-map"]').click('center')
             cy.readStoreValue('getters.selectedFeatures').should('have.length', 1)
@@ -1198,12 +1212,11 @@ describe('Drawing module tests', () => {
                 'btn-primary'
             )
 
-            // creating another feature
             cy.log('Test creating a new feature')
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
             cy.get('[data-cy="ol-map"]').click(200, 200)
 
-            // checking that it updates the existing KML, and not creating a new copy of it
+            cy.log('checking that it updates the existing KML, and not creating a new copy of it')
             cy.wait('@update-kml').its('response.body.id').should('eq', kmlFileId)
         })
         it('receives an empty KML and can use drawing mode', () => {
@@ -1231,13 +1244,15 @@ describe('Drawing module tests', () => {
             cy.intercept('POST', `**/api/kml/admin**`).as('post-new-kml')
 
             const fileId = 'zBnMZymwTLSNg__5f8yv6g'
-            // load map with an injected kml layer containing an empty KML
+            cy.log('load map with an injected kml layer containing an empty KML')
             cy.goToMapView({
                 layers: [`KML|https://sys-public.dev.bgdi.ch/api/kml/files/${fileId}`].join(';'),
             })
 
             cy.wait('@get-empty-kml')
-            // there should be only one KML layer left in the layers, and it's the one just saved
+            cy.log(
+                "there should be only one KML layer left in the layers, and it's the one just saved"
+            )
             verifyActiveKmlLayerEmptyWithError()
 
             cy.openMenuIfMobile()
@@ -1251,7 +1266,9 @@ describe('Drawing module tests', () => {
             )
             cy.closeDrawingMode()
 
-            // saving the drawing without drawing anything should not change the empty KML layer
+            cy.log(
+                'saving the drawing without drawing anything should not change the empty KML layer'
+            )
             verifyActiveKmlLayerEmptyWithError()
 
             cy.openDrawingMode()
@@ -1263,7 +1280,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click(120, 240)
             cy.closeDrawingMode()
             cy.wait('@post-new-kml')
-            // drawing a marker should create a new KML layer and overwrite the empty one
+            cy.log('drawing a marker should create a new KML layer and overwrite the empty one')
             cy.window()
                 .its('store.getters.activeKmlLayer')
                 .then((layer) => {
@@ -1304,17 +1321,17 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click(140, 360)
             cy.get('[data-cy="ol-map"]').click(150, 360)
             cy.get('[data-cy="ol-map"]').click(150, 380)
-            // clicking on the same spot as the first, it should close the polygon
+            cy.log('clicking on the same spot as the first, it should close the polygon')
             cy.get('[data-cy="ol-map"]').click(140, 360)
 
             cy.wait('@post-kml')
 
-            // Checking that it can export the profile as CSV
+            cy.log('Checking that it can export the profile as CSV')
             cy.get('[data-cy="show-profile"]').click()
             cy.wait('@profile')
-            // triggering a CSV download
+            cy.log('triggering a CSV download')
             cy.get('[data-cy="profile-popup-csv-download-button"]').click()
-            // check CSV content
+            cy.log('check CSV content')
             cy.fixture('service-alti/profile.fixture.csv').then((mockCsv) => {
                 checkFiles('csv', (content) => {
                     // just in case we are testing from windows we replace all \r\n by \n
@@ -1325,14 +1342,13 @@ describe('Drawing module tests', () => {
             })
             cy.closeDrawingMode()
             cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
-            // it changes the name of the KML file
             cy.log('Check that the KML file can be renamed')
             const newKmlName = 'new kml name'
             cy.get('[data-cy="drawing-toolbox-file-name-input"]').clear()
             cy.get('[data-cy="drawing-toolbox-file-name-input"]').type(newKmlName)
             cy.wait('@update-kml')
             cy.wait('@update-kml')
-            // it exports KML when clicking on the export button (without choosing format)
+            cy.log('it exports KML when clicking on the export button (without choosing format)')
             cy.get(
                 '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-main-button"]'
             ).click()
@@ -1344,7 +1360,7 @@ describe('Drawing module tests', () => {
                 )
             })
             cy.task('clearFolder', downloadsFolder)
-            // it changes the name of the KML file with sanitization
+            cy.log('it changes the name of the KML file with sanitization')
             cy.log('Check that the KML file can be renamed with sanitization')
             const newDirtyKmlName = `${newKmlName}<`
             const newDirtyKmlNameSanitized = `${newKmlName}&lt;`
@@ -1352,7 +1368,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-toolbox-file-name-input"]').type(newDirtyKmlName)
             cy.wait('@update-kml')
 
-            // it exports KML when clicking on the export button (without choosing format)
+            cy.log('it exports KML when clicking on the export button (without choosing format)')
             cy.get(
                 '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-main-button"]'
             ).click()
@@ -1365,7 +1381,7 @@ describe('Drawing module tests', () => {
             })
             cy.task('clearFolder', downloadsFolder)
 
-            // same if we choose exports KML file through the "choose format" export menu
+            cy.log('same if we choose exports KML file through the "choose format" export menu')
             cy.get(
                 '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]'
             ).click()
@@ -1380,7 +1396,7 @@ describe('Drawing module tests', () => {
             })
             cy.task('clearFolder', downloadsFolder)
 
-            // it exports a GPX if chosen in the dropdown
+            cy.log('it exports a GPX if chosen in the dropdown')
             cy.get(
                 '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]'
             ).click()
@@ -1412,7 +1428,7 @@ describe('Drawing module tests', () => {
 
             const regexInterceptServiceShortLink =
                 /^https?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//
-            // creating the necessary intercepts for service-shortlink
+            cy.log('creating the necessary intercepts for service-shortlink')
             cy.intercept('POST', regexInterceptServiceShortLink, (req) => {
                 expect(req.body).to.haveOwnProperty('url')
                 expect(req.body.url).to.contain(`/${kmlId}`)
@@ -1423,13 +1439,13 @@ describe('Drawing module tests', () => {
                 }
             }).as('shortLink')
 
-            // opening the share prompt/modal
+            cy.log('opening the share prompt/modal')
             cy.get('[data-cy="drawing-toolbox-share-button"]').click()
-            // we expect 2 links to be generated (one with and one without adminId)
+            cy.log('we expect 2 links to be generated (one with and one without adminId)')
             cy.wait('@shortLink')
             cy.wait('@shortLink')
 
-            // Check that the copied URL is the shortened one
+            cy.log('Check that the copied URL is the shortened one')
             cy.get('[data-cy="drawing-share-normal-link"]').focus()
             cy.get('[data-cy="drawing-share-normal-link"]').realClick()
             cy.readClipboardValue().should((clipboardText) => {
@@ -1439,7 +1455,7 @@ describe('Drawing module tests', () => {
                 )
             })
 
-            // Same check, but with the other input (that should contain the adminId)
+            cy.log('Same check, but with the other input (that should contain the adminId)')
             cy.get('[data-cy="drawing-share-admin-link"]').focus()
             cy.get('[data-cy="drawing-share-admin-link"]').realClick()
             cy.readClipboardValue().should((clipboardText) => {
@@ -1448,26 +1464,29 @@ describe('Drawing module tests', () => {
                     `Share link is not an admin shortlink`
                 )
             })
-            // closing the share modal/popup
+            cy.log('closing the share modal/popup')
             cy.get('[data-cy="modal-close-button"]').click()
 
-            // testing the same thing, but by responding HTTP500 with service-shortlink
-            // it should fall back to give users normal links (un-shortened)
+            cy.log(
+                'testing the same thing, but by responding HTTP500 with service-shortlink, it should fall back to give users normal links (un-shortened)'
+            )
             cy.intercept('POST', regexInterceptServiceShortLink, { statusCode: 500 })
 
-            // opening the share prompt/modal once again
+            cy.log('opening the share prompt/modal once again')
             cy.get('[data-cy="drawing-toolbox-share-button"]').click()
 
             cy.get('[data-cy="drawing-share-normal-link"]').focus()
             cy.get('[data-cy="drawing-share-normal-link"]').realClick()
-            // checking that the ID present in the "normal" link matches the public file ID (and not the admin ID)
+            cy.log(
+                'checking that the ID present in the "normal" link matches the public file ID (and not the admin ID)'
+            )
             cy.readClipboardValue().should((clipboardText) => {
                 expect(clipboardText).to.contain(
                     `KML%7C${getServiceKmlBaseUrl()}api/kml/files/${kmlId}`
                 )
                 expect(clipboardText).to.not.contain(`@adminId`)
             })
-            // checking that the "Edit later" link contains the adminId
+            cy.log('checking that the "Edit later" link contains the adminId')
             cy.get('[data-cy="drawing-share-admin-link"]').focus()
             cy.get('[data-cy="drawing-share-admin-link"]').realClick()
             cy.readClipboardValue().should((clipboardText) => {
@@ -1486,7 +1505,7 @@ describe('Drawing module tests', () => {
 
             cy.goToDrawing()
 
-            // returning an empty profile as a start
+            cy.log('returning an empty profile as a start')
             cy.intercept(profileIntercept, []).as('empty-profile')
 
             cy.clickDrawingTool(EditableFeatureTypes.MEASURE)
@@ -1497,16 +1516,18 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="show-profile"]').click()
             cy.wait('@empty-profile')
 
-            // the profile info container shouldn't show up if there's no data for this profile
+            cy.log(
+                "the profile info container shouldn't show up if there's no data for this profile"
+            )
             cy.get('[data-cy="profile-popup-info-container"]').should('not.exist')
             cy.get('[data-cy="infobox-hide-profile-button"]').click()
 
-            // deleting feature
+            cy.log('deleting feature')
             cy.get('[data-cy="drawing-style-delete-button"]').click()
             cy.get('[data-cy="profile-popup-content"]').should('not.exist')
             cy.get('[data-cy="drawing-style-popup"]').should('not.exist')
 
-            // returning an empty profile as a start
+            cy.log('returning an empty profile as a start')
             cy.intercept(profileIntercept, {
                 fixture: 'service-alti/profile.fixture.json',
             }).as('profile')
@@ -1520,7 +1541,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="show-profile"]').click()
             cy.wait('@profile')
 
-            // checking all the information found in the info container
+            cy.log('checking all the information found in the info container')
             Object.entries({
                 profile_elevation_difference: '0.00m',
                 profile_elevation_down: '0.10m',
@@ -1549,32 +1570,36 @@ describe('Drawing module tests', () => {
             cy.wait('@profile')
 
             cy.log('check that the profile content can be minimized/maximized')
-            // clicking on the header of the profile container
+            cy.log('clicking on the header of the profile container')
             cy.get('[data-cy="infobox-minimize-maximize"]').click()
             cy.get('[data-cy="infobox-header"]').should('be.visible')
-            // it should hide the content (only the header stays visible)
+            cy.log('it should hide the content (only the header stays visible)')
             cy.get('[data-cy="infobox-content"]').should('not.exist')
 
-            // click once again on the header
+            cy.log('click once again on the header')
             cy.get('[data-cy="infobox-minimize-maximize"]').click()
             cy.get('[data-cy="infobox-header"]').should('be.visible')
-            // the content should now be visible again
+            cy.log('the content should now be visible again')
             cy.get('[data-cy="infobox-content"]').should('be.visible')
 
-            // close the drawing mode to close the popover else it is not possible to close it since the drawing header is overlapping the popover
+            cy.log(
+                'close the drawing mode to close the popover else it is not possible to close it since the drawing header is overlapping the popover'
+            )
             cy.closeDrawingMode()
             cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
 
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
             cy.get('[data-cy="ol-map"]').click(200, 290)
-            // open info box
+            cy.log('open info box')
             cy.get('[data-cy="ol-map"]').click(200, 290)
             cy.get('[data-cy="infobox"]').should('be.visible')
-            // // re-opening
+            cy.log('re-opening')
             cy.get('[data-cy="ol-map"]').click(200, 290)
             cy.get('[data-cy="infobox"]').should('be.visible')
 
-            // clicking on the X button again, but this time with the content being hidden (clicking first on the header)
+            cy.log(
+                'clicking on the X button again, but this time with the content being hidden (clicking first on the header)'
+            )
             cy.get('[data-cy="infobox-minimize-maximize"]').click()
             cy.get('[data-cy="infobox-close"]').click()
             cy.get('[data-cy="infobox"]').should('not.exist')
@@ -1593,13 +1618,15 @@ describe('Drawing module tests', () => {
 
                 cy.get('[data-cy="infobox-toggle-floating"]').click({ force: true })
 
-                // checking that the edit form is still present but now in the floating popup
+                cy.log('checking that the edit form is still present but now in the floating popup')
                 cy.get('[data-cy="infobox"] [data-cy="drawing-style-popup"]').should('not.exist')
                 cy.get('[data-cy="popover"] [data-cy="drawing-style-popup"]').should('be.visible')
 
                 cy.get('[data-cy="toggle-floating-off"]').click()
 
-                // on mobile the delete button is a bit hidden behind the background wheel, so we force the click
+                cy.log(
+                    'on mobile the delete button is a bit hidden behind the background wheel, so we force the click'
+                )
                 cy.get('[data-cy="drawing-style-delete-button"]').click({ force: true })
                 cy.wait('@update-kml')
                 cy.get('[data-cy="infobox"] [data-cy="drawing-style-popup"]').should('not.exist')
@@ -1612,14 +1639,14 @@ describe('Drawing module tests', () => {
             cy.wait('@post-kml')
             testEditPopupFloatingToggle()
 
-            // same test, but this time with a line
-            // (the placement of the popup is a bit trickier and different from a single coordinate marker)
-            cy.log('Testing a floating tooltiop with a line')
+            cy.log(
+                'same test, but this time with a line (the placement of the popup is a bit trickier and different from a single coordinate marker)'
+            )
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
             cy.get('[data-cy="ol-map"]').click(120, 240)
             cy.get('[data-cy="ol-map"]').click(150, 250)
             cy.get('[data-cy="ol-map"]').click(150, 260)
-            // finishing the line by click the same spot
+            cy.log('finishing the line by click the same spot')
             cy.get('[data-cy="ol-map"]').click(150, 260)
             cy.wait('@update-kml')
             testEditPopupFloatingToggle()

@@ -56,7 +56,7 @@ const anchorElement = computed<HTMLElement | null>(() => {
 })
 
 // generating a unique HTML ID for this dropdown
-const uniqueHtmlId = ref<string>(`dropdown-${randomIntBetween(0, 10000)}`)
+const uniqueHtmlId = ref<string>(`dropdown-${randomIntBetween(0, 100000)}`)
 
 const { floatingStyles } = useFloating(anchorElement, dropdownMenuRef, {
     placement: 'bottom-end',
