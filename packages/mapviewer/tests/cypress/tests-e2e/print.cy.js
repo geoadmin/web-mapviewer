@@ -7,7 +7,7 @@ import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParse
 
 function launchPrint(config = {}) {
     const {
-        layout = '1. A4 landscape',
+        layout = 'A4 landscape',
         scale = 1500000,
         withLegend = false,
         withGrid = false,
@@ -18,12 +18,15 @@ function launchPrint(config = {}) {
 
     if (layout !== '1. A4 landscape') {
         cy.get('[data-cy="print-layout-selector"]').click()
-        cy.get('[data-cy="print-layout-selector"]').find('li a').contains(layout).click()
+        cy.get('[data-cy="print-layout-selector"]')
+            .find(`[data-cy="dropdown-item-${layout}"]`)
+            .contains(layout)
+            .click()
     }
     if (scale !== 1500000) {
         cy.get('[data-cy="print-scale-selector"]').click()
         cy.get('[data-cy="print-scale-selector"]')
-            .find('li a')
+            .find(`[data-cy="dropdown-item-${scale}"]`)
             .contains(`1:${formatThousand(scale)}`)
             .click()
     }
@@ -172,14 +175,27 @@ describe('Testing print', () => {
             launchPrint()
             cy.get('[data-cy="menu-print-section"]:visible').click()
             cy.get('[data-cy="menu-print-form"]').should('be.visible')
-            cy.get('[data-cy="print-layout-selector"]').find('li').should('have.length', 5)
-            cy.get('[data-cy="print-layout-selector"]')
-                .find('li a.active')
-                .should('contain', 'A4 landscape')
-            cy.get('[data-cy="print-scale-selector"]').find('li').should('have.length', 15)
-            cy.get('[data-cy="print-scale-selector"]')
-                .find('li a.active')
+
+            // Starting with scales because they are placed below the layouts.
+            // We then don't need to close it to open up the layouts (if we did the opposite, the
+            // scale button would be hidden behind the dropdown items of the layout...)
+            cy.log('Check that scales are correctly populated')
+            cy.get('[data-cy="print-scale-selector"]').click()
+            cy.get('[data-cy="print-scale-selector"] [data-cy="dropdown-container"]')
+                .find('[data-cy^="dropdown-item-"]')
+                .should('have.length', 15)
+            cy.get('[data-cy="print-scale-selector"] [data-cy="dropdown-container"]')
+                .find('[data-cy^="dropdown-item-"].active')
                 .should('contain', `1:${formatThousand(1500000)}`)
+
+            cy.log('Check that layouts are correctly populated')
+            cy.get('[data-cy="print-layout-selector"]').click()
+            cy.get('[data-cy="print-layout-selector"] [data-cy="dropdown-container"]')
+                .find('[data-cy^="dropdown-item-"]')
+                .should('have.length', 5)
+            cy.get('[data-cy="print-layout-selector"] [data-cy="dropdown-container"]')
+                .find('[data-cy^="dropdown-item-"].active')
+                .should('contain', 'A4 landscape')
         })
     })
 

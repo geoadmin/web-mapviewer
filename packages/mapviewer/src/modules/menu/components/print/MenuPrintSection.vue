@@ -12,7 +12,6 @@ import {
 } from '@/modules/map/components/openlayers/utils/usePrint.composable'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
-import DropdownButtonItem from '@/utils/components/DropdownButtonItem.vue'
 import ProgressBar from '@/utils/components/ProgressBar.vue'
 import { downloadFile, generateFilename } from '@/utils/utils'
 
@@ -33,7 +32,7 @@ const store = useStore()
 const selectedLayout = computed(() => store.state.print.selectedLayout)
 const availablePrintLayouts = computed(() =>
     store.state.print.layouts.map((layout) => ({
-        id: layout.name,
+        id: formatTitle(layout.name),
         title: formatTitle(layout.name),
         value: layout,
     }))
@@ -177,18 +176,15 @@ defineExpose({
                 {{ t('print_layout') }}
             </label>
             <DropdownButton
+                v-if="selectedLayoutName"
                 id="print-layout-selector"
                 :title="formatTitle(selectedLayoutName?.name)"
+                :items="availablePrintLayouts"
+                :current-value="selectedLayoutName"
                 data-cy="print-layout-selector"
-            >
-                <DropdownButtonItem
-                    v-for="item in availablePrintLayouts"
-                    :key="item.id"
-                    v-bind="item"
-                    :current-value="selectedLayoutName"
-                    @select-item="selectLayout"
-                />
-            </DropdownButton>
+                @select-item="selectLayout"
+            />
+            <div v-else>...</div>
             <label
                 for="print-scale-selector"
                 class="col-form-label fw-bold me-2"
@@ -196,18 +192,15 @@ defineExpose({
                 {{ t('print_scale') }}
             </label>
             <DropdownButton
+                v-if="selectedScale"
                 id="print-scale-selector"
                 :title="formatScale(selectedScale)"
+                :items="scales"
+                :current-value="selectedScale"
                 data-cy="print-scale-selector"
-            >
-                <DropdownButtonItem
-                    v-for="item in scales"
-                    :key="item.id"
-                    v-bind="item"
-                    :current-value="selectedScale"
-                    @select-item="selectScale"
-                />
-            </DropdownButton>
+                @select-item="selectScale"
+            />
+            <div v-else>...</div>
             <div class="form-check">
                 <input
                     id="checkboxLegend"

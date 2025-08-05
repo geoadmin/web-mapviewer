@@ -16,7 +16,6 @@ import { allKmlStyles } from '@/api/layers/KmlStyles.enum'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import TransparencySlider from '@/modules/menu/components/activeLayers/TransparencySlider.vue'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
-import DropdownButtonItem from '@/utils/components/DropdownButtonItem.vue'
 import ExtLayerInfoButton from '@/utils/components/ExtLayerInfoButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
@@ -153,7 +152,7 @@ function changeStyle(newStyle) {
     >
         <div class="menu-layer-item-title">
             <button
-                class="btn border-0 d-flex align-items-center"
+                class="btn d-flex align-items-center border-0"
                 :class="{ 'btn-lg': !compact }"
                 :data-cy="`button-remove-layer-${id}-${index}`"
                 @click="onRemoveLayer"
@@ -161,7 +160,7 @@ function changeStyle(newStyle) {
                 <FontAwesomeIcon icon="times-circle" />
             </button>
             <button
-                class="btn border-0 d-flex align-items-center"
+                class="btn d-flex align-items-center border-0"
                 :class="{ 'btn-lg': !compact }"
                 :data-cy="`button-toggle-visibility-layer-${id}-${index}`"
                 @click="onToggleLayerVisibility"
@@ -215,7 +214,7 @@ function changeStyle(newStyle) {
                 />
             </ThirdPartyDisclaimer>
             <button
-                class="btn border-0 d-flex align-items-center"
+                class="btn d-flex align-items-center border-0"
                 :class="{
                     'btn-lg': !compact,
                     'flip text-primary': showLayerDetail,
@@ -230,7 +229,7 @@ function changeStyle(newStyle) {
             v-if="showLayerDetail"
             :data-cy="`div-layer-settings-${id}-${index}`"
         >
-            <div class="d-flex mx-1 align-items-center">
+            <div class="d-flex align-items-center mx-1">
                 <label
                     :for="`transparency-${id}`"
                     class="menu-layer-options"
@@ -289,14 +288,14 @@ function changeStyle(newStyle) {
             <div
                 v-if="isLayerKml"
                 v-show="showLayerDetail"
-                class="p-1 d-block"
+                class="d-block p-1"
             >
                 <div
                     v-if="is3dActive"
                     class="form-check form-switch"
                 >
                     <label
-                        class="menu-layer-options me-2 form-check-label"
+                        class="menu-layer-options form-check-label me-2"
                         :for="`checkbox-clamp-to-ground-${id}`"
                     >
                         {{ t('clamp_to_ground') }}
@@ -317,16 +316,11 @@ function changeStyle(newStyle) {
                     </label>
                     <DropdownButton
                         :title="currentKmlStyle.toLowerCase()"
+                        :items="kmlStylesAsDropdownItems"
+                        :current-value="currentKmlStyle"
                         small
-                    >
-                        <DropdownButtonItem
-                            v-for="item in kmlStylesAsDropdownItems"
-                            :key="item.id"
-                            v-bind="item"
-                            :current-value="currentKmlStyle"
-                            @select-item="changeStyle"
-                        />
-                    </DropdownButton>
+                        @select-item="changeStyle"
+                    />
                 </div>
             </div>
         </div>

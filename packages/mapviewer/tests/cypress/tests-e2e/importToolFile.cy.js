@@ -32,18 +32,26 @@ describe('The Import File Tool', () => {
     function createHeadAndGetIntercepts(
         url,
         aliasName,
-        getConfig,
-        headConfig = {
+        getResponse,
+        headResponse = {
             statusCode: 200,
             headers: {
                 'Content-Type': 'application/vnd.google-earth.kml+xml',
             },
-        }
+        },
+        failNonProxyHeadRequest = false
     ) {
-        cy.intercept('HEAD', url, headConfig).as(`head${aliasName}`)
-        cy.intercept('GET', url, getConfig).as(`get${aliasName}`)
+        if (failNonProxyHeadRequest) {
+            cy.intercept('HEAD', url, {
+                statusCode: 403,
+            }).as(`head${aliasName}`)
+        } else {
+            cy.intercept('HEAD', url, headResponse).as(`head${aliasName}`)
+        }
+        cy.intercept('GET', url, getResponse).as(`get${aliasName}`)
 
-        cy.intercept('GET', proxifyUrl(url), getConfig).as(`proxyfied${aliasName}`)
+        cy.intercept('HEAD', proxifyUrl(url), headResponse).as(`proxyfied${aliasName}`)
+        cy.intercept('GET', proxifyUrl(url), getResponse).as(`proxyfied${aliasName}`)
     }
 
     it('Import KML file', () => {
@@ -488,7 +496,13 @@ describe('The Import File Tool', () => {
             validOnlineNonCORSUrl,
             'KmlNoCORS',
             { fixture: localKmlFile },
-            { forceNetworkError: true }
+            {
+                statusCode: 200,
+                headers: {
+                    'Content-Type': 'application/vnd.google-earth.kml+xml',
+                },
+            },
+            true
         )
 
         cy.openMenuIfMobile()
@@ -550,9 +564,7 @@ describe('The Import File Tool', () => {
 
         cy.openMenuIfMobile()
 
-        cy.get(
-            `[data-cy^="button-remove-layer-${validOnlineNonCORSUrl}"]:visible`
-        ).click()
+        cy.get(`[data-cy^="button-remove-layer-${validOnlineNonCORSUrl}"]:visible`).click()
 
         cy.get(`[data-cy^="button-remove-layer-${secondValidOnlineUrl}"]:visible`).click()
         cy.get(`[data-cy^="button-remove-layer-${lineAccrossEuFileName}"]:visible`).click()
@@ -562,8 +574,7 @@ describe('The Import File Tool', () => {
 
         const kmlMultiPolygonFileName = 'kml-multi-polygon.kml'
         const kmlMultiPolygonFileNameFixture = `import-tool/${kmlMultiPolygonFileName}`
-        const validMutiPolygonOnlineUrl =
-            'https://example.com/kml-multi-polygon.kml'
+        const validMutiPolygonOnlineUrl = 'https://example.com/kml-multi-polygon.kml'
         createHeadAndGetIntercepts(
             validMutiPolygonOnlineUrl,
             'KmlNoCORS',
@@ -1043,8 +1054,10 @@ describe('The Import File Tool', () => {
                 fixture: gpxFileFixture,
             },
             {
-                forceNetworkError: true,
-            }
+                statusCode: 200,
+                headers: { 'Content-Type': 'application/gpx+xml' },
+            },
+            true
         )
 
         cy.openMenuIfMobile()

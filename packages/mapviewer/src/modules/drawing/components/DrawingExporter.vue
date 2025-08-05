@@ -4,13 +4,12 @@ import { useStore } from 'vuex'
 
 import { generateGpxString, generateKmlString } from '@/modules/drawing/lib/export-utils'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
-import DropdownButtonItem from '@/utils/components/DropdownButtonItem.vue'
 import { downloadFile, generateFilename } from '@/utils/utils'
 
 /** @type {DropdownItem[]} */
 const exportOptions = [
-    { id: 'kml', title: 'KML' },
-    { id: 'gpx', title: 'GPX' },
+    { id: 'KML', title: 'KML', value: 'KML' },
+    { id: 'GPX', title: 'GPX', value: 'GPX' },
 ]
 
 const drawingLayer = inject('drawingLayer')
@@ -49,16 +48,11 @@ function exportDrawing() {
     <DropdownButton
         title="export_kml"
         :disabled="isDrawingEmpty"
+        :items="exportOptions"
+        :current-value="exportSelection"
         with-toggle-button
         data-cy="drawing-toolbox-export-button"
-        @click="exportDrawing()"
-    >
-        <DropdownButtonItem
-            v-for="item in exportOptions"
-            :key="item.id"
-            v-bind="item"
-            :current-value="exportSelection"
-            @select-item="onExportOptionSelected"
-        />
-    </DropdownButton>
+        @click="exportDrawing"
+        @select-item="onExportOptionSelected"
+    />
 </template>
