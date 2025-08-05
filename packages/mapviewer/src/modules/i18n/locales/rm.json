@@ -220,6 +220,8 @@
     "emapis_service_link_label": "info@blw.admin.ch",
     "embed_map": "Integrar charta",
     "energie": "Energia",
+    "energie_service_link_href": "http://www.bfe.admin.ch/geoinformation/index.html?lang=de",
+    "energie_service_link_label": "www.map.energie.admin.ch",
     "error": "Sbagl",
     "export": "Exportar",
     "export_kml": "Exportar",
