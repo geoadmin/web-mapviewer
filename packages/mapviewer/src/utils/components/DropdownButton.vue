@@ -6,9 +6,9 @@
  * inline. For that you have to add the with-toggle-button props to the component use.
  */
 import { size, useFloating } from '@floating-ui/vue'
-import { randomIntBetween } from '@geoadmin/numbers'
 import GeoadminTooltip from '@geoadmin/tooltip'
 import { onClickOutside } from '@vueuse/core'
+import { v4 as uuidv4 } from 'uuid'
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -56,7 +56,7 @@ const anchorElement = computed<HTMLElement | null>(() => {
 })
 
 // generating a unique HTML ID for this dropdown
-const uniqueHtmlId = ref<string>(`dropdown-${randomIntBetween(0, 100000)}`)
+const uniqueHtmlId = ref<string>(`dropdown-${uuidv4()}`)
 
 const { floatingStyles } = useFloating(anchorElement, dropdownMenuRef, {
     placement: 'bottom-end',
