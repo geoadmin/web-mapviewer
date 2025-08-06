@@ -7,7 +7,6 @@ import DrawingStyleColorSelector from '@/modules/infobox/components/styling/Draw
 import DrawingStyleIcon from '@/modules/infobox/components/styling/DrawingStyleIcon.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
-import DropdownButtonItem from '@/utils/components/DropdownButtonItem.vue'
 
 const { feature, iconSets } = defineProps({
     feature: {
@@ -105,16 +104,11 @@ function onCurrentIconChange(icon) {
                 </label>
                 <DropdownButton
                     :title="currentIconSetName"
+                    :items="iconSetDropdownItems"
+                    :current-value="currentIconSet"
                     data-cy="drawing-style-icon-set-button"
-                >
-                    <DropdownButtonItem
-                        v-for="item in iconSetDropdownItems"
-                        :key="item.id"
-                        v-bind="item"
-                        :current-value="currentIconSet"
-                        @select-item="changeDisplayedIconSet"
-                    />
-                </DropdownButton>
+                    @select-item="changeDisplayedIconSet"
+                />
             </div>
         </div>
         <DrawingStyleColorSelector

@@ -37,9 +37,25 @@ const { title, allowPrint, showConfirmationButtons, fluid, headerPrimary, top, h
             type: Boolean,
             default: false,
         },
+        confirmKey: {
+            type: String,
+            default: 'success',
+        },
+        cancelKey: {
+            type: String,
+            default: 'cancel',
+        },
+        confirmIcon: {
+            type: String,
+            default: null,
+        },
+        cancelIcon: {
+            type: String,
+            default: null,
+        },
         /**
-         * Hide the modal with backdrop, can be used to temporarily hide the modal without loosing its
-         * content
+         * Hide the modal with backdrop, can be used to temporarily hide the modal without loosing
+         * its content
          */
         hide: {
             type: Boolean,
@@ -69,7 +85,7 @@ function onHideParentModal(hide) {
 <template>
     <teleport to="#main-component">
         <!-- Must teleport inside main-component in order for dynamic outlines to work and to be
-        sure that it is always on top of the reset. -->
+        sure that it is always on top of the rest. -->
         <div
             v-show="!hide && !hideForPrint"
             data-cy="modal-with-backdrop"
@@ -94,11 +110,11 @@ function onHideParentModal(hide) {
                 >
                     <div
                         class="card-header d-flex align-middle"
-                        :class="{ 'bg-primary text-white border-primary': headerPrimary }"
+                        :class="{ 'bg-primary border-primary text-white': headerPrimary }"
                     >
                         <span
                             v-if="title"
-                            class="flex-grow-1 text-start text-truncate"
+                            class="flex-grow-1 text-truncate text-start"
                             data-cy="modal-with-backdrop-title"
                         >
                             {{ title }}
@@ -122,27 +138,35 @@ function onHideParentModal(hide) {
                     </div>
                     <div
                         ref="modalContent"
-                        class="card-body pt-3 ps-4 pe-4"
+                        class="card-body pe-4 ps-4 pt-3"
                         data-cy="modal-content"
                     >
                         <slot />
                         <div
                             v-if="showConfirmationButtons"
-                            class="mt-1 d-flex justify-content-end"
+                            class="d-flex justify-content-end mt-1"
                         >
                             <button
                                 class="btn btn-light me-2"
                                 data-cy="modal-cancel-button"
                                 @click.stop="onClose(false)"
                             >
-                                {{ t('cancel') }}
+                                <FontAwesomeIcon
+                                    v-if="!!cancelIcon"
+                                    :icon="cancelIcon"
+                                ></FontAwesomeIcon>
+                                {{ t(cancelKey) }}
                             </button>
                             <button
                                 class="btn btn-primary"
                                 data-cy="modal-confirm-button"
                                 @click.stop="onClose(true)"
                             >
-                                {{ t('success') }}
+                                <FontAwesomeIcon
+                                    v-if="!!confirmIcon"
+                                    :icon="confirmIcon"
+                                ></FontAwesomeIcon>
+                                {{ t(confirmKey) }}
                             </button>
                         </div>
                     </div>
