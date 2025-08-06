@@ -1,5 +1,5 @@
+import dts from 'unplugin-dts/vite'
 import { fileURLToPath, URL } from 'url'
-import dts from 'vite-plugin-dts'
 
 export default {
     resolve: {
@@ -7,5 +7,9 @@ export default {
             '@': fileURLToPath(new URL('./src', import.meta.url)),
         },
     },
-    plugins: [dts()],
+    plugins: [
+        dts({
+            bundleTypes: true,
+        }),
+    ],
 }

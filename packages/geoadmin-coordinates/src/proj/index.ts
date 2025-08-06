@@ -24,14 +24,29 @@ export * from '@/proj/CoordinatesChunk'
 /** Representation of many (available in this app) projection systems */
 export const allCoordinateSystems: CoordinateSystem[] = [LV95, LV03, WGS84, WEBMERCATOR]
 
-const constants = {
+interface GeoadminCoordinateConstants {
+    STANDARD_ZOOM_LEVEL_1_25000_MAP: number
+    SWISS_ZOOM_LEVEL_1_25000_MAP: number
+    LV95_RESOLUTIONS: number[]
+    SWISSTOPO_TILEGRID_RESOLUTIONS: number[]
+}
+
+const constants: GeoadminCoordinateConstants = {
     STANDARD_ZOOM_LEVEL_1_25000_MAP,
     SWISS_ZOOM_LEVEL_1_25000_MAP,
     LV95_RESOLUTIONS,
     SWISSTOPO_TILEGRID_RESOLUTIONS,
 }
 
-const crs = {
+export interface GeoadminCoordinateCRS {
+    LV95: LV95CoordinateSystem
+    LV03: LV03CoordinateSystem
+    WGS84: WGS84CoordinateSystem
+    WEBMERCATOR: WebMercatorCoordinateSystem
+    allCoordinateSystems: CoordinateSystem[]
+}
+
+const crs: GeoadminCoordinateCRS = {
     LV95,
     LV03,
     WGS84,

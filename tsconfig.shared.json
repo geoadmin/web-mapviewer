@@ -19,6 +19,9 @@
             "webworker"
         ],
 
+        "jsx": "preserve",
+        "jsxImportSource": "vue",
+
         // see https://vite.dev/guide/features.html#typescript-compiler-options
         "isolatedModules": true,
         "useDefineForClassFields": true,
@@ -28,6 +31,16 @@
         "paths": {
             "@/*": ["${configDir}/src/*"]
         },
-        "typeRoots": ["node_modules/@types"]
+        "typeRoots": ["node_modules/@types"],
+
+        // settings to improve ESLint performance while running on big TS monorepo
+        // see https://www.reddit.com/r/typescript/comments/1gfv564/recommendations_for_a_massive_monorepo_with_slow/
+        "incremental": true,
+        "composite": true,
+        "verbatimModuleSyntax": true,
+        "skipDefaultLibCheck": true,
+        "skipLibCheck": true,
+        // we can't (sadly) activate this option when using Vue (it breaks vue-tsc "parsing")
+        "isolatedDeclarations": false
     }
 }

@@ -33,12 +33,14 @@
         "@floating-ui/vue": "catalog:"
     },
     "devDependencies": {
+        "@microsoft/api-extractor": "catalog:",
         "@tailwindcss/vite": "catalog:",
         "@tsconfig/node22": "catalog:",
         "@types/jsdom": "catalog:",
         "@vitejs/plugin-vue": "catalog:",
         "@vue/tsconfig": "catalog:",
         "tailwindcss": "catalog:",
+        "unplugin-dts": "catalog:",
         "vite": "catalog:",
         "vite-plugin-vue-devtools": "catalog:",
         "vitest": "catalog:",

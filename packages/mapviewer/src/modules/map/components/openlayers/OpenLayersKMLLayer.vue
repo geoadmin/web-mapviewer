@@ -11,7 +11,7 @@ import { useStore } from 'vuex'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import { iconUrlProxyFy, parseKml } from '@/utils/kmlUtils.js'
+import { defaultIconUrlProxyfication, parseKml } from '@/utils/kmlUtils.js'
 
 const dispatcher = { dispatcher: 'OpenLayersKMLLayer.vue' }
 
@@ -86,7 +86,7 @@ onUnmounted(() => {
 })
 
 function iconUrlProxy(url) {
-    return iconUrlProxyFy(
+    return defaultIconUrlProxyfication(
         url,
         (url) => {
             store.dispatch('addWarnings', {

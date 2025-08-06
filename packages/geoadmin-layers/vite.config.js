@@ -1,7 +1,7 @@
 import { resolve } from 'path'
+import dts from 'unplugin-dts/vite'
 import { fileURLToPath, URL } from 'url'
 import { defineConfig } from 'vite'
-import dts from 'vite-plugin-dts'
 
 export default defineConfig({
     build: {
@@ -29,7 +29,7 @@ export default defineConfig({
     },
     plugins: [
         dts({
-            outDir: 'dist',
+            bundleTypes: true,
         }),
     ],
     test: {

@@ -3,6 +3,7 @@ import type { Options } from 'ol/source/WMTS'
 import { CoordinateSystem } from '@geoadmin/coordinates'
 import { ErrorMessage, WarningMessage } from '@geoadmin/log/Message'
 
+import type { WMSRequestCapabilities } from '@/parsers'
 import type { LayerTimeConfig } from '@/types/timeConfig'
 
 export const DEFAULT_OPACITY = 1.0
@@ -308,7 +309,7 @@ export interface KMLLayer extends Layer {
      * can be referenced inside the KML (e.g., icon, image, ...), so that they are available
      * "offline"
      */
-    internalFiles: Map<String, ArrayBuffer>
+    internalFiles: Map<string, ArrayBuffer>
 }
 
 export interface GPXLink {
@@ -386,11 +387,17 @@ export enum WMTSEncodingType {
     REST = 'REST',
 }
 
+/* Configuration describing how to request this layer's server to get feature information. */
+export interface ExternalLayerGetFeatureInfoCapability {
+    readonly baseUrl: string
+    readonly method: 'GET' | 'POST'
+    readonly formats: string[]
+}
+
 export interface ExternalLayer extends Layer {
     readonly abstract?: string
     readonly availableProjections?: CoordinateSystem[]
-    /* Configuration describing how to request this layer's server to get feature information. */
-    readonly getFeatureInfoCapability?: any // TODO type this properly
+    readonly getFeatureInfoCapability?: ExternalLayerGetFeatureInfoCapability
     readonly dimensions: ExternalLayerTimeDimension[]
     /* Current year of the time series config to use. This parameter is needed as it is set in the
        URL while the timeConfig parameter is not yet available and parse later on from the
@@ -421,6 +428,7 @@ export interface ExternalWMSLayer extends ExternalLayer {
     readonly layers?: ExternalWMSLayer[]
     /* WMS protocol version to be used when querying this server.  */
     readonly wmsVersion: string
+    readonly wmsOperations: WMSRequestCapabilities
     readonly format: 'png' | 'jpeg'
 }
 

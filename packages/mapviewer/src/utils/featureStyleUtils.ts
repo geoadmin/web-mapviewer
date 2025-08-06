@@ -108,19 +108,19 @@ export enum TextPlacements {
     UNKNOWN = 'UNKNOWN',
 }
 
-/**
- * Get Feature style from feature
- *
- */
+/** Get Feature style from feature */
 export function getStyle(olFeature: OLFeature): Style | undefined {
-    
-    const styles = olFeature.getStyleFunction()(olFeature)
+    const styleFunction = olFeature.getStyleFunction()
+    if (!styleFunction) {
+        return
+    }
+    const styles = styleFunction(olFeature)
     if (Array.isArray(styles)) {
         return styles[0]
     } else if (styles instanceof Style) {
         return styles
     }
-    return 
+    return
 }
 
 /**

@@ -1,6 +1,6 @@
 import { resolve } from 'path'
+import dts from 'unplugin-dts/vite'
 import { fileURLToPath, URL } from 'url'
-import dts from 'vite-plugin-dts'
 
 export default {
     build: {
@@ -19,7 +19,11 @@ export default {
             '@': fileURLToPath(new URL('./src', import.meta.url)),
         },
     },
-    plugins: [dts()],
+    plugins: [
+        dts({
+            bundleTypes: true,
+        }),
+    ],
     test: {
         setupFiles: ['setup-vitest.ts'],
     },

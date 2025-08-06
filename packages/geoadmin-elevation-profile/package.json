@@ -51,6 +51,7 @@
     },
     "devDependencies": {
         "@intlify/core-base": "catalog:",
+        "@microsoft/api-extractor": "catalog:",
         "@tailwindcss/vite": "catalog:",
         "@tsconfig/node22": "catalog:",
         "@types/jsdom": "catalog:",
@@ -58,6 +59,7 @@
         "@vue/tsconfig": "catalog:",
         "chai": "catalog:",
         "tailwindcss": "catalog:",
+        "unplugin-dts": "catalog:",
         "vite": "catalog:",
         "vite-plugin-vue-devtools": "catalog:",
         "vitest": "catalog:",

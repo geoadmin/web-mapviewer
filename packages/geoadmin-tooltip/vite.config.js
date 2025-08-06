@@ -1,10 +1,9 @@
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
+import dts from 'unplugin-dts/vite'
 import { fileURLToPath, URL } from 'url'
-import dts from 'vite-plugin-dts'
 import vueDevTools from 'vite-plugin-vue-devtools'
-
 
 export default {
     build: {
@@ -18,7 +17,7 @@ export default {
                 exports: 'named',
                 globals: {
                     vue: 'Vue',
-                }
+                },
             },
         },
     },
@@ -31,6 +30,9 @@ export default {
         tailwindcss(),
         vue(),
         vueDevTools(),
-        dts(),
+        dts({
+            bundleTypes: true,
+            processor: 'vue',
+        }),
     ],
 }

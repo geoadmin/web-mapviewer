@@ -1,28 +1,24 @@
 import { resolve } from 'path'
-import { defineConfig } from 'vite'
-import dts from 'vite-plugin-dts'
+import dts from 'unplugin-dts/vite'
 
-export default defineConfig(({ mode }) => {
-    return {
-        build: {
-            lib: {
-                entry: {
-                    index: resolve(__dirname, 'src/index.ts'),
-                    Message: resolve(__dirname, 'src/Message.ts'),
-                },
-                name: '@geoadmin/log',
+export default {
+    build: {
+        lib: {
+            entry: {
+                index: resolve(__dirname, 'src/index.ts'),
+                Message: resolve(__dirname, 'src/Message.ts'),
             },
-            rollupOptions: {
-                output: {
-                    exports: 'named',
-                },
-            },
-            minify: mode !== 'development',
+            name: '@geoadmin/log',
         },
-        plugins: [
-            dts({
-                outDir: 'dist',
-            }),
-        ],
-    }
-})
+        rollupOptions: {
+            output: {
+                exports: 'named',
+            },
+        },
+    },
+    plugins: [
+        dts({
+            bundleTypes: true,
+        }),
+    ],
+}

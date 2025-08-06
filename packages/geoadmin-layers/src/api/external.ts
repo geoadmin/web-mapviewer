@@ -1,7 +1,8 @@
 import log from '@geoadmin/log'
 import axios from 'axios'
 
-import { ExternalWMSCapabilitiesParser, ExternalWMTSCapabilitiesParser } from '@/parsers'
+import { ExternalWMTSCapabilitiesParser, type WMSCapabilitiesResponse } from '@/parsers'
+import ExternalWMSCapabilitiesParser from '@/parsers/ExternalWMSCapabilitiesParser'
 import { CapabilitiesError } from '@/validation'
 
 /** Timeout for accessing external server in [ms] */
@@ -48,7 +49,7 @@ export function setWmsGetMapParams(url: URL, layer: string, crs: string, style: 
 export async function readWmsCapabilities(
     baseUrl: string,
     language?: string
-): Promise<ExternalWMSCapabilitiesParser | undefined> {
+): Promise<WMSCapabilitiesResponse | undefined> {
     const url = setWmsGetCapabilitiesParams(new URL(baseUrl), language)
     log.debug(`Read WMTS Get Capabilities: ${url.toString()}`)
     let response = null
@@ -67,22 +68,17 @@ export async function readWmsCapabilities(
         throw new CapabilitiesError(msg, 'network_error')
     }
 
-    return parseWmsCapabilities(response.data, url)
+    return parseWmsCapabilities(response.data)
 }
 
 /**
  * Parse WMS Get Capabilities string
  *
  * @param content Input content to parse
- * @param originUrl Origin URL of the content, this is used as default GetCapabilities URL if not
- *   found in the Capabilities
  */
-export function parseWmsCapabilities(
-    content: string,
-    originUrl: URL
-): ExternalWMSCapabilitiesParser {
+export function parseWmsCapabilities(content: string): WMSCapabilitiesResponse {
     try {
-        return new ExternalWMSCapabilitiesParser(content, originUrl)
+        return ExternalWMSCapabilitiesParser.parse(content)
     } catch (error: any) {
         throw new CapabilitiesError(
             `Failed to parse WMS capabilities: ${error?.toString()}`,

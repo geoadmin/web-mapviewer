@@ -21,7 +21,7 @@ import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleE
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import { MapPopoverMode } from '@/modules/map/components/MapPopover.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
-import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle'
+import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle.js'
 import useVectorLayer from '@/modules/map/components/openlayers/utils/useVectorLayer.composable'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'

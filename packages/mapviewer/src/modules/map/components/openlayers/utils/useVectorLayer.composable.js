@@ -4,7 +4,7 @@ import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
 import { onUnmounted, toValue, watchEffect } from 'vue'
 
-import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle'
+import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle.js'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 
 /**

@@ -28,6 +28,11 @@
         "generate-types": "vue-tsc --declaration",
         "type-check": "vue-tsc -p tsconfig.json"
     },
+    "devDependencies": {
+        "@microsoft/api-extractor": "catalog:",
+        "unplugin-dts": "catalog:",
+        "vite": "catalog:"
+    },
     "peerDependencies": {
         "proj4": "catalog:"
     }

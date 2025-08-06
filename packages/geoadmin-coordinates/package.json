@@ -32,9 +32,13 @@
         "lodash": "catalog:"
     },
     "devDependencies": {
+        "@microsoft/api-extractor": "catalog:",
         "@turf/turf": "catalog:",
         "@types/lodash": "catalog:",
-        "chai": "catalog:"
+        "chai": "catalog:",
+        "unplugin-dts": "catalog:",
+        "vite": "catalog:",
+        "vitest": "catalog:"
     },
     "peerDependencies": {
         "proj4": "catalog:"
