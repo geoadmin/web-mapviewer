@@ -11,6 +11,7 @@ import {
     parseWmsCapabilities,
     parseWmtsCapabilities,
 } from '@/api/external'
+import { ExternalWMSCapabilitiesParser } from '@/parsers'
 import { guessExternalLayerUrl, isWmsGetCap, isWmtsGetCap } from '@/utils/externalLayerUtils'
 import { CapabilitiesError } from '@/validation'
 
@@ -46,8 +47,7 @@ function handleFileContent(
 
 function handleWms(content: string, fullUrl: URL, projection: CoordinateSystem): ParsedExternalWMS {
     let wmsMaxSize
-    const parser = parseWmsCapabilities(content, fullUrl)
-    const capabilities = parser.capabilities
+    const capabilities = ExternalWMSCapabilitiesParser.parse(content, fullUrl)
     if (capabilities.Service.MaxWidth && capabilities.Service.MaxHeight) {
         wmsMaxSize = {
             width: capabilities.Service.MaxWidth,
@@ -55,7 +55,13 @@ function handleWms(content: string, fullUrl: URL, projection: CoordinateSystem):
         }
     }
     return {
-        layers: parser.getAllExternalLayerObjects(projection, 1, true),
+        layers: ExternalWMSCapabilitiesParser.getAllExternalLayers(capabilities, {
+            outputProjection: projection,
+            initialValues: {
+                opacity: 1,
+                isVisible: true,
+            },
+        }),
         wmsMaxSize,
     }
 }

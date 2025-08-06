@@ -1,3 +1,5 @@
+import type OLFeature from 'ol/Feature'
+
 import { Style } from 'ol/style'
 import IconStyle from 'ol/style/Icon'
 
@@ -12,25 +14,21 @@ import {
     highlightPointStyle,
     hoveredLinePolygonStyle,
     hoveredPointStyle,
-} from '@/utils/styleUtils.js'
+} from '@/utils/styleUtils'
 
 /** @enum */
-export const OpenLayersMarkerStyles = {
-    BALLOON: 'balloon',
-    POSITION: 'position',
-    FEATURE: 'feature',
-    HIDDEN: 'hidden',
-    BOWL: 'bowl',
-    CIRCLE: 'circle',
-    CROSS: 'cross',
-    POINT: 'point',
+export enum OpenLayersMarkerStyles {
+    BALLOON = 'balloon',
+    POSITION = 'position',
+    FEATURE = 'feature',
+    HIDDEN = 'hidden',
+    BOWL = 'bowl',
+    CIRCLE = 'circle',
+    CROSS = 'cross',
+    POINT = 'point',
 }
 
-/**
- * @param {OpenLayersMarkerStyles} markerStyle
- * @returns {Image | null}
- */
-function imageForMarkerStyle(markerStyle) {
+function imageForMarkerStyle(markerStyle: OpenLayersMarkerStyles): string | undefined {
     switch (markerStyle) {
         case OpenLayersMarkerStyles.BOWL:
             return bowlImage
@@ -43,10 +41,9 @@ function imageForMarkerStyle(markerStyle) {
         case OpenLayersMarkerStyles.POINT:
             return pointImage
     }
-    return null
 }
 
-export function getMarkerStyle(markerStyle) {
+export function getMarkerStyle(markerStyle: OpenLayersMarkerStyles): Style {
     switch (markerStyle) {
         case OpenLayersMarkerStyles.POSITION:
             return geolocationPointStyle
@@ -66,8 +63,6 @@ export function getMarkerStyle(markerStyle) {
             return new Style({
                 image: new IconStyle({
                     anchor: [0.5, 0.5],
-                    anchorXUnits: 'fraction',
-                    anchorYUnits: 'fraction',
                     src: imageForMarkerStyle(markerStyle),
                 }),
             })
@@ -78,13 +73,15 @@ export function getMarkerStyle(markerStyle) {
         case OpenLayersMarkerStyles.HIDDEN:
         default:
             return new Style({
-                visible: false,
+                image: new IconStyle({
+                    opacity: 0,
+                }),
             })
     }
 }
 
-export function highlightFeatureStyle(olFeature) {
-    const geometryType = olFeature.get('geometry').getType()
+export function highlightFeatureStyle(olFeature: OLFeature): Style | undefined {
+    const geometryType = olFeature.getGeometry()?.getType()
     const isHovered = !!olFeature.get('isHovered')
     const isCurrentSegment = !!olFeature.get('isCurrentSegment')
     switch (geometryType) {
@@ -94,11 +91,13 @@ export function highlightFeatureStyle(olFeature) {
         case 'MultiPolygon':
         case 'Circle':
         case 'GeometryCollection':
-            return isHovered || isCurrentSegment ? hoveredLinePolygonStyle : highlightedLinePolygonStyle
+            return isHovered || isCurrentSegment
+                ? hoveredLinePolygonStyle
+                : highlightedLinePolygonStyle
         case 'Point':
         case 'MultiPoint':
             return isHovered || isCurrentSegment ? hoveredPointStyle : highlightPointStyle
         default:
-            return null
+            return
     }
 }

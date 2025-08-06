@@ -35,6 +35,11 @@ declare global {
     }
 }
 
+declare module '*.png' {
+    const src: string
+    export default src
+}
+
 // TODO remove after https://github.com/geoblocks/mapfishprint/pull/45 has been merged and released
 declare module '@geoblocks/mapfishprint' {
     /** Either icons or classes should be defined */

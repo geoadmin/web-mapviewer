@@ -8,7 +8,7 @@ import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-ind
 import OpenLayersAccuracyCircle from '@/modules/map/components/openlayers/OpenLayersAccuracyCircle.vue'
 import OpenLayersMarker from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
 import OpenLayersVisionCone from '@/modules/map/components/openlayers/OpenLayersVisionCone.vue'
-import { OpenLayersMarkerStyles } from '@/modules/map/components/openlayers/utils/markerStyle'
+import { OpenLayersMarkerStyles } from '@/modules/map/components/openlayers/utils/markerStyle.js'
 import useDeviceOrientation from '@/modules/map/components/openlayers/utils/useDeviceOrientation.composable'
 
 const OpenLayersDeviceOrientationDebugInfo = defineAsyncComponent(

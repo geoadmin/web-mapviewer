@@ -65,12 +65,13 @@
         "vue": "catalog:"
     },
     "devDependencies": {
+        "@microsoft/api-extractor": "catalog:",
         "@types/lodash": "catalog:",
         "@types/luxon": "catalog:",
         "@types/openlayers": "catalog:",
         "chai": "catalog:",
+        "unplugin-dts": "catalog:",
         "vite": "catalog:",
-        "vite-plugin-dts": "catalog:",
         "vite-tsconfig-paths": "catalog:",
         "vitest": "catalog:",
         "vue-tsc": "catalog:"

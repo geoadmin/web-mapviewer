@@ -133,7 +133,15 @@ export function reprojectAndRound(
     ) as SingleCoordinate
 }
 
-const coordinates = {
+export interface GeoadminCoordinatesUtils {
+    toRoundedString: typeof toRoundedString
+    wrapXCoordinates: typeof wrapXCoordinates
+    unwrapGeometryCoordinates: typeof unwrapGeometryCoordinates
+    removeZValues: typeof removeZValues
+    reprojectAndRound: typeof reprojectAndRound
+}
+
+const coordinates: GeoadminCoordinatesUtils = {
     toRoundedString,
     wrapXCoordinates,
     unwrapGeometryCoordinates,

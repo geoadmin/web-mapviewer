@@ -86,6 +86,8 @@ export default defineConfigWithVueTs(
                     argsIgnorePattern: '^(_|dispatcher)',
                 },
             ],
+            '@typescript-eslint/consistent-type-exports': 'error',
+            '@typescript-eslint/no-import-type-side-effects': 'error',
         },
     },
     {

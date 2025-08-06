@@ -1,7 +1,8 @@
+import type { KMLLayer } from '@geoadmin/layers'
 import type { Extent as OLExtent } from 'ol/extent'
 import type { Size } from 'ol/size'
 
-import { WGS84 } from '@geoadmin/coordinates'
+import { CoordinateSystem, WGS84 } from '@geoadmin/coordinates'
 import { KmlStyle } from '@geoadmin/layers'
 import { layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
@@ -22,7 +23,7 @@ import Style from 'ol/style/Style'
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class.js'
 import { extractOlFeatureCoordinates } from '@/api/features/features.api.js'
 import { proxifyUrl } from '@/api/file-proxy.api'
-import { DEFAULT_TITLE_OFFSET, DrawingIcon } from '@/api/icon.api'
+import { DEFAULT_TITLE_OFFSET, DrawingIcon, type DrawingIconSet, generateURL } from '@/api/icon.api'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { LOCAL_OR_INTERNAL_URL_REGEX } from '@/config/regex.config'
 import {
@@ -30,6 +31,8 @@ import {
     allStylingTextPlacements,
     calculateTextOffsetFromPlacement,
     calculateTextXYOffset,
+    type FeatureStyleColor,
+    type FeatureStyleSize,
     geoadminStyleFunction,
     getFeatureStyleColor,
     getStyle,
@@ -116,7 +119,7 @@ export function getFeatureDescriptionMap(content: string): Map<string, string> {
  * @param kmlFeature Open layer kml feature
  * @returns KML feature type or null if this is not a geoadmin kml feature
  */
-export function getFeatureType(kmlFeature: OLFeature): string | undefined {
+export function getFeatureType(kmlFeature: OLFeature): EditableFeatureTypes | undefined {
     let featureType = kmlFeature.get('type')?.toUpperCase() // only set by geoadmin's kml
     const kmlFeatureId = kmlFeature.getId()
     if (!featureType && kmlFeatureId !== undefined) {
@@ -209,7 +212,10 @@ interface IconArgs {
  * @param url URL string
  * @returns Returns the parsed URL or null in case of invalid non recognize url
  */
-export function parseIconUrl(url: string): IconArgs | undefined {
+export function parseIconUrl(url?: string): IconArgs | undefined {
+    if (!url) {
+        return
+    }
     // legacy icon urls pattern
     // default set := /color/{r},{g},{b}/{image}-{size}@{scale}x.png
     // default set legacy versioned url := /{version}/img/maki/{image}-{size}@{scale}x.png
@@ -272,14 +278,24 @@ function generateIconFromStyle(iconStyle: IconStyle, iconArgs: IconArgs): Drawin
         anchor[0] /= size[0]
         anchor[1] /= size[1]
     } catch (error) {
-        log.error(`Failed to compute icon anchor: anchor=${anchor.join(',')}, size=${size.join(',')}`, error)
+        log.error(
+            `Failed to compute icon anchor: anchor=${anchor.join(',')}, size=${size.join(',')}`,
+            error
+        )
         anchor = [0, 0]
     }
 
     if (!url || !anchor) {
         return
     }
-    return new DrawingIcon(iconArgs.name, url, url, iconArgs.set, null, anchor, size)
+    return {
+        name: iconArgs.name,
+        imageURL: url,
+        imageTemplateURL: url,
+        iconSetName: iconArgs.set,
+        anchor: anchor as [number, number],
+        size: size as [number, number],
+    }
 }
 
 /**
@@ -287,15 +303,15 @@ function generateIconFromStyle(iconStyle: IconStyle, iconArgs: IconArgs): Drawin
  *
  * This returns null if the icon is not a geoadmin icon, but returns a default icon if the icon
  * cannot be found in the icon list.
- *
- * @param {IconArgs} iconArgs Geoadmin icon arguments
- * @param {IconStyle | null} iconStyle Ol icon style
- * @param {DrawingIconSet[] | null} availableIconSets
- * @returns {DrawingIcon | null} Return the drawing icon or null in case of non geoadmin icon
  */
-export function getIcon(iconArgs, iconStyle, availableIconSets, iconNotFoundCallback = null) {
-    if (!iconArgs) {
-        return null
+export function getIcon(
+    iconArgs: IconArgs,
+    iconStyle: IconStyle | undefined,
+    availableIconSets: DrawingIconSet[] = [],
+    iconNotFoundCallback?: () => void
+): DrawingIcon | undefined {
+    if (!iconArgs || !iconStyle) {
+        return
     }
 
     // Here if we have already the icon sets and can find the icon within the available sets
@@ -340,11 +356,8 @@ export function getIcon(iconArgs, iconStyle, availableIconSets, iconNotFoundCall
  * Get icon Size
  *
  * Default to SMALL if not found in style
- *
- * @param {IconStyle} iconStyle
- * @returns {FeatureStyleSize} Returns the icon size
  */
-function getIconSize(iconStyle) {
+function getIconSize(iconStyle: IconStyle): FeatureStyleSize {
     const iconScale = iconStyle.getScale()
     if (iconScale) {
         return allStylingSizes.find((size) => size.iconScale === iconScale) ?? SMALL
@@ -355,53 +368,76 @@ function getIconSize(iconStyle) {
 /**
  * Get the fill color from icon arguments or style
  *
- * @param {Style} style
- * @param {ol/geom/Type} geometryType
- * @param {IconArg} iconArgs
- * @returns {FeatureStyleColor} Returns fill color (default RED if not found in style)
+ * @returns Returns fill color (default RED if not found in style)
  */
-export function getFillColor(style, geometryType, iconArgs) {
-    // Fillcolor can be either the color of the stroke or the fill color or the color of the icon.
+export function getFillColor(
+    style: Style,
+    geometryType: string,
+    iconArgs?: IconArgs
+): FeatureStyleColor {
+    // Fill color can be either the color of the stroke or the fill color or the color of the icon.
     if (geometryType === 'Point' && iconArgs?.color) {
         return getFeatureStyleColor([iconArgs.color.r, iconArgs.color.g, iconArgs.color.b])
-    } else if (['LineString', 'Point'].includes(geometryType) && style.getStroke()) {
-        return getFeatureStyleColor(style.getStroke().getColor())
-    } else if (geometryType === 'Polygon' && style.getFill()) {
-        return getFeatureStyleColor(style.getFill().getColor())
-    } else {
-        return RED
     }
+
+    const stroke = style.getStroke()
+    if (stroke && ['LineString', 'Point'].includes(geometryType)) {
+        return getFeatureStyleColor(stroke.getColor())
+    }
+
+    const fill = style.getFill()
+    if (fill && geometryType === 'Polygon' && style.getFill()) {
+        return getFeatureStyleColor(fill.getColor())
+    }
+
+    return RED
 }
 
 /**
  * Get the geoadmin editable feature for the given open layer KML feature
  *
- * @param {Feature} kmlFeature Open layer KML feature
- * @param {DrawingIconSet[]} availableIconSets
- * @returns {EditableFeature | null} Returns EditableFeature or null if this is not a geoadmin
- *   feature
+ * @returns Returns EditableFeature or undefined if this is not a geoadmin feature
  */
-export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) {
-    if (!(kmlFeature instanceof Feature)) {
-        log.error(`Cannot generate EditableFeature from KML feature`, kmlFeature)
-        return null
+export function getEditableFeatureFromKmlFeature(
+    kmlFeature: OLFeature,
+    availableIconSets: DrawingIconSet[]
+): EditableFeature | undefined {
+    if (!kmlFeature) {
+        log.error({
+            title: 'kmlUtils / getEditableFeatureFromKmlFeature',
+            messages: [`Cannot generate EditableFeature from KML feature`, kmlFeature],
+        })
+        return
     }
     const featureType = getFeatureType(kmlFeature)
     if (!featureType) {
-        log.debug('External KML detected, cannot modify it to an EditableFeature')
-        return null
+        log.debug({
+            title: 'kmlUtils / getEditableFeatureFromKmlFeature',
+            messages: ['External KML detected, cannot modify it to an EditableFeature', kmlFeature],
+        })
+        return
     }
     // The kml parser automatically created a style based on the "<style>" part of the feature in the kml file.
     // We will now analyse this style to retrieve all information we need to generate the editable feature.
     const style = getStyle(kmlFeature)
     if (!style) {
-        log.error('Parsing error: Could not get the style from the ol Feature', kmlFeature)
-        return null
+        log.error({
+            title: 'kmlUtils / getEditableFeatureFromKmlFeature',
+            messages: ['Parsing error: Could not get the style from the ol Feature', kmlFeature],
+        })
+        return
     }
     const featureId = kmlFeature.getId()
+    if (!featureId) {
+        log.debug({
+            title: 'kmlUtils / getEditableFeatureFromKmlFeature',
+            messages: ['No feature ID found, could not parse feature', kmlFeature],
+        })
+        return
+    }
 
     // facultative on marker, never present on measure and linepolygon
-    const title = kmlFeature.get('name') ?? ''
+    const title: string = kmlFeature.get('name') ?? ''
     const textScale = getTextScale(style)
     const textSize = getTextSize(textScale)
     const textColor = getTextColor(style)
@@ -410,21 +446,36 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
     const description = kmlFeature.get('description') ?? ''
 
     const iconStyle = getIconStyle(style)
-    const iconArgs = iconStyle ? parseIconUrl(iconStyle.getSrc()) : null
-    if (iconArgs?.isLegacy) {
-        // On the legacy drawing, openlayer used the scale from xml as is, but since openlayer
-        // version 6.7, the scale has been normalized to 32 pixels, therefore we need to add the
-        // 32 pixel scale factor below
-        // scale_factor := iconStyle.getSize()[0] / 32
-        // iconStyle.getSize()[0] = 48 (always 48 pixel on old viewer)
-        // scale_factor = 48/32 => 1.5
-        iconStyle.setScale(iconStyle.getScale() * LEGACY_ICON_XML_SCALE_FACTOR)
+    let iconArgs: IconArgs | undefined
+    if (iconStyle) {
+        iconArgs = parseIconUrl(iconStyle.getSrc())
+        if (iconArgs?.isLegacy) {
+            const legacyScale = iconStyle.getScale()
+            // On the legacy drawing, OpenLayer used the scale from XML as is, but since OpenLayer
+            // version 6.7 the scale has been normalized to 32 pixels. We therefore need to add the
+            // 32-pixel scale factor below.
+            // Scale factor:= iconStyle.getSize()[0] / 32
+            // iconStyle.getSize()[0] = 48 (always 48 pixel on old viewer)
+            // scale_factor = 48/32 => 1.5
+            if (Array.isArray(legacyScale)) {
+                iconStyle.setScale(legacyScale.map((value) => value * LEGACY_ICON_XML_SCALE_FACTOR))
+            } else {
+                iconStyle.setScale(legacyScale * LEGACY_ICON_XML_SCALE_FACTOR)
+            }
+        }
     }
     const icon = iconArgs ? getIcon(iconArgs, iconStyle, availableIconSets) : null
     const iconSize = iconStyle ? getIconSize(iconStyle) : null
-    const fillColor = getFillColor(style, kmlFeature.getGeometry().getType(), iconArgs)
 
-    const geometry = new GeoJSON().writeGeometryObject(kmlFeature.getGeometry())
+    const featureGeometry = kmlFeature.getGeometry()
+    const featureGeometryType = featureGeometry?.getType()
+    if (!featureGeometry || !featureGeometryType) {
+        return
+    }
+
+    const fillColor = getFillColor(style, featureGeometryType, iconArgs)
+
+    const geometry = new GeoJSON().writeGeometryObject(featureGeometry)
     const coordinates = extractOlFeatureCoordinates(kmlFeature)
     const textPlacement = detectTextPlacement(
         textScale,
@@ -446,19 +497,8 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
         // because for the url translation we need to have the available iconsets which we don't
         // always have when using iconUrlFunction
         log.warn(`Legacy icons style detected overwritting the style with the new icon url`)
-        const newIconStyle = new IconStyle({
-            opacity: iconStyle.getOpacity(),
-            rotation: iconStyle.getRotation(),
-            scale: iconStyle.getScale(),
-            rotateWithView: iconStyle.getRotateWithView(),
-            displacement: iconStyle.getDisplacement(),
-            declutterMode: iconStyle.getDeclutterMode(),
-            anchor: iconStyle.getAnchor(),
-            anchorOrigin: iconStyle.anchorOrigin,
-            anchorXUnits: iconStyle.anchorXUnits,
-            anchorYUnits: iconStyle.anchorYUnits,
-            src: generateURL(icon, fillColor),
-        })
+        const newIconStyle = iconStyle.clone()
+        newIconStyle.setSrc(generateURL(icon, fillColor))
         style.setImage(newIconStyle)
     }
 
@@ -517,7 +557,19 @@ function detectTextPlacement(textScale, iconScale, anchor, iconSize, text, curre
 }
 
 const nonGeoadminIconUrls = new Set()
-export function iconUrlProxyFy(url, corsIssueCallback = null, httpIssueCallBack = null) {
+
+export type iconProxyficationErrorCallback = (url: string, error?: any) => void
+export type iconUrlProxyficationFunction = (
+    url: string,
+    corsIssueCallback?: iconProxyficationErrorCallback,
+    httpIssueCallback?: iconProxyficationErrorCallback
+) => string
+
+export function defaultIconUrlProxyfication(
+    url: string,
+    corsIssueCallback?: iconProxyficationErrorCallback,
+    httpIssueCallBack?: iconProxyficationErrorCallback
+): string {
     // We only proxyfy URL that are not from our backend.
     if (!LOCAL_OR_INTERNAL_URL_REGEX.test(url)) {
         if (url.startsWith('http:') && httpIssueCallBack) {
@@ -553,16 +605,21 @@ export function iconUrlProxyFy(url, corsIssueCallback = null, httpIssueCallBack 
     return url
 }
 
-function handleIconUrl(url, iconUrlProxy = iconUrlProxyFy, files = new Map()) {
-    // Check if the url is relative to the web application
-    // To do this we take the location origin with the path, making sure that the path is the folder
-    // and not a file.
+/**
+ * Check if the url is relative to the web application. To do this, we take the location origin with
+ * the path, making sure that the path is the folder and not a file.
+ */
+function handleIconUrl(
+    url: string,
+    iconUrlProxy: iconUrlProxyficationFunction = defaultIconUrlProxyfication,
+    filesInsideKML: Map<string, ArrayBuffer> = new Map()
+): string {
     const localPrefix = `${location.origin}${location.pathname.replace(/[^/]+$/, '')}`
     if (url.startsWith(localPrefix)) {
-        // url is relative file, try to get it from the kml link files
+        // URL is a relative file, try to get it from the KML link files
         const file = url.replace(localPrefix, '')
-        if (files.has(file)) {
-            return URL.createObjectURL(new Blob([files.get(file)]))
+        if (filesInsideKML.has(file) && filesInsideKML.get(file) !== undefined) {
+            return URL.createObjectURL(new Blob([filesInsideKML.get(file) as ArrayBuffer]))
         }
         return url
     } else if (/^https?:\/\//.test(url)) {
@@ -575,15 +632,13 @@ function handleIconUrl(url, iconUrlProxy = iconUrlProxyFy, files = new Map()) {
     return url
 }
 
-/**
- * Parses a KML's data into OL Features
- *
- * @param {KMLLayer} kmlLayer KML layer to parse
- * @param {CoordinateSystem} projection Projection to use for the OL Feature
- * @param {DrawingIconSet[]} iconSets Icon sets to use for EditabeFeature deserialization
- * @returns {ol/Feature[]} List of OL Features
- */
-export function parseKml(kmlLayer, projection, iconSets, iconUrlProxy = iconUrlProxyFy) {
+/** Parses a KML's data into OL Features */
+export function parseKml(
+    kmlLayer: KMLLayer,
+    projection: CoordinateSystem,
+    iconSets: DrawingIconSet[],
+    iconUrlProxy: iconUrlProxyficationFunction = defaultIconUrlProxyfication
+) {
     const kmlData = kmlLayer.kmlData
     const files = kmlLayer.internalFiles
     const features = new KML({

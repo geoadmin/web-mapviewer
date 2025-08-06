@@ -1,9 +1,11 @@
-import log from '@geoadmin/log'
+import log, { LogPreDefinedColor } from '@geoadmin/log'
 import axios from 'axios'
 import { fromString } from 'ol/color'
 
+import type { FeatureStyleColor } from '@/utils/featureStyleUtils'
+
 import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'
-import { calculateTextOffset, FeatureStyleColor, MEDIUM, RED } from '@/utils/featureStyleUtils.ts'
+import { calculateTextOffset, MEDIUM, RED } from '@/utils/featureStyleUtils'
 
 /** Default Icon parameters for the URL. */
 export const DEFAULT_ICON_URL_PARAMS = {
@@ -32,9 +34,13 @@ export const DEFAULT_MARKER_TITLE_OFFSET = calculateTextOffset(
  * @param icon
  * @param iconColor The color to use for this icon's URL
  * @param iconScale The scale to use for this icon's URL
- * @returns  A full URL to this icon on the service-icons backend
+ * @returns A full URL to this icon on the service-icons backend
  */
-export function generateURL(icon: DrawingIcon, iconColor: FeatureStyleColor = RED, iconScale: number = DEFAULT_ICON_URL_PARAMS.scale) {
+export function generateURL(
+    icon: DrawingIcon,
+    iconColor: FeatureStyleColor = RED,
+    iconScale: number = DEFAULT_ICON_URL_PARAMS.scale
+) {
     const rgb = fromString(iconColor.fill)
     return icon.imageTemplateURL
         .replace('{icon_set_name}', icon.iconSetName)
@@ -76,8 +82,7 @@ export interface DrawingIconSet {
     icons: DrawingIcon[]
 }
 
-/** Offset to apply to an icon when placed on a coordinate ([x,y]
- format) */
+/** Offset to apply to an icon when placed on a coordinate ([x,y] format) */
 type DrawingIconAnchor = [number, number]
 /** Size of the icons in pixel assuming a scaling factor of 1 */
 type DrawingIconSize = [number, number]
@@ -92,16 +97,16 @@ export interface DrawingIcon {
     name: string
     /** URL to the image of this icon itself (with default size and color) */
     imageURL: string
-    /** URL template where size and color can be defined (by
-     replacing {icon_scale} and {{r},{g},{b}} respectively */
+    /**
+     * URL template where size and color can be defined (by replacing {icon_scale} and {{r},{g},{b}}
+     * respectively
+     */
     imageTemplateURL: string
-    /** Name of the icon set in which belongs this icon (an icon can only
-     belong to one icon set) */
+    /** Name of the icon set in which belongs this icon (an icon can only belong to one icon set) */
     iconSetName: string
     /** Description of icon in all available languages */
-    description: string
-    /** Offset to apply to this icon when placed on a coordinate ([x,y]
-     format) */
+    description?: string
+    /** Offset to apply to this icon when placed on a coordinate ([x,y] format) */
     anchor: DrawingIconAnchor
     size: DrawingIconSize
 }
@@ -113,55 +118,63 @@ export interface DrawingIcon {
  * the backend after that)
  */
 export async function loadAllIconSetsFromBackend(): Promise<DrawingIconSet[]> {
-    const setPromises = []
-    const sets = []
+    const sets: DrawingIconSet[] = []
     try {
         const rawSets = (await axios.get(`${getViewerDedicatedServicesBaseUrl()}icons/sets`)).data
             .items
         for (const rawSet of rawSets) {
-            const iconSet: DrawingIconSet = {
-                name: rawSet.name as string,
+            const iconsURL: string = rawSet.icons_url
+            const iconSetName: string = rawSet.name
+
+            sets.push({
+                name: iconSetName,
                 isColorable: !!rawSet.colorable,
-                iconsURL: rawSet.icons_url as string,
+                iconsURL,
                 templateURL: rawSet.template_url as string,
                 hasDescription: !!rawSet.has_description,
                 language: rawSet.language as string,
-                icons: []
-            }
-            // retrieving all icons for this icon set
-            setPromises.push(loadIconsForIconSet(iconSet))
-            sets.push(iconSet)
+                // retrieving all icons for this icon set
+                icons: await loadIconsForIconSet(iconsURL, iconSetName),
+            })
         }
-        await Promise.all(setPromises)
     } catch (error) {
-        log.error('Failed to retrieve icons sets', error)
+        log.error({
+            title: 'Icon API',
+            titleBackgroundColor: LogPreDefinedColor.Lime,
+            messages: ['Failed to retrieve icons sets', error],
+        })
     }
     return sets
 }
 
-/**
- * Loads all icons from an icon set and attach them to the icon set
- *
- * @param {DrawingIconSet} iconSet
- * @returns {Promise} Promise resolving when all icons have been attached to the icon set
- */
-async function loadIconsForIconSet(iconSet) {
+/** Loads all icons from an icon set and attach them to the icon set */
+async function loadIconsForIconSet(
+    iconSetURL: string,
+    iconSetName: string
+): Promise<DrawingIcon[]> {
+    const icons = []
     try {
-        const rawIcons = await axios.get(iconSet.iconsURL)
+        const rawIcons = await axios.get(iconSetURL)
 
-        iconSet.icons = rawIcons.data.items.map(
-            (rawIcon) =>
-                new DrawingIcon(
-                    rawIcon.name,
-                    rawIcon.url,
-                    rawIcon.template_url,
-                    iconSet.name,
-                    rawIcon.description,
-                    rawIcon.anchor,
-                    rawIcon.size
-                )
+        icons.push(
+            ...rawIcons.data.items.map(
+                (rawIcon: any): DrawingIcon => ({
+                    name: rawIcon.name,
+                    imageURL: rawIcon.url,
+                    imageTemplateURL: rawIcon.template_url,
+                    iconSetName,
+                    description: rawIcon.description,
+                    anchor: rawIcon.anchor,
+                    size: rawIcon.size,
+                })
+            )
         )
     } catch (error) {
-        log.error('Error getting icons for icon set', iconSet, error)
+        log.error({
+            title: 'Icon API',
+            titleBackgroundColor: LogPreDefinedColor.Lime,
+            messages: ['Error getting icons for icon set', iconSetName, iconSetURL, error],
+        })
     }
+    return icons
 }

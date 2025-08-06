@@ -29,9 +29,10 @@
         "@geoadmin/log": "workspace:*"
     },
     "devDependencies": {
+        "@microsoft/api-extractor": "catalog:",
         "chai": "catalog:",
+        "unplugin-dts": "catalog:",
         "vite": "catalog:",
-        "vite-plugin-dts": "catalog:",
         "vitest": "catalog:",
         "vue-tsc": "catalog:"
     }
