@@ -250,8 +250,11 @@ let lastIdentifiedFeatures = []
  *
  * Features IDs will start from 1 + offset (if an offset is given) and coordinates will be randomly
  * selected within the LV95 extent (or within the selection box, if one is given).
+ *
+ * @param coordinates {[Number, Number] | undefined} : if this is set, the coordinates of each
+ *   feature generated is set to the given coordinates rather than random coordinates.
  */
-const addFeatureIdentificationIntercepts = () => {
+export function addFeatureIdentificationIntercepts(coordinates) {
     let featureTemplate = {}
     let featureDetailTemplate = {}
     cy.fixture('features/features.fixture').then((featuresFixture) => {
@@ -356,7 +359,7 @@ const addFeatureIdentificationIntercepts = () => {
                     featureDetail.bbox = [...coordinate, ...coordinate]
                     featureDetail.geometry.coordinates = [coordinate]
                 } else {
-                    const randomCoordinate = [
+                    const randomCoordinate = coordinates ?? [
                         Cypress._.random(LV95.bounds.lowerX, LV95.bounds.upperX),
                         Cypress._.random(LV95.bounds.lowerY, LV95.bounds.upperY),
                     ]
