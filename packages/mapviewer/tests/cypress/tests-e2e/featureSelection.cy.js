@@ -5,6 +5,8 @@ import proj4 from 'proj4'
 import { DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION } from '@/config/map.config'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 
+import { addFeatureIdentificationIntercepts } from '../support/intercepts'
+
 registerProj4(proj4)
 
 describe('Testing the feature selection', () => {
@@ -84,6 +86,7 @@ describe('Testing the feature selection', () => {
             goToMapViewWithFeatureSelection()
             checkFeatures()
             checkFeatureInfoPosition(FeatureInfoPositions.NONE)
+
             // --------------------------------- WIDTH < 400 pixels ---------------------------------------
             cy.log(
                 'When using a viewport with width inferior to 400 pixels, we should always go to infobox when featureInfo is not None.'
@@ -96,6 +99,42 @@ describe('Testing the feature selection', () => {
             goToMapViewWithFeatureSelection('TOoLtIp')
             checkFeatures()
             checkFeatureInfoPosition(FeatureInfoPositions.BOTTOMPANEL)
+        })
+        it('Centers correctly the map when pre-selected features are present', () => {
+            cy.log('We ensure that when no center is defined, we are on the center of the extent')
+            const preDefinedCenter = [2671500, 1190000]
+
+            // we override the interception to ensure the features are in a fixed position
+            cy.goToMapView(
+                {
+                    layers: `${standardLayer}@features=1:2:3:4:5:6:7:8:9:10`,
+                },
+                true,
+                {},
+                {
+                    addFeatureIdentificationIntercepts: () =>
+                        addFeatureIdentificationIntercepts(preDefinedCenter),
+                }
+            )
+
+            cy.readStoreValue('state.position.center').should((storeCenter) => {
+                expect(storeCenter.length).to.eq(2)
+                expect(storeCenter[0]).to.to.approximately(preDefinedCenter[0], 0.01)
+                expect(storeCenter[1]).to.to.approximately(preDefinedCenter[1], 0.01)
+            })
+
+            cy.log(
+                'We ensure that when a center is defined, we are on that center on application startup'
+            )
+            cy.goToMapView({
+                layers: `${standardLayer}@features=1:2:3:4:5:6:7:8:9:10`,
+                center: `${preDefinedCenter.join(',')}`,
+            })
+            cy.readStoreValue('state.position.center').should((storeCenter) => {
+                expect(storeCenter.length).to.eq(2)
+                expect(storeCenter[0]).to.to.approximately(preDefinedCenter[0], 0.01)
+                expect(storeCenter[1]).to.to.approximately(preDefinedCenter[1], 0.01)
+            })
         })
         it.skip('Adds pre-selected features and place the tooltip according to URL param on a bigger screen', () => {
             // currently, this breaks on the CI, but works perfectly fine locally. It sets the featureInfo param
