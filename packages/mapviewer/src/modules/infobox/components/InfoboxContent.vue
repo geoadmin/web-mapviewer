@@ -10,7 +10,7 @@ import { useStore } from 'vuex'
 import { ENVIRONMENT } from '@/config/staging.config'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
-import { generateFilename } from '@/utils/utils'
+import { generateFilename } from '@/utils/utils.js'
 
 const dispatcher = { dispatcher: 'InfoboxContent.vue' }
 

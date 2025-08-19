@@ -6,8 +6,9 @@ import cloneDeep from 'lodash/cloneDeep'
 import { defineStore } from 'pinia'
 
 import type SelectableFeature from '@/api/features/SelectableFeature.class'
-import type { ActionDispatcher } from '@/store/store'
-import type { FlatExtent } from '@/utils/extentUtils'
+import type { ActionDispatcher } from '@/store/types.ts'
+
+import type { FlatExtent } from '../../../../geoadmin-coordinates/src/extentUtils.ts'
 
 export function canFeatureShowProfile(feature?: SelectableFeature): boolean {
     return (

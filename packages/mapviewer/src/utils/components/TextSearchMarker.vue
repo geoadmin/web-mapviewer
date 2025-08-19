@@ -7,7 +7,7 @@
  */
 import { computed } from 'vue'
 
-import { segmentizeMatch } from '@/utils/utils'
+import { segmentizeMatch } from '@/utils/utils.js'
 
 const { text, search, markers } = defineProps({
     /**

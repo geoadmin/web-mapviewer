@@ -3,7 +3,7 @@ import ModifyInteraction from 'ol/interaction/Modify'
 import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
+import { DRAWING_HIT_TOLERANCE } from '@/config/map.config.js'
 import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
 import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'

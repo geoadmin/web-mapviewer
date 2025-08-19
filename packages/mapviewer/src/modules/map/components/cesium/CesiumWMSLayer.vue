@@ -8,7 +8,7 @@ import { computed, inject, toRef, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import { getBaseUrlOverride } from '@/config/baseUrl.config.js'
-import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { DEFAULT_PROJECTION } from '@/config/map.config.js'
 import useAddImageryLayer from '@/modules/map/components/cesium/utils/useAddImageryLayer.composable'
 import { getTimestampFromConfig } from '@/utils/layerUtils.js'
 

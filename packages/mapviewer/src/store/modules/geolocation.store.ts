@@ -4,7 +4,7 @@ import log, { LogPreDefinedColor } from '@geoadmin/log'
 import { isNumber } from '@geoadmin/numbers'
 import { defineStore } from 'pinia'
 
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types.ts'
 
 export interface GeolocationState {
     /** Flag telling if the user has activated the geolocation feature */

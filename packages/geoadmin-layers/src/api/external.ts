@@ -1,8 +1,12 @@
 import log from '@geoadmin/log'
 import axios from 'axios'
 
-import { ExternalWMTSCapabilitiesParser, type WMSCapabilitiesResponse } from '@/parsers'
-import ExternalWMSCapabilitiesParser from '@/parsers/ExternalWMSCapabilitiesParser'
+import externalWMSParser, {
+    type WMSCapabilitiesResponse,
+} from '@/parsers/ExternalWMSCapabilitiesParser'
+import externalWMTSParser, {
+    type WMTSCapabilitiesResponse,
+} from '@/parsers/ExternalWMTSCapabilitiesParser'
 import { CapabilitiesError } from '@/validation'
 
 /** Timeout for accessing external server in [ms] */
@@ -78,7 +82,7 @@ export async function readWmsCapabilities(
  */
 export function parseWmsCapabilities(content: string): WMSCapabilitiesResponse {
     try {
-        return ExternalWMSCapabilitiesParser.parse(content)
+        return externalWMSParser.parse(content)
     } catch (error: any) {
         throw new CapabilitiesError(
             `Failed to parse WMS capabilities: ${error?.toString()}`,
@@ -103,7 +107,7 @@ export function setWmtsGetCapParams(url: URL, language?: string): URL {
 export async function readWmtsCapabilities(
     baseUrl: string,
     language?: string
-): Promise<ExternalWMTSCapabilitiesParser> {
+): Promise<WMTSCapabilitiesResponse> {
     const url = setWmtsGetCapParams(new URL(baseUrl), language)
     log.debug(`Read WMTS Get Capabilities: ${url}`)
 
@@ -133,12 +137,9 @@ export async function readWmtsCapabilities(
  * @param originUrl Origin URL of the content, this is used as default GetCapabilities URL if not
  *   found in the Capabilities
  */
-export function parseWmtsCapabilities(
-    content: string,
-    originUrl: URL
-): ExternalWMTSCapabilitiesParser {
+export function parseWmtsCapabilities(content: string, originUrl: URL): WMTSCapabilitiesResponse {
     try {
-        return new ExternalWMTSCapabilitiesParser(content, originUrl)
+        return externalWMTSParser.parse(content, originUrl)
     } catch (error: any) {
         throw new CapabilitiesError(
             `Failed to parse WMTS capabilities: ${error?.toString()}`,

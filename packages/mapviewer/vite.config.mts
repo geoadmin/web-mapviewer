@@ -60,7 +60,11 @@ export default defineConfig(({ mode }) => {
             assetsDir: `${appVersion}/assets`,
             outDir: `./dist/${stagings[definitiveMode]}`,
             rollupOptions: {
+                external: ['vue', 'tailwindcss'],
                 output: {
+                    globals: {
+                        vue: 'Vue',
+                    },
                     manualChunks,
                 },
             },

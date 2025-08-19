@@ -11,7 +11,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
 import type { SupportedLang } from '@/modules/i18n'
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types.ts'
 
 import { createShortLink } from '@/api/shortlink.api.ts'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
@@ -23,7 +23,7 @@ import useCesiumStore from '@/store/modules/cesium.store'
 import { useI18nStore } from '@/store/modules/i18n.store'
 import { type ClickInfo, useMapStore } from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'
-import { stringifyQuery } from '@/utils/url-router'
+import { stringifyQuery } from '@/utils/url-router.ts'
 
 const dispatcher: ActionDispatcher = { name: 'LocationPopup.vue' }
 

@@ -30,11 +30,11 @@ export const getTimeEntryForYear = (
 
 export const updateCurrentTimeEntry = (
     timeConfig: LayerTimeConfig,
-    entryOrTimestamp: LayerTimeConfigEntry | string | undefined
+    entryOrTimestamp: LayerTimeConfigEntry | string | number | undefined
 ) => {
     let currentTimeEntry: LayerTimeConfigEntry | undefined
 
-    if (typeof entryOrTimestamp === 'string') {
+    if (typeof entryOrTimestamp === 'string' || typeof entryOrTimestamp === 'number') {
         currentTimeEntry = timeConfig.timeEntries.find((e) => e.timestamp === entryOrTimestamp)
     } else {
         currentTimeEntry = entryOrTimestamp
@@ -101,10 +101,10 @@ export const makeTimeConfigEntry = (timestamp: string): LayerTimeConfigEntry => 
 }
 
 export const makeTimeConfig = (
-    behaviour = undefined,
-    timeEntries: LayerTimeConfigEntry[] = []
+    behaviour?: string | number,
+    timeEntries?: LayerTimeConfigEntry[]
 ): LayerTimeConfig | undefined => {
-    if (timeEntries.length === 0) {
+    if (!timeEntries || timeEntries.length === 0) {
         return
     }
     const timeConfig: LayerTimeConfig = {
@@ -169,3 +169,26 @@ export const getTimeEntryForInterval = (
         return false
     })
 }
+
+export interface GeoadminTimeConfigUtils {
+    hasTimestamp: typeof hasTimestamp
+    getTimeEntryForYear: typeof getTimeEntryForYear
+    updateCurrentTimeEntry: typeof updateCurrentTimeEntry
+    makeTimeConfigEntry: typeof makeTimeConfigEntry
+    makeTimeConfig: typeof makeTimeConfig
+    hasMultipleTimestamps: typeof hasMultipleTimestamps
+    getYearFromLayerTimeEntry: typeof getYearFromLayerTimeEntry
+    getTimeEntryForInterval: typeof getTimeEntryForInterval
+}
+export const timeConfigUtils: GeoadminTimeConfigUtils = {
+    hasTimestamp,
+    getTimeEntryForYear,
+    updateCurrentTimeEntry,
+    makeTimeConfigEntry,
+    makeTimeConfig,
+    hasMultipleTimestamps,
+    getYearFromLayerTimeEntry,
+    getTimeEntryForInterval,
+}
+
+export default timeConfigUtils

@@ -1,5 +1,6 @@
 import { WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
+import { format } from '@geoadmin/numbers'
 import { Geodesic, Math as geographicMath, PolygonArea } from 'geographiclib-geodesic'
 import {
     boundingExtent,
@@ -11,8 +12,6 @@ import { LineString, MultiLineString, MultiPolygon, Point, Polygon } from 'ol/ge
 import RBush from 'ol/structs/RBush' /* Warning: private class of openlayers */
 import { Circle, Fill, RegularShape, Stroke, Style, Text } from 'ol/style'
 import proj4 from 'proj4'
-
-import { formatAngle, formatMeters } from '@/utils/utils'
 
 const geod = Geodesic.WGS84
 
@@ -39,6 +38,28 @@ export function computePolygonPerimeterArea(coords, isPolyline = false) {
     const result = geodesicPolygon.Compute(false, true)
     result.area = Math.abs(result.area)
     return result
+}
+
+/**
+ * Format distance or ara in a readable format
+ *
+ * @param {Number} value
+ * @param {{ dim: Number; digits: Number; applyFormat: Boolean }} options
+ * @returns {String} Distance/area formatted (e.g. 1000 => '1 km')
+ */
+export function formatMeters(value, { dim = 1, digits = 2, applyFormat = true } = {}) {
+    const factor = Math.pow(1000, dim)
+    let unit = dim === 1 ? 'm' : 'm²'
+    if (value >= factor) {
+        unit = dim === 1 ? 'km' : 'km²'
+        value /= factor
+    }
+    value = applyFormat ? format(value, digits) : value.toFixed(digits)
+    return `${value} ${unit}`
+}
+
+function formatAngle(value, digits = 2) {
+    return `${value.toFixed(digits)}°`
 }
 
 /**

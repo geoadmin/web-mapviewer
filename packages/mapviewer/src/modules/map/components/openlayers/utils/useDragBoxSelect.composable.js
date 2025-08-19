@@ -16,7 +16,7 @@ import GeoJSON from 'ol/format/GeoJSON'
 import { DragBox } from 'ol/interaction'
 import { useStore } from 'vuex'
 
-import { DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@/config/map.config'
+import { DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@/config/map.config.js'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
 import { parseGpx } from '@/utils/gpxUtils'
 import { parseKml } from '@/utils/kmlUtils.js'

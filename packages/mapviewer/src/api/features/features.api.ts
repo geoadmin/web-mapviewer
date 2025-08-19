@@ -17,14 +17,18 @@ import type { SupportedLang } from '@/modules/i18n'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
-import { DEFAULT_FEATURE_COUNT_SINGLE_POINT, DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@/config/map.config'
+import {
+    DEFAULT_FEATURE_COUNT_SINGLE_POINT,
+    DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE,
+} from '@/config/map.config.ts'
+import { getGeoJsonFeatureCenter, reprojectGeoJsonGeometry } from '@/utils/geoJsonUtils'
+
 import {
     createPixelExtentAround,
     type FlatExtent,
     flattenExtent,
     projExtent,
-} from '@/utils/extentUtils'
-import { getGeoJsonFeatureCoordinates, reprojectGeoJsonData } from '@/utils/geoJsonUtils'
+} from '../../../../geoadmin-coordinates/src/extentUtils.ts'
 
 const GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE = 100
 
@@ -177,12 +181,19 @@ export async function identifyOnGeomAdminLayer(
                 mapExtent,
                 coordinate: featureCoordinate,
             })
-            features.push(
-                parseGeomAdminFeature(geoadminLayer, feature, featureData, projection, {
+            const parsedFeature = parseGeomAdminFeature(
+                geoadminLayer,
+                feature,
+                featureData,
+                projection,
+                {
                     lang,
                     coordinate: featureCoordinate,
-                })
+                }
             )
+            if (parsedFeature) {
+                features.push(parsedFeature)
+            }
         }
     }
     return features
@@ -365,12 +376,12 @@ async function identifyOnExternalWmsLayer(config: IdentifyConfig): Promise<Layer
     // selecting output format depending on external WMS capabilities
     // preferring JSON output
     let outputFormat = APPLICATION_JSON_TYPE
-    if (!externalLayer.getFeatureInfoCapability.formats?.includes(outputFormat)) {
+    if (!externalLayer.getFeatureInfoCapability?.formats?.includes(outputFormat)) {
         // if JSON isn't supported, we check if GML3 is supported
-        if (externalLayer.getFeatureInfoCapability.formats?.includes(APPLICATION_GML_3_TYPE)) {
+        if (externalLayer.getFeatureInfoCapability?.formats?.includes(APPLICATION_GML_3_TYPE)) {
             outputFormat = APPLICATION_GML_3_TYPE
         } else if (
-            externalLayer.getFeatureInfoCapability.formats?.includes(APPLICATION_OGC_WMS_XML_TYPE)
+            externalLayer.getFeatureInfoCapability?.formats?.includes(APPLICATION_OGC_WMS_XML_TYPE)
         ) {
             outputFormat = APPLICATION_OGC_WMS_XML_TYPE
         } else {
@@ -427,8 +438,8 @@ async function identifyOnExternalWmsLayer(config: IdentifyConfig): Promise<Layer
         params.Y = GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE / 2
     }
     const getFeatureInfoResponse = await axios({
-        method: externalLayer.getFeatureInfoCapability.method,
-        url: externalLayer.getFeatureInfoCapability.baseUrl,
+        method: externalLayer.getFeatureInfoCapability?.method,
+        url: externalLayer.getFeatureInfoCapability?.baseUrl,
         params,
     })
     if (getFeatureInfoResponse.data) {
@@ -455,7 +466,7 @@ async function identifyOnExternalWmsLayer(config: IdentifyConfig): Promise<Layer
             log.error('Plain text parsing not yet implemented')
         }
         return features?.map((feature) => {
-            let geometry = feature.geometry
+            let geometry: Geometry = feature.geometry
             // if no geometry is defined (because we came from a GML or plain text parsing),
             // we use the click coordinate as a point
             if (!geometry) {
@@ -478,12 +489,12 @@ async function identifyOnExternalWmsLayer(config: IdentifyConfig): Promise<Layer
                 id: featureId,
                 title: featureName,
                 data: feature.properties,
-                coordinates: getGeoJsonFeatureCoordinates(
+                coordinates: getGeoJsonFeatureCenter(
                     geometry,
                     projection,
                     outputProjection ?? projection
                 ),
-                geometry: reprojectGeoJsonData(
+                geometry: reprojectGeoJsonGeometry(
                     geometry,
                     outputProjection ?? projection,
                     projection
@@ -658,9 +669,15 @@ function parseGeomAdminFeature(
             coordinates: [coordinate],
         }
     }
-    let coordinates: SingleCoordinate[] = []
+    let center: SingleCoordinate | undefined
     if (featureGeoJSONGeometry) {
-        coordinates = getGeoJsonFeatureCoordinates(featureGeoJSONGeometry, LV95, outputProjection)
+        center = getGeoJsonFeatureCenter(featureGeoJSONGeometry, LV95, outputProjection)
+    } else {
+        center = coordinate
+    }
+    if (!center) {
+        log.error('Unable to get center for feature', featureMetadata, options)
+        return
     }
 
     return new LayerFeature({
@@ -668,7 +685,7 @@ function parseGeomAdminFeature(
         id: featureMetadata.id,
         title: featureName,
         data: featureHtmlPopup,
-        coordinates,
+        coordinates: center,
         extent: featureExtent,
         geometry: featureGeoJSONGeometry,
     })
@@ -730,15 +747,18 @@ const getFeature = (
                 const getFeatureResponse = responses[0] as AxiosResponse
                 const featureHtmlPopup = responses[1] as string
                 const featureMetadata = getFeatureResponse.data.feature ?? getFeatureResponse.data
-                resolve(
-                    parseGeomAdminFeature(
-                        layer,
-                        featureMetadata,
-                        featureHtmlPopup,
-                        outputProjection,
-                        options
-                    )
+                const parsedFeature = parseGeomAdminFeature(
+                    layer,
+                    featureMetadata,
+                    featureHtmlPopup,
+                    outputProjection,
+                    options
                 )
+                if (parsedFeature) {
+                    resolve(parsedFeature)
+                } else {
+                    reject(new Error('Unable to parse feature'))
+                }
             })
             .catch((error) => {
                 log.error(

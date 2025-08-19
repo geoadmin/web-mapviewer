@@ -4,7 +4,7 @@ import type Map from 'ol/Map'
 import log, { LogPreDefinedColor } from '@geoadmin/log'
 import { computed, ref } from 'vue'
 
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types.ts'
 
 import {
     abortPrintJob,
@@ -19,7 +19,7 @@ import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
 import usePrintStore from '@/store/modules/print.store'
 import useUIStore from '@/store/modules/ui.store'
-import { generateFilename } from '@/utils/utils'
+import { generateFilename } from '@/utils/utils.ts'
 
 const dispatcher: ActionDispatcher = { name: 'usePrint.composable' }
 

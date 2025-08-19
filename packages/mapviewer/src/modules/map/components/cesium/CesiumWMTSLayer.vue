@@ -7,7 +7,7 @@ import { Rectangle, UrlTemplateImageryProvider, WebMapTileServiceImageryProvider
 import { computed, inject, onBeforeUnmount, toRef, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { DEFAULT_PROJECTION } from '@/config/map.config.js'
 import useAddImageryLayer from '@/modules/map/components/cesium/utils/useAddImageryLayer.composable'
 import { getWmtsXyzUrl } from '@/utils/layerUtils.js'
 

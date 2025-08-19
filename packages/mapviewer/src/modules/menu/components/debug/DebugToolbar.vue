@@ -9,7 +9,7 @@ import BaseUrlOverrideModal from '@/modules/menu/components/debug/BaseUrlOverrid
 import DebugLayerFinder from '@/modules/menu/components/debug/DebugLayerFinder.vue'
 import DebugPrint from '@/modules/menu/components/debug/DebugPrint.vue'
 import DebugViewSelector from '@/modules/menu/components/debug/DebugViewSelector.vue'
-import { PRINT_VIEW } from '@/router/viewNames.js'
+import { PRINT_VIEW } from '@/router/viewNames.ts'
 
 const dispatcher = { dispatcher: 'DebugToolbar.vue' }
 
@@ -62,12 +62,12 @@ function showSiteAsInProd() {
 
 <template>
     <div
-        class="position-fixed end-0 top-50 z-3 debug-tools card border-danger rounded-end-0 me-n1 no-print"
+        class="position-fixed top-50 z-3 debug-tools card border-danger rounded-end-0 me-n1 no-print end-0"
         :class="{ collapsed: !showDebugTool }"
     >
         <div class="position-relative d-flex">
             <div
-                class="debug-tools-header p-2 bg-danger-subtle border-end border-danger rounded-start-1"
+                class="debug-tools-header bg-danger-subtle border-end border-danger rounded-start-1 p-2"
                 data-cy="debug-tools-header"
                 @click="showDebugTool = !showDebugTool"
             >
@@ -83,7 +83,7 @@ function showSiteAsInProd() {
                 <div class="card-body p-1">
                     <div
                         id="debug-tools-menu"
-                        class="d-flex gap-2 justify-content-center flex-wrap"
+                        class="d-flex justify-content-center flex-wrap gap-2"
                     >
                         <DebugViewSelector />
 

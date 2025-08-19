@@ -7,7 +7,7 @@ import {
     propsValidator4ValidateFunc,
     useFieldValidation,
 } from '@/utils/composables/useFieldValidation'
-import { isValidEmail } from '@/utils/utils'
+import { isValidEmail } from '@/utils/utils.js'
 
 const inputEmailId = useComponentUniqueId('email-input')
 

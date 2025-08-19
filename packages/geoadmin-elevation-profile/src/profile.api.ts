@@ -1,6 +1,6 @@
 import type { CoordinatesChunk, CoordinateSystem, SingleCoordinate } from '@geoadmin/coordinates'
 
-import { LV95, removeZValues } from '@geoadmin/coordinates'
+import { LV95, coordinatesUtils } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import axios from 'axios'
 import proj4 from 'proj4'
@@ -252,7 +252,7 @@ function sanitizeCoordinates(
         // so we have to make sure we have a double nested array and then iterate over it.
         ensureDoubleNestedArray(coordinates)
             // removing any 3rd dimension that could come from OL
-            .map((coordinates) => removeZValues(coordinates))
+            .map((coordinates) => coordinatesUtils.removeZValues(coordinates))
             .map((coordinates) => {
                 // The service only works with LV95 coordinate,
                 // we have to transform them if they are not in this projection

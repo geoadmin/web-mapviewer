@@ -1,34 +1,30 @@
-import type { KMLLayer } from '@geoadmin/layers'
-import type { Extent as OLExtent } from 'ol/extent'
+import type { KMLLayer, LayerAttribution } from '@geoadmin/layers'
+import type { FeatureCollection, Geometry } from 'geojson'
 import type { Size } from 'ol/size'
 
 import { CoordinateSystem, WGS84 } from '@geoadmin/coordinates'
-import { KmlStyle } from '@geoadmin/layers'
+import { KMLStyle } from '@geoadmin/layers'
 import { layerUtils } from '@geoadmin/layers/utils'
 import log from '@geoadmin/log'
 import { kml as kmlToGeoJSON } from '@tmcw/togeojson'
-import { booleanValid } from '@turf/turf'
+import { bbox, booleanValid } from '@turf/turf'
 import axios from 'axios'
 import JSZip from 'jszip'
-import {
-    createEmpty as emptyExtent,
-    extend as extendExtent,
-    isEmpty as isExtentEmpty,
-} from 'ol/extent'
+import { isEmpty as isExtentEmpty } from 'ol/extent'
 import OLFeature from 'ol/Feature'
 import GeoJSON from 'ol/format/GeoJSON'
+import KML, { getDefaultStyle } from 'ol/format/KML'
 import IconStyle from 'ol/style/Icon'
-import Style from 'ol/style/Style'
+import Style, { type StyleFunction } from 'ol/style/Style'
 
-import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class.js'
-import { extractOlFeatureCoordinates } from '@/api/features/features.api.js'
-import { proxifyUrl } from '@/api/file-proxy.api'
-import { DEFAULT_TITLE_OFFSET, DrawingIcon, type DrawingIconSet, generateURL } from '@/api/icon.api'
+import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { extractOlFeatureCoordinates } from '@/api/features/features.api'
+import { proxifyUrl } from '@/api/file-proxy.api.ts'
+import { DEFAULT_TITLE_OFFSET, type DrawingIcon, type DrawingIconSet } from '@/api/icon.api'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { LOCAL_OR_INTERNAL_URL_REGEX } from '@/config/regex.config'
 import {
     allStylingSizes,
-    allStylingTextPlacements,
     calculateTextOffsetFromPlacement,
     calculateTextXYOffset,
     type FeatureStyleColor,
@@ -40,12 +36,10 @@ import {
     getTextSize,
     RED,
     SMALL,
-    UNKNOWN,
-} from '@/utils/featureStyleUtils.ts'
-import { GeodesicGeometries } from '@/utils/geodesicManager'
-// FIXME: as soon as https://github.com/openlayers/openlayers/pull/15964 is merged and released, go back to using OL files
-import KML, { getDefaultStyle } from '@/utils/ol/format/KML'
-import { parseRGBColor } from '@/utils/utils'
+    type TextPlacement,
+} from '@/utils/featureStyleUtils'
+
+import type { FlatExtent } from '../../../geoadmin-coordinates/src/extentUtils.ts'
 
 export const EMPTY_KML_DATA = '<kml></kml>'
 
@@ -60,9 +54,29 @@ export const LEGACY_ICON_XML_SCALE_FACTOR = 1.5
 
 const kmlReader = new KML({ extractStyles: false })
 
+/**
+ * Parse an RGB color
+ *
+ * @param color Color code in string format (should be between 0 and 255)
+ * @returns Color code, default to 255 in case of invalid
+ */
+export function parseRGBColor(color: string): number {
+    try {
+        return Math.max(Math.min(Number(color), 255), 0)
+    } catch (error) {
+        log.error(`Invalid RGB color code`, color, error)
+        return 255
+    }
+}
+
 /** Read the KML name */
 export function parseKmlName(content: string): string | undefined {
-    return kmlReader.readName(content)
+    const name = kmlReader.readName(content)
+    if (name === '') {
+        // empty is considered undefined (the KMl will receive the file URL as a name in this case)
+        return undefined
+    }
+    return name
 }
 
 /**
@@ -70,22 +84,19 @@ export function parseKmlName(content: string): string | undefined {
  *
  * @returns KML layer extent in WGS84 projection or undfeind if the KML has no features
  */
-export function getKmlExtent(content: string): OLExtent | undefined {
-    const features = kmlReader.readFeatures(content, {
-        dataProjection: WGS84.epsg, // KML files should always be in WGS84
-        featureProjection: WGS84.epsg,
-    })
-    const extent = emptyExtent()
-    features
-        // guarding against empty/null geometry (in case the KML feature doesn't declare any coordinate)
-        .filter((feature) => feature.getGeometry() && feature.getGeometry()!.getExtent())
-        .forEach((feature) => {
-            extendExtent(extent, feature.getGeometry()!.getExtent())
-        })
+export function getKmlExtent(content: string): FlatExtent | undefined {
+    const parsedKml = new DOMParser().parseFromString(content, 'text/xml')
+    const kmlAsGeoJSON = kmlToGeoJSON(parsedKml, { skipNullGeometry: true }) as
+        | FeatureCollection<Geometry>
+        | undefined
+    if (!kmlAsGeoJSON) {
+        return
+    }
+    const extent = bbox(kmlAsGeoJSON)
     if (isExtentEmpty(extent)) {
         return
     }
-    return extent
+    return extent as FlatExtent
 }
 
 /**
@@ -147,13 +158,16 @@ export function getFeatureType(kmlFeature: OLFeature): EditableFeatureTypes | un
  * @param style
  * @returns Return text scale or null if not found
  */
-export function getTextScale(style: Style): number | Size | undefined {
+export function getTextScale(style: Style): number | undefined {
     // When exporting the kml, the parser does not put a scale property when the scale is 1.
     // But when importing the kml, it seems that the parser interprets the lack of a scale
     // property as if the scale was 0.8, which is strange. The code below tries to fix that.
     const textScale = style.getText()?.getScale()
     if (textScale === getDefaultStyle()?.getText()?.getScale()) {
         return 1
+    }
+    if (Array.isArray(textScale)) {
+        return textScale[0]
     }
     return textScale
 }
@@ -174,10 +188,7 @@ export function getIconStyle(style: Style): IconStyle | undefined {
     }
     // To interpret the KMLs the same way as GoogleEarth, the kml parser automatically adds a Google icon
     // if no icon is present (i.e. for our text feature type), but we do not want that.
-    if (
-        icon?.getSrc()?.match(/google/) ||
-        icon?.getSrc() === getDefaultStyle()?.getImage()?.getSrc()
-    ) {
+    if (icon?.getSrc()?.match(/google/)) {
         return
     }
     return icon
@@ -400,7 +411,8 @@ export function getFillColor(
  */
 export function getEditableFeatureFromKmlFeature(
     kmlFeature: OLFeature,
-    availableIconSets: DrawingIconSet[]
+    availableIconSets: DrawingIconSet[],
+    resolution: number
 ): EditableFeature | undefined {
     if (!kmlFeature) {
         log.error({
@@ -419,7 +431,7 @@ export function getEditableFeatureFromKmlFeature(
     }
     // The kml parser automatically created a style based on the "<style>" part of the feature in the kml file.
     // We will now analyse this style to retrieve all information we need to generate the editable feature.
-    const style = getStyle(kmlFeature)
+    const style = getStyle(kmlFeature, resolution)
     if (!style) {
         log.error({
             title: 'kmlUtils / getEditableFeatureFromKmlFeature',
@@ -464,8 +476,8 @@ export function getEditableFeatureFromKmlFeature(
             }
         }
     }
-    const icon = iconArgs ? getIcon(iconArgs, iconStyle, availableIconSets) : null
-    const iconSize = iconStyle ? getIconSize(iconStyle) : null
+    const icon = iconArgs ? getIcon(iconArgs, iconStyle, availableIconSets) : undefined
+    const iconSize = iconStyle ? getIconSize(iconStyle) : undefined
 
     const featureGeometry = kmlFeature.getGeometry()
     const featureGeometryType = featureGeometry?.getType()
@@ -487,7 +499,8 @@ export function getEditableFeatureFromKmlFeature(
     )
     // Convert string to boolean - KML properties are parsed as strings
     const showDescriptionOnMapValue = kmlFeature.get('showDescriptionOnMap')
-    const showDescriptionOnMap = showDescriptionOnMapValue === 'true' || showDescriptionOnMapValue === true
+    const showDescriptionOnMap =
+        showDescriptionOnMapValue === 'true' || showDescriptionOnMapValue === true
     if (iconArgs?.isLegacy && iconStyle && icon) {
         // The legacy drawing uses icons from old URLs, some of them have already been removed
         // like the versioned URLs (/{version}/img/maki/{image}-{size}@{scale}x.png) while others
@@ -497,9 +510,10 @@ export function getEditableFeatureFromKmlFeature(
         // because for the url translation we need to have the available iconsets which we don't
         // always have when using iconUrlFunction
         log.warn(`Legacy icons style detected overwritting the style with the new icon url`)
-        const newIconStyle = iconStyle.clone()
-        newIconStyle.setSrc(generateURL(icon, fillColor))
-        style.setImage(newIconStyle)
+        // TODO: setSrc will come with OL 10.7.0
+        // const newIconStyle = iconStyle.clone()
+        // newIconStyle.setSrc(generateURL(icon, fillColor))
+        // style.setImage(newIconStyle)
     }
 
     return new EditableFeature({
@@ -523,37 +537,59 @@ export function getEditableFeatureFromKmlFeature(
 /**
  * Detect the feature text placement based on the icon and text size
  *
- * @param {Number} textScale Text scaling
- * @param {Number} iconScale Icon scaling
- * @param {Array} anchor Relative position of Anchor
- * @param {Array} iconSize Absolute size of icon in pixel
- * @param {String} text Text to display
- * @param {Array} currentTextOffset Current text offset of the kml feature
- * @returns {TextPlacement} Returns the text placement or undefined if the icon is not a marker
+ * @param textScale Text scaling
+ * @param iconScale Icon scaling
+ * @param anchor Relative position of Anchor
+ * @param iconSize Absolute size of icon in pixel
+ * @param text Text to display
+ * @param currentTextOffset Current text offset of the kml feature
+ * @returns The text placement or undefined if the icon is not a marker
  */
-function detectTextPlacement(textScale, iconScale, anchor, iconSize, text, currentTextOffset) {
+function detectTextPlacement(
+    textScale: number | undefined,
+    iconScale: number | Size | undefined,
+    anchor: [number, number] | undefined,
+    iconSize: [number, number] | undefined,
+    text: string | undefined,
+    currentTextOffset: [number, number]
+): TextPlacement {
     if (!text || !textScale || !iconScale || !anchor || !iconSize) {
-        return UNKNOWN
+        return 'unknown'
     }
-    const [textPlacementX, textPlacementY] = calculateTextXYOffset(
-        textScale,
-        iconScale,
-        anchor,
-        iconSize,
-        text
-    )
+    const textOffset = calculateTextXYOffset(textScale, iconScale, anchor, iconSize, text)
+    const [textPlacementX, textPlacementY] = textOffset
+    const [signX, signY] = textOffset.map(Math.sign)
 
-    for (const placementOption of allStylingTextPlacements) {
-        const [xOffset, yOffset] = calculateTextOffsetFromPlacement(
-            textPlacementX,
-            textPlacementY,
-            placementOption
-        )
-        if (xOffset === currentTextOffset[0] && yOffset === currentTextOffset[1]) {
-            return placementOption
+    let guessedTextPlacement: TextPlacement
+
+    if (signX === 0 && signY === 0) {
+        guessedTextPlacement = 'center'
+    } else if (signX === -1) {
+        if (signY === 0) {
+            guessedTextPlacement = 'left'
+        } else if (signY === 1) {
+            guessedTextPlacement = 'bottom-left'
+        } else {
+            guessedTextPlacement = 'top-left'
+        }
+    } else {
+        if (signY === 0) {
+            guessedTextPlacement = 'right'
+        } else if (signY === 1) {
+            guessedTextPlacement = 'bottom-right'
+        } else {
+            guessedTextPlacement = 'top-right'
         }
     }
-    return UNKNOWN
+    const [xOffset, yOffset] = calculateTextOffsetFromPlacement(
+        textPlacementX,
+        textPlacementY,
+        guessedTextPlacement
+    )
+    if (xOffset === currentTextOffset[0] && yOffset === currentTextOffset[1]) {
+        return guessedTextPlacement
+    }
+    return 'unknown'
 }
 
 const nonGeoadminIconUrls = new Set()
@@ -637,6 +673,7 @@ export function parseKml(
     kmlLayer: KMLLayer,
     projection: CoordinateSystem,
     iconSets: DrawingIconSet[],
+    resolution: number,
     iconUrlProxy: iconUrlProxyficationFunction = defaultIconUrlProxyfication
 ) {
     const kmlData = kmlLayer.kmlData
@@ -647,23 +684,19 @@ export function parseKml(
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: projection.epsg,
     })
-    if (kmlLayer.style === KmlStyle.GEOADMIN) {
+    if (kmlLayer.style === KMLStyle.GEOADMIN) {
         features.forEach((olFeature) => {
-            const editableFeature = getEditableFeatureFromKmlFeature(olFeature, iconSets)
+            const editableFeature = getEditableFeatureFromKmlFeature(
+                olFeature,
+                iconSets,
+                resolution
+            )
             if (editableFeature) {
                 // Set the EditableFeature coordinates from the olFeature geometry
                 editableFeature.setCoordinatesFromFeature(olFeature)
                 olFeature.set('editableFeature', editableFeature)
-
-                if (editableFeature.isLineOrMeasure()) {
-                    /* The featureStyleFunction uses the geometries calculated in the geodesic object
-                    if present. The lines connecting the vertices of the geometry will appear
-                    geodesic (follow the shortest path) in this case instead of linear (be straight on
-                    the screen)  */
-                    olFeature.set('geodesic', new GeodesicGeometries(olFeature, projection))
-                }
             }
-            olFeature.setStyle(geoadminStyleFunction)
+            olFeature.setStyle(geoadminStyleFunction as StyleFunction)
         })
     }
 
@@ -673,13 +706,12 @@ export function parseKml(
 /**
  * Check if the KML features are valid
  *
- * @param {string} kmlData KML data
- * @returns {boolean} Returns true if the KML data is valid, false otherwise
+ * @returns True if the KML data is valid, false otherwise
  */
-export function isKmlFeaturesValid(kmlData) {
+export function isKmlFeaturesValid(kmlData: string): boolean {
     try {
         const kmlDom = new DOMParser().parseFromString(kmlData, 'text/xml')
-        const kmlGeoJson = kmlToGeoJSON(kmlDom, { styles: false })
+        const kmlGeoJson = kmlToGeoJSON(kmlDom)
 
         const invalidFeatures = kmlGeoJson.features.filter((feature) => !booleanValid(feature))
         const errorsCount = invalidFeatures.length
@@ -690,102 +722,99 @@ export function isKmlFeaturesValid(kmlData) {
 
         return true
     } catch (error) {
-        log.error(`Failed to parse or validate KML file: ${error.message || error}`)
+        log.error('Failed to parse or validate KML file', error)
         return false
     }
 }
 
 export class KMZError extends Error {}
 
-/**
- * Unzipped KMZ Object
- *
- * This class wrap the unzipped content of a KMZ archive.
- *
- * @class
- * @property {string} name Name of the KMZ archive
- * @property {ArrayBuffer} kml Content of the KML file within the KMZ archive (unzipped)
- * @property {Map<string, ArrayBuffer>} files A Map of files with their absolute path as key and
- *   their unzipped content as ArrayBuffer
- */
-export class KMZObject {
-    constructor(params = {}) {
-        const { name = null, kml = null, files = new Map() } = params
-        this.name = name
-        this.kml = kml
-        this.files = files
-    }
+/** Wraps the unzipped content of a KMZ archive. */
+export interface KMZObject {
+    /** Name of the KMZ archive */
+    name: string
+    /** Content of the KML file within the KMZ archive (unzipped) */
+    kml: ArrayBuffer
+    /** A Map of files with their absolute path as key and their unzipped content as ArrayBuffer */
+    files: Map<string, ArrayBuffer>
 }
 
 /**
- * Unzipped a KMZ archive following the KMZ google specification.
+ * Unzips a KMZ archive following the KMZ Google specification.
  *
  * See https://developers.google.com/kml/documentation/kmzarchives
  *
- * @param {ArrayBuffer} kmzContent KMZ archive content
- * @param {string} kmzFileName KMZ archive name
- * @returns {KMZObject} Returns a KMZ unzip object
+ * @param kmzContent KMZ archive content (still zipped)
+ * @param kmzFileName KMZ archive name
  */
-export async function unzipKmz(kmzContent, kmzFileName) {
-    const kmz = new KMZObject({ name: kmzFileName })
+export async function unzipKmz(kmzContent: ArrayBuffer, kmzFileName: string): Promise<KMZObject> {
     const zip = new JSZip()
     try {
         await zip.loadAsync(kmzContent)
     } catch (error) {
-        log.error(`Failed to unzip KMZ file ${kmzFileName}: ${error}`)
+        log.error(`Failed to unzip KMZ file ${kmzFileName}`, error)
         throw new KMZError(`Failed to unzip KMZ file ${kmzFileName}`)
     }
 
+    let unzippedContent: ArrayBuffer
     try {
         // Valid KMZ archive must have 1 KML file with .kml extension
-        kmz.kml = await zip.file(/^.*\.kml$/)[0].async('arraybuffer')
+        unzippedContent = await zip.file(/^.*\.kml$/)[0].async('arraybuffer')
     } catch (error) {
-        log.error(`Failed to get KML file from KMZ archive ${kmzFileName}: ${error}`)
+        log.error(`Failed to get KML file from KMZ archive ${kmzFileName}`, error)
         throw new KMZError(`Failed to get KML file from KMZ archive ${kmzFileName}`)
     }
 
     // Get all other files from the archive
-    const files = zip.file(/^(?!.*\.kml$).*$/)
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i]
+    const zipObjects = zip.file(/^(?!.*\.kml$).*$/)
+    const files = new Map<string, ArrayBuffer>()
+    for (let i = 0; i < zipObjects.length; i++) {
+        const file = zipObjects[i]
         try {
-            kmz.files.set(file.name, await file.async('arraybuffer'))
+            files.set(file.name, await file.async('arraybuffer'))
         } catch (error) {
             log.error(
-                `Failed to extract file ${file.name} from KMZ archive ${kmzFileName}: ${error}. File is ignored`
+                `Failed to extract file ${file.name} from KMZ archive ${kmzFileName}. File is ignored`,
+                error
             )
         }
     }
 
-    return kmz
+    return {
+        name: kmzFileName,
+        kml: unzippedContent,
+        files,
+    }
 }
 
 /**
  * Wrapper around the layers module's KML layer factory
  *
- * This is necessary as the instantiation of a KML Layer has so much logic that's coupled to the
- * mapviewer that we can't currently abstract away to the layers module
- *
- * @param {Values for creating a KML layer} values
- * @returns
+ * This is necessary as the instantiation of a KML Layer has so much logic coupled to the mapviewer
+ * that we can't currently abstract away to the layers module
  */
-export const makeKmlLayer = (values) => {
+export const makeKmlLayer = (values: Partial<KMLLayer>): KMLLayer => {
     const isLocalFile = values.kmlFileUrl ? !values.kmlFileUrl.startsWith('http') : false
-    const attributionName = isLocalFile
-        ? values.kmlFileUrl
-        : new URL(values.kmlFileUrl || '').hostname
+    let attributionName: string | undefined
 
-    const attributions = [{ name: attributionName }]
+    if (isLocalFile) {
+        // with local files, kmlFileUrl is always containing the file name
+        attributionName = values.kmlFileUrl!
+    } else {
+        attributionName = new URL(values.kmlFileUrl || '').hostname
+    }
+
+    const attributions: LayerAttribution[] = [{ name: attributionName }]
     const baseUrl = getServiceKmlBaseUrl()
     const isExternal = values.kmlFileUrl?.indexOf(baseUrl) === -1
 
     // Based on the service-kml API reference, the KML file URL has the following structure
     // <base-url>/kml/files/{kml_id} or <base-url>/{kml_id} for legacy files. Those one are
     // redirected to <base-url>/kml/files/{kml_id}
-    const fileId = !isLocalFile && !isExternal ? values.kmlFileUrl?.split('/').pop() : null
+    const fileId = !isLocalFile && !isExternal ? values.kmlFileUrl?.split('/').pop() : undefined
 
-    let name,
-        isLoading = true
+    let name: string | undefined
+    let isLoading: boolean = true
 
     if (values.kmlData) {
         name = parseKmlName(values.kmlData)
@@ -793,15 +822,18 @@ export const makeKmlLayer = (values) => {
             name = isLocalFile
                 ? values.kmlFileUrl
                 : // only keeping what is after the last slash
-                  values.kmlFileUrl.split('/').pop()
+                  values.kmlFileUrl?.split('/').pop()
         }
         isLoading = false
+    }
+    if (!name) {
+        name = 'KML'
     }
 
     let style = values.style
     if (!style) {
         // if no style was given, we select the default style depending on the origin of the KML
-        style = isExternal ? KmlStyle.DEFAULT : KmlStyle.GEOADMIN
+        style = isExternal ? KMLStyle.DEFAULT : KMLStyle.GEOADMIN
     }
 
     const clampToGround = (values.clampToGround ?? true) ? !isExternal : values.clampToGround
@@ -814,7 +846,7 @@ export const makeKmlLayer = (values) => {
         attributions,
         isExternal,
         fileId,
-        name: name || 'KML',
+        name,
         isLoading,
         style,
         clampToGround,

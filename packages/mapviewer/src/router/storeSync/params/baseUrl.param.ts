@@ -7,7 +7,7 @@ import {
 } from '@/config/baseUrl.config.ts'
 import UrlParamConfig from '@/router/storeSync/UrlParamConfig.class'
 import useDebugStore from '@/store/modules/debug.store'
-import { isValidUrl } from '@/utils/utils'
+import { isValidUrl } from '@/utils/utils.ts'
 
 export default function createBaseUrlOverrideParamConfig({
     urlParamName,

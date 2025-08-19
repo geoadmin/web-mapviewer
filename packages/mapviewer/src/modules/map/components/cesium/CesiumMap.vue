@@ -20,10 +20,10 @@ import {
     watch,
 } from 'vue'
 
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types.ts'
 
 import { TERRAIN_URL } from '@/config/cesium.config'
-import { CESIUM_STATIC_PATH } from '@/config/map.config'
+import { CESIUM_STATIC_PATH } from '@/config/map.config.ts'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import CesiumBackgroundLayer from '@/modules/map/components/cesium/CesiumBackgroundLayer.vue'
 import CesiumCamera from '@/modules/map/components/cesium/CesiumCamera.vue'

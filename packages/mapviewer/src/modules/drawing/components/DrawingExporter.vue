@@ -4,7 +4,7 @@ import { useStore } from 'vuex'
 
 import { generateGpxString, generateKmlString } from '@/modules/drawing/lib/export-utils'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
-import { downloadFile, generateFilename } from '@/utils/utils'
+import { downloadFile, generateFilename } from '@/utils/utils.js'
 
 /** @type {DropdownItem[]} */
 const exportOptions = [

@@ -1,4 +1,4 @@
-import { BREAKPOINT_PHONE_HEIGHT, BREAKPOINT_PHONE_WIDTH } from '@/config/responsive.config'
+import { BREAKPOINT_PHONE_HEIGHT, BREAKPOINT_PHONE_WIDTH } from '@/config/responsive.config.js'
 import { UIModes } from '@/store/modules/ui.store'
 
 const dispatcher = { dispatcher: 'screen-size-management.plugin' }

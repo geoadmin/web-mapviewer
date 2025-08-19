@@ -4,7 +4,7 @@ import { computed, nextTick, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import sendFeedbackApi from '@/api/feedback.api'
+import sendFeedbackApi from '@/api/feedback.api.js'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/help/common/SendActionButtons.vue'
 import FeedbackRating from '@/modules/menu/components/help/feedback/FeedbackRating.vue'
@@ -188,14 +188,14 @@ function onEmailValidate(valid) {
             />
             <div
                 ref="validationResult"
-                class="invalid-feedback text-end mt-2"
+                class="invalid-feedback mt-2 text-end"
             >
                 {{ t('form_invalid') }}
             </div>
             <div
                 v-if="request.failed"
                 ref="requestResults"
-                class="text-end text-danger mt-3"
+                class="text-danger mt-3 text-end"
                 data-cy="feedback-failed-text"
             >
                 {{ t('send_failed') }}
@@ -212,7 +212,7 @@ function onEmailValidate(valid) {
                 {{ t('feedback_success_message') }}
             </h6>
             <button
-                class="my-2 btn btn-light float-end"
+                class="btn btn-light float-end my-2"
                 data-cy="feedback-close-successful"
                 @click="closeAndCleanForm"
             >

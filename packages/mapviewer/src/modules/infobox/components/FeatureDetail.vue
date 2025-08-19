@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import SelectableFeature from '@/api/features/SelectableFeature.class.ts'
-import { BLOCKED_EXTENSIONS, WHITELISTED_HOSTNAMES } from '@/config/security.config'
+import { BLOCKED_EXTENSIONS, WHITELISTED_HOSTNAMES } from '@/config/security.config.js'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import FeatureDetailDisclaimer from '@/modules/infobox/components/FeatureDetailDisclaimer.vue'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'

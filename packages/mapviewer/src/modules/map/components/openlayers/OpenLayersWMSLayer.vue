@@ -12,10 +12,11 @@ import { computed, inject, watch, watchEffect } from 'vue'
 import { useStore } from 'vuex'
 
 import { getBaseUrlOverride } from '@/config/baseUrl.config.js'
-import { WMS_TILE_SIZE } from '@/config/map.config'
+import { WMS_TILE_SIZE } from '@/config/map.config.js'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import { flattenExtent } from '@/utils/extentUtils.js'
 import { getTimestampFromConfig } from '@/utils/layerUtils.js'
+
+import { flattenExtent } from '../../../../../../geoadmin-coordinates/src/extentUtils.ts'
 
 const { wmsLayerConfig, parentLayerOpacity, zIndex } = defineProps({
     wmsLayerConfig: {

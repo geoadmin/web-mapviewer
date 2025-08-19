@@ -8,7 +8,7 @@ import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFil
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import useImportFile from '@/modules/menu/components/advancedTools/ImportFile/useImportFile.composable'
 import TextInput from '@/utils/components/TextInput.vue'
-import { isValidUrl } from '@/utils/utils'
+import { isValidUrl } from '@/utils/utils.js'
 
 const { active } = defineProps({
     active: {

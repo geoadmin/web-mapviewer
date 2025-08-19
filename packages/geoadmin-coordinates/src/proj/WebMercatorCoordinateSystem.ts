@@ -1,7 +1,7 @@
 import { round } from '@geoadmin/numbers'
 import proj4 from 'proj4'
 
-import type { SingleCoordinate } from '@/utils'
+import type { SingleCoordinate } from '@/coordinatesUtils.ts'
 
 import { WGS84 } from '@/proj'
 import { PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES } from '@/proj/CoordinateSystem'

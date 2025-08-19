@@ -30,7 +30,7 @@ export const EMPTY_KML_DATA = '<kml></kml>'
 
 const ENC_PIPE = '%7C'
 
-export function transformToLayerTypeEnum(value: string): LayerType | undefined {
+function transformToLayerTypeEnum(value: string): LayerType | undefined {
     return Object.values(LayerType).includes(value as LayerType) ? (value as LayerType) : undefined
 }
 
@@ -43,7 +43,7 @@ export function transformToLayerTypeEnum(value: string): LayerType | undefined {
  * encodeURIComponent(). By only encoding "|" we avoid encoding other special characters twice. But
  * we need to encode "|" twice to avoid layer-parsing issue.
  */
-export function encodeExternalLayerParam(param: string): string {
+function encodeExternalLayerParam(param: string): string {
     return param.replace('|', ENC_PIPE)
 }
 
@@ -62,7 +62,7 @@ const validateBaseData = (values: Partial<Layer>): void => {
  * This is a helper that can work with a subset of the GeoAdminWMSLayer properties. The missing
  * values from the function parameter will be used from defaults
  */
-export function makeGeoAdminWMSLayer(values: Partial<GeoAdminWMSLayer>): GeoAdminWMSLayer {
+function makeGeoAdminWMSLayer(values: Partial<GeoAdminWMSLayer>): GeoAdminWMSLayer {
     const defaults = {
         uuid: uuidv4(),
         isExternal: false,
@@ -98,7 +98,7 @@ export function makeGeoAdminWMSLayer(values: Partial<GeoAdminWMSLayer>): GeoAdmi
  * This is a helper that can work with a subset of the GeoAdminWMTSLayer properties. The missing
  * values from the function parameter will be used from defaults
  */
-export function makeGeoAdminWMTSLayer(values: Partial<GeoAdminWMTSLayer>): GeoAdminWMTSLayer {
+function makeGeoAdminWMTSLayer(values: Partial<GeoAdminWMTSLayer>): GeoAdminWMTSLayer {
     const defaults = {
         uuid: uuidv4(),
         type: LayerType.WMTS,
@@ -135,7 +135,7 @@ export function makeGeoAdminWMTSLayer(values: Partial<GeoAdminWMTSLayer>): GeoAd
  * This is a helper that can work with a subset of the GeoAdminWMSLayer properties. The missing
  * values from the function parameter will be used from defaults
  */
-export function makeExternalWMTSLayer(values: Partial<ExternalWMTSLayer>): ExternalWMTSLayer {
+function makeExternalWMTSLayer(values: Partial<ExternalWMTSLayer>): ExternalWMTSLayer {
     const hasDescription = (values?.abstract?.length ?? 0) > 0 || (values?.legends?.length ?? 0) > 0
     const attributions = []
     const hasLegend = (values?.legends ?? []).length > 0
@@ -190,7 +190,7 @@ export function makeExternalWMTSLayer(values: Partial<ExternalWMTSLayer>): Exter
  * This is a helper that can work with a subset of the WMSLayer properties. The missing values from
  * the function parameter will be used from defaults
  */
-export function makeExternalWMSLayer(values: Partial<ExternalWMSLayer>): ExternalWMSLayer {
+function makeExternalWMSLayer(values: Partial<ExternalWMSLayer>): ExternalWMSLayer {
     const hasDescription = (values?.abstract?.length ?? 0) > 0 || (values?.legends?.length ?? 0) > 0
     const attributions = [{ name: new URL(values.baseUrl!).hostname }]
     const hasLegend = (values?.legends ?? []).length > 0
@@ -240,7 +240,7 @@ export function makeExternalWMSLayer(values: Partial<ExternalWMSLayer>): Externa
  * This is a helper that can work with a subset of the KMLLayer properties. The missing values from
  * the function parameter will be used from defaults
  */
-export function makeKmlLayer(values: Partial<KMLLayer>): KMLLayer {
+function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
     const defaults = {
         uuid: uuidv4(),
         opacity: 1.0,
@@ -278,7 +278,7 @@ export function makeKmlLayer(values: Partial<KMLLayer>): KMLLayer {
  * This is a helper that can work with a subset of the GPXLayer properties. The missing values from
  * the function parameter will be used from defaults
  */
-export function makeGPXLayer(values: Partial<GPXLayer>): GPXLayer {
+function makeGPXLayer(values: Partial<GPXLayer>): GPXLayer {
     const isLocalFile = !values.gpxFileUrl?.startsWith('http')
     if (!values.gpxFileUrl) {
         throw new InvalidLayerDataError('Missing GPX file URL', values)
@@ -321,7 +321,7 @@ export function makeGPXLayer(values: Partial<GPXLayer>): GPXLayer {
  * This is a helper that can work with a subset of the GeoAdminVectorLayer properties. The missing
  * values from the function parameter will be used from defaults
  */
-export function makeGeoAdminVectorLayer(values: Partial<GeoAdminVectorLayer>): GeoAdminVectorLayer {
+function makeGeoAdminVectorLayer(values: Partial<GeoAdminVectorLayer>): GeoAdminVectorLayer {
     const attributions = [
         ...(values.attributions ? values.attributions : []),
         { name: 'swisstopo', url: 'https://www.swisstopo.admin.ch/en/home.html' },
@@ -360,7 +360,7 @@ export function makeGeoAdminVectorLayer(values: Partial<GeoAdminVectorLayer>): G
  * This is a helper that can work with a subset of the GeoAdmin3DLayer properties. The missing
  * values from the function parameter will be used from defaults
  */
-export function makeGeoAdmin3DLayer(values: Partial<GeoAdmin3DLayer>): GeoAdmin3DLayer {
+function makeGeoAdmin3DLayer(values: Partial<GeoAdmin3DLayer>): GeoAdmin3DLayer {
     const attributions = [{ name: 'swisstopo', url: 'https://www.swisstopo.admin.ch/en/home.html' }]
 
     const defaults = {
@@ -398,7 +398,7 @@ export function makeGeoAdmin3DLayer(values: Partial<GeoAdmin3DLayer>): GeoAdmin3
  * This is a helper that can work with a subset of the CloudOptimizedGeoTIFFLayer properties. The
  * missing values from the function parameter will be used from defaults
  */
-export function makeCloudOptimizedGeoTIFFLayer(
+function makeCloudOptimizedGeoTIFFLayer(
     values: Partial<CloudOptimizedGeoTIFFLayer>
 ): CloudOptimizedGeoTIFFLayer {
     if (values.fileSource === null || values.fileSource === undefined) {
@@ -446,7 +446,7 @@ export function makeCloudOptimizedGeoTIFFLayer(
  * This is a helper that can work with a subset of the GeoAdminAggregateLayer properties. The
  * missing values from the function parameter will be used from defaults
  */
-export function makeGeoAdminAggregateLayer(
+function makeGeoAdminAggregateLayer(
     values: Partial<GeoAdminAggregateLayer>
 ): GeoAdminAggregateLayer {
     const defaults = {
@@ -480,9 +480,7 @@ export function makeGeoAdminAggregateLayer(
  * This is a helper that can work with a subset of the GeoAdminGeoJSONLayer properties. The missing
  * values from the function parameter will be used from defaults
  */
-export function makeGeoAdminGeoJSONLayer(
-    values: Partial<GeoAdminGeoJSONLayer>
-): GeoAdminGeoJSONLayer {
+function makeGeoAdminGeoJSONLayer(values: Partial<GeoAdminGeoJSONLayer>): GeoAdminGeoJSONLayer {
     const defaults = {
         uuid: uuidv4(),
         type: LayerType.GEOJSON,
@@ -520,9 +518,7 @@ export function makeGeoAdminGeoJSONLayer(
  * This is a helper that can work with a subset of the GeoAdminGeoJSONLayer properties. The missing
  * values from the function parameter will be used from defaults
  */
-export function makeGeoAdminGroupOfLayers(
-    values: Partial<GeoAdminGroupOfLayers>
-): GeoAdminGroupOfLayers {
+function makeGeoAdminGroupOfLayers(values: Partial<GeoAdminGroupOfLayers>): GeoAdminGroupOfLayers {
     const defaults = {
         uuid: uuidv4(),
         layers: [],
@@ -546,7 +542,7 @@ export function makeGeoAdminGroupOfLayers(
 }
 
 /** Construct an aggregate sub layer */
-export function makeAggregateSubLayer(values: Partial<AggregateSubLayer>): AggregateSubLayer {
+function makeAggregateSubLayer(values: Partial<AggregateSubLayer>): AggregateSubLayer {
     if (values.layer === undefined || values.subLayerId === undefined) {
         throw new InvalidLayerDataError('Must provide a layer for the aggregate sublayer', values)
     }
@@ -559,11 +555,11 @@ export function makeAggregateSubLayer(values: Partial<AggregateSubLayer>): Aggre
     return merge(defaults, values as AggregateSubLayer)
 }
 
-export function isKmlLayerLegacy(layer: KMLLayer): boolean {
+function isKmlLayerLegacy(layer: KMLLayer): boolean {
     return layer.kmlMetadata?.author !== 'web-mapviewer'
 }
 
-export function isKmlLayerEmpty(layer: KMLLayer): boolean {
+function isKmlLayerEmpty(layer: KMLLayer): boolean {
     return !layer.kmlData || layer.kmlData === EMPTY_KML_DATA
 }
 
@@ -574,7 +570,7 @@ export function isKmlLayerEmpty(layer: KMLLayer): boolean {
  *
  * @returns The topic to use in request to the backend for this layer
  */
-export function getTopicForIdentifyAndTooltipRequests(layer: GeoAdminLayer): string {
+function getTopicForIdentifyAndTooltipRequests(layer: GeoAdminLayer): string {
     // by default, the frontend should always request `ech`, so if there's no topic that's what we do
     // if there are some topics, we look if `ech` is one of them, if so we return it
     if (layer.topics.length === 0 || layer.topics.indexOf('ech') !== -1) {
@@ -585,9 +581,53 @@ export function getTopicForIdentifyAndTooltipRequests(layer: GeoAdminLayer): str
 }
 
 /** Clone a layer but give it a new uuid */
-export function cloneLayer<T extends Layer>(layer: T): T {
+function cloneLayer<T extends Layer>(layer: T): T {
     validateBaseData(layer)
     const clone = cloneDeep(layer)
     clone.uuid = uuidv4()
     return clone
 }
+
+export interface GeoadminLayerUtils {
+    transformToLayerTypeEnum: typeof transformToLayerTypeEnum
+    makeGPXLayer: typeof makeGPXLayer
+    makeKMLLayer: typeof makeKMLLayer
+    makeGeoAdminWMSLayer: typeof makeGeoAdminWMSLayer
+    makeGeoAdminWMTSLayer: typeof makeGeoAdminWMTSLayer
+    makeExternalWMTSLayer: typeof makeExternalWMTSLayer
+    makeExternalWMSLayer: typeof makeExternalWMSLayer
+    makeGeoAdminVectorLayer: typeof makeGeoAdminVectorLayer
+    makeGeoAdmin3DLayer: typeof makeGeoAdmin3DLayer
+    makeCloudOptimizedGeoTIFFLayer: typeof makeCloudOptimizedGeoTIFFLayer
+    makeGeoAdminAggregateLayer: typeof makeGeoAdminAggregateLayer
+    makeGeoAdminGeoJSONLayer: typeof makeGeoAdminGeoJSONLayer
+    makeGeoAdminGroupOfLayers: typeof makeGeoAdminGroupOfLayers
+    makeAggregateSubLayer: typeof makeAggregateSubLayer
+    isKmlLayerLegacy: typeof isKmlLayerLegacy
+    isKmlLayerEmpty: typeof isKmlLayerEmpty
+    getTopicForIdentifyAndTooltipRequests: typeof getTopicForIdentifyAndTooltipRequests
+    cloneLayer: typeof cloneLayer
+}
+
+export const layerUtils: GeoadminLayerUtils = {
+    transformToLayerTypeEnum,
+    makeGPXLayer,
+    makeKMLLayer,
+    makeGeoAdminWMSLayer,
+    makeGeoAdminWMTSLayer,
+    makeExternalWMTSLayer,
+    makeExternalWMSLayer,
+    makeGeoAdminVectorLayer,
+    makeGeoAdmin3DLayer,
+    makeCloudOptimizedGeoTIFFLayer,
+    makeGeoAdminAggregateLayer,
+    makeGeoAdminGeoJSONLayer,
+    makeGeoAdminGroupOfLayers,
+    makeAggregateSubLayer,
+    isKmlLayerLegacy,
+    isKmlLayerEmpty,
+    getTopicForIdentifyAndTooltipRequests,
+    cloneLayer,
+}
+
+export default layerUtils

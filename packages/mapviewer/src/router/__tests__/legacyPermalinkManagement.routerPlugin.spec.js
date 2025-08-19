@@ -3,8 +3,9 @@ import { layerUtils, timeConfigUtils } from '@geoadmin/layers/utils'
 import { expect } from 'chai'
 import { beforeEach, describe, it, vi } from 'vitest'
 
-import { handleLegacyParam } from '@/router/legacyPermalinkManagement.routerPlugin'
 import * as utils from '@/utils/legacyLayerParamUtils'
+
+import { handleLegacyParam } from '../../store/plugins/legacy-permalink.plugin.ts'
 
 describe('Testing legacyPermalinkManagement', () => {
     let fakeStore

@@ -6,8 +6,9 @@ import EmptyFileContentError from '@/modules/menu/components/advancedTools/Impor
 import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
-import { getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
 import { makeKmlLayer, getKmlExtent, isKmlFeaturesValid } from '@/utils/kmlUtils.js'
+
+import { getExtentIntersectionWithCurrentProjection } from '../../../../../../../../geoadmin-coordinates/src/extentUtils.js'
 
 /**
  * Checks if file is KMLs

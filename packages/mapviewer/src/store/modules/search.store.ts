@@ -14,7 +14,7 @@ import log, { LogPreDefinedColor } from '@geoadmin/log'
 import GeoJSON from 'ol/format/GeoJSON'
 import { defineStore } from 'pinia'
 
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types.ts'
 
 import getFeature from '@/api/features/features.api'
 import LayerFeature from '@/api/features/LayerFeature.class'
@@ -34,9 +34,10 @@ import useMapStore from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'
 import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
 import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
-import { flattenExtent, normalizeExtent } from '@/utils/extentUtils'
 import { parseGpx } from '@/utils/gpxUtils'
 import { parseKml } from '@/utils/kmlUtils.ts'
+
+import { flattenExtent, normalizeExtent } from '../../../../geoadmin-coordinates/src/extentUtils'
 
 function zoomToSearchResult(
     entry: LocationSearchResult | LayerFeatureSearchResult,

@@ -24,7 +24,7 @@ import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPop
 import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle.js'
 import useVectorLayer from '@/modules/map/components/openlayers/utils/useVectorLayer.composable'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
-import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
+import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils.js'
 
 const dispatcher = { dispatcher: 'OpenLayersHighlightedFeatures.vue' }
 

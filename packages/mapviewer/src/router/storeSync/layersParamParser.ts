@@ -1,7 +1,12 @@
-import type { GeoAdminLayer, Layer, LayerCustomAttributes } from '@geoadmin/layers'
-import type { GeoAdminGeoJSONLayer, KMLLayer } from '@geoadmin/layers/dist/types'
+import type {
+    GeoAdminGeoJSONLayer,
+    GeoAdminLayer,
+    KMLLayer,
+    Layer,
+    LayerCustomAttributes,
+} from '@geoadmin/layers'
 
-import { KmlStyle, LayerType } from '@geoadmin/layers'
+import { LayerType, KMLStyle } from '@geoadmin/layers'
 import { decodeExternalLayerParam, encodeExternalLayerParam } from '@geoadmin/layers/api'
 import { layerUtils, timeConfigUtils } from '@geoadmin/layers/utils'
 import { isNumber } from '@geoadmin/numbers'
@@ -9,7 +14,6 @@ import { isNumber } from '@geoadmin/numbers'
 import type SelectableFeature from '@/api/features/SelectableFeature.class.ts'
 
 import LayerFeature from '@/api/features/LayerFeature.class'
-import KmlStyles from '@/api/layers/KmlStyles.enum'
 
 const ENC_COMMA: string = '%2C'
 const ENC_SEMI_COLON: string = '%3B'
@@ -120,8 +124,9 @@ export function parseLayersParam(queryValue: string): Partial<Layer>[] {
                     } else if (key === 'year' && value.toLowerCase() === 'none') {
                         parsedValue = undefined
                     } else if (
+                        value &&
                         key === 'style' &&
-                        Object.values(KmlStyles).includes(value?.toUpperCase())
+                        Object.keys(KMLStyle).includes(value.toUpperCase())
                     ) {
                         parsedValue = value.toUpperCase()
                     } else {
@@ -147,7 +152,7 @@ export function parseLayersParam(queryValue: string): Partial<Layer>[] {
  */
 export function transformLayerIntoUrlString(
     layer: Layer,
-    defaultLayerConfig: GeoAdminLayer,
+    defaultLayerConfig?: GeoAdminLayer,
     featuresIds?: string[]
 ): string {
     // NOTE we need to encode "," ";" and "@" characters from the layer to avoid parsing issue.
@@ -178,7 +183,7 @@ export function transformLayerIntoUrlString(
     const layerUpdateDelay: number | undefined =
         'updateDelay' in layer ? (layer as GeoAdminGeoJSONLayer).updateDelay : undefined
     const configUpdateDelay: number | undefined =
-        'updateDelay' in defaultLayerConfig
+        defaultLayerConfig && 'updateDelay' in defaultLayerConfig
             ? (defaultLayerConfig as GeoAdminGeoJSONLayer).updateDelay
             : undefined
     if (
@@ -193,16 +198,16 @@ export function transformLayerIntoUrlString(
     if (layer.type === LayerType.KML) {
         const kmlLayer = layer as KMLLayer
         // for our own files, the default style is GeoAdmin (and we don't want to write that in the URL)
-        const defaultKmlStyle = kmlLayer.isExternal ? KmlStyles.DEFAULT : KmlStyles.GEOADMIN
-        if (kmlLayer.style !== defaultKmlStyle) {
+        const defaultKmlStyle = kmlLayer.isExternal ? KMLStyle.DEFAULT : KMLStyle.GEOADMIN
+        if (kmlLayer.style && kmlLayer.style !== defaultKmlStyle) {
             layerUrlString += `@style=${kmlLayer.style.toLowerCase()}`
         }
         // only show the "clampToGround" flag when needed, meaning:
         // - when style is geoadmin, and clamp to ground is false
         // - when style is default, and clamp to ground is true
         if (
-            (kmlLayer.style === KmlStyle.DEFAULT && kmlLayer.clampToGround) ||
-            (kmlLayer.style === KmlStyle.GEOADMIN && !kmlLayer.clampToGround)
+            (kmlLayer.style === KMLStyle.DEFAULT && kmlLayer.clampToGround) ||
+            (kmlLayer.style === KMLStyle.GEOADMIN && !kmlLayer.clampToGround)
         ) {
             layerUrlString += `@clampToGround=${kmlLayer.clampToGround}`
         }

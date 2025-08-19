@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
-import { MAP_VIEWS } from '@/router/viewNames'
+import { MAP_VIEWS } from '@/router/viewNames.js'
 
 const router = useRouter()
 

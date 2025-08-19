@@ -1,3 +1,4 @@
+import type { SingleCoordinate, FlatExtent } from '@geoadmin/coordinates'
 import type { Options } from 'ol/source/WMTS'
 
 import { CoordinateSystem } from '@geoadmin/coordinates'
@@ -19,11 +20,6 @@ export enum LayerType {
     VECTOR = 'VECTOR',
     GROUP = 'GROUP',
     COG = 'COG',
-}
-
-export enum KMLStyles {
-    DEFAULT = 'DEFAULT',
-    GEOADMIN = 'GEOADMIN',
 }
 
 export interface LayerAttribution {
@@ -60,7 +56,7 @@ export interface LayerCustomAttributes {
     /** Colon-separated list of feature IDs to select.` */
     features?: string
     /** KML style to be applied (in case this layer is a KML layer) */
-    style?: KMLStyles
+    style?: KMLStyle
     /** Any unlisted param will go here */
     [key: string]: string | number | boolean | undefined
 }
@@ -228,7 +224,7 @@ export interface CloudOptimizedGeoTIFFLayer extends Layer {
     /* Data/content of the COG file, as a string. */
     data?: string | Blob
     /* The extent of this COG. */
-    extent?: [number, number, number, number]
+    extent?: FlatExtent
 }
 
 /** Links to service-kml's entries for this KML */
@@ -292,7 +288,7 @@ export interface KMLLayer extends Layer {
     /* Metadata of the KML drawing. This object contains all the metadata returned by the backend. */
     kmlMetadata?: KMLMetadata
 
-    extent?: [number, number, number, number]
+    extent?: FlatExtent
     /* Flag defining if the KML should be clamped to
        the 3D terrain (only for 3D viewer). If not set, the clamp to ground flag will be set to
        true if the KML is coming from geoadmin (drawing). Some users wanted to have 3D KMLs (fly
@@ -330,7 +326,7 @@ export interface GPXMetadata {
     link?: GPXLink
     time?: number
     keywords?: string
-    bounds?: number[]
+    bounds?: FlatExtent
     extensions?: any
 }
 
@@ -341,7 +337,7 @@ export interface GPXLayer extends Layer {
     gpxData?: string
     /* Metadata of the GPX file. This object contains all the metadata found in the file itself within the <metadata> tag. */
     gpxMetadata?: GPXMetadata
-    extent?: [number, number, number, number]
+    extent?: FlatExtent
 }
 // #endregion
 
@@ -350,7 +346,7 @@ export interface ExternalLayerTimeDimension {
     /* Dimension identifier */
     readonly id: string
     /* Dimension default value */
-    readonly default: string
+    readonly defaultValue: string
     /* All dimension values */
     readonly values: string[]
     /* Boolean flag if the dimension support current (see WMTS/WMS OGC spec) */
@@ -367,20 +363,12 @@ export interface TileMatrixSet {
 }
 
 export interface BoundingBox {
-    readonly lowerCorner?: [number, number]
-    readonly upperCorner?: [number, number]
-    readonly extent?: [number, number, number, number]
+    readonly lowerCorner?: SingleCoordinate
+    readonly upperCorner?: SingleCoordinate
+    readonly extent?: FlatExtent
     readonly crs?: string
     readonly dimensions?: number
 }
-
-export type LayerExtent =
-    | {
-          crs: string
-          dimensions: any
-      }[][]
-    | number[][]
-    | BoundingBox[][]
 
 export enum WMTSEncodingType {
     KVP = 'KVP',
@@ -405,12 +393,12 @@ export interface ExternalLayer extends Layer {
     currentYear?: number
     /* Layer legends. */
     readonly legends?: LayerLegend[]
-    readonly extent?: LayerExtent
+    readonly extent?: FlatExtent
 }
 
 export interface ExternalWMTSLayer extends ExternalLayer {
     /* WMTS Get Capabilities options */
-    readonly options?: Options
+    readonly options?: Partial<Options>
     /* WMTS Get Tile encoding (KVP or REST). */
     readonly getTileEncoding: WMTSEncodingType
     /* WMTS Get Tile url template for REST encoding. */
@@ -430,6 +418,8 @@ export interface ExternalWMSLayer extends ExternalLayer {
     readonly wmsVersion: string
     readonly wmsOperations: WMSRequestCapabilities
     readonly format: 'png' | 'jpeg'
+    /** URL parameters to pass to each WMS requests to the server */
+    readonly params?: Record<string, string>
 }
 
 // #endregion

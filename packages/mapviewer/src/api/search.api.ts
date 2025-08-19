@@ -1,21 +1,25 @@
 import type { SingleCoordinate } from '@geoadmin/coordinates'
-import type { Layer } from '@geoadmin/layers'
-import type { GeoAdminLayer } from '@geoadmin/layers/dist/types'
+import type { GPXLayer, KMLLayer, Layer } from '@geoadmin/layers'
 import type Feature from 'ol/Feature'
+import type OLFeature from 'ol/Feature'
 
 import { CoordinateSystem, CustomCoordinateSystem, LV95, WGS84 } from '@geoadmin/coordinates'
 import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
-import { bbox, center, points } from '@turf/turf'
+import { bbox, points } from '@turf/turf'
 import axios, { type CancelToken, type CancelTokenSource } from 'axios'
 import proj4 from 'proj4'
 
+import type { DrawingIconSet } from '@/api/icon.api'
+
 import { extractOlFeatureCoordinates } from '@/api/features/features.api'
 import { getServiceSearchBaseUrl } from '@/config/baseUrl.config'
-import i18n from '@/modules/i18n'
-import { type FlatExtent, normalizeExtent } from '@/utils/extentUtils'
+import i18n, { type SupportedLang } from '@/modules/i18n'
+import { getGeoJsonFeatureCenter } from '@/utils/geoJsonUtils'
 import { parseGpx } from '@/utils/gpxUtils'
-import { parseKml } from '@/utils/kmlUtils.ts'
+import { parseKml } from '@/utils/kmlUtils'
+
+import type { FlatExtent } from '../../../geoadmin-coordinates/src/extentUtils.ts'
 
 const KML_GPX_SEARCH_FIELDS = ['name', 'description', 'id']
 
@@ -230,7 +234,7 @@ async function searchLocation(
     outputProjection: CoordinateSystem,
     queryString: string,
     lang: string,
-    cancelToken: CancelTokenSource,
+    cancelToken: CancelToken,
     limit?: number
 ): Promise<LocationSearchResult[]> {
     try {
@@ -238,7 +242,7 @@ async function searchLocation(
             queryString,
             lang,
             'locations',
-            cancelToken.token,
+            cancelToken,
             { limit }
         )
         if (!locationResponse?.data || !locationResponse?.data?.results) {
@@ -265,7 +269,7 @@ async function searchLayerFeatures(
     layer: Layer,
     lang: string,
     cancelToken: CancelTokenSource
-): Promise<LayerFeatureSearchResult[]> {
+): Promise<SearchResult[]> {
     try {
         const layerFeatureResponse = await generateAxiosSearchRequest(
             queryString,
@@ -317,28 +321,14 @@ function isQueryInFeature(feature: Feature, queryString: string, searchFields: s
     })
 }
 
-/**
- * Searches for the query string in the layer
- *
- * @param outputProjection
- * @param queryString
- * @param layer
- * @param parseData Data needed in the parseFunction
- * @param parseFunction Function to parse the data
- */
+/** Searches for the query string in the vector layer */
 function searchFeatures(
+    features: Feature[],
     outputProjection: CoordinateSystem,
     queryString: string,
-    layer: Layer,
-    parseData: any,
-    parseFunction: (
-        data: any,
-        outputProjection: CoordinateSystem,
-        searchFields: string[]
-    ) => Feature[]
+    layer: KMLLayer | GPXLayer
 ): SearchResult[] {
     try {
-        const features = parseFunction(parseData, outputProjection, [])
         if (!features || !features.length) {
             return []
         }
@@ -364,22 +354,33 @@ function searchFeatures(
 function searchLayerFeaturesKMLGPX(
     layersToSearch: Layer[],
     queryString: string,
-    outputProjection: CoordinateSystem
+    outputProjection: CoordinateSystem,
+    resolution: number,
+    iconSets: DrawingIconSet[]
 ): SearchResult[] {
-    return layersToSearch.reduce((returnLayers, currentLayer) => {
+    return layersToSearch.reduce((returnLayers: SearchResult[], currentLayer: Layer) => {
         if (currentLayer.type === LayerType.KML) {
+            const kmlLayer = currentLayer as KMLLayer
             return returnLayers.concat(
-                searchFeatures(outputProjection, queryString, currentLayer, currentLayer, parseKml)
+                searchFeatures(
+                    parseKml(kmlLayer, outputProjection, iconSets, resolution),
+                    outputProjection,
+                    queryString,
+                    kmlLayer
+                )
             )
         }
         if (currentLayer.type === LayerType.GPX) {
+            const gpxData = (currentLayer as GPXLayer).gpxData
+            if (!gpxData) {
+                return returnLayers
+            }
             return returnLayers.concat(
                 ...searchFeatures(
+                    parseGpx(gpxData, outputProjection),
                     outputProjection,
                     queryString,
-                    currentLayer,
-                    currentLayer.gpxData,
-                    parseGpx
+                    currentLayer
                 )
             )
         }
@@ -387,73 +388,65 @@ function searchLayerFeaturesKMLGPX(
     }, [])
 }
 
-/**
- * Creates the SearchResult for a layer
- *
- * @param {GeoAdminLayer} layer
- * @param {ol/Feature} feature
- * @param {ol/extent|null} extent
- * @param {CoordinateSystem} outputProjection
- * @returns {SearchResult}
- */
-function createSearchResultFromLayer(layer, feature, outputProjection) {
-    const featureName = feature.values_.name || layer.name || '' // this needs || to avoid using empty string when feature.values_.name is an empty string
-    const coordinates = extractOlFeatureCoordinates(feature)
-    const zoom = outputProjection.get1_25000ZoomLevel()
+/** Creates the SearchResult for a layer */
+function createSearchResultFromLayer(
+    layer: KMLLayer | GPXLayer,
+    feature: OLFeature,
+    outputProjection: CoordinateSystem
+): LayerFeatureSearchResult {
+    const featureName: string = feature.get('name') || layer.name || '' // this needs || to avoid using empty string when feature.get("name") is an empty string
+    const coordinates: SingleCoordinate[] = extractOlFeatureCoordinates(feature)
+    const zoom: number = outputProjection.get1_25000ZoomLevel()
 
     const coordinatePoints = points(coordinates)
-    const centerPoint = center(coordinatePoints)
-    const normalExtent = normalizeExtent(bbox(coordinatePoints))
-
-    const featureId = feature.getId()
-    const layerContent = {
-        resultType: SearchResultTypes.LAYER,
-        id: layer.id,
-        title: layer.name ?? '',
-        sanitizedTitle: sanitizeTitle(layer.name),
-        description: layer.description ?? '',
-        layerId: layer.id,
+    let extent: number[] = bbox(coordinatePoints)
+    if (extent.length > 4) {
+        extent = extent.slice(0, 4)
     }
-    const locationContent = {
-        resultType: SearchResultTypes.LOCATION,
+
+    const featureId = feature.getId() ? `${feature.getId()}` : layer.id
+    return {
+        resultType: SearchResultTypes.FEATURE,
         id: featureId,
         title: featureName,
         sanitizedTitle: sanitizeTitle(featureName),
-        description: feature.values_.description ?? '',
+        description: feature.get('description') ?? '',
         featureId: featureId,
-        coordinate: centerPoint.geometry.coordinates,
-        extent: normalExtent,
+        coordinate: getGeoJsonFeatureCenter(coordinatePoints, outputProjection, outputProjection),
+        extent: extent as FlatExtent,
         zoom,
-    }
-    return {
-        ...layerContent,
-        ...locationContent,
-        resultType: SearchResultTypes.FEATURE,
-        title: featureName,
         layer,
+        layerId: layer.id,
     }
 }
 
-let cancelToken = null
-/**
- * @param {CoordinateSystem} config.outputProjection The projection in which the search results must
- *   be returned
- * @param {String} config.queryString The query string that describe what is wanted from the search
- * @param {String} config.lang The lang ISO code in which the search must be conducted
- * @param {GeoAdminLayer[]} [config.layersToSearch=[]] List of searchable layers for which to fire
- *   search requests. Default is `[]`
- * @param {number} config.limit The maximum number of results to return
- * @returns {Promise<SearchResult[]>}
- */
-export default async function search(config) {
+interface SearchConfig {
+    /** The projection in which the search results must be returned */
+    outputProjection: CoordinateSystem
+    /** The query string that describe what is wanted from the search */
+    queryString: string
+    /** The lang ISO code in which the search must be conducted */
+    lang: SupportedLang
+    /** List of searchable layers for which to fire search requests. */
+    layersToSearch?: Layer[]
+    /** The maximum number of results to return */
+    limit?: number
+    resolution: number
+    iconSets: DrawingIconSet[]
+}
+
+let cancelTokenSource: CancelTokenSource | undefined
+export default async function search(config: SearchConfig): Promise<SearchResult[]> {
     const {
-        outputProjection = null,
-        queryString = null,
-        lang = null,
+        outputProjection,
+        queryString,
+        lang,
         layersToSearch = [],
-        limit = null,
+        limit,
+        resolution,
+        iconSets = [],
     } = config
-    if (!(outputProjection instanceof CoordinateSystem)) {
+    if (!outputProjection) {
         const errorMessage = `A valid output projection is required to start a search request`
         log.error(errorMessage)
         throw new SearchError(errorMessage)
@@ -461,40 +454,56 @@ export default async function search(config) {
     if (!lang || lang.length !== 2) {
         const errorMessage = `A valid lang ISO code is required to start a search request, received: ${lang}`
         log.error(errorMessage)
-        throw SearchError(errorMessage)
+        throw new SearchError(errorMessage)
     }
     if (!queryString || queryString.length < 2) {
         const errorMessage = `At least to character are needed to launch a backend search, received: ${queryString}`
         log.error(errorMessage)
-        throw SearchError(errorMessage)
+        throw new SearchError(errorMessage)
     }
     // if a request is currently pending, we cancel it to start the new one
-    if (cancelToken) {
-        cancelToken.cancel('new search query')
+    if (cancelTokenSource) {
+        cancelTokenSource.cancel('new search query')
     }
-    cancelToken = axios.CancelToken.source()
+    cancelTokenSource = axios.CancelToken.source()
 
-    /** @type {Promise<SearchResult[]>[]} */
-    const allRequests = [
-        searchLayers(queryString, lang, cancelToken, limit),
-        searchLocation(outputProjection, queryString, lang, cancelToken, limit),
+    const allResults: SearchResult[] = [
+        ...(await searchLayers(queryString, lang, cancelTokenSource.token, limit)),
+        ...(await searchLocation(
+            outputProjection,
+            queryString,
+            lang,
+            cancelTokenSource.token,
+            limit
+        )),
     ]
 
-    if (layersToSearch.some((layer) => layer.searchable)) {
-        allRequests.push(
-            ...layersToSearch
-                .filter((layer) => layer.searchable)
-                .map((layer) =>
-                    searchLayerFeatures(outputProjection, queryString, layer, lang, cancelToken)
-                )
+    const searchableLayers = layersToSearch.filter(
+        (layer) => 'searchable' in layer && !!layer.searchable
+    )
+    for (const searchableLayer of searchableLayers) {
+        allResults.push(
+            ...(await searchLayerFeatures(
+                outputProjection,
+                queryString,
+                searchableLayer,
+                lang,
+                cancelTokenSource
+            ))
         )
     }
 
-    allRequests.push(searchLayerFeaturesKMLGPX(layersToSearch, queryString, outputProjection))
+    allResults.push(
+        ...searchLayerFeaturesKMLGPX(
+            layersToSearch,
+            queryString,
+            outputProjection,
+            resolution,
+            iconSets
+        )
+    )
 
-    // letting all requests finish in parallel
-    const allResults = await Promise.all(allRequests)
-    cancelToken = null
+    cancelTokenSource = undefined
 
     return allResults.flat()
 }

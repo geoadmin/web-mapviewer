@@ -1,7 +1,7 @@
 import log from '@geoadmin/log'
 
 import { loadTopicTreeForTopic } from '@/api/topics.api'
-import router from '@/router'
+import router from '@/router/index.js'
 
 const dispatcher = { dispatcher: 'topic-change-management.plugin' }
 

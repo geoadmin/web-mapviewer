@@ -8,7 +8,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types.ts'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
@@ -24,7 +24,7 @@ const { t } = useI18n()
 
 const uiStore = useUIStore()
 
-let debouncedOnResize
+let debouncedOnResize: () => void = () => {}
 const showFeedbackPopup = computed(() => {
     return uiStore.errors.size + uiStore.warnings.size > 0
 })

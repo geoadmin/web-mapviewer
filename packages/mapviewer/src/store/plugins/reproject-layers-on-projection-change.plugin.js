@@ -3,7 +3,8 @@ import proj4 from 'proj4'
 
 import EditableFeature from '@/api/features/EditableFeature.class.js'
 import LayerFeature from '@/api/features/LayerFeature.class.js'
-import { flattenExtent, projExtent } from '@/utils/extentUtils'
+
+import { flattenExtent, projExtent } from '../../../../geoadmin-coordinates/src/extentUtils.js'
 
 const dispatcher = { dispatcher: 'reproject-layers-on-projection-change.plugin' }
 

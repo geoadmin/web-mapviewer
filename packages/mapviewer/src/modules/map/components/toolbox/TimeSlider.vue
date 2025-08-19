@@ -8,7 +8,7 @@ import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vu
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
+import { DEFAULT_YOUNGEST_YEAR } from '@/config/time.config.js'
 import TimeSliderDropdown from '@/modules/map/components/toolbox/TimeSliderDropdown.vue'
 import debounce from '@/utils/debounce'
 

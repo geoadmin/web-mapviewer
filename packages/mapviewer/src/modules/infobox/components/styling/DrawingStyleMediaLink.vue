@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 import MediaTypes from '@/modules/infobox/DrawingStyleMediaTypes.enum.js'
 import TextInput from '@/utils/components/TextInput.vue'
-import { isValidUrl } from '@/utils/utils'
+import { isValidUrl } from '@/utils/utils.js'
 
 const { mediaType, urlLabel, descriptionLabel } = defineProps({
     mediaType: {
@@ -103,7 +103,7 @@ function onUrlValidate(valid) {
     <div class="px-3 pb-2">
         <div
             v-if="descriptionLabel"
-            class="pb-2 d-flex"
+            class="d-flex pb-2"
         >
             <TextInput
                 v-model="linkDescription"

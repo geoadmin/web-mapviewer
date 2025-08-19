@@ -2,21 +2,24 @@
 
 import proj4 from 'proj4'
 
+import { coordinatesUtils, type GeoadminCoordinatesUtils } from '@/coordinatesUtils'
+import { extentUtils, type GeoadminExtentUtils } from '@/extentUtils'
 import crs, { type GeoadminCoordinateCRS } from '@/proj'
 import registerProj4 from '@/registerProj4'
-import { coordinates as utils, type GeoadminCoordinatesUtils } from '@/utils'
 
 export * from '@/proj'
 export * from '@/registerProj4'
-export * from '@/utils'
+export * from '@/coordinatesUtils'
+export * from '@/extentUtils'
 
 // registering local instance of proj4, needed for some @geoadmin/coordinates functions
 registerProj4(proj4)
 
 interface GeoadminCoordinates extends GeoadminCoordinateCRS {
-    utils: GeoadminCoordinatesUtils
+    coordinatesUtils: GeoadminCoordinatesUtils
+    extentUtils: GeoadminExtentUtils
     registerProj4: typeof registerProj4
 }
 
-const coordinates: GeoadminCoordinates = { ...crs, utils, registerProj4 }
+const coordinates: GeoadminCoordinates = { ...crs, coordinatesUtils, extentUtils, registerProj4 }
 export default coordinates

@@ -34,9 +34,10 @@ import {
 import { useLayersStore } from '@/store/modules/layers.store.ts'
 import { usePositionStore } from '@/store/modules/position.store.ts'
 import { useUIStore } from '@/store/modules/ui.store.ts'
-import { flattenExtent } from '@/utils/extentUtils'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 import { makeKmlLayer } from '@/utils/kmlUtils.ts'
+
+import { flattenExtent } from '../../../../../geoadmin-coordinates/src/extentUtils.ts'
 
 function createWMTSLayerObject(parsedLayer: Record<string, any>): ExternalWMTSLayer {
     const { year } = parsedLayer.customAttributes ?? { year: undefined }

@@ -6,10 +6,13 @@ import { CoordinateSystem } from '@geoadmin/coordinates'
 import { LayerType } from '@geoadmin/layers'
 import { centroid } from '@turf/turf'
 import GeoJSON, { type GeoJSONGeometry } from 'ol/format/GeoJSON'
+import { SimpleGeometry } from 'ol/geom'
+import RenderFeature from 'ol/render/Feature'
 
 import LayerFeature from '@/api/features/LayerFeature.class.ts'
 import { getBaseUrlOverride } from '@/config/baseUrl.config.ts'
-import { normalizeExtent } from '@/utils/extentUtils'
+
+import type { FlatExtent } from '../../../geoadmin-coordinates/src/extentUtils.ts'
 
 /**
  * Minimalist description of an active layer. Is useful when parsing layers from the URL, but we do
@@ -44,14 +47,18 @@ export function getWmtsXyzUrl(
 ): string | undefined {
     const { addTimestamp = false } = options ?? {}
     if (wmtsLayerConfig?.type === LayerType.WMTS && projection) {
-        let timestamp = '{Time}'
+        let timestamp: string = '{Time}'
         if (addTimestamp) {
-            timestamp = getTimestampFromConfig(wmtsLayerConfig)
+            const timestampFromConfig = getTimestampFromConfig(wmtsLayerConfig)
+            timestamp = timestampFromConfig ?? timestamp
         }
         const layerId = wmtsLayerConfig.isExternal
             ? wmtsLayerConfig.id
-            : wmtsLayerConfig.technicalName
-        return `${getBaseUrlOverride('wmts') ?? wmtsLayerConfig.baseUrl}1.0.0/${layerId}/default/${timestamp}/${projection.epsgNumber}/{z}/{x}/{y}.${wmtsLayerConfig.format}`
+            : (wmtsLayerConfig as GeoAdminWMTSLayer).technicalName
+        const format = wmtsLayerConfig.isExternal
+            ? ((wmtsLayerConfig as ExternalWMTSLayer).options?.format ?? 'jpeg')
+            : (wmtsLayerConfig as GeoAdminWMTSLayer).format
+        return `${getBaseUrlOverride('wmts') ?? wmtsLayerConfig.baseUrl}1.0.0/${layerId}/default/${timestamp}/${projection.epsgNumber}/{z}/{x}/{y}.${format}`
     }
     return undefined
 }
@@ -89,14 +96,24 @@ export function createLayerFeature(
     coordinates?: SingleCoordinate,
     geometry?: GeoJSONGeometry
 ): LayerFeature | undefined {
-    if (!olFeature?.getGeometry() || geometry) {
+    const olGeometry = olFeature?.getGeometry()
+    if (
+        !olGeometry ||
+        geometry ||
+        olGeometry instanceof RenderFeature ||
+        !(olGeometry instanceof SimpleGeometry)
+    ) {
         return
     }
     const geometryToReturn: GeoJSONGeometry =
-        geometry ?? new GeoJSON().writeGeometryObject(olFeature.getGeometry())
+        geometry ?? new GeoJSON().writeGeometryObject(olGeometry)
+    // creating a centroid is especially important for Polygon geometries else it can break expected cesium behavior
+    const center: SingleCoordinate | undefined = centroid(geometryToReturn).geometry
+        .coordinates as SingleCoordinate
+
     return new LayerFeature({
         layer: layer,
-        id: olFeature.getId(),
+        id: olFeature.getId() ?? layer.id,
         title:
             olFeature.get('label') ??
             // exception for MeteoSchweiz GeoJSONs, we use the station name instead of the ID
@@ -111,12 +128,8 @@ export function createLayerFeature(
             title: olFeature.get('name'),
             description: olFeature.get('description'),
         },
-        // creating a centroid is especially important for Polygon geometries else it can break expected cesium behaviour
-        coordinates:
-            centroid(geometryToReturn).geometry.coordinates ??
-            coordinates ??
-            olFeature.getGeometry().getCoordinates(),
+        center,
         geometry: geometryToReturn,
-        extent: normalizeExtent(olFeature.getGeometry().getExtent()),
+        extent: olGeometry.getExtent() as FlatExtent,
     })
 }

@@ -1,12 +1,16 @@
+import type { Feature } from 'ol'
+import type { Color } from 'ol/color'
+import type { ColorLike, PatternDescriptor } from 'ol/colorlike'
 import type OLFeature from 'ol/Feature'
+import type { Size } from 'ol/size'
 
 import { fromString } from 'ol/color'
 import { Fill, Stroke, Text } from 'ol/style'
 import Style from 'ol/style/Style'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class.js'
-import { DEFAULT_TITLE_OFFSET } from '@/api/icon.api.js'
-import { dashedRedStroke, whiteSketchFill } from '@/utils/styleUtils.ts'
+import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { DEFAULT_TITLE_OFFSET } from '@/api/icon.api'
+import { dashedRedStroke, whiteSketchFill } from '@/utils/styleUtils'
 
 /**
  * @returns CSS string describing the text shadow that must be applied when coloring a text with
@@ -95,26 +99,25 @@ export const EXTRA_LARGE: FeatureStyleSize = {
 
 /** List of all available sizes for drawing style */
 export const allStylingSizes: FeatureStyleSize[] = [SMALL, MEDIUM, LARGE, EXTRA_LARGE]
-export enum TextPlacements {
-    TOP_LEFT = 'TOP_LEFT',
-    TOP = 'TOP',
-    TOP_RIGHT = 'TOP_RIGHT',
-    LEFT = 'LEFT',
-    CENTER = 'CENTER',
-    RIGHT = 'RIGHT',
-    BOTTOM_LEFT = 'BOTTOM_LEFT',
-    BOTTOM = 'BOTTOM',
-    BOTTOM_RIGHT = 'BOTTOM_RIGHT',
-    UNKNOWN = 'UNKNOWN',
-}
+export type TextPlacement =
+    | 'top-left'
+    | 'top'
+    | 'top-right'
+    | 'left'
+    | 'center'
+    | 'right'
+    | 'bottom-left'
+    | 'bottom'
+    | 'bottom-right'
+    | 'unknown'
 
 /** Get Feature style from feature */
-export function getStyle(olFeature: OLFeature): Style | undefined {
+export function getStyle(olFeature: OLFeature, resolution: number): Style | undefined {
     const styleFunction = olFeature.getStyleFunction()
     if (!styleFunction) {
         return
     }
-    const styles = styleFunction(olFeature)
+    const styles = styleFunction(olFeature, resolution)
     if (Array.isArray(styles)) {
         return styles[0]
     } else if (styles instanceof Style) {
@@ -128,10 +131,12 @@ export function getStyle(olFeature: OLFeature): Style | undefined {
  *
  * Default to RED if the color code is not found or invalid !
  *
- * @param {[Number]} fillColor Rgb array of the requested fill color
- * @returns {FeatureStyleColor} Returns the feature style color
+ * @param fillColor Rgb array of the requested fill color
+ * @returns The feature style color
  */
-export function getFeatureStyleColor(fillColor) {
+export function getFeatureStyleColor(
+    fillColor: Color | ColorLike | PatternDescriptor | null
+): FeatureStyleColor {
     if (!Array.isArray(fillColor)) {
         return RED
     }
@@ -147,14 +152,14 @@ export function getFeatureStyleColor(fillColor) {
 /**
  * Return an instance of FeatureStyleSize matching the requested text scale
  *
- * @param {Number} textScale The requested text scale
- * @returns {FeatureStyleSize | null} Returns text size or null if not found
+ * @param textScale The requested text scale
+ * @returns Text size or undefined if not found
  */
-export function getTextSize(textScale) {
+export function getTextSize(textScale?: number): FeatureStyleSize | undefined {
     if (textScale) {
         return allStylingSizes.find((size) => size.textScale === textScale) ?? MEDIUM
     }
-    return null
+    return
 }
 
 /**
@@ -166,26 +171,33 @@ export function getTextSize(textScale) {
  * @returns {FeatureStyleColor | null} Returns the feature style color object or null if text is not
  *   found
  */
-export function getTextColor(style) {
-    if (style?.getText()) {
-        return getFeatureStyleColor(style.getText().getFill()?.getColor())
+export function getTextColor(style: Style): FeatureStyleColor | undefined {
+    const styleColor = style?.getText()?.getFill()?.getColor()
+    if (Array.isArray(styleColor)) {
+        return getFeatureStyleColor(styleColor)
     }
-    return null
+    return
 }
 
 /**
  * Calculate text alignment from style parameters *
  *
- * @param {Number} textScale Text scaling
- * @param {Number} iconScale Icon scaling
- * @param {Array} anchor Relative position of Anchor
- * @param {Array} iconSize Absolute size of icon in pixel
- *
- * @typedef {'top-left' | 'top' | 'top-right', | 'left' | 'center' | 'right' | 'bottom-left' | 'bottom' | 'bottom-right' | 'unknown'} TextPlacement
- * @param {TextPlacement} textPlacement Absolute position of text in pixel
- * @returns {Array} Returns the feature label offset
+ * @param textScale
+ * @param iconScale
+ * @param anchor Relative position of the anchor
+ * @param iconSize Absolute size of the icon in pixel
+ * @param textPlacement Absolute position of the text in pixel
+ * @param text
+ * @returns The feature label offset
  */
-export function calculateTextOffset(textScale, iconScale, anchor, iconSize, textPlacement, text) {
+export function calculateTextOffset(
+    textScale: number,
+    iconScale: number,
+    anchor: [number, number],
+    iconSize: [number, number],
+    textPlacement: TextPlacement,
+    text: string
+): number[] {
     if (!iconScale) {
         return DEFAULT_TITLE_OFFSET
     }
@@ -203,60 +215,80 @@ export function calculateTextOffset(textScale, iconScale, anchor, iconSize, text
 /**
  * Calculate the text X and Y offset that can be applied to the text depending on the text position
  *
- * @param {Number} textScale Text scaling
- * @param {Number} iconScale Icon scaling
- * @param {Array} anchor Relative position of Anchor
- * @param {Array} iconSize Absolute size of icon in pixel
- * @param {String} text Text to display
- * @returns {Array} Returns the default X and Y label offset in pixel
+ * @param textScale
+ * @param iconScale
+ * @param anchor Relative position of the anchor
+ * @param iconSize Absolute size of the icon in pixel
+ * @param text Text to display
+ * @returns The default X and Y label offset in pixel
  */
-export function calculateTextXYOffset(textScale, iconScale, anchor, iconSize, text) {
+export function calculateTextXYOffset(
+    textScale: number,
+    iconScale: number | Size,
+    anchor: [number, number],
+    iconSize: [number, number],
+    text: string
+): [number, number] {
     const fontSize = 11
-    const anchorScale = anchor ? anchor[1] * 2 : 1
+    const anchorScale: number = anchor ? anchor[1] * 2 : 1
 
-    const iconOffset = 0.5 * iconScale * anchorScale * iconSize[1]
+    const iconScaleXY: [number, number] = Array.isArray(iconScale)
+        ? [iconScale[0], iconScale[1]]
+        : [iconScale, iconScale]
+
+    const iconOffset: [number, number] = [
+        0.5 * iconScaleXY[0] * anchorScale * iconSize[0],
+        0.5 * iconScaleXY[1] * anchorScale * iconSize[1],
+    ]
+
     const textOffset = 0.5 * fontSize * textScale
     const textWidth = calculateFeatureTextWidth(text, textScale)
     const defaultOffset = 5
 
     return [
-        defaultOffset + iconOffset + textOffset + textWidth / 2, // / 2 because the text is centered so the textWidth has to be halved
-        defaultOffset + iconOffset + textOffset,
+        defaultOffset + iconOffset[0] + textOffset + textWidth / 2, // / 2 because the text is centered so the textWidth has to be halved
+        defaultOffset + iconOffset[1] + textOffset,
     ]
 }
 
 /**
  * Calculate the text offset from the text placement and the default offset
  *
- * @param {Number} defaultXOffset Default X offset
- * @param {Number} defaultYOffset Default Y offset
- * @param {String} placement Text placement
- * @returns {Array} Returns the default X and Y label offset in pixel
+ * @param defaultXOffset
+ * @param defaultYOffset
+ * @param placement
+ * @returns The default X and Y label offset in pixel
  */
-export function calculateTextOffsetFromPlacement(defaultXOffset, defaultYOffset, placement) {
-    const offsets = {
-        [TOP_LEFT]: [-defaultXOffset, -defaultYOffset],
-        [TOP]: [0, -defaultYOffset],
-        [TOP_RIGHT]: [defaultXOffset, -defaultYOffset],
-        [LEFT]: [-defaultXOffset, 0],
-        [CENTER]: [0, 0],
-        [RIGHT]: [defaultXOffset, 0],
-        [BOTTOM_LEFT]: [-defaultXOffset, defaultYOffset],
-        [BOTTOM]: [0, defaultYOffset],
-        [BOTTOM_RIGHT]: [defaultXOffset, defaultYOffset],
+export function calculateTextOffsetFromPlacement(
+    defaultXOffset: number,
+    defaultYOffset: number,
+    placement: TextPlacement
+): [number, number] {
+    switch (placement) {
+        case 'top-left':
+            return [-defaultXOffset, -defaultYOffset]
+        case 'top':
+            return [0, -defaultYOffset]
+        case 'top-right':
+            return [defaultXOffset, -defaultYOffset]
+        case 'left':
+            return [-defaultXOffset, 0]
+        case 'center':
+            return [0, 0]
+        case 'right':
+            return [defaultXOffset, 0]
+        case 'bottom-left':
+            return [-defaultXOffset, defaultYOffset]
+        case 'bottom':
+            return [0, defaultYOffset]
+        case 'bottom-right':
+            return [defaultXOffset, defaultYOffset]
     }
-
-    return offsets[placement] || [0, 0]
+    return [0, 0]
 }
 
-/**
- * Calculates the width of a feature text given a text and a text scale
- *
- * @param {String} text
- * @param {Number} textScale
- * @returns
- */
-export function calculateFeatureTextWidth(text, textScale) {
+/** Calculates the width of a feature text given a text and a text scale */
+export function calculateFeatureTextWidth(text: string, textScale: number): number {
     const canvas = document.createElement('canvas')
     const context = canvas.getContext('2d')
     // In unit tests the context is not available
@@ -270,11 +302,11 @@ export function calculateFeatureTextWidth(text, textScale) {
 /**
  * Returns offset (compared to marker) for text around it, depending on the text position and if the
  * description should be shown on the map too.
- *
- * @param {EditableFeature} editableFeature
- * @returns {{ top: [number, number]; bottom: [number, number] }}
  */
-function getElementOffsets(editableFeature) {
+function getElementOffsets(editableFeature: EditableFeature): {
+    top: [number, number]
+    bottom: [number, number]
+} {
     if (!editableFeature) {
         return {
             top: [0, 0],
@@ -282,14 +314,18 @@ function getElementOffsets(editableFeature) {
         }
     }
 
-    const offsetTopElement = [...editableFeature.textOffset]
-    const offsetBottomElement = [...editableFeature.textOffset]
+    const offsetTopElement: [number, number] = [...editableFeature.textOffset]
+    const offsetBottomElement: [number, number] = [...editableFeature.textOffset]
 
     if (editableFeature.showDescriptionOnMap && editableFeature.description) {
-        const isTextAtBottom = [BOTTOM_LEFT, BOTTOM, BOTTOM_RIGHT].includes(
-            editableFeature.textPlacement
-        )
-        const isTextAtCenter = [CENTER, RIGHT, LEFT].includes(editableFeature.textPlacement)
+        const isTextAtBottom =
+            editableFeature.textPlacement === 'bottom' ||
+            editableFeature.textPlacement === 'bottom-left' ||
+            editableFeature.textPlacement === 'bottom-right'
+        const isTextAtCenter =
+            editableFeature.textPlacement === 'center' ||
+            editableFeature.textPlacement === 'left' ||
+            editableFeature.textPlacement === 'right'
 
         const descriptionLineWrapCount = editableFeature.description.split('\n').length ?? 0
         const descriptionBlocHeight = descriptionLineWrapCount * FEATURE_FONT_SIZE_SMALL
@@ -329,12 +365,11 @@ function getElementOffsets(editableFeature) {
  * To style a selected feature, within the drawing module context, please use
  * {@link editingFeatureStyleFunction}
  *
- * @param {Feature} feature OpenLayers feature to style
- * @param {number} resolution The resolution of the map in map units / pixel (which is equatorial
- *   meters / pixel for the webmercator projection used in this project)
- * @returns {Style[]}
+ * @param feature OpenLayers feature to style
+ * @param resolution The resolution of the map in map units / pixel (which is equatorial meters /
+ *   pixel for the webmercator projection used in this project)
  */
-export function geoadminStyleFunction(feature, resolution) {
+export function geoadminStyleFunction(feature: Feature, resolution: number): Style[] {
     const editableFeature = feature.get('editableFeature')
 
     const styleConfig = {

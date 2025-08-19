@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 
 import type EditableFeature from '@/api/features/EditableFeature.class.ts'
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types.ts'
 
 import { DrawingIconSet, loadAllIconSetsFromBackend } from '@/api/icon.api.ts'
 

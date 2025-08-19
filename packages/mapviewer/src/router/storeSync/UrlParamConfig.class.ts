@@ -3,7 +3,7 @@ import type { RouteLocationNormalizedGeneric } from 'vue-router'
 import { LogPreDefinedColor } from '@geoadmin/log'
 
 import type { ValidationResponse } from '@/router/storeSync/validation'
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types.ts'
 
 export const STORE_DISPATCHER_ROUTER_PLUGIN: ActionDispatcher = { name: 'storeSync.routerPlugin' }
 

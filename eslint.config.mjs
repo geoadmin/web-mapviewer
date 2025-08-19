@@ -84,6 +84,8 @@ export default defineConfigWithVueTs(
                     // as we are adding dispatcher reference in all our store action, but won't be using
                     // them directly in the action, we must ignore these unused variables too
                     argsIgnorePattern: '^(_|dispatcher)',
+                    caughtErrorsIgnorePattern: '^_',
+                    destructuredArrayIgnorePattern: '^_',
                 },
             ],
             '@typescript-eslint/consistent-type-exports': 'error',

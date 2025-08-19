@@ -1,11 +1,12 @@
 import log, { LogPreDefinedColor } from '@geoadmin/log'
 import { defineStore } from 'pinia'
 
-import type { ActionDispatcher } from '@/store/store'
-import type { FlatExtent } from '@/utils/extentUtils'
+import type { ActionDispatcher } from '@/store/types.ts'
 
 import { PrintLayout, readPrintCapabilities } from '@/api/print.api'
 import { PRINT_DEFAULT_DPI } from '@/config/print.config'
+
+import type { FlatExtent } from '../../../../geoadmin-coordinates/src/extentUtils.ts'
 
 export interface NewPrintServiceConfig {
     dpi: number

@@ -16,17 +16,18 @@ import { center, points } from '@turf/turf'
 import { defineStore } from 'pinia'
 import proj4 from 'proj4'
 
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types.ts'
 
-import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { DEFAULT_PROJECTION } from '@/config/map.config.ts'
 import useUIStore from '@/store/modules/ui.store'
 import { CoordinateFormat, LV95Format } from '@/utils/coordinates/coordinateFormat'
+
 import {
     type FlatExtent,
     type NormalizedExtent,
     normalizeExtent,
     projExtent,
-} from '@/utils/extentUtils'
+} from '../../../../geoadmin-coordinates/src/extentUtils.ts'
 
 /**
  * Normalizes any angle so that -PI < result <= PI

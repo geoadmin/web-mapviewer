@@ -8,12 +8,9 @@ import { defineStore } from 'pinia'
 
 import type SelectableFeature from '@/api/features/SelectableFeature.class'
 import type { DrawingIcon } from '@/api/icon.api.ts'
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types.ts'
 
-import EditableFeature, {
-    EditableFeatureTextPlacement,
-    EditableFeatureTypes,
-} from '@/api/features/EditableFeature.class'
+import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import getFeature, {
     identify,
     type IdentifyConfig,
@@ -24,22 +21,25 @@ import { sendFeatureInformationToIFrameParent } from '@/api/iframePostMessageEve
 import {
     DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION,
     DEFAULT_FEATURE_COUNT_SINGLE_POINT,
-} from '@/config/map.config'
+} from '@/config/map.config.ts'
 import { useI18nStore } from '@/store/modules/i18n.store'
 import useLayersStore from '@/store/modules/layers.store'
 import useMapStore from '@/store/modules/map.store'
+import usePositionStore from '@/store/modules/position.store'
 import useProfileStore from '@/store/modules/profile.store'
 import useUIStore from '@/store/modules/ui.store'
-import { type FlatExtent, flattenExtent, type NormalizedExtent } from '@/utils/extentUtils'
 import {
     allStylingColors,
     allStylingSizes,
-    allStylingTextPlacementsWithUnknown,
-    FeatureStyleColor,
-    FeatureStyleSize,
-} from '@/utils/featureStyleUtils.ts'
+    type FeatureStyleColor,
+    type FeatureStyleSize,
+} from '@/utils/featureStyleUtils'
 
-import usePositionStore from './position.store'
+import {
+    type FlatExtent,
+    flattenExtent,
+    type NormalizedExtent,
+} from '../../../../geoadmin-coordinates/src/extentUtils.ts'
 
 function getEditableFeatureWithId(
     selectedEditableFeatures: EditableFeature[],
@@ -187,9 +187,9 @@ const useFeaturesStore = defineStore('features', {
     }),
     getters: {
         selectedLayerFeatures(): LayerFeature[] {
-            return this.selectedFeaturesByLayerId
-                .map((featuresForLayer) => featuresForLayer.features)
-                .flat()
+            return this.selectedFeaturesByLayerId.flatMap(
+                (featuresForLayer) => featuresForLayer.features
+            )
         },
 
         selectedFeatures(): SelectableFeature[] {
@@ -280,7 +280,7 @@ const useFeaturesStore = defineStore('features', {
             payload: {
                 layers: Layer[]
                 coordinate: SingleCoordinate | FlatExtent
-                vectorFeatures: LayerFeature[]
+                vectorFeatures?: SelectableFeature[]
                 identifyMode?: IdentifyMode
             },
             dispatcher: ActionDispatcher

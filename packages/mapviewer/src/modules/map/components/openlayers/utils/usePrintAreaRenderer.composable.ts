@@ -11,12 +11,13 @@ import { getRenderPixel } from 'ol/render'
 import VectorSource from 'ol/source/Vector'
 import { computed, watch, type WatchHandle } from 'vue'
 
-import type { ActionDispatcher } from '@/store/store'
-import type { FlatExtent } from '@/utils/extentUtils.ts'
+import type { ActionDispatcher } from '@/store/types.ts'
 
 import { PrintError } from '@/api/print.api.ts'
 import usePrintStore, { type PrintLayoutSize } from '@/store/modules/print.store'
 import useUIStore from '@/store/modules/ui.store'
+
+import type { FlatExtent } from '../../../../../../../geoadmin-coordinates/src/extentUtils.ts'
 
 const dispatcher: ActionDispatcher = { name: 'print-area-renderer.composable' }
 

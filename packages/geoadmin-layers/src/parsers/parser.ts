@@ -48,5 +48,5 @@ export interface CapabilitiesParser<
         capabilities: CapabilitiesResponseType,
         layerOrLayerId: CapabilitiesLayerType | string,
         options?: ExternalLayerParsingOptions<ExternalLayerType>
-    ): ExternalLayerType
+    ): ExternalLayerType | undefined
 }

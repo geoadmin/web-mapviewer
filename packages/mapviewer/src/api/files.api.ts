@@ -5,7 +5,7 @@ import axios from 'axios'
 import FormData from 'form-data'
 import pako from 'pako'
 
-import { proxifyUrl } from '@/api/file-proxy.api'
+import { proxifyUrl } from '@/api/file-proxy.api.ts'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 
 const LOG_BACKGROUND_COLOR = LogPreDefinedColor.Indigo

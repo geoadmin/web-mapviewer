@@ -14,14 +14,14 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
-import { IFRAME_EVENTS } from '@/api/iframePostMessageEvent.api'
+import { IFRAME_EVENTS } from '@/api/iframePostMessageEvent.api.js'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import {
     insertParameterIntoUrl,
-    removeParamaterFromUrl,
+    removeParameterFromUrl,
     transformUrlMapToEmbed,
-} from '@/utils/utils'
+} from '@/utils/utils.js'
 
 /**
  * Different pre-defined sizes that an iFrame can take
@@ -173,7 +173,7 @@ watch(noSimpleZoom, (value) => {
     const currentUrl = embedSource.value
     embedSource.value = value
         ? insertParameterIntoUrl(currentUrl, 'noSimpleZoom', true)
-        : removeParamaterFromUrl(currentUrl, 'noSimpleZoom')
+        : removeParameterFromUrl(currentUrl, 'noSimpleZoom')
 })
 </script>
 

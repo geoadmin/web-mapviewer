@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { computePolygonPerimeterArea } from '@/utils/geodesicManager'
-import { reprojectGeoJsonData } from '@/utils/geoJsonUtils'
+import { reprojectGeoJsonGeometry } from '@/utils/geoJsonUtils.js'
 
 const { geometry } = defineProps({
     geometry: {
@@ -24,7 +24,7 @@ const geometryWgs84 = computed(() => {
     if (projection.value === WGS84) {
         return geometry
     }
-    return reprojectGeoJsonData(geometry, WGS84, projection.value)
+    return reprojectGeoJsonGeometry(geometry, WGS84, projection.value)
 })
 
 /** @type {ComputedRef<string>} */

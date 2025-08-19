@@ -6,7 +6,7 @@ import { useStore } from 'vuex'
 
 import { parseLayerFromFile } from '@/modules/menu/components/advancedTools/ImportFile/parser'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
-import { flattenExtent } from '@/utils/extentUtils.js'
+import { flattenExtent } from '../../../../../../../geoadmin-coordinates/src/extentUtils.ts'
 
 const dispatcher = {
     dispatcher: 'useImportFile.composable',

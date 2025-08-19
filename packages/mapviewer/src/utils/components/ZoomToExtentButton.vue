@@ -5,7 +5,7 @@ import GeoadminTooltip from '@geoadmin/tooltip'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { normalizeExtent } from '@/utils/extentUtils.js'
+import { normalizeExtent } from '../../../../geoadmin-coordinates/src/extentUtils.ts'
 
 const { t } = useI18n()
 

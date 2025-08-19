@@ -22,14 +22,18 @@ import log, { LogPreDefinedColor } from '@geoadmin/log'
 import { ErrorMessage } from '@geoadmin/log/Message'
 import { defineStore } from 'pinia'
 
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types.ts'
 
 import { EXTERNAL_PROVIDER_WHITELISTED_URL_REGEXES } from '@/config/regex.config'
 import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 import usePositionStore from '@/store/modules/position.store'
-import { type FlatExtent, getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
 import { getGpxExtent } from '@/utils/gpxUtils.ts'
 import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils.ts'
+
+import {
+    type FlatExtent,
+    getExtentIntersectionWithCurrentProjection,
+} from '../../../../geoadmin-coordinates/src/extentUtils.ts'
 
 function checkLayerUrlWhiteListing(layerBaseUrl: string): boolean {
     return EXTERNAL_PROVIDER_WHITELISTED_URL_REGEXES.some((regex) => !!layerBaseUrl.match(regex))
@@ -1015,13 +1019,10 @@ const useLayersStore = defineStore('layers', {
             const updatedLayers = layers.map((layer) => {
                 const clone = layerUtils.cloneLayer(layer) as GPXLayer | KMLLayer
                 if (data) {
-                    let extent
+                    let extent: FlatExtent | undefined
                     if (clone.type === LayerType.KML) {
                         const kmlLayer = clone as KMLLayer
-                        kmlLayer.name = parseKmlName(data)
-                        if (!kmlLayer.name || kmlLayer.name === '') {
-                            kmlLayer.name = kmlLayer.kmlFileUrl
-                        }
+                        kmlLayer.name = parseKmlName(data) ?? kmlLayer.kmlFileUrl
                         kmlLayer.kmlData = data
                         extent = getKmlExtent(data)
                     } else if (clone.type === LayerType.GPX) {

@@ -6,7 +6,7 @@ import { formatThousand } from '@geoadmin/numbers'
 import { computed, inject, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types.ts'
 
 import { PrintError, PrintLayout } from '@/api/print.api'
 import {
@@ -18,7 +18,7 @@ import useLayersStore from '@/store/modules/layers.store'
 import usePrintStore from '@/store/modules/print.store'
 import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
 import ProgressBar from '@/utils/components/ProgressBar.vue'
-import { downloadFile, generateFilename } from '@/utils/utils'
+import { downloadFile, generateFilename } from '@/utils/utils.ts'
 
 const dispatcher: ActionDispatcher = { name: 'MapPrintSection.vue' }
 

@@ -3,8 +3,9 @@ import type { SingleCoordinate } from '@geoadmin/coordinates'
 import { defineStore } from 'pinia'
 
 import type SelectableFeature from '@/api/features/SelectableFeature.class'
-import type { ActionDispatcher } from '@/store/store'
-import type { FlatExtent } from '@/utils/extentUtils.ts'
+import type { ActionDispatcher } from '@/store/types.ts'
+
+import type { FlatExtent } from '../../../../geoadmin-coordinates/src/extentUtils.ts'
 
 export enum ClickType {
     /* Any action that triggers the context menu, so for example right click with a mouse or
@@ -12,6 +13,10 @@ export enum ClickType {
     CONTEXTMENU,
     /* A single click, with the left mouse button or with the finger on a touch device */
     LEFT_SINGLECLICK,
+    /* A single click with CTRL button pressed */
+    CTRL_LEFT_SINGLECLICK,
+    /* Drawing a box with ctrl and dragging a left click */
+    DRAW_BOX,
 }
 
 export interface ClickInfo {
@@ -58,6 +63,17 @@ const useMapStore = defineStore('map', {
         /** Sets all information about the last click that occurred on the map* */
         click(clickInfo: ClickInfo | undefined, dispatcher: ActionDispatcher) {
             this.clickInfo = clickInfo
+
+            if (clickInfo?.clickType === ClickType.DRAW_BOX) {
+                // If the click is a box selection, we set the rectangle selection extent to the
+                // coordinates of the click.
+                this.rectangleSelectionExtent = clickInfo.coordinate
+            } else if (clickInfo?.clickType === ClickType.CTRL_LEFT_SINGLECLICK) {
+                // If the click is a ctrl left single click, we keep the rectangle selection extent
+            } else {
+                // For any other click type, we clear the rectangle selection extent
+                commit('setRectangleSelectionExtent', { extent: null, dispatcher })
+            }
         },
 
         clearClick(dispatcher: ActionDispatcher) {

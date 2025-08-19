@@ -4,10 +4,10 @@ import type Feature from 'ol/Feature'
 
 import log from '@geoadmin/log'
 
-import type { FlatExtent } from '@/utils/extentUtils'
-
 import { extractOlFeatureCoordinates } from '@/api/features/features.api.ts'
 import EventEmitter from '@/utils/EventEmitter.class'
+
+import type { FlatExtent } from '../../../../geoadmin-coordinates/src/extentUtils.ts'
 
 export interface SelectableFeatureData {
     /**
@@ -16,7 +16,7 @@ export interface SelectableFeatureData {
      */
     id: string | number
     /** Coordinates describing the center of this feature. Format is [[x,y],[x2,y2],...] */
-    coordinates: SingleCoordinate[]
+    coordinates: SingleCoordinate[] | SingleCoordinate
     /** Title of this feature */
     title: string
     /** A description of this feature. Cannot be HTML content (only text). */

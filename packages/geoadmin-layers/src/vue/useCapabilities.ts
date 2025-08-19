@@ -6,12 +6,9 @@ import { type MaybeRefOrGetter, toValue } from 'vue'
 
 import type { ExternalWMSLayer, ExternalWMTSLayer } from '@/types'
 
-import {
-    EXTERNAL_SERVER_TIMEOUT,
-    parseWmsCapabilities,
-    parseWmtsCapabilities,
-} from '@/api/external'
-import { ExternalWMSCapabilitiesParser } from '@/parsers'
+import { EXTERNAL_SERVER_TIMEOUT, parseWmtsCapabilities } from '@/api/external'
+import externalWMSParser from '@/parsers/ExternalWMSCapabilitiesParser'
+import externalWMTSParser from '@/parsers/ExternalWMTSCapabilitiesParser'
 import { guessExternalLayerUrl, isWmsGetCap, isWmtsGetCap } from '@/utils/externalLayerUtils'
 import { CapabilitiesError } from '@/validation'
 
@@ -47,7 +44,7 @@ function handleFileContent(
 
 function handleWms(content: string, fullUrl: URL, projection: CoordinateSystem): ParsedExternalWMS {
     let wmsMaxSize
-    const capabilities = ExternalWMSCapabilitiesParser.parse(content, fullUrl)
+    const capabilities = externalWMSParser.parse(content, fullUrl)
     if (capabilities.Service.MaxWidth && capabilities.Service.MaxHeight) {
         wmsMaxSize = {
             width: capabilities.Service.MaxWidth,
@@ -55,7 +52,7 @@ function handleWms(content: string, fullUrl: URL, projection: CoordinateSystem):
         }
     }
     return {
-        layers: ExternalWMSCapabilitiesParser.getAllExternalLayers(capabilities, {
+        layers: externalWMSParser.getAllExternalLayers(capabilities, {
             outputProjection: projection,
             initialValues: {
                 opacity: 1,
@@ -72,11 +69,13 @@ function handleWmts(
     projection: CoordinateSystem
 ): ParsedExternalWMTS {
     return {
-        layers: parseWmtsCapabilities(content, fullUrl).getAllExternalLayerObjects(
-            projection,
-            1,
-            true
-        ),
+        layers: externalWMTSParser.getAllExternalLayers(parseWmtsCapabilities(content, fullUrl), {
+            outputProjection: projection,
+            initialValues: {
+                isVisible: true,
+                opacity: 1,
+            },
+        }),
     }
 }
 
@@ -116,7 +115,6 @@ export function useCapabilities(
             }
             return props
         } catch (error: any) {
-            console.log('woot', error)
             log.error(`Failed to fetch url ${fullUrl}`, error)
             if (error instanceof AxiosError) {
                 throw new CapabilitiesError(error.message, 'network_error')

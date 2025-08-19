@@ -3,7 +3,7 @@ import type { Layer } from '@geoadmin/layers'
 import { layerUtils } from '@geoadmin/layers/utils'
 import { defineStore } from 'pinia'
 
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types.ts'
 
 import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
 import {

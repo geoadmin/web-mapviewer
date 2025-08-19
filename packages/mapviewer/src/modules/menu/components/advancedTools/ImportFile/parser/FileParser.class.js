@@ -1,6 +1,6 @@
 import log from '@geoadmin/log'
 
-import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api'
+import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api.js'
 import { checkOnlineFileCompliance, getFileContentFromUrl } from '@/api/files.api.js'
 
 /**

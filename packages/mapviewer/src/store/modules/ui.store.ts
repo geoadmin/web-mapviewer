@@ -3,6 +3,8 @@ import { ErrorMessage, WarningMessage } from '@geoadmin/log/Message'
 import { isNumber } from '@geoadmin/numbers'
 import { defineStore } from 'pinia'
 
+import type { ActionDispatcher } from '@/store/types.ts'
+
 import { BREAKPOINT_TABLET, MAX_WIDTH_SHOW_FLOATING_TOOLTIP } from '@/config/responsive.config'
 import {
     GIVE_FEEDBACK_HOSTNAMES,
@@ -10,6 +12,7 @@ import {
     REPORT_PROBLEM_HOSTNAMES,
     WARNING_RIBBON_HOSTNAMES,
 } from '@/config/staging.config'
+import useDrawingStore from '@/store/modules/drawing.store.ts'
 
 const MAP_LOADING_BAR_REQUESTER = 'app-map-loading'
 
@@ -61,7 +64,7 @@ export interface UIState {
      * Flag telling if the app must be displayed as an embedded iFrame app (broken down / simplified
      * UI)
      */
-    embed: boolean
+    isEmbed: boolean
     /**
      * Flag telling if the ctrl key is required to scroll. This is useful when the map is embedded
      * in an iframe and the parent page needs to scroll.
@@ -134,7 +137,7 @@ const useUIStore = defineStore('ui', {
         width: window.innerWidth,
         showMenu: window.innerWidth >= BREAKPOINT_TABLET,
         fullscreenMode: false,
-        embed: false,
+        isEmbed: false,
         noSimpleZoomEmbed: false,
         loadingBarRequesters: { [MAP_LOADING_BAR_REQUESTER]: 1 },
         mode: UIModes.PHONE, // Configured in screen-size-management.plugin.js (or manually in the settings)
@@ -188,9 +191,8 @@ const useUIStore = defineStore('ui', {
 
         /** Tells if the header bar is visible */
         isHeaderShown(): boolean {
-            // TODO: add useDrawingStore here
-            const isDrawingOverlayHidden = true
-            return !this.fullscreenMode && isDrawingOverlayShown
+            const drawingStore = useDrawingStore()
+            return !this.fullscreenMode && !drawingStore.drawingOverlay.show
         },
 
         isPhoneMode(): boolean {
@@ -201,27 +203,12 @@ const useUIStore = defineStore('ui', {
             return this.mode === UIModes.DESKTOP
         },
 
-        // TODO: remove redundant getter
-        hasNoSimpleZoomEmbedEnabled(): boolean {
-            return this.noSimpleZoomEmbed
-        },
-
-        // TODO: remove redundant getter
-        isEmbed(): boolean {
-            return this.embed
-        },
-
-        // TODO: remove redundant getter
-        isPhoneSize(): boolean {
-            return this.isPhoneMode()
-        },
-
         isTabletSize(): boolean {
-            return this.isDesktopMode() && this.width < BREAKPOINT_TABLET
+            return this.isDesktopMode && this.width < BREAKPOINT_TABLET
         },
 
         isTraditionalDesktopSize(): boolean {
-            return this.isDesktopMode() && this.width >= BREAKPOINT_TABLET
+            return this.isDesktopMode && this.width >= BREAKPOINT_TABLET
         },
 
         /** Flag to display a warning ribbon ('TEST') at the top/bottom right corner */
@@ -247,14 +234,14 @@ const useUIStore = defineStore('ui', {
         showFeatureInfoInTooltip(): boolean {
             return (
                 this.featureInfoPosition === FeatureInfoPositions.TOOLTIP ||
-                (this.featureInfoPosition === FeatureInfoPositions.DEFAULT && !this.isPhoneMode())
+                (this.featureInfoPosition === FeatureInfoPositions.DEFAULT && !this.isPhoneMode)
             )
         },
 
         showFeatureInfoInBottomPanel(): boolean {
             return (
                 this.featureInfoPosition === FeatureInfoPositions.BOTTOMPANEL ||
-                (this.featureInfoPosition === FeatureInfoPositions.DEFAULT && this.isPhoneMode())
+                (this.featureInfoPosition === FeatureInfoPositions.DEFAULT && this.isPhoneMode)
             )
         },
 
@@ -306,8 +293,8 @@ const useUIStore = defineStore('ui', {
             this.fullscreenMode = !this.fullscreenMode
         },
 
-        setEmbed(embed: boolean, dispatcher: ActionDispatcher) {
-            this.embed = !!embed
+        setIsEmbed(embed: boolean, dispatcher: ActionDispatcher) {
+            this.isEmbed = embed
         },
 
         setNoSimpleZoomEmbed(noSimpleZoomEmbed: boolean, dispatcher: ActionDispatcher) {
@@ -389,16 +376,17 @@ const useUIStore = defineStore('ui', {
             this.isCompareSliderActive = !!isActive
         },
 
-        setFeatureInfoPosition(position: FeatureInfoPositions, dispatcher: ActionDispatcher) {
-            const featurePosition: FeatureInfoPositions =
-                FeatureInfoPositions[position?.toUpperCase()]
+        setFeatureInfoPosition(
+            featurePosition: FeatureInfoPositions,
+            dispatcher: ActionDispatcher
+        ) {
             if (!featurePosition) {
                 log.error({
                     title: 'UI store / setFeatureInfoPosition',
                     titleStyle: {
                         color: LogPreDefinedColor.Red,
                     },
-                    messages: [`Invalid feature info position: ${position}.`],
+                    messages: [`Invalid feature info position`, featurePosition],
                 })
                 return
             }
@@ -416,15 +404,15 @@ const useUIStore = defineStore('ui', {
         },
 
         setTimeSliderActive(isActive: boolean, dispatcher: ActionDispatcher) {
-            this.isTimeSliderActive = !!isActive
+            this.isTimeSliderActive = isActive
         },
 
         setShowDisclaimer(showDisclaimer: boolean, dispatcher: ActionDispatcher) {
-            this.showDisclaimer = !!showDisclaimer
+            this.showDisclaimer = showDisclaimer
         },
 
         addErrors(errors: ErrorMessage[], dispatcher: ActionDispatcher) {
-            if (Array.isArray(errors) && errors.every((error) => error instanceof ErrorMessage)) {
+            if (Array.isArray(errors) && errors.length > 0) {
                 errors
                     .filter(
                         (error) =>
@@ -446,18 +434,16 @@ const useUIStore = defineStore('ui', {
         },
 
         removeError(error: ErrorMessage, dispatcher: ActionDispatcher) {
-            if (!(error instanceof ErrorMessage)) {
+            if (this.errors.has(error)) {
+                this.errors.delete(error)
+            } else {
                 log.error({
                     title: 'UI store / removeError',
                     titleStyle: {
                         color: LogPreDefinedColor.Red,
                     },
-                    messages: ['Wrong type of error passed to removeError', error, dispatcher],
+                    messages: ['Wrong error passed to removeError', error, dispatcher],
                 })
-                return
-            }
-            if (this.errors.has(error)) {
-                this.errors.delete(error)
             }
         },
 
@@ -492,31 +478,25 @@ const useUIStore = defineStore('ui', {
             }
         },
         removeWarning(warning: WarningMessage, dispatcher: ActionDispatcher) {
-            if (!(warning instanceof WarningMessage)) {
+            if (this.warnings.has(warning)) {
+                this.warnings.delete(warning)
+            } else {
                 log.error({
                     title: 'UI store / removeWarning',
                     titleStyle: {
                         color: LogPreDefinedColor.Red,
                     },
-                    messages: [
-                        'Wrong type of warning passed to removeWarning',
-                        warning,
-                        dispatcher,
-                    ],
+                    messages: ['Wrong warning passed to removeWarning', warning, dispatcher],
                 })
-                return
-            }
-            if (this.warnings.has(warning)) {
-                this.warnings.delete(warning)
             }
         },
 
         setShowDragAndDropOverlay(showDragAndDropOverlay: boolean, dispatcher: ActionDispatcher) {
-            this.showDragAndDropOverlay = !!showDragAndDropOverlay
+            this.showDragAndDropOverlay = showDragAndDropOverlay
         },
 
         setHideEmbedUI(hideEmbedUI: boolean, dispatcher: ActionDispatcher) {
-            this.hideEmbedUI = !!hideEmbedUI
+            this.hideEmbedUI = hideEmbedUI
         },
 
         setForceNoDevSiteWarning(dispatcher: ActionDispatcher) {

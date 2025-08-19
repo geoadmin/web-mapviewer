@@ -15,7 +15,7 @@ import {
     propsValidator4ValidateFunc,
     useFieldValidation,
 } from '@/utils/composables/useFieldValidation'
-import { humanFileSize } from '@/utils/utils'
+import { humanFileSize } from '@/utils/utils.js'
 
 // On each component creation set the current component unique ID
 const inputFileId = useComponentUniqueId('file-input')
@@ -244,7 +244,7 @@ function onFileSelected(evt) {
         </label>
         <div
             :id="inputFileId"
-            class="input-group rounded has-validation mb-2"
+            class="input-group has-validation mb-2 rounded"
         >
             <button
                 class="btn btn-outline-group"

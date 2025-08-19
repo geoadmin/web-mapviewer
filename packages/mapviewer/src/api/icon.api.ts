@@ -13,17 +13,19 @@ export const DEFAULT_ICON_URL_PARAMS = {
 }
 
 /** Default offset of title for any feature */
-export const DEFAULT_TITLE_OFFSET = [0, 0]
+export const DEFAULT_TITLE_OFFSET: [number, number] = [0, 0]
 
 /** Default size of icon for any feature */
-const DEFAULT_ICON_SIZE = [48, 48]
+const DEFAULT_ICON_SIZE: [number, number] = [48, 48]
 
 /** Default offset of title for the default marker */
 export const DEFAULT_MARKER_TITLE_OFFSET = calculateTextOffset(
     MEDIUM.textScale,
     MEDIUM.iconScale,
     [0, 0.875],
-    DEFAULT_ICON_SIZE
+    DEFAULT_ICON_SIZE,
+    'top',
+    ''
 )
 
 /**

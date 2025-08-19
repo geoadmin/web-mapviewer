@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { createShortLink } from '@/api/shortlink.api.js'
-import router from '@/router'
+import router from '@/router/index.js'
 import { encodeLayerId } from '@/router/storeSync/layersParamParser.js'
 
 const dispatcher = { dispatcher: 'SharePopup.vue' }

@@ -1,6 +1,6 @@
 import { allCoordinateSystems } from '@geoadmin/coordinates'
 
-import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { DEFAULT_PROJECTION } from '@/config/map.config.ts'
 import { SUPPORTED_LANG } from '@/modules/i18n'
 import CompareSliderParamConfig from '@/router/storeSync/CompareSliderParamConfig.class'
 import CrossHairParamConfig from '@/router/storeSync/CrossHairParamConfig.class'

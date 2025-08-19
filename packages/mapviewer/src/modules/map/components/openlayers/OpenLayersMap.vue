@@ -8,7 +8,7 @@ import Map from 'ol/Map'
 import { get as getProjection } from 'ol/proj'
 import { computed, onMounted, provide, useTemplateRef } from 'vue'
 
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types.ts'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
@@ -54,7 +54,9 @@ const mapStore = useMapStore()
 
 const showTileDebugInfo = computed<boolean>(() => debugStore.showTileDebugInfo)
 const showLayerExtents = computed<boolean>(() => debugStore.showLayerExtents)
-const showSelectionRectangle = computed<FlatExtent | undefined>(() => mapStore.rectangleSelectionExtent)
+const showSelectionRectangle = computed<FlatExtent | undefined>(
+    () => mapStore.rectangleSelectionExtent
+)
 const geolocationActive = computed<boolean>(() => geolocationStore.active)
 const geoPosition = computed<SingleCoordinate | undefined>(() => geolocationStore.position)
 const visibleLayers = computed<Layer[]>(() => layersStore.visibleLayers)

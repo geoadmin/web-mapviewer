@@ -6,7 +6,7 @@ import { DoubleClickZoom } from 'ol/interaction'
 import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import { VIEW_MIN_RESOLUTION } from '@/config/map.config'
+import { VIEW_MIN_RESOLUTION } from '@/config/map.config.js'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 
 const dispatcher = { dispatcher: 'map-views.composable' }

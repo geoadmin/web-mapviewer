@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
 
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types.ts'
 
 import { PrintLayouts } from '@/config/print.config'
 import { usePrintStore } from '@/store/modules/print.store'

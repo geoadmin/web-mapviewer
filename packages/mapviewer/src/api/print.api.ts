@@ -22,9 +22,7 @@ import {
 import axios from 'axios'
 import { Circle, type Image, type Stroke, type Text } from 'ol/style'
 
-import type { FlatExtent } from '@/utils/extentUtils'
-
-import { unProxifyUrl } from '@/api/file-proxy.api'
+import { unProxifyUrl } from '@/api/file-proxy.api.ts'
 import {
     getApi3BaseUrl,
     getViewerDedicatedServicesBaseUrl,
@@ -32,6 +30,8 @@ import {
 } from '@/config/baseUrl.config'
 import i18n, { type SupportedLang } from '@/modules/i18n'
 import { adjustWidth } from '@/utils/styleUtils.ts'
+
+import type { FlatExtent } from '../../../geoadmin-coordinates/src/extentUtils.ts'
 
 /** Interval between each polling of the printing job status (ms) */
 const PRINTING_DEFAULT_POLL_INTERVAL: number = 2000
@@ -290,12 +290,12 @@ export class PrintLayoutAttribute {
      * layout
      */
     get isRequired(): boolean {
-        return this.defaultValue === null
+        return this.defaultValue === undefined
     }
 
     /** Flag telling if this layout attribute is valid, and ready to be sent to the backend */
     get isValid(): boolean {
-        return this.defaultValue !== null || this.value !== null
+        return this.defaultValue !== undefined || this.value !== undefined
     }
 
     /**

@@ -15,7 +15,7 @@ import { MapLibreLayer } from '@geoblocks/ol-maplibre-layer'
 import axios from 'axios'
 import { computed, inject, watch } from 'vue'
 
-import { VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config/vectortiles.config'
+import { VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config/vectortiles.config.js'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 
 const { vectorLayerConfig, parentLayerOpacity, zIndex } = defineProps({

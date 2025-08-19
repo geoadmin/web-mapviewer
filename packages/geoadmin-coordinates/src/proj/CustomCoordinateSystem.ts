@@ -1,5 +1,5 @@
+import type { SingleCoordinate } from '@/coordinatesUtils.ts'
 import type CoordinateSystemBounds from '@/proj/CoordinateSystemBounds'
-import type { SingleCoordinate } from '@/utils'
 
 import CoordinateSystem, { type CoordinateSystemProps } from '@/proj/CoordinateSystem'
 

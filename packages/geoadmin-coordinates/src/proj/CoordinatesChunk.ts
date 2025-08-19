@@ -1,4 +1,4 @@
-import type { SingleCoordinate } from '@/utils'
+import type { SingleCoordinate } from '@/coordinatesUtils.ts'
 
 /**
  * Group of coordinates resulting in a "split by bounds" function. Will also contain information if

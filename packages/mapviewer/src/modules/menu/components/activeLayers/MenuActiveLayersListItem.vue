@@ -1,19 +1,19 @@
-<script setup>
+<script setup lang="ts">
 /**
  * Representation of an active layer in the menu, with the name of the layer and some controls (like
  * visibility, opacity or position in the layer stack)
  */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { LayerType } from '@geoadmin/layers'
-import { timeConfigUtils, layerUtils } from '@geoadmin/layers/utils'
-import { validateLayerProp } from '@geoadmin/layers/validation'
+import { LayerType, KMLStyles } from '@geoadmin/layers'
+import { type Layer } from '@geoadmin/layers'
+import { layerUtils, timeConfigUtils } from '@geoadmin/layers/utils'
 import GeoadminTooltip from '@geoadmin/tooltip'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-import { allKmlStyles } from '@/api/layers/KmlStyles.enum'
+import type { ActionDispatcher } from '@/store/types.ts'
+
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import TransparencySlider from '@/modules/menu/components/activeLayers/TransparencySlider.vue'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
@@ -22,53 +22,46 @@ import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 
-const dispatcher = { dispatcher: 'MenuActiveLayersListItem.vue' }
+const dispatcher: ActionDispatcher = { name: 'MenuActiveLayersListItem.vue' }
 
-const { index, layer, showLayerDetail, focusMoveButton, isTopLayer, isBottomLayer, compact } =
-    defineProps({
-        index: {
-            type: Number,
-            required: true,
-        },
-        layer: {
-            validator: validateLayerProp,
-            required: true,
-        },
-        showLayerDetail: {
-            type: Boolean,
-            default: false,
-        },
-        focusMoveButton: {
-            type: [String, null],
-            default: null,
-        },
-        isTopLayer: {
-            type: Boolean,
-            default: false,
-        },
-        isBottomLayer: {
-            type: Boolean,
-            default: false,
-        },
-        compact: {
-            type: Boolean,
-            default: false,
-        },
-    })
+const {
+    index,
+    layer,
+    showLayerDetail = false,
+    focusMoveButton = undefined,
+    isTopLayer = false,
+    isBottomLayer = false,
+    compact = false,
+} = defineProps<{
+    index: number
+    layer: Layer
+    showLayerDetail?: boolean
+    focusMoveButton?: string
+    isTopLayer?: boolean
+    isBottomLayer?: boolean
+    compact?: boolean
+}>()
 
-const emit = defineEmits(['showLayerDescriptionPopup', 'toggleLayerDetail', 'moveLayer'])
+const emit = defineEmits<{
+    showLayerDescriptionPopup: [void]
+    toggleLayerDetail: [void]
+    moveLayer: [void]
+}>()
 
-const store = useStore()
 const { t } = useI18n()
 
-const layerUpButton = useTemplateRef('layerUpButton')
-const layerDownButton = useTemplateRef('layerDownButton')
-const currentKmlStyle = ref(layer?.style ?? null)
+const layerUpButtonRef = useTemplateRef('layerUpButton')
+const layerDownButtonRef = useTemplateRef('layerDownButton')
+const currentKmlStyle = ref(layer?.type === LayerType.KML && layer?.style)
 const id = computed(() => layer.id)
 
 /** @type {ComputedRef<DropdownItem[]>} */
 const kmlStylesAsDropdownItems = computed(() =>
-    allKmlStyles.map((style) => ({ id: style, title: style.toLowerCase(), value: style }))
+    [KMLStyles.GEOADMIN, KMLStyles.DEFAULT].map((style) => ({
+        id: style,
+        title: style.toLowerCase(),
+        value: style,
+    }))
 )
 
 const isLocalFile = computed(() => store.getters.isLocalFile(layer))
@@ -104,9 +97,9 @@ const showSpinner = computed(() => layer.isLoading && layer.isExternal && !layer
 onMounted(() => {
     if (showLayerDetail) {
         if (focusMoveButton === 'up') {
-            layerUpButton.value.focus()
+            layerUpButtonRef.value.focus()
         } else if (focusMoveButton === 'down') {
-            layerDownButton.value.focus()
+            layerDownButtonRef.value.focus()
         }
     }
 })

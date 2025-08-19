@@ -7,7 +7,7 @@ import log from '@geoadmin/log'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { requestHeight } from '@/api/height.api'
+import { requestHeight } from '@/api/height.api.js'
 import reframe from '@/api/lv03Reframe.api.js'
 import { registerWhat3WordsLocation } from '@/api/what3words.api.js'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'

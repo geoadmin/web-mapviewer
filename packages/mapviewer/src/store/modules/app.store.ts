@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia'
 
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types.ts'
 
-import { sendMapReadyEventToParent } from '@/api/iframePostMessageEvent.api'
+import { sendMapReadyEventToParent } from '@/api/iframePostMessageEvent.api.ts'
 
 /** Module that tells if the app has finished loading (is ready to show stuff) */
 interface AppState {

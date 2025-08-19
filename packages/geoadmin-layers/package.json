@@ -66,6 +66,7 @@
     },
     "devDependencies": {
         "@microsoft/api-extractor": "catalog:",
+        "@types/chai": "catalog:",
         "@types/lodash": "catalog:",
         "@types/luxon": "catalog:",
         "@types/openlayers": "catalog:",

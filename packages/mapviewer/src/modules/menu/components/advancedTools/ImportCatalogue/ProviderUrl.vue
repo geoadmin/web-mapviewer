@@ -7,7 +7,7 @@ import { useStore } from 'vuex'
 
 import ProviderList from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderList.vue'
 import { useProviders } from '@/modules/menu/components/advancedTools/ImportCatalogue/useProviders'
-import { isValidUrl } from '@/utils/utils'
+import { isValidUrl } from '@/utils/utils.js'
 
 const emit = defineEmits(['capabilities:parsed', 'capabilities:cleared'])
 

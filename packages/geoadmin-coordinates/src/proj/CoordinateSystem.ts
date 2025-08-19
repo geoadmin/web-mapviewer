@@ -2,7 +2,7 @@ import { round } from '@geoadmin/numbers'
 import { earthRadius } from '@turf/turf'
 import proj4 from 'proj4'
 
-import type { SingleCoordinate } from '@/utils'
+import type { SingleCoordinate } from '@/coordinatesUtils.ts'
 
 import CoordinateSystemBounds from '@/proj/CoordinateSystemBounds'
 

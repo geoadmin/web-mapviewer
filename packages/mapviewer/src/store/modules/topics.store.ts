@@ -5,7 +5,7 @@ import log, { LogPreDefinedColor } from '@geoadmin/log'
 import { defineStore } from 'pinia'
 
 import type { Topic } from '@/api/topics.api'
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types.ts'
 
 export interface TopicsState {
     /** List of all available topics */
@@ -42,7 +42,7 @@ const useTopicsStore = defineStore('topics', {
         },
 
         setTopicTree(layers: GeoAdminLayer[], dispatcher: ActionDispatcher) {
-            this.tree = layers.map((layer) => layerUtils.cloneLayer(layer) as GeoAdminLayer)
+            this.tree = layers.map((layer) => layerUtils.cloneLayer(layer))
         },
 
         changeTopic(topicId: string, dispatcher: ActionDispatcher) {

@@ -44,7 +44,8 @@ export interface LayerTimeConfig {
      *   display the latest available data when asked on the backend)
      * - Any number value: specific value, that will be set as is.
      */
-    behaviour?: 'last' | 'all' | 'current' | number
+    // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+    behaviour?: 'last' | 'all' | 'current' | number | string
     currentTimeEntry?: LayerTimeConfigEntry
 }
 

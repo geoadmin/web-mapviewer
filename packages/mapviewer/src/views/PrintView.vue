@@ -7,7 +7,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
-import type { ActionDispatcher } from '@/store/store.ts'
+import type { ActionDispatcher } from '@/store/types.ts'
 
 import { getGenerateQRCodeUrl } from '@/api/qrcode.api.ts'
 import { createShortLink } from '@/api/shortlink.api.ts'
@@ -26,7 +26,7 @@ import useI18nStore from '@/store/modules/i18n.store'
 import useMapStore from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'
 import usePrintStore from '@/store/modules/print.store'
-import { stringifyQuery } from '@/utils/url-router'
+import { stringifyQuery } from '@/utils/url-router.ts'
 
 const dispatcher: ActionDispatcher = { name: 'PrintView.vue' }
 

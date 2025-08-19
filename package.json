@@ -38,7 +38,6 @@
         "@types/geojson": "catalog:",
         "@types/jsdom": "catalog:",
         "@types/node": "catalog:",
-        "@types/proj4": "catalog:",
         "@vue/eslint-config-prettier": "catalog:",
         "@vue/eslint-config-typescript": "catalog:",
         "@vue/language-core": "catalog:",
@@ -74,7 +73,8 @@
     "pnpm": {
         "onlyBuiltDependencies": [
             "cypress",
-            "sharp"
+            "sharp",
+            "vue-demi"
         ],
         "ignoredBuiltDependencies": [
             "core-js",

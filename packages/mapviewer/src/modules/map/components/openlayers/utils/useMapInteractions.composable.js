@@ -6,7 +6,7 @@ import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import { computed, onBeforeUnmount, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
+import { DRAWING_HIT_TOLERANCE } from '@/config/map.config.js'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
 import { useDragBoxSelect } from '@/modules/map/components/openlayers/utils/useDragBoxSelect.composable'

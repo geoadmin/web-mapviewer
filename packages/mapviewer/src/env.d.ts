@@ -1,6 +1,7 @@
-import type { GeoJSON } from 'geojson'
 /// <reference types="vite/client" />
+import type { Geometry } from 'geojson'
 import type { Pinia } from 'pinia'
+import type { Router, RouterHistory } from 'vue-router'
 
 // stuff declared directly in the vite.config.mts (see define block)
 // see https://vite.dev/config/shared-options.html#define
@@ -30,8 +31,11 @@ interface ImportMeta {
 }
 
 declare global {
+    /** All the things we expose to Cypress */
     interface Window {
         store: Pinia
+        vueRouterHistory: RouterHistory
+        vueRouter: Router
     }
 }
 
@@ -61,4 +65,13 @@ declare module '@geoblocks/mapfishprint' {
     interface MFPSpec {
         outputFilename?: string
     }
+}
+
+declare module 'reproject' {
+    function reproject(
+        input: Geometry,
+        from: string,
+        to: string,
+        projs?: Record<string, string>
+    ): Geometry
 }

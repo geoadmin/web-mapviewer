@@ -5,16 +5,22 @@ import { Icon as olIcon } from 'ol/style'
 import SelectableFeature, {
     type SelectableFeatureData,
 } from '@/api/features/SelectableFeature.class'
-import { DEFAULT_ICON_URL_PARAMS, DEFAULT_TITLE_OFFSET, DrawingIcon, generateURL } from '@/api/icon.api.ts'
+import {
+    DEFAULT_ICON_URL_PARAMS,
+    DEFAULT_TITLE_OFFSET,
+    type DrawingIcon,
+    generateURL,
+} from '@/api/icon.api'
 import {
     allStylingColors,
     allStylingSizes,
-    allStylingTextPlacementsWithUnknown,
-    FeatureStyleColor,
-    FeatureStyleSize, generateFontString,
+    type FeatureStyleColor,
+    type FeatureStyleSize,
+    generateFontString,
     MEDIUM,
     RED,
-} from '@/utils/featureStyleUtils.ts'
+    type TextPlacement,
+} from '@/utils/featureStyleUtils'
 
 export enum EditableFeatureTypes {
     MARKER = 'MARKER',
@@ -23,44 +29,31 @@ export enum EditableFeatureTypes {
     MEASURE = 'MEASURE',
 }
 
-export enum EditableFeatureTextPlacement {
-    TOP = 'top',
-    TOP_LEFT = 'top-left',
-    TOP_RIGHT = 'top-right',
-    BOTTOM = 'bottom',
-    BOTTOM_LEFT = 'bottom-left',
-    BOTTOM_RIGHT = 'bottom-right',
-    CENTER = 'center',
-    LEFT = 'left',
-    RIGHT = 'right',
-    UNKNOWN = 'unknown',
-}
-
 interface EditableFeatureData extends Omit<SelectableFeatureData, 'isEditable'> {
     featureType: EditableFeatureTypes
-    textOffset: number[]
-    textColor: FeatureStyleColor
-    textSize: FeatureStyleSize
-    fillColor: FeatureStyleColor
+    textOffset: [number, number]
+    textColor?: FeatureStyleColor
+    textSize?: FeatureStyleSize
+    fillColor?: FeatureStyleColor
     icon?: DrawingIcon
     /** Size of the icon (if defined) that will be covering this feature */
-    iconSize: FeatureStyleSize
+    iconSize?: FeatureStyleSize
     /** Anchor of the text around the feature. Only useful for markers */
-    textPlacement: EditableFeatureTextPlacement
+    textPlacement: TextPlacement
     showDescriptionOnMap: boolean
 }
 
 /** Describe a feature that can be edited by the user, such as feature from the current drawing */
 export default class EditableFeature extends SelectableFeature {
     readonly _featureType: EditableFeatureTypes
-    private _textOffset: number[]
+    private _textOffset: [number, number]
     private _textColor: FeatureStyleColor
     private _textSize: FeatureStyleSize
     private _fillColor: FeatureStyleColor
     private _icon: DrawingIcon | undefined
     private _iconSize: FeatureStyleSize
     private _isDragged: boolean
-    private _textPlacement: EditableFeatureTextPlacement
+    private _textPlacement: TextPlacement
     private _showDescriptionOnMap: boolean
 
     constructor(featureData: EditableFeatureData) {
@@ -73,7 +66,7 @@ export default class EditableFeature extends SelectableFeature {
             fillColor = RED,
             icon,
             iconSize = MEDIUM,
-            textPlacement = EditableFeatureTextPlacement.TOP,
+            textPlacement = 'top',
             showDescriptionOnMap = false,
         } = featureData
         this._featureType = featureType
@@ -110,11 +103,11 @@ export default class EditableFeature extends SelectableFeature {
     }
     // no setter for featureType, immutable
 
-    get textOffset(): number[] {
+    get textOffset(): [number, number] {
         return this._textOffset
     }
 
-    set textOffset(newOffset: number[]) {
+    set textOffset(newOffset: [number, number]) {
         this._textOffset = newOffset
         this.emitStylingChangeEvent('textOffset')
     }
@@ -130,15 +123,12 @@ export default class EditableFeature extends SelectableFeature {
         }
     }
 
-    get textPlacement(): EditableFeatureTextPlacement {
+    get textPlacement(): TextPlacement {
         return this._textPlacement
     }
 
-    set textPlacement(newPlacement: EditableFeatureTextPlacement) {
-        if (
-            newPlacement &&
-            allStylingTextPlacementsWithUnknown.find((placement) => placement === newPlacement)
-        ) {
+    set textPlacement(newPlacement: TextPlacement) {
+        if (newPlacement) {
             this._textPlacement = newPlacement
             this.emitStylingChangeEvent('textPlacement')
         }

@@ -34,6 +34,7 @@
     "devDependencies": {
         "@microsoft/api-extractor": "catalog:",
         "@turf/turf": "catalog:",
+        "@types/chai": "catalog:",
         "@types/lodash": "catalog:",
         "chai": "catalog:",
         "unplugin-dts": "catalog:",
@@ -41,6 +42,7 @@
         "vitest": "catalog:"
     },
     "peerDependencies": {
+        "ol": "catalog:",
         "proj4": "catalog:"
     }
 }

@@ -7,7 +7,7 @@ import { LayerType } from '@geoadmin/layers'
 import log from '@geoadmin/log'
 import { ErrorMessage } from '@geoadmin/log/Message'
 
-import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api'
+import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api.js'
 import {
     loadKmlMetadata,
     checkOnlineFileCompliance,

@@ -4,9 +4,9 @@ import { computed, onBeforeMount, onMounted, onUnmounted, ref, watch } from 'vue
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types.ts'
 
-import { sendChangeEventToParent } from '@/api/iframePostMessageEvent.api'
+import { sendChangeEventToParent } from '@/api/iframePostMessageEvent.api.ts'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
 import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterAttributionList.vue'

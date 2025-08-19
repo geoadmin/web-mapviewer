@@ -1,2 +1,2 @@
-export * as layerUtils from './layerUtils'
-export * as timeConfigUtils from './timeConfigUtils'
+export * from '@/utils/layerUtils'
+export * from '@/utils/timeConfigUtils'

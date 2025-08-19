@@ -4,7 +4,7 @@ import { reactive, watch, ref, onMounted } from 'vue'
 import { useTemplateRef } from 'vue'
 
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
-import { getLongestCommonPrefix } from '@/utils/utils.js'
+import { getLongestCommonPrefix } from '@/utils/utils.ts'
 
 /** @enum */
 const NodeType = {
@@ -262,7 +262,7 @@ defineExpose({ goToFirst })
 <template>
     <div
         v-show="showProviders"
-        class="providers-list-container shadow border rounded-bottom overflow-auto"
+        class="providers-list-container rounded-bottom overflow-auto border shadow"
     >
         <div
             ref="providerList"
@@ -276,7 +276,7 @@ defineExpose({ goToFirst })
                 <div :data-cy="`import-provider-${node.type}`">
                     <div
                         v-if="node.type === NodeType.GROUP"
-                        class="providers-header px-2 py-1 text-nowrap cursor-pointer fw-bold position-sticky top-0 z-2 w-100"
+                        class="providers-header fw-bold position-sticky z-2 w-100 top-0 cursor-pointer text-nowrap px-2 py-1"
                         :tabindex="node.tabindex"
                         @click="toggleNode(node)"
                         @keydown.right.prevent="expandNode(node)"
@@ -298,7 +298,7 @@ defineExpose({ goToFirst })
                     </div>
                     <div
                         v-if="node.type === NodeType.GROUP && node.expanded"
-                        class="ps-2 ms-3"
+                        class="ms-3 ps-2"
                     >
                         <template
                             v-for="child in node.children"
@@ -308,7 +308,7 @@ defineExpose({ goToFirst })
                             <div :data-cy="`import-provider-${child.type}`">
                                 <div
                                     v-if="child.type === NodeType.SUBGROUP"
-                                    class="providers-header px-2 py-1 text-nowrap cursor-pointer fw-bold position-sticky top-3 z-1 w-100"
+                                    class="providers-header fw-bold position-sticky z-1 w-100 top-3 cursor-pointer text-nowrap px-2 py-1"
                                     :tabindex="child.tabindex"
                                     @click="toggleNode(child)"
                                     @keydown.right.prevent="expandNode(child)"
@@ -333,12 +333,12 @@ defineExpose({ goToFirst })
                                 </div>
                                 <div
                                     v-if="child.type === NodeType.SUBGROUP && child.expanded"
-                                    class="ps-2 ms-3 cursor-pointer"
+                                    class="ms-3 cursor-pointer ps-2"
                                 >
                                     <div
                                         v-for="grandChild in child.children"
                                         :key="grandChild.id"
-                                        class="px-2 py-1 text-nowrap providers-item"
+                                        class="providers-item text-nowrap px-2 py-1"
                                         data-cy="import-provider-item"
                                         :tabindex="grandChild.tabindex"
                                         @click="emitProviderSelection(grandChild.url)"
@@ -362,7 +362,7 @@ defineExpose({ goToFirst })
                                 </div>
                                 <div
                                     v-else-if="child.type === NodeType.URL"
-                                    class="px-2 py-1 text-nowrap cursor-pointer providers-item"
+                                    class="providers-item cursor-pointer text-nowrap px-2 py-1"
                                     data-cy="import-provider-item"
                                     :tabindex="child.tabindex"
                                     @click="emitProviderSelection(child.url)"
@@ -384,7 +384,7 @@ defineExpose({ goToFirst })
                     </div>
                     <div
                         v-else-if="node.type === NodeType.URL"
-                        class="px-2 py-1 text-nowrap cursor-pointer providers-item"
+                        class="providers-item cursor-pointer text-nowrap px-2 py-1"
                         data-cy="import-provider-item"
                         :tabindex="node.tabindex"
                         @click="emitProviderSelection(node.url)"
@@ -405,7 +405,7 @@ defineExpose({ goToFirst })
             </template>
             <div
                 v-show="treeData.length === 0"
-                class="px-2 py-1 user-select-none"
+                class="user-select-none px-2 py-1"
             >
                 <span>-</span>
             </div>

@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
-import { parseQuery, stringifyQuery } from '../url-router'
+import { parseQuery, stringifyQuery } from '../url-router.js'
 
 describe('Unit test function for parseQuery', () => {
     it('Decode + as space', () => {

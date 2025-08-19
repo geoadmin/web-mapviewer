@@ -1,0 +1,59 @@
+import { LV95, type SingleCoordinate, type CoordinateSystem } from '@geoadmin/coordinates'
+import log from '@geoadmin/log'
+import { round } from '@geoadmin/numbers'
+import axios from 'axios'
+import proj4 from 'proj4'
+
+import { getServiceAltiBaseUrl } from '@/config/baseUrl.config'
+
+export const meterToFeetFactor: number = 3.28084
+
+export interface HeightForPosition {
+    /** Lat/lon, the position for which the height was requested */
+    readonly coordinates: SingleCoordinate
+    /** The height for the position given by our backend */
+    readonly heightInMeter: number
+    readonly heightInFeet: number
+}
+
+/**
+ * Get the height of the given coordinate from the backend
+ *
+ * @param coordinates Coordinates of the point we want to know the height of
+ * @param projection The projection in which this point is expressed
+ * @returns The height for the given coordinate
+ */
+export function requestHeight(
+    coordinates: SingleCoordinate,
+    projection: CoordinateSystem
+): Promise<HeightForPosition> {
+    return new Promise((resolve, reject) => {
+        if (coordinates && Array.isArray(coordinates) && coordinates.length === 2) {
+            // this service only functions with LV95 coordinate, so we have to re-project the input to be sure
+            // we are giving it LV95 coordinates
+            const lv95coords = proj4(projection.epsg, LV95.epsg, coordinates)
+            axios
+                .get(`${getServiceAltiBaseUrl()}rest/services/height`, {
+                    params: {
+                        easting: lv95coords[0],
+                        northing: lv95coords[1],
+                    },
+                })
+                .then((heightResponse) => {
+                    resolve({
+                        coordinates,
+                        heightInMeter: heightResponse.data.height,
+                        heightInFeet: round(heightResponse.data.height * meterToFeetFactor, 1),
+                    })
+                })
+                .catch((error) => {
+                    log.error('Error while retrieving height for', coordinates, error)
+                    reject(new Error(error))
+                })
+        } else {
+            const errorMessage = 'Invalid coordinates, no height requested'
+            log.error('Invalid coordinates, no height requested', coordinates)
+            reject(new Error(errorMessage))
+        }
+    })
+}

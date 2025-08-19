@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia'
 
+import type { ActionDispatcher } from '@/store/types.ts'
+
 import i18n, {
     defaultLocal,
     isSupportedLang,
@@ -15,7 +17,7 @@ export interface I18nState {
     lang: SupportedLang
 }
 
-function enforceStartupLangIsSupported(lang: string): SupportedLang {
+function enforceLangIsSupported(lang: string): SupportedLang {
     if (isSupportedLang(lang)) {
         return lang
     }
@@ -24,13 +26,14 @@ function enforceStartupLangIsSupported(lang: string): SupportedLang {
 
 export const useI18nStore = defineStore('i18n', {
     state: (): I18nState => ({
-        lang: enforceStartupLangIsSupported(defaultLocal),
+        lang: enforceLangIsSupported(defaultLocal),
     }),
     getters: {},
     actions: {
-        setLang(lang: SupportedLang) {
-            this.lang = lang
-            i18n.global.locale.value = langToLocale(lang)
+        setLang(lang: string, dispatcher: ActionDispatcher) {
+            const langToSet = enforceLangIsSupported(lang)
+            this.lang = langToSet
+            i18n.global.locale.value = langToLocale(langToSet)
         },
     },
 })

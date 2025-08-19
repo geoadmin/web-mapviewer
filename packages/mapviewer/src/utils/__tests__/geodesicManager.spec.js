@@ -5,7 +5,7 @@ import { LineString, MultiLineString, MultiPolygon } from 'ol/geom'
 import { Style } from 'ol/style'
 import { describe, it } from 'vitest'
 
-import { GeodesicGeometries, HALFSIZE_WEBMERCATOR } from '@/utils/geodesicManager'
+import { GeodesicGeometries, formatMeters, HALFSIZE_WEBMERCATOR } from '@/utils/geodesicManager'
 
 function constructGeodLineString(...coords) {
     const feature = new Feature(new LineString(coords))
@@ -73,6 +73,22 @@ function validateResults(geodesic, exp) {
 }
 
 describe('Unit tests for Geodesic geometries', () => {
+    describe('formatMeters()', () => {
+        it('format meters', () => {
+            expect(formatMeters(42)).to.equal('42 m')
+            expect(formatMeters(4002)).to.equal('4 km')
+            expect(formatMeters(4200)).to.equal('4.2 km')
+            expect(formatMeters(4200000)).to.equal("4'200 km")
+        })
+        it('format squared meters', () => {
+            expect(formatMeters(42, { dim: 2 })).to.equal('42 m²')
+            expect(formatMeters(4002, { dim: 2 })).to.equal("4'002 m²")
+            expect(formatMeters(4200, { dim: 2 })).to.equal("4'200 m²")
+            expect(formatMeters(4200000, { dim: 2 })).to.equal('4.2 km²')
+            expect(formatMeters(4200000000, { dim: 2 })).to.equal("4'200 km²")
+        })
+    })
+
     it('test azimuth calculation', () => {
         expect(constructGeodLineString([0, 500], [0, 600]).rotation).to.equal(0)
         expect(constructGeodLineString([500, 10], [600, 10]).rotation.toFixed(2)).to.equal('90.00')
