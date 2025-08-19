@@ -13,7 +13,7 @@ export class Message {
         this.params = params ?? {}
     }
 
-    isEquals(object: Message): boolean {
+    isEqual(object: Message): boolean {
         return (
             object.msg === this.msg &&
             Object.keys(this.params).length === Object.keys(object.params).length &&

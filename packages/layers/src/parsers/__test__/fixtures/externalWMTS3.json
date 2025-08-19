@@ -1,0 +1,428 @@
+{
+    "ServiceIdentification": {
+        "Title": "Geodati relativi al territorio del Canton Ticino",
+        "Abstract": "Geodati di base relativi al territorio della Repubblica e Canton Ticino esposti tramite geoservizi WMTS. L'organizzazione dei geodati di base è secondo le geocategorie definite nella norma eCH0166. I geodati di base vengono offerti secondo i servizi, di rappresentazione (WMTS), definiti dal Regolamento della legge cantonale sulla geoinformazione.",
+        "ServiceType": "OGC WMTS",
+        "ServiceTypeVersion": "1.0.0",
+        "Fees": "None",
+        "AccessConstraints": "Richiesta formale a ccgeo@ti.ch"
+    },
+    "ServiceProvider": {
+        "ProviderName": "Repubblica e Cantone Ticino",
+        "ProviderSite": "https://wmts.geo.ti.ch/wmts/1.0.0/WMTSCapabilities.xml",
+        "ServiceContact": {
+            "IndividualName": "Ufficio della geomatica",
+            "PositionName": "Point of contact",
+            "ContactInfo": {
+                "Phone": { "Voice": "+41(91)814 26 15", "Facsimile": "+41(91)814 25 29" },
+                "Address": {
+                    "DeliveryPoint": "Repubblica e Cantone Ticino",
+                    "City": "Bellinzona",
+                    "PostalCode": "6500",
+                    "Country": "Switzerland",
+                    "ElectronicMailAddress": "ccgeo@ti.ch"
+                }
+            }
+        }
+    },
+    "version": "1.0.0",
+    "Contents": {
+        "Layer": [
+            {
+                "Title": "[CH-051.1] Piano Registro Fondiario del Catasto RDPP",
+                "Abstract": "",
+                "WGS84BoundingBox": [
+                    7.9359243792646, 45.57506921466782, 9.599455051795623, 46.84176195936446
+                ],
+                "Identifier": "ch_051_1_v1_7_piano_registro_fondiario_crdpp",
+                "Style": [{ "Identifier": "default", "isDefault": false }],
+                "Format": ["image/png"],
+                "TileMatrixSetLink": [{ "TileMatrixSet": "ch95_grid" }],
+                "ResourceURL": [
+                    {
+                        "format": "image/png",
+                        "template": "https://wmts.geo.ti.ch/wmts/ch_051_1_v1_7_piano_registro_fondiario_crdpp/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png",
+                        "resourceType": "tile"
+                    }
+                ]
+            },
+            {
+                "Title": "[CH-051.1] Piano Registro Fondiario (colore)",
+                "Abstract": "",
+                "WGS84BoundingBox": [
+                    7.9359243792646, 45.57506921466782, 9.599455051795623, 46.84176195936446
+                ],
+                "Identifier": "ch_051_1_v1_7_piano_registro_fondiario_colore",
+                "Style": [{ "Identifier": "default", "isDefault": false }],
+                "Format": ["image/png"],
+                "TileMatrixSetLink": [{ "TileMatrixSet": "ch95_grid" }],
+                "ResourceURL": [
+                    {
+                        "format": "image/png",
+                        "template": "https://wmts.geo.ti.ch/wmts/ch_051_1_v1_7_piano_registro_fondiario_colore/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png",
+                        "resourceType": "tile"
+                    }
+                ]
+            },
+            {
+                "Title": "[CH-051.1] Piano Registro Fondiario (bianco e nero)",
+                "Abstract": "",
+                "WGS84BoundingBox": [
+                    7.9359243792646, 45.57506921466782, 9.599455051795623, 46.84176195936446
+                ],
+                "Identifier": "ch_051_1_v1_7_piano_registro_fondiario_bn",
+                "Style": [{ "Identifier": "default", "isDefault": false }],
+                "Format": ["image/png"],
+                "TileMatrixSetLink": [{ "TileMatrixSet": "ch95_grid" }],
+                "ResourceURL": [
+                    {
+                        "format": "image/png",
+                        "template": "https://wmts.geo.ti.ch/wmts/ch_051_1_v1_7_piano_registro_fondiario_bn/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png",
+                        "resourceType": "tile"
+                    }
+                ]
+            },
+            {
+                "Title": "[CH-052.1] Piano di base–MU–CH (a colori)",
+                "Abstract": "",
+                "WGS84BoundingBox": [
+                    7.9359243792646, 45.57506921466782, 9.599455051795623, 46.84176195936446
+                ],
+                "Identifier": "ch_052_1_v24_0_piano_base_mu_ch_colore",
+                "Style": [{ "Identifier": "default", "isDefault": false }],
+                "Format": ["image/png"],
+                "TileMatrixSetLink": [{ "TileMatrixSet": "ch95_grid" }],
+                "ResourceURL": [
+                    {
+                        "format": "image/png",
+                        "template": "https://wmts.geo.ti.ch/wmts/ch_052_1_v24_0_piano_base_mu_ch_colore/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png",
+                        "resourceType": "tile"
+                    }
+                ]
+            },
+            {
+                "Title": "[CH-052.1] Piano di base–MU–CH (bianco e nero)",
+                "Abstract": "",
+                "WGS84BoundingBox": [
+                    7.9359243792646, 45.57506921466782, 9.599455051795623, 46.84176195936446
+                ],
+                "Identifier": "ch_052_1_v24_0_piano_base_mu_ch_bn",
+                "Style": [{ "Identifier": "default", "isDefault": false }],
+                "Format": ["image/png"],
+                "TileMatrixSetLink": [{ "TileMatrixSet": "ch95_grid" }],
+                "ResourceURL": [
+                    {
+                        "format": "image/png",
+                        "template": "https://wmts.geo.ti.ch/wmts/ch_052_1_v24_0_piano_base_mu_ch_bn/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png",
+                        "resourceType": "tile"
+                    }
+                ]
+            },
+            {
+                "Title": "[AC-045.1] Piano corografico",
+                "Abstract": "",
+                "WGS84BoundingBox": [
+                    8.343252466773158, 45.796442876200864, 9.22819490785335, 46.65791228406806
+                ],
+                "Identifier": "ac_045_1_v1_1_piani_corografici",
+                "Style": [{ "Identifier": "default", "isDefault": false }],
+                "Format": ["image/png"],
+                "TileMatrixSetLink": [{ "TileMatrixSet": "ch95_grid" }],
+                "ResourceURL": [
+                    {
+                        "format": "image/png",
+                        "template": "https://wmts.geo.ti.ch/wmts/ac_045_1_v1_1_piani_corografici/{TileMatrixSet}/{TileMatrix}/{TileCol}/{TileRow}.png",
+                        "resourceType": "tile"
+                    }
+                ]
+            }
+        ],
+        "TileMatrixSet": [
+            {
+                "Identifier": "ch95_grid",
+                "SupportedCRS": "EPSG:2056",
+                "TileMatrix": [
+                    {
+                        "Identifier": "00",
+                        "ScaleDenominator": 14285714.285714284,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 1,
+                        "MatrixHeight": 1
+                    },
+                    {
+                        "Identifier": "01",
+                        "ScaleDenominator": 13392857.142857142,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 1,
+                        "MatrixHeight": 1
+                    },
+                    {
+                        "Identifier": "02",
+                        "ScaleDenominator": 12499999.999999998,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 1,
+                        "MatrixHeight": 1
+                    },
+                    {
+                        "Identifier": "03",
+                        "ScaleDenominator": 11607142.857142856,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 1,
+                        "MatrixHeight": 1
+                    },
+                    {
+                        "Identifier": "04",
+                        "ScaleDenominator": 10714285.714285713,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 1,
+                        "MatrixHeight": 1
+                    },
+                    {
+                        "Identifier": "05",
+                        "ScaleDenominator": 9821428.57142857,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 1,
+                        "MatrixHeight": 1
+                    },
+                    {
+                        "Identifier": "06",
+                        "ScaleDenominator": 8928571.428571427,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 1,
+                        "MatrixHeight": 1
+                    },
+                    {
+                        "Identifier": "07",
+                        "ScaleDenominator": 8035714.2857142845,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 1,
+                        "MatrixHeight": 1
+                    },
+                    {
+                        "Identifier": "08",
+                        "ScaleDenominator": 7142857.142857142,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 1,
+                        "MatrixHeight": 1
+                    },
+                    {
+                        "Identifier": "09",
+                        "ScaleDenominator": 6249999.999999999,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 2,
+                        "MatrixHeight": 1
+                    },
+                    {
+                        "Identifier": "10",
+                        "ScaleDenominator": 5357142.857142856,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 2,
+                        "MatrixHeight": 1
+                    },
+                    {
+                        "Identifier": "11",
+                        "ScaleDenominator": 4464285.714285714,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 2,
+                        "MatrixHeight": 1
+                    },
+                    {
+                        "Identifier": "12",
+                        "ScaleDenominator": 3571428.571428571,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 2,
+                        "MatrixHeight": 2
+                    },
+                    {
+                        "Identifier": "13",
+                        "ScaleDenominator": 2678571.428571428,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 3,
+                        "MatrixHeight": 2
+                    },
+                    {
+                        "Identifier": "14",
+                        "ScaleDenominator": 2321428.5714285714,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 4,
+                        "MatrixHeight": 2
+                    },
+                    {
+                        "Identifier": "15",
+                        "ScaleDenominator": 1785714.2857142854,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 4,
+                        "MatrixHeight": 3
+                    },
+                    {
+                        "Identifier": "16",
+                        "ScaleDenominator": 892857.1428571427,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 8,
+                        "MatrixHeight": 5
+                    },
+                    {
+                        "Identifier": "17",
+                        "ScaleDenominator": 357142.8571428571,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 20,
+                        "MatrixHeight": 13
+                    },
+                    {
+                        "Identifier": "18",
+                        "ScaleDenominator": 178571.42857142855,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 40,
+                        "MatrixHeight": 25
+                    },
+                    {
+                        "Identifier": "19",
+                        "ScaleDenominator": 71428.57142857142,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 98,
+                        "MatrixHeight": 63
+                    },
+                    {
+                        "Identifier": "20",
+                        "ScaleDenominator": 35714.28571428571,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 196,
+                        "MatrixHeight": 125
+                    },
+                    {
+                        "Identifier": "21",
+                        "ScaleDenominator": 17857.142857142855,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 391,
+                        "MatrixHeight": 250
+                    },
+                    {
+                        "Identifier": "22",
+                        "ScaleDenominator": 8928.571428571428,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 782,
+                        "MatrixHeight": 500
+                    },
+                    {
+                        "Identifier": "23",
+                        "ScaleDenominator": 7142.857142857142,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 977,
+                        "MatrixHeight": 625
+                    },
+                    {
+                        "Identifier": "24",
+                        "ScaleDenominator": 5357.142857142857,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 1303,
+                        "MatrixHeight": 834
+                    },
+                    {
+                        "Identifier": "25",
+                        "ScaleDenominator": 3571.428571428571,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 1954,
+                        "MatrixHeight": 1250
+                    },
+                    {
+                        "Identifier": "26",
+                        "ScaleDenominator": 1785.7142857142856,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 3907,
+                        "MatrixHeight": 2500
+                    },
+                    {
+                        "Identifier": "27",
+                        "ScaleDenominator": 892.8571428571428,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 7813,
+                        "MatrixHeight": 5000
+                    },
+                    {
+                        "Identifier": "28",
+                        "ScaleDenominator": 446.4285714285714,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 15625,
+                        "MatrixHeight": 10000
+                    },
+                    {
+                        "Identifier": "29",
+                        "ScaleDenominator": 357.1428571428571,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 19532,
+                        "MatrixHeight": 12500
+                    },
+                    {
+                        "Identifier": "30",
+                        "ScaleDenominator": 223.2142857142857,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 31250,
+                        "MatrixHeight": 20000
+                    }
+                ]
+            }
+        ]
+    }
+}

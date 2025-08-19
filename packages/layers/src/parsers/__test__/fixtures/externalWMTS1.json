@@ -1,0 +1,577 @@
+{
+    "ServiceIdentification": {
+        "Title": "WMTS / Amt für Geoinformation Kanton Solothurn",
+        "Abstract": "None",
+        "ServiceType": "OGC WMTS",
+        "ServiceTypeVersion": "1.0.0"
+    },
+    "ServiceProvider": { "ServiceContact": { "ContactInfo": {} } },
+    "OperationsMetadata": {
+        "GetCapabilities": {
+            "DCP": {
+                "HTTP": {
+                    "Get": [
+                        {
+                            "href": "https://geo.so.ch/api/wmts?",
+                            "Constraint": [
+                                { "name": "GetEncoding", "AllowedValues": { "Value": ["KVP"] } }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "GetTile": {
+            "DCP": {
+                "HTTP": {
+                    "Get": [
+                        {
+                            "href": "https://geo.so.ch/api/wmts?",
+                            "Constraint": [
+                                { "name": "GetEncoding", "AllowedValues": { "Value": ["KVP"] } }
+                            ]
+                        }
+                    ]
+                }
+            }
+        },
+        "GetFeatureInfo": {
+            "DCP": {
+                "HTTP": {
+                    "Get": [
+                        {
+                            "href": "https://geo.so.ch/api/wmts?",
+                            "Constraint": [
+                                { "name": "GetEncoding", "AllowedValues": { "Value": ["KVP"] } }
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
+    },
+    "version": "1.0.0",
+    "Contents": {
+        "Layer": [
+            {
+                "Title": "ch.so.agi.hintergrundkarte_sw",
+                "Identifier": "ch.so.agi.hintergrundkarte_sw",
+                "Style": [{ "Identifier": "default", "isDefault": true }],
+                "Format": ["image/png"],
+                "TileMatrixSetLink": [
+                    {
+                        "TileMatrixSet": "2056",
+                        "TileMatrixSetLimits": [
+                            {
+                                "TileMatrix": "2056:0",
+                                "MinTileRow": 0,
+                                "MaxTileRow": 0,
+                                "MinTileCol": 0,
+                                "MaxTileCol": 0
+                            },
+                            {
+                                "TileMatrix": "2056:1",
+                                "MinTileRow": 0,
+                                "MaxTileRow": 0,
+                                "MinTileCol": 0,
+                                "MaxTileCol": 0
+                            },
+                            {
+                                "TileMatrix": "2056:2",
+                                "MinTileRow": 0,
+                                "MaxTileRow": 1,
+                                "MinTileCol": 0,
+                                "MaxTileCol": 1
+                            },
+                            {
+                                "TileMatrix": "2056:3",
+                                "MinTileRow": 0,
+                                "MaxTileRow": 2,
+                                "MinTileCol": 0,
+                                "MaxTileCol": 3
+                            },
+                            {
+                                "TileMatrix": "2056:4",
+                                "MinTileRow": 0,
+                                "MaxTileRow": 4,
+                                "MinTileCol": 0,
+                                "MaxTileCol": 7
+                            },
+                            {
+                                "TileMatrix": "2056:5",
+                                "MinTileRow": 0,
+                                "MaxTileRow": 10,
+                                "MinTileCol": 0,
+                                "MaxTileCol": 14
+                            },
+                            {
+                                "TileMatrix": "2056:6",
+                                "MinTileRow": 1,
+                                "MaxTileRow": 16,
+                                "MinTileCol": 6,
+                                "MaxTileCol": 24
+                            },
+                            {
+                                "TileMatrix": "2056:7",
+                                "MinTileRow": 11,
+                                "MaxTileRow": 32,
+                                "MinTileCol": 24,
+                                "MaxTileCol": 53
+                            },
+                            {
+                                "TileMatrix": "2056:8",
+                                "MinTileRow": 27,
+                                "MaxTileRow": 60,
+                                "MinTileCol": 53,
+                                "MaxTileCol": 101
+                            },
+                            {
+                                "TileMatrix": "2056:9",
+                                "MinTileRow": 59,
+                                "MaxTileRow": 115,
+                                "MinTileCol": 112,
+                                "MaxTileCol": 197
+                            },
+                            {
+                                "TileMatrix": "2056:10",
+                                "MinTileRow": 123,
+                                "MaxTileRow": 226,
+                                "MinTileCol": 229,
+                                "MaxTileCol": 390
+                            },
+                            {
+                                "TileMatrix": "2056:11",
+                                "MinTileRow": 315,
+                                "MaxTileRow": 559,
+                                "MinTileCol": 580,
+                                "MaxTileCol": 969
+                            },
+                            {
+                                "TileMatrix": "2056:12",
+                                "MinTileRow": 635,
+                                "MaxTileRow": 1114,
+                                "MinTileCol": 1166,
+                                "MaxTileCol": 1934
+                            },
+                            {
+                                "TileMatrix": "2056:13",
+                                "MinTileRow": 1276,
+                                "MaxTileRow": 2223,
+                                "MinTileCol": 2338,
+                                "MaxTileCol": 3864
+                            },
+                            {
+                                "TileMatrix": "2056:14",
+                                "MinTileRow": 3198,
+                                "MaxTileRow": 5551,
+                                "MinTileCol": 5854,
+                                "MaxTileCol": 9653
+                            }
+                        ]
+                    }
+                ],
+                "ResourceURL": [
+                    {
+                        "format": "image/png",
+                        "template": "https://geo.so.ch/api/wmts/1.0.0/ch.so.agi.hintergrundkarte_sw/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png",
+                        "resourceType": "tile"
+                    }
+                ]
+            },
+            {
+                "Title": "ch.so.agi.hintergrundkarte_farbig",
+                "Identifier": "ch.so.agi.hintergrundkarte_farbig",
+                "Style": [{ "Identifier": "default", "isDefault": true }],
+                "Format": ["image/png"],
+                "TileMatrixSetLink": [
+                    {
+                        "TileMatrixSet": "2056",
+                        "TileMatrixSetLimits": [
+                            {
+                                "TileMatrix": "2056:0",
+                                "MinTileRow": 0,
+                                "MaxTileRow": 0,
+                                "MinTileCol": 0,
+                                "MaxTileCol": 0
+                            },
+                            {
+                                "TileMatrix": "2056:1",
+                                "MinTileRow": 0,
+                                "MaxTileRow": 0,
+                                "MinTileCol": 0,
+                                "MaxTileCol": 0
+                            },
+                            {
+                                "TileMatrix": "2056:2",
+                                "MinTileRow": 0,
+                                "MaxTileRow": 1,
+                                "MinTileCol": 0,
+                                "MaxTileCol": 1
+                            },
+                            {
+                                "TileMatrix": "2056:3",
+                                "MinTileRow": 0,
+                                "MaxTileRow": 2,
+                                "MinTileCol": 0,
+                                "MaxTileCol": 3
+                            },
+                            {
+                                "TileMatrix": "2056:4",
+                                "MinTileRow": 0,
+                                "MaxTileRow": 4,
+                                "MinTileCol": 0,
+                                "MaxTileCol": 7
+                            },
+                            {
+                                "TileMatrix": "2056:5",
+                                "MinTileRow": 0,
+                                "MaxTileRow": 10,
+                                "MinTileCol": 0,
+                                "MaxTileCol": 14
+                            },
+                            {
+                                "TileMatrix": "2056:6",
+                                "MinTileRow": 1,
+                                "MaxTileRow": 16,
+                                "MinTileCol": 6,
+                                "MaxTileCol": 24
+                            },
+                            {
+                                "TileMatrix": "2056:7",
+                                "MinTileRow": 11,
+                                "MaxTileRow": 32,
+                                "MinTileCol": 24,
+                                "MaxTileCol": 53
+                            },
+                            {
+                                "TileMatrix": "2056:8",
+                                "MinTileRow": 27,
+                                "MaxTileRow": 60,
+                                "MinTileCol": 53,
+                                "MaxTileCol": 101
+                            },
+                            {
+                                "TileMatrix": "2056:9",
+                                "MinTileRow": 59,
+                                "MaxTileRow": 115,
+                                "MinTileCol": 112,
+                                "MaxTileCol": 197
+                            },
+                            {
+                                "TileMatrix": "2056:10",
+                                "MinTileRow": 123,
+                                "MaxTileRow": 226,
+                                "MinTileCol": 229,
+                                "MaxTileCol": 390
+                            },
+                            {
+                                "TileMatrix": "2056:11",
+                                "MinTileRow": 315,
+                                "MaxTileRow": 559,
+                                "MinTileCol": 580,
+                                "MaxTileCol": 969
+                            },
+                            {
+                                "TileMatrix": "2056:12",
+                                "MinTileRow": 635,
+                                "MaxTileRow": 1114,
+                                "MinTileCol": 1166,
+                                "MaxTileCol": 1934
+                            },
+                            {
+                                "TileMatrix": "2056:13",
+                                "MinTileRow": 1276,
+                                "MaxTileRow": 2223,
+                                "MinTileCol": 2338,
+                                "MaxTileCol": 3864
+                            },
+                            {
+                                "TileMatrix": "2056:14",
+                                "MinTileRow": 3198,
+                                "MaxTileRow": 5551,
+                                "MinTileCol": 5854,
+                                "MaxTileCol": 9653
+                            }
+                        ]
+                    }
+                ],
+                "ResourceURL": [
+                    {
+                        "format": "image/png",
+                        "template": "https://geo.so.ch/api/wmts/1.0.0/ch.so.agi.hintergrundkarte_farbig/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png",
+                        "resourceType": "tile"
+                    }
+                ]
+            },
+            {
+                "Title": "ch.so.agi.hintergrundkarte_ortho",
+                "Identifier": "ch.so.agi.hintergrundkarte_ortho",
+                "Style": [{ "Identifier": "default", "isDefault": true }],
+                "Format": ["image/jpeg"],
+                "TileMatrixSetLink": [
+                    {
+                        "TileMatrixSet": "2056",
+                        "TileMatrixSetLimits": [
+                            {
+                                "TileMatrix": "2056:0",
+                                "MinTileRow": 0,
+                                "MaxTileRow": 0,
+                                "MinTileCol": 0,
+                                "MaxTileCol": 0
+                            },
+                            {
+                                "TileMatrix": "2056:1",
+                                "MinTileRow": 0,
+                                "MaxTileRow": 0,
+                                "MinTileCol": 0,
+                                "MaxTileCol": 0
+                            },
+                            {
+                                "TileMatrix": "2056:2",
+                                "MinTileRow": 0,
+                                "MaxTileRow": 1,
+                                "MinTileCol": 0,
+                                "MaxTileCol": 1
+                            },
+                            {
+                                "TileMatrix": "2056:3",
+                                "MinTileRow": 0,
+                                "MaxTileRow": 2,
+                                "MinTileCol": 0,
+                                "MaxTileCol": 3
+                            },
+                            {
+                                "TileMatrix": "2056:4",
+                                "MinTileRow": 0,
+                                "MaxTileRow": 4,
+                                "MinTileCol": 0,
+                                "MaxTileCol": 7
+                            },
+                            {
+                                "TileMatrix": "2056:5",
+                                "MinTileRow": 0,
+                                "MaxTileRow": 10,
+                                "MinTileCol": 0,
+                                "MaxTileCol": 14
+                            },
+                            {
+                                "TileMatrix": "2056:6",
+                                "MinTileRow": 1,
+                                "MaxTileRow": 16,
+                                "MinTileCol": 6,
+                                "MaxTileCol": 24
+                            },
+                            {
+                                "TileMatrix": "2056:7",
+                                "MinTileRow": 11,
+                                "MaxTileRow": 32,
+                                "MinTileCol": 24,
+                                "MaxTileCol": 53
+                            },
+                            {
+                                "TileMatrix": "2056:8",
+                                "MinTileRow": 27,
+                                "MaxTileRow": 60,
+                                "MinTileCol": 53,
+                                "MaxTileCol": 101
+                            },
+                            {
+                                "TileMatrix": "2056:9",
+                                "MinTileRow": 59,
+                                "MaxTileRow": 115,
+                                "MinTileCol": 112,
+                                "MaxTileCol": 197
+                            },
+                            {
+                                "TileMatrix": "2056:10",
+                                "MinTileRow": 123,
+                                "MaxTileRow": 226,
+                                "MinTileCol": 229,
+                                "MaxTileCol": 390
+                            },
+                            {
+                                "TileMatrix": "2056:11",
+                                "MinTileRow": 315,
+                                "MaxTileRow": 559,
+                                "MinTileCol": 580,
+                                "MaxTileCol": 969
+                            },
+                            {
+                                "TileMatrix": "2056:12",
+                                "MinTileRow": 635,
+                                "MaxTileRow": 1114,
+                                "MinTileCol": 1166,
+                                "MaxTileCol": 1934
+                            },
+                            {
+                                "TileMatrix": "2056:13",
+                                "MinTileRow": 1276,
+                                "MaxTileRow": 2223,
+                                "MinTileCol": 2338,
+                                "MaxTileCol": 3864
+                            },
+                            {
+                                "TileMatrix": "2056:14",
+                                "MinTileRow": 3198,
+                                "MaxTileRow": 5551,
+                                "MinTileCol": 5854,
+                                "MaxTileCol": 9653
+                            }
+                        ]
+                    }
+                ],
+                "ResourceURL": [
+                    {
+                        "format": "image/jpeg",
+                        "template": "https://geo.so.ch/api/wmts/1.0.0/ch.so.agi.hintergrundkarte_ortho/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.jpg",
+                        "resourceType": "tile"
+                    }
+                ]
+            }
+        ],
+        "TileMatrixSet": [
+            {
+                "Identifier": "2056",
+                "BoundingBox": [2420000, 1030000, 2900000, 1350000],
+                "SupportedCRS": "urn:ogc:def:crs:EPSG:6.3:2056",
+                "TileMatrix": [
+                    {
+                        "Identifier": "0",
+                        "ScaleDenominator": 14285714.285714287,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 1,
+                        "MatrixHeight": 1
+                    },
+                    {
+                        "Identifier": "1",
+                        "ScaleDenominator": 7142857.142857144,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 1,
+                        "MatrixHeight": 1
+                    },
+                    {
+                        "Identifier": "2",
+                        "ScaleDenominator": 3571428.571428572,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 2,
+                        "MatrixHeight": 2
+                    },
+                    {
+                        "Identifier": "3",
+                        "ScaleDenominator": 1785714.285714286,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 4,
+                        "MatrixHeight": 3
+                    },
+                    {
+                        "Identifier": "4",
+                        "ScaleDenominator": 892857.142857143,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 8,
+                        "MatrixHeight": 5
+                    },
+                    {
+                        "Identifier": "5",
+                        "ScaleDenominator": 357142.85714285716,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 19,
+                        "MatrixHeight": 13
+                    },
+                    {
+                        "Identifier": "6",
+                        "ScaleDenominator": 178571.42857142858,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 38,
+                        "MatrixHeight": 25
+                    },
+                    {
+                        "Identifier": "7",
+                        "ScaleDenominator": 71428.57142857143,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 94,
+                        "MatrixHeight": 63
+                    },
+                    {
+                        "Identifier": "8",
+                        "ScaleDenominator": 35714.28571428572,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 188,
+                        "MatrixHeight": 125
+                    },
+                    {
+                        "Identifier": "9",
+                        "ScaleDenominator": 17857.14285714286,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 375,
+                        "MatrixHeight": 250
+                    },
+                    {
+                        "Identifier": "10",
+                        "ScaleDenominator": 8928.57142857143,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 750,
+                        "MatrixHeight": 500
+                    },
+                    {
+                        "Identifier": "11",
+                        "ScaleDenominator": 3571.4285714285716,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 1875,
+                        "MatrixHeight": 1250
+                    },
+                    {
+                        "Identifier": "12",
+                        "ScaleDenominator": 1785.7142857142858,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 3750,
+                        "MatrixHeight": 2500
+                    },
+                    {
+                        "Identifier": "13",
+                        "ScaleDenominator": 892.8571428571429,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 7500,
+                        "MatrixHeight": 5000
+                    },
+                    {
+                        "Identifier": "14",
+                        "ScaleDenominator": 357.14285714285717,
+                        "TopLeftCorner": [2420000, 1350000],
+                        "TileWidth": 256,
+                        "TileHeight": 256,
+                        "MatrixWidth": 18750,
+                        "MatrixHeight": 12500
+                    }
+                ]
+            }
+        ]
+    }
+}
