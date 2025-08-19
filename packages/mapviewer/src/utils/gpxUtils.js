@@ -1,6 +1,6 @@
 import { WGS84 } from '@geoadmin/coordinates'
 import { CoordinateSystem } from '@geoadmin/coordinates'
-import { gpx as gpxToGeoJSON } from '@mapbox/togeojson'
+import { gpx as gpxToGeoJSON } from '@tmcw/togeojson'
 import { bbox } from '@turf/turf'
 import { isEmpty as isExtentEmpty } from 'ol/extent'
 import GPX from 'ol/format/GPX'

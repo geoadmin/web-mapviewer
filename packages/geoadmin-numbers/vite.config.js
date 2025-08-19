@@ -1,12 +1,14 @@
 import { resolve } from 'path'
+import dts from 'unplugin-dts/vite'
 import { fileURLToPath, URL } from 'url'
-import dts from 'vite-plugin-dts'
 
 export default {
     build: {
         lib: {
             entry: [resolve(__dirname, 'src/index.ts')],
-            name: '@geoadmin/utils',
+            name: '@geoadmin/numbers',
+            formats: ['es'],
+            filename: 'geoadmin-numbers',
         },
         rollupOptions: {
             output: {
@@ -21,7 +23,7 @@ export default {
     },
     plugins: [
         dts({
-            outDir: 'dist',
+            bundleTypes: true,
         }),
     ],
 }

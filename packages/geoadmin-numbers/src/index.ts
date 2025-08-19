@@ -130,7 +130,7 @@ export function isTimestampYYYYMMDD(timestamp: string): boolean {
  */
 export function circularMean(values: number[]): number | undefined {
     if (!Array.isArray(values) || values.some((value) => !isNumber(value))) {
-        return undefined
+        return
     }
     const sumCos = values.reduce((acc, curr) => acc + Math.cos(curr), 0)
     const sumSin = values.reduce((acc, curr) => acc + Math.sin(curr), 0)
@@ -146,7 +146,19 @@ export function circularMean(values: number[]): number | undefined {
     return mean
 }
 
-const numbers = {
+export interface GeoadminNumberUtils {
+    round: typeof round
+    closest: typeof closest
+    isNumber: typeof isNumber
+    randomIntBetween: typeof randomIntBetween
+    format: typeof format
+    formatThousand: typeof formatThousand
+    wrapDegrees: typeof wrapDegrees
+    isTimestampYYYYMMDD: typeof isTimestampYYYYMMDD
+    circularMean: typeof circularMean
+}
+
+const numbers: GeoadminNumberUtils = {
     round,
     closest,
     isNumber,

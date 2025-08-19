@@ -78,7 +78,18 @@ export default defineConfigWithVueTs(
         // on unused param from abstract function arguments
         rules: {
             'no-unused-vars': 'off',
-            '@typescript-eslint/no-unused-vars': 'error',
+            '@typescript-eslint/no-unused-vars': [
+                'error',
+                {
+                    // as we are adding dispatcher reference in all our store action, but won't be using
+                    // them directly in the action, we must ignore these unused variables too
+                    argsIgnorePattern: '^(_|dispatcher)',
+                    caughtErrorsIgnorePattern: '^_',
+                    destructuredArrayIgnorePattern: '^_',
+                },
+            ],
+            '@typescript-eslint/consistent-type-exports': 'error',
+            '@typescript-eslint/no-import-type-side-effects': 'error',
         },
     },
     {
