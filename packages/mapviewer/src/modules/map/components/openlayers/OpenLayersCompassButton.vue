@@ -62,11 +62,11 @@ const onRotate = (mapEvent) => {
             :style="{ transform: `rotate(${rotation}rad)` }"
         >
             <polygon
-                style="fill: #cd2a00"
+                class="south-arrow"
                 points="-100,0 100,0 0,240"
             />
             <polygon
-                style="fill: #ff3501"
+                class="north-arrow"
                 points="-100,0 100,0 0,-240"
             />
         </svg>
@@ -79,6 +79,12 @@ const onRotate = (mapEvent) => {
     &-icon {
         height: $map-button-diameter - 5px;
         width: $map-button-diameter;
+        .north-arrow {
+            fill: $venetian-red;
+        }
+        .south-arrow {
+            fill: $cerulean;
+        }
     }
 }
 </style>

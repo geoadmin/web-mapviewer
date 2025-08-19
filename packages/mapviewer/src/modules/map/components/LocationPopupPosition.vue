@@ -1,8 +1,7 @@
 <script setup>
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
-import { LV03, LV95, WGS84 } from '@geoadmin/coordinates'
-import { reprojectAndRound } from '@geoadmin/coordinates'
+import { LV03, LV95, reprojectAndRound, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -127,7 +126,7 @@ async function updateHeight() {
         role="tabpanel"
         aria-labelledby="nav-local-tab"
     >
-        <div class="pb-2 location-popup-coordinates align-items-center">
+        <div class="location-popup-coordinates align-items-center pb-2">
             <CoordinateCopySlot
                 identifier="location-popup-lv95"
                 :value="coordinate"
@@ -228,9 +227,9 @@ async function updateHeight() {
     &-coordinates {
         display: grid;
         grid-template-columns: max-content auto;
-        grid-column-gap: 8px;
+        column-gap: 8px;
         font-size: 0.75rem;
-        grid-row-gap: 2px;
+        row-gap: 2px;
         &-label {
             white-space: nowrap;
         }
