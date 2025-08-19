@@ -115,7 +115,7 @@ export default defineConfig({
             return devServer({
                 ...devServerConfig,
                 framework: 'vue',
-                viteConfig: viteConfig({ mode: 'test' }),
+                viteConfig: viteConfig({ command: 'build', mode: 'test' }),
             })
         },
         specPattern: 'tests/cypress/tests-component/**/*.cy.js',

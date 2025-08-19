@@ -38,9 +38,9 @@
         "@types/geojson": "catalog:",
         "@types/jsdom": "catalog:",
         "@types/node": "catalog:",
-        "@types/proj4": "catalog:",
         "@vue/eslint-config-prettier": "catalog:",
         "@vue/eslint-config-typescript": "catalog:",
+        "@vue/language-core": "catalog:",
         "@vue/tsconfig": "catalog:",
         "eslint": "catalog:",
         "eslint-plugin-cypress": "catalog:",
@@ -61,8 +61,8 @@
         "stylelint-scss": "catalog:",
         "typescript": "catalog:",
         "typescript-eslint": "catalog:",
+        "unplugin-dts": "catalog:",
         "vite": "catalog:",
-        "vite-plugin-dts": "catalog:",
         "vitest": "catalog:",
         "vue-tsc": "catalog:"
     },
@@ -73,7 +73,8 @@
     "pnpm": {
         "onlyBuiltDependencies": [
             "cypress",
-            "sharp"
+            "sharp",
+            "vue-demi"
         ],
         "ignoredBuiltDependencies": [
             "core-js",

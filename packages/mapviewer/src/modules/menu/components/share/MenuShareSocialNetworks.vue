@@ -111,7 +111,7 @@ $shareButtonWidth: 46px;
 .share-network {
     display: grid;
     grid-template-columns: repeat(auto-fit, $shareButtonWidth);
-    grid-gap: 0.25rem;
+    gap: 0.25rem;
     justify-content: center;
     align-content: center;
     &-button {

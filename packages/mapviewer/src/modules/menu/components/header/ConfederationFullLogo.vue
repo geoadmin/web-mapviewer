@@ -54,7 +54,7 @@ const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
             </div>
             <h2
                 v-if="hasDevSiteWarning"
-                class="dev-site-warning text-danger position-absolute h-100 z-3 text-center d-flex justify-content-center align-items-center opacity-50"
+                class="dev-site-warning text-danger position-absolute h-100 z-3 d-flex justify-content-center align-items-center text-center opacity-50"
             >
                 <strong>
                     TEST SITE<br />
@@ -92,11 +92,13 @@ $letterSpacing: calc((78 / 1000) * 1em);
         }
     }
 
+    /* stylelint-disable nesting-selector-no-missing-scoping-root */
     & {
         margin: $defaultMargin;
         gap: $defaultMargin;
         width: $flagSize;
     }
+    /* stylelint-enable nesting-selector-no-missing-scoping-root */
 
     @include respond-above(lg) {
         width: $logoWidth;

@@ -1,6 +1,6 @@
 import { WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
-import { kml as kmlToGeoJSON } from '@mapbox/togeojson'
+import { kml as kmlToGeoJSON } from '@tmcw/togeojson'
 import { booleanValid } from '@turf/turf'
 import axios from 'axios'
 import JSZip from 'jszip'
@@ -453,7 +453,8 @@ export function getEditableFeatureFromKmlFeature(kmlFeature, availableIconSets) 
     )
     // Convert string to boolean - KML properties are parsed as strings
     const showDescriptionOnMapValue = kmlFeature.get('showDescriptionOnMap')
-    const showDescriptionOnMap = showDescriptionOnMapValue === 'true' || showDescriptionOnMapValue === true
+    const showDescriptionOnMap =
+        showDescriptionOnMapValue === 'true' || showDescriptionOnMapValue === true
     if (iconArgs?.isLegacy && iconStyle && icon) {
         // The legacy drawing uses icons from old URLs, some of them have already been removed
         // like the versioned URLs (/{version}/img/maki/{image}-{size}@{scale}x.png) while others

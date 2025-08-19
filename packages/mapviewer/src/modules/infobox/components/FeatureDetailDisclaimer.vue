@@ -55,17 +55,15 @@ function setDisclaimerAgree() {
                     :source-name="externalIframeHosts.toString()"
                 >
                     <div
-                        class="d-flex align-items-center"
-                        style="cursor: pointer"
+                        class="d-flex align-items-center cursor-pointer"
                         data-cy="feature-detail-media-disclaimer-opened-info"
                     >
                         <FontAwesomeIcon
-                            class="px-1 ps-2"
-                            style="color: white"
+                            class="color-white px-1 ps-2"
                             size="lg"
                             icon="info-circle"
                         />
-                        <div class="px-1 d-flex">
+                        <div class="d-flex px-1">
                             {{ t('media_disclaimer') }}
                         </div>
                     </div>
@@ -77,7 +75,7 @@ function setDisclaimerAgree() {
                     @click="setDisclaimerAgree"
                 >
                     <FontAwesomeIcon
-                        style="color: white"
+                        class="color-white"
                         size="lg"
                         icon="times"
                     />
@@ -89,7 +87,7 @@ function setDisclaimerAgree() {
             class="d-flex align-items-center"
             data-cy="feature-detail-media-disclaimer-closed"
         >
-            <div class="d-flex py-1 align-items-center">
+            <div class="d-flex align-items-center py-1">
                 {{ t(title) }}
             </div>
             <ThirdPartyDisclaimer
@@ -97,7 +95,7 @@ function setDisclaimerAgree() {
                 :source-name="externalIframeHosts.toString()"
             >
                 <button
-                    class="d-flex px-2 btn btn-default btn-xs border-0"
+                    class="d-flex btn btn-default btn-xs border-0 px-2"
                     data-cy="feature-detail-media-disclaimer-closed-info"
                 >
                     <FontAwesomeIcon

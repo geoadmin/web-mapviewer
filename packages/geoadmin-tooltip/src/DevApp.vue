@@ -3,13 +3,13 @@ import { useTemplateRef } from 'vue'
 
 import GeoadminTooltip from '@/GeoadminTooltip.vue'
 
-const manualTooltip = useTemplateRef('manualTooltip')
+const manualTooltipRef = useTemplateRef<InstanceType<typeof GeoadminTooltip>>('manualTooltip')
 
 function toggleManualTooltip() {
-    if (manualTooltip.value?.isOpen) {
-        manualTooltip.value?.closeTooltip()
+    if (manualTooltipRef.value?.isOpen) {
+        manualTooltipRef.value?.closeTooltip()
     } else {
-        manualTooltip.value?.openTooltip()
+        manualTooltipRef.value?.openTooltip()
     }
 }
 </script>
