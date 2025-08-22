@@ -1,11 +1,16 @@
-import { allCoordinateSystems, CoordinateSystem, LV95, WGS84 } from '@geoadmin/coordinates'
+import {
+    allCoordinateSystems,
+    CoordinateSystem,
+    extentUtils,
+    LV95,
+    WGS84,
+} from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import { wrapDegrees } from '@geoadmin/numbers'
 import proj4 from 'proj4'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { LV95Format } from '@/utils/coordinates/coordinateFormat'
-import { normalizeExtent } from '@/utils/extentUtils'
 
 /** @enum */
 export const CrossHairs = {
@@ -45,7 +50,7 @@ export function normalizeAngle(rotation) {
  * @returns {Array} - The reprojected extent.
  */
 function reprojectExtent(extent, sourceProjection, targetProjection) {
-    return extent.map((point) => proj4(sourceProjection, targetProjection, point));
+    return extent.map((point) => proj4(sourceProjection, targetProjection, point))
 }
 
 /**
@@ -269,13 +274,16 @@ const actions = {
             }
         }
     },
-    zoomToExtent: ({ commit, state, rootState }, { extent, extentProjection, maxZoom, dispatcher }) => {
+    zoomToExtent: (
+        { commit, state, rootState },
+        { extent, extentProjection, maxZoom, dispatcher }
+    ) => {
         // If the extentProjection is not defined, we assume the extent is in the current projection
         // and we don't need to reproject it.
         if (extentProjection?.epsg && extentProjection.epsg !== state.projection.epsg) {
-            extent = reprojectExtent(extent, extentProjection.epsg, state.projection.epsg);
+            extent = reprojectExtent(extent, extentProjection.epsg, state.projection.epsg)
         }
-        const normalizedExtent = extent ? normalizeExtent(extent) : null
+        const normalizedExtent = extent ? extentUtils.normalizeExtent(extent) : null
         if (normalizedExtent && Array.isArray(normalizedExtent) && normalizedExtent.length === 2) {
             // Convert extent points to WGS84 as adding the coordinates in metric gives incorrect results.
             const points = [

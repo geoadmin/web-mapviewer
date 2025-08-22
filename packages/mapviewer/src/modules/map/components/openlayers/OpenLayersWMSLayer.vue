@@ -1,7 +1,7 @@
 <script setup>
 /** Renders a WMS layer on the map */
 
-import { LV95 } from '@geoadmin/coordinates'
+import { extentUtils, LV95 } from '@geoadmin/coordinates'
 import { cloneDeep } from 'lodash'
 import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
 import { ImageWMS, TileWMS } from 'ol/source'
@@ -15,7 +15,6 @@ import { ALL_YEARS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
 import { WMS_TILE_SIZE } from '@/config/map.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import { flattenExtent } from '@/utils/extentUtils'
 import { getTimestampFromConfig } from '@/utils/layerUtils'
 
 const { wmsLayerConfig, parentLayerOpacity, zIndex } = defineProps({
@@ -153,7 +152,7 @@ function createSourceForProjection() {
 // That means that data will not be requested if the map viewport is outside the extent.
 function setExtent() {
     if (wmsLayerConfig.extent) {
-        layer.setExtent(flattenExtent(wmsLayerConfig.extent))
+        layer.setExtent(extentUtils.flattenExtent(wmsLayerConfig.extent))
     } else if (wmsLayerConfig instanceof GeoAdminWMSLayer) {
         // do not request stuff outside our technical extent with our own layers.
         layer.setExtent(LV95.getBoundsAs(projection.value).flatten)

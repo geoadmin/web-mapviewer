@@ -1,4 +1,4 @@
-import { allCoordinateSystems, LV95 } from '@geoadmin/coordinates'
+import { allCoordinateSystems, extentUtils, LV95 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import axios from 'axios'
 import { WMSGetFeatureInfo } from 'ol/format'
@@ -14,8 +14,10 @@ import {
     CURRENT_YEAR_TIMESTAMP,
 } from '@/api/layers/LayerTimeConfigEntry.class'
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
-import { DEFAULT_FEATURE_COUNT_SINGLE_POINT, DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@/config/map.config'
-import { createPixelExtentAround, projExtent } from '@/utils/extentUtils'
+import {
+    DEFAULT_FEATURE_COUNT_SINGLE_POINT,
+    DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE,
+} from '@/config/map.config'
 import { getGeoJsonFeatureCoordinates, reprojectGeoJsonData } from '@/utils/geoJsonUtils'
 
 const GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE = 100
@@ -24,7 +26,6 @@ const APPLICATION_JSON_TYPE = 'application/json'
 const APPLICATION_GML_3_TYPE = 'application/vnd.ogc.gml'
 const APPLICATION_OGC_WMS_XML_TYPE = 'application/vnd.ogc.wms_xml'
 const PLAIN_TEXT_TYPE = 'text/plain'
-
 
 function getApi3TimeInstantParam(layer) {
     // The api3 identify endpoint timeInstant parameter doesn't support the "all" and "current"
@@ -357,7 +358,7 @@ async function identifyOnExternalWmsLayer(config) {
         outputProjection = null,
     } = config
 
-    const requestExtent = createPixelExtentAround({
+    const requestExtent = extentUtils.createPixelExtentAround({
         size: GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE,
         coordinate,
         projection,
@@ -669,7 +670,7 @@ function parseGeomAdminFeature(
     }
 
     if (outputProjection.epsg !== LV95.epsg && featureExtent?.length === 4) {
-        featureExtent = projExtent(LV95, outputProjection, featureExtent)
+        featureExtent = extentUtils.projExtent(LV95, outputProjection, featureExtent)
     }
 
     let featureGeoJSONGeometry = null

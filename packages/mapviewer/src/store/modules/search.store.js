@@ -1,4 +1,4 @@
-import { constants, LV03, reprojectAndRound } from '@geoadmin/coordinates'
+import { constants, coordinatesUtils, extentUtils, LV03 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import GeoJSON from 'ol/format/GeoJSON'
 
@@ -10,7 +10,6 @@ import search, { SearchResultTypes } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
-import { flattenExtent, normalizeExtent } from '@/utils/extentUtils'
 import { parseGpx } from '@/utils/gpxUtils'
 import { parseKml } from '@/utils/kmlUtils'
 
@@ -109,7 +108,7 @@ const actions = {
                             outputProjection: currentProjection,
                         })
                     } else {
-                        coordinates = reprojectAndRound(
+                        coordinates = coordinatesUtils.reprojectAndRound(
                             extractedCoordinate.coordinateSystem,
                             currentProjection,
                             coordinates
@@ -241,7 +240,7 @@ const actions = {
                             lang: rootState.i18n.lang,
                             screenWidth: rootState.ui.width,
                             screenHeight: rootState.ui.height,
-                            mapExtent: flattenExtent(getters.extent),
+                            mapExtent: extentUtils.flattenExtent(getters.extent),
                             coordinate: entry.coordinate,
                         }).then((feature) => {
                             dispatch('setSelectedFeatures', {
@@ -317,7 +316,7 @@ function createLayerFeature(olFeature, layer) {
         },
         coordinates: olFeature.getGeometry().getCoordinates(),
         geometry: new GeoJSON().writeGeometryObject(olFeature.getGeometry()),
-        extent: normalizeExtent(olFeature.getGeometry().getExtent()),
+        extent: extentUtils.normalizeExtent(olFeature.getGeometry().getExtent()),
     })
 }
 

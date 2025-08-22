@@ -1,4 +1,4 @@
-import { WGS84 } from '@geoadmin/coordinates'
+import { extentUtils, WGS84 } from '@geoadmin/coordinates'
 import GPX from 'ol/format/GPX'
 
 import GPXLayer from '@/api/layers/GPXLayer.class'
@@ -6,7 +6,6 @@ import EmptyFileContentError from '@/modules/menu/components/advancedTools/Impor
 import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
-import { getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
 import { getGpxExtent } from '@/utils/gpxUtils'
 
 /**
@@ -41,7 +40,7 @@ export default class GPXParser extends FileParser {
         if (!extent) {
             throw new EmptyFileContentError()
         }
-        const extentInCurrentProjection = getExtentIntersectionWithCurrentProjection(
+        const extentInCurrentProjection = extentUtils.getExtentIntersectionWithCurrentProjection(
             extent,
             WGS84,
             currentProjection

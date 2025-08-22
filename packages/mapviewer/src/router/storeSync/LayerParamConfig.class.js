@@ -1,3 +1,4 @@
+import { extentUtils } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import { ErrorMessage, WarningMessage } from '@geoadmin/log/Message'
 
@@ -18,7 +19,6 @@ import {
     parseLayersParam,
     transformLayerIntoUrlString,
 } from '@/router/storeSync/layersParamParser'
-import { flattenExtent } from '@/utils/extentUtils'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 
 /**
@@ -149,7 +149,7 @@ export function createLayerObject(parsedLayer, currentLayer, store, featuresRequ
                             lang: store.state.i18n.lang,
                             screenWidth: store.state.ui.width,
                             screenHeight: store.state.ui.height,
-                            mapExtent: flattenExtent(store.getters.extent),
+                            mapExtent: extentUtils.flattenExtent(store.getters.extent),
                         })
                     )
                 })

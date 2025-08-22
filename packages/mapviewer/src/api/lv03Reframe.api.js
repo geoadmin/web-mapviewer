@@ -1,5 +1,4 @@
-import { LV03, LV95 } from '@geoadmin/coordinates'
-import { reprojectAndRound } from '@geoadmin/coordinates'
+import { coordinatesUtils, LV03, LV95 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import axios from 'axios'
 
@@ -44,7 +43,7 @@ export default function reframe(config = {}) {
                 if (response.data?.coordinates) {
                     let outputCoordinates = [...response.data.coordinates]
                     if (outputProjection && outputProjection !== backendResponseProjection) {
-                        outputCoordinates = reprojectAndRound(
+                        outputCoordinates = coordinatesUtils.reprojectAndRound(
                             backendResponseProjection,
                             outputProjection,
                             outputCoordinates
@@ -58,7 +57,7 @@ export default function reframe(config = {}) {
                         'fallback to proj4'
                     )
                     resolve(
-                        reprojectAndRound(
+                        coordinatesUtils.reprojectAndRound(
                             inputProjection,
                             outputProjection ?? backendResponseProjection,
                             inputCoordinates

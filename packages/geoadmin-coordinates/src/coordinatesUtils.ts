@@ -1,10 +1,11 @@
 import { formatThousand, isNumber, round } from '@geoadmin/numbers'
 import proj4 from 'proj4'
 
+import { allCoordinateSystems, WGS84 } from '@/proj'
 import CoordinateSystem from '@/proj/CoordinateSystem'
 
 export type SingleCoordinate = [number, number]
-type Single3DCoordinate = [number, number, number]
+export type Single3DCoordinate = [number, number, number]
 
 /**
  * Returns rounded coordinate with thousands separator and comma.
@@ -18,12 +19,12 @@ type Single3DCoordinate = [number, number, number]
  * @returns Formatted coordinate.
  * @see https://stackoverflow.com/a/2901298/4840446
  */
-export function toRoundedString(
+function toRoundedString(
     coordinate: SingleCoordinate,
     digits: number,
     withThousandsSeparator: boolean = true,
     enforceDigit: boolean = false
-): string | null {
+): string | undefined {
     if (
         !Array.isArray(coordinate) ||
         coordinate.length !== 2 ||
@@ -32,7 +33,7 @@ export function toRoundedString(
             (value) => value === Number.POSITIVE_INFINITY || value === Number.NEGATIVE_INFINITY
         )
     ) {
-        return null
+        return
     }
     return coordinate
         .map((value) => {
@@ -59,7 +60,7 @@ export function toRoundedString(
  * @param projection Projection of the coordinates
  * @returns Coordinates wrapped on the X axis
  */
-export function wrapXCoordinates<T extends SingleCoordinate | SingleCoordinate[]>(
+function wrapXCoordinates<T extends SingleCoordinate | SingleCoordinate[]>(
     coordinates: T,
     projection: CoordinateSystem
 ): T {
@@ -90,7 +91,7 @@ export function wrapXCoordinates<T extends SingleCoordinate | SingleCoordinate[]
  * Most of our backends only deal with the first feature of such array, this function will unwrap
  * it, or return the array as is if it is not required
  */
-export function unwrapGeometryCoordinates(
+function unwrapGeometryCoordinates(
     geometryCoordinates: SingleCoordinate[] | SingleCoordinate[][]
 ): SingleCoordinate[] {
     if (Array.isArray(geometryCoordinates)) {
@@ -107,9 +108,7 @@ export function unwrapGeometryCoordinates(
  *
  * @param coordinates
  */
-export function removeZValues(
-    coordinates: SingleCoordinate[] | Single3DCoordinate[]
-): SingleCoordinate[] {
+function removeZValues(coordinates: SingleCoordinate[] | Single3DCoordinate[]): SingleCoordinate[] {
     if (Array.isArray(coordinates)) {
         if (coordinates.every((coordinate) => coordinate.length === 2)) {
             return coordinates
@@ -120,7 +119,7 @@ export function removeZValues(
     throw new Error('Invalid coordinates received, cannot remove Z values')
 }
 
-export function reprojectAndRound(
+function reprojectAndRound(
     from: CoordinateSystem,
     into: CoordinateSystem,
     coordinates: SingleCoordinate
@@ -133,12 +132,34 @@ export function reprojectAndRound(
     ) as SingleCoordinate
 }
 
-const coordinates = {
+function parseCRS(crs?: string): CoordinateSystem | undefined {
+    const epsgNumber = crs?.split(':').pop()
+    if (!epsgNumber) {
+        return
+    }
+
+    if (epsgNumber === 'WGS84') {
+        return WGS84
+    }
+    return allCoordinateSystems.find((system) => system.epsg === `EPSG:${epsgNumber}`)
+}
+
+export interface GeoadminCoordinatesUtils {
+    toRoundedString: typeof toRoundedString
+    wrapXCoordinates: typeof wrapXCoordinates
+    unwrapGeometryCoordinates: typeof unwrapGeometryCoordinates
+    removeZValues: typeof removeZValues
+    reprojectAndRound: typeof reprojectAndRound
+    parseCRS: typeof parseCRS
+}
+
+const coordinatesUtils: GeoadminCoordinatesUtils = {
     toRoundedString,
     wrapXCoordinates,
     unwrapGeometryCoordinates,
     removeZValues,
     reprojectAndRound,
+    parseCRS,
 }
-export { coordinates }
-export default coordinates
+export { coordinatesUtils }
+export default coordinatesUtils

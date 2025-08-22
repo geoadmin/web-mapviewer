@@ -1,4 +1,4 @@
-import { allCoordinateSystems } from '@geoadmin/coordinates'
+import { allCoordinateSystems, extentUtils } from '@geoadmin/coordinates'
 import { fromBlob, fromUrl } from 'geotiff'
 
 import CloudOptimizedGeoTIFFLayer from '@/api/layers/CloudOptimizedGeoTIFFLayer.class'
@@ -6,7 +6,6 @@ import InvalidFileContentError from '@/modules/menu/components/advancedTools/Imp
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
 import UnknownProjectionError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/UnknownProjectionError.error'
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
-import { flattenExtent, getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
 
 // see http://geotiff.maptools.org/spec/geotiff6.html#6.3.3.1
 const USER_DEFINED_CS = 32767
@@ -61,7 +60,7 @@ export class CloudOptimizedGeoTIFFParser extends FileParser {
             )
         }
         const cogExtent = firstImage.getBoundingBox()
-        const intersection = getExtentIntersectionWithCurrentProjection(
+        const intersection = extentUtils.getExtentIntersectionWithCurrentProjection(
             cogExtent,
             cogProjection,
             currentProjection
@@ -75,7 +74,7 @@ export class CloudOptimizedGeoTIFFParser extends FileParser {
             opacity: 1.0,
             data: fileSource,
             noDataValue: firstImage.getGDALNoData(),
-            extent: flattenExtent(intersection),
+            extent: extentUtils.flattenExtent(intersection),
         })
     }
 }

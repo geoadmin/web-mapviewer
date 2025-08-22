@@ -25,8 +25,9 @@ const registerProj4 = (
             try {
                 proj4.defs(projection.epsg, projection.proj4transformationMatrix)
             } catch (err) {
-                log.error('Error while setting up projection in proj4', projection.epsg, err)
-                throw err
+                const error = err ? (err as Error) : new Error('Unknown error')
+                log.error('Error while setting up projection in proj4', projection.epsg, error)
+                throw error
             }
         })
 }

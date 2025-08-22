@@ -1,4 +1,4 @@
-import { WGS84 } from '@geoadmin/coordinates'
+import { extentUtils, WGS84 } from '@geoadmin/coordinates'
 import { WarningMessage } from '@geoadmin/log/Message'
 
 import KMLLayer from '@/api/layers/KMLLayer.class'
@@ -6,7 +6,6 @@ import EmptyFileContentError from '@/modules/menu/components/advancedTools/Impor
 import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
-import { getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
 import { getKmlExtent, isKmlFeaturesValid } from '@/utils/kmlUtils'
 
 /**
@@ -53,7 +52,7 @@ export class KMLParser extends FileParser {
         if (!extent) {
             throw new EmptyFileContentError()
         }
-        const extentInCurrentProjection = getExtentIntersectionWithCurrentProjection(
+        const extentInCurrentProjection = extentUtils.getExtentIntersectionWithCurrentProjection(
             extent,
             WGS84,
             currentProjection

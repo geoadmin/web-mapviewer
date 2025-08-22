@@ -1,4 +1,4 @@
-import { WGS84 } from '@geoadmin/coordinates'
+import { extentUtils, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import { ErrorMessage } from '@geoadmin/log/Message'
 
@@ -6,7 +6,6 @@ import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { EXTERNAL_PROVIDER_WHITELISTED_URL_REGEXES } from '@/config/regex.config'
 import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
-import { getExtentIntersectionWithCurrentProjection } from '@/utils/extentUtils'
 import { getGpxExtent } from '@/utils/gpxUtils'
 import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
 
@@ -813,7 +812,7 @@ const actions = {
                 if (!extent) {
                     clone.addErrorMessage(emptyFileErrorMessage)
                 } else if (
-                    !getExtentIntersectionWithCurrentProjection(
+                    !extentUtils.getExtentIntersectionWithCurrentProjection(
                         extent,
                         WGS84,
                         rootState.position.projection

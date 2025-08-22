@@ -1,3 +1,4 @@
+import { extentUtils } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import { WarningMessage } from '@geoadmin/log/Message'
 import { computed } from 'vue'
@@ -5,7 +6,6 @@ import { useStore } from 'vuex'
 
 import { parseLayerFromFile } from '@/modules/menu/components/advancedTools/ImportFile/parser'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
-import { flattenExtent } from '@/utils/extentUtils'
 
 const dispatcher = {
     dispatcher: 'useImportFile.composable',
@@ -37,7 +37,7 @@ export default function useImportFile() {
 
             // checking that the same layer is not already present before adding it
             if (store.getters.getActiveLayersById(layer.id).length === 0) {
-                const extent = flattenExtent(layer.extent)
+                const extent = extentUtils.flattenExtent(layer.extent)
                 const isLayerFullyInBound =
                     projection.value.bounds.isInBounds(extent[0], extent[1]) &&
                     projection.value.bounds.isInBounds(extent[2], extent[3])

@@ -10,3 +10,13 @@ export interface CoordinatesChunk {
     /** Will be true if this chunk contains coordinates that are located within bounds */
     isWithinBounds: boolean
 }
+
+/** Representation of a resolution step in a coordinate system. Can be linked to a zoom level or not. */
+export interface ResolutionStep {
+    /** Resolution of this step, in meters/pixel */
+    resolution: number
+    /** Corresponding zoom level for this resolution step */
+    zoom?: number
+    /** Name of the map product shown at this resolution/zoom */
+    label?: string
+}

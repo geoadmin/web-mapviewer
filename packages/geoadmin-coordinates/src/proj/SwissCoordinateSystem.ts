@@ -1,7 +1,8 @@
 import { closest, round } from '@geoadmin/numbers'
 
+import type { ResolutionStep } from '@/proj/types'
+
 import {
-    type ResolutionStep,
     STANDARD_ZOOM_LEVEL_1_25000_MAP,
     SWISS_ZOOM_LEVEL_1_25000_MAP,
 } from '@/proj/CoordinateSystem'
@@ -135,6 +136,8 @@ export default class SwissCoordinateSystem extends CustomCoordinateSystem {
     transformStandardZoomLevelToCustom(standardZoomLevel: number): number {
         // checking first if the standard zoom level is within range of swiss zooms we have available
         if (
+            typeof SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX[0] === 'number' &&
+            typeof SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX[14] === 'number' &&
             standardZoomLevel >= SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX[0] &&
             standardZoomLevel <= SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX[14]
         ) {
@@ -142,10 +145,16 @@ export default class SwissCoordinateSystem extends CustomCoordinateSystem {
                 (zoom) => zoom < standardZoomLevel
             ).length
         }
-        if (standardZoomLevel < SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX[0]) {
+        if (
+            typeof SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX[0] === 'number' &&
+            standardZoomLevel < SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX[0]
+        ) {
             return 0
         }
-        if (standardZoomLevel > SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX[14]) {
+        if (
+            typeof SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX[14] === 'number' &&
+            standardZoomLevel > SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX[14]
+        ) {
             return 14
         }
         // if no matching zoom level was found, we return the one for the 1:25'000 map
@@ -165,15 +174,22 @@ export default class SwissCoordinateSystem extends CustomCoordinateSystem {
     transformCustomZoomLevelToStandard(customZoomLevel: number): number {
         const key = Math.floor(customZoomLevel)
         if (SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX.length - 1 >= key) {
-            return SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX[key]
+            return (
+                SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX[key] ??
+                STANDARD_ZOOM_LEVEL_1_25000_MAP
+            )
         }
         // if no matching zoom level was found, we return the one for the 1:25'000 map
         return STANDARD_ZOOM_LEVEL_1_25000_MAP
     }
 
     getResolutionForZoomAndCenter(zoom: number): number {
+        const roundedZoom = Math.round(zoom)
+        if (typeof LV95_RESOLUTIONS[roundedZoom] !== 'number') {
+            return 0
+        }
         // ignoring the center, as it won't have any effect on the chosen zoom level
-        return LV95_RESOLUTIONS[Math.round(zoom)]
+        return LV95_RESOLUTIONS[roundedZoom]
     }
 
     getZoomForResolutionAndCenter(resolution: number): number {
@@ -187,7 +203,7 @@ export default class SwissCoordinateSystem extends CustomCoordinateSystem {
         // if no match was found, we have to decide if the resolution is too great,
         // or too small to be matched and return the zoom accordingly
         const smallestResolution = LV95_RESOLUTIONS.slice(-1)[0]
-        if (smallestResolution > resolution) {
+        if (smallestResolution && smallestResolution > resolution) {
             // if the resolution was smaller than the smallest available, we return the zoom level corresponding
             // to the smallest available resolution
             return LV95_RESOLUTIONS.indexOf(smallestResolution)

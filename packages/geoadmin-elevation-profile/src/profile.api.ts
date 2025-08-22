@@ -1,6 +1,6 @@
 import type { CoordinatesChunk, CoordinateSystem, SingleCoordinate } from '@geoadmin/coordinates'
 
-import { LV95, removeZValues } from '@geoadmin/coordinates'
+import { LV95, coordinatesUtils } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import axios from 'axios'
 import proj4 from 'proj4'
@@ -57,9 +57,9 @@ export interface ElevationProfile {
  */
 const MAX_REQUEST_POINT_LENGTH: number = 3000
 
-export function splitIfTooManyPoints(chunk: CoordinatesChunk): CoordinatesChunk[] | null {
+export function splitIfTooManyPoints(chunk: CoordinatesChunk): CoordinatesChunk[] | undefined {
     if (!chunk) {
-        return null
+        return
     }
     if (chunk.coordinates.length <= MAX_REQUEST_POINT_LENGTH) {
         return [chunk]
@@ -120,8 +120,8 @@ export async function getProfileDataForChunk(
         try {
             // our backend has a hard limit of 5k points, we split the coordinates if they are above 3k
             // (after a couple tests, 3k was a good trade-off for performance, 5k was a bit sluggish)
-            const coordinatesToRequest: CoordinatesChunk[] | null = splitIfTooManyPoints(chunk)
-            if (coordinatesToRequest === null) {
+            const coordinatesToRequest: CoordinatesChunk[] | undefined = splitIfTooManyPoints(chunk)
+            if (!coordinatesToRequest) {
                 return []
             }
 
@@ -160,7 +160,7 @@ export async function getProfileDataForChunk(
                             dist: point.dist + previousDist,
                         }))
                     )
-                    previousDist = finalResponse.slice(-1)[0].dist ?? 0
+                    previousDist = finalResponse.slice(-1)[0]?.dist ?? 0
                 } else {
                     log.error('Incorrect/empty response while getting profile', response)
                     throw new ElevationProfileError(
@@ -252,7 +252,7 @@ function sanitizeCoordinates(
         // so we have to make sure we have a double nested array and then iterate over it.
         ensureDoubleNestedArray(coordinates)
             // removing any 3rd dimension that could come from OL
-            .map((coordinates) => removeZValues(coordinates))
+            .map((coordinates) => coordinatesUtils.removeZValues(coordinates))
             .map((coordinates) => {
                 // The service only works with LV95 coordinate,
                 // we have to transform them if they are not in this projection
@@ -290,7 +290,7 @@ export default async (
     for (const coordinates of sanitizeCoordinates(profileCoordinates, projection)) {
         // splitting the profile input into "chunks" if some part are out of LV95 bounds
         // as there will be no data for those chunks.
-        const coordinateChunks: CoordinatesChunk[] | null =
+        const coordinateChunks: CoordinatesChunk[] | undefined =
             LV95.bounds.splitIfOutOfBounds(coordinates)
 
         if (!coordinateChunks) {
@@ -326,7 +326,7 @@ export default async (
                 )
                 if (resultingChunk) {
                     const newChunkLastPoint = resultingChunk.points.slice(-1)[0]
-                    lastDist = newChunkLastPoint.dist ?? 0
+                    lastDist = newChunkLastPoint?.dist ?? 0
                     chunks.push(resultingChunk)
                 }
             } else {

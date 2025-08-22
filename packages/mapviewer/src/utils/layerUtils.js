@@ -1,3 +1,4 @@
+import { extentUtils } from '@geoadmin/coordinates'
 import { centroid } from '@turf/turf'
 import GeoJSON from 'ol/format/GeoJSON'
 
@@ -6,7 +7,6 @@ import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
-import { normalizeExtent } from '@/utils/extentUtils'
 
 /**
  * Minimalist description of an active layer. Is useful when parsing layers from the URL, but we do
@@ -139,8 +139,11 @@ export function createLayerFeature(olFeature, layer, coordinates, geometry) {
             description: olFeature.get('description'),
         },
         // creating a centroid is especially important for Polygon geometries else it can break expected cesium behaviour
-        coordinates: centroid(geometry).geometry.coordinates ?? coordinates ?? olFeature.getGeometry().getCoordinates(),
+        coordinates:
+            centroid(geometry).geometry.coordinates ??
+            coordinates ??
+            olFeature.getGeometry().getCoordinates(),
         geometry: geometry,
-        extent: normalizeExtent(olFeature.getGeometry().getExtent()),
+        extent: extentUtils.normalizeExtent(olFeature.getGeometry().getExtent()),
     })
 }
