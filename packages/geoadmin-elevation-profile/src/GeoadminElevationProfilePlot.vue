@@ -169,7 +169,7 @@ const chartJsData: ComputedRef<ChartData<'line'>> = computed(() => {
                 label: `${t('elevation')}`,
                 data: profilePoints.value.map((point) => ({
                     x: point.dist ?? 0,
-                    y: point.elevation,
+                    y: point.elevation ?? 0,
                     ...point,
                 })) as ChartPoint[],
                 parsing: {
@@ -196,7 +196,7 @@ const chartJsScalesConfiguration: ComputedRef<
     { [key: string]: ScaleOptions<'linear'> } | undefined
 > = computed(() => {
     if (!profileMetadata.value) {
-        return undefined
+        return
     }
     const scales: { [key: string]: ScaleOptions<'linear'> } = {
         x: {
@@ -250,7 +250,7 @@ const chartJsTooltipConfiguration = computed(() => {
                 return
             }
             if (tooltip.dataPoints.length > 0 && track.value) {
-                const point: TooltipItem<'line'> = tooltip.dataPoints[0]
+                const point: TooltipItem<'line'> = tooltip.dataPoints[0]!
                 const elevationDataInPoint: ElevationProfilePoint =
                     point.raw as ElevationProfilePoint
                 const chartPosition = chart.canvas.getBoundingClientRect()
@@ -276,7 +276,7 @@ const chartJsTooltipConfiguration = computed(() => {
 /** Configuration for the pinch/zoom function */
 const chartJsZoomOptions: ComputedRef<ZoomPluginOptions | undefined> = computed(() => {
     if (!profileMetadata.value) {
-        return undefined
+        return
     }
     const zoomOptions: ZoomPluginOptions = {
         limits: {
@@ -327,7 +327,7 @@ const chartJsOptions: ComputedRef<ChartOptions<'line'> | undefined> = computed((
         !chartJsZoomOptions.value ||
         !profile
     ) {
-        return undefined
+        return
     }
     const options: ChartOptions<'line'> = {
         animation: {

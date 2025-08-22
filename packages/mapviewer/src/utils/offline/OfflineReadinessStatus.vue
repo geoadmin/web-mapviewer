@@ -26,23 +26,36 @@ const { t } = useI18n()
  * versions of cached files online
  */
 function registerPeriodicSync(serviceWorkerUrl: string, registration: ServiceWorkerRegistration) {
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    setInterval(async () => {
+    setInterval(() => {
         if ('onLine' in navigator && !navigator.onLine) {
             return
         }
 
-        const resp = await fetch(serviceWorkerUrl, {
+        fetch(serviceWorkerUrl, {
             cache: 'no-store',
             headers: {
                 cache: 'no-store',
                 'cache-control': 'no-cache',
             },
         })
-
-        if (resp?.status === 200) {
-            await registration.update()
-        }
+            .then((response) => {
+                if (response?.status === 200) {
+                    registration.update().catch((error) => {
+                        log.error({
+                            title: 'OfflineReadinessStatus component',
+                            titleColor: LogPreDefinedColor.Sky,
+                            messages: ['Failed to update ServiceWorker', error],
+                        })
+                    })
+                }
+            })
+            .catch((error) => {
+                log.error({
+                    title: 'OfflineReadinessStatus component',
+                    titleColor: LogPreDefinedColor.Sky,
+                    messages: ['Failed to check for updates', error],
+                })
+            })
     }, period)
 }
 

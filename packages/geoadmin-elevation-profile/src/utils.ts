@@ -68,7 +68,7 @@ function totalAscent(points: ElevationProfilePoint[]): number {
         // we only want positive ascent value, so if it's a descent we return 0
         return (
             totalAscent +
-            Math.max((currentPoint.elevation ?? 0) - (points[currentIndex - 1].elevation ?? 0), 0)
+            Math.max((currentPoint.elevation ?? 0) - (points[currentIndex - 1]?.elevation ?? 0), 0)
         )
     }, 0)
 }
@@ -87,7 +87,7 @@ function totalDescent(points: ElevationProfilePoint[]) {
             return (
                 totalDescent -
                 Math.min(
-                    (currentPoint.elevation ?? 0) - (points[currentIndex - 1].elevation ?? 0),
+                    (currentPoint.elevation ?? 0) - (points[currentIndex - 1]?.elevation ?? 0),
                     0
                 )
             )
@@ -106,8 +106,8 @@ function slopeDistance(points: ElevationProfilePoint[]): number {
             return sumSlopeDist
         }
         const previousPoint = points[currentIndex - 1]
-        const elevationDelta = (currentPoint.elevation ?? 0) - (previousPoint.elevation ?? 0)
-        const distanceDelta = (currentPoint.dist ?? 0) - (previousPoint.dist ?? 0)
+        const elevationDelta = (currentPoint.elevation ?? 0) - (previousPoint?.elevation ?? 0)
+        const distanceDelta = (currentPoint.dist ?? 0) - (previousPoint?.dist ?? 0)
         // Pythagorean theorem (hypotenuse: the slope/surface distance)
         return sumSlopeDist + Math.sqrt(Math.pow(elevationDelta, 2) + Math.pow(distanceDelta, 2))
     }, 0)
@@ -131,12 +131,12 @@ function hikingTime(points: ElevationProfilePoint[]): number {
                 if (index < points.length - 2) {
                     const nextPoint = points[index + 1]
 
-                    const distanceDelta = (nextPoint.dist ?? 0) - (currentPoint.dist ?? 0)
+                    const distanceDelta = (nextPoint?.dist ?? 0) - (currentPoint.dist ?? 0)
                     if (!distanceDelta) {
                         return 0
                     }
                     const elevationDelta =
-                        (nextPoint.elevation ?? 0) - (currentPoint.elevation ?? 0)
+                        (nextPoint?.elevation ?? 0) - (currentPoint.elevation ?? 0)
 
                     // Slope value between the 2 points
                     // 10ths (Schweizmobil formula) instead of % (official formula)

@@ -9,7 +9,7 @@ import type AbstractLayer from '@/api/layers/AbstractLayer.class.js'
 const { showSpinner, layer, index } = defineProps<{
     showSpinner: boolean
     layer: AbstractLayer
-    index: Number
+    index: number
 }>()
 
 const tooltip = useTemplateRef('tooltip')

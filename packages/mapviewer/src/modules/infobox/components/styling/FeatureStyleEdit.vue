@@ -138,7 +138,9 @@ const coordinateFormat = computed(() => {
  */
 const isFeatureMarker = computed(() => feature.featureType === EditableFeatureTypes.MARKER)
 const isFeatureText = computed(() => feature.featureType === EditableFeatureTypes.ANNOTATION)
-const isFeatureLinePolygon = computed(() => feature.featureType === EditableFeatureTypes.LINEPOLYGON)
+const isFeatureLinePolygon = computed(
+    () => feature.featureType === EditableFeatureTypes.LINEPOLYGON
+)
 const isFeatureMeasure = computed(() => feature.featureType === EditableFeatureTypes.MEASURE)
 const isLine = computed(() => feature.geometry.type === 'LineString')
 
@@ -258,15 +260,19 @@ function mediaTypes() {
                         {{ t('modify_description') }}
                     </label>
                     <GeoadminTooltip
-                        :tooltip-content="t('display_on_map')"
                         v-if="isFeatureMarker || isFeatureText"
+                        :tooltip-content="t('display_on_map')"
                     >
                         <button
                             class="btn btn-sm btn-light d-flex align-items-center mb-2"
                             @click="showDescriptionOnMap = !showDescriptionOnMap"
                         >
                             <FontAwesomeIcon
-                                :icon="showDescriptionOnMap ? 'fa-solid fa-eye' : 'fa-solid fa-eye-slash'"
+                                :icon="
+                                    showDescriptionOnMap
+                                        ? 'fa-solid fa-eye'
+                                        : 'fa-solid fa-eye-slash'
+                                "
                                 class="small"
                             />
                         </button>
@@ -310,7 +316,6 @@ function mediaTypes() {
                     rows="2"
                 />
             </div>
-
         </div>
         <div class="d-flex small justify-content-start align-items-center mb-1 gap-1">
             <CoordinateCopySlot
@@ -370,18 +375,17 @@ function mediaTypes() {
                     v-if="isFeatureMarker"
                     :tooltip-content="t('drawing_marker_style')"
                 >
-
                     <DrawingStylePopoverButton
                         data-cy="drawing-style-marker-button"
                         icon="fas fa-map-marker-alt"
                     >
                         <DrawingStyleIconSelector
-                        data-cy="drawing-style-marker-popup"
-                        :feature="feature"
-                        :icon-sets="availableIconSets"
-                        @change:icon="onIconChange"
-                        @change:icon-color="onColorChange"
-                        @change:icon-size="onIconSizeChange"
+                            data-cy="drawing-style-marker-popup"
+                            :feature="feature"
+                            :icon-sets="availableIconSets"
+                            @change:icon="onIconChange"
+                            @change:icon-color="onColorChange"
+                            @change:icon-size="onIconSizeChange"
                         />
                     </DrawingStylePopoverButton>
                 </GeoadminTooltip>
@@ -402,9 +406,7 @@ function mediaTypes() {
                         />
                     </DrawingStylePopoverButton>
                 </GeoadminTooltip>
-                <GeoadminTooltip
-                    :tooltip-content="t('draw_delete')"
-                >
+                <GeoadminTooltip :tooltip-content="t('draw_delete')">
                     <button
                         class="btn btn-sm btn-light d-flex align-items-center"
                         data-cy="drawing-style-delete-button"

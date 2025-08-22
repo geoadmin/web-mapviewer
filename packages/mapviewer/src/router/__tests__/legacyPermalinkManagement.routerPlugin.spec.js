@@ -29,9 +29,9 @@ describe('Testing legacyPermalinkManagement', () => {
                 },
             },
             getters: {
-                getLayerConfigById: (_) => {
-                    layerConfig
-                },
+                getLayerConfigById: (_) => ({
+                    layerConfig,
+                }),
             },
         }
     })

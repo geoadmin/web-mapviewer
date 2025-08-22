@@ -31,7 +31,11 @@ export function closest(value: number, fromList: number[]): number {
         const smallestDifference = difference.reduce((diff1, diff2) =>
             diff1 > diff2 ? diff2 : diff1
         )
-        return fromList[difference.indexOf(smallestDifference)]
+        const newIndex = difference.indexOf(smallestDifference)
+        if (typeof fromList[newIndex] !== 'number' || isNaN(fromList[newIndex])) {
+            return value
+        }
+        return fromList[newIndex]
     }
     return value
 }
@@ -89,6 +93,9 @@ export function format(value: number, decimal: number = 2): string {
 export function formatThousand(num: number | string, separator: string = "'"): string {
     const decimalSeparator = '.'
     const parts = `${num}`.split(decimalSeparator)
+    if (typeof parts[0] !== 'string' || parts[0].length === 0) {
+        return `${num}`
+    }
     parts[0] = parts[0].replace(thousandSeparatorRegex, separator)
     return parts.join(decimalSeparator)
 }

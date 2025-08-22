@@ -37,6 +37,10 @@ const noDataPlugin: Plugin = {
         // This way our rects will end on the left and right side of the X axis, and not overlap the Y axis or right empty part of the chart
         const { right, left } = x ?? {}
 
+        if (!x || !x.getPixelForValue || !left || !right) {
+            return
+        }
+
         // going into each segment without data, to see if we need to draw a no data zone in the chart
         profile.chunks
             .filter((segment) => !segment.hasElevationData)
@@ -46,20 +50,20 @@ const noDataPlugin: Plugin = {
                 let startingPoint = segmentWithoutData.points[0]
                 let endingPoint = segmentWithoutData.points.slice(-1)[0]
                 // if this segment isn't the first, we take the last point of the previous segment as our starting point
-                if (segmentIndex !== 0) {
+                if (segmentIndex !== 0 && profile.chunks[segmentIndex - 1]) {
                     const previousSegment = profile.chunks[segmentIndex - 1]
-                    startingPoint = previousSegment.points.slice(-1)[0]
+                    startingPoint = previousSegment!.points.slice(-1)[0]
                 }
 
                 // if this segment isn't the last, we take the first point of the next segment as our ending point
-                if (segmentIndex < profile.chunks.length - 1) {
+                if (segmentIndex < profile.chunks.length - 1 && profile.chunks[segmentIndex + 1]) {
                     const nextSegment = profile.chunks[segmentIndex + 1]
-                    endingPoint = nextSegment.points[0]
+                    endingPoint = nextSegment!.points[0]
                 }
 
                 // calculating where (on the canvas) we should draw our rectangle
-                const xStart = Math.max(x.getPixelForValue(startingPoint.dist ?? 0), left)
-                const xStop = Math.min(x.getPixelForValue(endingPoint.dist ?? 0), right)
+                const xStart = Math.max(x.getPixelForValue(startingPoint!.dist ?? 0), left)
+                const xStop = Math.min(x.getPixelForValue(endingPoint!.dist ?? 0), right)
                 // checking that the rect we want to draw is visible in the view (when the user has zoomed in, our rect may be out of bounds)
                 if ((xStart === left && xStop < left) || (xStop === right && xStart > right)) {
                     return
