@@ -276,15 +276,6 @@ class Modify extends PointerInteraction {
     constructor(options) {
         super(/** @type {import('./Pointer.js').Options} */ (options))
 
-        /** @type {ModifyOnSignature<import('../events').EventsKey>} */
-        this.on
-
-        /** @type {ModifyOnSignature<import('../events').EventsKey>} */
-        this.once
-
-        /** @type {ModifyOnSignature<void>} */
-        this.un
-
         /** @private */
         this.boundHandleFeatureChange_ = this.handleFeatureChange_.bind(this)
 

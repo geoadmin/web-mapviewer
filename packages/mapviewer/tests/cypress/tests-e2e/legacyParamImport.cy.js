@@ -479,8 +479,8 @@ describe('Test on legacy param import', () => {
                 time: 2019,
             },
             false
-        ),
-            cy.get('[data-cy="time-slider-current-year"]').should('contain', 2019)
+        )
+        cy.get('[data-cy="time-slider-current-year"]').should('contain', 2019)
     })
     context('Feature Pre Selection Import', () => {
         function checkFeatures(featuresIds) {

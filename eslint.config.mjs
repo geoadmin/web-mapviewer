@@ -6,6 +6,7 @@ import {
     defineConfigWithVueTs,
     vueTsConfigs,
 } from '@vue/eslint-config-typescript'
+import pluginChaiFriendly from 'eslint-plugin-chai-friendly'
 import pluginCypress from 'eslint-plugin-cypress/flat'
 import mocha from 'eslint-plugin-mocha'
 import perfectionist from 'eslint-plugin-perfectionist'
@@ -27,6 +28,7 @@ export default defineConfigWithVueTs(
     {
         plugins: {
             mocha,
+            'chai-friendly': pluginChaiFriendly,
             perfectionist,
         },
 
@@ -70,6 +72,9 @@ export default defineConfigWithVueTs(
                 { type: 'alphabetical', internalPattern: ['^@/.*'] },
             ],
             'vue/html-indent': ['error', 4],
+            // see https://github.com/ihordiachenko/eslint-plugin-chai-friendly?tab=readme-ov-file#usage
+            'no-unused-expressions': 'off', // disable original rule
+            'chai-friendly/no-unused-expressions': 'error',
         },
     },
     {
@@ -93,7 +98,7 @@ export default defineConfigWithVueTs(
         },
     },
     {
-        files: ['tests/**/*.{js,ts,jsx,tsx}', 'src/**/__test__/**/*.spec.js', 'scripts/**'],
+        files: ['tests/**/*.{js,ts,jsx,tsx}', 'src/**/__test__/**/*.spec.{js,ts}', 'scripts/**'],
         rules: {
             'no-console': 'off',
             'no-prototype-builtins': 'off',

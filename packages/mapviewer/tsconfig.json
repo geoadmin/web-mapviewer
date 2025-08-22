@@ -3,6 +3,10 @@
     "compilerOptions": {
         // see https://www.typescriptlang.org/tsconfig#allowJs
         // see https://github.com/vuejs/eslint-config-typescript?tab=readme-ov-file#advanced-setup
-        "allowJs": true
+        "allowJs": true,
+        // Composite can only be activated if the whole package is completely in TS.
+        // It breaks all `@/` aliases in JS files otherwise.
+        // TODO: activate composite here when mapviewer package is 100% migrated to TS.
+        "composite": false
     }
 }

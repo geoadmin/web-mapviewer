@@ -62,7 +62,7 @@ const hasData = computed<boolean>(() => !!profileData.value?.metadata?.hasElevat
 
 const profileMetadata = computed<ElevationProfileMetadata | undefined>(() => {
     if (!profileData.value) {
-        return undefined
+        return
     }
     return profileData.value.metadata
 })

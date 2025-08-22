@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable no-console */
+ 
 
 import fs from 'fs'
 import { google } from 'googleapis'

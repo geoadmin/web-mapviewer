@@ -1,13 +1,14 @@
 <script lang="ts" setup>
+import type { Viewer } from 'cesium'
+
 import { type SingleCoordinate, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import {
-    CallbackProperty,
+    CallbackPositionProperty,
     Cartesian3,
     Color,
     Ellipsoid,
     Entity,
     HeightReference,
-    Viewer,
 } from 'cesium'
 import proj4 from 'proj4'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
@@ -33,8 +34,7 @@ const trackingPointPosition: Cartesian3 = new Cartesian3()
 
 const pointAdded = ref<boolean>(false)
 const trackingPoint: Entity = new Entity({
-    // @ts-expect-error https://github.com/CesiumGS/cesium/issues/8944
-    position: new CallbackProperty((): Cartesian3 => trackingPointPosition, false),
+    position: new CallbackPositionProperty((): Cartesian3 => trackingPointPosition, false),
     point: {
         show: true,
         color: Color.fromCssColorString(FILL_COLOR),

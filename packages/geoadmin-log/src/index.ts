@@ -99,8 +99,7 @@ interface GeoadminLogMessage {
     messages: any[]
 }
 
-// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
-type GeoadminLogInput = GeoadminLogMessage | string | number | boolean | Object | unknown
+type GeoadminLogInput = GeoadminLogMessage | string | number | boolean | object
 
 interface GeoadminLog {
     wantedLevels: LogLevel[]

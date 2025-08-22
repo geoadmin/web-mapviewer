@@ -44,6 +44,7 @@
         "@vue/language-core": "catalog:",
         "@vue/tsconfig": "catalog:",
         "eslint": "catalog:",
+        "eslint-plugin-chai-friendly": "catalog:",
         "eslint-plugin-cypress": "catalog:",
         "eslint-plugin-mocha": "catalog:",
         "eslint-plugin-perfectionist": "catalog:",

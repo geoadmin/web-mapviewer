@@ -43,7 +43,7 @@ describe('Testing the share menu', () => {
             // checking that the shortLink value doesn't exist anymore
             cy.readStoreValue('state.share.shortLink').should('eq', null)
             // opening the general menu again
-            cy.get('[data-cy="menu-button"]').click
+            cy.get('[data-cy="menu-button"]').click()
             // checking that the share menu has been closed
             cy.get('[data-cy="share-menu-opened"]').should('not.exist')
         })

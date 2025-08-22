@@ -1,5 +1,5 @@
 #!./node_modules/.bin/vite-node --script
-/* eslint-disable no-console */
+ 
 
 import { JSDOM } from 'jsdom'
 
@@ -252,7 +252,7 @@ function replaceUrlPlaceholders(urlTemplate, params) {
     }, {})
     return urlTemplate.replace(/{(\w+)}/g, (_, key) => {
         const lowerKey = key.toLowerCase()
-        // eslint-disable-next-line no-prototype-builtins
+         
         if (normalizedParams.hasOwnProperty(lowerKey)) {
             return normalizedParams[lowerKey]
         } else {

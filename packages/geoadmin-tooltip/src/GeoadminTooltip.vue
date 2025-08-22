@@ -82,7 +82,7 @@ const { floatingStyles, middlewareData, placement } = useFloating(
 /** Extract the data-cy value from the tooltip anchor and */
 const dataCyValue = computed((): string => {
     if (tooltipElementRef.value?.children.length) {
-        const dataCy = tooltipElementRef.value?.children[0].getAttribute('data-cy')
+        const dataCy = tooltipElementRef.value?.children[0]?.getAttribute('data-cy')
         if (dataCy) {
             return `floating-${dataCy}`
         }
