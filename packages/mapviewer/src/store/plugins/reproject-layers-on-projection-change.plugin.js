@@ -1,9 +1,9 @@
+import { extentUtils } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import proj4 from 'proj4'
 
 import EditableFeature from '@/api/features/EditableFeature.class'
 import LayerFeature from '@/api/features/LayerFeature.class'
-import { flattenExtent, projExtent } from '@/utils/extentUtils'
 
 const dispatcher = { dispatcher: 'reproject-layers-on-projection-change.plugin' }
 
@@ -61,7 +61,7 @@ const reprojectLayersOnProjectionChangePlugin = (store) => {
                                 title: selectedFeature.title,
                                 data: selectedFeature.data,
                                 coordinates: reprojectCoordinates(selectedFeature.coordinates),
-                                extent: projExtent(
+                                extent: extentUtils.projExtent(
                                     oldProjection,
                                     newProjection,
                                     selectedFeature.extent
@@ -116,10 +116,10 @@ function reprojectLayerExtent(oldProjection, newProjection, activeLayers, store)
         if (!currentLayer.extent) {
             return layers
         }
-        const newExtent = projExtent(
+        const newExtent = extentUtils.projExtent(
             oldProjection,
             newProjection,
-            flattenExtent(currentLayer.extent)
+            extentUtils.flattenExtent(currentLayer.extent)
         )
         layers.push({
             ...currentLayer,
@@ -137,15 +137,15 @@ function reprojectLayerExtent(oldProjection, newProjection, activeLayers, store)
 
 /**
  * Verify if the parameter is an array of depth one
- * 
- * @param {Array | any} arr 
- * @returns {boolean} if the arr is an array of depth one
+ *
+ * @param {Array | any} arr
+ * @returns {boolean} If the arr is an array of depth one
  */
 function isDepthOne(arr) {
-  if (!Array.isArray(arr)) {
-    return false
-  }
-  return arr.every(item => !Array.isArray(item))
+    if (!Array.isArray(arr)) {
+        return false
+    }
+    return arr.every((item) => !Array.isArray(item))
 }
 
 export default reprojectLayersOnProjectionChangePlugin

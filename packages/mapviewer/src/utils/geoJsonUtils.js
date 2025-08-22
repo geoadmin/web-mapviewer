@@ -1,4 +1,4 @@
-import { allCoordinateSystems, CoordinateSystem, WGS84 } from '@geoadmin/coordinates'
+import { allCoordinateSystems, CoordinateSystem, extentUtils, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import {
     bbox,
@@ -13,8 +13,6 @@ import {
 } from '@turf/turf'
 import proj4 from 'proj4'
 import { reproject } from 'reproject'
-
-import { normalizeExtent } from '@/utils/extentUtils'
 
 /**
  * Re-projecting the GeoJSON if not in the wanted projection
@@ -142,7 +140,7 @@ export function getGeoJsonFeatureCoordinates(geoJsonFeature, inputProjection, ou
  *   parameter
  */
 export function getExtentOfGeometries(geometries) {
-    return normalizeExtent(
+    return extentUtils.normalizeExtent(
         bbox(featureCollection(geometries.map((geometry) => transformIntoTurfEquivalent(geometry))))
     )
 }

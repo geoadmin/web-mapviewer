@@ -1,4 +1,4 @@
-import { removeZValues, wrapXCoordinates } from '@geoadmin/coordinates'
+import { coordinatesUtils } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import { primaryAction } from 'ol/events/condition'
 import GeoJSON from 'ol/format/GeoJSON'
@@ -101,7 +101,9 @@ export default function useDrawingModeInteraction({
             // This new drawing is not saved in the store and will not be added to the layer source
             // we only need the coordinates to extend/update the starting feature.
             interaction.appendCoordinates(
-                removeZValues(toValue(startingFeature).getGeometry().getCoordinates())
+                coordinatesUtils.removeZValues(
+                    toValue(startingFeature).getGeometry().getCoordinates()
+                )
             )
         }
     })
@@ -230,7 +232,11 @@ export default function useDrawingModeInteraction({
         between -180 and 180 deg (so that the features can be modified even if the view is of
         by 360deg) */
         const geometry = drawnFeature.getGeometry()
-        const normalizedCoords = wrapXCoordinates(geometry.getCoordinates(), projection.value, true)
+        const normalizedCoords = coordinatesUtils.wrapXCoordinates(
+            geometry.getCoordinates(),
+            projection.value,
+            true
+        )
         geometry.setCoordinates(normalizedCoords)
 
         if (isExtending) {

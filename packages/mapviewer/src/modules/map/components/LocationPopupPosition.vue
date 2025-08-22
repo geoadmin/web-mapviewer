@@ -1,7 +1,7 @@
 <script setup>
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
-import { LV03, LV95, reprojectAndRound, WGS84 } from '@geoadmin/coordinates'
+import { coordinatesUtils, LV03, LV95, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -44,7 +44,7 @@ const height = ref(null)
 const { t } = useI18n()
 
 const coordinateWGS84Metric = computed(() => {
-    return reprojectAndRound(projection, WGS84, coordinate)
+    return coordinatesUtils.reprojectAndRound(projection, WGS84, coordinate)
 })
 const coordinateWGS84Plain = computed(() => {
     // we want to output lat / lon, meaning we have to give the coordinate as y / x
@@ -89,7 +89,7 @@ watch(() => currentLang, updateWhat3Word)
 
 async function updateLV03Coordinate() {
     try {
-        const lv95coordinate = reprojectAndRound(projection, LV95, coordinate)
+        const lv95coordinate = coordinatesUtils.reprojectAndRound(projection, LV95, coordinate)
         lv03Coordinate.value = await reframe({
             inputCoordinates: lv95coordinate,
             inputProjection: LV95,

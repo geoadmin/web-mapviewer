@@ -1,4 +1,4 @@
-import { CoordinateSystem, LV95, WGS84 } from '@geoadmin/coordinates'
+import { CoordinateSystem, extentUtils, LV95, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import { bbox, center, points } from '@turf/turf'
 import axios from 'axios'
@@ -8,7 +8,6 @@ import { extractOlFeatureCoordinates } from '@/api/features/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getServiceSearchBaseUrl } from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
-import { normalizeExtent } from '@/utils/extentUtils'
 import { parseGpx } from '@/utils/gpxUtils'
 import { parseKml } from '@/utils/kmlUtils'
 
@@ -386,7 +385,7 @@ function createSearchResultFromLayer(layer, feature, outputProjection) {
 
     const coordinatePoints = points(coordinates)
     const centerPoint = center(coordinatePoints)
-    const normalExtent = normalizeExtent(bbox(coordinatePoints))
+    const normalExtent = extentUtils.normalizeExtent(bbox(coordinatePoints))
 
     const featureId = feature.getId()
     const layerContent = {

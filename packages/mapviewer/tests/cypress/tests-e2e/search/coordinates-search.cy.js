@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { constants, LV03, LV95, reprojectAndRound, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
+import { constants, coordinatesUtils, LV03, LV95, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { latLonToMGRS } from '@/utils/militaryGridProjection'
@@ -12,14 +12,26 @@ describe('Testing coordinates typing in search bar', () => {
         cy.goToMapView()
     })
     const expectedCenter = DEFAULT_PROJECTION.bounds.center.map((value) => value - 1000)
-    const expectedCenterLV95 = reprojectAndRound(DEFAULT_PROJECTION, LV95, expectedCenter)
-    const expectedCenterLV03 = reprojectAndRound(DEFAULT_PROJECTION, LV03, expectedCenter)
-    const expectedCenterWebMercator = reprojectAndRound(
+    const expectedCenterLV95 = coordinatesUtils.reprojectAndRound(
+        DEFAULT_PROJECTION,
+        LV95,
+        expectedCenter
+    )
+    const expectedCenterLV03 = coordinatesUtils.reprojectAndRound(
+        DEFAULT_PROJECTION,
+        LV03,
+        expectedCenter
+    )
+    const expectedCenterWebMercator = coordinatesUtils.reprojectAndRound(
         DEFAULT_PROJECTION,
         WEBMERCATOR,
         expectedCenter
     )
-    const expectedCenterWGS84 = reprojectAndRound(DEFAULT_PROJECTION, WGS84, expectedCenter)
+    const expectedCenterWGS84 = coordinatesUtils.reprojectAndRound(
+        DEFAULT_PROJECTION,
+        WGS84,
+        expectedCenter
+    )
 
     const checkCenterInStore = (acceptableDelta = 0.0) => {
         cy.log(`Check that center is at ${JSON.stringify(expectedCenter)}`)

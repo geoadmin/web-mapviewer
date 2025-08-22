@@ -1,3 +1,4 @@
+import { extentUtils } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import { containsCoordinate } from 'ol/extent'
 import { toRaw } from 'vue'
@@ -10,7 +11,6 @@ import {
     DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION,
     DEFAULT_FEATURE_COUNT_SINGLE_POINT,
 } from '@/config/map.config'
-import { flattenExtent } from '@/utils/extentUtils'
 import {
     allStylingColors,
     allStylingSizes,
@@ -89,7 +89,8 @@ export const runIdentify = (config) => {
             // filtering out any layer for which their extent doesn't contain the wanted coordinate (no data anyway, no need to request)
             .filter(
                 (layer) =>
-                    !layer.extent || containsCoordinate(flattenExtent(layer.extent), coordinate)
+                    !layer.extent ||
+                    containsCoordinate(extentUtils.flattenExtent(layer.extent), coordinate)
             )
             .forEach((layer) => {
                 pendingRequests.push(
@@ -251,7 +252,7 @@ export default {
                     layers,
                     coordinate,
                     resolution: getters.resolution,
-                    mapExtent: flattenExtent(getters.extent),
+                    mapExtent: extentUtils.flattenExtent(getters.extent),
                     screenWidth: rootState.ui.width,
                     screenHeight: rootState.ui.height,
                     lang: rootState.i18n.lang,
@@ -663,7 +664,7 @@ export default {
                             lang: rootState.i18n.lang,
                             screenWidth: rootState.ui.width,
                             screenHeight: rootState.ui.height,
-                            mapExtent: flattenExtent(getters.extent),
+                            mapExtent: extentUtils.flattenExtent(getters.extent),
                             coordinate: rootState.map.clickInfo?.coordinate,
                         })
                     )

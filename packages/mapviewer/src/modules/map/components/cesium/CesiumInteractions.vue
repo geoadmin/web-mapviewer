@@ -1,8 +1,7 @@
 <script setup>
-import { WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
+import { extentUtils, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
-import { bbox } from '@turf/turf'
-import { centroid } from '@turf/turf'
+import { bbox, centroid } from '@turf/turf'
 import {
     Cartesian2,
     Cartographic,
@@ -28,7 +27,6 @@ import {
 } from '@/modules/map/components/cesium/utils/highlightUtils'
 import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
 import { ClickInfo, ClickType } from '@/store/modules/map.store'
-import { createPixelExtentAround } from '@/utils/extentUtils'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
 
 const dispatcher = { dispatcher: 'CesiumInteractions.vue' }
@@ -161,7 +159,7 @@ function create3dFeature(feature, coordinates) {
         data,
         title: id,
         coordinates,
-        extent: createPixelExtentAround({
+        extent: extentUtils.createPixelExtentAround({
             size: 5,
             coordinates,
             projection: projection.value,

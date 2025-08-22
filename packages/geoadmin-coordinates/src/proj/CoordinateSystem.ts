@@ -2,7 +2,8 @@ import { round } from '@geoadmin/numbers'
 import { earthRadius } from '@turf/turf'
 import proj4 from 'proj4'
 
-import type { SingleCoordinate } from '@/utils'
+import type { SingleCoordinate } from '@/coordinatesUtils'
+import type { ResolutionStep } from '@/proj/types'
 
 import CoordinateSystemBounds from '@/proj/CoordinateSystemBounds'
 
@@ -28,15 +29,6 @@ export const SWISS_ZOOM_LEVEL_1_25000_MAP: number = 8
  */
 export const PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES: number =
     (2 * Math.PI * earthRadius) / 256
-
-export interface ResolutionStep {
-    /** Resolution of this step, in meters/pixel */
-    resolution: number
-    /** Corresponding zoom level for this resolution step */
-    zoom?: number
-    /** Name of the map product shown at this resolution/zoom */
-    label?: string
-}
 
 export interface CoordinateSystemProps {
     /**
@@ -174,10 +166,10 @@ export default abstract class CoordinateSystem {
      *
      * @param {CoordinateSystem} coordinateSystem The target coordinate system we want bounds
      *   expressed in
-     * @returns {CoordinateSystemBounds | null} Bounds, expressed in the coordinate system, or null
-     *   if bounds are undefined or coordinate system is invalid
+     * @returns {CoordinateSystemBounds | undefined} Bounds, expressed in the coordinate system, or
+     *   undefined if bounds are undefined or the coordinate system is invalid
      */
-    getBoundsAs(coordinateSystem: CoordinateSystem): CoordinateSystemBounds | null {
+    getBoundsAs(coordinateSystem: CoordinateSystem): CoordinateSystemBounds | undefined {
         if (this.bounds) {
             if (coordinateSystem.epsg === this.epsg) {
                 return this.bounds
@@ -196,7 +188,7 @@ export default abstract class CoordinateSystem {
                 customCenter,
             })
         }
-        return null
+        return
     }
 
     /**

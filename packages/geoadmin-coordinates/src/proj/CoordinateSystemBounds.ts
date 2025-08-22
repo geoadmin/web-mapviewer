@@ -11,8 +11,8 @@ import {
 } from '@turf/turf'
 import { sortBy } from 'lodash'
 
+import type { SingleCoordinate } from '@/coordinatesUtils.ts'
 import type { CoordinatesChunk } from '@/proj/CoordinatesChunk'
-import type { SingleCoordinate } from '@/utils'
 
 interface CoordinateSystemBoundsProps {
     lowerX: number
@@ -38,14 +38,17 @@ function reassembleLineSegments(
     const orderedFeatures: Feature<LineString, GeoJsonProperties>[] = []
     while (candidateFeatures.length > 0) {
         candidateFeatures = sortBy(candidateFeatures, (f) => {
-            if (f.geometry) {
+            if (f.geometry && f.geometry.coordinates && f.geometry.coordinates[0]) {
                 return distance(origin, f.geometry.coordinates[0])
             } else {
                 throw new Error('Feature missing geometry')
             }
         })
-        const closest = candidateFeatures.shift() as Feature<LineString, GeoJsonProperties>
-        origin = closest.geometry.coordinates[closest.geometry.coordinates.length - 1]
+        const closest = candidateFeatures.shift()!
+        const closestOrigin = closest.geometry.coordinates[closest.geometry.coordinates.length - 1]
+        if (closestOrigin) {
+            origin = closestOrigin
+        }
         orderedFeatures.push(closest)
     }
     return orderedFeatures
@@ -115,25 +118,27 @@ export default class CoordinateSystemBounds {
      * Can be helpful when requesting information from our backends, but said backend doesn't
      * support world-wide coverage. Typical example is service-profile, if we give it coordinates
      * outside LV95 bounds it will fill what it doesn't know with coordinates following LV95 extent
-     * instead of returning null
+     * instead of returning undefined
      *
      * @param {[Number, Number][]} coordinates Coordinates `[[x1,y1],[x2,y2],...]` expressed in the
      *   same coordinate system (projection) as the bounds
-     * @returns {null | CoordinatesChunk[]}
+     * @returns {CoordinatesChunk[] | undefined}
      */
-    splitIfOutOfBounds(coordinates: SingleCoordinate[]): CoordinatesChunk[] | null {
+    splitIfOutOfBounds(coordinates: SingleCoordinate[]): CoordinatesChunk[] | undefined {
         if (!Array.isArray(coordinates) || coordinates.length <= 1) {
-            return null
+            return
         }
         // checking that all coordinates are well-formed
         if (coordinates.find((coordinate) => coordinate.length !== 2)) {
-            return null
+            return
         }
         // checking if we require splitting
         if (coordinates.find((coordinate) => !this.isInBounds(coordinate[0], coordinate[1]))) {
             const boundsAsPolygon = bboxPolygon(this.flatten)
             const paths = lineSplit(lineString(coordinates), boundsAsPolygon)
-            paths.features = reassembleLineSegments(coordinates[0], paths)
+            if (coordinates[0]) {
+                paths.features = reassembleLineSegments(coordinates[0], paths)
+            }
             return paths.features.map((chunk) => {
                 return {
                     coordinates: chunk.geometry.coordinates,

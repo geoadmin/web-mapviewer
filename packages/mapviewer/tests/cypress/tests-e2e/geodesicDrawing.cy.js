@@ -1,5 +1,4 @@
-import { WEBMERCATOR } from '@geoadmin/coordinates'
-import { wrapXCoordinates } from '@geoadmin/coordinates'
+import { extentUtils, WEBMERCATOR } from '@geoadmin/coordinates'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { extractOlFeatureCoordinates } from '@/api/features/features.api.js'
@@ -129,7 +128,7 @@ describe.skip('Correct handling of geodesic geometries', () => {
                 now, as we store the coordinates in their normalized form (We didn't normalize it
                 before drawing as we want to simulate a normal user that draws across the datetime
                 limit)*/
-                const lineDrawn = wrapXCoordinates(lineToDraw, WEBMERCATOR)
+                const lineDrawn = extentUtils.wrapXCoordinates(lineToDraw, WEBMERCATOR)
                 checkFeatureSelected(lineDrawn)
 
                 const centerOfLinearLine = offsetX([x + 500000, y], selectOffset)
@@ -137,7 +136,7 @@ describe.skip('Correct handling of geodesic geometries', () => {
                 const centerOfGeodesicLine = offsetX([x + 500000, 5990896.895875603], selectOffset)
                 const drawnLineWithCenterPoint = [
                     lineDrawn[0],
-                    wrapXCoordinates(centerOfGeodesicLine, WEBMERCATOR),
+                    extentUtils.wrapXCoordinates(centerOfGeodesicLine, WEBMERCATOR),
                     lineDrawn[1],
                 ]
                 // As the line is not linear, clicking where the linear line passes should not trigger the
@@ -222,7 +221,7 @@ describe.skip('Correct handling of geodesic geometries', () => {
                     [x, y],
                 ]
                 drawFeature(offsetX(lineToDraw, drawOffset), type)
-                const lineDrawn = wrapXCoordinates(lineToDraw, WEBMERCATOR)
+                const lineDrawn = extentUtils.wrapXCoordinates(lineToDraw, WEBMERCATOR)
                 checkFeatureSelected(lineDrawn)
 
                 const inLinearPolygon = [
