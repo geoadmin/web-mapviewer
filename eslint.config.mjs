@@ -12,6 +12,8 @@ import mocha from 'eslint-plugin-mocha'
 import perfectionist from 'eslint-plugin-perfectionist'
 import pluginVue from 'eslint-plugin-vue'
 import globals from 'globals'
+import { dirname } from 'path'
+import { fileURLToPath } from 'url'
 
 configureVueProject({
     scriptLangs: ['ts', 'js'],
@@ -47,8 +49,8 @@ export default defineConfigWithVueTs(
             },
 
             parserOptions: {
-                projectService: true,
-                tsconfigRootDir: import.meta.dirname,
+                project: ['./tsconfig.shared.json', './packages/*/tsconfig.json'],
+                tsconfigRootDir: dirname(fileURLToPath(import.meta.url)),
             },
 
             sourceType: 'module',
