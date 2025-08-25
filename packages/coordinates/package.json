@@ -1,0 +1,48 @@
+{
+    "name": "@swissgeo/coordinates",
+    "version": "0.0.1",
+    "description": "Projection definition and coordinates utils for geoadmin",
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.cjs"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "pnpm run type-check && pnpm run generate-types && vite build",
+        "build:dev": "pnpm run build --mode development",
+        "build:dev:watch": "pnpm run build --watch --mode development",
+        "build:int": "pnpm run build --mode integration",
+        "build:prod": "pnpm run build --mode production",
+        "dev": "vite",
+        "generate-types": "vue-tsc --declaration",
+        "preview": "vite preview",
+        "test:unit": "vitest --run --mode development --environment jsdom",
+        "test:unit:watch": "vitest --mode development --environment jsdom",
+        "type-check": "vue-tsc -p tsconfig.json"
+    },
+    "dependencies": {
+        "@swissgeo/log": "workspace:*",
+        "@swissgeo/numbers": "workspace:*",
+        "lodash": "catalog:"
+    },
+    "devDependencies": {
+        "@microsoft/api-extractor": "catalog:",
+        "@turf/turf": "catalog:",
+        "@types/chai": "catalog:",
+        "@types/lodash": "catalog:",
+        "chai": "catalog:",
+        "unplugin-dts": "catalog:",
+        "vite": "catalog:",
+        "vitest": "catalog:"
+    },
+    "peerDependencies": {
+        "ol": "catalog:",
+        "proj4": "catalog:"
+    }
+}
