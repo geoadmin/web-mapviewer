@@ -91,9 +91,12 @@ function iconUrlProxy(url) {
         (url) => {
             store.dispatch('addWarnings', {
                 warnings: [
-                    new WarningMessage('kml_icon_url_cors_issue', {
-                        layerName: layerName.value,
-                        url: url,
+                    new WarningMessage({
+                        msg: 'kml_icon_url_cors_issue',
+                        params: {
+                            layerName: layerName.value,
+                            url: url,
+                        },
                     }),
                 ],
                 ...dispatcher,
@@ -102,9 +105,12 @@ function iconUrlProxy(url) {
         (url) => {
             store.dispatch('addWarnings', {
                 warnings: [
-                    new WarningMessage('kml_icon_url_scheme_http', {
-                        layerName: layerName.value,
-                        url: url,
+                    new WarningMessage({
+                        msg: 'kml_icon_url_scheme_http',
+                        params: {
+                            layerName: layerName.value,
+                            url: url,
+                        },
                     }),
                 ],
                 ...dispatcher,

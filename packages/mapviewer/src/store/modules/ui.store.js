@@ -466,12 +466,12 @@ export default {
                 )
             }
             if (state.errors.has(error)) {
-                const acknowledgedError = new ErrorMessage(
-                    error.msg,
-                    error.params,
-                    error.sourceId,
-                    true
-                )
+                const acknowledgedError = new ErrorMessage({
+                    msg: error.msg,
+                    params: error.params,
+                    sourceId: error.sourceId,
+                    isAcknowledged: true,
+                })
                 commit('removeError', { error, dispatcher })
                 commit('addErrors', { errors: [acknowledgedError], dispatcher })
             }
@@ -502,12 +502,12 @@ export default {
                 )
             }
             if (state.warnings.has(warning)) {
-                const acknowledgedWarning = new WarningMessage(
-                    warning.msg,
-                    warning.params,
-                    warning.sourceId,
-                    true
-                )
+                const acknowledgedWarning = new WarningMessage({
+                    msg: warning.msg,
+                    params: warning.params,
+                    sourceId: warning.sourceId,
+                    isAcknowledged: true,
+                })
                 commit('removeWarning', { warning, dispatcher })
                 commit('addWarnings', { warnings: [acknowledgedWarning], dispatcher })
             }

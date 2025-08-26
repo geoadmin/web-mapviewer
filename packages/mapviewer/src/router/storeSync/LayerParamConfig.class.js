@@ -277,11 +277,17 @@ function validateUrlInput(store, query) {
         .filter((layer) => !store.getters.getLayerConfigById(layer.id))
         .forEach((layer) => {
             if (!layer.baseUrl) {
-                faultyLayers.push(new ErrorMessage('url_layer_error', { layer: layer.id }))
+                faultyLayers.push(
+                    new ErrorMessage({ msg: 'url_layer_error', params: { layer: layer.id } })
+                )
             } else if (!layer.baseUrl?.match(url_matcher)?.length > 0) {
                 localLayers.push(
-                    new WarningMessage('url_external_layer_no_scheme_warning', {
-                        layer: `${layer.type}|${layer.baseUrl}`,
+                    new WarningMessage({
+                        msg: 'url_external_layer_no_scheme_warning',
+                        params: {
+                            layer: `${layer.type}|${layer.baseUrl}`,
+                        },
+                        sourceId: layer.baseUrl,
                     })
                 )
             }

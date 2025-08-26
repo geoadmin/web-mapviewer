@@ -805,8 +805,10 @@ const actions = {
                 clone.isLoading = false
 
                 // Always clean up the error messages before doing the check
-                const emptyFileErrorMessage = new ErrorMessage('kml_gpx_file_empty')
-                const outOfBoundsErrorMessage = new ErrorMessage('imported_file_out_of_bounds')
+                const emptyFileErrorMessage = new ErrorMessage({ msg: 'kml_gpx_file_empty' })
+                const outOfBoundsErrorMessage = new ErrorMessage({
+                    msg: 'imported_file_out_of_bounds',
+                })
                 clone.removeErrorMessage(emptyFileErrorMessage)
                 clone.removeErrorMessage(outOfBoundsErrorMessage)
 

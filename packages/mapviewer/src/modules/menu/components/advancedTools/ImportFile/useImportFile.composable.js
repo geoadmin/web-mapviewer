@@ -43,8 +43,12 @@ export default function useImportFile() {
                     projection.value.bounds.isInBounds(extent[2], extent[3])
                 if (!isLayerFullyInBound) {
                     layer.addWarningMessage(
-                        new WarningMessage('file_imported_partially_out_of_bounds', {
-                            filename: layer.name ?? layer.id,
+                        new WarningMessage({
+                            msg: 'file_imported_partially_out_of_bounds',
+                            params: {
+                                filename: layer.name ?? layer.id,
+                            },
+                            sourceId: layer.id,
                         })
                     )
                 }

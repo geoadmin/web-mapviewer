@@ -12,9 +12,15 @@ export class Message {
      * @param {string} msg Translation key message
      * @param {any} params Translation params to pass to i18n (used for message formatting)
      */
-    constructor(msg: string, params: Record<string, any> | null = null, sourceId? : string, isAcknowledged: boolean = false ) {
+    constructor(msgParams: Record<string, any> ) {
+        const {
+            msg = 'unknown_message',
+            params = {},
+            isAcknowledged = false,
+            sourceId = undefined
+        } = msgParams
         this.msg = msg
-        this.params = params ?? {}
+        this.params = params
         this.isAcknowledged = isAcknowledged
         this.sourceId = sourceId
     }

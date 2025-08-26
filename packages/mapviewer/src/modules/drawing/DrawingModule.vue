@@ -138,8 +138,11 @@ watch(availableIconSets, () => {
             const icon = getIcon(iconArgs, null /*iconStyle*/, availableIconSets.value, () => {
                 store.dispatch('addWarnings', {
                     warnings: [
-                        new WarningMessage('kml_icon_set_not_found', {
-                            iconSetName: iconArgs.set,
+                        new WarningMessage({
+                            msg: 'kml_icon_set_not_found',
+                            params: {
+                                iconSetName: iconArgs.set,
+                            },
                         }),
                     ],
                     ...dispatcher,

@@ -15,11 +15,10 @@ import { getWmtsXyzUrl } from '@/utils/layerUtils'
 const dispatcher = { dispatcher: 'CesiumWMTSLayer.vue' }
 
 const MAXIMUM_LEVEL_OF_DETAILS = 18
-const unsupportedProjectionError = new ErrorMessage(
-    '3d_unsupported_projection',
-    {},
-    wmtsLayerConfig.id
-)
+const unsupportedProjectionError = new ErrorMessage({
+    msg: '3d_unsupported_projection',
+    sourceId: wmtsLayerConfig.id,
+})
 
 const { wmtsLayerConfig, zIndex, parentLayerOpacity } = defineProps({
     wmtsLayerConfig: {

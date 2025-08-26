@@ -46,11 +46,11 @@ async function loadMetadata(store, kmlLayer) {
         if (kmlLayer?.adminId) {
             //kmlLayer.adminId = null
             kmlLayer.addErrorMessage(
-                new ErrorMessage(
-                    'BONJOUR EDITEUR',
-                    { layerName: kmlLayer.name ?? kmlLayer.id },
-                    kmlLayer.id
-                )
+                new ErrorMessage({
+                    msg: 'BONJOUR EDITEUR',
+                    params: { layerName: kmlLayer.name ?? kmlLayer.id },
+                    sourceId: kmlLayer.id,
+                })
             )
         }
         // TODO set admin Id to null
@@ -114,11 +114,12 @@ async function loadData(store, kmlLayer) {
     }
     if (!mimeType && !loadedContent) {
         log.error('[load-kml-kmz-data] could not get content for KML', kmlLayer.kmlFileUrl)
-        const errorMessage = new ErrorMessage(
-            kmlLayer.isExternal ? 'loading_error_network_failure' : 'loading_error_file_deleted',
-            {},
-            kmlLayer.id
-        )
+        const errorMessage = new ErrorMessage({
+            msg: kmlLayer.isExternal
+                ? 'loading_error_network_failure'
+                : 'loading_error_file_deleted',
+            sourceId: kmlLayer.id,
+        })
         store.dispatch('addLayerError', {
             layerId: kmlLayer.id,
             isExternal: kmlLayer.isExternal,
