@@ -10,17 +10,18 @@ import UnknownProjectionError from '@/modules/menu/components/advancedTools/Impo
  * function).
  *
  * @param {Error} error An error raised by a FileParser, or the parseAll
+ * @param {AbstractLayer} layer The layer which originated the error
  * @returns {ErrorMessage}
  */
-export default function generateErrorMessageFromErrorType(error) {
+export default function generateErrorMessageFromErrorType(error, layer) {
     if (error instanceof AxiosError || /fetch/.test(error.message)) {
-        return new ErrorMessage('loading_error_network_failure')
+        return new ErrorMessage('loading_error_network_failure', {}, layer?.id)
     } else if (error instanceof OutOfBoundsError) {
-        return new ErrorMessage('imported_file_out_of_bounds')
+        return new ErrorMessage('imported_file_out_of_bounds', {}, layer?.id)
     } else if (error instanceof EmptyFileContentError) {
-        return new ErrorMessage('kml_gpx_file_empty')
+        return new ErrorMessage('kml_gpx_file_empty', {}, layer?.id)
     } else if (error instanceof UnknownProjectionError) {
-        return new ErrorMessage('unknown_projection_error', { epsg: error.epsg })
+        return new ErrorMessage('unknown_projection_error', { epsg: error.epsg }, layer?.id)
     }
-    return new ErrorMessage('invalid_import_file_error')
+    return new ErrorMessage('invalid_import_file_error', {}, layer?.id)
 }

@@ -316,6 +316,12 @@ export default {
         hideEmbedUI(state) {
             return state.hideEmbedUI
         },
+        getFirstError(state) {
+            return Array.from(state.errors).find((error) => !error.isAcknowledged)
+        },
+        getFirstWarning(state) {
+            return Array.from(state.warnings).find((warning) => !warning.isAcknowledged)
+        },
     },
     actions: {
         setSize({ commit, state }, { width, height, dispatcher }) {
@@ -453,14 +459,21 @@ export default {
             }
         },
 
-        removeError({ commit, state }, { error, dispatcher }) {
+        acknowledgedError({ commit, state }, { error, dispatcher }) {
             if (!(error instanceof ErrorMessage)) {
                 throw new Error(
                     `Error ${error} dispatched by ${dispatcher} is not of type ErrorMessage`
                 )
             }
             if (state.errors.has(error)) {
+                const acknowledgedError = new ErrorMessage(
+                    error.msg,
+                    error.params,
+                    error.sourceId,
+                    true
+                )
                 commit('removeError', { error, dispatcher })
+                commit('addErrors', { errors: [acknowledgedError], dispatcher })
             }
         },
         addWarnings({ commit, state }, { warnings, dispatcher }) {
@@ -482,14 +495,21 @@ export default {
                 )
             }
         },
-        removeWarning({ commit, state }, { warning, dispatcher }) {
+        acknowledgeWarning({ commit, state }, { warning, dispatcher }) {
             if (!(warning instanceof WarningMessage)) {
                 throw new Error(
                     `Warning ${warning} dispatched by ${dispatcher} is not of type WarningMessage`
                 )
             }
             if (state.warnings.has(warning)) {
+                const acknowledgedWarning = new WarningMessage(
+                    warning.msg,
+                    warning.params,
+                    warning.sourceId,
+                    true
+                )
                 commit('removeWarning', { warning, dispatcher })
+                commit('addWarnings', { warnings: [acknowledgedWarning], dispatcher })
             }
         },
         setShowDragAndDropOverlay({ commit }, { showDragAndDropOverlay, dispatcher }) {

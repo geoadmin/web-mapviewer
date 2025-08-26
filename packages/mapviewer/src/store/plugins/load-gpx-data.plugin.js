@@ -31,13 +31,15 @@ async function loadGpx(store, gpxLayer) {
         })
     } catch (error) {
         log.error(`Error while fetching GPX data for layer ${gpxLayer?.id}`, error)
+        const errorMessage = new ErrorMessage('loading_error_network_failure', {}, gpxLayer.id)
         store.dispatch('addLayerError', {
             layerId: gpxLayer.id,
             isExternal: gpxLayer.isExternal,
             baseUrl: gpxLayer.baseUrl,
-            error: new ErrorMessage('loading_error_network_failure'),
+            error: errorMessage,
             ...dispatcher,
         })
+        store.dispatch('addErrors', [errorMessage], dispatcher)
     }
 }
 

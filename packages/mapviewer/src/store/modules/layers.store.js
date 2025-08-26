@@ -694,7 +694,7 @@ const actions = {
      * @param {ErrorMessage} error Error translation key to add
      * @param {string} dispatcher Action dispatcher name
      */
-    addLayerError({ commit, getters }, { layerId, isExternal, baseUrl, error, dispatcher }) {
+    addLayerError({ commit, store, getters }, { layerId, isExternal, baseUrl, error, dispatcher }) {
         const layers = getters.getLayersById(layerId, isExternal, baseUrl)
         if (layers.length === 0) {
             throw new Error(

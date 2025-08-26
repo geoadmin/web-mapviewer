@@ -7,18 +7,8 @@ import ErrorWindow from '@/utils/components/ErrorWindow.vue'
 import WarningWindow from '@/utils/components/WarningWindow.vue'
 const store = useStore()
 const { t } = useI18n()
-const error = computed(() => {
-    if (store.state.ui.errors.size > 0) {
-        return store.state.ui.errors.values().next().value
-    }
-    return null
-})
-const warning = computed(() => {
-    if (store.state.ui.warnings.size > 0) {
-        return store.state.ui.warnings.values().next().value
-    }
-    return null
-})
+const error = computed(() => store.getters.getFirstError)
+const warning = computed(() => store.getters.getFirstWarning)
 </script>
 
 <template>
@@ -26,7 +16,7 @@ const warning = computed(() => {
         <ErrorWindow
             v-if="error"
             title="error"
-            @close="store.dispatch('removeError', { error, ...dispatcher })"
+            @close="store.dispatch('acknowledgedError', { error, ...dispatcher })"
         >
             <div>
                 {{ t(error.msg, error.params) }}
@@ -35,7 +25,7 @@ const warning = computed(() => {
         <WarningWindow
             v-if="warning"
             title="warning"
-            @close="store.dispatch('removeWarning', { warning, ...dispatcher })"
+            @close="store.dispatch('acknowledgedWarning', { warning, ...dispatcher })"
         >
             <div>{{ t(warning.msg, warning.params) }}</div>
         </WarningWindow>
