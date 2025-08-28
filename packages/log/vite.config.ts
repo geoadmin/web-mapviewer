@@ -1,7 +1,8 @@
+import type { UserConfig } from 'vite'
 import { resolve } from 'path'
 import dts from 'unplugin-dts/vite'
 
-export default {
+const config: UserConfig = {
     build: {
         lib: {
             entry: {
@@ -22,3 +23,5 @@ export default {
         }),
     ],
 }
+
+export default config

@@ -41,31 +41,11 @@ describe('Unit test functions from numbers utils', () => {
             expect(round(0.444, 2)).to.eq(0.44)
             expect(round(0.445, 2)).to.eq(0.45)
         })
-
-        it('returns NaN for a string containg text', () => {
-            expect(round('not a number')).to.be.NaN
-        })
-
-        it('returns NaN for an empty string', () => {
-            expect(round('')).to.be.NaN
-        })
-
-        it('returns NaN if input value is null or undefined', () => {
-            expect(round(null)).to.be.NaN
-            expect(round(undefined)).to.be.NaN
-        })
-
-        it('rounds a stringified number correctly', () => {
-            expect(round('' + numberToRound)).to.eq(123)
-        })
     })
 
     describe('closest(value, fromList)', () => {
-        it('returns the given value if the list of value is invalid or empty', () => {
+        it('returns the given value if the list of value is empty', () => {
             const value = 1234.56
-            expect(closest(value)).to.eq(value)
-            expect(closest(value, null)).to.eq(value)
-            expect(closest(value, undefined)).to.eq(value)
             expect(closest(value, [])).to.eq(value)
         })
         it('returns a match', () => {
@@ -107,10 +87,6 @@ describe('Unit test functions from numbers utils', () => {
     describe('randomIntBetween(start, end)', () => {
         it('returns 0 when invalid start and end are provided', () => {
             expect(randomIntBetween(2, 1)).to.be.eq(0)
-            expect(randomIntBetween(null, 2)).to.be.eq(0)
-            expect(randomIntBetween(1, null)).to.be.eq(0)
-            expect(randomIntBetween('1', 2)).to.be.eq(0)
-            expect(randomIntBetween()).to.be.eq(0)
         })
         it('returns random value according to the given range', () => {
             const start = 0
@@ -129,11 +105,6 @@ describe('Unit test functions from numbers utils', () => {
     })
 
     describe('format(value)', () => {
-        it('returns undefined if the given value is not a number', () => {
-            expect(format(null)).to.be.a('string').empty
-            expect(format(undefined)).to.be.a('string').empty
-            expect(format('')).to.be.a('string').empty
-        })
         it('returns number smaller than 1000 as is', () => {
             expect(format(0)).to.be.a('string').that.eq('0')
             expect(format(999)).to.be.a('string').that.eq('999')

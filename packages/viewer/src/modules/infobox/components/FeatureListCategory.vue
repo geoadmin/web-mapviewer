@@ -46,7 +46,7 @@ const { t } = useI18n()
                 <strong
                     v-if="name"
                     data-cy="feature-list-category-title"
-                    >{{ t(name) }}</strong
+                >{{ t(name) }}</strong
                 >
             </span>
             <small class="text-muted">

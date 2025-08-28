@@ -6,6 +6,7 @@ import { beforeEach, describe, it } from 'vitest'
 // We need to import the router here to avoid error when initializing router plugins, this is
 // needed since some store plugins might require access to router to get the query parameters
 // (e.g. topic management plugin)
+// eslint-disable-next-line
 import router from '@/router'  
 import store from '@/store'
 

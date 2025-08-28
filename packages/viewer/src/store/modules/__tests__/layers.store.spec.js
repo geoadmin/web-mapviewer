@@ -9,7 +9,8 @@ import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 // We need to import the router here to avoid error when initializing router plugins, this is
 // needed since some store plugins might require access to router to get the query parameters
 // (e.g. topic management plugin)
-import router from '@/router' // eslint-disable-line no-unused-vars
+// eslint-disable-next-line
+import router from '@/router'  
 import store from '@/store'
 
 const dispatcher = { dispatcher: 'unit-test' }

@@ -1,6 +1,7 @@
 import gitconfig from 'gitconfig'
 import { exec as execCallback } from 'node:child_process'
 import { promisify } from 'node:util'
+import type { PluginOption } from 'vite'
 
 const exec = promisify(execCallback)
 
@@ -12,10 +13,10 @@ const exec = promisify(execCallback)
  * Original cmd is git show-ref | grep "$(git rev-parse HEAD)" | awk '!/refs/tags// {print $2}' |
  * head -1
  *
- * @param {String} gitHash The current git hash
- * @returns {String} The git branch without "origin/" or "refs/" portion
+ * @param gitHash The current git hash
+ * @returns The git branch without "origin/" or "refs/" portion
  */
-async function getGitBranch(gitHash) {
+async function getGitBranch(gitHash: string): Promise<string | undefined> {
     const headRefs = (await exec('git show-ref --heads')).stdout.trim().split('\n')
     // we now do a grep-like operation, only keeping refs that have the hash found in gitHash
     // we also have to remove all prefixes on the branch, i.e. /refs/tags or /origin/ etc...
@@ -26,11 +27,11 @@ async function getGitBranch(gitHash) {
     return branches[0]
 }
 
-async function getGitUser() {
+async function getGitUser(): Promise<string | undefined> {
     return await gitconfig.get('user.name', { location: 'global' })
 }
 
-async function getGitUserEmail() {
+async function getGitUserEmail(): Promise<string | undefined> {
     return await gitconfig.get('user.email', { location: 'global' })
 }
 
@@ -40,7 +41,7 @@ async function getGitUserEmail() {
  *
  * The app version is received as parameter of the plugin (when added to vite plugin array)
  */
-export default function generateBuildInfo(staging, version) {
+export default function generateBuildInfo(staging: string, version: string): PluginOption {
     return {
         name: 'vite-plugin-generate-build-info',
         buildEnd: {
@@ -94,7 +95,7 @@ export default function generateBuildInfo(staging, version) {
                         2
                     ),
                 })
-                // eslint-disable-next-line no-console
+                 
                 console.log(`Created ${version}/info.json`)
             },
         },

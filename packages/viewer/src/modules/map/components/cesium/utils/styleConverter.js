@@ -67,9 +67,9 @@ function getStyleForEntity(entity, geoJsonStyle) {
                 }, null)
         } else if (keyType === 'unique') {
             return geoJsonStyle.values.find((value) => {
-                // totally assumed double equal sign, there is sometimes type difference between GeoJSON entity
+                // totally assumed double equal sign; there is sometimes a type difference between GeoJSON entity
                 // and the style (style has a number, entity has a "numerical" string value)
-                 
+                // eslint-disable-next-line eqeqeq
                 return value.value == entityKeyValue
             })
         } else {

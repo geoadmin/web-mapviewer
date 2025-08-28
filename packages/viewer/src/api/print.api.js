@@ -1,4 +1,3 @@
-import log from '@swissgeo/log'
 import {
     BaseCustomizer,
     cancelPrint,
@@ -6,6 +5,7 @@ import {
     MFPEncoder,
     requestReport,
 } from '@geoblocks/mapfishprint'
+import log from '@swissgeo/log'
 import axios from 'axios'
 import { Circle } from 'ol/style'
 
@@ -69,10 +69,10 @@ class GeoAdminCustomizer extends BaseCustomizer {
      * @param {State} layerState
      * @param {GeoJSONFeature} geojsonFeature
      * @param {MFPSymbolizerLine} symbolizer Interface for the symbolizer of a line feature
-     * @param {Stroke} stroke Stroke style of the line feature
+     * @param {Stroke} _stroke Stroke style of the line feature
      */
      
-    line(layerState, geojsonFeature, symbolizer, stroke) {
+    line(layerState, geojsonFeature, symbolizer, _stroke) {
         if (symbolizer?.strokeDashstyle === '8') {
             symbolizer.strokeDashstyle = 'dash'
         }

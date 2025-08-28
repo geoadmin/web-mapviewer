@@ -28,8 +28,8 @@ const { t } = useI18n()
 Current locale can be accessed through the store
 
 ```javascript
-import { useStore } from 'vuex'
 import { computed } from 'vue'
+import { useStore } from 'vuex'
 
 const store = useStore()
 const currentLocal = computed(() => store.state.i18n.lang)

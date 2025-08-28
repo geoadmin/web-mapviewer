@@ -81,52 +81,52 @@ function isSelected(timeEntry) {
 </script>
 
 <template>
-  <div v-if="hasTimeSelector">
-    <GeoadminTooltip placement="right" open-trigger="click">
-      <button
-        ref="timeSelectorButton"
-        class="btn btn-secondary me-1 btn-timestamp btn-timestamp-selector"
-        :class="{
-          'btn-sm': compact,
-          'btn-timestamp-selector-compact': compact,
-        }"
-        :data-cy="`time-selector-${layerId}-${layerIndex}`"
-      >
-        <TextTruncate>
-          {{ humanReadableCurrentTimestamp }}
-        </TextTruncate>
-      </button>
-
-      <template #content="{ close }">
-        <div ref="timeSelectorModal" class="card border-0">
-          <div class="card-header d-flex align-items-center justify-content-between">
-            {{ t("time_select_year") }}
-          </div>
-          <div
-            class="card-body rounded-bottom p-2 d-grid timestamps-popover-content gap-1"
-            data-cy="time-selection-popup"
-            @click="close"
-          >
+    <div v-if="hasTimeSelector">
+        <GeoadminTooltip placement="right" open-trigger="click">
             <button
-              v-for="timeEntry in timeConfig.timeEntries"
-              :key="timeEntry.timestamp"
-              class="btn d-flex justify-content-center"
-              :class="{
-                'btn-primary': isSelected(timeEntry),
-                'btn-light': !isSelected(timeEntry),
-              }"
-              :data-cy="`time-select-${timeEntry.timestamp}`"
-              @click="handleClickOnTimestamp(timeEntry.year)"
+                ref="timeSelectorButton"
+                class="btn btn-secondary me-1 btn-timestamp btn-timestamp-selector"
+                :class="{
+                    'btn-sm': compact,
+                    'btn-timestamp-selector-compact': compact,
+                }"
+                :data-cy="`time-selector-${layerId}-${layerIndex}`"
             >
-              <TextTruncate>
-                {{ renderHumanReadableTimestamp(timeEntry) }}
-              </TextTruncate>
+                <TextTruncate>
+                    {{ humanReadableCurrentTimestamp }}
+                </TextTruncate>
             </button>
-          </div>
-        </div>
-      </template>
-    </GeoadminTooltip>
-  </div>
+
+            <template #content="{ close }">
+                <div ref="timeSelectorModal" class="card border-0">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        {{ t("time_select_year") }}
+                    </div>
+                    <div
+                        class="card-body rounded-bottom p-2 d-grid timestamps-popover-content gap-1"
+                        data-cy="time-selection-popup"
+                        @click="close"
+                    >
+                        <button
+                            v-for="timeEntry in timeConfig.timeEntries"
+                            :key="timeEntry.timestamp"
+                            class="btn d-flex justify-content-center"
+                            :class="{
+                                'btn-primary': isSelected(timeEntry),
+                                'btn-light': !isSelected(timeEntry),
+                            }"
+                            :data-cy="`time-select-${timeEntry.timestamp}`"
+                            @click="handleClickOnTimestamp(timeEntry.year)"
+                        >
+                            <TextTruncate>
+                                {{ renderHumanReadableTimestamp(timeEntry) }}
+                            </TextTruncate>
+                        </button>
+                    </div>
+                </div>
+            </template>
+        </GeoadminTooltip>
+    </div>
 </template>
 
 <style lang="scss" scoped>

@@ -1,22 +1,26 @@
-<script setup lang="ts">
-import { onMounted, watch } from 'vue'
-import { ref } from 'vue'
-// @ts-ignore no-implicit-any
-import { useStore, Store } from 'vuex'
+<script setup>
+import { onMounted, ref, watch } from 'vue'
+import { useStore } from 'vuex'
 
-import type AbstractLayer from '@/api/layers/AbstractLayer.class'
+import AbstractLayer from '@/api/layers/AbstractLayer.class'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import debounce from '@/utils/debounce'
 
 const DISPATCHER = { dispatcher: 'MenuActiveLayersListItem.vue' }
 
-const store: Store = useStore()
+const store = useStore()
 
-const { layer, index } = defineProps<{
-    layer: AbstractLayer
-    index: number
-}>()
+const { layer, index } = defineProps({
+    layer: {
+        type: AbstractLayer,
+        required: true,
+    },
+    index: {
+        type: Number,
+        required: true,
+    }
+})
 
 const localTransparency = ref(0)
 
@@ -28,7 +32,7 @@ const syncOpacity = () => {
     localTransparency.value = 1 - layer.opacity
 }
 
-const saveOpacityToLayer = (opacity: number) => {
+const saveOpacityToLayer = (opacity) => {
     store.dispatch('setLayerOpacity', {
         index,
         opacity: opacity,
@@ -38,7 +42,7 @@ const saveOpacityToLayer = (opacity: number) => {
 
 const debouncedSaveOpacityToLayer = debounce(saveOpacityToLayer, 50)
 
-watch(localTransparency, (newTransparency: number) => {
+watch(localTransparency, (newTransparency) => {
     const newOpacity = 1 - newTransparency
     // there is of course a tasty race condition if we debounce this in cypress
     if (IS_TESTING_WITH_CYPRESS) {

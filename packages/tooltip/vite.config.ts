@@ -4,8 +4,10 @@ import { resolve } from 'path'
 import dts from 'unplugin-dts/vite'
 import { fileURLToPath, URL } from 'url'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import type { UserConfig } from 'vite'
+import tsconfigPaths from 'vite-tsconfig-paths'
 
-export default {
+const config: UserConfig = {
     build: {
         lib: {
             entry: [resolve(__dirname, 'src/index.ts')],
@@ -27,6 +29,7 @@ export default {
         },
     },
     plugins: [
+        tsconfigPaths(),
         tailwindcss(),
         vue(),
         vueDevTools(),
@@ -36,3 +39,5 @@ export default {
         }),
     ],
 }
+
+export default config
