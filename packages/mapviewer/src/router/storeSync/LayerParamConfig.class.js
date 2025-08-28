@@ -320,6 +320,7 @@ export default class LayerParamConfig extends AbstractParamConfig {
                 'setSelectedFeatures',
                 'addSelectedFeatures',
                 'updateLayer',
+                'updateLayers',
             ],
             setValuesInStore: dispatchLayersFromUrlIntoStore,
             extractValueFromStore: generateLayerUrlParamFromStoreValues,

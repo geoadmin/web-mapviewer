@@ -322,6 +322,13 @@ export default {
         getFirstWarning(state) {
             return Array.from(state.warnings).find((warning) => !warning.isAcknowledged)
         },
+        getNumberOfNonAcknowledgedErrors(state) {
+            return Array.from(state.errors).filter((error) => !error.isAcknowledged).length
+        },
+
+        getNumberOfNonAcknowledgedWarnings(state) {
+            return Array.from(state.warnings).filter((warning) => !warning.isAcknowledged).length
+        },
     },
     actions: {
         setSize({ commit, state }, { width, height, dispatcher }) {

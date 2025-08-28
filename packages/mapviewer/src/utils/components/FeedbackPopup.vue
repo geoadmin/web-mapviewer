@@ -25,7 +25,7 @@ const warning = computed(() => store.getters.getFirstWarning)
         <WarningWindow
             v-if="warning"
             title="warning"
-            @close="store.dispatch('acknowledgedWarning', { warning, ...dispatcher })"
+            @close="store.dispatch('acknowledgeWarning', { warning, ...dispatcher })"
         >
             <div>{{ t(warning.msg, warning.params) }}</div>
         </WarningWindow>

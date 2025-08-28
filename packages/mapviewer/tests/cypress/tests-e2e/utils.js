@@ -14,7 +14,7 @@ export function getGeolocationButtonAndClickIt() {
     cy.get(geolocationButtonSelector).should('be.visible').click()
 }
 
-export function testErrorMessage(message) {
+export function testErrorMessage(message, shouldErrorMessageBeShown = true) {
     const geolocationButtonSelector = '[data-cy="geolocation-button"]'
     // move the mouse away from the button because the tooltip covers the
     // error message
@@ -28,10 +28,14 @@ export function testErrorMessage(message) {
 
         const error = errors.values().next().value
         expect(error.msg).to.eq(message)
+        // When we are checking an acknowledged error, it should not appear in the UI (and won't be added to the set)
+        expect(error.isAcknowledged).to.eq(!shouldErrorMessageBeShown)
     })
     // Check error in UI
-    cy.get('[data-cy="error-window"]').should('be.visible')
-    cy.get('[data-cy="error-window-close"]').should('be.visible').click() // close the error window
+    if (shouldErrorMessageBeShown) {
+        cy.get('[data-cy="error-window"]').should('be.visible')
+        cy.get('[data-cy="error-window-close"]').should('be.visible').click() // close the error window
+    }
 }
 
 export function checkStorePosition(storeString, x, y) {

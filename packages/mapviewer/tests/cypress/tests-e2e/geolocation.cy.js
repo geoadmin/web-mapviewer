@@ -140,12 +140,12 @@ describe('Geolocation cypress', () => {
                 // null island
                 cy.goToMapView({}, true, { latitude: 0, longitude: 0 })
                 getGeolocationButtonAndClickIt()
-                testErrorMessage('geoloc_out_of_bounds')
+                testErrorMessage('geoloc_out_of_bounds', true)
 
                 // Java island
                 cy.goToMapView({}, true, { latitude: -7.71, longitude: 110.37 })
                 getGeolocationButtonAndClickIt()
-                testErrorMessage('geoloc_out_of_bounds')
+                testErrorMessage('geoloc_out_of_bounds', false)
             })
         }
     )

@@ -40,20 +40,7 @@ async function loadMetadata(store, kmlLayer) {
                 ...dispatcher,
             })
         }
-        // if admin id dispatch open drawing
     } catch (error) {
-        // ajouter error message here
-        if (kmlLayer?.adminId) {
-            //kmlLayer.adminId = null
-            kmlLayer.addErrorMessage(
-                new ErrorMessage({
-                    msg: 'BONJOUR EDITEUR',
-                    params: { layerName: kmlLayer.name ?? kmlLayer.id },
-                    sourceId: kmlLayer.id,
-                })
-            )
-        }
-        // TODO set admin Id to null
         log.error(`Error while fetching KML metadata for layer ${kmlLayer?.id}`, error)
     }
 }
@@ -174,7 +161,7 @@ async function loadData(store, kmlLayer) {
             error: errorMessage,
             ...dispatcher,
         })
-        store.dispatch('addErrors', [errorMessage], dispatcher)
+        store.dispatch('addErrors', { errors: [errorMessage], dispatcher })
     }
 }
 
