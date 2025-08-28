@@ -7,7 +7,7 @@
         "${configDir}/src/**/*.json",
         "${configDir}/src/**/*.vue"
     ],
-    "exclude": ["${configDir}/**/__tests__/*"],
+    "exclude": ["**/*.md"],
     "compilerOptions": {
         // see https://www.typescriptlang.org/docs/handbook/modules/guides/choosing-compiler-options.html#im-using-a-bundler
         "module": "ESNext",

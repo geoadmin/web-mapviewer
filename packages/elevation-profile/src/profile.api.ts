@@ -2,7 +2,7 @@ import type { CoordinatesChunk, CoordinateSystem, SingleCoordinate } from '@swis
 
 import { LV95, coordinatesUtils } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import proj4 from 'proj4'
 
 import { BASE_URL_DEV, BASE_URL_INT, BASE_URL_PROD, type Staging } from '@/config'
@@ -170,11 +170,15 @@ export async function getProfileDataForChunk(
                 }
             })
             return finalResponse
-        } catch (err: any) {
+        } catch (err: unknown) {
+            if (err) {
+                log.error('Error while trying to fetch profile data', err)
+            }
             if (
+                err instanceof AxiosError &&
                 err.response &&
                 err.response.status === 413 &&
-                err.response.data.error?.message?.includes(
+                err.response.data?.error?.message?.includes(
                     'Request Geometry contains too many points. Maximum number of points allowed'
                 )
             ) {
@@ -187,8 +191,6 @@ export async function getProfileDataForChunk(
                     new Error('Error requesting profile with too many points')
                 )
             }
-
-            log.error('Error while trying to fetch profile data', err)
             if (err instanceof ElevationProfileError) {
                 throw err
             }

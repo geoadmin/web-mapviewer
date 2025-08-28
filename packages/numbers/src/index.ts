@@ -44,7 +44,7 @@ export function closest(value: number, fromList: number[]): number {
  * Returns true if value represents or is a number (a string containing a valid number will return
  * true)
  */
-export function isNumber(value: any): boolean {
+export function isNumber(value: unknown): boolean {
     return (
         value !== null &&
         value !== undefined &&

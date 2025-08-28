@@ -5,7 +5,7 @@ import vitePreprocessor from 'cypress-vite'
 import { existsSync, readdirSync, unlinkSync } from 'node:fs'
 import { join } from 'node:path'
 
-import viteConfig from './vite.config.mts'
+import viteConfig from './vite.config.ts'
 
 export default defineConfig({
     projectId: 'fj2ezv',
@@ -71,7 +71,7 @@ export default defineConfig({
                     return readdirSync(folderName)
                 },
                 clearFolder(folderName) {
-                    // eslint-disable-next-line no-console
+                     
                     console.log('clearing folder %s', folderName)
 
                     return new Promise((resolve, reject) => {
@@ -84,7 +84,12 @@ export default defineConfig({
                             }
                             resolve(true)
                         } catch (err) {
-                            reject(new Error(err))
+                            if (err instanceof Error) {
+                                reject(err)
+                            } else if (typeof err === 'string') {
+                                return reject(new Error(err))
+                            }
+                            return reject(new Error('Unspecific error'))
                         }
                     })
                 },
@@ -99,7 +104,12 @@ export default defineConfig({
                                 })
                             )
                         } catch (err) {
-                            return reject(new Error(err))
+                            if (err instanceof Error) {
+                                reject(err)
+                            } else if (typeof err === 'string') {
+                                return reject(new Error(err))
+                            }
+                            return reject(new Error('Unspecific error'))
                         }
                     })
                 },

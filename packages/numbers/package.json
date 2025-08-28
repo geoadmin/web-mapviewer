@@ -19,21 +19,27 @@
         "build:dev:watch": "pnpm run build --watch --mode development",
         "build:int": "pnpm run build --mode integration",
         "build:prod": "pnpm run build --mode production",
+        "lint": "eslint --fix",
+        "lint:no-fix": "eslint",
         "dev": "vite",
-        "generate-types": "vue-tsc --declaration",
+        "generate-types": "tsc --declaration",
         "test:unit": "vitest --run --mode development --environment jsdom",
         "test:unit:watch": "vitest --mode development --environment jsdom",
-        "type-check": "vue-tsc -p tsconfig.json"
+        "type-check": "tsc -p tsconfig.json"
     },
     "dependencies": {
         "@swissgeo/log": "workspace:*"
     },
     "devDependencies": {
         "@microsoft/api-extractor": "catalog:",
+        "@swissgeo/eslint-config": "workspace:*",
+        "@swissgeo/typescript-config": "workspace:*",
+        "@types/chai": "catalog:",
         "chai": "catalog:",
+        "eslint": "catalog:",
+        "typescript": "catalog:",
         "unplugin-dts": "catalog:",
         "vite": "catalog:",
-        "vitest": "catalog:",
-        "vue-tsc": "catalog:"
+        "vitest": "catalog:"
     }
 }

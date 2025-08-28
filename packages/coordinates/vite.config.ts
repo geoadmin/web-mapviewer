@@ -1,8 +1,9 @@
 import { resolve } from 'path'
 import dts from 'unplugin-dts/vite'
 import { fileURLToPath, URL } from 'url'
+import type { UserConfig } from 'vite'
 
-export default {
+const config: UserConfig = {
     build: {
         lib: {
             entry: [resolve(__dirname, 'src/index.ts')],
@@ -28,3 +29,5 @@ export default {
         setupFiles: ['setup-vitest.ts'],
     },
 }
+
+export default config

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   extends: [
     "stylelint-config-recommended-vue",
     "stylelint-config-recommended-scss"
@@ -11,7 +11,8 @@ module.exports = {
     }
   ],
   rules: {
-    "no-duplicate-selectors": null, // Deactivating rule to allow duplicate selectors to follow the new sass expected bahaviour https://sass-lang.com/documentation/at-rules/mixin/
+      // Deactivating rule to allow duplicate selectors to follow the new sass expected behaviour https://sass-lang.com/documentation/at-rules/mixin/
+    "no-duplicate-selectors": null,
     "property-no-unknown": [true, { // Deactivating rule to allow unknown properties in :export selectors
       "ignoreSelectors": [":export"]
     }],

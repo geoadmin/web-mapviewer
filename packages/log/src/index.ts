@@ -29,7 +29,7 @@ export enum LogPreDefinedColor {
     Violet = 'oklch(60.6% 0.25 292.717)',
     Purple = 'oklch(62.7% 0.265 303.9)',
     Fuchsia = 'oklch(66.7% 0.295 322.15)',
-    Pink = 'oklch(66.7% 0.295 322.15)',
+    Pink = 'oklch(65.6% 0.241 354.308)',
     Rose = 'oklch(64.5% 0.246 16.439)',
     Slate = 'oklch(55.4% 0.046 257.417)',
     Gray = 'oklch(55.1% 0.027 264.364)',
@@ -42,7 +42,7 @@ function generateBackgroundStyle(color: LogPreDefinedColor | string): string {
     return `color: #000; font-weight: bold; background-color: ${color}; padding: 2px 4px; border-radius: 4px;`
 }
 
-function processStyle(messages: GeoadminLogInput[]): any[] {
+function processStyle(messages: GeoadminLogInput[]): GeoadminLogInput[] {
     return messages.flatMap((message) => {
         if (
             message &&
@@ -50,7 +50,7 @@ function processStyle(messages: GeoadminLogInput[]): any[] {
             'messages' in message &&
             Array.isArray(message.messages)
         ) {
-            const mappedMessage = []
+            const mappedMessage: GeoadminLogInput[] = []
             // checking if we are dealing with a GeoadminLogMessage instance
             if ('title' in message && typeof message.title === 'string') {
                 mappedMessage.push(`%c[${message.title}]%c`)
@@ -75,7 +75,7 @@ function logToConsole(level: LogLevel, messages: GeoadminLogInput[]) {
     if (!log.wantedLevels.includes(level)) {
         return
     }
-    /* eslint-disable no-console */
+     
     switch (level) {
         case LogLevel.Error:
             console.error(...processStyle(messages))
@@ -90,13 +90,13 @@ function logToConsole(level: LogLevel, messages: GeoadminLogInput[]) {
             console.debug(...processStyle(messages))
             break
     }
-    /* eslint-enable  no-console */
+     
 }
 
 interface GeoadminLogMessage {
     title?: string
     titleColor?: LogPreDefinedColor | string
-    messages: any[]
+    messages: GeoadminLogInput[]
 }
 
 type GeoadminLogInput = GeoadminLogMessage | string | number | boolean | object

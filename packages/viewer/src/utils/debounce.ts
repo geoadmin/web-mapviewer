@@ -6,13 +6,13 @@
  * @returns The function that can be called repeatedly.
  */
 
-export default function debounce<T extends (...args: any[]) => any>(
+export default function debounce<T extends (...args: unknown[]) => unknown>(
     target: T,
     delay: number
-): (...args: any[]) => void {
+): (...args: unknown[]) => void {
     let timeout: number
 
-    return function (this: T, ...args: any[]) {
+    return function (this: T, ...args: unknown[]) {
         clearTimeout(timeout)
         timeout = window.setTimeout(() => {
             // Call the target function the way the debounced function was called.
