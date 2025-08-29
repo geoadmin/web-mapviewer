@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+
 import { LV95, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
 import { ErrorMessage } from '@geoadmin/log/Message'
@@ -17,7 +19,6 @@ const ENABLE_HIGH_ACCURACY = true
 let geolocationWatcher = null
 let firstTimeActivatingGeolocation = true
 let errorCount = 0
-
 function setCenterIfInBounds(store, center) {
     if (LV95.getBoundsAs(store.state.position.projection).isInBounds(center[0], center[1])) {
         if (!isEqual(store.state.position.center, center)) {
@@ -67,6 +68,7 @@ const centerMapOnPosition = (positionProjected, store) => {
 }
 
 const handlePositionAndDispatchToStore = (position, store) => {
+    console.log('handlePositionAndDispatchToStore called', position)
     log.debug(
         `Received position from geolocation`,
         position,
@@ -106,6 +108,7 @@ const handlePositionAndDispatchToStore = (position, store) => {
  */
 const handlePositionError = (error, store, state, options = {}) => {
     const { reactivate = false } = options
+    console.log('handlePositionError called', error, state)
     log.error('Geolocation activation failed', error)
     switch (error.code) {
         case GeolocationPositionError.PERMISSION_DENIED:
@@ -170,6 +173,7 @@ const activeGeolocation = (store, state, options = {}) => {
     }
     navigator.geolocation.getCurrentPosition(
         (position) => {
+            console.log('gelocation position received', position)
             log.debug(
                 `Geolocation API current position`,
                 position,
@@ -190,7 +194,8 @@ const activeGeolocation = (store, state, options = {}) => {
         (error) => handlePositionError(error, store, state, { reactivate: true }),
         {
             enableHighAccuracy: ENABLE_HIGH_ACCURACY,
-            maximumAge: 5 * 60 * 1000, // 5 minutes
+            maximumAge: 0, // 5 minutes
+            // maximumAge: 5 * 60 * 1000, // 5 minutes
             timeout: 2 * 60 * 1000, // 2 minutes
         }
     )
@@ -210,6 +215,7 @@ const geolocationManagementPlugin = (store) => {
                 errorCount = 0 // reset the error counter when starting the geolocation
                 activeGeolocation(store, state)
             } else if (geolocationWatcher) {
+                console.log('Geolocation clear watcher')
                 log.debug(`Geolocation clear watcher`)
                 navigator.geolocation.clearWatch(geolocationWatcher)
                 geolocationWatcher = null

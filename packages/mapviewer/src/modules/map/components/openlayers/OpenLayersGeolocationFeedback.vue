@@ -1,4 +1,6 @@
 <script setup>
+/* eslint-disable no-console */
+
 import log from '@geoadmin/log'
 import { isNumber, round } from '@geoadmin/numbers'
 import { computed, defineAsyncComponent, inject, onBeforeMount, onBeforeUnmount } from 'vue'
@@ -89,6 +91,7 @@ const roundIfNumber = (v, d) => (isNumber(v) ? round(v, d) : `${v}`)
 
 function disableTrackingAndAutoRotation(event) {
     if (isTracking.value) {
+        console.log('disableTrackingAndAutoRotation called')
         // When the map has been dragged we disabled geolocation tracking to avoid to re-center the
         // map when the user want to have something else in the center. Also disabled the auto rotation
         // because auto rotation rotate the map using the position as center and it doesn't make sense
