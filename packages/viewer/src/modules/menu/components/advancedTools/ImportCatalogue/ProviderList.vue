@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { reactive, watch, ref, onMounted } from 'vue'
 import { useTemplateRef } from 'vue'

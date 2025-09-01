@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { round } from '@swissgeo/numbers'
 import { getRenderPixel } from 'ol/render'

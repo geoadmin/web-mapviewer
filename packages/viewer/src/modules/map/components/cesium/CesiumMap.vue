@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import '@geoblocks/cesium-compass'
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'

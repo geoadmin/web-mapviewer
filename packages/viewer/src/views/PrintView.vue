@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import log from '@swissgeo/log'
 import { getPointResolution } from 'ol/proj'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'

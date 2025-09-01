@@ -11,6 +11,7 @@
         "@swissgeo/eslint-config": "workspace:*",
         "@swissgeo/typescript-config": "workspace:*",
         "eslint": "catalog:",
+        "postcss-html": "catalog:",
         "stylelint": "catalog:",
         "stylelint-config-recommended-scss": "catalog:",
         "stylelint-config-recommended-vue": "catalog:",

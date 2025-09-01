@@ -1,9 +1,7 @@
-/// <reference types="cypress" />
-
 import DropdownButton from '@/utils/components/DropdownButton.vue'
 
 describe('<DropdownButton />', () => {
-    function generateItems(nbItems) {
+    function generateItems(nbItems: number) {
         const items = []
         for (let i = 1; i <= nbItems; i++) {
             items.push({
@@ -71,12 +69,12 @@ describe('<DropdownButton />', () => {
         })
         cy.get('[data-cy="dropdown-main-button"]').click()
         cy.get('[data-cy="dropdown-container"]').should(($el) => {
-            const rect = $el[0].getBoundingClientRect()
+            const rect = $el[0]?.getBoundingClientRect()
             // Assert that the dropdown is within the viewport boundaries
-            expect(rect.top).to.be.gte(0) // Doesn't overflow above
-            expect(rect.left).to.be.gte(0) // Doesn't overflow left
-            expect(rect.right).to.be.lte(Cypress.config('viewportWidth')) // Doesn't overflow right
-            expect(rect.bottom).to.be.lte(Cypress.config('viewportHeight')) // Doesn't overflow below
+            expect(rect?.top).to.be.gte(0) // Doesn't overflow above
+            expect(rect?.left).to.be.gte(0) // Doesn't overflow left
+            expect(rect?.right).to.be.lte(Cypress.config('viewportWidth')) // Doesn't overflow right
+            expect(rect?.bottom).to.be.lte(Cypress.config('viewportHeight')) // Doesn't overflow below
         })
     })
     it('can use a toggle button', () => {

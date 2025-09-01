@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /** Section of the main menu dedicated to sharing the state of the map/app via a short link */
 
 import { computed } from 'vue'

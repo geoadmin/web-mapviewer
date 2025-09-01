@@ -1,10 +1,13 @@
+import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import { LV95, registerProj4, WGS84 } from '@swissgeo/coordinates'
-import { isNumber, randomIntBetween } from '@swissgeo/numbers'
+import { randomIntBetween } from '@swissgeo/numbers'
 import proj4 from 'proj4'
+
+import type { Geometry } from 'geojson'
 
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/storeSync/storeSync.routerPlugin'
+import { centroid } from '@turf/turf'
 
 registerProj4(proj4)
 
@@ -75,28 +78,14 @@ Cypress.Commands.add('getExternalWmtsMockConfig', () => [
 ])
 
 /**
- * Adds an intercept to the fake URL called each time the Vue-router changes route.
- *
- * @param {Object} [options]
- * @param {String} [options.aliasName='routeChange'] Default is `'routeChange'`
- * @see storeSync.routerPlugin.js
- */
-export function addVueRouterIntercept(options = {}) {
-    const { aliasName = 'routeChange' } = options
-    cy.intercept(FAKE_URL_CALLED_AFTER_ROUTE_CHANGE, {
-        statusCode: 200,
-    }).as(aliasName)
-}
-
-/**
  * Catches WMTS type URLs in metric WebMercator, Mercator, LV95 or LV03. Returns the same tile for
  * all requests.
  *
- * @param {Object} [options]
- * @param {String} [options.aliasJpegTile='jpegTile'] Default is `'jpegTile'`
- * @param {String} [options.aliasPngTile='pngTile'] Default is `'pngTile'`
+ * @param options
+ * @param options.aliasJpegTile Default is `'jpegTile'`
+ * @param options.aliasPngTile Default is `'pngTile'`
  */
-export function addWmtsIntercept(options = {}) {
+export function addWmtsIntercept(options: { aliasJpegTile?: string; aliasPngTile?: string } = {}): void {
     const { aliasJpegTile = 'jpeg-tile', aliasPngTile = 'png-tile' } = options
     cy.intercept(/1.0.0\/.*\/.*\/.*\/(21781|2056|3857|4326)\/\d+\/\d+\/\d+.jpe?g/, {
         fixture: '256.jpeg',
@@ -109,11 +98,11 @@ export function addWmtsIntercept(options = {}) {
 /**
  * Catches WMS type URLs and returns the same image for all requests
  *
- * @param {Object} [options]
- * @param {String} [options.aliasName='wmsPng'] Default is `'wmsPng'`
- * @param {String} [options.imageFormat='image/png'] Default is `'image/png'`
+ * @param options
+ * @param options Default is `'wmsPng'`
+ * @param options.imageFormat Default is `'image/png'`
  */
-export function addWmsIntercept(options = {}) {
+export function addWmsIntercept(options: { aliasName?: string; imageFormat?: string } = {}): void {
     const { aliasName = 'wmsPng', imageFormat = 'image/png' } = options
     cy.intercept(
         {
@@ -130,10 +119,10 @@ export function addWmsIntercept(options = {}) {
 }
 
 /**
- * @param {Object} [options]
- * @param {String} [options.aliasName='layerConfig'] Default is `'layerConfig'`
+ * @param options
+ * @param options.aliasName Default is `'layerConfig'`
  */
-export function addLayerConfigIntercept(options = {}) {
+export function addLayerConfigIntercept(options: { aliasName?: string } = {}) {
     const { aliasName = 'layerConfig' } = options
     cy.intercept('**/rest/services/all/MapServer/layersConfig**', {
         fixture: 'layers.fixture',
@@ -141,10 +130,10 @@ export function addLayerConfigIntercept(options = {}) {
 }
 
 /**
- * @param {Object} [options]
- * @param {String} [options.aliasName='topics'] Default is `'topics'`
+ * @param options
+ * @param options.aliasName Default is `'topics'`
  */
-export function addTopicIntercept(options = {}) {
+export function addTopicIntercept(options: { aliasName?: string } = {}) {
     const { aliasName = 'topics' } = options
     cy.intercept('**/rest/services', {
         fixture: 'topics.fixture',
@@ -155,14 +144,23 @@ export function addTopicIntercept(options = {}) {
  * Loop over all topics from the fixture file `topics.fixture`, and intercept the request to their
  * catalog with the same fixture file.
  *
- * @param {Object} [options]
- * @param {String} [options.aliasPrefix='topic-'] Prefix that will be used in conjunction with each
+ * @param options
+ * @param options.aliasPrefix Prefix that will be used in conjunction with each
  *   topic ID to create the alias on the catalog endpoint. Default is `'topic-'`
  */
-export function addCatalogIntercept(options = {}) {
+export function addCatalogIntercept(options: { aliasPrefix?: string } = {}) {
     const { aliasPrefix = 'topic-' } = options
+    interface MockTopic {
+        activatedLayers: string[]
+        backgroundLayers: string[]
+        defaultBackground: string
+        groupId: number,
+        id: string
+        plConfig: string | null,
+        selectedLayers: string[]
+    }
     // intercepting further topic metadata retrieval
-    cy.fixture('topics.fixture').then((mockedTopics) => {
+    cy.fixture('topics.fixture').then((mockedTopics: { topics: MockTopic[] }) => {
         mockedTopics.topics.forEach((topic) => {
             cy.intercept(`**/rest/services/${topic.id}/CatalogServer?lang=**`, {
                 fixture: 'catalogs.fixture',
@@ -172,18 +170,17 @@ export function addCatalogIntercept(options = {}) {
 }
 
 /**
- * @param {Object} [options]
- * @param {String} [options.aliasName='coordinates-for-height'] Default is
- *   `'coordinates-for-height'`
+ * @param options
+ * @param options.aliasName Default is `'coordinates-for-height'`
  */
-export function addHeightIntercept(options = {}) {
+export function addHeightIntercept(options: { aliasName?: string } = {}) {
     const { aliasName = 'coordinates-for-height' } = options
     cy.intercept('**/rest/services/height**', {
         fixture: 'service-alti/height.fixture',
     }).as(aliasName)
 }
 
-export function addWhat3WordIntercept(options = {}) {
+export function addWhat3WordIntercept(options: { convertToAliasName?: string, convertFromAliasName?: string } = {}) {
     const { convertToAliasName = 'convert-to-w3w', convertFromAliasName = 'convert-from-w3w' } =
         options
     cy.intercept('**/convert-to-3wa**', {
@@ -194,25 +191,25 @@ export function addWhat3WordIntercept(options = {}) {
     }).as(convertFromAliasName)
 }
 
-const addIconsSetIntercept = () => {
+function addIconsSetIntercept(): void {
     cy.intercept(`**/api/icons/sets`, {
         fixture: 'service-icons/sets.fixture.json',
     }).as('icon-sets')
 }
 
-const addDefaultIconsIntercept = () => {
+function addDefaultIconsIntercept(): void {
     cy.intercept(`**/api/icons/sets/default/icons`, {
         fixture: 'service-icons/set-default.fixture.json',
     }).as('icon-set-default')
 }
 
-const addSecondIconsIntercept = () => {
+function addSecondIconsIntercept(): void {
     cy.intercept(`**/api/icons/sets/babs/icons`, {
         fixture: 'service-icons/set-babs.fixture.json',
     }).as('icon-set-babs')
 }
 
-const addGeoJsonIntercept = () => {
+function addGeoJsonIntercept (): void {
     cy.intercept('**/test.geojson.layer.json', {
         fixture: 'geojson.fixture.json',
     }).as('geojson-data')
@@ -221,7 +218,7 @@ const addGeoJsonIntercept = () => {
     }).as('geojson-style')
 }
 
-const addCesiumTilesetIntercepts = () => {
+function addCesiumTilesetIntercepts(): void {
     cy.intercept('**/*.3d/**/tileset.json', {
         fixture: '3d/tileset.json',
     }).as('cesiumTileset')
@@ -236,13 +233,57 @@ const addCesiumTilesetIntercepts = () => {
     }).as('cesiumTerrainConfig')
 }
 
-const addHtmlPopupIntercepts = () => {
+function addHtmlPopupIntercepts(): void {
     cy.intercept('**/MapServer/**/htmlPopup**', {
         fixture: 'html-popup.fixture.html',
     }).as('htmlPopup')
 }
 
-let lastIdentifiedFeatures = []
+interface IdentifyBounds {
+    lowerX: number
+    upperX: number
+    lowerY: number
+    upperY: number
+}
+
+interface MockFeature {
+    geometry: Geometry
+    layerBodId: string
+    bbox: FlatExtent
+    featureId: string
+    layerName: string
+    type: string
+    id: string
+    properties: {
+        label: string
+        link_title: string
+        link_uri: string
+        link_2_title: string | null
+        link_2_uri: string | null
+        link_3_title: string | null
+        link_3_uri: string | null
+        x: number
+        y: number
+        lon: number
+        lat: number
+    }
+    bounds?: IdentifyBounds
+}
+interface MockFeatureDetail {
+    type: string
+    featureId: string
+    bbox: FlatExtent
+    layerBodId: string
+    layerName: string
+    id: string
+    geometry: Geometry
+    properties: {
+        name: string
+        label: string
+    }
+}
+
+let lastIdentifiedFeatures: MockFeature[] = []
 
 /**
  * Generates dynamically a list of features, with the length corresponding to what was requested in
@@ -251,14 +292,14 @@ let lastIdentifiedFeatures = []
  * Features IDs will start from 1 + offset (if an offset is given) and coordinates will be randomly
  * selected within the LV95 extent (or within the selection box, if one is given).
  */
-const addFeatureIdentificationIntercepts = () => {
-    let featureTemplate = {}
-    let featureDetailTemplate = {}
-    cy.fixture('features/features.fixture').then((featuresFixture) => {
+function addFeatureIdentificationIntercepts (): void {
+    let featureTemplate: MockFeature
+    let featureDetailTemplate: MockFeatureDetail
+    cy.fixture('features/features.fixture').then((featuresFixture: { results: MockFeature[]}) => {
         // using the first entry of the fixture as template
-        featureTemplate = featuresFixture.results.pop()
+        featureTemplate = featuresFixture.results.pop() as MockFeature
     })
-    cy.fixture('features/featureDetail.fixture').then((featureDetail) => {
+    cy.fixture('features/featureDetail.fixture').then((featureDetail: { feature: MockFeatureDetail }) => {
         featureDetailTemplate = featureDetail.feature
     })
 
@@ -266,52 +307,60 @@ const addFeatureIdentificationIntercepts = () => {
         lastIdentifiedFeatures = []
 
         const {
-            limit = 10,
-            offset = null,
+            limit: identifyLimit = 10,
+            offset = 0,
             geometry: identifyGeometry = null,
         } = identifyRequest.query
-        const startingFeatureId = 1 + (isNumber(offset) ? parseInt(offset) : 0)
-        const identifyBounds = {
+        let startingFeatureId: number = 1
+        if (typeof offset === 'number') {
+            startingFeatureId += offset
+        } else {
+            startingFeatureId += parseInt(offset)
+        }
+        const identifyBounds: IdentifyBounds = {
             lowerX: LV95.bounds.lowerX,
             upperX: LV95.bounds.upperX,
             lowerY: LV95.bounds.lowerY,
             upperY: LV95.bounds.upperY,
         }
         // if a selection box is sent, we use it as bounds to generate our random coordinates
-        if (identifyGeometry) {
+        if (typeof identifyGeometry === 'string') {
             const coordinateSplit = identifyGeometry.split(',').map(parseFloat).map(Math.floor)
             if (coordinateSplit.length === 4) {
-                identifyBounds.lowerX = coordinateSplit[0]
-                identifyBounds.upperX = coordinateSplit[2]
-                identifyBounds.lowerY = coordinateSplit[1]
-                identifyBounds.upperY = coordinateSplit[3]
+                identifyBounds.lowerX = coordinateSplit[0]!
+                identifyBounds.upperX = coordinateSplit[2]!
+                identifyBounds.lowerY = coordinateSplit[1]!
+                identifyBounds.upperY = coordinateSplit[3]!
             } else if (coordinateSplit.length === 2) {
-                identifyBounds.lowerX = coordinateSplit[0] - 1000
-                identifyBounds.upperX = coordinateSplit[0] + 1000
-                identifyBounds.lowerY = coordinateSplit[1] - 1000
-                identifyBounds.upperY = coordinateSplit[1] + 1000
+                identifyBounds.lowerX = coordinateSplit[0]! - 1000
+                identifyBounds.upperX = coordinateSplit[0]! + 1000
+                identifyBounds.lowerY = coordinateSplit[1]! - 1000
+                identifyBounds.upperY = coordinateSplit[1]! + 1000
             }
         }
 
-        for (let i = 0; i < limit; i++) {
+        const limit: number = typeof identifyLimit === 'string' ? parseInt(identifyLimit) : identifyLimit
+        for (let i: number = 0; i < limit; i++) {
             const coordinate = [
                 randomIntBetween(identifyBounds.lowerX, identifyBounds.upperX),
                 randomIntBetween(identifyBounds.lowerY, identifyBounds.upperY),
             ]
             const coordinateWGS84 = proj4(LV95.epsg, WGS84.epsg, coordinate)
-            const featureId = startingFeatureId + i
+            const featureId = `${startingFeatureId + i}`
             const feature = Cypress._.cloneDeep(featureTemplate)
-            feature.geometry.coordinates = [coordinate]
-            feature.bbox = [...coordinate, ...coordinate]
+            if (feature.geometry.type !== 'GeometryCollection') {
+                feature.geometry.coordinates = [coordinate]
+            }
+            feature.bbox = [...coordinate, ...coordinate] as FlatExtent
             feature.featureId = featureId
             feature.id = featureId
             feature.properties.label = `Feature ${featureId}`
             feature.properties.link_title = `Feature ${featureId} link title`
             feature.properties.link_uri = `https://fake.link.to.feature_${featureId}.ch`
-            feature.properties.x = coordinate[0]
-            feature.properties.y = coordinate[1]
-            feature.properties.lon = coordinateWGS84[0]
-            feature.properties.lat = coordinateWGS84[1]
+            feature.properties.x = coordinate[0]!
+            feature.properties.y = coordinate[1]!
+            feature.properties.lon = coordinateWGS84[0]!
+            feature.properties.lat = coordinateWGS84[1]!
             feature.bounds = identifyBounds
 
             lastIdentifiedFeatures.push(feature)
@@ -335,28 +384,31 @@ const addFeatureIdentificationIntercepts = () => {
                 return
             }
 
-            const generateFeature = (featureId) => {
+            const generateFeature = (featureId: string) => {
                 const featureDetail = Cypress._.cloneDeep(featureDetailTemplate)
                 featureDetail.featureId = featureId
                 featureDetail.id = featureId
                 featureDetail.properties.name = `Feature ${featureId} name`
                 featureDetail.properties.label = `Feature ${featureId} label`
 
-                if (featureDetail.layerBodId !== url.groups.layerId) {
-                    featureDetail.layerBodId = url.groups.layerId
-                    featureDetail.layerName = `Name of ${url.groups.layerId}`
+                if (featureDetail.layerBodId !== url.groups?.layerId) {
+                    featureDetail.layerBodId = url.groups!.layerId!
+                    featureDetail.layerName = `Name of ${url.groups!.layerId}`
                 }
 
                 const matchingFeature = lastIdentifiedFeatures.find(
                     (feature) => feature.id === featureId
                 )
+                if (featureDetail.geometry.type === 'GeometryCollection' || matchingFeature?.geometry.type === 'GeometryCollection') {
+                    return featureDetail
+                }
 
                 if (matchingFeature) {
-                    const coordinate = matchingFeature.geometry.coordinates[0]
-                    featureDetail.bbox = [...coordinate, ...coordinate]
+                    const coordinate: SingleCoordinate = centroid(matchingFeature.geometry).geometry.coordinates as SingleCoordinate
+                    featureDetail.bbox = [...coordinate, ...coordinate] as FlatExtent
                     featureDetail.geometry.coordinates = [coordinate]
                 } else {
-                    const randomCoordinate = [
+                    const randomCoordinate: SingleCoordinate = [
                         Cypress._.random(LV95.bounds.lowerX, LV95.bounds.upperX),
                         Cypress._.random(LV95.bounds.lowerY, LV95.bounds.upperY),
                     ]
@@ -366,14 +418,14 @@ const addFeatureIdentificationIntercepts = () => {
                 return featureDetail
             }
 
-            const features = url.groups.features.split(',')
+            const features = url.groups?.features?.split(',') ?? []
             if (features.length > 1) {
                 req.reply({
                     type: 'FeatureCollection',
                     features: features.map((featureId) => generateFeature(featureId)),
                 })
-            } else {
-                const featureId = features[0]
+            } else if (features.length === 1) {
+                const featureId = features[0]!
                 const featureDetail = generateFeature(featureId)
 
                 req.alias = `featureDetail_${featureId}`
@@ -385,13 +437,14 @@ const addFeatureIdentificationIntercepts = () => {
     ).as('featureDetail')
 }
 
-function addPrintCapabilitiesIntercept() {
+function addPrintCapabilitiesIntercept(): void {
     cy.intercept('GET', '**/capabilities.json', { fixture: 'print/capabilities.json' }).as(
         'printCapabilities'
     )
 }
 
-function addPrintRequestIntercept(printId = 'print-123456789') {
+function addPrintRequestIntercept(options?: { printId?: string }): void {
+    const { printId = 'print-123456789' } = options ?? {}
     cy.intercept('POST', '**/report.pdf', (req) => {
         req.reply({
             body: {
@@ -404,7 +457,8 @@ function addPrintRequestIntercept(printId = 'print-123456789') {
     }).as('printRequest')
 }
 
-function addPrintStatusIntercept(printId = 'print-123456789') {
+function addPrintStatusIntercept(options?: { printId?: string }): void {
+    const { printId = 'print-123456789' } = options ?? {}
     cy.intercept('GET', '**/status/**', (req) => {
         req.reply({
             body: {
@@ -419,7 +473,7 @@ function addPrintStatusIntercept(printId = 'print-123456789') {
     }).as('printStatus')
 }
 
-function addPrintDownloadIntercept() {
+function addPrintDownloadIntercept(): void {
     cy.intercept('GET', '**/report/print**', {
         headers: { 'content-disposition': 'attachment; filename=mapfish-print-report.pdf' },
         fixture: 'print/mapfish-print-report.pdf',
@@ -427,12 +481,15 @@ function addPrintDownloadIntercept() {
 }
 
 function addExternalWmsLayerIntercepts(
-    wmsLayers = [mockExternalWms1, mockExternalWms2, mockExternalWms3, mockExternalWms4],
-    wmsGetCapabilitiesFixtureByBaseUrl = {
-        'https://fake.wms.base-1.url/?': 'external-wms-getcap-1.fixture.xml',
-        'https://fake.wms.base-2.url/?': 'external-wms-getcap-2.fixture.xml',
-    }
-) {
+    options?: { wmsLayers?: ExternalWMSLayer[]; wmsGetCapabilitiesFixtureByBaseUrl?: Record<string, string>}
+): void {
+    const {
+        wmsLayers = [mockExternalWms1, mockExternalWms2, mockExternalWms3, mockExternalWms4],
+        wmsGetCapabilitiesFixtureByBaseUrl = {
+            'https://fake.wms.base-1.url/?': 'external-wms-getcap-1.fixture.xml',
+            'https://fake.wms.base-2.url/?': 'external-wms-getcap-2.fixture.xml',
+        },
+    } = options ?? {}
     wmsLayers.forEach((layer) => {
         cy.intercept(
             {
@@ -460,14 +517,15 @@ function addExternalWmsLayerIntercepts(
 }
 
 function addExternalWmtsIntercepts(
-    wmtsLayers = [mockExternalWmts1, mockExternalWmts2, mockExternalWmts3, mockExternalWmts4],
-    wmtsGetCapabilitiesFixtureByBaseUrl = {
-        'https://fake.wmts.getcap-1.url/WMTSGetCapabilities.xml':
-            'external-wmts-getcap-1.fixture.xml',
-        'https://fake.wmts.getcap-2.url/WMTSGetCapabilities.xml':
-            'external-wmts-getcap-2.fixture.xml',
-    }
-) {
+    options?: { wmtsLayers?: ExternalWMTSLayer[]; wmtsGetCapabilitiesFixtureByBaseUrl?: Record<string, string>}
+): void {
+    const {
+        wmtsLayers = [mockExternalWmts1, mockExternalWmts2, mockExternalWmts3, mockExternalWmts4],
+        wmtsGetCapabilitiesFixtureByBaseUrl = {
+            'https://fake.wmts.getcap-1.url/WMTSGetCapabilities.xml': 'external-wmts-getcap-1.fixture.xml',
+            'https://fake.wmts.getcap-2.url/WMTSGetCapabilities.xml': 'external-wmts-getcap-2.fixture.xml',
+        },
+    } = options ?? {}
     wmtsLayers
         .map((layer) => layer.baseUrl)
         .filter(
@@ -486,15 +544,17 @@ function addExternalWmtsIntercepts(
     }).as('externalWMTS')
 }
 
-function addShortLinkIntercept({ shortUrl = 'https://s.geo.admin.ch/0000000' } = {}) {
+function addShortLinkIntercept({ shortUrl = 'https://s.geo.admin.ch/0000000' }: { shortUrl?: string } = {}): void {
     cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
         body: { shorturl: shortUrl, success: true },
     }).as('shortlink')
 }
 
-export function getDefaultFixturesAndIntercepts() {
+// eslint-disable-next-line no-unused-vars
+export type InterceptCallback = (options?: Record<string, unknown>) => void
+
+export function getDefaultFixturesAndIntercepts(): Record<string, InterceptCallback> {
     return {
-        addVueRouterIntercept,
         addWmtsIntercept,
         addWmsIntercept,
         addLayerConfigIntercept,

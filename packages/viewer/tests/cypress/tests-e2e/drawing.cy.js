@@ -4,13 +4,6 @@ import { registerProj4, WGS84 } from '@swissgeo/coordinates'
 import { randomIntBetween } from '@swissgeo/numbers'
 import { recurse } from 'cypress-recurse'
 import proj4 from 'proj4'
-import {
-    addIconFixtureAndIntercept,
-    addLegacyIconFixtureAndIntercept,
-    checkKMLRequest,
-    getKmlAdminIdFromRequest,
-    kmlMetadataTemplate,
-} from 'tests/cypress/support/drawing'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { DEFAULT_ICON_URL_PARAMS } from '@/api/icon.api'
@@ -27,6 +20,14 @@ import {
     SMALL,
 } from '@/utils/featureStyleUtils'
 import { EMPTY_KML_DATA, LEGACY_ICON_XML_SCALE_FACTOR } from '@/utils/kmlUtils'
+
+import {
+    addIconFixtureAndIntercept,
+    addLegacyIconFixtureAndIntercept,
+    checkKMLRequest,
+    getKmlAdminIdFromRequest,
+    kmlMetadataTemplate,
+} from '../support/drawing.js'
 
 registerProj4(proj4)
 
@@ -91,7 +92,7 @@ describe('Drawing module tests', () => {
         // we use the description to identify the feature and check its
         // geometry type, number of points and type (measure or linepolygon)
         function checkDrawnFeature(description, numberOfPoints, featureType, type) {
-            cy.readWindowValue('drawingLayer')
+            cy.window().its('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
                 .should((features) => {
                     const matchingFeature = features.find(
@@ -379,7 +380,9 @@ describe('Drawing module tests', () => {
                 cy.checkOlLayer([bgLayer, kmlId])
 
                 cy.log('Hyperlink exists after sanitize')
-                cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
+                cy.intercept('**http:dummy*', {
+                    body: {}
+                })
                 cy.get('[data-cy="ol-map"]').click(20, 260)
                 cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
                 cy.get('[data-cy="feature-detail-description-content"]')
@@ -401,7 +404,6 @@ describe('Drawing module tests', () => {
                 cy.get('[data-cy="infobox-close"]').click()
 
                 cy.log('Image link exists after sanitize')
-                cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
                 cy.get('[data-cy="ol-map"]').click(100, 260)
                 cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
                 cy.get('[data-cy="feature-detail-description-content"]')
@@ -410,7 +412,6 @@ describe('Drawing module tests', () => {
                     .should('eq', `${valid_url}`)
 
                 cy.log('Video link has disclaimer')
-                cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
                 cy.get('[data-cy="ol-map"]').click(160, 220)
                 cy.get('[data-cy="feature-detail-media-disclaimer-opened"]').should('be.visible')
                 cy.get('[data-cy="feature-detail-media-disclaimer-closed"]').should('not.exist')
@@ -441,14 +442,15 @@ describe('Drawing module tests', () => {
                 cy.get('[data-cy="modal-with-backdrop"]').should('not.exist')
 
                 cy.log('Closing disclaimer persists when selecting different marker')
-                cy.mockupBackendResponse('**http:dummy*', {}, 'dummy')
                 cy.get('[data-cy="ol-map"]').click(160, 220)
                 cy.get('[data-cy="feature-detail-media-disclaimer-opened"]').should('not.exist')
                 cy.get('[data-cy="feature-detail-media-disclaimer-closed"]').should('be.visible')
                 cy.get('[data-cy="infobox-close"]').click()
 
                 cy.log('Disclaimer should not appear when host is whitelisted')
-                cy.mockupBackendResponse('**map.geo.admin.ch*', {}, 'map-geo-admin')
+                cy.intercept('**map.geo.admin.ch*', {
+                    body: {}
+                })
                 cy.get('[data-cy="ol-map"]').click(220, 260)
                 cy.get('[data-cy="feature-detail-media-disclaimer"]').should('not.exist')
             })
@@ -532,7 +534,7 @@ describe('Drawing module tests', () => {
             // OL waits 250ms before deciding a click is a single click (and then start the event chain)
             // and as we do not have a layer that will fire identify features to wait on, we have to resort
             // to wait arbitrarily 250ms
-            // eslint-disable-next-line cypress/no-unnecessary-waiting
+             
             cy.wait(250)
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'185'172.00")
         })
@@ -742,7 +744,7 @@ describe('Drawing module tests', () => {
                 kmlId = interception.response.body.id
             })
             cy.get('[data-cy="feature-style-edit-coordinate-copy-button"]').should('not.exist')
-            cy.readWindowValue('drawingLayer')
+            cy.window().its('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
                 .should((features) => {
                     expect(features).to.have.length(1)
@@ -789,7 +791,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click(120, 270)
             cy.get('[data-cy="ol-map"]').dblclick(120, 290)
             cy.wait('@update-kml')
-            cy.readWindowValue('drawingLayer')
+            cy.window().its('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
                 .should((features) => {
                     expect(features).to.have.length(2)
@@ -850,7 +852,7 @@ describe('Drawing module tests', () => {
                 interval: 200,
             })
 
-            cy.readWindowValue('drawingLayer')
+            cy.window().its('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
                 .should((features) => {
                     expect(features).to.have.length(0)
@@ -966,7 +968,7 @@ describe('Drawing module tests', () => {
 
             cy.get(`[data-cy^="button-remove-layer-"]`).should('not.exist')
 
-            cy.readWindowValue('drawingLayer').should('not.exist')
+            cy.window().its('drawingLayer').should('not.exist')
         })
         it('keeps the KML after a page reload, and creates a copy if it is then edited', () => {
             cy.goToDrawing()
@@ -1106,7 +1108,7 @@ describe('Drawing module tests', () => {
             cy.log('clicking on the single feature of the fixture')
             cy.get('[data-cy="ol-map"]').click('center')
             cy.readStoreValue('getters.selectedFeatures').should('have.length', 1)
-            cy.readWindowValue('drawingLayer')
+            cy.window().its('drawingLayer')
                 .then((layer) => layer.getSource().getFeatures())
                 .should('have.length', 1)
 
@@ -1192,7 +1194,7 @@ describe('Drawing module tests', () => {
 
             cy.log('checking that the KML was correctly loaded')
             cy.readStoreValue('getters.selectedFeatures').should('have.length', 0)
-            cy.readWindowValue('drawingLayer')
+            cy.window().its('drawingLayer')
                 .then((layer) => layer.getSource().getFeatures())
                 .should('have.length', 3)
 
@@ -1200,7 +1202,7 @@ describe('Drawing module tests', () => {
             cy.log('Test clicking on the square feature in center should select it')
             cy.get('[data-cy="ol-map"]').click('center')
             cy.readStoreValue('getters.selectedFeatures').should('have.length', 1)
-            cy.readWindowValue('drawingLayer')
+            cy.window().its('drawingLayer')
                 .then((layer) => layer.getSource().getFeatures())
                 .should('have.length', 3)
 

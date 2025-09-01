@@ -46,7 +46,7 @@ describe('Testing the feature selection in 3D', () => {
             cy.closeMenuIfMobile()
 
             cy.log('Verifying that the KML layer is loaded')
-            cy.readWindowValue('cesiumViewer').then((viewer) => {
+            cy.window().its('cesiumViewer').then((viewer) => {
                 expectLayerCountToBe(viewer, 2)
                 expect(viewer.dataSources.length).to.eq(1)
                 const kmlLayer = viewer.dataSources.get(0)

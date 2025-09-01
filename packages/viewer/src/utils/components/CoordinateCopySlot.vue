@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { CoordinateSystem } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import GeoadminTooltip from '@swissgeo/tooltip'

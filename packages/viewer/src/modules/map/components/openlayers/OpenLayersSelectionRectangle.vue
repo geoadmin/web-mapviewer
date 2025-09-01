@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import Feature from 'ol/Feature'
 import { fromExtent } from 'ol/geom/Polygon'
 import VectorLayer from 'ol/layer/Vector'

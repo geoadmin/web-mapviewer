@@ -1,6 +1,5 @@
 import { LV95 } from '@swissgeo/coordinates'
-import { expect } from 'chai'
-import { describe, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { parseGpx } from '@/utils/gpxUtils.js'
 

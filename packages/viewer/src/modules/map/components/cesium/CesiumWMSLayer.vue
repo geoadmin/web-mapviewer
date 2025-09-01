@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { WGS84 } from '@swissgeo/coordinates'
 import { Rectangle, WebMapServiceImageryProvider } from 'cesium'
 import { cloneDeep } from 'lodash'

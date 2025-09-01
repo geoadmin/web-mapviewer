@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * As we've many link like buttons in the header, this component aims at having the CSS required for
  * such link-button once

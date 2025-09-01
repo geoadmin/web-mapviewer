@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /** Renders a WMTS layer on the map by configuring it through a getCapabilities XML file */
 
 import log from '@swissgeo/log'

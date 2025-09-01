@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { isMobile } from 'tests/cypress/support/utils'
+import { isMobile } from '../support/utils.js'
 describe('The Import Maps Tool', () => {
     const bgLayer = 'test.background.layer2'
     beforeEach(() => {

@@ -11,7 +11,9 @@ describe('<TextTruncate />', () => {
             attrs: { style: 'width: 50px' },
         })
         cy.get('[data-cy="floating-container"]').trigger('mouseover')
-        cy.get('[data-cy="floating-tooltip-test"]').should('be.visible').contains(slotContent)
+        cy.get('[data-cy="floating-tooltip-test"]')
+            .should('be.visible')
+            .should('contain', slotContent)
         cy.get('[data-cy="floating-container"]').click('left')
     })
 
@@ -39,7 +41,9 @@ describe('<TextTruncate />', () => {
             attrs: { style: 'width: 50px' },
         })
         cy.get('[data-cy="floating-container"]').trigger('mouseover')
-        cy.get('[data-cy="floating-tooltip-test"]').should('be.visible').contains(textContent)
+        cy.get('[data-cy="floating-tooltip-test"]')
+            .should('be.visible')
+            .should('contain', textContent)
         cy.get('[data-cy="floating-container"]').click('left')
     })
 
@@ -55,7 +59,9 @@ describe('<TextTruncate />', () => {
             attrs: { style: 'width: 50px' },
         })
         cy.get('[data-cy="floating-container"]').trigger('mouseover')
-        cy.get('[data-cy="floating-tooltip-test"]').should('be.visible').contains(textContent)
+        cy.get('[data-cy="floating-tooltip-test"]')
+            .should('be.visible')
+            .should('contain', textContent)
         cy.get('[data-cy="floating-container"]').click('left')
     })
 
@@ -78,7 +84,9 @@ describe('<TextTruncate />', () => {
 
         cy.viewport(50, 480)
         cy.get('[data-cy="floating-container"]').trigger('mouseover')
-        cy.get('[data-cy="floating-tooltip-test"]').should('be.visible').contains(slotContent)
+        cy.get('[data-cy="floating-tooltip-test"]')
+            .should('be.visible')
+            .should('contain', slotContent)
         cy.get('[data-cy="floating-container"]').click('left')
 
         cy.viewport(300, 480)

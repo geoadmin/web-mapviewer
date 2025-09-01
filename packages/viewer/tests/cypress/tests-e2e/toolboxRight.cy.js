@@ -6,7 +6,7 @@ const tolerance = 1e-9
 
 function checkMapRotationAndButton(angle) {
     cy.readStoreValue('state.position.rotation').should('be.closeTo', angle, tolerance)
-    cy.readWindowValue('map').should((map) => {
+    cy.window().its('map').should((map) => {
         expect(normalizeAngle(map.getView().getRotation())).to.be.closeTo(angle, tolerance)
     })
     if (angle) {

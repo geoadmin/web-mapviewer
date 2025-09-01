@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * Component to truncate text with elipsis and add a tooltip to truncated text.
  *

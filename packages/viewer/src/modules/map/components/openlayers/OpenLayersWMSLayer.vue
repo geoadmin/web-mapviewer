@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /** Renders a WMS layer on the map */
 
 import { extentUtils, LV95 } from '@swissgeo/coordinates'

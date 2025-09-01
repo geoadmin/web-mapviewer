@@ -1,5 +1,4 @@
-import { expect } from 'chai'
-import { beforeEach, describe, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 import AbstractLayer, { LayerAttribution } from '@/api/layers/AbstractLayer.class'
 import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'

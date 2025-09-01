@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import TileLayer from 'ol/layer/Tile'
 import { TileDebug } from 'ol/source'
 import TileGrid from 'ol/tilegrid/TileGrid'

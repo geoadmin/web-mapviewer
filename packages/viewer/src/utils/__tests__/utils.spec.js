@@ -1,13 +1,12 @@
-import { expect } from 'chai'
-import { describe, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import {
     formatMeters,
     formatPointCoordinates,
+    getLongestCommonPrefix,
     humanFileSize,
     parseUrlHashQuery,
     transformUrlMapToEmbed,
-    getLongestCommonPrefix,
 } from '@/utils/utils'
 
 describe('utils', () => {

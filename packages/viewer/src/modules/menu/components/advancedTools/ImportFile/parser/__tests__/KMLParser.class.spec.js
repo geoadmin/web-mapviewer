@@ -1,5 +1,4 @@
-import { expect } from 'chai'
-import { describe, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { isKml } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 

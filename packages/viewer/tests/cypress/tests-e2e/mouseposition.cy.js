@@ -70,6 +70,27 @@ function checkMousePositionNumberValue(expectedX, expectedY, parser) {
         .then(checkXY(expectedX, expectedY))
 }
 
+/**
+ * Will skip this test (or all tests if this is run inside a context/describe) when the
+ * condition is true.
+ *
+ * @param {Boolean} condition
+ * @param {String} message A message to log in case tests are skipped
+ */
+function skipTestsIf(condition, message) {
+    if (condition) {
+        if (message) {
+            Cypress.log({
+                name: 'skipTestsIf',
+                message,
+            })
+        }
+        const mochaContext = cy.state('runnable').ctx
+        mochaContext?.skip()
+    }
+}
+
+
 describe('Test mouse position and interactions', () => {
     const center = DEFAULT_PROJECTION.bounds.center.map((val) => val + 1000)
     const centerLV95 = proj4(DEFAULT_PROJECTION.epsg, LV95.epsg, center)
@@ -79,7 +100,7 @@ describe('Test mouse position and interactions', () => {
 
     context('Tablet/desktop tests', () => {
         before(() => {
-            cy.skipTestsIf(
+            skipTestsIf(
                 Cypress.config('viewportWidth') < BREAKPOINT_TABLET,
                 'This test will only be run on tablet and bigger viewports'
             )
@@ -110,7 +131,7 @@ describe('Test mouse position and interactions', () => {
     })
     context('Mobile only tests', () => {
         before(() => {
-            cy.skipTestsIf(
+            skipTestsIf(
                 Cypress.config('viewportWidth') >= BREAKPOINT_TABLET,
                 'This test will only be run on mobile'
             )

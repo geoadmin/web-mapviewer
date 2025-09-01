@@ -8,10 +8,9 @@ describe('<TextSearchMarker />', () => {
         cy.mount(TextSearchMarker, {
             props: { text: 'This a simple text', search: 'simple', markers: 'fw-bold' },
         })
-        cy.get('[data-cy="segment"]').each(($el) => {
-            expect($el).to.be.visible
-            expect($el).not.to.have.class('fw-bold')
-        })
+        cy.get('[data-cy="segment"]')
+            .should('be.visible')
+            .should('not.have.class', 'fw-bold')
         cy.get('[data-cy="segment-match"]')
             .should('be.visible')
             .should('have.class', 'fw-bold')
@@ -22,10 +21,9 @@ describe('<TextSearchMarker />', () => {
         cy.mount(TextSearchMarker, {
             props: { text: 'This a simple-345 text', search: /simple-\d+/, markers: 'fw-bold' },
         })
-        cy.get('[data-cy="segment"]').each(($el) => {
-            expect($el).to.be.visible
-            expect($el).not.to.have.class('fw-bold')
-        })
+        cy.get('[data-cy="segment"]')
+            .should('be.visible')
+            .should('not.have.class', 'fw-bold')
         cy.get('[data-cy="segment-match"]')
             .should('be.visible')
             .should('have.class', 'fw-bold')
@@ -40,35 +38,24 @@ describe('<TextSearchMarker />', () => {
                 markers: 'fw-bold',
             },
         })
-        cy.get('[data-cy="segment"]').each(($el) => {
-            expect($el).to.be.visible
-            expect($el).not.to.have.class('fw-bold')
-        })
-        cy.get('[data-cy="segment-match"]').each(($el, index) => {
-            expect($el).to.be.visible
-            expect($el).to.have.class('fw-bold')
-            switch (index) {
-                case 0:
-                    expect($el).to.contain('simple-345')
-                    break
-                case 1:
-                    expect($el).to.contain('simple-100')
-                    break
-                default:
-                    expect(false).to.be.true
-                    break
-            }
-        })
+        cy.get('[data-cy="segment"]')
+            .should('be.visible')
+            .should('have.class', 'fw-bold')
+        cy.get('[data-cy="segment-match"]')
+            .should('be.visible')
+            .should('have.class', 'fw-bold')
+            .should('have.length', 2)
+        cy.get('[data-cy="segment-match"]:first').should('contain', 'simple-345')
+        cy.get('[data-cy="segment-match"]:nth-child(2)').should('contain', 'simple-100')
 
         //----------------------------------------------------------------------
         cy.log('It mark a search pattern with default markers')
         cy.mount(TextSearchMarker, {
             props: { text: 'This a simple-345 text', search: /simple-\d+/ },
         })
-        cy.get('[data-cy="segment"]').each(($el) => {
-            expect($el).to.be.visible
-            expect($el).not.to.have.class('fw-bold')
-        })
+        cy.get('[data-cy="segment"]')
+            .should('be.visible')
+            .should('not.have.class', 'fw-bold')
         cy.get('[data-cy="segment-match"]')
             .should('be.visible')
             .should('have.class', 'fw-bold bg-info bg-opacity-25')
@@ -83,10 +70,9 @@ describe('<TextSearchMarker />', () => {
                 markers: 'fw-bold bg-secondary',
             },
         })
-        cy.get('[data-cy="segment"]').each(($el) => {
-            expect($el).to.be.visible
-            expect($el).not.to.have.class('fw-bold')
-        })
+        cy.get('[data-cy="segment"]')
+            .should('be.visible')
+            .should('not.have.class', 'fw-bold')
         cy.get('[data-cy="segment-match"]')
             .should('be.visible')
             .should('have.class', 'fw-bold bg-secondary')
@@ -101,10 +87,9 @@ describe('<TextSearchMarker />', () => {
                 markers: ['fw-bold', 'bg-secondary'],
             },
         })
-        cy.get('[data-cy="segment"]').each(($el) => {
-            expect($el).to.be.visible
-            expect($el).not.to.have.class('fw-bold')
-        })
+        cy.get('[data-cy="segment"]')
+            .should('be.visible')
+            .should('not.have.class', 'fw-bold')
         cy.get('[data-cy="segment-match"]')
             .should('be.visible')
             .should('have.class', 'fw-bold bg-secondary')

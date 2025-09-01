@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { WarningMessage } from '@swissgeo/log/Message'
 import { computed } from 'vue'
 import { useStore } from 'vuex'

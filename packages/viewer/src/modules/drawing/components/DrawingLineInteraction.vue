@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import Feature from 'ol/Feature'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'

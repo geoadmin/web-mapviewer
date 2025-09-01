@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import log from '@swissgeo/log'
 import { formatThousand } from '@swissgeo/numbers'
 import { computed, inject, ref, watch } from 'vue'

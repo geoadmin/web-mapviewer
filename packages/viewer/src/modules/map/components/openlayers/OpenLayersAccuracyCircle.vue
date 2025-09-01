@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * Component managing the rendering of a red transparent circle to show currently how accurate is
  * the geolocation

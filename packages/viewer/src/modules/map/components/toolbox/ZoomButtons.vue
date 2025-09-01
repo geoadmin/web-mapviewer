@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { Ray } from 'cesium'
 import { computed, inject } from 'vue'

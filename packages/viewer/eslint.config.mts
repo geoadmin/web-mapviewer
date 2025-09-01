@@ -1,12 +1,13 @@
-import defaultConfig, { cypressConfig, vueConfig } from '@swissgeo/eslint-config'
-import { configureVueProject, defineConfigWithVueTs } from '@vue/eslint-config-typescript'
+import defaultConfig, { cypressConfig } from '@swissgeo/eslint-config'
 
-configureVueProject({
-    scriptLangs: ['ts', 'js'],
-})
-
-export default defineConfigWithVueTs(
-    defaultConfig,
-    vueConfig,
-    cypressConfig('tests/cypress/')
-)
+export default [
+    ...defaultConfig,
+    ...cypressConfig('tests/cypress/'),
+    {
+        languageOptions: {
+            parserOptions: {
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+    }
+]

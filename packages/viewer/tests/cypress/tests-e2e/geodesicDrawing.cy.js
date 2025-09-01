@@ -34,7 +34,7 @@ function moveMapPos(newCenter) {
 }
 
 function drawFeature(coords, type = EditableFeatureTypes.MEASURE) {
-    cy.readWindowValue('drawingLayer')
+    cy.window().its('drawingLayer')
         .then((layer) => layer.getSource().getFeatures())
         .should('have.length', 0)
     //Draw a feature
@@ -72,7 +72,7 @@ function checkFeatureSelected(featureCoords) {
     cy.waitUntilState((_, getters) => getters.selectedFeatures.length === 1)
     // May need to be reactivated if the headless tests still fail
     // cy.wait(500)
-    cy.readWindowValue('drawingLayer').should((layer) => {
+    cy.window().its('drawingLayer').should((layer) => {
         const features = layer.getSource().getFeatures()
         expect(features, 'Expected the drawing layer to contain exactly one feat').to.have.length(1)
         const coords = extractOlFeatureCoordinates(features[0])

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * Representation of an active layer in the menu, with the name of the layer and some controls (like
  * visibility, opacity or position in the layer stack)

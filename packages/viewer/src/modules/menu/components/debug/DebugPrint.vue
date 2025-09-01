@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { ref, watch } from 'vue'
 import { useStore } from 'vuex'
 

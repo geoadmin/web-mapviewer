@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /** Utility component that will wrap modal content and hide everything else to make a clean print */
 import { onMounted, useTemplateRef } from 'vue'
 

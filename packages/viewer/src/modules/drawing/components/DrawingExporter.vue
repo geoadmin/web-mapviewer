@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { computed, inject, ref } from 'vue'
 import { useStore } from 'vuex'
 

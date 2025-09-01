@@ -1,13 +1,19 @@
 {
-    "extends": "@swissgeo/typescript-config/tsconfig.base.json",
-    "include": ["**/*.ts", "**/*.vue", "*.d.ts", "*.ts", "*.mts"],
+    "extends": "@swissgeo/typescript-config/tsconfig.vue.json",
+    "include": [
+        "**/*.ts",
+        "**/*.js",
+        "**/*.vue",
+        "vite.config.ts"
+    ],
+    "exclude": [
+        "eslint.config.mts",
+        // the tests/cypress folder is managed as a separate TS project (it has its own tsconfig.json)
+        "tests/cypress"
+    ],
     "compilerOptions": {
         // see https://www.typescriptlang.org/tsconfig#allowJs
         // see https://github.com/vuejs/eslint-config-typescript?tab=readme-ov-file#advanced-setup
-        "allowJs": true,
-        // Composite can only be activated if the whole package is completely in TS.
-        // It breaks all `@/` aliases in JS files otherwise.
-        // TODO: activate composite here when mapviewer package is 100% migrated to TS.
-        "composite": false
+        "allowJs": true
     }
 }

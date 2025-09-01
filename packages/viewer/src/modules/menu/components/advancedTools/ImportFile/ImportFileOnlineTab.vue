@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import log from '@swissgeo/log'
 import { WarningMessage } from '@swissgeo/log/Message'
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'

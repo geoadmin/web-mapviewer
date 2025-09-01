@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import log from '@swissgeo/log'
 import DOMPurify from 'dompurify'
 import { computed } from 'vue'

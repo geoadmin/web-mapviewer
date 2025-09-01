@@ -1,4 +1,7 @@
 {
-  "extends": "@swissgeo/typescript-config/tsconfig.base.json",
-  "include": ["src/**/*.ts", "src/**/*.vue", "*.d.ts", "vite.config.ts"]
+    "extends": "@swissgeo/typescript-config/tsconfig.base.json",
+    "include": [
+        "**/*.ts",
+        "**/*.vue"
+    ]
 }

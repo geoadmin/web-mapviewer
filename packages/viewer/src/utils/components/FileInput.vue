@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * Input field for local file
  *

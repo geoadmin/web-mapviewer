@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * Node of a layer catalogue in the UI, rendering (and behavior) will differ if this is a group of
  * layers or a single layer.

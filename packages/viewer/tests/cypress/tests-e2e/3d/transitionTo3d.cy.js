@@ -101,7 +101,7 @@ describe('Testing transitioning between 2D and 3D', () => {
                 z: 9,
             })
             cy.get('[data-cy="3d-button"]').click()
-            cy.readWindowValue('cesiumViewer').then((viewer) => {
+            cy.window().its('cesiumViewer').then((viewer) => {
                 const cameraPosition = viewer.camera.positionCartographic
                 const acceptableDelta = 0.000001
                 expect(cameraPosition.longitude).to.be.closeTo(

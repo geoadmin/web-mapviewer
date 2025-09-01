@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * Renders a Vector layer on the map with MapLibre.
  *

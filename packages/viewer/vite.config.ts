@@ -46,7 +46,7 @@ function manualChunks(id: string): string | undefined {
     }
 }
 
-function generatePlugins(mode: Staging): PluginOption[] {
+function generatePlugins(mode: Staging, isTesting: boolean = false): PluginOption[] {
     const plugins: PluginOption[] = []
 
     plugins.push(tsconfigPaths())
@@ -101,7 +101,7 @@ function generatePlugins(mode: Staging): PluginOption[] {
 
     plugins.push(ConditionalCompile())
 
-    if (mode !== 'test') {
+    if (!isTesting) {
         plugins.push(
             VitePWA({
                 devOptions: {
@@ -160,9 +160,11 @@ function generatePlugins(mode: Staging): PluginOption[] {
 // https://vitejs.dev/config/
 export default defineConfig((configEnv: ConfigEnv): UserConfig => {
     const { mode } = configEnv
-    // We use "test" only to decide if we want to add Vue dev tools or not (we don't want them when testing).
-    // It otherwise is "development" mode...
-    const definitiveMode: Staging = (mode === 'test' ? 'development' : mode) as Staging
+    // "test" mode is essentially the "development" mode, but with a different plugin composition.
+    // In test mode, we don't want the PWA plugin or the dev tools.
+    // The app is also adding a couple of things to the "window" element when in test mode, so that Cypress can access it.
+    const isTesting = mode === 'test'
+    const definitiveMode: Staging = (isTesting ? 'development' : mode) as Staging
     return {
         base: './',
         build: {
@@ -182,10 +184,13 @@ export default defineConfig((configEnv: ConfigEnv): UserConfig => {
                     // Boostrap 5.3.x has too many deprecation warnings (10k+ on a single build)
                     // TODO: remove as soon as migration to TailwindCSS is done
                     quietDeps: true,
+                    // @see https://github.com/vitejs/vite/issues/18164
+                    verbose: true,
+                    silenceDeprecations: ['import', 'color-functions'],
                 },
             },
         },
-        plugins: generatePlugins(definitiveMode),
+        plugins: generatePlugins(definitiveMode, isTesting),
         resolve: {
             alias: {
                 '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -198,8 +203,8 @@ export default defineConfig((configEnv: ConfigEnv): UserConfig => {
             __APP_VERSION__: JSON.stringify(appVersion),
             __VITE_ENVIRONMENT__: JSON.stringify(definitiveMode),
             __CESIUM_STATIC_PATH__: JSON.stringify(cesiumStaticDir),
-            __IS_TESTING_WITH_CYPRESS__: JSON.stringify(mode === 'test'),
-            // explicitly opting-out of Option API to reduce the Vue bundle's size
+            __IS_TESTING_WITH_CYPRESS__: JSON.stringify(isTesting),
+            // opting out explicitly of Option API to reduce the Vue bundle's size,
             // see https://vuejs.org/api/compile-time-flags#VUE_OPTIONS_API
             __VUE_OPTIONS_API__: 'false',
         },

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /** Component managing the rendering of a vision cone, in the direction the device is pointing at */
 
 import Feature from 'ol/Feature'

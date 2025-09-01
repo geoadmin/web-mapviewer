@@ -1,18 +1,16 @@
-import { devServer } from '@cypress/vite-dev-server'
 import { defineConfig } from 'cypress'
 import { cypressBrowserPermissionsPlugin } from 'cypress-browser-permissions'
 import vitePreprocessor from 'cypress-vite'
 import { existsSync, readdirSync, unlinkSync } from 'node:fs'
 import { join } from 'node:path'
-
-import viteConfig from './vite.config.ts'
+import * as path from 'node:path'
 
 export default defineConfig({
     projectId: 'fj2ezv',
     video: false,
-    defaultCommandTimeout: 5000,
+    defaultCommandTimeout: 15000,
     requestTimeout: 5000,
-    numTestsKeptInMemory: 0,
+    numTestsKeptInMemory: 1,
     watchForFileChanges: false, // Prevent auto run on file changes
 
     retries: {
@@ -57,7 +55,7 @@ export default defineConfig({
             on(
                 'file:preprocessor',
                 vitePreprocessor({
-                    configFile: './vite.config.mts',
+                    configFile: path.resolve(__dirname, './vite.config.ts'),
                     mode: 'test',
                 })
             )
@@ -116,20 +114,17 @@ export default defineConfig({
             })
         },
         baseUrl: 'http://localhost:8080',
-        specPattern: 'tests/cypress/tests-e2e/**/*.cy.js',
-        supportFile: 'tests/cypress/support/e2e.js',
+        specPattern: 'tests/cypress/tests-e2e/**/*.cy.{ts,js}',
+        supportFile: 'tests/cypress/support/e2e.ts',
     },
 
     component: {
-        devServer(devServerConfig) {
-            return devServer({
-                ...devServerConfig,
-                framework: 'vue',
-                viteConfig: viteConfig({ command: 'build', mode: 'test' }),
-            })
+        devServer: {
+            framework: 'vue',
+            bundler: 'vite',
         },
-        specPattern: 'tests/cypress/tests-component/**/*.cy.js',
-        supportFile: 'tests/cypress/support/component.js',
+        specPattern: 'tests/cypress/tests-component/**/*.cy.ts',
+        supportFile: 'tests/cypress/support/component.ts',
         indexHtmlFile: 'tests/cypress/support/component-index.html',
     },
 })

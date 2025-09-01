@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /** Adds a GeoJSON layer to the OpenLayers map */
 
 import log from '@swissgeo/log'

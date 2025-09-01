@@ -162,13 +162,13 @@ describe('The infobox', () => {
         it('keeps the selected features when going 3D', () => {
             cy.get('[data-cy="3d-button"]').click()
             // waiting for 3D to be loaded
-            cy.readWindowValue('cesiumViewer').then(() => {
+            cy.window().its('cesiumViewer').then(() => {
                 cy.get('[data-cy="highlighted-features"]').should('be.visible')
             })
         })
         it('keeps the selected features when going back to 2D', () => {
             cy.get('[data-cy="3d-button"]').click()
-            cy.readWindowValue('cesiumViewer').then(() => {
+            cy.window().its('cesiumViewer').then(() => {
                 cy.get('[data-cy="3d-button"]').click()
                 cy.get('[data-cy="highlighted-features"]').should('be.visible')
             })

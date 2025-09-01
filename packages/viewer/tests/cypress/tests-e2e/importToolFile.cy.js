@@ -9,7 +9,7 @@ import { DEFAULT_PROJECTION } from '@/config/map.config'
 registerProj4(proj4)
 function checkVectorLayerHighlightingSegment(lastIndex = -1) {
     let currentIndex = -1
-    cy.readWindowValue('map').should((map) => {
+    cy.window().its('map').should((map) => {
         const vectorLayers = map
             .getLayers()
             .getArray()
@@ -379,16 +379,12 @@ describe('The Import File Tool', () => {
         const emptySearchResponse = {
             results: [],
         }
-        cy.mockupBackendResponse(
-            'rest/services/ech/SearchServer*?type=layers*',
-            emptySearchResponse,
-            'search-layers'
-        )
-        cy.mockupBackendResponse(
-            'rest/services/ech/SearchServer*?type=locations*',
-            emptySearchResponse,
-            'search-locations'
-        )
+        cy.intercept('**/rest/services/ech/SearchServer*?type=layers*', {
+            body: emptySearchResponse,
+        }).as('search-layers')
+        cy.intercept(`**/rest/services/ech/SearchServer*?type=locations*`, {
+            body: emptySearchResponse,
+        }).as('search-locations')
 
         cy.log('Test search for a feature in the local KML file')
         cy.closeMenuIfMobile()
@@ -532,7 +528,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="warning-window-close"]').click({ force: true })
         cy.get('[data-cy="3d-button"]:visible').click()
         cy.waitUntilCesiumTilesLoaded()
-        cy.readWindowValue('cesiumViewer').should((viewer) => {
+        cy.window().its('cesiumViewer').should((viewer) => {
             expect(viewer.scene.primitives.length).to.eq(
                 4,
                 'should have 1 primitive (KML file) on top of labels and buildings primitives'
@@ -550,7 +546,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="import-file-load-button"]:visible').click()
         cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
             const kmlLayerCount = activeLayers.filter((layer) => layer.type === 'KML').length
-            cy.readWindowValue('cesiumViewer').should((viewer) => {
+            cy.window().its('cesiumViewer').should((viewer) => {
                 expect(viewer.dataSources.length).to.eq(
                     kmlLayerCount,
                     `should have ${kmlLayerCount} date source (KML files)`

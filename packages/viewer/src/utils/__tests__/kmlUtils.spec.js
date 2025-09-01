@@ -1,9 +1,8 @@
 import { WEBMERCATOR } from '@swissgeo/coordinates'
-import { expect } from 'chai'
 import { readFileSync } from 'fs'
 import IconStyle from 'ol/style/Icon'
 import { resolve } from 'path'
-import { beforeEach, describe, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'

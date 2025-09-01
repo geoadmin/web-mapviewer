@@ -145,7 +145,7 @@ function init(nbLayers, nbSelectedLayers) {
 
 function waitForAnimationsToFinish() {
     // animations last 0.2s
-    cy.wait(200) // eslint-disable-line cypress/no-unnecessary-waiting
+    cy.wait(200)  
 }
 
 /**

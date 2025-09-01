@@ -41,6 +41,7 @@
         "@swissgeo/typescript-config": "workspace:*",
         "@turf/turf": "catalog:",
         "@types/chai": "catalog:",
+        "@types/geojson": "catalog:",
         "@types/lodash": "catalog:",
         "chai": "catalog:",
         "eslint": "catalog:",

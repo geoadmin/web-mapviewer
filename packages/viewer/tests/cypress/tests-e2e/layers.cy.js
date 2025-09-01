@@ -712,9 +712,8 @@ describe('Test of layer handling', () => {
                 cy.intercept(`/1.0.0/${expectedLayerId}/default/**`, {
                     statusCode: 200,
                 }).as('get-wmts-layer')
-                cy.mockupBackendResponse(
-                    'rest/services/ech/SearchServer*?type=layers*',
-                    {
+                cy.intercept('**/rest/services/ech/SearchServer*?type=layers*', {
+                    body: {
                         results: [
                             {
                                 id: 4321,
@@ -726,13 +725,10 @@ describe('Test of layer handling', () => {
                             },
                         ],
                     },
-                    'search-layers'
-                )
-                cy.mockupBackendResponse(
-                    'rest/services/ech/SearchServer*?type=locations*',
-                    { results: [] },
-                    'search-locations'
-                )
+                }).as('search-layers')
+                cy.intercept('**/rest/services/ech/SearchServer*?type=locations*', {
+                    body: { results: [] },
+                }).as('search-locations')
                 cy.goToMapView()
                 cy.openMenuIfMobile()
                 cy.readStoreValue('getters.visibleLayers').should('be.empty')

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { extentUtils, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import { bbox, centroid } from '@turf/turf'

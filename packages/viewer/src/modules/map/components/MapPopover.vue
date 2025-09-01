@@ -1,11 +1,11 @@
-<script>
+<script lang="js">
 /** @enum */
 export const MapPopoverMode = {
     FLOATING: 'FLOATING',
     FEATURE_TOOLTIP: 'FEATURE_TOOLTIP',
 }
 </script>
-<script setup>
+<script setup lang="js">
 /** Map popover content and styles. Position handling is done in corresponding library components */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'

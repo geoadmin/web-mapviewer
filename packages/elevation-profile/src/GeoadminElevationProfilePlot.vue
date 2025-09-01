@@ -3,26 +3,23 @@ import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { ZoomPluginOptions } from 'chartjs-plugin-zoom/types/options'
 
 import { round } from '@swissgeo/numbers'
+import type { ComplexFillTarget } from 'chart.js'
 import {
     type Chart,
     type ChartData,
+    type ChartDataset,
     type ChartOptions,
+    type LineOptions,
     type Point as ChartPoint,
+    type PointPrefixedHoverOptions,
+    type PointPrefixedOptions,
     type ScaleOptions,
     type TooltipItem,
     type TooltipModel,
 } from 'chart.js'
 import { resetZoom } from 'chartjs-plugin-zoom'
-import {
-    type ComponentPublicInstance,
-    computed,
-    type ComputedRef,
-    onMounted,
-    onUnmounted,
-    provide,
-    ref,
-    useTemplateRef,
-} from 'vue'
+import { computed, type ComputedRef, onMounted, onUnmounted, provide, ref, useTemplateRef } from 'vue'
+import type { ChartComponentRef } from 'vue-chartjs'
 import { Line as LineChart } from 'vue-chartjs'
 import { useI18n } from 'vue-i18n'
 
@@ -30,7 +27,7 @@ import type { ElevationProfile, ElevationProfilePoint } from '@/profile.api'
 import type { ElevationProfileMetadata } from '@/utils'
 import type { VueI18nTranslateFunction } from '@/vue-i18n'
 
-import { BORDER_COLOR, FILL_COLOR, type SupportedLocales } from '@/config.ts'
+import { BORDER_COLOR, FILL_COLOR, type SupportedLocales } from '@/config'
 
 const GAP_BETWEEN_TOOLTIP_AND_PROFILE = 12 // px
 
@@ -72,7 +69,7 @@ const minElevation: ComputedRef<number> = computed(() => profileMetadata.value?.
 
 const profileChartContainerRef = useTemplateRef<HTMLDivElement>('profileChartContainer')
 const profileTooltipRef = useTemplateRef<HTMLDivElement>('profileTooltip')
-const chartRef = useTemplateRef<ComponentPublicInstance<typeof LineChart>>('chart')
+const chartRef = useTemplateRef<ChartComponentRef>('chart')
 
 interface ElevationProfileMessages {
     distance_label: string
@@ -162,34 +159,42 @@ const tooltipStyle: ComputedRef<TooltipStyleCSSDeclaration> = computed(() => {
  */
 
 /** Definition of the data ChartJS will show, with some styling configuration too */
-const chartJsData: ComputedRef<ChartData<'line'>> = computed(() => {
-    const data: ChartData<'line'> = {
-        datasets: [
-            {
-                label: `${t('elevation')}`,
-                data: profilePoints.value.map((point) => ({
-                    x: point.dist ?? 0,
-                    y: point.elevation ?? 0,
-                    ...point,
-                })) as ChartPoint[],
-                parsing: {
-                    xAxisKey: 'dist',
-                    yAxisKey: 'elevation',
-                },
-                pointRadius: 1,
-                pointHoverRadius: 3,
-                borderColor: BORDER_COLOR,
-                borderWidth: 1,
-                fill: {
-                    target: 'origin',
-                    above: FILL_COLOR,
-                },
-                // smooth up a bit the line (can be removed/reverted to 'default' if we want a sharper line)
-                cubicInterpolationMode: 'monotone',
-            },
-        ],
+const chartJsData: ComputedRef<ChartData<'line', ChartPoint[]>> = computed<ChartData<'line', ChartPoint[]>>(() => {
+    const data: ChartPoint[] = profilePoints.value.map((point) => ({
+        x: point.dist ?? 0,
+        y: point.elevation ?? 0,
+    }))
+
+    const lineFill: ComplexFillTarget = {
+        target: 'origin',
+        above: FILL_COLOR,
+        below: FILL_COLOR,
     }
-    return data
+
+    const lineOptions: Partial<LineOptions> = {
+        borderColor: BORDER_COLOR,
+        borderWidth: 1,
+        fill: lineFill,
+        // smoothes up the line a bit (can be removed/reverted to 'default' if we want a sharper line)
+        cubicInterpolationMode: 'monotone',
+    }
+
+    const pointOptions: Partial<PointPrefixedOptions> = {
+        pointRadius: 1,
+    }
+    const pointHoverOptions: Partial<PointPrefixedHoverOptions> = {
+        pointHoverRadius: 3,
+    }
+
+    const dataset: ChartDataset<'line', ChartPoint[]> = {
+        data,
+        ...lineOptions,
+        ...pointOptions,
+        ...pointHoverOptions,
+    }
+    return {
+        datasets: [ dataset ]
+    }
 })
 /** Definition of axis for the profile chart */
 const chartJsScalesConfiguration: ComputedRef<
@@ -387,16 +392,18 @@ function clearHoverPosition() {
     pointBeingHovered.value = undefined
 }
 function resetZoomToBaseValue() {
-    resetZoom(chartRef.value?.chart, 'none') // ref for chart
+    if (chartRef.value?.chart) {
+        resetZoom(chartRef.value.chart, 'none')
+    }
 }
 function resizeChartForPrint() {
     // Here in order to have a nice PDF print of the profile we need to resize it to a fix
     // size somehow. If we don't do this then the print is a bit deformed and pixelized.
     // The resize to 1024x1024 is a choice that provide a nice output
-    chartRef.value?.chart.resize(1024, 1024)
+    chartRef.value?.chart?.resize(1024, 1024)
 }
 function resizeChart() {
-    chartRef.value?.chart.resize()
+    chartRef.value?.chart?.resize()
 }
 </script>
 <template>
