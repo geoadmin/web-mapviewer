@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /** Component showing one search result entry (and dispatching its selection to the store) */
 
 import { computed, onUnmounted, ref, useTemplateRef } from 'vue'

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { WGS84 } from '@swissgeo/coordinates'
 import { Cartesian3, Color, HeightReference } from 'cesium'
 import proj4 from 'proj4'

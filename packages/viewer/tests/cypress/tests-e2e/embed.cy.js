@@ -105,7 +105,11 @@ describe('Testing the embed view', () => {
     })
     it('Open in legacy embed mode and can jump to the non embed mode', () => {
         cy.log(`Open in legacy mode without parameters`)
-        cy.goToEmbedView({ legacy: true, queryParams: { zoom: 2 } })
+        cy.goToEmbedView({
+            withHash: false,
+            legacy: true,
+            queryParams: { zoom: 2 }
+        })
 
         cy.log(`Check that the menu and the header are not displayed`)
 
@@ -161,6 +165,7 @@ describe('Testing the embed view', () => {
                 layers_opacity: '0.75,0.5,1,1',
                 layers_timestamp: ',,,20160101',
             },
+            withHash: false,
             legacy: true,
         })
 

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * Component to mark matching pattern within a text using HTML element in a safe manner.
  *

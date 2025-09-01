@@ -1,9 +1,8 @@
 import { WEBMERCATOR } from '@swissgeo/coordinates'
-import { expect } from 'chai'
 import { Feature } from 'ol'
 import { LineString, MultiLineString, MultiPolygon } from 'ol/geom'
 import { Style } from 'ol/style'
-import { describe, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { GeodesicGeometries, HALFSIZE_WEBMERCATOR } from '@/utils/geodesicManager'
 

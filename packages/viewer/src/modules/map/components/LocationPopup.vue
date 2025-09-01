@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
 import log from '@swissgeo/log'

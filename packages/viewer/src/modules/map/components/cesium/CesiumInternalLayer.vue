@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * Transforms a layer config (metadata, structures can be found in api/layers/** files) into the
  * correct Cesium counterpart depending on the layer type.

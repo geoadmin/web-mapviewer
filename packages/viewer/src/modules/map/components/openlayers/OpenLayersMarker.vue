@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /** Renders a marker on the map (different styling are available) */
 
 import { randomIntBetween } from '@swissgeo/numbers'

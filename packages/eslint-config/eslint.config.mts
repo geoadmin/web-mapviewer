@@ -1,3 +1,12 @@
-import { jsConfig } from './index'
+import defaultConfig from './index'
 
-export default jsConfig
+export default [
+    ...defaultConfig,
+    {
+        languageOptions: {
+            parserOptions: {
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+    },
+]

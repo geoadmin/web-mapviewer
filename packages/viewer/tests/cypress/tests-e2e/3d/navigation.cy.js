@@ -17,7 +17,7 @@ describe('Testing 3D navigation', () => {
         })
         it('minimum distance from the terrain', () => {
             cy.waitUntilCesiumTilesLoaded()
-            cy.readWindowValue('cesiumViewer').then((viewer) => {
+            cy.window().its('cesiumViewer').then((viewer) => {
                 // Move close to the ground and try to zoom closer with the mouse wheel
                 viewer.camera.flyTo({
                     destination: Cartesian3.fromDegrees(
@@ -29,7 +29,7 @@ describe('Testing 3D navigation', () => {
                 })
                 cy.get('[data-cy="cesium-map"] .cesium-viewer').trigger('wheel', { deltaY: -5000 })
 
-                cy.readWindowValue('cesiumViewer').then(() => {
+                cy.window().its('cesiumViewer').then(() => {
                     expect(viewer.scene.camera.positionCartographic.height).gt(
                         CAMERA_MIN_ZOOM_DISTANCE
                     )
@@ -38,7 +38,7 @@ describe('Testing 3D navigation', () => {
         })
         it('maximum distance from the terrain', () => {
             cy.waitUntilCesiumTilesLoaded()
-            cy.readWindowValue('cesiumViewer').then((viewer) => {
+            cy.window().its('cesiumViewer').then((viewer) => {
                 // Move far from the ground and try to zoom higher with the mouse wheel
                 viewer.camera.flyTo({
                     destination: Cartesian3.fromDegrees(
@@ -49,7 +49,7 @@ describe('Testing 3D navigation', () => {
                     duration: 0.0,
                 })
                 cy.get('[data-cy="cesium-map"] .cesium-viewer').trigger('wheel', { deltaY: 5000 })
-                cy.readWindowValue('cesiumViewer').then(() => {
+                cy.window().its('cesiumViewer').then(() => {
                     expect(viewer.scene.camera.positionCartographic.height).lt(
                         CAMERA_MAX_ZOOM_DISTANCE
                     )
@@ -58,7 +58,7 @@ describe('Testing 3D navigation', () => {
         })
         it('updates the position in store', () => {
             cy.waitUntilCesiumTilesLoaded()
-            cy.readWindowValue('cesiumViewer').then((viewer) => {
+            cy.window().its('cesiumViewer').then((viewer) => {
                 const lon = 7.451498
                 const lat = 46.92805
                 viewer.camera.flyTo({
@@ -68,7 +68,7 @@ describe('Testing 3D navigation', () => {
                     },
                     duration: 0.0,
                 })
-                cy.readWindowValue('cesiumViewer').then(() => {
+                cy.window().its('cesiumViewer').then(() => {
                     cy.readStoreValue('getters.centerEpsg4326').should((center) => {
                         expect(center[0]).to.eq(lon)
                         expect(center[1]).to.eq(lat)

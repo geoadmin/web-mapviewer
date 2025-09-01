@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * MapToolbox component contains some basic map tool that are displayed as button on the top right
  * map corner.

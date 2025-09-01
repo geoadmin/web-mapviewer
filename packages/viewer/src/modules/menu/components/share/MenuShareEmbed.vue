@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * Component building iFrame code so that the user can share/incorporate a specific map to his/her
  * website.

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import Feature from 'ol/Feature'
 import { computed } from 'vue'
 import { useStore } from 'vuex'

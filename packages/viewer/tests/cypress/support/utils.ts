@@ -1,5 +1,5 @@
 import { BREAKPOINT_TABLET } from '@/config/responsive.config'
 
-export function isMobile() {
+export function isMobile(): boolean {
     return Cypress.config('viewportWidth') < BREAKPOINT_TABLET
 }

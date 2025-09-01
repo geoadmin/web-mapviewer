@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { WGS84 } from '@swissgeo/coordinates'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed } from 'vue'

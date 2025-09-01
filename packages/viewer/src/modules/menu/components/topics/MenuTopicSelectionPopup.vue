@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { useI18n } from 'vue-i18n'
 
 import TopicIcon from '@/modules/menu/components/topics/TopicIcon.vue'

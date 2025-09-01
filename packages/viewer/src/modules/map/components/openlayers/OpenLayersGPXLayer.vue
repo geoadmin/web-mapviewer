@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /** Renders a GPX file on the map */
 
 import log from '@swissgeo/log'

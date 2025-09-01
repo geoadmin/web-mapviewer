@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { nextTick, useTemplateRef } from 'vue'
 
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'

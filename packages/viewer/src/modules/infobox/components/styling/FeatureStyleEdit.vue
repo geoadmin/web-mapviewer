@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /** Tools necessary to edit a feature from the drawing module. */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { allCoordinateSystems, WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import Map from 'ol/Map'

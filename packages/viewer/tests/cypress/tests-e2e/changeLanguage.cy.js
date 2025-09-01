@@ -1,8 +1,8 @@
 /// <reference types="cypress" />
 
-import { isMobile } from 'tests/cypress/support/utils'
-
 import { SUPPORTED_LANG } from '@/modules/i18n'
+
+import { isMobile } from '../support/utils.js'
 
 function checkLanguage(lang) {
     // Check language in store

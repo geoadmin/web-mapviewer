@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import Feature from 'ol/Feature'
 import { useI18n } from 'vue-i18n'
 

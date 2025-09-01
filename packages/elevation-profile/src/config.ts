@@ -6,8 +6,8 @@ export type SupportedLocales = 'en' | 'de' | 'fr' | 'it' | 'rm'
 // mimicing values from https://github.com/geoadmin/web-mapviewer/blob/36043456b820b03f380804a63e2cac1a8a1850bc/packages/mapviewer/src/config/staging.config.js#L1-L7
 export type Staging = 'development' | 'integration' | 'production'
 
-export const BORDER_COLOR = 'rgb(255, 99, 132)'
-export const FILL_COLOR = 'rgba(255, 99, 132, 0.7)'
+export const BORDER_COLOR: string = 'rgb(255, 99, 132)'
+export const FILL_COLOR: string = 'rgba(255, 99, 132, 0.7)'
 
 /**
  * 12.5 meters is what was used in the old viewer, see

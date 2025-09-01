@@ -30,6 +30,42 @@ describe('Topics', () => {
         })
     }
 
+    /**
+     * Resize an element by dragging the bottom right corner If using the startXY coordinates, the
+     * startPosition should be undefined and the same for endXY X and Y coordinates are relative to the
+     * top left corner of the element
+     *
+     * @param {Object} options - Options for resizing.
+     * @param {string} options.selector - The selector of the element.
+     * @param {string} options.startPosition - The start position for dragging.
+     * @param {string} options.endPosition - The end position for dragging.
+     * @param {Object} options.startXY - The start coordinates for dragging.
+     * @param {Object} options.endXY - The end coordinates for dragging.
+     * @param {string} options.button - Mouse button to use.
+     * @see https://github.com/dmtrKovalenko/cypress-real-events?tab=readme-ov-file#cyrealmousedown
+     * @see https://github.com/dmtrKovalenko/cypress-real-events/blob/main/src/commands/mouseDown.ts
+     */
+    function resizeElement({
+             selector = '',
+             startPosition = 'bottomRight',
+             endPosition = undefined,
+             startXY = undefined,
+             endXY = { x: 100, y: 100 },
+             button = 'left',
+         } = {}) {
+        cy.get(selector).realMouseDown({
+            button,
+            ...(startXY ? { x: startXY.x, y: startXY.y } : { position: startPosition }),
+        })
+        cy.get(selector).realMouseDown({
+            button,
+            ...(endPosition ? { position: endPosition } : { x: endXY.x, y: endXY.y }),
+        })
+        cy.get(selector).realMouseUp({ button })
+
+        cy.log('cmd: resizeElement successful')
+    }
+
     it('handle topic changes correctly', () => {
         cy.log('loads topic correctly at app startup')
         cy.goToMapView({
@@ -281,7 +317,11 @@ describe('Topics', () => {
             cy.get(popupSelector).then((popup) => {
                 const rect = popup[0].getBoundingClientRect()
                 const initialPosition = { x: rect.x, y: rect.y }
-                cy.dragMouse(popupSelectorHeader, moveX, moveY)
+                cy.get(popupSelectorHeader).trigger('mousedown', { button: 0 })
+                cy.get(popupSelectorHeader).trigger('mousemove', { button: 0, clientX: 0, clientY: 0, force: true }) // this is needed to make the drag work
+                cy.get(popupSelectorHeader).trigger('mousemove', { button: 0, clientX: moveX, clientY: moveY, force: true })
+                cy.get(popupSelectorHeader).trigger('mouseup', { button: 0 })
+
                 cy.get(popupSelector).then((popup) => {
                     const rect = popup[0].getBoundingClientRect()
                     expect(rect.x).to.be.closeTo(initialPosition.x + moveX, 1) // Allow small margin for floating-point
@@ -298,7 +338,7 @@ describe('Topics', () => {
                 let genArr = Array.from({ length: 15 }, (v, k) => k + 1)
                 cy.wrap(genArr).each((index) => {
                     cy.log('reduce size loop 1 for index', index)
-                    cy.resizeElement({
+                    resizeElement({
                         selector: popupSelector,
                         startXY: {
                             x: initialDimensions.width - bottomRightMargin - index,
@@ -309,7 +349,7 @@ describe('Topics', () => {
                 })
                 cy.wrap(genArr).each((index) => {
                     cy.log('reduce size loop 2 for index', index)
-                    cy.resizeElement({
+                    resizeElement({
                         selector: popupSelector,
                         startXY: {
                             x: initialDimensions.width - bottomRightMargin + index,
@@ -346,7 +386,7 @@ describe('Topics', () => {
                 let genArr = Array.from({ length: 15 }, (v, k) => k + 1)
                 cy.wrap(genArr).each((index) => {
                     cy.log('increase sice loop 1 for index', index)
-                    cy.resizeElement({
+                    resizeElement({
                         selector: popupSelector,
                         startXY: {
                             x: initialDimensions.width - bottomRightMargin - index,
@@ -360,7 +400,7 @@ describe('Topics', () => {
                 })
                 cy.wrap(genArr).each((index) => {
                     cy.log('increase size loop 2 for index', index)
-                    cy.resizeElement({
+                    resizeElement({
                         selector: popupSelector,
                         startXY: {
                             x: initialDimensions.width - bottomRightMargin + index,
@@ -374,7 +414,7 @@ describe('Topics', () => {
                 })
                 cy.wrap(genArr).each((index) => {
                     cy.log('increase size loop 3 for index', index)
-                    cy.resizeElement({
+                    resizeElement({
                         selector: popupSelector,
                         startPosition: 'bottomRight',
                         endXY: {

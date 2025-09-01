@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /** Input with clear button component */
 import { nextTick, ref, useSlots, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'

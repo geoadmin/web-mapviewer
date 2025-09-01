@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { CoordinateSystem, extentUtils } from '@swissgeo/coordinates'
 import GeoadminTooltip from '@swissgeo/tooltip'

@@ -1,7 +1,6 @@
 import { WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
-import { expect } from 'chai'
 import proj4 from 'proj4'
-import { beforeEach, describe, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 // We need to import the router here to avoid error when initializing router plugins, this is
 // needed since some store plugins might require access to router to get the query parameters

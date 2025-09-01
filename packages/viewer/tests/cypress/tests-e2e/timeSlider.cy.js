@@ -87,7 +87,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             // proper way would be to use cy.tick, but I can't get it to work
             // it somehow gets into a race condition and the rendering isn't updated
             // after the debouncing is done
-            // eslint-disable-next-line cypress/no-unnecessary-waiting
+             
             cy.wait(1000)
             cy.get('[data-cy="time-slider-button"]').click()
             cy.openMenuIfMobile()
@@ -339,7 +339,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                     // proper way would be to use cy.tick, but I can't get it to work
                     // it somehow gets into a race condition and the rendering isn't updated
                     // after the debouncing is done
-                    // eslint-disable-next-line cypress/no-unnecessary-waiting
+                     
                     cy.wait(750)
 
                     cy.get('[data-cy="time-slider-bar-cursor-arrow"]')

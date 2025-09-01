@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import TileLayer from 'ol/layer/Tile'
 import WebGLTileLayer from 'ol/layer/WebGLTile'
 import GeoTIFFSource from 'ol/source/GeoTIFF'

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * Utility component that will wrap your modal content and make sure it is above the overlay of the
  * map

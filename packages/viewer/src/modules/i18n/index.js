@@ -61,7 +61,7 @@ const datetimeFormats = Object.keys(locales).reduce((obj, key) => {
     return obj
 }, {})
 
-const i18n = createI18n({
+const i18nOptions = {
     locale: defaultLocal,
     messages: languages,
     legacy: false,
@@ -69,6 +69,8 @@ const i18n = createI18n({
     // no error if missing translation, just display the input untranslated.
     missingWarn: false,
     fallbackWarn: false,
-})
+}
+
+const i18n = createI18n(i18nOptions)
 
 export default i18n

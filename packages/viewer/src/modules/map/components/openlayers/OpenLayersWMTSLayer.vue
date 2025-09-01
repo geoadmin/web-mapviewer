@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import log from '@swissgeo/log'
 import { Tile as TileLayer } from 'ol/layer'
 import { WMTS as WMTSSource } from 'ol/source'

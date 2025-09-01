@@ -1,8 +1,7 @@
 import { LV03, LV95, registerProj4, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
-import { expect } from 'chai'
 import { toStringHDMS } from 'ol/coordinate'
 import proj4 from 'proj4'
-import { describe, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
 

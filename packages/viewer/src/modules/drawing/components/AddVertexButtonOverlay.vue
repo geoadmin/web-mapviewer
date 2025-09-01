@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import Overlay from 'ol/Overlay'
 import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 import { useStore } from 'vuex'

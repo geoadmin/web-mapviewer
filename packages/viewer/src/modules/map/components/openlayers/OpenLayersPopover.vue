@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * Shows a popover on the map at the given position (coordinates) and with the slot as the content
  * of the popover

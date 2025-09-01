@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { useTemplateRef } from 'vue'
 
 import SearchResultListEntry from '@/modules/menu/components/search/SearchResultListEntry.vue'

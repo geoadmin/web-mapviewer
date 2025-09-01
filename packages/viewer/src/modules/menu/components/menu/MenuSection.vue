@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { computed, ref, watch } from 'vue'
 
 const { sectionId, title, showContent, secondary, light, disabled } = defineProps({

@@ -173,21 +173,15 @@ describe('Test the search bar result handling', () => {
 
     beforeEach(() => {
         // mocking up all possible search backend response
-        cy.mockupBackendResponse(
-            'rest/services/ech/SearchServer*?type=layers*',
-            layerResponse,
-            'search-layers'
-        )
-        cy.mockupBackendResponse(
-            'rest/services/ech/SearchServer*?type=locations*',
-            locationResponse,
-            'search-locations'
-        )
-        cy.mockupBackendResponse(
-            'rest/services/ech/SearchServer*?type=featuresearch*',
-            layerFeatureResponse,
-            'search-layer-features'
-        )
+        cy.intercept('**/rest/services/ech/SearchServer*?type=layers*', {
+            body: layerResponse,
+        }).as('search-layers')
+        cy.intercept('**/rest/services/ech/SearchServer*?type=locations*', {
+            body: locationResponse,
+        }).as('search-locations')
+        cy.intercept('**/rest/services/ech/SearchServer*?type=featuresearch*', {
+            body: layerFeatureResponse,
+        }).as('search-layer-features')
     })
 
     it('search different type of entries correctly', () => {

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import log from '@swissgeo/log'
 import MousePosition from 'ol/control/MousePosition'
 import { computed, inject, nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue'

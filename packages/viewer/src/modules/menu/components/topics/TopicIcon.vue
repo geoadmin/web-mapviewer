@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * Component to show the icon (from the sprite in the assets) for each topic. (S)CSS rules are
  * stored in a separate file, see the import

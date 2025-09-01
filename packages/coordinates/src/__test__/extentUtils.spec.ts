@@ -1,5 +1,4 @@
-import { expect } from 'chai'
-import { describe, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import coordinatesUtils, { type SingleCoordinate } from '@/coordinatesUtils'
 import { type FlatExtent, getExtentIntersectionWithCurrentProjection } from '@/extentUtils'

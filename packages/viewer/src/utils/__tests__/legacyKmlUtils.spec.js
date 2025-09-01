@@ -1,24 +1,13 @@
 import { WEBMERCATOR } from '@swissgeo/coordinates'
-import { expect } from 'chai'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import { beforeEach, describe, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
 import KMLLayer from '@/api/layers/KMLLayer.class'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
-import {
-    BLACK,
-    BLUE,
-    GRAY,
-    LARGE,
-    MEDIUM,
-    RED,
-    SMALL,
-    WHITE,
-    YELLOW,
-} from '@/utils/featureStyleUtils'
+import { BLACK, BLUE, GRAY, LARGE, MEDIUM, RED, SMALL, WHITE, YELLOW } from '@/utils/featureStyleUtils'
 import { parseKml } from '@/utils/kmlUtils'
 
 const fakeDefaultIconSet = new DrawingIconSet(

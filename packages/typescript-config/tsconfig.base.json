@@ -7,7 +7,17 @@
         "${configDir}/src/**/*.json",
         "${configDir}/src/**/*.vue"
     ],
-    "exclude": ["**/*.md"],
+    "exclude": [
+        "${configDir}/**/*.md",
+        "${configDir}/node_modules",
+        "${configDir}/dist",
+        "${configDir}/eslint.config.mts",
+        // Cypress does its own type checking
+        "${configDir}/cypress.config.mjs",
+        "${configDir}/cypress.config.cjs",
+        "${configDir}/cypress.config.ts",
+        "${configDir}/tests/cypress"
+    ],
     "compilerOptions": {
         // see https://www.typescriptlang.org/docs/handbook/modules/guides/choosing-compiler-options.html#im-using-a-bundler
         "module": "ESNext",
@@ -27,16 +37,6 @@
         "paths": {
             "@/*": ["${configDir}/src/*"]
         },
-        "typeRoots": ["node_modules/@types"],
-
-        // settings to improve ESLint performance while running on big TS monorepo
-        // see https://www.reddit.com/r/typescript/comments/1gfv564/recommendations_for_a_massive_monorepo_with_slow/
-        "incremental": true,
-        "composite": true,
-        "verbatimModuleSyntax": true,
-        "skipDefaultLibCheck": true,
-        "skipLibCheck": true,
-        // we can't (sadly) activate this option when using Vue (it breaks vue-tsc "parsing")
-        "isolatedDeclarations": false
+        "typeRoots": ["${configDir}/node_modules/@types"]
     }
 }

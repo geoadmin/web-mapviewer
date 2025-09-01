@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { useTemplateRef } from 'vue'

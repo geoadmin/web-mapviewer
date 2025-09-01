@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { LV03, LV95, WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import { GeoJsonDataSource } from 'cesium'

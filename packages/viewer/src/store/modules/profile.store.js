@@ -130,6 +130,11 @@ export default {
             }
             return state.feature.geometry.coordinates
         },
+        /**
+         * @param state
+         * @param getters
+         * @returns {number[] | null}
+         */
         currentProfileExtent(state, getters) {
             if (!state.feature) {
                 return null

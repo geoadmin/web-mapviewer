@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * Main component of the App.
  *

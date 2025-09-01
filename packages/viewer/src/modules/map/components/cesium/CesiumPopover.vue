@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * Places a popover on the cesium viewer at the given position (coordinates) and with the slot as
  * the content of the popover

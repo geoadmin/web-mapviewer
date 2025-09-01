@@ -1,7 +1,6 @@
-import { expect } from 'chai'
-import { describe, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-import { transformFileUrl } from '@/api/file-proxy.api.js'
+import { transformFileUrl } from '@/api/file-proxy.api'
 
 describe('Serice-proxy tests', () => {
     describe('transformFileUrl', () => {

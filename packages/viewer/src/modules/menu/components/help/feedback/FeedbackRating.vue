@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { ref, watch } from 'vue'
 
 const { maxRating, disabled } = defineProps({

@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { LV95 } from '@swissgeo/coordinates'
 import ScaleLine from 'ol/control/ScaleLine'
 import { computed, inject, onBeforeUnmount, onMounted, useTemplateRef } from 'vue'

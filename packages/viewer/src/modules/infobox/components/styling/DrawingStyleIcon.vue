@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed } from 'vue'
 import { useStore } from 'vuex'

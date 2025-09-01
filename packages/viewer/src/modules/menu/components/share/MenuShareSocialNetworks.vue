@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * List of buttons enabling the user to easily share a short link to some social networks. All
  * sharing to external social media will be done through a popup.

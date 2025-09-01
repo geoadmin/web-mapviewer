@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import GeoadminElevationProfile, {
     GeoadminElevationProfileCesiumBridge,
     GeoadminElevationProfileOpenLayersBridge,

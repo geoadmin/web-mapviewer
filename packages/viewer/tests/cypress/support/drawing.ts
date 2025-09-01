@@ -4,7 +4,23 @@ import pako from 'pako'
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { GREEN, RED } from '@/utils/featureStyleUtils'
 
-export const addIconFixtureAndIntercept = () => {
+import type { CyHttpMessages } from 'cypress/types/net-stubbing'
+
+function transformHeaders(headers: { [key: string]: string | string[] }): HeadersInit {
+    const transformedHeaders: HeadersInit = {}
+
+    for (const [key, value] of Object.entries(headers)) {
+        if (Array.isArray(value)) {
+            transformedHeaders[key] = value.join(',')
+        } else {
+            transformedHeaders[key] = value
+        }
+    }
+
+    return transformedHeaders
+}
+
+export function addIconFixtureAndIntercept(): void {
     cy.intercept(`**/api/icons/sets/default/icons/**${RED.rgbString}.png`, {
         fixture: 'service-icons/placeholder.png',
     }).as('icon-default')
@@ -16,7 +32,7 @@ export const addIconFixtureAndIntercept = () => {
     }).as('icon-babs')
 }
 
-export const addLegacyIconFixtureAndIntercept = () => {
+export function addLegacyIconFixtureAndIntercept(): void {
     // /color/{r},{g},{b}/{image}-{size}@{scale}x.png
     cy.intercept(`**/color/*,*,*/*@*.png`, {
         fixture: 'service-icons/placeholder.png',
@@ -27,7 +43,7 @@ export const addLegacyIconFixtureAndIntercept = () => {
     }).as('legacy-icon-babs')
 }
 
-const addProfileFixtureAndIntercept = () => {
+function addProfileFixtureAndIntercept(): void {
     cy.intercept('**/rest/services/profile.json**', {
         fixture: 'service-alti/profile.fixture.json',
     }).as('profile')
@@ -36,8 +52,8 @@ const addProfileFixtureAndIntercept = () => {
     }).as('profileAsCsv')
 }
 
-const addFileAPIFixtureAndIntercept = () => {
-    let kmlBody = null
+function addFileAPIFixtureAndIntercept(): void {
+    let kmlBody: string | FormData | undefined = undefined
     cy.intercept(
         {
             method: 'POST',
@@ -75,7 +91,7 @@ const addFileAPIFixtureAndIntercept = () => {
         async (req) => {
             const adminId = await getKmlAdminIdFromRequest(req)
             kmlBody = await getKmlFromRequest(req)
-            req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop(), adminId: adminId }))
+            req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop()!, adminId }))
         }
     ).as('update-kml')
     cy.intercept(
@@ -85,7 +101,7 @@ const addFileAPIFixtureAndIntercept = () => {
         },
         (req) => {
             const headers = { 'Cache-Control': 'no-cache' }
-            req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop() }), headers)
+            req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop()! }), headers)
         }
     ).as('get-kml-metadata')
     cy.intercept(
@@ -122,12 +138,18 @@ const addFileAPIFixtureAndIntercept = () => {
         },
         async (req) => {
             try {
-                const formData = await new Response(req.body, { headers: req.headers }).formData()
+                const formData = await new Response(req.body, { headers: transformHeaders(req.headers) }).formData()
                 const adminId = formData.get('admin_id')
                 const id = req.url.split('/').pop()
 
+                if (!id) {
+                    throw new Error('Missing id in DELETE request FormData')
+                }
                 if (!adminId) {
                     throw new Error('Missing admin_id in DELETE request FormData')
+                }
+                if (adminId instanceof File) {
+                    throw new Error('DELETE request FormData should not contain a File')
                 }
 
                 req.reply(kmlMetadataTemplate({ id, adminId }))
@@ -136,7 +158,10 @@ const addFileAPIFixtureAndIntercept = () => {
                     name: 'delete-kml-intercept',
                     message: `Failed to extract FormData from DELETE request`,
                     consoleProps() {
-                        return { req, error }
+                        return {
+                            request: JSON.stringify(req),
+                            error: JSON.stringify(error),
+                        }
                     },
                 })
                 expect('Failed to extract FormData from DELETE request').to.be.false
@@ -149,8 +174,8 @@ Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = true) => {
     addIconFixtureAndIntercept()
     addProfileFixtureAndIntercept()
     addFileAPIFixtureAndIntercept()
-    cy.goToMapView(queryParams, withHash)
-    cy.readWindowValue('map')
+    cy.goToMapView({ queryParams, withHash })
+    cy.window().its('map')
         .then((map) => map.getOverlays().getLength())
         .as('nbOverlaysAtBeginning')
     // opening the drawing mode if no KML with adminId defined in the URL
@@ -171,9 +196,7 @@ Cypress.Commands.add('openDrawingMode', () => {
 })
 
 Cypress.Commands.add('closeDrawingMode', (closeDrawingNotSharedAdmin = true) => {
-    cy.get('[data-cy="drawing-toolbox-close-button"]', { timeout: 10000 })
-        .should('be.visible')
-        .click()
+    cy.get('[data-cy="drawing-toolbox-close-button"]:visible', { timeout: 10000 }).click()
 
     if (closeDrawingNotSharedAdmin) {
         // Close the drawing not shared admin modal if it is open
@@ -191,7 +214,7 @@ Cypress.Commands.add('closeDrawingMode', (closeDrawingNotSharedAdmin = true) => 
 
 Cypress.Commands.add('clickDrawingTool', (name, unselect = false) => {
     expect(Object.values(EditableFeatureTypes)).to.include(name)
-    cy.get(`[data-cy="drawing-toolbox-mode-button-${name}`).should('be.visible').click()
+    cy.get(`[data-cy="drawing-toolbox-mode-button-${name}"]:visible`).click()
     if (unselect) {
         cy.readStoreValue('state.drawing.mode').should('eq', null)
     } else {
@@ -199,10 +222,10 @@ Cypress.Commands.add('clickDrawingTool', (name, unselect = false) => {
     }
 })
 
-export async function getKmlAdminIdFromRequest(req) {
+export async function getKmlAdminIdFromRequest(req: CyHttpMessages.IncomingHttpRequest): Promise<string> {
     try {
-        const formData = await new Response(req.body, { headers: req.headers }).formData()
-        return formData.get('admin_id')
+        const formData = await new Response(req.body, { headers: transformHeaders(req.headers) }).formData()
+        return formData.get('admin_id') as string
     } catch (error) {
         Cypress.log({
             name: 'getKmlAdminIdFromRequest',
@@ -218,10 +241,10 @@ export async function getKmlAdminIdFromRequest(req) {
     }
 }
 
-export async function getKmlFromRequest(req) {
-    let paramBlob
+export async function getKmlFromRequest(req: CyHttpMessages.IncomingHttpRequest) {
+    let paramBlob: ArrayBuffer | string | null = null
     try {
-        const formData = await new Response(req.body, { headers: req.headers }).formData()
+        const formData = await new Response(req.body, { headers: transformHeaders(req.headers) }).formData()
 
         if (req.method === 'DELETE') {
             if (!formData.has('admin_id')) {
@@ -229,22 +252,30 @@ export async function getKmlFromRequest(req) {
             }
             return formData // Return raw FormData object for DELETE
         }
-        paramBlob = await formData.get('kml').arrayBuffer()
+        const fileOrContentString = formData.get('kml')
+        if (fileOrContentString instanceof File) {
+            paramBlob = await fileOrContentString.arrayBuffer()
+        } else if (fileOrContentString !== null) {
+            paramBlob = fileOrContentString
+        }
     } catch (error) {
         Cypress.log({
             name: 'getKMLRequest',
             message: `Failed to parse the multipart/form-data of the KML request payload`,
             consoleProps() {
                 return {
-                    body: `${req.body}`,
-                    headers: `${req.headers}`,
-                    error: `${error}`,
+                    body: JSON.stringify(req.body),
+                    headers: JSON.stringify(req.headers),
+                    error: JSON.stringify(error),
                 }
             },
         })
         expect(
             `Failed to parse the multipart/form-data of the KML request payload for ${req.method} ${req.url}`
         ).to.be.false
+    }
+    if (paramBlob === null || !(paramBlob instanceof ArrayBuffer)) {
+        return
     }
     try {
         const unzippedKml = new TextDecoder().decode(pako.ungzip(paramBlob))
@@ -276,12 +307,12 @@ export async function getKmlFromRequest(req) {
     }
 }
 
-export async function checkKMLRequest(request, data, updated_kml_id = null) {
+export async function checkKMLRequest(request: CyHttpMessages.IncomingHttpRequest, data: (RegExp | string)[], updatedKmlId?: string) {
     // Check request
-    if (updated_kml_id) {
+    if (updatedKmlId) {
         const urlArray = request.url.split('/')
         const id = urlArray[urlArray.length - 1]
-        expect(id).to.be.eq(updated_kml_id)
+        expect(id).to.be.eq(updatedKmlId)
     }
     expect(request.headers['content-type']).to.contain('multipart/form-data; boundary=')
 
@@ -289,19 +320,25 @@ export async function checkKMLRequest(request, data, updated_kml_id = null) {
     // minimizing the use of KML directly in "expect", so that Cypress index doesn't get cluttered
     // with the entire KML data on each test.
     // getKmlFromRequest will output an opt-in dump in the JS console if needed.
-    expect(typeof kml).to.equals('string')
-    expect(kml.indexOf('</kml>')).to.not.be.equal(-1)
+    expect(kml).to.be.a('string')
+    const kmlString: string = kml as string
+    expect(kmlString.indexOf('</kml>')).to.not.be.equal(-1)
     data.forEach((test) => {
         if (test instanceof RegExp) {
-            expect(test.test(kml), `KML content did not match ${test}`).to.be.true
+            expect(test.test(kmlString), `KML content did not match ${test}`).to.be.true
         } else {
-            expect(kml.indexOf(test), `KML content did not contain ${test}`).to.not.be.equal(-1)
+            expect(kmlString.indexOf(test), `KML content did not contain ${test}`).to.not.be.equal(-1)
         }
     })
 }
 
-export function kmlMetadataTemplate(data) {
-    let metadata = {
+interface KmlTestMetadata {
+    id: string | number
+    adminId?: string | number
+}
+
+export function kmlMetadataTemplate(data: KmlTestMetadata): Record<string, unknown> {
+    const metadata: Record<string, unknown> = {
         id: data.id,
         success: true,
         created: '2021-09-09T13:58:29Z',

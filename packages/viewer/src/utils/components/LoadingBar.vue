@@ -1,4 +1,4 @@
-<script setup></script>
+<script setup lang="js"></script>
 
 <template>
     <div class="header-loading-bar">

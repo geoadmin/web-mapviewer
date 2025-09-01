@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, nextTick, ref, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'

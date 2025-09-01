@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { Cesium3DTileset } from 'cesium'
 import { computed, inject, toRef } from 'vue'
 

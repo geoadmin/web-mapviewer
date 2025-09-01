@@ -126,7 +126,7 @@ describe('CameraParamConfig class test', () => {
         })
         it('dispatches 3D param correctly to the store', () => {
             testInstance.populateStoreWithQueryValue(fakeTo, fakeStore, '1,2,3,4,5,6')
-            expect(fakeStore.dispatch).toHaveBeenCalledOnce()
+            expect(fakeStore.dispatch.mock.calls).to.have.lengthOf(1)
             expect(fakeStore.dispatch.mock.calls[0]).to.include.members(['setCameraPosition'])
         })
     })

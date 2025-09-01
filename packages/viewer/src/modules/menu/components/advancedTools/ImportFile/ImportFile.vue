@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { ref } from 'vue'
 
 import ImportFileLocalTab from '@/modules/menu/components/advancedTools/ImportFile/ImportFileLocalTab.vue'

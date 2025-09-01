@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import log from '@swissgeo/log'
 import { isNumber, round } from '@swissgeo/numbers'
 import { computed, defineAsyncComponent, inject, onBeforeMount, onBeforeUnmount } from 'vue'

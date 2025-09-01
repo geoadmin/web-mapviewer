@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * Confederation logo in accordance (to the best of my abilities) to the CD Bund document found on
  * bk.admin.ch

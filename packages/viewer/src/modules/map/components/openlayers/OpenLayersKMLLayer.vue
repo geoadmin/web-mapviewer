@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /** Renders a KML file on the map */
 
 import log from '@swissgeo/log'

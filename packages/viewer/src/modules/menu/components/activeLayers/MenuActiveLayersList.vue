@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import log from '@swissgeo/log'
 /**
  * Component that maps the active layers from the state to the menu (and also forwards user

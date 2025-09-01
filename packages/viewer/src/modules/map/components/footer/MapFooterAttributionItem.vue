@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 const { sourceId, sourceName, sourceUrl, hasDataDisclaimer, isLast } = defineProps({
     sourceId: {
         type: String,

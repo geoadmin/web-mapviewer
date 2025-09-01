@@ -12,15 +12,12 @@
 // You can read more here:
 // https://on.cypress.io/configuration
 // ***********************************************************
+import type { Runnable } from 'mocha'
 
-// Import commands.js using ES2015 syntax:
 import './commands'
 import './drawing'
 
-// Alternatively you can use CommonJS syntax:
-// require('./commands')
-
-Cypress.on('uncaught:exception', (err, runnable) => {
+Cypress.on('uncaught:exception', (err: Error, runnable: Runnable) => {
     Cypress.log({
         name: 'Uncaught error!',
         message: err.message,

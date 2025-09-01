@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { LV95 } from '@swissgeo/coordinates'
 import Feature from 'ol/Feature'
 import { Polygon } from 'ol/geom'

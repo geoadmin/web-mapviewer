@@ -164,176 +164,174 @@ function getMaxResolution(value) {
  * @class
  * @param geoadminStyleJson The output of geoadmin's API style endpoint as a JSON
  */
-const OlStyleForPropertyValue = function (geoadminStyleJson) {
-    this.singleStyle = null
-    this.defaultVal = 'defaultVal'
-    this.defaultStyle = new Style()
-    this.styles = {
-        point: {},
-        line: {},
-        polygon: {},
-    }
-    this.type = geoadminStyleJson.type
-
-    this.initialize_(geoadminStyleJson)
-}
-
-OlStyleForPropertyValue.prototype.initialize_ = function (geoadminStyleJson) {
-    if (this.type === 'unique' || this.type === 'range') {
-        this.key = geoadminStyleJson.property
-    }
-    if (this.type === 'single') {
-        this.singleStyle = {
-            olStyle: getOlStyleFromLiterals(geoadminStyleJson),
-            labelProperty: getLabelProperty(geoadminStyleJson.vectorOptions.label),
-            labelTemplate: getLabelTemplate(geoadminStyleJson.vectorOptions.label),
-            imageRotationProperty: geoadminStyleJson.rotation,
+class OlStyleForPropertyValue {
+    constructor(geoadminStyleJson) {
+        this.singleStyle = null
+        this.defaultVal = 'defaultVal'
+        this.defaultStyle = new Style()
+        this.styles = {
+            point: {},
+            line: {},
+            polygon: {},
         }
-    } else if (this.type === 'unique') {
-        for (const value of geoadminStyleJson.values) {
-            this.pushOrInitialize_(value.geomType, value.value, getStyleSpec(value))
+        this.type = geoadminStyleJson.type
+
+        this.initialize_(geoadminStyleJson)
+    }
+
+    initialize_(geoadminStyleJson) {
+        if (this.type === 'unique' || this.type === 'range') {
+            this.key = geoadminStyleJson.property
         }
-    } else if (this.type === 'range') {
-        for (const range of geoadminStyleJson.ranges) {
-            const key = range.range.toString()
-            this.pushOrInitialize_(range.geomType, key, getStyleSpec(range))
-        }
-    }
-}
-
-OlStyleForPropertyValue.prototype.pushOrInitialize_ = function (geomType, key, styleSpec) {
-    // Happens when styling is only resolution dependent (unique type only)
-    if (key === undefined) {
-        key = this.defaultVal
-    }
-    if (!this.styles[geomType][key]) {
-        this.styles[geomType][key] = [styleSpec]
-    } else {
-        this.styles[geomType][key].push(styleSpec)
-    }
-}
-
-OlStyleForPropertyValue.prototype.findOlStyleInRange_ = function (value, geomType) {
-    let olStyle = null
-    Object.keys(this.styles[geomType]).forEach((range) => {
-        const limits = range.split(',')
-        const min = parseFloat(limits[0].replace(/\s/g, ''))
-        const max = parseFloat(limits[1].replace(/\s/g, ''))
-        if (!olStyle && value >= min && value < max) {
-            olStyle = this.styles[geomType][range]
-        }
-    })
-    return olStyle
-}
-
-OlStyleForPropertyValue.prototype.getOlStyleForResolution_ = function (olStyles, resolution) {
-    return olStyles.find(
-        (style) => style.minResolution <= resolution && style.maxResolution > resolution
-    )
-}
-
-OlStyleForPropertyValue.prototype.log_ = function (value, id) {
-    const logValue = value === '' ? '<empty string>' : value
-    log.debug(
-        `Feature ID: ${id}. No matching style found for key ${this.key} and value ${logValue}.`
-    )
-}
-
-OlStyleForPropertyValue.prototype.setOlText_ = function (
-    olStyle,
-    labelProperty,
-    labelTemplate,
-    properties
-) {
-    let text = null
-    properties = properties || []
-    if (labelProperty) {
-        text = properties[labelProperty]
-        if (text !== undefined && text !== null) {
-            text = text.toString()
-        }
-    } else if (labelTemplate) {
-        text = labelTemplate
-        Object.keys(properties).forEach(
-            (prop) => (text = text.replace('${' + prop + '}', properties[prop]))
-        )
-    }
-    if (text) {
-        olStyle.getText().setText(text)
-    }
-    return olStyle
-}
-
-OlStyleForPropertyValue.prototype.setOlRotation_ = function (
-    olStyle,
-    imageRotationProperty,
-    properties
-) {
-    if (imageRotationProperty) {
-        const rotation = properties[imageRotationProperty]
-        if (rotation && isNumber(rotation)) {
-            const image = olStyle.getImage()
-            if (image) {
-                image.setRotation(rotation)
+        if (this.type === 'single') {
+            this.singleStyle = {
+                olStyle: getOlStyleFromLiterals(geoadminStyleJson),
+                labelProperty: getLabelProperty(geoadminStyleJson.vectorOptions.label),
+                labelTemplate: getLabelTemplate(geoadminStyleJson.vectorOptions.label),
+                imageRotationProperty: geoadminStyleJson.rotation,
+            }
+        } else if (this.type === 'unique') {
+            for (const value of geoadminStyleJson.values) {
+                this.pushOrInitialize_(value.geomType, value.value, getStyleSpec(value))
+            }
+        } else if (this.type === 'range') {
+            for (const range of geoadminStyleJson.ranges) {
+                const key = range.range.toString()
+                this.pushOrInitialize_(range.geomType, key, getStyleSpec(range))
             }
         }
     }
-    return olStyle
-}
 
-OlStyleForPropertyValue.prototype.getOlStyle_ = function (feature, resolution, properties) {
-    // Use default value if key is not found in properties
-    const value = properties[this.key] ?? this.defaultVal
-    const geomType = getGeomTypeFromGeometry(feature.getGeometry())
-
-    let olStyles = null
-    if (this.type === 'unique') {
-        olStyles = this.styles[geomType][value]
-    } else if (this.type === 'range') {
-        olStyles = this.findOlStyleInRange_(value, geomType)
+    pushOrInitialize_(geomType, key, styleSpec) {
+        // Happens when styling is only resolution dependent (unique type only)
+        if (key === undefined) {
+            key = this.defaultVal
+        }
+        if (!this.styles[geomType][key]) {
+            this.styles[geomType][key] = [styleSpec]
+        } else {
+            this.styles[geomType][key].push(styleSpec)
+        }
     }
-    if (!olStyles) {
-        this.log_(value, feature.getId())
+
+    findOlStyleInRange_(value, geomType) {
+        let olStyle = null
+        Object.keys(this.styles[geomType]).forEach((range) => {
+            const limits = range.split(',')
+            const min = parseFloat(limits[0].replace(/\s/g, ''))
+            const max = parseFloat(limits[1].replace(/\s/g, ''))
+            if (!olStyle && value >= min && value < max) {
+                olStyle = this.styles[geomType][range]
+            }
+        })
+        return olStyle
+    }
+
+    getOlStyleForResolution_(olStyles, resolution) {
+        return olStyles.find(
+            (style) => style.minResolution <= resolution && style.maxResolution > resolution,
+        )
+    }
+
+    log_(value, id) {
+        const logValue = value === '' ? '<empty string>' : value
+        log.debug(
+            `Feature ID: ${id}. No matching style found for key ${this.key} and value ${logValue}.`,
+        )
+    }
+
+    setOlText_(olStyle,
+               labelProperty,
+               labelTemplate,
+               properties) {
+        let text = null
+        properties = properties || []
+        if (labelProperty) {
+            text = properties[labelProperty]
+            if (text !== undefined && text !== null) {
+                text = text.toString()
+            }
+        } else if (labelTemplate) {
+            text = labelTemplate
+            Object.keys(properties).forEach(
+                (prop) => (text = text.replace('${' + prop + '}', properties[prop])),
+            )
+        }
+        if (text) {
+            olStyle.getText().setText(text)
+        }
+        return olStyle
+    }
+
+    setOlRotation_(olStyle,
+                   imageRotationProperty,
+                   properties) {
+        if (imageRotationProperty) {
+            const rotation = properties[imageRotationProperty]
+            if (rotation && isNumber(rotation)) {
+                const image = olStyle.getImage()
+                if (image) {
+                    image.setRotation(rotation)
+                }
+            }
+        }
+        return olStyle
+    }
+
+    getOlStyle_(feature, resolution, properties) {
+        // Use default value if key is not found in properties
+        const value = properties[this.key] ?? this.defaultVal
+        const geomType = getGeomTypeFromGeometry(feature.getGeometry())
+
+        let olStyles = null
+        if (this.type === 'unique') {
+            olStyles = this.styles[geomType][value]
+        } else if (this.type === 'range') {
+            olStyles = this.findOlStyleInRange_(value, geomType)
+        }
+        if (!olStyles) {
+            this.log_(value, feature.getId())
+            return this.defaultStyle
+        }
+        const styleSpec = this.getOlStyleForResolution_(olStyles, resolution)
+        if (styleSpec) {
+            const olStyle = this.setOlText_(
+                styleSpec.olStyle,
+                styleSpec.labelProperty,
+                styleSpec.labelTemplate,
+                properties,
+            )
+            return this.setOlRotation_(olStyle, styleSpec.imageRotationProperty, properties)
+        }
         return this.defaultStyle
     }
-    const styleSpec = this.getOlStyleForResolution_(olStyles, resolution)
-    if (styleSpec) {
-        const olStyle = this.setOlText_(
-            styleSpec.olStyle,
-            styleSpec.labelProperty,
-            styleSpec.labelTemplate,
-            properties
-        )
-        return this.setOlRotation_(olStyle, styleSpec.imageRotationProperty, properties)
-    }
-    return this.defaultStyle
-}
 
-/**
- * Returns an OpenLayers style for the feature and the current map resolution (as style can be
- * different depending on the zoom level --> resolution)
- *
- * @param {ol.Feature} feature
- * @param {Number} resolution
- * @returns {Style}
- */
-OlStyleForPropertyValue.prototype.getFeatureStyle = function (feature, resolution) {
-    let properties
-    if (feature) {
-        properties = feature.getProperties()
-    }
-    if (this.type === 'single') {
-        const olStyle = this.setOlText_(
-            this.singleStyle.olStyle,
-            this.singleStyle.labelProperty,
-            this.singleStyle.labelTemplate,
-            properties
-        )
-        return this.setOlRotation_(olStyle, this.singleStyle.imageRotationProperty, properties)
-    } else if (this.type === 'unique') {
-        return this.getOlStyle_(feature, resolution, properties)
-    } else if (this.type === 'range') {
-        return this.getOlStyle_(feature, resolution, properties)
+    /**
+     * Returns an OpenLayers style for the feature and the current map resolution (as style can be
+     * different depending on the zoom level --> resolution)
+     *
+     * @param {ol.Feature} feature
+     * @param {Number} resolution
+     * @returns {Style}
+     */
+    getFeatureStyle(feature, resolution) {
+        let properties
+        if (feature) {
+            properties = feature.getProperties()
+        }
+        if (this.type === 'single') {
+            const olStyle = this.setOlText_(
+                this.singleStyle.olStyle,
+                this.singleStyle.labelProperty,
+                this.singleStyle.labelTemplate,
+                properties,
+            )
+            return this.setOlRotation_(olStyle, this.singleStyle.imageRotationProperty, properties)
+        } else if (this.type === 'unique') {
+            return this.getOlStyle_(feature, resolution, properties)
+        } else if (this.type === 'range') {
+            return this.getOlStyle_(feature, resolution, properties)
+        }
     }
 }
 

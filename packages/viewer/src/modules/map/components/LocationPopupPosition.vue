@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
 import { coordinatesUtils, LV03, LV95, WGS84 } from '@swissgeo/coordinates'

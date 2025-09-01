@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * Manages the selection of features on the drawing layer. Shares also which features are selected
  * (as OpenLayers objects) with the modifyInteraction. It will also update the selected feature

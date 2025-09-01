@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * Component showing all available color for a feature and making it possible to switch from one
  * color to the other (will be responsible to change the color of the feature)

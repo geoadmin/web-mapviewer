@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 /**
  * Renders all selected features as geometry on the map with a highlighted style and opens up the
  * popup with the features' information

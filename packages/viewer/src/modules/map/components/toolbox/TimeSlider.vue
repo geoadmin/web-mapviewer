@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="js">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import log from '@swissgeo/log'
 import { isNumber, round } from '@swissgeo/numbers'
