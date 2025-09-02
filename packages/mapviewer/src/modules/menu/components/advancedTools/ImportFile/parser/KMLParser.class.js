@@ -74,8 +74,12 @@ export class KMLParser extends FileParser {
 
         if (!isKmlFeaturesValid(kmlAsText)) {
             kmlLayer.addWarningMessage(
-                new WarningMessage('kml_malformed', {
-                    filename: kmlLayer.name ?? kmlLayer.id,
+                new WarningMessage({
+                    msg: 'kml_malformed',
+                    params: {
+                        filename: kmlLayer.name ?? kmlLayer.id,
+                    },
+                    sourceId: kmlLayer.id,
                 })
             )
         }

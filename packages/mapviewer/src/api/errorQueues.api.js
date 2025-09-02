@@ -1,9 +1,12 @@
 import { ErrorMessage } from '@geoadmin/log/Message'
 
 export function getStandardErrorMessage(query, urlParamName) {
-    return new ErrorMessage('url_parameter_error', {
-        param: urlParamName,
-        value: query,
+    return new ErrorMessage({
+        msg: 'url_parameter_error',
+        params: {
+            param: urlParamName,
+            value: query,
+        },
     })
 }
 
