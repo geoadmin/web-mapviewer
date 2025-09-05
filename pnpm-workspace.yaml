@@ -5,29 +5,29 @@ catalog:
   '@4tw/cypress-drag-drop': ^2.3.0
   '@cypress/vite-dev-server': ^7.0.0
   '@cypress/vue': ^6.0.2
-  '@eslint/js': ^9.32.0
-  '@eslint/markdown': ^7.1.0
-  '@floating-ui/vue': ^1.1.8
+  '@eslint/js': ^9.34.0
+  '@eslint/markdown': ^7.2.0
+  '@floating-ui/vue': ^1.1.9
   '@fontsource/noto-sans': ^5.2.7
-  '@fortawesome/fontawesome-svg-core': ^7.0.0
-  '@fortawesome/free-brands-svg-icons': ^7.0.0
-  '@fortawesome/free-regular-svg-icons': ^7.0.0
-  '@fortawesome/free-solid-svg-icons': ^7.0.0
+  '@fortawesome/fontawesome-svg-core': ^7.0.1
+  '@fortawesome/free-brands-svg-icons': ^7.0.1
+  '@fortawesome/free-regular-svg-icons': ^7.0.1
+  '@fortawesome/free-solid-svg-icons': ^7.0.1
   '@fortawesome/vue-fontawesome': ^3.1.1
   '@geoblocks/cesium-compass': ^0.6.0
   '@geoblocks/mapfishprint': ^0.2.20
   '@geoblocks/ol-maplibre-layer': ^1.0.3
-  '@intlify/core-base': ^11.1.2
-  '@intlify/unplugin-vue-i18n': ^6.0.3
+  '@intlify/core-base': ^11.1.11
+  '@intlify/unplugin-vue-i18n': ^6.0.8
   '@mapbox/togeojson': ^0.16.2
-  '@microsoft/api-extractor': ^7.52.10
+  '@microsoft/api-extractor': ^7.52.11
   '@nuintun/qrcode': ^5.0.2
   '@popperjs/core': ^2.11.8
   '@prettier/plugin-xml': ^3.4.2
   '@rushstack/eslint-patch': ^1.12.0
-  '@tailwindcss/vite': ^4.1.11
+  '@tailwindcss/vite': ^4.1.12
   '@tmcw/togeojson': ^7.1.2
-  '@tsconfig/node22': ^22.0.1
+  '@tsconfig/node22': ^22.0.2
   '@turf/turf': ^7.2.0
   '@types/bootstrap': ^5.2.10
   '@types/chai': ^5.2.2
@@ -35,55 +35,57 @@ catalog:
   '@types/jsdom': ^21.1.7
   '@types/lodash': ^4.17.20
   '@types/luxon': ^3.7.1
-  '@types/node': ^22.17.0
+  '@types/node': ^24.3.0
   '@types/openlayers': ^4.6.23
-  '@types/pako': ^2.0.3
+  '@types/pako': ^2.0.4
+  '@typescript-eslint/utils': ^8.42.0
   '@vite-pwa/assets-generator': ^1.0.0
   '@vitejs/plugin-basic-ssl': ^2.1.0
   '@vitejs/plugin-vue': ^6.0.1
   '@vue/eslint-config-prettier': ^10.2.0
   '@vue/eslint-config-typescript': ^14.6.0
-  '@vue/language-core': ^3.0.5
-  '@vue/tsconfig': ^0.7.0
-  '@vueuse/core': ^13.6.0
-  '@xmldom/xmldom': ^0.9.8
+  '@vue/language-core': ^3.0.6
+  '@vue/tsconfig': ^0.8.1
+  '@vueuse/core': ^13.9.0
+  '@xmldom/xmldom': ^0.8.11
   animate.css: ^4.1.1
   axios: ^1.11.0
   axios-retry: ^4.5.0
-  bootstrap: ^5.3.7
-  cesium: 1.119.0
-  chai: ^5.2.1
+  bootstrap: ^5.3.8
+  cesium: ^1.133.0
+  chai: ^6.0.1
   chart.js: ^4.5.0
   chartjs-plugin-zoom: ^2.2.0
-  cypress: ^14.5.4
+  cypress: ^15.1.0
   cypress-browser-permissions: ^1.1.0
   cypress-real-events: ^1.14.0
   cypress-recurse: ^1.37.1
-  cypress-vite: ^1.6.0
+  cypress-vite: ^1.7.0
   cypress-wait-until: ^3.0.2
   dompurify: ^3.2.6
-  dotenv: ^17.2.1
-  eslint: ^9.32.0
-  eslint-config-prettier: ^10.0.1
-  eslint-plugin-cypress: ^5.1.0
+  dotenv: ^17.2.2
+  eslint: ^9.34.0
+  eslint-config-prettier: ^10.1.8
+  eslint-plugin-chai-friendly: ^1.1.0
+  eslint-plugin-cypress: ^5.1.1
   eslint-plugin-mocha: ^11.1.0
   eslint-plugin-perfectionist: ^4.15.0
   eslint-plugin-prettier: ^5.5.4
   eslint-plugin-vue: ^10.4.0
   form-data: ^4.0.4
-  geographiclib-geodesic: ^2.1.1
-  geotiff: ^2.1.3
+  geographiclib-geodesic: ^2.2.0
+  geotiff: ^2.1.4-beta.0
   git-describe: ^4.1.1
   gitconfig: ^2.0.8
   globals: ^16.3.0
-  googleapis: ^155.0.0
+  googleapis: ^159.0.0
   hammerjs: ^2.0.8
   jquery: ^3.7.1
   jsdom: ^26.1.0
   jszip: ^3.10.1
   lodash: ^4.17.21
   luxon: ^3.7.1
-  maplibre-gl: ^5.6.1
+  maplibre-gl: ^5.7.0
   mime-types: ^3.0.1
   mocha-junit-reporter: ^2.2.1
   ol: ^10.6.1
@@ -99,34 +101,35 @@ catalog:
   proj4: ^2.19.10
   reproject: ^1.2.7
   rimraf: ^6.0.1
-  rollup: ^4.41.1
-  sass: 1.77.7
+  rollup: ^4.50.0
+  sass: ^1.92.0
   sharp: ^0.34.3
   sortablejs: ^1.15.6
   start-server-and-test: ^2.0.13
-  stylelint: ^16.23.0
-  stylelint-config-recommended-scss: ^15.0.1
+  stylelint: ^16.23.1
+  stylelint-config-recommended-scss: ^16.0.0
   stylelint-config-recommended-vue: ^1.6.1
   stylelint-order: ^7.0.0
   stylelint-scss: ^6.12.1
-  tailwindcss: ^4.1.11
-  typescript: 5.8.3
-  typescript-eslint: ^8.39.0
+  tailwindcss: ^4.1.12
+  tsx: ^4.20.5
+  typescript: 5.9.2
+  typescript-eslint: ^8.42.0
   unplugin-dts: 1.0.0-beta.6
   uuid: ^11.1.0
-  vite: ^7.0.6
+  vite: ^7.1.4
   vite-node: ^3.2.4
   vite-plugin-conditional-compiler: ^0.3.1
-  vite-plugin-pwa: ^1.0.2
-  vite-plugin-static-copy: ^3.1.1
-  vite-plugin-vue-devtools: ^8.0.0
+  vite-plugin-pwa: ^1.0.3
+  vite-plugin-static-copy: ^3.1.2
+  vite-plugin-vue-devtools: ^8.0.1
   vite-tsconfig-paths: ^5.1.4
   vitest: ^3.2.4
-  vue: ^3.5.18
+  vue: ^3.5.21
   vue-chartjs: ^5.3.2
   vue-i18n: ^11.1.11
   vue-router: ^4.5.1
-  vue-tsc: ^3.0.5
+  vue-tsc: ^3.0.6
   vue3-social-sharing: ^1.4.1
   vuex: ^4.1.0
   workbox-cacheable-response: ^7.3.0
@@ -137,4 +140,5 @@ catalog:
   workbox-strategies: ^7.3.0
   workbox-window: ^7.3.0
   write-yaml-file: ^5.0.0
+  yaml: ^2.8.1
   yargs: ^18.0.0
