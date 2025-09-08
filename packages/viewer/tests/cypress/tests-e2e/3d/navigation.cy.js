@@ -12,7 +12,7 @@ describe('Testing 3D navigation', () => {
     context('camera limits', () => {
         beforeEach(() => {
             cy.goToMapView({
-                '3d': true,
+                queryParams: {'3d': true}
             })
         })
         it('minimum distance from the terrain', () => {
@@ -95,7 +95,7 @@ describe('Testing 3D navigation', () => {
 
     it('2d camera does not go out of bounds if url parameter is out of bounds', () => {
         cy.goToMapView({
-            center: '0,0',
+            queryParams:{center: '0,0'}
         })
         cy.log('check if center is moved to out of bounds location')
         cy.readStoreValue('state.position').should((positionStore) => {
@@ -104,8 +104,10 @@ describe('Testing 3D navigation', () => {
     })
     it('3d camera does not go out of bounds if url parameter is out of bounds', () => {
         cy.goToMapView({
-            '3d': true,
-            camera: '0,0',
+            queryParams: {
+                '3d': true,
+                camera: '0,0',
+            },
         })
         cy.waitUntilCesiumTilesLoaded()
         cy.log('check if camera is moved to out of bounds location')

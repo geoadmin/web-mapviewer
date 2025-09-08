@@ -19,9 +19,12 @@ describe('Testing the feature selection in 3D', () => {
             const fileName = 'external-kml-file.kml'
             const localKmlFile = `import-tool/${fileName}`
             cy.goToMapView({
-                '3d': true,
-                layers: 'test.wms.layer',
-            })
+                queryParams:{
+                        '3d': true,
+                        layers: 'test.wms.layer',
+                    }
+                },
+            )
             cy.waitUntilCesiumTilesLoaded()
 
 

@@ -13,9 +13,11 @@ describe('Testing click', () => {
         const mercatorCoords = proj4(WGS84.epsg, WEBMERCATOR.epsg, [lon, lat])
 
         cy.goToMapView({
-            '3d': true,
-            center: mercatorCoords.join(','),
-            sr: WEBMERCATOR.epsgNumber,
+            queryParams : {
+                '3d': true,
+                center: mercatorCoords.join(','),
+                sr: WEBMERCATOR.epsgNumber,
+            },
         })
         cy.waitUntilCesiumTilesLoaded()
         cy.get('[data-cy="cesium-map"] .cesium-viewer').click()

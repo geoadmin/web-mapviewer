@@ -48,7 +48,7 @@ describe('Testing transitioning between 2D and 3D', () => {
             })
             it('correctly parses the 3D param at startup if present', () => {
                 cy.goToMapView({
-                    '3d': true,
+                    queryParams: {'3d': true }
                 })
                 cy.readStoreValue('state.cesium.active').should('be.true')
             })
@@ -64,15 +64,17 @@ describe('Testing transitioning between 2D and 3D', () => {
                     roll: 12,
                 }
                 cy.goToMapView({
-                    '3d': true,
-                    camera: [
-                        expectedCameraPosition.x,
-                        expectedCameraPosition.y,
-                        expectedCameraPosition.z,
-                        expectedCameraPosition.pitch,
-                        expectedCameraPosition.heading,
-                        expectedCameraPosition.roll,
-                    ].join(','),
+                    queryParams: {
+                        '3d': true,
+                        camera: [
+                            expectedCameraPosition.x,
+                            expectedCameraPosition.y,
+                            expectedCameraPosition.z,
+                            expectedCameraPosition.pitch,
+                            expectedCameraPosition.heading,
+                            expectedCameraPosition.roll,
+                        ].join(','),
+                    },
                 })
                 cy.readStoreValue('state.position.camera').then((camera) => {
                     expect(camera).to.be.an('Object')
@@ -97,8 +99,10 @@ describe('Testing transitioning between 2D and 3D', () => {
             const lat = 46
             const lon = 7
             cy.goToMapView({
-                center: proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [lon, lat]),
-                z: 9,
+                queryParams: {
+                    center: proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [lon, lat]),
+                    z: 9,
+                },
             })
             cy.get('[data-cy="3d-button"]').click()
             cy.window().its('cesiumViewer').then((viewer) => {
