@@ -37,7 +37,9 @@ describe('Test of layer handling in 3D', () => {
             body: { results: [] },
         }).as('search-locations')
         cy.goToMapView({
-            '3d': true,
+            queryParams: {
+                '3d': true,
+            },
         })
         cy.waitUntilCesiumTilesLoaded()
         cy.openMenuIfMobile()
@@ -85,8 +87,10 @@ describe('Test of layer handling in 3D', () => {
         cy.log('checking a WMTS layer without 3D specific configuration')
         const wmtsLayerIdWithout3DConfig = 'test.timeenabled.wmts.layer'
         cy.goToMapView({
-            '3d': true,
-            layers: `${wmtsLayerIdWithout3DConfig},,0.5`,
+            queryParams: {
+                '3d': true,
+                layers: `${wmtsLayerIdWithout3DConfig},,0.5`,
+            }
         })
         cy.waitUntilCesiumTilesLoaded()
         cy.window().its('cesiumViewer').then((viewer) => {
@@ -141,11 +145,13 @@ describe('Test of layer handling in 3D', () => {
             const timedLayerMetadata = layersMetadata[timeEnabledLayerId]
             cy.getRandomTimestampFromSeries(timedLayerMetadata).then((randomTimestampFromLayer) => {
                 cy.goToMapView({
-                    '3d': true,
-                    layers: `${timeEnabledLayerId}@year=${randomTimestampFromLayer.substring(
-                        0,
-                        4
-                    )}`,
+                    queryParams: {
+                        '3d': true,
+                        layers: `${timeEnabledLayerId}@year=${randomTimestampFromLayer.substring(
+                            0,
+                            4
+                        )}`,
+                    },
                 })
                 cy.waitUntilCesiumTilesLoaded()
                 cy.window().its('cesiumViewer').then((viewer) => {
@@ -159,13 +165,14 @@ describe('Test of layer handling in 3D', () => {
     it('reorders visible layers when corresponding buttons are pressed', () => {
         const firstLayerId = 'test.wms.layer'
         const secondLayerId = 'test.wmts.layer'
-        cy.goToMapView(
-            {
+        cy.goToMapView({
+            queryParams: {
                 '3d': true,
                 sr: WEBMERCATOR.epsgNumber,
                 layers: `${firstLayerId};${secondLayerId}`,
             },
-            true
+            withHash: true,
+        }
         ) // with hash, so that we can have external layer support
         cy.waitUntilCesiumTilesLoaded()
         cy.openMenuIfMobile()
@@ -196,8 +203,10 @@ describe('Test of layer handling in 3D', () => {
     it('add GeoJson layer with opacity from URL param', () => {
         const geojsonlayerId = 'test.geojson.layer'
         cy.goToMapView({
-            '3d': true,
-            layers: `${geojsonlayerId},,0.5`,
+                queryParams: {
+                '3d': true,
+                layers: `${geojsonlayerId},,0.5`,
+            },
         })
         cy.wait(['@geojson-data', '@geojson-style'])
         cy.waitUntilCesiumTilesLoaded()
@@ -208,8 +217,10 @@ describe('Test of layer handling in 3D', () => {
     it('removes a layer from the visible layers when the "remove" button is pressed', () => {
         const geojsonlayerId = 'test.geojson.layer'
         cy.goToMapView({
-            '3d': true,
-            layers: `${geojsonlayerId}`,
+            queryParams: {
+                '3d': true,
+                layers: `${geojsonlayerId}`,
+            },
         })
         cy.waitUntilCesiumTilesLoaded()
         cy.wait(['@geojson-data', '@geojson-style'])
@@ -224,8 +235,10 @@ describe('Test of layer handling in 3D', () => {
     })
     it('uses the 3D configuration of a layer if one exists', () => {
         cy.goToMapView({
-            '3d': true,
-            layers: 'test.background.layer,,0.8',
+            queryParams: {
+                '3d': true,
+                layers: 'test.background.layer,,0.8',
+            },
         })
         cy.waitUntilCesiumTilesLoaded()
         cy.window().its('cesiumViewer').then((viewer) => {
@@ -262,8 +275,10 @@ describe('Test of layer handling in 3D', () => {
         cy.log('Go to 3D and add a WMS layer')
         const expectedWmsLayerId = 'test.wms.layer'
         cy.goToMapView({
-            '3d': true,
-            layers: expectedWmsLayerId,
+            queryParams: {
+                '3d': true,
+                layers: expectedWmsLayerId,
+            },
         })
         cy.waitUntilCesiumTilesLoaded()
         cy.window().its('cesiumViewer').then((viewer) => {
@@ -336,7 +351,9 @@ describe('Test of layer handling in 3D', () => {
         cy.getExternalWmsMockConfig().then((layerObjects) => {
             const mockExternalWms2 = layerObjects[1]
             const layers = [layerObjects[1]].map(transformLayerIntoUrlString).join(';')
-            cy.goToMapView({ '3d': true, layers })
+            cy.goToMapView({
+                queryParams: {'3d': true, layers },
+            })
             cy.log('Go to 3D and add a WMS layer')
             // This layer extent got transformed from EPSG:4326 to EPSG:2056
             const layerExtentInLV95 = [2485071.58, 1075346.31, 2828515.82, 1299941.79]

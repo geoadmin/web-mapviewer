@@ -31,9 +31,13 @@ describe('Geolocation on 3D cypress', () => {
                     geoLatitude,
                 ])
 
-                cy.goToMapView({ '3d': true }, true, {
-                    latitude: geoLatitude,
-                    longitude: geoLongitude,
+                cy.goToMapView({
+                    queryParams: { '3d': true },
+                    withHash: true,
+                    geolocationMockupOptions: {
+                        latitude: geoLatitude,
+                        longitude: geoLongitude,
+                    },
                 })
                 cy.waitUntilCesiumTilesLoaded()
 
@@ -77,12 +81,26 @@ describe('Geolocation on 3D cypress', () => {
             // The test is too fragile in CI (sometimes pass, sometimes not) due to rendered crassh
             it.skip('access from outside Switzerland shows an error message', () => {
                 // null island
-                cy.goToMapView({ '3d': true }, true, { latitude: 0, longitude: 0 })
+                cy.goToMapView({
+                    queryParams: { '3d': true },
+                    withHash: true,
+                    geolocationMockupOptions: {
+                        latitude: 0,
+                        longitude: 0,
+                    },
+                })
                 getGeolocationButtonAndClickIt()
                 testErrorMessage('geoloc_out_of_bounds')
 
                 // Java island
-                cy.goToMapView({ '3d': true }, true, { latitude: -7.71, longitude: 110.37 })
+                cy.goToMapView({
+                    queryParams: { '3d': true },
+                    withHash: true,
+                    geolocationMockupOptions: {
+                        latitude: -7.71,
+                        longitude: 110.37,
+                    },
+                })
                 getGeolocationButtonAndClickIt()
                 testErrorMessage('geoloc_out_of_bounds')
             })

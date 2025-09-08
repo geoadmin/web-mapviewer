@@ -153,7 +153,7 @@ function goToView(
     let flattenedQueryParams: string = ''
     Object.entries(queryParams).forEach(([key, value]) => {
         if (typeof value === 'boolean') {
-            if (value === false) {
+            if (value) {
                 // for true boolean param, only the key is required
                 flattenedQueryParams += `${key}&`
             }
