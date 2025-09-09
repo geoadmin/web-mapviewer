@@ -107,8 +107,10 @@ describe('Test mouse position and interactions', () => {
         })
         beforeEach(() => {
             cy.goToMapView({
-                center: center.join(','),
-                z: DEFAULT_PROJECTION.getDefaultZoom() + 3,
+                queryParams:{
+                    center: center.join(','),
+                    z: DEFAULT_PROJECTION.getDefaultZoom() + 3,
+                },
             })
         })
         it('shows coordinate under the mouse cursor in the footer, according to the selected projection format', () => {
@@ -138,8 +140,10 @@ describe('Test mouse position and interactions', () => {
         })
         beforeEach(() => {
             cy.goToMapView({
-                center: center.join(','),
-                z: DEFAULT_PROJECTION.getDefaultZoom() + 2.23,
+                queryParams:{
+                    center: center.join(','),
+                    z: DEFAULT_PROJECTION.getDefaultZoom() + 2.23,
+                },
             })
         })
         it('shows the LocationPopUp when rightclick occurs on the map', () => {

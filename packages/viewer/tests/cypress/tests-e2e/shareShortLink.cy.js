@@ -313,7 +313,7 @@ describe('Testing the share menu', () => {
                 cy.get('[data-cy="menu-button"]').click()
 
                 // Test local import
-                cy.goToMapView({}, true)
+                cy.goToMapView({ withHash: true })
                 cy.readStoreValue('state.layers.activeLayers').should('be.empty')
                 cy.openMenuIfMobile()
                 cy.get('[data-cy="menu-tray-tool-section"]:visible').click()

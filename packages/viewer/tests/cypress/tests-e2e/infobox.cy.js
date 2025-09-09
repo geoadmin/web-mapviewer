@@ -103,14 +103,14 @@ describe('The infobox', () => {
     })
     context('OpenLayers map', () => {
         beforeEach(() => {
-            cy.goToMapView({ layers: layer })
+            cy.goToMapView({queryParams:{layers: layer }})
         })
         generateInfoboxTestsForMapSelector('[data-cy="ol-map"]')
     })
 
     context('Changes the language of the infobox', () => {
         beforeEach(() => {
-            cy.goToMapView({ layers: layer })
+            cy.goToMapView({queryParams: {layers: layer }})
             cy.intercept('**/MapServer/**/htmlPopup**&lang=de**', {
                 fixture: 'html-popup-german.fixture.html',
             }).as('htmlPopupGerman')
@@ -144,14 +144,21 @@ describe('The infobox', () => {
     // TODO : BGDIINF_SB-3181
     context.skip('Cesium map', () => {
         beforeEach(() => {
-            cy.goToMapView({ layers: layer, '3d': true, sr: WEBMERCATOR.epsgNumber }, true)
+            cy.goToMapView({
+                queryParams: {
+                    layers: layer,
+                    '3d': true,
+                    sr: WEBMERCATOR.epsgNumber,
+                },
+                withHash: true,
+            })
             cy.waitUntilCesiumTilesLoaded()
         })
         // generateInfoboxTestsForMapSelector('[data-cy="cesium-map"]')
     })
     context('transition from 2D to 3D (and back to 2D)', () => {
         beforeEach(() => {
-            cy.goToMapView({ layers: layer })
+            cy.goToMapView({queryParams: {layers: layer }})
 
             cy.get('[data-cy="ol-map"]').click()
             cy.waitUntilState((_, getters) => {

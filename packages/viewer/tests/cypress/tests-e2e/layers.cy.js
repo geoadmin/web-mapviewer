@@ -52,13 +52,15 @@ describe('Test of layer handling', () => {
                 (request) => request.reply({ fixture: '256.png' })
             ).as('layer-4-getMap')
             cy.goToMapView({
-                layers: [
-                    'test-1.wms.layer',
-                    'test-2.wms.layer@param=value,,',
-                    'test-3.wms.layer,f',
-                    'test-4.wms.layer,,0.4',
-                    'test.wmts.layer,f,0.5',
-                ].join(';'),
+                queryParams:{
+                    layers: [
+                        'test-1.wms.layer',
+                        'test-2.wms.layer@param=value,,',
+                        'test-3.wms.layer,f',
+                        'test-4.wms.layer,,0.4',
+                        'test.wmts.layer,f,0.5',
+                    ].join(';'),
+                },
             })
 
             //-----------------------------------------------------------------
@@ -99,9 +101,7 @@ describe('Test of layer handling', () => {
         })
         it('uses the default timestamp of a time enabled layer when not specified in the URL', () => {
             const timeEnabledLayerId = 'test.timeenabled.wmts.layer'
-            cy.goToMapView({
-                layers: timeEnabledLayerId,
-            })
+            cy.goToMapView({ queryParams: { layers: timeEnabledLayerId }})
             cy.readStoreValue('getters.visibleLayers').then((layers) => {
                 const [timeEnabledLayer] = layers
                 cy.fixture('layers.fixture.json').then((layersMetadata) => {
@@ -119,10 +119,12 @@ describe('Test of layer handling', () => {
                 cy.getRandomTimestampFromSeries(timedLayerMetadata).then(
                     (randomTimestampFromLayer) => {
                         cy.goToMapView({
-                            layers: `${timeEnabledLayerId}@year=${randomTimestampFromLayer.substring(
-                                0,
-                                4
-                            )}`,
+                            queryParams:{
+                                layers: `${timeEnabledLayerId}@year=${randomTimestampFromLayer.substring(
+                                    0,
+                                    4
+                                )}`,
+                            },
                         })
                         cy.readStoreValue('getters.visibleLayers').then((layers) => {
                             const [timeEnabledLayer] = layers
@@ -150,7 +152,7 @@ describe('Test of layer handling', () => {
                     )
                     layerObjects[1].baseUrl = layerObjects[1].baseUrl + 'item=22_06_86t13214'
                     const layers = layerObjects.map(transformLayerIntoUrlString).join(';')
-                    cy.goToMapView({ layers })
+                    cy.goToMapView({queryParams: { layers }})
 
                     cy.log(`Verify that the Get capabilities of both server are called`)
                     cy.wait([
@@ -306,9 +308,11 @@ describe('Test of layer handling', () => {
                     const [mockExternalWmts1, _, mockExternalWmts3] = layerObjects
 
                     cy.goToMapView({
-                        layers: layerObjects
-                            .map((object) => transformLayerIntoUrlString(object))
-                            .join(';'),
+                        queryParams:{
+                            layers: layerObjects
+                                .map((object) => transformLayerIntoUrlString(object))
+                                .join(';'),
+                        },
                     })
 
                     cy.wait([
@@ -374,9 +378,11 @@ describe('Test of layer handling', () => {
                     ]
                     // reads and sets non default layer config; visible and opacity
                     cy.goToMapView({
-                        layers: layerObjects2
+                        queryParams:{
+                            layers: layerObjects2
                             .map((object) => transformLayerIntoUrlString(object))
                             .join(';'),
+                        },
                     })
                     cy.readStoreValue('getters.visibleLayers').should('have.length', 1)
                     cy.readStoreValue('state.layers.activeLayers').should((layers) => {
@@ -464,8 +470,8 @@ describe('Test of layer handling', () => {
                     body: 'Invalid body',
                 }).as('external-wms-invalid')
 
-                cy.goToMapView(
-                    {
+                cy.goToMapView({
+                    queryParams:{
                         layers: [
                             wmtsUnreachableUrlId,
                             wmtsInvalidContentUrlId,
@@ -473,8 +479,8 @@ describe('Test of layer handling', () => {
                             wmsInvalidContentUrlId,
                         ].join(';'),
                     },
-                    true
-                ) // with hash, otherwise the legacy parser kicks in and ruins the day
+                    withHash: true,
+                }) // with hash, otherwise the legacy parser kicks in and ruins the day
                 cy.wait('@external-wmts-unreachable')
                 cy.wait('@external-wmts-invalid')
                 cy.wait('@external-wms-unreachable')
@@ -581,7 +587,7 @@ describe('Test of layer handling', () => {
     })
     context('Background layer in URL at app startup', () => {
         it('sets the background to the void layer if we set the bgLayer parameter to "void"', () => {
-            cy.goToMapView({ bgLayer: 'void' })
+            cy.goToMapView({ queryParams: { bgLayer: 'void' }})
             cy.readStoreValue('getters.currentBackgroundLayer').should('be.null')
         })
         it('sets the background to the topic default if none is defined in the URL', () => {
@@ -597,9 +603,7 @@ describe('Test of layer handling', () => {
         it('sets the background to the topic default if none is defined in the URL, even if a layer (out of topic scope) is defined in it', () => {
             cy.fixture('topics.fixture').then((topicFixtures) => {
                 const [defaultTopic] = topicFixtures.topics
-                cy.goToMapView({
-                    layers: 'test.timeenabled.wmts.layer',
-                })
+                cy.goToMapView({ queryParams: { layers: 'test.timeenabled.wmts.layer' }})
                 cy.readStoreValue('getters.currentBackgroundLayer').then((bgLayer) => {
                     expect(bgLayer).to.not.be.null
                     expect(bgLayer.id).to.eq(defaultTopic.defaultBackground)
@@ -613,9 +617,7 @@ describe('Test of layer handling', () => {
             })
         })
         it('sets the background according to the URL param if present at startup', () => {
-            cy.goToMapView({
-                bgLayer: 'test.background.layer2',
-            })
+            cy.goToMapView({ queryParams: { bgLayer: 'test.background.layer2' }})
             cy.readStoreValue('getters.currentBackgroundLayer').then((bgLayer) => {
                 expect(bgLayer).to.not.be.null
                 expect(bgLayer.id).to.eq('test.background.layer2')
@@ -625,12 +627,10 @@ describe('Test of layer handling', () => {
     context('Layer settings in menu', () => {
         const visibleLayerIds = ['test.wms.layer', 'test.wmts.layer', 'test.timeenabled.wmts.layer']
         const goToMenuWithLayers = (layerIds = visibleLayerIds) => {
-            cy.goToMapView(
-                {
-                    layers: layerIds.join(';'),
-                },
-                true
-            ) // with hash, so that we can have external layer support
+            cy.goToMapView({
+                queryParams:{layers: layerIds.join(';')},
+                withHash: true,
+            }) // with hash, so that we can have external layer support
             cy.openMenuIfMobile()
         }
         context('Adding/removing layers', () => {
@@ -682,9 +682,7 @@ describe('Test of layer handling', () => {
                     'test.wmts.layer',
                     'test.timeenabled.wmts.layer',
                 ]
-                cy.goToMapView({
-                    layers: visibleLayerIds.join(';'),
-                })
+                cy.goToMapView({ queryParams:{ layers: visibleLayerIds.join(';') }})
                 cy.openMenuIfMobile()
                 cy.get('[data-cy="menu-active-layers"]').click()
                 cy.get('[data-cy="menu-section-no-layers"]').should('be.hidden')
@@ -1224,8 +1222,10 @@ describe('Test of layer handling', () => {
             let activeLayersConfigBefore
 
             cy.goToMapView({
-                lang: langBefore,
-                layers: visibleLayerIds.map((layer) => `${layer},f,0.1`).join(';'),
+                queryParams:{
+                    lang: langBefore,
+                    layers: visibleLayerIds.map((layer) => `${layer},f,0.1`).join(';'),
+                },
             })
 
             // Wait until the active layers are ready.
@@ -1274,16 +1274,14 @@ describe('Test of layer handling', () => {
     })
     context('Copyrights/attributions of layers', () => {
         it('hides the copyrights zone when no layer is visible', () => {
-            cy.goToMapView({
-                bgLayer: 'void',
-            })
+            cy.goToMapView({ queryParams: { bgLayer: 'void' }})
             cy.get('[data-cy="layers-copyrights"] a').should('not.exist')
         })
         it('shows the copyright as a link when an attribution URL is available', () => {
             cy.fixture('layers.fixture').then((fakeLayers) => {
                 const layerWithAttributionUrl = fakeLayers['test.wmts.layer']
                 cy.goToMapView({
-                    layers: layerWithAttributionUrl.serverLayerName,
+                    queryParams:{ layers: layerWithAttributionUrl.serverLayerName},
                 })
                 cy.get(
                     `a[data-cy="layer-copyright-${layerWithAttributionUrl.attribution}"]`
@@ -1299,7 +1297,7 @@ describe('Test of layer handling', () => {
             cy.fixture('layers.fixture').then((fakeLayers) => {
                 const layerWithoutAttributionUrl = fakeLayers['test.wms.layer']
                 cy.goToMapView({
-                    layers: layerWithoutAttributionUrl.serverLayerName,
+                    queryParams: {layers: layerWithoutAttributionUrl.serverLayerName},
                 })
                 cy.get(`span[data-cy="layer-copyright-${layerWithoutAttributionUrl.attribution}"]`)
                     .should('be.visible')
@@ -1310,7 +1308,7 @@ describe('Test of layer handling', () => {
             cy.fixture('layers.fixture').then((fakeLayers) => {
                 const layerWithMalformedAttributionUrl = fakeLayers['test.timeenabled.wmts.layer']
                 cy.goToMapView({
-                    layers: layerWithMalformedAttributionUrl.serverLayerName,
+                    queryParams:{layers: layerWithMalformedAttributionUrl.serverLayerName}
                 })
                 cy.get(
                     `span[data-cy="layer-copyright-${layerWithMalformedAttributionUrl.attribution}"]`
@@ -1321,17 +1319,17 @@ describe('Test of layer handling', () => {
         })
         it('only show once each data owner (attribution) even when multiple layers with the same are shown', () => {
             cy.goToMapView({
-                bgLayer: 'test.background.layer2',
-                layers: 'test.wmts.layer',
+                queryParams:{
+                    bgLayer: 'test.background.layer2',
+                    layers: 'test.wmts.layer',
+                }
             })
             cy.get('[data-cy="layers-copyrights"]').should('have.length', 1)
         })
     })
     context('GeoJSON layer data auto reload', () => {
         it('reloads periodically GeoJSON data when an update delay is set', () => {
-            cy.goToMapView({
-                layers: 'test.geojson.layer',
-            })
+            cy.goToMapView({ queryParams: { layers: 'test.geojson.layer' }})
             // waiting on initial load
             cy.wait('@geojson-data')
             // now it should reload every 2500ms (according to layers.fixture.json)
@@ -1342,15 +1340,15 @@ describe('Test of layer handling', () => {
     })
     context('Custom url attributes', () => {
         it('Keep custom attributes when changing language', () => {
-            cy.goToMapView({
-                lang: 'fr',
-            })
+            cy.goToMapView({queryParams: { lang: 'fr' }})
             cy.wait(['@routeChange', '@layerConfig', '@topics', '@topic-ech'])
             cy.goToMapView({
-                lang: 'en',
-                bgLayer: 'ch.swisstopo.pixelkarte-farbe',
-                topic: 'ech',
-                layers: 'WMS|https://wms.geo.admin.ch/?item=2024-10-30t103151|test.background.layer@item=2024-10-30t103151',
+                queryParams: {
+                    lang: 'en',
+                    bgLayer: 'ch.swisstopo.pixelkarte-farbe',
+                    topic: 'ech',
+                    layers: 'WMS|https://wms.geo.admin.ch/?item=2024-10-30t103151|test.background.layer@item=2024-10-30t103151',
+                },
             })
             cy.wait(['@routeChange', '@layerConfig', '@topics', '@topic-ech'])
             cy.url().should('contain', 'item=2024-10-30t103151')

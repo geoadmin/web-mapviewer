@@ -55,7 +55,7 @@ describe('The Import File Tool', () => {
     }
 
     it('Import KML file', () => {
-        cy.goToMapView({}, true)
+        cy.goToMapView({withHash: true})
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
         cy.openMenuIfMobile()
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
@@ -642,17 +642,18 @@ describe('The Import File Tool', () => {
             }
         )
 
-        cy.goToMapView(
-            {
-                layers: [
-                    `KML|${outOfBoundKMLUrl}`,
-                    `KML|${invalidFileOnlineUrl}`,
-                    `KML|${onlineUrlNotReachable}`,
-                    `KML|${validOnlineUrlWithInvalidContentType}`,
-                ].join(';'),
-            },
-            true
-        )
+        cy.goToMapView({
+            queryParams:
+                {
+                    layers: [
+                        `KML|${outOfBoundKMLUrl}`,
+                        `KML|${invalidFileOnlineUrl}`,
+                        `KML|${onlineUrlNotReachable}`,
+                        `KML|${validOnlineUrlWithInvalidContentType}`,
+                    ].join(';'),
+                },
+            withHash: true,
+        })
         cy.openMenuIfMobile()
 
         //---------------------------------------------------------------------
@@ -952,7 +953,7 @@ describe('The Import File Tool', () => {
         const gpxFileName = 'external-gpx-file.gpx'
         const gpxFileFixture = `import-tool/${gpxFileName}`
 
-        cy.goToMapView({}, true)
+        cy.goToMapView({withHash: true})
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
         cy.openMenuIfMobile()
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()

@@ -492,13 +492,14 @@ describe('Test the search bar result handling', () => {
                 ],
             },
         }).as('search-locations')
-        cy.goToMapView(
-            {
-                swisssearch: '1530 Payerne',
-                swisssearch_autoselect: 'true',
-            },
-            false
-        )
+        cy.goToMapView({
+            queryParams:
+                {
+                    swisssearch: '1530 Payerne',
+                    swisssearch_autoselect: 'true',
+                },
+            withHash: false,
+        })
         cy.readStoreValue('state.search.query').should('eq', '1530 Payerne')
         cy.url().should('not.contain', 'swisssearch')
         cy.url().should('not.contain', 'swisssearch_autoselect')
@@ -546,12 +547,13 @@ describe('Test the search bar result handling', () => {
         cy.log('Legacy parser / router (without #map part in the URL)')
         // --------------------------------------------------------------------------- //
         cy.log('Swisssearch only -> center to swisssearch coordinates')
-        cy.goToMapView(
-            {
-                swisssearch: swissSearchString,
-            },
-            false
-        )
+        cy.goToMapView({
+            queryParams:
+                {
+                    swisssearch: swissSearchString,
+                },
+            withHash: false,
+        })
         testQueryPositionCrosshairStore({
             searchQuery: swissSearchString,
             expectedCenter: swissSearchXYCoordinates,
@@ -564,13 +566,14 @@ describe('Test the search bar result handling', () => {
         cy.log(
             'Swisssearch with crosshair -> center to swisssearch coordinates with crosshair in swisssearch coordinate'
         )
-        cy.goToMapView(
-            {
-                swisssearch: swissSearchString,
-                crosshair: CrossHairs.cross,
-            },
-            false
-        )
+        cy.goToMapView({
+            queryParams:
+                {
+                    swisssearch: swissSearchString,
+                    crosshair: CrossHairs.cross,
+                },
+            withHash: false,
+        })
         testQueryPositionCrosshairStore({
             searchQuery: swissSearchString,
             expectedCenter: swissSearchXYCoordinates,
@@ -584,12 +587,13 @@ describe('Test the search bar result handling', () => {
 
         // --------------------------------------------------------------------------- //
         cy.log('Swisssearch only -> center to swisssearch coordinates')
-        cy.goToMapView(
-            {
-                swisssearch: swissSearchString,
-            },
-            true
-        )
+        cy.goToMapView({
+            queryParams:
+                {
+                    swisssearch: swissSearchString,
+                },
+            withHash: true,
+        })
         testQueryPositionCrosshairStore({
             searchQuery: swissSearchString,
             expectedCenter: swissSearchXYCoordinates,
@@ -602,13 +606,14 @@ describe('Test the search bar result handling', () => {
         cy.log(
             'Swisssearch with crosshair -> center to swisssearch coordinates with crosshair in swisssearch coordinate'
         )
-        cy.goToMapView(
-            {
-                swisssearch: swissSearchString,
-                crosshair: CrossHairs.cross,
-            },
-            true
-        )
+        cy.goToMapView({
+            queryParams:
+                {
+                    swisssearch: swissSearchString,
+                    crosshair: CrossHairs.cross,
+                },
+            withHash: true,
+        })
         testQueryPositionCrosshairStore({
             searchQuery: swissSearchString,
             expectedCenter: swissSearchXYCoordinates,
@@ -621,13 +626,14 @@ describe('Test the search bar result handling', () => {
         cy.log(
             'Swisssearch with crosshair and crosshair location -> center to swisssearch coordinates with crosshair in crosshair coordinate'
         )
-        cy.goToMapView(
+        cy.goToMapView({
+            queryParams:
             {
                 swisssearch: swissSearchString,
                 crosshair: `${CrossHairs.cross},${crossHairX},${crossHairY}`,
             },
-            true
-        )
+            withHash: true,
+        })
         testQueryPositionCrosshairStore({
             searchQuery: swissSearchString,
             expectedCenter: swissSearchXYCoordinates,

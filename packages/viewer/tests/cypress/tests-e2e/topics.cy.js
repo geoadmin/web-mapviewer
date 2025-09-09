@@ -69,8 +69,10 @@ describe('Topics', () => {
     it('handle topic changes correctly', () => {
         cy.log('loads topic correctly at app startup')
         cy.goToMapView({
-            layers: 'test.wmts.layer',
-            bgLayer: 'void',
+            queryParams: {
+                layers: 'test.wmts.layer',
+                bgLayer: 'void',
+            },
         })
         // checking that all topics have been loaded
         cy.fixture('topics.fixture').then((mockupTopics) => {
@@ -262,8 +264,10 @@ describe('Topics', () => {
             'Opens nodes in the topic tree if set in the URL and are different from the default in topic'
         )
         cy.goToMapView({
-            topic: 'test-topic-with-active-layers',
-            catalogNodes: 'test-topic-with-active-layers,2,5',
+            queryParams:{
+                topic: 'test-topic-with-active-layers',
+                catalogNodes: 'test-topic-with-active-layers,2,5',
+            },
         })
         cy.openMenuIfMobile()
 
@@ -288,8 +292,10 @@ describe('Topics', () => {
         cy.viewport(1920, 1080)
 
         cy.goToMapView({
-            layers: 'test.wmts.layer',
-            bgLayer: 'void',
+            queryParams:{
+                layers: 'test.wmts.layer',
+                bgLayer: 'void',
+            },
         })
         cy.wait(['@topics', '@topic-ech', '@layerConfig', '@routeChange', '@routeChange'])
         cy.log('it opens the layer legend popup when clicking the info button')

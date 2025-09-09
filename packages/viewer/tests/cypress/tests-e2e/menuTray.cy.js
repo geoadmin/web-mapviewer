@@ -125,7 +125,10 @@ function measureMenu(shouldHaveMaxSize) {
  * @param {any} nbSelectedLayers Number of menu items in the active layers list
  */
 function init(nbLayers, nbSelectedLayers) {
-    cy.goToMapView({}, false, {}, getFixturesAndIntercepts(nbLayers, nbSelectedLayers))
+    cy.goToMapView({
+        withHash: false,
+        fixturesAndIntercepts: getFixturesAndIntercepts(nbLayers, nbSelectedLayers),
+    })
     cy.readStoreValue('getters')
         .as('storeGetters')
         .then((getters) => {
@@ -145,7 +148,7 @@ function init(nbLayers, nbSelectedLayers) {
 
 function waitForAnimationsToFinish() {
     // animations last 0.2s
-    cy.wait(200)  
+    cy.wait(200)
 }
 
 /**

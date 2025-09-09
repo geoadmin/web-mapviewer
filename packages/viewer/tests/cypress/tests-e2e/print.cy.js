@@ -257,14 +257,14 @@ describe('Testing print', () => {
             }).as('kmlHeadRequest')
             cy.intercept('GET', '**/**.kml', { fixture: kmlFixture }).as('kmlGetRequest')
 
-            cy.goToMapView(
-                {
+            cy.goToMapView({
+                queryParams:{
                     layers: `KML|${getServiceKmlBaseUrl()}some-kml-file.kml`,
                     z: 9,
                     center,
                 },
-                true
-            )
+                withHash: true,
+            })
             cy.wait(['@kmlHeadRequest', '@kmlGetRequest'])
             cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
 
@@ -280,15 +280,17 @@ describe('Testing print', () => {
 
         it('should send a print request to mapfishprint (with layers added)', () => {
             cy.goToMapView({
-                layers: [
-                    'test-1.wms.layer',
-                    'test-2.wms.layer,,',
-                    'test-3.wms.layer,f',
-                    'test-4.wms.layer,f,0.4',
-                    // add duplicate layer to test duplicate attributions
-                    'test.wmts.layer,,0.5',
-                    'test.wmts.layer,,0.8',
-                ].join(';'),
+                queryParams: {
+                    layers: [
+                        'test-1.wms.layer',
+                        'test-2.wms.layer,,',
+                        'test-3.wms.layer,f',
+                        'test-4.wms.layer,f,0.4',
+                        // add duplicate layer to test duplicate attributions
+                        'test.wmts.layer,,0.5',
+                        'test.wmts.layer,,0.8',
+                    ].join(';'),
+                },
             })
             launchPrint({
                 withLegend: true,
@@ -623,14 +625,14 @@ describe('Testing print', () => {
                 layerObjects.forEach((layer) => {
                     layer.visible = true
                 })
-                cy.goToMapView(
-                    {
+                cy.goToMapView({
+                    queryParams:{
                         layers: layerObjects
                             .map((object) => transformLayerIntoUrlString(object))
                             .join(';'),
                     },
-                    true
-                )
+                    withHash: true,
+                })
 
                 cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
                 cy.get('[data-cy="menu-print-form"]').should('be.visible')
@@ -710,14 +712,14 @@ describe('Testing print', () => {
                 layerObjects.forEach((layer) => {
                     layer.visible = true
                 })
-                cy.goToMapView(
-                    {
+                cy.goToMapView({
+                    queryParams:{
                         layers: layerObjects
                             .map((object) => transformLayerIntoUrlString(object))
                             .join(';'),
                     },
-                    true
-                )
+                    withHash: true,
+                })
 
                 launchPrint({
                     withLegend: true,

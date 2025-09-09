@@ -105,8 +105,10 @@ describe('Test functions for the header / search bar', () => {
 
         it('Reload the app with current topic/lang when clicking on the swiss flag', () => {
             cy.goToMapView({
-                lang: 'fr',
-                topic: 'test-topic-standard',
+                queryParams:{
+                    lang: 'fr',
+                    topic: 'test-topic-standard',
+                },
             })
             clickOnLogo()
             // checking that topic and lang are still the same
@@ -116,8 +118,10 @@ describe('Test functions for the header / search bar', () => {
             // desktop only
             it('reloads the app the same way as above when click on the confederation text', () => {
                 cy.goToMapView({
-                    lang: 'fr',
-                    topic: 'test-topic-standard',
+                    queryParams:{
+                        lang: 'fr',
+                        topic: 'test-topic-standard',
+                    },
                 })
                 clickOnConfederationText()
                 // checking that topic and lang are still the same
@@ -136,9 +140,11 @@ describe('Test functions for the header / search bar', () => {
             // Check if the background layer is changed, when reset the app, the default background layer should be used
             // We go to different topic and change the background layer (that is different from the default one)
             cy.goToMapView({
-                lang: 'en',
-                topic: 'test-topic-standard-different-default-background',
-                bgLayer: 'test.background.layer2',
+                queryParams:{
+                    lang: 'en',
+                    topic: 'test-topic-standard-different-default-background',
+                    bgLayer: 'test.background.layer2',
+                },
             })
             checkLangAndTopic('en', 'test-topic-standard-different-default-background')
             checkCurrentBackgroundLayer('test.background.layer2')
