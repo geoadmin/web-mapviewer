@@ -31,24 +31,18 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.viewport(1920, 1080)
             //----------------------------------------------------------------------------------------------------
             cy.log(': Invisible time layer given. time slider button should not appear')
-            cy.goToMapView({
-                layers: `${timedLayerId},f`,
-            })
+            cy.goToMapView({ queryParams:{ layers: `${timedLayerId},f` }})
             cy.get('[data-cy="time-slider-button"]').should('not.exist')
 
             // ----------------------------------------------------------------------------------------------------
             cy.log('visible non time enabled Layer, the button should not be visible')
-            cy.goToMapView({
-                layers: standard_layer,
-            })
+            cy.goToMapView({ queryParams: { layers: standard_layer }})
             cy.get('[data-cy="time-slider-button"]').should('not.exist')
 
             // ----------------------------------------------------------------------------------------------------
             cy.log('The following few tests use the same goToMapView call')
             cy.log('With a visible time enabled Layer, the button should be visible')
-            cy.goToMapView({
-                layers: `${timedLayerId}@year=${preSelectedYear}`,
-            })
+            cy.goToMapView({ queryParams: { layers: `${timedLayerId}@year=${preSelectedYear}` }})
             cy.get('[data-cy="time-slider-button"]').should('be.visible')
             // ----------------------------------------------------------------------------------------------------
             cy.log(
@@ -87,7 +81,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             // proper way would be to use cy.tick, but I can't get it to work
             // it somehow gets into a race condition and the rendering isn't updated
             // after the debouncing is done
-             
+
             cy.wait(1000)
             cy.get('[data-cy="time-slider-button"]').click()
             cy.openMenuIfMobile()
@@ -132,8 +126,10 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             )
 
             cy.goToMapView({
-                layers: `${timedLayerId}@year=2019,f,;${timedLayerIdWithOddYear}@year=2009;${timedLayerIdWithAllYear}@year=2009`,
-                timeSlider: 2013,
+                queryParams:{
+                    layers: `${timedLayerId}@year=2019,f,;${timedLayerIdWithOddYear}@year=2009;${timedLayerIdWithAllYear}@year=2009`,
+                    timeSlider: 2013
+                },
             })
             cy.get('[data-cy="time-slider-bar-cursor-year"]')
                 .as('timeSliderYearCursor')
@@ -206,7 +202,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                 'If there is data common to all layers, the time slider goes to the youngest year in common'
             )
             cy.get('[data-cy="swiss-flag"]').as('swissFlag').click()
-            cy.goToMapView({ layers: `${timedLayerId};${timedLayerIdWithOddYear}` })
+            cy.goToMapView({ queryParams: {layers: `${timedLayerId};${timedLayerIdWithOddYear}` }})
             cy.get('[data-cy="time-slider-button"]').as('timeSliderButton').click()
             cy.get('@timeSliderYearCursor').should('have.value', '2021')
             cy.url().should((url) => url.includes('timeSlider=2021'))
@@ -217,8 +213,10 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
 
             cy.get('@swissFlag').click()
             cy.goToMapView({
-                layers: `${timedLayerId},f`,
-                timeSlider: 2003,
+                queryParams:{
+                    layers: `${timedLayerId},f`,
+                    timeSlider: 2003,
+                },
             })
             cy.get('@timeSliderButton').should('not.exist')
             cy.url().should((url) => !url.includes('timeSlider='))
@@ -231,7 +229,9 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
 
             cy.get('@swissFlag').click()
             cy.goToMapView({
-                layers: `${timedLayerId};${timedLayerIdWithOddYear};${timedLayerIdWithAllYear}`,
+                queryParams:{
+                    layers: `${timedLayerId};${timedLayerIdWithOddYear};${timedLayerIdWithAllYear}`,
+                },
             })
             cy.get('@timeSliderButton').click()
 
@@ -254,12 +254,12 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                     'Loading the app with a time slider value present in config but outside of default range should work without raising errors'
                 )
                 cy.get('@swissFlag').click()
-                cy.goToMapView({ layers: timedLayerId, timeSlider: oldestYearInConfig })
+                cy.goToMapView({ queryParams: { layers: timedLayerId, timeSlider: oldestYearInConfig }})
                 cy.get('@timeSliderYearCursor').should('have.value', oldestYearInConfig)
                 cy.url().should((url) => !url.includes('timeSlider='))
 
                 cy.get('@swissFlag').click()
-                cy.goToMapView({ layers: timedLayerId, timeSlider: youngestYearInConfig })
+                cy.goToMapView({ queryParams: { layers: timedLayerId, timeSlider: youngestYearInConfig }})
                 cy.get('@timeSliderYearCursor').should('have.value', youngestYearInConfig)
                 cy.url().should((url) => !url.includes('timeSlider='))
             })
@@ -268,15 +268,15 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.log('The time slider should not appear and the url should not show the parameter')
 
             cy.get('@swissFlag').click()
-            cy.goToMapView({ layers: timedLayerId, timeSlider: DEFAULT_OLDEST_YEAR - 1250 })
+            cy.goToMapView({ queryParams: { layers: timedLayerId, timeSlider: DEFAULT_OLDEST_YEAR - 1250 }})
             cy.get('@timeSliderYearCursor').should('not.exist')
             cy.url().should((url) => !url.includes('timeSlider='))
 
-            cy.goToMapView({ layers: timedLayerId, timeSlider: DEFAULT_YOUNGEST_YEAR + 1250 })
+            cy.goToMapView({ queryParams: { layers: timedLayerId, timeSlider: DEFAULT_YOUNGEST_YEAR + 1250 }})
             cy.get('@timeSliderYearCursor').should('not.exist')
             cy.url().should((url) => !url.includes('timeSlider='))
 
-            cy.goToMapView({ layers: timedLayerId, timeSlider: 'aCompletelyInvalidValue' })
+            cy.goToMapView({ queryParams: { layers: timedLayerId, timeSlider: 'aCompletelyInvalidValue' }})
             cy.get('@timeSliderYearCursor').should('not.exist')
             cy.url().should((url) => !url.includes('timeSlider='))
 
@@ -288,7 +288,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
 
         it('behaves correctly when years are being entered in the input', () => {
             cy.viewport(1920, 1080)
-            cy.goToMapView({ layers: `${timedLayerId}@year=2019`, timeSlider: 2017 })
+            cy.goToMapView({ queryParams: { layers: `${timedLayerId}@year=2019`, timeSlider: 2017 }})
             cy.get(`[data-cy="button-open-visible-layer-settings-${timedLayerId}-0"]`).click()
             cy.get(`[data-cy="button-duplicate-layer-${timedLayerId}-0"]`).click()
             cy.get(`[data-cy="button-toggle-visibility-layer-${timedLayerId}-0"]`).click()
@@ -339,7 +339,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                     // proper way would be to use cy.tick, but I can't get it to work
                     // it somehow gets into a race condition and the rendering isn't updated
                     // after the debouncing is done
-                     
+
                     cy.wait(750)
 
                     cy.get('[data-cy="time-slider-bar-cursor-arrow"]')
@@ -353,8 +353,10 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             // ----------------------------------------------------------------------------------------------------
             cy.log('Going to the map, the dropdown appears')
             cy.goToMapView({
-                layers: `${timedLayerId}@year=${preSelectedYear}`,
-                timeSlider: preSelectedYear,
+                queryParams:{
+                    layers: `${timedLayerId}@year=${preSelectedYear}`,
+                    timeSlider: preSelectedYear,
+                },
             })
             cy.get('[data-cy="time-slider-bar"]').should('not.be.visible')
             cy.get('[data-cy="time-slider-dropdown"]').should('be.visible')

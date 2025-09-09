@@ -71,12 +71,16 @@ describe('Change language', () => {
     context('on startup', () => {
         it('should show the correct language if we ask for it, even if the param is in uppercase', () => {
             SUPPORTED_LANG.forEach((lang) => {
-                cy.goToMapView({ lang: lang })
+                cy.goToMapView({
+                    queryParams:{ lang: lang }
+                })
                 checkLanguage(lang)
             })
 
             SUPPORTED_LANG.forEach((lang) => {
-                cy.goToMapView({ lang: lang.toUpperCase() })
+                cy.goToMapView({
+                    queryParams:{ lang: lang.toUpperCase() }
+                })
                 checkLanguage(lang)
             })
         })

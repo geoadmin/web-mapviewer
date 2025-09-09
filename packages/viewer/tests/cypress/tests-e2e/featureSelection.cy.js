@@ -70,13 +70,13 @@ describe('Testing the feature selection', () => {
         }
 
         function goToMapViewWithFeatureSelection(featureInfoPosition = null) {
-            const params = {
+            const queryParams = {
                 layers: `${standardLayer}@features=1:2:3:4:5:6:7:8:9:10`,
             }
             if (featureInfoPosition) {
-                params.featureInfo = featureInfoPosition
+                queryParams.featureInfo = featureInfoPosition
             }
-            cy.goToMapView(params)
+            cy.goToMapView(queryParams)
         }
 
         it('Adds pre-selected features and place the tooltip according to URL param on a narrow width screen', () => {
@@ -120,8 +120,9 @@ describe('Testing the feature selection', () => {
         it('Synchronise URL and feature selection', () => {
             const expectedFeatureIds = [1234, 5678]
             const mapSelector = '[data-cy="ol-map"]'
-            cy.goToMapView({
+            cy.goToMapView({queryParams:{
                 layers: `${standardLayer};${timeLayer}@year=2018,f`,
+                },
             })
             // ------------------------------------------------------------------------------------------------
             cy.url().should((url) => {
@@ -359,9 +360,7 @@ describe('Testing the feature selection', () => {
             // Import KML file
             const fileName = 'external-kml-file.kml'
             const localKmlFile = `import-tool/${fileName}`
-            cy.goToMapView({
-                layers: 'test.wms.layer',
-            })
+            cy.goToMapView({queryParams:{layers: 'test.wms.layer'}})
             cy.wait(['@routeChange', '@layerConfig', '@topics', '@topic-ech'])
 
             const featureCountWithKml = DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION + 1
@@ -474,9 +473,7 @@ describe('Testing the feature selection', () => {
             cy.log(
                 'sending a single feature as response, checking that the "Load more" button is not added'
             )
-            cy.goToMapView({
-                layers: 'test.wms.layer',
-            })
+            cy.goToMapView({queryParams:{layers: 'test.wms.layer'}})
             cy.wait('@routeChange')
 
             cy.intercept('**identify**', {
@@ -583,9 +580,7 @@ describe('Testing the feature selection', () => {
             // Import KML file
             const fileName = 'external-kml-file.kml'
             const localKmlFile = `import-tool/${fileName}`
-            cy.goToMapView({
-                layers: 'test.wms.layer',
-            })
+            cy.goToMapView({queryParams:{layers: 'test.wms.layer'}})
             cy.wait(['@routeChange', '@layerConfig', '@topics', '@topic-ech'])
 
             cy.openMenuIfMobile()

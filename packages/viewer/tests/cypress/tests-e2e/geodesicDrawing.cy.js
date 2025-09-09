@@ -112,7 +112,10 @@ const generateTestsInPacific = (testFunc) => {
 // a worldwide coverage, and even then we have to assess if we want it or not)
 describe.skip('Correct handling of geodesic geometries', () => {
     beforeEach(() => {
-        cy.goToDrawing({ z: 10, sr: 3857 }, true)
+        cy.goToDrawing({
+            queryParams:{ z: 10, sr: 3857 },
+            withHash:true
+        })
     })
     context(
         'Check that the modify and select interactions are aware that the linestring geometry is geodesic',

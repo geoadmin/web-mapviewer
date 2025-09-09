@@ -36,7 +36,7 @@ describe('Geolocation cypress', () => {
         () => {
             testCases.forEach(({ description, is3D }) => {
                 it(`Prompt the user to authorize geolocation when the geolocation button is clicked for the first time ${description}`, () => {
-                    cy.goToMapView({ '3d': is3D })
+                    cy.goToMapView({queryParams:{'3d': is3D}})
                     getGeolocationButtonAndClickIt()
                     cy.on('window:alert', () => {
                         throw new Error(
@@ -61,7 +61,7 @@ describe('Geolocation cypress', () => {
         () => {
             testCases.forEach(({ description, is3D }) => {
                 it(`Doesn't prompt the user if geolocation has previously been authorized ${description}`, () => {
-                    cy.goToMapView({ '3d': is3D }, true)
+                    cy.goToMapView({queryParams:{'3d': is3D }, withHash:true})
                     getGeolocationButtonAndClickIt()
                     cy.on('window:alert', () => {
                         throw new Error('Should not prompt for geolocation API permission again')
@@ -88,17 +88,17 @@ describe('Geolocation cypress', () => {
                     geoLatitude,
                 ])
 
-                cy.goToMapView(
-                    {
+                cy.goToMapView({
+                    queryParams:{
                         center: proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [
                             startingLongitude,
                             startingLatitude,
                         ]).join(','),
                         z: startingZoom,
                     },
-                    true,
-                    { latitude: geoLatitude, longitude: geoLongitude }
-                )
+                    withHash: true,
+                    geolocationMockupOptions: { latitude: geoLatitude, longitude: geoLongitude },
+                })
 
                 // check initial center and zoom
                 checkStorePosition('state.position.center', x0, y0)
@@ -138,12 +138,18 @@ describe('Geolocation cypress', () => {
             })
             it('access from outside Switzerland shows an error message', () => {
                 // null island
-                cy.goToMapView({}, true, { latitude: 0, longitude: 0 })
+                cy.goToMapView({
+                    withHash:true,
+                    geolocationMockupOptions: { latitude: 0, longitude: 0 },
+                })
                 getGeolocationButtonAndClickIt()
                 testErrorMessage('geoloc_out_of_bounds')
 
                 // Java island
-                cy.goToMapView({}, true, { latitude: -7.71, longitude: 110.37 })
+                cy.goToMapView({
+                    withHash: true,
+                    geolocationMockupOptions: { latitude: -7.71, longitude: 110.37 },
+                })
                 getGeolocationButtonAndClickIt()
                 testErrorMessage('geoloc_out_of_bounds')
             })
@@ -153,23 +159,35 @@ describe('Geolocation cypress', () => {
     context('Test geolocation when geolocation is failed to be retrieved', () => {
         testCases.forEach(({ description, is3D }) => {
             it(`shows an error telling the user geolocation is denied ${description}`, () => {
-                cy.goToMapView({ '3d': is3D }, true, {
-                    errorCode: GeolocationPositionError.PERMISSION_DENIED,
+                cy.goToMapView({
+                    queryParams:{'3d': is3D },
+                    withHash: true,
+                    geolocationMockupOptions: {
+                        errorCode: GeolocationPositionError.PERMISSION_DENIED,
+                    },
                 })
                 getGeolocationButtonAndClickIt()
                 testErrorMessage('geoloc_permission_denied')
             })
 
             it(`shows an alert telling the user geolocation is not able to be retrieved due to time out ${description}`, () => {
-                cy.goToMapView({ '3d': is3D }, true, {
-                    errorCode: GeolocationPositionError.TIMEOUT,
+                cy.goToMapView({
+                    queryParams: {'3d': is3D },
+                    withHash: true,
+                    geolocationMockupOptions: {
+                        errorCode: GeolocationPositionError.TIMEOUT,
+                    },
                 })
                 getGeolocationButtonAndClickIt()
                 testErrorMessage('geoloc_time_out')
             })
             it(`shows an alert telling the user geolocation is not available for other reason ${description}`, () => {
-                cy.goToMapView({ '3d': is3D }, true, {
-                    errorCode: GeolocationPositionError.POSITION_UNAVAILABLE,
+                cy.goToMapView({
+                    queryParams:{'3d': is3D },
+                    withHash: true,
+                    geolocationMockupOptions: {
+                        errorCode: GeolocationPositionError.POSITION_UNAVAILABLE,
+                    },
                 })
                 getGeolocationButtonAndClickIt()
                 testErrorMessage('geoloc_unknown')

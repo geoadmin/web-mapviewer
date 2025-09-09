@@ -534,7 +534,7 @@ describe('Drawing module tests', () => {
             // OL waits 250ms before deciding a click is a single click (and then start the event chain)
             // and as we do not have a layer that will fire identify features to wait on, we have to resort
             // to wait arbitrarily 250ms
-             
+
             cy.wait(250)
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'185'172.00")
         })
@@ -799,12 +799,10 @@ describe('Drawing module tests', () => {
                     expect(line.getGeometry().getCoordinates().length).to.eq(2)
                 })
 
-            cy.goToMapView(
-                {
-                    zoom: 6,
-                },
-                false
-            )
+            cy.goToMapView({
+                queryParams:{zoom: 6},
+                withHash: false,
+            })
 
             cy.log('Feature Area Info should be in meters below unit threshold')
             cy.goToDrawing()
@@ -1089,7 +1087,10 @@ describe('Drawing module tests', () => {
             cy.log(
                 'opening up the app and centering it directly on the single marker feature from the fixture'
             )
-            cy.goToDrawing({ layers: kmlUrlParam, center: center.join(',') }, true)
+            cy.goToDrawing({
+                queryParams:{layers: kmlUrlParam, center: center.join(',')},
+                withHash: true,
+            })
             cy.wait(['@get-kml-metadata', '@get-kml'])
 
             cy.log(
@@ -1176,7 +1177,10 @@ describe('Drawing module tests', () => {
             cy.log(
                 'opening up the app and centering it directly on the single marker feature from the fixture'
             )
-            cy.goToMapView({ adminId: kmlFileAdminId, E: center[0], N: center[1] }, false)
+            cy.goToMapView({
+                queryParams:{adminId: kmlFileAdminId, E: center[0], N: center[1] },
+                withHash: false,
+            })
             cy.wait([
                 '@get-kml-metadata-by-admin-id',
                 // as we come from outside any import tool, all file parser will be tried consecutively, and each of them
@@ -1247,8 +1251,9 @@ describe('Drawing module tests', () => {
 
             const fileId = 'zBnMZymwTLSNg__5f8yv6g'
             cy.log('load map with an injected kml layer containing an empty KML')
-            cy.goToMapView({
-                layers: [`KML|https://sys-public.dev.bgdi.ch/api/kml/files/${fileId}`].join(';'),
+            cy.goToMapView({queryParams:{
+                    layers: [`KML|https://sys-public.dev.bgdi.ch/api/kml/files/${fileId}`].join(';'),
+                },
             })
 
             cy.wait('@get-empty-kml')

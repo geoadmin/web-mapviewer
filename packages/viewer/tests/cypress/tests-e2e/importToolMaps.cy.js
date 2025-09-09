@@ -4,7 +4,7 @@ import { isMobile } from '../support/utils.js'
 describe('The Import Maps Tool', () => {
     const bgLayer = 'test.background.layer2'
     beforeEach(() => {
-        cy.goToMapView({}, true)
+        cy.goToMapView({withHash: true})
         cy.openMenuIfMobile()
     })
     it('Import external wms layers', () => {
@@ -552,12 +552,13 @@ describe('The Import Maps Tool', () => {
             },
             (request) => request.reply({ fixture: '256.png' })
         ).as('layer-1-getMap')
-        cy.goToMapView(
-            {
-                layers: 'WMS|https://fake.wms.base-1.url/?|ch.swisstopo-vd.official-survey',
-            },
-            true
-        )
+        cy.goToMapView({
+            queryParams:
+                {
+                    layers: 'WMS|https://fake.wms.base-1.url/?|ch.swisstopo-vd.official-survey',
+                },
+            withHash: true,
+        })
         cy.openMenuIfMobile()
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
         //cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()

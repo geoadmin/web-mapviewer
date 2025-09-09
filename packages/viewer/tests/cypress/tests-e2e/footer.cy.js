@@ -7,9 +7,7 @@ import { UIModes } from '@/store/modules/ui.store'
 describe('Testing the footer content / tools', () => {
     it('shows/hide the scale line depending on the map resolution, while in Mercator', () => {
         cy.viewport(1920, 1080)
-        cy.goToMapView({
-            sr: WEBMERCATOR.epsgNumber,
-        })
+        cy.goToMapView({queryParams:{sr: WEBMERCATOR.epsgNumber}})
 
         // Scale line not visible on standard startup, as the standard zoom level is 7,
         // which mean a higher resolution as the acceptable threshold for scale line to be visible.
@@ -56,9 +54,7 @@ describe('Testing the footer content / tools', () => {
             cy.readStoreValue('getters.currentBackgroundLayer').should('be.null')
         }
 
-        cy.goToMapView({
-            bgLayer: 'void',
-        })
+        cy.goToMapView({queryParams:{bgLayer: 'void'}})
         // checking the rounded background wheel (mobile/tablet only)
         cy.viewport('iphone-se2')
         testBackgroundWheel()

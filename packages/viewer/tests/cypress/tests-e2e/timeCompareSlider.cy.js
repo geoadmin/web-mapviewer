@@ -75,9 +75,11 @@ describe('Open Time and Compare Slider together', () => {
             cy.viewport(1920, 1080)
 
             cy.goToMapView({
-                layers: [`${timedLayerId}@year=${preSelectedYear}`, testLayer1, testLayer2].join(
-                    ';'
-                ),
+                queryParams:{
+                    layers: [`${timedLayerId}@year=${preSelectedYear}`, testLayer1, testLayer2].join(
+                        ';'
+                    ),
+                },
             })
 
             // Initial state, no slider should be active
@@ -167,9 +169,11 @@ describe('Open Time and Compare Slider together', () => {
             cy.viewport(1920, 1080)
 
             cy.goToMapView({
-                layers: [`${timedLayerId}@year=${preSelectedYear}`, testLayer1, testLayer2].join(
-                    ';'
-                ),
+                queryParams:{
+                    layers: [`${timedLayerId}@year=${preSelectedYear}`, testLayer1, testLayer2].join(
+                        ';'
+                    ),
+                },
             })
 
             // Initial state, no slider should be active
@@ -215,7 +219,9 @@ describe('Open Time and Compare Slider together', () => {
             cy.viewport(1920, 1080)
             const newSelectedTimeStamp = '20200101'
             cy.goToMapView({
-                layers: [`${timedLayerId}@year=${preSelectedYear}`].join(';'),
+                queryParams:{
+                    layers: [`${timedLayerId}@year=${preSelectedYear}`].join(';'),
+                },
             })
 
             // Duplicate the time enabled layer

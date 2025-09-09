@@ -15,14 +15,14 @@ describe('Test on legacy param import', () => {
             const lat = 47.3
             const lon = 7.3
             const zoom = 10.4
-            cy.goToMapView(
-                {
+            cy.goToMapView({
+                queryParams:{
                     lat,
                     lon,
                     zoom: zoom,
                 },
-                false
-            )
+                withHash: false,
+            })
 
             // checking in the store that the position has not changed from what was in the URL
             cy.readStoreValue('state.position.zoom').should('eq', zoom)
@@ -36,13 +36,13 @@ describe('Test on legacy param import', () => {
             const lat = 47
             const lon = 7.5
             const zoom = 12
-            cy.goToMapView(
-                {
+            cy.goToMapView({
+                queryParams:{
                     center: proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [lon, lat]).join(','),
                     z: zoom,
                 },
-                true
-            )
+                withHash: true,
+            })
 
             // checking in the store that the position has not changed from what was in the URL
             cy.readStoreValue('state.position.zoom').should('eq', zoom)
@@ -56,14 +56,14 @@ describe('Test on legacy param import', () => {
             const E = 2660000
             const N = 1200000
             const lv95zoom = 8
-            cy.goToMapView(
-                {
+            cy.goToMapView({
+                queryParams:{
                     E,
                     N,
                     zoom: lv95zoom,
                 },
-                false
-            )
+                withHash: false,
+            })
 
             cy.readStoreValue('state.position.zoom').should('eq', lv95zoom)
 
@@ -78,13 +78,13 @@ describe('Test on legacy param import', () => {
         it('center where expected when given a X, Y coordinate in LV95', () => {
             // NOTE on the old viewer Y := correspond to x in EPSG definition
             // NOTE on the old viewer X := correspond to y in EPSG definition
-            cy.goToMapView(
-                {
+            cy.goToMapView({
+                queryParams:{
                     Y: 2660000,
                     X: 1200000,
                 },
-                false
-            )
+                withHash: false,
+            })
             // checking that we are reprojected to lon: 8.2267733° lat: 46.9483767°
             // (according to https://epsg.io/transform#s_srs=2056&t_srs=4326&x=2660000.0000000&y=1200000.0000000)
             cy.readStoreValue('getters.centerEpsg4326').should((center) => {
@@ -96,13 +96,14 @@ describe('Test on legacy param import', () => {
         it('center where expected when given a X, Y coordinate in LV03', () => {
             // NOTE on the old viewer Y := correspond to x in EPSG definition
             // NOTE on the old viewer X := correspond to y in EPSG definition
-            cy.goToMapView(
+            cy.goToMapView({
+                queryParams:
                 {
                     Y: 600000,
                     X: 200000,
                 },
-                false
-            )
+                withHash: false,
+            })
             // checking that we are reprojected to lon: 7.438632° lat: 46.9510828°
             // (according to https://epsg.io/transform#s_srs=21781&t_srs=4326&x=600000.0000000&y=200000.0000000)
             cy.readStoreValue('getters.centerEpsg4326').should((center) => {
@@ -149,14 +150,14 @@ describe('Test on legacy param import', () => {
         })
 
         it('Combines all old layers_*** params into the new one', () => {
-            cy.goToMapView(
-                {
+            cy.goToMapView({
+                queryParams:{
                     layers: 'test.wms.layer,test.wmts.layer',
                     layers_opacity: '0.6,0.5',
                     layers_visibility: 'true,false',
                 },
-                false
-            )
+                withHash: false,
+            })
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                 expect(activeLayers).to.be.an('Array').length(2)
                 const [wmsLayer, wmtsLayer] = activeLayers
@@ -169,14 +170,14 @@ describe('Test on legacy param import', () => {
             })
         })
         it('is able to import an external KML from a legacy param', () => {
-            cy.goToMapView(
-                {
+            cy.goToMapView({
+                queryParams:{
                     layers: `KML||${kmlServiceBaseUrl}${kmlServiceFilePath}`,
                     layers_opacity: '0.6',
                     layers_visibility: 'true',
                 },
-                false
-            )
+                withHash: false,
+            })
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                 expect(activeLayers).to.be.an('Array').length(1)
                 const [kmlLayer] = activeLayers
@@ -187,12 +188,12 @@ describe('Test on legacy param import', () => {
             })
         })
         it('is able to import an external KML from a legacy adminId query param', () => {
-            cy.goToMapView(
-                {
+            cy.goToMapView({
+                queryParams:{
                     adminId: adminId,
                 },
-                false
-            )
+                withHash: false,
+            })
             cy.wait('@get-kml-metada-by-admin-id')
             cy.wait('@get-kml')
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
@@ -205,12 +206,12 @@ describe('Test on legacy param import', () => {
             })
         })
         it("don't keep KML adminId in URL after import", () => {
-            cy.goToMapView(
-                {
+            cy.goToMapView({
+                queryParams:{
                     adminId: adminId,
                 },
-                false
-            )
+                withHash: false,
+            })
             cy.wait('@get-kml-metada-by-admin-id')
             cy.wait('@get-kml')
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
@@ -224,15 +225,15 @@ describe('Test on legacy param import', () => {
             cy.url().should('not.contain', adminId)
         })
         it('is able to import an external KML from a legacy adminId query param with other layers', () => {
-            cy.goToMapView(
-                {
+            cy.goToMapView({
+                queryParams:{
                     adminId: adminId,
                     layers: 'test.wms.layer,test.wmts.layer',
                     layers_opacity: '0.6,0.5',
                     layers_visibility: 'true,false',
                 },
-                false
-            )
+                withHash: false,
+            })
             cy.wait('@get-kml-metada-by-admin-id')
             cy.wait('@get-kml')
             cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
@@ -270,12 +271,12 @@ describe('Test on legacy param import', () => {
                     ],
                 },
             }).as('search-locations')
-            cy.goToMapView(
-                {
+            cy.goToMapView({
+                queryParams:{
                     swisssearch: '1530 Payerne',
                 },
-                false
-            )
+                withHash: false,
+            })
             cy.readStoreValue('state.search.query').should('eq', '1530 Payerne')
             cy.url().should('not.contain', 'swisssearch')
             cy.get('[data-cy="searchbar"]').click()
@@ -293,15 +294,15 @@ describe('Test on legacy param import', () => {
         it('External WMS layer', () => {
             cy.getExternalWmsMockConfig().then((mockConfig) => {
                 const [mockExternalWms1] = mockConfig
-                cy.goToMapView(
-                    {
+                cy.goToMapView({
+                    queryParams:{
                         layers: `test.wms.layer,WMS||${mockExternalWms1.name}||${mockExternalWms1.baseUrl}||${mockExternalWms1.id}||1.3.0`,
                         layers_opacity: '1,1',
                         layers_visibility: 'false,true',
                         layers_timestamp: ',',
                     },
-                    false
-                )
+                    withHash: false,
+                })
                 cy.wait(`@externalWMS-GetCap-${mockExternalWms1.baseUrl}`)
                 cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                     expect(activeLayers).to.be.an('Array').length(2)
@@ -323,15 +324,15 @@ describe('Test on legacy param import', () => {
         it('External WMTS layer', () => {
             cy.getExternalWmtsMockConfig().then((mockConfig) => {
                 const [mockExternalWmts1] = mockConfig
-                cy.goToMapView(
-                    {
+                cy.goToMapView({
+                    queryParams:{
                         layers: `test.wmts.layer,WMTS||${mockExternalWmts1.id}||${mockExternalWmts1.baseUrl}`,
                         layers_opacity: '1,1',
                         layers_visibility: 'false,true',
                         layers_timestamp: '18641231,',
                     },
-                    false
-                )
+                    withHash: false,
+                })
                 cy.wait(`@externalWMTS-GetCap-${mockExternalWmts1.baseUrl}`)
                 cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
                     expect(activeLayers).to.be.an('Array').length(2)
@@ -367,16 +368,16 @@ describe('Test on legacy param import', () => {
         const pitch = -45
 
         it('transfers camera parameter from legacy URL to the new URL', () => {
-            cy.goToMapView(
-                {
+            cy.goToMapView({
+                queryParams:{
                     lat,
                     lon,
                     elevation,
                     heading,
                     pitch,
                 },
-                false
-            )
+                withHash: false,
+            })
 
             // checking in the store that the parameters have been converted into the new 3D parameters
             cy.readStoreValue('state.cesium.active').should('eq', true) // cesium should be active
@@ -398,14 +399,14 @@ describe('Test on legacy param import', () => {
         })
 
         it('transfers camera parameter from legacy URL to the new URL only heading', () => {
-            cy.goToMapView(
-                {
+            cy.goToMapView({
+                queryParams:{
                     lat,
                     lon,
                     heading,
                 },
-                false
-            )
+                withHash: false,
+            })
 
             // checking in the store that the parameters have been converted into the new 3D parameters
             cy.readStoreValue('state.cesium.active').should('eq', true) // cesium should be active
@@ -424,14 +425,14 @@ describe('Test on legacy param import', () => {
         // camera=7.038834,46.766017,193985.5,-47,319,
         // camera=8.225457,46.858429,738575.8,-90,,
         it('transfers camera parameter from legacy URL to the new URL only elevation', () => {
-            cy.goToMapView(
-                {
+            cy.goToMapView({
+                queryParams:{
                     lat,
                     lon,
                     elevation,
                 },
-                false
-            )
+                withHash: false,
+            })
 
             // checking in the store that the parameters have been converted into the new 3D parameters
             cy.readStoreValue('state.cesium.active').should('eq', true) // cesium should be active
@@ -453,13 +454,13 @@ describe('Test on legacy param import', () => {
     context('Extra Parameter Imports', () => {
         it('shows the compare slider at the correct position', () => {
             /*  */
-            cy.goToMapView(
-                {
+            cy.goToMapView({
+                queryParams:{
                     layers: 'test-1.wms.layer',
                     swipe_ratio: '0.3',
                 },
-                false
-            )
+                withHash: false,
+            })
             // initial slider position is width * 0.3 -20
             cy.get('[data-cy="compareSlider"]').then((slider) => {
                 cy.readStoreValue('state.ui.width').should((width) => {
@@ -472,14 +473,15 @@ describe('Test on legacy param import', () => {
             cy.get('[data-cy="compareSlider"]').should('be.visible')
         })
     })
+    // TODO: define why it is skipped, and solve the issue.
     it.skip('should show the time slider on startup when setting it in the URL', () => {
-        cy.goToMapView(
-            {
+        cy.goToMapView({
+            queryParams:{
                 layers: `test.timeenabled.wmts.layer`,
                 time: 2019,
             },
-            false
-        )
+            withHash: false,
+        })
         cy.get('[data-cy="time-slider-current-year"]').should('contain', 2019)
     })
     context('Feature Pre Selection Import', () => {
@@ -499,12 +501,12 @@ describe('Test on legacy param import', () => {
                 // ---------------------------------------------------------------------------------
                 cy.log('When showTooltip is not specified, we should have no tooltip')
 
-                cy.goToMapView(
-                    {
+                cy.goToMapView({
+                    queryParams:{
                         'ch.babs.kulturgueter': featuresIds.join(','),
                     },
-                    false
-                )
+                    withHash: false,
+                })
                 checkFeatures(featuresIds)
                 cy.readStoreValue('state.ui.featureInfoPosition').should(
                     'be.equal',
@@ -517,13 +519,13 @@ describe('Test on legacy param import', () => {
                     'When showTooltip is true, featureInfo should be bottom panel on devices with width < 400 px '
                 )
 
-                cy.goToMapView(
-                    {
+                cy.goToMapView({
+                    queryParams:{
                         'ch.babs.kulturgueter': featuresIds.join(','),
                         showTooltip: 'true',
                     },
-                    false
-                )
+                    withHash: false,
+                })
                 checkFeatures(featuresIds)
                 cy.readStoreValue('state.ui.featureInfoPosition').should(
                     'be.equal',
@@ -536,13 +538,13 @@ describe('Test on legacy param import', () => {
                     'When showTooltip is true, featureInfo should be default on devices with width >= 400 px '
                 )
                 cy.viewport(400, 800)
-                cy.goToMapView(
-                    {
+                cy.goToMapView({
+                    queryParams:{
                         'ch.babs.kulturgueter': featuresIds.join(','),
                         showTooltip: 'true',
                     },
-                    false
-                )
+                    withHash: false,
+                })
                 checkFeatures(featuresIds)
                 cy.readStoreValue('state.ui.featureInfoPosition').should(
                     'be.equal',
@@ -553,13 +555,13 @@ describe('Test on legacy param import', () => {
                 // ---------------------------------------------------------------------------------
                 cy.log('When showTooltip is given a fantasist value, we should have no tooltip')
 
-                cy.goToMapView(
-                    {
+                cy.goToMapView({
+                    queryParams:{
                         'ch.babs.kulturgueter': featuresIds.join(','),
                         showTooltip: 'aFantasyValue',
                     },
-                    false
-                )
+                    withHash: false,
+                })
                 checkFeatures(featuresIds)
                 cy.readStoreValue('state.ui.featureInfoPosition').should(
                     'be.equal',
