@@ -33,7 +33,8 @@
         "pnpm": ">=10.15"
     },
     "devDependencies": {
-        "yaml": "catalog:"
+        "yaml": "catalog:",
+        "postcss-html": "catalog:"
     },
     "pnpm": {
         "onlyBuiltDependencies": [

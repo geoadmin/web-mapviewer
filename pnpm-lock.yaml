@@ -265,7 +265,7 @@ catalogs:
       specifier: ^1.3.14
       version: 1.3.14
     postcss-html:
-      specifier: ^1.8.0
+      specifier: 1.8.0
       version: 1.8.0
     prettier:
       specifier: ^3.6.2
@@ -421,6 +421,9 @@ importers:
 
   .:
     devDependencies:
+      postcss-html:
+        specifier: 'catalog:'
+        version: 1.8.0
       yaml:
         specifier: 'catalog:'
         version: 2.8.1
@@ -1165,6 +1168,9 @@ importers:
       pinia-logger:
         specifier: 'catalog:'
         version: 1.3.14
+      postcss-html:
+        specifier: 'catalog:'
+        version: 1.8.0
       rimraf:
         specifier: 'catalog:'
         version: 6.0.1
