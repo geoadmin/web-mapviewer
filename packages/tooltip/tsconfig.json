@@ -1,0 +1,7 @@
+{
+    "extends": "@swissgeo/typescript-config/tsconfig.base.json",
+    "include": [
+        "**/*.ts",
+        "**/*.vue"
+    ]
+}

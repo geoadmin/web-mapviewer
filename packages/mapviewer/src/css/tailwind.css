@@ -1,5 +1,0 @@
-/* using important to ease cohabitation with Bootstrap, can be removed it once we've migrated away from Bootstrap */
-@import 'tailwindcss' prefix(tw) important;
-
-@import '@geoadmin/elevation-profile/tailwindcss';
-@import '@geoadmin/tooltip/tailwindcss';

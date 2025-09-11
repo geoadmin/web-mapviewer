@@ -1,0 +1,22 @@
+{
+    "name": "@swissgeo/typescript-config",
+    "private": true,
+    "main": "tsconfig.base.json",
+    "dependencies": {
+        "@vue/tsconfig": "catalog:"
+    },
+    "optionalDependencies": {
+        "@types/bootstrap": "catalog:",
+        "@types/chai": "catalog:",
+        "@types/geojson": "catalog:",
+        "@types/jsdom": "catalog:",
+        "@types/lodash": "catalog:",
+        "@types/luxon": "catalog:",
+        "@types/node": "catalog:",
+        "@types/openlayers": "catalog:",
+        "@types/pako": "catalog:"
+    },
+    "peerDependencies": {
+        "typescript": "catalog:"
+    }
+}

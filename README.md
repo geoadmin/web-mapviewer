@@ -39,13 +39,13 @@ See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## Check External Layer Provider list
 
-In the `Import` tool we provide a hardcoded list of provider via the [external-providers.json](./packages/mapviewer/src/modules/menu/components/advancedTools/ImportCatalogue/external-providers.json) file. Because we have quite a lot of provider, we have a CLI tool in order to
+In the `Import` tool we provide a hardcoded list of provider via the [external-providers.json](packages/viewer/src/modules/menu/components/advancedTools/ImportCatalogue/external-providers.json) file. Because we have quite a lot of provider, we have a CLI tool in order to
 check their validity. The tool can also be used with a single url as input parameter to see the URL would be valid
 for our application.
 
 ```bash
 pnpm install
-./packages/mapviewer/scripts/check-external-layers-providers.js
+./packages/viewer/scripts/check-external-layers-providers.js
 ```
 
 You can use `-h` option to get more detail on the script.

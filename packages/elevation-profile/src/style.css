@@ -1,0 +1,4 @@
+/* using important to ease cohabitation with Bootstrap, can be removed it once we've migrated away from Bootstrap */
+@import 'tailwindcss' prefix(tw) important;
+
+@import '@swissgeo/tooltip/tailwindcss';

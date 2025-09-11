@@ -1,0 +1,63 @@
+{
+    "name": "@swissgeo/tooltip",
+    "version": "0.0.1",
+    "description": "Tooltip for geoadmin",
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.umd.cjs"
+        },
+        "./tailwindcss": [
+            "./dist/tooltip.css"
+        ]
+    },
+    "main": "./dist/index.umd.cjs",
+    "module": "./dist/index.js",
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "pnpm run type-check && pnpm run generate-types && vite build",
+        "build:dev": "pnpm run build --mode development",
+        "build:dev:watch": "pnpm run build --watch --mode development",
+        "build:int": "pnpm run build --mode integration",
+        "build:prod": "pnpm run build --mode production",
+        "lint": "eslint --fix && pnpm run lint:styles",
+        "lint:no-fix": "eslint && pnpm run lint:styles:no-fix",
+        "lint:styles": "stylelint \"**/*.{vue,scss}\" --fix",
+        "lint:styles:no-fix": "stylelint \"**/*.{vue,scss}\"",
+        "dev": "vite --host",
+        "generate-types": "vue-tsc --declaration",
+        "preview": "vite preview",
+        "type-check": "vue-tsc --build"
+    },
+    "dependencies": {
+        "@floating-ui/vue": "catalog:"
+    },
+    "devDependencies": {
+        "@microsoft/api-extractor": "catalog:",
+        "@swissgeo/eslint-config": "workspace:*",
+        "@swissgeo/stylelint-config": "workspace:*",
+        "@swissgeo/typescript-config": "workspace:*",
+        "@tailwindcss/vite": "catalog:",
+        "@tsconfig/node22": "catalog:",
+        "@types/jsdom": "catalog:",
+        "@vitejs/plugin-vue": "catalog:",
+        "@vue/tsconfig": "catalog:",
+        "eslint": "catalog:",
+        "stylelint": "catalog:",
+        "tailwindcss": "catalog:",
+        "typescript": "catalog:",
+        "unplugin-dts": "catalog:",
+        "vite": "catalog:",
+        "vite-plugin-vue-devtools": "catalog:",
+        "vite-tsconfig-paths": "catalog:",
+        "vitest": "catalog:",
+        "vue-tsc": "catalog:"
+    },
+    "peerDependencies": {
+        "vue": "catalog:"
+    }
+}

@@ -1,0 +1,4 @@
+{
+    "extends": "@swissgeo/typescript-config/tsconfig.base.json",
+    "include": ["index.js"],
+}

@@ -3,8 +3,7 @@ pnpm-lock.yaml
 
 node_modules/
 **/node_modules
-packages/**/node_modules/
 
-packages/mapviewer/index.html
-packages/mapviewer/public/icon.svg
-packages/mapviewer/src/assets/svg/swiss-flag.svg
+packages/viewer/index.html
+packages/viewer/public/icon.svg
+packages/viewer/src/assets/svg/swiss-flag.svg
