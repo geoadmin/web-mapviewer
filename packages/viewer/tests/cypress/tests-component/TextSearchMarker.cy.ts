@@ -40,13 +40,13 @@ describe('<TextSearchMarker />', () => {
         })
         cy.get('[data-cy="segment"]')
             .should('be.visible')
-            .should('have.class', 'fw-bold')
+            .should('not.have.class', 'fw-bold')
         cy.get('[data-cy="segment-match"]')
             .should('be.visible')
             .should('have.class', 'fw-bold')
             .should('have.length', 2)
         cy.get('[data-cy="segment-match"]:first').should('contain', 'simple-345')
-        cy.get('[data-cy="segment-match"]:nth-child(2)').should('contain', 'simple-100')
+        cy.get('[data-cy="segment-match"]:last').should('contain', 'simple-100')
 
         //----------------------------------------------------------------------
         cy.log('It mark a search pattern with default markers')
