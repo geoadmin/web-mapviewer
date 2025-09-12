@@ -1,16 +1,17 @@
+// Transforming the file to TypeScript
+
 /// <reference types="cypress" />
 
 import { SUPPORTED_LANG } from '@/modules/i18n'
+import { isMobile } from '../support/utils'
 
-import { isMobile } from '../support/utils.js'
-
-function checkLanguage(lang) {
+function checkLanguage(lang: string): void {
     // Check language in store
     cy.readStoreValue('state.i18n.lang').should('eq', lang)
 
     // Check UI
     if (isMobile()) {
-        cy.readStoreValue('state.ui.showMenu').then((isMenuCurrentlyOpen) => {
+        cy.readStoreValue('state.ui.showMenu').then((isMenuCurrentlyOpen: boolean) => {
             if (!isMenuCurrentlyOpen) {
                 cy.get('[data-cy="menu-button"]').click()
             }
@@ -19,7 +20,7 @@ function checkLanguage(lang) {
         cy.get('[data-cy="mobile-lang-selector"]')
             .find('option:selected') // it's a select element
             .invoke('text')
-            .should((text) => {
+            .should((text: string) => {
                 expect(text).to.be.equal(lang.toUpperCase())
             })
     } else {
@@ -29,7 +30,7 @@ function checkLanguage(lang) {
                 // Get the text of each button
                 cy.wrap(button)
                     .invoke('text')
-                    .then((text) => {
+                    .then((text: string) => {
                         // Check if the text is the current language
                         if (text.trim() === lang.toUpperCase()) {
                             // The text should be bold (primary) if it is the current language
@@ -42,14 +43,14 @@ function checkLanguage(lang) {
             })
     }
     // Check the translation of the menu button (in english: close)
-    const closeTranslationsMobile = {
+    const closeTranslationsMobile: Record<string, string> = {
         de: 'Schliessen',
         fr: 'Fermer',
         it: 'Chiudere',
         rm: 'Serrar',
         en: 'Close',
     }
-    const closeTranslationsDesktop = {
+    const closeTranslationsDesktop: Record<string, string> = {
         de: 'Menü schliessen',
         fr: 'Fermer menu',
         it: 'Chiudere menu',
@@ -70,16 +71,16 @@ function checkLanguage(lang) {
 describe('Change language', () => {
     context('on startup', () => {
         it('should show the correct language if we ask for it, even if the param is in uppercase', () => {
-            SUPPORTED_LANG.forEach((lang) => {
+            SUPPORTED_LANG.forEach((lang: string) => {
                 cy.goToMapView({
-                    queryParams:{ lang: lang }
+                    queryParams: { lang: lang },
                 })
                 checkLanguage(lang)
             })
 
-            SUPPORTED_LANG.forEach((lang) => {
+            SUPPORTED_LANG.forEach((lang: string) => {
                 cy.goToMapView({
-                    queryParams:{ lang: lang.toUpperCase() }
+                    queryParams: { lang: lang.toUpperCase() },
                 })
                 checkLanguage(lang)
             })
@@ -93,7 +94,7 @@ describe('Change language', () => {
             checkLanguage('en') // Initial language is 'en'
 
             // Check for all available languages
-            SUPPORTED_LANG.forEach((lang) => {
+            SUPPORTED_LANG.forEach((lang: string) => {
                 cy.clickOnLanguage(lang)
                 checkLanguage(lang)
             })
@@ -113,7 +114,7 @@ describe('Change language', () => {
                 checkLanguage('en') // Initial language is 'en'
 
                 // Check for all available languages
-                SUPPORTED_LANG.forEach((lang) => {
+                SUPPORTED_LANG.forEach((lang: string) => {
                     cy.clickOnLanguage(lang)
                     checkLanguage(lang)
                 })

@@ -6,7 +6,7 @@
         "lib": ["es6", "dom", "ES2020"],
         "sourceMap": true,
         "types": ["cypress", "node"],
-        "jsx": "preserve"
+        "jsx": "preserve",
     },
     "include": [
         "**/*.cy.ts",
