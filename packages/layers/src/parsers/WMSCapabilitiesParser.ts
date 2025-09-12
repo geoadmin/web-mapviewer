@@ -325,9 +325,9 @@ function getLayerLegends(
         layer.queryable &&
         !!capabilities.Capability?.UserDefinedSymbolization?.SupportSLD
     ) {
-        const getLegendGraphicBaseUrl =
-            capabilities.Capability.Request.GetLegendGraphic?.DCPType[0]?.HTTP?.Get?.OnlineResource
-        const getLegendGraphicFormat = capabilities.Capability.Request.GetLegendGraphic?.Format[0]
+        const getLegendGraphicCapability = capabilities.Capability.Request.GetLegendGraphic
+        const getLegendGraphicBaseUrl = getLegendGraphicCapability?.DCPType[0]?.HTTP?.Get?.OnlineResource
+        const getLegendGraphicFormat = getLegendGraphicCapability?.Format[0]
         if (!!getLegendGraphicBaseUrl && !!getLegendGraphicFormat) {
             const getLegendParams = new URLSearchParams({
                 SERVICE: 'WMS',
@@ -657,9 +657,9 @@ function parse(content: string, originUrl: URL): WMSCapabilitiesResponse {
     }
 }
 
-export type ExternalWMSCapabilitiesParser = CapabilitiesParser<WMSCapabilitiesResponse, WMSCapabilityLayer, ExternalWMSLayer>
+export type WMSCapabilitiesParser = CapabilitiesParser<WMSCapabilitiesResponse, WMSCapabilityLayer, ExternalWMSLayer>
 
-export const externalWMSParser: ExternalWMSCapabilitiesParser = {
+export const wmsCapabilitiesParser: WMSCapabilitiesParser = {
     parse,
     getAllCapabilitiesLayers,
     getCapabilitiesLayer,
@@ -667,4 +667,4 @@ export const externalWMSParser: ExternalWMSCapabilitiesParser = {
     getExternalLayer,
 }
 
-export default externalWMSParser
+export default wmsCapabilitiesParser

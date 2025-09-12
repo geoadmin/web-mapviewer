@@ -1,14 +1,11 @@
 import type { FlatExtent } from '@swissgeo/coordinates'
-
 import { LV95, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import { readFile } from 'fs/promises'
 import { assertType, beforeAll, describe, expect, it } from 'vitest'
 
 import type { ExternalWMSLayer, LayerAttribution, LayerLegend } from '@/types/layers'
 
-import externalWMSParser, {
-    type WMSCapabilitiesResponse,
-} from '@/parsers/ExternalWMSCapabilitiesParser'
+import externalWMSParser, { type WMSCapabilitiesResponse } from '@/parsers/WMSCapabilitiesParser'
 
 describe('WMSCapabilitiesParser - invalid', () => {
     it('Throw Error on invalid input', () => {

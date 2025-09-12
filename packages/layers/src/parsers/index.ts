@@ -1,2 +1,2 @@
-export * from '@/parsers/ExternalWMSCapabilitiesParser'
-export * from '@/parsers/ExternalWMTSCapabilitiesParser'
+export * from '@/parsers/WMSCapabilitiesParser'
+export * from '@/parsers/WMTSCapabilitiesParser'

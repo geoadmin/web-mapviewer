@@ -1,12 +1,8 @@
 import log from '@swissgeo/log'
 import axios from 'axios'
 
-import externalWMSParser, {
-    type WMSCapabilitiesResponse,
-} from '@/parsers/ExternalWMSCapabilitiesParser'
-import externalWMTSParser, {
-    type WMTSCapabilitiesResponse,
-} from '@/parsers/ExternalWMTSCapabilitiesParser'
+import externalWMSParser, { type WMSCapabilitiesResponse } from '@/parsers/WMSCapabilitiesParser'
+import wmtsCapabilitiesParser, { type WMTSCapabilitiesResponse } from '@/parsers/WMTSCapabilitiesParser'
 import { CapabilitiesError } from '@/validation'
 
 /** Timeout for accessing external server in [ms] */
@@ -14,7 +10,7 @@ export const EXTERNAL_SERVER_TIMEOUT = 30000
 
 /** Sets the WMS GetCapabilities url parameters */
 export function setWmsGetCapabilitiesParams(url: URL, language?: string): URL {
-    // Manda: URLtory params
+    // Mandatory URL params
     url.searchParams.set('SERVICE', 'WMS')
     url.searchParams.set('REQUEST', 'GetCapabilities')
     // Currently openlayers only supports version 1.3.0 !
@@ -148,7 +144,7 @@ export async function readWmtsCapabilities(
  */
 export function parseWmtsCapabilities(content: string, originUrl: URL): WMTSCapabilitiesResponse {
     try {
-        return externalWMTSParser.parse(content, originUrl)
+        return wmtsCapabilitiesParser.parse(content, originUrl)
     } catch (error) {
         if (error instanceof Error) {
             throw new CapabilitiesError(

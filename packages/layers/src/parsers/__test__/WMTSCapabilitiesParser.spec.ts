@@ -4,8 +4,8 @@ import { readFile } from 'fs/promises'
 import { Interval } from 'luxon'
 import { assertType, beforeAll, describe, expect, it } from 'vitest'
 
-import type { WMTSCapabilitiesResponse } from '@/parsers/ExternalWMTSCapabilitiesParser'
-import externalWMTSParser from '@/parsers/ExternalWMTSCapabilitiesParser'
+import type { WMTSCapabilitiesResponse } from '@/parsers/WMTSCapabilitiesParser'
+import wmtsCapabilitiesParser from '@/parsers/WMTSCapabilitiesParser'
 import type { ExternalWMTSLayer, LayerLegend } from '@/types/layers'
 import { timeConfigUtils } from '@/utils'
 
@@ -13,7 +13,7 @@ describe('WMTSCapabilitiesParser - invalid', () => {
     it('Throw Error on invalid input', () => {
         const invalidContent = 'Invalid input'
         expect(() =>
-            externalWMTSParser.parse(invalidContent, new URL('https://example.com'))
+            wmtsCapabilitiesParser.parse(invalidContent, new URL('https://example.com'))
         ).toThrowError(/failed/i)
     })
 })
@@ -23,7 +23,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
 
     beforeAll(async () => {
         const content = await readFile(`${__dirname}/fixtures/wmts-ogc-sample.xml`, 'utf8')
-        capabilities = externalWMTSParser.parse(content, new URL('https://example.com'))
+        capabilities = wmtsCapabilitiesParser.parse(content, new URL('https://example.com'))
     })
 
     it('Parse Capabilities', () => {
@@ -37,7 +37,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     })
     it('Parse layer attributes', () => {
         // General layer
-        let layer = externalWMTSParser.getExternalLayer(
+        let layer = wmtsCapabilitiesParser.getExternalLayer(
             capabilities,
             'BlueMarbleSecondGenerationAG',
             { outputProjection: WGS84 }
@@ -50,7 +50,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         expect(layer!.baseUrl).toBe('http://maps.example.com/cgi-bin/map.cgi?')
 
         // Layer without .Identifier
-        layer = externalWMTSParser.getExternalLayer(capabilities, 'BlueMarbleThirdGenerationZH', {
+        layer = wmtsCapabilitiesParser.getExternalLayer(capabilities, 'BlueMarbleThirdGenerationZH', {
             outputProjection: WGS84,
         })
         expect(layer!.id).toBe('BlueMarbleThirdGenerationZH')
@@ -60,7 +60,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     })
     it('Parse layer attribution', () => {
         // General layer
-        const layer = externalWMTSParser.getExternalLayer(
+        const layer = wmtsCapabilitiesParser.getExternalLayer(
             capabilities,
             'BlueMarbleSecondGenerationAG',
             { outputProjection: WGS84 }
@@ -77,7 +77,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         expect(attribution.url).to.eq('http://www.example.com')
     })
     it('Get Layer Extent in LV95', () => {
-        const externalLayers = externalWMTSParser.getAllExternalLayers(capabilities, {
+        const externalLayers = wmtsCapabilitiesParser.getAllExternalLayers(capabilities, {
             outputProjection: LV95,
         })
         expect(externalLayers.length).to.be.greaterThanOrEqual(5)
@@ -131,7 +131,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     })
 
     it('Get Layer Extent in Web Mercator', () => {
-        const externalLayers = externalWMTSParser.getAllExternalLayers(capabilities, {
+        const externalLayers = wmtsCapabilitiesParser.getAllExternalLayers(capabilities, {
             outputProjection: WEBMERCATOR,
         })
         expect(externalLayers.length).to.be.greaterThanOrEqual(4)
@@ -180,7 +180,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     })
 
     it('Get Layer Extent in WGS84', () => {
-        const externalLayers = externalWMTSParser.getAllExternalLayers(capabilities, {
+        const externalLayers = wmtsCapabilitiesParser.getAllExternalLayers(capabilities, {
             outputProjection: WGS84,
         })
         expect(externalLayers.length).to.be.greaterThanOrEqual(4)
@@ -209,7 +209,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
     })
     it('Parse layer legend', () => {
         // General layer
-        const layer = externalWMTSParser.getExternalLayer(
+        const layer = wmtsCapabilitiesParser.getExternalLayer(
             capabilities,
             'BlueMarbleSecondGenerationAG',
             { outputProjection: WGS84 }
@@ -228,7 +228,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         expect(legend.format).toBe('image/png')
     })
     it('Parse layer time dimension in format YYYYMMDD', () => {
-        const layer = externalWMTSParser.getExternalLayer(
+        const layer = wmtsCapabilitiesParser.getExternalLayer(
             capabilities,
             'BlueMarbleSecondGenerationAG',
             { outputProjection: WGS84 }
@@ -254,7 +254,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         )
     })
     it('Parse layer time dimension in format ISO format YYYY-MM-DD', () => {
-        const layer = externalWMTSParser.getExternalLayer(
+        const layer = wmtsCapabilitiesParser.getExternalLayer(
             capabilities,
             'BlueMarbleThirdGenerationZH',
             { outputProjection: WGS84 }
@@ -276,7 +276,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         )
     })
     it('Parse layer time dimension in format full ISO format YYYY-MM-DDTHH:mm:ss.sssZ', () => {
-        const layer = externalWMTSParser.getExternalLayer(
+        const layer = wmtsCapabilitiesParser.getExternalLayer(
             capabilities,
             'BlueMarbleFourthGenerationJU',
             { outputProjection: WGS84 }
@@ -304,7 +304,7 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         )
     })
     it('Parse layer time dimension in unknown format', () => {
-        const layer = externalWMTSParser.getExternalLayer(
+        const layer = wmtsCapabilitiesParser.getExternalLayer(
             capabilities,
             'BlueMarbleFifthGenerationGE',
             { outputProjection: WGS84 }

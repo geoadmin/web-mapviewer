@@ -580,9 +580,9 @@ function parse(content: string, originUrl: URL): WMTSCapabilitiesResponse {
     }
 }
 
-export type ExternalWMTSCapabilitiesParser = CapabilitiesParser<WMTSCapabilitiesResponse, WMTSCapabilityLayer, ExternalWMTSLayer>
+export type WMTSCapabilitiesParser = CapabilitiesParser<WMTSCapabilitiesResponse, WMTSCapabilityLayer, ExternalWMTSLayer>
 
-export const externalWMTSParser: ExternalWMTSCapabilitiesParser = {
+export const wmtsCapabilitiesParser: WMTSCapabilitiesParser = {
     parse,
     getAllCapabilitiesLayers,
     getCapabilitiesLayer,
@@ -590,4 +590,4 @@ export const externalWMTSParser: ExternalWMTSCapabilitiesParser = {
     getExternalLayer,
 }
 
-export default externalWMTSParser
+export default wmtsCapabilitiesParser

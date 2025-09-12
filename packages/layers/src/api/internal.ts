@@ -14,7 +14,8 @@ import {
 import {
     type AggregateSubLayer,
     type GeoAdminLayer,
-    type LayerAttribution, type LayerTimeConfigEntry,
+    type LayerAttribution,
+    type LayerTimeConfigEntry,
     LayerType,
 } from '@/index'
 import { layerUtils, timeConfigUtils } from '@/utils'
@@ -117,11 +118,11 @@ const _urlWithTrailingSlash = (baseUrl: string): string => {
 // API file that covers the backend endpoint http://api3.geo.admin.ch/rest/services/all/MapServer/layersConfig
 
 /**
- * Transform the backend metadata JSON object into instances of {@link GeoAdminLayer}, instantiating
- * the correct type of layer for each entry ({@link GeoAdminAggregateLayer},
- * {@link GeoAdminWMTSLayer}, {@link GeoAdminWMSLayer} or {@link GeoAdminGeoJsonLayer})
+ * Transform the backend metadata JSON object into objects of type {@link GeoAdminLayer}, using
+ * the correct specialized type of layer for each entry (see {@link LayerType} and all dedicated
+ * specialized types, such as {@link GeoAdminWMSLayer} or {@link GeoAdminWMTSLayer}).
  */
-export function generateClassForLayerConfig(
+export function generateLayerObject(
     layerConfig: LayerConfig,
     id: string,
     allOtherLayers: Record<string, LayerConfig>,
@@ -269,7 +270,7 @@ export function generateClassForLayerConfig(
                 const subLayerRawConfig = allOtherLayers[subLayerId]!
                 // the "real" layer ID (the one that will be used to request the backend) is the serverLayerName of this config
                 // (see example above, that would be "hey.i.am.not.the.same.as.the.sublayer.id")
-                const subLayer = generateClassForLayerConfig(
+                const subLayer = generateLayerObject(
                     subLayerRawConfig,
                     subLayerRawConfig.serverLayerName,
                     allOtherLayers,
@@ -354,7 +355,7 @@ export function loadGeoadminLayersConfig(
                 if (Object.keys(rawLayersConfig).length > 0) {
                     Object.keys(rawLayersConfig).forEach((rawLayerId) => {
                         const rawLayer = rawLayersConfig[rawLayerId]!
-                        const layer = generateClassForLayerConfig(
+                        const layer = generateLayerObject(
                             rawLayer,
                             rawLayerId,
                             rawLayersConfig,

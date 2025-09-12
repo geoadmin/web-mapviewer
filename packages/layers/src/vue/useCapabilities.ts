@@ -7,8 +7,8 @@ import { type MaybeRefOrGetter, toValue } from 'vue'
 import type { ExternalWMSLayer, ExternalWMTSLayer } from '@/types'
 
 import { EXTERNAL_SERVER_TIMEOUT, parseWmtsCapabilities } from '@/api/external'
-import externalWMSParser from '@/parsers/ExternalWMSCapabilitiesParser'
-import externalWMTSParser from '@/parsers/ExternalWMTSCapabilitiesParser'
+import externalWMSParser from '@/parsers/WMSCapabilitiesParser'
+import wmtsCapabilitiesParser from '@/parsers/WMTSCapabilitiesParser'
 import { guessExternalLayerUrl, isWmsGetCap, isWmtsGetCap } from '@/utils/externalLayerUtils'
 import { CapabilitiesError } from '@/validation'
 
@@ -69,7 +69,7 @@ function handleWMTS(
     projection: CoordinateSystem
 ): ParsedExternalWMTS {
     return {
-        layers: externalWMTSParser.getAllExternalLayers(parseWmtsCapabilities(content, fullUrl), {
+        layers: wmtsCapabilitiesParser.getAllExternalLayers(parseWmtsCapabilities(content, fullUrl), {
             outputProjection: projection,
             initialValues: {
                 isVisible: true,

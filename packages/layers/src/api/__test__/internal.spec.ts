@@ -1,6 +1,6 @@
 import { assertType, describe, expect, it } from 'vitest'
 
-import { generateClassForLayerConfig } from '@/api'
+import { generateLayerObject } from '@/api'
 import {
     type GeoAdminAggregateLayer,
     type GeoAdminGeoJSONLayer,
@@ -14,7 +14,7 @@ import {
 import rawLayerConfig from './rawLayerConfig.json'
 
 function parseLayer(layerId: string): GeoAdminLayer | undefined {
-    return generateClassForLayerConfig(
+    return generateLayerObject(
         // @ts-expect-error no idea why TS complains here...
         rawLayerConfig[layerId] as Record<string, unknown>,
         layerId,
