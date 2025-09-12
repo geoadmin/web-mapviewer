@@ -47,6 +47,7 @@
         "@vitejs/plugin-vue": "catalog:",
         "@vue/tsconfig": "catalog:",
         "eslint": "catalog:",
+        "postcss-html": "catalog:",
         "stylelint": "catalog:",
         "tailwindcss": "catalog:",
         "typescript": "catalog:",

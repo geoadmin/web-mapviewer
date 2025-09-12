@@ -7,16 +7,18 @@
         "lint": "eslint --fix",
         "lint:no-fix": "eslint"
     },
+    "dependencies": {
+        "postcss-html": "catalog:",
+        "stylelint-config-recommended-scss": "catalog:",
+        "stylelint-config-recommended-vue": "catalog:",
+        "stylelint-order": "catalog:",
+        "stylelint-scss": "catalog:"
+    },
     "devDependencies": {
         "@swissgeo/eslint-config": "workspace:*",
         "@swissgeo/typescript-config": "workspace:*",
         "eslint": "catalog:",
-        "postcss-html": "catalog:",
         "stylelint": "catalog:",
-        "stylelint-config-recommended-scss": "catalog:",
-        "stylelint-config-recommended-vue": "catalog:",
-        "stylelint-order": "catalog:",
-        "stylelint-scss": "catalog:",
         "typescript": "catalog:"
     },
     "peerDependencies": {

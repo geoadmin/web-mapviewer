@@ -134,6 +134,7 @@
         "mime-types": "catalog:",
         "mocha-junit-reporter": "catalog:",
         "pinia-logger": "catalog:",
+        "postcss-html": "catalog:",
         "rimraf": "catalog:",
         "sass": "catalog:",
         "sharp": "catalog:",
