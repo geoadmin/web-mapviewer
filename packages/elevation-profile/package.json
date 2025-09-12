@@ -67,6 +67,7 @@
         "@vue/tsconfig": "catalog:",
         "chai": "catalog:",
         "eslint": "catalog:",
+        "postcss-html": "catalog:",
         "stylelint": "catalog:",
         "tailwindcss": "catalog:",
         "typescript": "catalog:",
