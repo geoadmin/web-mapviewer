@@ -1,0 +1,88 @@
+{
+    "name": "@swissgeo/layers",
+    "version": "0.0.1",
+    "description": "Layers definition for SwissGeo",
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.umd.cjs"
+        },
+        "./api": {
+            "types": "./dist/api/index.d.ts",
+            "import": "./dist/api.js",
+            "require": "./dist/api.cjs"
+        },
+        "./utils": {
+            "types": "./dist/utils/index.d.ts",
+            "import": "./dist/utils.js",
+            "require": "./dist/utils.cjs"
+        },
+        "./parsers": {
+            "types": "./dist/parsers/index.d.ts",
+            "import": "./dist/parsers.js",
+            "require": "./dist/parsers.cjs"
+        },
+        "./vue": {
+            "types": "./dist/vue/index.d.ts",
+            "import": "./dist/vue.js",
+            "require": "./dist/vue.cjs"
+        },
+        "./validation": {
+            "types": "./dist/validation/index.d.ts",
+            "import": "./dist/validation.js",
+            "require": "./dist/validation.cjs"
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "pnpm run type-check && pnpm run generate-types && vite build",
+        "build:dev": "pnpm run build --mode development",
+        "build:dev:watch": "pnpm run build --watch --mode development",
+        "build:int": "pnpm run build --mode integration",
+        "build:prod": "pnpm run build --mode production",
+        "lint": "eslint --fix",
+        "lint:no-fix": "eslint",
+        "dev": "vite",
+        "generate-types": "vue-tsc --declaration",
+        "test:unit": "vitest --run --mode development --environment jsdom --silent",
+        "test:unit:watch": "vitest --mode development --environment jsdom",
+        "type-check": "vue-tsc -p tsconfig.json"
+    },
+    "dependencies": {
+        "@swissgeo/coordinates": "workspace:*",
+        "@swissgeo/log": "workspace:*",
+        "@swissgeo/numbers": "workspace:*",
+        "axios": "catalog:",
+        "lodash": "catalog:",
+        "luxon": "catalog:",
+        "ol": "catalog:",
+        "proj4": "catalog:",
+        "uuid": "catalog:"
+    },
+    "peerDependencies": {
+        "vue": "catalog:"
+    },
+    "devDependencies": {
+        "@microsoft/api-extractor": "catalog:",
+        "@swissgeo/eslint-config": "workspace:*",
+        "@swissgeo/typescript-config": "workspace:*",
+        "@types/chai": "catalog:",
+        "@types/lodash": "catalog:",
+        "@types/luxon": "catalog:",
+        "@types/openlayers": "catalog:",
+        "@vitejs/plugin-vue": "catalog:",
+        "@vue/language-core": "catalog:",
+        "chai": "catalog:",
+        "eslint": "catalog:",
+        "typescript": "catalog:",
+        "unplugin-dts": "catalog:",
+        "vite": "catalog:",
+        "vite-tsconfig-paths": "catalog:",
+        "vitest": "catalog:",
+        "vue-tsc": "catalog:"
+    }
+}

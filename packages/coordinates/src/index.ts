@@ -12,7 +12,7 @@ export * from '@/registerProj4'
 export * from '@/coordinatesUtils'
 export * from '@/extentUtils'
 
-// registering local instance of proj4, needed for some @geoadmin/coordinates functions
+// registering local instance of proj4, needed for some @swissgeo/coordinates functions
 registerProj4(proj4)
 
 interface GeoadminCoordinates extends GeoadminCoordinateCRS {
