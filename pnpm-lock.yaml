@@ -415,7 +415,7 @@ catalogs:
       specifier: ^18.0.0
       version: 18.0.0
 
-packageExtensionsChecksum: sha256-79wcPYN43wetuxYkTb/CXyOH/lzXOA2q6EENBxuQ2j0=
+packageExtensionsChecksum: sha256-IaQezbqkea91f5CyolG4ORAVylKGiEprCGYXrHE8VgQ=
 
 patchedDependencies:
   vite:

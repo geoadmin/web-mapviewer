@@ -55,7 +55,7 @@
             "vite": "patches/vite.patch"
         },
         "packageExtensions": {
-            "stylelint@16.23.1": {
+            "stylelint@*": {
                 "dependencies": {
                     "postcss-html": "*"
                 }
