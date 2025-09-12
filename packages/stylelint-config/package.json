@@ -8,7 +8,6 @@
         "lint:no-fix": "eslint"
     },
     "dependencies": {
-        "postcss-html": "catalog:",
         "stylelint-config-recommended-scss": "catalog:",
         "stylelint-config-recommended-vue": "catalog:",
         "stylelint-order": "catalog:",
@@ -22,7 +21,8 @@
         "typescript": "catalog:"
     },
     "peerDependencies": {
-      "stylelint": "catalog:"
+        "stylelint": "catalog:",
+        "postcss-html": "catalog:"
     },
     "packageManager": "^pnpm@10.15.0"
 }

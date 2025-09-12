@@ -415,8 +415,6 @@ catalogs:
       specifier: ^18.0.0
       version: 18.0.0
 
-packageExtensionsChecksum: sha256-IaQezbqkea91f5CyolG4ORAVylKGiEprCGYXrHE8VgQ=
-
 patchedDependencies:
   vite:
     hash: c264d9fa4f1750b8a186fe4e946c83d43f96fa8b2cd8eb3c823bfdbdc4372ff2
@@ -15111,7 +15109,6 @@ snapshots:
       normalize-path: 3.0.0
       picocolors: 1.1.1
       postcss: 8.5.6
-      postcss-html: 1.8.0
       postcss-resolve-nested-selector: 0.1.6
       postcss-safe-parser: 7.0.1(postcss@8.5.6)
       postcss-selector-parser: 7.1.0
