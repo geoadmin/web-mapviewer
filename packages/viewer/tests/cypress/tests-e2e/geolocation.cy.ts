@@ -146,6 +146,7 @@ describe('Geolocation cypress', () => {
                 cy.goToMapView({
                     withHash: true,
                     geolocationMockupOptions: { latitude: 0, longitude: 0 },
+                    firstLoad: true,  // First call - check mapReadyEvent
                 })
                 getGeolocationButtonAndClickIt()
                 testErrorMessage('geoloc_out_of_bounds')
@@ -154,6 +155,7 @@ describe('Geolocation cypress', () => {
                 cy.goToMapView({
                     withHash: true,
                     geolocationMockupOptions: { latitude: -7.71, longitude: 110.37 },
+                    firstLoad: false,  // Second call - skip mapReadyEvent check
                 })
                 getGeolocationButtonAndClickIt()
                 testErrorMessage('geoloc_out_of_bounds')
