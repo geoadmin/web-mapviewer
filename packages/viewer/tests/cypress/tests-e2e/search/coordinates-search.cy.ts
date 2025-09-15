@@ -11,7 +11,7 @@ describe('Testing coordinates typing in search bar', () => {
     beforeEach(() => {
         cy.goToMapView()
     })
-    const expectedCenter = DEFAULT_PROJECTION.bounds.center.map((value) => value - 1000)
+    const expectedCenter = DEFAULT_PROJECTION.bounds.center.map((value: number) => value - 1000)
     const expectedCenterLV95 = coordinatesUtils.reprojectAndRound(
         DEFAULT_PROJECTION,
         LV95,
@@ -59,7 +59,7 @@ describe('Testing coordinates typing in search bar', () => {
             expect(feature[1]).to.be.approximately(expectedCenter[1], acceptableDelta)
         })
     }
-    const standardCheck = (x, y, options = {}) => {
+    const standardCheck = (x: number | string, y: number | string, options: { acceptableDelta?: number, withInversion?: boolean } = {}) => {
         const { acceptableDelta = 0.0, withInversion = false } = options
         cy.get(searchbarSelector).should('be.visible')
         cy.get(searchbarSelector).paste(`${x} ${y}`)
@@ -85,7 +85,7 @@ describe('Testing coordinates typing in search bar', () => {
     })
 
     it('Paste EPSG:4326 (WGS84) coordinate', () => {
-        const expectedCenterWGS84_DD = expectedCenterWGS84.map((val) => {
+        const expectedCenterWGS84_DD: string[] = expectedCenterWGS84.map((val) => {
             const [degree, minutesFraction] = `${val}`.split('.')
             const minutes = parseFloat(`0.${minutesFraction}`)
             return `${degree}° ${(minutes * 60.0).toFixed(4)}'`
@@ -99,7 +99,8 @@ describe('Testing coordinates typing in search bar', () => {
         cy.get('[data-cy="searchbar-clear"]').click()
         // checking that search bar has been emptied
         cy.readStoreValue('state.search.query').should('be.empty')
-        standardCheck(expectedCenterWGS84_DD[0], expectedCenterWGS84_DD[1], {
+        expect(expectedCenterWGS84_DD).to.have.length(2)
+        standardCheck(expectedCenterWGS84_DD[0]!, expectedCenterWGS84_DD[1]!, {
             acceptableDelta,
             withInversion: true,
         })

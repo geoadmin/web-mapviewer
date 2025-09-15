@@ -99,7 +99,7 @@ function generatePlugins(mode: ViteModes, isTesting: boolean = false): PluginOpt
         ],
     }))
 
-    plugins.push(ConditionalCompile())
+    plugins.push(ConditionalCompile() as PluginOption)
 
     if (!isTesting) {
         plugins.push(
