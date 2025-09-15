@@ -1,10 +1,10 @@
 /// <reference types="cypress" />
 
-import { isMobile } from '../support/utils.js'
+import { isMobile } from '../support/utils'
 describe('The Import Maps Tool', () => {
     const bgLayer = 'test.background.layer2'
     beforeEach(() => {
-        cy.goToMapView({withHash: true})
+        cy.goToMapView({withHash: true, firstLoad: false})
         cy.openMenuIfMobile()
     })
     it('Import external wms layers', () => {
@@ -558,6 +558,7 @@ describe('The Import Maps Tool', () => {
                     layers: 'WMS|https://fake.wms.base-1.url/?|ch.swisstopo-vd.official-survey',
                 },
             withHash: true,
+            firstLoad: false,
         })
         cy.openMenuIfMobile()
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
