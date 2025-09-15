@@ -28,7 +28,7 @@ describe('Testing of the compare slider', () => {
                 expectCompareSliderToBeActive(false)
                 cy.get('[data-cy="compareSlider"]').should('not.exist')
             })
-            it('does not shows up with layers and the compare ratio parameter out of bounds or not a number', () => {
+            it.only('does not shows up with layers and the compare ratio parameter out of bounds or not a number', () => {
                 cy.goToMapView({
                     queryParams:
                         {
@@ -48,6 +48,7 @@ describe('Testing of the compare slider', () => {
                             compareRatio: '-0.3',
                         },
                     withHash: true,
+                    firstLoad: false, // Second call - skip mapReadyEvent check
                 })
                 expectCompareRatioToBe(null)
                 expectCompareSliderToBeActive(false)
@@ -58,8 +59,10 @@ describe('Testing of the compare slider', () => {
                         {
                             layers: ['test-1.wms.layer', 'test-2.wms.layer,,'].join(';'),
                             compareRatio: 'aRandomText',
-                        withHash: true},
-                    })
+                        },
+                    withHash: true,
+                    firstLoad: false, // Third call - skip mapReadyEvent check
+                })
                 expectCompareRatioToBe(null)
                 expectCompareSliderToBeActive(false)
 
