@@ -1,17 +1,13 @@
 import { WEBMERCATOR, LV95 } from '@swissgeo/coordinates'
-
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
+import type { Viewer } from 'cesium'
 
-function expectLayerCountToBe(viewer, layerCount) {
+function expectLayerCountToBe(viewer: Viewer, layerCount: number) {
     const layers = viewer.scene.imageryLayers
-    const layerUrls = []
-    for (let i = 0; i < layers.length; i++) {
-        layerUrls.push(layers.get(i).imageryProvider.url)
-    }
     expect(layers.length).to.eq(
         layerCount,
-        `Wrong layer count. Expected ${layerCount} but got ${layers.length}. Layers: \n${layerUrls.join('\n')}`
+        `Wrong layer count. Expected ${layerCount} but got ${layers.length}.`
     )
 }
 
@@ -118,7 +114,7 @@ describe('Test of layer handling in 3D', () => {
             `opacitySlider-${wmtsLayerIdWithout3DConfig}`
         )
         // couldn't find a better way to interact with the slider other than setting the value directly
-        let newSliderPosition = 0.3
+        const newSliderPosition = 0.3
         cy.get(`@opacitySlider-${wmtsLayerIdWithout3DConfig}`)
             .should('be.visible')
             .invoke('val', newSliderPosition)
@@ -153,6 +149,8 @@ describe('Test of layer handling in 3D', () => {
         const timeEnabledLayerId = 'test.timeenabled.wmts.layer'
         cy.fixture('layers.fixture.json').then((layersMetadata) => {
             const timedLayerMetadata = layersMetadata[timeEnabledLayerId]
+            // TODO: refactor cypress.d.ts so it gives correct types
+            // @ts-expect-error this is chainable, but cypress type definition says it's a string, so it's causing issues here.
             cy.getRandomTimestampFromSeries(timedLayerMetadata).then((randomTimestampFromLayer) => {
                 cy.goToMapView({
                     queryParams: {
@@ -384,50 +382,53 @@ describe('Test of layer handling in 3D', () => {
     })
     it('Verify a layer with EPSG:4326(WEBMERCATOR) bounding box in 2D and 3D', () => {
         cy.getExternalWmsMockConfig().then((layerObjects) => {
-            const mockExternalWms2 = layerObjects[1]
-            mockExternalWms2.visible = true
-            const layers = [layerObjects[1]].map(transformLayerIntoUrlString).join(';')
-            cy.goToMapView({
-                queryParams: { '3d': true, layers },
-            })
-            cy.log('Go to 3D and add a WMS layer')
-            // This layer extent got transformed from EPSG:4326 to EPSG:2056
-            const layerExtentInLV95 = [2485071.58, 1075346.31, 2828515.82, 1299941.79]
-            cy.waitUntilCesiumTilesLoaded()
-            cy.window()
-                .its('cesiumViewer')
-                .then((viewer) => {
+
+            expect(layerObjects[1]).to.not.be.undefined
+            // we want to use only the second mock layer, but typescript can't know and be certain that
+            // mockExternalWms2 = layerObjects[1] is not undefined. So we make a foreach on a slice, and
+            // make an expectation for layerObjects[1] to be defined, just in case one day we have an issue
+            // with the test data
+            layerObjects.slice(1,2).forEach((mockExternalWms2) => {
+            expect(mockExternalWms2).not.to.be.undefined
+            // @ts-expect-error: external wms has the visible attribute from abstract layer, but typescript can't see it explicitly
+            mockExternalWms2.visible=true
+            const layers = [mockExternalWms2].map((object) => transformLayerIntoUrlString(object, null, null)).join(';')
+                cy.goToMapView({
+                    queryParams: {'3d': true, layers },
+                })
+                cy.log('Go to 3D and add a WMS layer')
+                // This layer extent got transformed from EPSG:4326 to EPSG:2056
+                const layerExtentInLV95 = [2485071.58, 1075346.31, 2828515.82, 1299941.79]
+                cy.waitUntilCesiumTilesLoaded()
+                cy.window().its('cesiumViewer').then((viewer) => {
                     expectLayerCountToBe(viewer, 2)
                     const wmsLayer = viewer.scene.imageryLayers.get(1)
                     expect(wmsLayer.show).to.eq(true)
                     expect(wmsLayer.imageryProvider.layers).to.have.string(mockExternalWms2.id)
                 })
 
-            cy.log('Switching to 2D and checking that the layer is still visible')
-            // deactivate 3D
-            cy.get('[data-cy="3d-button"]').should('be.visible').click()
-            cy.window()
-                .its('map')
-                .then((map) => {
+                cy.log('Switching to 2D and checking that the layer is still visible')
+                // deactivate 3D
+                cy.get('[data-cy="3d-button"]').should('be.visible').click()
+                cy.window().its('map').then((map) => {
                     const layers = map.getLayers().getArray()
                     expect(layers[1].getProperties().id).to.deep.equal(mockExternalWms2.id)
                     // If the layer is not visible, it is usually because the extent is not correct
                     expect(layers[1].getExtent()).to.deep.equal(layerExtentInLV95)
                 })
 
-            // activate 3D
-            cy.get('[data-cy="3d-button"]').should('be.visible').click()
-            cy.waitUntilCesiumTilesLoaded()
+                // activate 3D
+                cy.get('[data-cy="3d-button"]').should('be.visible').click()
+                cy.waitUntilCesiumTilesLoaded()
 
-            cy.get('[data-cy="3d-button"]').should('be.visible').click()
-            cy.window()
-                .its('map')
-                .then((map) => {
+                cy.get('[data-cy="3d-button"]').should('be.visible').click()
+                cy.window().its('map').then((map) => {
                     const layers = map.getLayers().getArray()
                     expect(layers[1].getProperties().id).to.deep.equal(mockExternalWms2.id)
                     // If the layer is not visible, it is usually because the extent is not correct
                     expect(layers[1].getExtent()).to.deep.equal(layerExtentInLV95)
                 })
+            })
         })
     })
 })

@@ -10,6 +10,7 @@
         "target": "ESNext",
         // see https://www.typescriptlang.org/tsconfig#allowJs
         // see https://github.com/vuejs/eslint-config-typescript?tab=readme-ov-file#advanced-setup
-        "allowJs": true
+        "allowJs": true,
+        "lib": ["ES2024"]
     }
 }

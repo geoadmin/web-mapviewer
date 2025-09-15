@@ -5,6 +5,7 @@ import { WGS84 } from '@swissgeo/coordinates'
 import { Math as CesiumMath } from 'cesium'
 import proj4 from 'proj4'
 
+
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 
 registerProj4(proj4)
@@ -100,7 +101,7 @@ describe('Testing transitioning between 2D and 3D', () => {
             const lon = 7
             cy.goToMapView({
                 queryParams: {
-                    center: proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [lon, lat]),
+                    center: proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [lon, lat]).join(','),
                     z: 9,
                 },
             })

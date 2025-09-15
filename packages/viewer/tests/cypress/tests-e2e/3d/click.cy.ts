@@ -2,6 +2,7 @@
 import { registerProj4, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
 
+// @ts-expect-error Clicktype is from a js module, and so typing issues occurs
 import { ClickType } from '@/store/modules/map.store'
 
 registerProj4(proj4)

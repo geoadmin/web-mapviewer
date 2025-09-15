@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-export function moveTimeSlider(x) {
+export function moveTimeSlider(x: number) {
     cy.get('[data-cy="time-slider-bar-cursor-grab"]').trigger('mousedown', { button: 0 })
     cy.get('[data-cy="time-slider-bar-cursor-grab"]').trigger('mousemove', {
         screenX: Math.abs(x),
@@ -14,7 +14,7 @@ export function getGeolocationButtonAndClickIt() {
     cy.get(geolocationButtonSelector).should('be.visible').click()
 }
 
-export function testErrorMessage(message) {
+export function testErrorMessage(message: string) {
     const geolocationButtonSelector = '[data-cy="geolocation-button"]'
     // move the mouse away from the button because the tooltip covers the
     // error message
@@ -34,7 +34,7 @@ export function testErrorMessage(message) {
     cy.get('[data-cy="error-window-close"]').should('be.visible').click() // close the error window
 }
 
-export function checkStorePosition(storeString, x, y) {
+export function checkStorePosition(storeString: string, x: number, y: number) {
     cy.readStoreValue(storeString).then((center) => {
         expect(center).to.be.an('Array')
         expect(center.length).to.eq(2)
