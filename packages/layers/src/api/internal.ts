@@ -1,15 +1,10 @@
 import log from '@swissgeo/log'
 import axios from 'axios'
 
+import { servicesBaseUrl, type Staging } from '@swissgeo/staging-config'
+
 import {
-    BASE_URL_DEV,
-    BASE_URL_INT,
-    BASE_URL_PROD,
     DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION,
-    type Staging,
-    WMTS_BASE_URL_DEV,
-    WMTS_BASE_URL_INT,
-    WMTS_BASE_URL_PROD,
 } from '@/config'
 import {
     type AggregateSubLayer,
@@ -86,28 +81,6 @@ function enforceHttpsProtocol(partialOrFullUrl: string): string {
     return partialOrFullUrl
 }
 
-function getWmtsBaseUrlForStaging(staging: Staging = 'production'): string {
-    switch (staging) {
-        case 'development':
-            return WMTS_BASE_URL_DEV
-        case 'integration':
-            return WMTS_BASE_URL_INT
-        default:
-            return WMTS_BASE_URL_PROD
-    }
-}
-
-function getApi3BaseUrlForStaging(staging: Staging = 'production'): string {
-    switch (staging) {
-        case 'development':
-            return BASE_URL_DEV
-        case 'integration':
-            return BASE_URL_INT
-        default:
-            return BASE_URL_PROD
-    }
-}
-
 const _urlWithTrailingSlash = (baseUrl: string): string => {
     if (baseUrl && !baseUrl.endsWith('/')) {
         return baseUrl + '/'
@@ -180,7 +153,7 @@ export function generateLayerObject(
                 type: LayerType.WMTS,
                 name,
                 id,
-                baseUrl: _urlWithTrailingSlash(getWmtsBaseUrlForStaging(staging)),
+                baseUrl: _urlWithTrailingSlash(servicesBaseUrl.wmts[staging]),
                 idIn3d: layerConfig.config3d,
                 technicalName: serverLayerName,
                 opacity,
@@ -325,7 +298,7 @@ export function getGeoadminLayerDescription(
     return new Promise((resolve, reject) => {
         axios
             .get(
-                `${getApi3BaseUrlForStaging(staging)}rest/services/all/MapServer/${layerId}/legend?lang=${lang}`
+                `${servicesBaseUrl.api3[staging]}rest/services/all/MapServer/${layerId}/legend?lang=${lang}`
             )
             .then((response) => resolve(response.data))
             .catch((error) => {
@@ -349,7 +322,7 @@ export function loadGeoadminLayersConfig(
         const layersConfig: GeoAdminLayer[] = []
         axios
             .get<Record<string, LayerConfig>>(
-                `${getApi3BaseUrlForStaging(staging)}rest/services/all/MapServer/layersConfig?lang=${lang}`
+                `${servicesBaseUrl.api3[staging]}rest/services/all/MapServer/layersConfig?lang=${lang}`
             )
             .then(({ data: rawLayersConfig }) => {
                 if (Object.keys(rawLayersConfig).length > 0) {

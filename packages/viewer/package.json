@@ -55,6 +55,7 @@
         "@swissgeo/elevation-profile": "workspace:*",
         "@swissgeo/log": "workspace:*",
         "@swissgeo/numbers": "workspace:*",
+        "@swissgeo/staging-config": "workspace:*",
         "@swissgeo/tooltip": "workspace:*",
         "@geoblocks/cesium-compass": "catalog:",
         "@geoblocks/mapfishprint": "catalog:",

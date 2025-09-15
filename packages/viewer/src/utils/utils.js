@@ -1,8 +1,6 @@
 import log from '@swissgeo/log'
 import { format } from '@swissgeo/numbers'
 
-import { internalDomainRegex } from '@/config/baseUrl.config'
-
 /**
  * Check if the provided string is a valid URL
  *
@@ -276,16 +274,6 @@ export function isValidEmail(email) {
 export function humanFileSize(size) {
     const i = size === 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024))
     return (size / Math.pow(1024, i)).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i]
-}
-
-/**
- * Check if the given url is an internal URL (from bgdi.ch or admin.ch subdomain)
- *
- * @param {string} url
- * @returns {boolean} Returns true if the url is part of an internal server
- */
-export function isInternalUrl(url) {
-    return internalDomainRegex.test(url)
 }
 
 /**

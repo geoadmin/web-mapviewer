@@ -6,7 +6,7 @@ import proj4 from 'proj4'
 
 import { extractOlFeatureCoordinates } from '@/api/features/features.api'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
-import { getServiceSearchBaseUrl } from '@/config/baseUrl.config'
+import { getApi3BaseUrl } from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
 import { parseGpx } from '@/utils/gpxUtils'
 import { parseKml } from '@/utils/kmlUtils'
@@ -101,7 +101,7 @@ export function sanitizeTitle(title = '') {
  * @returns Promise<Array<Any>>
  */
 const generateAxiosSearchRequest = (query, lang, type, cancelToken, extraParams = {}) => {
-    return axios.get(`${getServiceSearchBaseUrl()}rest/services/ech/SearchServer`, {
+    return axios.get(`${getApi3BaseUrl()}rest/services/ech/SearchServer`, {
         cancelToken,
         params: {
             sr: LV95.epsgNumber,

@@ -1,3 +1,4 @@
+import { servicesBaseUrl } from '@swissgeo/staging-config'
 import { cloneDeep, merge, omit } from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -241,21 +242,59 @@ function makeExternalWMSLayer(values: Partial<ExternalWMSLayer>): ExternalWMSLay
  * the function parameter will be used from defaults
  */
 function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
-    const defaults = {
+    if (!values.kmlFileUrl) {
+        throw new InvalidLayerDataError('Missing KML file URL', values)
+    }
+    const kmlFileUrl: string = values.kmlFileUrl
+
+    let isExternal: boolean = true
+    if (values.isExternal !== undefined) {
+        isExternal = values.isExternal
+    } else {
+        // detecting automatically if the KML file is external or not
+        const internalServicesBackends = [
+            servicesBaseUrl.kml.development,
+            servicesBaseUrl.kml.integration,
+            servicesBaseUrl.kml.production,
+        ]
+        isExternal = !internalServicesBackends.some((internalBackend) => kmlFileUrl.startsWith(internalBackend))
+    }
+    let clampToGround: boolean
+    if (values.clampToGround !== undefined) {
+        clampToGround = values.clampToGround
+    } else {
+        // we clamp to ground our own KML files by default (in 3D viewer)
+        clampToGround = !isExternal
+    }
+    let style: KMLStyle
+    if (values.style !== undefined) {
+        style = values.style
+    } else {
+        style = isExternal ? KMLStyle.DEFAULT : KMLStyle.GEOADMIN
+    }
+
+    let fileId = values.fileId
+    if (!fileId && !isExternal) {
+        fileId = kmlFileUrl.split('/').pop()
+    }
+
+    const defaults: KMLLayer = {
+        kmlFileUrl: '',
         uuid: uuidv4(),
         opacity: 1.0,
         isVisible: true,
-        layers: [],
-        extent: null,
-        clampToGround: false,
-        isExternal: false,
-        kmlFileUrl: '',
-        fileId: '',
-        kmlData: null,
-        kmlMetadata: null,
+        extent: undefined,
+        id: `KML|${encodeExternalLayerParam(kmlFileUrl)}`,
+        name: 'KML',
+        clampToGround,
+        isExternal,
+        baseUrl: kmlFileUrl,
+        fileId,
+        kmlData: undefined,
+        kmlMetadata: undefined,
         isLocalFile: false,
         attributions: [],
-        style: KMLStyle.DEFAULT,
+        style,
         type: LayerType.KML,
         hasTooltip: false,
         hasError: false,
