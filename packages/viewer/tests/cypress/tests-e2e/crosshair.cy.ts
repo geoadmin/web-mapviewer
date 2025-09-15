@@ -14,7 +14,7 @@ interface PositionStore {
     hasOrientation: boolean
     center: number[] | undefined
     projection: CoordinateSystem
-    crossHair: CrossHairs | null
+    crossHair: typeof CrossHairs | null
     crossHairPosition: number[] | null
     camera: CameraPosition | null
 }

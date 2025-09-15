@@ -94,7 +94,7 @@ function getFixturesAndIntercepts(nbLayers: number, nbSelectedLayers: number) {
             }).as(`topic-${topicId}`)
         },
         addLayerConfigIntercept: () => {
-            let layers: Record<string, FakeWMTSLayer> = {}
+            const layers: Record<string, FakeWMTSLayer> = {}
             for (let i = 2; i < nbLayers + 2; i++) {
                 addFakeWMTSLayer(layers, i)
             }
@@ -103,7 +103,7 @@ function getFixturesAndIntercepts(nbLayers: number, nbSelectedLayers: number) {
             }).as('layers')
         },
         addTopicIntercept: () => {
-            let activatedLayers: string[] = []
+            const activatedLayers: string[] = []
             for (let i = 2; i < nbSelectedLayers + 2; i++) {
                 activatedLayers.push('test.wmts.layer.' + i)
             }
