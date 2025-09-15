@@ -152,5 +152,9 @@ declare global {
              */
             clickDrawingTool(tool: string, unselect?: boolean): void
         }
+        interface ApplicationWindow {
+            store: typeof Vuex.store
+        }
+
     }
 }
