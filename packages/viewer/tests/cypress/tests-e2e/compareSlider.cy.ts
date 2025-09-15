@@ -48,6 +48,7 @@ describe('Testing of the compare slider', () => {
                             compareRatio: '-0.3',
                         },
                     withHash: true,
+                    firstLoad: false, // Second call - skip mapReadyEvent check
                 })
                 expectCompareRatioToBe(null)
                 expectCompareSliderToBeActive(false)
@@ -58,8 +59,10 @@ describe('Testing of the compare slider', () => {
                         {
                             layers: ['test-1.wms.layer', 'test-2.wms.layer,,'].join(';'),
                             compareRatio: 'aRandomText',
-                        withHash: true},
-                    })
+                        },
+                    withHash: true,
+                    firstLoad: false, // Third call - skip mapReadyEvent check
+                })
                 expectCompareRatioToBe(null)
                 expectCompareSliderToBeActive(false)
 

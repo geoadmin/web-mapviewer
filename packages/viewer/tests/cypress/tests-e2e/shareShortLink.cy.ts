@@ -138,7 +138,7 @@ describe('Testing the share menu', () => {
         )
     })
     context('Social networks', () => {
-        const checkSocialNetworkType = (type, matchingUrl) => {
+        const checkSocialNetworkType = (type: string, matchingUrl: string) => {
             cy.get(`[data-cy="share-shortlink-${type}"]`).should('be.visible').click()
             cy.get('@open').should('have.been.calledWith', Cypress.sinon.match(matchingUrl))
         }
@@ -188,14 +188,14 @@ describe('Testing the share menu', () => {
             viewportHeight: 600,
         },
         () => {
-            const checkIFrameSnippetSize = (width, height) => {
+            const checkIFrameSnippetSize = (width: string | number, height: string | number) => {
                 cy.get('[data-cy="embed-preview-modal"] [data-cy="menu-share-input-copy-text"]')
                     .should('contain.value', `width: ${width}`)
                     .should('contain.value', `height: ${height}`)
             }
 
             // This is needed to perform actions in the iframe (see cypress docs)
-            function getIframeBody() {
+            function getIframeBody(): Cypress.Chainable<JQuery<HTMLElement>> {
                 return cy
                     .get('[data-cy="menu-share-embed-iframe-preview"]')
                     .its('0.contentDocument.body')
@@ -313,7 +313,7 @@ describe('Testing the share menu', () => {
                 cy.get('[data-cy="menu-button"]').click()
 
                 // Test local import
-                cy.goToMapView({ withHash: true })
+                cy.goToMapView({ withHash: true, firstLoad: false })
                 cy.readStoreValue('state.layers.activeLayers').should('be.empty')
                 cy.openMenuIfMobile()
                 cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
