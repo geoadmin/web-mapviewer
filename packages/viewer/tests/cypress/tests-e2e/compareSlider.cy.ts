@@ -28,7 +28,7 @@ describe('Testing of the compare slider', () => {
                 expectCompareSliderToBeActive(false)
                 cy.get('[data-cy="compareSlider"]').should('not.exist')
             })
-            it.only('does not shows up with layers and the compare ratio parameter out of bounds or not a number', () => {
+            it('does not shows up with layers and the compare ratio parameter out of bounds or not a number', () => {
                 cy.goToMapView({
                     queryParams:
                         {
