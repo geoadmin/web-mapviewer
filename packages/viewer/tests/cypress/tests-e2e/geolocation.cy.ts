@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { constants, registerProj4, WGS84 } from '@swissgeo/coordinates'
+import { constants, registerProj4, WGS84, type SingleCoordinate } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
 
 import {
@@ -80,7 +80,7 @@ describe('Geolocation cypress', () => {
                 const startingLongitude: number = 7.5
                 const startingZoom: number = 12
                 // same position but in EPSG:2056 (default projection of the app)
-                const [x0, y0]: [number, number] = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [
+                const [x0, y0]: SingleCoordinate = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [
                     startingLongitude,
                     startingLatitude,
                 ])
@@ -88,7 +88,7 @@ describe('Geolocation cypress', () => {
                 const geoLatitude: number = 47.5
                 const geoLongitude: number = 6.8
                 // same position but in EPSG:2056 (default projection of the app)
-                const [geoX, geoY]: [number, number] = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [
+                const [geoX, geoY]: SingleCoordinate = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [
                     geoLongitude,
                     geoLatitude,
                 ])
