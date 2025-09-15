@@ -11,7 +11,7 @@ describe('Test functions for the header / search bar', () => {
     beforeEach(() => {
         cy.goToMapView()
     })
-    const checkMenuValue = (value) => {
+    const checkMenuValue = (value: boolean) => {
         cy.readStoreValue('getters.isMenuShown').should('eq', value)
     }
 
@@ -77,13 +77,13 @@ describe('Test functions for the header / search bar', () => {
             cy.wait(['@layerConfig', '@topics'])
             cy.waitMapIsReady()
         }
-        const checkLangAndTopic = (expectedLang = 'en', expectedTopicId = 'ech') => {
+        const checkLangAndTopic = (expectedLang: string = 'en', expectedTopicId: string = 'ech') => {
             cy.readStoreValue('state.i18n.lang').should('eq', expectedLang)
             cy.readStoreValue('state.topics.current').then((currentTopic) => {
                 expect(currentTopic).to.eq(expectedTopicId)
             })
         }
-        const checkCurrentBackgroundLayer = (expectedLayerId) => {
+        const checkCurrentBackgroundLayer = (expectedLayerId: string) => {
             cy.readStoreValue('state.layers.currentBackgroundLayerId').then(
                 (currentBackgroundLayerId) => {
                     expect(currentBackgroundLayerId).to.eq(expectedLayerId)
@@ -109,6 +109,7 @@ describe('Test functions for the header / search bar', () => {
                     lang: 'fr',
                     topic: 'test-topic-standard',
                 },
+                firstLoad: false,
             })
             clickOnLogo()
             // checking that topic and lang are still the same
@@ -122,6 +123,7 @@ describe('Test functions for the header / search bar', () => {
                         lang: 'fr',
                         topic: 'test-topic-standard',
                     },
+                    firstLoad: false,
                 })
                 clickOnConfederationText()
                 // checking that topic and lang are still the same
@@ -129,7 +131,6 @@ describe('Test functions for the header / search bar', () => {
             })
         }
         it("resets layers added to the default topic's layers and default background layer when clicking on the logo", () => {
-            cy.goToMapView()
             selectTopicStandardAndAddLayerFromTopicTree()
             // now clicking on the swiss flag, this should reload the page without the active layer
             // we just selected (so only the topic and lang must be carried over)
@@ -145,6 +146,7 @@ describe('Test functions for the header / search bar', () => {
                     topic: 'test-topic-standard-different-default-background',
                     bgLayer: 'test.background.layer2',
                 },
+                firstLoad: false,
             })
             checkLangAndTopic('en', 'test-topic-standard-different-default-background')
             checkCurrentBackgroundLayer('test.background.layer2')
@@ -158,7 +160,7 @@ describe('Test functions for the header / search bar', () => {
         if (width >= BREAKPOINT_TABLET) {
             // desktop only
             it('reloads the app the same way as above when click on the confederation text', () => {
-                cy.goToMapView()
+                cy.goToMapView({firstLoad: false})
                 selectTopicStandardAndAddLayerFromTopicTree()
                 clickOnConfederationText()
                 checkLangAndTopic('en', 'test-topic-standard')
