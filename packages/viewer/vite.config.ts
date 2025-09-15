@@ -149,8 +149,9 @@ function generatePlugins(mode: ViteModes, isTesting: boolean = false): PluginOpt
             })
         )
     }
-
-    if (mode === 'development') {
+    // Vue dev tools only in development mode and if not testing
+    // during testing the dev tools button can interfere with cypress clicks
+    if (mode === 'development' && !isTesting) {
         plugins.push(vueDevTools())
     }
 
