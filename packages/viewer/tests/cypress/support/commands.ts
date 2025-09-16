@@ -380,10 +380,7 @@ Cypress.Commands.add('closeMenuIfMobile', () => {
     cy.log('cmd: closeMenuIfMobile successful')
 })
 
-Cypress.Commands.add('assertDefined', (value: unknown) => {
-    assertDefined(value as any)
-    return cy.wrap(value)
-})
+Cypress.Commands.add('assertDefined', (value: unknown) => assertDefined(value))
 
 function assertDefined<T>(value: T | undefined | null): asserts value is NonNullable<T> {
     expect(value).to.not.be.undefined

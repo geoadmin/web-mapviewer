@@ -39,7 +39,7 @@ declare global {
             mount: typeof mount;
 
             /** Asserts that the given value is neither `null` nor `undefined`. */
-            assertDefined<T>(value: T | undefined | null): asserts value is T;
+            assertDefined<T>(value: T | undefined | null): asserts value is T
             /** Returns the currently used mocked-up (external) WMS layer configurations. */
             getExternalWmsMockConfig(): Cypress.Chainable<ExternalWMSLayer[]>
             /** Returns the currently used mocked-up (external) WMTS layer configurations. */

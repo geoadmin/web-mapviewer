@@ -1,8 +1,9 @@
 /// <reference types="cypress" />
+import type AbstractLayer from '@/api/layers/AbstractLayer.class'
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 
 describe('Testing of the compare slider', () => {
-    function expectCompareRatioToBe(value) {
+    function expectCompareRatioToBe(value: number | null) {
         if (!value) {
             cy.readStoreValue('state.ui.compareRatio').should('be.null')
         } else {
@@ -10,7 +11,7 @@ describe('Testing of the compare slider', () => {
         }
     }
     //active is the boolean
-    function expectCompareSliderToBeActive(active) {
+    function expectCompareSliderToBeActive(active: boolean) {
         cy.readStoreValue('state.ui.isCompareSliderActive').should('be.equal', active)
     }
     context('Comportment of compare slider at startup', () => {
@@ -31,10 +32,10 @@ describe('Testing of the compare slider', () => {
             it('does not shows up with layers and the compare ratio parameter out of bounds or not a number', () => {
                 cy.goToMapView({
                     queryParams:
-                        {
-                            layers: ['test-1.wms.layer', 'test-2.wms.layer,,'].join(';'),
-                            compareRatio: '1.4',
-                        },
+                    {
+                        layers: ['test-1.wms.layer', 'test-2.wms.layer,,'].join(';'),
+                        compareRatio: '1.4',
+                    },
                     withHash: true,
                 })
                 expectCompareRatioToBe(null)
@@ -43,10 +44,10 @@ describe('Testing of the compare slider', () => {
                 cy.get('[data-cy="compareSlider"]').should('not.exist')
                 cy.goToMapView({
                     queryParams:
-                        {
-                            layers: ['test-1.wms.layer', 'test-2.wms.layer,,'].join(';'),
-                            compareRatio: '-0.3',
-                        },
+                    {
+                        layers: ['test-1.wms.layer', 'test-2.wms.layer,,'].join(';'),
+                        compareRatio: '-0.3',
+                    },
                     withHash: true,
                     firstLoad: false, // Second call - skip mapReadyEvent check
                 })
@@ -56,10 +57,10 @@ describe('Testing of the compare slider', () => {
                 cy.get('[data-cy="compareSlider"]').should('not.exist')
                 cy.goToMapView({
                     queryParams:
-                        {
-                            layers: ['test-1.wms.layer', 'test-2.wms.layer,,'].join(';'),
-                            compareRatio: 'aRandomText',
-                        },
+                    {
+                        layers: ['test-1.wms.layer', 'test-2.wms.layer,,'].join(';'),
+                        compareRatio: 'aRandomText',
+                    },
                     withHash: true,
                     firstLoad: false, // Third call - skip mapReadyEvent check
                 })
@@ -72,7 +73,7 @@ describe('Testing of the compare slider', () => {
     })
 
     context('Tests to check if the compare slider is functional', () => {
-        function moveSlider(x) {
+        function moveSlider(x: number) {
             /*
                 This function moves the slider so the 'left' position of the element will be at x.
                 The slider is 40 px wide and we drag it from the center.
@@ -88,11 +89,11 @@ describe('Testing of the compare slider', () => {
             it('moves when we click on it and drag the mouse', () => {
                 cy.goToMapView({
                     queryParams:
-                        {
-                            layers: 'test-1.wms.layer',
-                            compareRatio: '0.3',
-                        },
-                    withHash:true,
+                    {
+                        layers: 'test-1.wms.layer',
+                        compareRatio: '0.3',
+                    },
+                    withHash: true,
                 })
                 // initial slider position is width * 0.3 -20
                 cy.get('[data-cy="compareSlider"]').then((slider) => {
@@ -137,15 +138,16 @@ describe('Testing of the compare slider', () => {
         */
 
         context.skip('Cutting layers', () => {
-            function checkIfFeaturesAreAt(x, y, expectFeatures) {
-                cy.get['ol-map'].click(x, y)
-                cy.expect(
+            function checkIfFeaturesAreAt(x: number, y: number, expectedFeatures: boolean) {
+                cy.get('ol-map').click(x, y)
+
+                expect(
                     cy.waitUntilState((_, getters) => {
                         const numberOfFeatures = getters.selectedFeatures.length
-                        return expectFeatures ? numberOfFeatures > 0 : numberOfFeatures === 0
+                        return expectedFeatures ? numberOfFeatures > 0 : numberOfFeatures === 0
                     })
-                ).to.be(true)
-                if (expectFeatures) {
+                ).to.be.true
+                if (expectedFeatures) {
                     cy.get('[data-cy="highlighted-features"]').should('be.visible')
                 } else {
                     cy.get('[data-cy="highlighted-features"]').should('not.be.visible')
@@ -162,13 +164,15 @@ describe('Testing of the compare slider', () => {
                 const layerIds = ['test1.wms.layer', 'test2.wms.layer']
                 const layer1 = layerIds[0]
                 const layer2 = layerIds[1]
+                cy.assertDefined(feature_layer_1)
+                cy.assertDefined(feature_layer_2)
                 const feature_1_coordinates = [
-                    feature_layer_1.properties.x,
-                    feature_layer_1.properties.y,
+                    feature_layer_1!.properties.x,
+                    feature_layer_1!.properties.y,
                 ]
                 const feature_2_coordinates = [
-                    feature_layer_2.properties.x,
-                    feature_layer_2.properties.y,
+                    feature_layer_2!.properties.x,
+                    feature_layer_2!.properties.y,
                 ]
                 cy.intercept('**/MapServer/identify**', { results: [feature_layer_1] })
                 cy.intercept(`**/MapServer/${layer1}/**geometryFormat**`, feature_layer_1)
@@ -178,10 +182,10 @@ describe('Testing of the compare slider', () => {
                 })
                 cy.goToMapView({
                     queryParams:
-                        {
-                            layers: layerIds.join(';'),
-                            compareRatio: '0.5',
-                        },
+                    {
+                        layers: layerIds.join(';'),
+                        compareRatio: '0.5',
+                    },
                     withHash: true,
                 })
                 cy.log('changing the order of the layers and check which on is cut')
@@ -211,11 +215,9 @@ describe('Testing of the compare slider', () => {
                 checkIfFeaturesAreAt(feature_1_coordinates[0], feature_1_coordinates[1], false)
                 checkIfFeaturesAreAt(feature_2_coordinates[0], feature_2_coordinates[1], true)
 
-                moveSlider(
-                    cy.readStoreValue('state.ui.width').then((width) => {
-                        return width - 10
-                    })
-                )
+                cy.readStoreValue('state.ui.width').then((width: number) => {
+                    moveSlider(width - 10)
+                })
 
                 checkIfFeaturesAreAt(feature_1_coordinates[0], feature_1_coordinates[1], true)
                 checkIfFeaturesAreAt(feature_2_coordinates[0], feature_2_coordinates[1], true)
@@ -255,7 +257,7 @@ describe('Testing of the compare slider', () => {
                     // TODO : PB-262 : with stored ratio, we should be able to activate it,
                     // see it's red, and still not see the compare slider.
                     // So we'll need to check that the button color switched to red / the activated value is true
-                    cy.goToMapView({ withHash: true})
+                    cy.goToMapView({ withHash: true })
                     cy.openMenuIfMobile()
                     cy.get('[data-cy="menu-tray-tool-section"]').click()
                     cy.get('[data-cy="menu-advanced-tools-compare"]').click()
@@ -273,7 +275,7 @@ describe('Testing of the compare slider', () => {
                 it('stays "active" when we remove the last layer', () => {
                     const compareRatioValue = 0.3
                     cy.goToMapView({
-                        queryParams:{
+                        queryParams: {
                             layers: 'test-1.wms.layer',
                             compareRatio: `${compareRatioValue}`,
                         },
@@ -301,10 +303,10 @@ describe('Testing of the compare slider', () => {
                 it('appears and is functional when layers are present in 2d', () => {
                     cy.goToMapView({
                         queryParams:
-                            {
-                                layers: ['test-1.wms.layer', 'test-2.wms.layer,,'].join(';'),
-                                compareRatio: '0.3',
-                            },
+                        {
+                            layers: ['test-1.wms.layer', 'test-2.wms.layer,,'].join(';'),
+                            compareRatio: '0.3',
+                        },
                         withHash: true,
                     })
                     cy.get('[data-cy="compareSlider"]').should('be.visible')
@@ -342,7 +344,7 @@ describe('Testing of the compare slider', () => {
     context('With two times the same layer', () => {
         it('layers are independent layers with different uuids', () => {
             cy.goToMapView({
-                queryParams:{
+                queryParams: {
                     layers: [
                         'test.timeenabled.wmts.layer@year=2015',
                         'test.timeenabled.wmts.layer@year=2021',
@@ -354,11 +356,11 @@ describe('Testing of the compare slider', () => {
             cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
                 expect(visibleLayers).to.be.an('Array')
                 expect(visibleLayers.length).to.deep.equal(2)
-                visibleLayers.forEach((_, index) => {
+                visibleLayers.forEach((_: AbstractLayer, index: number) => {
                     expect(visibleLayers[index]).to.be.an('Object')
                     expect(visibleLayers[index].uuid).to.not.be.undefined
                 })
-                const [uuid1, uuid2] = visibleLayers.map((layer) => layer.uuid)
+                const [uuid1, uuid2] = visibleLayers.map((layer: AbstractLayer) => layer.uuid)
                 expect(uuid1).to.not.equal(uuid2)
             })
         })
@@ -369,7 +371,7 @@ describe('The compare Slider and the menu elements should not be available in 3d
     context('compare slider non availability in 3d', () => {
         it('does not shows up with layers, a compare slider parameter set, but in 3d', () => {
             cy.goToMapView({
-                queryParams:{
+                queryParams: {
                     layers: ['test-1.wms.layer', 'test-2.wms.layer,,'].join(';'),
                     compareRatio: '0.4',
                     '3d': true,
@@ -387,7 +389,7 @@ describe('The compare Slider and the menu elements should not be available in 3d
     context('Compare menu component with 3d', () => {
         it('disappears when it is available in 2d and we swith to 3d', () => {
             cy.goToMapView({
-                queryParams:{
+                queryParams: {
                     sr: WEBMERCATOR.epsgNumber,
                 },
                 withHash: true,
