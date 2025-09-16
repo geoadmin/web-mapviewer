@@ -36,7 +36,6 @@
         "outDir": "${configDir}/dist",
         "paths": {
             "@/*": ["${configDir}/src/*"]
-        },
-        "typeRoots": ["${configDir}/node_modules/@types"]
+        }
     }
 }

@@ -1,8 +1,7 @@
 /* eslint-disable */
 
 import { mount } from 'cypress/vue'
-import type ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
-import type ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
+import type { ExternalWMSLayer, ExternalWMTSLayer } from '@swissgeo/layers'
 
 import type { GoToViewOptions, PartialLayer } from './support/commands'
 
