@@ -198,12 +198,14 @@ function checkScrollbarVisibility(topicsScrollable: boolean, activeLayersScrolla
     let topicSectionOriginalHeight: number
     cy.get('[data-cy="menu-topic-tree"]')
         .then((elems) => {
-            topicSectionOriginalHeight = elems[0]!.clientHeight
+            cy.assertDefined(elems[0])
+            topicSectionOriginalHeight = elems[0].clientHeight
             return elems
         })
         .parents('[data-cy="menu-section-body"]')
         .should((elems) => {
-            const clientHeight = elems[0]!.clientHeight
+            cy.assertDefined(elems[0])
+            const clientHeight = elems[0].clientHeight
             if (topicsScrollable) {
                 expect(clientHeight).to.be.lt(topicSectionOriginalHeight)
             } else {
@@ -213,12 +215,14 @@ function checkScrollbarVisibility(topicsScrollable: boolean, activeLayersScrolla
     let activeSectionOriginalHeight: number
     cy.get('[data-cy="menu-section-active-layers"]')
         .then((elems) => {
-            activeSectionOriginalHeight = elems[0]!.clientHeight
+            cy.assertDefined(elems[0])
+            activeSectionOriginalHeight = elems[0].clientHeight
             return elems
         })
         .parents('[data-cy="menu-section-body"]')
         .should((elems) => {
-            const clientHeight = elems[0]!.clientHeight
+            cy.assertDefined(elems[0])
+            const clientHeight = elems[0].clientHeight
             if (activeLayersScrollable) {
                 expect(clientHeight).to.be.lt(activeSectionOriginalHeight)
             } else {

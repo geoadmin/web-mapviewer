@@ -27,7 +27,8 @@ describe('Topics', () => {
                 .forEach((layerIdThatMustBeActive: string, index: number) => {
                     const activeLayer = activeLayers[index]
                     expect(activeLayer).to.be.an('Object')
-                    expect(activeLayer!.id).to.eq(layerIdThatMustBeActive)
+                    cy.assertDefined(activeLayer)
+                    expect(activeLayer.id).to.eq(layerIdThatMustBeActive)
                 })
         })
     }
@@ -126,13 +127,16 @@ describe('Topics', () => {
         cy.readStoreValue('getters.visibleLayers').should((layers: AbstractLayer[]) => {
             expect(layers).to.be.an('Array')
             expect(layers.length).to.eq(1)
+            cy.assertDefined(layers[0])
             expect(layers[0]).to.be.an('Object')
-            expect(layers[0]!.id).to.eq('test.wmts.layer')
+            expect(layers[0].id).to.eq('test.wmts.layer')
         })
         // it must clear all activated layers and change background layer on topic selection
         cy.fixture('topics.fixture').then((mockupTopics: MockupTopics) => {
             expect(mockupTopics.topics.length).to.be.at.least(5)
-            const topicStandard = mockupTopics.topics[1]!
+            const topicStandard = mockupTopics.topics[1]
+            cy.assertDefined(topicStandard)
+
             selectTopicWithId(topicStandard.id)
             // we expect visible layers to be empty
             cy.readStoreValue('getters.visibleLayers').should((layers: AbstractLayer[]) => {
@@ -152,7 +156,8 @@ describe('Topics', () => {
 
             // checking that it activates layers of the topic after topic swap
             // (if they are supposed to be active, but hidden)
-            const topicWithActiveLayers = mockupTopics.topics[2]!
+            const topicWithActiveLayers = mockupTopics.topics[2]
+            cy.assertDefined(topicWithActiveLayers)
             selectTopicWithId(topicWithActiveLayers.id)
             // we expect the layer to be activated but not visible
             cy.readStoreValue('getters.visibleLayers').should('be.empty')
@@ -161,7 +166,8 @@ describe('Topics', () => {
             cy.get('[data-cy="menu-section-active-layers"]').should('be.visible')
 
             // checking that it activates and set visible layers of the topic after topic swap
-            const topicWithVisibleLayers = mockupTopics.topics[3]!
+            const topicWithVisibleLayers = mockupTopics.topics[3]
+            cy.assertDefined(topicWithVisibleLayers)
             selectTopicWithId(topicWithVisibleLayers.id)
             // there should be visible layers
             cy.readStoreValue('getters.visibleLayers').should((visibleLayers: AbstractLayer[]) => {
@@ -169,13 +175,15 @@ describe('Topics', () => {
                 expect(visibleLayers.length).to.eq(topicWithVisibleLayers.selectedLayers.length)
                 topicWithVisibleLayers.selectedLayers.forEach((layerIdThatMustBeVisible: string, index: number) => {
                     expect(visibleLayers[index]).to.be.an('Object')
-                    expect(visibleLayers[index]!.id).to.eq(layerIdThatMustBeVisible)
+                    cy.assertDefined(visibleLayers[index])
+                    expect(visibleLayers[index].id).to.eq(layerIdThatMustBeVisible)
                 })
             })
             checkThatActiveLayerFromTopicAreActive(topicWithVisibleLayers)
 
             // checking that it correctly handles a complex topic with custom legacy URL params
-            const complexTopic = mockupTopics.topics[4]!
+            const complexTopic = mockupTopics.topics[4]
+            cy.assertDefined(complexTopic)
             selectTopicWithId(complexTopic.id)
             // from the mocked up response above
             const expectedActiveLayers = ['test.wmts.layer', 'test.wms.layer']
@@ -189,7 +197,8 @@ describe('Topics', () => {
                 expect(visibleLayers.length).to.eq(expectedVisibleLayers.length)
                 expectedVisibleLayers.forEach((layerIdThatMustBeVisible, index) => {
                     expect(visibleLayers[index]).to.be.an('Object')
-                    expect(visibleLayers[index]!.id).to.eq(layerIdThatMustBeVisible)
+                    cy.assertDefined(visibleLayers[index])
+                    expect(visibleLayers[index].id).to.eq(layerIdThatMustBeVisible)
                 })
             })
             cy.readStoreValue('state.layers.activeLayers').should((activeLayers: AbstractLayer[]) => {
@@ -197,9 +206,10 @@ describe('Topics', () => {
                 expect(activeLayers.length).to.eq(expectedActiveLayers.length)
                 expectedActiveLayers.forEach((layerIdThatMustBeActive, index) => {
                     const activeLayer = activeLayers[index]
+                    cy.assertDefined(activeLayer)
                     expect(activeLayer).to.be.an('Object')
-                    expect(activeLayer!.id).to.eq(layerIdThatMustBeActive)
-                    expect(activeLayer!.opacity).to.eq(expectedOpacity[layerIdThatMustBeActive])
+                    expect(activeLayer.id).to.eq(layerIdThatMustBeActive)
+                    expect(activeLayer.opacity).to.eq(expectedOpacity[layerIdThatMustBeActive])
                 })
             })
             cy.readStoreValue('getters.currentBackgroundLayer').should('be.null') // void layer
@@ -235,7 +245,8 @@ describe('Topics', () => {
         cy.readStoreValue('state.layers.activeLayers').should((activeLayers: AbstractLayer[]) => {
             expect(activeLayers).to.be.an('Array').lengthOf(1)
             const [firstLayer] = activeLayers
-            expect(firstLayer!.id).to.eq('test.wms.layer')
+            cy.assertDefined(firstLayer)
+            expect(firstLayer.id).to.eq('test.wms.layer')
         })
         cy.get('[data-cy="catalogue-tree-item-title-test.wmts.layer"]').should('be.visible').click()
         cy.get('[data-cy="catalogue-add-layer-button-test.wmts.layer"] svg').should(
@@ -245,8 +256,10 @@ describe('Topics', () => {
         cy.readStoreValue('state.layers.activeLayers').should((activeLayers: AbstractLayer[]) => {
             expect(activeLayers).to.be.an('Array').lengthOf(2)
             const [firstLayer, secondLayer] = activeLayers
-            expect(firstLayer!.id).to.eq('test.wms.layer')
-            expect(secondLayer!.id).to.eq('test.wmts.layer')
+            cy.assertDefined(firstLayer)
+            cy.assertDefined(secondLayer)
+            expect(firstLayer.id).to.eq('test.wms.layer')
+            expect(secondLayer.id).to.eq('test.wmts.layer')
         })
 
         //---------------------------------------------------------------------
@@ -353,7 +366,8 @@ describe('Topics', () => {
 
             cy.get(popupSelector).then((popup: JQuery<HTMLElement>) => {
                 expect(popup.length).to.be.at.least(1)
-                const rect = popup[0]!.getBoundingClientRect()
+                cy.assertDefined(popup[0])
+                const rect = popup[0].getBoundingClientRect()
                 const initialPosition = { x: rect.x, y: rect.y }
                 cy.get(popupSelectorHeader).trigger('mousedown', { button: 0 })
                 cy.get(popupSelectorHeader).trigger('mousemove', { button: 0, clientX: 0, clientY: 0, force: true }) // this is needed to make the drag work
@@ -362,7 +376,8 @@ describe('Topics', () => {
 
                 cy.get(popupSelector).then((popup2: JQuery<HTMLElement>) => {
                     expect(popup2.length).to.be.at.least(1)
-                    const rect2 = popup2[0]!.getBoundingClientRect()
+                    cy.assertDefined(popup2[0])
+                    const rect2 = popup2[0].getBoundingClientRect()
                     expect(rect2.x).to.be.closeTo(initialPosition.x + moveX, 1) // Allow small margin for floating-point
                     expect(rect2.y).to.be.closeTo(initialPosition.y + moveY, 1)
                 })
@@ -374,7 +389,8 @@ describe('Topics', () => {
             cy.log('reduce the size of the legend popup to the half')
             cy.get(popupSelector).then((popup: JQuery<HTMLElement>) => {
                 expect(popup.length).to.be.at.least(1)
-                const rect = popup[0]!.getBoundingClientRect()
+                cy.assertDefined(popup[0])
+                const rect = popup[0].getBoundingClientRect()
                 const initialDimensions = { height: rect.height, width: rect.width }
                 const genArr = Array.from({ length: 15 }, (_v, k) => k + 1)
                 cy.wrap(genArr).each((index: number) => {
@@ -415,7 +431,8 @@ describe('Topics', () => {
 
                 cy.get(popupSelector).then((popup2: JQuery<HTMLElement>) => {
                     expect(popup2.length).to.be.at.least(1)
-                    const rect2 = popup2[0]!.getBoundingClientRect()
+                    cy.assertDefined(popup2[0])
+                    const rect2 = popup2[0].getBoundingClientRect()
                     expect(rect2.height).to.not.eq(initialDimensions.height)
                 })
             })
@@ -423,7 +440,8 @@ describe('Topics', () => {
             cy.log('increase the size of the legend popup by 100px')
             cy.get(popupSelector).then((popup: JQuery<HTMLElement>) => {
                 expect(popup.length).to.be.at.least(1)
-                const rect = popup[0]!.getBoundingClientRect()
+                cy.assertDefined(popup[0])
+                const rect = popup[0].getBoundingClientRect()
                 const initialDimensions = { height: rect.height, width: rect.width }
 
                 const genArr = Array.from({ length: 15 }, (_v, k) => k + 1)
@@ -468,7 +486,8 @@ describe('Topics', () => {
                 })
                 cy.get(popupSelector).then((popup2: JQuery<HTMLElement>) => {
                     expect(popup2.length).to.be.at.least(1)
-                    const rect2 = popup2[0]!.getBoundingClientRect()
+                    cy.assertDefined(popup2[0])
+                    const rect2 = popup2[0].getBoundingClientRect()
                     expect(rect2.width).to.not.eq(initialDimensions.width)
                     expect(rect2.height).to.not.eq(initialDimensions.height)
                 })

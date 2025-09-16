@@ -1,7 +1,7 @@
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import { LV95, registerProj4, WGS84 } from '@swissgeo/coordinates'
 import type { ExternalWMSLayer, ExternalWMTSLayer } from '@swissgeo/layers'
-import { layerUtils }  from '@swissgeo/layers/utils'
+import { layerUtils } from '@swissgeo/layers/utils'
 import { randomIntBetween } from '@swissgeo/numbers'
 import proj4 from 'proj4'
 

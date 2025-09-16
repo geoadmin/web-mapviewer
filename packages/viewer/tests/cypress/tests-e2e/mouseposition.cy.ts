@@ -248,7 +248,8 @@ describe('Test mouse position and interactions', () => {
                 const params = new URLSearchParams(query)
                 const centerParam = params.get('center')
                 expect(centerParam).to.be.a('string')
-                const position = centerParam!.split(',').map(parseFloat)
+                cy.assertDefined(centerParam)
+                const position = centerParam.split(',').map(parseFloat)
                 checkXY(...(position as [number, number]))
                 expect(params.get('crosshair')).not.to.be.empty
             })

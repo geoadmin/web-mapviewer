@@ -267,9 +267,9 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="ol-map"]').then(($el) => {
             const mapWidth = $el.width()
             const mapHeight = $el.height()
-            expect(mapWidth).to.not.be.null
-            expect(mapHeight).to.not.be.null
-            cy.get('[data-cy="ol-map"]').click(mapWidth! / 2 + 50, mapHeight! / 2)
+            cy.assertDefined(mapWidth)
+            cy.assertDefined(mapHeight)
+            cy.get('[data-cy="ol-map"]').click(mapWidth / 2 + 50, mapHeight / 2)
         })
 
         cy.get('[data-cy="drawing-toolbox-close-button"]').should('be.visible').click()
@@ -302,9 +302,9 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="ol-map"]').then(($el) => {
             const mapWidth = $el.width()
             const mapHeight = $el.height()
-            expect(mapWidth).to.not.be.null
-            expect(mapHeight).to.not.be.null
-            cy.get('[data-cy="ol-map"]').click(mapWidth! / 2 + 50, mapHeight! / 2)
+            cy.assertDefined(mapWidth)
+            cy.assertDefined(mapHeight)
+            cy.get('[data-cy="ol-map"]').click(mapWidth / 2 + 50, mapHeight / 2)
         })
         // we need to increase the timeout here below because, upon opening the drawing mode for the
         // first time in e2e tests, the loading of the library can take time
@@ -374,20 +374,20 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="ol-map"]').then(($el) => {
             const mapWidth = $el.width()
             const mapHeight = $el.height()
-            expect(mapWidth).to.not.be.null
-            expect(mapHeight).to.not.be.null
-            cy.get('[data-cy="ol-map"]').click(mapWidth! / 2 + 50, mapHeight! / 2)
+            cy.assertDefined(mapWidth)
+            cy.assertDefined(mapHeight)
+            cy.get('[data-cy="ol-map"]').click(mapWidth / 2 + 50, mapHeight / 2)
         })
 
         cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
         cy.get('[data-cy="ol-map"]').then(($el) => {
             const mapWidth = $el.width()
             const mapHeight = $el.height()
-            expect(mapWidth).to.not.be.null
-            expect(mapHeight).to.not.be.null
-            cy.get('[data-cy="ol-map"]').click(mapWidth! / 2 - 50, mapHeight! / 2)
-            cy.get('[data-cy="ol-map"]').click(mapWidth! / 2, mapHeight! / 2)
-            cy.get('[data-cy="ol-map"]').dblclick(mapWidth! / 2 + 10, mapHeight! / 2 + 50)
+            cy.assertDefined(mapWidth)
+            cy.assertDefined(mapHeight)
+            cy.get('[data-cy="ol-map"]').click(mapWidth / 2 - 50, mapHeight / 2)
+            cy.get('[data-cy="ol-map"]').click(mapWidth / 2, mapHeight / 2)
+            cy.get('[data-cy="ol-map"]').dblclick(mapWidth / 2 + 10, mapHeight / 2 + 50)
         })
 
         cy.get('[data-cy="drawing-toolbox-close-button"]').should('be.visible').click()

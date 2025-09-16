@@ -100,7 +100,10 @@ describe('Testing coordinates typing in search bar', () => {
         // checking that search bar has been emptied
         cy.readStoreValue('state.search.query').should('be.empty')
         expect(expectedCenterWGS84_DD).to.have.length(2)
-        standardCheck(expectedCenterWGS84_DD[0]!, expectedCenterWGS84_DD[1]!, {
+        cy.assertDefined(expectedCenterWGS84_DD[0])
+        cy.assertDefined(expectedCenterWGS84_DD[1])
+
+        standardCheck(expectedCenterWGS84_DD[0], expectedCenterWGS84_DD[1], {
             acceptableDelta,
             withInversion: true,
         })

@@ -38,10 +38,12 @@ declare global {
         interface Chainable {
             mount: typeof mount;
 
+            /** Asserts that the given value is neither `null` nor `undefined`. */
+            assertDefined<T>(value: T | undefined | null): asserts value is T;
             /** Returns the currently used mocked-up (external) WMS layer configurations. */
-            getExternalWmsMockConfig(): ExternalWMSLayer[]
+            getExternalWmsMockConfig(): Cypress.Chainable<ExternalWMSLayer[]>
             /** Returns the currently used mocked-up (external) WMTS layer configurations. */
-            getExternalWmtsMockConfig(): ExternalWMTSLayer[]
+            getExternalWmtsMockConfig(): Cypress.Chainable<ExternalWMTSLayer[]>
 
             /**
              * Command that visits the main view and waits for the map to be shown (for the app to be ready) All
