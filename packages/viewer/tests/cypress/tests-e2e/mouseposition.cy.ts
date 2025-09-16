@@ -13,11 +13,12 @@ import {
     UTMFormat,
     WGS84Format,
 } from '@/utils/coordinates/coordinateFormat'
+import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 
 registerProj4(proj4)
 
-/** @param {CoordinateFormat} format */
-function getMousePositionAndSelect(format) {
+/** Selects a mouse position display format */
+function getMousePositionAndSelect(format: CoordinateFormat) {
     cy.get('[data-cy="mouse-position-select"]').should('be.visible')
     cy.get('[data-cy="mouse-position-select"]').select(format.id)
 }
@@ -25,13 +26,13 @@ function getMousePositionAndSelect(format) {
 /**
  * Extracts an LV coordinate from a formatted string.
  *
- * @param {String} text A string containing an LV95 or LV03 coordinate.
+ * @param text A string containing an LV95 or LV03 coordinate.
  */
-function parseLV(text) {
+function parseLV(text: string): number[] {
     const matches = text.match(/([-\d'.]+),\s*([-\d'.]+)$/)
     expect(matches).to.be.an('array', `Cannot parse LV coordinate from ${text}`)
-    expect(matches.length).to.be.eq(3, `Cannot parse LV coordinate from ${text}`)
-    return matches
+    expect(matches?.length).to.be.eq(3, `Cannot parse LV coordinate from ${text}`)
+    return (matches as RegExpMatchArray)
         .slice(1)
         .map((value) => value.replace(/'/g, ''))
         .map(parseFloat)
@@ -40,18 +41,18 @@ function parseLV(text) {
 /**
  * Checks if a coordinate is close to the expected values.
  *
- * @param {Number} expectedX The expected x value.
- * @param {Number} expectedY The expected y value.
+ * @param expectedX The expected x value.
+ * @param expectedY The expected y value.
  */
-function checkXY(expectedX, expectedY) {
-    return function (coordinate) {
+function checkXY(expectedX: number, expectedY: number) {
+    return function (coordinate: number[]) {
         const [x, y] = coordinate
         expect(x).to.be.closeTo(expectedX, 0.1)
         expect(y).to.be.closeTo(expectedY, 0.1)
     }
 }
 
-function checkMousePositionStringValue(coordStr) {
+function checkMousePositionStringValue(coordStr: string) {
     cy.get('[data-cy="map"]').click()
     cy.waitUntilState((state) => {
         return state.map.clickInfo !== null
@@ -59,7 +60,11 @@ function checkMousePositionStringValue(coordStr) {
     cy.get('[data-cy="mouse-position"]').should('contain.text', coordStr)
 }
 
-function checkMousePositionNumberValue(expectedX, expectedY, parser) {
+function checkMousePositionNumberValue(
+    expectedX: number,
+    expectedY: number,
+    parser: (_text: string) => number[]
+) {
     cy.get('[data-cy="map"]').click()
     cy.waitUntilState((state) => {
         return state.map.clickInfo !== null
@@ -74,10 +79,10 @@ function checkMousePositionNumberValue(expectedX, expectedY, parser) {
  * Will skip this test (or all tests if this is run inside a context/describe) when the
  * condition is true.
  *
- * @param {Boolean} condition
- * @param {String} message A message to log in case tests are skipped
+ * @param condition
+ * @param message A message to log in case tests are skipped
  */
-function skipTestsIf(condition, message) {
+function skipTestsIf(condition: boolean, message?: string) {
     if (condition) {
         if (message) {
             Cypress.log({
@@ -85,29 +90,29 @@ function skipTestsIf(condition, message) {
                 message,
             })
         }
-        const mochaContext = cy.state('runnable').ctx
+        const mochaContext = (cy.state('runnable')).ctx
         mochaContext?.skip()
     }
 }
 
-
 describe('Test mouse position and interactions', () => {
-    const center = DEFAULT_PROJECTION.bounds.center.map((val) => val + 1000)
-    const centerLV95 = proj4(DEFAULT_PROJECTION.epsg, LV95.epsg, center)
-    const centerLV03 = proj4(DEFAULT_PROJECTION.epsg, LV03.epsg, center)
-    const centerWGS84 = proj4(DEFAULT_PROJECTION.epsg, WGS84.epsg, center)
+    const center = DEFAULT_PROJECTION.bounds.center.map((val: number) => val + 1000)
+    const centerLV95 = proj4(DEFAULT_PROJECTION.epsg, LV95.epsg, center) as [number, number]
+    const centerLV03 = proj4(DEFAULT_PROJECTION.epsg, LV03.epsg, center) as [number, number]
+    const centerWGS84 = proj4(DEFAULT_PROJECTION.epsg, WGS84.epsg, center) as [number, number]
     const centerMGRS = MGRSFormat.format(center, DEFAULT_PROJECTION)
 
     context('Tablet/desktop tests', () => {
         before(() => {
+            const viewportWidth = Cypress.config('viewportWidth')
             skipTestsIf(
-                Cypress.config('viewportWidth') < BREAKPOINT_TABLET,
+                viewportWidth < BREAKPOINT_TABLET,
                 'This test will only be run on tablet and bigger viewports'
             )
         })
         beforeEach(() => {
             cy.goToMapView({
-                queryParams:{
+                queryParams: {
                     center: center.join(','),
                     z: DEFAULT_PROJECTION.getDefaultZoom() + 3,
                 },
@@ -131,23 +136,25 @@ describe('Test mouse position and interactions', () => {
             checkMousePositionNumberValue(centerLV95[0], centerLV95[1], parseLV)
         })
     })
+
     context('Mobile only tests', () => {
         before(() => {
+            const viewportWidth = Cypress.config('viewportWidth')
             skipTestsIf(
-                Cypress.config('viewportWidth') >= BREAKPOINT_TABLET,
+                viewportWidth >= BREAKPOINT_TABLET,
                 'This test will only be run on mobile'
             )
         })
         beforeEach(() => {
             cy.goToMapView({
-                queryParams:{
+                queryParams: {
                     center: center.join(','),
                     z: DEFAULT_PROJECTION.getDefaultZoom() + 2.23,
                 },
             })
         })
         it('shows the LocationPopUp when rightclick occurs on the map', () => {
-            function stubShortLinkResponse(shortLinkStub) {
+            function stubShortLinkResponse(shortLinkStub: string) {
                 cy.intercept(`${getServiceShortLinkBaseUrl()}**`, {
                     body: { shorturl: shortLinkStub, success: true },
                 }).as('shortlink')
@@ -157,7 +164,7 @@ describe('Test mouse position and interactions', () => {
             cy.get('[data-cy="ol-map"]').should('be.visible').dblclick()
             cy.url().should('include', 'z=4')
 
-            const fakeLV03Coordinate = [1234.56, 7890.12]
+            const fakeLV03Coordinate: [number, number] = [1234.56, 7890.12]
             cy.intercept('**/lv95tolv03**', { coordinates: fakeLV03Coordinate }).as('reframe')
             stubShortLinkResponse('https://s.geo.admin.ch/000000')
 
@@ -235,11 +242,14 @@ describe('Test mouse position and interactions', () => {
 
             cy.log('Test that the shortlink is made with crosshair and correct position')
             cy.wait('@shortlink').should((interception) => {
-                expect(interception.request.body.url).be.a('string')
-                const query = interception.request.body.url.split('?')[1]
+                const url = interception.request.body.url
+                expect(url).be.a('string')
+                const query = url.split('?')[1]
                 const params = new URLSearchParams(query)
-                const position = params.get('center').split(',').map(parseFloat)
-                checkXY(...position)
+                const centerParam = params.get('center')
+                expect(centerParam).to.be.a('string')
+                const position = centerParam!.split(',').map(parseFloat)
+                checkXY(...(position as [number, number]))
                 expect(params.get('crosshair')).not.to.be.empty
             })
             cy.log('Test that the shortlink is copied to clipboard if share tab is pressed')
@@ -274,8 +284,9 @@ describe('Test mouse position and interactions', () => {
             cy.get('[data-cy="background-selector-open-wheel-button"]').click()
             cy.get('[data-cy="background-selector-void"]').click()
             cy.wait('@shortlink').then((interception) => {
-                expect(interception.request.body.url).be.a('string')
-                const query = interception.request.body.url.split('?')[1]
+                const url = interception.request.body.url
+                expect(url).be.a('string')
+                const query = url.split('?')[1]
                 const params = new URLSearchParams(query)
                 expect(params.get('bgLayer')).to.be.equal('void')
             })

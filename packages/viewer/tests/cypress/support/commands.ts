@@ -123,8 +123,7 @@ function goToView(
         withHash = true,
         geolocationMockupOptions = { latitude: 47, longitude: 7 },
         fixturesAndIntercepts = {},
-        legacy = !withHash,
-        firstLoad = true,
+        legacy = !withHash
     } = options ?? {}
 
     // Intercepts passed as parameters to "fixturesAndIntercepts" will overwrite the correspondent
