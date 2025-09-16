@@ -2,6 +2,12 @@
 
 import { moveTimeSlider } from '@/../tests/cypress/tests-e2e/utils'
 
+type CompareConfig = {
+    ratio?: number | null
+    hasVisibleLayers?: boolean
+    visibleLayerName?: string | null
+}
+
 describe('Open Time and Compare Slider together', () => {
     context('Open Time and Compare Slider together', () => {
         const preSelectedYear = 2019
@@ -10,7 +16,7 @@ describe('Open Time and Compare Slider together', () => {
         const testLayer2 = 'test-2.wms.layer'
         const initialRatio = 0.5
 
-        function checkTimeSlider(active, selectedYear = null) {
+        function checkTimeSlider(active: boolean, selectedYear: number | null = null) {
             // Check the store
             cy.readStoreValue('state.ui.isTimeSliderActive').should('be.equal', active)
 
@@ -28,7 +34,7 @@ describe('Open Time and Compare Slider together', () => {
             }
         }
 
-        function checkCompareSlider(active, config = {}) {
+        function checkCompareSlider(active: boolean, config: CompareConfig = {}) {
             const { ratio = null, hasVisibleLayers = true, visibleLayerName = null } = config
             // Check the store
             cy.readStoreValue('state.ui.isCompareSliderActive').should('be.equal', active)
@@ -61,13 +67,13 @@ describe('Open Time and Compare Slider together', () => {
             cy.get('[data-cy="menu-advanced-tools-compare"]').should('be.visible').click()
         }
 
-        function toggleLayerVisibility(layerId) {
+        function toggleLayerVisibility(layerId: string) {
             cy.get(`[data-cy^="button-toggle-visibility-layer-${layerId}-"]`)
                 .should('be.visible')
                 .click()
         }
 
-        function removeLayer(layerId) {
+        function removeLayer(layerId: string) {
             cy.get(`[data-cy^="button-remove-layer-${layerId}-"]`).should('be.visible').click()
         }
 
@@ -75,10 +81,8 @@ describe('Open Time and Compare Slider together', () => {
             cy.viewport(1920, 1080)
 
             cy.goToMapView({
-                queryParams:{
-                    layers: [`${timedLayerId}@year=${preSelectedYear}`, testLayer1, testLayer2].join(
-                        ';'
-                    ),
+                queryParams: {
+                    layers: [`${timedLayerId}@year=${preSelectedYear}`, testLayer1, testLayer2].join(';'),
                 },
             })
 
@@ -169,10 +173,8 @@ describe('Open Time and Compare Slider together', () => {
             cy.viewport(1920, 1080)
 
             cy.goToMapView({
-                queryParams:{
-                    layers: [`${timedLayerId}@year=${preSelectedYear}`, testLayer1, testLayer2].join(
-                        ';'
-                    ),
+                queryParams: {
+                    layers: [`${timedLayerId}@year=${preSelectedYear}`, testLayer1, testLayer2].join(';'),
                 },
             })
 
@@ -219,7 +221,7 @@ describe('Open Time and Compare Slider together', () => {
             cy.viewport(1920, 1080)
             const newSelectedTimeStamp = '20200101'
             cy.goToMapView({
-                queryParams:{
+                queryParams: {
                     layers: [`${timedLayerId}@year=${preSelectedYear}`].join(';'),
                 },
             })
