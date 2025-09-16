@@ -1,9 +1,9 @@
 /// <reference types="cypress" />
 
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
+import { KMLStyle } from '@swissgeo/layers'
 import proj4 from 'proj4'
 
-import KmlStyles from '@/api/layers/KmlStyles.enum'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 
@@ -184,7 +184,7 @@ describe('Test on legacy param import', () => {
                 expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer.opacity).to.eq(0.6)
                 expect(kmlLayer.visible).to.be.true
-                expect(kmlLayer.style).to.eq(KmlStyles.GEOADMIN)
+                expect(kmlLayer.style).to.eq(KMLStyle.GEOADMIN)
             })
         })
         it('is able to import an external KML from a legacy adminId query param', () => {

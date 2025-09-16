@@ -101,7 +101,7 @@ export interface Layer {
     /** Set to true if some parts of the layer (e.g. metadata) are still loading */
     isLoading: boolean
     /** Time series config */
-    timeConfig?: LayerTimeConfig
+    timeConfig: LayerTimeConfig
     /**
      * The custom attributes (except the well known updateDelays, adminId, features and year) passed
      * with the layer id in url.

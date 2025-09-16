@@ -1,3 +1,4 @@
+import type { CoordinateSystem } from '@swissgeo/coordinates'
 import { servicesBaseUrl } from '@swissgeo/staging-config'
 import { cloneDeep, merge, omit } from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
@@ -24,7 +25,7 @@ import {
     LayerType,
     WMTSEncodingType,
 } from '@/types/layers'
-import * as timeConfigUtils from '@/utils/timeConfigUtils'
+import timeConfigUtils from '@/utils/timeConfigUtils'
 import { InvalidLayerDataError } from '@/validation'
 
 export const EMPTY_KML_DATA = '<kml></kml>'
@@ -57,6 +58,8 @@ const validateBaseData = (values: Partial<Layer>): void => {
     }
 }
 
+type DefaultLayerConfig<T> = Omit<T, "id" | "name" | "baseUrl">
+
 /**
  * Construct a basic GeoAdmin WMS Layer
  *
@@ -64,7 +67,7 @@ const validateBaseData = (values: Partial<Layer>): void => {
  * values from the function parameter will be used from defaults
  */
 function makeGeoAdminWMSLayer(values: Partial<GeoAdminWMSLayer>): GeoAdminWMSLayer {
-    const defaults = {
+    const defaults: DefaultLayerConfig<GeoAdminWMSLayer> = {
         uuid: uuidv4(),
         isExternal: false,
         type: LayerType.WMS,
@@ -86,6 +89,10 @@ function makeGeoAdminWMSLayer(values: Partial<GeoAdminWMSLayer>): GeoAdminWMSLay
         hasDescription: true,
         hasError: false,
         hasWarning: false,
+        isBackground: false,
+        timeConfig: {
+            timeEntries: []
+        },
     }
 
     const layer = merge(defaults, values)
@@ -100,7 +107,7 @@ function makeGeoAdminWMSLayer(values: Partial<GeoAdminWMSLayer>): GeoAdminWMSLay
  * values from the function parameter will be used from defaults
  */
 function makeGeoAdminWMTSLayer(values: Partial<GeoAdminWMTSLayer>): GeoAdminWMTSLayer {
-    const defaults = {
+    const defaults: DefaultLayerConfig<GeoAdminWMTSLayer> = {
         uuid: uuidv4(),
         type: LayerType.WMTS,
         idIn3d: undefined,
@@ -122,12 +129,12 @@ function makeGeoAdminWMTSLayer(values: Partial<GeoAdminWMTSLayer>): GeoAdminWMTS
         isLoading: false,
         hasError: false,
         hasWarning: false,
-        timeConfig: null,
+        timeConfig: { timeEntries: [] },
     }
 
     const layer = merge(defaults, values)
     validateBaseData(layer)
-    return layer
+    return layer as GeoAdminWMTSLayer
 }
 
 /**
@@ -145,7 +152,7 @@ function makeExternalWMTSLayer(values: Partial<ExternalWMTSLayer>): ExternalWMTS
         attributions.push({ name: new URL(values.baseUrl).hostname })
     }
 
-    const defaults = {
+    const defaults: DefaultLayerConfig<ExternalWMTSLayer> = {
         uuid: uuidv4(),
         isExternal: true,
         type: LayerType.WMTS,
@@ -161,14 +168,15 @@ function makeExternalWMTSLayer(values: Partial<ExternalWMTSLayer>): ExternalWMTS
         dimensions: [],
         hasTooltip: false,
         hasDescription,
-        searchable: false,
         hasLegend,
         isLoading: true,
         hasError: false,
         currentYear: undefined,
         attributions,
         hasWarning: false,
-        timeConfig: null,
+        timeConfig: {
+            timeEntries: []
+        },
     }
 
     if (values.currentYear && values.timeConfig) {
@@ -182,7 +190,7 @@ function makeExternalWMTSLayer(values: Partial<ExternalWMTSLayer>): ExternalWMTS
     // override the ones we inferred above
     const layer = merge(defaults, values)
     validateBaseData(layer)
-    return layer
+    return layer as ExternalWMTSLayer
 }
 
 /**
@@ -196,7 +204,7 @@ function makeExternalWMSLayer(values: Partial<ExternalWMSLayer>): ExternalWMSLay
     const attributions = [{ name: new URL(values.baseUrl!).hostname }]
     const hasLegend = (values?.legends ?? []).length > 0
 
-    const defaults = {
+    const defaults: Omit<DefaultLayerConfig<ExternalWMSLayer>, 'wmsOperations'> = {
         uuid: uuidv4(),
         opacity: 1.0,
         isVisible: true,
@@ -212,7 +220,7 @@ function makeExternalWMSLayer(values: Partial<ExternalWMSLayer>): ExternalWMSLay
         isLoading: true,
         availableProjections: [],
         hasTooltip: false,
-        getFeatureInfoCapability: null,
+        getFeatureInfoCapability: undefined,
         dimensions: [],
         currentYear: undefined,
         customAttributes: undefined,
@@ -220,7 +228,9 @@ function makeExternalWMSLayer(values: Partial<ExternalWMSLayer>): ExternalWMSLay
         isExternal: true,
         hasError: false,
         hasWarning: false,
-        timeConfig: null,
+        timeConfig: {
+            timeEntries: []
+        }
     }
 
     if (values.currentYear && values.timeConfig) {
@@ -232,7 +242,7 @@ function makeExternalWMSLayer(values: Partial<ExternalWMSLayer>): ExternalWMSLay
 
     const layer = merge(defaults, values)
     validateBaseData(layer)
-    return layer
+    return layer as ExternalWMSLayer
 }
 
 /**
@@ -302,11 +312,14 @@ function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
         hasDescription: false,
         hasLegend: false,
         isLoading: true,
-        adminId: null,
-        linkFiles: {},
+        adminId: undefined,
+        internalFiles: {},
+        timeConfig: {
+            timeEntries: []
+        },
     }
 
-    const layer = merge(defaults, values)
+    const layer: KMLLayer = merge(defaults, values)
     validateBaseData(layer)
     return layer
 }
@@ -326,13 +339,13 @@ function makeGPXLayer(values: Partial<GPXLayer>): GPXLayer {
     const attributions = [{ name: attributionName }]
     const name = values.gpxMetadata?.name ?? 'GPX'
 
-    const defaults = {
+    const defaults: GPXLayer = {
         uuid: uuidv4(),
         baseUrl: values.gpxFileUrl,
-        gpxFileUrl: null,
-        gpxData: null,
-        gpxMetadata: null,
-        extent: null,
+        gpxFileUrl: undefined,
+        gpxData: undefined,
+        gpxMetadata: undefined,
+        extent: undefined,
         name: name,
         id: `GPX|${encodeExternalLayerParam(values.gpxFileUrl)}`,
         type: LayerType.GPX,
@@ -346,7 +359,9 @@ function makeGPXLayer(values: Partial<GPXLayer>): GPXLayer {
         hasError: false,
         hasWarning: false,
         isLoading: !values.gpxData,
-        timeConfig: null,
+        timeConfig: {
+            timeEntries: []
+        },
     }
 
     const layer = merge(defaults, values)
@@ -366,7 +381,7 @@ function makeGeoAdminVectorLayer(values: Partial<GeoAdminVectorLayer>): GeoAdmin
         { name: 'swisstopo', url: 'https://www.swisstopo.admin.ch/en/home.html' },
     ]
 
-    const defaults = {
+    const defaults: DefaultLayerConfig<GeoAdminVectorLayer> = {
         uuid: uuidv4(),
         type: LayerType.VECTOR,
         technicalName: '',
@@ -382,7 +397,9 @@ function makeGeoAdminVectorLayer(values: Partial<GeoAdminVectorLayer>): GeoAdmin
         hasError: false,
         hasWarning: false,
         isHighlightable: false,
-        timeConfig: null,
+        timeConfig: {
+            timeEntries: []
+        },
         topics: [],
         searchable: false,
         isSpecificFor3d: false,
@@ -390,7 +407,7 @@ function makeGeoAdminVectorLayer(values: Partial<GeoAdminVectorLayer>): GeoAdmin
 
     const layer = merge(defaults, omit(values, 'attributions'))
     validateBaseData(layer)
-    return layer
+    return layer as GeoAdminVectorLayer
 }
 
 /**
@@ -402,12 +419,14 @@ function makeGeoAdminVectorLayer(values: Partial<GeoAdminVectorLayer>): GeoAdmin
 function makeGeoAdmin3DLayer(values: Partial<GeoAdmin3DLayer>): GeoAdmin3DLayer {
     const attributions = [{ name: 'swisstopo', url: 'https://www.swisstopo.admin.ch/en/home.html' }]
 
-    const defaults = {
+    const defaults: GeoAdmin3DLayer = {
+        baseUrl: '',
+        id: '',
         uuid: uuidv4(),
         technicalName: '',
         use3dTileSubFolder: false,
-        urlTimestampToUse: false,
-        name: values.name ?? values.id,
+        urlTimestampToUse: undefined,
+        name: values.name ?? values.id ?? '3D layer',
         type: LayerType.VECTOR,
         opacity: 1,
         isVisible: true,
@@ -423,7 +442,10 @@ function makeGeoAdmin3DLayer(values: Partial<GeoAdmin3DLayer>): GeoAdmin3DLayer 
         topics: [],
         searchable: false,
         isSpecificFor3d: false,
-        timeConfig: null,
+        isBackground: false,
+        timeConfig: {
+            timeEntries: []
+        }
     }
 
     const layer = merge(defaults, values)
@@ -452,14 +474,14 @@ function makeCloudOptimizedGeoTIFFLayer(
         ? fileSource
         : fileSource?.substring(fileSource.lastIndexOf('/') + 1)
 
-    const defaults = {
+    const defaults: CloudOptimizedGeoTIFFLayer = {
         uuid: uuidv4(),
         baseUrl: fileSource,
         type: LayerType.COG,
         isLocalFile,
-        fileSource: null,
-        data: null,
-        extent: null,
+        fileSource: undefined,
+        data: undefined,
+        extent: undefined,
         name: fileName,
         id: fileSource,
         opacity: 1,
@@ -472,7 +494,9 @@ function makeCloudOptimizedGeoTIFFLayer(
         isLoading: false,
         hasError: false,
         hasWarning: false,
-        timeConfig: null,
+        timeConfig: {
+            timeEntries: []
+        },
     }
     const layer = merge(defaults, values)
     validateBaseData(layer)
@@ -488,7 +512,7 @@ function makeCloudOptimizedGeoTIFFLayer(
 function makeGeoAdminAggregateLayer(
     values: Partial<GeoAdminAggregateLayer>
 ): GeoAdminAggregateLayer {
-    const defaults = {
+    const defaults: DefaultLayerConfig<GeoAdminAggregateLayer> = {
         uuid: uuidv4(),
         type: LayerType.AGGREGATE,
         subLayers: [],
@@ -502,15 +526,18 @@ function makeGeoAdminAggregateLayer(
         isLoading: false,
         hasError: false,
         hasWarning: false,
-        timeConfig: null,
+        timeConfig: {
+            timeEntries: []
+        },
         isHighlightable: false,
         topics: [],
         searchable: false,
         isSpecificFor3d: false,
+        isBackground: false,
     }
     const layer = merge(defaults, values)
     validateBaseData(layer)
-    return layer
+    return layer as GeoAdminAggregateLayer
 }
 
 /**
@@ -520,7 +547,7 @@ function makeGeoAdminAggregateLayer(
  * values from the function parameter will be used from defaults
  */
 function makeGeoAdminGeoJSONLayer(values: Partial<GeoAdminGeoJSONLayer>): GeoAdminGeoJSONLayer {
-    const defaults = {
+    const defaults: DefaultLayerConfig<GeoAdminGeoJSONLayer> = {
         uuid: uuidv4(),
         type: LayerType.GEOJSON,
         updateDelay: 0,
@@ -537,18 +564,21 @@ function makeGeoAdminGeoJSONLayer(values: Partial<GeoAdminGeoJSONLayer>): GeoAdm
         isLoading: false,
         hasError: false,
         hasWarning: false,
-        geoJsonStyle: null,
-        geoJsonData: null,
-        timeConfig: null,
+        geoJsonStyle: undefined,
+        geoJsonData: undefined,
+        timeConfig: {
+            timeEntries: [],
+        },
         isHighlightable: false,
         searchable: false,
         topics: [],
         isSpecificFor3d: false,
+        isBackground: false,
     }
 
     const layer = merge(defaults, values)
     validateBaseData(layer)
-    return layer
+    return layer as GeoAdminGeoJSONLayer
 }
 
 /**
@@ -558,7 +588,7 @@ function makeGeoAdminGeoJSONLayer(values: Partial<GeoAdminGeoJSONLayer>): GeoAdm
  * values from the function parameter will be used from defaults
  */
 function makeGeoAdminGroupOfLayers(values: Partial<GeoAdminGroupOfLayers>): GeoAdminGroupOfLayers {
-    const defaults = {
+    const defaults: DefaultLayerConfig<GeoAdminGroupOfLayers> = {
         uuid: uuidv4(),
         layers: [],
         type: LayerType.GROUP,
@@ -570,14 +600,16 @@ function makeGeoAdminGroupOfLayers(values: Partial<GeoAdminGroupOfLayers>): GeoA
         hasLegend: false,
         isExternal: false,
         isLoading: false,
-        timeConfig: null,
+        timeConfig: {
+            timeEntries: [],
+        },
         hasError: false,
         hasWarning: false,
     }
 
     const layer = merge(defaults, values)
     validateBaseData(layer)
-    return layer
+    return layer as GeoAdminGroupOfLayers
 }
 
 /** Construct an aggregate sub layer */
@@ -586,7 +618,7 @@ function makeAggregateSubLayer(values: Partial<AggregateSubLayer>): AggregateSub
         throw new InvalidLayerDataError('Must provide a layer for the aggregate sublayer', values)
     }
 
-    const defaults = {
+    const defaults: Omit<AggregateSubLayer, "layer"> = {
         minResolution: 0,
         maxResolution: 0,
     }
@@ -609,14 +641,18 @@ function isKmlLayerEmpty(layer: KMLLayer): boolean {
  *
  * @returns The topic to use in request to the backend for this layer
  */
-function getTopicForIdentifyAndTooltipRequests(layer: GeoAdminLayer): string {
+function getTopicForIdentifyAndTooltipRequests(layer: Layer): string {
+    if (layer.isExternal) {
+        return 'ech'
+    }
+    const geoadminLayer = layer as GeoAdminLayer
     // by default, the frontend should always request `ech`, so if there's no topic that's what we do
     // if there are some topics, we look if `ech` is one of them, if so we return it
-    if (layer.topics.length === 0 || layer.topics.indexOf('ech') !== -1) {
+    if (geoadminLayer.topics.length === 0 || geoadminLayer.topics.indexOf('ech') !== -1) {
         return 'ech'
     }
     // otherwise we return the first topic to make our backend requests for identify and htmlPopup
-    return layer.topics[0]!
+    return geoadminLayer.topics[0]!
 }
 
 /** Clone a layer but give it a new uuid */
@@ -625,6 +661,41 @@ function cloneLayer<T extends Layer>(layer: T): T {
     const clone = cloneDeep(layer)
     clone.uuid = uuidv4()
     return clone
+}
+
+/**
+ * @param options.addTimestamp Add the timestamp from the time config to the URL. When false, the timestamp is set to
+ * `{Time}` and needs to be processed later (i.e., by the mapping framework).
+ */
+export function getWmtsXyzUrl(
+    wmtsLayerConfig: GeoAdminWMTSLayer | ExternalWMTSLayer,
+    projection: CoordinateSystem,
+    options?: {
+        addTimestamp: boolean,
+        baseUrlOverride?: string,
+    }
+): string | undefined {
+    const { addTimestamp = false, baseUrlOverride } = options ?? {}
+    if (wmtsLayerConfig?.type === LayerType.WMTS && projection) {
+        let timestamp = '{Time}'
+        if (addTimestamp) {
+            timestamp = timeConfigUtils.getTimestampFromConfig(wmtsLayerConfig) ?? '{Time}'
+        }
+
+        let format: string | undefined
+        let layerId: string
+        if (wmtsLayerConfig.isExternal) {
+            const externalLayer = wmtsLayerConfig as ExternalWMTSLayer
+            format = externalLayer.options?.format
+            layerId = externalLayer.id
+        } else {
+            const geoadminLayer = wmtsLayerConfig as GeoAdminWMTSLayer
+            format = geoadminLayer.format
+            layerId = geoadminLayer.technicalName ?? geoadminLayer.id
+        }
+        return `${baseUrlOverride ?? wmtsLayerConfig.baseUrl}1.0.0/${layerId}/default/${timestamp}/${projection.epsgNumber}/{z}/{x}/{y}.${format ?? 'jpeg'}`
+    }
+    return
 }
 
 export interface GeoadminLayerUtils {
@@ -646,6 +717,7 @@ export interface GeoadminLayerUtils {
     isKmlLayerEmpty: typeof isKmlLayerEmpty
     getTopicForIdentifyAndTooltipRequests: typeof getTopicForIdentifyAndTooltipRequests
     cloneLayer: typeof cloneLayer
+    getWmtsXyzUrl: typeof getWmtsXyzUrl
 }
 
 export const layerUtils: GeoadminLayerUtils = {
@@ -667,6 +739,7 @@ export const layerUtils: GeoadminLayerUtils = {
     isKmlLayerEmpty,
     getTopicForIdentifyAndTooltipRequests,
     cloneLayer,
+    getWmtsXyzUrl
 }
 
 export default layerUtils

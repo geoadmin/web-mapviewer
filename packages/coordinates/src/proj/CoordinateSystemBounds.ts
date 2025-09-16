@@ -11,7 +11,7 @@ import {
 } from '@turf/turf'
 import { sortBy } from 'lodash'
 
-import type { SingleCoordinate } from '@/coordinatesUtils.ts'
+import type { SingleCoordinate } from '@/coordinatesUtils'
 import type { CoordinatesChunk } from '@/proj/CoordinatesChunk'
 
 interface CoordinateSystemBoundsProps {

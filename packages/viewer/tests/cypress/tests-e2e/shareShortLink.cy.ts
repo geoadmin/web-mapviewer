@@ -200,7 +200,7 @@ describe('Testing the share menu', () => {
                     .get('[data-cy="menu-share-embed-iframe-preview"]')
                     .its('0.contentDocument.body')
                     .should('not.be.empty')
-                    .then(cy.wrap)
+                    .then((el) => cy.wrap(el))
             }
 
             beforeEach(() => {

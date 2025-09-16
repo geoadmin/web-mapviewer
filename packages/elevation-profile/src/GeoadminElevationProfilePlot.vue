@@ -347,6 +347,7 @@ const chartJsOptions: ComputedRef<ChartOptions<'line'> | undefined> = computed((
                 display: false,
             },
             tooltip: chartJsTooltipConfiguration.value,
+            // TODO: fix type error with our CharTJS plugin
             noData: {
                 profile,
                 noDataText: t('profile_no_data'),

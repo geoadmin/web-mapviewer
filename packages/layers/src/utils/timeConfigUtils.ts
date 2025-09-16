@@ -6,6 +6,7 @@ import {
     type Layer,
     type LayerTimeConfig,
     type LayerTimeConfigEntry,
+    LayerType,
     YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
 } from '@/types'
 
@@ -30,11 +31,11 @@ export const getTimeEntryForYear = (
 
 export const updateCurrentTimeEntry = (
     timeConfig: LayerTimeConfig,
-    entryOrTimestamp: LayerTimeConfigEntry | string | number | undefined
+    entryOrTimestamp: LayerTimeConfigEntry | string | undefined
 ) => {
     let currentTimeEntry: LayerTimeConfigEntry | undefined
 
-    if (typeof entryOrTimestamp === 'string' || typeof entryOrTimestamp === 'number') {
+    if (typeof entryOrTimestamp === 'string') {
         currentTimeEntry = timeConfig.timeEntries.find((e) => e.timestamp === entryOrTimestamp)
     } else {
         currentTimeEntry = entryOrTimestamp
@@ -101,7 +102,7 @@ export const makeTimeConfigEntry = (timestamp: string): LayerTimeConfigEntry => 
 }
 
 export const makeTimeConfig = (
-    behaviour?: string | number,
+    behaviour?: string,
     timeEntries?: LayerTimeConfigEntry[]
 ): LayerTimeConfig | undefined => {
     if (!timeEntries || timeEntries.length === 0) {
@@ -145,7 +146,7 @@ export const hasMultipleTimestamps = (layer: Layer): boolean => {
     return (layer.timeConfig?.timeEntries?.length || 0) > 1
 }
 
-export const getYearFromLayerTimeEntry = (timeEntry: LayerTimeConfigEntry): number | undefined => {
+export function getYearFromLayerTimeEntry(timeEntry: LayerTimeConfigEntry): number | undefined {
     if (timeEntry.nonTimeBasedValue && ['all', 'current'].includes(timeEntry.nonTimeBasedValue)) {
         return YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA
     }
@@ -170,6 +171,19 @@ export const getTimeEntryForInterval = (
     })
 }
 
+/** Returns timestamp for WMS or WMTS layer from config data */
+export function getTimestampFromConfig(layer: Layer): string | undefined {
+    let timestamp = layer.timeConfig?.currentTimeEntry?.timestamp
+    if (
+        !timestamp && layer.type === LayerType.WMTS
+    ) {
+        // for WMTS layer fallback to current
+        timestamp = 'current'
+    }
+    return timestamp
+}
+
+
 export interface GeoadminTimeConfigUtils {
     hasTimestamp: typeof hasTimestamp
     getTimeEntryForYear: typeof getTimeEntryForYear
@@ -179,6 +193,7 @@ export interface GeoadminTimeConfigUtils {
     hasMultipleTimestamps: typeof hasMultipleTimestamps
     getYearFromLayerTimeEntry: typeof getYearFromLayerTimeEntry
     getTimeEntryForInterval: typeof getTimeEntryForInterval
+    getTimestampFromConfig: typeof getTimestampFromConfig
 }
 export const timeConfigUtils: GeoadminTimeConfigUtils = {
     hasTimestamp,
@@ -189,6 +204,7 @@ export const timeConfigUtils: GeoadminTimeConfigUtils = {
     hasMultipleTimestamps,
     getYearFromLayerTimeEntry,
     getTimeEntryForInterval,
+    getTimestampFromConfig
 }
 
 export default timeConfigUtils

@@ -1,6 +1,6 @@
 import { round } from '@swissgeo/numbers'
 
-import type { SingleCoordinate } from '@/coordinatesUtils.ts'
+import type { SingleCoordinate } from '@/coordinatesUtils'
 
 import { PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES } from '@/proj/CoordinateSystem'
 import CoordinateSystemBounds from '@/proj/CoordinateSystemBounds'

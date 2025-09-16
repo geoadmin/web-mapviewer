@@ -239,16 +239,16 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
 
         expect(layer!.id).toBe('BlueMarbleSecondGenerationAG')
         expect(layer!.timeConfig).toBeDefined()
-        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig!, '20110805')).toBe(true)
-        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig!, '20081024')).toBe(true)
-        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig!, '20081023')).toBe(false)
+        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig, '20110805')).toBe(true)
+        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig, '20081024')).toBe(true)
+        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig, '20081023')).toBe(false)
 
-        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig!, 2008)).toBeDefined()
-        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig!, 2005)).toBeUndefined()
+        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig, 2008)).toBeDefined()
+        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig, 2005)).toBeUndefined()
 
-        expect(layer!.timeConfig!.currentTimeEntry).toBeDefined()
+        expect(layer!.timeConfig.currentTimeEntry).toBeDefined()
         expect(layer!.timeConfig?.currentTimeEntry!.timestamp).toBe('20110805')
-        expect(layer!.timeConfig!.currentTimeEntry!.nonTimeBasedValue).toBeUndefined()
+        expect(layer!.timeConfig.currentTimeEntry!.nonTimeBasedValue).toBeUndefined()
         expect(layer!.timeConfig?.currentTimeEntry?.interval?.toISO()).to.eq(
             Interval.fromISO('2011-08-05/P1D').toISO()
         )
@@ -261,17 +261,17 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         )
         expect(layer!.id).toBe('BlueMarbleThirdGenerationZH')
         expect(layer!.timeConfig).toBeDefined()
-        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig!, '2011-08-05')).toBe(true)
-        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig!, '2008-10-24')).toBe(true)
-        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig!, '2008-10-23')).toBe(false)
+        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig, '2011-08-05')).toBe(true)
+        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig, '2008-10-24')).toBe(true)
+        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig, '2008-10-23')).toBe(false)
 
-        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig!, 2008)).toBeDefined()
-        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig!, 2005)).toBeUndefined()
+        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig, 2008)).toBeDefined()
+        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig, 2005)).toBeUndefined()
 
-        expect(layer!.timeConfig!.currentTimeEntry).toBeDefined()
-        expect(layer!.timeConfig!.currentTimeEntry!.timestamp).toBe('2011-08-05')
-        expect(layer!.timeConfig!.currentTimeEntry!.nonTimeBasedValue).toBeUndefined()
-        expect(layer!.timeConfig!.currentTimeEntry!.interval?.toISO()).to.eq(
+        expect(layer!.timeConfig.currentTimeEntry).toBeDefined()
+        expect(layer!.timeConfig.currentTimeEntry!.timestamp).toBe('2011-08-05')
+        expect(layer!.timeConfig.currentTimeEntry!.nonTimeBasedValue).toBeUndefined()
+        expect(layer!.timeConfig.currentTimeEntry!.interval?.toISO()).to.eq(
             Interval.fromISO('2011-08-05/P1D').toISO()
         )
     })
@@ -283,23 +283,23 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         )
         expect(layer!.id).toBe('BlueMarbleFourthGenerationJU')
         expect(layer!.timeConfig).toBeDefined()
-        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig!, '2011-08-05T01:20:34.345Z')).toBe(
+        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig, '2011-08-05T01:20:34.345Z')).toBe(
             true
         )
-        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig!, '2008-10-24T01:20:34.345Z')).toBe(
+        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig, '2008-10-24T01:20:34.345Z')).toBe(
             true
         )
-        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig!, '2008-10-23T01:20:34.345Z')).toBe(
+        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig, '2008-10-23T01:20:34.345Z')).toBe(
             false
         )
 
-        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig!, 2008)).toBeDefined()
-        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig!, 2005)).toBeUndefined()
+        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig, 2008)).toBeDefined()
+        expect(timeConfigUtils.getTimeEntryForYear(layer!.timeConfig, 2005)).toBeUndefined()
 
-        expect(layer!.timeConfig!.currentTimeEntry).toBeDefined()
-        expect(layer!.timeConfig!.currentTimeEntry!.timestamp).toBe('2011-08-05T01:20:34.345Z')
-        expect(layer!.timeConfig!.currentTimeEntry!.nonTimeBasedValue).toBeUndefined()
-        expect(layer!.timeConfig!.currentTimeEntry!.interval?.toISO()).to.eq(
+        expect(layer!.timeConfig.currentTimeEntry).toBeDefined()
+        expect(layer!.timeConfig.currentTimeEntry!.timestamp).toBe('2011-08-05T01:20:34.345Z')
+        expect(layer!.timeConfig.currentTimeEntry!.nonTimeBasedValue).toBeUndefined()
+        expect(layer!.timeConfig.currentTimeEntry!.interval?.toISO()).to.eq(
             Interval.fromISO('2011-08-05/P1D').toISO()
         )
     })
@@ -311,10 +311,10 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         )
         expect(layer!.id).toBe('BlueMarbleFifthGenerationGE')
         expect(layer!.timeConfig).toBeDefined()
-        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig!, 'Time A')).toBe(true)
-        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig!, 'Time B')).toBe(true)
+        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig, 'Time A')).toBe(true)
+        expect(timeConfigUtils.hasTimestamp(layer!.timeConfig, 'Time B')).toBe(true)
 
-        expect(layer!.timeConfig!.currentTimeEntry).toBeDefined()
-        expect(layer!.timeConfig!.currentTimeEntry!.timestamp).toBe('Time A')
+        expect(layer!.timeConfig.currentTimeEntry).toBeDefined()
+        expect(layer!.timeConfig.currentTimeEntry!.timestamp).toBe('Time A')
     })
 })

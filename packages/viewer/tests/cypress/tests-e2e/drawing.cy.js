@@ -1,24 +1,16 @@
 /// <reference types="cypress" />
 
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
+import { LayerType } from '@swissgeo/layers'
 import { randomIntBetween } from '@swissgeo/numbers'
 import { recurse } from 'cypress-recurse'
 import proj4 from 'proj4'
 
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { DEFAULT_ICON_URL_PARAMS } from '@/api/icon.api'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
-import {
-    allStylingColors,
-    allStylingSizes,
-    BLACK,
-    GREEN,
-    LARGE,
-    RED,
-    SMALL,
-} from '@/utils/featureStyleUtils'
+import { allStylingColors, allStylingSizes, BLACK, GREEN, LARGE, RED, SMALL } from '@/utils/featureStyleUtils'
 import { EMPTY_KML_DATA, LEGACY_ICON_XML_SCALE_FACTOR } from '@/utils/kmlUtils'
 
 import {
@@ -954,7 +946,7 @@ describe('Drawing module tests', () => {
             cy.readStoreValue('state.layers.activeLayers').should((layers) => {
                 expect(layers).to.be.an('Array').lengthOf(1)
                 const [drawingLayer] = layers
-                expect(drawingLayer.type).to.eq(LayerTypes.KML)
+                expect(drawingLayer.type).to.eq(LayerType.KML)
                 expect(drawingLayer.visible).to.be.true
             })
 
@@ -988,7 +980,7 @@ describe('Drawing module tests', () => {
                     .contains('Drawing')
                 cy.waitUntilState((state) => {
                     return state.layers.activeLayers.find(
-                        (layer) => layer.type === LayerTypes.KML && layer.fileId === kmlId
+                        (layer) => layer.type === LayerType.KML && layer.fileId === kmlId
                     )
                 })
 
@@ -1006,7 +998,7 @@ describe('Drawing module tests', () => {
                     .contains('Drawing')
                 cy.waitUntilState((state) => {
                     return state.layers.activeLayers.find(
-                        (layer) => layer.type === LayerTypes.KML && layer.fileId === kmlId
+                        (layer) => layer.type === LayerType.KML && layer.fileId === kmlId
                     )
                 })
 

@@ -44,7 +44,8 @@ describe('Test layer config parsing', () => {
             expect(wmsLayer.hasLegend).to.be.true
             expect(wmsLayer.isHighlightable).to.be.true
             expect(wmsLayer.searchable).to.be.true
-            expect(wmsLayer.timeConfig).to.be.undefined
+            expect(wmsLayer.timeConfig).toBeDefined()
+            expect(wmsLayer.timeConfig.currentTimeEntry).to.be.undefined
             expect(wmsLayer.opacity).to.eq(0.75)
         })
         it('parses a WMS with multiple year-timestamps correctly', () => {
