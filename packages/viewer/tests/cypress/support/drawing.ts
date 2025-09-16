@@ -170,11 +170,12 @@ function addFileAPIFixtureAndIntercept(): void {
     ).as('delete-kml')
 }
 
-Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = true) => {
+Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = true, firstLoad = true) => {
+    cy.log('[commands.ts] goToDrawing', queryParams, withHash, firstLoad)
     addIconFixtureAndIntercept()
     addProfileFixtureAndIntercept()
     addFileAPIFixtureAndIntercept()
-    cy.goToMapView({ queryParams, withHash })
+    cy.goToMapView({ queryParams, withHash, firstLoad })
     cy.window().its('map')
         .then((map) => map.getOverlays().getLength())
         .as('nbOverlaysAtBeginning')
