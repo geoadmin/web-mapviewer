@@ -159,10 +159,11 @@ const tooltipStyle: ComputedRef<TooltipStyleCSSDeclaration> = computed(() => {
  */
 
 /** Definition of the data ChartJS will show, with some styling configuration too */
-const chartJsData: ComputedRef<ChartData<'line', ChartPoint[]>> = computed<ChartData<'line', ChartPoint[]>>(() => {
-    const data: ChartPoint[] = profilePoints.value.map((point) => ({
+const chartJsData: ComputedRef<ChartData<'line', (ElevationProfilePoint & ChartPoint)[]>> = computed<ChartData<'line', (ElevationProfilePoint & ChartPoint)[]>>(() => {
+    const data: (ElevationProfilePoint & ChartPoint)[] = profilePoints.value.map((point) => ({
         x: point.dist ?? 0,
         y: point.elevation ?? 0,
+        ...point,
     }))
 
     const lineFill: ComplexFillTarget = {
@@ -186,7 +187,7 @@ const chartJsData: ComputedRef<ChartData<'line', ChartPoint[]>> = computed<Chart
         pointHoverRadius: 3,
     }
 
-    const dataset: ChartDataset<'line', ChartPoint[]> = {
+    const dataset: ChartDataset<'line', (ElevationProfilePoint & ChartPoint)[]> = {
         data,
         ...lineOptions,
         ...pointOptions,
@@ -256,11 +257,11 @@ const chartJsTooltipConfiguration = computed(() => {
             }
             if (tooltip.dataPoints.length > 0 && track.value) {
                 const point: TooltipItem<'line'> = tooltip.dataPoints[0]!
-                const elevationDataInPoint: ElevationProfilePoint =
-                    point.raw as ElevationProfilePoint
+                const elevationDataInPoint: (ElevationProfilePoint & ChartPoint) =
+                    point.raw as (ElevationProfilePoint & ChartPoint)
                 const chartPosition = chart.canvas.getBoundingClientRect()
                 pointBeingHovered.value = {
-                    elevation: elevationDataInPoint.elevation,
+                    elevation: elevationDataInPoint.elevation ?? 0,
                     dist: round(
                         (elevationDataInPoint.dist ?? 0) * factorToUseForDisplayedDistances.value,
                         2
