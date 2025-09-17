@@ -14,6 +14,7 @@ import {
     WGS84Format,
 } from '@/utils/coordinates/coordinateFormat'
 import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
+import { assertDefined } from 'support/utils'
 
 registerProj4(proj4)
 
@@ -248,7 +249,7 @@ describe('Test mouse position and interactions', () => {
                 const params = new URLSearchParams(query)
                 const centerParam = params.get('center')
                 expect(centerParam).to.be.a('string')
-                cy.assertDefined(centerParam)
+                assertDefined(centerParam)
                 const position = centerParam.split(',').map(parseFloat)
                 checkXY(...(position as [number, number]))
                 expect(params.get('crosshair')).not.to.be.empty

@@ -1,3 +1,5 @@
+import { assertDefined } from "support/utils"
+
 const height = Cypress.config('viewportHeight')
 
 const menuTraySelector = '[data-cy="menu-tray"]'
@@ -198,14 +200,14 @@ function checkScrollbarVisibility(topicsScrollable: boolean, activeLayersScrolla
     let topicSectionOriginalHeight: number
     cy.get('[data-cy="menu-topic-tree"]')
         .then((elems) => {
-            expect(elems[0]).to.exist
-            topicSectionOriginalHeight = elems[0]!.clientHeight
+            assertDefined(elems[0])
+            topicSectionOriginalHeight = elems[0].clientHeight
             return elems
         })
         .parents('[data-cy="menu-section-body"]')
         .should((elems) => {
-            expect(elems[0]).to.exist
-            const clientHeight = elems[0]!.clientHeight
+            assertDefined(elems[0])
+            const clientHeight = elems[0].clientHeight
             if (topicsScrollable) {
                 expect(clientHeight).to.be.lt(topicSectionOriginalHeight)
             } else {
@@ -215,14 +217,14 @@ function checkScrollbarVisibility(topicsScrollable: boolean, activeLayersScrolla
     let activeSectionOriginalHeight: number
     cy.get('[data-cy="menu-section-active-layers"]')
         .then((elems) => {
-            expect(elems[0]).to.exist
-            activeSectionOriginalHeight = elems[0]!.clientHeight
+            assertDefined(elems[0])
+            activeSectionOriginalHeight = elems[0].clientHeight
             return elems
         })
         .parents('[data-cy="menu-section-body"]')
         .should((elems) => {
-            expect(elems[0]).to.exist
-            const clientHeight = elems[0]!.clientHeight
+            assertDefined(elems[0])
+            const clientHeight = elems[0].clientHeight
             if (activeLayersScrollable) {
                 expect(clientHeight).to.be.lt(activeSectionOriginalHeight)
             } else {

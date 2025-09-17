@@ -9,6 +9,7 @@ import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import type EditableFeature from '@/api/features/EditableFeature.class'
 import type ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import type ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
+import { assertDefined } from 'support/utils'
 
 registerProj4(proj4)
 
@@ -287,8 +288,8 @@ describe('Test on legacy param import', () => {
             // selects the result if it is only one
             cy.readStoreValue('state.map.pinnedLocation').then((feature: number[]) => {
                 expect(feature).to.be.a('array').that.is.not.empty
-                cy.assertDefined(coordinates[0])
-                cy.assertDefined(coordinates[1])
+                assertDefined(coordinates[0])
+                assertDefined(coordinates[1])
                 expect(feature[0]).to.be.approximately(coordinates[0], acceptableDelta)
                 expect(feature[1]).to.be.approximately(coordinates[1], acceptableDelta)
             })
@@ -298,7 +299,7 @@ describe('Test on legacy param import', () => {
             cy.getExternalWmsMockConfig().then((mockConfig: ExternalWMSLayer[]) => {
                 console.log('mockConfig', mockConfig)
                 const [mockExternalWms1] = mockConfig
-                cy.assertDefined(mockExternalWms1)
+                assertDefined(mockExternalWms1)
 
                 cy.goToMapView({
                     queryParams: {
@@ -330,7 +331,7 @@ describe('Test on legacy param import', () => {
         it('External WMTS layer', () => {
             cy.getExternalWmtsMockConfig().then((mockConfig: ExternalWMTSLayer[]) => {
                 const [mockExternalWmts1] = mockConfig
-                cy.assertDefined(mockExternalWmts1)
+                assertDefined(mockExternalWmts1)
 
                 cy.goToMapView({
                     queryParams: {

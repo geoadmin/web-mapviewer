@@ -380,13 +380,6 @@ Cypress.Commands.add('closeMenuIfMobile', () => {
     cy.log('cmd: closeMenuIfMobile successful')
 })
 
-Cypress.Commands.add('assertDefined', (value: unknown) => assertDefined(value))
-
-function assertDefined<T>(value: T | undefined | null): asserts value is NonNullable<T> {
-    expect(value).to.not.be.undefined
-    expect(value).to.not.be.null
-}
-
 Cypress.Commands.add('getRandomTimestampFromSeries', (layer) => {
     expect(layer).to.be.an('Object')
     expect(layer).to.haveOwnProperty('timeBehaviour')

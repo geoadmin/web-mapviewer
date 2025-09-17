@@ -1,6 +1,7 @@
 /// <reference types="cypress" />
 import type AbstractLayer from '@/api/layers/AbstractLayer.class'
 import { WEBMERCATOR } from '@swissgeo/coordinates'
+import { assertDefined } from 'support/utils'
 
 describe('Testing of the compare slider', () => {
     function expectCompareRatioToBe(value: number | null) {
@@ -164,15 +165,16 @@ describe('Testing of the compare slider', () => {
                 const layerIds = ['test1.wms.layer', 'test2.wms.layer']
                 const layer1 = layerIds[0]
                 const layer2 = layerIds[1]
-                cy.assertDefined(feature_layer_1)
-                cy.assertDefined(feature_layer_2)
+                assertDefined(feature_layer_1)
+                assertDefined(feature_layer_1)
+                assertDefined(feature_layer_2)
                 const feature_1_coordinates = [
-                    feature_layer_1!.properties.x,
-                    feature_layer_1!.properties.y,
+                    feature_layer_1.properties.x,
+                    feature_layer_1.properties.y,
                 ]
                 const feature_2_coordinates = [
-                    feature_layer_2!.properties.x,
-                    feature_layer_2!.properties.y,
+                    feature_layer_2.properties.x,
+                    feature_layer_2.properties.y,
                 ]
                 cy.intercept('**/MapServer/identify**', { results: [feature_layer_1] })
                 cy.intercept(`**/MapServer/${layer1}/**geometryFormat**`, feature_layer_1)

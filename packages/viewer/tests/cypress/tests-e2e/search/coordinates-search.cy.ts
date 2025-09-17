@@ -4,6 +4,7 @@ import { constants, coordinatesUtils, LV03, LV95, WEBMERCATOR, WGS84 } from '@sw
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { latLonToMGRS } from '@/utils/militaryGridProjection'
+import { assertDefined } from 'support/utils'
 
 const searchbarSelector = '[data-cy="searchbar"]'
 
@@ -100,8 +101,8 @@ describe('Testing coordinates typing in search bar', () => {
         // checking that search bar has been emptied
         cy.readStoreValue('state.search.query').should('be.empty')
         expect(expectedCenterWGS84_DD).to.have.length(2)
-        cy.assertDefined(expectedCenterWGS84_DD[0])
-        cy.assertDefined(expectedCenterWGS84_DD[1])
+        assertDefined(expectedCenterWGS84_DD[0])
+        assertDefined(expectedCenterWGS84_DD[1])
 
         standardCheck(expectedCenterWGS84_DD[0], expectedCenterWGS84_DD[1], {
             acceptableDelta,

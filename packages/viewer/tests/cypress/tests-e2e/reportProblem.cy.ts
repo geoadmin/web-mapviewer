@@ -3,7 +3,7 @@
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { APP_VERSION } from '@/config/staging.config'
 
-import { isMobile } from '../support/utils'
+import { assertDefined, isMobile } from '../support/utils'
 import { interceptFeedback, parseFormData } from './feedbackTestUtils'
 
 const text =
@@ -267,8 +267,8 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="ol-map"]').then(($el) => {
             const mapWidth = $el.width()
             const mapHeight = $el.height()
-            cy.assertDefined(mapWidth)
-            cy.assertDefined(mapHeight)
+            assertDefined(mapWidth)
+            assertDefined(mapHeight)
             cy.get('[data-cy="ol-map"]').click(mapWidth / 2 + 50, mapHeight / 2)
         })
 
@@ -302,8 +302,8 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="ol-map"]').then(($el) => {
             const mapWidth = $el.width()
             const mapHeight = $el.height()
-            cy.assertDefined(mapWidth)
-            cy.assertDefined(mapHeight)
+            assertDefined(mapWidth)
+            assertDefined(mapHeight)
             cy.get('[data-cy="ol-map"]').click(mapWidth / 2 + 50, mapHeight / 2)
         })
         // we need to increase the timeout here below because, upon opening the drawing mode for the
@@ -374,8 +374,8 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="ol-map"]').then(($el) => {
             const mapWidth = $el.width()
             const mapHeight = $el.height()
-            cy.assertDefined(mapWidth)
-            cy.assertDefined(mapHeight)
+            assertDefined(mapWidth)
+            assertDefined(mapHeight)
             cy.get('[data-cy="ol-map"]').click(mapWidth / 2 + 50, mapHeight / 2)
         })
 
@@ -383,8 +383,8 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="ol-map"]').then(($el) => {
             const mapWidth = $el.width()
             const mapHeight = $el.height()
-            cy.assertDefined(mapWidth)
-            cy.assertDefined(mapHeight)
+            assertDefined(mapWidth)
+            assertDefined(mapHeight)
             cy.get('[data-cy="ol-map"]').click(mapWidth / 2 - 50, mapHeight / 2)
             cy.get('[data-cy="ol-map"]').click(mapWidth / 2, mapHeight / 2)
             cy.get('[data-cy="ol-map"]').dblclick(mapWidth / 2 + 10, mapHeight / 2 + 50)
