@@ -13,7 +13,7 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 
 import generateBuildInfo from './vite-plugins/vite-plugin-generate-build-info'
 
-export type Staging = 'development' | 'integration' | 'production' | 'test'
+export type ViteModes = 'development' | 'integration' | 'production' | 'test'
 
 const appVersion: string =
     // We take the version from APP_VERSION, and if not set from the git describe command
@@ -28,7 +28,7 @@ const cesiumFolder: string = `${__dirname}/node_modules/cesium/`
 const cesiumSource: string = `${cesiumFolder}Source/`
 const cesiumStaticDir: string = `./${appVersion}/cesium/`
 
-const stagings: Record<Staging, string> = {
+const stagings: Record<ViteModes, string> = {
     development: 'dev',
     integration: 'int',
     production: 'prod',
@@ -46,7 +46,7 @@ function manualChunks(id: string): string | undefined {
     }
 }
 
-function generatePlugins(mode: Staging, isTesting: boolean = false): PluginOption[] {
+function generatePlugins(mode: ViteModes, isTesting: boolean = false): PluginOption[] {
     const plugins: PluginOption[] = []
 
     plugins.push(tsconfigPaths())
@@ -164,7 +164,7 @@ export default defineConfig((configEnv: ConfigEnv): UserConfig => {
     // In test mode, we don't want the PWA plugin or the dev tools.
     // The app is also adding a couple of things to the "window" element when in test mode, so that Cypress can access it.
     const isTesting = mode === 'test'
-    const definitiveMode: Staging = (isTesting ? 'development' : mode) as Staging
+    const definitiveMode: ViteModes = (isTesting ? 'development' : mode) as ViteModes
     return {
         base: './',
         build: {

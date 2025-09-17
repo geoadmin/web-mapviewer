@@ -716,6 +716,9 @@ importers:
       '@swissgeo/numbers':
         specifier: workspace:*
         version: link:../numbers
+      '@swissgeo/staging-config':
+        specifier: workspace:*
+        version: link:../staging-config
       axios:
         specifier: 'catalog:'
         version: 1.11.0(debug@4.4.1)
@@ -854,6 +857,30 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.3.1)(jiti@2.5.1)(jsdom@26.1.0)(lightningcss@1.30.1)(sass-embedded@1.91.0)(sass@1.92.0)(terser@5.43.1)(tsx@4.20.5)(yaml@2.8.1)
+
+  packages/staging-config:
+    devDependencies:
+      '@microsoft/api-extractor':
+        specifier: 'catalog:'
+        version: 7.52.11(@types/node@24.3.1)
+      '@swissgeo/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@swissgeo/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      eslint:
+        specifier: 'catalog:'
+        version: 9.34.0(jiti@2.5.1)
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.2
+      unplugin-dts:
+        specifier: 'catalog:'
+        version: 1.0.0-beta.6(@microsoft/api-extractor@7.52.11(@types/node@24.3.1))(@vue/language-core@3.0.6(typescript@5.9.2))(esbuild@0.25.5)(rollup@4.44.1)(typescript@5.9.2)(vite@7.1.4(patch_hash=c264d9fa4f1750b8a186fe4e946c83d43f96fa8b2cd8eb3c823bfdbdc4372ff2)(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(sass-embedded@1.91.0)(sass@1.92.0)(terser@5.43.1)(tsx@4.20.5)(yaml@2.8.1))
+      vite:
+        specifier: 'catalog:'
+        version: 7.1.4(patch_hash=c264d9fa4f1750b8a186fe4e946c83d43f96fa8b2cd8eb3c823bfdbdc4372ff2)(@types/node@24.3.1)(jiti@2.5.1)(lightningcss@1.30.1)(sass-embedded@1.91.0)(sass@1.92.0)(terser@5.43.1)(tsx@4.20.5)(yaml@2.8.1)
 
   packages/stylelint-config:
     dependencies:
@@ -1034,12 +1061,18 @@ importers:
       '@swissgeo/elevation-profile':
         specifier: workspace:*
         version: link:../elevation-profile
+      '@swissgeo/layers':
+        specifier: workspace:*
+        version: link:../layers
       '@swissgeo/log':
         specifier: workspace:*
         version: link:../log
       '@swissgeo/numbers':
         specifier: workspace:*
         version: link:../numbers
+      '@swissgeo/staging-config':
+        specifier: workspace:*
+        version: link:../staging-config
       '@swissgeo/tooltip':
         specifier: workspace:*
         version: link:../tooltip

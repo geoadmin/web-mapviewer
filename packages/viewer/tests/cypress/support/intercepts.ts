@@ -1,17 +1,17 @@
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import { LV95, registerProj4, WGS84 } from '@swissgeo/coordinates'
+import type { ExternalWMSLayer, ExternalWMTSLayer } from '@swissgeo/layers'
+import { layerUtils }  from '@swissgeo/layers/utils'
 import { randomIntBetween } from '@swissgeo/numbers'
 import proj4 from 'proj4'
 
 import type { Geometry } from 'geojson'
 
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
-import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 import { centroid } from '@turf/turf'
 
 registerProj4(proj4)
 
-const mockExternalWms1 = new ExternalWMSLayer({
+const mockExternalWms1 = layerUtils.makeExternalWMSLayer({
     id: 'ch.swisstopo-vd.official-survey',
     name: 'OpenData-AV',
     baseUrl: 'https://fake.wms.base-1.url/?',
@@ -19,62 +19,62 @@ const mockExternalWms1 = new ExternalWMSLayer({
         item: 'MyItem',
     },
 })
-const mockExternalWms2 = new ExternalWMSLayer({
+const mockExternalWms2 = layerUtils.makeExternalWMSLayer({
     id: 'Periodic Tracking, with | comma & @ ; äö',
     name: 'Periodic Tracking, with | comma & @ ; äö',
     baseUrl: 'https://fake.wms.base-1.url/?',
     opacity: 0.8,
 })
-const mockExternalWms3 = new ExternalWMSLayer({
+const mockExternalWms3 = layerUtils.makeExternalWMSLayer({
     id: 'ch.swisstopo-vd.spannungsarme-gebiete-2',
     name: 'Spannungsarme Gebiete 2',
     baseUrl: 'https://fake.wms.base-2.url/?',
-    visible: false,
+    isVisible: false,
 })
-const mockExternalWms4 = new ExternalWMSLayer({
+const mockExternalWms4 = layerUtils.makeExternalWMSLayer({
     id: 'ch.swisstopo-vd.stand-oerebkataster-2',
     name: 'Verfügbarkeit des ÖREB-Katasters 2',
     baseUrl: 'https://fake.wms.base-2.url/?',
-    visible: false,
+    isVisible: false,
     opacity: 0.4,
 })
 
 Cypress.Commands.add('getExternalWmsMockConfig', () => [
-    mockExternalWms1.clone(),
-    mockExternalWms2.clone(),
-    mockExternalWms3.clone(),
-    mockExternalWms4.clone(),
+    Cypress._.cloneDeep(mockExternalWms1),
+    Cypress._.cloneDeep(mockExternalWms2),
+    Cypress._.cloneDeep(mockExternalWms3),
+    Cypress._.cloneDeep(mockExternalWms4),
 ])
 
-const mockExternalWmts1 = new ExternalWMTSLayer({
+const mockExternalWmts1 = layerUtils.makeExternalWMTSLayer({
     id: 'TestExternalWMTS-1',
     name: 'Test External WMTS 1',
     baseUrl: 'https://fake.wmts.getcap-1.url/WMTSGetCapabilities.xml',
 })
 
-const mockExternalWmts2 = new ExternalWMTSLayer({
+const mockExternalWmts2 = layerUtils.makeExternalWMTSLayer({
     id: 'TestExternalWMTS-2;,|@special-chars-äö',
     name: 'Test External WMTS 2;,|@special-chars-äö',
     baseUrl: 'https://fake.wmts.getcap-1.url/WMTSGetCapabilities.xml',
 })
 
-const mockExternalWmts3 = new ExternalWMTSLayer({
+const mockExternalWmts3 = layerUtils.makeExternalWMTSLayer({
     id: 'TestExternalWMTS-3',
     name: 'Test External WMTS 3',
     baseUrl: 'https://fake.wmts.getcap-2.url/WMTSGetCapabilities.xml',
 })
 
-const mockExternalWmts4 = new ExternalWMTSLayer({
+const mockExternalWmts4 = layerUtils.makeExternalWMTSLayer({
     id: 'TestExternalWMTS-4',
     name: 'Test External WMTS 4',
     baseUrl: 'https://fake.wmts.getcap-2.url/WMTSGetCapabilities.xml',
 })
 
 Cypress.Commands.add('getExternalWmtsMockConfig', () => [
-    mockExternalWmts1.clone(),
-    mockExternalWmts2.clone(),
-    mockExternalWmts3.clone(),
-    mockExternalWmts4.clone(),
+    Cypress._.cloneDeep(mockExternalWmts1),
+    Cypress._.cloneDeep(mockExternalWmts2),
+    Cypress._.cloneDeep(mockExternalWmts3),
+    Cypress._.cloneDeep(mockExternalWmts4),
 ])
 
 /**
@@ -375,25 +375,28 @@ function addFeatureIdentificationIntercepts (): void {
     cy.intercept(
         /.*\/rest\/services\/\w+\/MapServer\/[^/]+\/[^?]+\?.*\bgeometryFormat=geojson.*/,
         (req) => {
-            const url = req.url.match(
-                /.*\/rest\/services\/(?<topic>\w+)\/MapServer\/(?<layerId>.+)\/(?<features>[^?]+)/
-            )
+            const url = /.*\/rest\/services\/(?<topic>\w+)\/MapServer\/(?<layerId>.+)\/(?<features>[^?]+)/.exec(req.url)
 
-            if (!url) {
+            if (!url || !url.groups) {
                 req.reply(404)
                 return
             }
 
             const generateFeature = (featureId: string) => {
+                if (!url || !url.groups) {
+                    req.reply(404)
+                    return
+                }
+
                 const featureDetail = Cypress._.cloneDeep(featureDetailTemplate)
                 featureDetail.featureId = featureId
                 featureDetail.id = featureId
                 featureDetail.properties.name = `Feature ${featureId} name`
                 featureDetail.properties.label = `Feature ${featureId} label`
 
-                if (featureDetail.layerBodId !== url.groups?.layerId) {
-                    featureDetail.layerBodId = url.groups!.layerId!
-                    featureDetail.layerName = `Name of ${url.groups!.layerId}`
+                if (featureDetail.layerBodId !== url.groups.layerId) {
+                    featureDetail.layerBodId = url.groups.layerId!
+                    featureDetail.layerName = `Name of ${url.groups.layerId}`
                 }
 
                 const matchingFeature = lastIdentifiedFeatures.find(
@@ -418,7 +421,7 @@ function addFeatureIdentificationIntercepts (): void {
                 return featureDetail
             }
 
-            const features = url.groups?.features?.split(',') ?? []
+            const features: string[] = url.groups.features?.split(',') ?? []
             if (features.length > 1) {
                 req.reply({
                     type: 'FeatureCollection',

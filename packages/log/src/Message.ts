@@ -5,8 +5,8 @@ export class Message {
     params: Record<string, unknown>
 
     /**
-     * @param {string} msg Translation key message
-     * @param {any} params Translation params to pass to i18n (used for message formatting)
+     * @param msg Translation key message
+     * @param params Translation params to pass to i18n (used for message formatting)
      */
     constructor(msg: string, params?: Record<string, unknown>) {
         this.msg = msg

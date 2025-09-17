@@ -10,27 +10,27 @@
             "require": "./dist/index.umd.cjs"
         },
         "./api": {
-            "types": "./dist/api/index.d.ts",
+            "types": "./dist/api.d.ts",
             "import": "./dist/api.js",
             "require": "./dist/api.cjs"
         },
         "./utils": {
-            "types": "./dist/utils/index.d.ts",
+            "types": "./dist/utils.d.ts",
             "import": "./dist/utils.js",
             "require": "./dist/utils.cjs"
         },
         "./parsers": {
-            "types": "./dist/parsers/index.d.ts",
+            "types": "./dist/parsers.d.ts",
             "import": "./dist/parsers.js",
             "require": "./dist/parsers.cjs"
         },
         "./vue": {
-            "types": "./dist/vue/index.d.ts",
+            "types": "./dist/vue.d.ts",
             "import": "./dist/vue.js",
             "require": "./dist/vue.cjs"
         },
         "./validation": {
-            "types": "./dist/validation/index.d.ts",
+            "types": "./dist/validation.d.ts",
             "import": "./dist/validation.js",
             "require": "./dist/validation.cjs"
         }
@@ -56,6 +56,7 @@
         "@swissgeo/coordinates": "workspace:*",
         "@swissgeo/log": "workspace:*",
         "@swissgeo/numbers": "workspace:*",
+        "@swissgeo/staging-config": "workspace:*",
         "axios": "catalog:",
         "lodash": "catalog:",
         "luxon": "catalog:",

@@ -1,16 +1,17 @@
+import type { Staging } from '@swissgeo/staging-config'
+
 /**
  * Tells which (deployment) environment the app has been built with.
  *
  * @see https://en.wikipedia.org/wiki/Deployment_environment
  */
-export const ENVIRONMENT: 'development' | 'integration' | 'production' =
-    __VITE_ENVIRONMENT__ ?? 'development'
+export const ENVIRONMENT: Staging = __VITE_ENVIRONMENT__ ?? 'development'
 
 /** Flag that tells if the app is currently running in a Cypress environment for E2E testing */
-export const IS_TESTING_WITH_CYPRESS: boolean = __IS_TESTING_WITH_CYPRESS__
+export const IS_TESTING_WITH_CYPRESS: boolean = __IS_TESTING_WITH_CYPRESS__ ?? false
 
 /** Current app version (from package.json) */
-export const APP_VERSION: string = __APP_VERSION__
+export const APP_VERSION: string = __APP_VERSION__ ?? 'Missing app version!'
 
 /** The URL to the Github repository. */
 export const GITHUB_REPOSITORY: string = 'https://github.com/geoadmin/web-mapviewer'

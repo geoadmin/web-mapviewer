@@ -4,7 +4,7 @@ import { round } from '@swissgeo/numbers'
 import axios from 'axios'
 import proj4 from 'proj4'
 
-import { getServiceAltiBaseUrl } from '@/config/baseUrl.config'
+import { getApi3BaseUrl } from '@/config/baseUrl.config'
 
 export const meterToFeetFactor = 3.28084
 
@@ -34,7 +34,7 @@ export const requestHeight = (coordinates, projection) => {
             // we are giving it LV95 coordinates
             const lv95coords = proj4(projection.epsg, LV95.epsg, coordinates)
             axios
-                .get(`${getServiceAltiBaseUrl()}rest/services/height`, {
+                .get(`${getApi3BaseUrl()}rest/services/height`, {
                     params: {
                         easting: lv95coords[0],
                         northing: lv95coords[1],
