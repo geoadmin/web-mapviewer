@@ -6,6 +6,7 @@ export function isMobile(): boolean {
 
 export function assertDefined<T>(value: T | undefined | null): asserts value is NonNullable<T> {
     if (value === undefined || value === null) {
-        throw new Error(`Expected value to be defined, but got: ${value}`)
+        const received = value === null ? 'null' : 'undefined'
+        throw new Error(`Expected value to be defined, but got: ${received}`)
     }
 }
