@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest'
-
-import { PrintLayout, PrintLayoutAttribute } from '@/api/print.api'
 import { MIN_PRINT_SCALE_SIZE, PRINT_DPI_COMPENSATION } from '@/config/print.config'
 import { adjustWidth } from '@/utils/styleUtils'
+import { PrintLayout, PrintLayoutAttribute } from '@/api/print.api'
 
 describe('Print API unit tests', () => {
     describe('PrintLayoutAttribute tests', () => {
@@ -20,17 +19,17 @@ describe('Print API unit tests', () => {
         })
         it('returns the scales defined in clientInfo', () => {
             const scales = [1, 2, 3, 4]
-            const testInstance = new PrintLayoutAttribute('test', 'String', null, null, {
+            const testInstance = new PrintLayoutAttribute('test', 'String', undefined, undefined, {
+                dpiSuggestions: [],
                 scales,
+                width: 0,
+                height: 0,
+                maxDPI: 0,
             })
             expect(testInstance.scales).to.eql(scales)
         })
     })
     describe('PrintLayout tests', () => {
-        it('Filters out invalid attributes inputs', () => {
-            const testInstance = new PrintLayout('test', null, '', undefined, 0)
-            expect(testInstance.attributes).to.be.an('Array').lengthOf(0)
-        })
         it('Correctly tells if all attributes are valid', () => {
             const attributeOne = new PrintLayoutAttribute('one', 'Number')
             const attributeTwo = new PrintLayoutAttribute('two', 'String', 'default value')
@@ -46,8 +45,8 @@ describe('Print API unit tests', () => {
                 'not map',
                 'String',
                 null,
-                null,
-                { scales: [1, 2, 3] }
+                undefined,
+                { scales: [1, 2, 3], dpiSuggestions: [], width: 0, height: 0, maxDPI: 0 }
             )
             // testing param that aren't "map" but have a scale
             const scalesButNotInMapAttr = new PrintLayout('wrong', attributeNotMapWithScales)
@@ -58,18 +57,17 @@ describe('Print API unit tests', () => {
                 'correct',
                 // also adding the wrong attribute here, it should be ignored when gathering scales
                 attributeNotMapWithScales,
-                new PrintLayoutAttribute('map', null, null, null, { scales })
+                new PrintLayoutAttribute('map', 'String', null, undefined, {
+                    scales,
+                    dpiSuggestions: [],
+                    height: 0,
+                    width: 0,
+                    maxDPI: 0,
+                })
             )
             expect(scalesInMapAttr.scales).to.eql(scales)
         })
         it('calculate the width correctly with the "adjustWidth" function', () => {
-            // invalid values should return 0
-            expect(adjustWidth(100, 'invalid value')).to.eql(0)
-            expect(adjustWidth(100, null)).to.eql(0)
-            expect(adjustWidth(100, undefined)).to.eql(0)
-            expect(adjustWidth(null, 254)).to.eql(0)
-            expect(adjustWidth(undefined, 254)).to.eql(0)
-            expect(adjustWidth('invalid value', 254)).to.eql(0)
             // the dpi parameter should be a positive number
             expect(adjustWidth(100, 0)).to.eql(0)
             expect(adjustWidth(100, -15)).to.eql(0)

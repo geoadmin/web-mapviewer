@@ -1,24 +1,28 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { allStylingColors, FeatureStyleColor, MEDIUM } from '@/utils/featureStyleUtils'
+import {
+    allStylingColors,
+    type FeatureStyleColor,
+    generateFontString,
+    generateTextShadow,
+    MEDIUM,
+} from '@/utils/featureStyleUtils'
 
-const { currentColor } = defineProps({
-    currentColor: {
-        type: FeatureStyleColor,
-        required: true,
-    },
-})
+const { currentColor } = defineProps<{
+    currentColor: FeatureStyleColor
+}>()
 
-const emits = defineEmits(['change'])
+const emits = defineEmits<{
+    change: [color: FeatureStyleColor]
+}>()
 
-const colors = ref(allStylingColors)
-const font = ref(MEDIUM.font)
+const colors = ref<FeatureStyleColor[]>(allStylingColors)
 
 const { t } = useI18n()
 
-function onColorChange(color) {
+function onColorChange(color: FeatureStyleColor): void {
     emits('change', color)
 }
 </script>
@@ -45,8 +49,8 @@ function onColorChange(color) {
                 }"
                 :style="{
                     color: color.name,
-                    font,
-                    'text-shadow': color.textShadow,
+                    font: generateFontString(MEDIUM),
+                    'text-shadow': generateTextShadow(color),
                 }"
                 :data-cy="`drawing-style-text-color-${color.name}`"
                 @click="onColorChange(color)"

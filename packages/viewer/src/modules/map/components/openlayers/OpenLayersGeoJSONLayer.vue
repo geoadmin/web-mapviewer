@@ -11,7 +11,7 @@ import { useStore } from 'vuex'
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/styleFromLiterals'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import { reprojectGeoJsonData } from '@/utils/geoJsonUtils'
+import { reprojectGeoJsonGeometry } from '@/utils/geoJsonUtils'
 
 const { geoJsonConfig, parentLayerOpacity, zIndex } = defineProps({
     geoJsonConfig: {
@@ -61,7 +61,7 @@ function setFeatures() {
     layer.setSource(
         new VectorSource({
             features: new GeoJSON().readFeatures(
-                reprojectGeoJsonData(geoJsonData.value, projection.value)
+                reprojectGeoJsonGeometry(geoJsonData.value, projection.value)
             ),
         })
     )

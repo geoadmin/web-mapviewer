@@ -1,10 +1,7 @@
 import GeoJSON from 'ol/format/GeoJSON'
 import { LineString, Point, Polygon } from 'ol/geom'
 
-import {
-    extractOlFeatureCoordinates,
-    extractOlFeatureGeodesicCoordinates,
-} from '@/api/features/features.api'
+import { extractOlFeatureCoordinates } from '@/api/features/features.api'
 
 /**
  * Checks if point is at target within tolerance.
@@ -66,7 +63,6 @@ export function updateStoreFeatureCoordinatesGeometry(store, feature, dispatcher
     store.dispatch('changeFeatureCoordinates', {
         feature: storeFeature,
         coordinates: extractOlFeatureCoordinates(feature),
-        geodesicCoordinates: extractOlFeatureGeodesicCoordinates(feature),
         ...dispatcher,
     })
     store.dispatch('changeFeatureGeometry', {

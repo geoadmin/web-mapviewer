@@ -146,6 +146,7 @@ const isLine = computed(() => feature.geometry.type === 'LineString')
 
 const store = useStore()
 const availableIconSets = computed(() => store.state.drawing.iconSets)
+const currentLang = computed(() => store.state.i18n.lang)
 
 function onTextSizeChange(textSize) {
     store.dispatch('changeFeatureTextSize', { feature: feature, textSize, ...dispatcher })
@@ -383,6 +384,7 @@ function mediaTypes() {
                             data-cy="drawing-style-marker-popup"
                             :feature="feature"
                             :icon-sets="availableIconSets"
+                            :current-lang="currentLang"
                             @change:icon="onIconChange"
                             @change:icon-color="onColorChange"
                             @change:icon-size="onIconSizeChange"

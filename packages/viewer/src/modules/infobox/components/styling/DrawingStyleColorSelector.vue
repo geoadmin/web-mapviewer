@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 /**
  * Component showing all available color for a feature and making it possible to switch from one
  * color to the other (will be responsible to change the color of the feature)
@@ -6,32 +6,25 @@
 
 import { ref } from 'vue'
 
-import { allStylingColors, FeatureStyleColor } from '@/utils/featureStyleUtils'
+import type { FeatureStyleColor } from '@/utils/featureStyleUtils'
+import { allStylingColors } from '@/utils/featureStyleUtils'
 
-const { inline, currentColor } = defineProps({
-    inline: {
-        type: Boolean,
-        default: false,
-    },
-    currentColor: {
-        type: FeatureStyleColor,
-        required: true,
-    },
-})
+const { inline, currentColor } = defineProps<{
+    inline?: boolean,
+    currentColor: FeatureStyleColor,
+}>()
 
-const emits = defineEmits({
-    change(color) {
-        return color instanceof FeatureStyleColor
-    },
-})
+const emits = defineEmits<{
+    change: [color: FeatureStyleColor]
+}>()
 
-const colors = ref(allStylingColors)
+const colors = ref<FeatureStyleColor[]>(allStylingColors)
 
-function onColorChange(color) {
+function onColorChange(color: FeatureStyleColor): void {
     emits('change', color)
 }
 
-function colorCircleStyle(color) {
+function colorCircleStyle(color: FeatureStyleColor): Record<string, string> {
     return {
         'background-color': color.name,
         'border-color': color.border,

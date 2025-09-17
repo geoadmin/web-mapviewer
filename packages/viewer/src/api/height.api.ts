@@ -1,4 +1,4 @@
-import { LV95 } from '@swissgeo/coordinates'
+import { type CoordinateSystem, LV95, type SingleCoordinate } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import { round } from '@swissgeo/numbers'
 import axios from 'axios'
@@ -6,28 +6,27 @@ import proj4 from 'proj4'
 
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
 
-export const meterToFeetFactor = 3.28084
+export const meterToFeetFactor: number = 3.28084
 
-export class HeightForPosition {
-    /**
-     * @param {Number[]} coordinates Lat/lon, the position for which the height was requested
-     * @param {Number} heightInMeter The height for the position given by our backend
-     */
-    constructor(coordinates, heightInMeter) {
-        this.coordinates = coordinates
-        this.heightInMeter = heightInMeter
-        this.heightInFeet = round(heightInMeter * meterToFeetFactor, 1)
-    }
+export interface HeightForPosition {
+    /** Lat/lon, the position for which the height was requested */
+    readonly coordinates: SingleCoordinate
+    /** The height for the position given by our backend */
+    readonly heightInMeter: number
+    readonly heightInFeet: number
 }
 
 /**
  * Get the height of the given coordinate from the backend
  *
- * @param {Number[]} coordinates Coordinates of the point we want to know the height of
- * @param {CoordinateSystem} projection The projection in which this point is expressed
- * @returns {Promise<HeightForPosition>} The height for the given coordinate
+ * @param coordinates Coordinates of the point we want to know the height of
+ * @param projection The projection in which this point is expressed
+ * @returns The height for the given coordinate
  */
-export const requestHeight = (coordinates, projection) => {
+export function requestHeight(
+    coordinates: SingleCoordinate,
+    projection: CoordinateSystem
+): Promise<HeightForPosition> {
     return new Promise((resolve, reject) => {
         if (coordinates && Array.isArray(coordinates) && coordinates.length === 2) {
             // this service only functions with LV95 coordinate, so we have to re-project the input to be sure
@@ -41,16 +40,20 @@ export const requestHeight = (coordinates, projection) => {
                     },
                 })
                 .then((heightResponse) => {
-                    resolve(new HeightForPosition(coordinates, heightResponse.data.height))
+                    resolve({
+                        coordinates,
+                        heightInMeter: heightResponse.data.height,
+                        heightInFeet: round(heightResponse.data.height * meterToFeetFactor, 1),
+                    })
                 })
                 .catch((error) => {
                     log.error('Error while retrieving height for', coordinates, error)
-                    reject(error)
+                    reject(new Error(error))
                 })
         } else {
             const errorMessage = 'Invalid coordinates, no height requested'
             log.error('Invalid coordinates, no height requested', coordinates)
-            reject(errorMessage)
+            reject(new Error(errorMessage))
         }
     })
 }

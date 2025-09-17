@@ -14,6 +14,7 @@ import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import useModifyInteraction from '@/modules/drawing/components/useModifyInteraction.composable'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
+import { extractOlFeatureCoordinates } from '@/api/features/features.api'
 
 const emit = defineEmits(['feature-selected'])
 
@@ -53,7 +54,7 @@ watch(selectedFeatures, (newSelectedFeatures) => {
 watch(currentlySelectedFeature, (newFeature, oldFeature) => {
     if (newFeature && newFeature.get('editableFeature')) {
         const editableFeature = newFeature.get('editableFeature')
-        editableFeature.setCoordinatesFromFeature(newFeature)
+        editableFeature.coordinates = extractOlFeatureCoordinates(newFeature)
         // binding store feature change events to our handlers
         // so that we can update the style of the OL features as soon
         // as the store feature is edited

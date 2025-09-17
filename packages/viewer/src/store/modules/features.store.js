@@ -14,7 +14,6 @@ import {
 import {
     allStylingColors,
     allStylingSizes,
-    allStylingTextPlacementsWithUnknown,
 } from '@/utils/featureStyleUtils'
 
 /** @enum */
@@ -524,7 +523,18 @@ export default {
          */
         changeFeatureTextPlacement({ commit, state }, { feature, textPlacement, dispatcher }) {
             const selectedFeature = getEditableFeatureWithId(state, feature.id)
-            const wantedPlacement = allStylingTextPlacementsWithUnknown.find(
+            const wantedPlacement = [
+                'top-left',
+                'top',
+                'top-right',
+                'left',
+                'center',
+                'right',
+                'bottom-left',
+                'bottom',
+                'bottom-right',
+                'unknown'
+            ].find(
                 (position) => position === textPlacement
             )
             if (wantedPlacement && selectedFeature && selectedFeature.isEditable) {

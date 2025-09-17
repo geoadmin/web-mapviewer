@@ -445,7 +445,7 @@ export interface GeoAdminAggregateLayer extends GeoAdminLayer {
 
 export interface GeoAdminGroupOfLayers extends Layer {
     /* Description of the layers being part of this group */
-    readonly layers: GeoAdminLayer[]
+    readonly layers: (GeoAdminLayer | GeoAdminGroupOfLayers)[]
     readonly type: LayerType.GROUP
 }
 

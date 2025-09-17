@@ -1,5 +1,6 @@
-import { WGS84 } from '@swissgeo/coordinates'
-import log from '@swissgeo/log'
+import type { SingleCoordinate } from '@swissgeo/coordinates'
+import { CoordinateSystem, WGS84 } from '@swissgeo/coordinates'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import axios from 'axios'
 import proj4 from 'proj4'
 
@@ -9,13 +10,8 @@ const REGEX_WHAT_3_WORDS =
 const WHAT_3_WORDS_API_BASE_URL = 'https://api.what3words.com/v3'
 const WHAT_3_WORDS_API_KEY = 'OM48J50Y'
 
-/**
- * Check if text is a valid what3word (uses the regex provided by what3words.com)
- *
- * @param text
- * @returns {boolean}
- */
-export const isWhat3WordsString = (text) => {
+/** Check if the text is a valid what3word (uses the regex provided by what3words.com) */
+export function isWhat3WordsString(text: string): boolean {
     return REGEX_WHAT_3_WORDS.test(text)
 }
 
@@ -23,21 +19,23 @@ export const isWhat3WordsString = (text) => {
  * Returns a Promise that will request a location to the What3Words API backend and returns it if it
  * exists there (otherwise fails)
  *
- * @param {String} what3wordsString A what3word string (validity will be checked before sending it
- *   to the API)
- * @param {CoordinateSystem} outputProjection The wanted output projection for the W3W result
- * @returns {Promise<Number[]>} Lat, lon array (in EPSG:3857 so in meters)
+ * @param what3wordsString A what3word string (validity will be checked before sending it to the
+ *   API)
+ * @param outputProjection The wanted output projection for the W3W result
  */
-export const retrieveWhat3WordsLocation = (what3wordsString, outputProjection) => {
+export function retrieveWhat3WordsLocation(
+    what3wordsString: string,
+    outputProjection: CoordinateSystem
+): Promise<SingleCoordinate> {
     return new Promise((resolve, reject) => {
         if (!isWhat3WordsString(what3wordsString)) {
-            reject('Bad what3words string :' + what3wordsString)
+            reject(new Error('Bad what3words string :' + what3wordsString))
         } else {
             axios
                 .get(
                     `${WHAT_3_WORDS_API_BASE_URL}/convert-to-coordinates?words=${what3wordsString}&key=${WHAT_3_WORDS_API_KEY}`
                 )
-                // Response structure in the doc : https://developer.what3words.com/public-api/docs#convert-to-coords
+                // Response structure in the doc: https://developer.what3words.com/public-api/docs#convert-to-coords
                 .then((response) => {
                     const what3wordLocationEpsg3857 = proj4(WGS84.epsg, outputProjection.epsg, [
                         response.data.coordinates.lng,
@@ -49,8 +47,18 @@ export const retrieveWhat3WordsLocation = (what3wordsString, outputProjection) =
                     ])
                 })
                 .catch((error) => {
-                    log.error('Error while fetching What3Words location', error)
-                    reject(error)
+                    log.error({
+                        title: 'What3Words API',
+                        titleStyle: {
+                            backgroundColor: LogPreDefinedColor.Rose,
+                        },
+                        messages: [
+                            'Error while fetching What3Words location',
+                            what3wordsString,
+                            error,
+                        ],
+                    })
+                    reject(new Error(error))
                 })
         }
     })
@@ -60,15 +68,20 @@ export const retrieveWhat3WordsLocation = (what3wordsString, outputProjection) =
  * Sends the location given in param to what3words backend in get the equivalent what3word entry for
  * this coordinate
  *
- * @param {number[]} location A location expressed in the given projection
- * @param {CoordinateSystem} projection Projection currently in use
- * @param {string} lang The ISO code for the language that should be used to build this w3w
- * @returns {Promise<String>} The what3words for this location
+ * @param location A location expressed in the given projection
+ * @param projection Projection currently in use (to express location)
+ * @param lang The ISO code for the language that should be used to build this w3w (will default to
+ *   English if none is given)
+ * @returns The what3words for this location
  */
-export const registerWhat3WordsLocation = (location, projection, lang = 'en') => {
-    return new Promise((resolve, reject) => {
-        if (!Array.isArray(location) && location.length !== 2) {
-            reject('Bad location, must be a coordinate array')
+export function registerWhat3WordsLocation(
+    location: SingleCoordinate,
+    projection: CoordinateSystem,
+    lang: string = 'en'
+): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+        if (!Array.isArray(location) || location.length !== 2) {
+            reject(new Error('Bad location, must be a coordinate array'))
         } else {
             let [lon, lat] = location
             if (projection.epsg !== WGS84.epsg) {
@@ -85,8 +98,14 @@ export const registerWhat3WordsLocation = (location, projection, lang = 'en') =>
                 // Response structure in the doc : https://developer.what3words.com/public-api/docs#convert-to-3wa
                 .then((response) => resolve(response.data.words))
                 .catch((error) => {
-                    log.error('Error while saving location as a What3words', error)
-                    reject(error)
+                    log.error({
+                        title: 'What3Words API',
+                        titleStyle: {
+                            backgroundColor: LogPreDefinedColor.Rose,
+                        },
+                        messages: ['Error while fetching What3Words location', location, error],
+                    })
+                    reject(new Error(error))
                 })
         }
     })

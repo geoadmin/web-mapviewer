@@ -1,56 +1,44 @@
-<script setup lang="js">
+<script setup lang="ts">
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed } from 'vue'
-import { useStore } from 'vuex'
 
 import EditableFeature from '@/api/features/EditableFeature.class'
-import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
+import { type DrawingIcon, type DrawingIconSet, generateIconURL } from '@/api/icon.api'
+import type { FeatureStyleColor } from '@/utils/featureStyleUtils'
 
-const { icon, currentFeature, currentIconSet, tooltipDisabled } = defineProps({
-    icon: {
-        type: DrawingIcon,
-        required: true,
-    },
-    currentFeature: {
-        type: EditableFeature,
-        required: true,
-    },
-    currentIconSet: {
-        type: DrawingIconSet,
-        required: true,
-    },
-    /* tooltip will be disabled when the symbol selector is collapsed */
-    tooltipDisabled: {
-        type: Boolean,
-        default: false,
-    },
-})
+const { icon, currentFeature, currentIconSet, tooltipDisabled, currentLang } = defineProps<{
+    icon: DrawingIcon,
+    currentFeature: EditableFeature,
+    currentIconSet: DrawingIconSet,
+    /** tooltip will be disabled when the symbol selector is collapsed */
+    tooltipDisabled?: boolean,
+    currentLang: string
+}>()
 
-const emits = defineEmits(['change', 'change:iconSize', 'change:icon', 'change:iconColor', 'load'])
+const emits = defineEmits<{
+    change: []
+    changeIcon: [icon: DrawingIcon]
+    load: []
+}>()
 
-const store = useStore()
-const currentLang = computed(() => store.state.i18n.lang)
-const isTooltipDisabled = computed(() => icon.description === null || tooltipDisabled)
+const isTooltipDisabled = computed(() => !icon.description || tooltipDisabled)
 
-const isTextSameLanguage = (langKey) => langKey === currentLang.value
+const isTextSameLanguage = (langKey: string) => langKey === currentLang
 
-function onCurrentIconChange(icon) {
-    emits('change:icon', icon)
+function onCurrentIconChange(icon: DrawingIcon) {
+    emits('changeIcon', icon)
     emits('change')
 }
 
 /**
  * Generate an icon URL with medium size (so that the size doesn't change in the icon selector, even
  * when the user selects a different size for the icon the map)
- *
- * @param {DrawingIcon} icon
- * @returns {String} An icon URL
  */
-function generateColorizedURL(icon) {
-    return icon.generateURL(currentFeature.fillColor)
+function generateColorizedURL(icon: DrawingIcon): string {
+    return generateIconURL(icon, currentFeature.fillColor)
 }
 
-function getImageStrokeStyle(isColorable, isSelected, color) {
+function getImageStrokeStyle(isColorable: boolean, isSelected: boolean, color: FeatureStyleColor) {
     if (isColorable) {
         return {
             filter: `drop-shadow(1px 1px 0 ${color.border}) drop-shadow(-1px -1px 0 ${color.border})`,
