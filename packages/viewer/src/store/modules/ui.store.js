@@ -471,7 +471,7 @@ export default {
                 warnings = warnings.filter(
                     (warning) =>
                         // we only add the warnings that are not existing within the store
-                        ![...state.warnings].some((otherWarning) => warning.isEquals(otherWarning))
+                        ![...state.warnings].some((otherWarning) => warning.isEqual(otherWarning))
                 )
                 if (warnings.length > 0) {
                     commit('addWarnings', { warnings, dispatcher })
