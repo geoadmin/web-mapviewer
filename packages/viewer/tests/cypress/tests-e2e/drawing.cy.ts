@@ -23,7 +23,7 @@ import {
 
 registerProj4(proj4)
 
-const isNonEmptyArray = (value) => {
+const isNonEmptyArray = (value: any): value is any[] => {
     return Array.isArray(value) && value.length > 0
 }
 
@@ -37,7 +37,7 @@ const DEFAULT_ICON_URL_SCALE = `${DEFAULT_ICON_URL_PARAMS.scale}x`
 
 describe('Drawing module tests', () => {
     context('Drawing mode/tools', () => {
-        function testTitleEdit() {
+        function testTitleEdit(): void {
             const title = `This is a random title ${randomIntBetween(1000, 9999)}`
             cy.get('[data-cy="drawing-style-feature-title"]').clear()
             cy.get('[data-cy="drawing-style-feature-title"]').type(title)
@@ -49,14 +49,14 @@ describe('Drawing module tests', () => {
                 )
             cy.readStoreValue('getters.selectedFeatures[0].title').should('eq', title)
         }
-        function readCoordinateClipboard(name, coordinate) {
+        function readCoordinateClipboard(name: string, coordinate: string): void {
             cy.log(name)
             cy.get(`[data-cy="${name}-button"]`).click()
             cy.readClipboardValue().should((clipboardText) => {
                 expect(clipboardText).to.be.equal(coordinate)
             })
         }
-        function waitForKmlUpdate(...regexExpressions) {
+        function waitForKmlUpdate(...regexExpressions: string[]): void {
             cy.wait('@update-kml')
                 .its('request')
                 .then((request) =>
@@ -67,7 +67,7 @@ describe('Drawing module tests', () => {
                 )
         }
 
-        function addDecription(description) {
+        function addDecription(description: string): void {
             cy.get('[data-cy="drawing-style-feature-description"]').type(description)
             cy.get('[data-cy="drawing-style-feature-description"]').should(
                 'have.value',
@@ -83,12 +83,12 @@ describe('Drawing module tests', () => {
 
         // we use the description to identify the feature and check its
         // geometry type, number of points and type (measure or linepolygon)
-        function checkDrawnFeature(description, numberOfPoints, featureType, type) {
+        function checkDrawnFeature(description: string, numberOfPoints: number, featureType: string, type: EditableFeatureTypes): void {
             cy.window().its('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
                 .should((features) => {
                     const matchingFeature = features.find(
-                        (feature) => feature.get('description') === description
+                        (feature: any) => feature.get('description') === description
                     )
                     expect(matchingFeature).to.not.be.undefined
                     expect(matchingFeature.getGeometry().getType()).to.eq(featureType)
@@ -534,7 +534,7 @@ describe('Drawing module tests', () => {
             cy.viewport(1920, 1080)
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
 
-            const lineCoordinates = [
+            const lineCoordinates: [number, number][] = [
                 [500, 500],
                 [550, 550],
                 [600, 600],
@@ -654,7 +654,7 @@ describe('Drawing module tests', () => {
             cy.log('Create measurement line')
             cy.clickDrawingTool(EditableFeatureTypes.MEASURE)
 
-            const measurementCoordinates = [
+            const measurementCoordinates: [number, number][] = [
                 [1000, 500],
                 [1050, 550],
                 [1100, 600],
@@ -669,7 +669,7 @@ describe('Drawing module tests', () => {
             })
             cy.log('should create a line by re-clicking the last point')
             cy.get('[data-cy="ol-map"]').click(
-                ...measurementCoordinates.at(measurementCoordinates.length - 1)
+                ...measurementCoordinates.at(measurementCoordinates.length - 1)!
             )
             const secondFeatureDescription = 'second feature'
             addDecription(secondFeatureDescription)
@@ -717,7 +717,7 @@ describe('Drawing module tests', () => {
             cy.log('should create a polygon by re-clicking the first point')
             cy.get('[data-cy="ol-map"]').click(100, 250)
 
-            let kmlId = null
+            let kmlId: string | null = null
             cy.wait('@post-kml').then((interception) => {
                 cy.wrap(interception)
                     .its('request')
@@ -769,7 +769,7 @@ describe('Drawing module tests', () => {
                                 )}</color></PolyStyle></Style>`
                             ),
                         ],
-                        kmlId
+                        kmlId!
                     )
                 )
 
@@ -831,7 +831,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-toolbox-delete-button"]').click()
             cy.get('[data-cy="modal-confirm-button"]').click()
 
-            let deletedKmlId = null
+            let deletedKmlId: string | null = null
 
             cy.wait('@delete-kml').then((interception) => {
                 deletedKmlId = interception.response.body.id
@@ -863,7 +863,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click(150, 250)
             cy.get('[data-cy="ol-map"]').click(150, 280)
 
-            let newKmlId = null
+            let newKmlId: string | null = null
             cy.wait('@post-kml').then((interception) => {
                 newKmlId = interception.response.body.id
             })
@@ -1218,7 +1218,7 @@ describe('Drawing module tests', () => {
             cy.wait('@update-kml').its('response.body.id').should('eq', kmlFileId)
         })
         it('receives an empty KML and can use drawing mode', () => {
-            function verifyActiveKmlLayerEmptyWithError() {
+            function verifyActiveKmlLayerEmptyWithError(): void {
                 cy.window()
                     .its('store.getters.activeKmlLayer')
                     .then((layer) => {
@@ -1302,7 +1302,7 @@ describe('Drawing module tests', () => {
         })
         it('can export the drawing/profile in multiple formats', () => {
             const downloadsFolder = Cypress.config('downloadsFolder')
-            const checkFiles = (extension, callback) => {
+            const checkFiles = (extension: string, callback: (content: string) => void): void => {
                 recurse(
                     () => cy.task('findFiles', { folderName: downloadsFolder, extension }),
                     isNonEmptyArray,
@@ -1413,8 +1413,8 @@ describe('Drawing module tests', () => {
             const publicShortlink = 'https://s.geo.admin.ch/public-shortlink'
             const adminshortlink = 'https://s.geo.admin.ch/admin-shortlink'
 
-            let adminId = null
-            let kmlId = null
+            let adminId: string | null = null
+            let kmlId: string | null = null
 
             cy.goToDrawing()
 
@@ -1611,7 +1611,7 @@ describe('Drawing module tests', () => {
 
             cy.wait('@icon-sets')
             cy.wait('@icon-set-default')
-            const testEditPopupFloatingToggle = () => {
+            const testEditPopupFloatingToggle = (): void => {
                 cy.get('[data-cy="infobox"] [data-cy="drawing-style-popup"]').should('be.visible')
                 cy.get('[data-cy="popover"] [data-cy="drawing-style-popup"]').should('not.exist')
 
