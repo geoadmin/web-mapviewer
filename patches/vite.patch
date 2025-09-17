@@ -1,8 +1,8 @@
-diff --git a/dist/node/chunks/dep-C6pp_iVS.js b/dist/node/chunks/dep-C6pp_iVS.js
+diff --git a/dist/node/chunks/dep-M_KD0XSK.js b/dist/node/chunks/dep-M_KD0XSK.js
 index 5d3b4f386fd73d72e4e21bcc9bac329d5836edb4..24c27a7de22ddec34c8df4900bc85dc6cb3d41fd 100644
---- a/dist/node/chunks/dep-C6pp_iVS.js
-+++ b/dist/node/chunks/dep-C6pp_iVS.js
-@@ -32866,7 +32866,8 @@ const makeScssWorker = (environment, resolvers, _maxWorkers) => {
+--- a/dist/node/chunks/dep-M_KD0XSK.js
++++ b/dist/node/chunks/dep-M_KD0XSK.js
+@@ -32870,7 +32870,8 @@ const makeScssWorker = (environment, resolvers, _maxWorkers) => {
  	let compilerPromise;
  	const worker = {
  		async run(sassPath, data, options$1) {
