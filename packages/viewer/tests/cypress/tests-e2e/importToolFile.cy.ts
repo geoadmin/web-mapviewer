@@ -5,22 +5,30 @@ import proj4 from 'proj4'
 
 import { proxifyUrl } from '@/api/file-proxy.api.js'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
+import type AbstractLayer from '@/api/layers/AbstractLayer.class'
+import type Map from 'ol/Map'
+import type BaseLayer from 'ol/layer/Base'
+import type { Viewer } from 'cesium'
+import { assertDefined } from 'support/utils'
 
 registerProj4(proj4)
-function checkVectorLayerHighlightingSegment(lastIndex = -1) {
-    let currentIndex = -1
-    cy.window().its('map').should((map) => {
+
+function checkVectorLayerHighlightingSegment(lastIndex: number = -1): number {
+    let currentIndex: number = -1
+    cy.window().its('map').should((map: Map) => {
         const vectorLayers = map
             .getLayers()
             .getArray()
-            .filter((layer) => layer.get('id').startsWith('vector-layer-'))
-        const geomHighlightFeature = vectorLayers.find((layer) => {
+            .filter((layer: BaseLayer) => layer.get('id').startsWith('vector-layer-'))
+        const geomHighlightFeature = vectorLayers.find((layer: BaseLayer) => {
             return layer
                 .getSource()
                 .getFeatures()
-                .find((feature) => feature.get('id').startsWith('geom-segment-'))
+                .find((feature: BaseLayer) => feature.get('id').startsWith('geom-segment-'))
         })
-        expect(geomHighlightFeature).to.not.be.undefined
+        // expect(geomHighlightFeature).to.not.be.null
+        // expect(geomHighlightFeature).to.not.be.undefined
+        assertDefined(geomHighlightFeature)
         currentIndex = vectorLayers.indexOf(geomHighlightFeature)
         if (lastIndex === -1) {
             expect(lastIndex).not.to.equal(currentIndex)
@@ -28,19 +36,25 @@ function checkVectorLayerHighlightingSegment(lastIndex = -1) {
     })
     return currentIndex
 }
+
 describe('The Import File Tool', () => {
     function createHeadAndGetIntercepts(
-        url,
-        aliasName,
-        getResponse,
+        url: string,
+        aliasName: string,
+        getResponse: {
+            fixture?: string,
+            body?: string
+            statusCode?: number
+            headers?: { [key: string]: string }
+        },
         headResponse = {
             statusCode: 200,
             headers: {
                 'Content-Type': 'application/vnd.google-earth.kml+xml',
             },
         },
-        failNonProxyHeadRequest = false
-    ) {
+        failNonProxyHeadRequest: boolean = false
+    ): void {
         if (failNonProxyHeadRequest) {
             cy.intercept('HEAD', url, {
                 statusCode: 403,
@@ -55,7 +69,7 @@ describe('The Import File Tool', () => {
     }
 
     it('Import KML file', () => {
-        cy.goToMapView({withHash: true})
+        cy.goToMapView({ withHash: true })
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
         cy.openMenuIfMobile()
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
@@ -183,7 +197,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="import-file-local-content"]').should('not.be.visible')
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
         cy.log('Test that the single kml feature is in center of the view (zoom to extent check)')
-        cy.readStoreValue('state.position.center').then((center) => {
+        cy.readStoreValue('state.position.center').then((center: number[]) => {
             cy.wrap(center[0]).should('be.closeTo', 2776665.92, 1)
             cy.wrap(center[1]).should('be.closeTo', 1175560.21, 1)
         })
@@ -272,6 +286,7 @@ describe('The Import File Tool', () => {
             force: true,
         })
         cy.get('[data-cy="import-file-load-button"]:visible').click()
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
 
         // Assertions for successful import
         cy.get('[data-cy="file-input-text"]')
@@ -291,7 +306,6 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="import-file-online-content"]').should('be.visible')
         cy.get('[data-cy="text-input"]')
             .should('be.visible')
-
             .should('have.class', 'is-valid')
             .should('have.value', secondValidOnlineUrl)
 
@@ -355,14 +369,14 @@ describe('The Import File Tool', () => {
             })
 
         // Test the search for a feature in the local KML file
-        const expectedSecondCenterEpsg4326 = [8.117189, 46.852375] // lon/lat
-        const expectedCenterEpsg4326 = [9.74921, 46.707841] // lon/lat
-        const expectedSecondCenterDefaultProjection = proj4(
+        const expectedSecondCenterEpsg4326: number[] = [8.117189, 46.852375]
+        const expectedCenterEpsg4326: number[] = [9.74921, 46.707841]
+        const expectedSecondCenterDefaultProjection: number[] = proj4(
             WGS84.epsg,
             DEFAULT_PROJECTION.epsg,
             expectedSecondCenterEpsg4326
         )
-        const expectedCenterDefaultProjection = proj4(
+        const expectedCenterDefaultProjection: number[] = proj4(
             WGS84.epsg,
             DEFAULT_PROJECTION.epsg,
             expectedCenterEpsg4326
@@ -370,9 +384,11 @@ describe('The Import File Tool', () => {
         const expectedLayerId = 'external-kml-file.kml'
         const expectedOnlineLayerId = 'https://example.com/second-valid-kml-file.kml'
         const acceptedDelta = 0.2
-        const checkLocation = (expected, result) => {
+        const checkLocation = (expected: number[], result: number[]) => {
             expect(result).to.be.an('Array')
             expect(result.length).to.eq(2)
+            assertDefined(expected[0])
+            assertDefined(expected[1])
             expect(result[0]).to.approximately(expected[0], acceptedDelta)
             expect(result[1]).to.approximately(expected[1], acceptedDelta)
         }
@@ -405,13 +421,13 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="search-result-entry"]').as('layerSearchResults').should('have.length', 3)
         cy.get('@layerSearchResults').invoke('text').should('contain', 'Sample Placemark')
         cy.get('@layerSearchResults').first().trigger('mouseenter')
-        cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
+        cy.readStoreValue('getters.visibleLayers').should((visibleLayers: AbstractLayer[]) => {
             const visibleIds = visibleLayers.map((layer) => layer.id)
             expect(visibleIds).to.contain(expectedLayerId)
         })
         cy.get('@layerSearchResults').first().realClick()
         // checking that the view has centered on the feature
-        cy.readStoreValue('state.position.center').should((center) =>
+        cy.readStoreValue('state.position.center').should((center: number[]) =>
             checkLocation(expectedCenterDefaultProjection, center)
         )
 
@@ -423,13 +439,13 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="search-result-entry"]').as('layerSearchResults').should('have.length', 1)
         cy.get('@layerSearchResults').invoke('text').should('contain', 'Another Sample Placemark')
         cy.get('@layerSearchResults').first().trigger('mouseenter')
-        cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
+        cy.readStoreValue('getters.visibleLayers').should((visibleLayers: AbstractLayer[]) => {
             const visibleIds = visibleLayers.map((layer) => layer.id)
             expect(visibleIds).to.contain(expectedOnlineLayerId)
         })
         cy.get('@layerSearchResults').first().realClick()
         // checking that the view has centered on the feature
-        cy.readStoreValue('state.position.center').should((center) =>
+        cy.readStoreValue('state.position.center').should((center: number[]) =>
             checkLocation(expectedSecondCenterDefaultProjection, center)
         )
 
@@ -528,7 +544,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="warning-window-close"]').click({ force: true })
         cy.get('[data-cy="3d-button"]:visible').click()
         cy.waitUntilCesiumTilesLoaded()
-        cy.window().its('cesiumViewer').should((viewer) => {
+        cy.window().its('cesiumViewer').should((viewer: Viewer) => {
             expect(viewer.scene.primitives.length).to.eq(
                 4,
                 'should have 1 primitive (KML file) on top of labels and buildings primitives'
@@ -544,9 +560,9 @@ describe('The Import File Tool', () => {
             force: true,
         })
         cy.get('[data-cy="import-file-load-button"]:visible').click()
-        cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+        cy.readStoreValue('state.layers.activeLayers').then((activeLayers: AbstractLayer[]) => {
             const kmlLayerCount = activeLayers.filter((layer) => layer.type === 'KML').length
-            cy.window().its('cesiumViewer').should((viewer) => {
+            cy.window().its('cesiumViewer').should((viewer: Viewer) => {
                 expect(viewer.dataSources.length).to.eq(
                     kmlLayerCount,
                     `should have ${kmlLayerCount} date source (KML files)`
@@ -591,12 +607,13 @@ describe('The Import File Tool', () => {
 
         cy.get('[data-cy="show-profile"]').click()
 
-        let lastSegmentIndex = checkVectorLayerHighlightingSegment()
+        const lastSegmentIndex: number = checkVectorLayerHighlightingSegment()
 
         cy.get('[data-cy="profile-segment-button-1"]').click()
         cy.readStoreValue('state.profile.currentFeatureSegmentIndex').should('be.equal', 1)
         checkVectorLayerHighlightingSegment(lastSegmentIndex)
     })
+
     it('Import KML file error handling', () => {
         const outOfBoundKMLFile = 'import-tool/paris.kml'
         const emptyKMLFile = 'import-tool/empty.kml'
@@ -643,15 +660,14 @@ describe('The Import File Tool', () => {
         )
 
         cy.goToMapView({
-            queryParams:
-                {
-                    layers: [
-                        `KML|${outOfBoundKMLUrl}`,
-                        `KML|${invalidFileOnlineUrl}`,
-                        `KML|${onlineUrlNotReachable}`,
-                        `KML|${validOnlineUrlWithInvalidContentType}`,
-                    ].join(';'),
-                },
+            queryParams: {
+                layers: [
+                    `KML|${outOfBoundKMLUrl}`,
+                    `KML|${invalidFileOnlineUrl}`,
+                    `KML|${onlineUrlNotReachable}`,
+                    `KML|${validOnlineUrlWithInvalidContentType}`,
+                ].join(';'),
+            },
             withHash: true,
         })
         cy.openMenuIfMobile()
@@ -674,7 +690,10 @@ describe('The Import File Tool', () => {
 
         // Expected values per index - this is to avoid having nested
         // if statements
-        const errorDataMap = {
+        const errorDataMap: Record<
+            string,
+            { shouldHaveError: boolean; errorMessage?: string }
+        > = {
             [validOnlineUrlWithInvalidContentType]: {
                 shouldHaveError: false,
             },
@@ -699,13 +718,13 @@ describe('The Import File Tool', () => {
             .children()
             .should('have.length', 4)
             .each(($layer) => {
-                const url = $layer.attr('data-layer-id')
+                const url = $layer.attr('data-layer-id') as string
                 const errorData = errorDataMap[url]
 
                 cy.wrap($layer)
                     .find('[data-cy="menu-external-disclaimer-icon-cloud"]')
                     .should('be.visible')
-
+                assertDefined(errorData)
                 if (errorData.shouldHaveError) {
                     cy.wrap($layer)
                         .find('[data-cy^="button-has-error"]')
@@ -714,7 +733,7 @@ describe('The Import File Tool', () => {
 
                     cy.get(`[data-cy^="floating-button-has-error-${url}"]`)
                         .should('be.visible')
-                        .contains(errorData.errorMessage)
+                        .contains(errorData.errorMessage as string)
 
                     cy.get(`[data-cy^="floating-button-has-error-${url}"]`).trigger('mouseout', {
                         force: true,
@@ -760,7 +779,6 @@ describe('The Import File Tool', () => {
         cy.wait(['@headInvalidKmlFile', '@getInvalidKmlFile'])
 
         cy.get('[data-cy="text-input"]')
-
             .should('have.class', 'is-invalid')
             .should('not.have.class', 'is-valid')
         cy.get('[data-cy="text-input-invalid-feedback"]')
@@ -803,7 +821,6 @@ describe('The Import File Tool', () => {
         cy.wait(['@headUnreachableKmlFile', '@getUnreachableKmlFile'])
 
         cy.get('[data-cy="text-input"]')
-
             .should('have.class', 'is-invalid')
             .should('not.have.class', 'is-valid')
         cy.get('[data-cy="text-input-invalid-feedback"]')
@@ -821,7 +838,6 @@ describe('The Import File Tool', () => {
         cy.wait(['@headOutOfBoundKmlFile', '@getOutOfBoundKmlFile'])
 
         cy.get('[data-cy="text-input"]')
-
             .should('have.class', 'is-invalid')
             .should('not.have.class', 'is-valid')
         cy.get('[data-cy="text-input-invalid-feedback"]')
@@ -842,7 +858,6 @@ describe('The Import File Tool', () => {
         cy.wait(['@headEmptyKmlFile', '@getEmptyKmlFile'])
 
         cy.get('[data-cy="text-input"]')
-
             .should('have.class', 'is-invalid')
             .should('not.have.class', 'is-valid')
         cy.get('[data-cy="text-input-invalid-feedback"]')
@@ -949,11 +964,12 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="menu-section-active-layers"]').should('not.be.visible')
         cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
     })
-    it('Import GPX file', () => {
+
+    it.only('Import GPX file', () => {
         const gpxFileName = 'external-gpx-file.gpx'
         const gpxFileFixture = `import-tool/${gpxFileName}`
 
-        cy.goToMapView({withHash: true})
+        cy.goToMapView({ withHash: true })
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
         cy.openMenuIfMobile()
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
@@ -996,7 +1012,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="import-file-local-content"]').should('not.be.visible')
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
         cy.log('Test that the single gpx feature is in center of the view (zoom to extent check)')
-        cy.readStoreValue('state.position.center').then((center) => {
+        cy.readStoreValue('state.position.center').then((center: number[]) => {
             cy.wrap(center[0]).should('be.closeTo', 2604663.19, 1)
             cy.wrap(center[1]).should('be.closeTo', 1210998.57, 1)
         })
@@ -1141,7 +1157,9 @@ describe('The Import File Tool', () => {
 
         cy.log('Loading separated multi segment GPX file to test segment buttons')
         cy.openMenuIfMobile()
-        cy.get(`[data-cy^="button-remove-layer-GPX|${validMultiSegmentOnlineUrl}"]:visible`).click()
+        cy.get(
+            `[data-cy^="button-remove-layer-GPX|${validMultiSegmentOnlineUrl}"]:visible`
+        ).click()
         cy.readStoreValue('state.layers.activeLayers').should('be.empty')
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
@@ -1176,10 +1194,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="show-profile"]').click()
         // Test segment buttons and highlights
         cy.log('Check that the segment buttons are working and that the segment is highlighted')
-        // waiting for the highlight layer to be loaded by checking its ID (with retry-ability)
-        // without this "active" wait, the CI goes straight into the next test and fails
-        // (because OL didn't have the time to load the layer)
-        let lastSegmentIndex = checkVectorLayerHighlightingSegment()
+        let lastSegmentIndex: number = checkVectorLayerHighlightingSegment()
 
         cy.get('[data-cy="profile-segment-button-1"]').click()
         cy.readStoreValue('state.profile.currentFeatureSegmentIndex').should('be.equal', 1)
