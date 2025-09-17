@@ -3,56 +3,7 @@
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 
 import { UIModes } from '@/store/modules/ui.store'
-
-interface LayerConfig {
-    // common properties
-    opacity: number
-    type: string
-
-    background: boolean
-    searchable: boolean
-    tooltip: boolean
-    timeEnabled: boolean
-    highlightable: boolean
-    chargeable: boolean
-    hasLegend: boolean
-
-    attribution: string
-    attributionUrl?: string
-
-    config3d?: string
-
-    topics: string
-
-    label: string
-    serverLayerName: string
-
-    timestamps?: string[]
-    timeBehaviour?: string
-
-    // WMS specific properties
-    singleTile?: boolean
-    wmsUrl?: string
-    wmsLayers?: string
-    gutter?: number
-
-    // Common to WMTS and WMS
-    format?: 'jpeg' | 'png'
-
-    queryableAttributes?: string[]
-    resolutions?: number[]
-
-    // GeoJSON specific properties
-    geojsonUrl?: string
-    styleUrl?: string
-    updateDelay?: number
-
-    // Aggregate specific properties
-    subLayersIds?: string[]
-    minResolution?: number
-    maxResolution?: number
-}
-
+import type { LayerConfigResponse } from '@swissgeo/layers/api'
 
 describe('Testing the footer content / tools', () => {
     it('shows/hide the scale line depending on the map resolution, while in Mercator', () => {
@@ -86,7 +37,7 @@ describe('Testing the footer content / tools', () => {
             cy.get(`[data-cy="${wheelButton}"]`).click()
 
             // checking that all layers flagged as backgrounds are represented in the wheel
-            cy.fixture('layers.fixture').then((layers: Record<string, LayerConfig>) => {
+            cy.fixture('layers.fixture').then((layers: Record<string, LayerConfigResponse>) => {
                 Object.values(layers)
                     .filter((layer) => layer.background)
                     .forEach((bgLayer) => {

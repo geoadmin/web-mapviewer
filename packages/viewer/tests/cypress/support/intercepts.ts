@@ -261,7 +261,7 @@ interface IdentifyBounds {
     upperY: number
 }
 
-interface MockFeature {
+export interface MockFeature {
     geometry: Geometry
     layerBodId: string
     bbox: FlatExtent

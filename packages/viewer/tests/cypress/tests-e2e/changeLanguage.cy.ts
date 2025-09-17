@@ -1,5 +1,3 @@
-// Transforming the file to TypeScript
-
 /// <reference types="cypress" />
 
 import { SUPPORTED_LANG } from '@/modules/i18n'

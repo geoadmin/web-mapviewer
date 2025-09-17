@@ -26,8 +26,6 @@ function checkVectorLayerHighlightingSegment(lastIndex: number = -1): number {
                 .getFeatures()
                 .find((feature: BaseLayer) => feature.get('id').startsWith('geom-segment-'))
         })
-        // expect(geomHighlightFeature).to.not.be.null
-        // expect(geomHighlightFeature).to.not.be.undefined
         assertDefined(geomHighlightFeature)
         currentIndex = vectorLayers.indexOf(geomHighlightFeature)
         if (lastIndex === -1) {

@@ -82,6 +82,8 @@ interface ElevationProfileMessages {
     profile_not_available: string
 }
 
+type ElevationProfileChartPoint = (ElevationProfilePoint & ChartPoint)
+
 const { t }: { t: VueI18nTranslateFunction<ElevationProfileMessages> } = useI18n<
     ElevationProfileMessages,
     SupportedLocales
@@ -159,8 +161,8 @@ const tooltipStyle: ComputedRef<TooltipStyleCSSDeclaration> = computed(() => {
  */
 
 /** Definition of the data ChartJS will show, with some styling configuration too */
-const chartJsData: ComputedRef<ChartData<'line', (ElevationProfilePoint & ChartPoint)[]>> = computed<ChartData<'line', (ElevationProfilePoint & ChartPoint)[]>>(() => {
-    const data: (ElevationProfilePoint & ChartPoint)[] = profilePoints.value.map((point) => ({
+const chartJsData: ComputedRef<ChartData<'line', ElevationProfileChartPoint[]>> = computed<ChartData<'line', ElevationProfileChartPoint[]>>(() => {
+    const data: ElevationProfileChartPoint[] = profilePoints.value.map((point) => ({
         x: point.dist ?? 0,
         y: point.elevation ?? 0,
         ...point,
@@ -187,7 +189,7 @@ const chartJsData: ComputedRef<ChartData<'line', (ElevationProfilePoint & ChartP
         pointHoverRadius: 3,
     }
 
-    const dataset: ChartDataset<'line', (ElevationProfilePoint & ChartPoint)[]> = {
+    const dataset: ChartDataset<'line', ElevationProfileChartPoint[]> = {
         data,
         ...lineOptions,
         ...pointOptions,

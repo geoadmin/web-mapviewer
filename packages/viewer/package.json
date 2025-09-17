@@ -62,7 +62,6 @@
         "@swissgeo/numbers": "workspace:*",
         "@swissgeo/staging-config": "workspace:*",
         "@swissgeo/tooltip": "workspace:*",
-        "@swissgeo/layers": "workspace:*",
         "@tmcw/togeojson": "catalog:",
         "@turf/turf": "catalog:",
         "@vueuse/core": "catalog:",
