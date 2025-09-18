@@ -35,8 +35,6 @@ export interface GoToViewOptions {
     fixturesAndIntercepts?: Record<string, InterceptCallback>
     /** Whether to use the legacy (vue-router) view */
     legacy?: boolean
-    /** Whether this is the first load (default: true). If false, skips mapReadyEvent check */
-    firstLoad?: boolean
 }
 
 

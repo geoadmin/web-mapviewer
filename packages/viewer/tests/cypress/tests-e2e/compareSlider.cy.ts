@@ -50,7 +50,6 @@ describe('Testing of the compare slider', () => {
                         compareRatio: '-0.3',
                     },
                     withHash: true,
-                    firstLoad: false, // Second call - skip mapReadyEvent check
                 })
                 expectCompareRatioToBe(null)
                 expectCompareSliderToBeActive(false)
@@ -63,7 +62,6 @@ describe('Testing of the compare slider', () => {
                         compareRatio: 'aRandomText',
                     },
                     withHash: true,
-                    firstLoad: false, // Third call - skip mapReadyEvent check
                 })
                 expectCompareRatioToBe(null)
                 expectCompareSliderToBeActive(false)

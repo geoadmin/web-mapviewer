@@ -105,11 +105,10 @@ describe('Test functions for the header / search bar', () => {
 
         it('Reload the app with current topic/lang when clicking on the swiss flag', () => {
             cy.goToMapView({
-                queryParams:{
+                queryParams: {
                     lang: 'fr',
                     topic: 'test-topic-standard',
                 },
-                firstLoad: false,
             })
             clickOnLogo()
             // checking that topic and lang are still the same
@@ -119,11 +118,10 @@ describe('Test functions for the header / search bar', () => {
             // desktop only
             it('reloads the app the same way as above when click on the confederation text', () => {
                 cy.goToMapView({
-                    queryParams:{
+                    queryParams: {
                         lang: 'fr',
                         topic: 'test-topic-standard',
                     },
-                    firstLoad: false,
                 })
                 clickOnConfederationText()
                 // checking that topic and lang are still the same
@@ -141,12 +139,11 @@ describe('Test functions for the header / search bar', () => {
             // Check if the background layer is changed, when reset the app, the default background layer should be used
             // We go to different topic and change the background layer (that is different from the default one)
             cy.goToMapView({
-                queryParams:{
+                queryParams: {
                     lang: 'en',
                     topic: 'test-topic-standard-different-default-background',
                     bgLayer: 'test.background.layer2',
                 },
-                firstLoad: false,
             })
             checkLangAndTopic('en', 'test-topic-standard-different-default-background')
             checkCurrentBackgroundLayer('test.background.layer2')
@@ -160,7 +157,7 @@ describe('Test functions for the header / search bar', () => {
         if (width >= BREAKPOINT_TABLET) {
             // desktop only
             it('reloads the app the same way as above when click on the confederation text', () => {
-                cy.goToMapView({firstLoad: false})
+                cy.goToMapView()
                 selectTopicStandardAndAddLayerFromTopicTree()
                 clickOnConfederationText()
                 checkLangAndTopic('en', 'test-topic-standard')
