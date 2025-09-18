@@ -1,12 +1,13 @@
 import { normalizeAngle } from '@/store/modules/position.store'
+import type Map from 'ol/Map'
 
-const compassButtonSelector = '[data-cy="compass-button"]'
-const facingWest = 0.5 * Math.PI
-const tolerance = 1e-9
+const compassButtonSelector: string = '[data-cy="compass-button"]'
+const facingWest: number = 0.5 * Math.PI
+const tolerance: number = 1e-9
 
-function checkMapRotationAndButton(angle) {
+function checkMapRotationAndButton(angle: number) {
     cy.readStoreValue('state.position.rotation').should('be.closeTo', angle, tolerance)
-    cy.window().its('map').should((map) => {
+    cy.window().its('map').should((map: Map) => {
         expect(normalizeAngle(map.getView().getRotation())).to.be.closeTo(angle, tolerance)
     })
     if (angle) {
@@ -51,7 +52,7 @@ describe('Testing the buttons of the right toolbox', () => {
         })
         checkMapRotationAndButton(facingWest)
 
-        // clicking on the button should but north up again, and the button should disapaer
+        // clicking on the button should put north up again, and the button should disappear
         cy.get(compassButtonSelector).click()
         checkMapRotationAndButton(0)
     })

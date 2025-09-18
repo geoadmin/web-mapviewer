@@ -3,7 +3,7 @@
 import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { APP_VERSION } from '@/config/staging.config'
 
-import { isMobile } from '../support/utils.js'
+import { assertDefined, isMobile } from '../support/utils'
 import { interceptFeedback, parseFormData } from './feedbackTestUtils'
 
 const text =
@@ -55,6 +55,7 @@ describe('Testing the report problem form', () => {
         cy.get('@firstFeedbackElement').should('be.visible')
         closeForm()
     })
+
     it('test the report problem form UI, validations, and it backend interaction', () => {
         interceptFeedback(false)
         cy.goToMapView()
@@ -139,7 +140,6 @@ describe('Testing the report problem form', () => {
         cy.openMenuIfMobile()
         openForm()
         interceptFeedback(true, {
-            // waiting a bit longer to ensure we get to catch the pending icon while testing
             delay: 3000,
             alias: 'longAnswer',
         })
@@ -156,14 +156,15 @@ describe('Testing the report problem form', () => {
         )
         cy.get('[data-cy="submit-button"] [data-cy="submit-pending-icon"]').should('be.visible')
         cy.wait('@longAnswer').then((interception) => {
-            ;[
+            const params = [
                 { name: 'subject', contains: `[Problem Report]` },
                 { name: 'feedback', contains: text },
                 { name: 'category', contains: 'thematic_map' },
                 { name: 'version', contains: APP_VERSION },
                 { name: 'ua', contains: navigator.userAgent },
                 { name: 'email', contains: validEmail },
-            ].forEach((param) => {
+            ]
+            params.forEach((param) => {
                 expect(interception.request.body).to.be.a('String')
                 const formData = parseFormData(interception.request)
                 expect(formData).to.haveOwnProperty(param.name)
@@ -180,7 +181,6 @@ describe('Testing the report problem form', () => {
         cy.log('Closes the modal if the close button is clicked')
         cy.get('@closeSuccessButton').click()
         cy.get('[data-cy="report-problem-form"]').should('not.exist')
-        // Form is already closed at this point
 
         cy.log('It send the correct version when the email is empty and attach a file')
         interceptFeedback(true)
@@ -199,13 +199,14 @@ describe('Testing the report problem form', () => {
 
         cy.wait('@feedback').then((interception) => {
             const formData = parseFormData(interception.request)
-            ;[
+            const params = [
                 { name: 'subject', contains: `[Problem Report]` },
                 { name: 'feedback', contains: text },
                 { name: 'category', contains: 'other' },
                 { name: 'version', contains: APP_VERSION },
                 { name: 'ua', contains: navigator.userAgent },
-            ].forEach((param) => {
+            ]
+            params.forEach((param) => {
                 expect(interception.request.body).to.be.a('String')
                 expect(formData).to.haveOwnProperty(param.name)
                 expect(formData[param.name]).to.contain(param.contains)
@@ -221,7 +222,6 @@ describe('Testing the report problem form', () => {
         cy.log('Closes the modal if the close button is clicked')
         cy.get('[data-cy="report-problem-close-successful"]').click()
         cy.get('[data-cy="report-problem-form"]').should('not.exist')
-        // Form is already closed at this point
 
         cy.log('It shows a text to the user to tell him something went wrong')
         cy.openMenuIfMobile()
@@ -240,7 +240,8 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="report-problem-failed-text"]').should('be.visible')
         closeForm()
     })
-    it('reports a problem with drawing attachment', () => {
+
+    it.only('reports a problem with drawing attachment', () => {
         cy.goToMapView()
         interceptFeedback(true)
         cy.openMenuIfMobile()
@@ -266,6 +267,8 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="ol-map"]').then(($el) => {
             const mapWidth = $el.width()
             const mapHeight = $el.height()
+            assertDefined(mapWidth)
+            assertDefined(mapHeight)
             cy.get('[data-cy="ol-map"]').click(mapWidth / 2 + 50, mapHeight / 2)
         })
 
@@ -299,6 +302,8 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="ol-map"]').then(($el) => {
             const mapWidth = $el.width()
             const mapHeight = $el.height()
+            assertDefined(mapWidth)
+            assertDefined(mapHeight)
             cy.get('[data-cy="ol-map"]').click(mapWidth / 2 + 50, mapHeight / 2)
         })
         // we need to increase the timeout here below because, upon opening the drawing mode for the
@@ -369,6 +374,8 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="ol-map"]').then(($el) => {
             const mapWidth = $el.width()
             const mapHeight = $el.height()
+            assertDefined(mapWidth)
+            assertDefined(mapHeight)
             cy.get('[data-cy="ol-map"]').click(mapWidth / 2 + 50, mapHeight / 2)
         })
 
@@ -376,6 +383,8 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="ol-map"]').then(($el) => {
             const mapWidth = $el.width()
             const mapHeight = $el.height()
+            assertDefined(mapWidth)
+            assertDefined(mapHeight)
             cy.get('[data-cy="ol-map"]').click(mapWidth / 2 - 50, mapHeight / 2)
             cy.get('[data-cy="ol-map"]').click(mapWidth / 2, mapHeight / 2)
             cy.get('[data-cy="ol-map"]').dblclick(mapWidth / 2 + 10, mapHeight / 2 + 50)
@@ -398,19 +407,19 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="submit-button"]').click()
         cy.wait('@feedback').then((interception) => {
             const formData = parseFormData(interception.request)
-            ;[
-                { name: 'subject', contains: `[Problem Report]` },
-                { name: 'feedback', contains: text },
-                { name: 'version', contains: APP_VERSION.replace('.dirty', '') },
-                { name: 'ua', contains: navigator.userAgent },
-                { name: 'kml', contains: '<Data name="type"><value>marker</value></Data>' },
-                { name: 'kml', contains: '<Data name="type"><value>annotation</value></Data>' },
-                { name: 'kml', contains: '<Data name="type"><value>linepolygon</value></Data>' },
-            ].forEach((param) => {
-                expect(interception.request.body).to.be.a('String')
-                expect(formData).to.haveOwnProperty(param.name)
-                expect(formData[param.name]).to.contain(param.contains)
-            })
+                ;[
+                    { name: 'subject', contains: `[Problem Report]` },
+                    { name: 'feedback', contains: text },
+                    { name: 'version', contains: APP_VERSION.replace('.dirty', '') },
+                    { name: 'ua', contains: navigator.userAgent },
+                    { name: 'kml', contains: '<Data name="type"><value>marker</value></Data>' },
+                    { name: 'kml', contains: '<Data name="type"><value>annotation</value></Data>' },
+                    { name: 'kml', contains: '<Data name="type"><value>linepolygon</value></Data>' },
+                ].forEach((param) => {
+                    expect(interception.request.body).to.be.a('String')
+                    expect(formData).to.haveOwnProperty(param.name)
+                    expect(formData[param.name]).to.contain(param.contains)
+                })
         })
     })
 })

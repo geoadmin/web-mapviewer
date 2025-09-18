@@ -1,3 +1,5 @@
+import { assertDefined } from "support/utils"
+
 const height = Cypress.config('viewportHeight')
 
 const menuTraySelector = '[data-cy="menu-tray"]'
@@ -9,7 +11,15 @@ const menuActiveLayersHeaderSelector =
 const menuHelpSectionHeader = '[data-cy="menu-help-section"] > [data-cy="menu-section-header"]'
 const menuShareHeaderSelector = '[data-cy="menu-share-section"] > [data-cy="menu-section-header"]'
 
-function getFakeWMTSLayerCatalogEntry(id) {
+interface FakeWMTSLayerCatalogEntry {
+    category: string
+    id: number
+    label: string
+    layerBodId: string
+    staging: string
+}
+
+function getFakeWMTSLayerCatalogEntry(id: number): FakeWMTSLayerCatalogEntry {
     return {
         category: 'layer',
         id: id,
@@ -19,7 +29,27 @@ function getFakeWMTSLayerCatalogEntry(id) {
     }
 }
 
-function addFakeWMTSLayer(layers, id) {
+interface FakeWMTSLayer {
+    opacity: number
+    attribution: string
+    background: boolean
+    searchable: boolean
+    format: string
+    queryableAttributes: string[]
+    topics: string
+    attributionUrl: string
+    tooltip: boolean
+    timeEnabled: boolean
+    highlightable: boolean
+    chargeable: boolean
+    timestamps: string[]
+    hasLegend: boolean
+    label: string
+    type: string
+    serverLayerName: string
+}
+
+function addFakeWMTSLayer(layers: Record<string, FakeWMTSLayer>, id: number): Record<string, FakeWMTSLayer> {
     const layerName = 'test.wmts.layer.' + id
     layers[layerName] = {
         opacity: 1.0,
@@ -43,11 +73,11 @@ function addFakeWMTSLayer(layers, id) {
     return layers
 }
 
-function getFixturesAndIntercepts(nbLayers, nbSelectedLayers) {
+function getFixturesAndIntercepts(nbLayers: number, nbSelectedLayers: number) {
     const topicId = 'ech'
     return {
         addCatalogIntercept: () => {
-            let layersCatalogEntries = []
+            let layersCatalogEntries: FakeWMTSLayerCatalogEntry[] = []
             for (let i = 2; i < nbLayers + 2; i++) {
                 layersCatalogEntries = layersCatalogEntries.concat(getFakeWMTSLayerCatalogEntry(i))
             }
@@ -61,13 +91,12 @@ function getFixturesAndIntercepts(nbLayers, nbSelectedLayers) {
                     },
                 },
             }
-            // intercepting further topic metadata retrieval. Each topic has its own topic tree
             cy.intercept(`**/rest/services/${topicId}/CatalogServer?lang=**`, {
                 body: catalog,
             }).as(`topic-${topicId}`)
         },
         addLayerConfigIntercept: () => {
-            let layers = {}
+            const layers: Record<string, FakeWMTSLayer> = {}
             for (let i = 2; i < nbLayers + 2; i++) {
                 addFakeWMTSLayer(layers, i)
             }
@@ -76,7 +105,7 @@ function getFixturesAndIntercepts(nbLayers, nbSelectedLayers) {
             }).as('layers')
         },
         addTopicIntercept: () => {
-            let activatedLayers = []
+            const activatedLayers: string[] = []
             for (let i = 2; i < nbSelectedLayers + 2; i++) {
                 activatedLayers.push('test.wmts.layer.' + i)
             }
@@ -99,14 +128,9 @@ function getFixturesAndIntercepts(nbLayers, nbSelectedLayers) {
     }
 }
 
-/**
- * Check that the menu is less or equal than its maximal allowed size
- *
- * @param {any} shouldHaveMaxSize Wheather or not the menu should have attained its maximal size
- */
-function measureMenu(shouldHaveMaxSize) {
+function measureMenu(shouldHaveMaxSize: boolean) {
     cy.get(menuTraySelector)
-        .then((elems) => elems[0].getBoundingClientRect().bottom)
+        .then((elems) => elems[0]?.getBoundingClientRect().bottom)
         .as('menuTrayBottom')
 
     cy.get('@expectedMenuTrayBottom').then((expectedMenuTrayBottom) => {
@@ -118,13 +142,7 @@ function measureMenu(shouldHaveMaxSize) {
     })
 }
 
-/**
- * Initializes the app with the specified amount of menu items, then initialize the test
- *
- * @param {any} nbLayers Number of menu items in the topics list
- * @param {any} nbSelectedLayers Number of menu items in the active layers list
- */
-function init(nbLayers, nbSelectedLayers) {
+function init(nbLayers: number, nbSelectedLayers: number) {
     cy.goToMapView({
         withHash: false,
         fixturesAndIntercepts: getFixturesAndIntercepts(nbLayers, nbSelectedLayers),
@@ -147,16 +165,10 @@ function init(nbLayers, nbSelectedLayers) {
 }
 
 function waitForAnimationsToFinish() {
-    // animations last 0.2s
     cy.wait(200)
 }
 
-/**
- * Check that only the specified sections are open.
- *
- * @param {[String]} openSections An array listening all open sections
- */
-function checkOpenSections(openSections) {
+function checkOpenSections(openSections: string[]) {
     const sections = [
         {
             name: 'topics',
@@ -184,21 +196,17 @@ function checkOpenSections(openSections) {
     })
 }
 
-/**
- * Check whether or not scrollbars are visible
- *
- * @param {any} topicsScrollable Should the scrollbar of the topcis section be visible?
- * @param {any} activeLayersScrollable Should the scrollbar of the active layers section be visible?
- */
-function checkScrollbarVisibility(topicsScrollable, activeLayersScrollable) {
-    let topicSectionOriginalHeight
+function checkScrollbarVisibility(topicsScrollable: boolean, activeLayersScrollable: boolean) {
+    let topicSectionOriginalHeight: number
     cy.get('[data-cy="menu-topic-tree"]')
         .then((elems) => {
+            assertDefined(elems[0])
             topicSectionOriginalHeight = elems[0].clientHeight
             return elems
         })
         .parents('[data-cy="menu-section-body"]')
         .should((elems) => {
+            assertDefined(elems[0])
             const clientHeight = elems[0].clientHeight
             if (topicsScrollable) {
                 expect(clientHeight).to.be.lt(topicSectionOriginalHeight)
@@ -206,14 +214,16 @@ function checkScrollbarVisibility(topicsScrollable, activeLayersScrollable) {
                 expect(clientHeight).to.be.eq(topicSectionOriginalHeight)
             }
         })
-    let activeSectionOriginalHeight
+    let activeSectionOriginalHeight: number
     cy.get('[data-cy="menu-section-active-layers"]')
         .then((elems) => {
+            assertDefined(elems[0])
             activeSectionOriginalHeight = elems[0].clientHeight
             return elems
         })
         .parents('[data-cy="menu-section-body"]')
         .should((elems) => {
+            assertDefined(elems[0])
             const clientHeight = elems[0].clientHeight
             if (activeLayersScrollable) {
                 expect(clientHeight).to.be.lt(activeSectionOriginalHeight)
@@ -270,7 +280,7 @@ describe('Test menu tray ui', () => {
     })
     context('Landscape mobile', () => {
         beforeEach(() => {
-            cy.viewport(568, 320) // Landscape mobile for the default viewport (320 x 568)
+            cy.viewport(568, 320)
         })
         it('check correct sizing of menu and autoclosing of menu sections', function () {
             init(30, 30)

@@ -1,13 +1,14 @@
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import { LV95, registerProj4, WGS84 } from '@swissgeo/coordinates'
 import type { ExternalWMSLayer, ExternalWMTSLayer } from '@swissgeo/layers'
-import { layerUtils }  from '@swissgeo/layers/utils'
+import { layerUtils } from '@swissgeo/layers/utils'
 import { randomIntBetween } from '@swissgeo/numbers'
 import proj4 from 'proj4'
 
 import type { Geometry } from 'geojson'
 
 import { centroid } from '@turf/turf'
+import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/storeSync/storeSync.routerPlugin'
 
 registerProj4(proj4)
 
@@ -76,6 +77,20 @@ Cypress.Commands.add('getExternalWmtsMockConfig', () => [
     Cypress._.cloneDeep(mockExternalWmts3),
     Cypress._.cloneDeep(mockExternalWmts4),
 ])
+
+/**
+ * Adds an intercept to the fake URL called each time the Vue-router changes route.
+ *
+ * @param options
+ * @param options.aliasName Default is `'routeChange'`
+ */
+export function addVueRouterIntercept(options: { aliasName?: string } = {}) {
+    const { aliasName = 'routeChange' } = options
+    cy.intercept(FAKE_URL_CALLED_AFTER_ROUTE_CHANGE, {
+        statusCode: 200,
+    }).as(aliasName)
+}
+
 
 /**
  * Catches WMTS type URLs in metric WebMercator, Mercator, LV95 or LV03. Returns the same tile for
@@ -209,7 +224,7 @@ function addSecondIconsIntercept(): void {
     }).as('icon-set-babs')
 }
 
-function addGeoJsonIntercept (): void {
+function addGeoJsonIntercept(): void {
     cy.intercept('**/test.geojson.layer.json', {
         fixture: 'geojson.fixture.json',
     }).as('geojson-data')
@@ -246,7 +261,7 @@ interface IdentifyBounds {
     upperY: number
 }
 
-interface MockFeature {
+export interface MockFeature {
     geometry: Geometry
     layerBodId: string
     bbox: FlatExtent
@@ -292,10 +307,10 @@ let lastIdentifiedFeatures: MockFeature[] = []
  * Features IDs will start from 1 + offset (if an offset is given) and coordinates will be randomly
  * selected within the LV95 extent (or within the selection box, if one is given).
  */
-function addFeatureIdentificationIntercepts (): void {
+function addFeatureIdentificationIntercepts(): void {
     let featureTemplate: MockFeature
     let featureDetailTemplate: MockFeatureDetail
-    cy.fixture('features/features.fixture').then((featuresFixture: { results: MockFeature[]}) => {
+    cy.fixture('features/features.fixture').then((featuresFixture: { results: MockFeature[] }) => {
         // using the first entry of the fixture as template
         featureTemplate = featuresFixture.results.pop() as MockFeature
     })
@@ -484,7 +499,7 @@ function addPrintDownloadIntercept(): void {
 }
 
 function addExternalWmsLayerIntercepts(
-    options?: { wmsLayers?: ExternalWMSLayer[]; wmsGetCapabilitiesFixtureByBaseUrl?: Record<string, string>}
+    options?: { wmsLayers?: ExternalWMSLayer[]; wmsGetCapabilitiesFixtureByBaseUrl?: Record<string, string> }
 ): void {
     const {
         wmsLayers = [mockExternalWms1, mockExternalWms2, mockExternalWms3, mockExternalWms4],
@@ -520,7 +535,7 @@ function addExternalWmsLayerIntercepts(
 }
 
 function addExternalWmtsIntercepts(
-    options?: { wmtsLayers?: ExternalWMTSLayer[]; wmtsGetCapabilitiesFixtureByBaseUrl?: Record<string, string>}
+    options?: { wmtsLayers?: ExternalWMTSLayer[]; wmtsGetCapabilitiesFixtureByBaseUrl?: Record<string, string> }
 ): void {
     const {
         wmtsLayers = [mockExternalWmts1, mockExternalWmts2, mockExternalWmts3, mockExternalWmts4],
@@ -558,6 +573,7 @@ export type InterceptCallback = (options?: Record<string, unknown>) => void
 
 export function getDefaultFixturesAndIntercepts(): Record<string, InterceptCallback> {
     return {
+        addVueRouterIntercept,
         addWmtsIntercept,
         addWmsIntercept,
         addLayerConfigIntercept,

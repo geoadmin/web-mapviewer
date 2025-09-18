@@ -1,8 +1,11 @@
 /// <reference types="cypress" />
 
+import type AbstractLayer from "@/api/layers/AbstractLayer.class"
+import { assertDefined } from "support/utils"
+
 describe('Topics', () => {
     // mimic the output of `/rest/services` endpoint
-    const selectTopicWithId = (topicId) => {
+    const selectTopicWithId = (topicId: string) => {
         cy.log(`Select topic ${topicId}`)
         cy.openMenuIfMobile()
         cy.get('[data-cy="change-topic-button"]:visible').click()
@@ -10,24 +13,59 @@ describe('Topics', () => {
         cy.get(`[data-cy="change-to-topic-${topicId}"]`).should('be.visible').click()
         cy.wait(`@topic-${topicId}`)
     }
-    const checkThatActiveLayerFromTopicAreActive = (rawTopic) => {
-        if (!rawTopic) {
-            return
-        }
-        cy.readStoreValue('state.layers.activeLayers').should((activeLayers) => {
+
+    const checkThatActiveLayerFromTopicAreActive = (rawTopic: MockupTopicsConfig) => {
+        if (!rawTopic) return
+        cy.readStoreValue('state.layers.activeLayers').should((activeLayers: AbstractLayer[]) => {
             expect(activeLayers).to.be.an('Array')
             expect(activeLayers.length).to.eq(rawTopic.activatedLayers.length)
+
             // topics layer are in the reverse order as the store layer (topic: top->bottom, layer: bottom->top)
             // so we have to revert the list of layers from the topic before checking their position in the store
-
             rawTopic.activatedLayers
                 .slice()
                 .reverse()
-                .forEach((layerIdThatMustBeActive, index) => {
+                .forEach((layerIdThatMustBeActive: string, index: number) => {
                     const activeLayer = activeLayers[index]
+                    expect(activeLayer).to.be.an('Object')
+                    assertDefined(activeLayer)
                     expect(activeLayer.id).to.eq(layerIdThatMustBeActive)
                 })
         })
+    }
+
+    type MouseButton = 'left' | 'middle' | 'right'
+    type PositionName =
+        | 'topLeft' | 'top' | 'topRight'
+        | 'left' | 'center' | 'right'
+        | 'bottomLeft' | 'bottom' | 'bottomRight'
+
+    interface Point {
+        x: number
+        y: number
+    }
+
+    interface ResizeOptions {
+        selector?: string
+        startPosition?: PositionName
+        endPosition?: PositionName | undefined
+        startXY?: Point | undefined
+        endXY?: Point | undefined
+        button?: MouseButton
+    }
+
+    interface MockupTopics {
+        topics: MockupTopicsConfig[]
+    }
+
+    interface MockupTopicsConfig {
+        activatedLayers: string[]
+        backgroundLayers: string[]
+        defaultBackground: string
+        groupId: number
+        id: string
+        plConfig: string | null
+        selectedLayers: string[]
     }
 
     /**
@@ -35,33 +73,26 @@ describe('Topics', () => {
      * startPosition should be undefined and the same for endXY X and Y coordinates are relative to the
      * top left corner of the element
      *
-     * @param {Object} options - Options for resizing.
-     * @param {string} options.selector - The selector of the element.
-     * @param {string} options.startPosition - The start position for dragging.
-     * @param {string} options.endPosition - The end position for dragging.
-     * @param {Object} options.startXY - The start coordinates for dragging.
-     * @param {Object} options.endXY - The end coordinates for dragging.
-     * @param {string} options.button - Mouse button to use.
      * @see https://github.com/dmtrKovalenko/cypress-real-events?tab=readme-ov-file#cyrealmousedown
      * @see https://github.com/dmtrKovalenko/cypress-real-events/blob/main/src/commands/mouseDown.ts
      */
     function resizeElement({
-             selector = '',
-             startPosition = 'bottomRight',
-             endPosition = undefined,
-             startXY = undefined,
-             endXY = { x: 100, y: 100 },
-             button = 'left',
-         } = {}) {
-        cy.get(selector).realMouseDown({
+        selector = '',
+        startPosition = 'bottomRight',
+        endPosition = undefined,
+        startXY = undefined,
+        endXY = { x: 100, y: 100 },
+        button = 'left',
+    }: ResizeOptions = {}) {
+        ; (cy.get(selector)).realMouseDown({
             button,
             ...(startXY ? { x: startXY.x, y: startXY.y } : { position: startPosition }),
         })
-        cy.get(selector).realMouseDown({
-            button,
-            ...(endPosition ? { position: endPosition } : { x: endXY.x, y: endXY.y }),
-        })
-        cy.get(selector).realMouseUp({ button })
+            ; (cy.get(selector)).realMouseDown({
+                button,
+                ...(endPosition ? { position: endPosition } : { x: endXY.x, y: endXY.y }),
+            })
+            ; (cy.get(selector)).realMouseUp({ button })
 
         cy.log('cmd: resizeElement successful')
     }
@@ -75,15 +106,15 @@ describe('Topics', () => {
             },
         })
         // checking that all topics have been loaded
-        cy.fixture('topics.fixture').then((mockupTopics) => {
-            cy.readStoreValue('state.topics.config').should((topicConfig) => {
+        cy.fixture('topics.fixture').then((mockupTopics: MockupTopics) => {
+            cy.readStoreValue('state.topics.config').should((topicConfig: MockupTopicsConfig[]) => {
                 expect(topicConfig).to.be.an('Array')
                 expect(topicConfig.length).to.eq(mockupTopics.topics.length)
             })
         })
 
         // checking the default topic at app startup (must be ech)
-        cy.readStoreValue('state.topics.current').should((currentTopic) => {
+        cy.readStoreValue('state.topics.current').should((currentTopic: string) => {
             expect(currentTopic).to.eq('ech')
         })
         cy.url().should('contain', 'topic=ech')
@@ -94,23 +125,27 @@ describe('Topics', () => {
 
         //---------------------------------------------------------------------
         cy.log('can switch topics')
-        cy.readStoreValue('getters.visibleLayers').should((layers) => {
+        cy.readStoreValue('getters.visibleLayers').should((layers: AbstractLayer[]) => {
             expect(layers).to.be.an('Array')
             expect(layers.length).to.eq(1)
+            assertDefined(layers[0])
             expect(layers[0]).to.be.an('Object')
             expect(layers[0].id).to.eq('test.wmts.layer')
         })
         // it must clear all activated layers and change background layer on topic selection
-        cy.fixture('topics.fixture').then((mockupTopics) => {
+        cy.fixture('topics.fixture').then((mockupTopics: MockupTopics) => {
+            expect(mockupTopics.topics.length).to.be.at.least(5)
             const topicStandard = mockupTopics.topics[1]
+            assertDefined(topicStandard)
+
             selectTopicWithId(topicStandard.id)
             // we expect visible layers to be empty
-            cy.readStoreValue('getters.visibleLayers').should((layers) => {
+            cy.readStoreValue('getters.visibleLayers').should((layers: AbstractLayer[]) => {
                 expect(layers).to.be.an('Array')
                 expect(layers.length).to.eq(0)
             })
             // we expect background layer to have switched to the one of the topic
-            cy.readStoreValue('getters.currentBackgroundLayer').should((bgLayer) => {
+            cy.readStoreValue('getters.currentBackgroundLayer').should((bgLayer: AbstractLayer) => {
                 expect(bgLayer).to.not.be.null
                 expect(bgLayer.id).to.eq(topicStandard.defaultBackground)
             })
@@ -123,6 +158,7 @@ describe('Topics', () => {
             // checking that it activates layers of the topic after topic swap
             // (if they are supposed to be active, but hidden)
             const topicWithActiveLayers = mockupTopics.topics[2]
+            assertDefined(topicWithActiveLayers)
             selectTopicWithId(topicWithActiveLayers.id)
             // we expect the layer to be activated but not visible
             cy.readStoreValue('getters.visibleLayers').should('be.empty')
@@ -132,13 +168,15 @@ describe('Topics', () => {
 
             // checking that it activates and set visible layers of the topic after topic swap
             const topicWithVisibleLayers = mockupTopics.topics[3]
+            assertDefined(topicWithVisibleLayers)
             selectTopicWithId(topicWithVisibleLayers.id)
             // there should be visible layers
-            cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
+            cy.readStoreValue('getters.visibleLayers').should((visibleLayers: AbstractLayer[]) => {
                 expect(visibleLayers).to.be.an('Array')
                 expect(visibleLayers.length).to.eq(topicWithVisibleLayers.selectedLayers.length)
-                topicWithVisibleLayers.selectedLayers.forEach((layerIdThatMustBeVisible, index) => {
+                topicWithVisibleLayers.selectedLayers.forEach((layerIdThatMustBeVisible: string, index: number) => {
                     expect(visibleLayers[index]).to.be.an('Object')
+                    assertDefined(visibleLayers[index])
                     expect(visibleLayers[index].id).to.eq(layerIdThatMustBeVisible)
                 })
             })
@@ -146,27 +184,30 @@ describe('Topics', () => {
 
             // checking that it correctly handles a complex topic with custom legacy URL params
             const complexTopic = mockupTopics.topics[4]
+            assertDefined(complexTopic)
             selectTopicWithId(complexTopic.id)
             // from the mocked up response above
             const expectedActiveLayers = ['test.wmts.layer', 'test.wms.layer']
             const expectedVisibleLayers = ['test.wmts.layer']
-            const expectedOpacity = {
+            const expectedOpacity: Record<string, number> = {
                 'test.wmts.layer': 0.6,
                 'test.wms.layer': 0.8,
             }
-            cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
+            cy.readStoreValue('getters.visibleLayers').should((visibleLayers: AbstractLayer[]) => {
                 expect(visibleLayers).to.be.an('Array')
                 expect(visibleLayers.length).to.eq(expectedVisibleLayers.length)
                 expectedVisibleLayers.forEach((layerIdThatMustBeVisible, index) => {
                     expect(visibleLayers[index]).to.be.an('Object')
+                    assertDefined(visibleLayers[index])
                     expect(visibleLayers[index].id).to.eq(layerIdThatMustBeVisible)
                 })
             })
-            cy.readStoreValue('state.layers.activeLayers').should((activeLayers) => {
+            cy.readStoreValue('state.layers.activeLayers').should((activeLayers: AbstractLayer[]) => {
                 expect(activeLayers).to.be.an('Array')
                 expect(activeLayers.length).to.eq(expectedActiveLayers.length)
                 expectedActiveLayers.forEach((layerIdThatMustBeActive, index) => {
                     const activeLayer = activeLayers[index]
+                    assertDefined(activeLayer)
                     expect(activeLayer).to.be.an('Object')
                     expect(activeLayer.id).to.eq(layerIdThatMustBeActive)
                     expect(activeLayer.opacity).to.eq(expectedOpacity[layerIdThatMustBeActive])
@@ -202,9 +243,10 @@ describe('Topics', () => {
             'have.class',
             'fa-square'
         )
-        cy.readStoreValue('state.layers.activeLayers').should((activeLayers) => {
+        cy.readStoreValue('state.layers.activeLayers').should((activeLayers: AbstractLayer[]) => {
             expect(activeLayers).to.be.an('Array').lengthOf(1)
             const [firstLayer] = activeLayers
+            assertDefined(firstLayer)
             expect(firstLayer.id).to.eq('test.wms.layer')
         })
         cy.get('[data-cy="catalogue-tree-item-title-test.wmts.layer"]').should('be.visible').click()
@@ -212,9 +254,11 @@ describe('Topics', () => {
             'have.class',
             'fa-square-check'
         )
-        cy.readStoreValue('state.layers.activeLayers').should((activeLayers) => {
+        cy.readStoreValue('state.layers.activeLayers').should((activeLayers: AbstractLayer[]) => {
             expect(activeLayers).to.be.an('Array').lengthOf(2)
             const [firstLayer, secondLayer] = activeLayers
+            assertDefined(firstLayer)
+            assertDefined(secondLayer)
             expect(firstLayer.id).to.eq('test.wms.layer')
             expect(secondLayer.id).to.eq('test.wmts.layer')
         })
@@ -239,7 +283,7 @@ describe('Topics', () => {
         cy.get('[data-cy="catalogue-tree-item-name-test.wms.layer"]').should('be.visible')
         cy.readStoreValue('state.layers.previewLayer').should('be.null')
         cy.get('[data-cy="catalogue-tree-item-name-test.wms.layer"]').trigger('mouseenter')
-        cy.readStoreValue('state.layers.previewLayer').should((layer) => {
+        cy.readStoreValue('state.layers.previewLayer').should((layer: AbstractLayer) => {
             expect(layer.id).to.equal('test.wms.layer')
         })
 
@@ -258,13 +302,14 @@ describe('Topics', () => {
         cy.get('[data-cy="menu-topic-section"] [data-cy="menu-section-header"]:visible').click()
         cy.hash().should('not.contain', 'catalogNodes')
     })
+
     it('Handle topic and catalogNodes at startup correctly', () => {
         //---------------------------------------------------------------------
         cy.log(
             'Opens nodes in the topic tree if set in the URL and are different from the default in topic'
         )
         cy.goToMapView({
-            queryParams:{
+            queryParams: {
                 topic: 'test-topic-with-active-layers',
                 catalogNodes: 'test-topic-with-active-layers,2,5',
             },
@@ -277,7 +322,7 @@ describe('Topics', () => {
         cy.get('[data-cy="catalogue-tree-item-5"]').should('be.visible')
         cy.get('[data-cy="catalogue-tree-item-test.wmts.layer"]').should('not.exist')
         cy.get('[data-cy="catalogue-tree-item-test.wms.layer"]').should('be.visible')
-        cy.readStoreValue('state.topics.openedTreeThemesIds').should((currentlyOpenedThemesId) => {
+        cy.readStoreValue('state.topics.openedTreeThemesIds').should((currentlyOpenedThemesId: string[]) => {
             expect(currentlyOpenedThemesId).to.be.an('Array')
             expect(currentlyOpenedThemesId).to.deep.equal([
                 'test-topic-with-active-layers',
@@ -292,14 +337,14 @@ describe('Topics', () => {
         cy.viewport(1920, 1080)
 
         cy.goToMapView({
-            queryParams:{
+            queryParams: {
                 layers: 'test.wmts.layer',
                 bgLayer: 'void',
             },
         })
         cy.wait(['@topics', '@topic-ech', '@layerConfig', '@routeChange', '@routeChange'])
         cy.log('it opens the layer legend popup when clicking the info button')
-        cy.fixture('legend.fixture.html').then((legend) => {
+        cy.fixture('legend.fixture.html').then((legend: HTMLObjectElement) => {
             cy.intercept(`**/rest/services/all/MapServer/*/legend**`, legend).as('legend')
             cy.get('[data-cy="button-open-visible-layer-settings-test.wmts.layer-0"]')
                 .should('be.visible')
@@ -320,7 +365,9 @@ describe('Topics', () => {
             const moveY = 120
             const bottomRightMargin = 3
 
-            cy.get(popupSelector).then((popup) => {
+            cy.get(popupSelector).then((popup: JQuery<HTMLElement>) => {
+                expect(popup.length).to.be.at.least(1)
+                assertDefined(popup[0])
                 const rect = popup[0].getBoundingClientRect()
                 const initialPosition = { x: rect.x, y: rect.y }
                 cy.get(popupSelectorHeader).trigger('mousedown', { button: 0 })
@@ -328,21 +375,26 @@ describe('Topics', () => {
                 cy.get(popupSelectorHeader).trigger('mousemove', { button: 0, clientX: moveX, clientY: moveY, force: true })
                 cy.get(popupSelectorHeader).trigger('mouseup', { button: 0 })
 
-                cy.get(popupSelector).then((popup) => {
-                    const rect = popup[0].getBoundingClientRect()
-                    expect(rect.x).to.be.closeTo(initialPosition.x + moveX, 1) // Allow small margin for floating-point
-                    expect(rect.y).to.be.closeTo(initialPosition.y + moveY, 1)
+                cy.get(popupSelector).then((popup2: JQuery<HTMLElement>) => {
+                    expect(popup2.length).to.be.at.least(1)
+                    assertDefined(popup2[0])
+                    const rect2 = popup2[0].getBoundingClientRect()
+                    expect(rect2.x).to.be.closeTo(initialPosition.x + moveX, 1) // Allow small margin for floating-point
+                    expect(rect2.y).to.be.closeTo(initialPosition.y + moveY, 1)
                 })
             })
+
             const increasedX = 100
             const increasedY = 100
             cy.log('resize the legend popup')
             cy.log('reduce the size of the legend popup to the half')
-            cy.get(popupSelector).then((popup) => {
+            cy.get(popupSelector).then((popup: JQuery<HTMLElement>) => {
+                expect(popup.length).to.be.at.least(1)
+                assertDefined(popup[0])
                 const rect = popup[0].getBoundingClientRect()
                 const initialDimensions = { height: rect.height, width: rect.width }
-                let genArr = Array.from({ length: 15 }, (v, k) => k + 1)
-                cy.wrap(genArr).each((index) => {
+                const genArr = Array.from({ length: 15 }, (_v, k) => k + 1)
+                cy.wrap(genArr).each((index: number) => {
                     cy.log('reduce size loop 1 for index', index)
                     resizeElement({
                         selector: popupSelector,
@@ -353,7 +405,7 @@ describe('Topics', () => {
                         endPosition: 'right',
                     })
                 })
-                cy.wrap(genArr).each((index) => {
+                cy.wrap(genArr).each((index: number) => {
                     cy.log('reduce size loop 2 for index', index)
                     resizeElement({
                         selector: popupSelector,
@@ -364,33 +416,37 @@ describe('Topics', () => {
                         endPosition: 'right',
                     })
                 })
-                cy.wrap(genArr).each((index) => {
+                cy.wrap(genArr).each((index: number) => {
                     cy.log('reduce size loop 3 for index', index)
-                    cy.get(popupSelector).realMouseDown({
-                        button: 'left',
-                        x: initialDimensions.width - bottomRightMargin - index,
-                        y: initialDimensions.height - bottomRightMargin - index,
-                    })
-                    cy.get(popupSelector).realMouseDown({
-                        button: 'left',
-                        endPosition: 'right',
-                    })
-                    cy.get(popupSelector).realMouseUp({ button: 'left' })
+                        ; (cy.get(popupSelector)).realMouseDown({
+                            button: 'left',
+                            x: initialDimensions.width - bottomRightMargin - index,
+                            y: initialDimensions.height - bottomRightMargin - index,
+                        })
+                        ; (cy.get(popupSelector)).realMouseDown({
+                            button: 'left',
+                            position: 'right',
+                        })
+                        ; (cy.get(popupSelector)).realMouseUp({ button: 'left' })
                 })
 
-                cy.get(popupSelector).then((popup) => {
-                    const rect = popup[0].getBoundingClientRect()
-                    expect(rect.height).to.not.eq(initialDimensions.height)
+                cy.get(popupSelector).then((popup2: JQuery<HTMLElement>) => {
+                    expect(popup2.length).to.be.at.least(1)
+                    assertDefined(popup2[0])
+                    const rect2 = popup2[0].getBoundingClientRect()
+                    expect(rect2.height).to.not.eq(initialDimensions.height)
                 })
             })
 
             cy.log('increase the size of the legend popup by 100px')
-            cy.get(popupSelector).then((popup) => {
+            cy.get(popupSelector).then((popup: JQuery<HTMLElement>) => {
+                expect(popup.length).to.be.at.least(1)
+                assertDefined(popup[0])
                 const rect = popup[0].getBoundingClientRect()
                 const initialDimensions = { height: rect.height, width: rect.width }
 
-                let genArr = Array.from({ length: 15 }, (v, k) => k + 1)
-                cy.wrap(genArr).each((index) => {
+                const genArr = Array.from({ length: 15 }, (_v, k) => k + 1)
+                cy.wrap(genArr).each((index: number) => {
                     cy.log('increase sice loop 1 for index', index)
                     resizeElement({
                         selector: popupSelector,
@@ -404,7 +460,7 @@ describe('Topics', () => {
                         },
                     })
                 })
-                cy.wrap(genArr).each((index) => {
+                cy.wrap(genArr).each((index: number) => {
                     cy.log('increase size loop 2 for index', index)
                     resizeElement({
                         selector: popupSelector,
@@ -418,7 +474,7 @@ describe('Topics', () => {
                         },
                     })
                 })
-                cy.wrap(genArr).each((index) => {
+                cy.wrap(genArr).each((index: number) => {
                     cy.log('increase size loop 3 for index', index)
                     resizeElement({
                         selector: popupSelector,
@@ -429,10 +485,12 @@ describe('Topics', () => {
                         },
                     })
                 })
-                cy.get(popupSelector).then((popup) => {
-                    const rect = popup[0].getBoundingClientRect()
-                    expect(rect.width).to.not.eq(initialDimensions.width)
-                    expect(rect.height).to.not.eq(initialDimensions.height)
+                cy.get(popupSelector).then((popup2: JQuery<HTMLElement>) => {
+                    expect(popup2.length).to.be.at.least(1)
+                    assertDefined(popup2[0])
+                    const rect2 = popup2[0].getBoundingClientRect()
+                    expect(rect2.width).to.not.eq(initialDimensions.width)
+                    expect(rect2.height).to.not.eq(initialDimensions.height)
                 })
             })
         })

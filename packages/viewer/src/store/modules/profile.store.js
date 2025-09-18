@@ -187,6 +187,10 @@ export default {
                 if (profileFeature.geometry.type === 'MultiPolygon') {
                     profileFeature.geometry.coordinates = profileFeature.geometry.coordinates.flat(1)
                 }
+                // Reset segment index to 0 when changing to a feature without multiple segments
+                if (profileFeature.geometry.coordinates.length <= 1) {
+                    commit('setCurrentFeatureSegmentIndex', { index: 0, dispatcher })
+                }
                 commit('setProfileFeature', { feature: profileFeature, dispatcher })
             } else {
                 log.warn('Geometry type not supported to show a profile, ignoring', feature)

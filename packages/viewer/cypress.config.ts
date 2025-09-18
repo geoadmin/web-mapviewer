@@ -69,7 +69,7 @@ export default defineConfig({
                     return readdirSync(folderName)
                 },
                 clearFolder(folderName) {
-                     
+
                     console.log('clearing folder %s', folderName)
 
                     return new Promise((resolve, reject) => {

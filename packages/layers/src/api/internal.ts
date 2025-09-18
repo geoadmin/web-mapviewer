@@ -15,7 +15,7 @@ import {
 } from '@/index'
 import { layerUtils, timeConfigUtils } from '@/utils'
 
-interface LayerConfig {
+export interface LayerConfigResponse {
     // common properties
     opacity: number
     type: string
@@ -96,9 +96,9 @@ const _urlWithTrailingSlash = (baseUrl: string): string => {
  * specialized types, such as {@link GeoAdminWMSLayer} or {@link GeoAdminWMTSLayer}).
  */
 export function generateLayerObject(
-    layerConfig: LayerConfig,
+    layerConfig: LayerConfigResponse,
     id: string,
-    allOtherLayers: Record<string, LayerConfig>,
+    allOtherLayers: Record<string, LayerConfigResponse>,
     lang: string,
     staging: Staging = 'production'
 ): GeoAdminLayer | undefined {
@@ -321,7 +321,7 @@ export function loadGeoadminLayersConfig(
     return new Promise((resolve, reject) => {
         const layersConfig: GeoAdminLayer[] = []
         axios
-            .get<Record<string, LayerConfig>>(
+            .get<Record<string, LayerConfigResponse>>(
                 `${servicesBaseUrl.api3[staging]}rest/services/all/MapServer/layersConfig?lang=${lang}`
             )
             .then(({ data: rawLayersConfig }) => {
