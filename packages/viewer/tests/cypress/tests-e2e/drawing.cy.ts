@@ -1075,14 +1075,32 @@ describe('Drawing module tests', () => {
             const kmlFileAdminId = 'test-fileAdminID12345678900'
             const kmlFileUrl = `${getServiceKmlBaseUrl()}api/kml/files/${kmlFileId}`
             const kmlUrlParam = `KML|${kmlFileUrl}@adminId=${kmlFileAdminId}`
+            const kmlAdminUrl = `${getServiceKmlBaseUrl()}api/kml/admin/${kmlFileId}`
+
+            const kmlMetadata = kmlMetadataTemplate({
+                id: kmlFileId,
+                adminId: kmlFileAdminId,
+            })
+
+            addIconFixtureAndIntercept()
+            addLegacyIconFixtureAndIntercept()
+            cy.intercept('GET', `**/api/kml/admin?admin_id=*`, {
+                body: kmlMetadata,
+                statusCode: 200,
+            }).as('get-kml-metadata-by-admin-id')
+            cy.intercept('GET', kmlAdminUrl, {
+                body: kmlMetadata,
+                statusCode: 200,
+            }).as('get-kml-metadata')
+            cy.intercept('GET', kmlFileUrl, {
+                statusCode: 200,
+                fixture: 'service-kml/lonelyMarker.kml',
+            }).as('get-kml')
 
             cy.log(
                 'opening up the app and centering it directly on the single marker feature from the fixture'
             )
-            cy.goToDrawing({
-                queryParams:{layers: kmlUrlParam, center: center.join(',')},
-                withHash: true,
-            })
+            cy.goToDrawing({layers: kmlUrlParam, center: center.join(',')}, true)
             cy.wait(['@get-kml-metadata', '@get-kml'])
 
             cy.log(
