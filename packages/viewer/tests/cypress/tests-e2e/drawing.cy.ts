@@ -68,7 +68,7 @@ describe('Drawing module tests', () => {
                 )
         }
 
-        function addDecription(description: string): void {
+        function addDescription(description: string): void {
             cy.get('[data-cy="drawing-style-feature-description"]').type(description)
             cy.get('[data-cy="drawing-style-feature-description"]').should(
                 'have.value',
@@ -555,7 +555,7 @@ describe('Drawing module tests', () => {
             cy.wait('@post-kml')
 
             const firstFeatureDescription = 'first feature'
-            addDecription(firstFeatureDescription)
+            addDescription(firstFeatureDescription)
 
             checkDrawnFeature(
                 firstFeatureDescription,
@@ -678,7 +678,7 @@ describe('Drawing module tests', () => {
                 cy.get('[data-cy="ol-map"]').click(...lastMeasurementCoordinate)
             }
             const secondFeatureDescription = 'second feature'
-            addDecription(secondFeatureDescription)
+            addDescription(secondFeatureDescription)
 
             checkDrawnFeature(
                 secondFeatureDescription,
