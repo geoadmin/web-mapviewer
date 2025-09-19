@@ -124,7 +124,7 @@ declare global {
              *
              * @param args Layer(s) to check
              */
-            checkOlLayer(args?: string | string[] | PartialLayer | PartialLayer[]): void
+            checkOlLayer(args?: (string | PartialLayer)[]): void
 
             openMenuIfMobile(): void
             closeMenuIfMobile(): void
