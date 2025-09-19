@@ -20,6 +20,7 @@ import {
     getKmlAdminIdFromRequest,
     kmlMetadataTemplate,
 } from '../support/drawing.js'
+import type { CyHttpMessages } from 'cypress/types/net-stubbing'
 
 registerProj4(proj4)
 
@@ -45,7 +46,7 @@ describe('Drawing module tests', () => {
             cy.wait('@update-kml')
                 .its('request')
                 .then((request) =>
-                    checkKMLRequest(request, [new RegExp(`<name>${title}</name>`)])
+                    checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [new RegExp(`<name>${title}</name>`)])
                 )
             cy.readStoreValue('getters.selectedFeatures[0].title').should('eq', title)
         }
@@ -61,7 +62,7 @@ describe('Drawing module tests', () => {
                 .its('request')
                 .then((request) =>
                     checkKMLRequest(
-                        request,
+                        request as CyHttpMessages.IncomingHttpRequest,
                         regexExpressions.map((expression) => new RegExp(expression))
                     )
                 )
@@ -453,7 +454,7 @@ describe('Drawing module tests', () => {
             cy.wait('@post-kml')
                 .its('request')
                 .then((request) => {
-                    return checkKMLRequest(request, [
+                    return checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [
                         new RegExp(
                             `<LabelStyle><color>${KML_STYLE_RED}</color><scale>1.5</scale></LabelStyle>`
                         ),
@@ -480,7 +481,7 @@ describe('Drawing module tests', () => {
             cy.wait('@update-kml')
                 .its('request')
                 .then((request) => {
-                    return checkKMLRequest(request, [
+                    return checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [
                         new RegExp(
                             `<LabelStyle><color>${KML_STYLE_BLACK}</color><scale>1.5</scale></LabelStyle>`
                         ),
@@ -503,7 +504,7 @@ describe('Drawing module tests', () => {
             cy.wait('@update-kml')
                 .its('request')
                 .then((request) => {
-                    return checkKMLRequest(request, [
+                    return checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [
                         new RegExp(`<LabelStyle><color>${KML_STYLE_BLACK}</color></LabelStyle>`),
                     ])
                 })
@@ -727,7 +728,7 @@ describe('Drawing module tests', () => {
                 cy.wrap(interception)
                     .its('request')
                     .then((request) =>
-                        checkKMLRequest(request, [
+                        checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [
                             new RegExp(
                                 `<Data name="type"><value>${EditableFeatureTypes.LINEPOLYGON.toLowerCase()}</value></Data>`
                             ),
@@ -766,7 +767,7 @@ describe('Drawing module tests', () => {
                 .its('request')
                 .then((request) =>
                     checkKMLRequest(
-                        request,
+                        request as CyHttpMessages.IncomingHttpRequest,
                         [
                             new RegExp(
                                 `<Style><LineStyle><color>${KML_STYLE_BLACK}</color><width>3</width></LineStyle><PolyStyle><color>66${KML_STYLE_BLACK.slice(
