@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
-import { LayerType } from '@swissgeo/layers'
+import { LayerType, type KMLLayer } from '@swissgeo/layers'
 import { randomIntBetween } from '@swissgeo/numbers'
 import { recurse } from 'cypress-recurse'
 import proj4 from 'proj4'
@@ -44,7 +44,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-style-feature-title"]').should('have.value', title)
             cy.wait('@update-kml')
                 .its('request')
-                .should((request) =>
+                .then((request) =>
                     checkKMLRequest(request, [new RegExp(`<name>${title}</name>`)])
                 )
             cy.readStoreValue('getters.selectedFeatures[0].title').should('eq', title)
@@ -88,7 +88,7 @@ describe('Drawing module tests', () => {
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
                 .should((features) => {
                     const matchingFeature = features.find(
-                        (feature: any) => feature.get('description') === description
+                        (feature: import('ol/Feature').default) => feature.get('description') === description
                     )
                     expect(matchingFeature).to.not.be.undefined
                     expect(matchingFeature.getGeometry().getType()).to.eq(featureType)
@@ -721,7 +721,7 @@ describe('Drawing module tests', () => {
             cy.wait('@post-kml').then((interception) => {
                 cy.wrap(interception)
                     .its('request')
-                    .should((request) =>
+                    .then((request) =>
                         checkKMLRequest(request, [
                             new RegExp(
                                 `<Data name="type"><value>${EditableFeatureTypes.LINEPOLYGON.toLowerCase()}</value></Data>`
@@ -733,7 +733,7 @@ describe('Drawing module tests', () => {
                             ),
                         ])
                     )
-                kmlId = interception.response.body.id
+                kmlId = interception.response?.body.id
             })
             cy.get('[data-cy="feature-style-edit-coordinate-copy-button"]').should('not.exist')
             cy.window().its('drawingLayer')
@@ -759,7 +759,7 @@ describe('Drawing module tests', () => {
             })
             cy.wait('@update-kml')
                 .its('request')
-                .should((request) =>
+                .then((request) =>
                     checkKMLRequest(
                         request,
                         [
@@ -834,7 +834,7 @@ describe('Drawing module tests', () => {
             let deletedKmlId: string | null = null
 
             cy.wait('@delete-kml').then((interception) => {
-                deletedKmlId = interception.response.body.id
+                deletedKmlId = interception.response?.body.id
             })
 
             cy.waitUntil(() => deletedKmlId !== null, {
@@ -865,7 +865,7 @@ describe('Drawing module tests', () => {
 
             let newKmlId: string | null = null
             cy.wait('@post-kml').then((interception) => {
-                newKmlId = interception.response.body.id
+                newKmlId = interception.response?.body.id
             })
 
             cy.waitUntil(() => newKmlId !== null, {
@@ -967,7 +967,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click()
 
             cy.wait('@post-kml').then((interception) => {
-                const kmlId = interception.response.body.id
+                const kmlId = interception.response?.body.id
 
                 cy.closeDrawingMode()
                 cy.wait('@update-kml')
@@ -980,7 +980,7 @@ describe('Drawing module tests', () => {
                     .contains('Drawing')
                 cy.waitUntilState((state) => {
                     return state.layers.activeLayers.find(
-                        (layer) => layer.type === LayerType.KML && layer.fileId === kmlId
+                        (layer: KMLLayer) => layer.type === LayerType.KML && layer.fileId === kmlId
                     )
                 })
 
@@ -998,7 +998,7 @@ describe('Drawing module tests', () => {
                     .contains('Drawing')
                 cy.waitUntilState((state) => {
                     return state.layers.activeLayers.find(
-                        (layer) => layer.type === LayerType.KML && layer.fileId === kmlId
+                        (layer: KMLLayer) => layer.type === LayerType.KML && layer.fileId === kmlId
                     )
                 })
 
@@ -1030,7 +1030,7 @@ describe('Drawing module tests', () => {
 
                 cy.log('Check that a new kml has been saved')
                 cy.wait('@post-kml').then((interception) => {
-                    const newKmlId = interception.response.body.id
+                    const newKmlId = interception.response?.body.id
                     expect(newKmlId).to.not.eq(kmlId)
 
                     // The just cleared KML should not be in the active layer list anymore
@@ -1041,7 +1041,7 @@ describe('Drawing module tests', () => {
                     cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
                     cy.get('[data-cy="ol-map"]').click('center')
                     cy.wait('@post-kml').then((interception2) => {
-                        const newNewKmlId = interception2.response.body.id
+                        const newNewKmlId = interception2.response?.body?.id
 
                         cy.log('Check the active layer list making sure that there is only the new')
                         cy.closeDrawingMode()
@@ -1171,7 +1171,8 @@ describe('Drawing module tests', () => {
             }).as('get-kml-metadata')
             cy.intercept('PUT', kmlAdminUrl, async (req) => {
                 const adminId = await getKmlAdminIdFromRequest(req)
-                req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop(), adminId: adminId }))
+                const id = req.url.split('/').pop()
+                req.reply(kmlMetadataTemplate({ id: id || kmlFileId, adminId: adminId || kmlFileAdminId }))
             }).as('update-kml')
             cy.intercept('HEAD', kmlFileUrl, {
                 statusCode: 200,
@@ -1188,7 +1189,7 @@ describe('Drawing module tests', () => {
                 'opening up the app and centering it directly on the single marker feature from the fixture'
             )
             cy.goToMapView({
-                queryParams:{adminId: kmlFileAdminId, E: center[0], N: center[1] },
+                queryParams:{adminId: kmlFileAdminId, E: center[0] as number, N: center[1] as number },
                 withHash: false,
             })
             cy.wait([
@@ -1320,13 +1321,14 @@ describe('Drawing module tests', () => {
         })
         it('can export the drawing/profile in multiple formats', () => {
             const downloadsFolder = Cypress.config('downloadsFolder')
-            const checkFiles = (extension: string, callback: (content: string) => void): void => {
+            const checkFiles = (extension: string, callback: (_content: string) => void): void => {
                 recurse(
                     () => cy.task('findFiles', { folderName: downloadsFolder, extension }),
                     isNonEmptyArray,
                     { delay: 100 }
                 ).then((files) => {
-                    const fileName = `${downloadsFolder}/${files[files.length - 1]}`
+                    const filesArray = files as string[]
+                    const fileName = `${downloadsFolder}/${filesArray[filesArray.length - 1]}`
                     expect(fileName).to.contains(`map.geo.admin.ch_${extension.toUpperCase()}_`)
                     cy.readFile(fileName).should('have.length.gt', 50).then(callback)
                 })
@@ -1352,8 +1354,8 @@ describe('Drawing module tests', () => {
             cy.fixture('service-alti/profile.fixture.csv').then((mockCsv) => {
                 checkFiles('csv', (content) => {
                     // just in case we are testing from windows we replace all \r\n by \n
-                    const agnosticContent = content.replaceAll('\r', '')
-                    const agnosticMockCsv = mockCsv.replaceAll('\r', '')
+                    const agnosticContent = content.replace(/\r/g, '')
+                    const agnosticMockCsv = mockCsv.replace(/\r/g, '')
                     expect(agnosticContent).to.be.equal(agnosticMockCsv)
                 })
             })
@@ -1439,8 +1441,8 @@ describe('Drawing module tests', () => {
             cy.clickDrawingTool(EditableFeatureTypes.MARKER)
             cy.get('[data-cy="ol-map"]').click()
             cy.wait('@post-kml').then((intercept) => {
-                adminId = intercept.response.body.admin_id
-                kmlId = intercept.response.body.id
+                adminId = intercept.response?.body?.admin_id
+                kmlId = intercept.response?.body?.id
             })
 
             const regexInterceptServiceShortLink =
