@@ -23,7 +23,7 @@ import {
 
 registerProj4(proj4)
 
-const isNonEmptyArray = (value: any): value is any[] => {
+const isNonEmptyArray = (value: unknown): value is unknown[] => {
     return Array.isArray(value) && value.length > 0
 }
 
@@ -116,7 +116,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]:visible').click()
 
             cy.wait('@post-kml').then((interception) => {
-                const kmlId = `${getServiceKmlBaseUrl()}api/kml/files/${interception.response.body.id}`
+                const kmlId = `${getServiceKmlBaseUrl()}api/kml/files/${interception.response?.body.id}`
                 const bgLayer = 'test.background.layer2'
 
                 cy.log(
@@ -452,8 +452,8 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click()
             cy.wait('@post-kml')
                 .its('request')
-                .should((request) => {
-                    checkKMLRequest(request, [
+                .then((request) => {
+                    return checkKMLRequest(request, [
                         new RegExp(
                             `<LabelStyle><color>${KML_STYLE_RED}</color><scale>1.5</scale></LabelStyle>`
                         ),
@@ -479,8 +479,8 @@ describe('Drawing module tests', () => {
                 .click()
             cy.wait('@update-kml')
                 .its('request')
-                .should((request) => {
-                    checkKMLRequest(request, [
+                .then((request) => {
+                    return checkKMLRequest(request, [
                         new RegExp(
                             `<LabelStyle><color>${KML_STYLE_BLACK}</color><scale>1.5</scale></LabelStyle>`
                         ),
@@ -502,8 +502,8 @@ describe('Drawing module tests', () => {
             ).click({ force: true })
             cy.wait('@update-kml')
                 .its('request')
-                .should((request) => {
-                    checkKMLRequest(request, [
+                .then((request) => {
+                    return checkKMLRequest(request, [
                         new RegExp(`<LabelStyle><color>${KML_STYLE_BLACK}</color></LabelStyle>`),
                     ])
                 })
@@ -627,7 +627,9 @@ describe('Drawing module tests', () => {
             // Click the second node (by now the first node because the first one got deleted) to finish the polygon
             const secondPoint = lineCoordinates[1]
             // re-clicking an existing point to finish editing
-            cy.get('[data-cy="ol-map"]').click(secondPoint[0], secondPoint[1])
+            if (secondPoint) {
+                cy.get('[data-cy="ol-map"]').click(secondPoint[0], secondPoint[1])
+            }
             cy.wait('@update-kml')
             checkDrawnFeature(
                 firstFeatureDescription,
@@ -638,7 +640,9 @@ describe('Drawing module tests', () => {
 
             cy.log('Extending line into a polygon (closing it)')
             cy.get('[data-cy="extend-from-last-node-button"] button').click()
-            cy.get('[data-cy="ol-map"]').click(secondPoint[0], secondPoint[1])
+            if (secondPoint) {
+                cy.get('[data-cy="ol-map"]').click(secondPoint[0], secondPoint[1])
+            }
             cy.wait('@update-kml')
             checkDrawnFeature(
                 firstFeatureDescription,
@@ -668,9 +672,10 @@ describe('Drawing module tests', () => {
                 cy.get('[data-cy="ol-map"]').click(...coordinate)
             })
             cy.log('should create a line by re-clicking the last point')
-            cy.get('[data-cy="ol-map"]').click(
-                ...measurementCoordinates.at(measurementCoordinates.length - 1)!
-            )
+            const lastMeasurementCoordinate = measurementCoordinates[measurementCoordinates.length - 1]
+            if (lastMeasurementCoordinate) {
+                cy.get('[data-cy="ol-map"]').click(...lastMeasurementCoordinate)
+            }
             const secondFeatureDescription = 'second feature'
             addDecription(secondFeatureDescription)
 
