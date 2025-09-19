@@ -1,9 +1,10 @@
 /// <reference types="cypress" />
 
 import { LV95, WEBMERCATOR } from '@swissgeo/coordinates'
+import type { MockFeature } from 'support/intercepts'
 
 describe('The infobox', () => {
-    const generateInfoboxTestsForMapSelector = (mapSelector) => {
+    const generateInfoboxTestsForMapSelector = (mapSelector: string): void => {
         it('is visible if features selected', () => {
             cy.get('[data-cy="highlighted-features"]').should('not.exist')
 
@@ -25,7 +26,7 @@ describe('The infobox', () => {
             cy.waitUntilState((_, getters) => {
                 return getters.selectedFeatures.length > 0
             })
-            cy.readStoreValue('getters.isPhoneMode').then((isPhoneMode) => {
+            cy.readStoreValue('getters.isPhoneMode').then((isPhoneMode: boolean) => {
                 if (isPhoneMode) {
                     cy.get('[data-cy="popover"]').should('not.exist')
                     cy.get('[data-cy="infobox"]').should('be.visible')
@@ -65,8 +66,8 @@ describe('The infobox', () => {
         })
     }
 
-    const layer = 'test.wmts.layer'
-    const feature = {
+    const layer: string = 'test.wmts.layer'
+    const feature: MockFeature = {
         geometry: { type: 'Point', coordinates: LV95.bounds.center },
         layerBodId: 'ch.babs.kulturgueter',
         bbox: [
@@ -75,12 +76,11 @@ describe('The infobox', () => {
             LV95.bounds.center[0] + 1000,
             LV95.bounds.center[1] + 1000,
         ],
-        featureId: 1234,
+        featureId: '1234',
         layerName: 'A nice test layer',
         type: 'Feature',
-        id: 1234,
+        id: '1234',
         properties: {
-            zkob: 'This is a test feature',
             link_title: 'This is a test feature',
             link_uri: 'http://localhost:8080/',
             link_2_title: null,
@@ -88,9 +88,10 @@ describe('The infobox', () => {
             link_3_title: 'This is a test feature',
             link_3_uri: null,
             label: 'This is a test feature',
-            pdf_list: null,
             x: 1234.0,
             y: 1234.0,
+            lon: 1234.0,
+            lat: 1234.0,
         },
     }
 
@@ -103,14 +104,14 @@ describe('The infobox', () => {
     })
     context('OpenLayers map', () => {
         beforeEach(() => {
-            cy.goToMapView({queryParams:{layers: layer }})
+            cy.goToMapView({ queryParams: { layers: layer } })
         })
         generateInfoboxTestsForMapSelector('[data-cy="ol-map"]')
     })
 
     context('Changes the language of the infobox', () => {
         beforeEach(() => {
-            cy.goToMapView({queryParams: {layers: layer }})
+            cy.goToMapView({ queryParams: { layers: layer } })
             cy.intercept('**/MapServer/**/htmlPopup**&lang=de**', {
                 fixture: 'html-popup-german.fixture.html',
             }).as('htmlPopupGerman')
@@ -120,7 +121,7 @@ describe('The infobox', () => {
             cy.waitUntilState((_, getters) => {
                 return getters.selectedFeatures.length > 0
             })
-            const htmlPopupCalls = 10
+            const htmlPopupCalls: number = 10
             cy.get('@htmlPopup.all').should('have.length', htmlPopupCalls)
 
             cy.clickOnLanguage('de')
@@ -158,7 +159,7 @@ describe('The infobox', () => {
     })
     context('transition from 2D to 3D (and back to 2D)', () => {
         beforeEach(() => {
-            cy.goToMapView({queryParams: {layers: layer }})
+            cy.goToMapView({ queryParams: { layers: layer } })
 
             cy.get('[data-cy="ol-map"]').click()
             cy.waitUntilState((_, getters) => {
@@ -181,7 +182,7 @@ describe('The infobox', () => {
             })
         })
         it('verifies the "More Information" button in the infobox and the information page that is shown', () => {
-            const infoboxFixture = 'infobox.fixture.html'
+            const infoboxFixture: string = 'infobox.fixture.html'
             cy.intercept('GET', 'https://api3.geo.admin.ch/**', {
                 fixture: infoboxFixture,
             }).as('infobox')
