@@ -302,7 +302,7 @@ export function calculateFeatureTextWidth(text: string, textScale: number): numb
  * Returns offset (compared to marker) for text around it, depending on the text position and if the
  * description should be shown on the map too.
  */
-function getElementOffsets(editableFeature: EditableFeature): {
+function getElementOffsets(editableFeature?: EditableFeature): {
     top: [number, number]
     bottom: [number, number]
 } {

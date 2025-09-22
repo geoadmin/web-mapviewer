@@ -69,7 +69,7 @@ export class GetFeatureInfoError extends Error {
  * @param feature OpenLayers KML feature
  * @returns Coordinates of the feature, in WGS84
  */
-export function extractOlFeatureCoordinates(feature: Feature): SingleCoordinate[] {
+export function extractOlFeatureCoordinates(feature?: Feature): SingleCoordinate[] {
     if (!feature) {
         return []
     }
@@ -249,7 +249,7 @@ async function identifyOnExternalLayer(config: IdentifyConfig): Promise<LayerFea
     ) {
         // trying to find a candidate among the app supported projections
         requestProjection = allCoordinateSystems.find((candidate) =>
-            externalLayer.availableProjections?.some(
+            externalLayer.availableProjections!.some(
                 (availableProjection) => availableProjection.epsg === candidate.epsg
             )
         )

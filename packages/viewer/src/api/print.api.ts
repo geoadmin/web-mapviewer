@@ -108,9 +108,6 @@ class GeoAdminCustomizer extends BaseCustomizer {
         if (symbolizer.strokeWidth) {
             symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
         }
-        // TODO: ask Ismail about these 2 lines (should not be possible to have a graphic offset on a line)
-        // symbolizer.graphicXOffset = symbolizer.graphicXOffset ?? 0
-        // symbolizer.graphicYOffset = symbolizer.graphicYOffset ?? 0
     }
 
     /**
@@ -127,10 +124,7 @@ class GeoAdminCustomizer extends BaseCustomizer {
         symbolizer: MFPSymbolizerText,
         text: Text
     ) {
-        // symbolizer.pointRadius = adjustWidth(symbolizer.pointRadius, this.printResolution)
-        // symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
         symbolizer.haloRadius = adjustWidth(symbolizer.haloRadius, this.printResolution)
-        // symbolizer.conflictResolution = false
 
         // we try to adapt the font size and offsets to have roughly the same
         // scales on print than on the viewer.

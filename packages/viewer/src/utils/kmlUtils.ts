@@ -406,12 +406,14 @@ export function getFillColor(
  * @returns EditableFeature or undefined if this is not a geoadmin feature
  */
 export function getEditableFeatureFromKmlFeature(
-    kmlFeature: OLFeature,
+    kmlFeature: OLFeature | undefined,
     availableIconSets: DrawingIconSet[],
     resolution: number
 ): EditableFeature | undefined {
     if (!kmlFeature) {
-        log.error(`Cannot generate EditableFeature from KML feature`, kmlFeature)
+        log.error({
+            messages: [`Cannot generate EditableFeature from KML feature`, kmlFeature],
+        })
         return
     }
     const featureType = getFeatureType(kmlFeature)

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { sanitizeTitle } from '../search.api'
+import { sanitizeTitle } from '@/api/search.api'
 
 describe('Builds object by extracting all relevant attributes from the backend', () => {
     describe('FeatureSearchResult.getSimpleTitle', () => {
