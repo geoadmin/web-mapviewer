@@ -4,7 +4,7 @@ import type { ColorLike, PatternDescriptor } from 'ol/colorlike'
 import type { default as OLFeature, FeatureLike } from 'ol/Feature'
 import type { Size } from 'ol/size'
 import { Fill, Stroke, Text } from 'ol/style'
-import Style, { type StyleLike } from 'ol/style/Style'
+import Style from 'ol/style/Style'
 
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import { DEFAULT_TITLE_OFFSET } from '@/api/icon.api'
@@ -368,7 +368,10 @@ function getElementOffsets(editableFeature: EditableFeature): {
  * @param resolution The resolution of the map in map units / pixel (which is equatorial meters /
  *   pixel for the webmercator projection used in this project)
  */
-export function geoadminStyleFunction(feature: FeatureLike, resolution: number): Style | Style[] | undefined {
+export function geoadminStyleFunction(
+    feature: FeatureLike,
+    resolution: number
+): Style | Style[] | undefined {
     const editableFeature = feature.get('editableFeature')
 
     const styleConfig = {
@@ -406,15 +409,15 @@ export function geoadminStyleFunction(feature: FeatureLike, resolution: number):
                 editableFeature?.featureType === EditableFeatureTypes.MEASURE
                     ? dashedRedStroke
                     : new Stroke({
-                        color: styleConfig.fillColor.fill,
-                        width: 3,
-                    }),
+                          color: styleConfig.fillColor.fill,
+                          width: 3,
+                      }),
             // filling a polygon with white if first time being drawn (otherwise fallback to user set color)
             fill: isDrawing
                 ? whiteSketchFill
                 : new Fill({
-                    color: [...fromString(styleConfig.fillColor).slice(0, 3), 0.4],
-                }),
+                      color: [...fromString(styleConfig.fillColor).slice(0, 3), 0.4],
+                  }),
             zIndex: 10,
         }),
     ]
@@ -445,8 +448,8 @@ export function geoadminStyleFunction(feature: FeatureLike, resolution: number):
                 fill: isDrawing
                     ? whiteSketchFill
                     : new Fill({
-                        color: [...fromString(styleConfig.fillColor).slice(0, 3), 0.4],
-                    }),
+                          color: [...fromString(styleConfig.fillColor).slice(0, 3), 0.4],
+                      }),
                 zIndex: 0,
                 stroke: new Stroke({
                     color: styleConfig.strokeColor.fill,

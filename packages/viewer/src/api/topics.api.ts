@@ -1,5 +1,4 @@
 import type { GeoAdminGroupOfLayers, GeoAdminLayer, Layer } from '@swissgeo/layers'
-import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import axios from 'axios'
