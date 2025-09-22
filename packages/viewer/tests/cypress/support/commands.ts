@@ -197,7 +197,7 @@ function goToView(
         hasForwardedPostMessage = true
     }
     console.log('view', view)
-    let routerView: string = view
+    const routerView: string = view
     // if (legacy) {
     //     routerView = 'legacy'
     //     if (view === 'embed') {
