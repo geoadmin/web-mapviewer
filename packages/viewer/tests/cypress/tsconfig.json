@@ -1,5 +1,5 @@
 {
-    "extends": "@swissgeo/typescript-config/tsconfig.vue.json",
+    "extends": "@swissgeo/config-typescript/tsconfig.vue.json",
     // @see https://docs.cypress.io/app/tooling/typescript-support
     "compilerOptions": {
         "target": "ESNext",

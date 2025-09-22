@@ -1,11 +1,6 @@
 {
-    "extends": "@swissgeo/typescript-config/tsconfig.vue.json",
-    "include": [
-        "**/*.ts",
-        "**/*.js",
-        "**/*.vue",
-        "vite.config.ts"
-    ],
+    "extends": "@swissgeo/config-typescript/tsconfig.vue.json",
+    "include": ["**/*.ts", "**/*.js", "**/*.vue", "vite.config.ts"],
     "exclude": [
         "eslint.config.mts",
         // the tests/cypress folder is managed as a separate TS project (it has its own tsconfig.json)

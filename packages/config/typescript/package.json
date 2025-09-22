@@ -1,5 +1,5 @@
 {
-    "name": "@swissgeo/typescript-config",
+    "name": "@swissgeo/config-typescript",
     "private": true,
     "main": "tsconfig.base.json",
     "dependencies": {

@@ -56,9 +56,9 @@
     "devDependencies": {
         "@intlify/core-base": "catalog:",
         "@microsoft/api-extractor": "catalog:",
-        "@swissgeo/eslint-config": "workspace:*",
-        "@swissgeo/stylelint-config": "workspace:*",
-        "@swissgeo/typescript-config": "workspace:*",
+        "@swissgeo/config-eslint": "workspace:*",
+        "@swissgeo/config-stylelint": "workspace:*",
+        "@swissgeo/config-typescript": "workspace:*",
         "@tailwindcss/vite": "catalog:",
         "@tsconfig/node22": "catalog:",
         "@types/chai": "catalog:",

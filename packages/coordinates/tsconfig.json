@@ -1,9 +1,5 @@
 {
-    "extends": "@swissgeo/typescript-config/tsconfig.base.json",
-    "include": [
-        "**/*.ts"
-    ],
-    "exclude": [
-        "eslint.config.mts"
-    ]
+    "extends": "@swissgeo/config-typescript/tsconfig.base.json",
+    "include": ["**/*.ts"],
+    "exclude": ["eslint.config.mts"]
 }

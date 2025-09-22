@@ -44,10 +44,10 @@
         "build:dev:watch": "pnpm run build --watch --mode development",
         "build:int": "pnpm run build --mode integration",
         "build:prod": "pnpm run build --mode production",
-        "lint": "eslint --fix",
-        "lint:no-fix": "eslint",
         "dev": "vite",
         "generate-types": "vue-tsc --declaration",
+        "lint": "eslint --fix",
+        "lint:no-fix": "eslint",
         "test:unit": "vitest --run --mode development --environment jsdom --silent",
         "test:unit:watch": "vitest --mode development --environment jsdom",
         "type-check": "vue-tsc -p tsconfig.json"
@@ -64,13 +64,12 @@
         "proj4": "catalog:",
         "uuid": "catalog:"
     },
-    "peerDependencies": {
-        "vue": "catalog:"
-    },
     "devDependencies": {
         "@microsoft/api-extractor": "catalog:",
-        "@swissgeo/eslint-config": "workspace:*",
-        "@swissgeo/typescript-config": "workspace:*",
+        "@prettier/plugin-xml": "catalog:",
+        "@swissgeo/config-eslint": "workspace:*",
+        "@swissgeo/config-prettier": "workspace:*",
+        "@swissgeo/config-typescript": "workspace:*",
         "@types/chai": "catalog:",
         "@types/lodash": "catalog:",
         "@types/luxon": "catalog:",
@@ -79,11 +78,18 @@
         "@vue/language-core": "catalog:",
         "chai": "catalog:",
         "eslint": "catalog:",
+        "prettier": "catalog:",
+        "prettier-plugin-jsdoc": "catalog:",
+        "prettier-plugin-packagejson": "catalog:",
+        "prettier-plugin-tailwindcss": "catalog:",
         "typescript": "catalog:",
         "unplugin-dts": "catalog:",
         "vite": "catalog:",
         "vite-tsconfig-paths": "catalog:",
         "vitest": "catalog:",
         "vue-tsc": "catalog:"
+    },
+    "peerDependencies": {
+        "vue": "catalog:"
     }
 }

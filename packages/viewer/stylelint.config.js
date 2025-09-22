@@ -1,3 +1,3 @@
-import defaultStyleLintConfig from '@swissgeo/stylelint-config'
+import defaultStyleLintConfig from '@swissgeo/config-stylelint'
 
 export default defaultStyleLintConfig
