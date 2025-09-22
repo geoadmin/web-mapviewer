@@ -11,7 +11,6 @@ interface ImportMeta {
 }
 
 declare global {
-
     // stuff declared directly in the vite.config.mts (see define block)
     // see https://vite.dev/config/shared-options.html#define
     declare const __VITE_ENVIRONMENT__: Staging | undefined
@@ -20,9 +19,7 @@ declare global {
     declare const __IS_TESTING_WITH_CYPRESS__: boolean
 
     namespace NodeJS {
-        /**
-         * All the flags used in our package.json scripts/target to change how the build behaves
-         */
+        /** All the flags used in our package.json scripts/target to change how the build behaves */
         interface ProcessEnv {
             /** App version from the package.json file */
             APP_VERSION: string

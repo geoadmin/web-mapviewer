@@ -97,11 +97,10 @@ function extractWGS84Coordinates(text) {
 
 const thousandSeparatorRegex = /['`’´ ]/g
 // LV95, LV03, metric WebMercator (EPSG:3857)
-const REGEX_METRIC_COORDINATES =
-    new RegExp(
-        `^(?<coord1>\\d{1,3}(${thousandSeparatorRegex.source}?\\d{3})*(\\.\\d+)?)\\s*[,/ \\t]\\s*(?<coord2>\\d{1,3}(${thousandSeparatorRegex.source}?\\d{3})*(\\.\\d+)?)$`,
-        'i'
-    )
+const REGEX_METRIC_COORDINATES = new RegExp(
+    `^(?<coord1>\\d{1,3}(${thousandSeparatorRegex.source}?\\d{3})*(\\.\\d+)?)\\s*[,/ \\t]\\s*(?<coord2>\\d{1,3}(${thousandSeparatorRegex.source}?\\d{3})*(\\.\\d+)?)$`,
+    'i'
+)
 
 /**
  * @param {String} text

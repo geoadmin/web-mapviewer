@@ -75,7 +75,7 @@ function logToConsole(level: LogLevel, messages: GeoadminLogInput[]) {
     if (!log.wantedLevels.includes(level)) {
         return
     }
-     
+
     switch (level) {
         case LogLevel.Error:
             console.error(...processStyle(messages))
@@ -90,7 +90,6 @@ function logToConsole(level: LogLevel, messages: GeoadminLogInput[]) {
             console.debug(...processStyle(messages))
             break
     }
-     
 }
 
 interface GeoadminLogMessage {

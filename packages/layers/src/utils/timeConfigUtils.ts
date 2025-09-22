@@ -174,15 +174,12 @@ export const getTimeEntryForInterval = (
 /** Returns timestamp for WMS or WMTS layer from config data */
 export function getTimestampFromConfig(layer: Layer): string | undefined {
     let timestamp = layer.timeConfig?.currentTimeEntry?.timestamp
-    if (
-        !timestamp && layer.type === LayerType.WMTS
-    ) {
+    if (!timestamp && layer.type === LayerType.WMTS) {
         // for WMTS layer fallback to current
         timestamp = 'current'
     }
     return timestamp
 }
-
 
 export interface GeoadminTimeConfigUtils {
     hasTimestamp: typeof hasTimestamp
@@ -204,7 +201,7 @@ export const timeConfigUtils: GeoadminTimeConfigUtils = {
     hasMultipleTimestamps,
     getYearFromLayerTimeEntry,
     getTimeEntryForInterval,
-    getTimestampFromConfig
+    getTimestampFromConfig,
 }
 
 export default timeConfigUtils

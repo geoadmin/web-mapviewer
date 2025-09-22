@@ -10,7 +10,14 @@ import { type DrawingIconSet, generateIconURL } from '@/api/icon.api'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { fakeIconSets } from '@/utils/__tests__/legacyKmlUtils.spec'
 import { BLUE } from '@/utils/featureStyleUtils'
-import { getIcon, getKmlExtent, isKml, isKmlFeaturesValid, parseIconUrl, parseKml } from '@/utils/kmlUtils'
+import {
+    getIcon,
+    getKmlExtent,
+    isKml,
+    isKmlFeaturesValid,
+    parseIconUrl,
+    parseKml,
+} from '@/utils/kmlUtils'
 import type EditableFeature from '@/api/features/EditableFeature.class'
 
 describe('Test KML utils', () => {
@@ -138,7 +145,12 @@ describe('Test KML utils', () => {
                 kmlData: kml,
             })
             const resolution = 1000
-            const olFeatures: OLFeature[] = parseKml(kmlLayer, WEBMERCATOR, resolution, fakeIconSets)
+            const olFeatures: OLFeature[] = parseKml(
+                kmlLayer,
+                WEBMERCATOR,
+                resolution,
+                fakeIconSets
+            )
             features = olFeatures.map((f) => {
                 const ef = f.get('editableFeature')
                 ef.olFeature = f
@@ -271,7 +283,8 @@ describe('Test KML utils', () => {
                 {
                     name: '001-marker',
                     imageURL: 'https://fake.image.url',
-                    imageTemplateURL: 'https://fake.image.url/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png',
+                    imageTemplateURL:
+                        'https://fake.image.url/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png',
                     iconSetName: 'default',
                     anchor: [0, 0],
                     size: [48, 48],
@@ -279,7 +292,8 @@ describe('Test KML utils', () => {
                 {
                     name: '002-circle',
                     imageURL: 'https://fake.image.url',
-                    imageTemplateURL: 'https://fake.image.url/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png',
+                    imageTemplateURL:
+                        'https://fake.image.url/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png',
                     iconSetName: 'default',
                     anchor: [0, 0],
                     size: [48, 48],
@@ -287,12 +301,13 @@ describe('Test KML utils', () => {
                 {
                     name: '0003-square',
                     imageURL: 'https://fake.image.url',
-                    imageTemplateURL: 'https://fake.image.url/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png',
+                    imageTemplateURL:
+                        'https://fake.image.url/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png',
                     iconSetName: 'default',
                     anchor: [0, 0],
                     size: [48, 48],
                 },
-            ]
+            ],
         }
         const fakeBabsIconSet: DrawingIconSet = {
             name: 'babs',
@@ -305,15 +320,16 @@ describe('Test KML utils', () => {
                 {
                     name: 'babs-3',
                     imageURL: 'https://fake.image.url',
-                    imageTemplateURL: 'https://fake.image.url/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png',
+                    imageTemplateURL:
+                        'https://fake.image.url/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png',
                     iconSetName: 'babs',
                     anchor: [0, 0],
                     size: [48, 48],
                     description: {
-                        'en': 'BABS 3 icon'
-                    }
-                }
-            ]
+                        en: 'BABS 3 icon',
+                    },
+                },
+            ],
         }
         const fakeIconSets: DrawingIconSet[] = [fakeDefaultIconSet, fakeBabsIconSet]
         it('get icon with standard arguments from the set', () => {
@@ -424,7 +440,8 @@ describe('Test KML utils', () => {
             expect(isKml('<kml:kml>test</kml:kml>')).to.be.true
         })
         it('can detect a KML file with a namespace prefix and a namespace declaration', () => {
-            expect(isKml('<?xml version="1.0" encoding="UTF-8"?><kml:kml>test</kml:kml>')).to.be.true
+            expect(isKml('<?xml version="1.0" encoding="UTF-8"?><kml:kml>test</kml:kml>')).to.be
+                .true
         })
         it('handles carriage returns correctly', () => {
             expect(
@@ -433,10 +450,12 @@ describe('Test KML utils', () => {
 <kml:kml>
     test
 </kml:kml>`
-                )).to.be.true
+                )
+            ).to.be.true
         })
         it('can handle a full KML sample correctly', () => {
-            expect(isKml(`
+            expect(
+                isKml(`
 <kml>
     <Placemark>
         <name>test</name>
@@ -445,8 +464,8 @@ describe('Test KML utils', () => {
             <coordinates>7.438632503,46.951082887,598.947</coordinates>
         </Point>
     </Placemark>
-</kml>`
-            )).to.be.true
+</kml>`)
+            ).to.be.true
         })
         it('rejects a tag with a typo at the end', () => {
             expect(isKml('<kmlz>test</kmlz>')).to.be.false
@@ -457,11 +476,12 @@ describe('Test KML utils', () => {
         it('rejects a tag with a typo at the beginning', () => {
             expect(isKml('<akml>test</akml>')).to.be.false
         })
-        it("rejects a valid XML (but-non KML) input", () => {
+        it('rejects a valid XML (but-non KML) input', () => {
             expect(isKml('<?xml version="1.0" encoding="UTF-8"?><div>test</div>')).to.be.false
         })
         it('rejects a KML that is wrapped in a CDATA section', () => {
-            expect(isKml(`<div><![CDATA[
+            expect(
+                isKml(`<div><![CDATA[
     <kml>
         <Placemark>
             <name>test</name>
@@ -471,7 +491,8 @@ describe('Test KML utils', () => {
             </Point>
         </Placemark>
     </kml>
-]]></div>`)).to.be.false
+]]></div>`)
+            ).to.be.false
         })
     })
 })

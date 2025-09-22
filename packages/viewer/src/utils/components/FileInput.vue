@@ -244,7 +244,7 @@ function onFileSelected(evt) {
         </label>
         <div
             :id="inputFileId"
-            class="input-group rounded has-validation mb-2"
+            class="input-group has-validation mb-2 rounded"
         >
             <button
                 class="btn btn-outline-group"

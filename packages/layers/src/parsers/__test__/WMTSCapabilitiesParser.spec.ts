@@ -50,9 +50,13 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         expect(layer!.baseUrl).toBe('http://maps.example.com/cgi-bin/map.cgi?')
 
         // Layer without .Identifier
-        layer = wmtsCapabilitiesParser.getExternalLayer(capabilities, 'BlueMarbleThirdGenerationZH', {
-            outputProjection: WGS84,
-        })
+        layer = wmtsCapabilitiesParser.getExternalLayer(
+            capabilities,
+            'BlueMarbleThirdGenerationZH',
+            {
+                outputProjection: WGS84,
+            }
+        )
         expect(layer!.id).toBe('BlueMarbleThirdGenerationZH')
         expect(layer!.name).toBe('BlueMarbleThirdGenerationZH')
         expect(layer!.abstract).toBe('Blue Marble Third Generation Canton Zürich Product')

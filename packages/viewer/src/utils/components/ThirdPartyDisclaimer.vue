@@ -47,7 +47,7 @@ function onClick() {
     >
         <div
             ref="tooltipAnchor"
-            class="m-0 p-0 d-flex align-content-center justify-content-center"
+            class="d-flex align-content-center justify-content-center m-0 p-0"
             :data-cy="isLocalFile ? 'warn-share-local-file' : 'third-party-disclaimer'"
             @click="onClick"
         >

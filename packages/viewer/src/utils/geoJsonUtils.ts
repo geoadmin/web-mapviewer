@@ -1,7 +1,7 @@
-import type { GeoJSON, Feature, Position, Geometry } from 'geojson'
+import type { Feature, GeoJSON, Geometry, Position } from 'geojson'
 
-import type { SingleCoordinate, NormalizedExtent } from '@swissgeo/coordinates'
-import { CoordinateSystem, WGS84, extentUtils } from '@swissgeo/coordinates'
+import type { NormalizedExtent, SingleCoordinate } from '@swissgeo/coordinates'
+import { CoordinateSystem, extentUtils, WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import {
     bbox,
@@ -50,7 +50,7 @@ export function reprojectGeoJsonGeometry(
             JSON.parse(JSON.stringify(geometry)) as Geometry,
             matchingProjection.epsg,
             toProjection.epsg
-    )
+        )
     }
     // it's already in the correct projection, we don't re-project
     return geometry

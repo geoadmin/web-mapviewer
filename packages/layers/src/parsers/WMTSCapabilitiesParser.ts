@@ -401,7 +401,7 @@ function getLayerAttributes(
 
     if (
         capabilities.OperationsMetadata &&
-        "GetCapabilities" in capabilities.OperationsMetadata &&
+        'GetCapabilities' in capabilities.OperationsMetadata &&
         capabilities.OperationsMetadata.GetCapabilities !== undefined
     ) {
         const httpOperations = capabilities.OperationsMetadata.GetCapabilities.DCP.HTTP
@@ -418,7 +418,7 @@ function getLayerAttributes(
     let getTileEncoding: WMTSEncodingType = WMTSEncodingType.REST
     if (
         capabilities.OperationsMetadata &&
-        "GetTile" in capabilities.OperationsMetadata &&
+        'GetTile' in capabilities.OperationsMetadata &&
         capabilities.OperationsMetadata.GetTile !== undefined
     ) {
         const httpOperations = capabilities.OperationsMetadata.GetTile.DCP.HTTP
@@ -429,7 +429,8 @@ function getLayerAttributes(
             onlineResource = httpOperations.Post[0]!
         }
         if (onlineResource?.Constraint && onlineResource?.Constraint?.length > 0) {
-            getTileEncoding = onlineResource.Constraint[0]!.AllowedValues.Value[0]! as WMTSEncodingType
+            getTileEncoding = onlineResource.Constraint[0]!.AllowedValues
+                .Value[0]! as WMTSEncodingType
         }
     }
 
@@ -580,7 +581,11 @@ function parse(content: string, originUrl: URL): WMTSCapabilitiesResponse {
     }
 }
 
-export type WMTSCapabilitiesParser = CapabilitiesParser<WMTSCapabilitiesResponse, WMTSCapabilityLayer, ExternalWMTSLayer>
+export type WMTSCapabilitiesParser = CapabilitiesParser<
+    WMTSCapabilitiesResponse,
+    WMTSCapabilityLayer,
+    ExternalWMTSLayer
+>
 
 export const wmtsCapabilitiesParser: WMTSCapabilitiesParser = {
     parse,

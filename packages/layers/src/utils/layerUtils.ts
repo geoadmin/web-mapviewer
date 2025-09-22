@@ -58,7 +58,7 @@ const validateBaseData = (values: Partial<Layer>): void => {
     }
 }
 
-type DefaultLayerConfig<T> = Omit<T, "id" | "name" | "baseUrl">
+type DefaultLayerConfig<T> = Omit<T, 'id' | 'name' | 'baseUrl'>
 
 /**
  * Construct a basic GeoAdmin WMS Layer
@@ -91,7 +91,7 @@ function makeGeoAdminWMSLayer(values: Partial<GeoAdminWMSLayer>): GeoAdminWMSLay
         hasWarning: false,
         isBackground: false,
         timeConfig: {
-            timeEntries: []
+            timeEntries: [],
         },
     }
 
@@ -175,7 +175,7 @@ function makeExternalWMTSLayer(values: Partial<ExternalWMTSLayer>): ExternalWMTS
         attributions,
         hasWarning: false,
         timeConfig: {
-            timeEntries: []
+            timeEntries: [],
         },
     }
 
@@ -229,8 +229,8 @@ function makeExternalWMSLayer(values: Partial<ExternalWMSLayer>): ExternalWMSLay
         hasError: false,
         hasWarning: false,
         timeConfig: {
-            timeEntries: []
-        }
+            timeEntries: [],
+        },
     }
 
     if (values.currentYear && values.timeConfig) {
@@ -267,7 +267,9 @@ function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
             servicesBaseUrl.kml.integration,
             servicesBaseUrl.kml.production,
         ]
-        isExternal = !internalServicesBackends.some((internalBackend) => kmlFileUrl.startsWith(internalBackend))
+        isExternal = !internalServicesBackends.some((internalBackend) =>
+            kmlFileUrl.startsWith(internalBackend)
+        )
     }
     let clampToGround: boolean
     if (values.clampToGround !== undefined) {
@@ -315,7 +317,7 @@ function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
         adminId: undefined,
         internalFiles: {},
         timeConfig: {
-            timeEntries: []
+            timeEntries: [],
         },
     }
 
@@ -360,7 +362,7 @@ function makeGPXLayer(values: Partial<GPXLayer>): GPXLayer {
         hasWarning: false,
         isLoading: !values.gpxData,
         timeConfig: {
-            timeEntries: []
+            timeEntries: [],
         },
     }
 
@@ -398,7 +400,7 @@ function makeGeoAdminVectorLayer(values: Partial<GeoAdminVectorLayer>): GeoAdmin
         hasWarning: false,
         isHighlightable: false,
         timeConfig: {
-            timeEntries: []
+            timeEntries: [],
         },
         topics: [],
         searchable: false,
@@ -444,8 +446,8 @@ function makeGeoAdmin3DLayer(values: Partial<GeoAdmin3DLayer>): GeoAdmin3DLayer 
         isSpecificFor3d: false,
         isBackground: false,
         timeConfig: {
-            timeEntries: []
-        }
+            timeEntries: [],
+        },
     }
 
     const layer = merge(defaults, values)
@@ -495,7 +497,7 @@ function makeCloudOptimizedGeoTIFFLayer(
         hasError: false,
         hasWarning: false,
         timeConfig: {
-            timeEntries: []
+            timeEntries: [],
         },
     }
     const layer = merge(defaults, values)
@@ -527,7 +529,7 @@ function makeGeoAdminAggregateLayer(
         hasError: false,
         hasWarning: false,
         timeConfig: {
-            timeEntries: []
+            timeEntries: [],
         },
         isHighlightable: false,
         topics: [],
@@ -618,7 +620,7 @@ function makeAggregateSubLayer(values: Partial<AggregateSubLayer>): AggregateSub
         throw new InvalidLayerDataError('Must provide a layer for the aggregate sublayer', values)
     }
 
-    const defaults: Omit<AggregateSubLayer, "layer"> = {
+    const defaults: Omit<AggregateSubLayer, 'layer'> = {
         minResolution: 0,
         maxResolution: 0,
     }
@@ -664,15 +666,15 @@ function cloneLayer<T extends Layer>(layer: T): T {
 }
 
 /**
- * @param options.addTimestamp Add the timestamp from the time config to the URL. When false, the timestamp is set to
- * `{Time}` and needs to be processed later (i.e., by the mapping framework).
+ * @param options.addTimestamp Add the timestamp from the time config to the URL. When false, the
+ *   timestamp is set to `{Time}` and needs to be processed later (i.e., by the mapping framework).
  */
 export function getWmtsXyzUrl(
     wmtsLayerConfig: GeoAdminWMTSLayer | ExternalWMTSLayer,
     projection: CoordinateSystem,
     options?: {
-        addTimestamp: boolean,
-        baseUrlOverride?: string,
+        addTimestamp: boolean
+        baseUrlOverride?: string
     }
 ): string | undefined {
     const { addTimestamp = false, baseUrlOverride } = options ?? {}
@@ -739,7 +741,7 @@ export const layerUtils: GeoadminLayerUtils = {
     isKmlLayerEmpty,
     getTopicForIdentifyAndTooltipRequests,
     cloneLayer,
-    getWmtsXyzUrl
+    getWmtsXyzUrl,
 }
 
 export default layerUtils

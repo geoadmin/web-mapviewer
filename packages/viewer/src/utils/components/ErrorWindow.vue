@@ -33,7 +33,7 @@ const emit = defineEmits(['close'])
 <template>
     <div
         v-show="!hide"
-        class="simple-window card bg-danger text-white fw-bold"
+        class="simple-window card bg-danger fw-bold text-white"
         :class="{ 'dev-disclaimer-present': hasDevSiteWarning }"
         data-cy="error-window"
     >
@@ -43,7 +43,7 @@ const emit = defineEmits(['close'])
         >
             <span
                 v-if="title"
-                class="me-auto text-truncate"
+                class="text-truncate me-auto"
             >
                 {{ t(title) }}
                 <span v-if="errorCount > 1">({{ errorCount }})</span>
