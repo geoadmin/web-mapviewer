@@ -196,17 +196,8 @@ function goToView(
         })
         hasForwardedPostMessage = true
     }
-    console.log('view', view)
-    const routerView: string = view
-    // if (legacy) {
-    //     routerView = 'legacy'
-    //     if (view === 'embed') {
-    //         routerView += '-embed'
-    //     }
-    // }
-    console.log('routerView', routerView, `/${legacy ? `#/${routerView}` : ''}${flattenedQueryParams}`)
 
-    cy.visit(`/#/${routerView}${flattenedQueryParams}`, {
+    cy.visit(`/#/${view}${flattenedQueryParams}`, {
         onBeforeLoad: (win) => {
             console.log('win url', win.location.href)
             // initializing the spy every time the app is loaded
