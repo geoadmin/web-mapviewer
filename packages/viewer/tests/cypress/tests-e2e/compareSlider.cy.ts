@@ -164,7 +164,6 @@ describe('Testing of the compare slider', () => {
                 const layer1 = layerIds[0]
                 const layer2 = layerIds[1]
                 assertDefined(feature_layer_1)
-                assertDefined(feature_layer_1)
                 assertDefined(feature_layer_2)
                 const feature_1_coordinates = [
                     feature_layer_1.properties.x,
