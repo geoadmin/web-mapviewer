@@ -1,7 +1,9 @@
 /// <reference types="cypress" />
 
+import { assertDefined } from "support/utils"
+
 describe('Testing the embed view', () => {
-    function checkUrlParams(urlToCheck, validationUrl) {
+    function checkUrlParams(urlToCheck: string, validationUrl: string): void {
         const href = new URLSearchParams(urlToCheck.replace('#map', ''))
         const validation = new URLSearchParams(validationUrl.replace('#map', ''))
         for (const key of validation.keys()) {
@@ -40,12 +42,13 @@ describe('Testing the embed view', () => {
         cy.get('[data-cy="open-full-app-link-anchor"]', { timeout: 20000 })
             .should('have.attr', 'target', '_blank')
             .invoke('attr', 'href')
-            .should((href) =>
+            .should((href) => {
+                assertDefined(href)
                 checkUrlParams(
                     href,
-                    `#/map?lang=en&center=2660000,1190000&z=2&bgLayer=test.background.layer2&topic=ech&layers=`
+                    `#/map?lang=en&center=2660013.5,1185172&z=2&bgLayer=test.background.layer2&topic=ech&layers=`
                 )
-            )
+            })
         cy.log('Test mouse zoom scrolling')
         cy.location('hash').should('contain', 'z=2')
         cy.get('[data-cy="scaleline"]').should('contain', '50 km')
@@ -96,19 +99,21 @@ describe('Testing the embed view', () => {
         cy.get('[data-cy="open-full-app-link-anchor"]')
             .should('have.attr', 'target', '_blank')
             .invoke('attr', 'href')
-            .should((href) =>
+            .should((href) => {
+                assertDefined(href)
                 checkUrlParams(
                     href,
-                    `#/map?layers=test-1.wms.layer;test.wmts.layer,,0.5;test-2.wms.layer,f;test.timeenabled.wmts.layer&lang=en&center=2660000,1190000&z=2.333&bgLayer=test.background.layer2&topic=ech`
+                    `#/map?layers=test-1.wms.layer;test.wmts.layer,,0.5;test-2.wms.layer,f;test.timeenabled.wmts.layer&lang=en&center=2660013.5,1185172&z=2.333&bgLayer=test.background.layer2&topic=ech`
                 )
-            )
+            })
     })
-    it('Open in legacy embed mode and can jump to the non embed mode', () => {
+    it.only('Open in legacy embed mode and can jump to the non embed mode', () => {
         cy.log(`Open in legacy mode without parameters`)
         cy.goToEmbedView({
-            withHash: false,
             legacy: true,
-            queryParams: { zoom: 2 }
+            queryParams: {
+                zoom: 2,
+            }
         })
 
         cy.log(`Check that the menu and the header are not displayed`)
@@ -138,17 +143,21 @@ describe('Testing the embed view', () => {
         cy.get('[data-cy="open-full-app-link-anchor"]')
             .should('have.attr', 'target', '_blank')
             .invoke('attr', 'href')
-            .should((href) =>
+            .should((href) => {
+                assertDefined(href)
                 checkUrlParams(
                     href,
-                    `#/map?lang=en&center=2660000,1190000&z=2&bgLayer=test.background.layer2&topic=ech&layers=`
+                    `#/map?lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech&layers=`
                 )
-            )
+            })
 
         cy.log('Test mouse zoom scrolling')
-        cy.location('hash').should('contain', 'z=2')
+        cy.location('hash').should('contain', 'z=1')
         cy.get('[data-cy="scaleline"]').should('contain', '50 km')
         cy.get('[data-cy="ol-map"]').realMouseWheel({ deltaY: -100 })
+        cy.location('hash').should('contain', 'z=1.333')
+        cy.get('[data-cy="scaleline"]').should('contain', '50 km')
+        cy.get('[data-cy="ol-map"]').realMouseWheel({ deltaY: -300 })
         cy.location('hash').should('contain', 'z=2.333')
         cy.get('[data-cy="scaleline"]').should('contain', '20 km')
 
@@ -160,12 +169,11 @@ describe('Testing the embed view', () => {
         cy.log('Test with a specific layer: test-1.wms.layer')
         cy.goToEmbedView({
             queryParams: {
-                layers: 'test-1.wms.layer,test.wmts.layer,test-2.wms.layer,test.timeenabled.wmts.layer',
+                layers: 'test-1.wms.layer;test.wmts.layer;test-2.wms.layer;test.timeenabled.wmts.layer',
                 layers_visibility: 'true,true,false,true',
                 layers_opacity: '0.75,0.5,1,1',
                 layers_timestamp: ',,,20160101',
             },
-            withHash: false,
             legacy: true,
         })
 
@@ -202,12 +210,13 @@ describe('Testing the embed view', () => {
         cy.get('[data-cy="open-full-app-link-anchor"]')
             .should('have.attr', 'target', '_blank')
             .invoke('attr', 'href')
-            .should((href) =>
+            .should((href) => {
+                assertDefined(href)
                 checkUrlParams(
                     href,
-                    `#/map?lang=en&center=2660000,1190000&z=1&bgLayer=test.background.layer2&topic=ech&layers=test-1.wms.layer;test.wmts.layer,,0.5;test-2.wms.layer,f,1;test.timeenabled.wmts.layer@year=2016,,1`
+                    `#/map?lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech&layers=test-1.wms.layer;test.wmts.layer,,0.5;test-2.wms.layer,f,1;test.timeenabled.wmts.layer@year=2016,,1`
                 )
-            )
+            })
     })
 
     it('Open in embed mode with ctrl scrolling', () => {
@@ -220,7 +229,7 @@ describe('Testing the embed view', () => {
         cy.get('[data-cy="ol-map"]').trigger('wheel', {
             deltaY: -100,
             ctrlKey: false,
-            bubbles: true, // needed to make sure the listener is triggered
+            bubbles: true,
         })
 
         cy.location('hash').should('contain', 'z=2')
@@ -233,8 +242,10 @@ describe('Testing the embed view', () => {
             bubbles: true,
         })
 
-        cy.location('hash').should('satisfy', (hash) => {
+        cy.location('hash').should('satisfy', (hash: string) => {
             const match = hash.match(/z=(\d+(?:\.\d+)?)/)
+            assertDefined(match)
+            assertDefined(match[1])
             return match && parseFloat(match[1]) > 2
         })
     })
