@@ -172,7 +172,7 @@ const getters = {
     activeKmlLayer: (state) =>
         state.activeLayers.findLast(
             (layer) => layer.visible && layer.type === LayerTypes.KML && !layer.isExternal
-        ) ?? null,
+        ) ?? undefined,
 
     /**
      * Get index of active layer by ID.
