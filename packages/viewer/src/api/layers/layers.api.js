@@ -160,7 +160,7 @@ const generateClassForLayerConfig = (layerConfig, id, allOtherLayers, lang) => {
                     // (see example above, that would be "hey.i.am.not.the.same.as.the.sublayer.id")
                     const subLayer = generateClassForLayerConfig(
                         subLayerRawConfig,
-                        subLayerRawConfig.serverLayerName,
+                        subLayerRawConfig?.serverLayerName,
                         allOtherLayers,
                         lang
                     )

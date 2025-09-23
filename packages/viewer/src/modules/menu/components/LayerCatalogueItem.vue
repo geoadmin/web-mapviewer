@@ -87,7 +87,7 @@ const hasChildrenMatchSearch = computed(() => {
  */
 const canBeAddedToTheMap = computed(() => {
     // only groups of layers from our backends can't be added to the map
-    return item && !(item instanceof GeoAdminGroupOfLayers)
+    return item && !item.type === GeoAdminGroupOfLayers.TYPE
 })
 const isPresentInActiveLayers = computed(() => {
     const layers = store.getters.getActiveLayersById(item.id, item.isExternal, item.baseUrl)
@@ -237,6 +237,10 @@ function containsLayer(layers, searchText) {
     }
     return match
 }
+
+onMounted(() => {
+    console.log('mounted item', item)
+})
 </script>
 
 <template>

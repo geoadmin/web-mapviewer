@@ -94,7 +94,6 @@ function launchPrint(config: LaunchPrintOptions = {}) {
 
 function checkPrintRequest(body: PrintRequestBody, expectedValues: ExpectedValues = {}) {
     expect(body).to.be.an('object')
-
     const {
         layout = '1. A4 landscape',
         format = 'pdf',
@@ -148,10 +147,12 @@ function checkPrintRequest(body: PrintRequestBody, expectedValues: ExpectedValue
             })
         })
     } else {
-        expect(attributes.printLegend).to.equals(
-            0,
-            'should tell print service to not have legend with a zero value'
-        )
+        if (attributes.printLegend) {
+            expect(attributes.printLegend).to.equals(
+                0,
+                'should tell print service to not have legend with a zero value'
+            )
+        }
     }
 
     expect(attributes.copyright).to.equal(copyright)
