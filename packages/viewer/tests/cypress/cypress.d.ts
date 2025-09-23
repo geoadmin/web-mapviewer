@@ -131,7 +131,11 @@ declare global {
 
             /** Opens the drawing mode. Will open the menu if the app is in mobile mode and the menu is not yet open. */
             openDrawingMode(): void
-            /** Closes the drawing mode. Will close the "You have not copied the link" message if it is shown. */
+
+            /**
+             * Closes the drawing mode. Will close the "You have not copied the link" message if it is shown.
+             * @param closeDrawingNotSharedAdmin Optional flag to close the drawing not shared admin modal if it is open. Default to true.
+             */
             closeDrawingMode(closeDrawingNotSharedAdmin?: boolean): void
             /**
              * Opens up the viewer and goes straight to the drawing module.

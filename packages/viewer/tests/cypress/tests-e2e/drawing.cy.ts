@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { registerProj4, WGS84 } from '@swissgeo/coordinates'
+import { registerProj4, WGS84, type SingleCoordinate } from '@swissgeo/coordinates'
 import { LayerType, type KMLLayer } from '@swissgeo/layers'
 import { randomIntBetween } from '@swissgeo/numbers'
 import { recurse } from 'cypress-recurse'
@@ -19,8 +19,9 @@ import {
     checkKMLRequest,
     getKmlAdminIdFromRequest,
     kmlMetadataTemplate,
-} from '../support/drawing.js'
+} from '../support/drawing'
 import type { CyHttpMessages } from 'cypress/types/net-stubbing'
+import type Feature from 'ol/Feature'
 
 registerProj4(proj4)
 
@@ -45,8 +46,8 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-style-feature-title"]').should('have.value', title)
             cy.wait('@update-kml')
                 .its('request')
-                .then((request) =>
-                    checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [new RegExp(`<name>${title}</name>`)])
+                .should((request) =>
+                        void checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [new RegExp(`<name>${title}</name>`)])
                 )
             cy.readStoreValue('getters.selectedFeatures[0].title').should('eq', title)
         }
@@ -60,8 +61,8 @@ describe('Drawing module tests', () => {
         function waitForKmlUpdate(...regexExpressions: string[]): void {
             cy.wait('@update-kml')
                 .its('request')
-                .then((request) =>
-                    checkKMLRequest(
+                .should((request) =>
+                    void checkKMLRequest(
                         request as CyHttpMessages.IncomingHttpRequest,
                         regexExpressions.map((expression) => new RegExp(expression))
                     )
@@ -89,7 +90,7 @@ describe('Drawing module tests', () => {
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
                 .should((features) => {
                     const matchingFeature = features.find(
-                        (feature: import('ol/Feature').default) => feature.get('description') === description
+                        (feature: Feature) => feature.get('description') === description
                     )
                     expect(matchingFeature).to.not.be.undefined
                     expect(matchingFeature.getGeometry().getType()).to.eq(featureType)
@@ -453,8 +454,8 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click()
             cy.wait('@post-kml')
                 .its('request')
-                .then((request) => {
-                    return checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [
+                .should((request) => {
+                    void checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [
                         new RegExp(
                             `<LabelStyle><color>${KML_STYLE_RED}</color><scale>1.5</scale></LabelStyle>`
                         ),
@@ -480,8 +481,8 @@ describe('Drawing module tests', () => {
                 .click()
             cy.wait('@update-kml')
                 .its('request')
-                .then((request) => {
-                    return checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [
+                .should((request) => {
+                    void checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [
                         new RegExp(
                             `<LabelStyle><color>${KML_STYLE_BLACK}</color><scale>1.5</scale></LabelStyle>`
                         ),
@@ -503,8 +504,8 @@ describe('Drawing module tests', () => {
             ).click({ force: true })
             cy.wait('@update-kml')
                 .its('request')
-                .then((request) => {
-                    return checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [
+                .should((request) => {
+                    void checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [
                         new RegExp(`<LabelStyle><color>${KML_STYLE_BLACK}</color></LabelStyle>`),
                     ])
                 })
@@ -535,7 +536,7 @@ describe('Drawing module tests', () => {
             cy.viewport(1920, 1080)
             cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
 
-            const lineCoordinates: [number, number][] = [
+            const lineCoordinates: SingleCoordinate[] = [
                 [500, 500],
                 [550, 550],
                 [600, 600],
@@ -659,7 +660,7 @@ describe('Drawing module tests', () => {
             cy.log('Create measurement line')
             cy.clickDrawingTool(EditableFeatureTypes.MEASURE)
 
-            const measurementCoordinates: [number, number][] = [
+            const measurementCoordinates: SingleCoordinate[] = [
                 [1000, 500],
                 [1050, 550],
                 [1100, 600],
@@ -723,12 +724,12 @@ describe('Drawing module tests', () => {
             cy.log('should create a polygon by re-clicking the first point')
             cy.get('[data-cy="ol-map"]').click(100, 250)
 
-            let kmlId: string | null = null
+            let kmlId: string | undefined = undefined
             cy.wait('@post-kml').then((interception) => {
                 cy.wrap(interception)
                     .its('request')
-                    .then((request) =>
-                        checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [
+                    .should((request) =>
+                        void checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [
                             new RegExp(
                                 `<Data name="type"><value>${EditableFeatureTypes.LINEPOLYGON.toLowerCase()}</value></Data>`
                             ),
@@ -765,8 +766,8 @@ describe('Drawing module tests', () => {
             })
             cy.wait('@update-kml')
                 .its('request')
-                .then((request) =>
-                    checkKMLRequest(
+                .should((request) =>
+                    void checkKMLRequest(
                         request as CyHttpMessages.IncomingHttpRequest,
                         [
                             new RegExp(
@@ -775,7 +776,7 @@ describe('Drawing module tests', () => {
                                 )}</color></PolyStyle></Style>`
                             ),
                         ],
-                        kmlId!
+                        kmlId
                     )
                 )
 
@@ -837,13 +838,13 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-toolbox-delete-button"]').click()
             cy.get('[data-cy="modal-confirm-button"]').click()
 
-            let deletedKmlId: string | null = null
+            let deletedKmlId: string | undefined = undefined
 
             cy.wait('@delete-kml').then((interception) => {
                 deletedKmlId = interception.response?.body.id
             })
 
-            cy.waitUntil(() => deletedKmlId !== null, {
+            cy.waitUntil(() => deletedKmlId !== undefined, {
                 timeout: 5000,
                 interval: 200,
             })
@@ -869,12 +870,12 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click(150, 250)
             cy.get('[data-cy="ol-map"]').click(150, 280)
 
-            let newKmlId: string | null = null
+            let newKmlId: string | undefined = undefined
             cy.wait('@post-kml').then((interception) => {
                 newKmlId = interception.response?.body.id
             })
 
-            cy.waitUntil(() => newKmlId !== null, {
+            cy.waitUntil(() => newKmlId !== undefined, {
                 timeout: 5000,
                 interval: 200,
             }).then(() => {
@@ -1040,7 +1041,7 @@ describe('Drawing module tests', () => {
                     expect(newKmlId).to.not.eq(kmlId)
 
                     // The just cleared KML should not be in the active layer list anymore
-                    cy.window().its('store.getters.activeKmlLayer').should('be.null')
+                    cy.window().its('store.getters.activeKmlLayer').should('be.undefined')
 
                     cy.log(`Check that adding a new feature update the new kml ${newKmlId}`)
                     // Add another feature and checking that we do not create subsequent copies (we now have the adminId for this KML)
@@ -1250,7 +1251,7 @@ describe('Drawing module tests', () => {
                         expect(layer.fileId).to.eq(fileId)
                         expect(layer.name).to.eq('KML')
                         expect(layer.hasError).to.be.true
-                        expect(layer.kmlData).to.be.null
+                        expect(layer.kmlData).to.be.undefined
                         expect(layer.errorMessages).not.to.be.undefined
                         expect(layer.errorMessages).not.to.be.undefined
                         expect(layer.errorMessages.size).to.eq(1)
@@ -1311,7 +1312,7 @@ describe('Drawing module tests', () => {
                     expect(layer.fileId).not.to.eq(fileId)
                     expect(layer.name).to.eq('Drawing')
                     expect(layer.hasError).to.be.false
-                    expect(layer.kmlData).not.to.be.null
+                    expect(layer.kmlData).not.to.be.undefined
                     expect(layer.errorMessages.size).to.eq(0)
                 })
         })
@@ -1439,8 +1440,8 @@ describe('Drawing module tests', () => {
             const publicShortlink = 'https://s.geo.admin.ch/public-shortlink'
             const adminshortlink = 'https://s.geo.admin.ch/admin-shortlink'
 
-            let adminId: string | null = null
-            let kmlId: string | null = null
+            let adminId: string | undefined = undefined
+            let kmlId: string | undefined = undefined
 
             cy.goToDrawing()
 
