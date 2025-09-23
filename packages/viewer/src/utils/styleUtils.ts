@@ -1,5 +1,7 @@
+import type { StyleLike } from 'ol/style/Style'
+
 import { Circle, Fill, Stroke, Style } from 'ol/style'
-import CircleStyle from 'ol/style/Circle.js'
+import CircleStyle from 'ol/style/Circle'
 
 import { MIN_PRINT_SCALE_SIZE, PRINT_DPI_COMPENSATION } from '@/config/print.config'
 import variables from '@/scss/variables-admin.module.scss'
@@ -7,7 +9,7 @@ import variables from '@/scss/variables-admin.module.scss'
 const { red, mocassin, mocassinToRed1, mocassinToRed2, malibu, black, white } = variables
 
 // OL needs color as RGBA arrays, so we convert them through this function
-function hexToRgba(hexValue, alpha = 1.0) {
+function hexToRgba(hexValue: string, alpha: number = 1.0): number[] {
     // Remove the leading # and expand 3-character hex to 6-character
     let hex = hexValue.replace(/^#/, '')
     if (hex.length === 3) {
@@ -16,8 +18,11 @@ function hexToRgba(hexValue, alpha = 1.0) {
             .map((c) => c + c)
             .join('')
     }
-
-    return [...hex.match(/.{1,2}/g).map((value) => parseInt(value, 16)), alpha]
+    const match = hex.match(/.{1,2}/g)
+    if (match) {
+        return [...match.map((value) => parseInt(value, 16)), alpha]
+    }
+    return []
 }
 
 const STROKE_WIDTH = 3
@@ -75,7 +80,7 @@ export const sketchPointStyle = new Circle({
     fill: whiteSketchFill,
 })
 
-export const gpxStyles = {
+export const gpxStyles: { [key: string]: StyleLike } = {
     Point: new Style({ image: redCircleStyle }),
     LineString: new Style({ stroke: gpxStrokeStyle, fill: redFill }),
     MultiLineString: new Style({ stroke: gpxStrokeStyle, fill: redFill }),
@@ -163,7 +168,7 @@ export const highlightPointStyle = new Style({
 
 // Change a width according to the change of DPI (from the old geoadmin)
 // Originally introduced here https://github.com/geoadmin/mf-geoadmin3/pull/3280
-export function adjustWidth(width, dpi) {
+export function adjustWidth(width: number, dpi: number): number {
     if (!width || isNaN(width) || !dpi || isNaN(dpi) || dpi <= 0) {
         return 0
     }

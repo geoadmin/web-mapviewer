@@ -1,4 +1,4 @@
-import type { CoordinateSystem } from '@swissgeo/coordinates'
+import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
 import { WGS84 } from '@swissgeo/coordinates'
 import type { KMLLayer } from '@swissgeo/layers'
 import { KMLStyle } from '@swissgeo/layers'
@@ -10,7 +10,6 @@ import JSZip from 'jszip'
 import {
     createEmpty as emptyExtent,
     extend as extendExtent,
-    type Extent,
     isEmpty as isExtentEmpty,
 } from 'ol/extent'
 import type { Feature as OLFeature } from 'ol'
@@ -69,7 +68,7 @@ export function parseKmlName(content: string): string | undefined {
  * @param content KML content
  * @returns KML layer extent in WGS84 projection or null if the KML has no features
  */
-export function getKmlExtent(content: string): Extent | undefined {
+export function getKmlExtent(content: string): FlatExtent | undefined {
     const features = kmlReader.readFeatures(content, {
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: WGS84.epsg,
@@ -84,7 +83,7 @@ export function getKmlExtent(content: string): Extent | undefined {
     if (isExtentEmpty(extent)) {
         return
     }
-    return extent
+    return extent as FlatExtent
 }
 
 /**
