@@ -1,6 +1,6 @@
 import log from '@swissgeo/log'
 
-import { createShortLink } from '@/api/shortlink.api'
+import { createShortLink } from '@/api/shortlink.api.js'
 
 export default {
     state: {
