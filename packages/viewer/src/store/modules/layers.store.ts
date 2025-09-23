@@ -112,7 +112,7 @@ const cloneActiveLayerConfig = (sourceLayer: Layer, activeLayerConfig: Partial<L
                 )
             }
             if (updateDelay && clone.type === LayerType.GEOJSON) {
-                ;(clone as GeoAdminGeoJSONLayer).updateDelay = updateDelay
+                ; (clone as GeoAdminGeoJSONLayer).updateDelay = updateDelay
             }
         }
     }
@@ -618,7 +618,7 @@ const useLayersStore = defineStore('layers', {
          */
         updateLayers(
             // we want at least `Layer`, it can contain more
-            layers: Partial<Layer> [],
+            layers: Partial<Layer>[],
             dispatcher: ActionDispatcher
         ) {
             layers
