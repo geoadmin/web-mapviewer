@@ -319,8 +319,6 @@ describe('Testing the feature selection', () => {
                     ctrlKey: true,
                 })
                 cy.get('@olMap').realMouseMove(pixelsAroundCenter.x / 2.0, pixelsAroundCenter.y / 2.0, {
-                    // x: elementSize.width / 2.0 - pixelsAroundCenter.x / 2.0,
-                    // y: elementSize.height / 2.0 - pixelsAroundCenter.y / 2.0,
                     position: 'center',
                     ctrlKey: true,
                 })
