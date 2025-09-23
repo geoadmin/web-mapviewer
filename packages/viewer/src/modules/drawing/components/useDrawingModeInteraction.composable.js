@@ -11,6 +11,7 @@ import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, toValue } 
 import { useStore } from 'vuex'
 
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { extractOlFeatureCoordinates } from '@/api/features/features.api'
 import { DEFAULT_MARKER_TITLE_OFFSET } from '@/api/icon.api'
 import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
@@ -249,7 +250,7 @@ export default function useDrawingModeInteraction({
             // grabbing the drawn feature so that we send it through the event
 
             const editableFeature = drawnFeature.get('editableFeature')
-            editableFeature.setCoordinatesFromFeature(drawnFeature)
+            editableFeature.coordinates = extractOlFeatureCoordinates(drawnFeature)
             // setting the geometry too so that the floating popup can be placed correctly on the map
             editableFeature.geometry = new GeoJSON().writeGeometryObject(geometry)
 

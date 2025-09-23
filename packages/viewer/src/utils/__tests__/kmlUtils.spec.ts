@@ -1,27 +1,22 @@
 import { WEBMERCATOR } from '@swissgeo/coordinates'
+import { layerUtils } from '@swissgeo/layers/utils'
 import { readFileSync } from 'fs'
 import IconStyle from 'ol/style/Icon'
 import { resolve } from 'path'
 import { beforeEach, describe, expect, it } from 'vitest'
+import type { Feature as OLFeature } from 'ol'
 
-import { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
-import KMLLayer from '@/api/layers/KMLLayer.class'
+import { type DrawingIconSet, generateIconURL } from '@/api/icon.api'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
-import { fakeIconSets } from '@/utils/__tests__/legacyKmlUtils.spec.js'
+import { fakeIconSets } from '@/utils/__tests__/legacyKmlUtils.spec'
 import { BLUE } from '@/utils/featureStyleUtils'
-import { getIcon, getKmlExtent, parseIconUrl, parseKml } from '@/utils/kmlUtils'
-
-import { isKmlFeaturesValid } from '../kmlUtils'
+import { getIcon, getKmlExtent, isKml, isKmlFeaturesValid, parseIconUrl, parseKml } from '@/utils/kmlUtils'
+import type EditableFeature from '@/api/features/EditableFeature.class'
 
 describe('Test KML utils', () => {
     describe('get KML Extent', () => {
         it('handles correctly invalid inputs', () => {
-            expect(getKmlExtent()).to.be.null
-            expect(getKmlExtent(null)).to.be.null
-            expect(getKmlExtent(0)).to.be.null
-            expect(getKmlExtent([])).to.be.null
-            expect(getKmlExtent({})).to.be.null
-            expect(getKmlExtent('')).to.be.null
+            expect(getKmlExtent('')).toBeUndefined()
         })
         it('returns null if the KML has no feature', () => {
             const emptyDocument = `<?xml version="1.0" encoding="UTF-8"?>
@@ -30,7 +25,7 @@ describe('Test KML utils', () => {
                 </Document>
             </kml>
             `
-            expect(getKmlExtent(emptyDocument)).to.be.null
+            expect(getKmlExtent(emptyDocument)).toBeUndefined()
         })
         it('get extent of a single feature', () => {
             const content = `<?xml version="1.0" encoding="UTF-8"?>
@@ -123,28 +118,27 @@ describe('Test KML utils', () => {
     describe('isKmlFeaturesValid', () => {
         it('returns false if there is an error in the features of the KML', () => {
             const kml = readFileSync(resolve(__dirname, './kml_feature_error.kml'), 'utf8')
-            const result = isKmlFeaturesValid(kml)
-            expect(result).to.be.false
+            expect(isKmlFeaturesValid(kml)).to.be.false
         })
         it('returns true if there is no error in the features of the KML', () => {
             const kml = readFileSync(resolve(__dirname, './webmapviewerOffsetTestKml.kml'), 'utf8')
-            const result = isKmlFeaturesValid(kml)
-            expect(result).to.be.true
+            expect(isKmlFeaturesValid(kml)).to.be.true
         })
     })
     describe('get marker title offset', () => {
-        let features = []
-        function findFeatureWithId(featureId) {
+        let features: EditableFeature[] = []
+        function findFeatureWithId(featureId: string) {
             return features.find((feature) => feature.id === featureId)
         }
 
         beforeEach(() => {
             const kml = readFileSync(resolve(__dirname, './webmapviewerOffsetTestKml.kml'), 'utf8')
-            const kmlLayer = new KMLLayer({
+            const kmlLayer = layerUtils.makeKMLLayer({
                 kmlFileUrl: getServiceKmlBaseUrl(), // so that it is not considered external
                 kmlData: kml,
             })
-            const olFeatures = parseKml(kmlLayer, WEBMERCATOR, fakeIconSets)
+            const resolution = 1000
+            const olFeatures: OLFeature[] = parseKml(kmlLayer, WEBMERCATOR, resolution, fakeIconSets)
             features = olFeatures.map((f) => {
                 const ef = f.get('editableFeature')
                 ef.olFeature = f
@@ -153,11 +147,13 @@ describe('Test KML utils', () => {
         })
         it('handles correctly text offset from extended data', () => {
             const icon = findFeatureWithId('drawing_feature_1714651153088')
-            expect(icon.textOffset).to.deep.equal([0, -44.75])
+            expect(icon).toBeDefined()
+            expect(icon!.textOffset).to.deep.equal([0, -44.75])
         })
         it('handles correctly text offset if no offset provided', () => {
             const icon = findFeatureWithId('drawing_feature_1714651899088')
-            expect(icon.textOffset).to.deep.equal([0, 0])
+            expect(icon).toBeDefined()
+            expect(icon!.textOffset).to.deep.equal([0, 0])
         })
     })
     describe('parseIconUrl', () => {
@@ -165,151 +161,161 @@ describe('Test KML utils', () => {
             const args = parseIconUrl(
                 'https://sys-map.dev.bgdi.ch/api/icons/sets/default/icons/001-marker@1.5x-0,128,0.png'
             )
-            expect(args).to.be.not.null.and.to.be.not.undefined
-            expect(args.set).to.be.equal('default')
-            expect(args.name).to.be.equal('001-marker')
-            expect(args.color).to.be.not.null.and.to.be.not.undefined
-            expect(args.color.r).to.be.equal(0)
-            expect(args.color.g).to.be.equal(128)
-            expect(args.color.b).to.be.equal(0)
-            expect(args.isLegacy).to.be.false
+            expect(args).toBeDefined()
+            expect(args!.set).to.be.equal('default')
+            expect(args!.name).to.be.equal('001-marker')
+            expect(args!.color).toBeDefined()
+            expect(args!.color?.r).to.be.equal(0)
+            expect(args!.color?.g).to.be.equal(128)
+            expect(args!.color?.b).to.be.equal(0)
+            expect(args!.isLegacy).to.be.false
         })
         it('parse a new icon url of a default set with invalid color', () => {
             const args = parseIconUrl(
                 'https://sys-map.dev.bgdi.ch/api/icons/sets/default/icons/001-marker@4x-0,600,0.png'
             )
-            expect(args).to.be.not.null.and.to.be.not.undefined
-            expect(args.set).to.be.equal('default')
-            expect(args.name).to.be.equal('001-marker')
-            expect(args.color).to.be.not.null.and.to.be.not.undefined
-            expect(args.color.r).to.be.equal(0)
-            expect(args.color.g).to.be.equal(255)
-            expect(args.color.b).to.be.equal(0)
-            expect(args.isLegacy).to.be.false
+            expect(args).toBeDefined()
+            expect(args!.set).to.be.equal('default')
+            expect(args!.name).to.be.equal('001-marker')
+            expect(args!.color).toBeDefined()
+            expect(args!.color?.r).to.be.equal(0)
+            expect(args!.color?.g).to.be.equal(255)
+            expect(args!.color?.b).to.be.equal(0)
+            expect(args!.isLegacy).to.be.false
         })
         it('parse a new icon url of a default set with no number color', () => {
             const args = parseIconUrl(
                 'https://sys-map.dev.bgdi.ch/api/icons/sets/default/icons/001-marker@1.5x-0,600,a.png'
             )
-            expect(args).to.be.null
+            expect(args).toBeUndefined()
         })
         it('parse a new icon url of a babs set', () => {
             const args = parseIconUrl(
                 'https://sys-map.dev.bgdi.ch/api/icons/sets/babs/icons/babs-100@1x-255,128,3.png'
             )
-            expect(args).to.be.not.null.and.to.be.not.undefined
-            expect(args.set).to.be.equal('babs')
-            expect(args.name).to.be.equal('babs-100')
-            expect(args.color).to.be.not.null.and.to.be.not.undefined
-            expect(args.color.r).to.be.equal(255)
-            expect(args.color.g).to.be.equal(128)
-            expect(args.color.b).to.be.equal(3)
-            expect(args.isLegacy).to.be.false
+            expect(args).toBeDefined()
+            expect(args!.set).to.be.equal('babs')
+            expect(args!.name).to.be.equal('babs-100')
+            expect(args!.color).toBeDefined()
+            expect(args!.color?.r).to.be.equal(255)
+            expect(args!.color?.g).to.be.equal(128)
+            expect(args!.color?.b).to.be.equal(3)
+            expect(args!.isLegacy).to.be.false
         })
         it('parse a new icon standard url of a default set (no scale no color)', () => {
             const args = parseIconUrl(
                 'https://map.geo.admin.ch/api/icons/sets/my-set/icons/my-icon.png'
             )
-            expect(args).to.be.null
+            expect(args).toBeUndefined()
         })
         it('parse a new icon url of a default set without scale', () => {
             const args = parseIconUrl(
                 'https://map.geo.admin.ch/api/icons/sets/my-set/icons/my-icon-255,0,0.png'
             )
-            expect(args).to.be.null
+            expect(args).toBeUndefined()
         })
         it('parse a new icon url of a default set without color', () => {
             const args = parseIconUrl(
                 'https://map.geo.admin.ch/api/icons/sets/my-set/icons/my-icon@1.5x.png'
             )
-            expect(args).to.be.null
+            expect(args).toBeUndefined()
         })
         it('parse a legacy icon url of a default set', () => {
             const args = parseIconUrl('https://api3.geo.admin.ch/color/45,128,23/star-24@2x.png')
-            expect(args).to.be.not.null.and.to.be.not.undefined
-            expect(args.set).to.be.equal('default')
-            expect(args.name).to.be.equal('star')
-            expect(args.color).to.be.not.null.and.to.be.not.undefined
-            expect(args.color.r).to.be.equal(45)
-            expect(args.color.g).to.be.equal(128)
-            expect(args.color.b).to.be.equal(23)
-            expect(args.isLegacy).to.be.true
+            expect(args).toBeDefined()
+            expect(args!.set).to.be.equal('default')
+            expect(args!.name).to.be.equal('star')
+            expect(args!.color).toBeDefined()
+            expect(args!.color?.r).to.be.equal(45)
+            expect(args!.color?.g).to.be.equal(128)
+            expect(args!.color?.b).to.be.equal(23)
+            expect(args!.isLegacy).to.be.true
         })
         it('parse a legacy icon url of a default set with invalid color', () => {
             const args = parseIconUrl('https://api3.geo.admin.ch/color/45,600,800/star-24@2x.png')
-            expect(args).to.be.not.null.and.to.be.not.undefined
-            expect(args.set).to.be.equal('default')
-            expect(args.name).to.be.equal('star')
-            expect(args.color).to.be.not.null.and.to.be.not.undefined
-            expect(args.color.r).to.be.equal(45)
+            expect(args).toBeDefined()
+            expect(args!.set).to.be.equal('default')
+            expect(args!.name).to.be.equal('star')
+            expect(args!.color).toBeDefined()
+            expect(args!.color?.r).to.be.equal(45)
             // invalid color fallback to 255
-            expect(args.color.g).to.be.equal(255)
-            expect(args.color.b).to.be.equal(255)
-            expect(args.isLegacy).to.be.true
+            expect(args!.color?.g).to.be.equal(255)
+            expect(args!.color?.b).to.be.equal(255)
+            expect(args!.isLegacy).to.be.true
         })
         it('parse a legacy icon url of a default set with non number color', () => {
             const args = parseIconUrl('https://api3.geo.admin.ch/color/45,a,800/star-24@2x.png')
-            expect(args).to.be.null
+            expect(args).toBeUndefined()
         })
         it('parse a legacy icon url of a babs set', () => {
             const args = parseIconUrl('https://sys-api3.dev.bgdi.ch/images/babs/babs-76.png')
-            expect(args).to.be.not.null.and.to.be.not.undefined
-            expect(args.set).to.be.equal('babs')
-            expect(args.name).to.be.equal('babs-76')
+            expect(args).toBeDefined()
+            expect(args!.set).to.be.equal('babs')
+            expect(args!.name).to.be.equal('babs-76')
             // expect default scale and color
-            expect(args.color.r).to.be.equal(255)
-            expect(args.color.g).to.be.equal(0)
-            expect(args.color.b).to.be.equal(0)
-            expect(args.isLegacy).to.be.true
+            expect(args!.color?.r).to.be.equal(255)
+            expect(args!.color?.g).to.be.equal(0)
+            expect(args!.color?.b).to.be.equal(0)
+            expect(args!.isLegacy).to.be.true
         })
     })
     describe('getIcon', () => {
-        const fakeDefaultIconSet = new DrawingIconSet(
-            'default',
-            true,
-            'https://totally.fake.url',
-            'https://tottally.fake.template'
-        )
-        // adding the 3 icons from the default set
-        fakeDefaultIconSet.icons = [
-            new DrawingIcon(
-                '001-marker',
-                'https://fake.image.url',
-                'https://fake.image.url/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png',
-                'default',
-                [0, 0]
-            ),
-            new DrawingIcon(
-                '002-circle',
-                'https://fake.image.url',
-                'https://fake.image.url/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png',
-                'default',
-                [0, 0]
-            ),
-            new DrawingIcon(
-                '0003-square',
-                'https://fake.image.url',
-                'https://fake.image.url/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png',
-                'default',
-                [0, 0]
-            ),
-        ]
-        const fakeBabsIconSet = new DrawingIconSet(
-            'babs',
-            false,
-            'https://another.fake.url',
-            'https://another.fake.template'
-        )
-        fakeBabsIconSet.icons = [
-            new DrawingIcon(
-                'babs-3',
-                'https://fake.image.url',
-                'https://fake.image.url/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png',
-                'babs',
-                [0, 0]
-            ),
-        ]
-        const fakeIconSets = [fakeDefaultIconSet, fakeBabsIconSet]
+        const fakeDefaultIconSet: DrawingIconSet = {
+            name: 'default',
+            isColorable: true,
+            hasDescription: false,
+            language: 'en',
+            iconsURL: 'https://totally.fake.url',
+            templateURL: 'https://tottally.fake.template',
+            icons: [
+                {
+                    name: '001-marker',
+                    imageURL: 'https://fake.image.url',
+                    imageTemplateURL: 'https://fake.image.url/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png',
+                    iconSetName: 'default',
+                    anchor: [0, 0],
+                    size: [48, 48],
+                },
+                {
+                    name: '002-circle',
+                    imageURL: 'https://fake.image.url',
+                    imageTemplateURL: 'https://fake.image.url/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png',
+                    iconSetName: 'default',
+                    anchor: [0, 0],
+                    size: [48, 48],
+                },
+                {
+                    name: '0003-square',
+                    imageURL: 'https://fake.image.url',
+                    imageTemplateURL: 'https://fake.image.url/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png',
+                    iconSetName: 'default',
+                    anchor: [0, 0],
+                    size: [48, 48],
+                },
+            ]
+        }
+        const fakeBabsIconSet: DrawingIconSet = {
+            name: 'babs',
+            isColorable: false,
+            hasDescription: true,
+            language: 'en',
+            iconsURL: 'https://another.fake.url',
+            templateURL: 'https://another.fake.template',
+            icons: [
+                {
+                    name: 'babs-3',
+                    imageURL: 'https://fake.image.url',
+                    imageTemplateURL: 'https://fake.image.url/api/icons/sets/{icon_set_name}/icons/{icon_name}@{icon_scale}-{r},{g},{b}.png',
+                    iconSetName: 'babs',
+                    anchor: [0, 0],
+                    size: [48, 48],
+                    description: {
+                        'en': 'BABS 3 icon'
+                    }
+                }
+            ]
+        }
+        const fakeIconSets: DrawingIconSet[] = [fakeDefaultIconSet, fakeBabsIconSet]
         it('get icon with standard arguments from the set', () => {
             const icon = getIcon(
                 {
@@ -317,13 +323,13 @@ describe('Test KML utils', () => {
                     name: '001-marker',
                     isLegacy: false,
                 },
-                null,
+                undefined,
                 fakeIconSets
             )
-            expect(icon).to.be.not.null.and.not.undefined
-            expect(icon.name).to.be.equal('001-marker')
-            expect(icon.iconSetName).to.be.equal('default')
-            expect(icon.generateURL()).to.be.equal(
+            expect(icon).toBeDefined()
+            expect(icon!.name).to.be.equal('001-marker')
+            expect(icon!.iconSetName).to.be.equal('default')
+            expect(generateIconURL(icon!)).to.be.equal(
                 'https://fake.image.url/api/icons/sets/default/icons/001-marker@1x-255,0,0.png'
             )
         })
@@ -334,13 +340,13 @@ describe('Test KML utils', () => {
                     name: '001-marker',
                     isLegacy: false,
                 },
-                null,
+                undefined,
                 fakeIconSets
             )
-            expect(icon).to.be.not.null.and.not.undefined
-            expect(icon.name).to.be.equal('001-marker')
-            expect(icon.iconSetName).to.be.equal('default')
-            expect(icon.generateURL(BLUE, 1.5)).to.be.equal(
+            expect(icon).toBeDefined()
+            expect(icon!.name).to.be.equal('001-marker')
+            expect(icon!.iconSetName).to.be.equal('default')
+            expect(generateIconURL(icon!, BLUE, 1.5)).to.be.equal(
                 'https://fake.image.url/api/icons/sets/default/icons/001-marker@1.5x-0,0,255.png'
             )
         })
@@ -351,13 +357,13 @@ describe('Test KML utils', () => {
                     name: 'babs-3',
                     isLegacy: false,
                 },
-                null,
+                undefined,
                 fakeIconSets
             )
-            expect(icon).to.be.not.null.and.not.undefined
-            expect(icon.name).to.be.equal('babs-3')
-            expect(icon.iconSetName).to.be.equal('babs')
-            expect(icon.generateURL()).to.be.equal(
+            expect(icon).toBeDefined()
+            expect(icon!.name).to.be.equal('babs-3')
+            expect(icon!.iconSetName).to.be.equal('babs')
+            expect(generateIconURL(icon!)).to.be.equal(
                 'https://fake.image.url/api/icons/sets/babs/icons/babs-3@1x-255,0,0.png'
             )
         })
@@ -368,10 +374,10 @@ describe('Test KML utils', () => {
                     name: '001-marker',
                     isLegacy: false,
                 },
-                null,
-                null
+                undefined,
+                undefined
             )
-            expect(icon).to.be.null
+            expect(icon).toBeUndefined()
         })
         it('get icon with standard arguments witout sets', () => {
             const icon = getIcon(
@@ -384,10 +390,10 @@ describe('Test KML utils', () => {
                     src: 'https://fake.image.url/api/icons/sets/default/icons/001-marker@1x-255,0,0.png',
                 })
             )
-            expect(icon).to.be.not.null.and.not.undefined
-            expect(icon.name).to.be.equal('001-marker')
-            expect(icon.iconSetName).to.be.equal('default')
-            expect(icon.generateURL()).to.be.equal(
+            expect(icon).toBeDefined()
+            expect(icon!.name).to.be.equal('001-marker')
+            expect(icon!.iconSetName).to.be.equal('default')
+            expect(generateIconURL(icon!)).to.be.equal(
                 'https://fake.image.url/api/icons/sets/default/icons/001-marker@1x-255,0,0.png'
             )
         })
@@ -402,12 +408,70 @@ describe('Test KML utils', () => {
                     src: 'https://api3.geo.admin.ch/color/45,600,800/star-24@2x.png',
                 })
             )
-            expect(icon).to.be.not.null.and.not.undefined
-            expect(icon.name).to.be.equal('star')
-            expect(icon.iconSetName).to.be.equal('default')
-            expect(icon.generateURL()).to.be.equal(
+            expect(icon).toBeDefined()
+            expect(icon!.name).to.be.equal('star')
+            expect(icon!.iconSetName).to.be.equal('default')
+            expect(generateIconURL(icon!)).to.be.equal(
                 'https://api3.geo.admin.ch/color/45,600,800/star-24@2x.png'
             )
+        })
+    })
+    describe('isKml', () => {
+        it('detects a simple KML file syntax correctly', () => {
+            expect(isKml('<kml>test</kml>')).to.be.true
+        })
+        it('can detect a KML file with a namespace prefix', () => {
+            expect(isKml('<kml:kml>test</kml:kml>')).to.be.true
+        })
+        it('can detect a KML file with a namespace prefix and a namespace declaration', () => {
+            expect(isKml('<?xml version="1.0" encoding="UTF-8"?><kml:kml>test</kml:kml>')).to.be.true
+        })
+        it('handles carriage returns correctly', () => {
+            expect(
+                isKml(
+                    `<?xml version="1.0" encoding="UTF-8"?>
+<kml:kml>
+    test
+</kml:kml>`
+                )).to.be.true
+        })
+        it('can handle a full KML sample correctly', () => {
+            expect(isKml(`
+<kml>
+    <Placemark>
+        <name>test</name>
+        <description>KML With Prefixed Namespace</description>
+        <Point>
+            <coordinates>7.438632503,46.951082887,598.947</coordinates>
+        </Point>
+    </Placemark>
+</kml>`
+            )).to.be.true
+        })
+        it('rejects a tag with a typo at the end', () => {
+            expect(isKml('<kmlz>test</kmlz>')).to.be.false
+        })
+        it('rejects a tag with a typo in the middle', () => {
+            expect(isKml('<kmzl>test</kmzl>')).to.be.false
+        })
+        it('rejects a tag with a typo at the beginning', () => {
+            expect(isKml('<akml>test</akml>')).to.be.false
+        })
+        it("rejects a valid XML (but-non KML) input", () => {
+            expect(isKml('<?xml version="1.0" encoding="UTF-8"?><div>test</div>')).to.be.false
+        })
+        it('rejects a KML that is wrapped in a CDATA section', () => {
+            expect(isKml(`<div><![CDATA[
+    <kml>
+        <Placemark>
+            <name>test</name>
+            <description>KML With Prefixed Namespace</description>
+            <Point>
+                 <coordinates>7.438632503,46.951082887,598.947</coordinates>
+            </Point>
+        </Placemark>
+    </kml>
+]]></div>`)).to.be.false
         })
     })
 })

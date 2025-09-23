@@ -1,4 +1,4 @@
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import axios from 'axios'
 
 import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'
@@ -6,10 +6,10 @@ import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'
 /**
  * Generates a URL to generate a QR Code for a URL
  *
- * @param {String} url The URL we want to QR-Codify
- * @returns {String} The URL to generate the QR Code
+ * @param url The URL we want to QR-Codify
+ * @returns The URL to generate the QR Code
  */
-export function getGenerateQRCodeUrl(url) {
+export function getGenerateQRCodeUrl(url: string): string {
     const encodedUrl = encodeURIComponent(url)
     return `${getViewerDedicatedServicesBaseUrl()}qrcode/generate?url=${encodedUrl}`
 }
@@ -17,18 +17,23 @@ export function getGenerateQRCodeUrl(url) {
 /**
  * Generates a QR Code that, when scanned by mobile devices, open the URL given in parameters
  *
- * @param {String} url The URL we want to QR-Codify
- * @returns {Promise<Byte>} A promise that will resolve with the image (QR-Code) in PNG format
- *   (byte)
+ * @param url The URL we want to QR-Codify
+ * @returns A promise that will resolve with the image (QR-Code) in PNG format (byte)
  */
-export const generateQrCode = (url) => {
+export const generateQrCode = (url: string): Promise<string> => {
     return new Promise((resolve, reject) => {
         try {
             new URL(url)
         } catch (error) {
             const errorMessage = 'Invalid URL, no QR code generated'
-            log.error(errorMessage, url, error)
-            reject(errorMessage)
+            log.error({
+                title: 'QRCode API',
+                titleStyle: {
+                    backgroundColor: LogPreDefinedColor.Zinc,
+                },
+                messages: [errorMessage, url, error],
+            })
+            reject(new Error(errorMessage))
         }
         axios
             .get(getGenerateQRCodeUrl(url), {
@@ -42,8 +47,14 @@ export const generateQrCode = (url) => {
                 )
             })
             .catch((error) => {
-                log.error('Error while retrieving qrCode for', url, error)
-                reject(error)
+                log.error({
+                    title: 'QRCode API',
+                    titleStyle: {
+                        backgroundColor: LogPreDefinedColor.Zinc,
+                    },
+                    messages: ['Error while retrieving qrCode for', url, error],
+                })
+                reject(new Error(error))
             })
     })
 }

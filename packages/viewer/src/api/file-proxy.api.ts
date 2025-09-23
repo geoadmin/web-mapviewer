@@ -1,18 +1,17 @@
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import axios from 'axios'
 import { isString } from 'lodash'
 
 import { getServiceProxyBaseUrl } from '@/config/baseUrl.config'
 
+const dropboxPattern = /^(https?:\/\/(www\.)?dropbox\.com\/.+)/
+
 /**
  * Transform a Dropbox URL to a direct download link, replacing dl=0 by dl=1
  *
- * @param {String} fileUrl
- * @returns {String} The transformed URL
  * @see https://www.dropbox.com/help/desktop-web/force-download
  */
-function transformDropboxUrl(fileUrl) {
-    const dropboxPattern = /^(https?:\/\/(www\.)?dropbox\.com\/.+)/
+function transformDropboxUrl(fileUrl: string): string {
     if (dropboxPattern.test(fileUrl)) {
         try {
             const url = new URL(fileUrl)
@@ -23,7 +22,11 @@ function transformDropboxUrl(fileUrl) {
                 return url.toString()
             }
         } catch (e) {
-            log.debug('failed to transformDropboxUrl', e)
+            log.debug({
+                title: 'File proxy API',
+                titleColor: LogPreDefinedColor.Amber,
+                messages: ['failed to transformDropboxUrl', e],
+            })
             return fileUrl
         }
     }
@@ -33,24 +36,23 @@ function transformDropboxUrl(fileUrl) {
 /**
  * Transform our file URL into a path, compatible with a call to service-proxy
  *
- * @param {String} fileUrl
  * @see https://github.com/geoadmin/service-proxy?tab=readme-ov-file#using-the-proxy
  */
-export function transformFileUrl(fileUrl) {
+export function transformFileUrl(fileUrl: string): string | undefined {
     if (!isString(fileUrl)) {
-        return null
+        return
     }
     // copy from https://github.com/geoadmin/mf-geoadmin3/blob/master/src/components/UrlUtilsService.js#L59-L69
     const parts = /^(http|https)(:\/\/)(.+)/.exec(transformDropboxUrl(fileUrl))
-    if (parts?.length < 4) {
-        return null
+    if (!parts || !parts.length || parts.length < 4) {
+        return
     }
-    const protocol = parts[1]
-    const resource = parts[3]
+    const protocol = parts[1]!
+    const resource = parts[3]!
     return `${protocol}/${encodeURIComponent(resource)}`
 }
 
-export function proxifyUrl(url) {
+export function proxifyUrl(url: string): string {
     const fileAsPath = transformFileUrl(url)
     if (!fileAsPath) {
         throw new Error(`Malformed URL: ${url}, can't proxify`)
@@ -58,23 +60,16 @@ export function proxifyUrl(url) {
     return `${getServiceProxyBaseUrl()}${fileAsPath}`
 }
 
-export function unProxifyUrl(proxifiedUrl) {
-    if (
-        (typeof proxified_url === 'string' || proxifiedUrl instanceof String) &&
-        proxifiedUrl.startsWith(getServiceProxyBaseUrl())
-    ) {
-        let url = proxifiedUrl.replace(getServiceProxyBaseUrl(), '')
-        return `${url.split('/')[0]}://${decodeURIComponent(url.split('/')[1])}`
+export function unProxifyUrl(proxifiedUrl: string): string {
+    if (proxifiedUrl.startsWith(getServiceProxyBaseUrl())) {
+        const url = proxifiedUrl.replace(getServiceProxyBaseUrl(), '')
+        return `${url.split('/')[0]}://${decodeURIComponent(url.split('/')[1]!)}`
     }
 
     return proxifiedUrl
 }
 
-/**
- * @param {String} fileUrl
- * @returns {Promise<ArrayBuffer>}
- */
-export async function getFileContentThroughServiceProxy(fileUrl) {
+export async function getFileContentThroughServiceProxy(fileUrl: string): Promise<ArrayBuffer> {
     const proxifyGetResponse = await axios.get(proxifyUrl(fileUrl), {
         responseType: 'arraybuffer',
     })

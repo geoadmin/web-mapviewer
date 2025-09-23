@@ -4,7 +4,7 @@ import { booleanPointInPolygon, distance, point, pointToLineDistance } from '@tu
 import proj4 from 'proj4'
 import { reproject } from 'reproject'
 
-import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
+import { reprojectGeoJsonGeometry, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 import { createLayerFeature } from '@/utils/layerUtils'
 
 const pixelToleranceForIdentify = 20
@@ -96,7 +96,7 @@ export function identifyGeoJSONFeatureAt(geoJsonLayer, coordinate, projection, r
     }
     // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
     // to use turf functions, we need to have lat/lon (WGS84) coordinates
-    const reprojectedGeoJSON = reprojectGeoJsonData(geoJsonLayer.geoJsonData, WGS84, projection)
+    const reprojectedGeoJSON = reprojectGeoJsonGeometry(geoJsonLayer.geoJsonData, WGS84, projection)
     if (!reprojectedGeoJSON) {
         log.error(
             `Unable to reproject GeoJSON data in order to find features at coordinates`,

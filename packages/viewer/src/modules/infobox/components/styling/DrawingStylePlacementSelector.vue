@@ -1,7 +1,8 @@
 <script setup lang="js">
 import { useI18n } from 'vue-i18n'
 
-import { allStylingTextPlacements } from '@/utils/featureStyleUtils'
+import { TextPlacement } from '@/utils/featureStyleUtils'
+import { ref } from 'vue'
 
 const { currentPlacement } = defineProps({
     currentPlacement: {
@@ -11,6 +12,18 @@ const { currentPlacement } = defineProps({
 })
 
 const emit = defineEmits(['change'])
+
+const allStylingTextPlacements = ref([
+    TextPlacement.TOP,
+    TextPlacement.TOP_LEFT,
+    TextPlacement.TOP_RIGHT,
+    TextPlacement.CENTER,
+    TextPlacement.LEFT,
+    TextPlacement.RIGHT,
+    TextPlacement.BOTTOM,
+    TextPlacement.BOTTOM_LEFT,
+    TextPlacement.BOTTOM_RIGHT,
+])
 
 const { t } = useI18n()
 

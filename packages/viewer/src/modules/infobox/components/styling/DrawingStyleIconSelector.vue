@@ -8,7 +8,7 @@ import DrawingStyleIcon from '@/modules/infobox/components/styling/DrawingStyleI
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
 
-const { feature, iconSets } = defineProps({
+const { feature, iconSets, currentLang } = defineProps({
     feature: {
         type: EditableFeature,
         required: true,
@@ -17,6 +17,10 @@ const { feature, iconSets } = defineProps({
         type: Array,
         required: true,
     },
+    currentLang: {
+        type: String,
+        required: true,
+    }
 })
 
 const emits = defineEmits(['change', 'change:iconSize', 'change:icon', 'change:iconColor'])
@@ -147,7 +151,8 @@ function onCurrentIconChange(icon) {
                     :icon="icon"
                     :current-icon-set="currentIconSet"
                     :current-feature="feature"
-                    @change:icon="onCurrentIconChange"
+                    :current-lang="currentLang"
+                    @change-icon="onCurrentIconChange"
                     @load="onImageLoad"
                 />
             </div>

@@ -1,32 +1,34 @@
 import log from '@swissgeo/log'
 
-const targetWindow = parent ?? window.parent ?? window.opener ?? window.top
+import type LayerFeature from '@/api/features/LayerFeature.class'
+
+const targetWindow: Window = parent ?? window.parent ?? window.opener ?? window.top
 
 /**
  * All events fired by the iFrame postMessage implementation.
  *
  * @enum
  */
-export const IFRAME_EVENTS = {
+export enum IFrameEvents {
     /**
      * Event raised whenever the app changes its state (the URL changed).
      *
      * Payload of this event : a String with the new URL of the viewer
      */
-    CHANGE: 'gaChange',
+    Change = 'gaChange',
     /**
      * Event raised when a feature has been selected. Will fire as many events as there are feature
      * selected on the map (won't bundle all features into one event)
      *
      * Payload of this event : a JSON containing the layerId and featureId of the selected feature
      */
-    FEATURE_SELECTION: 'gaFeatureSelection',
+    FeatureSelection = 'gaFeatureSelection',
     /**
      * Event raised when the map shown has finished loading and is now visible in the HTML DOM.
      *
      * No payload with this event.
      */
-    MAP_READY: 'gaMapReady',
+    MapReady = 'gaMapReady',
 }
 
 /**
@@ -38,7 +40,7 @@ export const IFRAME_EVENTS = {
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage
  * @see https://codepen.io/geoadmin/pen/yOBzqM?editors=0010
  */
-export function sendFeatureInformationToIFrameParent(features) {
+export function sendFeatureInformationToIFrameParent(features: LayerFeature[]): void {
     // if no features are given, nothing to do
     if (!Array.isArray(features) || features.length === 0) {
         return
@@ -46,7 +48,7 @@ export function sendFeatureInformationToIFrameParent(features) {
     log.debug('sending information about selected features to iframe parent')
     // from what I can understand from the codepen, one event is fired per feature with a structured response
     features.forEach((feature) => {
-        sendEventToParent(IFRAME_EVENTS.FEATURE_SELECTION, {
+        sendEventToParent(IFrameEvents.FeatureSelection, {
             layerId: feature.layer.id,
             featureId: feature.id,
             // if we want to expose more stuff from our features (EGID, EWID, etc...), it should come here...
@@ -66,17 +68,17 @@ export function sendFeatureInformationToIFrameParent(features) {
  * This is mainly used so that the iframe generator (menu share -> embed) can change the iframe
  * snippet if the user decide to move / zoom the map while looking at the preview
  */
-export function sendChangeEventToParent() {
-    sendEventToParent(IFRAME_EVENTS.CHANGE, {
+export function sendChangeEventToParent(): void {
+    sendEventToParent(IFrameEvents.Change, {
         newUrl: window.location.href,
     })
 }
 
-export function sendMapReadyEventToParent() {
-    sendEventToParent(IFRAME_EVENTS.MAP_READY)
+export function sendMapReadyEventToParent(): void {
+    sendEventToParent(IFrameEvents.MapReady)
 }
 
-function sendEventToParent(type, payload = null) {
+function sendEventToParent(type: IFrameEvents, payload?: Record<string, unknown>): void {
     if (!targetWindow) {
         log.debug(
             'Embed view loaded as root document of a browser tab, cannot communicate with opener/parent'

@@ -150,8 +150,9 @@ function refreshCache() {
             <small
                 v-if="withText"
                 class="bg-secondary text-light fw-bold rounded p-1"
-            >Beta</small
             >
+                Beta
+            </small>
             <FontAwesomeLayers>
                 <FontAwesomeIcon
                     icon="slash"
@@ -166,8 +167,9 @@ function refreshCache() {
             <span
                 v-if="withText"
                 class="fw-bold me-1"
-            >{{ t('offline_modal_title') }}</span
             >
+                {{ t('offline_modal_title') }}
+            </span>
             <FontAwesomeIcon
                 :icon="statusIcon"
                 :spin="shouldStatusIconSpin"

@@ -8,14 +8,14 @@ catalog:
   '@eslint/js': ^9.35.0
   '@eslint/markdown': ^7.2.0
   '@floating-ui/vue': ^1.1.9
-  '@fontsource/noto-sans': ^5.2.9
+  '@fontsource/noto-sans': ^5.2.10
   '@fortawesome/fontawesome-svg-core': ^7.0.1
   '@fortawesome/free-brands-svg-icons': ^7.0.1
   '@fortawesome/free-regular-svg-icons': ^7.0.1
   '@fortawesome/free-solid-svg-icons': ^7.0.1
   '@fortawesome/vue-fontawesome': ^3.1.2
   '@geoblocks/cesium-compass': ^0.6.0
-  '@geoblocks/mapfishprint': ^0.2.21
+  '@geoblocks/mapfishprint': ^0.2.22
   '@geoblocks/ol-maplibre-layer': ^1.0.3
   '@intlify/core-base': ^11.1.12
   '@intlify/unplugin-vue-i18n': ^11.0.1
@@ -85,7 +85,7 @@ catalog:
   jszip: ^3.10.1
   lodash: ^4.17.21
   luxon: ^3.7.2
-  maplibre-gl: ^5.7.1
+  maplibre-gl: ^5.7.2
   mime-types: ^3.0.1
   mocha-junit-reporter: ^2.2.1
   ol: ^10.6.1
