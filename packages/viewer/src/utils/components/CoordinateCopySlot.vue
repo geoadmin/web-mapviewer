@@ -73,7 +73,7 @@ async function copyValue() {
     <div class="location-popup-label">
         <slot />
     </div>
-    <div class="location-popup-data gap-1 align-items-center">
+    <div class="location-popup-data align-items-center gap-1">
         <div>
             <div :data-cy="`${identifier}`">
                 {{ display(value) }}

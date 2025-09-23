@@ -1,4 +1,4 @@
-import defaultConfig from '@swissgeo/eslint-config'
+import defaultConfig from '@swissgeo/config-eslint'
 
 export default [
     ...defaultConfig,

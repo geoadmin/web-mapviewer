@@ -23,8 +23,8 @@ describe('Test utility functions', () => {
             baseUrl: 'http://bgdi.ch',
             hasWarning: false,
             timeConfig: {
-                timeEntries: []
-            }
+                timeEntries: [],
+            },
         }
 
         expect(hasMultipleTimestamps(simpleLayer)).to.be.false
@@ -32,7 +32,7 @@ describe('Test utility functions', () => {
         simpleLayer.timeConfig = {
             timeEntries: [],
             behaviour: 'last',
-            currentTimeEntry: undefined
+            currentTimeEntry: undefined,
         }
 
         expect(hasMultipleTimestamps(simpleLayer)).to.be.false

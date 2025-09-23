@@ -1,9 +1,0 @@
-pnpm-lock.yaml
-.github/
-
-node_modules/
-**/node_modules
-
-packages/viewer/index.html
-packages/viewer/public/icon.svg
-packages/viewer/src/assets/svg/swiss-flag.svg

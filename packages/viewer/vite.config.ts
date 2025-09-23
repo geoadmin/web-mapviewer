@@ -4,7 +4,13 @@ import vue from '@vitejs/plugin-vue'
 import gitDescribe from 'git-describe'
 import { dirname } from 'path'
 import { fileURLToPath, URL } from 'url'
-import { type ConfigEnv, defineConfig, normalizePath, type PluginOption, type UserConfig } from 'vite'
+import {
+    type ConfigEnv,
+    defineConfig,
+    normalizePath,
+    type PluginOption,
+    type UserConfig,
+} from 'vite'
 import ConditionalCompile from 'vite-plugin-conditional-compiler'
 import { VitePWA } from 'vite-plugin-pwa'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
@@ -32,7 +38,7 @@ const stagings: Record<ViteModes, string> = {
     development: 'dev',
     integration: 'int',
     production: 'prod',
-    test: 'test'
+    test: 'test',
 }
 
 /**
@@ -73,31 +79,34 @@ function generatePlugins(mode: ViteModes, isTesting: boolean = false): PluginOpt
                         tag === 'cesium-compass' || tag.startsWith('geoadmin-'),
                 },
             },
-        }))
+        })
+    )
     plugins.push(generateBuildInfo(stagings[mode], appVersion))
 
     // CesiumJS requires static files from the following 4 folders to be included in the build
     // https://cesium.com/learn/cesiumjs-learn/cesiumjs-quickstart/#install-with-npm
-    plugins.push(viteStaticCopy({
-        targets: [
-            {
-                src: normalizePath(`${cesiumFolder}/Build/Cesium/Workers`),
-                dest: cesiumStaticDir,
-            },
-            {
-                src: normalizePath(`${cesiumSource}/Assets/`),
-                dest: cesiumStaticDir,
-            },
-            {
-                src: normalizePath(`${cesiumSource}/Widgets/`),
-                dest: cesiumStaticDir,
-            },
-            {
-                src: normalizePath(`${cesiumSource}/ThirdParty/`),
-                dest: cesiumStaticDir,
-            },
-        ],
-    }))
+    plugins.push(
+        viteStaticCopy({
+            targets: [
+                {
+                    src: normalizePath(`${cesiumFolder}/Build/Cesium/Workers`),
+                    dest: cesiumStaticDir,
+                },
+                {
+                    src: normalizePath(`${cesiumSource}/Assets/`),
+                    dest: cesiumStaticDir,
+                },
+                {
+                    src: normalizePath(`${cesiumSource}/Widgets/`),
+                    dest: cesiumStaticDir,
+                },
+                {
+                    src: normalizePath(`${cesiumSource}/ThirdParty/`),
+                    dest: cesiumStaticDir,
+                },
+            ],
+        })
+    )
 
     plugins.push(ConditionalCompile() as PluginOption)
 
@@ -128,8 +137,7 @@ function generatePlugins(mode: ViteModes, isTesting: boolean = false): PluginOpt
                 manifest: {
                     name: 'map.geo.admin.ch',
                     short_name: 'geoadmin',
-                    description:
-                        'Maps of Switzerland - Swiss Confederation - map.geo.admin.ch',
+                    description: 'Maps of Switzerland - Swiss Confederation - map.geo.admin.ch',
                     theme_color: '#ffffff',
                     icons: [
                         { src: '/icon-192.png', type: 'image/png', sizes: '192x192' },

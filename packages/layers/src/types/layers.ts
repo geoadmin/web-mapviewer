@@ -301,9 +301,8 @@ export interface KMLLayer extends Layer {
     isLocalFile: boolean
     attributions: LayerAttribution[]
     /**
-     * KMZ icons subfiles. Those files are usually sent with the KML inside a KMZ archive and
-     * can be referenced inside the KML (e.g., icon, image, ...), so that they are available
-     * "offline"
+     * KMZ icons subfiles. Those files are usually sent with the KML inside a KMZ archive and can be
+     * referenced inside the KML (e.g., icon, image, ...), so that they are available "offline"
      */
     internalFiles: Record<string, ArrayBuffer>
 }

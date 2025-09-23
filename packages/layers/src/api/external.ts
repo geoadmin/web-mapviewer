@@ -2,7 +2,9 @@ import log from '@swissgeo/log'
 import axios from 'axios'
 
 import externalWMSParser, { type WMSCapabilitiesResponse } from '@/parsers/WMSCapabilitiesParser'
-import wmtsCapabilitiesParser, { type WMTSCapabilitiesResponse } from '@/parsers/WMTSCapabilitiesParser'
+import wmtsCapabilitiesParser, {
+    type WMTSCapabilitiesResponse,
+} from '@/parsers/WMTSCapabilitiesParser'
 import { CapabilitiesError } from '@/validation'
 
 /** Timeout for accessing external server in [ms] */

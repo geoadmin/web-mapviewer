@@ -95,7 +95,7 @@ export default function generateBuildInfo(staging: string, version: string): Plu
                         2
                     ),
                 })
-                 
+
                 console.log(`Created ${version}/info.json`)
             },
         },

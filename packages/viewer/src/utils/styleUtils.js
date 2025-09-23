@@ -11,13 +11,13 @@ function hexToRgba(hexValue, alpha = 1.0) {
     // Remove the leading # and expand 3-character hex to 6-character
     let hex = hexValue.replace(/^#/, '')
     if (hex.length === 3) {
-        hex = hex.split('').map(c => c + c).join('')
+        hex = hex
+            .split('')
+            .map((c) => c + c)
+            .join('')
     }
-    
-    return [
-        ...hex.match(/.{1,2}/g).map((value) => parseInt(value, 16)),
-        alpha,
-    ]
+
+    return [...hex.match(/.{1,2}/g).map((value) => parseInt(value, 16)), alpha]
 }
 
 const STROKE_WIDTH = 3

@@ -1,5 +1,6 @@
 packages:
   - packages/*
+  - packages/config/*
 
 catalog:
   '@4tw/cypress-drag-drop': ^2.3.0

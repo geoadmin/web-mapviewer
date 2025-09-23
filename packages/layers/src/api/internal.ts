@@ -3,9 +3,7 @@ import axios from 'axios'
 
 import { servicesBaseUrl, type Staging } from '@swissgeo/staging-config'
 
-import {
-    DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION,
-} from '@/config'
+import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config'
 import {
     type AggregateSubLayer,
     type GeoAdminLayer,
@@ -64,7 +62,6 @@ export interface LayerConfigResponse {
     maxResolution?: number
 }
 
-
 /**
  * Some of our backends return URLs without the protocol, i.e. `"styleUrl":
  * "//api3.geo.admin.ch/static/vectorStyles/ch.meteoschweiz.messwerte-luftfeuchtigkeit-10min.json"`
@@ -91,8 +88,8 @@ const _urlWithTrailingSlash = (baseUrl: string): string => {
 // API file that covers the backend endpoint http://api3.geo.admin.ch/rest/services/all/MapServer/layersConfig
 
 /**
- * Transform the backend metadata JSON object into objects of type {@link GeoAdminLayer}, using
- * the correct specialized type of layer for each entry (see {@link LayerType} and all dedicated
+ * Transform the backend metadata JSON object into objects of type {@link GeoAdminLayer}, using the
+ * correct specialized type of layer for each entry (see {@link LayerType} and all dedicated
  * specialized types, such as {@link GeoAdminWMSLayer} or {@link GeoAdminWMTSLayer}).
  */
 export function generateLayerObject(
@@ -127,7 +124,6 @@ export function generateLayerObject(
             // if we are here, no error has been raised by the URL construction
             // meaning we have a valid URL in potentialAttributionUrl
             attributionUrl = potentialAttributionUrl
-
         } catch (_) {
             // this is not a well-formed URL, we do nothing with it
         }

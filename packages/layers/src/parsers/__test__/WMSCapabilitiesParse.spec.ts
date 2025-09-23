@@ -940,7 +940,6 @@ describe('EX_GeographicBoundingBox - Group of layers', () => {
         assertType<ExternalWMSLayer>(thirdLayerSub2)
         expect(thirdLayerSub2.id).to.eql('ch.swisstopo-vd.official-survey-3-sub-2')
 
-
         expect(thirdLayerSub2.layers).toBeDefined()
         expect(thirdLayerSub2.layers!.length).to.eql(2)
         const thirdLayerSub2_1 = thirdLayerSub2.layers![0]!

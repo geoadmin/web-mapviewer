@@ -8,7 +8,17 @@ import type { default as OLFeature } from 'ol/Feature'
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import type { DrawingIconSet } from '@/api/icon.api'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
-import { BLACK, BLUE, GRAY, LARGE, MEDIUM, RED, SMALL, WHITE, YELLOW } from '@/utils/featureStyleUtils'
+import {
+    BLACK,
+    BLUE,
+    GRAY,
+    LARGE,
+    MEDIUM,
+    RED,
+    SMALL,
+    WHITE,
+    YELLOW,
+} from '@/utils/featureStyleUtils'
 import { parseKml } from '@/utils/kmlUtils'
 
 const fakeDefaultIconSet: DrawingIconSet = {
@@ -26,7 +36,7 @@ const fakeDefaultIconSet: DrawingIconSet = {
             imageTemplateURL: 'https://fake.template.url',
             iconSetName: 'default',
             anchor: [0, 0],
-            size: [48, 48]
+            size: [48, 48],
         },
         {
             name: '002-circle',
@@ -34,7 +44,7 @@ const fakeDefaultIconSet: DrawingIconSet = {
             imageTemplateURL: 'https://fake.template.url',
             iconSetName: 'default',
             anchor: [0, 0],
-            size: [48, 48]
+            size: [48, 48],
         },
         {
             name: '0003-square',
@@ -42,9 +52,9 @@ const fakeDefaultIconSet: DrawingIconSet = {
             imageTemplateURL: 'https://fake.template.url',
             iconSetName: 'default',
             anchor: [0, 0],
-            size: [48, 48]
+            size: [48, 48],
         },
-    ]
+    ],
 }
 const fakeBabsIconSet: DrawingIconSet = {
     name: 'babs',
@@ -62,10 +72,10 @@ const fakeBabsIconSet: DrawingIconSet = {
             anchor: [0, 0],
             size: [48, 48],
             description: {
-                'en': 'some description',
-            }
+                en: 'some description',
+            },
         },
-    ]
+    ],
 }
 export const fakeIconSets: DrawingIconSet[] = [fakeDefaultIconSet, fakeBabsIconSet]
 

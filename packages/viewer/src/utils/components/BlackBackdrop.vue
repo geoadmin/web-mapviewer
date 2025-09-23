@@ -15,7 +15,7 @@ const { withSpinner, placeForModal } = defineProps({
 
 <template>
     <div
-        class="black-backdrop position-fixed top-0 start-0 w-100 h-100 bg-black bg-opacity-50"
+        class="black-backdrop position-fixed w-100 h-100 start-0 top-0 bg-black bg-opacity-50"
         :class="{ 'modal-z-index': placeForModal }"
         data-cy="black-backdrop"
     >

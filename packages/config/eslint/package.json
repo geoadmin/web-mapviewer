@@ -1,0 +1,36 @@
+{
+    "name": "@swissgeo/config-eslint",
+    "version": "0.0.1",
+    "description": "Shared ESLint config",
+    "type": "module",
+    "main": "index.ts",
+    "scripts": {
+        "lint": "eslint --fix",
+        "lint:no-fix": "eslint",
+        "type-check": "tsc -p tsconfig.json"
+    },
+    "dependencies": {
+        "@eslint/js": "catalog:",
+        "@eslint/markdown": "catalog:",
+        "@typescript-eslint/utils": "catalog:",
+        "@vue/eslint-config-prettier": "catalog:",
+        "@vue/eslint-config-typescript": "catalog:",
+        "eslint-plugin-chai-friendly": "catalog:",
+        "eslint-plugin-cypress": "catalog:",
+        "eslint-plugin-mocha": "catalog:",
+        "eslint-plugin-perfectionist": "catalog:",
+        "eslint-plugin-prettier": "catalog:",
+        "eslint-plugin-vue": "catalog:",
+        "typescript-eslint": "catalog:"
+    },
+    "devDependencies": {
+        "@swissgeo/config-typescript": "workspace:*",
+        "globals": "catalog:",
+        "typescript": "catalog:"
+    },
+    "peerDependencies": {
+        "eslint": "catalog:",
+        "@swissgeo/config-prettier": "workspace:*",
+        "@swissgeo/config-stylelint": "workspace:*"
+    }
+}

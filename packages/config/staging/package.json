@@ -30,9 +30,15 @@
     },
     "devDependencies": {
         "@microsoft/api-extractor": "catalog:",
-        "@swissgeo/eslint-config": "workspace:*",
-        "@swissgeo/typescript-config": "workspace:*",
+        "@swissgeo/config-eslint": "workspace:*",
+        "@swissgeo/config-prettier": "workspace:*",
+        "@swissgeo/config-typescript": "workspace:*",
         "eslint": "catalog:",
+        "prettier": "catalog:",
+        "@prettier/plugin-xml": "catalog:",
+        "prettier-plugin-jsdoc": "catalog:",
+        "prettier-plugin-packagejson": "catalog:",
+        "prettier-plugin-tailwindcss": "catalog:",
         "unplugin-dts": "catalog:",
         "typescript": "catalog:",
         "vite": "catalog:"

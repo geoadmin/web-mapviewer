@@ -326,7 +326,8 @@ function getLayerLegends(
         !!capabilities.Capability?.UserDefinedSymbolization?.SupportSLD
     ) {
         const getLegendGraphicCapability = capabilities.Capability.Request.GetLegendGraphic
-        const getLegendGraphicBaseUrl = getLegendGraphicCapability?.DCPType[0]?.HTTP?.Get?.OnlineResource
+        const getLegendGraphicBaseUrl =
+            getLegendGraphicCapability?.DCPType[0]?.HTTP?.Get?.OnlineResource
         const getLegendGraphicFormat = getLegendGraphicCapability?.Format[0]
         if (!!getLegendGraphicBaseUrl && !!getLegendGraphicFormat) {
             const getLegendParams = new URLSearchParams({
@@ -657,7 +658,11 @@ function parse(content: string, originUrl: URL): WMSCapabilitiesResponse {
     }
 }
 
-export type WMSCapabilitiesParser = CapabilitiesParser<WMSCapabilitiesResponse, WMSCapabilityLayer, ExternalWMSLayer>
+export type WMSCapabilitiesParser = CapabilitiesParser<
+    WMSCapabilitiesResponse,
+    WMSCapabilityLayer,
+    ExternalWMSLayer
+>
 
 export const wmsCapabilitiesParser: WMSCapabilitiesParser = {
     parse,

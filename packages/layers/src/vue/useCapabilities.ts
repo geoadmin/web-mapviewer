@@ -69,13 +69,16 @@ function handleWMTS(
     projection: CoordinateSystem
 ): ParsedExternalWMTS {
     return {
-        layers: wmtsCapabilitiesParser.getAllExternalLayers(parseWmtsCapabilities(content, fullUrl), {
-            outputProjection: projection,
-            initialValues: {
-                isVisible: true,
-                opacity: 1,
-            },
-        }),
+        layers: wmtsCapabilitiesParser.getAllExternalLayers(
+            parseWmtsCapabilities(content, fullUrl),
+            {
+                outputProjection: projection,
+                initialValues: {
+                    isVisible: true,
+                    opacity: 1,
+                },
+            }
+        ),
     }
 }
 

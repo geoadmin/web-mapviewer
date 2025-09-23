@@ -1,4 +1,4 @@
-import defaultConfig, { cypressConfig } from '@swissgeo/eslint-config'
+import defaultConfig, { cypressConfig } from '@swissgeo/config-eslint'
 
 export default [
     ...defaultConfig,
@@ -9,5 +9,5 @@ export default [
                 tsconfigRootDir: import.meta.dirname,
             },
         },
-    }
+    },
 ]

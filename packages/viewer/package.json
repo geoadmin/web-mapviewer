@@ -9,16 +9,16 @@
         "build:prod": "pnpm run build --mode production",
         "build:test": "pnpm run build --mode test",
         "check:external": "pnpx vite-node scripts/check-external-layers-providers.js",
-        "lint": "eslint --fix && pnpm run lint:styles",
-        "lint:no-fix": "eslint && pnpm run lint:styles:no-fix",
-        "lint:styles": "stylelint \"**/*.{vue,scss}\" --fix",
-        "lint:styles:no-fix": "stylelint \"**/*.{vue,scss}\"",
         "delete:reports": "rimraf tests/results/ || true",
         "delete:reports:unit": "rimraf tests/results/unit/ || true",
         "dev": "vite --port 8080 --host --cors",
         "dev:https": "USE_HTTPS=1 pnpm run dev",
         "int": "vite --port 8080 --host --cors --mode integration",
         "int:https": "USE_HTTPS=1 pnpm run int",
+        "lint": "eslint --fix && pnpm run lint:styles",
+        "lint:no-fix": "eslint && pnpm run lint:styles:no-fix",
+        "lint:styles": "stylelint \"**/*.{vue,scss}\" --fix",
+        "lint:styles:no-fix": "stylelint \"**/*.{vue,scss}\"",
         "preview": "pnpm run build:dev && vite preview --port 8080 --host --outDir ./dist/dev",
         "preview:dev": "pnpm run build:dev && vite preview --port 8080 --host --outDir ./dist/dev",
         "preview:dev:https": "USE_HTTPS=1 pnpm run preview:dev",
@@ -43,6 +43,9 @@
         "test:unit:watch": "pnpm run delete:reports:unit && vitest --mode development",
         "type-check": "vue-tsc -p tsconfig.json",
         "update:translations": "node scripts/generate-i18n-files.js"
+    },
+    "overrides": {
+        "rollup": "catalog:"
     },
     "dependencies": {
         "@floating-ui/vue": "catalog:",
@@ -104,9 +107,10 @@
         "@nuintun/qrcode": "catalog:",
         "@prettier/plugin-xml": "catalog:",
         "@rushstack/eslint-patch": "catalog:",
-        "@swissgeo/eslint-config": "workspace:*",
-        "@swissgeo/stylelint-config": "workspace:*",
-        "@swissgeo/typescript-config": "workspace:*",
+        "@swissgeo/config-eslint": "workspace:*",
+        "@swissgeo/config-prettier": "workspace:*",
+        "@swissgeo/config-stylelint": "workspace:*",
+        "@swissgeo/config-typescript": "workspace:*",
         "@tailwindcss/vite": "catalog:",
         "@types/bootstrap": "catalog:",
         "@types/geojson": "catalog:",
@@ -169,9 +173,6 @@
         "workbox-window": "catalog:",
         "write-yaml-file": "catalog:",
         "yargs": "catalog:"
-    },
-    "overrides": {
-        "rollup": "catalog:"
     },
     "engineStrict": true
 }

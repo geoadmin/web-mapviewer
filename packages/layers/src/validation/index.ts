@@ -85,7 +85,9 @@ export const removeWarningMessageFromLayer = (
         return
     }
 
-    layer.warningMessages = layer.warningMessages.filter((warning) => !warning.isEqual(warningMessage))
+    layer.warningMessages = layer.warningMessages.filter(
+        (warning) => !warning.isEqual(warningMessage)
+    )
     layer.hasWarning = layer.warningMessages.length > 0
 }
 
