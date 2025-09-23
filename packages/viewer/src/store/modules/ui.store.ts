@@ -325,7 +325,6 @@ const useUIStore = defineStore('ui', {
                 if (!isNumber(this.loadingBarRequesters[requester])) {
                     this.loadingBarRequesters[requester] = 0
                 }
-
                 this.loadingBarRequesters[requester] += 1
             } else {
                 if (this.loadingBarRequesters[requester] > 0) {
