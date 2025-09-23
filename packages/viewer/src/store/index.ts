@@ -1,9 +1,10 @@
-import { createStore } from 'vuex'
+import { createPinia } from 'pinia'
+
+import type { State } from '@/store/store'
 
 import { ENVIRONMENT } from '@/config/staging.config'
-import debug from '@/store/debug.store'
-import app from '@/store/modules/app.store'
 import cesium from '@/store/modules/cesium.store'
+import debug from '@/store/modules/debug.store'
 import drawing from '@/store/modules/drawing.store'
 import features from '@/store/modules/features.store'
 import geolocation from '@/store/modules/geolocation.store'
@@ -35,8 +36,11 @@ import topicChangeManagementPlugin from '@/store/plugins/topic-change-management
 import updateSelectedFeaturesPlugin from '@/store/plugins/update-selected-features.plugin'
 import vuexLogPlugin from '@/store/plugins/vuex-log.plugin'
 
-const store = createStore({
-    // Do not run strict mode on production as it has performance cost
+const pinia = createPinia()
+pinia.use(appReadinessPlugin)
+
+const store = createStore{
+    // Do not run strict mode on production has it has performance cost
     strict: ENVIRONMENT !== 'production',
     state: {},
     plugins: [
@@ -59,13 +63,11 @@ const store = createStore({
         updateSelectedFeaturesPlugin,
     ],
     modules: {
-        app,
         drawing,
         features,
         profile,
         geolocation,
         i18n,
-        layers,
         map,
         position,
         search,
@@ -78,4 +80,4 @@ const store = createStore({
     },
 })
 
-export default store
+export default pinia
