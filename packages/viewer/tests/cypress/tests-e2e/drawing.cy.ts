@@ -724,7 +724,7 @@ describe('Drawing module tests', () => {
             cy.log('should create a polygon by re-clicking the first point')
             cy.get('[data-cy="ol-map"]').click(100, 250)
 
-            let kmlId: string | undefined = undefined
+            let kmlId: string | undefined
             cy.wait('@post-kml').then((interception) => {
                 cy.wrap(interception)
                     .its('request')
@@ -838,7 +838,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-toolbox-delete-button"]').click()
             cy.get('[data-cy="modal-confirm-button"]').click()
 
-            let deletedKmlId: string | undefined = undefined
+            let deletedKmlId: string | undefined
 
             cy.wait('@delete-kml').then((interception) => {
                 deletedKmlId = interception.response?.body.id
@@ -870,7 +870,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click(150, 250)
             cy.get('[data-cy="ol-map"]').click(150, 280)
 
-            let newKmlId: string | undefined = undefined
+            let newKmlId: string | undefined
             cy.wait('@post-kml').then((interception) => {
                 newKmlId = interception.response?.body.id
             })
@@ -1082,27 +1082,6 @@ describe('Drawing module tests', () => {
             const kmlFileAdminId = 'test-fileAdminID12345678900'
             const kmlFileUrl = `${getServiceKmlBaseUrl()}api/kml/files/${kmlFileId}`
             const kmlUrlParam = `KML|${kmlFileUrl}@adminId=${kmlFileAdminId}`
-            const kmlAdminUrl = `${getServiceKmlBaseUrl()}api/kml/admin/${kmlFileId}`
-
-            const kmlMetadata = kmlMetadataTemplate({
-                id: kmlFileId,
-                adminId: kmlFileAdminId,
-            })
-
-            addIconFixtureAndIntercept()
-            addLegacyIconFixtureAndIntercept()
-            cy.intercept('GET', `**/api/kml/admin?admin_id=*`, {
-                body: kmlMetadata,
-                statusCode: 200,
-            }).as('get-kml-metadata-by-admin-id')
-            cy.intercept('GET', kmlAdminUrl, {
-                body: kmlMetadata,
-                statusCode: 200,
-            }).as('get-kml-metadata')
-            cy.intercept('GET', kmlFileUrl, {
-                statusCode: 200,
-                fixture: 'service-kml/lonelyMarker.kml',
-            }).as('get-kml')
 
             cy.log(
                 'opening up the app and centering it directly on the single marker feature from the fixture'
@@ -1440,8 +1419,8 @@ describe('Drawing module tests', () => {
             const publicShortlink = 'https://s.geo.admin.ch/public-shortlink'
             const adminshortlink = 'https://s.geo.admin.ch/admin-shortlink'
 
-            let adminId: string | undefined = undefined
-            let kmlId: string | undefined = undefined
+            let adminId: string | undefined
+            let kmlId: string | undefined
 
             cy.goToDrawing()
 

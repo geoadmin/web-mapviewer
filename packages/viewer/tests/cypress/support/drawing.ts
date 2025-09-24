@@ -53,7 +53,7 @@ function addProfileFixtureAndIntercept(): void {
 }
 
 function addFileAPIFixtureAndIntercept(): void {
-    let kmlBody: string | FormData | undefined = undefined
+    let kmlBody: string | FormData | undefined
     cy.intercept(
         {
             method: 'POST',

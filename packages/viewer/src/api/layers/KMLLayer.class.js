@@ -55,7 +55,7 @@ export default class KMLLayer extends AbstractLayer {
             visible = true,
             opacity = 1.0,
             adminId = null,
-            kmlData = undefined,  // on the effor to migrate to TS, other attributes will be changed later to underfined
+            kmlData = undefined,  // on the effort to migrate to TS, other attributes will be changed later to undefined
             kmlMetadata = null,
             linkFiles = new Map(),
             extent = null,
