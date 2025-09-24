@@ -1,7 +1,9 @@
-import type { GeoAdminGroupOfLayers, GeoAdminLayer, Layer } from '@swissgeo/layers'
+import type { GeoAdminLayer, Layer } from '@swissgeo/layers'
+import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import axios from 'axios'
+import { v4 as uuidv4 } from 'uuid'
 
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
 import { ENVIRONMENT } from '@/config/staging.config'
@@ -9,6 +11,7 @@ import {
     getBackgroundLayerFromLegacyUrlParams,
     getLayersFromLegacyUrlParams,
 } from '@/utils/legacyLayerParamUtils'
+import GeoAdminGroupOfLayers from './layers/GeoAdminGroupOfLayers.class'
 
 /** Representation of a topic (a subset of layers to be shown to the user) */
 export interface Topic {
@@ -49,6 +52,41 @@ function gatherItemIdThatShouldBeOpened(
     return ids
 }
 
+const validateBaseData = (values: Partial<Layer>): void => {
+    if (!values.name) {
+        throw new Error('Missing layer name')
+    }
+    if (!values.id) {
+        throw new Error('Missing layer ID')
+    }
+}
+
+function makeGeoAdminGroupOfLayers(values: Partial<GeoAdminGroupOfLayers>): GeoAdminGroupOfLayers {
+    const layer = new GeoAdminGroupOfLayers({
+        id: values.id,
+        name: values.name,
+        uuid: uuidv4(),
+        layers: values.layers ?? [],
+        type: LayerType.GROUP,
+        opacity: 1,
+        isVisible: true,
+        attributions: [],
+        hasTooltip: false,
+        hasDescription: false,
+        hasLegend: false,
+        isExternal: false,
+        isLoading: false,
+        timeConfig: {
+            timeEntries: [],
+        },
+        hasError: false,
+        hasWarning: false,
+    })
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    validateBaseData(layer as any)
+    return layer
+}
+
 /**
  * Reads the output of the topic tree endpoint, and creates all themes and layers object accordingly
  *
@@ -83,7 +121,12 @@ const readTopicTreeRecursive = (
                 }
             }
         })
-        return layerUtils.makeGeoAdminGroupOfLayers({
+        // TODO: check why children is 0
+        if (children.length === 0) {
+            return {} as GeoAdminGroupOfLayers
+        }
+        // TODO: can't use layerUtils.makeGeoAdminGroupOfLayers for this as it does not return a GeoAdminGroupOfLayers object 
+        return makeGeoAdminGroupOfLayers({
             id: `${node.id}`,
             name: node.label,
             layers: children,
@@ -159,7 +202,10 @@ export async function loadTopicTreeForTopic(
         const treeItems: (GeoAdminLayer | GeoAdminGroupOfLayers)[] = []
         topicRoot.children.forEach((child) => {
             try {
-                treeItems.push(readTopicTreeRecursive(child, layersConfig))
+                const topic = readTopicTreeRecursive(child, layersConfig)
+                if (topic.id) {
+                    treeItems.push(topic)
+                }
             } catch (err) {
                 log.error({
                     title: 'Topics API',
@@ -279,8 +325,10 @@ export function parseTopics(layersConfig: GeoAdminLayer[], rawTopics: ServicesRe
                 // deep copy so that we can reassign values later on
                 // (layers come from the Vuex store so it can't be modified directly)
                 layer = layerUtils.cloneLayer(layer)
-                // checking if the layer should be also visible
-                layer.isVisible = rawTopic.selectedLayers?.indexOf(layerId) !== -1
+                    // checking if the layer should be also visible
+                    // TODO: GeoAdminLayer is missing the "visible" property but is necessary to make the layer visible when activating the topic, isVisible is currently not used for this
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    ; (layer as any).visible = rawTopic.selectedLayers?.indexOf(layerId) !== -1
                 // In the backend the layers are in the wrong order
                 // so we need to reverse the order here by simply adding
                 // the layer at the beginning of the array
