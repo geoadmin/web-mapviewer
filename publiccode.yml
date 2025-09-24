@@ -3,8 +3,6 @@ name: Map Viewer
 applicationSuite: geo.admin.ch
 url: https://github.com/geoadmin/web-mapviewer.git
 landingURL: https://github.com/geoadmin/web-mapviewer
-softwareVersion: v1.59.0
-releaseDate: 2025-06-08
 platforms:
   - web
 categories:
@@ -43,8 +41,6 @@ description:
         topic
     screenshots:
       - screenshots/map-geo-admin-matterhorn.png
-    videos:
-      - https://youtu.be/EDSoNnFBxYU
 legal:
   license: BSD-3-Clause-Modification
 maintenance:
