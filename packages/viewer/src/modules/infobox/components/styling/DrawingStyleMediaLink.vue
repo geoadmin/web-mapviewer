@@ -55,19 +55,19 @@ function createLink() {
     }
 }
 
-function addLink(generatedMediaLink) {
+function addLink() {
     if (!validateForm()) {
         return
     }
     switch (mediaType) {
         case MediaTypes.link:
-            emit('generatedMediaLink', createLink(generatedMediaLink))
+            emit('generatedMediaLink', createLink())
             break
         case MediaTypes.image:
-            emit('generatedMediaLink', createImage(generatedMediaLink))
+            emit('generatedMediaLink', createImage())
             break
         case MediaTypes.video:
-            emit('generatedMediaLink', createVideo(generatedMediaLink))
+            emit('generatedMediaLink', createVideo())
             break
     }
     clearInput()
@@ -124,14 +124,14 @@ function onUrlValidate(valid) {
                 placeholder="paste_url"
                 :validate="validateUrl"
                 data-cy="drawing-style-media-url"
-                @keydown.enter="addLink(generatedMediaLink)"
+                @keydown.enter="addLink()"
                 @validate="onUrlValidate"
             >
                 <button
                     class="btn btn-default btn-outline-group rounded-0 rounded-end"
                     type="button"
                     data-cy="drawing-style-media-generate-button"
-                    @click="addLink(generatedMediaLink)"
+                    @click="addLink()"
                 >
                     {{ t('add') }}
                 </button>

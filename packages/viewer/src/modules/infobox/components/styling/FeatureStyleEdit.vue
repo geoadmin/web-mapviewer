@@ -179,7 +179,11 @@ function onDelete() {
 }
 function onAddMediaLink(mediaPopoverIndex, descriptionMediaLink) {
     mediaPopovers.value[mediaPopoverIndex].hidePopover()
-    description.value += descriptionMediaLink
+    if (description.value){
+        description.value += descriptionMediaLink
+    } else {
+        description.value = descriptionMediaLink
+    }
 }
 
 function updateTextOffset() {
