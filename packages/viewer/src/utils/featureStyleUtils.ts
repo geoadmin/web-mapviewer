@@ -386,7 +386,6 @@ export function geoadminStyleFunction(
 
     const { top: offsetTopElement, bottom: offsetBottomElement } =
         getElementOffsets(editableFeature)
-
     const styles = [
         new Style({
             geometry: feature.get('geodesic')?.getGeodesicGeom() ?? feature.getGeometry(),
@@ -416,7 +415,7 @@ export function geoadminStyleFunction(
             fill: isDrawing
                 ? whiteSketchFill
                 : new Fill({
-                      color: [...fromString(styleConfig.fillColor).slice(0, 3), 0.4],
+                      color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
                   }),
             zIndex: 10,
         }),
