@@ -152,5 +152,6 @@ declare global {
              */
             clickDrawingTool(tool: string, unselect?: boolean): void
         }
+
     }
 }

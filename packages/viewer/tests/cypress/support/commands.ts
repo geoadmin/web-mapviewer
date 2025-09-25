@@ -6,7 +6,7 @@ import { randomIntBetween } from '@swissgeo/numbers'
 import proj4 from 'proj4'
 
 import type { Layer as OLLayer } from 'ol/layer'
-
+import type { GeoAdminLayer } from '@swissgeo/layers'
 import { getDefaultFixturesAndIntercepts, type InterceptCallback } from './intercepts'
 import { isMobile } from './utils'
 
@@ -96,7 +96,7 @@ function waitAllLayersLoaded(options?: { queryParams?: Record<string, unknown>, 
                 const layers: string = queryParams.layers as string
                 const layersConfig = state.layers.config
                 target += Object.keys(queryParams)
-                    .filter((key) => layersConfig.find((layer) => layer.id === key)) // this removes all parameters that are not layers ids
+                    .filter((key) => layersConfig.find((layer: GeoAdminLayer) => layer.id === key)) // this removes all parameters that are not layers ids
                     .filter((key) => !layers.split(',').includes(key)).length // we removes all layers that are in the query params
                 // filter out standard params, legacy specific params, non layers config
             }
@@ -276,7 +276,7 @@ Cypress.Commands.add('waitUntilState', (predicate, options) => {
         () =>
             cy
                 .window({ log: false })
-                .should((win) => win.store && predicate(win.store.state, win.store.getters)),
+                .should((win: Cypress.AUTWindow) => win.store && predicate(win.store.state, win.store.getters)),
         Object.assign(
             {
                 errorMsg:
@@ -451,13 +451,11 @@ Cypress.Commands.add('checkOlLayer', (args) => {
     const visibleLayers: PartialLayer[] = layers.filter((l) => l.visible)
     const invisibleLayers: PartialLayer[] = layers.filter((l) => !l.visible)
 
-    cy.window().its('map').invoke('getAllLayers').as('olLayers')
-
-    cy.get('@olLayers').then((olLayers: OLLayer[]) => {
+    cy.window().its('map').invoke('getAllLayers').then((olLayers: OLLayer[]) => {
         const layerIds = layers.map((l) => l.id).join(',')
         const olLayerIds = olLayers
-            .toSorted((a, b) => a.get('zIndex') - b.get('zIndex'))
-            .map((l) => `[${l.get('zIndex')}]:${l.get('id')}`)
+            .toSorted((a: OLLayer, b:OLLayer) => a.get('zIndex') - b.get('zIndex'))
+            .map((l: OLLayer) => `[${l.get('zIndex')}]:${l.get('id')}`)
             .join(',')
         Cypress.log({
             name: 'checkOlLayer',
@@ -484,13 +482,15 @@ Cypress.Commands.add('checkOlLayer', (args) => {
             expect(olLayer!.getVisible(), `[${layer.id}] layer.visible`).to.be.equal(layer.visible)
             expect(olLayer!.getOpacity(), `[${layer.id}] layer.opacity`).to.be.equal(layer.opacity)
             // The rendered flag is set asynchronously; therefore, we need to do some retry here
-            cy.waitUntil(() => olLayer!.rendered, {
+            // Also, the rendered flag is protected, so we're checking if it is set with a getPixel
+            // function, which returns null as long as either there is no renderer, or the rendered
+            // flag is false
+            cy.waitUntil(() => olLayer!.getData([100,100]) !== null, {
                 description: `[${layer.id}] waitUntil layer.rendered`,
                 errorMsg: `[${layer.id}] layer.rendered is not true`,
             })
         })
         invisibleLayers.forEach((layer) => {
-            cy.get('@olLayers').then((olLayers) => {
                 Cypress.log({
                     name: 'checkOlLayer',
                     message: `Check that invisible layer ${layer.id} is not set in openlayer`,
@@ -502,8 +502,8 @@ Cypress.Commands.add('checkOlLayer', (args) => {
                     olLayers.find((l) => l.get('id') === layer.id),
                     `[${layer.id}] layer found`
                 ).to.be.undefined
-            })
         })
+
     })
     cy.log('cmd: checkOlLayer successful')
 })
