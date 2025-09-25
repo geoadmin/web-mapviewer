@@ -375,9 +375,9 @@ export function geoadminStyleFunction(
     const editableFeature = feature.get('editableFeature')
 
     const styleConfig = {
-        fillColor: editableFeature?.fillColor ?? RED,
-        strokeColor: editableFeature?.strokeColor ?? RED,
-        textColor: editableFeature?.textColor ?? RED,
+        fillColor: editableFeature?.fillColor ?? RED.fill,
+        strokeColor: editableFeature?.strokeColor ?? RED.fill,
+        textColor: editableFeature?.textColor ?? RED.fill,
     }
 
     // Tells if we are drawing a polygon for the first time, in this case we want
@@ -386,7 +386,6 @@ export function geoadminStyleFunction(
 
     const { top: offsetTopElement, bottom: offsetBottomElement } =
         getElementOffsets(editableFeature)
-
     const styles = [
         new Style({
             geometry: feature.get('geodesic')?.getGeodesicGeom() ?? feature.getGeometry(),
@@ -416,7 +415,7 @@ export function geoadminStyleFunction(
             fill: isDrawing
                 ? whiteSketchFill
                 : new Fill({
-                      color: [...fromString(styleConfig.fillColor).slice(0, 3), 0.4],
+                      color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
                   }),
             zIndex: 10,
         }),
@@ -448,7 +447,7 @@ export function geoadminStyleFunction(
                 fill: isDrawing
                     ? whiteSketchFill
                     : new Fill({
-                          color: [...fromString(styleConfig.fillColor).slice(0, 3), 0.4],
+                          color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
                       }),
                 zIndex: 0,
                 stroke: new Stroke({

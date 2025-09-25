@@ -326,7 +326,9 @@ export function getIcon(
     // the drawing menu, when clicking on an icon the preselection in the icon dropdown will not
     // work ! This in theory only happens when opening a legacy drawing with the admin id.
     // See also the watcher in DrawingModule trying to solve this.
-    if (!availableIconSets) {
+
+    //  Make sure that availableIconSets is an array, if not there will be an error when calling find on it
+    if (!availableIconSets || !Array.isArray(availableIconSets)) {
         if (!iconStyle) {
             return
         }

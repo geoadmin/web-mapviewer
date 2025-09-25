@@ -179,7 +179,14 @@ function onDelete() {
 }
 function onAddMediaLink(mediaPopoverIndex, descriptionMediaLink) {
     mediaPopovers.value[mediaPopoverIndex].hidePopover()
-    description.value += descriptionMediaLink
+    // Prevent 'undefined' to be added to the description
+    if (descriptionMediaLink && typeof descriptionMediaLink === 'string') {
+        if (description.value) {
+            description.value += descriptionMediaLink
+        } else {
+            description.value = descriptionMediaLink
+        }
+    }
 }
 
 function updateTextOffset() {
