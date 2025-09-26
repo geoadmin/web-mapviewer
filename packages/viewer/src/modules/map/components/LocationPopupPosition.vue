@@ -16,7 +16,7 @@ import {
     MGRSFormat,
     UTMFormat,
     WGS84Format,
-} from '@/utils/coordinates/coordinateFormat'
+} from '@/utils/coordinates/coordinateFormat.js'
 
 const { coordinate, clickInfo, projection, currentLang } = defineProps({
     coordinate: {

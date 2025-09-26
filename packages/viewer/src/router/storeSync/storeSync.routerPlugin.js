@@ -4,7 +4,7 @@ import axios from 'axios'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { STORE_DISPATCHER_ROUTER_PLUGIN } from '@/router/storeSync/abstractParamConfig.class'
 import storeSyncConfig from '@/router/storeSync/storeSync.config'
-import { MAP_VIEWS } from '@/router/viewNames'
+import { MAP_VIEWS } from '@/router/viewNames.js'
 
 export const FAKE_URL_CALLED_AFTER_ROUTE_CHANGE = '/tell-cypress-route-has-changed'
 const watchedMutations = [

@@ -3,7 +3,7 @@ import log from '@swissgeo/log'
 import { computed, ref, useTemplateRef } from 'vue'
 import { useStore } from 'vuex'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { EditableFeatureTypes } from '@/api/features.api'
 import DrawingLineInteraction from '@/modules/drawing/components/DrawingLineInteraction.vue'
 import DrawingMarkerInteraction from '@/modules/drawing/components/DrawingMarkerInteraction.vue'
 import DrawingMeasureInteraction from '@/modules/drawing/components/DrawingMeasureInteraction.vue'
@@ -25,26 +25,26 @@ const selectedLineFeature = ref(null)
 const specializedInteractionComponent = computed(() => {
     let selectedInteraction = null
     switch (currentDrawingMode.value) {
-        case EditableFeatureTypes.ANNOTATION:
+        case EditableFeatureTypes.Annotation:
             selectedInteraction = DrawingTextInteraction
             break
-        case EditableFeatureTypes.LINEPOLYGON:
+        case EditableFeatureTypes.LinePolygon:
             selectedInteraction = DrawingLineInteraction
             break
-        case EditableFeatureTypes.MARKER:
+        case EditableFeatureTypes.Marker:
             selectedInteraction = DrawingMarkerInteraction
             break
-        case EditableFeatureTypes.MEASURE:
+        case EditableFeatureTypes.Measure:
             selectedInteraction = DrawingMeasureInteraction
             break
     }
     if (editMode.value === EditMode.EXTEND) {
         const isMeasure =
             selectedLineFeature.value?.get('editableFeature')?.featureType ===
-            EditableFeatureTypes.MEASURE
+            EditableFeatureTypes.Measure
         const isLine =
             selectedLineFeature.value?.get('editableFeature')?.featureType ===
-            EditableFeatureTypes.LINEPOLYGON
+            EditableFeatureTypes.LinePolygon
         if (isMeasure) {
             selectedInteraction = ExtendMeasureInteraction
         } else if (isLine) {

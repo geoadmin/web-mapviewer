@@ -1,12 +1,12 @@
 import type {
     GeoAdminGeoJSONLayer,
     GPXLayer,
+    GPXMetadata,
     KMLLayer,
     KMLMetadata,
     LayerTimeConfigEntry,
 } from '@swissgeo/layers'
 import type { Interval } from 'luxon'
-import type { GPXMetadata } from 'ol/format/GPX'
 
 import { WGS84 } from '@swissgeo/coordinates'
 import {
@@ -22,7 +22,7 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { ErrorMessage } from '@swissgeo/log/Message'
 import { defineStore } from 'pinia'
 
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types'
 
 import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 import usePositionStore from '@/store/modules/position.store'
@@ -30,6 +30,13 @@ import type { FlatExtent } from '@swissgeo/coordinates'
 import { extentUtils } from '@swissgeo/coordinates'
 import { getGpxExtent } from '@/utils/gpxUtils'
 import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
+
+export interface AddLayerPayload {
+    layer?: Layer
+    layerId?: string
+    layerConfig?: Partial<Layer>
+    zoomToLayerExtent?: boolean
+}
 
 export interface LayersState {
     /** Current background layer ID */
@@ -296,7 +303,9 @@ const useLayersStore = defineStore('layers', {
             return (layerId: string, isExternal?: boolean, baseUrl?: string): boolean => {
                 return this.getActiveLayersById(layerId, isExternal, baseUrl).some(
                     (layer: Layer) =>
-                        layer?.isExternal || (layer?.type === LayerType.KML && !layer?.adminId)
+                        layer &&
+                        (layer.isExternal ||
+                            (layer.type === LayerType.KML && !(layer as KMLLayer).adminId))
                 )
             }
         },
@@ -314,8 +323,10 @@ const useLayersStore = defineStore('layers', {
                 }
                 const isBaseUrlValidUrl = /^\w+:\/\//.test(layer?.baseUrl)
                 return (
+                    layer &&
                     !isBaseUrlValidUrl &&
-                    (layer?.isExternal || (layer?.type === LayerType.KML && !layer?.adminId))
+                    (layer.isExternal ||
+                        (layer.type === LayerType.KML && !(layer as KMLLayer).adminId))
                 )
             }
         },
@@ -336,7 +347,7 @@ const useLayersStore = defineStore('layers', {
                     return youngestYear
                 }
                 const youngestLayerYear: number | undefined =
-                    timeConfigUtils.getYearFromLayerTimeEntry(layer.timeConfig.timeEntries[0])
+                    timeConfigUtils.getYearFromLayerTimeEntry(layer.timeConfig.timeEntries[0]!)
                 if (youngestLayerYear && youngestYear < youngestLayerYear) {
                     return youngestLayerYear
                 }
@@ -351,7 +362,7 @@ const useLayersStore = defineStore('layers', {
                 }
                 const oldestLayerYear: number | undefined =
                     timeConfigUtils.getYearFromLayerTimeEntry(
-                        layer.timeConfig.timeEntries.slice(-1)[0]
+                        layer.timeConfig.timeEntries.slice(-1)[0]!
                     )
                 if (oldestLayerYear && oldestYear > oldestLayerYear) {
                     return oldestLayerYear
@@ -434,15 +445,7 @@ const useLayersStore = defineStore('layers', {
          * @param payload
          * @param dispatcher
          */
-        addLayer(
-            payload: {
-                layer?: Layer
-                layerId?: string
-                layerConfig?: Partial<Layer>
-                zoomToLayerExtent?: boolean
-            },
-            dispatcher: ActionDispatcher
-        ) {
+        addLayer(payload: AddLayerPayload, dispatcher: ActionDispatcher) {
             const { layer, layerId, layerConfig, zoomToLayerExtent = false } = payload
 
             let initialLayer: Layer | undefined = layer
@@ -483,7 +486,7 @@ const useLayersStore = defineStore('layers', {
                     Array.isArray(initialLayer.extent) &&
                     initialLayer.extent.length === 4
                 ) {
-                    const layerExtent = initialLayer.extent as FlatExtent
+                    const layerExtent = initialLayer.extent
                     usePositionStore().zoomToExtent(
                         {
                             extent: layerExtent,
@@ -524,8 +527,8 @@ const useLayersStore = defineStore('layers', {
                         }
                     } else if ('id' in layer && typeof layer.id === 'string') {
                         const matchingLayer = this.getLayersById(layer.id)
-                        if (matchingLayer.length) {
-                            clone = layerUtils.cloneLayer(matchingLayer[0])
+                        if (matchingLayer.length > 0) {
+                            clone = layerUtils.cloneLayer(matchingLayer[0]!)
                         }
                     }
                     return clone
@@ -776,7 +779,9 @@ const useLayersStore = defineStore('layers', {
                 return
             }
             const removed = this.activeLayers.splice(index, 1)
-            this.activeLayers.splice(newIndex, 0, removed[0])
+            if (removed.length > 0) {
+                this.activeLayers.splice(newIndex, 0, removed[0]!)
+            }
         },
 
         /** Set the preview layer */
@@ -985,7 +990,7 @@ const useLayersStore = defineStore('layers', {
                 layerId: string
                 data?: string
                 metadata?: KMLMetadata | GPXMetadata
-                kmlInternalFiles?: Map<string, ArrayBuffer>
+                kmlInternalFiles?: Record<string, ArrayBuffer>
             },
             dispatcher: ActionDispatcher
         ) {

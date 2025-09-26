@@ -1,33 +1,22 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import EditableFeature from '@/api/features/EditableFeature.class'
-import LayerFeature from '@/api/features/LayerFeature.class'
+import type { EditableFeature, LayerFeature } from '@/api/features.api'
 import FeatureListCategoryItem from '@/modules/infobox/components/FeatureListCategoryItem.vue'
 
-const { name, children, canLoadMore } = defineProps({
-    name: {
-        type: String,
-        required: true,
-    },
-    children: {
-        type: Array,
-        required: true,
-        validator: (value) =>
-            Array.isArray(value) &&
-            value.some((item) => item instanceof LayerFeature || item instanceof EditableFeature),
-    },
-    canLoadMore: {
-        type: Boolean,
-        default: false,
-    },
-})
+const { name, children, canLoadMore } = defineProps<{
+    name: string
+    children: Array<LayerFeature | EditableFeature>
+    canLoadMore: boolean
+}>()
 
-const emits = defineEmits(['loadMoreResults'])
+const emits = defineEmits<{
+    loadMoreResults: [void]
+}>()
 
-const showContent = ref(true)
+const showContent = ref<boolean>(true)
 
 const { t } = useI18n()
 </script>
@@ -35,7 +24,7 @@ const { t } = useI18n()
 <template>
     <div class="feature-list-category border-start">
         <div
-            class="p-2 sticky-top bg-secondary-subtle border-bottom border-secondary-subtle d-flex align-items-center cursor-pointer"
+            class="sticky-top bg-secondary-subtle border-bottom border-secondary-subtle d-flex align-items-center cursor-pointer p-2"
             @click="showContent = !showContent"
         >
             <FontAwesomeIcon
@@ -46,8 +35,9 @@ const { t } = useI18n()
                 <strong
                     v-if="name"
                     data-cy="feature-list-category-title"
-                >{{ t(name) }}</strong
                 >
+                    {{ t(name) }}
+                </strong>
             </span>
             <small class="text-muted">
                 {{ children.length }}
@@ -68,7 +58,7 @@ const { t } = useI18n()
             <div class="d-flex p-1">
                 <button
                     v-if="canLoadMore"
-                    class="btn btn-sm btn-secondary flex-grow-1 no-print"
+                    class="btn btn-sm btn-secondary no-print flex-grow-1"
                     data-cy="feature-list-load-more"
                     @click="emits('loadMoreResults')"
                 >

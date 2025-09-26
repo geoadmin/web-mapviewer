@@ -6,7 +6,7 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
+import { CoordinateFormat } from '@/utils/coordinates/coordinateFormat.js'
 
 const { identifier, value, extraValue, resetDelay, coordinateFormat, coordinateProjection } =
     defineProps({

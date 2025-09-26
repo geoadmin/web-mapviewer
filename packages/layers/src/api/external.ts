@@ -1,11 +1,10 @@
 import log from '@swissgeo/log'
 import axios from 'axios'
 
-import externalWMSParser, { type WMSCapabilitiesResponse } from '@/parsers/WMSCapabilitiesParser'
-import wmtsCapabilitiesParser, {
-    type WMTSCapabilitiesResponse,
-} from '@/parsers/WMTSCapabilitiesParser'
+import externalWMSParser from '@/parsers/WMSCapabilitiesParser'
+import wmtsCapabilitiesParser from '@/parsers/WMTSCapabilitiesParser'
 import { CapabilitiesError } from '@/validation'
+import type { WMSCapabilitiesResponse, WMTSCapabilitiesResponse } from '@/types'
 
 /** Timeout for accessing external server in [ms] */
 export const EXTERNAL_SERVER_TIMEOUT = 30000

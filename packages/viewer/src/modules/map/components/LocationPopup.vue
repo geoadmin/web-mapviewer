@@ -14,7 +14,7 @@ import LocationPopupPosition from '@/modules/map/components/LocationPopupPositio
 import LocationPopupShare from '@/modules/map/components/LocationPopupShare.vue'
 import { MapPopoverMode } from '@/modules/map/components/MapPopover.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
-import { stringifyQuery } from '@/utils/url-router'
+import { stringifyQuery } from '@/utils/url-router.js'
 
 const dispatcher = { dispatcher: 'LocationPopup.vue' }
 
@@ -196,7 +196,7 @@ function clearClick() {
                 >
                     <button
                         ref="shareTabButton"
-                        class="nav-link py-1 px-0"
+                        class="nav-link px-0 py-1"
                         :class="{
                             active: selectedTab === 'share',
                         }"
@@ -215,7 +215,7 @@ function clearClick() {
                         >
                             {{ t('link_bowl_crosshair') }} &nbsp;&nbsp;<FontAwesomeIcon
                                 data-cy="location-popup-share-tab-check"
-                                class="px-0 icon"
+                                class="icon px-0"
                                 :icon="copyButtonIcon"
                             />
                         </div>

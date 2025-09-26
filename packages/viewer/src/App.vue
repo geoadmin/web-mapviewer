@@ -1,31 +1,34 @@
-<script setup lang="js">
+<script lang="ts" setup>
 /**
- * Main component of the App.
+ * Initial component of the App.
  *
- * Will listen for screen size changes and commit this changes to the store
+ * Will listen for screen size changes and commit this change to the store
  */
 
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
+
+import type { ActionDispatcher } from '@/store/types.ts'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
+import useUIStore from '@/store/modules/ui.store.ts'
 import FeedbackPopup from '@/utils/components/FeedbackPopup.vue'
 import debounce from '@/utils/debounce'
 
-const withOutline = ref(false)
+const dispatcher: ActionDispatcher = { name: 'App.vue' }
 
-const store = useStore()
+const withOutline = ref<boolean>(false)
+
 const { t } = useI18n()
 
-const dispatcher = { dispatcher: 'App.vue' }
+const uiStore = useUIStore()
 
-let debouncedOnResize
+let debouncedOnResize: () => void = () => {}
 const showFeedbackPopup = computed(() => {
-    return store.state.ui.errors.size + store.state.ui.warnings.size > 0
+    return uiStore.errors.size + uiStore.warnings.size > 0
 })
-const showDebugToolbar = computed(() => !IS_TESTING_WITH_CYPRESS && store.getters.hasDevSiteWarning)
+const showDebugToolbar = computed(() => !IS_TESTING_WITH_CYPRESS && uiStore.hasDevSiteWarning)
 
 onMounted(() => {
     // reading size
@@ -39,11 +42,7 @@ onUnmounted(() => {
 })
 
 function setScreenSizeFromWindowSize() {
-    store.dispatch('setSize', {
-        width: window.innerWidth,
-        height: window.innerHeight,
-        ...dispatcher,
-    })
+    uiStore.setSize(window.innerWidth, window.innerHeight, dispatcher)
 }
 function refreshPageTitle() {
     document.title = t('page_title')

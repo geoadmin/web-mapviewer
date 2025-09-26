@@ -6,6 +6,7 @@ import i18n, {
     langToLocale,
     type SupportedLang,
 } from '@/modules/i18n'
+import type { ActionDispatcher } from '@/store/types'
 
 export interface I18nState {
     /**
@@ -28,7 +29,7 @@ export const useI18nStore = defineStore('i18n', {
     }),
     getters: {},
     actions: {
-        setLang(lang: SupportedLang) {
+        setLang(lang: SupportedLang, dispatcher: ActionDispatcher) {
             this.lang = lang
             i18n.global.locale.value = langToLocale(lang)
         },

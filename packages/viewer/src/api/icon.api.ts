@@ -29,7 +29,7 @@ export const DEFAULT_MARKER_TITLE_OFFSET = calculateTextOffset(
     MEDIUM.iconScale,
     [0, 0.875],
     DEFAULT_ICON_SIZE,
-    TextPlacement.TOP,
+    TextPlacement.Top,
     ''
 )
 

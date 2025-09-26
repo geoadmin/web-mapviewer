@@ -1,17 +1,20 @@
-import type { SingleCoordinate } from '@geoadmin/coordinates'
+import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 
 import { defineStore } from 'pinia'
 
 import type SelectableFeature from '@/api/features/SelectableFeature.class'
-import type { ActionDispatcher } from '@/store/store'
-import type { FlatExtent } from '@/utils/extentUtils.ts'
+import type { ActionDispatcher } from '@/store/types'
 
 export enum ClickType {
-    /* Any action that triggers the context menu, so for example right click with a mouse or
+    /* Any action that triggers the context menu, so for example, right click with a mouse or
     a long click with the finger on a touch device.*/
-    CONTEXTMENU,
+    ContextMenu = 'ContextMenu',
     /* A single click, with the left mouse button or with the finger on a touch device */
-    LEFT_SINGLECLICK,
+    LeftSingleClick = 'LEFT_SINGLECLICK',
+    /* A single click with the CTRL button pressed */
+    CtrlLeftSingleClick = 'CTRL_LEFT_SINGLECLICK',
+    /* Drawing a box with ctrl and dragging a left click */
+    DrawBox = 'DRAW_BOX',
 }
 
 export interface ClickInfo {
@@ -22,9 +25,9 @@ export interface ClickInfo {
 }
 
 /**
- * Module that describes specific interaction with the map (dragging, clicking) and also serves as a
- * way to tell the map where to highlight stuff or place a pin (to keep the rest of the app ignorant
- * of the mapping framework)
+ * Module that describes specific interactions with the map (dragging, clicking). It also serves as
+ * a way to tell the map where to highlight stuff or place a pin (to keep the rest of the app
+ * ignorant of the mapping framework)
  */
 export interface MapState {
     /** Information about the last click that has occurred on the map */

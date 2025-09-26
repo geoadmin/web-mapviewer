@@ -7,7 +7,7 @@ import type { FeatureStyleSize } from '@/utils/featureStyleUtils'
 import { allStylingSizes } from '@/utils/featureStyleUtils'
 
 const { currentSize } = defineProps<{
-    currentSize: FeatureStyleSize;
+    currentSize: FeatureStyleSize
 }>()
 
 const emits = defineEmits<{
@@ -19,14 +19,14 @@ const { t } = useI18n()
 const sizes = ref<FeatureStyleSize[]>(allStylingSizes)
 
 const sizeLabel = computed<string | undefined>(() => currentSize?.label)
-const dropdownItems = computed<DropdownItem[]>(() =>
+const dropdownItems = computed<DropdownItem<FeatureStyleSize>[]>(() =>
     sizes.value.map((size) => {
         return { id: size.label, title: size.label, value: size }
     })
 )
 
-function onSizeSelect(dropdownItem: DropdownItem): void {
-    emits('change', dropdownItem.value as FeatureStyleSize)
+function onSizeSelect(dropdownItem: DropdownItem<FeatureStyleSize>): void {
+    emits('change', dropdownItem.value)
 }
 </script>
 

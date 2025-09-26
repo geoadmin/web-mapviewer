@@ -1,38 +1,50 @@
-<script setup lang="js">
+<script setup lang="ts">
 import log from '@swissgeo/log'
 import DOMPurify from 'dompurify'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
-
-import SelectableFeature from '@/api/features/SelectableFeature.class.js'
 import { BLOCKED_EXTENSIONS, WHITELISTED_HOSTNAMES } from '@/config/security.config'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import FeatureDetailDisclaimer from '@/modules/infobox/components/FeatureDetailDisclaimer.vue'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
-import allFormats from '@/utils/coordinates/coordinateFormat'
+import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
+import { allFormats } from '@/utils/coordinates/coordinateFormat'
+import type { LayerFeature, SelectableFeature } from '@/api/features.api'
+import usePositionStore from '@/store/modules/position.store'
+import type { GeoJsonProperties } from 'geojson'
 
-const { feature } = defineProps({
-    feature: {
-        type: SelectableFeature,
-        required: true,
-    },
-})
+const { feature } = defineProps<{
+    feature: SelectableFeature<boolean>
+}>()
 
 const { t } = useI18n()
 
-const store = useStore()
-const hasFeatureStringData = computed(() => typeof feature?.data === 'string')
-const popupDataCanBeTrusted = computed(() => feature?.popupDataCanBeTrusted)
+const positionStore = usePositionStore()
 
-const coordinateFormat = computed(() => {
-    return allFormats.find((format) => format.id === store.state.position.displayedFormatId) ?? null
+const hasFeatureStringData = computed<boolean>(
+    () => !!featureData.value && typeof featureData.value === 'string'
+)
+const popupDataCanBeTrusted = computed<boolean>(
+    () => !feature.isEditable && (feature as LayerFeature).popupDataCanBeTrusted
+)
+const featureData = computed<GeoJsonProperties | object | string | undefined>(() => {
+    if (feature.isEditable) {
+        return
+    }
+    return (feature as LayerFeature).data
+})
+
+const coordinateFormat = computed<CoordinateFormat | undefined>(() => {
+    return allFormats.find((format) => format.id === positionStore.displayFormat.id)
 })
 const sanitizedFeatureDataEntries = computed(() => {
-    if (hasFeatureStringData.value || !feature?.data) {
+    if (hasFeatureStringData.value || feature.isEditable) {
         return []
     }
-    return Object.entries(feature?.data)
+    if (!featureData.value) {
+        return []
+    }
+    return Object.entries(featureData.value)
         .filter(([_, value]) => value) // Filtering out null values
         .map(([key, value]) => [
             key,
@@ -40,14 +52,14 @@ const sanitizedFeatureDataEntries = computed(() => {
             key === 'description' ? getIframeHosts(value) : [],
         ])
 })
-function sanitizeHtml(htmlText, withIframe = false) {
+function sanitizeHtml(htmlText: string, withIframe = false): string {
     const blockedExternalContentString = t('blocked_external_content')
 
     // Replacing possibly malicious code with `blockedExternalContentString` instead of removing it
     function handleNode(node, attribute) {
         try {
             const url = new URL(node.getAttribute(attribute))
-            const ext = url.pathname.split('.').pop().toLowerCase()
+            const ext = url.pathname.split('.').pop()?.toLowerCase()
             if (BLOCKED_EXTENSIONS.includes(ext)) {
                 node.outerHTML = blockedExternalContentString
             }
@@ -102,11 +114,11 @@ function getIframeHosts(value) {
     <!-- eslint-disable vue/no-v-html-->
     <div
         v-if="hasFeatureStringData && popupDataCanBeTrusted"
-        v-html="feature.data"
+        v-html="featureData as string"
     />
     <div
         v-else-if="hasFeatureStringData"
-        v-html="sanitizeHtml(feature.data)"
+        v-html="sanitizeHtml(featureData as string)"
     />
     <!-- eslint-enable vue/no-v-html-->
     <div

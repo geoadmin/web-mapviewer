@@ -9,7 +9,7 @@ import { computed, inject, watch } from 'vue'
 import { useStore } from 'vuex'
 
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
-import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/styleFromLiterals'
+import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/geoJsonStyleFromLiterals.js'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { reprojectGeoJsonGeometry } from '@/utils/geoJsonUtils'
 

@@ -1,25 +1,23 @@
-import type { SingleCoordinate } from '@geoadmin/coordinates'
-import type { GeoAdminLayer, Layer } from '@geoadmin/layers'
+import type { FlatExtent, NormalizedExtent, SingleCoordinate } from '@swissgeo/coordinates'
+import { extentUtils } from '@swissgeo/coordinates'
+import type { GeoAdminLayer, Layer } from '@swissgeo/layers'
 import type { Geometry } from 'geojson'
 
-import log, { LogPreDefinedColor } from '@geoadmin/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { containsCoordinate, getIntersection as getExtentIntersection } from 'ol/extent'
 import { defineStore } from 'pinia'
 
-import type SelectableFeature from '@/api/features/SelectableFeature.class'
-import type { DrawingIcon } from '@/api/icon.api.ts'
-import type { ActionDispatcher } from '@/store/store'
+import type { DrawingIcon } from '@/api/icon.api'
+import type { ActionDispatcher } from '@/store/types'
 
-import EditableFeature, {
-    EditableFeatureTextPlacement,
+import {
+    type EditableFeature,
     EditableFeatureTypes,
-} from '@/api/features/EditableFeature.class'
-import getFeature, {
-    identify,
     type IdentifyConfig,
-    identifyOnGeomAdminLayer,
-} from '@/api/features/features.api'
-import LayerFeature from '@/api/features/LayerFeature.class'
+    type LayerFeature,
+    type SelectableFeature,
+} from '@/api/features.api'
+import getFeature, { identify, identifyOnGeomAdminLayer } from '@/api/features.api'
 import { sendFeatureInformationToIFrameParent } from '@/api/iframePostMessageEvent.api'
 import {
     DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION,
@@ -30,20 +28,19 @@ import useLayersStore from '@/store/modules/layers.store'
 import useMapStore from '@/store/modules/map.store'
 import useProfileStore from '@/store/modules/profile.store'
 import useUIStore from '@/store/modules/ui.store'
-import { type FlatExtent, flattenExtent, type NormalizedExtent } from '@/utils/extentUtils'
 import {
     allStylingColors,
     allStylingSizes,
-    allStylingTextPlacementsWithUnknown,
-    FeatureStyleColor,
-    FeatureStyleSize,
-} from '@/utils/featureStyleUtils.ts'
+    type FeatureStyleColor,
+    type FeatureStyleSize,
+    TextPlacement,
+} from '@/utils/featureStyleUtils'
 
 import usePositionStore from './position.store'
 
 function getEditableFeatureWithId(
     selectedEditableFeatures: EditableFeature[],
-    featureId: string
+    featureId: string | number
 ): EditableFeature | undefined {
     return selectedEditableFeatures.find((selectedFeature) => selectedFeature.id === featureId)
 }
@@ -60,9 +57,9 @@ interface MultipleIdentifyConfig extends Omit<IdentifyConfig, 'layer'> {
 
 export enum IdentifyMode {
     /** Clear previous selection and identify features at the given coordinate */
-    NEW = 'NEW',
+    New = 'NEW',
     /** Toggle selection: remove if already selected, add if not */
-    TOGGLE = 'TOGGLE',
+    Toggle = 'TOGGLE',
 }
 
 /**
@@ -114,11 +111,11 @@ export const identifyOnAllLayers = (config: MultipleIdentifyConfig): Promise<Lay
                     | FlatExtent
                     | NormalizedExtent
                 if (coordinate.length === 2) {
-                    return containsCoordinate(flattenExtent(layerExtent), coordinate)
+                    return containsCoordinate(extentUtils.flattenExtent(layerExtent), coordinate)
                 }
                 return getExtentIntersection(
-                    flattenExtent(layerExtent),
-                    flattenExtent(coordinate)
+                    extentUtils.flattenExtent(layerExtent),
+                    extentUtils.flattenExtent(coordinate)
                 ).every((value) => !isNaN(value))
             })
             .forEach((layer) => {
@@ -188,11 +185,11 @@ const useFeaturesStore = defineStore('features', {
     getters: {
         selectedLayerFeatures(): LayerFeature[] {
             return this.selectedFeaturesByLayerId
-                .map((featuresForLayer) => featuresForLayer.features)
+                .map((featuresForLayer: FeaturesForLayer) => featuresForLayer.features)
                 .flat()
         },
 
-        selectedFeatures(): SelectableFeature[] {
+        selectedFeatures(): (EditableFeature | LayerFeature)[] {
             return [...this.selectedEditableFeatures, ...this.selectedLayerFeatures]
         },
     },
@@ -209,7 +206,7 @@ const useFeaturesStore = defineStore('features', {
          * @param dispatcher
          */
         setSelectedFeatures(
-            payload: { features: SelectableFeature[]; paginationSize?: number },
+            payload: { features: SelectableFeature<boolean>[]; paginationSize?: number },
             dispatcher: ActionDispatcher
         ) {
             const { features, paginationSize = DEFAULT_FEATURE_COUNT_SINGLE_POINT } = payload
@@ -224,8 +221,12 @@ const useFeaturesStore = defineStore('features', {
             const layerFeaturesByLayerId: FeaturesForLayer[] = []
             let drawingFeatures: EditableFeature[] = []
             if (Array.isArray(features)) {
-                const layerFeatures = features.filter((feature) => feature instanceof LayerFeature)
-                drawingFeatures = features.filter((feature) => feature instanceof EditableFeature)
+                const layerFeatures = features.filter(
+                    (feature) => !feature.isEditable
+                ) as LayerFeature[]
+                drawingFeatures = features.filter(
+                    (feature) => feature.isEditable
+                ) as EditableFeature[]
                 layerFeatures.forEach((feature) => {
                     if (
                         !layerFeaturesByLayerId.some(
@@ -289,7 +290,7 @@ const useFeaturesStore = defineStore('features', {
                 layers,
                 coordinate,
                 vectorFeatures = [],
-                identifyMode = IdentifyMode.NEW,
+                identifyMode = IdentifyMode.New,
             } = payload
             const featureCount = getFeatureCountForCoordinate(coordinate)
 
@@ -303,7 +304,7 @@ const useFeaturesStore = defineStore('features', {
                     layers,
                     coordinate,
                     resolution: positionStore.resolution,
-                    mapExtent: flattenExtent(positionStore.extent),
+                    mapExtent: extentUtils.flattenExtent(positionStore.extent),
                     screenWidth: uiStore.width,
                     screenHeight: uiStore.height,
                     lang: i18nStore.lang,
@@ -312,7 +313,7 @@ const useFeaturesStore = defineStore('features', {
                 })),
             ]
             if (features.length > 0) {
-                if (identifyMode === IdentifyMode.NEW) {
+                if (identifyMode === IdentifyMode.New) {
                     this.setSelectedFeatures(
                         {
                             features,
@@ -320,7 +321,7 @@ const useFeaturesStore = defineStore('features', {
                         },
                         dispatcher
                     )
-                } else if (identifyMode === IdentifyMode.TOGGLE) {
+                } else if (identifyMode === IdentifyMode.Toggle) {
                     // Toggle features: remove if already selected, add if not
                     const oldFeatures = this.selectedLayerFeatures
                     const newFeatures = features
@@ -397,7 +398,7 @@ const useFeaturesStore = defineStore('features', {
                     layer,
                     coordinate,
                     resolution: positionStore.resolution,
-                    mapExtent: flattenExtent(positionStore.extent),
+                    mapExtent: extentUtils.flattenExtent(positionStore.extent),
                     screenWidth: uiStore.width,
                     screenHeight: uiStore.height,
                     lang: i18nStore.lang,
@@ -606,7 +607,7 @@ const useFeaturesStore = defineStore('features', {
          * if the feature is editable and part of the currently selected features
          */
         changeFeatureTextPlacement(
-            payload: { feature: EditableFeature; textPlacement: EditableFeatureTextPlacement },
+            payload: { feature: EditableFeature; textPlacement: TextPlacement },
             dispatcher: ActionDispatcher
         ) {
             const { feature, textPlacement } = payload
@@ -614,7 +615,7 @@ const useFeaturesStore = defineStore('features', {
                 this.selectedEditableFeatures,
                 feature.id
             )
-            const wantedPlacement = allStylingTextPlacementsWithUnknown.find(
+            const wantedPlacement = Object.values(TextPlacement).find(
                 (position) => position === textPlacement
             )
             if (wantedPlacement && selectedFeature && selectedFeature.isEditable) {
@@ -627,16 +628,16 @@ const useFeaturesStore = defineStore('features', {
          * editable and part of the currently selected features
          */
         changeFeatureTextOffset(
-            payload: { feature: EditableFeature; textOffset: number[] },
+            payload: { feature: EditableFeature; textOffset: [number, number] },
             dispatcher: ActionDispatcher
         ) {
             const { feature, textOffset } = payload
-            const selectedFeature = getEditableFeatureWithId(
+            const editableFeature = getEditableFeatureWithId(
                 this.selectedEditableFeatures,
                 feature.id
             )
-            if (selectedFeature && selectedFeature.isEditable) {
-                selectedFeature.textOffset = textOffset
+            if (editableFeature && editableFeature.isEditable) {
+                editableFeature.textOffset = textOffset
             }
         },
 
@@ -680,7 +681,7 @@ const useFeaturesStore = defineStore('features', {
                 icon &&
                 selectedFeature &&
                 selectedFeature.isEditable &&
-                selectedFeature.featureType === EditableFeatureTypes.MARKER
+                selectedFeature.featureType === EditableFeatureTypes.Marker
             ) {
                 selectedFeature.icon = icon
             }
@@ -705,7 +706,7 @@ const useFeaturesStore = defineStore('features', {
                 wantedSize &&
                 selectedFeature &&
                 selectedFeature.isEditable &&
-                selectedFeature.featureType === EditableFeatureTypes.MARKER
+                selectedFeature.featureType === EditableFeatureTypes.Marker
             ) {
                 selectedFeature.iconSize = iconSize
             }
@@ -752,7 +753,7 @@ const useFeaturesStore = defineStore('features', {
                             lang: i18nStore.lang,
                             screenWidth: uiStore.width,
                             screenHeight: uiStore.height,
-                            mapExtent: flattenExtent(positionStore.extent),
+                            mapExtent: extentUtils.flattenExtent(positionStore.extent),
                             coordinate: mapStore.clickInfo?.coordinate,
                         })
                     )
@@ -765,34 +766,25 @@ const useFeaturesStore = defineStore('features', {
                         .filter((response) => response.status === 'fulfilled')
                         .map((response) => response.value)
                     if (features.length > 0) {
-                        const update: FeaturesForLayer[] = this.selectedFeaturesByLayerId.map(
-                            (featuresForLayer) => {
-                                const existingFeatures: LayerFeature[] = featuresForLayer.features
-                                // running through the features we received from the backend, and replacing existing feature if a match is found
-                                const updatedFeatures = existingFeatures.map(
-                                    features.find(
-                                        (feature: LayerFeature) =>
-                                            feature.id === existingFeatures.id
-                                    ) ?? existingFeatures
-                                )
-                                return featuresForLayer
-                            }
-                        )
-                        // const updatedFeaturesByLayerId: FeaturesForLayer[] =
-                        //     this.selectedFeaturesByLayerId.map((featuresForLayer) => {
-                        //         const clone = cloneDeep(featuresForLayer)
-                        //         clone.features = clone.features.map((feature) => {
-                        //             if (feature.layer.id === featuresForLayer.layerId) {
+                        // TODO: refactor this to use the new store and filter/map instead of reduce
+                        // const updatedFeaturesByLayerId = state.selectedFeaturesByLayerId.reduce(
+                        //     (updated_array, layer) => {
+                        //         const rawLayer = toRaw(layer)
+                        //         const rawLayerFeatures = rawLayer.features
+                        //         rawLayer.features = features.reduce((features_array, feature) => {
+                        //             if (feature.layer.id === rawLayer.layerId) {
                         //                 features_array.push(feature)
                         //             }
                         //             return features_array
-                        //         })
-                        //         if (featuresForLayer.features.length === 0) {
-                        //             featuresForLayer.features = features
+                        //         }, [])
+                        //         if (rawLayer.features.length === 0) {
+                        //             rawLayer.features = rawLayerFeatures
                         //         }
-                        //         updatedLayers.push(featuresForLayer)
-                        //         return updatedLayers
-                        //     })
+                        //         updated_array.push(rawLayer)
+                        //         return updated_array
+                        //     },
+                        //     []
+                        // )
                         // await commit('setSelectedFeatures', {
                         //     layerFeaturesByLayerId: updatedFeaturesByLayerId,
                         //     drawingFeatures: state.selectedEditableFeatures,
@@ -800,9 +792,18 @@ const useFeaturesStore = defineStore('features', {
                         // })
                     }
                 } catch (error) {
-                    log.error(
-                        `Error while attempting to update already selected features. error is ${error}`
-                    )
+                    if (error instanceof Error) {
+                        log.error({
+                            title: 'Feature store',
+                            titleStyle: {
+                                backgroundColor: LogPreDefinedColor.Purple,
+                            },
+                            messages: [
+                                'Error while attempting to update already selected features',
+                                error,
+                            ],
+                        })
+                    }
                 }
             }
         },

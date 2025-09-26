@@ -152,9 +152,9 @@ export default function useMapInteractions(map) {
                 }
             })
         })
-        let clickType = ClickType.LEFT_SINGLECLICK
+        let clickType = ClickType.LeftSingleClick
         if (platformModifierKeyOnly(event)) {
-            clickType = ClickType.CTRL_LEFT_SINGLECLICK
+            clickType = ClickType.CtrlLeftSingleClick
         }
         store.dispatch('click', {
             clickInfo: new ClickInfo({
@@ -175,7 +175,7 @@ export default function useMapInteractions(map) {
                 coordinate: event.coordinate,
                 pixelCoordinate: event.pixel,
                 features: [],
-                clickType: ClickType.CONTEXTMENU,
+                clickType: ClickType.ContextMenu,
             }),
             ...dispatcher,
         })

@@ -12,11 +12,20 @@ import { v4 as uuidv4 } from 'uuid'
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-export interface DropdownItem {
+export interface DropdownItem<T> {
     id: string | number
     title: string
-    value: string | number | object
+    value: T
     description?: string
+}
+
+interface DropdownButtonProps<T> {
+    title: string
+    items: DropdownItem<T>[]
+    currentValue: null | string | number | object
+    withToggleButton?: boolean
+    disabled?: boolean
+    small?: boolean
 }
 
 const {
@@ -26,18 +35,11 @@ const {
     withToggleButton = false,
     disabled = false,
     small = false,
-} = defineProps<{
-    title: string
-    items: DropdownItem[]
-    currentValue: null | string | number | object
-    withToggleButton?: boolean
-    disabled?: boolean
-    small?: boolean
-}>()
+} = defineProps<DropdownButtonProps<unknown>>()
 
 const emits = defineEmits<{
     click: []
-    selectItem: [item: DropdownItem]
+    selectItem: [item: DropdownItem<unknown>]
 }>()
 
 const isOpen = ref<boolean>(false)
@@ -106,7 +108,7 @@ function onToggleButtonClick(): void {
     isOpen.value = !isOpen.value
 }
 
-function onItemClick(event: MouseEvent, item: DropdownItem): void {
+function onItemClick(event: MouseEvent, item: DropdownItem<unknown>): void {
     // Stopping the propagation (bubbling up) of the event here.
     // This is to keep any floating parent from receiving the click too, and closing because of that.
     // (Was happening in the context of feature edit, where icon style edit is in a floatingUI element with dropdowns)

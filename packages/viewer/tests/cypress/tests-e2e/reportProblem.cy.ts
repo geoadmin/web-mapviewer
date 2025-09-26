@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { EditableFeatureTypes } from '@/api/features.api'
 import { APP_VERSION } from '@/config/staging.config'
 
 import { assertDefined, isMobile } from '../support/utils'
@@ -260,10 +260,10 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="report-problem-drawing-button"]').as('reportDrawing').scrollIntoView()
         cy.get('@reportDrawing').should('be.visible').click()
         cy.log('Draw some features')
-        cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+        cy.clickDrawingTool(EditableFeatureTypes.Marker)
         cy.get('[data-cy="ol-map"]').click('center')
 
-        cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
+        cy.clickDrawingTool(EditableFeatureTypes.Annotation)
         cy.get('[data-cy="ol-map"]').then(($el) => {
             const mapWidth = $el.width()
             const mapHeight = $el.height()
@@ -295,10 +295,10 @@ describe('Testing the report problem form', () => {
 
         cy.log('Draw some features')
         cy.viewport('macbook-11')
-        cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+        cy.clickDrawingTool(EditableFeatureTypes.Marker)
         cy.get('[data-cy="ol-map"]').click('center')
 
-        cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
+        cy.clickDrawingTool(EditableFeatureTypes.Annotation)
         cy.get('[data-cy="ol-map"]').then(($el) => {
             const mapWidth = $el.width()
             const mapHeight = $el.height()
@@ -367,10 +367,10 @@ describe('Testing the report problem form', () => {
         cy.get('@reportDrawing').scrollIntoView()
         cy.get('@reportDrawing').should('be.visible')
         cy.get('@reportDrawing').click()
-        cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+        cy.clickDrawingTool(EditableFeatureTypes.Marker)
         cy.get('[data-cy="ol-map"]').click()
 
-        cy.clickDrawingTool(EditableFeatureTypes.ANNOTATION)
+        cy.clickDrawingTool(EditableFeatureTypes.Annotation)
         cy.get('[data-cy="ol-map"]').then(($el) => {
             const mapWidth = $el.width()
             const mapHeight = $el.height()
@@ -379,7 +379,7 @@ describe('Testing the report problem form', () => {
             cy.get('[data-cy="ol-map"]').click(mapWidth / 2 + 50, mapHeight / 2)
         })
 
-        cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
+        cy.clickDrawingTool(EditableFeatureTypes.LinePolygon)
         cy.get('[data-cy="ol-map"]').then(($el) => {
             const mapWidth = $el.width()
             const mapHeight = $el.height()
@@ -407,19 +407,19 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="submit-button"]').click()
         cy.wait('@feedback').then((interception) => {
             const formData = parseFormData(interception.request)
-                ;[
-                    { name: 'subject', contains: `[Problem Report]` },
-                    { name: 'feedback', contains: text },
-                    { name: 'version', contains: APP_VERSION.replace('.dirty', '') },
-                    { name: 'ua', contains: navigator.userAgent },
-                    { name: 'kml', contains: '<Data name="type"><value>marker</value></Data>' },
-                    { name: 'kml', contains: '<Data name="type"><value>annotation</value></Data>' },
-                    { name: 'kml', contains: '<Data name="type"><value>linepolygon</value></Data>' },
-                ].forEach((param) => {
-                    expect(interception.request.body).to.be.a('String')
-                    expect(formData).to.haveOwnProperty(param.name)
-                    expect(formData[param.name]).to.contain(param.contains)
-                })
+            ;[
+                { name: 'subject', contains: `[Problem Report]` },
+                { name: 'feedback', contains: text },
+                { name: 'version', contains: APP_VERSION.replace('.dirty', '') },
+                { name: 'ua', contains: navigator.userAgent },
+                { name: 'kml', contains: '<Data name="type"><value>marker</value></Data>' },
+                { name: 'kml', contains: '<Data name="type"><value>annotation</value></Data>' },
+                { name: 'kml', contains: '<Data name="type"><value>linepolygon</value></Data>' },
+            ].forEach((param) => {
+                expect(interception.request.body).to.be.a('String')
+                expect(formData).to.haveOwnProperty(param.name)
+                expect(formData[param.name]).to.contain(param.contains)
+            })
         })
     })
 })
