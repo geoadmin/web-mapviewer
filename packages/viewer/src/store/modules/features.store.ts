@@ -18,7 +18,6 @@ import {
     type SelectableFeature,
 } from '@/api/features.api'
 import getFeature, { identify, identifyOnGeomAdminLayer } from '@/api/features.api'
-
 import { sendFeatureInformationToIFrameParent } from '@/api/iframePostMessageEvent.api'
 import {
     DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION,
