@@ -194,8 +194,14 @@ function goToView(
         })
         hasForwardedPostMessage = true
     }
-
-    cy.visit(`/#/${view}${flattenedQueryParams}`, {
+    let routerView: string = view
+    if (legacy) {
+        routerView = 'legacy'
+        if (view === 'embed') {
+            routerView += '-embed'
+        }
+    }
+    cy.visit(`/${withHash ? `#/${routerView}` : ''}${flattenedQueryParams}`, {
         onBeforeLoad: (win) => {
             // initializing the spy every time the app is loaded
             const mapReadyEvent = cy.spy().as('mapReadyEvent')
@@ -445,7 +451,7 @@ Cypress.Commands.add('checkOlLayer', (args) => {
     cy.window().its('map').invoke('getAllLayers').then((olLayers: OLLayer[]) => {
         const layerIds = layers.map((l) => l.id).join(',')
         const olLayerIds = olLayers
-            .toSorted((a: OLLayer, b:OLLayer) => a.get('zIndex') - b.get('zIndex'))
+            .toSorted((a: OLLayer, b: OLLayer) => a.get('zIndex') - b.get('zIndex'))
             .map((l: OLLayer) => `[${l.get('zIndex')}]:${l.get('id')}`)
             .join(',')
         Cypress.log({
@@ -476,23 +482,23 @@ Cypress.Commands.add('checkOlLayer', (args) => {
             // Also, the rendered flag is protected, so we're checking if it is set with a getPixel
             // function, which returns null as long as either there is no renderer, or the rendered
             // flag is false
-            cy.waitUntil(() => olLayer!.getData([100,100]) !== null, {
+            cy.waitUntil(() => olLayer!.getData([100, 100]) !== null, {
                 description: `[${layer.id}] waitUntil layer.rendered`,
                 errorMsg: `[${layer.id}] layer.rendered is not true`,
             })
         })
         invisibleLayers.forEach((layer) => {
-                Cypress.log({
-                    name: 'checkOlLayer',
-                    message: `Check that invisible layer ${layer.id} is not set in openlayer`,
-                    consoleProps: () => ({
-                        layer,
-                    }),
-                })
-                expect(
-                    olLayers.find((l) => l.get('id') === layer.id),
-                    `[${layer.id}] layer found`
-                ).to.be.undefined
+            Cypress.log({
+                name: 'checkOlLayer',
+                message: `Check that invisible layer ${layer.id} is not set in openlayer`,
+                consoleProps: () => ({
+                    layer,
+                }),
+            })
+            expect(
+                olLayers.find((l) => l.get('id') === layer.id),
+                `[${layer.id}] layer found`
+            ).to.be.undefined
         })
 
     })
