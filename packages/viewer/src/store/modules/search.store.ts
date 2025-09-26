@@ -1,5 +1,5 @@
-import type { SingleCoordinate } from '@geoadmin/coordinates'
-import type { GPXLayer, KMLLayer } from '@geoadmin/layers'
+import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type { GPXLayer, KMLLayer } from '@swissgeo/layers'
 
 import {
     constants,
@@ -7,16 +7,16 @@ import {
     CustomCoordinateSystem,
     LV03,
     reprojectAndRound,
-} from '@geoadmin/coordinates'
-import { LayerType } from '@geoadmin/layers'
-import { layerUtils } from '@geoadmin/layers/utils'
-import log, { LogPreDefinedColor } from '@geoadmin/log'
+} from '@swissgeo/coordinates'
+import { LayerType } from '@swissgeo/layers'
+import { layerUtils } from '@swissgeo/layers/utils'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import GeoJSON from 'ol/format/GeoJSON'
 import { defineStore } from 'pinia'
 
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types'
 
-import getFeature from '@/api/features/features.api'
+import getFeature from '@/api/features.api'
 import LayerFeature from '@/api/features/LayerFeature.class'
 import reframe from '@/api/lv03Reframe.api'
 import search, {

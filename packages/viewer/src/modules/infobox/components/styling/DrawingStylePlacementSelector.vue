@@ -14,15 +14,15 @@ const { currentPlacement } = defineProps({
 const emit = defineEmits(['change'])
 
 const allStylingTextPlacements = ref([
-    TextPlacement.TOP,
-    TextPlacement.TOP_LEFT,
-    TextPlacement.TOP_RIGHT,
-    TextPlacement.CENTER,
-    TextPlacement.LEFT,
-    TextPlacement.RIGHT,
-    TextPlacement.BOTTOM,
-    TextPlacement.BOTTOM_LEFT,
-    TextPlacement.BOTTOM_RIGHT,
+    TextPlacement.Top,
+    TextPlacement.TopLeft,
+    TextPlacement.TopRight,
+    TextPlacement.Center,
+    TextPlacement.Left,
+    TextPlacement.Right,
+    TextPlacement.Bottom,
+    TextPlacement.BottomLeft,
+    TextPlacement.BottomRight,
 ])
 
 const { t } = useI18n()

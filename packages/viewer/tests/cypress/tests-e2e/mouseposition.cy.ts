@@ -12,8 +12,8 @@ import {
     MGRSFormat,
     UTMFormat,
     WGS84Format,
-} from '@/utils/coordinates/coordinateFormat'
-import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
+} from '@/utils/coordinates/coordinateFormat.ts'
+import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat.ts'
 import { assertDefined } from 'support/utils'
 
 registerProj4(proj4)
@@ -77,8 +77,8 @@ function checkMousePositionNumberValue(
 }
 
 /**
- * Will skip this test (or all tests if this is run inside a context/describe) when the
- * condition is true.
+ * Will skip this test (or all tests if this is run inside a context/describe) when the condition is
+ * true.
  *
  * @param condition
  * @param message A message to log in case tests are skipped
@@ -91,7 +91,7 @@ function skipTestsIf(condition: boolean, message?: string) {
                 message,
             })
         }
-        const mochaContext = (cy.state('runnable')).ctx
+        const mochaContext = cy.state('runnable').ctx
         mochaContext?.skip()
     }
 }
@@ -141,10 +141,7 @@ describe('Test mouse position and interactions', () => {
     context('Mobile only tests', () => {
         before(() => {
             const viewportWidth = Cypress.config('viewportWidth')
-            skipTestsIf(
-                viewportWidth >= BREAKPOINT_TABLET,
-                'This test will only be run on mobile'
-            )
+            skipTestsIf(viewportWidth >= BREAKPOINT_TABLET, 'This test will only be run on mobile')
         })
         beforeEach(() => {
             cy.goToMapView({

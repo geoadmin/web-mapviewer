@@ -4,10 +4,10 @@ import { readFile } from 'fs/promises'
 import { Interval } from 'luxon'
 import { assertType, beforeAll, describe, expect, it } from 'vitest'
 
-import type { WMTSCapabilitiesResponse } from '@/parsers/WMTSCapabilitiesParser'
 import wmtsCapabilitiesParser from '@/parsers/WMTSCapabilitiesParser'
 import type { ExternalWMTSLayer, LayerLegend } from '@/types/layers'
 import { timeConfigUtils } from '@/utils'
+import type { WMTSCapabilitiesResponse } from '@/types'
 
 describe('WMTSCapabilitiesParser - invalid', () => {
     it('Throw Error on invalid input', () => {

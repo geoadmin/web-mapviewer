@@ -4,6 +4,8 @@ import { Circle, Fill, Stroke, Style } from 'ol/style'
 import CircleStyle from 'ol/style/Circle'
 
 import { MIN_PRINT_SCALE_SIZE, PRINT_DPI_COMPENSATION } from '@/config/print.config'
+import { StyleZIndex } from '@/modules/drawing/lib/style'
+
 import variables from '@/scss/variables-admin.module.scss'
 
 const { red, mocassin, mocassinToRed1, mocassinToRed2, malibu, black, white } = variables
@@ -143,7 +145,7 @@ export const hoveredLinePolygonStyle = new Style({
     fill: hoveredFill,
     stroke: hoveredStroke,
     // always on top (in case there's an overlap with another selected feature)
-    zIndex: 9999,
+    zIndex: StyleZIndex.OnTop,
 })
 export const hoveredPointStyle = new Style({
     image: new CircleStyle({
@@ -152,7 +154,7 @@ export const hoveredPointStyle = new Style({
         stroke: hoveredStroke,
     }),
     // always on top (in case there's an overlap with another selected feature)
-    zIndex: 9999,
+    zIndex: StyleZIndex.OnTop,
 })
 export const highlightedLinePolygonStyle = new Style({
     fill: highlightedFill,

@@ -3,7 +3,7 @@ import type { Layer } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import { defineStore } from 'pinia'
 
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types'
 
 import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
 import {

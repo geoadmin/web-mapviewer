@@ -4,7 +4,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { EditableFeatureTypes } from '@/api/features.api'
 
 const dispatcher = { dispatcher: 'DrawingToolboxButton.vue' }
 
@@ -14,7 +14,7 @@ const store = useStore()
 const { drawingMode } = defineProps({
     drawingMode: {
         type: String,
-        default: EditableFeatureTypes.LINEPOLYGON,
+        default: EditableFeatureTypes.LinePolygon,
     },
 })
 
@@ -23,13 +23,13 @@ const currentDrawingMode = computed(() => store.state.drawing.mode)
 const isActive = computed(() => drawingMode === currentDrawingMode.value)
 const buttonIcon = computed(() => {
     switch (drawingMode) {
-        case EditableFeatureTypes.LINEPOLYGON:
+        case EditableFeatureTypes.LinePolygon:
             return ['fa', 'draw-polygon']
-        case EditableFeatureTypes.MARKER:
+        case EditableFeatureTypes.Marker:
             return ['fa', 'map-marker-alt']
-        case EditableFeatureTypes.MEASURE:
+        case EditableFeatureTypes.Measure:
             return ['fa', 'ruler']
-        case EditableFeatureTypes.ANNOTATION:
+        case EditableFeatureTypes.Annotation:
             return ['fa', 't']
     }
     return null

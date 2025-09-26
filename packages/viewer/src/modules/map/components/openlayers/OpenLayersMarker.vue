@@ -10,7 +10,7 @@ import {
     getMarkerStyle,
     highlightFeatureStyle,
     OpenLayersMarkerStyles,
-} from '@/modules/map/components/openlayers/utils/markerStyle'
+} from '@/modules/map/components/openlayers/utils/markerStyle.js'
 import useVectorLayer from '@/modules/map/components/openlayers/utils/useVectorLayer.composable'
 
 const { position, markerStyle, zIndex, selectFeatureCallback, deselectAfterSelect } = defineProps({
@@ -20,7 +20,7 @@ const { position, markerStyle, zIndex, selectFeatureCallback, deselectAfterSelec
     },
     markerStyle: {
         type: String,
-        default: OpenLayersMarkerStyles.BALLOON,
+        default: OpenLayersMarkerStyles.Balloon,
     },
     zIndex: {
         type: Number,

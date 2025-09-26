@@ -1,7 +1,6 @@
 import { extentUtils, WEBMERCATOR } from '@swissgeo/coordinates'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
-import { extractOlFeatureCoordinates } from '@/api/features/features.api.js'
+import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@/api/features.api'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { HALFSIZE_WEBMERCATOR } from '@/utils/geodesicManager'
 
@@ -33,8 +32,9 @@ function moveMapPos(newCenter) {
     )
 }
 
-function drawFeature(coords, type = EditableFeatureTypes.MEASURE) {
-    cy.window().its('drawingLayer')
+function drawFeature(coords, type = EditableFeatureTypes.Measure) {
+    cy.window()
+        .its('drawingLayer')
         .then((layer) => layer.getSource().getFeatures())
         .should('have.length', 0)
     //Draw a feature
@@ -72,12 +72,17 @@ function checkFeatureSelected(featureCoords) {
     cy.waitUntilState((_, getters) => getters.selectedFeatures.length === 1)
     // May need to be reactivated if the headless tests still fail
     // cy.wait(500)
-    cy.window().its('drawingLayer').should((layer) => {
-        const features = layer.getSource().getFeatures()
-        expect(features, 'Expected the drawing layer to contain exactly one feat').to.have.length(1)
-        const coords = extractOlFeatureCoordinates(features[0])
-        checkCoordsEqual(coords, featureCoords)
-    })
+    cy.window()
+        .its('drawingLayer')
+        .should((layer) => {
+            const features = layer.getSource().getFeatures()
+            expect(
+                features,
+                'Expected the drawing layer to contain exactly one feat'
+            ).to.have.length(1)
+            const coords = extractOlFeatureCoordinates(features[0])
+            checkCoordsEqual(coords, featureCoords)
+        })
     cy.readStoreValue('getters.selectedFeatures').then((features) => {
         expect(features, 'Expected exactly one feature to be selected').to.have.length(1)
         checkCoordsEqual(features[0].coordinates, featureCoords)
@@ -113,14 +118,14 @@ const generateTestsInPacific = (testFunc) => {
 describe.skip('Correct handling of geodesic geometries', () => {
     beforeEach(() => {
         cy.goToDrawing({
-            queryParams:{ z: 10, sr: 3857 },
-            withHash:true
+            queryParams: { z: 10, sr: 3857 },
+            withHash: true,
         })
     })
     context(
         'Check that the modify and select interactions are aware that the linestring geometry is geodesic',
         () => {
-            const testFunc = (drawOffset, selectOffset, x, type = EditableFeatureTypes.MEASURE) => {
+            const testFunc = (drawOffset, selectOffset, x, type = EditableFeatureTypes.Measure) => {
                 const y = 5976445
                 const lineToDraw = [
                     [x, y],
@@ -203,7 +208,7 @@ describe.skip('Correct handling of geodesic geometries', () => {
                             dispatcher: 'e2e-test',
                         })
                 )
-                testFunc(0, 0, 773900, EditableFeatureTypes.LINEPOLYGON)
+                testFunc(0, 0, 773900, EditableFeatureTypes.LinePolygon)
             })
         }
     )
@@ -211,7 +216,7 @@ describe.skip('Correct handling of geodesic geometries', () => {
     context(
         'Check that the modify and select interactions are aware that the polygon geometry is geodesic',
         () => {
-            const testFunc = (drawOffset, selectOffset, x, type = EditableFeatureTypes.MEASURE) => {
+            const testFunc = (drawOffset, selectOffset, x, type = EditableFeatureTypes.Measure) => {
                 /* To understand what this function does, please check the comments in the other
                 test function (I didn't want to duplicate these comments) */
                 const y = 5976445
@@ -275,7 +280,7 @@ describe.skip('Correct handling of geodesic geometries', () => {
                             dispatcher: 'e2e-test',
                         })
                 )
-                testFunc(0, 0, 773900, EditableFeatureTypes.LINEPOLYGON)
+                testFunc(0, 0, 773900, EditableFeatureTypes.LinePolygon)
             })
         }
     )

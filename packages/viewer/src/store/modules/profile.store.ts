@@ -1,15 +1,14 @@
-import type { SingleCoordinate } from '@geoadmin/coordinates'
+import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 
-import log, { LogPreDefinedColor } from '@geoadmin/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { bbox, lineString } from '@turf/turf'
 import cloneDeep from 'lodash/cloneDeep'
 import { defineStore } from 'pinia'
 
-import type SelectableFeature from '@/api/features/SelectableFeature.class'
-import type { ActionDispatcher } from '@/store/store'
-import type { FlatExtent } from '@/utils/extentUtils'
+import type { SelectableFeature } from '@/api/features.api'
+import type { ActionDispatcher } from '@/store/types'
 
-export function canFeatureShowProfile(feature?: SelectableFeature): boolean {
+export function canFeatureShowProfile(feature?: SelectableFeature<boolean>): boolean {
     return (
         !!feature?.geometry &&
         ['MultiLineString', 'LineString', 'Polygon', 'MultiPolygon'].includes(
@@ -45,11 +44,11 @@ function stitchMultiLineStringRecurse(
             return
         }
 
-        const firstPoint: SingleCoordinate = currentLineBeingStitched[0]
+        const firstPoint: SingleCoordinate = currentLineBeingStitched[0]!
         const lastPoint: SingleCoordinate =
-            currentLineBeingStitched[currentLineBeingStitched.length - 1]
-        const lineFirstPoint: SingleCoordinate = line[0]
-        const lineLastPoint: SingleCoordinate = line[line.length - 1]
+            currentLineBeingStitched[currentLineBeingStitched.length - 1]!
+        const lineFirstPoint: SingleCoordinate = line[0]!
+        const lineLastPoint: SingleCoordinate = line[line.length - 1]!
 
         if (canPointsBeStitched(firstPoint, lineLastPoint, tolerance)) {
             currentLineBeingStitched = [...line, ...currentLineBeingStitched]
@@ -109,7 +108,7 @@ export function stitchMultiLine(
 }
 
 export interface ProfileState {
-    feature: SelectableFeature | undefined
+    feature?: SelectableFeature<boolean>
     simplifyGeometry: boolean
     /**
      * Tells which part of a MultiLineString or Polygon is to be shown as the profile. Will also be
@@ -203,7 +202,7 @@ const useProfileStore = defineStore('profile', {
          * @param dispatcher
          */
         setProfileFeature(
-            payload: { feature?: SelectableFeature; simplifyGeometry?: boolean },
+            payload: { feature?: SelectableFeature<boolean>; simplifyGeometry?: boolean },
             dispatcher: ActionDispatcher
         ) {
             const { feature, simplifyGeometry = false } = payload

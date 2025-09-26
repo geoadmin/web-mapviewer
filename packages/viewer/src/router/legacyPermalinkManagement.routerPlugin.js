@@ -12,7 +12,7 @@ import {
     LEGACY_VIEWS,
     MAP_VIEW,
     MAP_VIEWS,
-} from '@/router/viewNames'
+} from '@/router/viewNames.js'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import {
     getKmlLayerFromLegacyAdminIdParam,

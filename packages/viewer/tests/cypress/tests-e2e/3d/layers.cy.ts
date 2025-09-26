@@ -1,5 +1,6 @@
-import { WEBMERCATOR, LV95 } from '@swissgeo/coordinates'
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { LV95, WEBMERCATOR } from '@swissgeo/coordinates'
+
+import { EditableFeatureTypes } from '@/api/features.api'
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 import type { Viewer } from 'cesium'
 
@@ -275,12 +276,12 @@ describe('Test of layer handling in 3D', () => {
     })
     it('add KML layer from drawing', () => {
         cy.goToDrawing()
-        cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
+        cy.clickDrawingTool(EditableFeatureTypes.LinePolygon)
         cy.get('[data-cy="ol-map"]').click(100, 250)
         cy.get('[data-cy="ol-map"]').click(150, 250)
         cy.get('[data-cy="ol-map"]').dblclick(150, 280)
 
-        cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+        cy.clickDrawingTool(EditableFeatureTypes.Marker)
         cy.get('[data-cy="ol-map"]').click()
 
         cy.get('[data-cy="drawing-style-feature-title"]').type('This is a title')
