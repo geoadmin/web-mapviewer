@@ -31,14 +31,14 @@ interface GeoAdminGeoJSONLabel {
 // Base for all vector options, only includes the optional label
 interface GeoAdminGeoJSONVectorOptionsBase<
     Type extends
-        | 'icon'
-        | 'circle'
-        | 'square'
-        | 'triangle'
-        | 'pentagon'
-        | 'star'
-        | 'cross'
-        | 'hexagon',
+    | 'icon'
+    | 'circle'
+    | 'square'
+    | 'triangle'
+    | 'pentagon'
+    | 'star'
+    | 'cross'
+    | 'hexagon',
 > {
     type: Type
     label?: GeoAdminGeoJSONLabel

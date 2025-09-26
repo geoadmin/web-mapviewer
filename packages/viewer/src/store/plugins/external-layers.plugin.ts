@@ -193,7 +193,6 @@ const registerLoadExternalLayerAttributesWatcher = (): void => {
                 i18nStore.lang,
                 LayerType.WMTS
             )
-
             const layerToUpdate: Promise<ExternalWMSLayer | ExternalWMTSLayer | undefined>[] = []
             layers.forEach((layer) => {
                 if (layer.type === LayerType.WMTS) {
@@ -224,7 +223,6 @@ const registerLoadExternalLayerAttributesWatcher = (): void => {
                     )
                 }
             })
-
             Promise.allSettled(layerToUpdate)
                 .then((results) => {
                     const updatedLayer: Layer[] = results

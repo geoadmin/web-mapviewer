@@ -18,19 +18,18 @@ import { WMSGetFeatureInfo } from 'ol/format'
 import GeoJSON from 'ol/format/GeoJSON'
 import proj4 from 'proj4'
 
-import type { DrawingIcon } from '@/api/icon.api'
-
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
 import {
     DEFAULT_FEATURE_COUNT_SINGLE_POINT,
     DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE,
 } from '@/config/map.config'
+import { getGeoJsonFeatureCenter, reprojectGeoJsonGeometry } from '@/utils/geoJsonUtils'
 import {
     type FeatureStyleColor,
     type FeatureStyleSize,
     TextPlacement,
-} from '@/utils/featureStyleUtils'
-import { getGeoJsonFeatureCenter, reprojectGeoJsonGeometry } from '@/utils/geoJsonUtils'
+} from '@/utils/featureStyleUtils.ts'
+import type { DrawingIcon } from '@/api/icon.api'
 
 const GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE = 100
 

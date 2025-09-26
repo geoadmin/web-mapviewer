@@ -8,6 +8,7 @@ import i18n, {
     langToLocale,
     type SupportedLang,
 } from '@/modules/i18n'
+import type { ActionDispatcher } from '@/store/types'
 
 export interface I18nState {
     /**

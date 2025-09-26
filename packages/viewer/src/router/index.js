@@ -13,7 +13,7 @@ import {
     PRINT_VIEW,
 } from '@/router/viewNames'
 import store from '@/store'
-import { parseQuery, stringifyQuery } from '@/utils/url-router'
+import { parseQuery, stringifyQuery } from '@/utils/url-router.js'
 import EmbedView from '@/views/EmbedView.vue'
 import LegacyParamsView from '@/views/LegacyParamsView.vue'
 import MapView from '@/views/MapView.vue'

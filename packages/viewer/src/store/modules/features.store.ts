@@ -416,7 +416,7 @@ const useFeaturesStore = defineStore('features', {
                         const canLoadMore =
                             moreFeatures.length > 0 &&
                             moreFeatures.length % featuresAlreadyLoaded.featureCountForMoreData ===
-                                0
+                            0
 
                         featuresForLayer.features.push(...moreFeatures)
                         featuresForLayer.featureCountForMoreData = canLoadMore

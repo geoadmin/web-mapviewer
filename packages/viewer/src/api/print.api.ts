@@ -34,6 +34,7 @@ import {
 import i18n from '@/modules/i18n'
 import { useI18nStore } from '@/store/modules/i18n.store'
 import { adjustWidth } from '@/utils/styleUtils'
+import { useI18nStore } from '@/store/modules/i18n.store'
 
 /** Interval between each polling of the printing job status (ms) */
 const PRINTING_DEFAULT_POLL_INTERVAL: number = 2000
