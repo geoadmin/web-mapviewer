@@ -13,10 +13,11 @@ import layersConfigPlugin from '@/store/plugins/layers-config.plugin'
 import redoSearchWhenNeeded from '@/store/plugins/redo-search-when-needed.plugin'
 import reprojectPlugin from '@/store/plugins/reproject.plugin.ts'
 import screenSizeManagementPlugin from '@/store/plugins/screen-size-management.plugin'
-import syncCameraLonLatZoom from '@/store/plugins/sync-camera-lonlatzoom'
 import topicChangeManagementPlugin from '@/store/plugins/topic-change-management.plugin'
 import updateSelectedFeaturesPlugin from '@/store/plugins/update-selected-features.plugin'
 import vuexLogPlugin from '@/store/plugins/vuex-log.plugin'
+
+import registerSyncCameraLonLatZoom from '@/store/plugins/sync-camera-lonlatzoom'
 
 const pinia = createPinia()
 pinia.use(appReadinessPlugin)
@@ -32,9 +33,10 @@ pinia.use(layersConfigPlugin)
 pinia.use(redoSearchWhenNeeded)
 pinia.use(reprojectPlugin)
 pinia.use(screenSizeManagementPlugin)
-pinia.use(syncCameraLonLatZoom)
 pinia.use(topicChangeManagementPlugin)
 pinia.use(updateSelectedFeaturesPlugin)
 pinia.use(vuexLogPlugin)
+
+registerSyncCameraLonLatZoom()
 
 export default pinia
