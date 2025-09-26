@@ -8,8 +8,7 @@ platforms:
 categories:
   - geographic-information-systems
 usedBy:
-  - Federal Office for the Environment FOEN
-  - Feder Office of Civil Aviation FOCA
+  - Various federal offices
 developmentStatus: stable
 softwareType: standalone/web
 description:
