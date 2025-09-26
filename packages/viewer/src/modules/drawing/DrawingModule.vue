@@ -16,7 +16,7 @@ import {
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { EditableFeatureTypes } from '@/api/features.api'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import AddVertexButtonOverlay from '@/modules/drawing/components/AddVertexButtonOverlay.vue'
 import DrawingInteractions from '@/modules/drawing/components/DrawingInteractions.vue'
@@ -54,8 +54,8 @@ const selectedLineFeature = computed(() => {
         const selectedFeature = selectedEditableFeatures.value[0]
         if (
             selectedFeature.geometry.type === 'LineString' &&
-            (selectedFeature.featureType === EditableFeatureTypes.LINEPOLYGON ||
-                selectedFeature.featureType === EditableFeatureTypes.MEASURE)
+            (selectedFeature.featureType === EditableFeatureTypes.LinePolygon ||
+                selectedFeature.featureType === EditableFeatureTypes.Measure)
         ) {
             return selectedFeature
         }

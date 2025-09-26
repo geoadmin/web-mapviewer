@@ -1,7 +1,7 @@
 import { randomIntBetween } from '@swissgeo/numbers'
 import pako from 'pako'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { EditableFeatureTypes } from '@/api/features.api'
 import { generateRGBFillString, GREEN, RED } from '@/utils/featureStyleUtils'
 
 import type { CyHttpMessages } from 'cypress/types/net-stubbing'
@@ -138,7 +138,9 @@ function addFileAPIFixtureAndIntercept(): void {
         },
         async (req) => {
             try {
-                const formData = await new Response(req.body, { headers: transformHeaders(req.headers) }).formData()
+                const formData = await new Response(req.body, {
+                    headers: transformHeaders(req.headers),
+                }).formData()
                 const adminId = formData.get('admin_id')
                 const id = req.url.split('/').pop()
 
@@ -175,7 +177,8 @@ Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = true) => {
     addProfileFixtureAndIntercept()
     addFileAPIFixtureAndIntercept()
     cy.goToMapView({ queryParams, withHash })
-    cy.window().its('map')
+    cy.window()
+        .its('map')
         .then((map) => map.getOverlays().getLength())
         .as('nbOverlaysAtBeginning')
     // opening the drawing mode if no KML with adminId defined in the URL
@@ -222,9 +225,13 @@ Cypress.Commands.add('clickDrawingTool', (name, unselect = false) => {
     }
 })
 
-export async function getKmlAdminIdFromRequest(req: CyHttpMessages.IncomingHttpRequest): Promise<string> {
+export async function getKmlAdminIdFromRequest(
+    req: CyHttpMessages.IncomingHttpRequest
+): Promise<string> {
     try {
-        const formData = await new Response(req.body, { headers: transformHeaders(req.headers) }).formData()
+        const formData = await new Response(req.body, {
+            headers: transformHeaders(req.headers),
+        }).formData()
         return formData.get('admin_id') as string
     } catch (error) {
         Cypress.log({
@@ -244,7 +251,9 @@ export async function getKmlAdminIdFromRequest(req: CyHttpMessages.IncomingHttpR
 export async function getKmlFromRequest(req: CyHttpMessages.IncomingHttpRequest) {
     let paramBlob: ArrayBuffer | string | null = null
     try {
-        const formData = await new Response(req.body, { headers: transformHeaders(req.headers) }).formData()
+        const formData = await new Response(req.body, {
+            headers: transformHeaders(req.headers),
+        }).formData()
 
         if (req.method === 'DELETE') {
             if (!formData.has('admin_id')) {
@@ -307,7 +316,11 @@ export async function getKmlFromRequest(req: CyHttpMessages.IncomingHttpRequest)
     }
 }
 
-export async function checkKMLRequest(request: CyHttpMessages.IncomingHttpRequest, data: (RegExp | string)[], updatedKmlId?: string) {
+export async function checkKMLRequest(
+    request: CyHttpMessages.IncomingHttpRequest,
+    data: (RegExp | string)[],
+    updatedKmlId?: string
+) {
     // Check request
     if (updatedKmlId) {
         const urlArray = request.url.split('/')
@@ -327,7 +340,9 @@ export async function checkKMLRequest(request: CyHttpMessages.IncomingHttpReques
         if (test instanceof RegExp) {
             expect(test.test(kmlString), `KML content did not match ${test}`).to.be.true
         } else {
-            expect(kmlString.indexOf(test), `KML content did not contain ${test}`).to.not.be.equal(-1)
+            expect(kmlString.indexOf(test), `KML content did not contain ${test}`).to.not.be.equal(
+                -1
+            )
         }
     })
 }

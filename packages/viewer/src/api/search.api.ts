@@ -11,7 +11,7 @@ import proj4 from 'proj4'
 
 import type { DrawingIconSet } from '@/api/icon.api'
 
-import { extractOlFeatureCoordinates } from '@/api/features/features.api'
+import { extractOlFeatureCoordinates } from '@/api/features.api'
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
 import { getGeoJsonFeatureCenter } from '@/utils/geoJsonUtils'
@@ -412,13 +412,12 @@ function searchLayerFeaturesKMLGPX(
             if (!gpxData) {
                 return returnLayers
             }
+            const gpxFeatures = parseGpx(gpxData, outputProjection)
+            if (!gpxFeatures) {
+                return returnLayers
+            }
             return returnLayers.concat(
-                ...searchFeatures(
-                    parseGpx(gpxData, outputProjection),
-                    outputProjection,
-                    queryString,
-                    currentLayer
-                )
+                ...searchFeatures(gpxFeatures, outputProjection, queryString, currentLayer)
             )
         }
         return returnLayers

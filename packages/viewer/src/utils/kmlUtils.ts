@@ -19,7 +19,7 @@ import IconStyle from 'ol/style/Icon'
 import Style from 'ol/style/Style'
 
 import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
-import { extractOlFeatureCoordinates } from '@/api/features/features.api'
+import { extractOlFeatureCoordinates } from '@/api/features.api'
 import { proxifyUrl } from '@/api/file-proxy.api'
 import { DEFAULT_TITLE_OFFSET, type DrawingIcon, type DrawingIconSet } from '@/api/icon.api'
 import { LOCAL_OR_INTERNAL_URL_REGEX } from '@/config/regex.config'
@@ -539,7 +539,7 @@ function detectTextPlacement(
     currentTextOffset?: [number, number]
 ): TextPlacement {
     if (!text || !textScale || !iconScale || !anchor || !iconSize || !currentTextOffset) {
-        return TextPlacement.UNKNOWN
+        return TextPlacement.Unknown
     }
     const [textPlacementX, textPlacementY] = calculateTextXYOffset(
         textScale,
@@ -559,7 +559,7 @@ function detectTextPlacement(
             return placementOption as TextPlacement
         }
     }
-    return TextPlacement.UNKNOWN
+    return TextPlacement.Unknown
 }
 
 const nonGeoadminIconUrls = new Set<string>()

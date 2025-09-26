@@ -1,35 +1,33 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import EditableFeature from '@/api/features/EditableFeature.class'
+import type { EditableFeature } from '@/api/features.api'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIcon from '@/modules/infobox/components/styling/DrawingStyleIcon.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
+import type { DrawingIconSet } from '@/api/icon.api'
+import type { FeatureStyleColor, FeatureStyleSize } from '@/utils/featureStyleUtils'
 
-const { feature, iconSets, currentLang } = defineProps({
-    feature: {
-        type: EditableFeature,
-        required: true,
-    },
-    iconSets: {
-        type: Array,
-        required: true,
-    },
-    currentLang: {
-        type: String,
-        required: true,
-    }
-})
+const { feature, iconSets, currentLang } = defineProps<{
+    feature: EditableFeature
+    iconSets: Array<DrawingIconSet>
+    currentLang: string
+}>()
 
-const emits = defineEmits(['change', 'change:iconSize', 'change:icon', 'change:iconColor'])
+const emits = defineEmits<{
+    change: [void]
+    changeIconSize: [size: FeatureStyleSize]
+    changeIcon: []
+    changeIconColor: [color: FeatureStyleColor]
+}>()
 
 const { t } = useI18n()
 
-const showAllSymbols = ref(false)
-const currentIconSet = ref(null)
-const loadedImages = ref(0)
+const showAllSymbols = ref<boolean>(false)
+const currentIconSet = ref<DrawingIconSet | undefined>()
+const loadedImages = ref<number>(0)
 
 const currentIconSetName = computed(() => {
     if (currentIconSet.value) {
@@ -64,12 +62,12 @@ function toggleShowAllSymbols() {
     showAllSymbols.value = !showAllSymbols.value
 }
 
-function onCurrentIconColorChange(color) {
+function onCurrentIconColorChange(color: FeatureStyleColor) {
     emits('change:iconColor', color)
     emits('change')
 }
 
-function onCurrentIconSizeChange(size) {
+function onCurrentIconSizeChange(size: FeatureStyleSize) {
     emits('change:iconSize', size)
     emits('change')
 }
@@ -80,7 +78,10 @@ function changeDisplayedIconSet(dropdownItem) {
 
 function onImageLoad() {
     loadedImages.value = loadedImages.value + 1
-    if (loadedImages.value === currentIconSet.value.icons.length) {
+    if (
+        currentIconSet.value?.icons?.length &&
+        loadedImages.value === currentIconSet.value.icons.length
+    ) {
         loadedImages.value = 0
     }
 }
@@ -94,7 +95,10 @@ function onCurrentIconChange(icon) {
 
 <template>
     <div class="d-block">
-        <div class="d-flex mb-3">
+        <div
+            v-if="feature.iconSize && currentIconSet"
+            class="d-flex mb-3"
+        >
             <DrawingStyleSizeSelector
                 :current-size="feature.iconSize"
                 @change="onCurrentIconSizeChange"
@@ -116,7 +120,7 @@ function onCurrentIconChange(icon) {
             </div>
         </div>
         <DrawingStyleColorSelector
-            v-if="currentIconSet && currentIconSet.isColorable"
+            v-if="currentIconSet && currentIconSet.isColorable && feature.fillColor"
             class="mb-3"
             inline
             :current-color="feature.fillColor"

@@ -1,8 +1,8 @@
 import { toValue } from 'vue'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
-import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable'
-import { drawLineStyle } from '@/modules/drawing/lib/style'
+import { EditableFeatureTypes } from '@/api/features.api'
+import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable.js'
+import { drawLineStyle } from '@/modules/drawing/lib/style.js'
 
 /**
  * Custom hook to extend line interaction with drawing mode.
@@ -20,7 +20,7 @@ import { drawLineStyle } from '@/modules/drawing/lib/style'
  */
 export default function useExtendLineInteraction({
     style = drawLineStyle,
-    featureType = EditableFeatureTypes.LINEPOLYGON,
+    featureType = EditableFeatureTypes.LinePolygon,
     drawEndCallback = null,
     startingFeature = null,
 }) {

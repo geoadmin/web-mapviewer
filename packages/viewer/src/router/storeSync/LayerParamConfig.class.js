@@ -3,7 +3,7 @@ import log from '@swissgeo/log'
 import { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 
 import { getStandardValidationResponse } from '@/api/errorQueues.api'
-import getFeature from '@/api/features/features.api'
+import getFeature from '@/api/features.api'
 import CloudOptimizedGeoTIFFLayer from '@/api/layers/CloudOptimizedGeoTIFFLayer.class'
 import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
 import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'

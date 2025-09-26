@@ -6,9 +6,11 @@ import type { Size } from 'ol/size'
 import { Fill, Stroke, Text } from 'ol/style'
 import Style from 'ol/style/Style'
 
-import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import type { EditableFeature } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features.api'
 import { DEFAULT_TITLE_OFFSET } from '@/api/icon.api'
 import { dashedRedStroke, whiteSketchFill } from '@/utils/styleUtils'
+import { StyleZIndex } from '@/modules/drawing/lib/style.ts'
 
 /**
  * @returns CSS string describing the text shadow that must be applied when coloring a text with
@@ -99,16 +101,16 @@ export const EXTRA_LARGE: FeatureStyleSize = {
 export const allStylingSizes: FeatureStyleSize[] = [SMALL, MEDIUM, LARGE, EXTRA_LARGE]
 
 export enum TextPlacement {
-    TOP_LEFT = 'top-left',
-    TOP = 'top',
-    TOP_RIGHT = 'top-right',
-    LEFT = 'left',
-    CENTER = 'center',
-    RIGHT = 'right',
-    BOTTOM_LEFT = 'bottom-left',
-    BOTTOM = 'bottom',
-    BOTTOM_RIGHT = 'bottom-right',
-    UNKNOWN = 'unknown',
+    TopLeft = 'top-left',
+    Top = 'top',
+    TopRight = 'top-right',
+    Left = 'left',
+    Center = 'center',
+    Right = 'right',
+    BottomLeft = 'bottom-left',
+    Bottom = 'bottom',
+    BottomRight = 'bottom-right',
+    Unknown = 'unknown',
 }
 
 /** Get Feature style from feature */
@@ -197,7 +199,7 @@ export function calculateTextOffset(
     iconSize: [number, number],
     textPlacement: TextPlacement,
     text: string
-): number[] {
+): [number, number] {
     if (!iconScale) {
         return DEFAULT_TITLE_OFFSET
     }
@@ -264,23 +266,23 @@ export function calculateTextOffsetFromPlacement(
     defaultYOffset: number,
     placement: TextPlacement
 ): [number, number] {
-    if (placement === TextPlacement.TOP_LEFT) {
+    if (placement === TextPlacement.TopLeft) {
         return [-defaultXOffset, -defaultYOffset]
-    } else if (placement === TextPlacement.TOP) {
+    } else if (placement === TextPlacement.Top) {
         return [0, -defaultYOffset]
-    } else if (placement === TextPlacement.TOP_RIGHT) {
+    } else if (placement === TextPlacement.TopRight) {
         return [defaultXOffset, -defaultYOffset]
-    } else if (placement === TextPlacement.LEFT) {
+    } else if (placement === TextPlacement.Left) {
         return [-defaultXOffset, 0]
-    } else if (placement === TextPlacement.CENTER) {
+    } else if (placement === TextPlacement.Center) {
         return [0, 0]
-    } else if (placement === TextPlacement.RIGHT) {
+    } else if (placement === TextPlacement.Right) {
         return [defaultXOffset, 0]
-    } else if (placement === TextPlacement.BOTTOM_LEFT) {
+    } else if (placement === TextPlacement.BottomLeft) {
         return [-defaultXOffset, defaultYOffset]
-    } else if (placement === TextPlacement.BOTTOM) {
+    } else if (placement === TextPlacement.Bottom) {
         return [0, defaultYOffset]
-    } else if (placement === TextPlacement.BOTTOM_RIGHT) {
+    } else if (placement === TextPlacement.BottomRight) {
         return [defaultXOffset, defaultYOffset]
     }
     return [0, 0]
@@ -313,18 +315,21 @@ function getElementOffsets(editableFeature?: EditableFeature): {
         }
     }
 
-    const offsetTopElement: [number, number] = [...editableFeature.textOffset]
-    const offsetBottomElement: [number, number] = [...editableFeature.textOffset]
+    const offsetTopElement: [number, number] = [...editableFeature.textOffset] as [number, number]
+    const offsetBottomElement: [number, number] = [...editableFeature.textOffset] as [
+        number,
+        number,
+    ]
 
     if (editableFeature.showDescriptionOnMap && editableFeature.description) {
         const isTextAtBottom =
-            editableFeature.textPlacement === TextPlacement.BOTTOM ||
-            editableFeature.textPlacement === TextPlacement.BOTTOM_LEFT ||
-            editableFeature.textPlacement === TextPlacement.BOTTOM_RIGHT
+            editableFeature.textPlacement === TextPlacement.Bottom ||
+            editableFeature.textPlacement === TextPlacement.BottomLeft ||
+            editableFeature.textPlacement === TextPlacement.BottomRight
         const isTextAtCenter =
-            editableFeature.textPlacement === TextPlacement.CENTER ||
-            editableFeature.textPlacement === TextPlacement.LEFT ||
-            editableFeature.textPlacement === TextPlacement.RIGHT
+            editableFeature.textPlacement === TextPlacement.Center ||
+            editableFeature.textPlacement === TextPlacement.Left ||
+            editableFeature.textPlacement === TextPlacement.Right
 
         const descriptionLineWrapCount = editableFeature.description.split('\n').length ?? 0
         const descriptionBlocHeight = descriptionLineWrapCount * FEATURE_FONT_SIZE_SMALL
@@ -405,7 +410,7 @@ export function geoadminStyleFunction(
                 offsetY: offsetTopElement[1],
             }),
             stroke:
-                editableFeature?.featureType === EditableFeatureTypes.MEASURE
+                editableFeature?.featureType === EditableFeatureTypes.Measure
                     ? dashedRedStroke
                     : new Stroke({
                           color: styleConfig.fillColor.fill,
@@ -417,7 +422,7 @@ export function geoadminStyleFunction(
                 : new Fill({
                       color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
                   }),
-            zIndex: 10,
+            zIndex: StyleZIndex.MainStyle,
         }),
     ]
     if (editableFeature?.showDescriptionOnMap && editableFeature?.description) {
@@ -449,7 +454,7 @@ export function geoadminStyleFunction(
                     : new Fill({
                           color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
                       }),
-                zIndex: 0,
+                zIndex: StyleZIndex.AzimuthCircle,
                 stroke: new Stroke({
                     color: styleConfig.strokeColor.fill,
                     width: 3,
@@ -459,7 +464,7 @@ export function geoadminStyleFunction(
     }
     /* This function is also called when saving the feature to KML, where "feature.get('geodesic')"
     is not there anymore, thats why we have to check for it here */
-    if (editableFeature?.featureType === EditableFeatureTypes.MEASURE && feature.get('geodesic')) {
+    if (editableFeature?.featureType === EditableFeatureTypes.Measure && feature.get('geodesic')) {
         styles.push(...feature.get('geodesic').getMeasureStyles(resolution))
     }
     return styles

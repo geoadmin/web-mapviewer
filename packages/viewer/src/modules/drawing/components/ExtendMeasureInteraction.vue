@@ -1,9 +1,9 @@
 <script setup lang="js">
 import Feature from 'ol/Feature'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { EditableFeatureTypes } from '@/api/features.api'
 import useExtendLineInteraction from '@/modules/drawing/components/useExtendLineInteraction.composable'
-import { drawMeasureStyle } from '@/modules/drawing/lib/style'
+import { drawMeasureStyle } from '@/modules/drawing/lib/style.js'
 
 const { startingFeature } = defineProps({
     startingFeature: Feature,
@@ -16,7 +16,7 @@ const emits = defineEmits({
 })
 
 const { removeLastPoint } = useExtendLineInteraction({
-    featureType: EditableFeatureTypes.MEASURE,
+    featureType: EditableFeatureTypes.Measure,
     style: drawMeasureStyle,
     drawEndCallback: (feature) => {
         emits('drawEnd', feature)

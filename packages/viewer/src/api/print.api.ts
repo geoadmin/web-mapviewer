@@ -33,6 +33,7 @@ import {
 } from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
 import { adjustWidth } from '@/utils/styleUtils'
+import { useI18nStore } from '@/store/modules/i18n.store'
 
 /** Interval between each polling of the printing job status (ms) */
 const PRINTING_DEFAULT_POLL_INTERVAL: number = 2000
@@ -530,6 +531,7 @@ async function transformOlMapToPrintParams(olMap: Map, config: PrintConfig): Pro
         throw new PrintError('Missing DPI for printing')
     }
     const customizer = new GeoAdminCustomizer(printExtent, excludedLayerIDs, dpi)
+    const i18nStore = useI18nStore()
 
     const attributionsOneLine = attributions.length > 0 ? `© ${attributions.join(', ')}` : ''
     try {
@@ -562,7 +564,7 @@ async function transformOlMapToPrintParams(olMap: Map, config: PrintConfig): Pro
             }
             encodedMap.layers.unshift(wmsLayer)
         }
-        const now = i18n.global.d(new Date(), 'datetime', i18n.global.locale)
+        const now = i18n.global.d(new Date(), 'datetime', i18nStore.lang)
 
         const spec: MFPSpec = {
             attributes: {

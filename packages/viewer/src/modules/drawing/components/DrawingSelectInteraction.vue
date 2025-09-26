@@ -9,12 +9,12 @@ import SelectInteraction from 'ol/interaction/Select'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { EditableFeatureTypes } from '@/api/features.api'
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import useModifyInteraction from '@/modules/drawing/components/useModifyInteraction.composable'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
-import { extractOlFeatureCoordinates } from '@/api/features/features.api'
+import { extractOlFeatureCoordinates } from '@/api/features.api'
 
 const emit = defineEmits(['feature-selected'])
 
@@ -61,7 +61,7 @@ watch(currentlySelectedFeature, (newFeature, oldFeature) => {
         editableFeature.on('change:style', onFeatureChange)
         store.dispatch('setSelectedFeatures', { features: [editableFeature], ...dispatcher })
         if (
-            [EditableFeatureTypes.MEASURE, EditableFeatureTypes.LINEPOLYGON].includes(
+            [EditableFeatureTypes.Measure, EditableFeatureTypes.LinePolygon].includes(
                 editableFeature.featureType
             ) &&
             // only showing profile if the edit feature is done while floating
@@ -110,7 +110,7 @@ function onFeatureChange(editableFeature) {
     // To do this we need to set them on the ol feature as properties.
     currentlySelectedFeature.value?.set('name', editableFeature.title)
     currentlySelectedFeature.value?.set('description', editableFeature.description)
-    if (editableFeature.featureType === EditableFeatureTypes.MARKER) {
+    if (editableFeature.featureType === EditableFeatureTypes.Marker) {
         currentlySelectedFeature.value?.set('textOffset', editableFeature.textOffset.toString())
         currentlySelectedFeature.value?.set(
             'showDescriptionOnMap',

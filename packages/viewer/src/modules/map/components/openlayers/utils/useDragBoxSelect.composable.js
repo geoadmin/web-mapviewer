@@ -98,7 +98,7 @@ export function useDragBoxSelect() {
             clickInfo: new ClickInfo({
                 coordinate: selectExtent,
                 features: vectorFeatures,
-                clickType: ClickType.DRAW_BOX
+                clickType: ClickType.DrawBox,
             }),
             ...dispatcher,
         })

@@ -3,7 +3,7 @@
 import { constants, coordinatesUtils, LV03, LV95, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
-import { latLonToMGRS } from '@/utils/militaryGridProjection'
+import { latLonToMGRS } from '@/utils/militaryGridProjection.ts'
 import { assertDefined } from 'support/utils'
 
 const searchbarSelector = '[data-cy="searchbar"]'
@@ -60,7 +60,11 @@ describe('Testing coordinates typing in search bar', () => {
             expect(feature[1]).to.be.approximately(expectedCenter[1], acceptableDelta)
         })
     }
-    const standardCheck = (x: number | string, y: number | string, options: { acceptableDelta?: number, withInversion?: boolean } = {}) => {
+    const standardCheck = (
+        x: number | string,
+        y: number | string,
+        options: { acceptableDelta?: number; withInversion?: boolean } = {}
+    ) => {
         const { acceptableDelta = 0.0, withInversion = false } = options
         cy.get(searchbarSelector).should('be.visible')
         cy.get(searchbarSelector).paste(`${x} ${y}`)

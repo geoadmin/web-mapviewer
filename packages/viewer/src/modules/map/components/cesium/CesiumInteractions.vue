@@ -237,7 +237,7 @@ function onClick(event) {
             coordinate: coordinates,
             pixelCoordinate: [event.position.x, event.position.y],
             features,
-            clickType: ClickType.LEFT_SINGLECLICK,
+            clickType: ClickType.LeftSingleClick,
         }),
         ...dispatcher,
     })
@@ -316,7 +316,7 @@ function onContextMenu(event) {
         clickInfo: new ClickInfo({
             coordinate: coordinates,
             pixelCoordinate: [event.position.x, event.position.y],
-            clickType: ClickType.CONTEXTMENU,
+            clickType: ClickType.ContextMenu,
         }),
         ...dispatcher,
     })

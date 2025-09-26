@@ -1,6 +1,6 @@
 import log from '@swissgeo/log'
 
-import type LayerFeature from '@/api/features/LayerFeature.class'
+import type { LayerFeature } from '@/api/features.api'
 
 const targetWindow: Window = parent ?? window.parent ?? window.opener ?? window.top
 

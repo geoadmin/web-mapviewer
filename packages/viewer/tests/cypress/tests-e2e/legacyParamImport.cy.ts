@@ -1,14 +1,13 @@
 /// <reference types="cypress" />
 
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
+import type { ExternalWMSLayer, ExternalWMTSLayer } from '@swissgeo/layers'
 import { KMLStyle } from '@swissgeo/layers'
 import proj4 from 'proj4'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
-import type EditableFeature from '@/api/features/EditableFeature.class'
-import type ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import type ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
+import type { EditableFeature } from '@/api/features.api'
 import { assertDefined } from 'support/utils'
 
 registerProj4(proj4)

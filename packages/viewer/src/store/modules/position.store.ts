@@ -1,32 +1,27 @@
-import type { SingleCoordinate } from '@geoadmin/coordinates'
-import type { Position } from 'geojson'
-
+import type { FlatExtent, NormalizedExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import {
     allCoordinateSystems,
     CoordinateSystem,
     CustomCoordinateSystem,
+    extentUtils,
     LV95,
     StandardCoordinateSystem,
     SwissCoordinateSystem,
     WGS84,
-} from '@geoadmin/coordinates'
-import log, { LogPreDefinedColor } from '@geoadmin/log'
-import { isNumber, wrapDegrees } from '@geoadmin/numbers'
+} from '@swissgeo/coordinates'
+import type { Position } from 'geojson'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
+import { isNumber, wrapDegrees } from '@swissgeo/numbers'
 import { center, points } from '@turf/turf'
 import { defineStore } from 'pinia'
 import proj4 from 'proj4'
 
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useUIStore from '@/store/modules/ui.store'
-import { CoordinateFormat, LV95Format } from '@/utils/coordinates/coordinateFormat'
-import {
-    type FlatExtent,
-    type NormalizedExtent,
-    normalizeExtent,
-    projExtent,
-} from '@/utils/extentUtils'
+import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
+import { LV95Format } from '@/utils/coordinates/coordinateFormat'
 
 /**
  * Normalizes any angle so that -PI < result <= PI
@@ -234,10 +229,10 @@ const usePositionStore = defineStore('position', {
             const { extent, extentProjection, maxZoom } = payload
 
             // Convert extent points to WGS84 as TurfJS needs them in this format
-            const normalizedWGS84Extent: NormalizedExtent = projExtent(
+            const normalizedWGS84Extent: NormalizedExtent = extentUtils.projExtent(
                 extentProjection ?? this.projection,
                 WGS84,
-                normalizeExtent(extent)
+                extentUtils.normalizeExtent(extent)
             )
             if (
                 normalizedWGS84Extent &&

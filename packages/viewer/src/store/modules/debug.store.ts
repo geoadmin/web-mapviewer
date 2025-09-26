@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types'
 
 /** Module that contains debug tools things */
 interface DebugState {

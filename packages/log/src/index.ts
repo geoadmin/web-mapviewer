@@ -98,7 +98,7 @@ interface GeoadminLogMessage {
     messages: GeoadminLogInput[]
 }
 
-type GeoadminLogInput = GeoadminLogMessage | string | number | boolean | object
+export type GeoadminLogInput = GeoadminLogMessage | string | number | boolean | object
 
 interface GeoadminLog {
     wantedLevels: LogLevel[]

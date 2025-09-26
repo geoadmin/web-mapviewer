@@ -12,6 +12,7 @@ import RBush from 'ol/structs/RBush' /* Warning: private class of openlayers */
 import { Circle, Fill, RegularShape, Stroke, Style, Text } from 'ol/style'
 import proj4 from 'proj4'
 
+import { StyleZIndex } from '@/modules/drawing/lib/style'
 import { formatAngle, formatMeters } from '@/utils/utils'
 
 const geod = Geodesic.WGS84
@@ -279,7 +280,7 @@ export class GeodesicGeometries {
             this.azimuthCircleStyle = new Style({
                 stroke: redStroke,
                 geometry: this.azimuthCircle,
-                zIndex: 0,
+                zIndex: StyleZIndex.AzimuthCircle,
             })
         }
     }
@@ -355,7 +356,7 @@ export class GeodesicGeometries {
                     WGS84.epsg,
                     this.projection.epsg
                 ),
-                zIndex: 40,
+                zIndex: StyleZIndex.Tooltip,
             })
         )
         // This style will only be shown in the printing, that's why the alpha is 0.0
@@ -373,7 +374,7 @@ export class GeodesicGeometries {
                     WGS84.epsg,
                     this.projection.epsg
                 ),
-                zIndex: 23,
+                zIndex: StyleZIndex.MeasurePoint,
             })
         )
         //Total area tooltip
@@ -387,7 +388,7 @@ export class GeodesicGeometries {
                     geometry: new Point(
                         this.geodesicPolygonGeom.getPolygon(0).getInteriorPoint().getCoordinates()
                     ),
-                    zIndex: 40,
+                    zIndex: StyleZIndex.Tooltip,
                 })
             )
         }
@@ -510,7 +511,7 @@ class MeasureStyles {
                 offsetY: -15,
             }),
             geometry: new Point(point).transform(WGS84.epsg, this.epsg),
-            zIndex: 21,
+            zIndex: StyleZIndex.MeasurePoint,
         })
     }
 
