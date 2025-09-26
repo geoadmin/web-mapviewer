@@ -54,7 +54,6 @@ export const appReadinessPlugin: PiniaPlugin = (): void => {
                 const lang: string = readSingleParamAsString(queryParams, 'lang') ?? i18nStore.lang
                 const topic: string =
                     readSingleParamAsString(queryParams, 'topic') ?? topicsStore.current
-
                 log.info({
                     title: '[App loading management plugin]',
                     titleColor: LogPreDefinedColor.Yellow,

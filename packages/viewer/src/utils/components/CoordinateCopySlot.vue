@@ -42,7 +42,11 @@ const buttonIcon = computed(() => {
 
 function display(coordinates: number[] | string): string | number[] {
     if (props.coordinateFormat && Array.isArray(coordinates) && coordinates.length >= 2) {
-        return formatCoordinates(props.coordinateFormat, coordinates as [number, number], projection.value)
+        return formatCoordinates(
+            props.coordinateFormat,
+            coordinates as [number, number],
+            projection.value
+        )
     }
     return coordinates
 }

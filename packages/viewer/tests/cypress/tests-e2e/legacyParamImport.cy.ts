@@ -1,8 +1,7 @@
 /// <reference types="cypress" />
 
-import type { ExternalWMSLayer, ExternalWMTSLayer } from '@swissgeo/layers'
-
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
+import type { ExternalWMSLayer, ExternalWMTSLayer } from '@swissgeo/layers'
 import { KMLStyle } from '@swissgeo/layers'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'

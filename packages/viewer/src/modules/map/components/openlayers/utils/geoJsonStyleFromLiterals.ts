@@ -212,13 +212,13 @@ class OlStyleForPropertyValue {
 
     singleStyle:
         | {
-              type: GeoAdminGeoJSONStyleType
-              property: string
-              olStyle?: Style
-              labelProperty?: string | undefined
-              labelTemplate?: string | undefined
-              imageRotationProperty?: string
-          }
+            type: GeoAdminGeoJSONStyleType
+            property: string
+            olStyle?: Style
+            labelProperty?: string | undefined
+            labelTemplate?: string | undefined
+            imageRotationProperty?: string
+        }
         | undefined
     defaultVal: string
     defaultStyle: Style

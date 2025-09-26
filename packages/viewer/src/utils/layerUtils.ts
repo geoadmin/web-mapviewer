@@ -3,7 +3,6 @@ import type { Layer } from '@swissgeo/layers'
 import type { Feature } from 'ol'
 import type { FeatureLike } from 'ol/Feature'
 
-import { CoordinateSystem } from '@swissgeo/coordinates'
 import { LayerType } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { randomIntBetween } from '@swissgeo/numbers'

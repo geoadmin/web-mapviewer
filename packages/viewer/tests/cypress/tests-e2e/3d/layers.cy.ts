@@ -389,13 +389,13 @@ describe('Test of layer handling in 3D', () => {
             // mockExternalWms2 = layerObjects[1] is not undefined. So we make a foreach on a slice, and
             // make an expectation for layerObjects[1] to be defined, just in case one day we have an issue
             // with the test data
-            layerObjects.slice(1,2).forEach((mockExternalWms2) => {
-            expect(mockExternalWms2).not.to.be.undefined
-            // @ts-expect-error: external wms has the visible attribute from abstract layer, but typescript can't see it explicitly
-            mockExternalWms2.visible=true
-            const layers = [mockExternalWms2].map((object) => transformLayerIntoUrlString(object, null, null)).join(';')
+            layerObjects.slice(1, 2).forEach((mockExternalWms2) => {
+                expect(mockExternalWms2).not.to.be.undefined
+                // @ts-expect-error: external wms has the visible attribute from abstract layer, but typescript can't see it explicitly
+                mockExternalWms2.visible = true
+                const layers = [mockExternalWms2].map((object) => transformLayerIntoUrlString(object, null, null)).join(';')
                 cy.goToMapView({
-                    queryParams: {'3d': true, layers },
+                    queryParams: { '3d': true, layers },
                 })
                 cy.log('Go to 3D and add a WMS layer')
                 // This layer extent got transformed from EPSG:4326 to EPSG:2056

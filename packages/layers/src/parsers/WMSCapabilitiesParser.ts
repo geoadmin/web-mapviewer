@@ -1,5 +1,4 @@
 import type { FlatExtent } from '@swissgeo/coordinates'
-
 import {
     allCoordinateSystems,
     coordinatesUtils,
