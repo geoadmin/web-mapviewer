@@ -6,7 +6,7 @@ import { computed, inject, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { EditableFeatureTypes } from '@/api/features.api'
 import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
 import DrawingHeader from '@/modules/drawing/components/DrawingHeader.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
@@ -41,7 +41,7 @@ const isPhoneMode = computed(() => store.getters.isPhoneMode)
 const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
 const currentDrawingMode = computed(() => store.state.drawing.mode)
 const isDrawingLineOrMeasure = computed(() =>
-    [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE].includes(
+    [EditableFeatureTypes.LinePolygon, EditableFeatureTypes.Measure].includes(
         currentDrawingMode.value
     )
 )
@@ -50,7 +50,7 @@ const selectedLineString = computed(() => {
     return selectedEditableFeatures.value.find((feature) => {
         return (
             feature.geometry.type === 'LineString' &&
-            [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE].includes(
+            [EditableFeatureTypes.LinePolygon, EditableFeatureTypes.Measure].includes(
                 feature.featureType
             )
         )
@@ -216,7 +216,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                         </div>
                         <button
                             v-if="isPhoneMode"
-                            class="btn col-2 d-flex align-items-center justify-content-center"
+                            class="btn d-flex align-items-center justify-content-center col-2"
                             data-cy="drawing-toolbox-close-button"
                             @click="closeDrawing"
                         >
@@ -297,7 +297,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                 class="text-center"
             >
                 <button
-                    class="button-open-close-draw-menu btn btn-dark rounded-0 rounded-bottom m-auto pe-4 ps-4"
+                    class="button-open-close-draw-menu btn btn-dark rounded-0 rounded-bottom m-auto ps-4 pe-4"
                     data-cy="menu-button"
                     @click="drawMenuOpen = !drawMenuOpen"
                 >

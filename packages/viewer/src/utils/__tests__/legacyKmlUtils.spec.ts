@@ -119,7 +119,7 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
     describe('icon parsing', () => {
         it('parses a marker with a very small scale and blue fill color correctly', () => {
             const icon = findFeatureWithId('marker_1668530694970')
-            performStandardChecks(icon, EditableFeatureTypes.MARKER, 'icon 1', 'desc 1')
+            performStandardChecks(icon, EditableFeatureTypes.Marker, 'icon 1', 'desc 1')
             expect(icon!.icon).toBeDefined()
             expect(icon!.icon!.name).to.be.equal('001-marker')
             expect(icon!.fillColor).to.be.equal(BLUE)
@@ -127,7 +127,7 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
         })
         it('parses a marker with a small scale and grey fill color correctly', () => {
             const icon = findFeatureWithId('marker_1668530774636')
-            performStandardChecks(icon, EditableFeatureTypes.MARKER, 'icon 2', 'desc 2')
+            performStandardChecks(icon, EditableFeatureTypes.Marker, 'icon 2', 'desc 2')
             expect(icon!.icon).toBeDefined()
             expect(icon!.icon!.name).to.be.equal('002-circle')
             expect(icon!.fillColor).to.be.equal(GRAY)
@@ -136,7 +136,7 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
         })
         it('parses a marker with a big BABS icon correctly', () => {
             const icon = findFeatureWithId('marker_1668530823345')
-            performStandardChecks(icon, EditableFeatureTypes.MARKER, 'icon 3', 'desc 3')
+            performStandardChecks(icon, EditableFeatureTypes.Marker, 'icon 3', 'desc 3')
             expect(icon!.icon).toBeDefined()
             expect(icon!.icon!.name).to.be.equal('babs-3')
             expect(icon!.fillColor).to.be.equal(RED) // default should be red
@@ -147,7 +147,7 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
     describe('text parsing', () => {
         it('parses a small black text correctly', () => {
             const standardText = findFeatureWithId('annotation_1668530699494')
-            performStandardChecks(standardText, EditableFeatureTypes.ANNOTATION, 'text 1', '')
+            performStandardChecks(standardText, EditableFeatureTypes.Annotation, 'text 1', '')
             expect(standardText!.textColor).to.be.equal(BLACK)
             expect(standardText!.textSize).to.be.equal(SMALL)
             expect(standardText!.fillColor).to.be.equal(RED) // default should be RED even if no icon is defined
@@ -156,7 +156,7 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
         })
         it('parses a medium blue text correctly', () => {
             const standardText = findFeatureWithId('annotation_1668530932170')
-            performStandardChecks(standardText, EditableFeatureTypes.ANNOTATION, 'text 2', '')
+            performStandardChecks(standardText, EditableFeatureTypes.Annotation, 'text 2', '')
             expect(standardText!.textColor).to.be.equal(BLUE)
             expect(standardText!.textSize).to.be.equal(MEDIUM)
             expect(standardText!.fillColor).to.be.equal(RED) // default should be RED even if no icon is defined
@@ -165,7 +165,7 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
         })
         it('parses a large gray text correctly', () => {
             const standardText = findFeatureWithId('annotation_1668530944079')
-            performStandardChecks(standardText, EditableFeatureTypes.ANNOTATION, 'text 3', '')
+            performStandardChecks(standardText, EditableFeatureTypes.Annotation, 'text 3', '')
             expect(standardText!.textColor).to.be.equal(GRAY)
             expect(standardText!.textSize).to.be.equal(LARGE)
             expect(standardText!.fillColor).to.be.equal(RED) // default should be RED even if no icon is defined
@@ -176,21 +176,21 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
     describe('line/polygon parsing', () => {
         it('parses a line/polygon with two points and black fill correctly', () => {
             const line = findFeatureWithId('linepolygon_1668530962424')
-            performStandardChecks(line, EditableFeatureTypes.LINEPOLYGON, '', 'desc 7', 2)
+            performStandardChecks(line, EditableFeatureTypes.LinePolygon, '', 'desc 7', 2)
             expect(line!.fillColor).to.be.equal(BLACK)
             expect(line!.iconSize).to.eq(MEDIUM)
             expect(line!.icon).to.be.undefined
         })
         it('parses a line/polygon with two points and blue fill correctly', () => {
             const line = findFeatureWithId('linepolygon_1668530991477')
-            performStandardChecks(line, EditableFeatureTypes.LINEPOLYGON, '', 'desc 8', 2)
+            performStandardChecks(line, EditableFeatureTypes.LinePolygon, '', 'desc 8', 2)
             expect(line!.fillColor).to.be.equal(BLUE)
             expect(line!.iconSize).to.eq(MEDIUM)
             expect(line!.icon).to.be.undefined
         })
         it('parses a line/polygon with five points and yellow fill correctly', () => {
             const line = findFeatureWithId('linepolygon_1668625663095')
-            performStandardChecks(line, EditableFeatureTypes.LINEPOLYGON, '', 'desc 9', 5)
+            performStandardChecks(line, EditableFeatureTypes.LinePolygon, '', 'desc 9', 5)
             expect(line!.fillColor).to.be.equal(YELLOW)
             expect(line!.iconSize).to.eq(MEDIUM)
             expect(line!.icon).to.be.undefined
@@ -199,11 +199,11 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
     describe('measure parsing', () => {
         it('parses a measure with two points correctly', () => {
             const line = findFeatureWithId('measure_1668531023034')
-            performStandardChecks(line, EditableFeatureTypes.MEASURE, '', '', 2)
+            performStandardChecks(line, EditableFeatureTypes.Measure, '', '', 2)
         })
         it('parses a measure with three points correctly', () => {
             const line = findFeatureWithId('measure_1668531037052')
-            performStandardChecks(line, EditableFeatureTypes.MEASURE, '', '', 3)
+            performStandardChecks(line, EditableFeatureTypes.Measure, '', '', 3)
         })
     })
 })

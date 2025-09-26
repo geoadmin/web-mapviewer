@@ -19,7 +19,7 @@ import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/Drawi
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
 import MediaTypes from '@/modules/infobox/DrawingStyleMediaTypes.enum.js'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
-import allFormats from '@/utils/coordinates/coordinateFormat'
+import allFormats from '@/utils/coordinates/coordinateFormat.js'
 import debounce from '@/utils/debounce'
 import { calculateTextOffset } from '@/utils/featureStyleUtils'
 
@@ -110,7 +110,7 @@ function updateFeatureTitle() {
         ...dispatcher,
     })
     // Update the text offset if the feature is a marker
-    if (feature.featureType === EditableFeatureTypes.MARKER) {
+    if (feature.featureType === EditableFeatureTypes.Marker) {
         updateTextOffset()
     }
 }
@@ -136,12 +136,12 @@ const coordinateFormat = computed(() => {
  *
  * @type {ComputedRef<Boolean>}
  */
-const isFeatureMarker = computed(() => feature.featureType === EditableFeatureTypes.MARKER)
-const isFeatureText = computed(() => feature.featureType === EditableFeatureTypes.ANNOTATION)
+const isFeatureMarker = computed(() => feature.featureType === EditableFeatureTypes.Marker)
+const isFeatureText = computed(() => feature.featureType === EditableFeatureTypes.Annotation)
 const isFeatureLinePolygon = computed(
-    () => feature.featureType === EditableFeatureTypes.LINEPOLYGON
+    () => feature.featureType === EditableFeatureTypes.LinePolygon
 )
-const isFeatureMeasure = computed(() => feature.featureType === EditableFeatureTypes.MEASURE)
+const isFeatureMeasure = computed(() => feature.featureType === EditableFeatureTypes.Measure)
 const isLine = computed(() => feature.geometry.type === 'LineString')
 
 const store = useStore()
@@ -392,9 +392,9 @@ function mediaTypes() {
                             :feature="feature"
                             :icon-sets="availableIconSets"
                             :current-lang="currentLang"
-                            @change:icon="onIconChange"
-                            @change:icon-color="onColorChange"
-                            @change:icon-size="onIconSizeChange"
+                            @change-icon="onIconChange"
+                            @change-icon-color="onColorChange"
+                            @change-icon-size="onIconSizeChange"
                         />
                     </DrawingStylePopoverButton>
                 </GeoadminTooltip>

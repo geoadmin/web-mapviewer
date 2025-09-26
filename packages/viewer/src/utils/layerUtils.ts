@@ -1,14 +1,15 @@
-import type { SingleCoordinate } from '@swissgeo/coordinates'
-import { CoordinateSystem, extentUtils } from '@swissgeo/coordinates'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import type { Layer } from '@swissgeo/layers'
-import type { FeatureLike } from 'ol/Feature'
+import { LayerType } from '@swissgeo/layers'
+import { randomIntBetween } from '@swissgeo/numbers'
+import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
+import { CoordinateSystem } from '@swissgeo/coordinates'
 import { Geometry } from 'ol/geom'
 import { centroid } from '@turf/turf'
 import GeoJSON, { type GeoJSONGeometry } from 'ol/format/GeoJSON'
+import type { FeatureLike } from 'ol/Feature'
 
-import LayerFeature from '@/api/features/LayerFeature.class'
-import { Math } from 'cesium'
-import randomBetween = module
+import type { LayerFeature } from '@/api/features.api'
 
 /**
  * Returns the index of the max resolution, which is used to determine the maximum zoom level
@@ -51,7 +52,7 @@ export function createLayerFeature(
         geometry ?? new GeoJSON().writeGeometryObject(olFeatureGeometry)
     const featureId: string = olFeature.getId()
         ? `${olFeature.getId()}`
-        : `$feature-${randomBetween(1000, 9999)}-${layer.id}`
+        : `$feature-${randomIntBetween(1000, 9999)}-${layer.id}`
 
     let featureCoordinates: SingleCoordinate | undefined
     // creating a centroid is especially important for Polygon geometries else it can break expected cesium behavior
@@ -63,12 +64,16 @@ export function createLayerFeature(
         featureCoordinates = coordinates
     }
     if (!featureCoordinates) {
-        if (olFeatureGeometry.getType() !== 'GeometryCollection') {
-            featureCoordinates = olFeatureGeometry.getCoordinates()
-        }
+        log.error({
+            title: 'layerUtils',
+            titleColor: LogPreDefinedColor.Pink,
+            messages: ['Could not detect layer feature coordinates', olFeatureGeometry],
+        })
+        return
     }
 
-    return new LayerFeature({
+    return {
+        isEditable: false,
         layer: layer,
         id: featureId,
         title:
@@ -87,6 +92,7 @@ export function createLayerFeature(
         },
         coordinates: featureCoordinates,
         geometry: geometryToReturn,
-        extent: extentUtils.normalizeExtent(olFeature.getGeometry().getExtent()),
-    })
+        extent: olFeatureGeometry.getExtent() as FlatExtent,
+        popupDataCanBeTrusted: !layer.isExternal && layer.type !== LayerType.KML,
+    }
 }

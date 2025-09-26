@@ -19,7 +19,7 @@ import OpenLayersPrintResolutionEnforcer from '@/modules/map/components/openlaye
 import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale.vue'
 import MapModule from '@/modules/map/MapModule.vue'
 import ConfederationFullLogo from '@/modules/menu/components/header/ConfederationFullLogo.vue'
-import { stringifyQuery } from '@/utils/url-router'
+import { stringifyQuery } from '@/utils/url-router.js'
 
 const dispatcher = { dispatcher: 'PrintView.vue' }
 
@@ -143,7 +143,7 @@ async function generateShareLink() {
         :style="printContainerStyle"
     >
         <MapModule class="flex-grow-1">
-            <div class="north-arrow position-absolute top-0 end-0 m-4 m-xl-5 z-3">
+            <div class="north-arrow position-absolute m-xl-5 end-0 top-0 z-3 m-4">
                 <img
                     src="@/modules/map/assets/north_arrow.png"
                     :style="northArrowStyle"
@@ -156,7 +156,7 @@ async function generateShareLink() {
                     <template #top-right>
                         <div
                             v-if="shortLink"
-                            class="print-scale-line d-flex flex-column m-2 me-3 me-xl-3 bg-white p-3 border border-2 border-black"
+                            class="print-scale-line d-flex flex-column me-xl-3 m-2 me-3 border border-2 border-black bg-white p-3"
                         >
                             <div class="scale d-flex justify-content-center m-1 mb-3">
                                 <OpenLayersScale
@@ -192,7 +192,7 @@ async function generateShareLink() {
                         <img
                             v-if="shortLink"
                             :src="qrCodeUrl"
-                            class="qr-code position-relative bottom-0 end-0 z-3 bg-white p-2 m-n1"
+                            class="qr-code position-relative m-n1 end-0 bottom-0 z-3 bg-white p-2"
                             alt="QR Code"
                         />
                     </template>
@@ -202,9 +202,9 @@ async function generateShareLink() {
                 </MapFooter>
             </template>
         </MapModule>
-        <div class="print-footer d-flex pt-3 px-3 pb-1 gap-3">
+        <div class="print-footer d-flex gap-3 px-3 pt-3 pb-1">
             <ConfederationFullLogo :render-for-dpi="printDPI" />
-            <div class="print-disclaimer flew-grow-1 px-1 px-md-3 px-xl-5 d-flex flex-column">
+            <div class="print-disclaimer flew-grow-1 px-md-3 px-xl-5 d-flex flex-column px-1">
                 <span class="text-justify">{{ t('print_footer_description') }}</span>
                 <span class="text-justify">{{ t('print_footer_disclaimer') }}</span>
                 <span class="mt-1">&copy; swisstopo</span>

@@ -1,11 +1,13 @@
-import type { SingleCoordinate, FlatExtent } from '@swissgeo/coordinates'
-import type { Options } from 'ol/source/WMTS'
-
+import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import { CoordinateSystem } from '@swissgeo/coordinates'
+import type { Options } from 'ol/source/WMTS'
 import { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 
-import type { WMSRequestCapabilities } from '@/parsers'
 import type { LayerTimeConfig } from '@/types/timeConfig'
+import type { WMSRequestCapabilities } from '@/types/capabilities'
+import type { GeoAdminGeoJSONStyleDefinition } from '@/types/geoJsonStyle'
+
+export type * from '@/types/geoJsonStyle'
 
 export const DEFAULT_OPACITY = 1.0
 export const WMS_SUPPORTED_VERSIONS = ['1.3.0']
@@ -77,7 +79,7 @@ export interface Layer {
      * What's the backend base URL to use when requesting tiles/image for this layer, will be used
      * to construct the URL of this layer later on
      */
-    readonly baseUrl: string
+    baseUrl: string
     /**
      * Flag telling if the base URL must always have a trailing slash. It might be sometime the case
      * that this is unwanted (i.e. for an external WMS URL already built past the point of URL
@@ -114,16 +116,18 @@ export interface Layer {
     warningMessages?: WarningMessage[]
     hasError: boolean
     hasWarning: boolean
-
-    /* The admin id to allow editing. If not set, the user is not allowed to edit the file. */
-    adminId?: string
+    extent?: FlatExtent
 }
 
 // #region: GeoAdminLayers
 /** This interface unifies the shared properties of the layers that speak to an API like WMS and WMTS */
 export interface GeoAdminLayer extends Layer {
-    /** If this layer should be treated as a background layer. */
-    readonly isBackground: boolean
+    /**
+     * If this layer should be treated as a background layer. Is not read-only because we change the
+     * SWISSIMAGE layer on the fly so that it is available as a background layer in 3D (little
+     * "hack").
+     */
+    isBackground: boolean
     /**
      * Tells if this layer possess features that should be highlighted on the map after a click (and
      * if the backend will provide valuable information on the
@@ -141,10 +145,11 @@ export interface GeoAdminLayer extends Layer {
      */
     readonly technicalName?: string
     /**
-     * The layer ID to be used as substitute for this layer when we are showing the 3D map. Will be
-     * using the same layer if this is set to null.
+     * The layer ID to be used as a substitute for this layer when we are showing the 3D map. Will
+     * be using the same layer if this is set to null. Same as `isBackground`, we set it as writable
+     * because we force the layer SWISSIMAGE to be treated as a background layer in 3D.
      */
-    readonly idIn3d?: string
+    idIn3d?: string
     readonly isSpecificFor3d: boolean
     /* oh OK this is determined by the _3d suffix. Why then isn't it made a 3d layer? */
 }
@@ -198,10 +203,7 @@ export interface GeoAdminGeoJSONLayer extends GeoAdminLayer {
     readonly styleUrl: string
     /* The URL to use when requesting the GeoJSON data (the true GeoJSON per se...) */
     readonly geoJsonUrl: string
-    geoJsonStyle?: {
-        type: string
-        ranges: number[]
-    }
+    geoJsonStyle?: GeoAdminGeoJSONStyleDefinition
     geoJsonData?: string
     readonly technicalName: string
     readonly isExternal: false
@@ -223,8 +225,6 @@ export interface CloudOptimizedGeoTIFFLayer extends Layer {
     readonly fileSource?: string
     /* Data/content of the COG file, as a string. */
     data?: string | Blob
-    /* The extent of this COG. */
-    extent?: FlatExtent
 }
 
 /** Links to service-kml's entries for this KML */
@@ -283,12 +283,13 @@ export interface KMLLayer extends Layer {
     /* The URL to access the KML data. */
     kmlFileUrl: string
     fileId?: string
+    /* The admin id to allow editing. If not set, the user is not allowed to edit the file. */
+    adminId?: string
     /* Data/content of the KML file, as a string. */
     kmlData?: string
     /* Metadata of the KML drawing. This object contains all the metadata returned by the backend. */
     kmlMetadata?: KMLMetadata
 
-    extent?: FlatExtent
     /* Flag defining if the KML should be clamped to
        the 3D terrain (only for 3D viewer). If not set, the clamp to ground flag will be set to
        true if the KML is coming from geoadmin (drawing). Some users wanted to have 3D KMLs (fly
@@ -336,7 +337,6 @@ export interface GPXLayer extends Layer {
     gpxData?: string
     /* Metadata of the GPX file. This object contains all the metadata found in the file itself within the <metadata> tag. */
     gpxMetadata?: GPXMetadata
-    extent?: FlatExtent
 }
 // #endregion
 
@@ -392,7 +392,6 @@ export interface ExternalLayer extends Layer {
     currentYear?: number
     /* Layer legends. */
     readonly legends?: LayerLegend[]
-    readonly extent?: FlatExtent
 }
 
 export interface ExternalWMTSLayer extends ExternalLayer {

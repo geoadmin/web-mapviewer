@@ -1,10 +1,10 @@
-import type { SingleCoordinate } from '@geoadmin/coordinates'
+import type { SingleCoordinate } from '@swissgeo/coordinates'
 
-import log, { LogPreDefinedColor } from '@geoadmin/log'
-import { isNumber } from '@geoadmin/numbers'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
+import { isNumber } from '@swissgeo/numbers'
 import { defineStore } from 'pinia'
 
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types'
 
 export interface GeolocationState {
     /** Flag telling if the user has activated the geolocation feature */

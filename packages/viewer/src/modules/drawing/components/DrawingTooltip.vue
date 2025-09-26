@@ -4,9 +4,9 @@ import { computed, inject, onBeforeUnmount, onMounted, ref, useTemplateRef, watc
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { EditableFeatureTypes } from '@/api/features.api'
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
-import { getVertexCoordinates, pointWithinTolerance } from '@/modules/drawing/lib/drawingUtils'
+import { getVertexCoordinates, pointWithinTolerance } from '@/modules/drawing/lib/drawingUtils.js'
 
 const cssPointer = 'cursor-pointer'
 const cssGrab = 'cursor-grab'
@@ -100,8 +100,8 @@ function updateTooltip() {
         }
     )
 
-    const pointFeatureTypes = [EditableFeatureTypes.MARKER, EditableFeatureTypes.ANNOTATION]
-    const nonPointFeatureTypes = [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE]
+    const pointFeatureTypes = [EditableFeatureTypes.Marker, EditableFeatureTypes.Annotation]
+    const nonPointFeatureTypes = [EditableFeatureTypes.LinePolygon, EditableFeatureTypes.Measure]
     const featureDrawingMode = featureUnderCursor?.get('type').toUpperCase()
 
     const translations = []

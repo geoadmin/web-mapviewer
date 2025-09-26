@@ -2,16 +2,16 @@
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed } from 'vue'
 
-import EditableFeature from '@/api/features/EditableFeature.class'
+import type { EditableFeature } from '@/api/features.api'
 import { type DrawingIcon, type DrawingIconSet, generateIconURL } from '@/api/icon.api'
 import type { FeatureStyleColor } from '@/utils/featureStyleUtils'
 
 const { icon, currentFeature, currentIconSet, tooltipDisabled, currentLang } = defineProps<{
-    icon: DrawingIcon,
-    currentFeature: EditableFeature,
-    currentIconSet: DrawingIconSet,
-    /** tooltip will be disabled when the symbol selector is collapsed */
-    tooltipDisabled?: boolean,
+    icon: DrawingIcon
+    currentFeature: EditableFeature
+    currentIconSet: DrawingIconSet
+    /** Tooltip will be disabled when the symbol selector is collapsed */
+    tooltipDisabled?: boolean
     currentLang: string
 }>()
 
@@ -38,8 +38,8 @@ function generateColorizedURL(icon: DrawingIcon): string {
     return generateIconURL(icon, currentFeature.fillColor)
 }
 
-function getImageStrokeStyle(isColorable: boolean, isSelected: boolean, color: FeatureStyleColor) {
-    if (isColorable) {
+function getImageStrokeStyle(isColorable: boolean, isSelected: boolean, color?: FeatureStyleColor) {
+    if (isColorable && color) {
         return {
             filter: `drop-shadow(1px 1px 0 ${color.border}) drop-shadow(-1px -1px 0 ${color.border})`,
         }

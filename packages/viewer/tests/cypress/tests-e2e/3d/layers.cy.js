@@ -1,6 +1,6 @@
-import { WEBMERCATOR, LV95 } from '@swissgeo/coordinates'
+import { LV95, WEBMERCATOR } from '@swissgeo/coordinates'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { EditableFeatureTypes } from '@/api/features.api'
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 
 function expectLayerCountToBe(viewer, layerCount) {
@@ -47,14 +47,16 @@ describe('Test of layer handling in 3D', () => {
         cy.wait(['@search-locations', '@search-wmts-layers'])
         cy.get('[data-cy="search-results-layers"] [data-cy="search-result-entry"]').first().click()
         cy.get('[data-cy="menu-button"]').click()
-        cy.window().its('cesiumViewer').then((viewer) => {
-            expectLayerCountToBe(viewer, 2)
-            const wmtsLayer = viewer.scene.imageryLayers.get(1)
-            expect(wmtsLayer.show).to.eq(true)
-            expect(wmtsLayer.imageryProvider.url).to.have.string(
-                `1.0.0/${expectedWmtsLayerId}/default/current/3857/{z}/{x}/{y}.png`
-            )
-        })
+        cy.window()
+            .its('cesiumViewer')
+            .then((viewer) => {
+                expectLayerCountToBe(viewer, 2)
+                const wmtsLayer = viewer.scene.imageryLayers.get(1)
+                expect(wmtsLayer.show).to.eq(true)
+                expect(wmtsLayer.imageryProvider.url).to.have.string(
+                    `1.0.0/${expectedWmtsLayerId}/default/current/3857/{z}/{x}/{y}.png`
+                )
+            })
 
         cy.log('Search and add a WMS layer through the search bar')
         const expectedWmsLayerId = 'test.wms.layer'
@@ -76,12 +78,14 @@ describe('Test of layer handling in 3D', () => {
         cy.get('@searchBar').paste('test wms')
         cy.wait(['@search-locations', '@search-wms-layers'])
         cy.get('[data-cy="search-results-layers"] [data-cy="search-result-entry"]').first().click()
-        cy.window().its('cesiumViewer').then((viewer) => {
-            expectLayerCountToBe(viewer, 3)
-            const wmsLayer = viewer.scene.imageryLayers.get(2)
-            expect(wmsLayer.show).to.eq(true)
-            expect(wmsLayer.imageryProvider.layers).to.have.string(expectedWmsLayerId)
-        })
+        cy.window()
+            .its('cesiumViewer')
+            .then((viewer) => {
+                expectLayerCountToBe(viewer, 3)
+                const wmsLayer = viewer.scene.imageryLayers.get(2)
+                expect(wmsLayer.show).to.eq(true)
+                expect(wmsLayer.imageryProvider.layers).to.have.string(expectedWmsLayerId)
+            })
     })
     it('sets the opacity to the value defined in the layers URL param or menu UI', () => {
         cy.log('checking a WMTS layer without 3D specific configuration')
@@ -90,20 +94,22 @@ describe('Test of layer handling in 3D', () => {
             queryParams: {
                 '3d': true,
                 layers: `${wmtsLayerIdWithout3DConfig},,0.5`,
-            }
+            },
         })
         cy.waitUntilCesiumTilesLoaded()
-        cy.window().its('cesiumViewer').then((viewer) => {
-            const layers = viewer.scene.imageryLayers
-            expect(layers.length).to.eq(
-                2,
-                'There should be the background layer + the WMTS layer added through the URL'
-            )
-            expect(layers.get(1).alpha).to.eq(
-                0.5,
-                'The opacity must come from the URL and not the default value from layers config'
-            )
-        })
+        cy.window()
+            .its('cesiumViewer')
+            .then((viewer) => {
+                const layers = viewer.scene.imageryLayers
+                expect(layers.length).to.eq(
+                    2,
+                    'There should be the background layer + the WMTS layer added through the URL'
+                )
+                expect(layers.get(1).alpha).to.eq(
+                    0.5,
+                    'The opacity must come from the URL and not the default value from layers config'
+                )
+            })
 
         cy.log('Checking that using the menu also changes the opacity correctly')
         cy.openMenuIfMobile()
@@ -117,13 +123,15 @@ describe('Test of layer handling in 3D', () => {
             .should('be.visible')
             .invoke('val', newSliderPosition)
             .trigger('input')
-        cy.window().its('cesiumViewer').should((viewer) => {
-            const layers = viewer.scene.imageryLayers
-            expect(layers.get(1).alpha).to.eq(
-                1.0 - newSliderPosition,
-                'Changing the transparency in the menu must change the opacity of the 3D layer'
-            )
-        })
+        cy.window()
+            .its('cesiumViewer')
+            .should((viewer) => {
+                const layers = viewer.scene.imageryLayers
+                expect(layers.get(1).alpha).to.eq(
+                    1.0 - newSliderPosition,
+                    'Changing the transparency in the menu must change the opacity of the 3D layer'
+                )
+            })
 
         cy.log('checking a WMS layer without 3D specific configuration')
         const wmsLayerIdWithout3DConfig = 'test.wms.layer'
@@ -133,11 +141,13 @@ describe('Test of layer handling in 3D', () => {
         cy.get('[data-cy="catalogue-tree-item-2"]').click()
         cy.get('[data-cy="catalogue-tree-item-5"]').click()
         cy.get(`[data-cy="catalogue-add-layer-button-${wmsLayerIdWithout3DConfig}"]`).click()
-        cy.window().its('cesiumViewer').should((viewer) => {
-            expectLayerCountToBe(viewer, 3)
-            const wmsLayer = viewer.scene.imageryLayers.get(2)
-            expect(wmsLayer.imageryProvider.layers).to.have.string(wmsLayerIdWithout3DConfig)
-        })
+        cy.window()
+            .its('cesiumViewer')
+            .should((viewer) => {
+                expectLayerCountToBe(viewer, 3)
+                const wmsLayer = viewer.scene.imageryLayers.get(2)
+                expect(wmsLayer.imageryProvider.layers).to.have.string(wmsLayerIdWithout3DConfig)
+            })
     })
     it('sets the timestamp of a layer when specified in the layers URL param', () => {
         const timeEnabledLayerId = 'test.timeenabled.wmts.layer'
@@ -154,11 +164,15 @@ describe('Test of layer handling in 3D', () => {
                     },
                 })
                 cy.waitUntilCesiumTilesLoaded()
-                cy.window().its('cesiumViewer').then((viewer) => {
-                    expect(viewer.scene.imageryLayers.get(1).imageryProvider.url).to.have.string(
-                        `1.0.0/${timeEnabledLayerId}/default/${randomTimestampFromLayer}/3857/{z}/{x}/{y}.png`
-                    )
-                })
+                cy.window()
+                    .its('cesiumViewer')
+                    .then((viewer) => {
+                        expect(
+                            viewer.scene.imageryLayers.get(1).imageryProvider.url
+                        ).to.have.string(
+                            `1.0.0/${timeEnabledLayerId}/default/${randomTimestampFromLayer}/3857/{z}/{x}/{y}.png`
+                        )
+                    })
             })
         })
     })
@@ -172,8 +186,7 @@ describe('Test of layer handling in 3D', () => {
                 layers: `${firstLayerId};${secondLayerId}`,
             },
             withHash: true,
-        }
-        ) // with hash, so that we can have external layer support
+        }) // with hash, so that we can have external layer support
         cy.waitUntilCesiumTilesLoaded()
         cy.openMenuIfMobile()
         // lower the order of the first layer
@@ -182,37 +195,43 @@ describe('Test of layer handling in 3D', () => {
             .should('be.visible')
             .click()
         // checking that the order has changed
-        cy.window().its('cesiumViewer').then((viewer) => {
-            expect(viewer.scene.imageryLayers.get(1).imageryProvider.url).to.have.string(
-                `1.0.0/${secondLayerId}/default/current/3857/{z}/{x}/{y}.png`
-            )
-            expect(viewer.scene.imageryLayers.get(2).imageryProvider.layers).to.eq(firstLayerId)
-        })
+        cy.window()
+            .its('cesiumViewer')
+            .then((viewer) => {
+                expect(viewer.scene.imageryLayers.get(1).imageryProvider.url).to.have.string(
+                    `1.0.0/${secondLayerId}/default/current/3857/{z}/{x}/{y}.png`
+                )
+                expect(viewer.scene.imageryLayers.get(2).imageryProvider.layers).to.eq(firstLayerId)
+            })
         // using the other button
         cy.get(`[data-cy^="button-lower-order-layer-${firstLayerId}-"]`)
             .should('be.visible')
             .click()
         // re-checking the order that should be back to the starting values
-        cy.window().its('cesiumViewer').then((viewer) => {
-            expect(viewer.scene.imageryLayers.get(1).imageryProvider.layers).to.eq(firstLayerId)
-            expect(viewer.scene.imageryLayers.get(2).imageryProvider.url).to.have.string(
-                `1.0.0/${secondLayerId}/default/current/3857/{z}/{x}/{y}.png`
-            )
-        })
+        cy.window()
+            .its('cesiumViewer')
+            .then((viewer) => {
+                expect(viewer.scene.imageryLayers.get(1).imageryProvider.layers).to.eq(firstLayerId)
+                expect(viewer.scene.imageryLayers.get(2).imageryProvider.url).to.have.string(
+                    `1.0.0/${secondLayerId}/default/current/3857/{z}/{x}/{y}.png`
+                )
+            })
     })
     it('add GeoJson layer with opacity from URL param', () => {
         const geojsonlayerId = 'test.geojson.layer'
         cy.goToMapView({
-                queryParams: {
+            queryParams: {
                 '3d': true,
                 layers: `${geojsonlayerId},,0.5`,
             },
         })
         cy.wait(['@geojson-data', '@geojson-style'])
         cy.waitUntilCesiumTilesLoaded()
-        cy.window().its('cesiumViewer').should((viewer) => {
-            expect(viewer.dataSources.length).to.eq(1, 'should have 1 data source (GeoJSON)')
-        })
+        cy.window()
+            .its('cesiumViewer')
+            .should((viewer) => {
+                expect(viewer.dataSources.length).to.eq(1, 'should have 1 data source (GeoJSON)')
+            })
     })
     it('removes a layer from the visible layers when the "remove" button is pressed', () => {
         const geojsonlayerId = 'test.geojson.layer'
@@ -224,14 +243,18 @@ describe('Test of layer handling in 3D', () => {
         })
         cy.waitUntilCesiumTilesLoaded()
         cy.wait(['@geojson-data', '@geojson-style'])
-        cy.window().its('cesiumViewer').should((viewer) => {
-            expect(viewer.dataSources.length).to.eq(1)
-        })
+        cy.window()
+            .its('cesiumViewer')
+            .should((viewer) => {
+                expect(viewer.dataSources.length).to.eq(1)
+            })
         cy.openMenuIfMobile()
         cy.get(`[data-cy^="button-remove-layer-${geojsonlayerId}-"]`).should('be.visible').click()
-        cy.window().its('cesiumViewer').then((viewer) => {
-            expect(viewer.dataSources.length).to.eq(0)
-        })
+        cy.window()
+            .its('cesiumViewer')
+            .then((viewer) => {
+                expect(viewer.dataSources.length).to.eq(0)
+            })
     })
     it('uses the 3D configuration of a layer if one exists', () => {
         cy.goToMapView({
@@ -241,23 +264,25 @@ describe('Test of layer handling in 3D', () => {
             },
         })
         cy.waitUntilCesiumTilesLoaded()
-        cy.window().its('cesiumViewer').then((viewer) => {
-            const layer = viewer.scene.imageryLayers.get(1)
-            // the opacity of the parent 2D layer must be applied to the 3D counterpart
-            expect(layer?.alpha).to.eq(0.8)
+        cy.window()
+            .its('cesiumViewer')
+            .then((viewer) => {
+                const layer = viewer.scene.imageryLayers.get(1)
+                // the opacity of the parent 2D layer must be applied to the 3D counterpart
+                expect(layer?.alpha).to.eq(0.8)
 
-            const provider = layer?.imageryProvider
-            expect(provider?.url).to.contain('test.background.layer_3d')
-        })
+                const provider = layer?.imageryProvider
+                expect(provider?.url).to.contain('test.background.layer_3d')
+            })
     })
     it('add KML layer from drawing', () => {
         cy.goToDrawing()
-        cy.clickDrawingTool(EditableFeatureTypes.LINEPOLYGON)
+        cy.clickDrawingTool(EditableFeatureTypes.LinePolygon)
         cy.get('[data-cy="ol-map"]').click(100, 250)
         cy.get('[data-cy="ol-map"]').click(150, 250)
         cy.get('[data-cy="ol-map"]').dblclick(150, 280)
 
-        cy.clickDrawingTool(EditableFeatureTypes.MARKER)
+        cy.clickDrawingTool(EditableFeatureTypes.Marker)
         cy.get('[data-cy="ol-map"]').click()
 
         cy.get('[data-cy="drawing-style-feature-title"]').type('This is a title')
@@ -266,9 +291,11 @@ describe('Test of layer handling in 3D', () => {
         cy.closeMenuIfMobile()
         cy.get('[data-cy="3d-button"]').click()
         cy.waitUntilCesiumTilesLoaded()
-        cy.window().its('cesiumViewer').should((viewer) => {
-            expect(viewer.dataSources.length).to.eq(1)
-        })
+        cy.window()
+            .its('cesiumViewer')
+            .should((viewer) => {
+                expect(viewer.dataSources.length).to.eq(1)
+            })
     })
 
     it('Verify layer features in 2D and 3D', () => {
@@ -281,23 +308,27 @@ describe('Test of layer handling in 3D', () => {
             },
         })
         cy.waitUntilCesiumTilesLoaded()
-        cy.window().its('cesiumViewer').then((viewer) => {
-            expectLayerCountToBe(viewer, 2)
-            const wmsLayer = viewer.scene.imageryLayers.get(1)
-            expect(wmsLayer.show).to.eq(true)
-            expect(wmsLayer.imageryProvider.layers).to.have.string(expectedWmsLayerId)
-        })
+        cy.window()
+            .its('cesiumViewer')
+            .then((viewer) => {
+                expectLayerCountToBe(viewer, 2)
+                const wmsLayer = viewer.scene.imageryLayers.get(1)
+                expect(wmsLayer.show).to.eq(true)
+                expect(wmsLayer.imageryProvider.layers).to.have.string(expectedWmsLayerId)
+            })
 
         cy.log('Switching to 2D and checking that the layer is still visible')
         // deactivate 3D
         cy.get('[data-cy="3d-button"]').should('be.visible').click()
-        cy.window().its('map').then((map) => {
-            const layers = map.getLayers().getArray()
-            expect(layers[1].getProperties().id).to.deep.equal(expectedWmsLayerId)
+        cy.window()
+            .its('map')
+            .then((map) => {
+                const layers = map.getLayers().getArray()
+                expect(layers[1].getProperties().id).to.deep.equal(expectedWmsLayerId)
 
-            // If the layer is not visible, it is usually because the extent is not correct
-            expect(layers[1].getExtent()).to.deep.equal(LV95.bounds.flatten)
-        })
+                // If the layer is not visible, it is usually because the extent is not correct
+                expect(layers[1].getExtent()).to.deep.equal(LV95.bounds.flatten)
+            })
 
         cy.log('Select features and check that they are visible in 3D and then also back in 2D')
         cy.get('[data-cy="ol-map"]').click(100, 250)
@@ -313,9 +344,11 @@ describe('Test of layer handling in 3D', () => {
         cy.get('[data-cy="3d-button"]').should('be.visible').click()
         cy.waitUntilCesiumTilesLoaded()
 
-        cy.window().its('cesiumViewer').then((viewer) => {
-            expect(viewer.entities.values.length).to.eq(10)
-        })
+        cy.window()
+            .its('cesiumViewer')
+            .then((viewer) => {
+                expect(viewer.entities.values.length).to.eq(10)
+            })
         cy.get('@highlightedFeatures')
             .should('be.visible')
             .find('[data-cy="feature-item"]')
@@ -343,49 +376,57 @@ describe('Test of layer handling in 3D', () => {
         cy.closeMenuIfMobile()
         cy.readStoreValue('getters.selectedFeatures').should('have.length', 0)
         cy.get('@highlightedFeatures').should('not.exist')
-        cy.window().its('cesiumViewer').then((viewer) => {
-            expect(viewer.entities.values.length).to.eq(0)
-        })
+        cy.window()
+            .its('cesiumViewer')
+            .then((viewer) => {
+                expect(viewer.entities.values.length).to.eq(0)
+            })
     })
     it('Verify a layer with EPSG:4326(WEBMERCATOR) bounding box in 2D and 3D', () => {
         cy.getExternalWmsMockConfig().then((layerObjects) => {
             const mockExternalWms2 = layerObjects[1]
             const layers = [layerObjects[1]].map(transformLayerIntoUrlString).join(';')
             cy.goToMapView({
-                queryParams: {'3d': true, layers },
+                queryParams: { '3d': true, layers },
             })
             cy.log('Go to 3D and add a WMS layer')
             // This layer extent got transformed from EPSG:4326 to EPSG:2056
             const layerExtentInLV95 = [2485071.58, 1075346.31, 2828515.82, 1299941.79]
             cy.waitUntilCesiumTilesLoaded()
-            cy.window().its('cesiumViewer').then((viewer) => {
-                expectLayerCountToBe(viewer, 2)
-                const wmsLayer = viewer.scene.imageryLayers.get(1)
-                expect(wmsLayer.show).to.eq(true)
-                expect(wmsLayer.imageryProvider.layers).to.have.string(mockExternalWms2.id)
-            })
+            cy.window()
+                .its('cesiumViewer')
+                .then((viewer) => {
+                    expectLayerCountToBe(viewer, 2)
+                    const wmsLayer = viewer.scene.imageryLayers.get(1)
+                    expect(wmsLayer.show).to.eq(true)
+                    expect(wmsLayer.imageryProvider.layers).to.have.string(mockExternalWms2.id)
+                })
 
             cy.log('Switching to 2D and checking that the layer is still visible')
             // deactivate 3D
             cy.get('[data-cy="3d-button"]').should('be.visible').click()
-            cy.window().its('map').then((map) => {
-                const layers = map.getLayers().getArray()
-                expect(layers[1].getProperties().id).to.deep.equal(mockExternalWms2.id)
-                // If the layer is not visible, it is usually because the extent is not correct
-                expect(layers[1].getExtent()).to.deep.equal(layerExtentInLV95)
-            })
+            cy.window()
+                .its('map')
+                .then((map) => {
+                    const layers = map.getLayers().getArray()
+                    expect(layers[1].getProperties().id).to.deep.equal(mockExternalWms2.id)
+                    // If the layer is not visible, it is usually because the extent is not correct
+                    expect(layers[1].getExtent()).to.deep.equal(layerExtentInLV95)
+                })
 
             // activate 3D
             cy.get('[data-cy="3d-button"]').should('be.visible').click()
             cy.waitUntilCesiumTilesLoaded()
 
             cy.get('[data-cy="3d-button"]').should('be.visible').click()
-            cy.window().its('map').then((map) => {
-                const layers = map.getLayers().getArray()
-                expect(layers[1].getProperties().id).to.deep.equal(mockExternalWms2.id)
-                // If the layer is not visible, it is usually because the extent is not correct
-                expect(layers[1].getExtent()).to.deep.equal(layerExtentInLV95)
-            })
+            cy.window()
+                .its('map')
+                .then((map) => {
+                    const layers = map.getLayers().getArray()
+                    expect(layers[1].getProperties().id).to.deep.equal(mockExternalWms2.id)
+                    // If the layer is not visible, it is usually because the extent is not correct
+                    expect(layers[1].getExtent()).to.deep.equal(layerExtentInLV95)
+                })
         })
     })
 })

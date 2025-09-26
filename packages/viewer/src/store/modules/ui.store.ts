@@ -1,6 +1,6 @@
-import log, { LogPreDefinedColor } from '@geoadmin/log'
-import { ErrorMessage, WarningMessage } from '@geoadmin/log/Message'
-import { isNumber } from '@geoadmin/numbers'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
+import { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
+import { isNumber } from '@swissgeo/numbers'
 import { defineStore } from 'pinia'
 
 import { BREAKPOINT_TABLET, MAX_WIDTH_SHOW_FLOATING_TOOLTIP } from '@/config/responsive.config'
@@ -10,6 +10,8 @@ import {
     REPORT_PROBLEM_HOSTNAMES,
     WARNING_RIBBON_HOSTNAMES,
 } from '@/config/staging.config'
+import useDrawingStore from '@/store/modules/drawing.store'
+import type { ActionDispatcher } from '@/store/types'
 
 const MAP_LOADING_BAR_REQUESTER = 'app-map-loading'
 
@@ -188,9 +190,8 @@ const useUIStore = defineStore('ui', {
 
         /** Tells if the header bar is visible */
         isHeaderShown(): boolean {
-            // TODO: add useDrawingStore here
-            const isDrawingOverlayHidden = true
-            return !this.fullscreenMode && isDrawingOverlayShown
+            const drawingStore = useDrawingStore()
+            return !this.fullscreenMode && drawingStore.drawingOverlay.show
         },
 
         isPhoneMode(): boolean {

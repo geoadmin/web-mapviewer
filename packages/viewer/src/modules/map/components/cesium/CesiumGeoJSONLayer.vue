@@ -7,7 +7,7 @@ import { reproject } from 'reproject'
 import { computed, inject, toRef } from 'vue'
 
 import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
-import { setEntityStyle } from '@/modules/map/components/cesium/utils/styleConverter'
+import { setEntityStyle } from '@/modules/map/components/cesium/utils/geoJsonStyleConverter.ts'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
 
 const { geoJsonConfig } = defineProps({

@@ -1,18 +1,13 @@
 import { defineStore } from 'pinia'
 
-import type EditableFeature from '@/api/features/EditableFeature.class.ts'
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types'
 
-import { DrawingIconSet, loadAllIconSetsFromBackend } from '@/api/icon.api.ts'
+import type { DrawingIconSet } from '@/api/icon.api'
+import { loadAllIconSetsFromBackend } from '@/api/icon.api'
+import useFeaturesStore from '@/store/modules/features.store'
+import { EditableFeatureTypes } from '@/api/features.api'
 
 const defaultDrawingTitle = 'draw_mode_title'
-
-export enum DrawingMode {
-    MARKER = 'MARKER',
-    ANNOTATION = 'ANNOTATION',
-    LINEPOLYGON = 'LINEPOLYGON',
-    MEASURE = 'MEASURE',
-}
 
 /** @enum */
 export enum EditMode {
@@ -25,7 +20,7 @@ export enum EditMode {
 
 export interface DrawingState {
     /** Current drawing mode (or `undefined` if there is none). */
-    mode: DrawingMode | undefined
+    mode: EditableFeatureTypes | undefined
     /** List of all available icon sets for drawing (loaded from the backend service-icons) */
     iconSets: DrawingIconSet[]
     /**
@@ -95,8 +90,8 @@ const useDrawingStore = defineStore('drawing', {
         },
     },
     actions: {
-        setDrawingMode(mode: DrawingMode | undefined, dispatcher: ActionDispatcher) {
-            if (mode === undefined || mode in DrawingMode) {
+        setDrawingMode(mode: EditableFeatureTypes | undefined, dispatcher: ActionDispatcher) {
+            if (mode === undefined || mode in EditableFeatureTypes) {
                 this.mode = mode
             }
         },
@@ -125,8 +120,8 @@ const useDrawingStore = defineStore('drawing', {
         },
 
         deleteDrawingFeature(featureId: string, dispatcher: ActionDispatcher) {
-            // TODO: replace with useFeatureStore
-            // dispatch('clearAllSelectedFeatures', { dispatcher: dispatcher })
+            const featuresStore = useFeaturesStore()
+            featuresStore.clearAllSelectedFeatures(dispatcher)
             this.featureIds = this.featureIds.filter(
                 (existingFeatureId) => existingFeatureId !== featureId
             )

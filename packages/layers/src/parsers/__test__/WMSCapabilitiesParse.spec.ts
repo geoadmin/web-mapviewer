@@ -5,7 +5,8 @@ import { assertType, beforeAll, describe, expect, it } from 'vitest'
 
 import type { ExternalWMSLayer, LayerAttribution, LayerLegend } from '@/types/layers'
 
-import externalWMSParser, { type WMSCapabilitiesResponse } from '@/parsers/WMSCapabilitiesParser'
+import externalWMSParser from '@/parsers/WMSCapabilitiesParser'
+import type { WMSCapabilitiesResponse } from '@/types'
 
 describe('WMSCapabilitiesParser - invalid', () => {
     it('Throw Error on invalid input', () => {

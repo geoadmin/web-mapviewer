@@ -13,7 +13,7 @@ describe('Testing click', () => {
         const mercatorCoords = proj4(WGS84.epsg, WEBMERCATOR.epsg, [lon, lat])
 
         cy.goToMapView({
-            queryParams : {
+            queryParams: {
                 '3d': true,
                 center: mercatorCoords.join(','),
                 sr: WEBMERCATOR.epsgNumber,
@@ -23,7 +23,7 @@ describe('Testing click', () => {
         cy.get('[data-cy="cesium-map"] .cesium-viewer').click()
         cy.readStoreValue('state.map.clickInfo').then((clickInfo) => {
             expect(clickInfo.clickType).to.equal(
-                ClickType.LEFT_SINGLECLICK,
+                ClickType.LeftSingleClick,
                 'Click type is correctly detected'
             )
             expect(clickInfo.features.length).to.equal(0, 'No feature are detected under the click')

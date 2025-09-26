@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import type { ActionDispatcher } from '@/store/store'
+import type { ActionDispatcher } from '@/store/types'
 
 import { sendMapReadyEventToParent } from '@/api/iframePostMessageEvent.api'
 
