@@ -479,10 +479,10 @@ Cypress.Commands.add('checkOlLayer', (args) => {
             expect(olLayer!.getVisible(), `[${layer.id}] layer.visible`).to.be.equal(layer.visible)
             expect(olLayer!.getOpacity(), `[${layer.id}] layer.opacity`).to.be.equal(layer.opacity)
             // The rendered flag is set asynchronously; therefore, we need to do some retry here
-            // Also, the rendered flag is protected, so we're checking if it is set with a getPixel
-            // function, which returns null as long as either there is no renderer, or the rendered
+            // Also, the rendered flag is protected, so we're checking if it is set with a getRenderSource().getState()
+            // function, which returns false as long as either there is no renderer, or the rendered
             // flag is false
-            cy.waitUntil(() => olLayer!.getData([100, 100]) !== null, {
+            cy.waitUntil(() => olLayer?.getRenderSource()?.getState() === 'ready', {
                 description: `[${layer.id}] waitUntil layer.rendered`,
                 errorMsg: `[${layer.id}] layer.rendered is not true`,
             })
