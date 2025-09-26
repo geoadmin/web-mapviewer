@@ -388,7 +388,7 @@ Cypress.Commands.add('getRandomTimestampFromSeries', (layer) => {
         randomTimestampFromLayer =
             layer.timestamps![randomIntBetween(0, layer.timestamps!.length - 1)]
     } while (randomTimestampFromLayer === defaultTimestamp)
-    return randomTimestampFromLayer
+    return cy.wrap(randomTimestampFromLayer)
 })
 
 Cypress.Commands.add('openLayerSettings', (layerId) => {
@@ -408,7 +408,8 @@ Cypress.Commands.add('openLayerSettings', (layerId) => {
 export interface PartialLayer {
     id: string
     opacity?: number
-    visible?: boolean
+    visible?: boolean // the Layers interface has 'isVisible' as a boolean, I'll make the 'visible' to 'isVisible' change in another commit so I'm not destroying everything
+    isVisible?: boolean
 }
 
 Cypress.Commands.add('checkOlLayer', (args) => {
