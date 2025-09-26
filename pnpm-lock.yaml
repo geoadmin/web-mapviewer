@@ -16405,7 +16405,6 @@ snapshots:
       vite: 7.3.1(patch_hash=ac971e3dac553331793e4a4063f399822ebf90d3b912ec880f137110f0291133)(@types/node@25.3.0)(jiti@2.6.1)(lightningcss@1.31.1)(sass-embedded@1.91.0)(sass@1.77.7)(terser@5.43.1)(tsx@4.21.0)(yaml@2.8.2)
     transitivePeerDependencies:
       - supports-color
-      - typescript
 
   vite-tsconfig-paths@6.1.1(typescript@5.9.3)(vite@7.3.1(patch_hash=ac971e3dac553331793e4a4063f399822ebf90d3b912ec880f137110f0291133)(@types/node@25.3.0)(jiti@2.6.1)(lightningcss@1.31.1)(sass-embedded@1.91.0)(sass@1.97.3)(terser@5.43.1)(tsx@4.21.0)(yaml@2.8.2)):
     dependencies:
