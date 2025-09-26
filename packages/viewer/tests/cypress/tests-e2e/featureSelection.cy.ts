@@ -154,7 +154,7 @@ describe('Testing the feature selection', () => {
                         }
                     })
             })
-
+            // ------------------------------------------------------------------------------------------------
             cy.log('Check that clicking another feature from the same layer changes the URL')
             assertDefined(expectedFeatureIds[1])
             createInterceptWithFeatureId(expectedFeatureIds[1], standardLayer)

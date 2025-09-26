@@ -232,7 +232,7 @@ describe('Testing the embed view', () => {
         cy.get('[data-cy="ol-map"]').trigger('wheel', {
             deltaY: -100,
             ctrlKey: false,
-            bubbles: true,
+            bubbles: true, // needed to make sure the listener is triggered
         })
 
         cy.location('hash').should('contain', 'z=2')

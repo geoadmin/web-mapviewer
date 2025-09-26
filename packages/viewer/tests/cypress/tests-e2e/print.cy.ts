@@ -473,6 +473,7 @@ describe('Testing print', () => {
                         layers: [
                             {
                                 type: 'geojson',
+                                // In this GPX layer, there are two features (a line and a point).
                                 featureCount: 2,
                             } as MFPVectorLayer,
                             {
@@ -500,7 +501,7 @@ describe('Testing print', () => {
                     expect(lineSymbolizer).to.have.property('type')
                     expect(lineSymbolizer.type).to.equals('line')
                     expect(lineSymbolizer).to.have.property('strokeWidth')
-                    expect(lineSymbolizer.strokeWidth).to.lessThan(2)
+                    expect(lineSymbolizer.strokeWidth).to.lessThan(2) // thinner than the drawn in the OL map.
                 })
         })
 
@@ -681,6 +682,7 @@ describe('Testing print', () => {
                 assertDefined(layerObjects[2])
                 layerObjects[1].opacity = 0.8
                 layerObjects[2].opacity = 0.4
+                // some layers are not visible by default, let's set them all as visible
                 layerObjects.forEach((layer: ExternalWMTSLayer) => {
                     layer.visible = true
                 })
@@ -763,7 +765,7 @@ describe('Testing print', () => {
             })
         })
 
-        it('prints external WMTS correctly', () => {
+        it.only('prints external WMTS correctly', () => {
             cy.getExternalWmtsMockConfig().then((layerObjects: ExternalWMTSLayer[]) => {
                 layerObjects.forEach((layer: ExternalWMTSLayer) => {
                     layer.visible = true
@@ -797,9 +799,9 @@ describe('Testing print', () => {
                                     }
                                 }),
                                 {
-                                    layer: 'test.background.layer2',
+                                    layer: bgLayer,
                                     type: 'wmts',
-                                    baseURL: `https://sys-wmts.dev.bgdi.ch/1.0.0/${'test.background.layer2'}/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.jpeg`,
+                                    baseURL: `https://sys-wmts.dev.bgdi.ch/1.0.0/${bgLayer}/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.jpeg`,
                                     opacity: 1,
                                     matrixSet: 'EPSG:2056',
                                 },
