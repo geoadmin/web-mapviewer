@@ -9,6 +9,7 @@ import { assertDefined } from 'support/utils'
 import type { MFPLayer, MFPMap, MFPSymbolizer, MFPSymbolizerLine, MFPSymbolizers, MFPVectorLayer, MFPWmsLayer, MFPWmtsLayer } from '@geoblocks/mapfishprint'
 import type { Feature, FeatureCollection } from 'geojson';
 import type { Interception } from 'cypress/types/net-stubbing'
+import { kmlMetadataTemplate } from 'support/drawing'
 
 interface LaunchPrintOptions {
     layout?: string
@@ -306,8 +307,18 @@ describe('Testing print', () => {
             cy.intercept('HEAD', '**/**.kml', {
                 headers: { 'Content-Type': 'application/vnd.google-earth.kml+xml' },
             }).as('kmlHeadRequest')
-            cy.intercept('GET', '**/**.kml', { fixture: kmlFixture }).as('kmlGetRequest')
 
+            cy.intercept('GET', `**${getServiceKmlBaseUrl()}some-kml-file.kml`, { fixture: kmlFixture }).as('kmlGetRequest')
+            cy.intercept(
+                {
+                    method: 'GET',
+                    url: '**/api/kml/admin/**',
+                },
+                (req) => {
+                    const headers = { 'Cache-Control': 'no-cache' }
+                    req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop()! }), headers)
+                }
+            ).as('kmlGetAdminRequest')
             cy.goToMapView({
                 queryParams: {
                     layers: `KML|${getServiceKmlBaseUrl()}some-kml-file.kml`,
@@ -316,7 +327,7 @@ describe('Testing print', () => {
                 },
                 withHash: true,
             })
-            cy.wait(['@kmlHeadRequest', '@kmlGetRequest'])
+            cy.wait(['@kmlHeadRequest', '@kmlGetAdminRequest'])
             cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
 
             cy.openMenuIfMobile()
@@ -396,25 +407,24 @@ describe('Testing print', () => {
         it('should send a print request correctly to mapfishprint (with KML layer)', () => {
             startPrintWithKml('import-tool/external-kml-file.kml', '2776665.89,1175560.26')
 
-            cy.wait('@printRequest')
-                .its('request.body')
-                .then((body: PrintRequestBody) => {
-                    checkPrintRequest(body, {
-                        mapScale: 5000,
-                        copyright: '© sys-public.dev.bgdi.ch, attribution.test.wmts.layer',
-                        layers: [
-                            {
-                                type: 'geojson',
-                                featureCount: 1,
-                            } as MFPVectorLayer,
-                            {
-                                layer: 'test.background.layer2',
-                                type: 'wmts',
-                            } as MFPWmtsLayer,
-                        ],
-                        legends: [],
-                    })
+            cy.wait('@printRequest').then((interception: Interception) => {
+                console.log('interception', interception)
+                checkPrintRequest(interception.request.body, {
+                    mapScale: 5000,
+                    copyright: '© sys-public.dev.bgdi.ch, attribution.test.wmts.layer',
+                    layers: [
+                        {
+                            type: 'geojson',
+                            featureCount: 1,
+                        } as MFPVectorLayer,
+                        {
+                            layer: 'test.background.layer2',
+                            type: 'wmts',
+                        } as MFPWmtsLayer,
+                    ],
+                    legends: [],
                 })
+            })
         })
 
         it('should send a print request correctly to mapfishprint with GPX layer', () => {

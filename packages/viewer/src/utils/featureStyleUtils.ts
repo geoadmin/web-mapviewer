@@ -375,9 +375,9 @@ export function geoadminStyleFunction(
     const editableFeature = feature.get('editableFeature')
 
     const styleConfig = {
-        fillColor: editableFeature?.fillColor ?? RED.fill,
-        strokeColor: editableFeature?.strokeColor ?? RED.fill,
-        textColor: editableFeature?.textColor ?? RED.fill,
+        fillColor: editableFeature?.fillColor ?? RED,
+        strokeColor: editableFeature?.strokeColor ?? RED,
+        textColor: editableFeature?.textColor ?? RED,
     }
 
     // Tells if we are drawing a polygon for the first time, in this case we want

@@ -121,10 +121,6 @@ const readTopicTreeRecursive = (
                 }
             }
         })
-        // TODO: check why children is 0
-        if (children.length === 0) {
-            return {} as GeoAdminGroupOfLayers
-        }
         // TODO: can't use layerUtils.makeGeoAdminGroupOfLayers for this as it does not return a GeoAdminGroupOfLayers object 
         return makeGeoAdminGroupOfLayers({
             id: `${node.id}`,
