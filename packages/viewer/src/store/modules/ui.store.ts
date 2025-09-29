@@ -214,15 +214,15 @@ const useUIStore = defineStore('ui', {
 
         // TODO: remove redundant getter
         isPhoneSize(): boolean {
-            return this.isPhoneMode()
+            return this.isPhoneMode
         },
 
         isTabletSize(): boolean {
-            return this.isDesktopMode() && this.width < BREAKPOINT_TABLET
+            return this.isDesktopMode && this.width < BREAKPOINT_TABLET
         },
 
         isTraditionalDesktopSize(): boolean {
-            return this.isDesktopMode() && this.width >= BREAKPOINT_TABLET
+            return this.isDesktopMode && this.width >= BREAKPOINT_TABLET
         },
 
         /** Flag to display a warning ribbon ('TEST') at the top/bottom right corner */
@@ -248,14 +248,14 @@ const useUIStore = defineStore('ui', {
         showFeatureInfoInTooltip(): boolean {
             return (
                 this.featureInfoPosition === FeatureInfoPositions.TOOLTIP ||
-                (this.featureInfoPosition === FeatureInfoPositions.DEFAULT && !this.isPhoneMode())
+                (this.featureInfoPosition === FeatureInfoPositions.DEFAULT && !this.isPhoneMode)
             )
         },
 
         showFeatureInfoInBottomPanel(): boolean {
             return (
                 this.featureInfoPosition === FeatureInfoPositions.BOTTOMPANEL ||
-                (this.featureInfoPosition === FeatureInfoPositions.DEFAULT && this.isPhoneMode())
+                (this.featureInfoPosition === FeatureInfoPositions.DEFAULT && this.isPhoneMode)
             )
         },
 
@@ -316,10 +316,15 @@ const useUIStore = defineStore('ui', {
         },
 
         setShowLoadingBar(loading: boolean, requester: string, dispatcher: ActionDispatcher) {
+            if (!this.loadingBarRequesters[requester]) {
+                return
+            }
+
             if (loading) {
                 if (!isNumber(this.loadingBarRequesters[requester])) {
                     this.loadingBarRequesters[requester] = 0
                 }
+
                 this.loadingBarRequesters[requester] += 1
             } else {
                 if (this.loadingBarRequesters[requester] > 0) {
@@ -392,7 +397,8 @@ const useUIStore = defineStore('ui', {
 
         setFeatureInfoPosition(position: FeatureInfoPositions, dispatcher: ActionDispatcher) {
             const featurePosition: FeatureInfoPositions =
-                FeatureInfoPositions[position?.toUpperCase()]
+                FeatureInfoPositions[position?.toUpperCase() as keyof typeof FeatureInfoPositions]
+
             if (!featurePosition) {
                 log.error({
                     title: 'UI store / setFeatureInfoPosition',
@@ -430,7 +436,7 @@ const useUIStore = defineStore('ui', {
                     .filter(
                         (error) =>
                             // we only add the errors that are not already present in the store
-                            ![...this.errors].some((otherError) => error.isEquals(otherError))
+                            ![...this.errors].some((otherError) => error.isEqual(otherError))
                     )
                     .forEach((error) => {
                         this.errors.add(error)
