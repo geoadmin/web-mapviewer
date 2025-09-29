@@ -375,9 +375,9 @@ export function geoadminStyleFunction(
     const editableFeature = feature.get('editableFeature')
 
     const styleConfig = {
-        fillColor: editableFeature?.fillColor ?? RED.fill,
-        strokeColor: editableFeature?.strokeColor ?? RED.fill,
-        textColor: editableFeature?.textColor ?? RED.fill,
+        fillColor: editableFeature?.fillColor ?? RED,
+        strokeColor: editableFeature?.strokeColor ?? RED,
+        textColor: editableFeature?.textColor ?? RED,
     }
 
     // Tells if we are drawing a polygon for the first time, in this case we want
@@ -408,15 +408,15 @@ export function geoadminStyleFunction(
                 editableFeature?.featureType === EditableFeatureTypes.MEASURE
                     ? dashedRedStroke
                     : new Stroke({
-                          color: styleConfig.fillColor.fill,
-                          width: 3,
-                      }),
+                        color: styleConfig.fillColor.fill,
+                        width: 3,
+                    }),
             // filling a polygon with white if first time being drawn (otherwise fallback to user set color)
             fill: isDrawing
                 ? whiteSketchFill
                 : new Fill({
-                      color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
-                  }),
+                    color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
+                }),
             zIndex: 10,
         }),
     ]
@@ -447,8 +447,8 @@ export function geoadminStyleFunction(
                 fill: isDrawing
                     ? whiteSketchFill
                     : new Fill({
-                          color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
-                      }),
+                        color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
+                    }),
                 zIndex: 0,
                 stroke: new Stroke({
                     color: styleConfig.strokeColor.fill,

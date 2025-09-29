@@ -237,6 +237,7 @@ function containsLayer(layers, searchText) {
     }
     return match
 }
+
 </script>
 
 <template>

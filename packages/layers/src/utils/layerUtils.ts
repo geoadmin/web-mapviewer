@@ -583,6 +583,7 @@ function makeGeoAdminGeoJSONLayer(values: Partial<GeoAdminGeoJSONLayer>): GeoAdm
     return layer as GeoAdminGeoJSONLayer
 }
 
+// TODO: this does not return a GeoAdminGroupOfLayers object because for instanceof to work it needs to be an instance of a class and not an object with the type of an interface
 /**
  * Construct a GeoAdminGroupOfLayers
  *

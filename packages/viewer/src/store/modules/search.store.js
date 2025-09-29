@@ -334,7 +334,7 @@ export default {
 }
 
 function zoomToEntry(entry, dispatch, dispatcher, dispatcherSelectResultEntry) {
-    if (entry.extent.length === 2) {
+    if (entry.extent?.length === 2) {
         dispatch('zoomToExtent', { extent: entry.extent, dispatcher })
     } else if (entry.zoom) {
         dispatch('setCenter', {

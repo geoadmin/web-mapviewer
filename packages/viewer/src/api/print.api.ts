@@ -195,9 +195,9 @@ class GeoAdminCustomizer extends BaseCustomizer {
         if (scale && anchor && anchor.length > 0 && size && size.length > 0) {
             symbolizer.graphicXOffset = symbolizer.graphicXOffset
                 ? adjustWidth(
-                      (size[0]! / 2 - anchor[0]! + symbolizer.graphicXOffset) * scale,
-                      this.printResolution
-                  )
+                    (size[0]! / 2 - anchor[0]! + symbolizer.graphicXOffset) * scale,
+                    this.printResolution
+                )
                 : 0
             // if there is no graphicYOffset, we can't print points
             symbolizer.graphicYOffset = Math.round(1000 * (symbolizer.graphicYOffset ?? 0)) / 1000
@@ -587,6 +587,8 @@ async function transformOlMapToPrintParams(olMap: Map, config: PrintConfig): Pro
                     }
                 }),
             }
+        } else {
+            spec.attributes.printLegend = 0
         }
         return spec
     } catch (error) {

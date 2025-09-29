@@ -504,14 +504,13 @@ export default async function search(config: SearchConfig): Promise<SearchResult
         cancelTokenSource.cancel('new search query')
     }
     cancelTokenSource = axios.CancelToken.source()
-
     const allResults: SearchResult[] = [
-        ...(await searchLayers(queryString, lang, cancelTokenSource.token, limit)),
+        ...(await searchLayers(queryString, lang, cancelTokenSource?.token, limit)),
         ...(await searchLocation(
             outputProjection,
             queryString,
             lang,
-            cancelTokenSource.token,
+            cancelTokenSource?.token,
             limit
         )),
     ]

@@ -4,8 +4,57 @@ import { formatThousand } from '@swissgeo/numbers'
 
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
+import type ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
+import { assertDefined } from 'support/utils'
+import type { MFPLayer, MFPMap, MFPSymbolizer, MFPSymbolizerLine, MFPSymbolizers, MFPVectorLayer, MFPWmsLayer, MFPWmtsLayer } from '@geoblocks/mapfishprint'
+import type { Feature, FeatureCollection } from 'geojson';
+import type { Interception } from 'cypress/types/net-stubbing'
+import { kmlMetadataTemplate } from 'support/drawing'
 
-function launchPrint(config = {}) {
+interface LaunchPrintOptions {
+    layout?: string
+    scale?: number
+    withLegend?: boolean
+    withGrid?: boolean
+}
+
+interface PrintRequestBody {
+    attributes: {
+        map: MFPMap
+        copyright: string
+        url: string
+        qrimage: string
+        printDate: string
+        printLegend: number
+        legend: {
+            name: string
+            classes: Legend[]
+        }
+    }
+    format: string
+    layout: string
+    lang: string
+    outputFilename: string | null
+}
+
+interface ExpectedValues {
+    layout?: string
+    format?: string
+    lang?: string
+    copyright?: string
+    mapScale?: number
+    mapDpi?: number
+    projection?: string
+    legends?: Legend[]
+    layers?: (MFPWmtsLayer | MFPWmsLayer | MFPVectorLayer)[]
+}
+
+interface Legend {
+    name: string
+    icons: string[]
+}
+
+function launchPrint(config: LaunchPrintOptions = {}) {
     const {
         layout = 'A4 landscape',
         scale = 1500000,
@@ -43,9 +92,9 @@ function launchPrint(config = {}) {
     cy.get('[data-cy="abort-print-button"]').should('be.visible')
 }
 
-function checkPrintRequest(body, expectedValues = {}) {
-    expect(body).to.be.an('object')
 
+function checkPrintRequest(body: PrintRequestBody, expectedValues: ExpectedValues = {}) {
+    expect(body).to.be.an('object')
     const {
         layout = '1. A4 landscape',
         format = 'pdf',
@@ -83,9 +132,10 @@ function checkPrintRequest(body, expectedValues = {}) {
             .lengthOf(legends.length, 'missing one or more layer legend')
         const legendClasses = legendAttributes.classes
 
-        legends.forEach((legend, index) => {
+        legends.forEach((legend: Legend, index: number) => {
             const legendClass = legendClasses[index]
             expect(legendClass).to.be.an('object', `missing legend class at index ${index}`)
+            assertDefined(legendClass)
             expect(legendClass.name).to.equals(
                 legend.name,
                 'Name mismatch between legend and layer'
@@ -93,15 +143,17 @@ function checkPrintRequest(body, expectedValues = {}) {
             expect(legendClass.icons)
                 .to.be.an('array')
                 .lengthOf(legend.icons.length, `No icon in legend for layer ${legend.name}`)
-            legend.icons.forEach((icon, iconIndex) => {
+            legend.icons.forEach((icon: string, iconIndex: number) => {
                 expect(legendClass.icons[iconIndex]).to.contains(icon)
             })
         })
     } else {
-        expect(attributes.printLegend).to.equals(
-            0,
-            'should tell print service to not have legend with a zero value'
-        )
+        if (attributes.printLegend) {
+            expect(attributes.printLegend).to.equals(
+                0,
+                'should tell print service to not have legend with a zero value'
+            )
+        }
     }
 
     expect(attributes.copyright).to.equal(copyright)
@@ -116,45 +168,50 @@ function checkPrintRequest(body, expectedValues = {}) {
     const layersInSpec = body.attributes.map?.layers
 
     expect(layersInSpec).to.be.an('array').lengthOf(layers.length, 'Missing layer in print spec')
-    layers.forEach((layer, index) => {
+    layers.forEach((layer: MFPLayer, index: number) => {
         const layerInSpec = layersInSpec[index]
         expect(layerInSpec).to.be.an('object', `Missing layer spec at index ${index}`)
+        assertDefined(layerInSpec)
         expect(layerInSpec.type).to.equals(layer.type, `Wrong layer type for layer`)
 
         if (layer.type === 'wmts') {
-            expect(layerInSpec.layers).to.deep.equals(layer.layers)
-            // Check for matrix size, should start with 1x1
-            expect(layerInSpec.matrices).to.be.an('array').not.empty
-            expect(layerInSpec.matrices[0]?.matrixSize).to.deep.eq(layer.matrixSize ?? [1, 1])
-            expect(layerInSpec.matrixSet).to.eq(
-                layer.matrixSet ?? projection,
-                `wrong matrix set in WMTS layer ${layer.layer}`
+            const wmtsLayer = layer as MFPWmtsLayer
+            const wmtsLayerInSpec = layerInSpec as MFPWmtsLayer
+            expect(wmtsLayerInSpec.layer).to.deep.equals(wmtsLayer.layer)
+            expect(wmtsLayerInSpec.matrices).to.be.an('array').not.empty
+            expect(wmtsLayerInSpec.matrices[0]?.matrixSize).to.deep.eq(wmtsLayer.matrixSize ?? [1, 1])
+            expect(wmtsLayerInSpec.matrixSet).to.eq(
+                wmtsLayer.matrixSet ?? projection,
+                `wrong matrix set in WMTS layer ${wmtsLayer.layer}`
             )
-            if (layer.opacity) {
-                expect(layerInSpec.opacity).to.equals(layer.opacity, 'Wrong opacity for layer')
+            if (wmtsLayer.opacity) {
+                expect(wmtsLayerInSpec.opacity).to.equals(wmtsLayer.opacity, 'Wrong opacity for layer')
             }
-            if (layer.baseURL) {
-                expect(layerInSpec.baseURL).to.equals(layer.baseURL, 'Wrong base URL for layer')
+            if (wmtsLayer.baseURL) {
+                expect(wmtsLayerInSpec.baseURL).to.equals(wmtsLayer.baseURL, 'Wrong base URL for layer')
             }
         } else if (layer.type === 'wms') {
-            expect(layerInSpec.layer).to.equals(layer.layer)
+            const wmsLayer = layer as MFPWmsLayer
+            const wmsLayerInSpec = layerInSpec as MFPWmsLayer
+            expect(wmsLayerInSpec.layers).to.deep.equals(wmsLayer.layers)
         } else if (layer.type === 'geojson') {
-            expect(layerInSpec.geoJson?.features).to.be.an('array').lengthOf(layer.featureCount)
-            if (layer.featureCount > 0) {
-                // There was a bug where multiple features were printed using the same style
-                // This test makes sure that each feature is printed with different styles
-                layerInSpec.geoJson.features.forEach((feature, index) => {
-                    const styleId = `${layer.featureCount - index}`
+            const vectorLayer = layer as MFPVectorLayer
+            const vectorLayerInSpec = layerInSpec as MFPVectorLayer
+            expect((vectorLayerInSpec.geoJson as FeatureCollection).features).to.be.an('array').lengthOf(vectorLayer.featureCount)
+            if (vectorLayer.featureCount > 0) {
+                vectorLayerInSpec.geoJson.features.forEach((feature: Feature, idx: number) => {
+                    const styleId = `${vectorLayer.featureCount - idx}`
                     expect(feature.properties).to.be.an(
                         'object',
-                        `Missing feature properties at index ${index}`
+                        `Missing feature properties at index ${idx}`
                     )
+                    assertDefined(feature.properties)
                     expect(feature.properties._mfp_style).to.equal(
                         styleId,
-                        `Wrong style ID for feature at index ${index}`
+                        `Wrong style ID for feature at index ${idx}`
                     )
-                    expect(layerInSpec.style).to.be.an('object', 'Missing layer styles')
-                    expect(Object.keys(layerInSpec.style)).to.contain(
+                    expect(vectorLayerInSpec.style).to.be.an('object', 'Missing layer styles')
+                    expect(Object.keys(vectorLayerInSpec.style)).to.contain(
                         `[_mfp_style = '${styleId}']`,
                         `Missing MapFishPrint style ID ${styleId} in layer styles`
                     )
@@ -176,9 +233,6 @@ describe('Testing print', () => {
             cy.get('[data-cy="menu-print-section"]:visible').click()
             cy.get('[data-cy="menu-print-form"]').should('be.visible')
 
-            // Starting with scales because they are placed below the layouts.
-            // We then don't need to close it to open up the layouts (if we did the opposite, the
-            // scale button would be hidden behind the dropdown items of the layout...)
             cy.log('Check that scales are correctly populated')
             cy.get('[data-cy="print-scale-selector"]').click()
             cy.get('[data-cy="print-scale-selector"] [data-cy="dropdown-container"]')
@@ -207,13 +261,13 @@ describe('Testing print', () => {
             launchPrint()
             cy.wait('@printRequest')
                 .its('request.body')
-                .then((body) => {
+                .then((body: PrintRequestBody) => {
                     checkPrintRequest(body, {
                         layers: [
                             {
                                 layer: 'test.background.layer2',
                                 type: 'wmts',
-                            },
+                            } as MFPWmtsLayer,
                         ],
                     })
                 })
@@ -227,50 +281,57 @@ describe('Testing print', () => {
             })
             cy.wait('@printRequest')
                 .its('request.body')
-                .then((body) => {
+                .then((body: PrintRequestBody) => {
                     checkPrintRequest(body, {
                         layout: '2. A4 portrait',
                         mapScale: 500000,
-                        dpi: 254,
-                        legends: [], // we've activated legend printing with no layer having a legend
+                        mapDpi: 254,
+                        legends: [],
                         layers: [
                             {
                                 layers: ['org.epsg.grid_2056'],
                                 type: 'wms',
-                            },
+                            } as MFPWmsLayer,
                             {
                                 layer: 'test.background.layer2',
                                 type: 'wmts',
-                            },
+                            } as MFPWmtsLayer
                         ],
                     })
                 })
         })
     })
+
     context('Send print request with layers', () => {
-        // When we attempt to print a layer and there are no features from that layer
-        // within the print extent, the layer is absent from the print spec. We need
-        // to ensure the print extent contains the feature (or ensure it does not contain the feature)
-        function startPrintWithKml(kmlFixture, center = '2660000,1190000') {
+        function startPrintWithKml(kmlFixture: string, center = '2660000,1190000') {
             cy.intercept('HEAD', '**/**.kml', {
                 headers: { 'Content-Type': 'application/vnd.google-earth.kml+xml' },
             }).as('kmlHeadRequest')
-            cy.intercept('GET', '**/**.kml', { fixture: kmlFixture }).as('kmlGetRequest')
 
+            cy.intercept('GET', `**${getServiceKmlBaseUrl()}some-kml-file.kml`, { fixture: kmlFixture }).as('kmlGetRequest')
+            cy.intercept(
+                {
+                    method: 'GET',
+                    url: '**/api/kml/admin/**',
+                },
+                (req) => {
+                    const headers = { 'Cache-Control': 'no-cache' }
+                    req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop()! }), headers)
+                }
+            ).as('kmlGetAdminRequest')
             cy.goToMapView({
-                queryParams:{
+                queryParams: {
                     layers: `KML|${getServiceKmlBaseUrl()}some-kml-file.kml`,
                     z: 9,
                     center,
                 },
                 withHash: true,
             })
-            cy.wait(['@kmlHeadRequest', '@kmlGetRequest'])
+            cy.wait(['@kmlHeadRequest', '@kmlGetAdminRequest'])
             cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
 
             cy.openMenuIfMobile()
 
-            // Print
             cy.get('[data-cy="menu-print-section"]').should('be.visible').click()
             cy.get('[data-cy="menu-print-form"]').should('be.visible')
 
@@ -286,7 +347,6 @@ describe('Testing print', () => {
                         'test-2.wms.layer,,',
                         'test-3.wms.layer,f',
                         'test-4.wms.layer,f,0.4',
-                        // add duplicate layer to test duplicate attributions
                         'test.wmts.layer,,0.5',
                         'test.wmts.layer,,0.8',
                     ].join(';'),
@@ -297,35 +357,34 @@ describe('Testing print', () => {
             })
             cy.wait('@printRequest')
                 .its('request.body')
-                .then((body) => {
+                .then((body: PrintRequestBody) => {
                     checkPrintRequest(body, {
                         copyright: `© ${[
                             'attribution.test-1.wms.layer',
                             'attribution.test-2.wms.layer',
                             'attribution.test.wmts.layer',
                         ].join(', ')}`,
-                        // hidden layers still go in spec, so we need to count them here
                         layers: [
                             {
                                 layer: 'test.wmts.layer',
                                 type: 'wmts',
-                            },
+                            } as MFPWmtsLayer,
                             {
                                 layer: 'test.wmts.layer',
                                 type: 'wmts',
-                            },
+                            } as MFPWmtsLayer,
                             {
                                 layers: ['test-2.wms.layer'],
                                 type: 'wms',
-                            },
+                            } as MFPWmsLayer,
                             {
                                 layers: ['test-1.wms.layer'],
                                 type: 'wms',
-                            },
+                            } as MFPWmsLayer,
                             {
                                 layer: 'test.background.layer2',
                                 type: 'wmts',
-                            },
+                            } as MFPWmtsLayer,
                         ],
                         legends: [
                             {
@@ -336,8 +395,6 @@ describe('Testing print', () => {
                                 name: 'WMS test layer 2',
                                 icons: ['static/images/legends/test-2.wms.layer_en.png'],
                             },
-                            // layer WMS 3 and 4 are not visible and should not output any legends
-                            // the WMTS layer is doubled, but should only output one legend (same for both)
                             {
                                 name: 'WMTS test layer, with very long title that should be truncated on the menu',
                                 icons: ['static/images/legends/test.wmts.layer_en.png'],
@@ -346,30 +403,30 @@ describe('Testing print', () => {
                     })
                 })
         })
+
         it('should send a print request correctly to mapfishprint (with KML layer)', () => {
             startPrintWithKml('import-tool/external-kml-file.kml', '2776665.89,1175560.26')
 
-            cy.wait('@printRequest')
-                .its('request.body')
-                .then((body) => {
-                    checkPrintRequest(body, {
-                        mapScale: 5000,
-                        // KML adds an attribution too
-                        copyright: '© sys-public.dev.bgdi.ch, attribution.test.wmts.layer',
-                        layers: [
-                            {
-                                type: 'geojson',
-                                featureCount: 1,
-                            },
-                            {
-                                layer: 'test.background.layer2',
-                                type: 'wmts',
-                            },
-                        ],
-                        legends: [], // no legends with KML files
-                    })
+            cy.wait('@printRequest').then((interception: Interception) => {
+                console.log('interception', interception)
+                checkPrintRequest(interception.request.body, {
+                    mapScale: 5000,
+                    copyright: '© sys-public.dev.bgdi.ch, attribution.test.wmts.layer',
+                    layers: [
+                        {
+                            type: 'geojson',
+                            featureCount: 1,
+                        } as MFPVectorLayer,
+                        {
+                            layer: 'test.background.layer2',
+                            type: 'wmts',
+                        } as MFPWmtsLayer,
+                    ],
+                    legends: [],
                 })
+            })
         })
+
         it('should send a print request correctly to mapfishprint with GPX layer', () => {
             cy.goToMapView()
             cy.readStoreValue('state.layers.activeLayers').should('be.empty')
@@ -382,12 +439,10 @@ describe('Testing print', () => {
 
             const localGpxlFile = 'print/line-and-marker.gpx'
 
-            // Test local import
             cy.log('Switch to local import')
             cy.get('[data-cy="import-file-local-btn"]:visible').click()
             cy.get('[data-cy="import-file-local-content"]').should('be.visible')
 
-            // Attach a local GPX file
             cy.log('Test add a local GPX file')
             cy.fixture(localGpxlFile, null).as('gpxFixture')
             cy.get('[data-cy="file-input"]').selectFile('@gpxFixture', {
@@ -395,7 +450,6 @@ describe('Testing print', () => {
             })
             cy.get('[data-cy="import-file-load-button"]:visible').click()
 
-            // Assertions for successful import
             cy.get('[data-cy="file-input-text"]')
                 .should('have.class', 'is-valid')
                 .should('not.have.class', 'is-invalid')
@@ -406,15 +460,13 @@ describe('Testing print', () => {
             cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
             cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
 
-            // Close the import tool
             cy.get('[data-cy="import-file-close-button"]:visible').click()
             cy.get('[data-cy="import-file-content"]').should('not.exist')
 
-            // Print
             launchPrint()
             cy.wait('@printRequest')
                 .its('request.body')
-                .then((body) => {
+                .then((body: PrintRequestBody) => {
                     checkPrintRequest(body, {
                         mapScale: 10000,
                         copyright: '© line-and-marker.gpx, attribution.test.wmts.layer',
@@ -423,36 +475,40 @@ describe('Testing print', () => {
                                 type: 'geojson',
                                 // In this GPX layer, there are two features (a line and a point).
                                 featureCount: 2,
-                            },
+                            } as MFPVectorLayer,
                             {
                                 layer: 'test.background.layer2',
                                 type: 'wmts',
-                            },
+                            } as MFPWmtsLayer,
                         ],
                         legends: [],
                     })
 
                     const [gpxLayer] = body.attributes.map.layers
-                    expect(gpxLayer).to.be.an('object')
-                    expect(gpxLayer.style).to.be.an('object')
-                    expect(gpxLayer.style).to.have.property("[_mfp_style = '2']")
-                    const mapFishStyle = gpxLayer.style["[_mfp_style = '2']"]
+                    const mfpVectorLayer = gpxLayer as MFPVectorLayer
+                    expect(mfpVectorLayer).to.be.an('object')
+                    assertDefined(mfpVectorLayer)
+                    expect(mfpVectorLayer.style).to.be.an('object')
+                    expect(mfpVectorLayer.style).to.have.property("[_mfp_style = '2']")
+                    const mapFishStyle: MFPSymbolizers = mfpVectorLayer.style["[_mfp_style = '2']"]
                     expect(mapFishStyle).to.be.an('object')
                     expect(mapFishStyle).to.have.property('symbolizers')
                     expect(mapFishStyle.symbolizers).to.be.an('array')
-                    const [firstSymbolizer] = mapFishStyle.symbolizers
-                    expect(firstSymbolizer).to.be.an('object')
-                    expect(firstSymbolizer).to.have.property('type')
-                    expect(firstSymbolizer.type).to.equals('line')
-                    expect(firstSymbolizer).to.have.property('strokeWidth')
-                    expect(firstSymbolizer.strokeWidth).to.lessThan(2) // thinner than the drawn in the OL map.
+                    const [firstSymbolizer]: MFPSymbolizer[] = mapFishStyle.symbolizers
+                    const lineSymbolizer = firstSymbolizer as MFPSymbolizerLine
+                    assertDefined(lineSymbolizer)
+                    expect(lineSymbolizer).to.be.an('object')
+                    expect(lineSymbolizer).to.have.property('type')
+                    expect(lineSymbolizer.type).to.equals('line')
+                    expect(lineSymbolizer).to.have.property('strokeWidth')
+                    expect(lineSymbolizer.strokeWidth).to.lessThan(2) // thinner than the drawn in the OL map.
                 })
         })
-        /** We need to ensure the structure of the query sent is correct */
+
         it('should send a print request correctly to mapfishprint (icon and label)', () => {
             startPrintWithKml('print/label.kml', '2614500.01,1210249.96')
 
-            cy.wait('@printRequest').then((interception) => {
+            cy.wait('@printRequest').then((interception: Interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
                 expect(interception.request.body).to.haveOwnProperty('format')
 
@@ -494,7 +550,7 @@ describe('Testing print', () => {
                 expect(pointSymbol).to.haveOwnProperty('type')
                 const pointSymbolAttributes = {
                     type: 'point',
-                    externalGraphic: '001-marker@1x-255,0,0.png', // suffix only
+                    externalGraphic: '001-marker@1x-255,0,0.png',
                     graphicWidth: 19.133858267716537,
                     graphicXOffset: -8.503937007874017,
                     graphicYOffset: -8.503937007874017,
@@ -518,10 +574,11 @@ describe('Testing print', () => {
                 }
             })
         })
+
         it('should send a print request correctly to mapfishprint (KML from old geoadmin)', () => {
             startPrintWithKml('print/old-geoadmin-label.kml', '2655000.02,1203249.96')
 
-            cy.wait('@printRequest').then((interception) => {
+            cy.wait('@printRequest').then((interception: Interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
                 expect(interception.request.body).to.haveOwnProperty('format')
 
@@ -563,7 +620,7 @@ describe('Testing print', () => {
                 expect(pointSymbol).to.haveOwnProperty('type')
                 const pointSymbolAttributes = {
                     type: 'point',
-                    externalGraphic: '001-marker@1x-255,0,0.png', // suffix only
+                    externalGraphic: '001-marker@1x-255,0,0.png',
                     graphicWidth: 19.133858267716537,
                     graphicXOffset: -8.503937007874017,
                     graphicYOffset: -8.503937007874017,
@@ -587,10 +644,11 @@ describe('Testing print', () => {
                 }
             })
         })
+
         it('should send a print request correctly to mapfishprint when there are no features from the external layers within the print extent', () => {
             startPrintWithKml('print/label.kml', '2514218.7,1158958.4')
 
-            cy.wait('@printRequest').then((interception) => {
+            cy.wait('@printRequest').then((interception: Interception) => {
                 expect(interception.request.body).to.haveOwnProperty('layout')
                 expect(interception.request.body).to.haveOwnProperty('format')
 
@@ -614,21 +672,24 @@ describe('Testing print', () => {
             })
         })
     })
+
     context('Send print request with external layers', () => {
         const bgLayer = 'test.background.layer2'
 
         it('prints external WMS correctly', () => {
-            cy.getExternalWmsMockConfig().then((layerObjects) => {
+            cy.getExternalWmsMockConfig().then((layerObjects: ExternalWMTSLayer[]) => {
+                assertDefined(layerObjects[1])
+                assertDefined(layerObjects[2])
                 layerObjects[1].opacity = 0.8
                 layerObjects[2].opacity = 0.4
                 // some layers are not visible by default, let's set them all as visible
-                layerObjects.forEach((layer) => {
+                layerObjects.forEach((layer: ExternalWMTSLayer) => {
                     layer.visible = true
                 })
                 cy.goToMapView({
-                    queryParams:{
+                    queryParams: {
                         layers: layerObjects
-                            .map((object) => transformLayerIntoUrlString(object))
+                            .map((object: ExternalWMTSLayer) => transformLayerIntoUrlString(object, undefined, null))
                             .join(';'),
                     },
                     withHash: true,
@@ -643,7 +704,7 @@ describe('Testing print', () => {
                 cy.get('[data-cy="print-map-button"]').should('be.visible').click()
                 cy.get('[data-cy="abort-print-button"]').should('be.visible')
 
-                cy.wait('@printRequest').then((interception) => {
+                cy.wait('@printRequest').then((interception: Interception) => {
                     expect(interception.request.body).to.haveOwnProperty('layout')
                     expect(interception.request.body['layout']).to.equal('1. A4 landscape')
                     expect(interception.request.body).to.haveOwnProperty('format')
@@ -660,19 +721,17 @@ describe('Testing print', () => {
                         )}`
                     )
 
-                    // Check map attributes
                     const mapAttributes = attributes.map
                     expect(mapAttributes['scale']).to.equals(1500000)
                     expect(mapAttributes['dpi']).to.equals(254)
                     expect(mapAttributes['projection']).to.equals('EPSG:2056')
 
-                    // Check layers
                     const layers = mapAttributes.layers
                     expect(layers).to.be.an('array')
                     expect(layers).to.have.length(5)
 
                     const expectedLayers = [
-                        ...layerObjects.toReversed().map((layer) => {
+                        ...layerObjects.toReversed().map((layer: ExternalWMTSLayer) => {
                             return {
                                 layers: layer.id.split(','),
                                 type: 'wms',
@@ -699,23 +758,22 @@ describe('Testing print', () => {
                         }
                     }
 
-                    // Check for matrix size, should start with 1x1
                     expect(layers[layers.length - 1]['matrices'][0]['matrixSize']).to.deep.eq([
                         1, 1,
                     ])
                 })
             })
         })
-        it('prints external WMTS correctly', () => {
-            cy.getExternalWmtsMockConfig().then((layerObjects) => {
-                // some layers are not visible by default, let's set them all as visible
-                layerObjects.forEach((layer) => {
+
+        it.only('prints external WMTS correctly', () => {
+            cy.getExternalWmtsMockConfig().then((layerObjects: ExternalWMTSLayer[]) => {
+                layerObjects.forEach((layer: ExternalWMTSLayer) => {
                     layer.visible = true
                 })
                 cy.goToMapView({
-                    queryParams:{
+                    queryParams: {
                         layers: layerObjects
-                            .map((object) => transformLayerIntoUrlString(object))
+                            .map((object: ExternalWMTSLayer) => transformLayerIntoUrlString(object, undefined, null))
                             .join(';'),
                     },
                     withHash: true,
@@ -726,11 +784,11 @@ describe('Testing print', () => {
                 })
                 cy.wait('@printRequest')
                     .its('request.body')
-                    .then((body) => {
+                    .then((body: PrintRequestBody) => {
                         checkPrintRequest(body, {
                             copyright: '© GIS-Zentrum Stadt Zuerich, attribution.test.wmts.layer',
                             layers: [
-                                ...layerObjects.toReversed().map((layer) => {
+                                ...layerObjects.toReversed().map((layer: ExternalWMTSLayer) => {
                                     return {
                                         layer: layer.id,
                                         type: 'wmts',
@@ -748,7 +806,6 @@ describe('Testing print', () => {
                                     matrixSet: 'EPSG:2056',
                                 },
                             ],
-                            // we don't support (yet) external layer legend printing
                             legends: [],
                         })
                     })

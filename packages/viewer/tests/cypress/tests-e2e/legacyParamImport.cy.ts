@@ -135,8 +135,10 @@ describe('Test on legacy param import', () => {
                         self: `${kmlServiceBaseUrl}/api/kml/admin/${kmlId}`,
                         kml: `${kmlServiceBaseUrl}/api/kml/files/${kmlId}`,
                     },
-                    created: '',
-                    updated: '',
+                    created: '2023-01-01T00:00:00+00:00',
+                    updated: '2023-01-01T00:00:00+00:00',
+                    author: 'testAuthor',
+                    author_version: 'testVersion',
                 })
             }).as('get-kml-metada-by-admin-id')
             cy.intercept(`**${kmlServiceAdminPath}/${kmlId}`, (request) => {
