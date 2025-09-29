@@ -18,8 +18,9 @@ import GeoJSON, { type GeoJSONGeometry, type GeoJSONGeometryCollection } from 'o
 import IconStyle from 'ol/style/Icon'
 import Style from 'ol/style/Style'
 
-import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
-import { extractOlFeatureCoordinates } from '@/api/features.api'
+import type { EditableFeature } from '@/api/features.api'
+
+import { EditableFeatureTypes, extractOlFeatureCoordinates, isLineOrMeasure } from '@/api/features.api'
 import { proxifyUrl } from '@/api/file-proxy.api'
 import { DEFAULT_TITLE_OFFSET, type DrawingIcon, type DrawingIconSet } from '@/api/icon.api'
 import { LOCAL_OR_INTERNAL_URL_REGEX } from '@/config/regex.config'
@@ -44,7 +45,7 @@ import { GeodesicGeometries } from '@/utils/geodesicManager'
 import KML, { getDefaultStyle } from '@/utils/ol/format/KML'
 import { parseRGBColor } from '@/utils/utils'
 import type { Size } from 'ol/size'
-import type { Geometry, SimpleGeometry } from 'ol/geom'
+import type { Geometry } from 'ol/geom'
 
 export const EMPTY_KML_DATA: string = '<kml></kml>'
 
@@ -502,7 +503,7 @@ export function getEditableFeatureFromKmlFeature(
         }
     }
 
-    return new EditableFeature({
+    return ({
         id: featureId,
         featureType: featureType as EditableFeatureTypes,
         title,
@@ -517,7 +518,7 @@ export function getEditableFeatureFromKmlFeature(
         iconSize,
         textPlacement,
         showDescriptionOnMap,
-    })
+    }) as EditableFeature
 }
 
 /**
@@ -669,7 +670,7 @@ export function parseKml(
                 editableFeature.coordinates = extractOlFeatureCoordinates(olFeature)
                 olFeature.set('editableFeature', editableFeature)
 
-                if (editableFeature.isLineOrMeasure()) {
+                if (isLineOrMeasure(editableFeature)) {
                     /* The featureStyleFunction uses the geometries calculated in the geodesic object
                     if present. The lines connecting the vertices of the geometry will appear
                     geodesic (follow the shortest path) in this case instead of linear (be straight on

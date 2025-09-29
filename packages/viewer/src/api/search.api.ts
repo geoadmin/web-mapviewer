@@ -400,7 +400,7 @@ function searchLayerFeaturesKMLGPX(
             const kmlLayer = currentLayer as KMLLayer
             return returnLayers.concat(
                 searchFeatures(
-                    parseKml(kmlLayer, outputProjection, resolution, iconSets),
+                    parseKml(kmlLayer, outputProjection, iconSets, resolution),
                     outputProjection,
                     queryString,
                     kmlLayer
