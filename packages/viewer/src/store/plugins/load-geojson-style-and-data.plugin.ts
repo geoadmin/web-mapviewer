@@ -11,7 +11,7 @@ import type {
 import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import type { ActionDispatcher } from '@/store/types'
-import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
+import type { PiniaPlugin } from 'pinia'
 import useLayersStore, { type AddLayerPayload } from '@/store/modules/layers.store.ts'
 import useUIStore from '@/store/modules/ui.store.ts'
 
@@ -172,10 +172,13 @@ async function loadAndUpdatePreviewLayer(layer: GeoAdminGeoJSONLayer): Promise<v
         titleColor: LogPreDefinedColor.Indigo,
         messages: [`Loading geojson data for preview layer ${layer.id}`],
     })
+
     const requester = 'load-preview-geojson-style-and-data'
     uiStore.setLoadingBarRequester(requester, dispatcher)
+
     const { pendingUpdatedLayer, controllers } = loadDataAndStyle(layer)
     pendingPreviewLayer = { controllers, layerId: layer.id }
+
     const updatedLayer = await pendingUpdatedLayer
     uiStore.clearLoadingBarRequester(requester, dispatcher)
 
@@ -203,38 +206,50 @@ function cancelLoadPreviewLayer(): void {
         pendingPreviewLayer = undefined
     }
 }
-async function addLayersSubscriber(layers: Layer[]): void {
+
+async function addLayersSubscriber(layers: Layer[]): Promise<void> {
+    const uiStore = useUIStore()
+    const layersStore = useLayersStore()
+
     const geoJsonLayers = layers
         .filter((layer) => layer.type === LayerType.GEOJSON)
         // filtering out multiple active layer entries for the same GeoJSON data
         // (only one request to get the data is necessary for all entries)
-        .filter(
-            (geoJsonLayer, index, self) =>
-                // checking that the index of the first layer matching our ID is the same index as the layer
-                // we are currently looping through, filtering it out otherwise (it's a duplicate)
-                self.indexOf(self.find((layer) => layer.id === geoJsonLayer.id)) === index
-        )
+        .filter((geoJsonLayer, index, self) => {
+            const _layer = self.find((layer) => layer.id === geoJsonLayer.id)
+
+            if (!_layer) {
+                return false
+            }
+
+            // checking that the index of the first layer matching our ID is the same index as the layer
+            // we are currently looping through, filtering it out otherwise (it's a duplicate)
+            return self.indexOf(_layer) === index
+        }) as GeoAdminGeoJSONLayer[] // for the rest we can be sure this is geojson
 
     const geoJsonLayersLoading = geoJsonLayers.filter((layer) => layer.isLoading)
     if (geoJsonLayersLoading.length > 0) {
         const requester = 'load-geojson-style-and-data'
-        store.dispatch('setLoadingBarRequester', { requester, ...dispatcher })
+
+        uiStore.setLoadingBarRequester(requester, dispatcher)
+
         const updatedLayers = await Promise.all(
-            geoJsonLayersLoading.map((layer) => loadDataAndStyle(layer).clone)
+            geoJsonLayersLoading.map((layer) => loadDataAndStyle(layer).pendingUpdatedLayer)
         )
         if (updatedLayers.length > 0) {
-            store.dispatch('updateLayers', { layers: updatedLayers, ...dispatcher })
+            layersStore.updateLayers(updatedLayers, dispatcher)
         }
-        store.dispatch('clearLoadingBarRequester', { requester, ...dispatcher })
+
+        uiStore.clearLoadingBarRequester(requester, dispatcher)
     }
 
     // after the initial load is done,
     // going through all layers that have an update delay and launching the routine to reload their data
     geoJsonLayers
-        .filter((layer) => layer.updateDelay > 0)
+        .filter((layer) => layer.updateDelay || 0 > 0)
         .forEach((layer) => {
             log.debug('starting auto-reload of data for layer', layer)
-            autoReloadData(store, layer)
+            autoReloadData(layer)
         })
 }
 
@@ -242,22 +257,25 @@ async function addLayersSubscriber(layers: Layer[]): void {
  * Load GeoJSON data and style whenever a GeoJSON layer is added (or does nothing if the layer was
  * already processed/loaded)
  */
-const loadGeojsonStyleAndDataPlugin: PiniaPlugin = (context: PiniaPluginContext): void => {
-    const { store } = context
-
+const loadGeojsonStyleAndDataPlugin: PiniaPlugin = (): void => {
     const layersStore = useLayersStore()
 
-    store.$onAction(({ name, args }) => {
+    layersStore.$onAction(({ name, args }) => {
         if (name === 'addLayer') {
             const payload: AddLayerPayload = args[0]
             if (payload?.layer) {
-                addLayersSubscriber([payload.layer])
+                addLayersSubscriber([payload.layer]).catch((error) => {
+                    log.error({ messages: [error] })
+                })
             }
         } else if (name === 'setLayers') {
             const layers = args[0] as Layer[]
-            addLayersSubscriber(layers)
+            addLayersSubscriber(layers).catch((error) => {
+                log.error({ messages: [error] })
+            })
         } else if (name === 'setPreviewLayer') {
-            const previewLayer = args[0] as Layer | string
+            const previewLayer = args[0]
+
             if (typeof previewLayer === 'string') {
                 const matchingLayers: Layer[] = layersStore.getLayersById(previewLayer)
                 matchingLayers
@@ -267,23 +285,43 @@ const loadGeojsonStyleAndDataPlugin: PiniaPlugin = (context: PiniaPluginContext)
                             (layer as GeoAdminGeoJSONLayer).isLoading
                     )
                     .forEach((layer) => {
-                        loadAndUpdatePreviewLayer(layer as GeoAdminGeoJSONLayer)
+                        loadAndUpdatePreviewLayer(layer as GeoAdminGeoJSONLayer).catch((error) => {
+                            log.error({
+                                title: 'Load Update preview layer',
+                                titleColor: LogPreDefinedColor.Indigo,
+                                messages: [`Error while loading preview layer ${layer.id}`, error],
+                            })
+                        })
                     })
+            } else if (previewLayer.type === LayerType.GEOJSON) {
+                loadAndUpdatePreviewLayer(previewLayer as GeoAdminGeoJSONLayer).catch((error) => {
+                    log.error({
+                        title: 'Load Update preview layer',
+                        titleColor: LogPreDefinedColor.Indigo,
+                        messages: [`Error while loading preview layer ${previewLayer.id}`, error],
+                    })
+                })
             }
-            loadAndUpdatePreviewLayer(store, mutation.payload.layer)
-        } else if (name === 'setPreviewLayer' && mutation.payload.layer === null) {
-            cancelLoadPreviewLayer()
-        } else if (name === 'removeLayerWithId' && intervalsByLayerId[mutation.payload.layerId]) {
+
+            // TODO it used to be the case that setPreviewLayer could be set to null
+            // not the typing forbids this, so we don't need this.
+            // question is, if the typing is correct over there
+            // } else if (name === 'setPreviewLayer' && mutation.payload.layer === null) {
+            //     cancelLoadPreviewLayer()
+        } else if (
+            name === 'removeLayer' &&
+            args[0].layerId &&
+            intervalsByLayerId[args[0].layerId]
+        ) {
             // when a layer is removed, if a matching interval is found, we clear it
-            clearAutoReload(mutation.payload.layerId)
-        } else if (name === 'removeLayerByIndex') {
+            clearAutoReload(args[0].layerId)
+        } else if (name === 'removeLayer') {
             // As we come after the work has been done,
             // we cannot get the layer ID removed from the store from the mutation's payload.
             // So we instead go through all intervals, and clear any that has no matching layer in the active layers
             Object.keys(intervalsByLayerId)
                 .filter(
-                    (layerId) =>
-                        !store.state.layers.activeLayers.some((layer) => layer.id === layerId)
+                    (layerId) => !layersStore.activeLayers.some((layer) => layer.id === layerId)
                 )
                 .forEach((layerId) => clearAutoReload(layerId))
         }
