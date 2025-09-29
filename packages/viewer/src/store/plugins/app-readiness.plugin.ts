@@ -1,4 +1,4 @@
-import type { PiniaPluginContext, PiniaPlugin } from 'pinia'
+import type { PiniaPlugin } from 'pinia'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { START_LOCATION, useRouter } from 'vue-router'
@@ -27,7 +27,7 @@ const dispatcher: ActionDispatcher = { name: 'app-readiness.plugin' }
  * - Have loaded the layers config
  * - Have loaded the topics config
  */
-export const appReadinessPlugin: PiniaPlugin = (context: PiniaPluginContext): void => {
+export const appReadinessPlugin: PiniaPlugin = (): void => {
     log.debug({
         title: '[App loading management plugin]',
         titleColor: LogPreDefinedColor.Yellow,
@@ -54,6 +54,7 @@ export const appReadinessPlugin: PiniaPlugin = (context: PiniaPluginContext): vo
                 const lang: string = readSingleParamAsString(queryParams, 'lang') ?? i18nStore.lang
                 const topic: string =
                     readSingleParamAsString(queryParams, 'topic') ?? topicsStore.current
+
                 log.info({
                     title: '[App loading management plugin]',
                     titleColor: LogPreDefinedColor.Yellow,
@@ -63,7 +64,9 @@ export const appReadinessPlugin: PiniaPlugin = (context: PiniaPluginContext): vo
                         from,
                     ],
                 })
+
                 topicsStore.changeTopic(topic, dispatcher)
+
                 if (isSupportedLang(lang)) {
                     i18nStore.setLang(lang, dispatcher)
                 } else {
@@ -82,7 +85,9 @@ export const appReadinessPlugin: PiniaPlugin = (context: PiniaPluginContext): vo
         })
     }
 
-    const unsubscribe = context.store.$subscribe(() => {
+    const unsubscribe = appStore.$subscribe(() => {
+        // TODO restrict the stores that we should subscribe to?
+
         // if the app is not ready yet, we go through the checklist
         if (!appStore.isReady) {
             if (

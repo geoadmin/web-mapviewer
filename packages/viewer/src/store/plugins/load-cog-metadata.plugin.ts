@@ -5,7 +5,7 @@ import type { CloudOptimizedGeoTIFFLayer, Layer } from '@swissgeo/layers'
 import { LayerType } from '@swissgeo/layers'
 
 import { CloudOptimizedGeoTIFFParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/CloudOptimizedGeoTIFFParser.class'
-import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
+import type { PiniaPlugin } from 'pinia'
 import useLayersStore from '@/store/modules/layers.store'
 import type { ActionDispatcher } from '@/store/types'
 import usePositionStore from '@/store/modules/position.store'
@@ -54,30 +54,34 @@ async function addLayerSubscriber(layer: Layer): Promise<void> {
  * This plugin aims to do just that, check if any added COG is missing its metadata, and if so run
  * the file parser on it to extract this extent.
  */
-const loadCOGMetadataPlugin: PiniaPlugin = (context: PiniaPluginContext) => {
-    const { store } = context
-    store.$onAction(({ name, args }) => {
-        const payload = args[0]
+const loadCOGMetadataPlugin: PiniaPlugin = () => {
+    const layersStore = useLayersStore()
 
-        if (name === 'addLayer' && 'layer' in payload) {
-            addLayerSubscriber(payload.layer).catch((error) => {
+    layersStore.$onAction(({ name, args }) => {
+        if (name === 'addLayer' && 'layer' in args && args[0].layer) {
+            addLayerSubscriber(args[0].layer).catch((error) => {
                 log.error({
                     title: 'Load COG metadata plugin',
                     titleColor: LogPreDefinedColor.Green,
-                    messages: ['Error while adding a COG layer', payload, error],
+                    messages: ['Error while adding a COG layer', args, error],
                 })
             })
         }
-        if (name === 'setLayers' && 'layers' in payload && Array.isArray(payload.layers)) {
-            payload.layers.forEach((layer: Layer) => {
+
+        if (name === 'setLayers' && 'layers' in args && Array.isArray(args[0])) {
+            // sometimes the setLayers can receive strings. This can't work
+            // with anything in here, so let's filter this away
+            const nonStringLayers = args[0].filter((layer) => !(typeof layer === 'string'))
+
+            for (const layer of nonStringLayers) {
                 addLayerSubscriber(layer).catch((error) => {
                     log.error({
                         title: 'Load COG metadata plugin',
                         titleColor: LogPreDefinedColor.Green,
-                        messages: ['Error while editing a COG layer', payload, error],
+                        messages: ['Error while editing a COG layer', args, error],
                     })
                 })
-            })
+            }
         }
     })
 }

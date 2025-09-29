@@ -30,7 +30,7 @@ import { useI18nStore } from '@/store/modules/i18n.store'
  *
  * @param store
  */
-const topicChangeManagementPlugin: PiniaPlugin = () => {
+const topicChangeManagement: PiniaPlugin = () => {
     const topicStore = useTopicsStore()
     const layersStore = useLayersStore()
     const i18nStore = useI18nStore()
@@ -128,4 +128,4 @@ const topicChangeManagementPlugin: PiniaPlugin = () => {
     })
 }
 
-export default topicChangeManagementPlugin
+export default topicChangeManagement

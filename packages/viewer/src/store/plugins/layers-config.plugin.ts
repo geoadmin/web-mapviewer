@@ -5,10 +5,11 @@ import { loadGeoadminLayersConfig } from '@swissgeo/layers/api'
 import { loadTopics, parseTopics } from '@/api/topics.api'
 import type { ActionDispatcher } from '@/store/types'
 import type { SupportedLang } from '@/modules/i18n'
-import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
+import type { PiniaPlugin } from 'pinia'
 import { useI18nStore } from '@/store/modules/i18n.store'
 import useTopicsStore from '@/store/modules/topics.store'
 import useLayersStore from '@/store/modules/layers.store'
+import useDebugStore from '@/store/modules/debug.store'
 
 const dispatcher: ActionDispatcher = { name: 'layers-config.plugin' }
 
@@ -85,11 +86,36 @@ async function loadLayersAndTopicsConfigAndDispatchToStore(
 }
 
 /** Reload (if necessary from the backend) the layers config on language change */
-const layersConfigPlugin: PiniaPlugin = (context: PiniaPluginContext): void => {
-    const { store } = context
+const layersConfigPlugin: PiniaPlugin = (): void => {
+    const i18nStore = useI18nStore()
+    const debugstore = useDebugStore()
 
-    store.$onAction(({ after, name }) => {
-        if (['setLang', 'setHasBaseUrlOverrides'].includes(name)) {
+    const afterAction = () => {
+        loadLayersAndTopicsConfigAndDispatchToStore(dispatcher)
+            .then(() => {
+                log.debug({
+                    title: 'Loading layers config',
+                    titleColor: LogPreDefinedColor.Sky,
+                    messages: ['Layers config for new lang loaded with success'],
+                })
+            })
+            .catch((err) => {
+                log.error({
+                    title: 'Loading layers config',
+                    titleColor: LogPreDefinedColor.Sky,
+                    messages: ['Error while loading the layers config for the new lang', err],
+                })
+            })
+    }
+
+    i18nStore.$onAction(({ after, name }) => {
+        if (name === 'setLang') {
+            after(afterAction)
+        }
+    })
+
+    debugstore.$onAction(({ after, name }) => {
+        if (name === 'setHasBaseUrlOverrides') {
             // in case of changes in URL overrides, we clear the layers config cache
             if (name === 'setHasBaseUrlOverrides') {
                 layersConfigByLang.en = []
@@ -98,26 +124,7 @@ const layersConfigPlugin: PiniaPlugin = (context: PiniaPluginContext): void => {
                 layersConfigByLang.it = []
                 layersConfigByLang.rm = []
             }
-            after(() => {
-                loadLayersAndTopicsConfigAndDispatchToStore(dispatcher)
-                    .then(() => {
-                        log.debug({
-                            title: 'Loading layers config',
-                            titleColor: LogPreDefinedColor.Sky,
-                            messages: ['Layers config for new lang loaded with success'],
-                        })
-                    })
-                    .catch((err) => {
-                        log.error({
-                            title: 'Loading layers config',
-                            titleColor: LogPreDefinedColor.Sky,
-                            messages: [
-                                'Error while loading the layers config for the new lang',
-                                err,
-                            ],
-                        })
-                    })
-            })
+            after(afterAction)
         }
     })
 }
