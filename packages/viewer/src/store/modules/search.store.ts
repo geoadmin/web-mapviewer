@@ -6,7 +6,7 @@ import {
     CoordinateSystem,
     CustomCoordinateSystem,
     LV03,
-    reprojectAndRound,
+    coordinatesUtils,
 } from '@swissgeo/coordinates'
 import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
@@ -133,7 +133,7 @@ export const useSearchStore = defineStore('search', {
                                 outputProjection: currentProjection,
                             })
                         } else {
-                            coordinates = reprojectAndRound(
+                            coordinates = coordinatesUtils.reprojectAndRound(
                                 extractedCoordinate.coordinateSystem,
                                 currentProjection,
                                 coordinates

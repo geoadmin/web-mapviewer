@@ -516,7 +516,9 @@ const useLayersStore = defineStore('layers', {
          *
          * NOTE: the layer array is automatically deep cloned
          */
-        setLayers(layers: Layer[] | Partial<Layer>[] | string[], dispatcher: ActionDispatcher) {
+        // NOTE trying to get rid of the union type for " Partial<Layer>[]" here
+        // TODO if possible, get rid of the string too man
+        setLayers(layers: Layer[] | string[], dispatcher: ActionDispatcher) {
             this.activeLayers = layers
                 .map((layer) => {
                     let clone: Layer | undefined
@@ -614,7 +616,11 @@ const useLayersStore = defineStore('layers', {
          *   to update and any property to update (partial update)
          * @param dispatcher
          */
-        updateLayers(layers: Partial<Layer>[], dispatcher: ActionDispatcher) {
+        updateLayers(
+            // we want at least `Layer`, it can contain more
+            layers: Partial<Layer> [],
+            dispatcher: ActionDispatcher
+        ) {
             layers
                 .map((layer) => {
                     if (typeof layer === 'object' && 'id' in layer && layer.id !== undefined) {
