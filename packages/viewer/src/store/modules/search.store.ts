@@ -1,5 +1,8 @@
-import type { SingleCoordinate } from '@swissgeo/coordinates'
-import type { GPXLayer, KMLLayer } from '@swissgeo/layers'
+import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
+import type { GeoAdminLayer, GPXLayer, KMLLayer, Layer } from '@swissgeo/layers'
+import type { Feature } from 'ol'
+import type { Geometry } from 'ol/geom'
+import type OLFeature from 'ol/Feature'
 
 import {
     constants,
@@ -8,6 +11,7 @@ import {
     LV03,
     coordinatesUtils,
 } from '@swissgeo/coordinates'
+
 import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
@@ -16,8 +20,7 @@ import { defineStore } from 'pinia'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import getFeature from '@/api/features.api'
-import LayerFeature from '@/api/features/LayerFeature.class'
+import getFeature, { extractOlFeatureCoordinates, type LayerFeature, type SelectableFeature } from '@/api/features.api'
 import reframe from '@/api/lv03Reframe.api'
 import search, {
     type LayerFeatureSearchResult,
@@ -26,6 +29,7 @@ import search, {
     type SearchResult,
     SearchResultTypes,
 } from '@/api/search.api'
+
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
 import useFeaturesStore from '@/store/modules/features.store'
 import { useI18nStore } from '@/store/modules/i18n.store'
@@ -34,7 +38,8 @@ import useMapStore from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'
 import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
 import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
-import { flattenExtent, normalizeExtent } from '@/utils/extentUtils'
+
+import { extentUtils } from '@swissgeo/coordinates'
 import { parseGpx } from '@/utils/gpxUtils'
 import { parseKml } from '@/utils/kmlUtils.ts'
 
@@ -91,8 +96,9 @@ export const useSearchStore = defineStore('search', {
 
             const currentProjection: CoordinateSystem = positionStore.projection
 
-            let results = []
+            let results: SearchResult[] = []
             this.query = query
+
             // only firing search if the query is longer than or equal to 2 chars
             if (query.length >= 2) {
                 // checking first if this corresponds to a set of coordinates (or a what3words)
@@ -172,8 +178,10 @@ export const useSearchStore = defineStore('search', {
                             queryString: query,
                             lang: i18nStore.lang,
                             layersToSearch: layerStore.visibleLayers,
-                            limit: this.autoSelect ? 1 : null,
+                            resolution: positionStore.resolution,
+                            limit: this.autoSelect ? 1 : undefined,
                         })
+
                         if (
                             (originUrlParam && results.length === 1) ||
                             (originUrlParam && this.autoSelect && results.length >= 1)
@@ -204,6 +212,9 @@ export const useSearchStore = defineStore('search', {
             const layerStore = useLayersStore()
             const mapStore = useMapStore()
             const positionStore = usePositionStore()
+            const featuresStore = useFeaturesStore()
+            const uiStore = useUIStore()
+
             if (entry.resultType === SearchResultTypes.LAYER) {
                 const layerEntry = entry as LayerSearchResult
                 if (layerStore.getActiveLayersById(layerEntry.layerId, false).length === 0) {
@@ -224,7 +235,8 @@ export const useSearchStore = defineStore('search', {
                         queryString: this.query,
                         lang: i18nStore.lang,
                         layersToSearch: layerStore.visibleLayers,
-                        limit: this.autoSelect ? 1 : null,
+                        resolution: positionStore.resolution,
+                        limit: this.autoSelect ? 1 : undefined,
                     })
                     if (resultIncludingLayerFeatures.length > this.results.length) {
                         this.results = resultIncludingLayerFeatures
@@ -260,51 +272,75 @@ export const useSearchStore = defineStore('search', {
                 // Automatically select the feature
                 try {
                     if (layerUtils.getTopicForIdentifyAndTooltipRequests(featureEntry.layer)) {
-                        const featuresStore = useFeaturesStore()
-                        const uiStore = useUIStore()
+
                         const feature = await getFeature(
-                            featureEntry.layer,
+                            // probably all feature results have to be geoadminlayer
+                            featureEntry.layer as GeoAdminLayer,
                             featureEntry.featureId,
                             positionStore.projection,
                             {
                                 lang: i18nStore.lang,
                                 screenWidth: uiStore.width,
                                 screenHeight: uiStore.height,
-                                mapExtent: flattenExtent(positionStore.extent),
+                                mapExtent: extentUtils.flattenExtent(positionStore.extent),
                                 coordinate: featureEntry.coordinate,
                             }
                         )
+
                         featuresStore.setSelectedFeatures(
                             {
                                 features: [feature],
                             },
                             dispatcher
                         )
+
                         uiStore.setFeatureInfoPosition(FeatureInfoPositions.TOOLTIP, dispatcher)
                     } else {
                         // For imported KML and GPX files
-                        let features = []
+                        let features: Feature[] = []
+
                         if (featureEntry.layer.type === LayerType.KML) {
                             const kmlLayer: KMLLayer = featureEntry.layer as KMLLayer
-                            features = parseKml(kmlLayer, positionStore.projection, [])
+
+                            features = parseKml(
+                                kmlLayer,
+                                positionStore.projection,
+                                [],
+                                positionStore.resolution
+                            )
                         } else if (featureEntry.layer.type === LayerType.GPX) {
                             const gpxLayer = featureEntry.layer as GPXLayer
-                            features = parseGpx(gpxLayer.gpxData, positionStore.projection)
+
+                            if (gpxLayer.gpxData) {
+                                features =
+                                    parseGpx(gpxLayer.gpxData, positionStore.projection) || []
+                            } else {
+                                log.warn({
+                                    messages: [`Unable to parse GPX layer because of missing Data`],
+                                })
+                            }
                         }
+
                         const layerFeatures = features
-                            .map((feature) => createLayerFeature(feature, entry.layer))
-                            .filter((feature) => !!feature && feature.data.title === entry.title)
-                        dispatch('setSelectedFeatures', {
-                            features: layerFeatures,
-                            dispatcher,
-                        })
-                        dispatch('setFeatureInfoPosition', {
-                            position: FeatureInfoPositions.TOOLTIP,
-                            ...dispatcher,
-                        })
+                            .map((feature) => createLayerFeature(feature, featureEntry.layer))
+                            .filter((feature) => !!feature)
+
+                        if (layerFeatures) {
+                            featuresStore.setSelectedFeatures(
+                                {
+                                    features: layerFeatures,
+                                },
+                                dispatcher
+                            )
+
+                            uiStore.setFeatureInfoPosition(
+                                FeatureInfoPositions.TOOLTIP,
+                                dispatcher
+                            )
+                        }
                     }
                 } catch (error) {
-                    log.error('Error getting feature:', error)
+                    log.error('Error getting feature:', { messages: [error]})
                 }
             }
             if (this.autoSelect) {
@@ -325,23 +361,31 @@ export const useSearchStore = defineStore('search', {
  * @returns The selected search result for autoselection.
  */
 function getResultForAutoselect(results: SearchResult[]): SearchResult {
-    if (results.length === 1) {
+    if (results.length === 1 && results[0]) {
         return results[0]
     }
+
     // Try to find a result with resultType LOCATION
     const locationResult = results.find(
         (result) => result.resultType === SearchResultTypes.LOCATION
     )
 
     // If a location result is found, return it; otherwise, return the first result
-    return locationResult ?? results[0]
+    return locationResult ?? results[0]! // the outer function established that this element should exist
 }
 
-function createLayerFeature(olFeature: Feature, layer) {
-    if (!olFeature.getGeometry()) {
+function createLayerFeature(olFeature: OLFeature<Geometry>, layer: Layer): SelectableFeature<false> | null {
+    const geometry = olFeature.getGeometry()
+
+    if (!geometry) {
         return null
     }
-    return new LayerFeature({
+
+    const extent = extentUtils.normalizeExtent(geometry.getExtent() as FlatExtent)
+
+    const coordinates = extractOlFeatureCoordinates(olFeature)
+
+    return {
         layer: layer,
         id: olFeature.getId(),
         title:
@@ -358,10 +402,12 @@ function createLayerFeature(olFeature: Feature, layer) {
             title: olFeature.get('name'),
             description: olFeature.get('description'),
         },
-        coordinates: olFeature.getGeometry().getCoordinates(),
-        geometry: new GeoJSON().writeGeometryObject(olFeature.getGeometry()),
-        extent: normalizeExtent(olFeature.getGeometry().getExtent()),
-    })
+        coordinates,
+        geometry: new GeoJSON().writeGeometryObject(geometry),
+        extent,
+        isEditable: false,
+        popupDataCanBeTrusted: false
+    } as LayerFeature
 }
 
 export default useSearchStore

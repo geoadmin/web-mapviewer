@@ -469,7 +469,7 @@ interface SearchConfig {
     layersToSearch?: Layer[]
     /** The maximum number of results to return */
     limit?: number
-    iconSets: DrawingIconSet[]
+    iconSets?: DrawingIconSet[]
 }
 
 let cancelTokenSource: CancelTokenSource | undefined
@@ -483,6 +483,7 @@ export default async function search(config: SearchConfig): Promise<SearchResult
         limit,
         iconSets = [],
     } = config
+
     if (!outputProjection) {
         const errorMessage = `A valid output projection is required to start a search request`
         log.error(errorMessage)

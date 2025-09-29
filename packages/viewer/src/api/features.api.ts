@@ -1,4 +1,4 @@
-import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
+import type { FlatExtent, NormalizedExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import { allCoordinateSystems, CoordinateSystem, extentUtils, LV95 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import axios, { type AxiosResponse } from 'axios'
@@ -50,7 +50,7 @@ export interface SelectableFeature<IsEditable extends boolean> {
     /** A description of this feature. Cannot be HTML content (only text). */
     description?: string
     /** Extent of this feature (if any) expressed as [minX, minY, maxX, maxY]. */
-    extent?: FlatExtent
+    extent?: NormalizedExtent,
     /** GeoJSON representation of this feature (if it has a geometry, for points it isn't necessary). */
     geometry?: Geometry
     /** Whether this feature is editable when selected (color, size, etc...). */
