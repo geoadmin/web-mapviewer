@@ -306,6 +306,7 @@ export interface KMLLayer extends Layer {
      * referenced inside the KML (e.g., icon, image, ...), so that they are available "offline"
      */
     internalFiles: Record<string, ArrayBuffer>
+    extentProjection?: CoordinateSystem
 }
 
 export interface GPXLink {
