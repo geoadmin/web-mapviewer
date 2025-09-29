@@ -17,7 +17,6 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { ErrorMessage } from '@swissgeo/log/Message'
 
 import type { ActionDispatcher } from '@/store/types'
-import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 import usePositionStore from '@/store/modules/position.store'
 import type { SupportedLang } from '@/modules/i18n'
 import { useI18nStore } from '@/store/modules/i18n.store'
@@ -91,7 +90,7 @@ async function updateExternalLayer<
                 opacity: layer.opacity,
                 isVisible: layer.isVisible,
                 customAttributes: layer.customAttributes,
-            },
+            } as ExternalLayerType, // TODO unsure here
             ignoreErrors: false,
         })
         if (!updated) {
@@ -145,25 +144,43 @@ async function updateExternalLayer<
     }
 }
 
+const externalLayerFilter = (layer: Layer): boolean => {
+    return (
+        layer.isExternal &&
+        layer.isLoading &&
+        ![LayerType.KML, LayerType.GPX, LayerType.GEOJSON].includes(layer.type)
+    )
+}
+
 /** Load External layers attributes (title, abstract, extent, attributions, ...) on layer added */
-const loadExternalLayerAttributes: PiniaPlugin = (context: PiniaPluginContext): void => {
+const registerLoadExternalLayerAttributesWatcher = (): void => {
     const layersStore = useLayersStore()
     const positionStore = usePositionStore()
     const i18nStore = useI18nStore()
 
-    const externalLayerFilter = (layer: Layer): boolean =>
-        layer.isExternal &&
-        layer.isLoading &&
-        ![LayerType.KML, LayerType.GPX, LayerType.GEOJSON].includes(layer.type)
-
-    context.store.$onAction(({ name, args }) => {
+    layersStore.$onAction(({ name, args, store }) => {
         const layers: Layer[] = []
-        if (name === 'addLayer' && args[0]?.layer && externalLayerFilter(args[0].layer)) {
-            layers.push(args[0].layer)
+
+        if (name === 'addLayer') {
+            const addLayerArgs: Parameters<typeof store.addLayer> = args
+
+            if (addLayerArgs[0].layer && externalLayerFilter(addLayerArgs[0].layer)) {
+                layers.push(addLayerArgs[0].layer)
+            }
         }
-        if (name === 'setLayers' && args[0]?.layers && args[0].layers.some(externalLayerFilter)) {
-            layers.push(...args[0].layers.filter(externalLayerFilter))
+
+        if (name === 'setLayers') {
+            const setLayerArgs: Parameters<typeof store.setLayers> = args
+            const layerArg = setLayerArgs[0]
+
+            const externalLayers = layerArg
+                // if it's string, we don't even test for externality
+                .filter((layer) => typeof layer !== 'string')
+                .filter(externalLayerFilter)
+
+            layers.push(...externalLayers)
         }
+
         if (layers.length > 0) {
             // We get first the capabilities
             const wmsCapabilities = getCapabilitiesForLayers<WMSCapabilitiesResponse>(
@@ -176,6 +193,7 @@ const loadExternalLayerAttributes: PiniaPlugin = (context: PiniaPluginContext): 
                 i18nStore.lang,
                 LayerType.WMTS
             )
+
             const layerToUpdate: Promise<ExternalWMSLayer | ExternalWMTSLayer | undefined>[] = []
             layers.forEach((layer) => {
                 if (layer.type === LayerType.WMTS) {
@@ -206,6 +224,7 @@ const loadExternalLayerAttributes: PiniaPlugin = (context: PiniaPluginContext): 
                     )
                 }
             })
+
             Promise.allSettled(layerToUpdate)
                 .then((results) => {
                     const updatedLayer: Layer[] = results
@@ -215,7 +234,7 @@ const loadExternalLayerAttributes: PiniaPlugin = (context: PiniaPluginContext): 
                             }
                         })
                         .filter((layer) => !!layer)
-                    layersStore.updateLayers(updatedLayer, dispatcher)
+                    store.updateLayers(updatedLayer, dispatcher)
                 })
                 .catch((error) => {
                     log.error({
@@ -228,4 +247,4 @@ const loadExternalLayerAttributes: PiniaPlugin = (context: PiniaPluginContext): 
     })
 }
 
-export default loadExternalLayerAttributes
+export default registerLoadExternalLayerAttributesWatcher

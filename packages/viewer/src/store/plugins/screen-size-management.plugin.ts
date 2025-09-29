@@ -5,7 +5,7 @@ import type { PiniaPlugin } from 'pinia'
 const dispatcher = { name: 'screen-size-management.plugin' }
 
 /** @param store */
-const screenSizeManagementPlugin: PiniaPlugin = () => {
+const screenSizeManagement: PiniaPlugin = () => {
     const uiStore = useUIStore()
 
     uiStore.$onAction(({ name, store }) => {
@@ -26,4 +26,4 @@ const screenSizeManagementPlugin: PiniaPlugin = () => {
     })
 }
 
-export default screenSizeManagementPlugin
+export default screenSizeManagement

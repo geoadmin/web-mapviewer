@@ -12,13 +12,14 @@ import type { ActionDispatcher } from '@/store/types'
 import usePositionStore, { normalizeAngle } from '@/store/modules/position.store'
 import useUIStore from '@/store/modules/ui.store'
 import useCesiumStore from '@/store/modules/cesium.store'
+import type { PiniaPlugin } from 'pinia'
 
 /**
  * Plugin to synchronize the 3d camera position and orientation with the center and zoom.
  *
  * @param {Vuex.Store} store
  */
-const registerSyncCameraLonLatZoom = (): void => {
+const registerSyncCameraLonLatZoom: PiniaPlugin = (): void => {
     const dispatcher: ActionDispatcher = { name: 'sync-camera-lonlatzoom.plugin' }
 
     const positionStore = usePositionStore()
