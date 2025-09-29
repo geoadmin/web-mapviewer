@@ -307,6 +307,12 @@ export interface KMLLayer extends Layer {
      */
     internalFiles: Record<string, ArrayBuffer>
     extentProjection?: CoordinateSystem
+    /**
+     * Map of KML link files. Those files are usually sent with the kml inside a KMZ archive and can
+     * be referenced inside the KML (e.g. icon, image, ...). Default is `Map()`
+     */
+    // actually a Map, but I'm getting a compilation error here
+    linkFiles?: Record<string, ArrayBuffer>
 }
 
 export interface GPXLink {
