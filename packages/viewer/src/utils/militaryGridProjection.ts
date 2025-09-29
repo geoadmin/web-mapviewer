@@ -24,6 +24,19 @@ const O: number = 79 // O
 const V: number = 86 // V
 const Z: number = 90 // Z
 
+type LatLon = {
+    lat: number
+    lon: number
+}
+
+// TODO don't know how to call this
+type Bbox = {
+    top: number
+    right: number
+    bottom: number
+    left: number
+}
+
 /**
  * Convert lat/lon to MGRS.
  *
@@ -58,22 +71,32 @@ export function latLonToMGRS(lat: number, lon: number, accuracy?: number): strin
  *   values in WGS84, representing the bounding box for the provided MGRS reference.
  */
 export function inverse(mgrs: string): FlatExtent {
-    const bbox = UTMtoLatLon(decodeUTM(mgrs.toUpperCase()))
-    if (bbox.lat && bbox.lon) {
-        return [bbox.lon, bbox.lat, bbox.lon, bbox.lat]
+    const [bbox, type] = UTMtoLatLon(decodeUTM(mgrs.toUpperCase()))
+
+    if (type == 'latlon') {
+        const _bbox = bbox as LatLon
+        return [_bbox.lon, _bbox.lat, _bbox.lon, _bbox.lat]
     }
-    return [bbox.left, bbox.bottom, bbox.right, bbox.top]
+    else {
+        const _bbox = bbox as Bbox
+        return [_bbox.left, _bbox.bottom, _bbox.right, _bbox.top]
+    }
 }
 
 export function toPoint(mgrs: string): SingleCoordinate {
     if (mgrs === '') {
         throw new TypeError('toPoint received a blank string')
     }
-    const bbox = UTMtoLatLon(decodeUTM(mgrs.toUpperCase()))
-    if (bbox.lat && bbox.lon) {
-        return [bbox.lon, bbox.lat]
+    const [bbox, type] = UTMtoLatLon(decodeUTM(mgrs.toUpperCase()))
+
+    if (type == 'latlon') {
+        const _bbox = bbox as LatLon
+        return [_bbox.lon, _bbox.lat]
     }
-    return [(bbox.left + bbox.right) / 2, (bbox.top + bbox.bottom) / 2]
+    else {
+        const _bbox = bbox as Bbox
+        return [(_bbox.left + _bbox.right) / 2, (_bbox.top + _bbox.bottom) / 2]
+    }
 }
 
 /**
@@ -218,13 +241,14 @@ export function latLonToUTM(lat: number, lon: number): UTM {
  *   provided), or top, right, bottom and left values for the bounding box calculated according to
  *   the provided accuracy. Returns null if the conversion failed.
  */
-function UTMtoLatLon(utm: UTM) {
+function UTMtoLatLon(utm: UTM): [LatLon | Bbox, 'bbox' | 'latlon']  {
     const UTMNorthing = utm.northing
     const UTMEasting = utm.easting
     const { zoneLetter, zoneNumber } = utm
-    // check the ZoneNummber is valid
+
+    // check the ZoneNumber is valid
     if (zoneNumber < 0 || zoneNumber > 60) {
-        return null
+        throw Error("UTMtoLatLon: zoneNumber is invalid")
     }
 
     const k0 = 0.9996
@@ -304,27 +328,35 @@ function UTMtoLatLon(utm: UTM) {
         Math.cos(phi1Rad)
     lon = LongOrigin + radToDeg(lon)
 
-    let result
+
     if (typeof utm.accuracy === 'number') {
-        const topRight = UTMtoLatLon({
+        const result = UTMtoLatLon({
             northing: utm.northing + utm.accuracy,
             easting: utm.easting + utm.accuracy,
             zoneLetter: utm.zoneLetter,
             zoneNumber: utm.zoneNumber,
         })
-        result = {
-            top: topRight.lat,
-            right: topRight.lon,
-            bottom: lat,
-            left: lon,
-        }
+
+        const [topRight] = result as [LatLon, string]
+
+        return [
+            {
+                top: topRight.lat,
+                right: topRight.lon,
+                bottom: lat,
+                left: lon,
+            },
+            'bbox',
+        ]
     } else {
-        result = {
-            lat,
-            lon,
-        }
+        return [
+            {
+                lat,
+                lon,
+            },
+            'latlon',
+        ]
     }
-    return result
 }
 
 /**

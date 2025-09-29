@@ -281,7 +281,7 @@ const useFeaturesStore = defineStore('features', {
             payload: {
                 layers: Layer[]
                 coordinate: SingleCoordinate | FlatExtent
-                vectorFeatures: LayerFeature[]
+                vectorFeatures: SelectableFeature<true>[]
                 identifyMode?: IdentifyMode
             },
             dispatcher: ActionDispatcher
