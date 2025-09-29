@@ -29,7 +29,7 @@ const useGeolocationStore = defineStore('geolocation', {
     }),
     getters: {},
     actions: {
-        setGeolocation(active: boolean, dispatcher: ActionDispatcher) {
+        setGeolocationActive(active: boolean, dispatcher: ActionDispatcher) {
             this.active = active
         },
 

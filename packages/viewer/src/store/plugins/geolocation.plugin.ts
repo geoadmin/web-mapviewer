@@ -9,7 +9,7 @@ import proj4 from 'proj4'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import type { ActionDispatcher } from '@/store/types'
-import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
+import type { PiniaPlugin } from 'pinia'
 import useGeolocationStore from '@/store/modules/geolocation.store.ts'
 import useUIStore from '@/store/modules/ui.store.ts'
 import usePositionStore from '@/store/modules/position.store.ts'
@@ -126,7 +126,7 @@ const handlePositionError = (
             uiStore.addErrors([new ErrorMessage('geoloc_permission_denied')], dispatcher)
             break
         case GeolocationPositionError.TIMEOUT:
-            geolocationStore.setGeolocation(false, dispatcher)
+            geolocationStore.setGeolocationActive(false, dispatcher)
             uiStore.addErrors([new ErrorMessage('geoloc_time_out')], dispatcher)
             break
         default:
@@ -149,7 +149,7 @@ const handlePositionError = (
                     // So we let the watcher continue has he might recover itself later on, if
                     // not the error will kept showing and the user will have to manually stop
                     // geolocation.
-                    geolocationStore.setGeolocation(false, dispatcher)
+                    geolocationStore.setGeolocationActive(false, dispatcher)
                 }
             }
     }
@@ -217,15 +217,13 @@ const activateGeolocation = (options?: GeolocationActivationOptions) => {
  * Plugin that handles the HTML5 Geolocation API interaction, and dispatch its output to the store
  * when geolocation is active.
  */
-const geolocationManagementPlugin: PiniaPlugin = (context: PiniaPluginContext): void => {
-    const { store } = context
-
+const geolocationManagementPlugin: PiniaPlugin = (): void => {
     const geolocationStore = useGeolocationStore()
     const positionStore = usePositionStore()
 
-    store.$onAction(({ name, args }) => {
+    geolocationStore.$onAction(({ name, args }) => {
         // grabbing the dispatcher (always the last argument)
-        const actionDispatcher: ActionDispatcher | undefined = args[args.length - 1]
+        const actionDispatcher: ActionDispatcher = args[args.length - 1] as ActionDispatcher
 
         // listening to the start/stop of geolocation
         if (name === 'setGeolocationActive') {
@@ -238,15 +236,6 @@ const geolocationManagementPlugin: PiniaPlugin = (context: PiniaPluginContext): 
                 geolocationWatcherId = undefined
             }
         } else if (
-            name === 'setCenter' &&
-            actionDispatcher &&
-            actionDispatcher.name !== dispatcher.name &&
-            store.geolocationStore.tracking
-        ) {
-            // if we moved the map we disabled the tracking (unless the tracking moved the map)
-            geolocationStore.setGeolocationTracking(false, dispatcher)
-            positionStore.setAutoRotation(false, dispatcher)
-        } else if (
             name === 'setGeolocationTracking' &&
             typeof args[0] === 'boolean' &&
             args[0] === true &&
@@ -258,6 +247,14 @@ const geolocationManagementPlugin: PiniaPlugin = (context: PiniaPluginContext): 
             if (geolocationStore.position) {
                 setCenterIfInBounds(geolocationStore.position)
             }
+        }
+    })
+
+    positionStore.$onAction(({ name, store }) => {
+        if (name === 'setCenter') {
+            // if we moved the map we disabled the tracking (unless the tracking moved the map)
+            geolocationStore.setGeolocationTracking(false, dispatcher)
+            store.setAutoRotation(false, dispatcher)
         }
     })
 }

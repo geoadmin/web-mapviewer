@@ -1,4 +1,4 @@
-import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
+import type { PiniaPlugin } from 'pinia'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
@@ -16,36 +16,42 @@ const dispatcher: ActionDispatcher = { name: 'click-on-map.plugin' }
  * Pinia plugins that will listen to click events and act depending on what's under the click (or
  * how long the mouse button was down)
  */
-export const clickOnMapManagementPlugin: PiniaPlugin = (context: PiniaPluginContext): void => {
+const clickOnMapManagementPlugin: PiniaPlugin = (): void => {
     const mapStore = useMapStore()
     const drawingStore = useDrawingStore()
     const featuresStore = useFeaturesStore()
     const layersStore = useLayersStore()
     const uiStore = useUIStore()
 
-    context.store.$onAction(({ after, name, args }) => {
+    drawingStore.$onAction(({ after, name, store }) => {
         after(() => {
             if (
                 name === 'toggleDrawingOverlay' &&
-                drawingStore.drawingOverlay.show &&
+                store.drawingOverlay.show &&
                 mapStore.locationPopupCoordinates
             ) {
                 // when entering the drawing menu, we need to clear the location popup
                 mapStore.clearLocationPopupCoordinates(dispatcher)
-            } else if (name === 'click' && !drawingStore.drawingOverlay.show) {
-                // if a click occurs, we only take it into account (for identify and fullscreen toggle)
-                // when the user is not currently drawing something on the map.
-                const clickInfo: ClickInfo = args[0] as ClickInfo
-                const isCtrlLeftSingleClick = clickInfo?.clickType === ClickType.CtrlLeftSingleClick
-                const isContextMenuClick = clickInfo?.clickType === ClickType.ContextMenu
-                const isIdentifyingFeature =
-                    clickInfo.clickType === ClickType.LeftSingleClick ||
-                    clickInfo.clickType === ClickType.CtrlLeftSingleClick ||
-                    clickInfo.clickType === ClickType.DrawBox
-                if (isIdentifyingFeature) {
-                    const identifyMode = isCtrlLeftSingleClick
-                        ? IdentifyMode.TOGGLE
-                        : IdentifyMode.NEW
+            }
+        })
+    })
+
+    mapStore.$onAction(({ name, store, args }) => {
+        if (name === 'click' && !drawingStore.drawingOverlay.show) {
+            // if a click occurs, we only take it into account (for identify and fullscreen toggle)
+            // when the user is not currently drawing something on the map.
+            const clickInfo: ClickInfo = args[0] as ClickInfo
+            const isCtrlLeftSingleClick = clickInfo?.clickType === ClickType.CtrlLeftSingleClick
+            const isContextMenuClick = clickInfo?.clickType === ClickType.ContextMenu
+            const isIdentifyingFeature =
+                clickInfo.clickType === ClickType.LeftSingleClick ||
+                clickInfo.clickType === ClickType.CtrlLeftSingleClick ||
+                clickInfo.clickType === ClickType.DrawBox
+
+            if (isIdentifyingFeature) {
+                const identifyMode = isCtrlLeftSingleClick ? IdentifyMode.Toggle : IdentifyMode.New
+
+                if (clickInfo.features) {
                     featuresStore
                         .identifyFeatureAt(
                             {
@@ -71,7 +77,7 @@ export const clickOnMapManagementPlugin: PiniaPlugin = (context: PiniaPluginCont
                                 )
                             }
                         })
-                        .catch((error) => {
+                        .catch((error) =>
                             log.error({
                                 title: 'Click on map plugin',
                                 titleColor: LogPreDefinedColor.Cyan,
@@ -81,13 +87,14 @@ export const clickOnMapManagementPlugin: PiniaPlugin = (context: PiniaPluginCont
                                     error,
                                 ],
                             })
-                        })
-                }
-                if (isContextMenuClick) {
-                    mapStore.setLocationPopupCoordinates(clickInfo.coordinate, dispatcher)
+                        )
                 }
             }
-        })
+
+            if (isContextMenuClick) {
+                store.setLocationPopupCoordinates(clickInfo.coordinate, dispatcher)
+            }
+        }
     })
 }
 

@@ -97,15 +97,15 @@ export interface PositionState {
      * 1:100'000, etc...)
      */
     projection: CoordinateSystem
-    crossHair: CrossHairs | undefined
-    crossHairPosition: number[] | undefined
+    crossHair?: CrossHairs
+    crossHairPosition?: number[]
     /**
      * Position of the view when we are in 3D, always expressed in EPSG:3857 (only projection system
      * that works with Cesium)
      *
-     * Will be set to null when the 3D map is not active
+     * Will be set to undefined when the 3D map is not active
      */
-    camera: CameraPosition | undefined
+    camera?: CameraPosition
 }
 
 const usePositionStore = defineStore('position', {

@@ -6,7 +6,7 @@ import type { PiniaPlugin } from 'pinia'
 const dispatcher = { name: 'update-selected-features.plugin' }
 
 /** @param store */
-const updateSelectedFeaturesPlugin: PiniaPlugin = () => {
+const updateSelectedFeatures: PiniaPlugin = () => {
     const layersStore = useLayersStore()
     const featuresStore = useFeaturesStore()
     const mapStore = useMapStore()
@@ -81,4 +81,4 @@ const updateSelectedFeaturesPlugin: PiniaPlugin = () => {
     })
 }
 
-export default updateSelectedFeaturesPlugin
+export default updateSelectedFeatures
