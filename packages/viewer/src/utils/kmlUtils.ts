@@ -44,6 +44,7 @@ import { GeodesicGeometries } from '@/utils/geodesicManager'
 import KML, { getDefaultStyle } from '@/utils/ol/format/KML'
 import { parseRGBColor } from '@/utils/utils'
 import type { Size } from 'ol/size'
+import type { Geometry, SimpleGeometry } from 'ol/geom'
 
 export const EMPTY_KML_DATA: string = '<kml></kml>'
 
@@ -642,14 +643,15 @@ function handleIconUrl(
 export function parseKml(
     kmlLayer: KMLLayer,
     projection: CoordinateSystem,
-    resolution: number,
     iconSets: DrawingIconSet[],
+    resolution: number,
     iconUrlProxy: (url: string) => string = iconUrlProxyFy
-): OLFeature[] {
+): OLFeature<Geometry>[] {
     const kmlData = kmlLayer.kmlData
     const files = kmlLayer.internalFiles
+
     const features = new KML({
-        iconUrlFunction: (url) => handleIconUrl(url, iconUrlProxy, files),
+        iconUrlFunction: (url: string) => handleIconUrl(url, iconUrlProxy, files),
     }).readFeatures(kmlData, {
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: projection.epsg,
