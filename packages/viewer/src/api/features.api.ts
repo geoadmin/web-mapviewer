@@ -50,7 +50,7 @@ export interface SelectableFeature<IsEditable extends boolean> {
     /** A description of this feature. Cannot be HTML content (only text). */
     description?: string
     /** Extent of this feature (if any) expressed as [minX, minY, maxX, maxY]. */
-    extent?: NormalizedExtent,
+    extent?: NormalizedExtent
     /** GeoJSON representation of this feature (if it has a geometry, for points it isn't necessary). */
     geometry?: Geometry
     /** Whether this feature is editable when selected (color, size, etc...). */
@@ -892,6 +892,13 @@ export function getFeatureHtmlPopup(
                 reject(new Error(error))
             })
     })
+}
+
+export function isLineOrMeasure(feature: EditableFeature) {
+    return (
+        feature.featureType == EditableFeatureTypes.Measure ||
+        feature.featureType == EditableFeatureTypes.LinePolygon
+    )
 }
 
 export default getFeature
