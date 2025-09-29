@@ -2,7 +2,7 @@ import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 
 import { defineStore } from 'pinia'
 
-import type SelectableFeature from '@/api/features/SelectableFeature.class'
+import type {SelectableFeature } from '@/api/features.api'
 import type { ActionDispatcher } from '@/store/types'
 
 export enum ClickType {
@@ -20,7 +20,7 @@ export enum ClickType {
 export interface ClickInfo {
     coordinate: SingleCoordinate
     pixelCoordinate?: SingleCoordinate
-    features?: SelectableFeature[]
+    features?: SelectableFeature<true>[] // TODO unsure if it's editable
     clickType?: ClickType
 }
 
