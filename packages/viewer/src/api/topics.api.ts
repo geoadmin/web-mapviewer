@@ -274,17 +274,18 @@ export function parseTopics(layersConfig: GeoAdminLayer[], rawTopics: ServicesRe
             // layers
             .filter((layerId) => !layersToActivate.some((layer) => layer.id === layerId))
         activatedLayers.forEach((layerId) => {
-            let layer = layersConfig.find((layer) => layer.id === layerId)
+            const layer = layersConfig.find((layer) => layer.id === layerId)
+
             if (layer) {
                 // deep copy so that we can reassign values later on
-                // (layers come from the Vuex store so it can't be modified directly)
-                layer = layerUtils.cloneLayer(layer)
+                // (layers come from the pinia store so it can't be modified directly)
+                const layerClone: GeoAdminLayer = layerUtils.cloneLayer(layer)
                 // checking if the layer should be also visible
-                layer.isVisible = rawTopic.selectedLayers?.indexOf(layerId) !== -1
+                layerClone.isVisible = rawTopic.selectedLayers?.indexOf(layerId) !== -1
                 // In the backend the layers are in the wrong order
                 // so we need to reverse the order here by simply adding
                 // the layer at the beginning of the array
-                layersToActivate.unshift(layer)
+                layersToActivate.unshift(layerClone)
             }
         })
         topics.push({
