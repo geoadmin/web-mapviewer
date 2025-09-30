@@ -1,91 +1,98 @@
-<script setup lang="js">
-import GeoadminTooltip from "@swissgeo/tooltip";
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
-import { useStore } from "vuex";
+<script setup lang="ts">
+import GeoadminTooltip from '@swissgeo/tooltip'
+import { computed, type ComputedRef, type Ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import LayerTimeConfig from "@/api/layers/LayerTimeConfig.class";
+import TextTruncate from '@/utils/components/TextTruncate.vue'
 import {
-  ALL_YEARS_TIMESTAMP,
-  CURRENT_YEAR_TIMESTAMP,
-} from "@/api/layers/LayerTimeConfigEntry.class";
-import TextTruncate from "@/utils/components/TextTruncate.vue";
+    ALL_YEARS_TIMESTAMP,
+    CURRENT_YEAR_TIMESTAMP,
+    type LayerTimeConfig,
+    type LayerTimeConfigEntry,
+} from '@swissgeo/layers'
+import useUIStore from '@/store/modules/ui.store'
+import useLayersStore from '@/store/modules/layers.store'
 
-const dispatcher = { dispatcher: "MenuActiveLayersListItemTimeSelector.vue" };
+const dispatcher = { name: 'MenuActiveLayersListItemTimeSelector.vue' }
 
-const { layerIndex, layerId, timeConfig, compact } = defineProps({
-  layerIndex: {
-    type: Number,
-    required: true,
-  },
-  layerId: {
-    type: String,
-    required: true,
-  },
-  timeConfig: {
-    type: LayerTimeConfig,
-    required: true,
-  },
-  compact: {
-    type: Boolean,
-    default: false,
-  },
-});
+const {
+    layerIndex,
+    layerId,
+    timeConfig,
+    compact = false,
+} = defineProps<{
+    layerIndex: number
+    layerId: string
+    timeConfig: LayerTimeConfig
+    compact?: boolean
+}>()
 
-const store = useStore();
-const { t } = useI18n();
+const { t } = useI18n()
+const uiStore = useUIStore()
+const layersStore = useLayersStore()
 
-const hasMultipleTimestamps = computed(() => timeConfig.timeEntries.length > 1);
+const hasMultipleTimestamps = computed(() => timeConfig.timeEntries.length > 1)
 const hasValidTimestamps = computed(() =>
-  // External layers may have timestamp that we don't support (not "all", "current" or ISO timestamp)
-  timeConfig.timeEntries.every((entry) => entry.year !== null)
-);
-const hasTimeSelector = computed(
-  () => hasMultipleTimestamps.value && hasValidTimestamps.value
-);
-const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive);
+    // External layers may have timestamp that we don't support (not "all", "current" or ISO timestamp)
+    timeConfig.timeEntries.every((entry) => entry.year !== null)
+)
+const hasTimeSelector = computed(() => hasMultipleTimestamps.value && hasValidTimestamps.value)
+const isTimeSliderActive = computed(() => uiStore.isTimeSliderActive)
+
+const timeConfigEntriesWithYear: ComputedRef<(LayerTimeConfigEntry & { year: string })[]> =
+    computed(() =>
+        timeConfig.timeEntries.filter(
+            (entry): entry is LayerTimeConfigEntry & { year: string } => entry.year !== undefined
+        )
+    )
 
 const humanReadableCurrentTimestamp = computed(() => {
-  return renderHumanReadableTimestamp(timeConfig.currentTimeEntry);
-});
+    if (timeConfig.currentTimeEntry) {
+        return renderHumanReadableTimestamp(timeConfig.currentTimeEntry)
+    }
+    return ''
+})
 
 /**
  * @param {LayerTimeConfigEntry} timeEntry
  * @returns {string}
  */
-function renderHumanReadableTimestamp(timeEntry) {
-  if (!timeEntry) {
-    return "-";
-  }
-  if (timeEntry.year === CURRENT_YEAR_TIMESTAMP) {
-    return t(`time_current`);
-  }
-  if (timeEntry.year === ALL_YEARS_TIMESTAMP) {
-    return t("time_all");
-  }
-  return `${timeEntry.year}`;
+function renderHumanReadableTimestamp(timeEntry: LayerTimeConfigEntry) {
+    if (!timeEntry || !timeEntry.year) {
+        return '-'
+    }
+    if (timeEntry.year === CURRENT_YEAR_TIMESTAMP) {
+        return t(`time_current`)
+    }
+    if (timeEntry.year === ALL_YEARS_TIMESTAMP) {
+        return t('time_all')
+    }
+    return `${timeEntry.year}`
 }
 
-function handleClickOnTimestamp(year) {
-  // deactivating the time slider, as a change on this time selector is incompatible with
-  // the time slider being shown and active
-  if (isTimeSliderActive.value) {
-    store.dispatch("setTimeSliderActive", { timeSliderActive: false, ...dispatcher });
-  }
-  store.dispatch("setTimedLayerCurrentYear", { index: layerIndex, year, ...dispatcher });
+function handleClickOnTimestamp(entry: LayerTimeConfigEntry) {
+    // deactivating the time slider, as a change on this time selector is incompatible with
+    // the time slider being shown and active
+    if (isTimeSliderActive.value) {
+        uiStore.setTimeSliderActive(false, dispatcher)
+    }
+    layersStore.setTimedLayerCurrentTimeEntry(layerIndex, entry, dispatcher)
 }
 
-function isSelected(timeEntry) {
-  return timeConfig.currentTimestamp === timeEntry?.timestamp;
+function isSelected(timeEntry: LayerTimeConfigEntry) {
+    return timeConfig.currentTimeEntry?.timestamp === timeEntry?.timestamp
 }
 </script>
 
 <template>
     <div v-if="hasTimeSelector">
-        <GeoadminTooltip placement="right" open-trigger="click">
+        <GeoadminTooltip
+            placement="right"
+            open-trigger="click"
+        >
             <button
                 ref="timeSelectorButton"
-                class="btn btn-secondary me-1 btn-timestamp btn-timestamp-selector"
+                class="btn btn-secondary btn-timestamp btn-timestamp-selector me-1"
                 :class="{
                     'btn-sm': compact,
                     'btn-timestamp-selector-compact': compact,
@@ -98,17 +105,20 @@ function isSelected(timeEntry) {
             </button>
 
             <template #content="{ close }">
-                <div ref="timeSelectorModal" class="card border-0">
+                <div
+                    ref="timeSelectorModal"
+                    class="card border-0"
+                >
                     <div class="card-header d-flex align-items-center justify-content-between">
-                        {{ t("time_select_year") }}
+                        {{ t('time_select_year') }}
                     </div>
                     <div
-                        class="card-body rounded-bottom p-2 d-grid timestamps-popover-content gap-1"
+                        class="card-body rounded-bottom d-grid timestamps-popover-content gap-1 p-2"
                         data-cy="time-selection-popup"
                         @click="close"
                     >
                         <button
-                            v-for="timeEntry in timeConfig.timeEntries"
+                            v-for="timeEntry in timeConfigEntriesWithYear"
                             :key="timeEntry.timestamp"
                             class="btn d-flex justify-content-center"
                             :class="{
@@ -116,7 +126,7 @@ function isSelected(timeEntry) {
                                 'btn-light': !isSelected(timeEntry),
                             }"
                             :data-cy="`time-select-${timeEntry.timestamp}`"
-                            @click="handleClickOnTimestamp(timeEntry.year)"
+                            @click="handleClickOnTimestamp(timeEntry)"
                         >
                             <TextTruncate>
                                 {{ renderHumanReadableTimestamp(timeEntry) }}
@@ -131,12 +141,12 @@ function isSelected(timeEntry) {
 
 <style lang="scss" scoped>
 .timestamps-popover-content {
-  max-height: 33vh;
-  overflow-y: auto;
-  background: white;
-  grid-template-columns: 1fr 1fr 1fr;
+    max-height: 33vh;
+    overflow-y: auto;
+    background: white;
+    grid-template-columns: 1fr 1fr 1fr;
 }
 .btn-timestamp-selector {
-  font-size: small;
+    font-size: small;
 }
 </style>

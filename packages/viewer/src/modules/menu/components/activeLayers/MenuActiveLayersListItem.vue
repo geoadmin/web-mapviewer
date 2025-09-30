@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 /**
  * Representation of an active layer in the menu, with the name of the layer and some controls (like
  * visibility, opacity or position in the layer stack)
@@ -8,11 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
-import KMLLayer from '@/api/layers/KMLLayer.class'
-import { allKmlStyles } from '@/api/layers/KmlStyles.enum'
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import TransparencySlider from '@/modules/menu/components/activeLayers/TransparencySlider.vue'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
@@ -20,79 +16,88 @@ import ExtLayerInfoButton from '@/utils/components/ExtLayerInfoButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
+import {
+    type KMLLayer,
+    KMLStyle,
+    LayerType,
+    type Layer,
+    type ExternalLayer,
+} from '@swissgeo/layers'
+import useLayersStore from '@/store/modules/layers.store'
+import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
+import useUIStore from '@/store/modules/ui.store'
+import useCesiumStore from '@/store/modules/cesium.store'
 
-const dispatcher = { dispatcher: 'MenuActiveLayersListItem.vue' }
+const dispatcher = { name: 'MenuActiveLayersListItem.vue' }
 
-const { index, layer, showLayerDetail, focusMoveButton, isTopLayer, isBottomLayer, compact } =
-    defineProps({
-        index: {
-            type: Number,
-            required: true,
-        },
-        layer: {
-            type: AbstractLayer,
-            required: true,
-        },
-        showLayerDetail: {
-            type: Boolean,
-            default: false,
-        },
-        focusMoveButton: {
-            type: [String, null],
-            default: null,
-        },
-        isTopLayer: {
-            type: Boolean,
-            default: false,
-        },
-        isBottomLayer: {
-            type: Boolean,
-            default: false,
-        },
-        compact: {
-            type: Boolean,
-            default: false,
-        },
-    })
+const {
+    index,
+    layer,
+    showLayerDetail,
+    focusMoveButton,
+    isTopLayer = false,
+    isBottomLayer = false,
+    compact = false,
+} = defineProps<{
+    index: number
+    layer: Layer
+    showLayerDetail?: boolean
+    focusMoveButton?: string
+    isTopLayer: boolean
+    isBottomLayer: boolean
+    compact?: boolean
+}>()
 
 const emit = defineEmits(['showLayerDescriptionPopup', 'toggleLayerDetail', 'moveLayer'])
 
-const store = useStore()
 const { t } = useI18n()
+const layersStore = useLayersStore()
+const uiStore = useUIStore()
+const cesiumStore = useCesiumStore()
 
 const layerUpButton = useTemplateRef('layerUpButton')
 const layerDownButton = useTemplateRef('layerDownButton')
-const currentKmlStyle = ref(layer?.style ?? null)
+const currentKmlStyle = ref<KMLStyle | null>((layer as KMLLayer)?.style ?? null)
 const id = computed(() => layer.id)
 
 /** @type {ComputedRef<DropdownItem[]>} */
 const kmlStylesAsDropdownItems = computed(() =>
-    allKmlStyles.map((style) => ({ id: style, title: style.toLowerCase(), value: style }))
+    Object.values(KMLStyle).map((style: KMLStyle) => ({
+        id: style,
+        title: style.toLowerCase(),
+        value: style,
+    }))
 )
 
-const isLocalFile = computed(() => store.getters.isLocalFile(layer))
+const isLocalFile = computed(() => layersStore.isLocalFile(layer))
+
 const hasDataDisclaimer = computed(() =>
-    store.getters.hasDataDisclaimer(id.value, layer.isExternal, layer.baseUrl)
+    layersStore.hasDataDisclaimer(id.value, layer.isExternal, layer.baseUrl)
 )
+
 const attributionName = computed(() =>
     layer.attributions.map((attribution) => attribution.name).join(', ')
 )
-const showLayerDescriptionIcon = computed(() => layer.hasDescription)
-const hasMultipleTimestamps = computed(() => layer.hasMultipleTimestamps)
-const isPhoneMode = computed(() => store.getters.isPhoneMode)
-const is3dActive = computed(() => store.state.cesium.active)
 
-const isLayerKml = computed(() => layer instanceof KMLLayer)
+const showLayerDescriptionIcon = computed(() => layer.hasDescription)
+const hasMultipleTimestamps = computed(() => timeConfigUtils.hasMultipleTimestamps(layer))
+const isPhoneMode = computed(() => uiStore.isPhoneMode)
+const is3dActive = computed(() => cesiumStore.active)
+
+const isLayerKml = computed(() => layer.type === LayerType.KML)
+
 const isLayerClampedToGround = computed({
-    get: () => layer.clampToGround,
-    set: (value) => {
-        store.dispatch('updateLayer', {
-            layerId: id.value,
-            values: {
-                clampToGround: value,
+    get: () => 'clampToGround' in layer && layer.clampToGround,
+    set: (value: boolean) => {
+        layersStore.updateLayer<KMLLayer>(
+            {
+                layerId: id.value,
+                values: {
+                    clampToGround: value,
+                },
             },
-            ...dispatcher,
-        })
+            dispatcher
+        )
     },
 })
 
@@ -102,42 +107,44 @@ const showSpinner = computed(() => layer.isLoading && layer.isExternal && !layer
 
 onMounted(() => {
     if (showLayerDetail) {
-        if (focusMoveButton === 'up') {
+        if (focusMoveButton === 'up' && layerUpButton.value) {
             layerUpButton.value.focus()
-        } else if (focusMoveButton === 'down') {
+        } else if (focusMoveButton === 'down' && layerDownButton.value) {
             layerDownButton.value.focus()
         }
     }
 })
 
 function onRemoveLayer() {
-    store.dispatch('removeLayer', { index, ...dispatcher })
+    layersStore.removeLayer({ index }, dispatcher)
 }
 
 function onToggleLayerVisibility() {
-    store.dispatch('toggleLayerVisibility', { index, ...dispatcher })
+    layersStore.toggleLayerVisibility(index, dispatcher)
 }
 
 function showLayerDescriptionPopup() {
     emit('showLayerDescriptionPopup', id.value)
     //close menu on mobile only
     if (isPhoneMode.value) {
-        store.dispatch('toggleMenu', dispatcher)
+        uiStore.toggleMenu(dispatcher)
     }
 }
 
 function duplicateLayer() {
-    store.dispatch('addLayer', { layer: layer.clone(), ...dispatcher })
+    layersStore.addLayer({ layer: layerUtils.cloneLayer(layer) }, dispatcher)
 }
 
-function changeStyle(newStyle) {
-    store.dispatch('updateLayer', {
-        layerId: id.value,
-        values: {
-            style: newStyle.value,
+function changeStyle(newStyle: { value: KMLStyle }) {
+    layersStore.updateLayer<KMLLayer>(
+        {
+            layerId: id.value,
+            values: {
+                style: newStyle.value,
+            },
         },
-        ...dispatcher,
-    })
+        dispatcher
+    )
     currentKmlStyle.value = newStyle.value
 }
 </script>
@@ -165,7 +172,7 @@ function changeStyle(newStyle) {
                 :data-cy="`button-toggle-visibility-layer-${id}-${index}`"
                 @click="onToggleLayerVisibility"
             >
-                <FontAwesomeIcon :icon="`far fa-${layer.visible ? 'check-' : ''}square`" />
+                <FontAwesomeIcon :icon="`far fa-${layer.isVisible ? 'check-' : ''}square`" />
             </button>
             <TextTruncate
                 class="menu-layer-item-name p-1"
@@ -183,7 +190,7 @@ function changeStyle(newStyle) {
             />
             <ExtLayerInfoButton
                 :show-spinner="showSpinner"
-                :layer="layer"
+                :layer="layer as ExternalLayer"
                 :index="index"
                 class="me-2"
             />
@@ -315,11 +322,12 @@ function changeStyle(newStyle) {
                         {{ t('vector_feedback_select_style') }}
                     </label>
                     <DropdownButton
+                        v-if="currentKmlStyle"
                         :title="currentKmlStyle.toLowerCase()"
                         :items="kmlStylesAsDropdownItems"
                         :current-value="currentKmlStyle"
                         small
-                        @select-item="changeStyle"
+                        @selectItem="changeStyle"
                     />
                 </div>
             </div>

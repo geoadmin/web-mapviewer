@@ -1,10 +1,11 @@
-<script setup lang="js">
+<script setup lang="ts">
 import log from '@swissgeo/log'
 import { computed, ref } from 'vue'
-import { useStore } from 'vuex'
 
 import ProviderUrl from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderUrl.vue'
 import LayerCatalogue from '@/modules/menu/components/LayerCatalogue.vue'
+import useUIStore from '@/store/modules/ui.store'
+import type { Layer } from '@swissgeo/layers'
 
 const { compact } = defineProps({
     compact: {
@@ -13,14 +14,15 @@ const { compact } = defineProps({
     },
 })
 
-const capabilities = ref([])
+const capabilities = ref<Layer[]>([])
 
-const store = useStore()
+const uiStore = useUIStore()
 
-const isDesktopMode = computed(() => store.getters.isDesktopMode)
+const isDesktopMode = computed(() => uiStore.isDesktopMode)
 
-function onNewCapabilities(newCapabilities) {
+function onNewCapabilities(newCapabilities: Layer[]) {
     log.debug(`New capabilities`, newCapabilities)
+
     capabilities.value = newCapabilities.sort((layerA, layerB) =>
         layerA.name.localeCompare(layerB.name, undefined, { sensitivity: 'base' })
     )
