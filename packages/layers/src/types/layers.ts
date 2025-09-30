@@ -279,8 +279,6 @@ export enum KMLStyle {
     GEOADMIN = 'GEOADMIN',
 }
 
-export const allKmlStyles = [KMLStyle.DEFAULT, KMLStyle.GEOADMIN]
-
 export interface KMLLayer extends Layer {
     /* The URL to access the KML data. */
     kmlFileUrl: string
