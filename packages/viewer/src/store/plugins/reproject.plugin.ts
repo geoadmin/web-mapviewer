@@ -62,7 +62,7 @@ function reprojectSelectedFeatures(
             }
             if (layerFeature.geometry) {
                 layerFeature.geometry = reproject(
-                    selectedFeature.geometry,
+                    layerFeature.geometry,
                     oldProjection.epsg,
                     newProjection.epsg
                 )

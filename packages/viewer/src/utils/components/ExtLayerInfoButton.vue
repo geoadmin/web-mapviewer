@@ -1,14 +1,13 @@
 <script setup lang="ts">
+import type { ExternalLayer } from '@swissgeo/layers'
 import { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type AbstractLayer from '@/api/layers/AbstractLayer.class.js'
-
 const { showSpinner, layer, index } = defineProps<{
     showSpinner: boolean
-    layer: AbstractLayer
+    layer: ExternalLayer
     index: number
 }>()
 
