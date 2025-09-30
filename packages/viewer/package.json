@@ -118,6 +118,7 @@
         "@types/luxon": "catalog:",
         "@types/node": "catalog:",
         "@types/pako": "catalog:",
+        "@types/sortablejs": "^1.15.8",
         "@vite-pwa/assets-generator": "catalog:",
         "@vitejs/plugin-basic-ssl": "catalog:",
         "@vitejs/plugin-vue": "catalog:",
