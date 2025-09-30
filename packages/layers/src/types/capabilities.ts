@@ -111,7 +111,8 @@ export interface WMSCapabilitiesResponse {
         OnlineResource: string
         MaxWidth?: number
         MaxHeight?: number
-    }
+    },
+    getAllExternalLayerObjects(one: CoordinateSystem, two: number,  three: boolean): Layer[]
 }
 // endregion
 // #endregion
@@ -219,7 +220,8 @@ export interface WMTSCapabilitiesResponse {
         ServiceType?: string
         Title?: string
         Abstract?: string
-    }
+    },
+    getAllExternalLayerObjects(one: CoordinateSystem, two: number,  three: boolean): Layer[]
 }
 // endregion
 // #endregion
