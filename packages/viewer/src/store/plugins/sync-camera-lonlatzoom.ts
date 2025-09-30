@@ -49,7 +49,7 @@ const registerSyncCameraLonLatZoom: PiniaPlugin = (): void => {
 
             store.setCenter(centerExpressedInWantedProjection, dispatcher)
             store.setZoom(zoom, dispatcher)
-            store.setRotation(normalizeAngle((rotation * Math.PI) / 180), elf)
+            store.setRotation(normalizeAngle((rotation * Math.PI) / 180), self)
         } else if (name === 'setCenter' && cesiumStore.active && store.camera) {
             const setCenterArgs: Parameters<typeof store.setCenter> = args
 
