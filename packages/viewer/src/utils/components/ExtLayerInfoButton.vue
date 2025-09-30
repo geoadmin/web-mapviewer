@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ExternalLayer } from '@swissgeo/layers'
+import { getFirstErrorMessage, getFirstWarningMessage } from '@swissgeo/layers/validation'
 import { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, useTemplateRef } from 'vue'
@@ -32,12 +33,16 @@ const theme = computed(() => {
 })
 const tooltipContent = computed((): string => {
     if (hasError.value) {
-        const error: ErrorMessage = layer.getFirstErrorMessage()
-        return t(error.msg, error.params)
+        const error: ErrorMessage | undefined = getFirstErrorMessage(layer)
+        if (error) {
+            return t(error.msg, error.params)
+        }
     }
     if (hasWarning.value) {
-        const warning: WarningMessage = layer.getFirstWarningMessage()
-        return t(warning.msg, warning.params)
+        const warning: WarningMessage | undefined = getFirstWarningMessage(layer)
+        if (warning) {
+            return t(warning.msg, warning.params)
+        }
     }
 
     return t('loading_external_layer')
