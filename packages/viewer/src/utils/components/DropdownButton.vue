@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script lang="ts" setup generic="T">
 /**
  * Component to render a dropdown button.
  *
@@ -35,11 +35,11 @@ const {
     withToggleButton = false,
     disabled = false,
     small = false,
-} = defineProps<DropdownButtonProps<unknown>>()
+} = defineProps<DropdownButtonProps<T>>()
 
 const emits = defineEmits<{
     click: []
-    selectItem: [item: DropdownItem<unknown>]
+    selectItem: [item: DropdownItem<T>]
 }>()
 
 const isOpen = ref<boolean>(false)
