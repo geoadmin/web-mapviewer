@@ -66,7 +66,7 @@ const updateSelectedFeatures: PiniaPlugin = () => {
             )
         }
 
-        if (updateFeatures) {
+        if (updateFeatures && clickInfo.features) {
             featuresStore
                 .identifyFeatureAt(
                     {
