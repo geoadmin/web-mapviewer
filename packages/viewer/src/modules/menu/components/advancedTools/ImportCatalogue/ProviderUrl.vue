@@ -1,46 +1,49 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-import { CapabilitiesError } from '@/api/layers/layers-external.api'
 import ProviderList from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderList.vue'
 import { useCapabilities } from '@/modules/menu/components/advancedTools/ImportCatalogue/useCapabilities'
 import { useProviders } from '@/modules/menu/components/advancedTools/ImportCatalogue/useProviders'
 import { isValidUrl } from '@/utils/utils'
+import { useI18nStore } from '@/store/modules/i18n.store'
+import { CapabilitiesError } from '@swissgeo/layers/validation'
 
 const emit = defineEmits(['capabilities:parsed', 'capabilities:cleared'])
 
 const { t } = useI18n()
-const store = useStore()
+const i18nStore = useI18nStore()
 
 // Reactive data
 const url = ref('')
 const capabilitiesParsed = ref(false)
-const errorMessage = ref(null)
+const errorMessage = ref<string | null>(null)
 const providerList = useTemplateRef('providerList')
 const isLoading = ref(false)
 const providerInput = useTemplateRef('providerInput')
 
 const { groupedProviders, showProviders, filterApplied, toggleProviders, filterText } =
     useProviders(url)
-const { loadCapabilities } = useCapabilities(url)
+
+const { loadCapabilities } = useCapabilities(new URL(url.value))
 
 // Computed properties
 const isValid = computed(() => !errorMessage.value && capabilitiesParsed.value)
 const isInvalid = computed(() => errorMessage.value)
 const connectButtonKey = computed(() => (isLoading.value ? 'loading' : 'connect'))
-const lang = computed(() => store.state.i18n.lang)
+const lang = computed(() => i18nStore.lang)
 
 watch(lang, () => {
     if (isValid.value) {
         // When the language changes re-connect to reload the translated capabilities
-        connect()
+        connect().catch((_) => {
+            // satisfying the type-checker
+        })
     }
 })
 
 // Methods
-function onUrlChange(_event) {
+function onUrlChange(_event: Event) {
     capabilitiesParsed.value = false
     errorMessage.value = null
 }
@@ -52,7 +55,7 @@ function validateUrl() {
     return !errorMessage.value
 }
 
-function clearUrl(event) {
+function clearUrl(event: MouseEvent) {
     capabilitiesParsed.value = false
     url.value = ''
     showProviders.value = false
@@ -60,18 +63,22 @@ function clearUrl(event) {
     if (event.screenX !== 0 || event.screenY !== 0) {
         // only focus on the provider input when the clear button has been clicked
         // and when it is a real click event (not a key stroke)
-        providerInput.value.focus()
+        if (providerInput.value) {
+            providerInput.value.focus()
+        }
     }
     emit('capabilities:cleared')
 }
 
-function chooseProvider(providerUrl) {
+function chooseProvider(providerUrl: string) {
     url.value = providerUrl
-    connect()
+    connect().catch((_) => {
+        // satisfying type checker
+    })
 }
 
 function goToProviderList() {
-    if (showProviders.value) {
+    if (showProviders.value && providerList.value) {
         providerList.value.goToFirst()
     }
 }
@@ -81,14 +88,17 @@ async function connect() {
     errorMessage.value = null
     try {
         isLoading.value = true
-        const { layers, wmsMaxSize } = await loadCapabilities()
+
+        const { layers } = await loadCapabilities()
+
         isLoading.value = false
         capabilitiesParsed.value = true
-        emit('capabilities:parsed', layers, wmsMaxSize)
+        emit('capabilities:parsed', layers)
     } catch (error) {
         isLoading.value = false
+
         if (error instanceof CapabilitiesError) {
-            errorMessage.value = error.key
+            errorMessage.value = error.key ?? null
         } else {
             errorMessage.value = 'error'
             throw error
@@ -96,12 +106,14 @@ async function connect() {
     }
 }
 
-function onToggleProviders(event) {
+function onToggleProviders(event: MouseEvent) {
     toggleProviders()
     if (showProviders.value && (event.screenX !== 0 || event.screenY !== 0)) {
         // only focus on the provider input when the provider list has been opened
         // and when it is a real click event (not a key stroke)
-        providerInput.value.focus()
+        if (providerInput.value) {
+            providerInput.value.focus()
+        }
     }
 }
 
@@ -200,7 +212,7 @@ function hideProviders() {
                 class="invalid-feedback"
                 data-cy="import-catalog-invalid-feedback"
             >
-                {{ t(errorMessage) }}
+                {{ t(errorMessage?) }}
             </div>
         </form>
         <ProviderList

@@ -1,17 +1,20 @@
-<script setup lang="js">
+<script setup lang="ts">
 import log from '@swissgeo/log'
 /**
  * Component that maps the active layers from the state to the menu (and also forwards user
  * interactions to the state)
  */
 import Sortable from 'sortablejs'
+
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
-import { useStore } from 'vuex'
 
 import MenuActiveLayersListItem from '@/modules/menu/components/activeLayers/MenuActiveLayersListItem.vue'
 import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPopup.vue'
+import useLayersStore from '@/store/modules/layers.store'
 
-const dispatcher = { dispatcher: 'MenuActiveLayersList.vue' }
+const dispatcher = { name: 'MenuActiveLayersList.vue' }
+
+const layersStore = useLayersStore()
 
 const { compact } = defineProps({
     compact: {
@@ -21,19 +24,25 @@ const { compact } = defineProps({
 })
 
 const activeLayersList = useTemplateRef('activeLayersList')
+
 // used to deactivate the hover change of color on layer whenever one of them is dragged
 const aLayerIsDragged = ref(false)
-const showLayerDetailIndex = ref(null)
-const layerDetailFocusMoveButton = ref(null)
-const showDescriptionForLayerId = ref(null)
-const store = useStore()
+const showLayerDetailIndex = ref<number | null>(null)
+const layerDetailFocusMoveButton = ref<'up' | 'down' | null>(null)
+const showDescriptionForLayerId = ref<string | null>(null)
+
 // Users are used to have layers ordered top to bottom (the first layer is on top), but we store them in the opposite order.
 // So here we swap the order of this array to match the desired order on the UI
-const activeLayers = computed(() => store.state.layers.activeLayers.slice().reverse())
-const reverseIndex = (index) => store.state.layers.activeLayers.length - 1 - index
+const activeLayers = computed(() => layersStore.activeLayers.slice().reverse())
+const reverseIndex = (index: number) => layersStore.activeLayers.length - 1 - index
 
-let sortable
-onMounted(() => {
+let sortable: Sortable
+
+const initSortable = () => {
+    if (!activeLayersList.value) {
+        return
+    }
+
     sortable = Sortable.create(activeLayersList.value, {
         delay: 250,
         delayOnTouchOnly: true,
@@ -44,54 +53,69 @@ onMounted(() => {
         onStart: function () {
             aLayerIsDragged.value = true
         },
-        onEnd: function (event) {
+        onEnd: async function (event) {
             aLayerIsDragged.value = false
             const { newIndex, oldIndex } = event
             if (
+                newIndex &&
+                oldIndex &&
                 newIndex >= 0 &&
                 newIndex < activeLayers.value.length &&
                 oldIndex >= 0 &&
                 oldIndex < activeLayers.value.length
             ) {
                 onMoveLayer(reverseIndex(oldIndex), reverseIndex(newIndex))
-                nextTick(() => {
+
+                await nextTick(() => {
+                    if (!activeLayersList.value) {
+                        return
+                    }
+
                     // PB-1456: fixing an issue with drag&drop left-over by removing any element still tagged by SortableJS
                     // (having a custom attribute draggable=false)
                     const nonDraggableChildren =
                         activeLayersList.value.querySelectorAll('[draggable="false"]')
+
                     if (nonDraggableChildren.length > 0) {
                         if (activeLayers.value.length < activeLayersList.value.children.length) {
                             nonDraggableChildren.forEach((child) => child.remove())
                             log.debug('Non-draggable children removed:', nonDraggableChildren)
                         } else {
-                            log.debug('Number of children does not exceed the number of active layers, no elements removed')
+                            log.debug(
+                                'Number of children does not exceed the number of active layers, no elements removed'
+                            )
                         }
                     } else {
                         log.debug('No non-draggable children found')
-                    }}
-                )
+                    }
+                })
             } else {
                 log.warn('Invalid index for layer move', { newIndex, oldIndex })
             }
         },
     })
+}
+
+onMounted(() => {
+    initSortable()
 })
 
 onBeforeUnmount(() => {
     sortable?.destroy()
 })
 
-function onMoveLayer(oldIndex, newIndex) {
+function onMoveLayer(oldIndex: number, newIndex: number) {
     if (newIndex !== oldIndex) {
         if (showLayerDetailIndex.value === oldIndex) {
             showLayerDetailIndex.value = newIndex
             layerDetailFocusMoveButton.value = oldIndex < newIndex ? 'up' : 'down'
         }
-        store.dispatch('moveActiveLayerToIndex', { index: oldIndex, newIndex, ...dispatcher })
+
+        layersStore.moveActiveLayerToIndex(oldIndex, newIndex, dispatcher)
     }
 }
 
-function onToggleLayerDetail(index) {
+function onToggleLayerDetail(index: number) {
     if (showLayerDetailIndex.value === index) {
         showLayerDetailIndex.value = null
     } else {
