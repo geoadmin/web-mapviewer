@@ -316,19 +316,18 @@ export function parseTopics(layersConfig: GeoAdminLayer[], rawTopics: ServicesRe
             // layers
             .filter((layerId) => !layersToActivate.some((layer) => layer.id === layerId))
         activatedLayers.forEach((layerId) => {
-            let layer = layersConfig.find((layer) => layer.id === layerId)
+            const layer = layersConfig.find((layer) => layer.id === layerId)
+
             if (layer) {
                 // deep copy so that we can reassign values later on
-                // (layers come from the Vuex store so it can't be modified directly)
-                layer = layerUtils.cloneLayer(layer)
-                    // checking if the layer should be also visible
-                    // TODO: GeoAdminLayer is missing the "visible" property but is necessary to make the layer visible when activating the topic, isVisible is currently not used for this
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    ; (layer as any).visible = rawTopic.selectedLayers?.indexOf(layerId) !== -1
+                // (layers come from the pinia store so it can't be modified directly)
+                const layerClone: GeoAdminLayer = layerUtils.cloneLayer(layer)
+                // checking if the layer should be also visible
+                layerClone.isVisible = rawTopic.selectedLayers?.indexOf(layerId) !== -1
                 // In the backend the layers are in the wrong order
                 // so we need to reverse the order here by simply adding
                 // the layer at the beginning of the array
-                layersToActivate.unshift(layer)
+                layersToActivate.unshift(layerClone)
             }
         })
         topics.push({
