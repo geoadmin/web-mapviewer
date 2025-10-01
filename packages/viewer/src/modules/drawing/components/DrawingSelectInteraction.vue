@@ -66,7 +66,9 @@ watch(selectedFeatures, (newSelectedFeatures: StoreFeature[]) => {
 watch(currentlySelectedFeature, (newFeature, oldFeature) => {
     if (newFeature && newFeature.get('editableFeature')) {
         const editableFeature = newFeature.get('editableFeature')
-        editableFeature.coordinates = extractOlFeatureCoordinates(newFeature)
+        editableFeature.coordinates = extractOlFeatureCoordinates(
+            newFeature as unknown as OLFeature
+        )
         // binding store feature change events to our handlers
         // so that we can update the style of the OL features as soon
         // as the store feature is edited
