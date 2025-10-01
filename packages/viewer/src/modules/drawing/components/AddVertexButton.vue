@@ -36,7 +36,7 @@ function addVertex() {
 <template>
     <GeoadminTooltip
         ref="elementRef"
-        :tooltip-content="t(tooltipText)"
+        :tooltip-content="t(tooltipText ?? 'modify_add_vertex')"
         placement="left"
     >
         <button
