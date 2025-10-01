@@ -1,34 +1,42 @@
-<script setup lang="js">
+<script setup lang="ts">
 import Overlay from 'ol/Overlay'
 import { computed, inject, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
+import type Map from 'ol/Map'
+import type VectorLayer from 'ol/layer/Vector'
+import type VectorSource from 'ol/source/Vector'
+import type { Geometry } from 'ol/geom'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
-import { getVertexCoordinates, pointWithinTolerance } from '@/modules/drawing/lib/drawingUtils.js'
+import { getVertexCoordinates, pointWithinTolerance } from '@/modules/drawing/lib/drawingUtils'
+import useFeaturesStore from '@/store/modules/features.store'
+import useDrawingStore from '@/store/modules/drawing.store'
+import type { FeatureLike } from 'ol/Feature'
+import type { SingleCoordinate } from '@swissgeo/coordinates'
 
 const cssPointer = 'cursor-pointer'
 const cssGrab = 'cursor-grab'
 const cssGrabbing = 'cursor-grabbing'
 
-const olMap = inject('olMap')
-const drawingLayer = inject('drawingLayer')
+const olMap = inject<Map>('olMap')
+const drawingLayer = inject<VectorLayer>('drawingLayer')
 const { t } = useI18n()
-const store = useStore()
+const featuresStore = useFeaturesStore()
+const drawingStore = useDrawingStore()
 
 const tooltipText = ref('')
 const drawingTooltip = useTemplateRef('drawingTooltip')
 
-let lastPointerEvent
-const selectedFeatures = computed(() => store.getters.selectedFeatures)
-const drawingMode = computed(() => store.state.drawing.mode)
+let lastPointerEvent: PointerEvent | undefined
+const selectedFeatures = computed(() => featuresStore.selectedFeatures)
+const drawingMode = computed(() => drawingStore.mode)
 const currentlySketchedFeature = computed(() => {
     // there can only be one drawing feature edited at the same time
     if (selectedFeatures.value.length === 1) {
         return selectedFeatures.value[0]
     }
-    return null
+    return
 })
 
 const tooltipOverlay = new Overlay({
@@ -40,24 +48,29 @@ const tooltipOverlay = new Overlay({
 })
 
 onMounted(() => {
-    tooltipOverlay.setElement(drawingTooltip.value)
-    olMap.addOverlay(tooltipOverlay)
-    olMap.on('pointermove', onPointerMove)
+    tooltipOverlay.setElement(drawingTooltip.value ?? undefined)
+    olMap?.addOverlay(tooltipOverlay)
+    olMap?.on('pointermove', onPointerMove)
 })
 
 onBeforeUnmount(() => {
-    tooltipOverlay.setElement(null)
-    olMap.removeOverlay(tooltipOverlay)
-    olMap.un('pointermove', onPointerMove)
+    tooltipOverlay.setElement(undefined)
+    olMap?.removeOverlay(tooltipOverlay)
+    olMap?.un('pointermove', onPointerMove)
 })
 
 watch(selectedFeatures, updateTooltip)
 
-function onPointerMove(event) {
-    // moving the tooltip with the mouse cursor
-    tooltipOverlay.setPosition(event.coordinate)
+function onPointerMove(event: PointerEvent) {
+    // TODO: check if tooltipOverlay.setPosition(event.coordinate) can be used to set the position
+
+    if (olMap) {
+        const pixel = olMap.getEventPixel(event)
+        const coordinate = olMap.getCoordinateFromPixel(pixel)
+        tooltipOverlay.setPosition(coordinate)
+    }
     lastPointerEvent = event
-    updateTooltip(event)
+    updateTooltip()
 }
 
 function updateTooltip() {
@@ -65,7 +78,10 @@ function updateTooltip() {
         return
     }
 
-    const mapElement = olMap.getTarget()
+    const mapElement = olMap!.getTarget()
+    if (!mapElement || !(mapElement instanceof HTMLElement)) {
+        return
+    }
     if (mapElement.classList.contains(cssGrabbing)) {
         mapElement.classList.remove(cssGrab)
         return
@@ -77,10 +93,10 @@ function updateTooltip() {
 
     const hasFeatureSelected = selectedFeatures.value.length > 0
     // we only keep track of the first feature's info (the one on top of the stack)
-    const selectedFeatureId = hasFeatureSelected ? selectedFeatures.value[0]?.id : null
-    let featureUnderCursor
+    const selectedFeatureId = hasFeatureSelected ? selectedFeatures.value[0]?.id : undefined
+    let featureUnderCursor: FeatureLike | undefined
 
-    olMap.forEachFeatureAtPixel(
+    olMap?.forEachFeatureAtPixel(
         lastPointerEvent.pixel,
         (feature) => {
             // Keeping track that features are being hovered (even if not selected)
@@ -114,8 +130,8 @@ function updateTooltip() {
             const coordinates = getVertexCoordinates(currentlySketchedFeature.value).slice(0, -2)
 
             coordinates.some((coordinate, index) => {
-                const pixel = olMap.getPixelFromCoordinate(coordinate)
-                if (pointWithinTolerance(pixel, lastPointerEvent.pixel, DRAWING_HIT_TOLERANCE)) {
+                const pixel = olMap?.getPixelFromCoordinate(coordinate)
+                if (pointWithinTolerance(pixel, lastPointerEvent?.pixel, DRAWING_HIT_TOLERANCE)) {
                     hoveringFirstVertex = index === 0
                     hoveringLastVertex = index === coordinates.length - 1
                     // Abort loop. We have what we need.
@@ -140,15 +156,19 @@ function updateTooltip() {
             translations.push({ key: `draw_start_${drawingMode.value}` })
         }
     } else {
-        if (hoveringSelectedFeature) {
+        if (hoveringSelectedFeature && olMap) {
             const hoveringVertex = getVertexCoordinates(featureUnderCursor).some((coordinate) => {
                 const pixel = olMap.getPixelFromCoordinate(coordinate)
-                return pointWithinTolerance(pixel, lastPointerEvent.pixel, DRAWING_HIT_TOLERANCE)
+                return pointWithinTolerance(
+                    pixel as SingleCoordinate,
+                    lastPointerEvent?.pixel,
+                    DRAWING_HIT_TOLERANCE
+                )
             })
             if (hoveringVertex) {
                 if (nonPointFeatureTypes.includes(featureDrawingMode)) {
                     const selectedFeature = selectedFeatures.value[0]
-                    const geometryType = selectedFeature.geometry.type.toLowerCase()
+                    const geometryType = selectedFeature!.geometry!.type.toLowerCase()
                     translations.push({
                         key: `modify_existing_vertex_line`,
                         params: {
@@ -188,7 +208,7 @@ function updateTooltip() {
     }
 
     tooltipText.value = translations
-        .map((translation) => t(translation.key.toLowerCase(), translation.params))
+        .map((translation) => t(translation.key.toLowerCase(), translation.params!))
         .join('<br>')
 }
 </script>
