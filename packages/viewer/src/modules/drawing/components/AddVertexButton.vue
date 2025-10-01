@@ -1,52 +1,39 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { onMounted, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
-
-import { EditMode } from '@/store/modules/drawing.store'
+import useDrawingStore, { EditMode } from '@/store/modules/drawing.store'
+import type { ActionDispatcher } from '@/store/types'
 
 const { t } = useI18n()
 
-const dispatcher = { dispatcher: 'AddVertexButton.vue' }
+const dispatcher: ActionDispatcher = { name: 'AddVertexButton.vue' }
 
-const { tooltipText, reverse } = defineProps({
-    tooltipText: {
-        type: String,
-        default: 'modify_add_vertex',
-    },
-    // If true, the button will add a vertex in the reverse direction
-    reverse: {
-        type: Boolean,
-        default: false,
-    },
-})
+const { tooltipText, reverse } = defineProps<{ tooltipText?: string; reverse?: boolean }>()
 
-const emit = defineEmits(['button-mounted'])
+const emit = defineEmits<{ 'button-mounted': [el: HTMLElement] }>()
 
-const store = useStore()
+const drawingStore = useDrawingStore()
 
 const elementRef = useTemplateRef('elementRef')
 
 onMounted(() => {
     // Emit an event to notify the parent component that the button is mounted
-    emit('button-mounted', elementRef.value.tooltipElement)
+    if (elementRef.value?.tooltipElement) {
+        emit('button-mounted', elementRef.value.tooltipElement as HTMLElement)
+    }
 })
 
 function addVertex() {
-    store.dispatch('setEditingMode', {
-        mode: EditMode.EXTEND,
-        reverseLineStringExtension: reverse,
-        ...dispatcher,
-    })
+    drawingStore.setEditingMode(EditMode.EXTEND, !!reverse, dispatcher)
 }
 </script>
 
 <template>
     <GeoadminTooltip
         ref="elementRef"
-        :tooltip-content="t(tooltipText)"
+        :tooltip-content="t(tooltipText ?? 'modify_add_vertex')"
         placement="left"
     >
         <button
