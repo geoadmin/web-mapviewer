@@ -1,10 +1,9 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import DOMPurify from 'dompurify'
 import { computed, inject, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
@@ -14,42 +13,50 @@ import SharePopup from '@/modules/drawing/components/SharePopup.vue'
 import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
-import { EditMode } from '@/store/modules/drawing.store'
+import useDrawingStore, { EditMode } from '@/store/modules/drawing.store'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import debounce from '@/utils/debounce'
+import useUIStore from '@/store/modules/ui.store'
+import useLayersStore from '@/store/modules/layers.store'
+import useFeaturesStore from '@/store/modules/features.store'
+import type { ActionDispatcher } from '@/store/types'
+import type VectorLayer from 'ol/layer/Vector'
 
-const dispatcher = { dispatcher: 'DrawingToolbox.vue' }
+const dispatcher: ActionDispatcher = { name: 'DrawingToolbox.vue' }
 
-const drawingLayer = inject('drawingLayer')
+const drawingLayer = inject<VectorLayer>('drawingLayer')
 const { saveState, deleteDrawing, debounceSaveDrawing } = useSaveKmlOnChange()
 const { t } = useI18n()
-const store = useStore()
+const drawingStore = useDrawingStore()
+const uiStore = useUIStore()
+const layersStore = useLayersStore()
+const featuresStore = useFeaturesStore()
 
-const emits = defineEmits(['removeLastPoint', 'closeDrawing'])
+const emits = defineEmits<{ removeLastPoint: []; closeDrawing: [] }>()
 
 const drawMenuOpen = ref(true)
 const showClearConfirmationModal = ref(false)
 const showShareModal = ref(false)
 const showNotSharedDrawingWarningModal = ref(false)
-const showNotSharedDrawingWarning = computed(() => store.getters.showNotSharedDrawingWarning)
+const showNotSharedDrawingWarning = computed(() => drawingStore.showNotSharedDrawingWarning)
 const isClosingDrawing = ref(false)
 const showNoActiveKmlWarning = computed(() => !activeKmlLayer.value)
 
 const tooltipText = computed(() => t(!activeKmlLayer.value ? 'drawing_empty_cannot_edit_name' : ''))
-const isDesktopMode = computed(() => store.getters.isDesktopMode)
-const isPhoneMode = computed(() => store.getters.isPhoneMode)
-const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
-const currentDrawingMode = computed(() => store.state.drawing.mode)
-const isDrawingLineOrMeasure = computed(() =>
-    [EditableFeatureTypes.LinePolygon, EditableFeatureTypes.Measure].includes(
-        currentDrawingMode.value
-    )
-)
-const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
+const isDesktopMode = computed(() => uiStore.isDesktopMode)
+const isPhoneMode = computed(() => uiStore.isPhoneMode)
+const isDrawingEmpty = computed(() => drawingStore.isDrawingEmpty)
+const currentDrawingMode = computed(() => drawingStore.mode)
+const isDrawingLineOrMeasure = computed(() => {
+    const mode = currentDrawingMode.value
+    return !!mode && [EditableFeatureTypes.LinePolygon, EditableFeatureTypes.Measure].includes(mode)
+})
+const selectedEditableFeatures = computed(() => featuresStore.selectedEditableFeatures)
 const selectedLineString = computed(() => {
     return selectedEditableFeatures.value.find((feature) => {
+        const geomType = feature.geometry?.type
         return (
-            feature.geometry.type === 'LineString' &&
+            geomType === 'LineString' &&
             [EditableFeatureTypes.LinePolygon, EditableFeatureTypes.Measure].includes(
                 feature.featureType
             )
@@ -57,13 +64,17 @@ const selectedLineString = computed(() => {
     })
 })
 
-const selectedLineCoordinates = computed(() => {
-    if (selectedLineString.value) {
-        return selectedLineString.value.geometry.coordinates
+const selectedLineCoordinates = computed<number[][] | undefined>(() => {
+    const line = selectedLineString.value
+    // Guard geometry existence and type
+    if (line?.geometry?.type === 'LineString') {
+        // geometry.coordinates is number[][] for LineString in our domain model
+        // cast to be explicit (underlying geojson typing is a union)
+        return (line.geometry as any).coordinates as number[][]
     }
-    return null
+    return
 })
-const editMode = computed(() => store.state.drawing.editingMode)
+const editMode = computed(() => drawingStore.editingMode)
 const isAllowDeleteLastPoint = computed(
     () =>
         // Allow deleting the last point only if we are drawing line or measure
@@ -71,17 +82,20 @@ const isAllowDeleteLastPoint = computed(
         isDrawingLineOrMeasure.value ||
         (editMode.value === EditMode.EXTEND &&
             selectedLineString.value &&
-            selectedLineCoordinates.value?.length > 2)
+            selectedLineCoordinates.value &&
+            selectedLineCoordinates.value.length > 2)
 )
-const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
+const activeKmlLayer = computed(() => layersStore.activeKmlLayer)
 const drawingName = computed({
-    get: () => store.state.drawing.name,
+    get: () => drawingStore.name,
     set: (value) => debounceSaveDrawingName(value),
 })
 const isDrawingStateError = computed(() => saveState.value < 0)
 /** Return a different translation key depending on the saving status */
+// Widen literal type of saveState (avoid it being inferred as 0 literal)
+const saveStateValue = computed<number>(() => saveState.value as number)
 const drawingStateMessage = computed(() => {
-    switch (saveState.value) {
+    switch (saveStateValue.value) {
         case DrawingState.SAVING:
             return t('draw_file_saving')
         case DrawingState.SAVED:
@@ -91,27 +105,31 @@ const drawingStateMessage = computed(() => {
         case DrawingState.LOAD_ERROR:
             return t('draw_file_save_error')
         default:
-            return null
+            return
     }
 })
-const online = computed(() => store.state.drawing.online)
+const online = computed(() => drawingStore.online)
 
-function onCloseClearConfirmation(confirmed) {
+function onCloseClearConfirmation(confirmed: boolean) {
     showClearConfirmationModal.value = false
     if (confirmed) {
-        store.dispatch('clearDrawingFeatures', dispatcher)
-        store.dispatch('clearAllSelectedFeatures', dispatcher)
-        store.dispatch('setIsDrawingModified', { value: false, ...dispatcher })
-        store.dispatch('setIsDrawingEditShared', { value: false, ...dispatcher })
-        drawingLayer.getSource().clear()
+        drawingStore.clearDrawingFeatures(dispatcher)
+        featuresStore.clearAllSelectedFeatures(dispatcher)
+        drawingStore.setIsDrawingModified(false, dispatcher)
+        drawingStore.setIsDrawingEditShared(false, dispatcher)
+        drawingLayer?.getSource()?.clear()
         deleteDrawing()
-        store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
-        store.dispatch('removeLayer', {
-            layerId: activeKmlLayer.value.id,
-            isExternal: activeKmlLayer.value.isExternal,
-            baseUrl: activeKmlLayer.value.baseUrl,
-            ...dispatcher,
-        })
+        drawingStore.setDrawingMode(undefined, dispatcher)
+        if (activeKmlLayer.value) {
+            layersStore.removeLayer(
+                {
+                    layerId: activeKmlLayer.value.id,
+                    isExternal: activeKmlLayer.value.isExternal,
+                    baseUrl: activeKmlLayer.value.baseUrl,
+                },
+                dispatcher
+            )
+        }
     }
 }
 
@@ -134,22 +152,22 @@ function onCloseWarningModal() {
     showNotSharedDrawingWarningModal.value = false
 }
 
-function selectDrawingMode(drawingMode) {
-    store.dispatch('setDrawingMode', { mode: drawingMode, ...dispatcher })
+function selectDrawingMode(drawingMode: EditableFeatureTypes) {
+    drawingStore.setDrawingMode(drawingMode, dispatcher)
 }
 
 function onDeleteLastPoint() {
     emits('removeLastPoint')
 }
 
-const debounceSaveDrawingName = debounce(async (newName) => {
-    await store.dispatch('setDrawingName', {
-        // sanitizing to avoid any XSS vector
-        name: DOMPurify.sanitize(newName, {
-            USE_PROFILES: { xml: true },
-        }).trim(),
-        ...dispatcher,
-    })
+const debounceSaveDrawingName = debounce(async (...args: unknown[]) => {
+    const newName = typeof args[0] === 'string' ? args[0] : undefined
+    const sanitized = DOMPurify.sanitize(newName ?? '', {
+        ALLOWED_TAGS: [],
+        ALLOWED_ATTR: [],
+        KEEP_CONTENT: false,
+    }).trim()
+    drawingStore.setDrawingName(sanitized, dispatcher)
     debounceSaveDrawing()
 }, 200)
 </script>

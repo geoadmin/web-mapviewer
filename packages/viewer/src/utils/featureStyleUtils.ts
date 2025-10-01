@@ -375,7 +375,7 @@ function getElementOffsets(editableFeature?: EditableFeature): {
  */
 export function geoadminStyleFunction(
     feature: FeatureLike,
-    resolution: number
+    resolution?: number
 ): Style | Style[] | undefined {
     const editableFeature = feature.get('editableFeature')
 
@@ -420,8 +420,8 @@ export function geoadminStyleFunction(
             fill: isDrawing
                 ? whiteSketchFill
                 : new Fill({
-                      color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
-                  }),
+                    color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
+                }),
             zIndex: StyleZIndex.MainStyle,
         }),
     ]
@@ -452,8 +452,8 @@ export function geoadminStyleFunction(
                 fill: isDrawing
                     ? whiteSketchFill
                     : new Fill({
-                          color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
-                      }),
+                        color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
+                    }),
                 zIndex: StyleZIndex.AzimuthCircle,
                 stroke: new Stroke({
                     color: styleConfig.strokeColor.fill,
@@ -464,7 +464,7 @@ export function geoadminStyleFunction(
     }
     /* This function is also called when saving the feature to KML, where "feature.get('geodesic')"
     is not there anymore, thats why we have to check for it here */
-    if (editableFeature?.featureType === EditableFeatureTypes.Measure && feature.get('geodesic')) {
+    if (resolution && editableFeature?.featureType === EditableFeatureTypes.Measure && feature.get('geodesic')) {
         styles.push(...feature.get('geodesic').getMeasureStyles(resolution))
     }
     return styles
