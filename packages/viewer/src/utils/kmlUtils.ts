@@ -287,13 +287,13 @@ function generateIconFromStyle(iconStyle: IconStyle, iconArgs: IconArgs): Drawin
 
     return anchor
         ? {
-              name: iconArgs.name,
-              imageURL: url,
-              imageTemplateURL: url,
-              iconSetName: iconArgs.set,
-              anchor: anchor as [number, number],
-              size: size as [number, number],
-          }
+            name: iconArgs.name,
+            imageURL: url,
+            imageTemplateURL: url,
+            iconSetName: iconArgs.set,
+            anchor: anchor as [number, number],
+            size: size as [number, number],
+        }
         : undefined
 }
 
@@ -310,7 +310,7 @@ function generateIconFromStyle(iconStyle: IconStyle, iconArgs: IconArgs): Drawin
  * @returns The drawing icon or undefined in case of non-geoadmin icon
  */
 export function getIcon(
-    iconArgs: IconArgs,
+    iconArgs?: IconArgs,
     iconStyle?: IconStyle,
     availableIconSets?: DrawingIconSet[],
     iconNotFoundCallback?: () => void

@@ -8,7 +8,7 @@ import DrawInteraction, { DrawEvent } from 'ol/interaction/Draw'
 import SnapInteraction from 'ol/interaction/Snap'
 import { Style } from 'ol/style'
 import { getUid } from 'ol/util'
-import type OLMap from 'ol/Map'
+import type Map from 'ol/Map'
 import { inject, nextTick, onBeforeUnmount, onMounted, ref, toValue } from 'vue'
 import type { Type as GeometryType } from 'ol/geom/Geometry'
 
@@ -43,11 +43,6 @@ interface UseDrawingModeInteractionConfig {
     startingFeature?: OLFeature<SimpleGeometry>
 }
 
-/**
- * Custom hook to handle drawing mode interaction.
- *
- * @returns {Object} - An object containing the removeLastPoint function.
- */
 export default function useDrawingModeInteraction(config?: UseDrawingModeInteractionConfig) {
     const {
         geometryType = 'Point',
@@ -63,7 +58,7 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
     const isSnappingOnFirstPoint = ref<boolean>(false)
 
     const drawingLayer = inject<VectorLayer>('drawingLayer')
-    const olMap = inject<OLMap>('olMap')
+    const olMap = inject<Map>('olMap')
 
     if (!drawingLayer || !olMap) {
         throw new Error('Drawing layer or OL map not provided')
