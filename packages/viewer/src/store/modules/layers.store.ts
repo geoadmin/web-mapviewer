@@ -727,8 +727,10 @@ const useLayersStore = defineStore('layers', {
             dispatcher: ActionDispatcher
         ) {
             const layer = this.getActiveLayerByIndex(index)
+
             if (layer && layer.timeConfig) {
                 timeConfigUtils.updateCurrentTimeEntry(layer.timeConfig, timeEntry)
+
                 // if this layer has a 3D counterpart, we also update its time entry (keep it in sync)
                 if ('idIn3d' in layer && layer.idIn3d !== undefined) {
                     const geoadminLayer = layer as GeoAdminLayer
