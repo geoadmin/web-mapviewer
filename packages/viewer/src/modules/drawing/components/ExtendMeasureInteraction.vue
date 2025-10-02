@@ -9,7 +9,10 @@ import type { StyleFunction } from 'ol/style/Style'
 
 const { startingFeature } = defineProps<{ startingFeature: Feature<SimpleGeometry> }>()
 
-const emits = defineEmits<{ drawEnd: [feature: Feature<SimpleGeometry>] }>()
+type EmitType = {
+    (_e: 'drawEnd', _feature: Feature<SimpleGeometry>): void
+}
+const emits = defineEmits<EmitType>()
 
 const { removeLastPoint } = useExtendLineInteraction({
     featureType: EditableFeatureTypes.Measure,

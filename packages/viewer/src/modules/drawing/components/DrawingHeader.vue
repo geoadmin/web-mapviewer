@@ -12,8 +12,10 @@ const { isClosingInToolbox } = defineProps({
         default: false,
     },
 })
-
-const emits = defineEmits<{ close: [] }>()
+type EmitType = {
+    (_e: 'close'): void
+}
+const emits = defineEmits<EmitType>()
 const drawingStore = useDrawingStore()
 
 const isClosing = ref(false)
