@@ -98,10 +98,10 @@ function registerRenderingEvents(layerId: string, layerUuid: string) {
     // context to ensure it is also cut correctly upon activating the compare slider
     // or loading a new COG layer on top.
     layer?.once('prerender', (event) => {
-        if (shouldUseWebGlContext.value && event.context) {
-            ;(event.context as WebGLRenderingContext).clear(
+        if (event.context && useWebGLContext(event.context)) {
+            event.context.clear(
                 // sorry
-                (event.context as WebGLRenderingContext).COLOR_BUFFER_BIT
+                event.context.COLOR_BUFFER_BIT
             )
         }
     })
@@ -159,6 +159,12 @@ function onPreRender2d(event: RenderEvent, context: CanvasRenderingContext2D) {
     context.clip()
 }
 
+function useWebGLContext(
+    context: WebGLRenderingContext | CanvasRenderingContext2D
+): context is WebGLRenderingContext {
+    return shouldUseWebGlContext.value
+}
+
 function onPreRender(event: RenderEvent) {
     const context = event.context
 
@@ -166,22 +172,24 @@ function onPreRender(event: RenderEvent) {
         return
     }
 
-    if (shouldUseWebGlContext.value) {
-        onPreRenderWebGL(event, context as WebGLRenderingContext)
+    if (useWebGLContext(context)) {
+        onPreRenderWebGL(event, context)
     } else {
-        onPreRender2d(event, context as CanvasRenderingContext2D)
+        onPreRender2d(event, context)
     }
 }
 
 function onPostRender(event: RenderEvent) {
     const context = event.context
 
-    // probably could do some generic magic here
-    if (shouldUseWebGlContext.value) {
-        const _context = context as WebGLRenderingContext
-        _context.disable(_context.SCISSOR_TEST)
+    if (!context) {
+        return
+    }
+
+    if (useWebGLContext(context)) {
+        context.disable(context.SCISSOR_TEST)
     } else {
-        ;(context as CanvasRenderingContext2D).restore()
+        context.restore()
     }
 }
 

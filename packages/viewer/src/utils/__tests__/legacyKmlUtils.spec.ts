@@ -5,7 +5,6 @@ import { resolve } from 'path'
 import { beforeEach, describe, expect, it } from 'vitest'
 import type { default as OLFeature } from 'ol/Feature'
 
-import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
 import type { DrawingIconSet } from '@/api/icon.api'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import {
@@ -20,6 +19,7 @@ import {
     YELLOW,
 } from '@/utils/featureStyleUtils'
 import { parseKml } from '@/utils/kmlUtils'
+import { EditableFeatureTypes, type EditableFeature } from '@/api/features.api'
 
 const fakeDefaultIconSet: DrawingIconSet = {
     name: 'default',
@@ -89,11 +89,13 @@ function performStandardChecks(
     expect(feature).toBeDefined()
     expect(feature!.coordinates).toBeDefined()
     expect(feature!.coordinates).to.have.length.greaterThan(0)
-    if (feature!.coordinates!.length === 1) {
-        expect(feature!.coordinates![0]).to.have.length(expectedCoordinateCount)
+
+    if (feature!.coordinates.length === 1) {
+        expect(feature!.coordinates[0]).to.have.length(expectedCoordinateCount)
     } else {
         expect(feature!.coordinates).to.have.length(expectedCoordinateCount)
     }
+
     expect(feature!.title).to.be.equal(expectedTitle)
     expect(feature!.description).to.equal(expectedDescription)
     expect(feature!.featureType).to.be.equal(expectedFeatureType)
@@ -113,7 +115,7 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
             kmlData: kml,
         })
         const resolution = 12345
-        const olFeatures: OLFeature[] = parseKml(kmlLayer, WEBMERCATOR, resolution, fakeIconSets)
+        const olFeatures: OLFeature[] = parseKml(kmlLayer, WEBMERCATOR, fakeIconSets, resolution)
         features = olFeatures.map((f) => f.get('editableFeature'))
     })
     describe('icon parsing', () => {
