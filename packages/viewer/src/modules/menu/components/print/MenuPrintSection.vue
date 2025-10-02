@@ -1,21 +1,23 @@
-<script setup lang="js">
+<script setup lang="ts">
 import log from '@swissgeo/log'
 import { formatThousand } from '@swissgeo/numbers'
-import { computed, inject, ref, watch } from 'vue'
+import { computed, inject, ref, watch, type ComputedRef, type WritableComputedRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
+import Map from 'ol/Map'
 
-import { PrintError } from '@/api/print.api.js'
+import { PrintError, PrintLayout } from '@/api/print.api.js'
 import {
     PrintStatus,
     usePrint,
 } from '@/modules/map/components/openlayers/utils/usePrint.composable'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
-import DropdownButton from '@/utils/components/DropdownButton.vue'
+import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
 import ProgressBar from '@/utils/components/ProgressBar.vue'
 import { downloadFile, generateFilename } from '@/utils/utils'
+import usePrintStore from '@/store/modules/print.store'
+import useLayersStore from '@/store/modules/layers.store'
 
-const dispatcher = { dispatcher: 'MapPrintSection.vue' }
+const dispatcher = { name: 'MapPrintSection.vue' }
 
 const emits = defineEmits(['openMenuSection'])
 
@@ -24,21 +26,27 @@ const isSectionShown = ref(false)
 const printGrid = ref(false)
 const printLegend = ref(false)
 
-const olMap = inject('olMap')
-const { printStatus, print, abortCurrentJob, printError } = usePrint(olMap)
+const olMap = inject<Map>('olMap')
+
+const { printStatus, print, abortCurrentJob, printError } = usePrint(olMap!)
 
 const { t } = useI18n()
-const store = useStore()
-const selectedLayout = computed(() => store.state.print.selectedLayout)
-const availablePrintLayouts = computed(() =>
-    store.state.print.layouts.map((layout) => ({
+
+const printStore = usePrintStore()
+const layersStore = useLayersStore()
+
+// approximate print duration := 8s per layer (+1 is for the background layer and to avoid 0 duration)
+const printDuration = computed(() => 8 * (layersStore.visibleLayers.length + 1))
+
+const availablePrintLayouts: ComputedRef<DropdownItem<PrintLayout>[]> = computed(() =>
+    printStore.layouts.map((layout) => ({
         id: formatTitle(layout.name),
         title: formatTitle(layout.name),
         value: layout,
     }))
 )
 
-const scales = computed(
+const availableScales: ComputedRef<DropdownItem<number>[]> = computed(
     () =>
         selectedLayout?.value?.scales?.map((scale) => ({
             id: scale,
@@ -47,32 +55,26 @@ const scales = computed(
         })) ?? []
 )
 
-// approximate print duration := 8s per layer (+1 is for the background layer and to avoid 0 duration)
-const printDuration = computed(() => 8 * (store.getters.visibleLayers.length + 1))
-
-const selectedLayoutName = computed({
+const selectedLayout: WritableComputedRef<PrintLayout | undefined> = computed({
     get() {
-        return store.state.print.selectedLayout
+        return printStore.selectedLayout
     },
-    set(value) {
-        store.dispatch('setSelectedLayout', {
-            layout: availablePrintLayouts.value.find((layout) => layout.value.name === value).value,
-            ...dispatcher,
-        })
+    set(layout) {
+        printStore.setSelectedLayout(layout, dispatcher)
     },
 })
 
 const selectedScale = computed({
     get() {
-        return store.state.print.selectedScale
+        return printStore.selectedScale
     },
-    set(value) {
-        store.dispatch('setSelectedScale', { scale: value, ...dispatcher })
+    set(value: number) {
+        printStore.setSelectedScale(value, dispatcher)
     },
 })
 
 const printErrorMessage = computed(() => {
-    if (printStatus.FINISHED_ABORTED) {
+    if (PrintStatus.FINISHED_ABORTED) {
         return t('operation_aborted')
     } else {
         if (printError.value instanceof PrintError && printError.value.key) {
@@ -84,32 +86,38 @@ const printErrorMessage = computed(() => {
 })
 
 watch(isSectionShown, () => {
-    store.dispatch('setPrintSectionShown', { show: isSectionShown.value, ...dispatcher })
+    printStore.setPrintSectionShown(isSectionShown.value, dispatcher)
 })
 
 watch(availablePrintLayouts, () => {
     // whenever layouts are loaded form the backend, we select the first one as default value
     if (availablePrintLayouts.value.length > 0) {
-        selectLayout(availablePrintLayouts.value[0])
+        // selectLayout()
+        selectedLayout.value = availablePrintLayouts.value[0]?.value
     }
 })
 
 function togglePrintMenu() {
     // load print layouts from the backend if they were not yet loaded
     if (availablePrintLayouts.value.length === 0) {
-        store.dispatch('loadPrintLayouts', dispatcher).then(() => {
-            isSectionShown.value = !isSectionShown.value
-        })
+        printStore
+            .loadPrintLayouts(dispatcher)
+            .then(() => {
+                isSectionShown.value = !isSectionShown.value
+            })
+            .catch((_) => {})
     } else {
         // if layouts are already present, we select the first one as default value
-        selectLayout(availablePrintLayouts.value[0])
+        selectedLayout.value = availablePrintLayouts.value[0]?.value
         isSectionShown.value = !isSectionShown.value
     }
 }
-function selectLayout(layout) {
-    selectedLayoutName.value = layout.value.name
+
+function selectPrintLayout(layout: DropdownItem<PrintLayout>): void {
+    selectedLayout.value = layout.value
 }
-function selectScale(scale) {
+
+function selectScale(scale: DropdownItem<number>) {
     selectedScale.value = scale.value
 }
 
@@ -130,22 +138,22 @@ async function printMap() {
             }
         }
     } catch (error) {
-        log.error('Print failed', error)
+        log.error({ messages: ['Print failed', error] })
     }
 }
 
-function onOpenMenuSection(sectionId) {
+function onOpenMenuSection(sectionId: string) {
     if (printStatus.value !== PrintStatus.PRINTING) {
         printStatus.value = PrintStatus.IDLE
     }
     emits('openMenuSection', sectionId)
 }
 
-function formatTitle(title) {
+function formatTitle(title: string) {
     return title ? title.replace(/^\d+\.\s*/, '') : ''
 }
 
-function formatScale(scale) {
+function formatScale(scale: number) {
     return scale ? '1:' + formatThousand(scale) : ''
 }
 
@@ -176,13 +184,13 @@ defineExpose({
                 {{ t('print_layout') }}
             </label>
             <DropdownButton
-                v-if="selectedLayoutName"
+                v-if="selectedLayout"
                 id="print-layout-selector"
-                :title="formatTitle(selectedLayoutName?.name)"
+                :title="formatTitle(selectedLayout?.name)"
                 :items="availablePrintLayouts"
-                :current-value="selectedLayoutName"
+                :current-value="selectedLayout?.name || null"
                 data-cy="print-layout-selector"
-                @select-item="selectLayout"
+                @select-item="selectPrintLayout"
             />
             <div v-else>...</div>
             <label
@@ -195,7 +203,7 @@ defineExpose({
                 v-if="selectedScale"
                 id="print-scale-selector"
                 :title="formatScale(selectedScale)"
-                :items="scales"
+                :items="availableScales"
                 :current-value="selectedScale"
                 data-cy="print-scale-selector"
                 @select-item="selectScale"

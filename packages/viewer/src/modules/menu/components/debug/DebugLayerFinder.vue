@@ -1,26 +1,24 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useStore } from 'vuex'
 
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import DebugLayerFinderFilter from '@/modules/menu/components/debug/DebugLayerFinderFilter.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
+import { LayerType, type Layer } from '@swissgeo/layers'
+import useLayersStore from '@/store/modules/layers.store'
+import { timeConfigUtils } from '@swissgeo/layers/utils'
+
+const layersStore = useLayersStore()
 
 const onlyTimeEnabled = ref(null)
 const with3DConfig = ref(null)
 const withTooltip = ref(null)
 const withLegend = ref(null)
 
-const store = useStore()
-
-const layers = computed(() => store.state.layers.config)
-const possibleLayerTypes = [
-    LayerTypes.WMTS,
-    LayerTypes.WMS,
-    LayerTypes.AGGREGATE,
-    LayerTypes.GEOJSON,
-]
+const layers = computed(() => layersStore.config)
+const possibleLayerTypes = [LayerType.WMTS, LayerType.WMS, LayerType.AGGREGATE, LayerType.GEOJSON]
 const currentLayerType = ref([...possibleLayerTypes])
+
+const dispatcher = { name: 'DebugLayerFinder.vue' }
 
 const filteredLayers = computed(() => {
     if (!currentLayerType.value) {
@@ -31,7 +29,7 @@ const filteredLayers = computed(() => {
             possibleLayerTypes.includes(layer.type) &&
             currentLayerType.value.includes(layer.type) &&
             (onlyTimeEnabled.value === null ||
-                layer.hasMultipleTimestamps === onlyTimeEnabled.value) &&
+                timeConfigUtils.hasMultipleTimestamps(layer) === onlyTimeEnabled.value) &&
             (with3DConfig.value === null || !!layer.idIn3d === with3DConfig.value) &&
             (withTooltip.value === null || layer.hasTooltip === withTooltip.value) &&
             (withLegend.value === null || layer.hasLegend === withLegend.value)
@@ -39,17 +37,17 @@ const filteredLayers = computed(() => {
     })
 })
 
-function addLayer(layerConfig) {
-    store.dispatch('addLayer', {
-        layerConfig: {
-            id: layerConfig.id,
-            visible: true,
+function addLayer(layerConfig: Layer) {
+    layersStore.addLayer(
+        {
+            layerId: layerConfig.id,
+            layerConfig: { isVisible: true },
         },
-        dispatcher: 'DebugLayerFinder.vue',
-    })
+        dispatcher
+    )
 }
 
-function toggleLayerType(type) {
+function toggleLayerType(type: LayerType) {
     if (currentLayerType.value.includes(type)) {
         currentLayerType.value = currentLayerType.value.filter((t) => t !== type)
     } else {
@@ -122,14 +120,14 @@ function toggleLayerType(type) {
             <div class="card-header">
                 {{ filteredLayers.length }} layer{{ filteredLayers.length > 1 ? 's' : '' }}
             </div>
-            <div class="layer-list card-body overflow-y-auto p-0 m-0">
+            <div class="layer-list card-body m-0 overflow-y-auto p-0">
                 <div
                     v-for="(layer, index) in filteredLayers"
                     :key="layer.id + layer.uuid"
                     class="d-flex justify-content-end align-content-center mb-1 p-1"
                     :class="{ 'bg-body-secondary': index % 2 === 0 }"
                 >
-                    <div class="flex-grow-1 align-self-center">
+                    <div class="align-self-center flex-grow-1">
                         {{ layer.name }}
                     </div>
                     <div class="align-self-center me-1">

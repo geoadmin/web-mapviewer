@@ -1,20 +1,16 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { useTemplateRef } from 'vue'
 
 import SearchResultListEntry from '@/modules/menu/components/search/SearchResultListEntry.vue'
+import type { SearchResult } from '@/api/search.api'
 
-const { title, results } = defineProps({
-    title: {
-        type: String,
-        required: true,
-    },
-    results: {
-        type: Array,
-        required: true,
-    },
-})
+const { title, results } = defineProps<{
+    title: string
+    results: SearchResult[]
+}>()
 
 const entries = useTemplateRef('entries')
+
 const emit = defineEmits([
     'entrySelected',
     'firstEntryReached',
@@ -23,16 +19,20 @@ const emit = defineEmits([
     'clearPreview',
 ])
 
-function onEntrySelected(entry) {
+function onEntrySelected(entry: SearchResult) {
     emit('entrySelected', entry)
 }
 
 function focusFirstEntry() {
-    entries.value[0].goToFirst()
+    if (entries.value) {
+        entries.value[0]?.goToFirst()
+    }
 }
 
 function focusLastEntry() {
-    entries.value[entries.value.length - 1].goToLast()
+    if (entries.value) {
+        entries.value[entries.value.length - 1]?.goToLast()
+    }
 }
 
 defineExpose({ focusFirstEntry, focusLastEntry })
@@ -40,7 +40,7 @@ defineExpose({ focusFirstEntry, focusLastEntry })
 
 <template>
     <div class="search-category">
-        <div class="search-category-header px-2 py-1 text-bg-secondary">
+        <div class="search-category-header text-bg-secondary px-2 py-1">
             {{ title }}
         </div>
         <ul
@@ -54,11 +54,11 @@ defineExpose({ focusFirstEntry, focusLastEntry })
                 :index="index"
                 :entry="entry"
                 data-cy="search-result-entry"
-                @entry-selected="onEntrySelected(entry)"
-                @first-entry-reached="emit('firstEntryReached')"
-                @last-entry-reached="emit('lastEntryReached')"
-                @set-preview="emit('setPreview', $event)"
-                @clear-preview="emit('clearPreview', $event)"
+                @entrySelected="onEntrySelected(entry)"
+                @firstEntryReached="emit('firstEntryReached')"
+                @lastEntryReached="emit('lastEntryReached')"
+                @setPreview="emit('setPreview', $event)"
+                @clearPreview="emit('clearPreview', $event)"
             />
         </ul>
     </div>

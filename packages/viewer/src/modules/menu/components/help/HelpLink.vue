@@ -1,21 +1,19 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
+import { useI18nStore } from '@/store/modules/i18n.store'
 
-const { showAsButton } = defineProps({
-    showAsButton: {
-        type: Boolean,
-        default: false,
-    },
-})
+const i18nStore = useI18nStore()
 
-const store = useStore()
+const { showAsButton = false } = defineProps<{
+    showAsButton?: boolean
+}>()
+
 const { t } = useI18n()
 
-const lang = computed(() => store.state.i18n.lang)
+const lang = computed(() => i18nStore.lang)
 const helpPage = computed(() => {
     if (lang.value === 'de' || lang.value === 'rm') {
         return `de/kartenviewer-hilfe`

@@ -1,36 +1,30 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
 import LayerCatalogueItem from '@/modules/menu/components/LayerCatalogueItem.vue'
+import useLayersStore from '@/store/modules/layers.store'
+import type { GeoAdminLayer, GeoAdminGroupOfLayers } from '@swissgeo/layers'
 
-const dispatcher = { dispatcher: 'LayerCatalogue.vue' }
+const dispatcher = { name: 'LayerCatalogue.vue' }
 
-const { layerCatalogue, compact, withSearchBar, isTopic } = defineProps({
-    layerCatalogue: {
-        type: Array,
-        required: true,
-    },
-    compact: {
-        type: Boolean,
-        default: false,
-    },
-    withSearchBar: {
-        type: Boolean,
-        default: false,
-    },
-    isTopic: {
-        type: Boolean,
-        default: false,
-    },
-})
+const {
+    layerCatalogue,
+    compact = false,
+    withSearchBar = false,
+    isTopic = false,
+} = defineProps<{
+    layerCatalogue: (GeoAdminLayer | GeoAdminGroupOfLayers)[]
+    compact?: boolean
+    withSearchBar?: boolean
+    isTopic?: boolean
+}>()
 
-const store = useStore()
 const { t } = useI18n()
+const layersStore = useLayersStore()
 
 const searchText = ref('')
-const searchInput = useTemplateRef('searchInput')
+const searchInputRef = useTemplateRef('searchInput')
 
 const showSearchBar = computed(() => withSearchBar && layerCatalogue.length > 0)
 
@@ -42,26 +36,32 @@ watch(
 )
 
 function clearPreviewLayer() {
-    if (store.state.layers.previewLayer) {
-        store.dispatch('clearPreviewLayer', dispatcher)
+    if (layersStore.previewLayer) {
+        layersStore.clearPreviewLayer(dispatcher)
     }
 }
 
-let debounceTimeout = null
-function onSearchInput(event) {
+let debounceTimeout: ReturnType<typeof setTimeout>
+
+function onSearchInput(event: Event) {
     clearTimeout(debounceTimeout)
-    if (event.target.value?.length >= 2) {
+
+    const { value } = event.target as HTMLInputElement
+
+    if (value?.length >= 2) {
         debounceTimeout = setTimeout(() => {
-            searchText.value = event.target.value
+            searchText.value = value
         }, 100)
-    } else if (!event.target.value) {
+    } else if (!value) {
         searchText.value = ''
     }
 }
 
 function clearSearchText() {
     searchText.value = ''
-    searchInput.value.focus()
+    if (searchInputRef.value) {
+        searchInputRef.value.focus()
+    }
 }
 </script>
 

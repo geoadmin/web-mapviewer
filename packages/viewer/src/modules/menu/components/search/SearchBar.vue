@@ -1,26 +1,28 @@
-<script setup lang="js">
+<script setup lang="ts">
 import log from '@swissgeo/log'
 import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
 import SearchResultList from '@/modules/menu/components/search/SearchResultList.vue'
+import useSearchStore from '@/store/modules/search.store'
+import useUIStore from '@/store/modules/ui.store'
 
-const dispatcher = { dispatcher: 'SearchBar' }
+const dispatcher = { name: 'SearchBar' }
 
-const store = useStore()
 const { t } = useI18n()
+const searchStore = useSearchStore()
+const uiStore = useUIStore()
 
 const isPristine = ref(true) // if search bar is not yet modified by the user
 const showResults = ref(false)
 const searchInput = useTemplateRef('searchInput')
 const searchValue = ref('')
 const results = useTemplateRef('results')
-const selectedEntry = ref(null)
+const selectedEntry = ref<InstanceType<typeof SearchResultList>>()
 
-const searchQuery = computed(() => store.state.search.query)
-const hasResults = computed(() => store.state.search.results.length > 0)
-const isPhoneMode = computed(() => store.getters.isPhoneMode)
+const searchQuery = computed(() => searchStore.query)
+const hasResults = computed(() => searchStore.results.length > 0)
+const isPhoneMode = computed(() => uiStore.isPhoneMode)
 
 watch(
     hasResults,
@@ -39,8 +41,8 @@ watch(
 )
 
 watch(showResults, (newValue) => {
-    if (newValue && isPhoneMode.value && store.state.ui.showMenu) {
-        store.dispatch('toggleMenu', dispatcher)
+    if (newValue && isPhoneMode.value && uiStore.showMenu) {
+        uiStore.toggleMenu(dispatcher)
     }
 })
 
@@ -50,38 +52,49 @@ watch(searchQuery, (newQuery) => {
 
 onMounted(() => {
     searchValue.value = searchQuery.value
-    searchInput.value.focus()
+    if (searchInput.value) {
+        searchInput.value.focus()
+    }
 })
 
-let debounceSearch = null
-const updateSearchQuery = (event) => {
+let debounceSearch: ReturnType<typeof setTimeout> | null = null
+
+const updateSearchQuery = (event: Event) => {
     isPristine.value = false
-    selectedEntry.value = null
-    searchValue.value = event.target.value
+    selectedEntry.value = undefined
+
+    searchValue.value = (event.target as HTMLInputElement).value
 
     if (hasResults.value) {
         // we already have a result make sure to display it as soon as the user is typing
         showResults.value = true
     }
 
-    clearTimeout(debounceSearch)
+    if (debounceSearch) {
+        clearTimeout(debounceSearch)
+    }
     debounceSearch = setTimeout(() => {
-        store.dispatch('setSearchQuery', { query: event.target.value, ...dispatcher })
+        searchStore
+            .setSearchQuery({ query: (event.target as HTMLInputElement).value }, dispatcher)
+            .catch((_) => {})
     }, 100)
 }
 
 const clearSearchQuery = () => {
-    hasResults.value = false
     showResults.value = false
-    selectedEntry.value = null
+    selectedEntry.value = undefined
     searchValue.value = ''
-    store.dispatch('setSearchQuery', { query: '', ...dispatcher })
-    searchInput.value.focus()
+    searchStore.setSearchQuery({ query: '' }, dispatcher).catch((_) => {})
+    if (searchInput.value) {
+        searchInput.value.focus()
+    }
 }
 
 const closeSearchResults = () => {
     showResults.value = false
-    searchInput.value.focus()
+    if (searchInput.value) {
+        searchInput.value.focus()
+    }
 }
 
 const goToFirstResult = () => {
@@ -95,24 +108,28 @@ const goToFirstResult = () => {
         // the list but not focus, to focus the user would need to press the key
         // down again)
         nextTick(() => {
-            results.value.focusFirstEntry()
-        })
+            if (results.value) {
+                results.value.focusFirstEntry()
+            }
+        }).catch((_) => {})
     }
 }
 
-const onEntrySelected = (entry) => {
+const onEntrySelected = (entry: InstanceType<typeof SearchResultList>) => {
     selectedEntry.value = entry
     showResults.value = false
 }
 
-const onClickOutside = (event) => {
-    if (!document.body.querySelector('.modal-popup')?.contains(event.target)) {
+const onClickOutside = (event: MouseEvent) => {
+    if (!document.body.querySelector('.modal-popup')?.contains(event.target as HTMLElement)) {
         showResults.value = false
     }
 }
 
 const focusSearchInput = () => {
-    searchInput.value.focus()
+    if (searchInput.value) {
+        searchInput.value.focus()
+    }
 }
 
 const toggleResults = () => {

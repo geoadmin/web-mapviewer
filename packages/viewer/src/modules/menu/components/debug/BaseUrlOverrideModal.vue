@@ -1,7 +1,6 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { ref } from 'vue'
-import { useStore } from 'vuex'
 
 import {
     getBaseUrlOverride,
@@ -10,30 +9,25 @@ import {
     setBaseUrlOverrides,
 } from '@/config/baseUrl.config'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+import useDebugStore from '@/store/modules/debug.store'
 
-const dispatcher = { dispatcher: 'BaseUrlOverrideModal.vue' }
+const debugStore = useDebugStore()
 
-const store = useStore()
+const dispatcher = { name: 'BaseUrlOverrideModal.vue' }
 
 const wmsUrlOverride = ref(getBaseUrlOverride('wms'))
 const wmtsUrlOverride = ref(getBaseUrlOverride('wmts'))
 const api3UrlOverride = ref(getBaseUrlOverride('api3'))
-const viewerDedicatedServicesUrlOverride = ref(getBaseUrlOverride('viewerDedicatedServices'))
+const viewerDedicatedServicesUrlOverride = ref(getBaseUrlOverride('viewerSpecific'))
 
-function onModalClose(withConfirmation) {
+function onModalClose(withConfirmation: boolean) {
     if (withConfirmation) {
-        setBaseUrlOverrides('wms', wmsUrlOverride.value ?? null)
-        setBaseUrlOverrides('wmts', wmtsUrlOverride.value ?? null)
-        setBaseUrlOverrides('api3', api3UrlOverride.value ?? null)
-        setBaseUrlOverrides(
-            'viewerDedicatedServices',
-            viewerDedicatedServicesUrlOverride.value ?? null
-        )
+        setBaseUrlOverrides('wms', wmsUrlOverride.value)
+        setBaseUrlOverrides('wmts', wmtsUrlOverride.value)
+        setBaseUrlOverrides('api3', api3UrlOverride.value)
+        setBaseUrlOverrides('viewerSpecific', viewerDedicatedServicesUrlOverride.value)
     }
-    store.dispatch('setHasBaseUrlOverrides', {
-        hasOverrides: hasBaseUrlOverrides(),
-        ...dispatcher,
-    })
+    debugStore.setHasBaseUrlOverrides(hasBaseUrlOverrides(), dispatcher)
 }
 </script>
 
@@ -62,7 +56,7 @@ function onModalClose(withConfirmation) {
                         class="btn btn-outline-secondary"
                         type="button"
                         :disabled="wmsUrlOverride === null"
-                        @click="wmsUrlOverride = null"
+                        @click="wmsUrlOverride = undefined"
                     >
                         <FontAwesomeIcon icon="times" />
                     </button>
@@ -87,7 +81,7 @@ function onModalClose(withConfirmation) {
                         class="btn btn-outline-secondary"
                         type="button"
                         :disabled="wmtsUrlOverride === null"
-                        @click="wmtsUrlOverride = null"
+                        @click="wmtsUrlOverride = undefined"
                     >
                         <FontAwesomeIcon icon="times" />
                     </button>
@@ -112,7 +106,7 @@ function onModalClose(withConfirmation) {
                         class="btn btn-outline-secondary"
                         type="button"
                         :disabled="api3UrlOverride === null"
-                        @click="api3UrlOverride = null"
+                        @click="api3UrlOverride = undefined"
                     >
                         <FontAwesomeIcon icon="times" />
                     </button>
@@ -131,13 +125,13 @@ function onModalClose(withConfirmation) {
                         v-model="viewerDedicatedServicesUrlOverride"
                         type="url"
                         class="form-control"
-                        :placeholder="`default: ${getDefaultBaseUrl('viewerDedicatedServices')}`"
+                        :placeholder="`default: ${getDefaultBaseUrl('viewerSpecific')}`"
                     />
                     <button
                         class="btn btn-outline-secondary"
                         type="button"
                         :disabled="viewerDedicatedServicesUrlOverride === null"
-                        @click="viewerDedicatedServicesUrlOverride = null"
+                        @click="viewerDedicatedServicesUrlOverride = undefined"
                     >
                         <FontAwesomeIcon icon="times" />
                     </button>
