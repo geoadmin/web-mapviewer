@@ -1,14 +1,14 @@
-<script setup lang="js">
+<script setup lang="ts">
 import log from '@swissgeo/log'
-import { WarningMessage } from '@swissgeo/log/Message'
+import { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
-import { useStore } from 'vuex'
 
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import useImportFile from '@/modules/menu/components/advancedTools/ImportFile/useImportFile.composable'
 import TextInput from '@/utils/components/TextInput.vue'
 import { isValidUrl } from '@/utils/utils'
+import useUIStore from '@/store/modules/ui.store'
 
 const { active } = defineProps({
     active: {
@@ -16,26 +16,25 @@ const { active } = defineProps({
         default: false,
     },
 })
-const store = useStore()
+const uiStore = useUIStore()
 
 const { handleFileSource } = useImportFile()
 
 // Reactive data
-const loading = ref(false)
+const isLoading = ref(false)
 const fileUrlInput = useTemplateRef('fileUrlInput')
 const fileUrl = ref('')
 const importSuccessMessage = ref('')
-/** @type {Ref<ErrorMessage | null>} */
-const errorFileLoadingMessage = ref(null)
+const errorFileLoadingMessage = ref<ErrorMessage | null>(null)
 const isFormValid = ref(false)
 const activateValidation = ref(false)
 
-const buttonState = computed(() => (loading.value ? 'loading' : 'default'))
+const buttonState = computed(() => (isLoading.value ? 'loading' : 'default'))
 
 watch(
     () => active,
     (value) => {
-        if (value) {
+        if (value && fileUrlInput.value) {
             fileUrlInput.value.focus()
         }
     }
@@ -43,12 +42,14 @@ watch(
 
 onMounted(() => {
     // Focus on the URL field when opening the import tool
-    fileUrlInput.value.focus()
+    if (fileUrlInput.value) {
+        fileUrlInput.value.focus()
+    }
 })
 
 // Methods
 
-function validateUrl(url) {
+function validateUrl(url: string) {
     if (!url) {
         return { valid: false, invalidMessage: 'no_url' }
     } else if (!isValidUrl(url)) {
@@ -62,7 +63,7 @@ function validateForm() {
     return isFormValid.value
 }
 
-function onUrlValidate(valid) {
+function onUrlValidate(valid: boolean) {
     isFormValid.value = valid
 }
 
@@ -77,24 +78,24 @@ async function loadFile() {
     if (!validateForm()) {
         return
     }
-    loading.value = true
+    isLoading.value = true
 
     try {
         await handleFileSource(fileUrl.value, false)
         if (!fileUrl.value.match(/^https:\/\//)) {
-            store.dispatch('addWarnings', {
-                warnings: [new WarningMessage('import_http_external_file_warning', {})],
-                dispatcher: 'Import File Online Tab',
+            uiStore.addWarnings([new WarningMessage('import_http_external_file_warning', {})], {
+                name: 'Import File Online Tab',
             })
         }
         importSuccessMessage.value = 'file_imported_success'
-        setTimeout(() => (buttonState.value = 'default'), 3000)
-    } catch (error) {
-        log.error(`Failed to load file from url ${fileUrl.value}`, error)
-        buttonState.value = 'default'
-        errorFileLoadingMessage.value = generateErrorMessageFromErrorType(error)
+
+        setTimeout(() => (isLoading.value = false), 3000)
+    } catch (error: unknown) {
+        log.error({ messages: [`Failed to load file from url ${fileUrl.value}`, error] })
+        isLoading.value = false
+        errorFileLoadingMessage.value = generateErrorMessageFromErrorType(error as Error)
     }
-    loading.value = false
+    isLoading.value = false
 }
 </script>
 

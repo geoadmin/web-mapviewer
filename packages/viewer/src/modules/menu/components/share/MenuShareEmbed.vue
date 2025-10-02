@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 /**
  * Component building iFrame code so that the user can share/incorporate a specific map to his/her
  * website.
@@ -12,7 +12,6 @@ import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { useStore } from 'vuex'
 
 import { IFrameEvents } from '@/api/iframePostMessageEvent.api'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
@@ -22,6 +21,7 @@ import {
     removeParamaterFromUrl,
     transformUrlMapToEmbed,
 } from '@/utils/utils'
+import useLayersStore from '@/store/modules/layers.store'
 
 /**
  * Different pre-defined sizes that an iFrame can take
@@ -54,8 +54,10 @@ const embedInput = useTemplateRef('embedInput')
 const showEmbedSharing = ref(false)
 const showPreviewModal = ref(false)
 const currentPreviewSize = ref(EmbedSizes.SMALL)
-const zoomModeLabel = ref(null)
+
+const zoomModeLabel = useTemplateRef('zoomModeLabel')
 const labelWidth = ref(0)
+
 const customSize = ref({
     width: EmbedSizes.SMALL.width,
     height: EmbedSizes.SMALL.height,
@@ -65,15 +67,25 @@ const copied = ref(false)
 
 const { t } = useI18n()
 const route = useRoute()
-const store = useStore()
+const layersStore = useLayersStore()
 
 const embedSource = ref(transformUrlMapToEmbed(window.location.href))
 const noSimpleZoom = ref(false)
+
 const embedPreviewModalWidth = computed(() => {
+    const width = iFrameWidth.value
+
+    let maxWidth
+    if (width === '100%') {
+        maxWidth = width
+    } else {
+        maxWidth = Math.max(labelWidth.value, parseInt(width))
+    }
+
     // Uses the width of the zoomModeLabel to set the width of the modal
     // to avoid line breaks
     const style = {
-        'max-width': `${Math.max(labelWidth.value, iFrameWidth.value)}px`,
+        'max-width': `${maxWidth}px`,
         'min-width': `${Math.max(300, labelWidth.value)}px`,
     }
     if (isPreviewSizeCustom.value) {
@@ -81,9 +93,11 @@ const embedPreviewModalWidth = computed(() => {
     }
     return style
 })
+
 const isPreviewSizeCustom = computed(
     () => currentPreviewSize.value.i18nKey === EmbedSizes.CUSTOM.i18nKey
 )
+
 const iFrameWidth = computed(() => {
     if (isPreviewSizeCustom.value) {
         if (customSize.value.fullWidth) {
@@ -93,12 +107,14 @@ const iFrameWidth = computed(() => {
     }
     return `${currentPreviewSize.value.width}px`
 })
+
 const iFrameHeight = computed(() => {
     if (isPreviewSizeCustom.value) {
         return `${customSize.value.height}px`
     }
     return `${currentPreviewSize.value.height}px`
 })
+
 const iFrameStyle = computed(
     () =>
         `border: 0;width: ${iFrameWidth.value};height: ${iFrameHeight.value};max-width: 100%;max-height: 100%;`
@@ -115,18 +131,18 @@ const buttonIcon = computed(() => {
     return ['far', 'copy']
 })
 
-const hasAnyLocalFile = computed(() => store.getters.hasAnyLocalFile())
+const hasAnyLocalFile = computed(() => layersStore.hasAnyLocalFile)
 
 function toggleEmbedSharing() {
     showEmbedSharing.value = !showEmbedSharing.value
     // because of the dropdown animation, we have to wait for the next render
     // to select the embed HTML code
     nextTick(() => {
-        if (showEmbedSharing.value) {
+        if (showEmbedSharing.value && embedInput.value) {
             embedInput.value.focus()
             embedInput.value.select()
         }
-    })
+    }).catch((_) => {})
 }
 
 function togglePreviewModal() {
@@ -142,7 +158,7 @@ function togglePreviewModal() {
     }
 }
 
-function onPreviewChange(e) {
+function onPreviewChange(e: MessageEvent) {
     if (e?.data?.type === IFrameEvents.Change) {
         // see iframePostMessageEvent.api.js -> sendChangeEventToParent
         embedSource.value = e.data.payload.newUrl
@@ -158,7 +174,7 @@ async function copyValue() {
             copied.value = false
         }, 3000)
     } catch (error) {
-        log.error(`Failed to copy to clipboard:`, error)
+        log.error({ messages: [`Failed to copy to clipboard:`, error] })
     }
 }
 
@@ -172,7 +188,7 @@ watch(
 watch(noSimpleZoom, (value) => {
     const currentUrl = embedSource.value
     embedSource.value = value
-        ? insertParameterIntoUrl(currentUrl, 'noSimpleZoom', true)
+        ? insertParameterIntoUrl(currentUrl, 'noSimpleZoom', 'true')
         : removeParamaterFromUrl(currentUrl, 'noSimpleZoom')
 })
 </script>
@@ -203,9 +219,9 @@ watch(noSimpleZoom, (value) => {
                     class="form-control"
                     :value="iFrameLink"
                     data-cy="menu-share-embed-simple-iframe-snippet"
-                    readonly="readonly"
-                    @focus="$event.target.select()"
-                    @click="$event.target.select()"
+                    readonly="true"
+                    @focus="($event.target as HTMLInputElement).select()"
+                    @click="($event.target as HTMLInputElement).select()"
                 />
                 <GeoadminTooltip :tooltip-content="t('copy_cta')">
                     <button
@@ -351,7 +367,7 @@ watch(noSimpleZoom, (value) => {
                 </div>
                 <!-- eslint-disable vue/no-v-html-->
                 <div
-                    class="small text-wrap text-center"
+                    class="small text-center text-wrap"
                     v-html="t('share_disclaimer')"
                 />
                 <div
@@ -365,7 +381,7 @@ watch(noSimpleZoom, (value) => {
                         data-cy="menu-external-disclaimer-icon-cloud"
                     />
                     <div
-                        class="small text-wrap text-center"
+                        class="small text-center text-wrap"
                         data-cy="warn-share-local-file"
                         v-html="t('warn_share_local_file')"
                     />

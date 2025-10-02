@@ -42,7 +42,7 @@ const {
     index: number
     layer: Layer
     showLayerDetail?: boolean
-    focusMoveButton?: string
+    focusMoveButton?: 'up' | 'down'
     isTopLayer: boolean
     isBottomLayer: boolean
     compact?: boolean
@@ -184,9 +184,9 @@ function changeStyle(newStyle: { value: KMLStyle }) {
                 {{ layer.name }}
             </TextTruncate>
             <ZoomToExtentButton
-                v-if="layer.extent"
+                v-if="layer.extent && layer.type == LayerType.KML"
                 :extent="layer.extent"
-                :extent-projection="layer.extentProjection"
+                :extent-projection="(layer as KMLLayer).extentProjection"
             />
             <ExtLayerInfoButton
                 :show-spinner="showSpinner"

@@ -1,8 +1,7 @@
-<script setup lang="js">
+<script setup lang="ts">
 import log from '@swissgeo/log'
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, ref, useTemplateRef, watch, type ComputedRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
 import sendFeedback, { ATTACHMENT_MAX_SIZE, KML_MAX_SIZE } from '@/api/feedback.api'
 import { getKmlUrl } from '@/api/files.api'
@@ -10,21 +9,30 @@ import { createShortLink } from '@/api/shortlink.api'
 import { FEEDBACK_EMAIL_SUBJECT } from '@/config/feedback.config'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/help/common/SendActionButtons.vue'
-import DropdownButton from '@/utils/components/DropdownButton.vue'
+import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
 import EmailInput from '@/utils/components/EmailInput.vue'
 import FileInput from '@/utils/components/FileInput.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 import TextAreaInput from '@/utils/components/TextAreaInput.vue'
+import useDrawingStore from '@/store/modules/drawing.store'
+import useLayersStore from '@/store/modules/layers.store'
+import useUIStore from '@/store/modules/ui.store'
+import { type KMLLayer } from '@swissgeo/layers'
 
-const dispatcher = { dispatcher: 'ReportProblemButton.vue' }
+import { layerUtils } from '@swissgeo/layers/utils'
+
+const dispatcher = { name: 'ReportProblemButton.vue' }
 const temporaryKmlId = getKmlUrl('temporary-kml-for-reporting-a-problem')
 
 const acceptedFileTypes = ['.kml', '.gpx', '.pdf', '.zip', '.jpg', '.jpeg', '.png', '.kmz']
 
 const { t } = useI18n()
-const store = useStore()
+const drawingStore = useDrawingStore()
+const layersStore = useLayersStore()
+const uiStore = useUIStore()
+
 /** @type {DropdownItem[]} */
-const feedbackCategories = [
+const feedbackCategories: DropdownItem<string>[] = [
     {
         id: 'background_map',
         title: 'feedback_category_background_map',
@@ -60,13 +68,15 @@ const requestResults = useTemplateRef('requestResults')
 const reportProblemCloseSuccessful = useTemplateRef('reportProblemCloseSuccessful')
 
 const showReportProblemForm = ref(false)
-const feedback = ref({
-    message: null,
-    category: null,
-    kml: null,
-    email: null,
-    file: null,
-})
+
+const feedback = ref<{
+    message?: string
+    category?: string
+    kml?: string
+    email?: string
+    file?: File
+}>({})
+
 const request = ref({
     pending: false,
     failed: false,
@@ -80,13 +90,16 @@ const isAttachmentValid = ref(true)
 const isEmailValid = ref(true)
 
 //  Computed properties
-const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.show)
-const temporaryKml = computed(() =>
-    store.state.layers.systemLayers.find((l) => l.id === temporaryKmlId)
+const showDrawingOverlay = computed(() => drawingStore.drawingOverlay.show)
+
+const temporaryKml: ComputedRef<KMLLayer> = computed(
+    () => layersStore.systemLayers.find((l) => l.id === temporaryKmlId) as KMLLayer
 )
+
 const isTemporaryKmlValid = computed(
     () => (temporaryKml.value?.kmlData?.length ?? 0) <= KML_MAX_SIZE
 )
+
 const isFormValid = computed(
     () =>
         feedback.value.category &&
@@ -99,7 +112,7 @@ const isFormValid = computed(
 watch(
     () => temporaryKml.value?.kmlData,
     () => {
-        feedback.value.kml = temporaryKml.value?.kmlData ?? null
+        feedback.value.kml = temporaryKml.value?.kmlData ?? undefined
     },
     { deep: true }
 )
@@ -112,7 +125,7 @@ function validate() {
 }
 
 async function sendReportProblem() {
-    if (!validate()) {
+    if (!validate() && validationResult.value) {
         // scrolling down to make sure the message with validation result is visible to the user
         validationResult.value.scrollIntoView()
         return
@@ -120,20 +133,22 @@ async function sendReportProblem() {
 
     request.value.pending = true
     try {
-        const feedbackSentSuccessfully = await sendFeedback(
-            FEEDBACK_EMAIL_SUBJECT,
-            feedback.value.message,
-            {
-                category: feedback.value.category,
-                email: feedback.value.email,
-                attachment: feedback.value.file,
-                kml: feedback.value.kml,
-            }
-        )
-        request.value.completed = feedbackSentSuccessfully
-        request.value.failed = !feedbackSentSuccessfully
+        if (feedback.value.message) {
+            const feedbackSentSuccessfully = await sendFeedback(
+                FEEDBACK_EMAIL_SUBJECT,
+                feedback.value.message,
+                {
+                    category: feedback.value.category,
+                    email: feedback.value.email,
+                    attachment: feedback.value.file,
+                    kml: feedback.value.kml,
+                }
+            )
+            request.value.completed = feedbackSentSuccessfully
+            request.value.failed = !feedbackSentSuccessfully
+        }
     } catch (err) {
-        log.error('Error while sending feedback', err)
+        log.error({ messages: ['Error while sending feedback', err] })
         request.value.failed = true
     } finally {
         request.value.pending = false
@@ -141,65 +156,77 @@ async function sendReportProblem() {
     await nextTick()
     // scrolling down to make sure the message with request results is visible to the user
     if (request.value.failed) {
-        requestResults.value.scrollIntoView()
+        if (requestResults.value) {
+            requestResults.value.scrollIntoView()
+        }
     } else if (request.value.completed) {
-        reportProblemCloseSuccessful.value.focus()
+        if (reportProblemCloseSuccessful.value) {
+            reportProblemCloseSuccessful.value.focus()
+        }
     }
 }
 
 function closeAndCleanForm() {
     activateValidation.value = false
     showReportProblemForm.value = false
-    feedback.value.category = null
-    feedback.value.message = null
-    feedback.value.email = null
-    feedback.value.file = null
+
+    // reset the state
+    feedback.value = {}
+
     // reset also the completed/failed state, so that the user can send another feedback later on
     request.value.failed = false
     request.value.completed = false
     if (temporaryKml.value) {
-        store.dispatch('removeSystemLayer', { layerId: temporaryKmlId, ...dispatcher })
-        store.dispatch('clearDrawingFeatures', dispatcher)
+        layersStore.removeSystemLayer(temporaryKmlId, dispatcher)
+        drawingStore.clearDrawingFeatures(dispatcher)
     }
 }
 
-function onTextValidate(valid) {
+function onTextValidate(valid: boolean) {
     isMessageValid.value = valid
 }
 
-function onAttachmentValidate(valid) {
+function onAttachmentValidate(valid: boolean) {
     isAttachmentValid.value = valid
 }
 
-function onEmailValidate(valid) {
+function onEmailValidate(valid: boolean) {
     isEmailValid.value = valid
 }
 
 async function generateShortLink() {
-    shortLink.value = await createShortLink(window.location.href)
+    const createdShortlink = await createShortLink(window.location.href)
+    if (createdShortlink) {
+        shortLink.value = createdShortlink
+    }
 }
 
 function openForm() {
     if (!showAsLink) {
-        store.dispatch('closeMenu', dispatcher)
+        uiStore.closeMenu(dispatcher)
     }
     showReportProblemForm.value = true
-    generateShortLink()
+    generateShortLink().catch((_) => {})
+
     nextTick(() => {
-        feedbackMessageTextArea.value.focus()
-    })
+        if (feedbackMessageTextArea.value) {
+            feedbackMessageTextArea.value.focus()
+        }
+    }).catch((_) => {})
 }
 
 function toggleDrawingOverlay() {
-    store.dispatch('toggleDrawingOverlay', {
-        online: false,
-        kmlId: temporaryKmlId,
-        title: 'feedback_drawing',
-        ...dispatcher,
-    })
+    drawingStore.toggleDrawingOverlay(
+        {
+            online: false,
+            kmlId: temporaryKmlId,
+            title: 'feedback_drawing',
+        },
+        dispatcher
+    )
 }
 
-function selectItem(dropdownItem) {
+function selectItem(dropdownItem: DropdownItem<string>) {
     feedback.value.category = dropdownItem.value
 }
 </script>
@@ -245,14 +272,14 @@ function selectItem(dropdownItem) {
                     feedback.category ? `feedback_category_${feedback.category}` : 'select_category'
                 "
                 :items="feedbackCategories"
-                :current-value="feedback.category"
+                :current-value="feedback.category ?? null"
                 data-cy="report-problem-category"
                 class="my-2"
                 :class="{
                     'is-valid': feedback.category,
                     'is-invalid': !feedback.category && activateValidation,
                 }"
-                @select-item="selectItem"
+                @selectItem="selectItem"
             />
             <a
                 :href="t('feedback_more_info_url')"
@@ -288,7 +315,10 @@ function selectItem(dropdownItem) {
                 <button
                     class="btn"
                     :class="{
-                        'is-valid': isTemporaryKmlValid && temporaryKml && !temporaryKml.isEmpty(),
+                        'is-valid':
+                            isTemporaryKmlValid &&
+                            temporaryKml &&
+                            !layerUtils.isKmlLayerEmpty(temporaryKml),
                         'is-invalid': !isTemporaryKmlValid,
                         'btn-outline-primary': !isTemporaryKmlValid,
                         'btn-outline-group': isTemporaryKmlValid,

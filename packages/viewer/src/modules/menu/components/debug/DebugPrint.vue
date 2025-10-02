@@ -1,27 +1,27 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { ref, watch } from 'vue'
-import { useStore } from 'vuex'
 
 import { PRINT_DIMENSIONS } from '@/config/print.config'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 import debounce from '@/utils/debounce'
+import usePrintStore from '@/store/modules/print.store'
 
-const dispatcher = { dispatcher: 'DebugPrint.vue' }
+const dispatcher = { name: 'DebugPrint.vue' }
 
-const store = useStore()
+const printStore = usePrintStore()
 
-const currentLayout = ref(store.state.print.config.layout.split('_')[0])
-const isCurrentLayoutLandscape = ref(store.state.print.config.layout.includes('_L'))
-const currentDpi = ref(store.state.print.config.dpi)
+const currentLayout = ref(printStore.config.layout.split('_')[0])
+const isCurrentLayoutLandscape = ref(printStore.config.layout.includes('_L'))
+const currentDpi = ref(printStore.config.dpi)
 
 function updatePrintConfig() {
-    store.dispatch('setPrintConfig', {
-        config: {
+    printStore.setPrintConfig(
+        {
             layout: `${currentLayout.value}${isCurrentLayoutLandscape.value ? '_L' : '_P'}`,
             dpi: currentDpi.value,
         },
-        ...dispatcher,
-    })
+        dispatcher
+    )
 }
 
 watch(isCurrentLayoutLandscape, updatePrintConfig)
@@ -56,7 +56,7 @@ watch(currentDpi, debounce(updatePrintConfig, 500))
                     <input
                         id="is-layout-landscape"
                         v-model="isCurrentLayoutLandscape"
-                        class="form-check-input mt-0 me-1"
+                        class="form-check-input me-1 mt-0"
                         type="checkbox"
                     />
                     <label

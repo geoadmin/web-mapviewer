@@ -8,6 +8,7 @@ import { useProviders } from '@/modules/menu/components/advancedTools/ImportCata
 import { isValidUrl } from '@/utils/utils'
 import { useI18nStore } from '@/store/modules/i18n.store'
 import { CapabilitiesError } from '@swissgeo/layers/validation'
+import { error } from 'console'
 
 const emit = defineEmits(['capabilities:parsed', 'capabilities:cleared'])
 
@@ -207,12 +208,12 @@ function hideProviders() {
                 </button>
             </div>
             <div
-                v-if="isInvalid && !showProviders"
+                v-if="isInvalid && !showProviders && errorMessage"
                 id="urlInvalidMessageFeedback"
                 class="invalid-feedback"
                 data-cy="import-catalog-invalid-feedback"
             >
-                {{ t(errorMessage?) }}
+                {{ t(errorMessage) }}
             </div>
         </form>
         <ProviderList

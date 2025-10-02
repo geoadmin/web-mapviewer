@@ -1,21 +1,21 @@
-<script setup lang="js">
+<script setup lang="ts">
 import log from '@swissgeo/log'
 import { computed, ref } from 'vue'
-import { useStore } from 'vuex'
 
-import { languages as availableLanguages } from '@/modules/i18n'
+import { languages as availableLanguages, type SupportedLang } from '@/modules/i18n'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
+import { useI18nStore } from '@/store/modules/i18n.store'
 
-const dispatcher = { dispatcher: 'HeaderLangSelector.vue' }
+const dispatcher = { name: 'HeaderLangSelector.vue' }
 
-const store = useStore()
+const i18nStore = useI18nStore()
 
-const languages = ref(Object.keys(availableLanguages))
-const currentLang = computed(() => store.state.i18n.lang)
+const languages = ref<SupportedLang[]>(Object.keys(availableLanguages) as SupportedLang[])
+const currentLang = computed(() => i18nStore.lang)
 
-function changeLang(lang) {
+function changeLang(lang: SupportedLang) {
     log.debug('switching locale', lang)
-    store.dispatch('setLang', { lang, ...dispatcher })
+    i18nStore.setLang(lang, dispatcher)
 }
 </script>
 

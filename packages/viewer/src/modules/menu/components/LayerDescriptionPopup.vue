@@ -1,46 +1,41 @@
-<script setup lang="js">
-import { computed, onMounted, ref, watch } from 'vue'
+<script setup lang="ts">
+import { computed, onMounted, ref, watch, type ComputedRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
-import { getLayerDescription } from '@/api/layers/layers.api'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
+import { useI18nStore } from '@/store/modules/i18n.store'
+import type { Layer, LayerLegend } from '@swissgeo/layers'
+import { getGeoadminLayerDescription } from '@swissgeo/layers/api'
 
-const { layer, layerId, layerName } = defineProps({
-    layer: {
-        type: AbstractLayer || null,
-        default: null,
-    },
-    layerId: {
-        type: String || null,
-        default: null,
-    },
-    layerName: {
-        type: String || null,
-        default: null,
-    },
-})
+const { layer, layerId, layerName } = defineProps<{
+    layer?: Layer
+    layerId?: string
+    layerName?: string
+}>()
 const emit = defineEmits(['close'])
-const store = useStore()
 const { t } = useI18n()
+
+const i18nStore = useI18nStore()
 
 const htmlContent = ref('')
 
-const currentLang = computed(() => store.state.i18n.lang)
+const currentLang = computed(() => i18nStore.lang)
 const title = computed(() => layer?.name ?? layerName)
-const body = computed(() => layer?.abstract ?? '')
+const body = computed(() => (layer && 'abstract' in layer && layer?.abstract) ?? '')
 
-const attributionName = computed(() => layer?.attributions[0].name ?? '')
-const attributionUrl = computed(() => layer?.attributions[0].url ?? '')
+const attributionName = computed(() => layer?.attributions[0]?.name ?? '')
+const attributionUrl = computed(() => layer?.attributions[0]?.url ?? '')
 const isExternal = computed(() => layer?.isExternal ?? false)
 
-const legends = computed(() => layer?.legends ?? [])
+const legends: ComputedRef<LayerLegend[]> = computed(() =>
+    layer && 'legends' in layer && layer?.legends ? (layer.legends as LayerLegend[]) : []
+)
+
 watch(
     () => layer,
     async (newLayer) => {
-        if (!isExternal.value && layer) {
-            htmlContent.value = await getLayerDescription(currentLang.value, newLayer.id)
+        if (!isExternal.value && newLayer) {
+            htmlContent.value = await getGeoadminLayerDescription(currentLang.value, newLayer.id)
         }
     }
 )
@@ -48,17 +43,17 @@ watch(
 watch(
     () => layerId,
     async (newLayerId) => {
-        if (!isExternal.value && layerId) {
-            htmlContent.value = await getLayerDescription(currentLang.value, newLayerId)
+        if (!isExternal.value && newLayerId) {
+            htmlContent.value = await getGeoadminLayerDescription(currentLang.value, newLayerId)
         }
     }
 )
 
 onMounted(async () => {
     if (!isExternal.value && layer) {
-        htmlContent.value = await getLayerDescription(currentLang.value, layer.id)
+        htmlContent.value = await getGeoadminLayerDescription(currentLang.value, layer.id)
     } else if (!isExternal.value && layerId) {
-        htmlContent.value = await getLayerDescription(currentLang.value, layerId)
+        htmlContent.value = await getGeoadminLayerDescription(currentLang.value, layerId)
     }
 })
 </script>
@@ -130,7 +125,7 @@ onMounted(async () => {
                 </div>
 
                 <div
-                    class="mt-2 text-primary text-end"
+                    class="text-primary mt-2 text-end"
                     data-cy="layer-description-popup-attributions"
                 >
                     <span class="me-1">{{ t('copyright_data') }}</span>
