@@ -143,7 +143,7 @@ function onToggleLayerDetail(index: number) {
                 :data-layer-id="layer.id"
                 :class="{ 'drag-in-progress': aLayerIsDragged }"
                 :show-layer-detail="showLayerDetailIndex === reverseIndex(index)"
-                :focus-move-button="layerDetailFocusMoveButton"
+                :focus-move-button="layerDetailFocusMoveButton ?? undefined"
                 @show-layer-description-popup="showDescriptionForLayerId = layer.id"
                 @toggle-layer-detail="onToggleLayerDetail"
                 @move-layer="onMoveLayer"

@@ -1,12 +1,12 @@
-<script setup lang="js">
+<script setup lang="ts">
+import useUIStore from '@/store/modules/ui.store'
 import { computed, toRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-const dispatcher = { dispatcher: 'ImportFileButtons.vue' }
+const dispatcher = { name: 'ImportFileButtons.vue' }
 
+const uiStore = useUIStore()
 const { t } = useI18n()
-const store = useStore()
 const emit = defineEmits(['loadFile'])
 
 // Props
@@ -25,7 +25,7 @@ const props = defineProps({
 const buttonState = toRef(props, 'buttonState')
 
 // Store mapping (input)
-const toggleImportFile = () => store.dispatch('toggleImportFile', dispatcher)
+const toggleImportFile = () => uiStore.toggleImportFile(dispatcher)
 
 // Computed properties
 const buttonI18nKey = computed(() => {
@@ -43,7 +43,7 @@ const isLoading = computed(() => buttonState.value === 'loading')
 </script>
 
 <template>
-    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+    <div class="d-grid d-md-flex justify-content-md-center gap-2">
         <button
             type="button"
             class="btn btn-outline-group me-md-3 import-file-btn-connect"

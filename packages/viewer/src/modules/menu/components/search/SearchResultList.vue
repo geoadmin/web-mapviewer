@@ -1,29 +1,35 @@
-<script setup lang="js">
+<script setup lang="ts">
 import log from '@swissgeo/log'
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-import { SearchResultTypes } from '@/api/search.api'
+import { SearchResultTypes, type LocationSearchResult, type SearchResult } from '@/api/search.api'
 import SearchResultCategory from '@/modules/menu/components/search/SearchResultCategory.vue'
 import debounce from '@/utils/debounce'
+import useSearchStore from '@/store/modules/search.store'
+import useUIStore from '@/store/modules/ui.store'
+import useLayersStore from '@/store/modules/layers.store'
+import useMapStore from '@/store/modules/map.store'
 
-const dispatcher = { dispatcher: 'SearchResultList.vue' }
+const dispatcher = { name: 'SearchResultList.vue' }
 
 const emit = defineEmits(['close', 'firstResultEntryReached'])
-const store = useStore()
 const { t } = useI18n()
+const searchStore = useSearchStore()
+const uiStore = useUIStore()
+const layersStore = useLayersStore()
+const mapStore = useMapStore()
 
 const resultCategories = useTemplateRef('resultCategories')
 
-const preview = ref(null)
+const preview = ref<SearchResult>()
 
-const results = computed(() => store.state.search.results)
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
-const isPhoneMode = computed(() => store.getters.isPhoneMode)
+const results = computed(() => searchStore.results)
+const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
+const isPhoneMode = computed(() => uiStore.isPhoneMode)
 
-const previewLayer = computed(() => store.state.layers.previewLayer)
-const previewedPinnedLocation = computed(() => store.state.map.previewedPinnedLocation)
+const previewLayer = computed(() => layersStore.previewLayer)
+const previewedPinnedLocation = computed(() => mapStore.previewedPinnedLocation)
 
 const locationResults = computed(() =>
     results.value.filter((result) => result.resultType === SearchResultTypes.LOCATION)
@@ -56,72 +62,88 @@ watch(preview, (newPreview) => setPreviewDebounced(newPreview))
 
 function focusFirstEntry() {
     const firstCategory = categories.value.findIndex((category) => category.results.length > 0)
-    if (firstCategory >= 0) {
+
+    if (firstCategory >= 0 && resultCategories.value) {
         resultCategories.value[firstCategory]?.focusFirstEntry()
     }
 }
 
-function onFirstEntryReached(index) {
+function onFirstEntryReached(index: number) {
     const previousCategoryIndex = categories.value.findLastIndex(
         (category, i) => i < index && category.results.length > 0
     )
     if (previousCategoryIndex < 0) {
         emit('firstResultEntryReached')
     } else {
-        // jumping up to the previous category's last result
-        resultCategories.value[previousCategoryIndex]?.focusLastEntry()
+        if (resultCategories.value) {
+            // jumping up to the previous category's last result
+            resultCategories.value[previousCategoryIndex]?.focusLastEntry()
+        }
     }
 }
 
-function onLastEntryReached(index) {
+function onLastEntryReached(index: number) {
     const nextCategoryIndex = categories.value.findIndex(
         (category, i) => i > index && category.results.length > 0
     )
     if (nextCategoryIndex > 0) {
-        resultCategories.value[nextCategoryIndex]?.focusFirstEntry()
+        if (resultCategories.value) {
+            resultCategories.value[nextCategoryIndex]?.focusFirstEntry()
+        }
     }
 }
 
-function setPreview(entry) {
+function setPreview(entry: SearchResult) {
     preview.value = entry
 }
 
-function clearPreview(entry) {
+function clearPreview(entry: SearchResult) {
     // only clear the preview if not another entry has been set
     if (preview.value?.id === entry.id) {
-        preview.value = null
+        preview.value = undefined
     }
+}
+
+const isLocationSearchResult = (entry: SearchResult): entry is LocationSearchResult => {
+    return 'coordinate' in entry
 }
 
 // We debounce the preview to avoid too many store dispatch
 const PREVIEW_DEBOUNCING_DELAY = 50
-const setPreviewDebounced = debounce((entry) => {
-    log.debug(`Set preview`, entry, previewLayer.value, previewedPinnedLocation.value)
-    if (!entry) {
-        if (previewLayer.value) {
-            store.dispatch('clearPreviewLayer', dispatcher)
-        }
-        if (previewedPinnedLocation.value) {
-            store.dispatch('setPreviewedPinnedLocation', { coordinates: null, ...dispatcher })
-        }
-    } else if (entry.resultType === SearchResultTypes.LAYER) {
-        store.dispatch('setPreviewLayer', {
-            layer: entry.layerId,
-            ...dispatcher,
+const setPreviewDebounced = debounce(
+    () => (entry: SearchResult) => {
+        log.debug({
+            messages: [
+                `Set preview`,
+                entry,
+                previewLayer.value ?? '',
+                previewedPinnedLocation.value?.toString(),
+            ],
         })
-        if (previewedPinnedLocation.value) {
-            store.dispatch('setPreviewedPinnedLocation', { coordinates: null, ...dispatcher })
+
+        if (!entry) {
+            if (previewLayer.value) {
+                layersStore.clearPreviewLayer(dispatcher)
+            }
+            if (previewedPinnedLocation.value) {
+                mapStore.clearPreviewPinnedLocation(dispatcher)
+            }
+        } else if (entry.resultType === SearchResultTypes.LAYER) {
+            layersStore.setPreviewLayer(entry.id, dispatcher)
+
+            if (previewedPinnedLocation.value) {
+                mapStore.clearPreviewPinnedLocation(dispatcher)
+            }
+        } else if (isLocationSearchResult(entry)) {
+            mapStore.setPreviewedPinnedLocation(entry.coordinate, dispatcher)
+
+            if (previewLayer.value) {
+                layersStore.clearPreviewLayer(dispatcher)
+            }
         }
-    } else if (entry.coordinate) {
-        store.dispatch('setPreviewedPinnedLocation', {
-            coordinates: entry.coordinate,
-            ...dispatcher,
-        })
-        if (previewLayer.value) {
-            store.dispatch('clearPreviewLayer', dispatcher)
-        }
-    }
-}, PREVIEW_DEBOUNCING_DELAY)
+    },
+    PREVIEW_DEBOUNCING_DELAY
+)
 
 defineExpose({ focusFirstEntry })
 </script>
@@ -132,7 +154,7 @@ defineExpose({ focusFirstEntry })
         :class="{ 'search-results-dev-site-warning': hasDevSiteWarning && isPhoneMode }"
     >
         <div
-            class="shadow-lg search-results bg-light"
+            class="search-results bg-light shadow-lg"
             :class="{
                 'border-top border-bottom': isPhoneMode,
                 'rounded-bottom': !isPhoneMode,
@@ -154,8 +176,8 @@ defineExpose({ focusFirstEntry })
                     @entry-selected="emit('close')"
                     @first-entry-reached="onFirstEntryReached(index)"
                     @last-entry-reached="onLastEntryReached(index)"
-                    @set-preview="setPreview"
-                    @clear-preview="clearPreview"
+                    @setPreview="setPreview"
+                    @clearPreview="clearPreview"
                 />
             </div>
         </div>

@@ -1,34 +1,34 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
 import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
+import useUIStore from '@/store/modules/ui.store'
 
-const dispatcher = { dispatcher: 'MenuModule.vue' }
+const dispatcher = { name: 'MenuModule.vue' }
 
 const { t } = useI18n()
-const store = useStore()
+const uiStore = useUIStore()
 
-const showMenu = computed(() => store.state.ui.showMenu)
+const showMenu = computed(() => uiStore.showMenu)
 
-const isHeaderShown = computed(() => store.getters.isHeaderShown)
-const isPhoneMode = computed(() => store.getters.isPhoneMode)
-const isDesktopMode = computed(() => store.getters.isDesktopMode)
-const isMenuShown = computed(() => store.getters.isMenuShown)
-const isMenuTrayShown = computed(() => store.getters.isMenuTrayShown)
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
+const isHeaderShown = computed(() => uiStore.isHeaderShown)
+const isPhoneMode = computed(() => uiStore.isPhoneMode)
+const isDesktopMode = computed(() => uiStore.isDesktopMode)
+const isMenuShown = computed(() => uiStore.isMenuShown)
+const isMenuTrayShown = computed(() => uiStore.isMenuTrayShown)
+const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
 
 function toggleMenu() {
-    store.dispatch('toggleMenu', dispatcher)
+    uiStore.toggleMenu(dispatcher)
 }
 </script>
 
 <template>
-    <div class="menu position-absolute w-100 h-100 pe-none start-0 top-0">
+    <div class="menu position-absolute pe-none start-0 top-0 h-100 w-100">
         <!-- In order to place the drawing toolbox correctly (so that zoom/geolocation button are under, etc...)
              we place here an empty div that will then receive the HTML from the drawing toolbox. -->
         <div class="drawing-toolbox-in-menu position-absolute w-100" />
@@ -45,7 +45,7 @@ function toggleMenu() {
             class="header"
         />
         <div
-            class="menu-tray-container position-absolute w-100 h-100"
+            class="menu-tray-container position-absolute h-100 w-100"
             :class="{
                 'desktop-mode': isDesktopMode,
                 'dev-disclaimer-present': hasDevSiteWarning,
@@ -72,7 +72,7 @@ function toggleMenu() {
                     />
                     <button
                         v-if="isDesktopMode"
-                        class="button-open-close-desktop-menu btn btn-dark m-auto pe-4 ps-4 shadow-lg"
+                        class="button-open-close-desktop-menu btn btn-dark m-auto ps-4 pe-4 shadow-lg"
                         data-cy="menu-button"
                         @click="toggleMenu"
                     >

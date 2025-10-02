@@ -5,7 +5,7 @@ import { computed, ref } from 'vue'
 import ProviderUrl from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderUrl.vue'
 import LayerCatalogue from '@/modules/menu/components/LayerCatalogue.vue'
 import useUIStore from '@/store/modules/ui.store'
-import type { Layer } from '@swissgeo/layers'
+import type { GeoAdminGroupOfLayers, GeoAdminLayer } from '@swissgeo/layers'
 
 const { compact } = defineProps({
     compact: {
@@ -14,13 +14,13 @@ const { compact } = defineProps({
     },
 })
 
-const capabilities = ref<Layer[]>([])
+const capabilities = ref<(GeoAdminLayer | GeoAdminGroupOfLayers)[]>([])
 
 const uiStore = useUIStore()
 
 const isDesktopMode = computed(() => uiStore.isDesktopMode)
 
-function onNewCapabilities(newCapabilities: Layer[]) {
+function onNewCapabilities(newCapabilities: (GeoAdminLayer | GeoAdminGroupOfLayers)[]) {
     log.debug(`New capabilities`, newCapabilities)
 
     capabilities.value = newCapabilities.sort((layerA, layerB) =>
