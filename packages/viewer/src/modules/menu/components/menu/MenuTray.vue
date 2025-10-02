@@ -1,7 +1,6 @@
-<script setup lang="js">
-import { computed, onMounted, ref, watch } from 'vue'
+<script setup lang="ts">
+import { computed, onMounted, ref, watch, type ComponentPublicInstance } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
 import MenuThreeD from '@/modules/menu/components/3d/MenuThreeD.vue'
 import MenuActiveLayersList from '@/modules/menu/components/activeLayers/MenuActiveLayersList.vue'
@@ -11,22 +10,35 @@ import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuPrintSection from '@/modules/menu/components/print/MenuPrintSection.vue'
 import MenuShareSection from '@/modules/menu/components/share/MenuShareSection.vue'
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
+import useCesiumStore from '@/store/modules/cesium.store'
+import useUIStore from '@/store/modules/ui.store'
+import useDrawingStore from '@/store/modules/drawing.store'
+import useAppStore from '@/store/modules/app.store'
 
-const dispatcher = { dispatcher: 'MenuTray.vue' }
+const dispatcher = { name: 'MenuTray.vue' }
 
 const { t } = useI18n()
-const store = useStore()
+const cesiumStore = useCesiumStore()
+const uiStore = useUIStore()
+const drawingStore = useDrawingStore()
+const appStore = useAppStore()
 
-const { compact } = defineProps({
-    compact: {
-        type: Boolean,
-        default: false,
-    },
-})
+const { compact = false } = defineProps<{
+    compact?: boolean
+}>()
 
-const refs = ref({})
+// Actually it is a bit more than that:
+// this is the type of all the different menuSections. But not all of them
+// have the quite same properties - MenuSection has "open" whereas the
+// others don't. So we use the most comprehensive type, which is MenuSection
+// here
+type MenuSectionType = InstanceType<typeof MenuSection>
+
+const menuItemRefs = ref<Record<string, MenuSectionType>>()
+
 // multiMenuSections means that they can be open together
 const multiMenuSections = ref(['topicsSection', 'activeLayersSection', '3dSection'])
+
 // singleModeSections means that those section cannot be open together with other
 // sections and would therefore toggle other sections automatically.
 const singleModeSections = ref([
@@ -37,38 +49,49 @@ const singleModeSections = ref([
     'printSection',
 ])
 
-const is3dMode = computed(() => store.state.cesium.active)
-const showImportFile = computed(() => store.state.ui.importFile)
-const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.show)
-const mapModuleReady = computed(() => store.state.app.isMapReady)
+const is3dMode = computed(() => cesiumStore.active)
+const showImportFile = computed(() => uiStore.importFile)
+const showDrawingOverlay = computed(() => drawingStore.drawingOverlay.show)
+const mapModuleReady = computed(() => appStore.isMapReady)
 
 watch(showImportFile, (show) => {
-    if (show) {
-        refs.value.activeLayersSection.open()
+    // if this ref exists
+    if (show && menuItemRefs.value && 'activeLayersSection' in menuItemRefs.value) {
+        menuItemRefs.value.activeLayersSection.open()
     }
 })
 
 onMounted(() => {
-    if (is3dMode.value) {
-        refs.value['3dSection'].open()
+    if (is3dMode.value && menuItemRefs.value && '3dSection' in menuItemRefs.value) {
+        menuItemRefs.value['3dSection'].open()
     }
 })
 
-function toggleDrawingOverlay() {
-    store.dispatch('toggleDrawingOverlay', dispatcher)
+function toggleDrawingOverlay(payload: Parameters<typeof drawingStore.toggleDrawingOverlay>[0]) {
+    drawingStore.toggleDrawingOverlay(payload, dispatcher)
 }
 
-function onOpenMenuSection(id) {
+function onOpenMenuSection(id: string) {
     let toClose = singleModeSections.value.filter((section) => section !== id)
+
     if (singleModeSections.value.includes(id)) {
         toClose = toClose.concat(multiMenuSections.value)
     }
-    toClose.forEach((section) => refs.value[section]?.close())
+
+    if (menuItemRefs.value) {
+        for (const section of toClose) {
+            menuItemRefs.value[section]?.close()
+        }
+    }
 }
 
-function onCloseMenuSection(id) {
-    if (['drawSection', 'toolsSection'].includes(id)) {
-        refs.value.activeLayersSection.open()
+function onCloseMenuSection(id: string) {
+    if (
+        ['drawSection', 'toolsSection'].includes(id) &&
+        menuItemRefs.value &&
+        'activeLayersSection' in menuItemRefs.value
+    ) {
+        menuItemRefs.value.activeLayersSection.open()
     }
 }
 
@@ -76,14 +99,20 @@ function onCloseMenuSection(id) {
  * Add the element reference to the refs object. The reference can be then retrieved by it's id
  * attribute
  *
- * NOTE: To work the element requires an id attribute. For Component, it requires to expose an "id"
- * constant.
+ * NOTE: To work the element requires an sectionId attribute. For Component, it requires to expose
+ * an "id" constant.
  *
  * @param {any} el Reference to the element
  */
-function addRefBySectionId(el) {
-    if (el !== null && !Object.keys(refs.value).includes(el.sectionId)) {
-        refs.value[el.sectionId] = el
+const addRefBySectionId = (el: Element | ComponentPublicInstance | null): void => {
+    const _el = el as MenuSectionType
+
+    if (
+        _el !== null &&
+        menuItemRefs.value &&
+        !Object.keys(menuItemRefs.value).includes(_el.sectionId)
+    ) {
+        menuItemRefs.value[_el.sectionId] = _el
     }
 }
 </script>
@@ -125,7 +154,6 @@ function addRefBySectionId(el) {
                     toggleDrawingOverlay({
                         online: true,
                         title: 'draw_mode_title',
-                        dispatcher: 'MenuTray.vue',
                     })
                 "
                 @open-menu-section="onOpenMenuSection"

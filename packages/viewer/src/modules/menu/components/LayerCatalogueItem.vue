@@ -1,54 +1,51 @@
-<script setup lang="js">
+<script setup lang="ts">
 /**
  * Node of a layer catalogue in the UI, rendering (and behavior) will differ if this is a group of
  * layers or a single layer.
  */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { LV95 } from '@swissgeo/coordinates'
+import { LV95, type FlatExtent, type NormalizedExtent } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import { booleanContains, polygon } from '@turf/turf'
 import { computed, onMounted, ref, watch } from 'vue'
-import { useStore } from 'vuex'
 
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
-import GeoAdminGroupOfLayers from '@/api/layers/GeoAdminGroupOfLayers.class'
 import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPopup.vue'
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
+import { LayerType, type GeoAdminGroupOfLayers, type Layer } from '@swissgeo/layers'
+import useUIStore from '@/store/modules/ui.store'
+import useLayersStore from '@/store/modules/layers.store'
+import useTopicsStore from '@/store/modules/topics.store'
+import useMapStore from '@/store/modules/map.store'
+import usePositionStore from '@/store/modules/position.store'
 
-const dispatcher = { dispatcher: 'LayerCatalogueItem.vue' }
+const dispatcher = { name: 'LayerCatalogueItem.vue' }
 
-const { item, compact, depth, search, isTopic } = defineProps({
-    item: {
-        type: AbstractLayer,
-        required: true,
-    },
-    search: {
-        type: String,
-        default: '',
-    },
-    compact: {
-        type: Boolean,
-        default: false,
-    },
-    depth: {
-        type: Number,
-        default: 0,
-    },
-    isTopic: {
-        type: Boolean,
-        default: false,
-    },
-})
+const uiStore = useUIStore()
+const layersStore = useLayersStore()
+const topicsStore = useTopicsStore()
+const mapStore = useMapStore()
+const positionStore = usePositionStore()
+
+const {
+    item,
+    compact = false,
+    depth = 0,
+    search = '',
+    isTopic = false,
+} = defineProps<{
+    item: Layer
+    search?: string
+    compact?: boolean
+    depth?: number
+    isTopic?: boolean
+}>()
 
 // Declaring own properties (ex-data)
 
 const showChildren = ref(false)
 const showLayerDescription = ref(false)
-
-// Mapping the store to the component
-const store = useStore()
 
 const showItem = computed(() => {
     if (search) {
@@ -63,9 +60,13 @@ const showItem = computed(() => {
     return true
 })
 
-const hasChildren = computed(() => item?.layers?.length > 0)
+const isGroupOfLayers = (layer: Layer): layer is GeoAdminGroupOfLayers => {
+    return layer.type === LayerType.GROUP
+}
+
+const hasChildren = computed(() => isGroupOfLayers(item) && item?.layers?.length > 0)
 const hasDescription = computed(() => canBeAddedToTheMap.value && item?.hasDescription)
-const isPhoneMode = computed(() => store.getters.isPhoneMode)
+const isPhoneMode = computed(() => uiStore.isPhoneMode)
 
 /**
  * Flag telling if one of the children (deep search) match the search text When no search text is
@@ -73,7 +74,7 @@ const isPhoneMode = computed(() => store.getters.isPhoneMode)
  */
 const hasChildrenMatchSearch = computed(() => {
     if (search) {
-        if (hasChildren.value) {
+        if (isGroupOfLayers(item) && hasChildren.value) {
             return containsLayer(item.layers, search)
         }
         return false
@@ -87,10 +88,10 @@ const hasChildrenMatchSearch = computed(() => {
  */
 const canBeAddedToTheMap = computed(() => {
     // only groups of layers from our backends can't be added to the map
-    return item && !(item instanceof GeoAdminGroupOfLayers)
+    return item && !isGroupOfLayers(item)
 })
 const isPresentInActiveLayers = computed(() => {
-    const layers = store.getters.getActiveLayersById(item.id, item.isExternal, item.baseUrl)
+    const layers = layersStore.getActiveLayersById(item.id, item.isExternal, item.baseUrl)
     return layers.length > 0
 })
 
@@ -99,7 +100,7 @@ watch(hasChildrenMatchSearch, (newValue) => {
     showChildren.value = newValue
 })
 if (isTopic) {
-    const openThemesIds = computed(() => store.state.topics.openedTreeThemesIds)
+    const openThemesIds = computed(() => topicsStore.openedTreeThemesIds)
 
     // reacting to topic changes (some categories might need some auto-opening)
     watch(openThemesIds, (newValue) => {
@@ -107,12 +108,9 @@ if (isTopic) {
     })
     watch(showChildren, (newValue) => {
         if (newValue) {
-            store.dispatch('addTopicTreeOpenedThemeId', { themeId: item.id, ...dispatcher })
+            topicsStore.addTopicTreeOpenedThemeId(item.id, dispatcher)
         } else {
-            store.dispatch('removeTopicTreeOpenedThemeId', {
-                themeId: item.id,
-                ...dispatcher,
-            })
+            topicsStore.removeTopicTreeOpenedThemeId(item.id, dispatcher)
         }
     })
 
@@ -124,40 +122,41 @@ if (isTopic) {
 
 function startLayerPreview() {
     if (canBeAddedToTheMap.value) {
-        store.dispatch('setPreviewLayer', {
-            layer: item,
-            ...dispatcher,
-        })
+        layersStore.setPreviewLayer(item, dispatcher)
     }
 }
 
 function stopLayerPreview() {
-    store.dispatch('setPreviewLayer', {
-        layer: null,
-        ...dispatcher,
-    })
+    layersStore.clearPreviewLayer(dispatcher)
 }
 
 function addRemoveLayer() {
     // if this is a group of a layer then simply add it to the map
-    const layers = store.getters.getActiveLayersById(item.id, item.isExternal, item.baseUrl)
+    const layers = layersStore.getActiveLayersById(item.id, item.isExternal, item.baseUrl)
+
     if (layers.length > 0) {
-        store.dispatch('removeLayer', {
-            layerId: item.id,
-            isExternal: item.isExternal,
-            baseUrl: item.baseUrl,
-            ...dispatcher,
-        })
+        layersStore.removeLayer(
+            {
+                layerId: item.id,
+                isExternal: item.isExternal,
+                baseUrl: item.baseUrl,
+            },
+            dispatcher
+        )
     } else if (item.isExternal) {
-        store.dispatch('addLayer', {
-            layer: item,
-            ...dispatcher,
-        })
+        layersStore.addLayer(
+            {
+                layer: item,
+            },
+            dispatcher
+        )
     } else {
-        store.dispatch('addLayer', {
-            layerConfig: { id: item.id, visible: true },
-            ...dispatcher,
-        })
+        layersStore.addLayer(
+            {
+                layerConfig: { id: item.id, isVisible: true },
+            },
+            dispatcher
+        )
     }
     stopLayerPreview()
 }
@@ -174,7 +173,7 @@ function onCollapseClick() {
     showChildren.value = !showChildren.value
 }
 
-function transformExtentIntoPolygon(flattenExtent) {
+function transformExtentIntoPolygon(flattenExtent: FlatExtent) {
     return polygon([
         [
             [flattenExtent[0], flattenExtent[1]],
@@ -186,7 +185,8 @@ function transformExtentIntoPolygon(flattenExtent) {
     ])
 }
 
-const lv95Extent = [LV95.bounds.bottomLeft, LV95.bounds.topRight]
+const lv95Extent: NormalizedExtent = [LV95.bounds.bottomLeft, LV95.bounds.topRight]
+
 function zoomToLayer() {
     // TODO PB-243 better handling of layers extent errors
     // - extent totally out of projection bounds
@@ -198,40 +198,48 @@ function zoomToLayer() {
     //   => take intersection as extent, maybe add a warning icon about partial layer display
     // - no extent
     //   => add a warning that the layer might be out of bound
-    log.debug(`Zoom to layer ${item.name}`, item.extent)
+    log.debug({ messages: [`Zoom to layer ${item.name}`, item.extent] })
+
     // Only zooming to layer's extent if its extent is entirely within LV95 extent.
     // If part (or all) of the extent is outside LV95 extent, we zoom to LV95 extent instead.
     if (
+        item.extent &&
         booleanContains(
-            transformExtentIntoPolygon(lv95Extent.flat()),
-            transformExtentIntoPolygon(item.extent.flat())
+            transformExtentIntoPolygon(lv95Extent.flat() as FlatExtent),
+            transformExtentIntoPolygon(item.extent.flat() as FlatExtent)
         )
     ) {
-        store.dispatch('zoomToExtent', { extent: item.extent, ...dispatcher })
+        positionStore.zoomToExtent({ extent: item.extent }, dispatcher)
     } else {
-        store.dispatch('zoomToExtent', { extent: lv95Extent, ...dispatcher })
+        positionStore.zoomToExtent({ extent: lv95Extent }, dispatcher)
     }
     if (isPhoneMode.value) {
         // On mobile phone we close the menu so that the user can see the zoom to extent
-        store.dispatch('toggleMenu', dispatcher)
+        uiStore.toggleMenu(dispatcher)
     }
 }
 
 /**
  * Return true if at least one of the layers or sub-layers name match the given text
  *
- * @param {[AbstractLayer]} layers List of abstract layers
+ * @param {Layer[]} layers List of abstract layers
  * @param {string} searchText Text to search
  * @returns {bool} True if at least on name match, false otherwise
  */
-function containsLayer(layers, searchText) {
+function containsLayer(layers: Layer[], searchText: string): boolean {
     let match = false
     for (let i = 0; i < layers.length && !match; i++) {
         const layer = layers[i]
+
+        if (!layer) {
+            continue
+        }
+
         if (layer.name.toLowerCase().includes(searchText)) {
             match = true
         }
-        if (layer.layers?.length) {
+
+        if (isGroupOfLayers(layer) && layer.layers?.length) {
             match = containsLayer(layer.layers, searchText)
         }
     }
@@ -313,7 +321,7 @@ function containsLayer(layers, searchText) {
             </button>
         </div>
         <ul
-            v-if="showChildren"
+            v-if="showChildren && isGroupOfLayers(item)"
             class="menu-catalogue-item-children"
             :class="`ps-${2 + depth}`"
         >

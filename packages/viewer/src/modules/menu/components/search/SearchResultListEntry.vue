@@ -1,25 +1,22 @@
-<script setup lang="js">
+<script setup lang="ts">
 /** Component showing one search result entry (and dispatching its selection to the store) */
 
 import { computed, onUnmounted, ref, useTemplateRef } from 'vue'
-import { useStore } from 'vuex'
 
-import { SearchResultTypes } from '@/api/search.api'
+import { SearchResultTypes, type SearchResult } from '@/api/search.api'
 import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPopup.vue'
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
+import useUIStore from '@/store/modules/ui.store'
+import useSearchStore from '@/store/modules/search.store'
+import useLayersStore from '@/store/modules/layers.store'
+import log from '@swissgeo/log'
 
-const dispatcher = { dispatcher: 'SearchResultListEntry.vue' }
+const dispatcher = { name: 'SearchResultListEntry.vue' }
 
-const { index, entry } = defineProps({
-    index: {
-        type: Number,
-        required: true,
-    },
-    entry: {
-        type: Object,
-        required: true,
-    },
-})
+const { index, entry } = defineProps<{
+    index: number
+    entry: SearchResult
+}>()
 
 const emits = defineEmits([
     'entrySelected',
@@ -29,49 +26,63 @@ const emits = defineEmits([
     'clearPreview',
 ])
 
+const uiStore = useUIStore()
+const searchStore = useSearchStore()
+const layersStore = useLayersStore()
+
 const resultType = computed(() => entry.resultType)
 const showLayerDescription = ref(false)
 
-const item = useTemplateRef('item')
+const item = useTemplateRef<HTMLLIElement>('item')
 const isSetPreview = ref(false)
-const store = useStore()
-const compact = computed(() => store.getters.isDesktopMode)
-const searchQuery = computed(() => store.state.search.query)
+
+const compact = computed(() => uiStore.isDesktopMode)
+const searchQuery = computed(() => searchStore.query)
+
 const layerName = computed(() => {
     if (resultType.value === SearchResultTypes.LAYER) {
-        return store.state.layers.config.find((layer) => layer.id === entry.layerId)?.name
+        return layersStore.config.find((layer) => layer.id === entry.id)?.name
     }
-    return null
+    return undefined
 })
 
 function selectItem() {
     emits('entrySelected')
     emits('clearPreview', entry)
-    store.dispatch('selectResultEntry', { entry: entry, ...dispatcher })
+
+    searchStore.selectResultEntry(entry, dispatcher).catch(() => {
+        log.error({ messages: ['Unable to select search Result'] })
+    })
 }
 
 function goToFirst() {
-    item.value.parentElement.firstElementChild?.focus()
+    if (!item.value) return
+    ;(item.value.parentElement!.firstElementChild as HTMLLIElement)?.focus()
 }
 
 function goToPrevious() {
+    if (!item.value || !item.value.previousElementSibling) return
+
     if (item.value.previousElementSibling) {
-        item.value.previousElementSibling.focus()
+        ;(item.value.previousElementSibling as HTMLLIElement).focus()
     } else {
         emits('firstEntryReached')
     }
 }
 
 function goToNext() {
+    if (!item.value || !item.value.nextElementSibling) return
+
     if (item.value.nextElementSibling) {
-        item.value.nextElementSibling.focus()
+        ;(item.value.nextElementSibling as HTMLLIElement).focus()
     } else {
         emits('lastEntryReached')
     }
 }
 
 function goToLast() {
-    item.value.parentElement.lastElementChild?.focus()
+    if (!item.value || !item.value.parentElement) return
+    ;(item.value.parentElement.lastElementChild as HTMLLIElement)?.focus()
 }
 
 function clearPreview() {
@@ -115,7 +126,7 @@ defineExpose({
         @focusout="clearPreview"
     >
         <TextSearchMarker
-            class="search-category-entry-main px-2 flex-grow-1"
+            class="search-category-entry-main flex-grow-1 px-2"
             :class="{ 'py-1': compact, 'py-2': !compact }"
             :text="entry.title"
             :search="searchQuery"
@@ -130,7 +141,7 @@ defineExpose({
             <button
                 class="btn btn-default"
                 :class="{ 'btn-xs': compact }"
-                :data-cy="`button-show-description-layer-${entry.layerId}`"
+                :data-cy="`button-show-description-layer-${entry.id}`"
                 tabindex="-1"
                 @click="showLayerDescription = true"
             >
@@ -142,7 +153,7 @@ defineExpose({
         </div>
         <LayerDescriptionPopup
             v-if="showLayerDescription"
-            :layer-id="entry.layerId"
+            :layer-id="entry.id"
             :layer-name="layerName"
             @close="showLayerDescription = false"
         />

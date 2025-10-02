@@ -1,8 +1,9 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed } from 'vue'
-import { useStore } from 'vuex'
-
 import swissFlagIcon from '@/assets/svg/swiss-flag.svg'
+import useUIStore from '@/store/modules/ui.store'
+
+const uiStore = useUIStore()
 
 const { sm } = defineProps({
     sm: {
@@ -13,8 +14,7 @@ const { sm } = defineProps({
 
 const emits = defineEmits(['click'])
 
-const store = useStore()
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
+const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
 </script>
 
 <template>

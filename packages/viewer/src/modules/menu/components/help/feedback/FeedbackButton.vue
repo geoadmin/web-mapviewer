@@ -1,8 +1,7 @@
-<script setup lang="js">
+<script setup lang="ts">
 import log from '@swissgeo/log'
 import { computed, nextTick, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
 import sendFeedbackApi from '@/api/feedback.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
@@ -11,8 +10,10 @@ import FeedbackRating from '@/modules/menu/components/help/feedback/FeedbackRati
 import EmailInput from '@/utils/components/EmailInput.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 import TextAreaInput from '@/utils/components/TextAreaInput.vue'
+import useLayersStore from '@/store/modules/layers.store'
+import useUIStore from '@/store/modules/ui.store'
 
-const dispatcher = { dispatcher: 'FeedbackButton.vue' }
+const dispatcher = { name: 'FeedbackButton.vue' }
 
 const { showAsLink } = defineProps({
     showAsLink: {
@@ -21,13 +22,20 @@ const { showAsLink } = defineProps({
     },
 })
 
-const store = useStore()
 const { t } = useI18n()
+const layersStore = useLayersStore()
+const uiStore = useUIStore()
 
 const requestResults = useTemplateRef('requestResults')
 const showFeedbackForm = ref(false)
 const maxRating = ref(5)
-const feedback = ref({ rating: 0, message: null, email: null })
+
+const feedback = ref<{ rating: number; message: string; email: string }>({
+    rating: 0,
+    message: '',
+    email: '',
+})
+
 const request = ref({ pending: false, failed: false, completed: false })
 const validationResult = useTemplateRef('validationResult')
 const activateValidation = ref(false)
@@ -35,10 +43,10 @@ const isMessageValid = ref(false)
 // by default attachment and email are valid as they are optional
 const isEmailValid = ref(true)
 
-const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
+const activeKmlLayer = computed(() => layersStore.activeKmlLayer)
 const isFormValid = computed(() => feedback.value.rating && isEmailValid.value)
 
-function ratingChange(newRating) {
+function ratingChange(newRating: number) {
     feedback.value.rating = newRating
 }
 
@@ -50,23 +58,26 @@ function validate() {
 async function sendFeedback() {
     if (!validate()) {
         // scrolling down to make sure the message with validation result is visible to the user
-        validationResult.value.scrollIntoView()
+        validationResult.value?.scrollIntoView()
         return
     }
     request.value.pending = true
     try {
         let subject = '[User Feedback]'
+
         if (feedback.value.rating && maxRating.value) {
             subject += ` [rating: ${feedback.value.rating}/${maxRating.value}]`
         }
+
         const feedbackSentSuccessfully = await sendFeedbackApi(subject, feedback.value.message, {
             kmlFileUrl: activeKmlLayer.value?.kmlFileUrl,
             email: feedback.value.email,
         })
+
         request.value.completed = feedbackSentSuccessfully
         request.value.failed = !feedbackSentSuccessfully
     } catch (err) {
-        log.error('Error while sending feedback', err)
+        log.error({ title: 'Error while sending feedback', messages: [err] })
         request.value.failed = true
     } finally {
         request.value.pending = false
@@ -74,13 +85,13 @@ async function sendFeedback() {
     await nextTick()
     if (request.value.failed) {
         // scrolling down to make sure the message with request results is visible to the user
-        requestResults.value.scrollIntoView()
+        requestResults.value?.scrollIntoView()
     }
 }
 
 function openForm() {
     if (!showAsLink) {
-        store.dispatch('closeMenu', dispatcher)
+        uiStore.closeMenu(dispatcher)
     }
     showFeedbackForm.value = true
 }
@@ -88,19 +99,23 @@ function openForm() {
 function closeAndCleanForm() {
     activateValidation.value = false
     showFeedbackForm.value = false
-    feedback.value.rating = 0
-    feedback.value.message = null
-    feedback.value.email = null
+
+    feedback.value = {
+        rating: 0,
+        message: '',
+        email: '',
+    }
+
     // reset also the completed/failed state, so that the user can send another feedback later on
     request.value.failed = false
     request.value.completed = false
 }
 
-function onTextValidate(valid) {
+function onTextValidate(valid: boolean) {
     isMessageValid.value = valid
 }
 
-function onEmailValidate(valid) {
+function onEmailValidate(valid: boolean) {
     isEmailValid.value = valid
 }
 </script>
@@ -188,14 +203,14 @@ function onEmailValidate(valid) {
             />
             <div
                 ref="validationResult"
-                class="invalid-feedback text-end mt-2"
+                class="invalid-feedback mt-2 text-end"
             >
                 {{ t('form_invalid') }}
             </div>
             <div
                 v-if="request.failed"
                 ref="requestResults"
-                class="text-end text-danger mt-3"
+                class="text-danger mt-3 text-end"
                 data-cy="feedback-failed-text"
             >
                 {{ t('send_failed') }}
@@ -212,7 +227,7 @@ function onEmailValidate(valid) {
                 {{ t('feedback_success_message') }}
             </h6>
             <button
-                class="my-2 btn btn-light float-end"
+                class="btn btn-light float-end my-2"
                 data-cy="feedback-close-successful"
                 @click="closeAndCleanForm"
             >

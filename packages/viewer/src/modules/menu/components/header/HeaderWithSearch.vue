@@ -1,7 +1,6 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
 import AdditionalInfoCollapsable from '@/modules/menu/components/header/AdditionalInfoCollapsable.vue'
 import ConfederationFullLogo from '@/modules/menu/components/header/ConfederationFullLogo.vue'
@@ -12,22 +11,29 @@ import HelpLink from '@/modules/menu/components/help/HelpLink.vue'
 import ReportProblemButton from '@/modules/menu/components/help/ReportProblemButton.vue'
 import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
+import useUIStore from '@/store/modules/ui.store'
+import useLayersStore from '@/store/modules/layers.store'
+import { useI18nStore } from '@/store/modules/i18n.store'
+import useTopicsStore from '@/store/modules/topics.store'
 
-const dispatcher = { dispatcher: 'HeaderWithSearch.vue' }
+const dispatcher = { name: 'HeaderWithSearch.vue' }
 
 const header = useTemplateRef('header')
 
-const store = useStore()
 const { t } = useI18n()
+const uiStore = useUIStore()
+const layersStore = useLayersStore()
+const i18nStore = useI18nStore()
+const topicsStore = useTopicsStore()
 
-const currentBackground = computed(() => store.state.layers.currentBackgroundLayerId)
-const currentLang = computed(() => store.state.i18n.lang)
-const currentTopic = computed(() => store.getters.currentTopic)
-const currentTopicId = computed(() => store.state.topics.current)
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
-const hasGiveFeedbackButton = computed(() => store.getters.hasGiveFeedbackButton)
-const hasReportProblemButton = computed(() => store.getters.hasReportProblemButton)
-const isPhoneMode = computed(() => store.getters.isPhoneMode)
+const currentBackground = computed(() => layersStore.currentBackgroundLayerId)
+const currentLang = computed(() => i18nStore.lang)
+const currentTopic = computed(() => topicsStore.currentTopic)
+const currentTopicId = computed(() => topicsStore.current)
+const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
+const hasGiveFeedbackButton = computed(() => uiStore.hasGiveFeedbackButton)
+const hasReportProblemButton = computed(() => uiStore.hasReportProblemButton)
+const isPhoneMode = computed(() => uiStore.isPhoneMode)
 
 onMounted(() => {
     nextTick(() => {
@@ -35,7 +41,7 @@ onMounted(() => {
         updateHeaderHeight()
         // Watch for changes in height
         window.addEventListener('resize', updateHeaderHeight)
-    })
+    }).catch((_) => {})
 })
 onBeforeUnmount(() => {
     // Remove the event listener when the component is destroyed
@@ -43,10 +49,9 @@ onBeforeUnmount(() => {
 })
 
 function updateHeaderHeight() {
-    store.dispatch('setHeaderHeight', {
-        height: header.value.clientHeight,
-        ...dispatcher,
-    })
+    if (header.value?.clientHeight) {
+        uiStore.setHeaderHeight(header.value.clientHeight, dispatcher)
+    }
 }
 
 function resetApp() {
@@ -54,7 +59,8 @@ function resetApp() {
     // We keep the default background layer of the current topic because the app always set to `ech` topic and its default background layer before we can even get the topic from the URL
     const defaultBackgroundLayerId =
         currentTopic.value?.defaultBackgroundLayer?.id ?? currentBackground.value
-    window.location = `${window.location.origin}?lang=${currentLang.value}&topic=${currentTopicId.value}&bgLayer=${defaultBackgroundLayerId}`
+
+    window.location.href = `${window.location.origin}?lang=${currentLang.value}&topic=${currentTopicId.value}&bgLayer=${defaultBackgroundLayerId}`
 }
 </script>
 
@@ -64,13 +70,13 @@ function resetApp() {
         class="header"
         data-cy="app-header"
     >
-        <div class="header-content w-100 p-sm-0 p-md-1 d-flex align-items-center">
+        <div class="header-content p-sm-0 p-md-1 d-flex align-items-center w-100">
             <ConfederationFullLogo
                 class="cursor-pointer"
                 @click="resetApp"
             />
             <div
-                class="search-bar-section d-flex-column flex-grow-1 me-2"
+                class="search-bar-section d-flex-column me-2 flex-grow-1"
                 :class="{ 'align-self-center': !hasDevSiteWarning }"
             >
                 <SearchBar />
@@ -101,7 +107,7 @@ function resetApp() {
         </div>
         <div
             v-if="hasDevSiteWarning"
-            class="header-warning-dev bg-danger text-white text-center fw-bold px-1"
+            class="header-warning-dev bg-danger fw-bold px-1 text-center text-white"
         >
             <TextTruncate
                 text="test_host_warning"

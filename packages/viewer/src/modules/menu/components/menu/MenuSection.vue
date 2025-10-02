@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 
 const { sectionId, title, showContent, secondary, light, disabled } = defineProps({
@@ -51,7 +51,7 @@ function toggleShowBody() {
     emits('click:header')
 }
 
-function setShowBody(value) {
+function setShowBody(value: boolean) {
     if (showBody.value !== value) {
         showBody.value = value
         if (showBody.value) {

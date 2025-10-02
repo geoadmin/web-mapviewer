@@ -1,13 +1,15 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
 import LayerCatalogue from '@/modules/menu/components/LayerCatalogue.vue'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicSelectionPopup.vue'
+import useTopicsStore from '@/store/modules/topics.store'
+import useAppStore from '@/store/modules/app.store'
+import type { Topic } from '@/api/topics.api'
 
-const dispatcher = { dispatcher: 'MenuTopicSection.vue' }
+const dispatcher = { name: 'MenuTopicSection.vue' }
 
 const { compact } = defineProps({
     compact: {
@@ -17,47 +19,52 @@ const { compact } = defineProps({
 })
 
 const emit = defineEmits(['openMenuSection', 'closeMenuSection'])
-const store = useStore()
 const { t } = useI18n()
+const topicsStore = useTopicsStore()
+const appStore = useAppStore()
 
 const menuTopicSection = useTemplateRef('menuTopicSection')
 const showTopicSelectionPopup = ref(false)
 
 // The id needs to be exposed and is used by the MenuTray to close sections.
 const sectionId = 'topicsSection'
-const currentTopic = computed(() => store.state.topics.current)
-const currentTopicTree = computed(() => store.state.topics.tree)
-const allTopics = computed(() => store.state.topics.config)
+const currentTopic = computed(() => topicsStore.current)
+const currentTopicTree = computed(() => topicsStore.tree)
+const allTopics = computed(() => topicsStore.config)
+
 const showTopicTree = computed(() => {
     // // We only want the topic tree open whenever the user has chosen a different topic
     // // than the default one (it can be opened by the user by a click on it, but by default it's closed)
     // // If we have defined catalog themes to be opened in the URL, it makes sense to open the catalog
     // return !isDefaultTopic.value
-    return store.state.topics.openedTreeThemesIds.includes(currentTopic.value)
+    return topicsStore.openedTreeThemesIds.includes(currentTopic.value)
 })
-const mapModuleReady = computed(() => store.state.app.isMapReady)
+
+const mapModuleReady = computed(() => appStore.isMapReady)
 
 function setShowTopicSelectionPopup() {
     showTopicSelectionPopup.value = true
 }
 
-function selectTopic(topic) {
-    store.dispatch('changeTopic', { topicId: topic.id, ...dispatcher })
+function selectTopic(topic: Topic) {
+    topicsStore.changeTopic(topic.id, dispatcher)
     showTopicSelectionPopup.value = false
 }
 
 function close() {
-    menuTopicSection.value.close()
+    if (menuTopicSection.value) {
+        menuTopicSection.value.close()
+    }
 }
 
-function onOpenMenuTopics(sectionId) {
+function onOpenMenuTopics(sectionId: string) {
     emit('openMenuSection', sectionId)
-    store.dispatch('addTopicTreeOpenedThemeId', { themeId: currentTopic.value, ...dispatcher })
+    topicsStore.addTopicTreeOpenedThemeId(currentTopic.value, dispatcher)
 }
 
-function onCloseMenuTopics(sectionId) {
+function onCloseMenuTopics(sectionId: string) {
     emit('closeMenuSection', sectionId)
-    store.dispatch('removeTopicTreeOpenedThemeId', { themeId: currentTopic.value, ...dispatcher })
+    topicsStore.removeTopicTreeOpenedThemeId(currentTopic.value, dispatcher)
 }
 
 defineExpose({ close, id: sectionId })

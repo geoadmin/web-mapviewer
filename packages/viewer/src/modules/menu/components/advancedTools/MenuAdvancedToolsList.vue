@@ -1,14 +1,16 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { WarningMessage } from '@swissgeo/log/Message'
 import { computed } from 'vue'
-import { useStore } from 'vuex'
 
 import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatalogue/ImportCatalogue.vue'
 import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
 import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
+import useUIStore from '@/store/modules/ui.store'
+import useCesiumStore from '@/store/modules/cesium.store'
+import useLayersStore from '@/store/modules/layers.store'
 
-const dispatcher = { dispatcher: 'MenuAdvancedToolsList.vue' }
+const dispatcher = { name: 'MenuAdvancedToolsList.vue' }
 
 const { compact } = defineProps({
     compact: {
@@ -16,47 +18,45 @@ const { compact } = defineProps({
         default: false,
     },
 })
-const store = useStore()
-const showImportCatalogue = computed(() => store.state.ui.importCatalogue)
-const showImportFile = computed(() => store.state.ui.importFile)
-const storeCompareRatio = computed(() => store.state.ui.compareRatio)
-const isCompareSliderActive = computed(() => store.state.ui.isCompareSliderActive)
-const isPhoneMode = computed(() => store.getters.isPhoneMode)
-const is3dActive = computed(() => store.state.cesium.active)
 
-const hasNoVisibleLayer = computed(() => !store.getters.visibleLayerOnTop)
+const uiStore = useUIStore()
+const cesiumStore = useCesiumStore()
+const layersStore = useLayersStore()
+
+const showImportCatalogue = computed(() => uiStore.importCatalogue)
+const showImportFile = computed(() => uiStore.importFile)
+const storeCompareRatio = computed(() => uiStore.compareRatio)
+const isCompareSliderActive = computed(() => uiStore.isCompareSliderActive)
+const isPhoneMode = computed(() => uiStore.isPhoneMode)
+const is3dActive = computed(() => cesiumStore.active)
+
+const hasNoVisibleLayer = computed(() => !layersStore.visibleLayerOnTop)
 
 function onToggleImportCatalogue() {
-    store.dispatch('toggleImportCatalogue', dispatcher)
+    uiStore.toggleImportCatalogue(dispatcher)
 }
 
 function onToggleCompareSlider() {
     if (storeCompareRatio.value === null) {
         // this allows us to set a value to the compare ratio, in case there was none
-        store.dispatch('setCompareRatio', {
-            compareRatio: 0.5,
-            ...dispatcher,
-        })
+        uiStore.setCompareRatio(0.5, dispatcher)
     }
-    store.dispatch('setCompareSliderActive', {
-        ...dispatcher,
-        compareSliderActive: !hasNoVisibleLayer.value && !isCompareSliderActive.value,
-    })
+    uiStore.setCompareSliderActive(
+        !hasNoVisibleLayer.value && !isCompareSliderActive.value,
+        dispatcher
+    )
 
     if (hasNoVisibleLayer.value) {
-        store.dispatch('addWarnings', {
-            warnings: [new WarningMessage('no_layers_info_compare')],
-            ...dispatcher,
-        })
+        uiStore.addWarnings([new WarningMessage('no_layers_info_compare')], dispatcher)
     }
 }
 function onToggleImportFile() {
     if (!showImportFile.value && isPhoneMode.value) {
         // To avoid the menu overlapping the import overlay after open we automatically
         // close the menu
-        store.dispatch('toggleMenu', dispatcher)
+        uiStore.toggleMenu(dispatcher)
     }
-    store.dispatch('toggleImportFile', dispatcher)
+    uiStore.toggleImportFile(dispatcher)
 }
 </script>
 
