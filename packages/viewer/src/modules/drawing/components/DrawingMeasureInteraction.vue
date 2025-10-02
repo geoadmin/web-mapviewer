@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import OLFeature from 'ol/Feature'
+import Feature from 'ol/Feature'
 import type { SimpleGeometry } from 'ol/geom'
 import type { StyleFunction } from 'ol/style/Style'
 
@@ -7,14 +7,14 @@ import { EditableFeatureTypes } from '@/api/features.api'
 import useDrawingLineInteraction from '@/modules/drawing/components/useDrawingLineInteraction.composable'
 import { drawMeasureStyle } from '@/modules/drawing/lib/style'
 
-const emits = defineEmits<{
-    drawEnd: [feature: OLFeature<SimpleGeometry>]
-}>()
-
+type EmitType = {
+    (_e: 'drawEnd', _feature: Feature<SimpleGeometry>): void
+}
+const emits = defineEmits<EmitType>()
 const { removeLastPoint } = useDrawingLineInteraction({
     styleFunction: drawMeasureStyle as StyleFunction,
     featureType: EditableFeatureTypes.Measure,
-    drawEndCallback: (feature: OLFeature<SimpleGeometry>): void => {
+    drawEndCallback: (feature: Feature<SimpleGeometry>): void => {
         emits('drawEnd', feature)
     },
 })

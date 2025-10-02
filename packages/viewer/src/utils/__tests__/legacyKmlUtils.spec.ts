@@ -3,7 +3,7 @@ import { layerUtils } from '@swissgeo/layers/utils'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 import { beforeEach, describe, expect, it } from 'vitest'
-import type { default as OLFeature } from 'ol/Feature'
+import type { default as Feature } from 'ol/Feature'
 
 import type { DrawingIconSet } from '@/api/icon.api'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
@@ -115,7 +115,7 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
             kmlData: kml,
         })
         const resolution = 12345
-        const olFeatures: OLFeature[] = parseKml(kmlLayer, WEBMERCATOR, fakeIconSets, resolution)
+        const olFeatures: Feature[] = parseKml(kmlLayer, WEBMERCATOR, fakeIconSets, resolution)
         features = olFeatures.map((f) => f.get('editableFeature'))
     })
     describe('icon parsing', () => {

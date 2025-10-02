@@ -21,6 +21,7 @@ import useLayersStore from '@/store/modules/layers.store'
 import useFeaturesStore from '@/store/modules/features.store'
 import type { ActionDispatcher } from '@/store/types'
 import type VectorLayer from 'ol/layer/Vector'
+import log from '@swissgeo/log'
 
 const dispatcher: ActionDispatcher = { name: 'DrawingToolbox.vue' }
 
@@ -32,8 +33,11 @@ const uiStore = useUIStore()
 const layersStore = useLayersStore()
 const featuresStore = useFeaturesStore()
 
-const emits = defineEmits<{ removeLastPoint: []; closeDrawing: [] }>()
-
+type EmitType = {
+    (_e: 'removeLastPoint'): void
+    (_e: 'closeDrawing'): void
+}
+const emits = defineEmits<EmitType>()
 const drawMenuOpen = ref(true)
 const showClearConfirmationModal = ref(false)
 const showShareModal = ref(false)
@@ -70,9 +74,9 @@ const selectedLineCoordinates = computed<number[][] | undefined>(() => {
     if (line?.geometry?.type === 'LineString') {
         // geometry.coordinates is number[][] for LineString in our domain model
         // cast to be explicit (underlying geojson typing is a union)
-        return (line.geometry as any).coordinates as number[][]
+        return line.geometry.coordinates
     }
-    return
+    return undefined
 })
 const editMode = computed(() => drawingStore.editingMode)
 const isAllowDeleteLastPoint = computed(
@@ -90,12 +94,10 @@ const drawingName = computed({
     get: () => drawingStore.name,
     set: (value) => debounceSaveDrawingName(value),
 })
-const isDrawingStateError = computed(() => saveState.value < 0)
+const isDrawingStateError = computed(() => (saveState.value as number) < 0)
 /** Return a different translation key depending on the saving status */
-// Widen literal type of saveState (avoid it being inferred as 0 literal)
-const saveStateValue = computed<number>(() => saveState.value as number)
 const drawingStateMessage = computed(() => {
-    switch (saveStateValue.value) {
+    switch (saveState.value as (typeof DrawingState)[keyof typeof DrawingState]) {
         case DrawingState.SAVING:
             return t('draw_file_saving')
         case DrawingState.SAVED:
@@ -105,7 +107,7 @@ const drawingStateMessage = computed(() => {
         case DrawingState.LOAD_ERROR:
             return t('draw_file_save_error')
         default:
-            return
+            return undefined
     }
 })
 const online = computed(() => drawingStore.online)
@@ -118,7 +120,7 @@ function onCloseClearConfirmation(confirmed: boolean) {
         drawingStore.setIsDrawingModified(false, dispatcher)
         drawingStore.setIsDrawingEditShared(false, dispatcher)
         drawingLayer?.getSource()?.clear()
-        deleteDrawing()
+        deleteDrawing().catch((error: Error) => log.error(`Error while deleting drawing: ${error}`))
         drawingStore.setDrawingMode(undefined, dispatcher)
         if (activeKmlLayer.value) {
             layersStore.removeLayer(
@@ -160,7 +162,7 @@ function onDeleteLastPoint() {
     emits('removeLastPoint')
 }
 
-const debounceSaveDrawingName = debounce(async (...args: unknown[]) => {
+const debounceSaveDrawingName = debounce((...args: unknown[]) => {
     const newName = typeof args[0] === 'string' ? args[0] : undefined
     const sanitized = DOMPurify.sanitize(newName ?? '', {
         ALLOWED_TAGS: [],
@@ -168,7 +170,9 @@ const debounceSaveDrawingName = debounce(async (...args: unknown[]) => {
         KEEP_CONTENT: false,
     }).trim()
     drawingStore.setDrawingName(sanitized, dispatcher)
-    debounceSaveDrawing()
+    debounceSaveDrawing().catch((error: Error) =>
+        log.error(`Error while saving drawing after name change: ${error}`)
+    )
 }, 200)
 </script>
 

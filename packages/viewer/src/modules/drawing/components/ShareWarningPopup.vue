@@ -16,8 +16,10 @@ const drawingStore = useDrawingStore()
 const { t } = useI18n()
 
 const { kmlLayer } = defineProps<{ kmlLayer: KMLLayer | undefined }>()
-const emits = defineEmits<{ accept: [] }>()
-
+type EmitType = {
+    (_e: 'accept'): void
+}
+const emits = defineEmits<EmitType>()
 const adminUrlCopied = ref(false)
 const shareUrl: Ref<string | undefined> = ref(' ')
 const adminShareUrl: Ref<string | undefined> = ref(' ')
@@ -37,20 +39,28 @@ const adminUrl = computed(() => {
         )
     }
     // if no adminID is available don't show the edit share link.
-    return
+    return undefined
 })
 
 watch(adminUrl, () => {
-    updateAdminShareUrl()
+    updateAdminShareUrl().catch((error: Error) =>
+        log.error(`Error while creating short link for admin share url: ${error}`)
+    )
 })
 watch(fileUrl, () => {
-    updateShareUrl()
+    updateShareUrl().catch((error: Error) =>
+        log.error(`Error while creating short link for share url: ${error}`)
+    )
 })
 
-updateShareUrl()
-updateAdminShareUrl()
+updateShareUrl().catch((error: Error) =>
+    log.error(`Error while creating short link for share url: ${error}`)
+)
+updateAdminShareUrl().catch((error: Error) =>
+    log.error(`Error while creating short link for admin share url: ${error}`)
+)
 
-let adminTimeout: NodeJS.Timeout | undefined = undefined
+let adminTimeout: ReturnType<typeof setTimeout> | undefined = undefined
 const fileTimeout = undefined
 
 onUnmounted(() => {
@@ -70,8 +80,8 @@ async function copyAdminShareUrl() {
         adminTimeout = setTimeout(() => {
             adminUrlCopied.value = false
         }, 5000)
-    } catch (error) {
-        log.error(`Failed to copy: `, String(error))
+    } catch (error: unknown) {
+        log.error(`Failed to copy: `, error as string)
     }
 }
 async function updateShareUrl() {

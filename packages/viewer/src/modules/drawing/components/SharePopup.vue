@@ -39,21 +39,29 @@ const adminUrl = computed(() => {
         )
     }
     // if no adminID is available don't show the edit share link.
-    return
+    return undefined
 })
 
 watch(adminUrl, () => {
-    updateAdminShareUrl()
+    updateAdminShareUrl().catch((error: Error) =>
+        log.error(`Error while creating short link for admin share url: ${error}`)
+    )
 })
 watch(fileUrl, () => {
-    updateShareUrl()
+    updateShareUrl().catch((error: Error) =>
+        log.error(`Error while creating short link for share url: ${error}`)
+    )
 })
 
-updateShareUrl()
-updateAdminShareUrl()
+updateShareUrl().catch((error: Error) =>
+    log.error(`Error while creating short link for share url: ${error}`)
+)
+updateAdminShareUrl().catch((error: Error) =>
+    log.error(`Error while creating short link for admin share url: ${error}`)
+)
 
-let adminTimeout: NodeJS.Timeout | undefined = undefined
-let fileTimeout: NodeJS.Timeout | undefined = undefined
+let adminTimeout: ReturnType<typeof setTimeout> | undefined = undefined
+let fileTimeout: ReturnType<typeof setTimeout> | undefined = undefined
 
 onUnmounted(() => {
     clearTimeout(adminTimeout)

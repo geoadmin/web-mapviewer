@@ -2,10 +2,10 @@ import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
 import type Map from 'ol/Map'
 import type Feature from 'ol/Feature'
 import type Collection from 'ol/Collection'
-import type { Geometry } from 'ol/geom'
+import { LineString, type Geometry, type SimpleGeometry } from 'ol/geom'
 import ModifyInteraction, { type ModifyEvent } from 'ol/interaction/Modify'
 import { noModifierKeys, primaryAction } from 'ol/events/condition'
-import type { MapBrowserEvent } from 'ol'
+import type MapBrowserEvent from 'ol/MapBrowserEvent'
 
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
@@ -14,6 +14,9 @@ import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composabl
 import useDrawingStore, { EditMode } from '@/store/modules/drawing.store'
 import useFeaturesStore from '@/store/modules/features.store'
 import type { ActionDispatcher } from '@/store/types'
+import log from '@swissgeo/log'
+import type { StyleFunction } from 'ol/style/Style'
+import type { EditableFeature } from '@/api/features.api'
 
 const dispatcher: ActionDispatcher = { name: 'useModifyInteraction.composable' }
 const cursorGrabbingClass = 'cursor-grabbing'
@@ -41,7 +44,7 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
     const modifyInteraction = new ModifyInteraction({
         features,
         // Style for editing vertices
-        style: editingVertexStyleFunction as any,
+        style: editingVertexStyleFunction as StyleFunction,
         // Allow drag with primary action, and allow vertex selection via right click without modifiers
         condition: (event: MapBrowserEvent<KeyboardEvent | WheelEvent | PointerEvent>) =>
             primaryAction(event) ||
@@ -71,13 +74,10 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
                 const selectedFeature = features.item(0)
                 if (selectedFeature && reverseLineStringExtension.value) {
                     const geom = selectedFeature.getGeometry()
-                    // Only reverse if the geometry exposes getCoordinates/setCoordinates
-                    // (LineString; for Polygon it may need adaptation upstream)
-                    // @ts-expect-error: geometry coordinate shape not narrowed
-                    const coords = geom?.getCoordinates?.()
-                    if (Array.isArray(coords) && Array.isArray(coords[0])) {
-                        // naive reverse for LineString-like coords
-                        geom?.setCoordinates(coords.slice().reverse())
+                    // Only reverse for LineString geometries
+                    if (geom && geom instanceof LineString) {
+                        const coords = geom.getCoordinates()
+                        geom.setCoordinates(coords.slice().reverse())
                     }
                 }
                 modifyInteraction.setActive(false)
@@ -107,7 +107,9 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
     })
 
     function removeLastPoint() {
-        if (editMode.value === EditMode.OFF) return
+        if (editMode.value === EditMode.OFF) {
+            return
+        }
 
         if (modifyInteraction.getActive() && features.getLength() > 0) {
             const feature = features.item(0)
@@ -121,14 +123,16 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
             }
             if (feature) {
                 // Update the store copy of the feature’s geometry
-                updateStoreFeatureCoordinatesGeometry(feature, dispatcher)
+                updateStoreFeatureCoordinatesGeometry(feature as Feature<SimpleGeometry>, dispatcher)
             }
         }
     }
 
     function onModifyStart(evt: ModifyEvent) {
         const feature = evt.features.getLength() > 0 ? evt.features.item(0) : undefined
-        if (!feature) return
+        if (!feature) {
+            return
+        }
 
         featuresStore.changeFeatureIsDragged(
             {
@@ -145,12 +149,16 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
     }
 
     function onModifyEnd(evt: ModifyEvent) {
-        if (!evt.features) return
+        if (!evt.features) {
+            return
+        }
 
         const feature = evt.features.getLength() > 0 ? evt.features.item(0) : undefined
-        if (!feature) return
+        if (!feature) {
+            return
+        }
 
-        const storeFeature = feature.get('editableFeature')
+        const storeFeature: EditableFeature = feature.get('editableFeature')
 
         featuresStore.changeFeatureIsDragged(
             {
@@ -160,12 +168,16 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
             dispatcher
         )
 
-        updateStoreFeatureCoordinatesGeometry(feature, dispatcher)
+        updateStoreFeatureCoordinatesGeometry(feature as Feature<SimpleGeometry>, dispatcher)
 
         const targetEl = olMap.getTargetElement?.() ?? (olMap.getTarget() as HTMLElement | null)
         targetEl?.classList.remove(cursorGrabbingClass)
 
-        debounceSaveDrawing()
+        debounceSaveDrawing().catch((error: Error) => {
+            log.error(
+                `Error while saving drawing after modification of feature ${storeFeature.id}: ${error}`
+            )
+        })
     }
 
     return {

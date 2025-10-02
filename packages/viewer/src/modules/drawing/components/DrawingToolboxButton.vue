@@ -31,8 +31,9 @@ const buttonIcon = computed((): string[] => {
             return ['fa', 'ruler']
         case EditableFeatureTypes.Annotation:
             return ['fa', 't']
+        default:
+            return []
     }
-    return ['fa', 'question']
 })
 
 function setDrawingMode() {

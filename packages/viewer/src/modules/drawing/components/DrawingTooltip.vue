@@ -3,17 +3,17 @@ import Overlay from 'ol/Overlay'
 import { computed, inject, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type Map from 'ol/Map'
+import type MapBrowserEvent from 'ol/MapBrowserEvent'
 import type VectorLayer from 'ol/layer/Vector'
-import type VectorSource from 'ol/source/Vector'
-import type { Geometry } from 'ol/geom'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { getVertexCoordinates, pointWithinTolerance } from '@/modules/drawing/lib/drawingUtils'
 import useFeaturesStore from '@/store/modules/features.store'
 import useDrawingStore from '@/store/modules/drawing.store'
-import type { FeatureLike } from 'ol/Feature'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type Feature from 'ol/Feature'
+import type { SimpleGeometry } from 'ol/geom'
 
 const cssPointer = 'cursor-pointer'
 const cssGrab = 'cursor-grab'
@@ -24,19 +24,18 @@ const drawingLayer = inject<VectorLayer>('drawingLayer')
 const { t } = useI18n()
 const featuresStore = useFeaturesStore()
 const drawingStore = useDrawingStore()
-
 const tooltipText = ref('')
 const drawingTooltip = useTemplateRef('drawingTooltip')
 
-let lastPointerEvent: PointerEvent | undefined
+let lastPointerEvent: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent> | undefined
 const selectedFeatures = computed(() => featuresStore.selectedFeatures)
 const drawingMode = computed(() => drawingStore.mode)
 const currentlySketchedFeature = computed(() => {
     // there can only be one drawing feature edited at the same time
     if (selectedFeatures.value.length === 1) {
-        return selectedFeatures.value[0]
+        return selectedFeatures.value[0] as unknown as Feature<SimpleGeometry>
     }
-    return
+    return undefined
 })
 
 const tooltipOverlay = new Overlay({
@@ -58,17 +57,12 @@ onBeforeUnmount(() => {
     olMap?.removeOverlay(tooltipOverlay)
     olMap?.un('pointermove', onPointerMove)
 })
-
 watch(selectedFeatures, updateTooltip)
 
-function onPointerMove(event: PointerEvent) {
+function onPointerMove(event: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>) {
     // TODO: check if tooltipOverlay.setPosition(event.coordinate) can be used to set the position
 
-    if (olMap) {
-        const pixel = olMap.getEventPixel(event)
-        const coordinate = olMap.getCoordinateFromPixel(pixel)
-        tooltipOverlay.setPosition(coordinate)
-    }
+    tooltipOverlay.setPosition(event.coordinate)
     lastPointerEvent = event
     updateTooltip()
 }
@@ -94,7 +88,8 @@ function updateTooltip() {
     const hasFeatureSelected = selectedFeatures.value.length > 0
     // we only keep track of the first feature's info (the one on top of the stack)
     const selectedFeatureId = hasFeatureSelected ? selectedFeatures.value[0]?.id : undefined
-    let featureUnderCursor: FeatureLike | undefined
+    let featureUnderCursor: Feature<SimpleGeometry> | undefined
+    // let featureUnderCursor: FeatureLike | undefined
 
     olMap?.forEachFeatureAtPixel(
         lastPointerEvent.pixel,
@@ -107,7 +102,7 @@ function updateTooltip() {
             hoveringSelectedFeature = hoveringSelectedFeature || isSelectedFeature
             // subsequent features will be ignored as featureUnderCursor will already be set
             if (!featureUnderCursor || isSelectedFeature) {
-                featureUnderCursor = feature
+                featureUnderCursor = feature as Feature<SimpleGeometry>
             }
         },
         {
@@ -130,8 +125,14 @@ function updateTooltip() {
             const coordinates = getVertexCoordinates(currentlySketchedFeature.value).slice(0, -2)
 
             coordinates.some((coordinate, index) => {
-                const pixel = olMap?.getPixelFromCoordinate(coordinate)
-                if (pointWithinTolerance(pixel, lastPointerEvent?.pixel, DRAWING_HIT_TOLERANCE)) {
+                const pixel = olMap!.getPixelFromCoordinate(coordinate)
+                if (
+                    pointWithinTolerance(
+                        pixel as SingleCoordinate,
+                        lastPointerEvent?.pixel as SingleCoordinate,
+                        DRAWING_HIT_TOLERANCE
+                    )
+                ) {
                     hoveringFirstVertex = index === 0
                     hoveringLastVertex = index === coordinates.length - 1
                     // Abort loop. We have what we need.
@@ -157,11 +158,11 @@ function updateTooltip() {
         }
     } else {
         if (hoveringSelectedFeature && olMap) {
-            const hoveringVertex = getVertexCoordinates(featureUnderCursor).some((coordinate) => {
+            const hoveringVertex = getVertexCoordinates(featureUnderCursor!).some((coordinate) => {
                 const pixel = olMap.getPixelFromCoordinate(coordinate)
                 return pointWithinTolerance(
                     pixel as SingleCoordinate,
-                    lastPointerEvent?.pixel,
+                    lastPointerEvent?.pixel as SingleCoordinate,
                     DRAWING_HIT_TOLERANCE
                 )
             })
