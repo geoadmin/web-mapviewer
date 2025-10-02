@@ -87,7 +87,7 @@ const useMapStore = defineStore('map', {
             }
         },
 
-        clearPinnedLocation(dispatcher: ActionDispatcher) {
+        clearPreviewPinnedLocation(dispatcher: ActionDispatcher) {
             this.previewedPinnedLocation = undefined
         },
 

@@ -468,7 +468,7 @@ const useUIStore = defineStore('ui', {
             }
         },
 
-        addWarnings(warnings: WarningMessage, dispatcher: ActionDispatcher) {
+        addWarnings(warnings: WarningMessage[], dispatcher: ActionDispatcher) {
             if (
                 Array.isArray(warnings) &&
                 warnings.every((warning) => warning instanceof WarningMessage)
@@ -478,7 +478,7 @@ const useUIStore = defineStore('ui', {
                         (warning) =>
                             // we only add the warnings that are already present in the store
                             ![...this.warnings].some((otherWarning) =>
-                                warning.isEquals(otherWarning)
+                                warning.isEqual(otherWarning)
                             )
                     )
                     .forEach((warning) => {

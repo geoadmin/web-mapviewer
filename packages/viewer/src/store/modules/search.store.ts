@@ -202,7 +202,7 @@ export const useSearchStore = defineStore('search', {
                     }
                 }
             } else if (query.length === 0) {
-                mapStore.clearPinnedLocation(dispatcher)
+                mapStore.clearPreviewPinnedLocation(dispatcher)
             }
             this.results = results
         },
