@@ -12,7 +12,7 @@ import {
     extend as extendExtent,
     isEmpty as isExtentEmpty,
 } from 'ol/extent'
-import type { Feature as OLFeature } from 'ol'
+import Feature from 'ol/Feature'
 import type { Type as GeometryType } from 'ol/geom/Geometry'
 import GeoJSON, { type GeoJSONGeometry, type GeoJSONGeometryCollection } from 'ol/format/GeoJSON'
 import IconStyle from 'ol/style/Icon'
@@ -122,7 +122,7 @@ export function getFeatureDescriptionMap(content: string): Map<string, string> {
  * @param kmlFeature Open layer kml feature
  * @returns KML feature type or undefined if this is not a geoadmin kml feature
  */
-export function getFeatureType(kmlFeature: OLFeature): string | undefined {
+export function getFeatureType(kmlFeature: Feature): string | undefined {
     let featureType = kmlFeature.get('type')?.toUpperCase() // only set by geoadmin's kml
     const featureId = kmlFeature.getId()
     if (!featureType && featureId) {
@@ -409,7 +409,7 @@ export function getFillColor(
  * @returns EditableFeature or undefined if this is not a geoadmin feature
  */
 export function getEditableFeatureFromKmlFeature(
-    kmlFeature: OLFeature | undefined,
+    kmlFeature: Feature | undefined,
     availableIconSets: DrawingIconSet[],
     resolution: number
 ): EditableFeature | undefined {
@@ -647,7 +647,7 @@ export function parseKml(
     iconSets: DrawingIconSet[],
     resolution: number,
     iconUrlProxy: (url: string) => string = iconUrlProxyFy
-): OLFeature<Geometry>[] {
+): Feature<Geometry>[] {
     const kmlData = kmlLayer.kmlData
     const files = kmlLayer.internalFiles
 

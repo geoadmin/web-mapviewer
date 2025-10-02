@@ -1,7 +1,7 @@
 import type { Color } from 'ol/color'
 import { fromString } from 'ol/color'
 import type { ColorLike, PatternDescriptor } from 'ol/colorlike'
-import type { default as OLFeature, FeatureLike } from 'ol/Feature'
+import type { default as Feature, FeatureLike } from 'ol/Feature'
 import type { Size } from 'ol/size'
 import { Fill, Stroke, Text } from 'ol/style'
 import Style from 'ol/style/Style'
@@ -114,7 +114,7 @@ export enum TextPlacement {
 }
 
 /** Get Feature style from feature */
-export function getStyle(olFeature: OLFeature, resolution: number): Style | undefined {
+export function getStyle(olFeature: Feature, resolution: number): Style | undefined {
     const styleFunction = olFeature.getStyleFunction()
     if (!styleFunction) {
         return

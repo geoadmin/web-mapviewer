@@ -1,8 +1,7 @@
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import type { GeoAdminLayer, GPXLayer, KMLLayer, Layer } from '@swissgeo/layers'
-import type { Feature } from 'ol'
 import type { Geometry } from 'ol/geom'
-import type OLFeature from 'ol/Feature'
+import type Feature from 'ol/Feature'
 
 import {
     constants,
@@ -340,7 +339,7 @@ export const useSearchStore = defineStore('search', {
                         }
                     }
                 } catch (error) {
-                    log.error('Error getting feature:', { messages: [error]})
+                    log.error('Error getting feature:', { messages: [error] })
                 }
             }
             if (this.autoSelect) {
@@ -374,7 +373,7 @@ function getResultForAutoselect(results: SearchResult[]): SearchResult {
     return locationResult ?? results[0]! // the outer function established that this element should exist
 }
 
-function createLayerFeature(olFeature: OLFeature<Geometry>, layer: Layer): SelectableFeature<false> | null {
+function createLayerFeature(olFeature: Feature<Geometry>, layer: Layer): SelectableFeature<false> | null {
     const geometry = olFeature.getGeometry()
 
     if (!geometry) {

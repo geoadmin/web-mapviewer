@@ -5,12 +5,13 @@
  * (style, color, etc...) whenever it is edited through the popover.
  */
 
-import SelectInteraction from 'ol/interaction/Select'
+import SelectInteraction, { SelectEvent } from 'ol/interaction/Select'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue'
-import type OLFeature from 'ol/Feature'
+import type Feature from 'ol/Feature'
 import type VectorLayer from 'ol/layer/Vector'
 
-import { EditableFeatureTypes, type StoreFeature } from '@/api/features.api'
+import log from '@swissgeo/log'
+import { EditableFeatureTypes, type EditableFeature, type StoreFeature } from '@/api/features.api'
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import useModifyInteraction from '@/modules/drawing/components/useModifyInteraction.composable'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
@@ -21,9 +22,12 @@ import useProfileStore from '@/store/modules/profile.store'
 import useUIStore from '@/store/modules/ui.store'
 import type { ActionDispatcher } from '@/store/types'
 import type Map from 'ol/Map'
+import type { StyleFunction } from 'ol/style/Style'
 
-const emit = defineEmits<{ 'feature-selected': [feature: OLFeature | undefined] }>()
-
+type EmitType = {
+    (_e: 'feature-selected', _feature: Feature | undefined): void
+}
+const emits = defineEmits<EmitType>()
 const dispatcher: ActionDispatcher = { name: 'DrawingSelectInteraction.vue' }
 
 const drawingLayer = inject<VectorLayer>('drawingLayer')
@@ -31,7 +35,7 @@ const olMap = inject<Map>('olMap')
 
 const { debounceSaveDrawing } = useSaveKmlOnChange()
 const selectInteraction = new SelectInteraction({
-    style: editingFeatureStyleFunction as any,
+    style: editingFeatureStyleFunction as StyleFunction,
     toggleCondition: () => false,
     layers: drawingLayer ? [drawingLayer] : undefined,
     // As we've seen with the old viewer, some small features were hard
@@ -41,7 +45,7 @@ const selectInteraction = new SelectInteraction({
 const { removeLastPoint } = useModifyInteraction(selectInteraction.getFeatures())
 
 /** OpenLayers feature currently selected */
-const currentlySelectedFeature: Ref<OLFeature | undefined> = ref()
+const currentlySelectedFeature: Ref<Feature | undefined> = ref()
 const featuresStore = useFeaturesStore()
 const uiStore = useUIStore()
 const profileStore = useProfileStore()
@@ -62,9 +66,7 @@ watch(selectedFeatures, (newSelectedFeatures: StoreFeature[]) => {
 watch(currentlySelectedFeature, (newFeature, oldFeature) => {
     if (newFeature && newFeature.get('editableFeature')) {
         const editableFeature = newFeature.get('editableFeature')
-        editableFeature.coordinates = extractOlFeatureCoordinates(
-            newFeature as unknown as OLFeature
-        )
+        editableFeature.coordinates = extractOlFeatureCoordinates(newFeature)
         // binding store feature change events to our handlers
         // so that we can update the style of the OL features as soon
         // as the store feature is edited
@@ -88,8 +90,8 @@ watch(currentlySelectedFeature, (newFeature, oldFeature) => {
     }
 })
 
-watch(currentlySelectedFeature, (newFeature: OLFeature | undefined) => {
-    emit('feature-selected', newFeature)
+watch(currentlySelectedFeature, (newFeature: Feature | undefined) => {
+    emits('feature-selected', newFeature)
 })
 
 onMounted(() => {
@@ -104,7 +106,7 @@ onBeforeUnmount(() => {
 })
 
 /** Change the selected feature by user input. */
-function onSelectChange(event: any) {
+function onSelectChange(event: SelectEvent) {
     // The select event lists the changes in two arrays: selected, deselected
     // As we only allow for one feature to be selected at a time this event
     // will always yield one item in either of the arrays.
@@ -114,7 +116,8 @@ function onSelectChange(event: any) {
         currentlySelectedFeature.value = undefined
     }
 }
-function onFeatureChange(editableFeature: any) {
+
+function onFeatureChange(editableFeature: EditableFeature) {
     // The title and description of an editable feature are only set in the editable feature
     // however in the KML standard they should be set in the name and description tags.
     // To do this we need to set them on the ol feature as properties.
@@ -128,9 +131,11 @@ function onFeatureChange(editableFeature: any) {
         )
     }
     currentlySelectedFeature.value?.changed()
-    debounceSaveDrawing()
+    debounceSaveDrawing().catch((error: Error) =>
+        log.error(`Error while saving drawing after feature change: ${error}`)
+    )
 }
-function selectFeature(feature: OLFeature | undefined) {
+function selectFeature(feature: Feature | undefined) {
     selectInteraction.getFeatures().clear()
     if (feature) {
         selectInteraction.getFeatures().push(feature)

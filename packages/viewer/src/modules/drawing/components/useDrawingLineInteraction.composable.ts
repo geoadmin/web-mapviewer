@@ -1,14 +1,14 @@
 import { EditableFeatureTypes } from '@/api/features.api'
-import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable.ts'
+import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable'
 import { drawLineStyle } from '@/modules/drawing/lib/style'
 import type { StyleFunction } from 'ol/style/Style'
-import type OLFeature from 'ol/Feature'
+import type Feature from 'ol/Feature'
 import type { SimpleGeometry } from 'ol/geom'
 
 interface UseDrawingLineInteractionConfig {
     styleFunction?: StyleFunction
     featureType?: EditableFeatureTypes
-    drawEndCallback?: (feature: OLFeature<SimpleGeometry>) => void
+    drawEndCallback?: (feature: Feature<SimpleGeometry>) => void
 }
 
 export default function useDrawingLineInteraction(config: UseDrawingLineInteractionConfig) {
