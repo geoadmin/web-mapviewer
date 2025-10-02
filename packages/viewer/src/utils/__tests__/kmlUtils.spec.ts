@@ -18,7 +18,7 @@ import {
     parseIconUrl,
     parseKml,
 } from '@/utils/kmlUtils'
-import type EditableFeature from '@/api/features/EditableFeature.class'
+import type { EditableFeature } from '@/api/features.api'
 
 describe('Test KML utils', () => {
     describe('get KML Extent', () => {
@@ -148,8 +148,8 @@ describe('Test KML utils', () => {
             const olFeatures: OLFeature[] = parseKml(
                 kmlLayer,
                 WEBMERCATOR,
-                resolution,
-                fakeIconSets
+                fakeIconSets,
+                resolution
             )
             features = olFeatures.map((f) => {
                 const ef = f.get('editableFeature')
