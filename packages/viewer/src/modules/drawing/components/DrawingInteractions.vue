@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import log from '@swissgeo/log'
 import { computed, ref, useTemplateRef } from 'vue'
-import type OLFeature from 'ol/Feature'
+import type Feature from 'ol/Feature'
 import type { ComponentPublicInstance } from 'vue'
 
 import { EditableFeatureTypes } from '@/api/features.api'
@@ -16,7 +16,7 @@ import useDrawingStore, { EditMode } from '@/store/modules/drawing.store'
 // Methods exposed by the select interaction component
 type SelectInteractionExposed = {
     setActive: (_: boolean) => void
-    selectFeature: (_: OLFeature | undefined) => void
+    selectFeature: (_: Feature | undefined) => void
     removeLastPoint: () => void
 }
 // Methods optionally exposed by specialized interactions
@@ -33,7 +33,7 @@ const drawingStore = useDrawingStore()
 const currentDrawingMode = computed(() => drawingStore.mode)
 const editMode = computed(() => drawingStore.editingMode)
 
-const selectedLineFeature = ref<OLFeature | undefined>()
+const selectedLineFeature = ref<Feature | undefined>()
 
 const specializedInteractionComponent = computed(() => {
     let selectedInteraction
@@ -82,7 +82,7 @@ const specializedProps = computed(() => {
     return {}
 })
 
-function onDrawEnd(feature: OLFeature | undefined) {
+function onDrawEnd(feature: Feature | undefined) {
     selectInteraction.value?.selectFeature(feature)
 }
 
@@ -93,7 +93,7 @@ function removeLastPoint() {
     }
 }
 
-function featureSelected(feature: OLFeature | undefined) {
+function featureSelected(feature: Feature | undefined) {
     if (feature?.getGeometry()?.getType() === 'LineString') {
         selectedLineFeature.value = feature
     } else {

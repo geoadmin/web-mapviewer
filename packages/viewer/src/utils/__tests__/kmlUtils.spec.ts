@@ -4,7 +4,7 @@ import { readFileSync } from 'fs'
 import IconStyle from 'ol/style/Icon'
 import { resolve } from 'path'
 import { beforeEach, describe, expect, it } from 'vitest'
-import type { Feature as OLFeature } from 'ol'
+import type { Feature } from 'ol'
 
 import { type DrawingIconSet, generateIconURL } from '@/api/icon.api'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
@@ -145,7 +145,7 @@ describe('Test KML utils', () => {
                 kmlData: kml,
             })
             const resolution = 1000
-            const olFeatures: OLFeature[] = parseKml(
+            const olFeatures: Feature[] = parseKml(
                 kmlLayer,
                 WEBMERCATOR,
                 fakeIconSets,

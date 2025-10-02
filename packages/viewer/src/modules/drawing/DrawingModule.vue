@@ -5,6 +5,7 @@ import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import type Map from 'ol/Map'
 import type { Geometry } from 'ol/geom'
+import type Feature from 'ol/Feature'
 import {
     computed,
     inject,
@@ -33,7 +34,14 @@ import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
 import useUiStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
 import type { ActionDispatcher } from '@/store/types'
-import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
+import { EMPTY_KML_DATA, getIcon, parseIconUrl } from '@/utils/kmlUtils'
+
+// Type augmentation for Cypress testing: expose drawingLayer on window
+declare global {
+    interface Window {
+        drawingLayer?: VectorLayer<VectorSource<Feature<Geometry>>>
+    }
+}
 
 const dispatcher: ActionDispatcher = { name: 'DrawingModule.vue' }
 
@@ -109,14 +117,19 @@ const hasLoaded = computed(() => {
 })
 const hasKml = computed(() => {
     if (online.value) {
-        return !!activeKmlLayer.value && !activeKmlLayer.value.isEmpty?.()
+        // TODO: change KMLLayer to class
+        // return !!activeKmlLayer.value && !activeKmlLayer.value.isEmpty?.()
+        const isEmpty =
+            !activeKmlLayer.value ||
+            !activeKmlLayer.value.kmlData ||
+            activeKmlLayer.value.kmlData === EMPTY_KML_DATA
+        return !!activeKmlLayer.value && !isEmpty
     }
     const sysLayers = (layersStore.systemLayers as unknown as { id: string }[]) ?? []
     return !!sysLayers.find((l) => l.id === drawingStore.temporaryKmlId)
 })
-
 // The drawing vector layer
-const drawingLayer = new VectorLayer<VectorSource<Geometry>>({
+const drawingLayer = new VectorLayer<VectorSource<Feature<Geometry>>>({
     source: createSourceForProjection(),
     zIndex: 9999,
 })
@@ -129,7 +142,7 @@ const {
     clearPendingSaveDrawing,
     saveState,
     savesInProgress,
-} = useKmlDataManagement(() => drawingLayer)
+} = useKmlDataManagement(drawingLayer)
 const isDrawingModified = computed(() => {
     return ![DrawingState.INITIAL, DrawingState.LOADED, DrawingState.LOAD_ERROR].includes(
         saveState.value
@@ -157,7 +170,9 @@ watch(featureIds, (next: string[], last: string[]) => {
             .getFeatures()
             .filter((feature) => removed.includes(String(feature.get('id'))))
             .forEach((feature) => source.removeFeature(feature))
-        debounceSaveDrawing()
+        debounceSaveDrawing().catch((error) => {
+            log.error('Error while saving drawing after feature removal', error)
+        })
     }
 })
 
@@ -180,7 +195,6 @@ watch(availableIconSets, () => {
                 )
             })
             if (icon) {
-                 
                 editableFeature.icon = icon
             }
         }
@@ -209,8 +223,11 @@ onMounted(() => {
     }
     if (availableIconSets.value.length === 0) {
         // if icons have not yet been loaded, load them
-        drawingStore.loadAvailableIconSets(dispatcher)
-        drawingStore.loadAvailableIconSets(dispatcher)
+        drawingStore
+            .loadAvailableIconSets(dispatcher)
+            .catch((error: Error) =>
+                log.error(`Error while loading icon sets for drawing module : ${error}`)
+            )
     }
 
     // Make sure no drawing features are selected when entering the drawing mode
@@ -260,14 +277,15 @@ const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
     if (!IS_TESTING_WITH_CYPRESS && showNotSharedDrawingWarning.value) {
         showNotSharedDrawingWarningModal.value = true
         event.preventDefault()
+        event.returnValue = ''
     }
 }
-
 function createSourceForProjection() {
-    return new VectorSource<Geometry>({
+    return new VectorSource<Feature<Geometry>>({
         useSpatialIndex: false,
         wrapX: true,
-        // NOTE: VectorSource doesn't type a "projection" option; keep for runtime behavior and cast
+        // NOTE: VectorSource doesn't type a "projection" option; keep for runtime behavior and
+        // @ts-expect-error to avoid TS error
         projection: projection.value?.epsg,
     })
 }
@@ -292,9 +310,7 @@ function removeLastPointOnDeleteKeyUp(event: KeyboardEvent) {
 
 async function closeDrawing() {
     const requester = 'closing-drawing'
-    // Optional: if you have an app store with loading bar, wire it here.
-    // appStore.setLoadingBarRequester({ requester, ...dispatcher })
-
+    uiStore.setLoadingBarRequester(requester, dispatcher)
     log.debug(
         `Closing drawing menu: isModified=${isDrawingModified.value}, isNew=${isNewDrawing.value}, isEmpty=${isDrawingEmpty.value}`
     )

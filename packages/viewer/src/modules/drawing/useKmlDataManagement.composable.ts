@@ -3,26 +3,26 @@ import { computed, inject, ref, toValue, type MaybeRefOrGetter } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { createKml, deleteKml, getKmlUrl, updateKml } from '@/api/files.api'
-// import KMLLayer from '@/api/layers/KMLLayer.class'
 import type { KMLLayer } from '@swissgeo/layers'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { DrawingState, generateKmlString } from '@/modules/drawing/lib/export-utils'
-import { parseKml } from '@/utils/kmlUtils'
+import { EMPTY_KML_DATA, parseKml } from '@/utils/kmlUtils'
 import useDrawingStore from '@/store/modules/drawing.store'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
 import type { ActionDispatcher } from '@/store/types'
 
-import type Feature from 'ol/Feature'
 import type VectorLayer from 'ol/layer/Vector'
 import type VectorSource from 'ol/source/Vector'
 import type { Geometry } from 'ol/geom'
+import type { Feature } from 'ol'
 
 const dispatcher: ActionDispatcher = { name: 'useKmlDataManagement.composable' }
 
 // Shared state across composable instances
 let differSaveDrawingTimeout: ReturnType<typeof setTimeout> | null = null
 const saveState = ref<DrawingState>(DrawingState.INITIAL)
+type KmlLayerWithVisible = Partial<KMLLayer> & { visible: boolean }
 
 export interface DebounceOptions {
     debounceTime?: number
@@ -30,7 +30,7 @@ export interface DebounceOptions {
 }
 
 export default function useKmlDataManagement(
-    drawingLayerDirectReference?: MaybeRefOrGetter<VectorLayer<VectorSource<Geometry>> | null>
+    drawingLayerDirectReference?: MaybeRefOrGetter<VectorLayer<VectorSource<Feature<Geometry>>> | null>
 ) {
     const drawingLayer = (inject(
         'drawingLayer',
@@ -48,7 +48,7 @@ export default function useKmlDataManagement(
     const availableIconSets = computed(() => drawingStore.iconSets)
     const temporaryKmlId = computed(() => (drawingStore).temporaryKmlId)
     const temporaryKml = computed<KMLLayer | undefined>(() => {
-        const sysLayers = ((layersStore as any).systemLayers ?? []) as { id: string }[]
+        const sysLayers = (layersStore.systemLayers ?? []) as { id: string }[]
         const match = sysLayers.find((l) => l.id === temporaryKmlId.value)
         return match as KMLLayer | undefined
     })
@@ -136,15 +136,17 @@ export default function useKmlDataManagement(
             if (online.value) {
                 await saveOnlineDrawing(kmlData)
             } else {
-                await saveLocalDrawing(kmlData)
+                saveLocalDrawing(kmlData)
             }
             saveState.value = DrawingState.SAVED
-        } catch (e) {
-            log.error('Could not save KML layer: ', e)
+        } catch (e: unknown) {
+            log.error('Could not save KML layer: ', e as string)
             saveState.value = DrawingState.SAVE_ERROR
             if (!IS_TESTING_WITH_CYPRESS && retryOnError) {
                 // Retry saving in 5 seconds
-                debounceSaveDrawing({ debounceTime: 5000, retryOnError: false })
+                debounceSaveDrawing({ debounceTime: 5000, retryOnError: false }).catch((error: Error) => {
+                    log.error(`Error while retrying to save drawing: ${error}`)
+                })
             }
         }
     }
@@ -155,7 +157,8 @@ export default function useKmlDataManagement(
             // Create new KML (copy or new)
             const kmlMetadata = await createKml(kmlData)
             // TODO create class KMLLayer
-            const kmlLayer: KMLLayer = {
+
+            const kmlLayer: KmlLayerWithVisible = {
                 name: drawingName.value,
                 kmlFileUrl: getKmlUrl(kmlMetadata.id),
                 visible: true,
@@ -177,25 +180,30 @@ export default function useKmlDataManagement(
             if (current) {
                 layersStore.removeLayer({ layerId: current.id }, dispatcher)
             }
-            if (!kmlLayer.kmlData) {
+            const isEmpty =
+                !kmlLayer ||
+                !kmlLayer.kmlData ||
+                kmlLayer.kmlData === EMPTY_KML_DATA
+            if (!isEmpty) {
                 // if (!kmlLayer.isEmpty()) {
-                layersStore.addLayer(kmlLayer, dispatcher)
+                layersStore.addLayer({ layer: kmlLayer as KMLLayer }, dispatcher)
             }
         } else {
             // Update existing KML
             const kmlMetadata = await updateKml(current.fileId!, current.adminId, kmlData)
-            await (layersStore as any).setKmlGpxLayerData(
-                current.id,
-                kmlData,
-                kmlMetadata,
+            layersStore.setKmlGpxLayerData({
+                layerId: current.id,
+                data: kmlData,
+                metadata: kmlMetadata,
+            },
                 dispatcher
             )
         }
     }
 
-    async function saveLocalDrawing(kmlData: string) {
+    function saveLocalDrawing(kmlData: string) {
         // TODO create class KMLLayer
-        const kmlLayer: KMLLayer = {
+        const kmlLayer: KmlLayerWithVisible = {
             name: drawingName.value,
             kmlFileUrl: temporaryKmlId.value!,
             visible: true,
@@ -210,7 +218,7 @@ export default function useKmlDataManagement(
         //     kmlData,
         // })
         if (!temporaryKml.value) {
-            layersStore.addSystemLayer(kmlLayer, dispatcher)
+            layersStore.addSystemLayer(kmlLayer as KMLLayer, dispatcher)
         } else {
             layersStore.updateSystemLayer(kmlLayer, dispatcher)
         }

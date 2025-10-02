@@ -10,7 +10,10 @@ const { t } = useI18n()
 
 const dispatcher: ActionDispatcher = { name: 'AddVertexButton.vue' }
 
-const { tooltipText, reverse } = defineProps<{ tooltipText?: string; reverse?: boolean }>()
+const { tooltipText = 'modify_add_vertex', reverse } = defineProps<{
+    tooltipText?: string
+    reverse?: boolean
+}>()
 
 const emit = defineEmits<{ 'button-mounted': [el: HTMLElement] }>()
 
@@ -21,7 +24,7 @@ const elementRef = useTemplateRef('elementRef')
 onMounted(() => {
     // Emit an event to notify the parent component that the button is mounted
     if (elementRef.value?.tooltipElement) {
-        emit('button-mounted', elementRef.value.tooltipElement as HTMLElement)
+        emit('button-mounted', elementRef.value.tooltipElement)
     }
 })
 
@@ -33,7 +36,7 @@ function addVertex() {
 <template>
     <GeoadminTooltip
         ref="elementRef"
-        :tooltip-content="t(tooltipText ?? 'modify_add_vertex')"
+        :tooltip-content="t(tooltipText)"
         placement="left"
     >
         <button
