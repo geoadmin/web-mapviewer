@@ -108,7 +108,7 @@ function onToggleButtonClick(): void {
     isOpen.value = !isOpen.value
 }
 
-function onItemClick(event: MouseEvent, item: DropdownItem<unknown>): void {
+function onItemClick(event: MouseEvent, item: DropdownItem<T>): void {
     // Stopping the propagation (bubbling up) of the event here.
     // This is to keep any floating parent from receiving the click too, and closing because of that.
     // (Was happening in the context of feature edit, where icon style edit is in a floatingUI element with dropdowns)
