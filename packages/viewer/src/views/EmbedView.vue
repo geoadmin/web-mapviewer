@@ -1,9 +1,8 @@
-<script setup lang="js">
+<script setup lang="ts">
 import log from '@swissgeo/log'
 import { computed, onBeforeMount, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { useStore } from 'vuex'
 
 import { sendChangeEventToParent } from '@/api/iframePostMessageEvent.api.js'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
@@ -14,22 +13,28 @@ import MapToolbox from '@/modules/map/components/toolbox/MapToolbox.vue'
 import MapModule from '@/modules/map/MapModule.vue'
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 import OpenFullAppLink from '@/utils/components/OpenFullAppLink.vue'
+import useUIStore from '@/store/modules/ui.store'
+import useCesiumStore from '@/store/modules/cesium.store'
 
-const dispatcher = { dispatcher: 'EmbedView.vue' }
+const dispatcher = { name: 'EmbedView.vue' }
 
-const store = useStore()
 const route = useRoute()
 
-const is3DActive = computed(() => store.state.cesium.active)
+const cesiumStore = useCesiumStore()
+const uiStore = useUIStore()
+
+const is3DActive = computed(() => cesiumStore.active)
 
 const { t } = useI18n()
 
-const noSimpleZoomEmbed = computed(() => store.getters.hasNoSimpleZoomEmbedEnabled)
-const hideEmbedUI = computed(() => store.getters.hideEmbedUI)
-const showSimpleZoomHint = ref(false)
-let simpleZoomHintTimeout = null
+const noSimpleZoomEmbed = computed(() => uiStore.hasNoSimpleZoomEmbedEnabled)
+const hideEmbedUI = computed(() => uiStore.hideEmbedUI)
 
-function onWheel(event) {
+const showSimpleZoomHint = ref(false)
+
+let simpleZoomHintTimeout: ReturnType<typeof setTimeout> | null = null
+
+function onWheel(event: MouseEvent) {
     const isZoomModifierPressed = event.ctrlKey || event.metaKey //needed for macOS
 
     if (noSimpleZoomEmbed.value && !isZoomModifierPressed) {
@@ -37,7 +42,9 @@ function onWheel(event) {
         event.stopImmediatePropagation()
 
         showSimpleZoomHint.value = true
-        clearTimeout(simpleZoomHintTimeout)
+        if (simpleZoomHintTimeout) {
+            clearTimeout(simpleZoomHintTimeout)
+        }
         simpleZoomHintTimeout = setTimeout(() => {
             showSimpleZoomHint.value = false
         }, 3000)
@@ -45,7 +52,7 @@ function onWheel(event) {
 }
 
 onBeforeMount(() => {
-    store.dispatch('setEmbed', { embed: true, ...dispatcher })
+    uiStore.setEmbed(true, dispatcher)
 })
 
 onMounted(() => {
@@ -78,7 +85,7 @@ watch(() => route.query, sendChangeEventToParent)
             <template v-if="showSimpleZoomHint">
                 <BlackBackdrop />
                 <div
-                    class="ctrl-scroll-hint position-absolute start-50 top-50 translate-middle bg-light border-dark mt-3 rounded border p-2 shadow"
+                    class="ctrl-scroll-hint position-absolute translate-middle bg-light border-dark start-50 top-50 mt-3 rounded border p-2 shadow"
                 >
                     {{ t('zooming_mode_warning') }}
                 </div>
