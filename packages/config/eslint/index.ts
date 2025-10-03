@@ -198,6 +198,7 @@ const defaultConfig: FlatConfig.ConfigArray = tsESLint.config(
         files: ['**/*.ts', '**/*.tsx'],
         // no need to check our snippets
         ignores: ['**/*.md'],
+        plugins: { perfectionist },
         languageOptions: {
             parserOptions: {
                 projectService: true,
@@ -206,7 +207,12 @@ const defaultConfig: FlatConfig.ConfigArray = tsESLint.config(
         },
         // switching to TypeScript unused var rule (instead of JS rule), so that no error is raised
         // on unused param from abstract function arguments
-        rules: standardTSRules,
+        rules: {...standardTSRules,
+            'perfectionist/sort-imports': [
+                'error',
+                { type: 'alphabetical', internalPattern: ['^@/.*'] },
+            ],
+        },
     },
     // we have to declare that AFTER the TS specifics, our unit test rules from the JS config are otherwise ignored (when the tests are written in TS)
     unitTestsConfig
