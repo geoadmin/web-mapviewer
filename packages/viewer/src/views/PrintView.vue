@@ -1,18 +1,19 @@
-<script setup lang="js">
+<script setup lang="ts">
 import log from '@swissgeo/log'
 import { getPointResolution } from 'ol/proj'
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch, type ComputedRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { useStore } from 'vuex'
 
 import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
 import { createShortLink } from '@/api/shortlink.api'
+
 import {
     PRINT_DEFAULT_DPI,
     PRINT_DIMENSIONS,
     PRINT_MARGIN_IN_MILLIMETERS,
 } from '@/config/print.config'
+
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
 import OpenLayersPrintResolutionEnforcer from '@/modules/map/components/openlayers/OpenLayersPrintResolutionEnforcer.vue'
@@ -20,38 +21,56 @@ import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale
 import MapModule from '@/modules/map/MapModule.vue'
 import ConfederationFullLogo from '@/modules/menu/components/header/ConfederationFullLogo.vue'
 import { stringifyQuery } from '@/utils/url-router.js'
+import usePositionStore from '@/store/modules/position.store'
+import { useI18nStore } from '@/store/modules/i18n.store'
+import usePrintStore from '@/store/modules/print.store'
+import useMapStore from '@/store/modules/map.store'
 
-const dispatcher = { dispatcher: 'PrintView.vue' }
+const dispatcher = { name: 'PrintView.vue' }
 
 const route = useRoute()
-const store = useStore()
 const { t } = useI18n()
+
+const printStore = usePrintStore()
+const positionStore = usePositionStore()
+const i18nStore = useI18nStore()
+const mapStore = useMapStore()
 
 const inchToMillimeter = 25.4
 
-const shortLink = ref(null)
-const qrCodeUrl = computed(() => getGenerateQRCodeUrl(shortLink.value))
+const shortLink = ref<string>()
+const qrCodeUrl = computed(() => shortLink.value && getGenerateQRCodeUrl(shortLink.value))
 
 const now = new Date()
 
-const printLayout = computed(() => store.state.print.config.layout ?? 'A4_L')
+const printLayout = computed(() => printStore.config.layout ?? 'A4_L')
+
 const isLayerLandscape = computed(() => printLayout.value.endsWith('_L'))
-const printDPI = computed(() => store.state.print.config.dpi ?? PRINT_DEFAULT_DPI)
-const layoutIdentifier = computed(() => printLayout.value.replace('_L', '').replace('_P', ''))
-const layoutDimensions = computed(() => {
+const printDPI = computed(() => printStore.config.dpi ?? PRINT_DEFAULT_DPI)
+
+const layoutIdentifier: ComputedRef<keyof typeof PRINT_DIMENSIONS> = computed(
+    () => printLayout.value.replace('_L', '').replace('_P', '') as keyof typeof PRINT_DIMENSIONS
+)
+
+const layoutDimensions: ComputedRef<typeof PRINT_DIMENSIONS.A0 | null> = computed(() => {
+    if (!layoutIdentifier.value) {
+        return null
+    }
     const dimensions = PRINT_DIMENSIONS[layoutIdentifier.value]
+
     if (!isLayerLandscape.value) {
         return dimensions.toReversed()
     }
     return dimensions
 })
-const mapResolution = computed(() => store.getters.resolution)
-const mapRotation = computed(() => store.state.position.rotation)
-const currentProjection = computed(() => store.state.position.projection)
-const mapCenter = computed(() => store.state.position.center)
-const currentLang = computed(() => store.state.i18n.lang)
+
+const mapResolution = computed(() => positionStore.resolution)
+const mapRotation = computed(() => positionStore.rotation)
+const currentProjection = computed(() => positionStore.projection)
+const mapCenter = computed(() => positionStore.center)
+const currentLang = computed(() => i18nStore.lang)
 const printContainerSize = computed(() => {
-    if (!layoutDimensions.value) {
+    if (!layoutDimensions.value || layoutDimensions.value.length == 0) {
         return null
     }
     return {
@@ -71,14 +90,14 @@ const printContainerStyle = computed(() => {
 })
 const mapScaleWidth = computed(() => {
     if (!printContainerSize.value) {
-        return null
+        return undefined
     }
     // max 10% of screen width or 200px
     return Math.min(printContainerSize.value.width * 0.1, 200)
 })
 const northArrowStyle = computed(() => {
     if (mapRotation.value === 0) {
-        return 0
+        return {}
     }
     return {
         transform: `rotate(${mapRotation.value}rad)`,
@@ -95,10 +114,12 @@ const matchingResolutionStepWithLabel = computed(() =>
             }
             // checking if map resolution is between the two steps
             const previousStep = otherResolution[index - 1]
-            return (
-                previousStep.resolution > mapResolution.value &&
-                mapResolution.value > res.resolution
-            )
+            if (previousStep) {
+                return (
+                    previousStep.resolution > mapResolution.value &&
+                    mapResolution.value > res.resolution
+                )
+            }
         })
 )
 
@@ -114,13 +135,13 @@ const printResolution = computed(
 
 onMounted(() => {
     log.info(`Print map view mounted`)
-    store.dispatch('setPrintMode', { mode: true, ...dispatcher })
+    mapStore.setPrintMode(true, dispatcher)
 
-    generateShareLink()
+    generateShareLink().catch((_) => {})
 })
 
 onBeforeUnmount(() => {
-    store.dispatch('setPrintMode', { mode: false, ...dispatcher })
+    mapStore.setPrintMode(false, dispatcher)
 })
 
 watch(() => route.query, generateShareLink)
@@ -131,8 +152,7 @@ async function generateShareLink() {
             `${location.origin}/#/map?${stringifyQuery(route.query)}`
         )
     } catch (error) {
-        log.error(`Failed to create shortlink`, error)
-        shortLink.value = null
+        log.error({ messages: `Failed to create shortlink`, error })
     }
 }
 </script>
@@ -160,7 +180,7 @@ async function generateShareLink() {
                         >
                             <div class="scale d-flex justify-content-center m-1 mb-3">
                                 <OpenLayersScale
-                                    v-if="mapScaleWidth > 0"
+                                    v-if="mapScaleWidth && mapScaleWidth > 0"
                                     scale-type="bar"
                                     :min-width="mapScaleWidth"
                                     with-relative-size
