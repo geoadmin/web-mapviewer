@@ -85,7 +85,7 @@ export interface GeoAdminGeoJSONStyle<Type extends GeoAdminGeoJSONStyleType> {
 }
 
 interface CommonRangeDefinition {
-    geomType: string
+    geomType: GeoAdminGeoJSONStyleType
     minResolution?: number
     maxResolution?: number
     vectorOptions?: GeoAdminGeoJSONVectorOptions

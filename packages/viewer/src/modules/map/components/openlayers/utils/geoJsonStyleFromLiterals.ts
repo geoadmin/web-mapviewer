@@ -3,10 +3,13 @@ import type {
     GeoAdminGeoJSONRangeDefinition,
     GeoAdminGeoJSONStyle,
     GeoAdminGeoJSONVectorOptions,
+    GeoAdminGeoJSONStyleDefinition,
+    GeoAdminGeoJSONStyleSingle,
 } from '@swissgeo/layers'
+import type { Options as RegularShapeOptions } from 'ol/style/RegularShape'
+
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { isNumber } from '@swissgeo/numbers'
-import type { Options as RegularShapeOptions } from 'ol/style/RegularShape'
 import {
     LineString,
     MultiLineString,
@@ -17,6 +20,9 @@ import {
     type SimpleGeometry,
 } from 'ol/geom'
 import { Circle, Fill, Icon, RegularShape, Stroke, Style, Text } from 'ol/style'
+
+// TODO I don't know enough about styles to do this right now...
+
 
 // copied and adapted from https://github.com/geoadmin/mf-geoadmin3/blob/master/src/components/StylesFromLiteralsService.js
 
@@ -152,36 +158,36 @@ function getGeomTypeFromGeometry(olGeometry: SimpleGeometry): string | undefined
     }
 }
 
-function getLabelProperty(value) {
+function getLabelProperty(value: GeoAdminGeoJSONStyle<GeoAdminGeoJSONStyleType>) {
     if (value) {
         return value.property
     }
     return null
 }
 
-function getLabelTemplate(value) {
+function getLabelTemplate(value: GeoAdminGeoJSONStyle<GeoAdminGeoJSONStyleType>) {
     if (value) {
         return value.template || ''
     }
     return null
 }
 
-function getStyleSpec(value) {
+function getStyleSpec(value: GeoAdminGeoJSONRangeDefinition) {
     return {
         olStyle: getOlStyleFromLiterals(value),
         minResolution: getMinResolution(value),
         maxResolution: getMaxResolution(value),
-        labelProperty: getLabelProperty(value.vectorOptions.label),
-        labelTemplate: getLabelTemplate(value.vectorOptions.label),
+        labelProperty: getLabelProperty(value.vectorOptions?.label),
+        labelTemplate: getLabelTemplate(value.vectorOptions?.label),
         imageRotationProperty: value.rotation,
     }
 }
 
-function getMinResolution(value) {
+function getMinResolution(value: GeoAdminGeoJSONRangeDefinition) {
     return value.minResolution || 0
 }
 
-function getMaxResolution(value) {
+function getMaxResolution(value: GeoAdminGeoJSONRangeDefinition) {
     return value.maxResolution || Infinity
 }
 
@@ -196,21 +202,37 @@ class OlStyleForPropertyValue {
     private readonly key: string
     private readonly type: GeoAdminGeoJSONStyleType
 
-    // TODO: finish Typescript migration of this "mess"
+    singleStyle: GeoAdminGeoJSONStyle<GeoAdminGeoJSONStyleType> | null
+    defaultVal: string
+    defaultStyle: Style
+    styles: Record<GeoAdminGeoJSONStyleType, Record<string, Style[]>>
 
-    constructor(geoadminStyleJson: GeoAdminGeoJSONStyle<GeoAdminGeoJSONStyleType>) {
+
+    constructor(geoadminStyleJson: GeoAdminGeoJSONStyleDefinition) {
         this.key = geoadminStyleJson.property
         this.singleStyle = null
         this.defaultVal = 'defaultVal'
         this.defaultStyle = new Style()
         this.styles = {
-            point: {},
-            line: {},
-            polygon: {},
+            'single': {},
+            'unique': {},
+            'range': {}
         }
+        // this.styles: [key in Language]GeoAdminGeoJSONStyleType //{
+        //     // point: {},
+        //     // line: {},
+        //     // polygon: {},
+        // //}
         this.type = geoadminStyleJson.type
 
-        if (geoadminStyleJson.type === 'single') {
+        const isStyleSingle = (style: GeoAdminGeoJSONStyleDefinition): style is GeoAdminGeoJSONStyleSingle => {
+            return style.type === 'single'
+        }
+
+        // if (geoadminStyleJson.type === 'single') {
+        if (isStyleSingle(geoadminStyleJson)) {
+            // TODO I don't get it. The code tests for 'single', but then getOlStyleFromLiterals
+            // demands a range. Range is below though!
             this.singleStyle = {
                 olStyle: getOlStyleFromLiterals(geoadminStyleJson),
                 labelProperty: getLabelProperty(geoadminStyleJson.vectorOptions.label),
@@ -229,38 +251,43 @@ class OlStyleForPropertyValue {
         }
     }
 
-    pushOrInitialize_(geomType, key, styleSpec) {
+    pushOrInitialize_(geomType: GeoAdminGeoJSONStyleType, key: string, styleSpec) {
         // Happens when styling is only resolution dependent (unique type only)
         if (key === undefined) {
             key = this.defaultVal
         }
-        if (!this.styles[geomType][key]) {
-            this.styles[geomType][key] = [styleSpec]
+
+        if (key in this.styles[geomType]) {
+            this.styles[geomType][key]?.push(styleSpec)
         } else {
-            this.styles[geomType][key].push(styleSpec)
+            this.styles[geomType][key] = [styleSpec]
         }
     }
 
-    findOlStyleInRange_(value, geomType) {
-        let olStyle = null
+    findOlStyleInRange_(value: number, geomType: GeoAdminGeoJSONStyleType) {
+        let olStyle: Style | null = null
+
         Object.keys(this.styles[geomType]).forEach((range) => {
             const limits = range.split(',')
             const min = parseFloat(limits[0].replace(/\s/g, ''))
             const max = parseFloat(limits[1].replace(/\s/g, ''))
+
             if (!olStyle && value >= min && value < max) {
-                olStyle = this.styles[geomType][range]
+                if (this.styles[geomType][range]) {
+                    olStyle = this.styles[geomType][range] // TODO this is a list. what should go here?
+                }
             }
         })
         return olStyle
     }
 
-    getOlStyleForResolution_(olStyles, resolution) {
+    getOlStyleForResolution_(olStyles: OLBasicStyles[], resolution: number) {
         return olStyles.find(
             (style) => style.minResolution <= resolution && style.maxResolution > resolution
         )
     }
 
-    log_(value, id) {
+    log_(value: string, id: string) {
         const logValue = value === '' ? '<empty string>' : value
         log.debug({
             title: 'GeoJSON style from litrals',
