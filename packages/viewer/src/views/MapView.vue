@@ -1,6 +1,5 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed, defineAsyncComponent } from 'vue'
-import { useStore } from 'vuex'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config.js'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
@@ -15,21 +14,25 @@ import MapToolbox from '@/modules/map/components/toolbox/MapToolbox.vue'
 import TimeSliderButton from '@/modules/map/components/toolbox/TimeSliderButton.vue'
 import MapModule from '@/modules/map/MapModule.vue'
 import MenuModule from '@/modules/menu/MenuModule.vue'
-import { UIModes } from '@/store/modules/ui.store'
+import useUIStore, { UIModes } from '@/store/modules/ui.store'
 import AppVersion from '@/utils/components/AppVersion.vue'
 import DragDropOverlay from '@/utils/components/DragDropOverlay.vue'
 import LoadingBar from '@/utils/components/LoadingBar.vue'
 import OfflineReadinessStatus from '@/utils/offline/OfflineReadinessStatus.vue'
+import useCesiumStore from '@/store/modules/cesium.store'
+import useDrawingStore from '@/store/modules/drawing.store'
 
 const DrawingModule = defineAsyncComponent(() => import('@/modules/drawing/DrawingModule.vue'))
 
-const store = useStore()
+const cesiumStore = useCesiumStore()
+const uiStore = useUIStore()
+const drawingStore = useDrawingStore()
 
-const is3DActive = computed(() => store.state.cesium.active)
-const isDrawingMode = computed(() => store.state.drawing.drawingOverlay.show)
-const isPhoneMode = computed(() => store.state.ui.mode === UIModes.PHONE)
-const showLoadingBar = computed(() => store.getters.showLoadingBar)
-const showDragAndDropOverlay = computed(() => store.state.ui.showDragAndDropOverlay)
+const is3DActive = computed(() => cesiumStore.active)
+const isDrawingMode = computed(() => drawingStore.drawingOverlay.show)
+const isPhoneMode = computed(() => uiStore.mode === UIModes.PHONE)
+const showLoadingBar = computed(() => uiStore.showLoadingBar)
+const showDragAndDropOverlay = computed(() => uiStore.showDragAndDropOverlay)
 const loadDrawingModule = computed(() => {
     return isDrawingMode.value && !is3DActive.value
 })

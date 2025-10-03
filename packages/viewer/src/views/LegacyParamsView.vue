@@ -1,11 +1,11 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed } from 'vue'
-import { useStore } from 'vuex'
 
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
 import LoadingBar from '@/utils/components/LoadingBar.vue'
+import useUIStore from '@/store/modules/ui.store'
 
-const store = useStore()
+const uiStore = useUIStore()
 
 const { embed } = defineProps({
     embed: {
@@ -14,7 +14,7 @@ const { embed } = defineProps({
     },
 })
 
-const showLoadingBar = computed(() => store.getters.showLoadingBar)
+const showLoadingBar = computed(() => uiStore.showLoadingBar)
 </script>
 
 <template>
