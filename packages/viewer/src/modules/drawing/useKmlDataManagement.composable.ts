@@ -6,7 +6,7 @@ import { createKml, deleteKml, getKmlUrl, updateKml } from '@/api/files.api'
 import type { KMLLayer } from '@swissgeo/layers'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { DrawingState, generateKmlString } from '@/modules/drawing/lib/export-utils'
-import { EMPTY_KML_DATA, parseKml } from '@/utils/kmlUtils'
+import { parseKml } from '@/utils/kmlUtils'
 import useDrawingStore from '@/store/modules/drawing.store'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
@@ -16,13 +16,13 @@ import type VectorLayer from 'ol/layer/Vector'
 import type VectorSource from 'ol/source/Vector'
 import type { Geometry } from 'ol/geom'
 import type { Feature } from 'ol'
+import { layerUtils } from '@swissgeo/layers/utils'
 
 const dispatcher: ActionDispatcher = { name: 'useKmlDataManagement.composable' }
 
 // Shared state across composable instances
 let differSaveDrawingTimeout: ReturnType<typeof setTimeout> | null = null
 const saveState = ref<DrawingState>(DrawingState.INITIAL)
-type KmlLayerWithVisible = Partial<KMLLayer> & { visible: boolean }
 
 export interface DebounceOptions {
     debounceTime?: number
@@ -156,37 +156,22 @@ export default function useKmlDataManagement(
         if (!current?.adminId) {
             // Create new KML (copy or new)
             const kmlMetadata = await createKml(kmlData)
-            // TODO create class KMLLayer
-
-            const kmlLayer: KmlLayerWithVisible = {
+            const kmlLayer = layerUtils.makeKMLLayer({
                 name: drawingName.value,
                 kmlFileUrl: getKmlUrl(kmlMetadata.id),
-                visible: true,
-                opacity: current?.opacity ?? 1, // reuse current KML layer opacity, or undefined
+                isVisible: true,
+                opacity: current?.opacity, // reuse current KML layer opacity, or undefined
                 adminId: kmlMetadata.adminId,
                 kmlData,
                 kmlMetadata,
-            }
-            // const kmlLayer = new KMLLayer({
-            //     name: drawingName.value,
-            //     kmlFileUrl: getKmlUrl(kmlMetadata.id),
-            //     visible: true,
-            //     opacity: current?.opacity, // reuse current KML layer opacity, or undefined
-            //     adminId: kmlMetadata.adminId,
-            //     kmlData,
-            //     kmlMetadata,
-            // })
+            })
             // If we are copying the active layer (no adminId), remove the old one to avoid duplicates
             if (current) {
                 layersStore.removeLayer({ layerId: current.id }, dispatcher)
             }
-            const isEmpty =
-                !kmlLayer ||
-                !kmlLayer.kmlData ||
-                kmlLayer.kmlData === EMPTY_KML_DATA
-            if (!isEmpty) {
-                // if (!kmlLayer.isEmpty()) {
-                layersStore.addLayer({ layer: kmlLayer as KMLLayer }, dispatcher)
+
+            if (!layerUtils.isKmlLayerEmpty(kmlLayer)) {
+                layersStore.addLayer({ layer: kmlLayer }, dispatcher)
             }
         } else {
             // Update existing KML
@@ -202,21 +187,14 @@ export default function useKmlDataManagement(
     }
 
     function saveLocalDrawing(kmlData: string) {
-        // TODO create class KMLLayer
-        const kmlLayer: KmlLayerWithVisible = {
+        const kmlLayer = layerUtils.makeKMLLayer({
             name: drawingName.value,
             kmlFileUrl: temporaryKmlId.value!,
-            visible: true,
+            isVisible: true,
             opacity: 1,
             kmlData,
-        }
-        // const kmlLayer = new KMLLayer({
-        //     name: drawingName.value,
-        //     kmlFileUrl: temporaryKmlId.value,
-        //     visible: true,
-        //     opacity: 1,
-        //     kmlData,
-        // })
+        })
+
         if (!temporaryKml.value) {
             layersStore.addSystemLayer(kmlLayer as KMLLayer, dispatcher)
         } else {

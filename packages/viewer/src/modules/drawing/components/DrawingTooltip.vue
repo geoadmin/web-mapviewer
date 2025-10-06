@@ -14,6 +14,7 @@ import useDrawingStore from '@/store/modules/drawing.store'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type Feature from 'ol/Feature'
 import type { SimpleGeometry } from 'ol/geom'
+import type { FeatureLike } from 'ol/Feature'
 
 const cssPointer = 'cursor-pointer'
 const cssGrab = 'cursor-grab'
@@ -89,11 +90,10 @@ function updateTooltip() {
     // we only keep track of the first feature's info (the one on top of the stack)
     const selectedFeatureId = hasFeatureSelected ? selectedFeatures.value[0]?.id : undefined
     let featureUnderCursor: Feature<SimpleGeometry> | undefined
-    // let featureUnderCursor: FeatureLike | undefined
 
     olMap?.forEachFeatureAtPixel(
         lastPointerEvent.pixel,
-        (feature) => {
+        (feature: FeatureLike) => {
             // Keeping track that features are being hovered (even if not selected)
             hoveringSelectableFeature = true
 
