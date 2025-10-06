@@ -8,7 +8,6 @@ import { useProviders } from '@/modules/menu/components/advancedTools/ImportCata
 import { isValidUrl } from '@/utils/utils'
 import { useI18nStore } from '@/store/modules/i18n.store'
 import { CapabilitiesError } from '@swissgeo/layers/validation'
-import { error } from 'console'
 
 const emit = defineEmits(['capabilities:parsed', 'capabilities:cleared'])
 
