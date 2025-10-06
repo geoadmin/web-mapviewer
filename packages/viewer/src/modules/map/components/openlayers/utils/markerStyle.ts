@@ -1,4 +1,4 @@
-import type OLFeature from 'ol/Feature'
+import type Feature from 'ol/Feature'
 
 import { Style } from 'ol/style'
 import IconStyle from 'ol/style/Icon'
@@ -79,7 +79,7 @@ export function getMarkerStyle(markerStyle: OpenLayersMarkerStyles): Style {
     }
 }
 
-export function highlightFeatureStyle(olFeature: OLFeature): Style | undefined {
+export function highlightFeatureStyle(olFeature: Feature): Style | undefined {
     const geometryType = olFeature.getGeometry()?.getType()
     const isHovered = !!olFeature.get('isHovered')
     const isCurrentSegment = !!olFeature.get('isCurrentSegment')

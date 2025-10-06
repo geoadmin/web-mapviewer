@@ -1,23 +1,22 @@
-<script setup lang="js">
+<script setup lang="ts">
 import Feature from 'ol/Feature'
+import type { SimpleGeometry } from 'ol/geom'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import useExtendLineInteraction from '@/modules/drawing/components/useExtendLineInteraction.composable'
-import { drawMeasureStyle } from '@/modules/drawing/lib/style.js'
+import { drawMeasureStyle } from '@/modules/drawing/lib/style'
+import type { StyleFunction } from 'ol/style/Style'
 
-const { startingFeature } = defineProps({
-    startingFeature: Feature,
-})
+const { startingFeature } = defineProps<{ startingFeature: Feature<SimpleGeometry> }>()
 
-const emits = defineEmits({
-    drawEnd(payload) {
-        return payload instanceof Feature
-    },
-})
+type EmitType = {
+    (_e: 'drawEnd', _feature: Feature<SimpleGeometry>): void
+}
+const emits = defineEmits<EmitType>()
 
 const { removeLastPoint } = useExtendLineInteraction({
     featureType: EditableFeatureTypes.Measure,
-    style: drawMeasureStyle,
+    style: drawMeasureStyle as StyleFunction,
     drawEndCallback: (feature) => {
         emits('drawEnd', feature)
     },

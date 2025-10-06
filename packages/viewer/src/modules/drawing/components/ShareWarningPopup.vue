@@ -1,30 +1,28 @@
-<script setup lang="js">
+<script setup lang="ts">
 import log from '@swissgeo/log'
-import { computed, onUnmounted, ref, watch } from 'vue'
+import { computed, onUnmounted, ref, watch, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-import KMLLayer from '@/api/layers/KMLLayer.class'
+import type { KMLLayer } from '@swissgeo/layers'
 import { createShortLink } from '@/api/shortlink.api'
 import router from '@/router'
 import { encodeLayerId } from '@/router/storeSync/layersParamParser'
+import useDrawingStore from '@/store/modules/drawing.store'
+import type { ActionDispatcher } from '@/store/types'
 
-const dispatcher = { dispatcher: 'SharePopup.vue' }
+const dispatcher: ActionDispatcher = { name: 'ShareWarningPopup.vue' }
 
-const store = useStore()
+const drawingStore = useDrawingStore()
 const { t } = useI18n()
 
-const { kmlLayer } = defineProps({
-    kmlLayer: {
-        type: KMLLayer,
-        default: null,
-    },
-})
-const emits = defineEmits(['accept'])
-
+const { kmlLayer } = defineProps<{ kmlLayer: KMLLayer | undefined }>()
+type EmitType = {
+    (_e: 'accept'): void
+}
+const emits = defineEmits<EmitType>()
 const adminUrlCopied = ref(false)
-const shareUrl = ref(' ')
-const adminShareUrl = ref(' ')
+const shareUrl: Ref<string | undefined> = ref(' ')
+const adminShareUrl: Ref<string | undefined> = ref(' ')
 
 const baseUrl = computed(() => {
     return `${location.origin}/#`
@@ -41,21 +39,29 @@ const adminUrl = computed(() => {
         )
     }
     // if no adminID is available don't show the edit share link.
-    return null
+    return undefined
 })
 
 watch(adminUrl, () => {
-    updateAdminShareUrl()
+    updateAdminShareUrl().catch((error: Error) =>
+        log.error(`Error while creating short link for admin share url: ${error}`)
+    )
 })
 watch(fileUrl, () => {
-    updateShareUrl()
+    updateShareUrl().catch((error: Error) =>
+        log.error(`Error while creating short link for share url: ${error}`)
+    )
 })
 
-updateShareUrl()
-updateAdminShareUrl()
+updateShareUrl().catch((error: Error) =>
+    log.error(`Error while creating short link for share url: ${error}`)
+)
+updateAdminShareUrl().catch((error: Error) =>
+    log.error(`Error while creating short link for admin share url: ${error}`)
+)
 
-let adminTimeout = null
-const fileTimeout = null
+let adminTimeout: ReturnType<typeof setTimeout> | undefined
+let fileTimeout: ReturnType<typeof setTimeout> | undefined
 
 onUnmounted(() => {
     clearTimeout(adminTimeout)
@@ -68,23 +74,20 @@ function onAccept() {
 
 async function copyAdminShareUrl() {
     try {
-        await navigator.clipboard.writeText(adminShareUrl.value)
+        await navigator.clipboard.writeText(adminShareUrl.value ?? '')
         adminUrlCopied.value = true
-        store.dispatch('setIsDrawingEditShared', {
-            value: true,
-            ...dispatcher,
-        })
+        drawingStore.setIsDrawingEditShared(true, dispatcher)
         adminTimeout = setTimeout(() => {
             adminUrlCopied.value = false
         }, 5000)
-    } catch (error) {
-        log.error(`Failed to copy: `, error)
+    } catch (error: unknown) {
+        log.error(`Failed to copy: `, error as string)
     }
 }
 async function updateShareUrl() {
     if (fileUrl.value) {
         try {
-            shareUrl.value = await createShortLink(fileUrl.value, shareUrl.value)
+            shareUrl.value = await createShortLink(fileUrl.value, !!shareUrl.value)
         } catch (_) {
             // Fallback to normal url
             shareUrl.value = fileUrl.value
@@ -113,13 +116,13 @@ async function updateAdminShareUrl() {
             class="form-group"
         >
             <label>{{ t('draw_share_admin_link') }}:</label>
-            <div class="input-group input-group mb-3 share-link-input">
+            <div class="input-group input-group share-link-input mb-3">
                 <input
                     type="text"
                     class="form-control"
                     :value="adminShareUrl"
                     readonly
-                    @focus="(event) => event.target.select()"
+                    @focus="(event) => (event.target as HTMLInputElement).select()"
                     @click="copyAdminShareUrl()"
                 />
                 <button

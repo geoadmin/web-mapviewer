@@ -3,7 +3,7 @@ import { LineString, Point, Polygon, type SimpleGeometry } from 'ol/geom'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 
 import { type EditableFeature, extractOlFeatureCoordinates } from '@/api/features.api'
-import type OLFeature from 'ol/Feature'
+import type Feature from 'ol/Feature'
 import type { ActionDispatcher } from '@/store/types'
 import useFeaturesStore from '@/store/modules/features.store'
 
@@ -38,7 +38,7 @@ export function pointWithinTolerance(
  * @param feature The feature to extract from.
  * @returns An array of coordinates.
  */
-export function getVertexCoordinates(feature: OLFeature<SimpleGeometry>): SingleCoordinate[] {
+export function getVertexCoordinates(feature: Feature<SimpleGeometry>): SingleCoordinate[] {
     let normalized: SingleCoordinate[] = []
     const geometry = feature.getGeometry()
 
@@ -63,7 +63,7 @@ export function getVertexCoordinates(feature: OLFeature<SimpleGeometry>): Single
  * @param reverse If the coordinates should be reversed. Default is `false`
  */
 export function updateStoreFeatureCoordinatesGeometry(
-    feature: OLFeature<SimpleGeometry>,
+    feature: Feature<SimpleGeometry>,
     dispatcher: ActionDispatcher,
     reverse: boolean = false
 ) {

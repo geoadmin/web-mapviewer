@@ -1,7 +1,7 @@
 import type { Color } from 'ol/color'
 import { fromString } from 'ol/color'
 import type { ColorLike, PatternDescriptor } from 'ol/colorlike'
-import type { default as OLFeature, FeatureLike } from 'ol/Feature'
+import type { default as Feature, FeatureLike } from 'ol/Feature'
 import type { Size } from 'ol/size'
 import { Fill, Stroke, Text } from 'ol/style'
 import Style from 'ol/style/Style'
@@ -114,7 +114,7 @@ export enum TextPlacement {
 }
 
 /** Get Feature style from feature */
-export function getStyle(olFeature: OLFeature, resolution: number): Style | undefined {
+export function getStyle(olFeature: Feature, resolution: number): Style | undefined {
     const styleFunction = olFeature.getStyleFunction()
     if (!styleFunction) {
         return
@@ -375,7 +375,7 @@ function getElementOffsets(editableFeature?: EditableFeature): {
  */
 export function geoadminStyleFunction(
     feature: FeatureLike,
-    resolution: number
+    resolution?: number
 ): Style | Style[] | undefined {
     const editableFeature = feature.get('editableFeature')
 
@@ -413,15 +413,15 @@ export function geoadminStyleFunction(
                 editableFeature?.featureType === EditableFeatureTypes.Measure
                     ? dashedRedStroke
                     : new Stroke({
-                          color: styleConfig.fillColor.fill,
-                          width: 3,
-                      }),
+                        color: styleConfig.fillColor.fill,
+                        width: 3,
+                    }),
             // filling a polygon with white if first time being drawn (otherwise fallback to user set color)
             fill: isDrawing
                 ? whiteSketchFill
                 : new Fill({
-                      color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
-                  }),
+                    color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
+                }),
             zIndex: StyleZIndex.MainStyle,
         }),
     ]
@@ -452,8 +452,8 @@ export function geoadminStyleFunction(
                 fill: isDrawing
                     ? whiteSketchFill
                     : new Fill({
-                          color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
-                      }),
+                        color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
+                    }),
                 zIndex: StyleZIndex.AzimuthCircle,
                 stroke: new Stroke({
                     color: styleConfig.strokeColor.fill,
@@ -464,7 +464,7 @@ export function geoadminStyleFunction(
     }
     /* This function is also called when saving the feature to KML, where "feature.get('geodesic')"
     is not there anymore, thats why we have to check for it here */
-    if (editableFeature?.featureType === EditableFeatureTypes.Measure && feature.get('geodesic')) {
+    if (resolution && editableFeature?.featureType === EditableFeatureTypes.Measure && feature.get('geodesic')) {
         styles.push(...feature.get('geodesic').getMeasureStyles(resolution))
     }
     return styles

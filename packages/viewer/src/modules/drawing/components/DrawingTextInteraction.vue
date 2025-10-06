@@ -3,13 +3,12 @@ import Feature from 'ol/Feature'
 import { useI18n } from 'vue-i18n'
 
 import { EditableFeatureTypes } from '@/api/features.api'
-import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable.ts'
+import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable'
 
-const emits = defineEmits({
-    drawEnd(payload) {
-        return payload instanceof Feature
-    },
-})
+type EmitType = {
+    (_e: 'drawEnd', _feature: Feature): void
+}
+const emits = defineEmits<EmitType>()
 
 const { t } = useI18n()
 

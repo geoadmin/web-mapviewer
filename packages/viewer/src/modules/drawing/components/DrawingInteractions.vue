@@ -1,7 +1,8 @@
-<script setup lang="js">
+<script setup lang="ts">
 import log from '@swissgeo/log'
 import { computed, ref, useTemplateRef } from 'vue'
-import { useStore } from 'vuex'
+import type Feature from 'ol/Feature'
+import type { ComponentPublicInstance } from 'vue'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import DrawingLineInteraction from '@/modules/drawing/components/DrawingLineInteraction.vue'
@@ -11,19 +12,31 @@ import DrawingSelectInteraction from '@/modules/drawing/components/DrawingSelect
 import DrawingTextInteraction from '@/modules/drawing/components/DrawingTextInteraction.vue'
 import ExtendLineInteraction from '@/modules/drawing/components/ExtendLineInteraction.vue'
 import ExtendMeasureInteraction from '@/modules/drawing/components/ExtendMeasureInteraction.vue'
-import { EditMode } from '@/store/modules/drawing.store'
+import useDrawingStore, { EditMode } from '@/store/modules/drawing.store'
+// Methods exposed by the select interaction component
+type SelectInteractionExposed = {
+    setActive: (_: boolean) => void
+    selectFeature: (_: Feature | undefined) => void
+    removeLastPoint: () => void
+}
+// Methods optionally exposed by specialized interactions
+type InteractionExposed = { removeLastPoint?: () => void }
 
 // DOM References
-const selectInteraction = useTemplateRef('selectInteraction')
-const currentInteraction = useTemplateRef('currentInteraction')
-const store = useStore()
-const currentDrawingMode = computed(() => store.state.drawing.mode)
-const editMode = computed(() => store.state.drawing.editingMode)
+const selectInteraction = useTemplateRef<
+    ComponentPublicInstance<SelectInteractionExposed> | undefined
+>('selectInteraction')
+const currentInteraction = useTemplateRef<ComponentPublicInstance<InteractionExposed> | undefined>(
+    'currentInteraction'
+)
+const drawingStore = useDrawingStore()
+const currentDrawingMode = computed(() => drawingStore.mode)
+const editMode = computed(() => drawingStore.editingMode)
 
-const selectedLineFeature = ref(null)
+const selectedLineFeature = ref<Feature | undefined>()
 
 const specializedInteractionComponent = computed(() => {
-    let selectedInteraction = null
+    let selectedInteraction
     switch (currentDrawingMode.value) {
         case EditableFeatureTypes.Annotation:
             selectedInteraction = DrawingTextInteraction
@@ -52,7 +65,7 @@ const specializedInteractionComponent = computed(() => {
         } else {
             log.error('Invalid feature type for extend mode')
 
-            selectedInteraction = null
+            selectedInteraction = undefined
         }
     }
     // Make sure that the modify interaction is disabled when we are in draw / extend mode
@@ -69,24 +82,22 @@ const specializedProps = computed(() => {
     return {}
 })
 
-function onDrawEnd(feature) {
-    selectInteraction.value.selectFeature(feature)
+function onDrawEnd(feature: Feature | undefined) {
+    selectInteraction.value?.selectFeature(feature)
 }
 
 function removeLastPoint() {
-    if (currentInteraction.value?.removeLastPoint) {
-        currentInteraction.value.removeLastPoint()
-    }
+    currentInteraction.value?.removeLastPoint?.()
     if (editMode.value !== EditMode.OFF) {
-        selectInteraction.value.removeLastPoint()
+        selectInteraction.value?.removeLastPoint()
     }
 }
 
-function featureSelected(feature) {
+function featureSelected(feature: Feature | undefined) {
     if (feature?.getGeometry()?.getType() === 'LineString') {
         selectedLineFeature.value = feature
     } else {
-        selectedLineFeature.value = null
+        selectedLineFeature.value = undefined
     }
 }
 defineExpose({

@@ -17,7 +17,6 @@ import { LayerType, type GeoAdminGroupOfLayers, type Layer } from '@swissgeo/lay
 import useUIStore from '@/store/modules/ui.store'
 import useLayersStore from '@/store/modules/layers.store'
 import useTopicsStore from '@/store/modules/topics.store'
-import useMapStore from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'
 
 const dispatcher = { name: 'LayerCatalogueItem.vue' }
@@ -25,7 +24,6 @@ const dispatcher = { name: 'LayerCatalogueItem.vue' }
 const uiStore = useUIStore()
 const layersStore = useLayersStore()
 const topicsStore = useTopicsStore()
-const mapStore = useMapStore()
 const positionStore = usePositionStore()
 
 const {

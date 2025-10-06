@@ -1,30 +1,28 @@
-<script setup lang="js">
+<script setup lang="ts">
 import log from '@swissgeo/log'
-import { computed, onUnmounted, ref, watch } from 'vue'
+import { computed, onUnmounted, ref, watch, type Ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-import KMLLayer from '@/api/layers/KMLLayer.class'
+import type { KMLLayer } from '@swissgeo/layers'
 import { createShortLink } from '@/api/shortlink.api'
 import router from '@/router'
 import { encodeLayerId } from '@/router/storeSync/layersParamParser'
+import useDrawingStore from '@/store/modules/drawing.store'
+import type { ActionDispatcher } from '@/store/types'
 
-const dispatcher = { dispatcher: 'SharePopup.vue' }
+const dispatcher: ActionDispatcher = { name: 'SharePopup.vue' }
 
-const store = useStore()
+const drawingStore = useDrawingStore()
 const { t } = useI18n()
 
 const { kmlLayer } = defineProps({
-    kmlLayer: {
-        type: KMLLayer,
-        default: null,
-    },
+    kmlLayer: Object as () => KMLLayer | undefined,
 })
 
 const adminUrlCopied = ref(false)
 const fileUrlCopied = ref(false)
-const shareUrl = ref(' ')
-const adminShareUrl = ref(' ')
+const shareUrl: Ref<string | undefined> = ref(' ')
+const adminShareUrl: Ref<string | undefined> = ref(' ')
 
 const baseUrl = computed(() => {
     return `${location.origin}/#`
@@ -41,21 +39,29 @@ const adminUrl = computed(() => {
         )
     }
     // if no adminID is available don't show the edit share link.
-    return null
+    return undefined
 })
 
 watch(adminUrl, () => {
-    updateAdminShareUrl()
+    updateAdminShareUrl().catch((error: Error) =>
+        log.error(`Error while creating short link for admin share url: ${error}`)
+    )
 })
 watch(fileUrl, () => {
-    updateShareUrl()
+    updateShareUrl().catch((error: Error) =>
+        log.error(`Error while creating short link for share url: ${error}`)
+    )
 })
 
-updateShareUrl()
-updateAdminShareUrl()
+updateShareUrl().catch((error: Error) =>
+    log.error(`Error while creating short link for share url: ${error}`)
+)
+updateAdminShareUrl().catch((error: Error) =>
+    log.error(`Error while creating short link for admin share url: ${error}`)
+)
 
-let adminTimeout = null
-let fileTimeout = null
+let adminTimeout: ReturnType<typeof setTimeout> | undefined
+let fileTimeout: ReturnType<typeof setTimeout> | undefined
 
 onUnmounted(() => {
     clearTimeout(adminTimeout)
@@ -64,28 +70,25 @@ onUnmounted(() => {
 
 async function copyShareUrl() {
     try {
-        await navigator.clipboard.writeText(shareUrl.value)
+        await navigator.clipboard.writeText(shareUrl.value ?? '')
         fileUrlCopied.value = true
         fileTimeout = setTimeout(() => {
             fileUrlCopied.value = false
         }, 5000)
-    } catch (error) {
-        log.error(`Failed to copy: `, error)
+    } catch (error: unknown) {
+        log.error(`Failed to copy: `, error as string)
     }
 }
 async function copyAdminShareUrl() {
     try {
-        await navigator.clipboard.writeText(adminShareUrl.value)
+        await navigator.clipboard.writeText(adminShareUrl.value ?? '')
         adminUrlCopied.value = true
-        store.dispatch('setIsDrawingEditShared', {
-            value: true,
-            ...dispatcher,
-        })
+        drawingStore.setIsDrawingEditShared(true, dispatcher)
         adminTimeout = setTimeout(() => {
             adminUrlCopied.value = false
         }, 5000)
-    } catch (error) {
-        log.error(`Failed to copy: `, error)
+    } catch (error: unknown) {
+        log.error(`Failed to copy: `, error as string)
     }
 }
 async function updateShareUrl() {
@@ -114,20 +117,20 @@ async function updateAdminShareUrl() {
     <div class="ga-share">
         <div class="form-group">
             <label>{{ t('draw_share_user_link') }}:</label>
-            <div class="input-group input-group mb-3 share-link-input">
+            <div class="input-group input-group share-link-input mb-3">
                 <input
                     type="text"
                     class="form-control"
                     :value="shareUrl"
                     readonly
-                    @click="copyShareUrl(false)"
-                    @focus="$event.target.select()"
+                    @click="copyShareUrl()"
+                    @focus="(event) => (event.target as HTMLInputElement).select()"
                 />
                 <button
                     class="btn btn-outline-group"
                     type="button"
                     data-cy="drawing-share-normal-link"
-                    @click="copyShareUrl(false)"
+                    @click="copyShareUrl()"
                 >
                     {{ fileUrlCopied ? t('copy_success') : t('copy_url') }}
                 </button>
@@ -138,13 +141,13 @@ async function updateAdminShareUrl() {
             class="form-group"
         >
             <label>{{ t('draw_share_admin_link') }}:</label>
-            <div class="input-group input-group mb-3 share-link-input">
+            <div class="input-group input-group share-link-input mb-3">
                 <input
                     type="text"
                     class="form-control"
                     :value="adminShareUrl"
                     readonly
-                    @focus="$event.target.select()"
+                    @focus="(event) => (event.target as HTMLInputElement).select()"
                     @click="copyAdminShareUrl()"
                 />
                 <button

@@ -96,6 +96,8 @@ export interface LayerFeature extends SelectableFeature<false> {
     readonly popupDataCanBeTrusted: boolean
 }
 
+export type StoreFeature = EditableFeature | LayerFeature
+
 /**
  * The api3 identify endpoint timeInstant parameter doesn't support the "all" and "current"
  * timestamps, we need to set it to null in this case.

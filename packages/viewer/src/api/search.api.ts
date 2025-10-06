@@ -3,7 +3,6 @@ import { CoordinateSystem, CustomCoordinateSystem, LV95, WGS84 } from '@swissgeo
 import type { GPXLayer, KMLLayer, Layer } from '@swissgeo/layers'
 import { LayerType } from '@swissgeo/layers'
 import type Feature from 'ol/Feature'
-import type OLFeature from 'ol/Feature'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { bbox, points } from '@turf/turf'
 import axios, { type AxiosResponse, type CancelToken, type CancelTokenSource } from 'axios'
@@ -427,7 +426,7 @@ function searchLayerFeaturesKMLGPX(
 /** Creates the SearchResult for a layer */
 function createSearchResultFromLayer(
     layer: KMLLayer | GPXLayer,
-    feature: OLFeature,
+    feature: Feature,
     outputProjection: CoordinateSystem
 ): LayerFeatureSearchResult {
     const featureName: string = feature.get('name') || layer.name || '' // this needs || to avoid using empty string when feature.get("name") is an empty string

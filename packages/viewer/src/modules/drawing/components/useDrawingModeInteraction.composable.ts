@@ -8,7 +8,7 @@ import DrawInteraction, { DrawEvent } from 'ol/interaction/Draw'
 import SnapInteraction from 'ol/interaction/Snap'
 import { Style } from 'ol/style'
 import { getUid } from 'ol/util'
-import type OLMap from 'ol/Map'
+import type Map from 'ol/Map'
 import { inject, nextTick, onBeforeUnmount, onMounted, ref, toValue } from 'vue'
 import type { Type as GeometryType } from 'ol/geom/Geometry'
 
@@ -25,7 +25,7 @@ import type { StyleFunction, StyleLike } from 'ol/style/Style'
 import type { ActionDispatcher } from '@/store/types'
 import type VectorLayer from 'ol/layer/Vector'
 import usePositionStore from '@/store/modules/position.store'
-import type OLFeature from 'ol/Feature'
+import type Feature from 'ol/Feature'
 import { v4 as uuidv4 } from 'uuid'
 
 const dispatcher: ActionDispatcher = { name: 'useDrawingModeInteraction.composable' }
@@ -39,15 +39,10 @@ interface UseDrawingModeInteractionConfig {
     editableFeatureArgs?: Partial<EditableFeature>
     useGeodesicDrawing?: boolean
     snapping?: boolean
-    drawEndCallback?: (feature: OLFeature<SimpleGeometry>) => void
-    startingFeature?: OLFeature<SimpleGeometry>
+    drawEndCallback?: (feature: Feature<SimpleGeometry>) => void
+    startingFeature?: Feature<SimpleGeometry>
 }
 
-/**
- * Custom hook to handle drawing mode interaction.
- *
- * @returns {Object} - An object containing the removeLastPoint function.
- */
 export default function useDrawingModeInteraction(config?: UseDrawingModeInteractionConfig) {
     const {
         geometryType = 'Point',
@@ -63,7 +58,7 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
     const isSnappingOnFirstPoint = ref<boolean>(false)
 
     const drawingLayer = inject<VectorLayer>('drawingLayer')
-    const olMap = inject<OLMap>('olMap')
+    const olMap = inject<Map>('olMap')
 
     if (!drawingLayer || !olMap) {
         throw new Error('Drawing layer or OL map not provided')
@@ -157,7 +152,7 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
      * if not finished, so we remove it before performing our checks
      */
     function getFeatureCoordinatesWithoutExtraPoint(
-        feature: OLFeature<SimpleGeometry>
+        feature: Feature<SimpleGeometry>
     ): SingleCoordinate[] | undefined {
         const geometryCoordinates: SingleCoordinate[] | undefined =
             feature.getGeometry()?.getCoordinates() ?? undefined
@@ -172,7 +167,7 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
     }
 
     function onAddFeature(event: DrawEvent) {
-        const feature: OLFeature<SimpleGeometry> = event.feature as OLFeature<SimpleGeometry>
+        const feature: Feature<SimpleGeometry> = event.feature as Feature<SimpleGeometry>
         if (!feature.getId()) {
             /* setting a unique ID for each feature. getUid() is unique as long as the app
             isn't reloaded. The first part is a time stamp to guarante uniqueness even after
@@ -226,8 +221,8 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
 
     // We only need the drawn feature, as the starting feature is already in the store / layer source
     // no need to insert the drawn feature in the layer source
-    function updateStartingFeature(drawnFeature: OLFeature<SimpleGeometry>) {
-        const selectedFeature: OLFeature<SimpleGeometry> | undefined = toValue(startingFeature)
+    function updateStartingFeature(drawnFeature: Feature<SimpleGeometry>) {
+        const selectedFeature: Feature<SimpleGeometry> | undefined = toValue(startingFeature)
 
         if (!selectedFeature) {
             return
@@ -282,7 +277,7 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
     }
 
     function onDrawEnd(event: DrawEvent) {
-        const drawnFeature = event.feature as OLFeature<SimpleGeometry>
+        const drawnFeature = event.feature as Feature<SimpleGeometry>
 
         const featureId = drawnFeature.getId() ? `${drawnFeature.getId()}` : uuidv4()
 
@@ -365,7 +360,7 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
         }
     }
     function checkIfSnapping(event: DrawEvent) {
-        const feature = event.feature as OLFeature<SimpleGeometry>
+        const feature = event.feature as Feature<SimpleGeometry>
         // only checking if the geom is a polygon (it as more than one point)
         if (feature.getGeometry() instanceof Polygon) {
             const lineCoords = getFeatureCoordinatesWithoutExtraPoint(feature)
