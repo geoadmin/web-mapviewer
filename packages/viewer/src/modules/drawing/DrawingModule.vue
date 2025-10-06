@@ -34,7 +34,8 @@ import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
 import useUiStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
 import type { ActionDispatcher } from '@/store/types'
-import { EMPTY_KML_DATA, getIcon, parseIconUrl } from '@/utils/kmlUtils'
+import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
+import { layerUtils } from '@swissgeo/layers/utils'
 
 // Type augmentation for Cypress testing: expose drawingLayer on window
 declare global {
@@ -117,15 +118,9 @@ const hasLoaded = computed(() => {
 })
 const hasKml = computed(() => {
     if (online.value) {
-        // TODO: change KMLLayer to class
-        // return !!activeKmlLayer.value && !activeKmlLayer.value.isEmpty?.()
-        const isEmpty =
-            !activeKmlLayer.value ||
-            !activeKmlLayer.value.kmlData ||
-            activeKmlLayer.value.kmlData === EMPTY_KML_DATA
-        return !!activeKmlLayer.value && !isEmpty
+        return !!activeKmlLayer.value && !layerUtils.isKmlLayerEmpty(activeKmlLayer.value)
     }
-    const sysLayers = (layersStore.systemLayers as unknown as { id: string }[]) ?? []
+    const sysLayers = layersStore.systemLayers ?? []
     return !!sysLayers.find((l) => l.id === drawingStore.temporaryKmlId)
 })
 // The drawing vector layer
@@ -165,7 +160,9 @@ watch(featureIds, (next: string[], last: string[]) => {
     if (removed.length > 0) {
         log.debug(`${removed.length} feature(s) have been removed, removing them from source`)
         const source = drawingLayer.getSource()
-        if (!source) return
+        if (!source) {
+            return
+        }
         source
             .getFeatures()
             .filter((feature) => removed.includes(String(feature.get('id'))))
@@ -179,8 +176,9 @@ watch(featureIds, (next: string[], last: string[]) => {
 // Workaround for legacy drawings and icon set mapping
 watch(availableIconSets, () => {
     const source = drawingLayer.getSource()
-    if (!source) return
-
+    if (!source) {
+        return
+    }
     log.debug('New iconsets available update all drawing features', source.getFeatures())
 
     featureIds.value.forEach((featureId) => {
@@ -317,7 +315,7 @@ async function closeDrawing() {
 
     // Clear any pending save not started, then wait for in-progress saves
     clearPendingSaveDrawing()
-    await Promise.all((savesInProgress.value as unknown as Promise<unknown>[]) ?? [])
+    await Promise.all(savesInProgress.value ?? [])
 
     // Save on close when modified and (not new or not empty)
     if (isDrawingModified.value && (!isNewDrawing.value || !isDrawingEmpty.value)) {

@@ -30,7 +30,7 @@ const isDrawingEmpty = computed(() => drawingStore.isDrawingEmpty)
 const activeKmlLayer = computed(() => layersStore.activeKmlLayer)
 
 function onExportOptionSelected(dropdownItem: DropdownItem<unknown>) {
-    exportSelection.value = String(dropdownItem.title)
+    exportSelection.value = dropdownItem.title
     exportDrawing()
 }
 function exportDrawing() {

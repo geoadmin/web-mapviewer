@@ -14,12 +14,6 @@ import KML from '@/utils/ol/format/KML'
 
 const kmlFormat = new KML()
 
-// const kmlFormat = new KML() as unknown as {
-//     writeFeatures: (
-//         features: Feature<Geometry>[],
-//         options: { dataProjection: string; featureProjection: string }
-//     ) => string
-// }
 const gpxFormat = new GPX()
 
 /**
