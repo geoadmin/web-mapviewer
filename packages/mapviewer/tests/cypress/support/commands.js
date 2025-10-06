@@ -91,6 +91,8 @@ Cypress.Commands.add(
                 Object.keys(queryParams).includes(unwantedKey)
             )
         ) {
+            cy.log('always set to center the map if no center is given')
+            cy.log('keys: ', Object.keys(queryParams))
             // "old" MAP_CENTER constant re-projected in LV95
             queryParams.center = '2660013.5,1185172'
         } else if ('3d' in queryParams && !('sr' in queryParams)) {

@@ -368,6 +368,7 @@ describe('Test the search bar result handling', () => {
         // search bar should take element's title as value if it's a location
         cy.get(searchbarSelector).should('have.value', 'Test location')
         // checking that the view has centered on the feature
+        cy.log('Checking that the map has centered on the feature, failed here.')
         cy.readStoreValue('state.position.center').should((center) =>
             checkLocation(expectedCenterDefaultProjection, center)
         )
