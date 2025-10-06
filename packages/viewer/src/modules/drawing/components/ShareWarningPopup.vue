@@ -60,8 +60,8 @@ updateAdminShareUrl().catch((error: Error) =>
     log.error(`Error while creating short link for admin share url: ${error}`)
 )
 
-let adminTimeout: ReturnType<typeof setTimeout> | undefined = undefined
-const fileTimeout = undefined
+let adminTimeout: ReturnType<typeof setTimeout> | undefined
+let fileTimeout: ReturnType<typeof setTimeout> | undefined
 
 onUnmounted(() => {
     clearTimeout(adminTimeout)
