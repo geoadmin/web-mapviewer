@@ -32,11 +32,11 @@ const canDisplayProfile = computed<boolean>(() => canFeatureShowProfile(item))
 const featuresStore = useFeaturesStore()
 const isHighlightedFeature = computed<boolean>(() => featuresStore.highlightedFeatureId === item.id)
 
-function highlightFeature(feature) {
-    featuresStore.setHighlightedFeatureId(feature?.id, dispatcher)
+function highlightFeature(feature: EditableFeature | LayerFeature): void {
+    featuresStore.setHighlightedFeatureId(feature?.id.toString(), dispatcher)
 }
 
-function clearHighlightedFeature() {
+function clearHighlightedFeature(): void {
     featuresStore.setHighlightedFeatureId(undefined, dispatcher)
 }
 
@@ -48,7 +48,7 @@ function toggleShowContent() {
     }
 }
 
-function showContentAndScrollIntoView(event?: MouseEvent) {
+function showContentAndScrollIntoView(event?: MouseEvent): void {
     showContent.value = true
     nextTick(() => {
         contentRef.value?.scrollIntoView({ behavior: 'smooth', block: 'end' })
@@ -65,7 +65,7 @@ function showContentAndScrollIntoView(event?: MouseEvent) {
     if (event) {
         event.preventDefault()
         event.stopPropagation()
-        return false
+        return
     }
 }
 </script>

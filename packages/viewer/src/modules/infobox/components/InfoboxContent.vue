@@ -1,68 +1,85 @@
-<script setup lang="js">
+<script setup lang="ts">
 import GeoadminElevationProfile, {
     GeoadminElevationProfileCesiumBridge,
     GeoadminElevationProfileOpenLayersBridge,
 } from '@swissgeo/elevation-profile'
 import { computed, inject, nextTick, onUnmounted, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
+import { storeToRefs } from 'pinia'
 
 import { ENVIRONMENT } from '@/config/staging.config'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 import { generateFilename } from '@/utils/utils'
 
-const dispatcher = { dispatcher: 'InfoboxContent.vue' }
+// Pinia stores
+import useFeaturesStore from '@/store/modules/features.store'
+import useDrawingStore from '@/store/modules/drawing.store'
+import usePositionStore from '@/store/modules/position.store'
+import { useI18nStore } from '@/store/modules/i18n.store'
+import useCesiumStore from '@/store/modules/cesium.store'
+import useProfileStore from '@/store/modules/profile.store'
+import useUiStore from '@/store/modules/ui.store'
+import type { Viewer } from 'cesium'
+import type { Map } from 'ol'
 
-const content = useTemplateRef('content')
+const dispatcher = { name: 'InfoboxContent.vue' }
 
-const store = useStore()
+const content = useTemplateRef<HTMLDivElement>('content')
+
 const { t } = useI18n()
 
-const olMap = inject('olMap')
-const getCesiumViewer = inject('getViewer', () => undefined, true)
+const olMap: Map | undefined = inject('olMap')
+const getCesiumViewer = inject<() => Viewer | undefined>('getViewer', () => undefined, true)
 
-const selectedFeatures = computed(() => store.getters.selectedFeatures)
-const showFeatureInfoInBottomPanel = computed(() => store.getters.showFeatureInfoInBottomPanel)
-const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.show)
-const projection = computed(() => store.state.position.projection)
-const currentLang = computed(() => store.state.i18n.lang)
-const is3dActive = computed(() => store.state.cesium.active)
+// Stores
+const featuresStore = useFeaturesStore()
+const drawingStore = useDrawingStore()
+const positionStore = usePositionStore()
+const i18nStore = useI18nStore()
+const cesiumStore = useCesiumStore()
+const profileStore = useProfileStore()
+const uiStore = useUiStore()
 
-const selectedFeature = computed(() => selectedFeatures.value[0])
+// Refs from stores
+const { selectedFeatures } = storeToRefs(featuresStore)
+const { drawingOverlay } = storeToRefs(drawingStore)
+const { projection } = storeToRefs(positionStore)
+const { lang: currentLang } = storeToRefs(i18nStore)
+const { active: is3dActive } = storeToRefs(cesiumStore)
+const { feature, currentFeatureGeometryIndex, currentProfileCoordinates } =
+    storeToRefs(profileStore)
+const { showFeatureInfoInBottomPanel } = storeToRefs(uiStore)
 
-const isSelectedFeatureEditable = computed(() => selectedFeature.value?.isEditable)
+const selectedFeature = computed(() => selectedFeatures.value?.[0])
+const isSelectedFeatureEditable = computed(() => Boolean(selectedFeature.value?.isEditable))
+const showDrawingOverlay = computed(() => Boolean(drawingOverlay.value?.show))
 const isEditingDrawingFeature = computed(
     () => showDrawingOverlay.value && isSelectedFeatureEditable.value
 )
 
-const profileFeature = computed(() => store.state.profile.feature)
-const isMultiFeature = computed(() => store.getters.isProfileFeatureMultiFeature)
-
-/** Used to track MultiLineString or MultiPolygon element to give to the profile component */
-const currentFeatureSegmentIndex = computed(() => store.state.profile.currentFeatureSegmentIndex)
-const currentGeometryElements = computed(() => profileFeature.value?.geometry.coordinates)
-
-const currentProfileCoordinates = computed(() => store.getters.currentProfileCoordinates)
-const showElevationProfile = computed(() => !!profileFeature.value)
-
-watch(selectedFeatures, (features) => {
-    if (features.length === 0) {
-        return
-    }
-    nextTick(() => {
-        content.value?.scrollTo(0, 0)
-    })
+const isMultiFeature = computed(() => {
+    const t = profileStore.feature?.geometry?.type
+    return t === 'MultiLineString' || t === 'MultiPolygon'
+})
+const currentGeometryElements = computed(() => {
+    // coordinates for MultiLineString/MultiPolygon are arrays of arrays
+    // @ts-ignore
+    return feature?.value?.geometry?.coordinates ?? []
 })
 
-function setCurrentSegmentIndex(index) {
-    if (index === currentFeatureSegmentIndex.value) {
+const showElevationProfile = computed(() => !!profileStore.feature)
+
+watch(selectedFeatures, (features) => {
+    if (!features || features.length === 0) return
+    nextTick(() => content.value?.scrollTo(0, 0))
+})
+
+function setCurrentSegmentIndex(index: number): void {
+    if (index === currentFeatureGeometryIndex.value) {
         return
     }
-    store.dispatch('setCurrentFeatureSegmentIndex', {
-        index,
-        ...dispatcher,
-    })
+    profileStore.setCurrentFeatureSegmentIndex(index, dispatcher)
 }
 
 onUnmounted(() => {
@@ -76,7 +93,7 @@ onUnmounted(() => {
         class="infobox-content d-flex flex-column"
         data-cy="infobox-content"
     >
-        <div class="d-flex h-100 justify-content-stretch flex-column flex-md-row overflow-y-auto">
+        <div class="d-flex justify-content-stretch flex-column flex-md-row h-100 overflow-y-auto">
             <div
                 v-if="showElevationProfile"
                 key="profile-detail"
@@ -92,8 +109,8 @@ onUnmounted(() => {
                             :key="index"
                             class="btn btn-sm text-nowrap"
                             :class="{
-                                'btn-secondary': index === currentFeatureSegmentIndex,
-                                'btn-light': index !== currentFeatureSegmentIndex,
+                                'btn-secondary': index === currentFeatureGeometryIndex,
+                                'btn-light': index !== currentFeatureGeometryIndex,
                             }"
                             :data-cy="`profile-segment-button-${index}`"
                             @click="setCurrentSegmentIndex(index)"
@@ -111,7 +128,7 @@ onUnmounted(() => {
                 >
                     <GeoadminElevationProfileCesiumBridge
                         v-if="is3dActive && getCesiumViewer()"
-                        :cesium-instance="getCesiumViewer()"
+                        :cesium-instance="getCesiumViewer()!"
                     />
                     <GeoadminElevationProfileOpenLayersBridge
                         v-else-if="olMap"
