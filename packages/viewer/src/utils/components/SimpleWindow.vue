@@ -1,8 +1,8 @@
 <script setup lang="js">
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
+import useUiStore from '@/store/modules/ui.store'
 import PrintButton from '@/utils/components/PrintButton.vue'
 import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
 
@@ -53,10 +53,10 @@ const { title, hide, movable, resizeable, allowPrint, initialPosition, wide, sma
         },
     })
 
-const store = useStore()
+const uiStore = useUiStore()
 
 const showBody = ref(true)
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
+const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
 
 const { t } = useI18n()
 

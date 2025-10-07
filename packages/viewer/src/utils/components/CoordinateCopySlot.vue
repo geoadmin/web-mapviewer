@@ -4,8 +4,8 @@ import log from '@swissgeo/log'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
+import usePositionStore from '@/store/modules/position.store'
 import { CoordinateFormat } from '@/utils/coordinates/coordinateFormat.js'
 
 const { identifier, value, extraValue, resetDelay, coordinateFormat, coordinateProjection } =
@@ -38,9 +38,9 @@ const { identifier, value, extraValue, resetDelay, coordinateFormat, coordinateP
 
 const copied = ref(false)
 
-const store = useStore()
+const positionStore = usePositionStore()
 const { t } = useI18n()
-const projection = computed(() => coordinateProjection ?? store.state.position.projection)
+const projection = computed(() => coordinateProjection ?? positionStore.projection)
 const copyButtonText = computed(() => t(copied.value ? 'copy_done' : 'copy_cta'))
 
 const buttonIcon = computed(() => {
