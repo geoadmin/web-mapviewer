@@ -1,19 +1,18 @@
-<script setup lang="js">
+<script setup lang="ts">
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { TextPlacement } from '@/utils/featureStyleUtils'
-import { ref } from 'vue'
 
-const { currentPlacement } = defineProps({
-    currentPlacement: {
-        type: String,
-        required: true,
-    },
-})
+const { currentPlacement } = defineProps<{
+    currentPlacement: TextPlacement
+}>()
 
-const emit = defineEmits(['change'])
+const emit = defineEmits<{
+    (e: 'change', placement: TextPlacement): void
+}>()
 
-const allStylingTextPlacements = ref([
+const allStylingTextPlacements = ref<TextPlacement[]>([
     TextPlacement.Top,
     TextPlacement.TopLeft,
     TextPlacement.TopRight,
@@ -27,7 +26,7 @@ const allStylingTextPlacements = ref([
 
 const { t } = useI18n()
 
-const onPlacementSelect = (placement) => {
+const onPlacementSelect = (placement: TextPlacement): void => {
     emit('change', placement)
 }
 </script>
