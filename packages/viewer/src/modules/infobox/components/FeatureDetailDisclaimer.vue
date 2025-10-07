@@ -35,7 +35,6 @@ const { externalIframeHosts, title } = defineProps({
 
 const { t } = useI18n()
 
-// Pinia UI store
 const uiStore = useUiStore()
 const { showDisclaimer } = storeToRefs(uiStore)
 

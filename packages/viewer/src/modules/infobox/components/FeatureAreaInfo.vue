@@ -4,35 +4,33 @@ import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, type ComputedRef, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
-import type { Polygon } from 'geojson'
 
 import { computePolygonPerimeterArea } from '@/utils/geodesicManager'
 import { reprojectGeoJsonGeometry } from '@/utils/geoJsonUtils'
 import usePositionStore from '@/store/modules/position.store'
+import type { Geometry, Polygon } from 'geojson'
 
 const { geometry } = defineProps({
     geometry: {
-        type: Object as PropType<Polygon>,
+        type: Object as PropType<Geometry>,
         required: true,
-        validator: (value: Polygon) => value?.type === 'Polygon',
     },
 })
 
 const { t } = useI18n()
 
-// Pinia store
 const positionStore = usePositionStore()
 const { projection } = storeToRefs(positionStore)
 
-const geometryWgs84 = computed<Polygon>(() => {
+const geometryWgs84 = computed<Geometry>(() => {
     if (projection.value === WGS84) {
         return geometry
     }
-    return reprojectGeoJsonGeometry(geometry, WGS84, projection.value) as Polygon
+    return reprojectGeoJsonGeometry(geometry!, WGS84, projection.value)
 })
 
 const humanReadableArea: ComputedRef<string> = computed(() => {
-    const coords = geometryWgs84.value.coordinates[0]
+    const coords = (geometryWgs84.value as Polygon).coordinates[0]
     let result = ''
     if (!coords || coords?.length < 2) {
         return result

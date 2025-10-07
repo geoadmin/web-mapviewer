@@ -39,7 +39,9 @@ const calculateOffset = (point1: number[], point2: number[], distance: number) =
 
     // Normalize the vector
     const length = Math.sqrt(dx * dx + dy * dy)
-    if (length === 0) return [distance, -distance]
+    if (length === 0) {
+        return [distance, -distance]
+    }
 
     // Get unit vector in opposite direction
     const ux = -dx / length
