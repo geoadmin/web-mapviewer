@@ -241,6 +241,15 @@ export async function getKmlAdminIdFromRequest(req: CyHttpMessages.IncomingHttpR
     }
 }
 
+function isGzip(u8: Uint8Array): boolean {
+    return u8.length > 2 && u8[0] === 0x1f && u8[1] === 0x8b
+}
+function isZlib(u8: Uint8Array): boolean {
+    // Common zlib CMF values start with 0x78 (not perfect but good heuristic)
+    return u8.length > 2 && u8[0] === 0x78
+}
+
+
 export async function getKmlFromRequest(req: CyHttpMessages.IncomingHttpRequest) {
     let paramBlob: ArrayBuffer | string | null = null
     try {
@@ -278,13 +287,47 @@ export async function getKmlFromRequest(req: CyHttpMessages.IncomingHttpRequest)
         return
     }
     try {
-        const unzippedKml = new TextDecoder().decode(pako.ungzip(paramBlob))
+        const u8 = new Uint8Array(paramBlob)
+
+        let kmlBytes: Uint8Array
+        let compressionType: string
+        if (isGzip(u8)) {
+            kmlBytes = pako.ungzip(u8)
+            compressionType = 'gzip'
+        } else if (isZlib(u8)) {
+            // Try zlib; if that fails, attempt raw DEFLATE as fallback
+            try {
+                kmlBytes = pako.inflate(u8)
+                compressionType = 'zlib'
+            } catch {
+                kmlBytes = pako.inflateRaw(u8)
+                compressionType = 'raw DEFLATE'
+            }
+        } else {
+            // Assume plain UTF-8 KML
+            const unzippedKml = new TextDecoder().decode(u8)
+            Cypress.log({
+                name: 'getKMLRequest',
+                message: 'state of intercepted data (plain text)',
+                consoleProps() {
+                    return {
+                        url: `${req.url}`,
+                        compressionType: 'none',
+                        kml: unzippedKml,
+                        headers: `${JSON.stringify(req.headers, null, 2)}`,
+                    }
+                },
+            })
+            return unzippedKml
+        }
+        const unzippedKml = new TextDecoder().decode(kmlBytes)
         Cypress.log({
             name: 'getKMLRequest',
-            message: 'state of intercepted data',
+            message: `state of intercepted data (${compressionType})`,
             consoleProps() {
                 return {
                     url: `${req.url}`,
+                    compressionType: compressionType,
                     kml: unzippedKml,
                     headers: `${JSON.stringify(req.headers, null, 2)}`,
                 }
