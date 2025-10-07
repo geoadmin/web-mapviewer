@@ -1,6 +1,7 @@
+// TODO(IS): this file is not used anywhere, consider removing it
 // from https://gist.github.com/mudge/5830382#gistcomment-2691957
 
-type EventHandler = (...args: any[]) => void
+type EventHandler = (...args: unknown[]) => void
 
 /** Enables an instance of a class to emit its own events (and be listened to) */
 export default class EventEmitter {
@@ -22,19 +23,17 @@ export default class EventEmitter {
     }
 
     once(eventName: string, fn: EventHandler): void {
-        const onceFn = (...args: any[]) => {
+        const onceFn = (...args: unknown[]) => {
             this.removeListener(eventName, onceFn)
-            fn?.apply(this, args)
+            fn?.(...args)
         }
         this.on(eventName, onceFn)
     }
 
-    emit(eventName: string, ...args: any[]): void {
-        this._getEventListByName(eventName).forEach(
-            function (fn) {
-                fn?.apply(this, args)
-            }.bind(this)
-        )
+    emit(eventName: string, ...args: unknown[]): void {
+        this._getEventListByName(eventName).forEach((fn: EventHandler) => {
+            fn?.(...args)
+        })
     }
 
     removeListener(eventName: string, fn: EventHandler): void {
