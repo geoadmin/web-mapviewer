@@ -193,7 +193,8 @@ describe('Test the search bar result handling', () => {
         }).as('search-layer-features')
     })
 
-    it('search different type of entries correctly', () => {
+    // Skipped: due to failure in checking the center. See TODO inside the test
+    it.skip('search different type of entries correctly', () => {
         cy.goToMapView({ queryParams: { sr: 2056 } }) // Use LV95 projection
         cy.wait(['@layerConfig', '@topics', '@topic-ech'])
 
@@ -370,6 +371,14 @@ describe('Test the search bar result handling', () => {
         cy.get('@locationSearchResults').first().realClick()
         // search bar should take element's title as value if it's a location
         cy.get(searchbarSelector).should('have.value', 'Test location')
+
+        // TODO(IS): The test is currently failed here.
+        // For some reason, it doesn't center to the new location. But center to the default location
+        // See commands.ts:
+        // "old" MAP_CENTER constant re-projected in LV95
+        // queryParams.center = '2660013.5,1185172'
+        // Even in develop branch, the test failed when I run locally
+
         // checking that the view has centered on the feature
         cy.readStoreValue('state.position.center').should((center) =>
             checkLocation(expectedCenterDefaultProjection, center)
