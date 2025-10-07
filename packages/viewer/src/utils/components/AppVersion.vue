@@ -1,15 +1,15 @@
 <script setup lang="js">
 import { computed, ref } from 'vue'
-import { useStore } from 'vuex'
 
 import { APP_VERSION } from '@/config/staging.config'
 import { GITHUB_REPOSITORY } from '@/config/staging.config'
+import useUiStore from '@/store/modules/ui.store'
 
 const cleanAppVersionRegex = /v\d+\.\d+\.\d+$/
-const store = useStore()
+const uiStore = useUiStore()
 const appVersion = ref(APP_VERSION)
 
-const isProd = computed(() => store.getters.isProductionSite)
+const isProd = computed(() => uiStore.isProductionSite)
 
 function openGithubReleaseLink() {
     const isAppVersionClean = appVersion.value.match(cleanAppVersionRegex)
