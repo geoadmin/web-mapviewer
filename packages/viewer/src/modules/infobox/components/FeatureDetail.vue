@@ -22,7 +22,6 @@ const { feature } = defineProps<{
 
 const { t } = useI18n()
 
-// Pinia store
 const positionStore = usePositionStore()
 const { displayFormat } = storeToRefs(positionStore)
 

@@ -6,8 +6,6 @@ import type { MediaType } from '@/modules/infobox/DrawingStyleMediaTypes.enum'
 import TextInput from '@/utils/components/TextInput.vue'
 import { isValidUrl } from '@/utils/utils'
 
-// export type MediaType = 'link' | 'image' | 'video'
-
 const { mediaType, urlLabel, descriptionLabel } = defineProps<{
     mediaType: MediaType
     urlLabel: string
