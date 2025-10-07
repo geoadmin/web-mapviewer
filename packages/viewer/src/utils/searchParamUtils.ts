@@ -3,9 +3,9 @@
  * the router does not provide a way to remove a query without reloading the page which then removes
  * the value from the store.
  *
- * @param {Object} key The key to remove from the URL
+ * @param key The key to remove from the URL
  */
-export function removeQueryParamFromHref(key) {
+export function removeQueryParamFromHref(key: string): void {
     const [baseUrl, queryString] = window.location.href.split('?')
     if (!queryString) {
         return
