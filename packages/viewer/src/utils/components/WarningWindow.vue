@@ -1,7 +1,8 @@
 <script setup lang="js">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
+
+import useUiStore from '@/store/modules/ui.store'
 
 const { title, hide } = defineProps({
     title: {
@@ -18,12 +19,12 @@ const { title, hide } = defineProps({
     },
 })
 
-const store = useStore()
+const uiStore = useUiStore()
 
 const showBody = ref(true)
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
+const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
 
-const warningCount = computed(() => store.state.ui.warnings.size)
+const warningCount = computed(() => uiStore.warnings.size)
 
 const { t } = useI18n()
 
