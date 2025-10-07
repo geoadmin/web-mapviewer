@@ -1,50 +1,55 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { WGS84 } from '@swissgeo/coordinates'
 import GeoadminTooltip from '@swissgeo/tooltip'
-import { computed } from 'vue'
+import { computed, type ComputedRef, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
+import { storeToRefs } from 'pinia'
+import type { Polygon } from 'geojson'
 
 import { computePolygonPerimeterArea } from '@/utils/geodesicManager'
 import { reprojectGeoJsonGeometry } from '@/utils/geoJsonUtils'
+import usePositionStore from '@/store/modules/position.store'
 
 const { geometry } = defineProps({
     geometry: {
-        type: Object,
+        type: Object as PropType<Polygon>,
         required: true,
-        validator: (value) => value?.type === 'Polygon',
+        validator: (value: Polygon) => value?.type === 'Polygon',
     },
 })
 
 const { t } = useI18n()
-const store = useStore()
-const projection = computed(() => store.state.position.projection)
 
-const geometryWgs84 = computed(() => {
+// Pinia store
+const positionStore = usePositionStore()
+const { projection } = storeToRefs(positionStore)
+
+const geometryWgs84 = computed<Polygon>(() => {
     if (projection.value === WGS84) {
         return geometry
     }
-    return reprojectGeoJsonGeometry(geometry, WGS84, projection.value)
+    return reprojectGeoJsonGeometry(geometry, WGS84, projection.value) as Polygon
 })
 
-/** @type {ComputedRef<string>} */
-const humanReadableArea = computed(() => {
+const humanReadableArea: ComputedRef<string> = computed(() => {
     const coords = geometryWgs84.value.coordinates[0]
-    const res = computePolygonPerimeterArea(coords)
-    const calculatedArea = res.area
     let result = ''
+    if (!coords || coords?.length < 2) {
+        return result
+    }
+    const res = computePolygonPerimeterArea(coords)
+    if (!res || !('area' in res)) {
+        return result
+    }
+    const calculatedArea = res.area as number
     if (calculatedArea) {
         const unitThreshold = 1e5
         const divider = 1e6
         const precision = 5
 
         const value = calculatedArea < unitThreshold ? calculatedArea : calculatedArea / divider
-        result += parseFloat(value.toPrecision(precision))
-        if (calculatedArea < unitThreshold) {
-            result += ' m'
-        } else {
-            result += ' km'
-        }
+        result += parseFloat(value.toPrecision(precision)).toString()
+        result += calculatedArea < unitThreshold ? ' m' : ' km'
     }
     return result
 })

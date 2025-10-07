@@ -1,13 +1,14 @@
-<script setup lang="js">
+<script setup lang="ts">
 /** Tools necessary to edit a feature from the drawing module. */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import type { IconProp } from '@fortawesome/fontawesome-svg-core'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
+import { storeToRefs } from 'pinia'
 
-import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { EditableFeatureTypes } from '@/api/features.api'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import ShowGeometryProfileButton from '@/modules/infobox/components/ShowGeometryProfileButton.vue'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
@@ -17,41 +18,64 @@ import DrawingStylePositionSelector from '@/modules/infobox/components/styling/D
 import DrawingStylePopoverButton from '@/modules/infobox/components/styling/DrawingStylePopoverButton.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
-import MediaTypes from '@/modules/infobox/DrawingStyleMediaTypes.enum.js'
+import type { MediaType } from '@/modules/infobox/DrawingStyleMediaTypes.enum'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
-import allFormats from '@/utils/coordinates/coordinateFormat.js'
+import { allFormats, LV95Format } from '@/utils/coordinates/coordinateFormat'
 import debounce from '@/utils/debounce'
-import { calculateTextOffset } from '@/utils/featureStyleUtils'
+import {
+    calculateTextOffset,
+    TextPlacement,
+    type FeatureStyleColor,
+    type FeatureStyleSize,
+} from '@/utils/featureStyleUtils'
 
-const dispatcher = { dispatcher: 'FeatureStyleEdit.vue' }
+// Pinia stores (assumed)
+import useDrawingStore from '@/store/modules/drawing.store'
+import useFeatureStore from '@/store/modules/features.store'
+import { useI18nStore } from '@/store/modules/i18n.store'
+import type { DrawingIcon } from '@/api/icon.api'
 
-const { feature, readOnly } = defineProps({
-    feature: {
-        type: EditableFeature,
-        required: true,
-    },
-    readOnly: {
-        type: Boolean,
-        default: false,
-    },
+const dispatcher = { name: 'FeatureStyleEdit.vue' }
+
+type Props = {
+    feature: any
+    readOnly?: boolean
+}
+
+const { feature, readOnly } = withDefaults(defineProps<Props>(), {
+    readOnly: false,
 })
 
 const { t } = useI18n()
 
-const title = ref(feature.title)
-const description = ref(feature.description)
-const showDescriptionOnMap = computed({
+// Pinia store instances
+const drawingStore = useDrawingStore()
+const featureStore = useFeatureStore()
+const i18nStore = useI18nStore()
+
+// const { iconSets } = storeToRefs(drawingStore)
+const displayedFormatId = ref(LV95Format.id)
+const { lang } = storeToRefs(i18nStore)
+
+const title = ref<string>(feature.title)
+const description = ref<string>(feature.description)
+const showDescriptionOnMap = computed<boolean>({
     get: () => !!feature.showDescriptionOnMap,
-    set: (value) => {
-        store.dispatch('changeFeatureShownDescriptionOnMap', {
-            feature: feature,
-            showDescriptionOnMap: value,
-            ...dispatcher,
-        })
+    set: (value: boolean) => {
+        featureStore.changeFeatureShownDescriptionOnMap(
+            {
+                feature: feature,
+                showDescriptionOnMap: value,
+            },
+            dispatcher
+        )
     },
 })
-const mediaPopovers = useTemplateRef('mediaPopovers')
-const isEditingText = computed(() => {
+
+type PopoverRef = { hidePopover: () => void }
+const mediaPopovers = useTemplateRef<PopoverRef[]>('mediaPopovers')
+
+const isEditingText = computed<boolean>(() => {
     const titleElement = document.getElementById('drawing-style-feature-title')
     const descriptionElement = document.getElementById('drawing-style-feature-description')
     return document.activeElement === titleElement || document.activeElement === descriptionElement
@@ -60,14 +84,14 @@ const isEditingText = computed(() => {
 // Update the UI when the feature changes
 watch(
     () => feature.title,
-    (newTitle) => {
+    (newTitle: string) => {
         title.value = newTitle
     }
 )
 
 watch(
     () => feature.description,
-    (newDescription) => {
+    (newDescription: string) => {
         description.value = newDescription
     }
 )
@@ -76,10 +100,10 @@ watch(
 // Put a debounce on the update of the feature so that we can compare with the current UI state
 // If the value is the same as in the UI, we can update the feature
 watch(title, () => {
-    debounceTitleUpdate(store)
+    debounceTitleUpdate()
 })
 watch(description, () => {
-    debounceDescriptionUpdate(store)
+    debounceDescriptionUpdate()
 })
 
 onMounted(() => {
@@ -93,39 +117,46 @@ onBeforeUnmount(() => {
 // Here we need to declare the debounce method globally otherwise it does not work (it is based
 // on closure which will not work if the debounce method is defined in a watcher)
 // The title debounce needs to be quick in order to be displayed on the map
-const debounceTitleUpdate = debounce(updateFeatureTitle, 100)
-// The description don't need a quick debounce as it is not displayed on the map
-const debounceDescriptionUpdate = debounce(updateFeatureDescription, 300)
-
-function handleKeydown(event) {
-    if (event.key === 'Delete' && !isEditingText.value) {
-        onDelete()
-    }
-}
-
-function updateFeatureTitle() {
-    store.dispatch('changeFeatureTitle', {
-        feature: feature,
-        title: title.value.trim(),
-        ...dispatcher,
-    })
+function updateFeatureTitle(): void {
+    featureStore.changeFeatureTitle(
+        {
+            feature: feature,
+            title: title.value.trim(),
+        },
+        dispatcher
+    )
     // Update the text offset if the feature is a marker
     if (feature.featureType === EditableFeatureTypes.Marker) {
         updateTextOffset()
     }
 }
 
-function updateFeatureDescription() {
-    store.dispatch('changeFeatureDescription', {
-        feature: feature,
-        description: description.value,
-        showDescriptionOnMap: showDescriptionOnMap.value,
-        ...dispatcher,
-    })
+// The description don't need a quick debounce as it is not displayed on the map
+function updateFeatureDescription(): void {
+    featureStore.changeFeatureDescription(
+        {
+            feature: feature,
+            description: description.value,
+        },
+        dispatcher
+    )
+}
+
+type DebouncedFn = (...args: any[]) => void
+const debounceTitleUpdate: DebouncedFn = debounce(updateFeatureTitle, 100) as DebouncedFn
+const debounceDescriptionUpdate: DebouncedFn = debounce(
+    updateFeatureDescription,
+    300
+) as DebouncedFn
+
+function handleKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Delete' && !isEditingText.value) {
+        onDelete()
+    }
 }
 
 const coordinateFormat = computed(() => {
-    return allFormats.find((format) => format.id === store.state.position.displayedFormatId) ?? null
+    return allFormats.find((format: any) => format.id === displayedFormatId.value) ?? null
 })
 
 /**
@@ -133,52 +164,55 @@ const coordinateFormat = computed(() => {
  * and last point are both existing in the same exact space. A point would be length 2, a line would
  * be length 3. We do not consider the case where there are more than 3 points, but all in a single
  * line.
- *
- * @type {ComputedRef<Boolean>}
  */
-const isFeatureMarker = computed(() => feature.featureType === EditableFeatureTypes.Marker)
-const isFeatureText = computed(() => feature.featureType === EditableFeatureTypes.Annotation)
-const isFeatureLinePolygon = computed(
+const isFeatureMarker = computed<boolean>(() => feature.featureType === EditableFeatureTypes.Marker)
+const isFeatureText = computed<boolean>(
+    () => feature.featureType === EditableFeatureTypes.Annotation
+)
+const isFeatureLinePolygon = computed<boolean>(
     () => feature.featureType === EditableFeatureTypes.LinePolygon
 )
-const isFeatureMeasure = computed(() => feature.featureType === EditableFeatureTypes.Measure)
-const isLine = computed(() => feature.geometry.type === 'LineString')
+const isFeatureMeasure = computed<boolean>(
+    () => feature.featureType === EditableFeatureTypes.Measure
+)
+const isLine = computed<boolean>(() => feature.geometry.type === 'LineString')
 
-const store = useStore()
-const availableIconSets = computed(() => store.state.drawing.iconSets)
-const currentLang = computed(() => store.state.i18n.lang)
+const availableIconSets = computed(() => drawingStore.iconSets)
+const currentLang = computed(() => lang.value)
 
-function onTextSizeChange(textSize) {
-    store.dispatch('changeFeatureTextSize', { feature: feature, textSize, ...dispatcher })
+function onTextSizeChange(textSize: FeatureStyleSize): void {
+    featureStore.changeFeatureTextSize({ feature: feature, textSize }, dispatcher)
     updateTextOffset()
 }
-function onPlacementChange(textPlacement) {
-    store.dispatch('changeFeatureTextPlacement', {
-        feature: feature,
-        textPlacement,
-        ...dispatcher,
-    })
+function onPlacementChange(textPlacement: TextPlacement): void {
+    featureStore.changeFeatureTextPlacement(
+        {
+            feature: feature,
+            textPlacement,
+        },
+        dispatcher
+    )
     updateTextOffset()
 }
-function onTextColorChange(textColor) {
-    store.dispatch('changeFeatureTextColor', { feature: feature, textColor, ...dispatcher })
+function onTextColorChange(textColor: FeatureStyleColor): void {
+    featureStore.changeFeatureTextColor({ feature: feature, textColor }, dispatcher)
 }
-function onColorChange(color) {
-    store.dispatch('changeFeatureColor', { feature: feature, color, ...dispatcher })
+function onColorChange(color: FeatureStyleColor): void {
+    featureStore.changeFeatureColor({ feature: feature, color }, dispatcher)
 }
-function onIconChange(icon) {
-    store.dispatch('changeFeatureIcon', { feature: feature, icon, ...dispatcher })
+function onIconChange(icon: DrawingIcon): void {
+    featureStore.changeFeatureIcon({ feature: feature, icon }, dispatcher)
     updateTextOffset()
 }
-function onIconSizeChange(iconSize) {
-    store.dispatch('changeFeatureIconSize', { feature: feature, iconSize, ...dispatcher })
+function onIconSizeChange(iconSize: FeatureStyleSize): void {
+    featureStore.changeFeatureIconSize({ feature: feature, iconSize }, dispatcher)
     updateTextOffset()
 }
-function onDelete() {
-    store.dispatch('deleteDrawingFeature', { featureId: feature.id, ...dispatcher })
+function onDelete(): void {
+    drawingStore.deleteDrawingFeature(feature.id, dispatcher)
 }
-function onAddMediaLink(mediaPopoverIndex, descriptionMediaLink) {
-    mediaPopovers.value[mediaPopoverIndex].hidePopover()
+function onAddMediaLink(mediaPopoverIndex: number, descriptionMediaLink?: string | null): void {
+    mediaPopovers.value?.[mediaPopoverIndex]?.hidePopover()
     // Prevent 'undefined' to be added to the description
     if (descriptionMediaLink && typeof descriptionMediaLink === 'string') {
         if (description.value) {
@@ -189,7 +223,7 @@ function onAddMediaLink(mediaPopoverIndex, descriptionMediaLink) {
     }
 }
 
-function updateTextOffset() {
+function updateTextOffset(): void {
     if (isFeatureMarker.value) {
         const offset = calculateTextOffset(
             feature.textSize.textScale,
@@ -200,31 +234,39 @@ function updateTextOffset() {
             title.value
         )
 
-        store.dispatch('changeFeatureTextOffset', {
-            feature: feature,
-            textOffset: offset,
-            ...dispatcher,
-        })
+        featureStore.changeFeatureTextOffset(
+            {
+                feature: feature,
+                textOffset: offset,
+            },
+            dispatcher
+        )
     }
 }
 
-function mediaTypes() {
+type MediaButton = {
+    type: MediaType
+    buttonClassOptions: string
+    icon: IconProp
+    extraUrlDescription?: string
+}
+function mediaTypes(): MediaButton[] {
     return [
         {
-            type: MediaTypes.link,
+            type: 'link' as MediaType,
             buttonClassOptions: 'rounded-0 rounded-top-2 rounded-end-0',
-            icon: 'fa-link',
+            icon: 'fa-link' as IconProp,
             extraUrlDescription: 'text_to_display',
         },
         {
-            type: MediaTypes.image,
+            type: 'image' as MediaType,
             buttonClassOptions: 'rounded-0',
-            icon: 'fa-image',
+            icon: 'fa-image' as IconProp,
         },
         {
-            type: MediaTypes.video,
+            type: 'video' as MediaType,
             buttonClassOptions: 'rounded-0 rounded-top-2 rounded-start-0',
-            icon: 'fa-film',
+            icon: 'fa-film' as IconProp,
         },
     ]
 }
@@ -296,10 +338,10 @@ function mediaTypes() {
                                 ref="mediaPopovers"
                                 :data-cy="`drawing-style-${media.type}-button`"
                                 :button-class-options="media.buttonClassOptions"
-                                :icon="media.icon"
+                                :icon="media.icon as string"
                             >
                                 <DrawingStyleMediaLink
-                                    :media-type="media.type"
+                                    :media-type="media.type as MediaType"
                                     :url-label="`url_${media.type}`"
                                     :description-label="
                                         media.extraUrlDescription ? media.extraUrlDescription : ''

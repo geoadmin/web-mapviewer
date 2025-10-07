@@ -6,8 +6,8 @@ import type { EditableFeature } from '@/api/features.api'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIcon from '@/modules/infobox/components/styling/DrawingStyleIcon.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
-import DropdownButton from '@/utils/components/DropdownButton.vue'
-import type { DrawingIconSet } from '@/api/icon.api'
+import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
+import type { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
 import type { FeatureStyleColor, FeatureStyleSize } from '@/utils/featureStyleUtils'
 
 const { feature, iconSets, currentLang } = defineProps<{
@@ -19,7 +19,7 @@ const { feature, iconSets, currentLang } = defineProps<{
 const emits = defineEmits<{
     change: [void]
     changeIconSize: [size: FeatureStyleSize]
-    changeIcon: []
+    changeIcon: [icon: DrawingIcon]
     changeIconColor: [color: FeatureStyleColor]
 }>()
 
@@ -37,7 +37,7 @@ const currentIconSetName = computed(() => {
     }
     return ''
 })
-/** @returns {DropdownItem[]} */
+
 const iconSetDropdownItems = computed(() => {
     return iconSets.map((iconSet) => {
         return {
@@ -63,16 +63,16 @@ function toggleShowAllSymbols() {
 }
 
 function onCurrentIconColorChange(color: FeatureStyleColor) {
-    emits('change:iconColor', color)
+    emits('changeIconColor', color)
     emits('change')
 }
 
 function onCurrentIconSizeChange(size: FeatureStyleSize) {
-    emits('change:iconSize', size)
+    emits('changeIconSize', size)
     emits('change')
 }
 
-function changeDisplayedIconSet(dropdownItem) {
+function changeDisplayedIconSet(dropdownItem: DropdownItem<DrawingIconSet>) {
     currentIconSet.value = dropdownItem.value
 }
 
@@ -86,9 +86,9 @@ function onImageLoad() {
     }
 }
 
-function onCurrentIconChange(icon) {
+function onCurrentIconChange(icon: DrawingIcon) {
     showAllSymbols.value = true
-    emits('change:icon', icon)
+    emits('changeIcon', icon)
     emits('change')
 }
 </script>
