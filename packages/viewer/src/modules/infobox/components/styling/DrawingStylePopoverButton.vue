@@ -1,32 +1,27 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import GeoadminTooltip from '@swissgeo/tooltip'
-import { useTemplateRef } from 'vue'
+import { useTemplateRef, computed } from 'vue'
 
-const { icon, popoverTitle, buttonClassOptions } = defineProps({
+type Props = {
     /** The button should have either a title or icons (or both) */
-    icon: {
-        type: String,
-        default: 'pen',
-    },
-    popoverTitle: {
-        type: String,
-        default: null,
-    },
-    buttonClassOptions: {
-        type: String,
-        default: null,
-    },
-})
-
-const tooltipElement = useTemplateRef('tooltipElement')
-
-/** Hides the popover container, can be called outside (by this component's parent) */
-function hidePopover() {
-    tooltipElement.value.closeTooltip()
+    icon?: string
+    popoverTitle?: string | null
+    buttonClassOptions?: string | null
 }
 
-defineExpose({ hidePopover })
+const { icon, popoverTitle, buttonClassOptions } = defineProps<Props>()
+const iconValue = computed<string>(() => icon ?? 'pen')
+
+type TooltipRef = { closeTooltip: () => void } | null
+const tooltipElement = useTemplateRef<TooltipRef>('tooltipElement')
+
+/** Hides the popover container, can be called outside (by this component's parent) */
+function hidePopover(): void {
+    tooltipElement.value?.closeTooltip?.()
+}
+
+defineExpose<{ hidePopover: () => void }>({ hidePopover })
 </script>
 
 <template>
@@ -38,13 +33,14 @@ defineExpose({ hidePopover })
         >
             <button
                 ref="popoverButton"
-                class="btn btn-sm btn-light h-100 d-flex align-items-center"
+                class="btn btn-sm btn-light d-flex align-items-center h-100"
                 :class="[buttonClassOptions ? buttonClassOptions : '']"
             >
-                <FontAwesomeIcon :icon="icon" />
+                <FontAwesomeIcon :icon="iconValue" />
             </button>
             <template #content>
                 <div
+                    :icon="iconValue"
                     ref="popoverContent"
                     class="card border-0"
                     data-cy="drawing-style-popover"
