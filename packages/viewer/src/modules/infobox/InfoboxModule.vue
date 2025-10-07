@@ -11,7 +11,6 @@ import PrintButton from '@/utils/components/PrintButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 
-// Pinia stores
 import useFeaturesStore from '@/store/modules/features.store'
 import useDrawingStore from '@/store/modules/drawing.store'
 import useUiStore from '@/store/modules/ui.store'
@@ -61,7 +60,9 @@ const title = computed(() => {
 })
 
 watch(selectedFeatures, (features) => {
-    if (!features || features.length === 0) return
+    if (!features || features.length === 0) {
+        return
+    }
     showContent.value = true
 })
 

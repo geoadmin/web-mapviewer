@@ -20,7 +20,7 @@ import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/Drawi
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
 import type { MediaType } from '@/modules/infobox/DrawingStyleMediaTypes.enum'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
-import { allFormats, LV95Format } from '@/utils/coordinates/coordinateFormat'
+import { allFormats, LV95Format, type CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 import debounce from '@/utils/debounce'
 import {
     calculateTextOffset,
@@ -29,7 +29,6 @@ import {
     type FeatureStyleSize,
 } from '@/utils/featureStyleUtils'
 
-// Pinia stores (assumed)
 import useDrawingStore from '@/store/modules/drawing.store'
 import useFeatureStore from '@/store/modules/features.store'
 import { useI18nStore } from '@/store/modules/i18n.store'
@@ -48,12 +47,10 @@ const { feature, readOnly } = withDefaults(defineProps<Props>(), {
 
 const { t } = useI18n()
 
-// Pinia store instances
 const drawingStore = useDrawingStore()
 const featureStore = useFeatureStore()
 const i18nStore = useI18nStore()
 
-// const { iconSets } = storeToRefs(drawingStore)
 const displayedFormatId = ref(LV95Format.id)
 const { lang } = storeToRefs(i18nStore)
 
@@ -142,12 +139,9 @@ function updateFeatureDescription(): void {
     )
 }
 
-type DebouncedFn = (...args: any[]) => void
-const debounceTitleUpdate: DebouncedFn = debounce(updateFeatureTitle, 100) as DebouncedFn
-const debounceDescriptionUpdate: DebouncedFn = debounce(
-    updateFeatureDescription,
-    300
-) as DebouncedFn
+type DebouncedFn = (...args: unknown[]) => void
+const debounceTitleUpdate: DebouncedFn = debounce(updateFeatureTitle, 100)
+const debounceDescriptionUpdate: DebouncedFn = debounce(updateFeatureDescription, 300)
 
 function handleKeydown(event: KeyboardEvent): void {
     if (event.key === 'Delete' && !isEditingText.value) {
@@ -156,7 +150,9 @@ function handleKeydown(event: KeyboardEvent): void {
 }
 
 const coordinateFormat = computed(() => {
-    return allFormats.find((format: any) => format.id === displayedFormatId.value) ?? null
+    return (
+        allFormats.find((format: CoordinateFormat) => format.id === displayedFormatId.value) ?? null
+    )
 })
 
 /**

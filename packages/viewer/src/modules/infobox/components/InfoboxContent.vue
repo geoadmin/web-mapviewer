@@ -12,7 +12,6 @@ import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 import { generateFilename } from '@/utils/utils'
 
-// Pinia stores
 import useFeaturesStore from '@/store/modules/features.store'
 import useDrawingStore from '@/store/modules/drawing.store'
 import usePositionStore from '@/store/modules/position.store'
@@ -71,7 +70,9 @@ const currentGeometryElements = computed(() => {
 const showElevationProfile = computed(() => !!profileStore.feature)
 
 watch(selectedFeatures, (features) => {
-    if (!features || features.length === 0) return
+    if (!features || features.length === 0) {
+        return
+    }
     nextTick(() => content.value?.scrollTo(0, 0))
 })
 
