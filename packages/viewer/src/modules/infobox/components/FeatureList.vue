@@ -5,19 +5,13 @@ import { storeToRefs } from 'pinia'
 
 import FeatureListCategory from '@/modules/infobox/components/FeatureListCategory.vue'
 
-// Pinia stores
 import useLayersStore from '@/store/modules/layers.store'
 import { useI18nStore } from '@/store/modules/i18n.store'
 import useDrawingStore from '@/store/modules/drawing.store'
 import useFeaturesStore from '@/store/modules/features.store'
 import useMapStore from '@/store/modules/map.store'
 import useUiStore from '@/store/modules/ui.store'
-import type {
-    ExternalWMSLayer,
-    GeoAdminGroupOfLayers,
-    GeoAdminLayer,
-    Layer,
-} from '@swissgeo/layers'
+import type { GeoAdminGroupOfLayers, GeoAdminLayer, Layer } from '@swissgeo/layers'
 
 const dispatcher = { name: 'FeatureList.vue' }
 
@@ -78,8 +72,9 @@ function getLayerName(layerId: string): string {
         (featuresForLayer: any) => featuresForLayer.layerId === layerId
     )?.features?.[0]?.layer?.name
 
-    if (layerNameFromFeatures) return layerNameFromFeatures
-
+    if (layerNameFromFeatures) {
+        return layerNameFromFeatures
+    }
     // fallback on active layers
     return activeLayers.value
         .filter(
