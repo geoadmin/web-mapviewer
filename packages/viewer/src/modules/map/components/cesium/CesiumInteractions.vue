@@ -396,7 +396,7 @@ function onMouseMove(event: ScreenSpaceEventHandler.MotionEvent): void {
 
 const viewerForDrag = getViewer?.()
 if (viewerForDrag) {
-    useDragFileOverlay(viewerForDrag.container)
+    useDragFileOverlay(viewerForDrag.container as HTMLElement)
 }
 </script>
 

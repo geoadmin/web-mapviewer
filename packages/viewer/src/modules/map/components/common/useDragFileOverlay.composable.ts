@@ -1,54 +1,45 @@
 import log from '@swissgeo/log'
 import { onBeforeUnmount, onMounted } from 'vue'
-import { useStore } from 'vuex'
 
 import useImportFile from '@/modules/menu/components/advancedTools/ImportFile/useImportFile.composable'
+import useUiStore from '@/store/modules/ui.store'
 
 const dispatcher = {
-    dispatcher: 'useDragFileOverlay.composable',
+    name: 'useDragFileOverlay.composable',
 }
 
-/**
- * Adds file drag&drop capabilities to the map element. Can be used for both OL and Cesium (no
- * framework-specific code here).
- *
- * @param {Element} mapHtmlElement
- */
-export default function useDragFileOverlay(mapHtmlElement) {
+export default function useDragFileOverlay(mapHtmlElement: HTMLElement) {
     const { handleFileSource } = useImportFile()
-    const store = useStore()
+    const uiStore = useUiStore()
 
-    function onDragOver(event) {
+    function onDragOver(event: DragEvent) {
         event.preventDefault()
-        store.dispatch('setShowDragAndDropOverlay', { showDragAndDropOverlay: true, ...dispatcher })
+        uiStore.setShowDragAndDropOverlay(true, dispatcher)
     }
 
-    function onDrop(event) {
+    function onDrop(event: DragEvent) {
         event.preventDefault()
-        store.dispatch('setShowDragAndDropOverlay', {
-            showDragAndDropOverlay: false,
-            ...dispatcher,
-        })
+        uiStore.setShowDragAndDropOverlay(false, dispatcher)
 
-        if (event.dataTransfer.items) {
-            for (/** @type {DataTransferItem} */ const item of event.dataTransfer.items) {
-                // If dropped items aren't files, reject them
+        if (event.dataTransfer?.items) {
+            for (const item of event.dataTransfer.items) {
                 if (item.kind === 'file') {
-                    handleFileSource(item.getAsFile())
+                    handleFileSource(item.getAsFile()!).catch((error) => {
+                        log.error('Error while handling dropped file', error, dispatcher)
+                    })
                 }
             }
-        } else {
-            for (/** @type {File} */ const file of event.dataTransfer.files) {
-                handleFileSource(file)
+        } else if (event.dataTransfer?.files) {
+            for (const file of event.dataTransfer.files) {
+                handleFileSource(file).catch((error) => {
+                    log.error('Error while handling dropped file', error, dispatcher)
+                })
             }
         }
     }
 
     function onDragLeave() {
-        store.dispatch('setShowDragAndDropOverlay', {
-            showDragAndDropOverlay: false,
-            ...dispatcher,
-        })
+        uiStore.setShowDragAndDropOverlay(false, dispatcher)
     }
 
     function registerDragAndDropEvent() {
