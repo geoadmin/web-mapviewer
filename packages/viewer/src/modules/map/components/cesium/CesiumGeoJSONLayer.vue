@@ -1,55 +1,55 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { LV03, LV95, WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
-import { GeoJsonDataSource } from 'cesium'
+import { GeoJsonDataSource, type Viewer } from 'cesium'
 import { cloneDeep } from 'lodash'
 import { reproject } from 'reproject'
 import { computed, inject, toRef } from 'vue'
 
-import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import { setEntityStyle } from '@/modules/map/components/cesium/utils/geoJsonStyleConverter'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
+import type { GeoAdminGeoJSONLayer } from '@swissgeo/layers'
 
-const { geoJsonConfig } = defineProps({
-    geoJsonConfig: {
-        type: GeoAdminGeoJsonLayer,
-        required: true,
-    },
-})
+const { geoJsonConfig } = defineProps<{ geoJsonConfig: GeoAdminGeoJSONLayer }>()
 
-const getViewer = inject('getViewer')
-const viewer = getViewer()
+const getViewer = inject<() => Viewer | undefined>('getViewer')
+const viewer = getViewer?.()
 
 const layerId = computed(() => geoJsonConfig.id)
 const geoJsonData = computed(() => geoJsonConfig.geoJsonData)
 const geoJsonStyle = computed(() => geoJsonConfig.geoJsonStyle)
 const opacity = computed(() => geoJsonConfig.opacity)
 
-/** @returns {Promise<GeoJsonDataSource>} */
-async function createSource() {
+async function createSource(): Promise<GeoJsonDataSource> {
     let geoJsonDataInMercator = geoJsonConfig.geoJsonData
-    if ([LV95.epsg, LV03.epsg].includes(geoJsonData.value?.crs?.properties?.name)) {
+    const crsName: string | undefined = (geoJsonData.value as any).crs?.properties?.name
+    if (crsName && [LV95.epsg, LV03.epsg].includes(crsName)) {
         log.debug(`[Cesium] GeoJSON ${layerId.value} is not expressed in WGS84, reprojecting it`)
-        const reprojectedData = reproject(
-            cloneDeep(geoJsonData.value),
-            geoJsonData.value.crs.properties.name,
+        const reprojectedData: any = reproject(
+            cloneDeep(geoJsonData.value as any),
+            crsName as string,
             WGS84.epsg
         )
-        delete reprojectedData.crs
+        if (reprojectedData && typeof reprojectedData === 'object') {
+            delete reprojectedData.crs
+        }
         geoJsonDataInMercator = reprojectedData
     }
     try {
         return await GeoJsonDataSource.load(geoJsonDataInMercator)
-    } catch (error) {
-        log.error(`[Cesium] Error while parsing GeoJSON data for layer ${layerId.value}`, error)
+    } catch (error: unknown) {
+        log.error(
+            `[Cesium] Error while parsing GeoJSON data for layer ${layerId.value}`,
+            error as string
+        )
         throw error
     }
 }
 
 useAddDataSourceLayer(
-    viewer,
+    viewer!,
     createSource(),
-    (entity, opacity) => setEntityStyle(entity, geoJsonStyle.value, opacity),
+    (entity, opacity) => setEntityStyle(entity, geoJsonStyle.value!, opacity),
     toRef(opacity),
     toRef(layerId)
 )

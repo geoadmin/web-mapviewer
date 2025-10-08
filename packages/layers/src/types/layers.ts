@@ -1,12 +1,12 @@
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
+import type { Options } from 'ol/source/WMTS'
 
 import { CoordinateSystem } from '@swissgeo/coordinates'
-import type { Options } from 'ol/source/WMTS'
 import { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 
-import type { LayerTimeConfig } from '@/types/timeConfig'
 import type { WMSRequestCapabilities } from '@/types/capabilities'
 import type { GeoAdminGeoJSONStyleDefinition } from '@/types/geoJsonStyle'
+import type { LayerTimeConfig } from '@/types/timeConfig'
 
 export type * from '@/types/geoJsonStyle'
 
@@ -316,6 +316,11 @@ export interface KMLLayer extends Layer {
      */
     // actually a Map, but I'm getting a compilation error here
     linkFiles?: Record<string, ArrayBuffer>
+    /**
+     * KMZ content as ArrayBuffer. This is used to load the KMZ in the 3D viewer (Cesium), so that it
+     * is able to link all the files inside the KMZ archive.
+     */
+    kmzContent?: ArrayBuffer
 }
 
 export interface GPXLink {

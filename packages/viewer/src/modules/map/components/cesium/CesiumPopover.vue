@@ -1,43 +1,29 @@
-<script setup lang="js">
+<script setup lang="ts">
 /**
  * Places a popover on the cesium viewer at the given position (coordinates) and with the slot as
  * the content of the popover
  */
 
+import type { SingleCoordinate } from '@swissgeo/coordinates'
 import { CoordinateSystem, WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
-import { Cartesian3, Cartographic, defined, Ellipsoid, SceneTransforms } from 'cesium'
+import { Cartesian3, Cartographic, defined, Ellipsoid, SceneTransforms, type Viewer } from 'cesium'
 import proj4 from 'proj4'
 import { computed, inject, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 
 import MapPopover from '@/modules/map/components/MapPopover.vue'
 
-const { coordinates, projection, authorizePrint, title, useContentPadding } = defineProps({
-    coordinates: {
-        type: Array,
-        required: true,
-    },
-    projection: {
-        type: CoordinateSystem,
-        required: true,
-    },
-    authorizePrint: {
-        type: Boolean,
-        default: false,
-    },
-    title: {
-        type: String,
-        default: '',
-    },
-    useContentPadding: {
-        type: Boolean,
-        default: false,
-    },
-})
+const { coordinates, projection, authorizePrint, title, useContentPadding } = defineProps<{
+    coordinates: SingleCoordinate
+    projection: CoordinateSystem
+    authorizePrint?: boolean
+    title?: string
+    useContentPadding?: boolean
+}>()
 
 const emits = defineEmits(['close'])
 
-const getViewer = inject('getViewer')
+const getViewer = inject<() => Viewer | undefined>('getViewer')
 
 // Cesium will create an instance of Cartesian3 or Cartographic each time a calculation is made if
 // we do not provide one, so here we declare two "buffer" instances that will be used throughout this component
@@ -50,12 +36,12 @@ const anchorPosition = ref({
     top: 0,
     left: 0,
 })
-const coordinatesHeight = ref(null)
+const coordinatesHeight = ref<number | undefined>(undefined)
 
 const wgs84Coordinates = computed(() => proj4(projection.epsg, WGS84.epsg, coordinates))
 
 onMounted(() => {
-    const viewer = getViewer()
+    const viewer = getViewer?.()
     if (viewer) {
         // By default, the `camera.changed` event will trigger when the camera has changed by 50%
         // To make it more sensitive (and improve tooltip "tracking" on the map), we set down sensitivity to 0.1%
@@ -77,7 +63,7 @@ onMounted(() => {
     }
 })
 onUnmounted(() => {
-    const viewer = getViewer()
+    const viewer = getViewer?.()
     if (viewer) {
         viewer.camera.changed.removeEventListener(updatePosition)
         viewer.scene.globe.tileLoadProgressEvent.removeEventListener(onTileLoadProgress)
@@ -98,33 +84,39 @@ watch(
  * Grabs the height on the terrain (no backend request) for the given coordinates, and stores it in
  * this.coordinatesHeight
  */
-function updateCoordinateHeight() {
-    coordinatesHeight.value = getViewer()?.scene.globe.getHeight(
-        Cartographic.fromDegrees(
-            wgs84Coordinates.value[0],
-            wgs84Coordinates.value[1],
-            0,
-            tempCartographic
-        )
-    )
+function updateCoordinateHeight(): void {
+    const viewer = getViewer?.()
+    coordinatesHeight.value =
+        viewer?.scene.globe.getHeight(
+            Cartographic.fromDegrees(
+                wgs84Coordinates.value[0],
+                wgs84Coordinates.value[1],
+                0,
+                tempCartographic
+            )
+        ) ?? 0
 }
 
-function updatePosition() {
+function updatePosition(): void {
     if (!coordinates?.length) {
         emits('close')
         return
     }
+    const viewer = getViewer?.()
+    if (!viewer) {
+        return
+    }
     const cartesianCoords = SceneTransforms.worldToWindowCoordinates(
-        getViewer().scene,
+        viewer.scene,
         Cartesian3.fromDegrees(
             wgs84Coordinates.value[0],
             wgs84Coordinates.value[1],
-            coordinatesHeight.value,
+            coordinatesHeight.value ?? 0,
             Ellipsoid.WGS84,
             tempCartesian3
         )
     )
-    if (defined(cartesianCoords) && popoverAnchor.value) {
+    if (defined(cartesianCoords) && popoverAnchor.value && popoverAnchor.value.width) {
         anchorPosition.value.left = cartesianCoords.x - popoverAnchor.value.width / 2
         // adding 15px to the top so that the tip of the arrow of the tooltip is on the edge
         // of the highlighting circle of the selected feature
@@ -132,16 +124,16 @@ function updatePosition() {
     }
 }
 
-function onTileLoadProgress() {
-    const viewer = getViewer()
+function onTileLoadProgress(): void {
+    const viewer = getViewer?.()
     // recalculating height and position as soon as all new terrain tiles are loaded (after camera movement, or at init)
-    if (viewer.scene.globe.tilesLoaded) {
+    if (viewer && viewer.scene.globe.tilesLoaded) {
         updateCoordinateHeight()
         updatePosition()
     }
 }
 
-function onClose() {
+function onClose(): void {
     emits('close')
 }
 </script>

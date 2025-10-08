@@ -1,12 +1,13 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { LV95, WGS84 } from '@swissgeo/coordinates'
-import log from '@swissgeo/log'
+import log, { type GeoadminLogInput } from '@swissgeo/log'
 import { wrapDegrees } from '@swissgeo/numbers'
-import { Cartesian2, Cartesian3, defined, Ellipsoid, Math as CesiumMath } from 'cesium'
+import { Cartesian2, Cartesian3, defined, Ellipsoid, Math as CesiumMath, type Viewer } from 'cesium'
 import { isEqual } from 'lodash'
 import proj4 from 'proj4'
 import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
-import { useStore } from 'vuex'
+import usePositionStore from '@/store/modules/position.store'
+import type { ActionDispatcher } from '@/store/types'
 
 import {
     CAMERA_MAX_PITCH,
@@ -20,27 +21,25 @@ import {
     limitCameraPitchRoll,
 } from '@/modules/map/components/cesium/utils/cameraUtils'
 
-const dispatcher = {
-    dispatcher: 'useCesiumCamera.composable',
-}
+const dispatcher: ActionDispatcher = { name: 'CesiumCamera.vue' }
 
-const getViewer = inject('getViewer')
+const getViewer = inject<() => Viewer | undefined>('getViewer')
 
-const store = useStore()
-const cameraPosition = computed(() => store.state.position.camera)
+const positionStore = usePositionStore()
+const cameraPosition = computed(() => positionStore.camera)
 
 onMounted(() => {
     initCamera()
 })
 onBeforeUnmount(() => {
-    const viewer = getViewer()
+    const viewer = getViewer?.()
     if (viewer) {
         // the camera position that is for now dispatched to the store doesn't correspond where the 2D
         // view is looking at, as if the camera is tilted, its position will be over swaths of lands that
         // have nothing to do with the top-down 2D view.
         // here we ray trace the coordinate of where the camera is looking at, and send this "target"
         // to the store as the new center
-        setCenterToCameraTarget(viewer, store)
+        setCenterToCameraTarget()
     }
 })
 
@@ -49,16 +48,17 @@ watch(cameraPosition, flyToPosition, {
     deep: true,
 })
 
-function flyToPosition() {
+function flyToPosition(): void {
     try {
-        if (getViewer()) {
+        const viewer = getViewer?.()
+        if (viewer && cameraPosition.value) {
             log.debug(
                 `[Cesium] Fly to camera position ${cameraPosition.value.x}, ${cameraPosition.value.y}, ${cameraPosition.value.z}`
             )
             log.debug(
                 `[Cesium] With heading, pitch, roll: ${cameraPosition.value.heading}, ${cameraPosition.value.pitch}, ${cameraPosition.value.roll}`
             )
-            getViewer().camera.flyTo({
+            viewer.camera.flyTo({
                 destination: Cartesian3.fromDegrees(
                     cameraPosition.value.x,
                     cameraPosition.value.y,
@@ -72,13 +72,17 @@ function flyToPosition() {
                 duration: 1,
             })
         }
-    } catch (error) {
-        log.error('[Cesium] Error while moving the camera', error, cameraPosition.value)
+    } catch (error: unknown) {
+        log.error(
+            '[Cesium] Error while moving the camera',
+            error as string,
+            cameraPosition.value as GeoadminLogInput
+        )
     }
 }
 
-function setCenterToCameraTarget() {
-    const viewer = getViewer()
+function setCenterToCameraTarget(): void {
+    const viewer = getViewer?.()
     if (!viewer) {
         return
     }
@@ -88,20 +92,20 @@ function setCenterToCameraTarget() {
             Math.round(viewer.scene.canvas.clientHeight / 2)
         )
     )
-    const cameraTarget = viewer.scene.globe.pick(ray, viewer.scene)
+    const cameraTarget = viewer.scene.globe.pick(ray!, viewer.scene)
     if (defined(cameraTarget)) {
         const cameraTargetCartographic = Ellipsoid.WGS84.cartesianToCartographic(cameraTarget)
         const lat = CesiumMath.toDegrees(cameraTargetCartographic.latitude)
         const lon = CesiumMath.toDegrees(cameraTargetCartographic.longitude)
-        store.dispatch('setCenter', {
-            center: proj4(WGS84.epsg, store.state.position.projection.epsg, [lon, lat]),
-            ...dispatcher,
-        })
+        positionStore.setCenter(
+            proj4(WGS84.epsg, positionStore.projection.epsg, [lon, lat]) as any,
+            dispatcher
+        )
     }
 }
 
-function onCameraMoveEnd() {
-    const viewer = getViewer()
+function onCameraMoveEnd(): void {
+    const viewer = getViewer?.()
     if (!viewer) {
         return
     }
@@ -117,15 +121,12 @@ function onCameraMoveEnd() {
         roll: wrapDegrees(parseFloat(CesiumMath.toDegrees(camera.roll).toFixed(0))),
     }
     if (!isEqual(newCameraPosition, cameraPosition.value)) {
-        store.dispatch('setCameraPosition', {
-            position: newCameraPosition,
-            ...dispatcher,
-        })
+        positionStore.setCameraPosition(newCameraPosition as any, dispatcher)
     }
 }
 
-function initCamera() {
-    const viewer = getViewer()
+function initCamera(): void {
+    let viewer = getViewer?.()
     let destination
     let orientation
     if (cameraPosition.value) {
@@ -145,36 +146,43 @@ function initCamera() {
         // no camera position was ever calculated, so we create one using the 2D coordinates
         log.debug(
             '[Cesium] No camera initial position defined, creating one using 2D coordinates',
-            store.getters.centerEpsg4326
+            positionStore.centerEpsg4326
         )
         destination = Cartesian3.fromDegrees(
-            store.getters.centerEpsg4326[0],
-            store.getters.centerEpsg4326[1],
-            calculateHeight(store.getters.resolution, viewer.canvas.clientWidth)
+            positionStore.centerEpsg4326[0],
+            positionStore.centerEpsg4326[1],
+            calculateHeight(positionStore.resolution, viewer?.canvas.clientWidth ?? 1024)
         )
         orientation = {
-            heading: -CesiumMath.toRadians(store.state.position.rotation),
+            heading: -CesiumMath.toRadians(positionStore.rotation),
             pitch: -CesiumMath.PI_OVER_TWO,
             roll: 0,
         }
     }
 
-    const sscController = viewer.scene.screenSpaceCameraController
+    if (!viewer) {
+        viewer = getViewer?.()
+        if (!viewer) {
+            return
+        }
+    }
+    const v = viewer!
+    const sscController = v.scene.screenSpaceCameraController
     sscController.minimumZoomDistance = CAMERA_MIN_ZOOM_DISTANCE
     sscController.maximumZoomDistance = CAMERA_MAX_ZOOM_DISTANCE
 
-    viewer.scene.postRender.addEventListener(limitCameraCenter(LV95.getBoundsAs(WGS84).flatten))
-    viewer.scene.postRender.addEventListener(
+    v.scene.postRender.addEventListener(limitCameraCenter(LV95.getBoundsAs(WGS84)!.flatten))
+    v.scene.postRender.addEventListener(
         limitCameraPitchRoll(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH, 0.0, 0.0)
     )
 
-    viewer.camera.flyTo({
+    v.camera.flyTo({
         destination,
         orientation,
         duration: 0,
     })
 
-    viewer.camera.moveEnd.addEventListener(onCameraMoveEnd)
+    v.camera.moveEnd.addEventListener(onCameraMoveEnd)
 }
 </script>
 

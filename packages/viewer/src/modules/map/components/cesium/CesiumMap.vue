@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 import '@geoblocks/cesium-compass'
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
@@ -19,7 +19,10 @@ import {
     useTemplateRef,
     watch,
 } from 'vue'
-import { useStore } from 'vuex'
+import useAppStore from '@/store/modules/app.store'
+import useCesiumStore from '@/store/modules/cesium.store'
+import usePositionStore from '@/store/modules/position.store'
+import useUIStore from '@/store/modules/ui.store'
 
 import { TERRAIN_URL } from '@/config/cesium.config'
 import { CESIUM_STATIC_PATH } from '@/config/map.config'
@@ -31,18 +34,25 @@ import CesiumHighlightedFeatures from '@/modules/map/components/cesium/CesiumHig
 import CesiumInteractions from '@/modules/map/components/cesium/CesiumInteractions.vue'
 import CesiumVisibleLayers from '@/modules/map/components/cesium/CesiumVisibleLayers.vue'
 
-const dispatcher = { dispatcher: 'CesiumMap.vue' }
+import type { ActionDispatcher } from '@/store/types'
+const dispatcher: ActionDispatcher = { name: 'CesiumMap.vue' }
 
-let viewer = null
+let viewer: Viewer | undefined
 
-const viewerElement = useTemplateRef('viewerElement')
-const compassElement = useTemplateRef('compassElement')
+const viewerElement = useTemplateRef<HTMLDivElement>('viewerElement')
+// CesiumCompass is not typed yet
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const compassElement = useTemplateRef<any>('compassElement')
 const viewerCreated = ref(false)
 
-const store = useStore()
-const projection = computed(() => store.state.position.projection)
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
-const isDesktopMode = computed(() => store.getters.isDesktopMode)
+const appStore = useAppStore()
+const cesiumStore = useCesiumStore()
+const positionStore = usePositionStore()
+const uiStore = useUIStore()
+
+const projection = computed(() => positionStore.projection)
+const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
+const isDesktopMode = computed(() => uiStore.isDesktopMode)
 const isProjectionWebMercator = computed(() => projection.value.epsg === WEBMERCATOR.epsg)
 
 watch(
@@ -65,7 +75,7 @@ watch(
 onBeforeMount(() => {
     // Global variable required for Cesium and point to the URL where four static directories (see vite.config) are served
     // https://cesium.com/learn/cesiumjs-learn/cesiumjs-quickstart/#install-with-npm
-    window['CESIUM_BASE_URL'] = CESIUM_STATIC_PATH
+    ;(window as any).CESIUM_BASE_URL = CESIUM_STATIC_PATH
 })
 onMounted(() => {
     if (isProjectionWebMercator.value) {
@@ -77,16 +87,16 @@ onMounted(() => {
 })
 onUnmounted(() => {
     if (viewer) {
-        store.dispatch('setCameraPosition', { position: null, ...dispatcher })
-        store.dispatch('setViewerReady', {
-            isViewerReady: false,
-            ...dispatcher,
-        })
+        positionStore.setCameraPosition(undefined, dispatcher)
+        cesiumStore.setViewerReady(false, dispatcher)
         viewer.destroy()
     }
 })
 
-async function createViewer() {
+async function createViewer(): Promise<void> {
+    if (!viewerElement.value) {
+        return
+    }
     viewer = new Viewer(viewerElement.value, {
         showRenderLoopErrors: hasDevSiteWarning.value,
         // de-activating default Cesium UI elements
@@ -138,15 +148,14 @@ async function createViewer() {
     viewerCreated.value = true
 
     if (IS_TESTING_WITH_CYPRESS) {
+        // expose for e2e tests
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         window.cesiumViewer = viewer
         // reduce screen space error to downgrade visual quality but speed up tests
         globe.maximumScreenSpaceError = 30
     }
-    await store.dispatch('mapModuleReady', dispatcher)
-    await store.dispatch('setViewerReady', {
-        isViewerReady: true,
-        ...dispatcher,
-    })
+    appStore.setMapModuleReady(dispatcher)
+    cesiumStore.setViewerReady(true, dispatcher)
 
     if (compassElement.value) {
         compassElement.value.scene = viewer.scene
@@ -155,7 +164,7 @@ async function createViewer() {
     log.info('[Cesium] CesiumMap component mounted and ready')
 }
 
-provide('getViewer', () => viewer)
+provide('getViewer', () => viewer ?? undefined)
 </script>
 
 <template>
@@ -175,7 +184,7 @@ provide('getViewer', () => viewer)
             <cesium-compass
                 v-show="isDesktopMode"
                 ref="compassElement"
-                class="position-absolute start-50 translate-middle-x cesium-compass"
+                class="position-absolute translate-middle-x cesium-compass start-50"
             />
         </template>
     </div>

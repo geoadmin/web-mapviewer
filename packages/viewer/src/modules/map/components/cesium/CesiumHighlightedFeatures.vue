@@ -1,11 +1,13 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { LineString, Point, Polygon } from 'ol/geom'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
+import useFeaturesStore from '@/store/modules/features.store'
+import useUIStore from '@/store/modules/ui.store'
 
-import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
+import { LayerType } from '@swissgeo/layers'
+import type { Viewer } from 'cesium'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
@@ -14,21 +16,27 @@ import {
     unhighlightGroup,
 } from '@/modules/map/components/cesium/utils/highlightUtils'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
-
-const dispatcher = {
-    dispatcher: 'CesiumHighlightedFeatures.vue',
-}
+import usePositionStore from '@/store/modules/position.store'
+import type { EditableFeature, LayerFeature } from '@/api/features.api'
+import useMapStore from '@/store/modules/map.store'
+import type { ActionDispatcher } from '@/store/types'
+import type { SingleCoordinate } from '@swissgeo/coordinates'
+const dispatcher: ActionDispatcher = { name: 'CesiumHighlightedFeatures.vue' }
 
 const { t } = useI18n()
 
-const popoverCoordinates = ref([])
+const popoverCoordinates = ref<number[] | number[][]>([])
 
-const getViewer = inject('getViewer')
+const getViewer = inject<() => Viewer | undefined>('getViewer')
 
-const store = useStore()
-const projection = computed(() => store.state.position.projection)
-const selectedFeatures = computed(() => store.getters.selectedFeatures)
-const isFeatureInfoInTooltip = computed(() => store.getters.showFeatureInfoInTooltip)
+const featuresStore = useFeaturesStore()
+const uiStore = useUIStore()
+
+const positionStore = usePositionStore()
+const projection = computed(() => positionStore.projection)
+const selectedFeatures = computed(() => featuresStore.selectedFeatures)
+const isFeatureInfoInTooltip = computed(() => uiStore.showFeatureInfoInTooltip)
+const mapStore = useMapStore()
 
 const showFeaturesPopover = computed(
     () => isFeatureInfoInTooltip.value && selectedFeatures.value.length > 0
@@ -42,7 +50,7 @@ watch(
             highlightSelectedFeatures()
         } else {
             // To un highlight the features when the layer is removed or the visibility is set to false
-            const viewer = getViewer()
+            const viewer = getViewer?.()
             if (viewer) {
                 unhighlightGroup(viewer)
             }
@@ -60,8 +68,8 @@ onMounted(() => {
     }
 })
 
-function highlightSelectedFeatures() {
-    const viewer = getViewer()
+function highlightSelectedFeatures(): void {
+    const viewer = getViewer?.()
     if (!viewer) {
         return
     }
@@ -70,20 +78,27 @@ function highlightSelectedFeatures() {
     const geometries = selectedFeatures.value.map((f) => {
         // Cesium Layers are highlighted through cesium itself, so we don't
         // give anything to the highlighter.
-        if (f.layer instanceof GeoAdmin3DLayer) {
-            return null
+        // Only LayerFeature has a 'layer' property
+        const hasLayer = (obj: LayerFeature | EditableFeature): obj is LayerFeature =>
+            !!obj && typeof obj === 'object' && 'layer' in obj
+        if (hasLayer(f) && f.layer.type === LayerType.VECTOR && 'use3dTileSubFolder' in f.layer) {
+            return undefined
         }
         // GeoJSON and KML layers have different geometry structure
-        if (!f.geometry.type) {
+        if (!f.geometry || !f.geometry?.type) {
             let type
-            if (f.geometry instanceof Polygon) {
+            let coordinates
+            if (f.geometry! instanceof Polygon) {
                 type = 'Polygon'
-            } else if (f.geometry instanceof LineString) {
+                coordinates = (f.geometry as Polygon).getCoordinates()
+            } else if (f.geometry! instanceof LineString) {
                 type = 'LineString'
-            } else if (f.geometry instanceof Point) {
+                coordinates = (f.geometry as LineString).getCoordinates()
+            } else if (f.geometry! instanceof Point) {
                 type = 'Point'
+                coordinates = (f.geometry as Point).getCoordinates()
             }
-            const coordinates = f.geometry.getCoordinates()
+            // OL geometries
             return {
                 type,
                 coordinates,
@@ -92,30 +107,34 @@ function highlightSelectedFeatures() {
         return f.geometry
     })
     highlightGroup(viewer, geometries)
-    popoverCoordinates.value = Array.isArray(firstFeature.coordinates[0])
-        ? firstFeature.coordinates[firstFeature.coordinates.length - 1]
-        : firstFeature.coordinates
+    if (firstFeature && Array.isArray(firstFeature.coordinates)) {
+        const coords = firstFeature.coordinates
+        popoverCoordinates.value = Array.isArray(coords[0])
+            ? (coords[coords.length - 1] as number[])
+            : (coords as number[])
+    }
 }
-function onPopupClose() {
-    const viewer = getViewer()
+async function onPopupClose() {
+    const viewer = getViewer?.()
     if (viewer) {
         unhighlightGroup(viewer)
-        store.dispatch('clearAllSelectedFeatures', dispatcher)
-        store.dispatch('clearClick', dispatcher)
+        featuresStore.clearAllSelectedFeatures(dispatcher)
+        mapStore.clearClick(dispatcher)
     }
 }
 function setBottomPanelFeatureInfoPosition() {
-    store.dispatch('setFeatureInfoPosition', {
-        position: FeatureInfoPositions.BOTTOMPANEL,
-        ...dispatcher,
-    })
+    uiStore.setFeatureInfoPosition(FeatureInfoPositions.BOTTOMPANEL, dispatcher)
 }
 </script>
 
 <template>
     <CesiumPopover
         v-if="showFeaturesPopover"
-        :coordinates="popoverCoordinates"
+        :coordinates="
+            (Array.isArray(popoverCoordinates) && Array.isArray(popoverCoordinates[0])
+                ? popoverCoordinates[popoverCoordinates.length - 1]
+                : popoverCoordinates) as SingleCoordinate
+        "
         :projection="projection"
         authorize-print
         :title="t('object_information')"
