@@ -24,12 +24,6 @@ import {
     DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE,
 } from '@/config/map.config'
 import { getGeoJsonFeatureCenter, reprojectGeoJsonGeometry } from '@/utils/geoJsonUtils'
-import {
-    type FeatureStyleColor,
-    type FeatureStyleSize,
-    TextPlacement,
-} from '@/utils/featureStyleUtils.ts'
-import type { DrawingIcon } from '@/api/icon.api'
 
 const GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE = 100
 
@@ -56,6 +50,10 @@ export interface SelectableFeature<IsEditable extends boolean> {
     geometry?: Geometry
     /** Whether this feature is editable when selected (color, size, etc...). */
     readonly isEditable: IsEditable
+    // TODO: figure out if tileset exists
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    tileset?: any
+    getProperty?(key: string): string | number | undefined
 }
 
 export enum EditableFeatureTypes {

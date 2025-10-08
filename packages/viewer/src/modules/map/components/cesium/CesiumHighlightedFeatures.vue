@@ -114,7 +114,7 @@ function highlightSelectedFeatures(): void {
             : (coords as number[])
     }
 }
-async function onPopupClose() {
+function onPopupClose() {
     const viewer = getViewer?.()
     if (viewer) {
         unhighlightGroup(viewer)

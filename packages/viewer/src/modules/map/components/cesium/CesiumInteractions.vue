@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FlatExtent, NormalizedExtent, SingleCoordinate } from '@swissgeo/coordinates'
+import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import { extentUtils, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import { bbox, centroid } from '@turf/turf'
@@ -137,9 +137,7 @@ function getCoordinateAtScreenCoordinate(x: number, y: number): SingleCoordinate
 }
 
 function getlayerIdFrom3dFeature(feature: SelectableFeature<false>): string | undefined {
-    // TODO: figure out if feature is of type LayerFeature or another type to see if tileset exists
-    // ts-ignore
-    return (feature as any).tileset?.resource?.url?.replace(get3dTilesBaseUrl(), '').split('/')[0]
+    return feature.tileset?.resource?.url?.replace(get3dTilesBaseUrl(), '').split('/')[0]
 }
 
 /**
@@ -163,19 +161,15 @@ function create3dFeature(
     if (!layer || !layerConfig) {
         return undefined
     }
-    // TODO: figure out if feature is of type LayerFeature or another type to see if tileset exists
-    // ts-ignore
-    const id = (feature as any).getProperty(layerConfig.idParam) ?? '-'
+    const id = feature.getProperty!(layerConfig.idParam) ?? '-'
     const data: Record<string, unknown> = {}
     layerConfig.nonTranslatedKeys.forEach((property) => {
         data[`${layerId}_${property}`] =
-            // ts-ignore
-            (feature as any).getProperty(property) ?? `${layerId}_no_data_available`
+            feature.getProperty!(property) ?? `${layerId}_no_data_available`
     })
     layerConfig.translatedKeys.forEach((property) => {
         data[`${layerId}_${property}`] = `${layerId}_${
-            // ts-ignore
-            (feature as any).getProperty(property) ?? '_no_data_available'
+            feature.getProperty!(property) ?? '_no_data_available'
         }`
     })
     return {
@@ -183,7 +177,7 @@ function create3dFeature(
         layer,
         id,
         data,
-        title: id,
+        title: id.toString(),
         coordinates,
         extent: extentUtils.normalizeExtent(
             extentUtils.createPixelExtentAround({
@@ -205,7 +199,7 @@ function handleClickHighlight(
     clickedHighlightPostProcessor.selected = hoveredHighlightPostProcessor.selected
     hoveredHighlightPostProcessor.selected.forEach((feature) => {
         if (Array.isArray(coordinates) && coordinates.length === 2) {
-            const lf = create3dFeature(feature, coordinates as SingleCoordinate)
+            const lf = create3dFeature(feature, coordinates)
             if (lf) features.push(lf)
         }
     })
@@ -282,7 +276,7 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
     if (Array.isArray(coordinates) && coordinates.length === 2) {
         mapStore.click(
             {
-                coordinate: coordinates as SingleCoordinate,
+                coordinate: coordinates,
                 pixelCoordinate: [event.position.x, event.position.y],
                 features: features as SelectableFeature<true>[],
                 clickType: ClickType.LeftSingleClick,
@@ -297,7 +291,8 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
 
 function create3dKmlFeature(
     viewer: Viewer,
-    kmlFeature: any,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    kmlFeature: any, // TODO figure out what type this is, might be KmlFeatureData
     kmlLayer: KMLLayerType
 ): LayerFeature | undefined {
     if (!kmlFeature || !kmlFeature.id) {

@@ -59,7 +59,9 @@ watch(
     isProjectionWebMercator,
     () => {
         if (!viewer && isProjectionWebMercator.value) {
-            createViewer()
+            createViewer().catch((e) => {
+                log.error(`[Cesium] Error while creating the viewer: ${e.message}`)
+            })
         } else {
             log.error('[Cesium] Cesium only supports WebMercator as projection')
         }
@@ -75,12 +77,14 @@ watch(
 onBeforeMount(() => {
     // Global variable required for Cesium and point to the URL where four static directories (see vite.config) are served
     // https://cesium.com/learn/cesiumjs-learn/cesiumjs-quickstart/#install-with-npm
-    ;(window as any).CESIUM_BASE_URL = CESIUM_STATIC_PATH
+    window.CESIUM_BASE_URL = CESIUM_STATIC_PATH
 })
 onMounted(() => {
     if (isProjectionWebMercator.value) {
         log.debug('[Cesium] Projection is now WebMercator, Cesium will start loading')
-        createViewer()
+        createViewer().catch((e) => {
+            log.error(`[Cesium] Error while creating the viewer: ${e.message}`)
+        })
     } else {
         log.warn('[Cesium] Projection is not set to WebMercator, Cesium will not load yet')
     }
@@ -149,7 +153,7 @@ async function createViewer(): Promise<void> {
 
     if (IS_TESTING_WITH_CYPRESS) {
         // expose for e2e tests
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
         window.cesiumViewer = viewer
         // reduce screen space error to downgrade visual quality but speed up tests
         globe.maximumScreenSpaceError = 30

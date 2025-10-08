@@ -98,7 +98,7 @@ function setCenterToCameraTarget(): void {
         const lat = CesiumMath.toDegrees(cameraTargetCartographic.latitude)
         const lon = CesiumMath.toDegrees(cameraTargetCartographic.longitude)
         positionStore.setCenter(
-            proj4(WGS84.epsg, positionStore.projection.epsg, [lon, lat]) as any,
+            proj4(WGS84.epsg, positionStore.projection.epsg, [lon, lat]),
             dispatcher
         )
     }
@@ -121,7 +121,7 @@ function onCameraMoveEnd(): void {
         roll: wrapDegrees(parseFloat(CesiumMath.toDegrees(camera.roll).toFixed(0))),
     }
     if (!isEqual(newCameraPosition, cameraPosition.value)) {
-        positionStore.setCameraPosition(newCameraPosition as any, dispatcher)
+        positionStore.setCameraPosition(newCameraPosition, dispatcher)
     }
 }
 
@@ -166,7 +166,7 @@ function initCamera(): void {
             return
         }
     }
-    const v = viewer!
+    const v = viewer
     const sscController = v.scene.screenSpaceCameraController
     sscController.minimumZoomDistance = CAMERA_MIN_ZOOM_DISTANCE
     sscController.maximumZoomDistance = CAMERA_MAX_ZOOM_DISTANCE

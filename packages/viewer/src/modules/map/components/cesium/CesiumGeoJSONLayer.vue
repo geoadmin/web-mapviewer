@@ -9,6 +9,7 @@ import { computed, inject, toRef } from 'vue'
 import { setEntityStyle } from '@/modules/map/components/cesium/utils/geoJsonStyleConverter'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
 import type { GeoAdminGeoJSONLayer } from '@swissgeo/layers'
+import type { Geometry } from 'geojson'
 
 const { geoJsonConfig } = defineProps<{ geoJsonConfig: GeoAdminGeoJSONLayer }>()
 
@@ -22,18 +23,26 @@ const opacity = computed(() => geoJsonConfig.opacity)
 
 async function createSource(): Promise<GeoJsonDataSource> {
     let geoJsonDataInMercator = geoJsonConfig.geoJsonData
-    const crsName: string | undefined = (geoJsonData.value as any).crs?.properties?.name
+    const geoJsonObject =
+        typeof geoJsonData.value === 'string' ? JSON.parse(geoJsonData.value) : geoJsonData.value
+    const crsName: string | undefined = geoJsonObject?.crs?.properties?.name
     if (crsName && [LV95.epsg, LV03.epsg].includes(crsName)) {
         log.debug(`[Cesium] GeoJSON ${layerId.value} is not expressed in WGS84, reprojecting it`)
-        const reprojectedData: any = reproject(
-            cloneDeep(geoJsonData.value as any),
-            crsName as string,
+        const reprojectedData = reproject(
+            cloneDeep(geoJsonData.value as unknown as Geometry),
+            crsName,
             WGS84.epsg
         )
         if (reprojectedData && typeof reprojectedData === 'object') {
-            delete reprojectedData.crs
+            if (
+                reprojectedData &&
+                typeof reprojectedData === 'object' &&
+                'crs' in reprojectedData
+            ) {
+                delete (reprojectedData as { crs?: unknown }).crs
+            }
         }
-        geoJsonDataInMercator = reprojectedData
+        geoJsonDataInMercator = JSON.stringify(reprojectedData)
     }
     try {
         return await GeoJsonDataSource.load(geoJsonDataInMercator)
