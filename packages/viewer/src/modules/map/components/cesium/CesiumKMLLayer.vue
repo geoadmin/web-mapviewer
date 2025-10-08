@@ -3,6 +3,8 @@ import log from '@swissgeo/log'
 import {
     ArcType,
     Color,
+    ColorMaterialProperty,
+    ConstantProperty,
     HeightReference,
     HorizontalOrigin,
     KmlDataSource,
@@ -15,7 +17,7 @@ import type { KMLLayer } from '@swissgeo/layers'
 import { DEFAULT_MARKER_HORIZONTAL_OFFSET } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
 import { getFeatureDescriptionMap } from '@/utils/kmlUtils'
-import type { Viewer, KmlDataSource as KmlDataSourceType, Entity, Property } from 'cesium'
+import type { Viewer, KmlDataSource as KmlDataSourceType, Entity } from 'cesium'
 
 const { kmlLayerConfig } = defineProps<{ kmlLayerConfig: KMLLayer }>()
 
@@ -56,7 +58,7 @@ async function createSource(): Promise<KmlDataSourceType> {
 function resetKmlDescription(kmlDataSource: KmlDataSource) {
     const descriptionMap = getFeatureDescriptionMap(kmlData.value ?? '')
     kmlDataSource.entities.values.forEach((entity: Entity) => {
-        entity.description = descriptionMap.get(entity.id)!
+        entity.description = new ConstantProperty(descriptionMap.get(entity.id)!)
     })
 }
 
@@ -74,8 +76,8 @@ function applyStyleToKmlEntity(entity: Entity, opacity: number) {
         geometry = entity.polyline
         alphaToApply = 1.0
         if (isClampedToGround.value) {
-            geometry.arcType = ArcType.GEODESIC
-            geometry.clampToGround = true
+            geometry.arcType = new ConstantProperty(ArcType.GEODESIC)
+            geometry.clampToGround = new ConstantProperty(true)
         }
     }
     if (entity.billboard) {
@@ -93,24 +95,25 @@ function applyStyleToKmlEntity(entity: Entity, opacity: number) {
 
         const isDefaultMarker = !!imageUrl?.includes('001-marker')
 
-        entity.billboard.heightReference = HeightReference.CLAMP_TO_GROUND
-        entity.billboard.verticalOrigin = VerticalOrigin.CENTER
-        entity.billboard.horizontalOrigin =
+        entity.billboard.heightReference = new ConstantProperty(HeightReference.CLAMP_TO_GROUND)
+        entity.billboard.verticalOrigin = new ConstantProperty(VerticalOrigin.CENTER)
+        entity.billboard.horizontalOrigin = new ConstantProperty(
             (HorizontalOrigin.CENTER as unknown as number) +
-            (isDefaultMarker ? DEFAULT_MARKER_HORIZONTAL_OFFSET : 0)
-        entity.billboard.color = Color.WHITE.withAlpha(opacity)
+                (isDefaultMarker ? DEFAULT_MARKER_HORIZONTAL_OFFSET : 0)
+        )
+        entity.billboard.color = new ConstantProperty(Color.WHITE.withAlpha(opacity))
     }
     if (entity.label) {
         const { label } = entity
-        label.disableDepthTestDistance = Number.POSITIVE_INFINITY
-        label.heightReference = HeightReference.CLAMP_TO_GROUND
-        label.verticalOrigin = VerticalOrigin.CENTER
-        label.outlineColor = Color.BLACK
-        label.outlineWidth = 2
-        label.style = LabelStyle.FILL_AND_OUTLINE
+        label.disableDepthTestDistance = new ConstantProperty(Number.POSITIVE_INFINITY)
+        label.heightReference = new ConstantProperty(HeightReference.CLAMP_TO_GROUND)
+        label.verticalOrigin = new ConstantProperty(VerticalOrigin.CENTER)
+        label.outlineColor = new ConstantProperty(Color.BLACK)
+        label.outlineWidth = new ConstantProperty(2)
+        label.style = new ConstantProperty(LabelStyle.FILL_AND_OUTLINE)
     }
     if (geometry) {
-        if (geometry.material?.color) {
+        if (geometry.material instanceof ColorMaterialProperty && geometry.material.color) {
             geometry.material.color = geometry.material.color
                 .getValue()
                 .withAlpha(alphaToApply * opacity)

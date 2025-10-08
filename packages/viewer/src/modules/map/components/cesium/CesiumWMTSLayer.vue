@@ -2,7 +2,12 @@
 import { WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import { ErrorMessage } from '@swissgeo/log/Message'
-import { Rectangle, UrlTemplateImageryProvider, WebMapTileServiceImageryProvider } from 'cesium'
+import {
+    Rectangle,
+    UrlTemplateImageryProvider,
+    Viewer,
+    WebMapTileServiceImageryProvider,
+} from 'cesium'
 import { computed, inject, onBeforeUnmount, toRef, watch, ref } from 'vue'
 
 import type { ExternalWMTSLayer, GeoAdminWMTSLayer } from '@swissgeo/layers'
@@ -25,7 +30,7 @@ const { wmtsLayerConfig, zIndex, parentLayerOpacity } = defineProps<{
     parentLayerOpacity?: number | null
 }>()
 
-const getViewer = inject<() => any>('getViewer', () => undefined)
+const getViewer = inject<() => Viewer | undefined>('getViewer', () => undefined)
 
 const positionStore = usePositionStore()
 const layersStore = useLayersStore()
@@ -45,7 +50,7 @@ const tileMatrixSet = computed(() => {
     const external = wmtsLayerConfig as ExternalWMTSLayer
     const sets = external.tileMatrixSets
     if (!sets || sets.length === 0) {
-        return null
+        return undefined
     }
     const match = sets.find((set) => set.projection.epsg === projection.value.epsg)
     if (!match) {
@@ -60,9 +65,9 @@ const tileMatrixSet = computed(() => {
                 },
                 dispatcher
             )
-            hasUnsupportedProjectionError.value = true
+            setHasUnsupportedProjectionError(true)
         }
-        return null
+        return undefined
     }
     // If we previously added an error but projection is now supported, remove the error
     if (hasUnsupportedProjectionError.value) {
@@ -75,10 +80,14 @@ const tileMatrixSet = computed(() => {
             },
             dispatcher
         )
-        hasUnsupportedProjectionError.value = false
+        setHasUnsupportedProjectionError(false)
     }
     return match
 })
+
+function setHasUnsupportedProjectionError(value: boolean) {
+    hasUnsupportedProjectionError.value = value
+}
 const tileMatrixSetId = computed(() => tileMatrixSet.value?.id ?? projection.value.epsg)
 const tileMatrixLabels = computed(() =>
     (wmtsLayerConfig as ExternalWMTSLayer)?.options?.tileGrid?.getMatrixIds()
@@ -111,11 +120,11 @@ function createProvider(): WebMapTileServiceImageryProvider | UrlTemplateImagery
             url:
                 (wmtsLayerConfig as ExternalWMTSLayer).getTileEncoding === WMTSEncodingType.KVP
                     ? (wmtsLayerConfig as ExternalWMTSLayer).baseUrl
-                    : (wmtsLayerConfig as ExternalWMTSLayer).urlTemplate!,
+                    : (wmtsLayerConfig as ExternalWMTSLayer).urlTemplate,
             layer: (wmtsLayerConfig as ExternalWMTSLayer).id,
             style: (wmtsLayerConfig as ExternalWMTSLayer).style ?? 'default',
             tileMatrixSetID: tileMatrixSetId.value,
-            tileMatrixLabels: tileMatrixLabels.value as string[] | undefined,
+            tileMatrixLabels: tileMatrixLabels.value,
         })
     } else {
         provider = new UrlTemplateImageryProvider({
