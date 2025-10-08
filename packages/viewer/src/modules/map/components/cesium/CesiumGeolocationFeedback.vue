@@ -1,9 +1,18 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { WGS84 } from '@swissgeo/coordinates'
-import { Cartesian3, Color, HeightReference } from 'cesium'
+import {
+    Cartesian3,
+    Color,
+    HeightReference,
+    ConstantPositionProperty,
+    ConstantProperty,
+    type Viewer,
+    type Entity,
+} from 'cesium'
 import proj4 from 'proj4'
 import { computed, inject, onMounted, watch } from 'vue'
-import { useStore } from 'vuex'
+import useGeolocationStore from '@/store/modules/geolocation.store'
+import usePositionStore from '@/store/modules/position.store'
 
 import {
     geolocationAccuracyCircleFillColor,
@@ -13,13 +22,14 @@ import {
     geolocationPointWidth,
 } from '@/utils/styleUtils'
 
-const getViewer = inject('getViewer')
+const getViewer = inject<() => Viewer | undefined>('getViewer')
 
-const store = useStore()
-const projection = computed(() => store.state.position.projection)
-const geolocationActive = computed(() => store.state.geolocation.active)
-const geolocationPosition = computed(() => store.state.geolocation.position)
-const accuracy = computed(() => store.state.geolocation.accuracy)
+const positionStore = usePositionStore()
+const geolocationStore = useGeolocationStore()
+const projection = computed(() => positionStore.projection)
+const geolocationActive = computed(() => geolocationStore.active)
+const geolocationPosition = computed(() => geolocationStore.position)
+const accuracy = computed(() => geolocationStore.accuracy)
 
 const geolocationPositionCartesian3 = computed(() => {
     if (
@@ -36,11 +46,11 @@ const geolocationPositionCartesian3 = computed(() => {
         )
         return Cartesian3.fromDegrees(geolocationPositionWGS84[0], geolocationPositionWGS84[1])
     }
-    return null
+    return undefined
 })
 
-let accuracyCircleEntity = null
-let geolocationPositionEntity = null
+let accuracyCircleEntity: Entity | undefined
+let geolocationPositionEntity: Entity | undefined
 
 onMounted(() => {
     if (geolocationActive.value) {
@@ -60,29 +70,35 @@ watch(geolocationPositionCartesian3, (newPosition) => {
         if (!accuracyCircleEntity || !geolocationPositionEntity) {
             activateTracking()
         } else {
-            accuracyCircleEntity.ellipse.position = newPosition
-            geolocationPositionEntity.point.position = newPosition
+            accuracyCircleEntity.position = new ConstantPositionProperty(newPosition)
+            geolocationPositionEntity.position = new ConstantPositionProperty(newPosition)
         }
     }
 })
 watch(accuracy, (newAccuracy) => {
-    if (accuracyCircleEntity) {
-        accuracyCircleEntity.ellipse.semiMajorAxis = newAccuracy
-        accuracyCircleEntity.ellipse.semiMinorAxis = newAccuracy
+    if (accuracyCircleEntity?.ellipse) {
+        accuracyCircleEntity.ellipse.semiMajorAxis = new ConstantProperty(newAccuracy)
+        accuracyCircleEntity.ellipse.semiMinorAxis = new ConstantProperty(newAccuracy)
     }
 })
 
-function transformArrayColorIntoCesiumColor(arrayColor) {
+function transformArrayColorIntoCesiumColor(arrayColor: number[]): Color {
+    const rgba: [number, number, number, number] = [
+        arrayColor[0] ?? 0,
+        arrayColor[1] ?? 0,
+        arrayColor[2] ?? 0,
+        arrayColor[3] ?? 1,
+    ]
     return new Color(
-        Color.byteToFloat(arrayColor[0]),
-        Color.byteToFloat(arrayColor[1]),
-        Color.byteToFloat(arrayColor[2]),
-        arrayColor[3]
+        Color.byteToFloat(rgba[0]),
+        Color.byteToFloat(rgba[1]),
+        Color.byteToFloat(rgba[2]),
+        rgba[3]
     )
 }
 
-function activateTracking() {
-    const viewer = getViewer()
+function activateTracking(): void {
+    const viewer = getViewer?.()
     if (viewer && geolocationPositionCartesian3.value) {
         accuracyCircleEntity = viewer.entities.add({
             id: 'geolocation-accuracy-circle',
@@ -110,16 +126,16 @@ function activateTracking() {
     }
 }
 
-function removeTracking() {
-    const viewer = getViewer()
+function removeTracking(): void {
+    const viewer = getViewer?.()
     if (viewer) {
         if (accuracyCircleEntity) {
             viewer.entities.removeById(accuracyCircleEntity.id)
-            accuracyCircleEntity = null
+            accuracyCircleEntity = undefined
         }
         if (geolocationPositionEntity) {
             viewer.entities.removeById(geolocationPositionEntity.id)
-            geolocationPositionEntity = null
+            geolocationPositionEntity = undefined
         }
     }
 }

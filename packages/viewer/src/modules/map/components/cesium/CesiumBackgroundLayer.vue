@@ -1,13 +1,15 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed } from 'vue'
-import { useStore } from 'vuex'
+import useCesiumStore from '@/store/modules/cesium.store'
+import usePositionStore from '@/store/modules/position.store'
 
 import CesiumInternalLayer from '@/modules/map/components/cesium/CesiumInternalLayer.vue'
 
-const store = useStore()
+const cesiumStore = useCesiumStore()
+const positionStore = usePositionStore()
 
-const backgroundLayersFor3D = computed(() => store.getters.backgroundLayersFor3D)
-const projection = computed(() => store.state.position.projection)
+const backgroundLayersFor3D = computed(() => cesiumStore.backgroundLayersFor3D)
+const projection = computed(() => positionStore.projection)
 </script>
 
 <template>

@@ -1,41 +1,35 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { WGS84 } from '@swissgeo/coordinates'
-import { Rectangle, WebMapServiceImageryProvider } from 'cesium'
+import { Rectangle, WebMapServiceImageryProvider, type Viewer } from 'cesium'
 import { cloneDeep } from 'lodash'
 import { computed, inject, toRef, watch } from 'vue'
-import { useStore } from 'vuex'
 
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
-import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import { ALL_YEARS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
+import type { ExternalWMSLayer, GeoAdminWMSLayer } from '@swissgeo/layers'
+import { ALL_YEARS_TIMESTAMP } from '@swissgeo/layers'
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useAddImageryLayer from '@/modules/map/components/cesium/utils/useAddImageryLayer.composable'
-import { getTimestampFromConfig } from '@/utils/layerUtils'
+import { getTimestampFromConfig } from '@swissgeo/layers/utils'
+import { useI18nStore } from '@/store/modules/i18n.store'
 
 const MAXIMUM_LEVEL_OF_DETAILS = 18
 
-const { wmsLayerConfig, zIndex, parentLayerOpacity } = defineProps({
-    wmsLayerConfig: {
-        type: [GeoAdminWMSLayer, ExternalWMSLayer],
-        required: true,
-    },
-    zIndex: {
-        type: Number,
-        default: -1,
-    },
-    parentLayerOpacity: {
-        type: Number,
-        default: null,
-    },
-})
+const { wmsLayerConfig, zIndex, parentLayerOpacity } = defineProps<{
+    wmsLayerConfig: GeoAdminWMSLayer | ExternalWMSLayer
+    zIndex?: number
+    parentLayerOpacity?: number
+}>()
 
-const getViewer = inject('getViewer')
+const getViewer = inject<() => Viewer | undefined>('getViewer')
 
-const store = useStore()
-const currentLang = computed(() => store.state.i18n.lang)
+const i18nStore = useI18nStore()
+const currentLang = computed(() => i18nStore.lang)
 
-const layerId = computed(() => wmsLayerConfig.technicalName ?? wmsLayerConfig.id)
+const layerId = computed(() =>
+    'technicalName' in wmsLayerConfig
+        ? (wmsLayerConfig.technicalName ?? wmsLayerConfig.id)
+        : wmsLayerConfig.id
+)
 const opacity = computed(() => parentLayerOpacity ?? wmsLayerConfig.opacity ?? 1.0)
 const wmsVersion = computed(() => wmsLayerConfig.wmsVersion ?? '1.3.0')
 const format = computed(() => wmsLayerConfig.format ?? 'png')
@@ -53,7 +47,7 @@ const customAttributes = computed(() => cloneDeep(wmsLayerConfig.customAttribute
  * @returns Object
  */
 const wmsUrlParams = computed(() => {
-    let params = {
+    let params: Record<string, unknown> = {
         SERVICE: 'WMS',
         REQUEST: 'GetMap',
         TRANSPARENT: true,
@@ -84,7 +78,7 @@ function createProvider() {
     })
 }
 const { refreshLayer } = useAddImageryLayer(
-    getViewer(),
+    getViewer?.(),
     createProvider,
     () => zIndex,
     toRef(opacity)

@@ -359,7 +359,7 @@ const usePositionStore = defineStore('position', {
             }
         },
 
-        setCameraPosition(position: CameraPosition, dispatcher: ActionDispatcher) {
+        setCameraPosition(position: CameraPosition | undefined, dispatcher: ActionDispatcher) {
             // position can be null (in 2d mode), we do not wrap it in this case
             this.camera = position
                 ? {

@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 import log from '@swissgeo/log'
 import {
     ArcType,
@@ -11,17 +11,13 @@ import {
 } from 'cesium'
 import { computed, inject, toRef, watch } from 'vue'
 
-import KMLLayer from '@/api/layers/KMLLayer.class'
+import type { KMLLayer } from '@swissgeo/layers'
 import { DEFAULT_MARKER_HORIZONTAL_OFFSET } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
 import { getFeatureDescriptionMap } from '@/utils/kmlUtils'
+import type { Viewer, KmlDataSource as KmlDataSourceType, Entity, Property } from 'cesium'
 
-const { kmlLayerConfig } = defineProps({
-    kmlLayerConfig: {
-        type: KMLLayer,
-        required: true,
-    },
-})
+const { kmlLayerConfig } = defineProps<{ kmlLayerConfig: KMLLayer }>()
 
 const layerId = computed(() => kmlLayerConfig.id)
 const kmlData = computed(() => kmlLayerConfig.kmlData)
@@ -29,19 +25,21 @@ const kmlStyle = computed(() => kmlLayerConfig.style)
 const isClampedToGround = computed(() => kmlLayerConfig.clampToGround)
 const layerOpacity = computed(() => kmlLayerConfig.opacity)
 
-const getViewer = inject('getViewer')
-const viewer = getViewer()
+const getViewer = inject<() => Viewer | undefined>('getViewer')
+const viewer = getViewer?.()
 
-/** @returns {Promise<KmlDataSource>} */
-async function createSource() {
+async function createSource(): Promise<KmlDataSourceType> {
     try {
-        const kmlDataSource = await KmlDataSource.load(new Blob([kmlData.value]), {
+        const kmlDataSource = await KmlDataSource.load(new Blob([kmlData.value ?? '']), {
             clampToGround: isClampedToGround.value,
         })
         resetKmlDescription(kmlDataSource)
         return kmlDataSource
-    } catch (error) {
-        log.error(`[Cesium] Error while parsing KML data for layer ${layerId.value}`, error)
+    } catch (error: unknown) {
+        log.error(
+            `[Cesium] Error while parsing KML data for layer ${layerId.value}`,
+            error as string
+        )
         throw error
     }
 }
@@ -55,15 +53,15 @@ async function createSource() {
  *
  * @param {KmlDataSource} kmlDataSource The KML data source
  */
-function resetKmlDescription(kmlDataSource) {
-    const descriptionMap = getFeatureDescriptionMap(kmlData.value)
-    kmlDataSource.entities.values.forEach((entity) => {
-        entity.description = descriptionMap.get(entity.id)
+function resetKmlDescription(kmlDataSource: KmlDataSource) {
+    const descriptionMap = getFeatureDescriptionMap(kmlData.value ?? '')
+    kmlDataSource.entities.values.forEach((entity: Entity) => {
+        entity.description = descriptionMap.get(entity.id)!
     })
 }
 
 // adding some visual improvements to KML feature, depending on their type
-function applyStyleToKmlEntity(entity, opacity) {
+function applyStyleToKmlEntity(entity: Entity, opacity: number) {
     let geometry
     let alphaToApply = 0.8
     if (entity.ellipse) {
@@ -98,7 +96,8 @@ function applyStyleToKmlEntity(entity, opacity) {
         entity.billboard.heightReference = HeightReference.CLAMP_TO_GROUND
         entity.billboard.verticalOrigin = VerticalOrigin.CENTER
         entity.billboard.horizontalOrigin =
-            HorizontalOrigin.CENTER + isDefaultMarker * DEFAULT_MARKER_HORIZONTAL_OFFSET
+            (HorizontalOrigin.CENTER as unknown as number) +
+            (isDefaultMarker ? DEFAULT_MARKER_HORIZONTAL_OFFSET : 0)
         entity.billboard.color = Color.WHITE.withAlpha(opacity)
     }
     if (entity.label) {
@@ -120,7 +119,7 @@ function applyStyleToKmlEntity(entity, opacity) {
 }
 
 const { refreshDataSource } = useAddDataSourceLayer(
-    viewer,
+    viewer!,
     createSource(),
     applyStyleToKmlEntity,
     toRef(layerOpacity),
