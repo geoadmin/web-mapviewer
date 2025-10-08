@@ -8,7 +8,7 @@ import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 
-import { EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeatureTypes, type EditableFeature } from '@/api/features.api'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import ShowGeometryProfileButton from '@/modules/infobox/components/ShowGeometryProfileButton.vue'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
@@ -37,7 +37,7 @@ import type { DrawingIcon } from '@/api/icon.api'
 const dispatcher = { name: 'FeatureStyleEdit.vue' }
 
 type Props = {
-    feature: any
+    feature: EditableFeature
     readOnly?: boolean
 }
 
@@ -55,9 +55,9 @@ const displayedFormatId = ref(LV95Format.id)
 const { lang } = storeToRefs(i18nStore)
 
 const title = ref<string>(feature.title)
-const description = ref<string>(feature.description)
+const description = ref<string>(feature.description!)
 const showDescriptionOnMap = computed<boolean>({
-    get: () => !!feature.showDescriptionOnMap,
+    get: () => !!('showDescriptionOnMap' in feature && feature.showDescriptionOnMap),
     set: (value: boolean) => {
         featureStore.changeFeatureShownDescriptionOnMap(
             {
@@ -88,8 +88,8 @@ watch(
 
 watch(
     () => feature.description,
-    (newDescription: string) => {
-        description.value = newDescription
+    (newDescription: string | undefined) => {
+        description.value = newDescription!
     }
 )
 
@@ -139,7 +139,7 @@ function updateFeatureDescription(): void {
     )
 }
 
-type DebouncedFn = (...args: unknown[]) => void
+type DebouncedFn = (..._args: unknown[]) => void
 const debounceTitleUpdate: DebouncedFn = debounce(updateFeatureTitle, 100)
 const debounceDescriptionUpdate: DebouncedFn = debounce(updateFeatureDescription, 300)
 
@@ -171,7 +171,7 @@ const isFeatureLinePolygon = computed<boolean>(
 const isFeatureMeasure = computed<boolean>(
     () => feature.featureType === EditableFeatureTypes.Measure
 )
-const isLine = computed<boolean>(() => feature.geometry.type === 'LineString')
+const isLine = computed<boolean>(() => feature.geometry!.type === 'LineString')
 
 const availableIconSets = computed(() => drawingStore.iconSets)
 const currentLang = computed(() => lang.value)
@@ -205,9 +205,9 @@ function onIconSizeChange(iconSize: FeatureStyleSize): void {
     updateTextOffset()
 }
 function onDelete(): void {
-    drawingStore.deleteDrawingFeature(feature.id, dispatcher)
+    drawingStore.deleteDrawingFeature(feature.id.toString(), dispatcher)
 }
-function onAddMediaLink(mediaPopoverIndex: number, descriptionMediaLink?: string | null): void {
+function onAddMediaLink(mediaPopoverIndex: number, descriptionMediaLink?: string): void {
     mediaPopovers.value?.[mediaPopoverIndex]?.hidePopover()
     // Prevent 'undefined' to be added to the description
     if (descriptionMediaLink && typeof descriptionMediaLink === 'string') {
@@ -222,10 +222,10 @@ function onAddMediaLink(mediaPopoverIndex: number, descriptionMediaLink?: string
 function updateTextOffset(): void {
     if (isFeatureMarker.value) {
         const offset = calculateTextOffset(
-            feature.textSize.textScale,
-            feature.iconSize.iconScale,
-            feature.icon.anchor,
-            feature.icon.size,
+            feature.textSize!.textScale,
+            feature.iconSize!.iconScale,
+            feature.icon!.anchor,
+            feature.icon!.size,
             feature.textPlacement,
             title.value
         )
@@ -367,7 +367,7 @@ function mediaTypes(): MediaButton[] {
             <CoordinateCopySlot
                 v-if="isFeatureMarker || isFeatureText"
                 identifier="feature-style-edit-coordinate-copy"
-                :value="feature.coordinates[0].slice(0, 2)"
+                :value="(feature.coordinates[0] as number[]).slice(0, 2)"
                 :coordinate-format="coordinateFormat"
             >
                 <FontAwesomeIcon
@@ -376,7 +376,7 @@ function mediaTypes(): MediaButton[] {
                 />
             </CoordinateCopySlot>
             <FeatureAreaInfo
-                v-if="feature.geometry.type === 'Polygon'"
+                v-if="feature.geometry?.type === 'Polygon'"
                 :geometry="feature.geometry"
             />
         </div>
