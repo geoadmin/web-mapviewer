@@ -3,7 +3,7 @@ import type { Layer } from '@swissgeo/layers'
 import type { Feature } from 'ol'
 import type { FeatureLike } from 'ol/Feature'
 
-import { CoordinateSystem } from '@swissgeo/coordinates'
+import { CoordinateSystem, extentUtils } from '@swissgeo/coordinates'
 import { LayerType } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { randomIntBetween } from '@swissgeo/numbers'
@@ -94,7 +94,7 @@ export function createLayerFeature(
         },
         coordinates: featureCoordinates,
         geometry: geometryToReturn,
-        extent: olFeatureGeometry.getExtent() as FlatExtent,
+        extent: extentUtils.normalizeExtent(olFeatureGeometry.getExtent() as FlatExtent),
         popupDataCanBeTrusted: !layer.isExternal && layer.type !== LayerType.KML,
     }
 }
