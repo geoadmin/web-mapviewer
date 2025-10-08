@@ -26,7 +26,7 @@ const geometryWgs84 = computed<Geometry>(() => {
     if (projection.value === WGS84) {
         return geometry
     }
-    return reprojectGeoJsonGeometry(geometry!, WGS84, projection.value)
+    return reprojectGeoJsonGeometry(geometry, WGS84, projection.value)
 })
 
 const humanReadableArea: ComputedRef<string> = computed(() => {

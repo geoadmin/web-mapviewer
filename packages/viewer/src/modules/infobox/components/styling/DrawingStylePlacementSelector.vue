@@ -9,7 +9,7 @@ const { currentPlacement } = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (e: 'change', placement: TextPlacement): void
+    (_e: 'change', _placement: TextPlacement): void
 }>()
 
 const allStylingTextPlacements = ref<TextPlacement[]>([

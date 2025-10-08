@@ -8,18 +8,19 @@ import FeatureListCategory from '@/modules/infobox/components/FeatureListCategor
 import useLayersStore from '@/store/modules/layers.store'
 import { useI18nStore } from '@/store/modules/i18n.store'
 import useDrawingStore from '@/store/modules/drawing.store'
-import useFeaturesStore from '@/store/modules/features.store'
+import useFeaturesStore, { type FeaturesForLayer } from '@/store/modules/features.store'
 import useMapStore from '@/store/modules/map.store'
 import useUiStore from '@/store/modules/ui.store'
 import type { GeoAdminGroupOfLayers, GeoAdminLayer, Layer } from '@swissgeo/layers'
+import log from '@swissgeo/log'
 
 const dispatcher = { name: 'FeatureList.vue' }
 
 // Template refs
 const featureListContainer = useTemplateRef<HTMLDivElement>('featureListContainer')
-const editableFeatureCategory = useTemplateRef<InstanceType<typeof FeatureListCategory> | null>(
-    'editableFeatureCategory'
-)
+const editableFeatureCategory = useTemplateRef<
+    InstanceType<typeof FeatureListCategory> | undefined
+>('editableFeatureCategory')
 // multiple refs from v-for
 const layerFeatureCategories =
     useTemplateRef<Array<InstanceType<typeof FeatureListCategory>>>('layerFeatureCategories')
@@ -45,13 +46,13 @@ const { isPhoneMode } = storeToRefs(uiStore)
 const isCurrentlyDrawing = computed<boolean>(() => Boolean(drawingOverlay.value?.show))
 
 // flag telling if more features could be loaded for a given layer ID
-const canLoadMore = computed<(layerId: string) => boolean>(() => (layerId: string) => {
+const canLoadMore = computed<(_layerId: string) => boolean>(() => (layerId: string) => {
     // if the app was loaded with pre-selected features there won't be a clickInfo to latch upon,
     // so we won't be able to load more features where the user has previously selected these features (we don't know where it was)
     return (
         !!clickInfo.value &&
         (selectedFeaturesByLayerId.value.find(
-            (featuresForLayer: any) => featuresForLayer.layerId === layerId
+            (featuresForLayer: FeaturesForLayer) => featuresForLayer.layerId === layerId
         )?.featureCountForMoreData ?? 0) > 0
     )
 })
@@ -63,13 +64,15 @@ const lastLang = ref<string>(lang.value)
 watch(activeLayers, () => {
     if (lang.value !== lastLang.value) {
         lastLang.value = lang.value
-        featuresStore.updateFeatures(dispatcher)
+        featuresStore.updateFeatures(dispatcher).catch((e: unknown) => {
+            log.error('Error while updating features after language change', e as string)
+        })
     }
 })
 
 function getLayerName(layerId: string): string {
     const layerNameFromFeatures = selectedFeaturesByLayerId.value.find(
-        (featuresForLayer: any) => featuresForLayer.layerId === layerId
+        (featuresForLayer: FeaturesForLayer) => featuresForLayer.layerId === layerId
     )?.features?.[0]?.layer?.name
 
     if (layerNameFromFeatures) {
@@ -98,7 +101,7 @@ function loadMoreResultForLayer(layerId: string): void {
     featuresStore.loadMoreFeaturesForLayer(
         {
             layer: layer as GeoAdminLayer,
-            coordinate: clickInfo.value?.coordinate!,
+            coordinate: clickInfo.value!.coordinate,
         },
         dispatcher
     )

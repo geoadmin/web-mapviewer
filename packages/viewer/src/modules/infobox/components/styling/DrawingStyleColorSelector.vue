@@ -10,8 +10,8 @@ import type { FeatureStyleColor } from '@/utils/featureStyleUtils'
 import { allStylingColors } from '@/utils/featureStyleUtils'
 
 const { inline, currentColor } = defineProps<{
-    inline?: boolean,
-    currentColor: FeatureStyleColor,
+    inline?: boolean
+    currentColor?: FeatureStyleColor
 }>()
 
 const emits = defineEmits<{
@@ -34,7 +34,7 @@ function colorCircleStyle(color: FeatureStyleColor): Record<string, string> {
 
 <template>
     <div
-        class="color-select-box rounded bg-light"
+        class="color-select-box bg-light rounded"
         data-cy="drawing-style-color-select-box"
         :class="{ inline: inline }"
     >
@@ -43,8 +43,8 @@ function colorCircleStyle(color: FeatureStyleColor): Record<string, string> {
             :key="color.name"
             :data-cy="`color-selector-${color.name}`"
             :class="{
-                'btn-light': currentColor.name !== color.name,
-                'btn-primary': currentColor.name === color.name,
+                'btn-light': currentColor?.name !== color.name,
+                'btn-primary': currentColor?.name === color.name,
             }"
             class="btn"
             @click="() => onColorChange(color)"
