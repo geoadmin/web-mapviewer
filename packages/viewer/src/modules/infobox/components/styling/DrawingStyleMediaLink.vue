@@ -9,16 +9,16 @@ import { isValidUrl } from '@/utils/utils'
 const { mediaType, urlLabel, descriptionLabel } = defineProps<{
     mediaType: MediaType
     urlLabel: string
-    descriptionLabel?: string | null
+    descriptionLabel?: string
 }>()
 
 const emit = defineEmits<{
-    (e: 'generatedMediaLink', payload: string): void
+    (_e: 'generatedMediaLink', _payload: string): void
 }>()
 
 const { t } = useI18n()
-const generatedMediaLink = ref<string | null>(null)
-const linkDescription = ref<string | null>(null)
+const generatedMediaLink = ref<string | undefined>(undefined)
+const linkDescription = ref<string | undefined>(undefined)
 const isFormValid = ref<boolean>(false)
 const activateValidation = ref<boolean>(false)
 
@@ -67,13 +67,13 @@ function addLink(): void {
 }
 
 function clearInput(): void {
-    generatedMediaLink.value = null
-    linkDescription.value = null
+    generatedMediaLink.value = undefined
+    linkDescription.value = undefined
     isFormValid.value = false
     activateValidation.value = false
 }
 
-function validateUrl(url: string | null | undefined): { valid: boolean; invalidMessage: string } {
+function validateUrl(url: string | undefined): { valid: boolean; invalidMessage: string } {
     if (!url) {
         return { valid: false, invalidMessage: 'no_url' }
     } else if (!isValidUrl(url)) {

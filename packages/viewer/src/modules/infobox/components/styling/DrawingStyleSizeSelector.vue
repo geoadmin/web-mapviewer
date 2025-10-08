@@ -7,7 +7,7 @@ import type { FeatureStyleSize } from '@/utils/featureStyleUtils'
 import { allStylingSizes } from '@/utils/featureStyleUtils'
 
 const { currentSize } = defineProps<{
-    currentSize: FeatureStyleSize
+    currentSize?: FeatureStyleSize
 }>()
 
 const emits = defineEmits<{
