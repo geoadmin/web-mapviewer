@@ -40,7 +40,6 @@ defineExpose<{ hidePopover: () => void }>({ hidePopover })
             </button>
             <template #content>
                 <div
-                    :icon="iconValue"
                     ref="popoverContent"
                     class="card border-0"
                     data-cy="drawing-style-popover"

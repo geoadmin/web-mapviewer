@@ -21,6 +21,9 @@ import useProfileStore from '@/store/modules/profile.store'
 import useUiStore from '@/store/modules/ui.store'
 import type { Viewer } from 'cesium'
 import type { Map } from 'ol'
+import { MultiPolygon, type MultiLineString } from 'ol/geom'
+import log from '@swissgeo/log'
+import type { EditableFeature } from '@/api/features.api'
 
 const dispatcher = { name: 'InfoboxContent.vue' }
 
@@ -61,10 +64,15 @@ const isMultiFeature = computed(() => {
     const t = profileStore.feature?.geometry?.type
     return t === 'MultiLineString' || t === 'MultiPolygon'
 })
+// Type guard to check if coordinates is an array of arrays (MultiLineString/MultiPolygon)
+function isArrayOfArrays(coords: unknown): coords is number[][] | number[][][] {
+    return Array.isArray(coords) && coords.length > 0 && Array.isArray(coords[0])
+}
 const currentGeometryElements = computed(() => {
-    // coordinates for MultiLineString/MultiPolygon are arrays of arrays
-    // @ts-ignore
-    return feature?.value?.geometry?.coordinates ?? []
+    const coords = (
+        feature?.value?.geometry as unknown as MultiLineString | MultiPolygon
+    ).getCoordinates()
+    return isArrayOfArrays(coords) ? coords : []
 })
 
 const showElevationProfile = computed(() => !!profileStore.feature)
@@ -73,7 +81,9 @@ watch(selectedFeatures, (features) => {
     if (!features || features.length === 0) {
         return
     }
-    nextTick(() => content.value?.scrollTo(0, 0))
+    nextTick(() => content.value?.scrollTo(0, 0)).catch((e: unknown) => {
+        log.error('Error while scrolling to top of infobox content', e as string)
+    })
 })
 
 function setCurrentSegmentIndex(index: number): void {
@@ -140,7 +150,7 @@ onUnmounted(() => {
             <FeatureStyleEdit
                 v-if="isEditingDrawingFeature && showFeatureInfoInBottomPanel"
                 v-show="!showElevationProfile"
-                :feature="selectedFeature"
+                :feature="selectedFeature as EditableFeature"
                 class="drawing-feature-edit p-3"
                 :class="{ 'flex-grow-1': !showElevationProfile }"
             />
