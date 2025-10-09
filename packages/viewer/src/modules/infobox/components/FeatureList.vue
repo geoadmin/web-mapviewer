@@ -18,9 +18,8 @@ const dispatcher = { name: 'FeatureList.vue' }
 
 // Template refs
 const featureListContainer = useTemplateRef<HTMLDivElement>('featureListContainer')
-const editableFeatureCategory = useTemplateRef<
-    InstanceType<typeof FeatureListCategory> | undefined
->('editableFeatureCategory')
+const editableFeatureCategory =
+    useTemplateRef<InstanceType<typeof FeatureListCategory>>('editableFeatureCategory')
 // multiple refs from v-for
 const layerFeatureCategories =
     useTemplateRef<Array<InstanceType<typeof FeatureListCategory>>>('layerFeatureCategories')

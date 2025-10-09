@@ -151,7 +151,8 @@ function handleKeydown(event: KeyboardEvent): void {
 
 const coordinateFormat = computed(() => {
     return (
-        allFormats.find((format: CoordinateFormat) => format.id === displayedFormatId.value) ?? null
+        allFormats.find((format: CoordinateFormat) => format.id === displayedFormatId.value) ??
+        undefined
     )
 })
 
