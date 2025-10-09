@@ -1,86 +1,79 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import MediaTypes from '@/modules/infobox/DrawingStyleMediaTypes.enum.js'
+import type { MediaType } from '@/modules/infobox/DrawingStyleMediaTypes.enum'
 import TextInput from '@/utils/components/TextInput.vue'
 import { isValidUrl } from '@/utils/utils'
 
-const { mediaType, urlLabel, descriptionLabel } = defineProps({
-    mediaType: {
-        type: String,
-        required: true,
-    },
-    urlLabel: {
-        type: String,
-        required: true,
-    },
-    descriptionLabel: {
-        type: String,
-        default: null,
-    },
-})
+const { mediaType, urlLabel, descriptionLabel } = defineProps<{
+    mediaType: MediaType
+    urlLabel: string
+    descriptionLabel?: string
+}>()
 
-const emit = defineEmits(['generatedMediaLink'])
+const emit = defineEmits<{
+    (_e: 'generatedMediaLink', _payload: string): void
+}>()
 
 const { t } = useI18n()
-const generatedMediaLink = ref(null)
-const linkDescription = ref(null)
-const isFormValid = ref(false)
-const activateValidation = ref(false)
+const generatedMediaLink = ref<string | undefined>(undefined)
+const linkDescription = ref<string | undefined>(undefined)
+const isFormValid = ref<boolean>(false)
+const activateValidation = ref<boolean>(false)
 
-function createVideo() {
-    if (
-        generatedMediaLink.value.includes('youtube.com/') ||
-        generatedMediaLink.value.includes('youtu.be/')
-    ) {
-        //taken from https://stackoverflow.com/questions/3452546/how-do-i-get-the-youtube-video-id-from-a-url/71010058#71010058
+function createVideo(): string {
+    const url = generatedMediaLink.value as string
+    if (url.includes('youtube.com/') || url.includes('youtu.be/')) {
+        // taken from https://stackoverflow.com/questions/3452546/how-do-i-get-the-youtube-video-id-from-a-url/71010058#71010058
         const youtubeRegExp = /(youtu.*be.*)\/(watch\?v=|embed\/|v|shorts|)(.*?((?=[&#?])|$))/
-        const videoId = youtubeRegExp.exec(generatedMediaLink.value)[3]
+        const match = youtubeRegExp.exec(url)
+        const videoId = match?.[3] ?? ''
         return `<iframe src="${'https://www.youtube.com/embed/' + videoId}" height="200" width="auto"></iframe>`
     } else {
-        return `<iframe src="${generatedMediaLink.value}" height="200" width="auto"></iframe>`
+        return `<iframe src="${url}" height="200" width="auto"></iframe>`
     }
 }
 
-function createImage() {
+function createImage(): string {
     return `<image src="${generatedMediaLink.value}" style="max-height:200px;"/>`
 }
 
-function createLink() {
+function createLink(): string {
+    const url = generatedMediaLink.value
     if (linkDescription.value) {
-        return `<a target="_blank" href="${generatedMediaLink.value}">${linkDescription.value}</a>`
+        return `<a target="_blank" href="${url}">${linkDescription.value}</a>`
     } else {
-        return `<a target="_blank" href="${generatedMediaLink.value}">${generatedMediaLink.value}</a>`
+        return `<a target="_blank" href="${url}">${url}</a>`
     }
 }
 
-function addLink() {
+function addLink(): void {
     if (!validateForm()) {
         return
     }
     switch (mediaType) {
-        case MediaTypes.link:
+        case 'link' as MediaType:
             emit('generatedMediaLink', createLink())
             break
-        case MediaTypes.image:
+        case 'image' as MediaType:
             emit('generatedMediaLink', createImage())
             break
-        case MediaTypes.video:
+        case 'video' as MediaType:
             emit('generatedMediaLink', createVideo())
             break
     }
     clearInput()
 }
 
-function clearInput() {
-    generatedMediaLink.value = null
-    linkDescription.value = null
+function clearInput(): void {
+    generatedMediaLink.value = undefined
+    linkDescription.value = undefined
     isFormValid.value = false
     activateValidation.value = false
 }
 
-function validateUrl(url) {
+function validateUrl(url: string | undefined): { valid: boolean; invalidMessage: string } {
     if (!url) {
         return { valid: false, invalidMessage: 'no_url' }
     } else if (!isValidUrl(url)) {
@@ -89,12 +82,12 @@ function validateUrl(url) {
     return { valid: true, invalidMessage: '' }
 }
 
-function validateForm() {
+function validateForm(): boolean {
     activateValidation.value = true
     return isFormValid.value
 }
 
-function onUrlValidate(valid) {
+function onUrlValidate(valid: boolean): void {
     isFormValid.value = valid
 }
 </script>
@@ -103,7 +96,7 @@ function onUrlValidate(valid) {
     <div class="px-3 pb-2">
         <div
             v-if="descriptionLabel"
-            class="pb-2 d-flex"
+            class="d-flex pb-2"
         >
             <TextInput
                 v-model="linkDescription"

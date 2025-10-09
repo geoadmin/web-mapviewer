@@ -1,20 +1,28 @@
-<script setup lang="js">
-import { computed } from 'vue'
+<script setup lang="ts">
+import { computed, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
+import { storeToRefs } from 'pinia'
 
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
+import useUiStore from '@/store/modules/ui.store'
 
-const dispatcher = { dispatcher: 'FeatureDetail.vue' }
+const dispatcher = { name: 'FeatureDetail.vue' }
 
 /** ExternalIframeHosts contains a list all external iframe hosts */
 const { externalIframeHosts, title } = defineProps({
     externalIframeHosts: {
-        type: Object,
+        type: Object as PropType<string[]>,
         required: true,
-        validator: (value) => {
+        validator: (value: string[]) => {
             if (value.length > 0) {
-                return value.every((element) => Boolean(new URL('https://' + element)))
+                return value.every((element) => {
+                    try {
+                        // Will throw if element is not a valid hostname
+                        return Boolean(new URL('https://' + element))
+                    } catch {
+                        return false
+                    }
+                })
             }
             return false
         },
@@ -26,16 +34,14 @@ const { externalIframeHosts, title } = defineProps({
 })
 
 const { t } = useI18n()
-const store = useStore()
 
-const disclaimerIsShown = computed(() => {
-    return store.state.ui.showDisclaimer
-})
-function setDisclaimerAgree() {
-    store.dispatch('setShowDisclaimer', {
-        showDisclaimer: !disclaimerIsShown.value,
-        ...dispatcher,
-    })
+const uiStore = useUiStore()
+const { showDisclaimer } = storeToRefs(uiStore)
+
+const disclaimerIsShown = computed<boolean>(() => showDisclaimer.value)
+
+function setDisclaimerAgree(): void {
+    uiStore.setShowDisclaimer(!disclaimerIsShown.value, dispatcher)
 }
 </script>
 

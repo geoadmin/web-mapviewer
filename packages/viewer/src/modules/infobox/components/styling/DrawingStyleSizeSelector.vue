@@ -7,7 +7,7 @@ import type { FeatureStyleSize } from '@/utils/featureStyleUtils'
 import { allStylingSizes } from '@/utils/featureStyleUtils'
 
 const { currentSize } = defineProps<{
-    currentSize: FeatureStyleSize
+    currentSize?: FeatureStyleSize
 }>()
 
 const emits = defineEmits<{
@@ -44,7 +44,7 @@ function onSizeSelect(dropdownItem: DropdownItem<FeatureStyleSize>): void {
             data-cy="drawing-style-size-selector"
             :title="sizeLabel"
             :items="dropdownItems"
-            :current-value="currentSize"
+            :current-value="currentSize!.label"
             @select-item="onSizeSelect"
         />
     </div>
