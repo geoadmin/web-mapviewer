@@ -1,11 +1,12 @@
-<script setup lang="js">
+<script setup lang="ts">
+import useUIStore from '@/store/modules/ui.store'
+import log from '@swissgeo/log'
 import { computed, onUpdated, ref, useSlots } from 'vue'
-import { useStore } from 'vuex'
 
-const store = useStore()
+const uiStore = useUIStore()
 const slots = useSlots()
 
-const isFullscreenMode = computed(() => store.state.ui.fullscreenMode)
+const isFullscreenMode = computed(() => uiStore.fullscreenMode)
 const hasTopLeftFooter = ref(!!slots['top-left'])
 const hasTopRightFooter = ref(!!slots['top-right'])
 const hasBottomLeftFooter = ref(!!slots['bottom-left'])
@@ -18,6 +19,10 @@ onUpdated(() => {
     hasBottomLeftFooter.value = !!slots['bottom-left']
     hasBottomRightFooter.value = !!slots['bottom-right']
 })
+
+function handleSlotChange() {
+    log.debug('Slot content updated')
+}
 </script>
 
 <template>

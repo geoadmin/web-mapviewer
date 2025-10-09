@@ -1,12 +1,13 @@
-<script setup lang="js">
+<script setup lang="ts">
 import useBackgroundSelector from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelector'
 import useBackgroundLayerProps from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelectorProps'
 
-const { backgroundLayers, currentBackgroundLayer } = defineProps(useBackgroundLayerProps())
+const props = defineProps(useBackgroundLayerProps())
+const { backgroundLayers, currentBackgroundLayer } = props
 
 const emit = defineEmits({
-    selectBackground: (backgroundLayer) => {
-        return backgroundLayer === null || typeof backgroundLayer === 'string'
+    selectBackground: (backgroundLayer: string | undefined) => {
+        return backgroundLayer === undefined || typeof backgroundLayer === 'string'
     },
 })
 
@@ -30,7 +31,7 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
                 ]"
                 type="button"
                 :data-cy="`background-selector-${backgroundLayer?.id || 'void'}`"
-                @click="onSelectBackground(backgroundLayer?.id || null)"
+                @click="onSelectBackground(backgroundLayer?.id || undefined)"
             >
                 <span class="bg-selector-rounded-wheel-button-image-cropper">
                     <img
