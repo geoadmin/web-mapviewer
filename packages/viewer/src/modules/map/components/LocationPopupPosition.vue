@@ -1,8 +1,10 @@
-<script setup lang="js">
+<script setup lang="ts">
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
 import { coordinatesUtils, LV03, LV95, WGS84 } from '@swissgeo/coordinates'
+import type { SingleCoordinate, CoordinateSystem } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
+import type { GeoadminLogInput } from '@swissgeo/log'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -18,36 +20,25 @@ import {
     WGS84Format,
 } from '@/utils/coordinates/coordinateFormat.js'
 
-const { coordinate, clickInfo, projection, currentLang } = defineProps({
-    coordinate: {
-        type: Array,
-        required: true,
-    },
-    clickInfo: {
-        type: Object,
-        required: true,
-    },
-    projection: {
-        type: Object,
-        required: true,
-    },
-    currentLang: {
-        type: String,
-        required: true,
-    },
-})
+interface Props {
+    coordinate: SingleCoordinate
+    clickInfo?: ClickInfo
+    projection: CoordinateSystem
+    currentLang: string
+}
 
-const lv03Coordinate = ref(null)
-const what3Words = ref(null)
-const height = ref(null)
+const props = defineProps<Props>()
+
+const lv03Coordinate = ref<SingleCoordinate | undefined>(undefined)
+const what3Words = ref<string | undefined>(undefined)
+const height = ref<{ heightInFeet?: number; heightInMeter?: number } | undefined>(undefined)
 
 const { t } = useI18n()
 
 const coordinateWGS84Metric = computed(() => {
-    return coordinatesUtils.reprojectAndRound(projection, WGS84, coordinate)
+    return coordinatesUtils.reprojectAndRound(props.projection, WGS84, props.coordinate)
 })
 const coordinateWGS84Plain = computed(() => {
-    // we want to output lat / lon, meaning we have to give the coordinate as y / x
     return coordinateWGS84Metric.value
         .slice()
         .reverse()
@@ -55,66 +46,80 @@ const coordinateWGS84Plain = computed(() => {
         .join(', ')
 })
 const heightInFeet = computed(() => {
-    if (height.value?.heightInFeet) {
-        return `${height.value.heightInFeet}ft`
-    }
-    return null
+    return height.value?.heightInFeet ? `${height.value.heightInFeet}ft` : undefined
 })
 const heightInMeter = computed(() => {
-    if (height.value?.heightInMeter) {
-        return `${height.value.heightInMeter}m`
-    }
-    return ''
+    return height.value?.heightInMeter ? `${height.value.heightInMeter}m` : ''
 })
 
 onMounted(() => {
-    if (clickInfo) {
-        updateLV03Coordinate()
-        updateWhat3Word()
-        updateHeight()
+    if (props.clickInfo) {
+        updateLV03Coordinate().catch((error: unknown) => {
+            log.error('Failed to retrieve LV03 coordinate', error as GeoadminLogInput)
+        })
+        updateWhat3Word().catch((error: unknown) => {
+            log.error(`Failed to update What3Words`, error as GeoadminLogInput)
+        })
+        updateHeight().catch((error: unknown) => {
+            log.error(`Failed to update height`, error as GeoadminLogInput)
+        })
     }
 })
 
 watch(
-    () => clickInfo,
+    () => props.clickInfo,
     (newClickInfo) => {
         if (newClickInfo) {
-            updateLV03Coordinate()
-            updateWhat3Word()
-            updateHeight()
+            updateLV03Coordinate().catch((error: unknown) => {
+                log.error('Failed to retrieve LV03 coordinate', error as GeoadminLogInput)
+            })
+            updateWhat3Word().catch((error: unknown) => {
+                log.error('Failed to update What3Words', error as GeoadminLogInput)
+            })
+            updateHeight().catch((error: unknown) => {
+                log.error('Failed to update height', error as GeoadminLogInput)
+            })
         }
     }
 )
-watch(() => currentLang, updateWhat3Word)
+watch(() => props.currentLang, updateWhat3Word)
 
 async function updateLV03Coordinate() {
     try {
-        const lv95coordinate = coordinatesUtils.reprojectAndRound(projection, LV95, coordinate)
+        const lv95coordinate = coordinatesUtils.reprojectAndRound(
+            props.projection,
+            LV95,
+            props.coordinate
+        )
         lv03Coordinate.value = await reframe({
             inputCoordinates: lv95coordinate,
             inputProjection: LV95,
             outputProjection: LV03,
         })
-    } catch (error) {
-        log.error('Failed to retrieve LV03 coordinate', error)
-        lv03Coordinate.value = null
+    } catch (error: unknown) {
+        log.error('Failed to retrieve LV03 coordinate', error as GeoadminLogInput)
+        lv03Coordinate.value = undefined
     }
 }
 
 async function updateWhat3Word() {
     try {
-        what3Words.value = await registerWhat3WordsLocation(coordinate, projection, currentLang)
-    } catch (error) {
-        log.error(`Failed to retrieve What3Words Location`, error)
-        what3Words.value = null
+        what3Words.value = await registerWhat3WordsLocation(
+            props.coordinate,
+            props.projection,
+            props.currentLang
+        )
+    } catch (error: unknown) {
+        log.error(`Failed to retrieve What3Words Location`, error as GeoadminLogInput)
+        what3Words.value = undefined
     }
 }
 async function updateHeight() {
     try {
-        height.value = await requestHeight(coordinate, projection)
-    } catch (error) {
-        log.error(`Failed to get position height`, error)
-        height.value = null
+        height.value = await requestHeight(props.coordinate, props.projection)
+    } catch (error: unknown) {
+        log.error(`Failed to get position height`, error as GeoadminLogInput)
+        height.value = undefined
     }
 }
 </script>
@@ -157,8 +162,8 @@ async function updateHeight() {
             <CoordinateCopySlot
                 identifier="location-popup-wgs84"
                 :value="coordinateWGS84Plain"
-                :coordinate-format="null"
-                :extra-value="WGS84Format.format(coordinate, projection)"
+                :coordinate-format="undefined"
+                :extra-value="WGS84Format.formatCallback(coordinate, false)"
             >
                 <a
                     href="https://epsg.io/4326"
@@ -193,7 +198,7 @@ async function updateHeight() {
                 v-if="what3Words"
                 identifier="location-popup-w3w"
                 :value="what3Words"
-                :coordinate-format="null"
+                :coordinate-format="undefined"
             >
                 <a
                     href="http://what3words.com/"
@@ -207,7 +212,7 @@ async function updateHeight() {
                 v-if="height"
                 identifier="location-popup-height"
                 :value="heightInMeter"
-                :coordinate-format="null"
+                :coordinate-format="undefined"
                 :extra-value="heightInFeet"
             >
                 <a

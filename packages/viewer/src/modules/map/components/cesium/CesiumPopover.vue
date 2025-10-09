@@ -142,7 +142,7 @@ function onClose(): void {
     <MapPopover
         ref="popoverAnchor"
         :authorize-print="authorizePrint"
-        :title="title"
+        :title="title!"
         :use-content-padding="useContentPadding"
         :anchor-position="anchorPosition"
         @close="onClose"
