@@ -49,7 +49,7 @@ function readUrlParamValue(url: string, paramName: string): string | undefined {
  * @param search The query made to the mapviewer
  * @returns True if the query starts with ? or /?
  */
-export const isLegacyParams = (search: string): boolean => {
+export const isLegacyParams = (search: string | undefined): boolean => {
     return !!search?.match(/^(\?|\/\?).+$/g)
 }
 
