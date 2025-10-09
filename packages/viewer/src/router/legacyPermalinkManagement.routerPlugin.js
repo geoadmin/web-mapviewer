@@ -231,7 +231,7 @@ const handleLegacyParams = async (legacyParams, store, originView) => {
         )
     }
 
-    handleLegacyFeaturePreSelectionParam(legacyParams, store, newQuery)
+    handleLegacyFeaturePreSelectionParam(legacyParams, newQuery)
 
     // removing old query part (new ones will be added by vue-router after the /# part of the URL)
     const urlWithoutQueryParam = window.location.href.substr(0, window.location.href.indexOf('?'))
