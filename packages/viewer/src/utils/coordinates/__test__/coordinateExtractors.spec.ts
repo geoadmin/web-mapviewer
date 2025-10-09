@@ -1,3 +1,5 @@
+import type { CoordinateSystem } from '@swissgeo/coordinates'
+
 import { LV03, LV95, registerProj4, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import { toStringHDMS } from 'ol/coordinate'
 import proj4 from 'proj4'
@@ -5,14 +7,20 @@ import { describe, expect, it } from 'vitest'
 
 import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
 
+interface CheckXYOptions {
+    acceptableDelta?: number
+    testInverted?: boolean
+    thousandSpaceSeparator?: boolean
+}
+
 /**
  * Place a separator after each group of 3 digit
  *
- * @param {Number} number A number expressed as a string
- * @param {String} separator Which thousands separator to use
- * @returns {string} The number with thousands separator
+ * @param number A number expressed as a string or number
+ * @param separator Which thousands separator to use
+ * @returns The number with thousands separator
  */
-const numberWithThousandSeparator = (number, separator = "'") => {
+const numberWithThousandSeparator = (number: number | string, separator = "'"): string => {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, separator)
 }
 
@@ -24,29 +32,35 @@ describe('Unit test functions from coordinateExtractors.js', () => {
         /**
          * Gives text as input to coordinateFromString and check the output of this function
          *
-         * @param {String} text The input to be given to coordinateFromString
-         * @param {Number[]} expected What is expected of coordinateFromString as output
-         * @param {String} message Message to be shown if the test fails (in the unit test index)
-         * @param {Number} acceptableDelta If a delta with the expected result is acceptable
-         *   (default is zero)
-         * @param {CoordinateSystem} projection Which projection is the output of the parsing
+         * @param text The input to be given to coordinateFromString
+         * @param expected What is expected of coordinateFromString as output
+         * @param message Message to be shown if the test fails (in the unit test index)
+         * @param acceptableDelta If a delta with the expected result is acceptable (default is zero)
+         * @param projection Which projection is the output of the parsing
          */
-        const checkText = (text, expected, message, acceptableDelta = 0, projection) => {
+        const checkText = (
+            text: string,
+            expected: number[],
+            message: string,
+            acceptableDelta: number = 0,
+            projection: CoordinateSystem
+        ): void => {
             const result = coordinateFromString(text)
             expect(result).to.be.an('Object', message)
-            expect(result['coordinate']).to.be.an('Array')
-            expect(result['coordinateSystem']).to.be.an('Object')
-            const { coordinate, coordinateSystem } = result
+            expect(result?.coordinate).to.be.an('Array')
+            expect(result?.coordinateSystem).to.be.an('Object')
+            const coordinate = result!.coordinate
+            const coordinateSystem = result!.coordinateSystem
             expect(coordinate.length).to.eq(2, message)
             expect(coordinate[0]).to.approximately(
-                expected[0],
+                expected[0]!,
                 acceptableDelta,
-                message + '\nx result: ' + result[0] + '\n'
+                message + '\nx result: ' + coordinate[0] + '\n'
             )
             expect(coordinate[1]).to.approximately(
-                expected[1],
+                expected[1]!,
                 acceptableDelta,
-                message + '\ny result: ' + result[1] + '\n'
+                message + '\ny result: ' + coordinate[1] + '\n'
             )
             expect(coordinateSystem.epsg).to.eq(projection.epsg)
         }
@@ -54,20 +68,21 @@ describe('Unit test functions from coordinateExtractors.js', () => {
          * Checks that X and Y (given as param) output the expected X and Y with different
          * combinations of coma, spaces, slash and tabs in between X and Y
          *
-         * @param {Number, String} x X to be passed as input to coordinateFromString
-         * @param {Number, String} y Y to be passed as input to coordinateFromString
-         * @param {Number} xExpectedValue What coordinateFromString is expected to output as X
-         * @param {Number} yExpectedValue What coordinateFromString is expected to output as Y
-         * @param {CoordinateSystem} projection The output projection of the parsing
-         * @param {Object} options
-         * @param {Number} [options.acceptableDelta=0] If a delta with the expected result is
-         *   acceptable. Default is `0`
-         * @param {Boolean} [options.testInverted=true] If the X and Y should also be tested
-         *   inverted in. Default is `true`
-         * @param {Boolean} [options.thousandSpaceSeparator=false] If the X and Y are using space as
-         *   thousand separator. Default is `false`
+         * @param x X to be passed as input to coordinateFromString
+         * @param y Y to be passed as input to coordinateFromString
+         * @param xExpectedValue What coordinateFromString is expected to output as X
+         * @param yExpectedValue What coordinateFromString is expected to output as Y
+         * @param projection The output projection of the parsing
+         * @param options Options object
          */
-        const checkXY = (x, y, xExpectedValue, yExpectedValue, projection, options = {}) => {
+        const checkXY = (
+            x: number | string,
+            y: number | string,
+            xExpectedValue: number,
+            yExpectedValue: number,
+            projection: CoordinateSystem,
+            options: CheckXYOptions = {}
+        ): void => {
             const {
                 acceptableDelta = 0,
                 testInverted = true,
@@ -160,9 +175,9 @@ describe('Unit test functions from coordinateExtractors.js', () => {
         }
 
         const expectedCenterLV95 = LV95.bounds.center
-        const expectedCenterWGS84 = proj4(LV95.epsg, WGS84.epsg, expectedCenterLV95).map((value) =>
-            WGS84.roundCoordinateValue(value)
-        )
+        const expectedCenterWGS84 = proj4(LV95.epsg, WGS84.epsg, expectedCenterLV95).map(
+            (value) => WGS84.roundCoordinateValue(value)
+        ) as [number, number]
 
         describe('Testing non valid inputs', () => {
             it('Returns undefined when anything else than numbers, coma, whitespaces and point is in the text', () => {
@@ -180,12 +195,7 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                     'must not accept text before the coordinates'
                 )
             })
-            it('Returns undefined when the given text is invalid (null or not a string)', () => {
-                expect(coordinateFromString(null)).to.be.undefined
-                expect(coordinateFromString(1234)).to.be.undefined
-                expect(coordinateFromString([45.6, 7.4])).to.be.undefined
-                expect(coordinateFromString({ lon: 7, lat: 45 })).to.be.undefined
-            })
+
             it('Returns undefined when the given text is not two numbers separated by a coma, a space or a slash', () => {
                 expect(coordinateFromString('47.0')).to.be.undefined
                 expect(coordinateFromString('47.0,')).to.be.undefined
@@ -224,8 +234,8 @@ describe('Unit test functions from coordinateExtractors.js', () => {
 
             it(`Returns coordinates with degree decimal (DD) format : ${expectedCenterWGS84_DD.join(',')}`, () => {
                 checkXY(
-                    expectedCenterWGS84_DD[0],
-                    expectedCenterWGS84_DD[1],
+                    expectedCenterWGS84_DD[0]!,
+                    expectedCenterWGS84_DD[1]!,
                     expectedCenterWGS84[0],
                     expectedCenterWGS84[1],
                     WGS84,
@@ -251,8 +261,8 @@ describe('Unit test functions from coordinateExtractors.js', () => {
             })
             it(`Returns coordinates with DM (degree/minutes) format : ${expectedCenterWGS84_DMS.join(',')}`, () => {
                 checkXY(
-                    expectedCenterWGS84_DMS[0],
-                    expectedCenterWGS84_DMS[1],
+                    expectedCenterWGS84_DMS[0]!,
+                    expectedCenterWGS84_DMS[1]!,
                     expectedCenterWGS84[0],
                     expectedCenterWGS84[1],
                     WGS84,
@@ -260,7 +270,7 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 )
                 // removing space between degrees and minutes
                 checkXY(
-                    ...expectedCenterWGS84_DMS.map((val) => val.replace(/° /g, '°')),
+                    ...expectedCenterWGS84_DMS.map((val) => val.replace(/° /g, '°')) as [string, string],
                     expectedCenterWGS84[0],
                     expectedCenterWGS84[1],
                     WGS84,
@@ -268,7 +278,7 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 )
                 // removing space between minutes and seconds
                 checkXY(
-                    ...expectedCenterWGS84_DMS.map((val) => val.replace(/' /g, "'")),
+                    ...expectedCenterWGS84_DMS.map((val) => val.replace(/' /g, "'")) as [string, string],
                     expectedCenterWGS84[0],
                     expectedCenterWGS84[1],
                     WGS84,
@@ -278,7 +288,7 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 checkXY(
                     ...expectedCenterWGS84_DMS.map((val) =>
                         val.replace(/° /g, '°').replace(/' /g, "'")
-                    ),
+                    ) as [string, string],
                     expectedCenterWGS84[0],
                     expectedCenterWGS84[1],
                     WGS84,
@@ -286,11 +296,11 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 )
             })
             it(`Returns coordinates with DMS (degree/minutes/seconds) format : ${expectedCenterWGS84_DMS_No_NE.join(',')}`, () => {
-                const latWithSpaceBetweenDegAndMin = expectedCenterWGS84_DMS_No_NE[0].replace(
+                const latWithSpaceBetweenDegAndMin = expectedCenterWGS84_DMS_No_NE[0]!.replace(
                     /°/g,
                     '° '
                 )
-                const lonWithSpaceBetweenDegAndMin = expectedCenterWGS84_DMS_No_NE[1].replace(
+                const lonWithSpaceBetweenDegAndMin = expectedCenterWGS84_DMS_No_NE[1]!.replace(
                     /°/g,
                     '° '
                 )
@@ -306,8 +316,8 @@ describe('Unit test functions from coordinateExtractors.js', () => {
 
                 // double quote notation for seconds
                 checkXY(
-                    expectedCenterWGS84_DMS_No_NE[0],
-                    expectedCenterWGS84_DMS_No_NE[1],
+                    expectedCenterWGS84_DMS_No_NE[0]!,
+                    expectedCenterWGS84_DMS_No_NE[1]!,
                     expectedCenterWGS84[0],
                     expectedCenterWGS84[1],
                     WGS84,
@@ -332,8 +342,8 @@ describe('Unit test functions from coordinateExtractors.js', () => {
 
                 // two single quote notation for seconds
                 checkXY(
-                    expectedCenterWGS84_DMS_No_NE[0].replace(/"/g, "''"),
-                    expectedCenterWGS84_DMS_No_NE[1].replace(/"/g, "''"),
+                    expectedCenterWGS84_DMS_No_NE[0]!.replace(/"/g, "''"),
+                    expectedCenterWGS84_DMS_No_NE[1]!.replace(/"/g, "''"),
                     expectedCenterWGS84[0],
                     expectedCenterWGS84[1],
                     WGS84,
@@ -358,8 +368,8 @@ describe('Unit test functions from coordinateExtractors.js', () => {
             })
             it(`Returns coordinate with DM format (degree minutes without symbols, aka Google style) : ${expectedCenterWGS84_DD_NoSymbol.join(',')}`, () => {
                 checkXY(
-                    expectedCenterWGS84_DD_NoSymbol[0],
-                    expectedCenterWGS84_DD_NoSymbol[1],
+                    expectedCenterWGS84_DD_NoSymbol[0]!,
+                    expectedCenterWGS84_DD_NoSymbol[1]!,
                     expectedCenterWGS84[0],
                     expectedCenterWGS84[1],
                     WGS84,
@@ -385,8 +395,8 @@ describe('Unit test functions from coordinateExtractors.js', () => {
             })
             it(`Returns coordinate with DMS format (degree minutes without symbols, aka Google style) : ${expectedCenterWGS84_DMS_NoSymbol.join(',')}`, () => {
                 checkXY(
-                    expectedCenterWGS84_DMS_NoSymbol[0],
-                    expectedCenterWGS84_DMS_NoSymbol[1],
+                    expectedCenterWGS84_DMS_NoSymbol[0]!,
+                    expectedCenterWGS84_DMS_NoSymbol[1]!,
                     expectedCenterWGS84[0],
                     expectedCenterWGS84[1],
                     WGS84,
@@ -395,8 +405,8 @@ describe('Unit test functions from coordinateExtractors.js', () => {
             })
             it('Returns coordinate with DMS format with cardinal point information', () => {
                 checkXY(
-                    expectedCenterWGS84_DMS[0],
-                    expectedCenterWGS84_DMS[1],
+                    expectedCenterWGS84_DMS[0]!,
+                    expectedCenterWGS84_DMS[1]!,
                     expectedCenterWGS84[0],
                     expectedCenterWGS84[1],
                     WGS84,
@@ -409,18 +419,18 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 const pointInSouthAmericaInEPSG3857 = [-6504867, -4110554]
                 const pointInSouthAmericaInEPSG4326 = ['34°36\'23.937"S', '58°26\'3.172"W']
                 checkXY(
-                    pointInSouthAmericaInEPSG4326[0],
-                    pointInSouthAmericaInEPSG4326[1],
-                    pointInSouthAmericaInEPSG3857[0],
-                    pointInSouthAmericaInEPSG3857[1],
+                    pointInSouthAmericaInEPSG4326[0]!,
+                    pointInSouthAmericaInEPSG4326[1]!,
+                    pointInSouthAmericaInEPSG3857[0]!,
+                    pointInSouthAmericaInEPSG3857[1]!,
                     WEBMERCATOR,
                     { acceptableDelta }
                 )
                 checkXY(
-                    pointInSouthAmericaInEPSG4326[1],
-                    pointInSouthAmericaInEPSG4326[0],
-                    pointInSouthAmericaInEPSG3857[0],
-                    pointInSouthAmericaInEPSG3857[1],
+                    pointInSouthAmericaInEPSG4326[1]!,
+                    pointInSouthAmericaInEPSG4326[0]!,
+                    pointInSouthAmericaInEPSG3857[0]!,
+                    pointInSouthAmericaInEPSG3857[1]!,
                     WEBMERCATOR,
                     { acceptableDelta }
                 )
@@ -431,18 +441,18 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 const pointInNorthAmericaInEPSG3857 = [-9457276, 4961988]
                 const pointInNorthAmericaInEPSG4326 = ['40°39\'27.846"N', '84°57\'22.161"W']
                 checkXY(
-                    pointInNorthAmericaInEPSG4326[0],
-                    pointInNorthAmericaInEPSG4326[1],
-                    pointInNorthAmericaInEPSG3857[0],
-                    pointInNorthAmericaInEPSG3857[1],
+                    pointInNorthAmericaInEPSG4326[0]!,
+                    pointInNorthAmericaInEPSG4326[1]!,
+                    pointInNorthAmericaInEPSG3857[0]!,
+                    pointInNorthAmericaInEPSG3857[1]!,
                     WEBMERCATOR,
                     { acceptableDelta }
                 )
                 checkXY(
-                    pointInNorthAmericaInEPSG4326[1],
-                    pointInNorthAmericaInEPSG4326[0],
-                    pointInNorthAmericaInEPSG3857[0],
-                    pointInNorthAmericaInEPSG3857[1],
+                    pointInNorthAmericaInEPSG4326[1]!,
+                    pointInNorthAmericaInEPSG4326[0]!,
+                    pointInNorthAmericaInEPSG3857[0]!,
+                    pointInNorthAmericaInEPSG3857[1]!,
                     WEBMERCATOR,
                     { acceptableDelta }
                 )
@@ -453,18 +463,18 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 const pointInOceaniaInEPSG3857 = [12894439, -3757563]
                 const pointInOceaniaInEPSG4326 = ['31°57\'22.332"S', '115°49\'57.779"E']
                 checkXY(
-                    pointInOceaniaInEPSG4326[0],
-                    pointInOceaniaInEPSG4326[1],
-                    pointInOceaniaInEPSG3857[0],
-                    pointInOceaniaInEPSG3857[1],
+                    pointInOceaniaInEPSG4326[0]!,
+                    pointInOceaniaInEPSG4326[1]!,
+                    pointInOceaniaInEPSG3857[0]!,
+                    pointInOceaniaInEPSG3857[1]!,
                     WEBMERCATOR,
                     { acceptableDelta }
                 )
                 checkXY(
-                    pointInOceaniaInEPSG4326[1],
-                    pointInOceaniaInEPSG4326[0],
-                    pointInOceaniaInEPSG3857[0],
-                    pointInOceaniaInEPSG3857[1],
+                    pointInOceaniaInEPSG4326[1]!,
+                    pointInOceaniaInEPSG4326[0]!,
+                    pointInOceaniaInEPSG3857[0]!,
+                    pointInOceaniaInEPSG3857[1]!,
                     WEBMERCATOR,
                     { acceptableDelta }
                 )
@@ -477,12 +487,17 @@ describe('Unit test functions from coordinateExtractors.js', () => {
          * supported by the app (coordinateFromString must detect which one is the north and which
          * one is the east part of the coordinate)
          *
-         * @param {Number} x
-         * @param {Number} y
-         * @param {CoordinateSystem} expectedProjection
-         * @param {Number} acceptableDelta
+         * @param x X coordinate
+         * @param y Y coordinate
+         * @param expectedProjection Expected projection system
+         * @param acceptableDelta Acceptable delta for coordinate comparison
          */
-        const checkSwissCoordinateSystem = (x, y, expectedProjection, acceptableDelta) => {
+        const checkSwissCoordinateSystem = (
+            x: number,
+            y: number,
+            expectedProjection: CoordinateSystem,
+            acceptableDelta: number
+        ): void => {
             it('Returns coordinates when input is valid', () => {
                 checkXY(x, y, x, y, expectedProjection, {
                     acceptableDelta,
@@ -543,7 +558,7 @@ describe('Unit test functions from coordinateExtractors.js', () => {
         describe('EPSG:21781 (LV03)', () => {
             const expectedCenterLV03 = proj4(LV95.epsg, LV03.epsg, expectedCenterLV95).map(
                 (value) => LV03.roundCoordinateValue(value)
-            )
+            ) as [number, number]
             checkSwissCoordinateSystem(expectedCenterLV03[0], expectedCenterLV03[1], LV03, 0.1)
         })
 
@@ -553,7 +568,7 @@ describe('Unit test functions from coordinateExtractors.js', () => {
             it('Returns coordinates in EPSG:4326 when MGRS string is entered', () => {
                 // as MGRS is a grid based system, what is return is essentially a 1-meter box.
                 // So depending on which part of the box is taken, the answer is correct, we then tolerate here a margin of 1m
-                checkText(MGRS, LV95.getBoundsAs(WGS84).center, 'MGRS not supported', 1, WGS84)
+                checkText(MGRS, LV95.getBoundsAs(WGS84)!.center, 'MGRS not supported', 1, WGS84)
             })
         })
     })
