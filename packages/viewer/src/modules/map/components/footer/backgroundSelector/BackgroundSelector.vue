@@ -1,18 +1,20 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed } from 'vue'
-import { useStore } from 'vuex'
 
 import BackgroundSelectorSquared from '@/modules/map/components/footer/backgroundSelector/BackgroundSelectorSquared.vue'
 import BackgroundSelectorWheelRounded from '@/modules/map/components/footer/backgroundSelector/BackgroundSelectorWheelRounded.vue'
+import useLayersStore from '@/store/modules/layers.store'
+import useUIStore from '@/store/modules/ui.store'
 
-const dispatcher = { dispatcher: 'BackgroundSelector.vue' }
+const dispatcher = { name: 'BackgroundSelector.vue' }
 
-const store = useStore()
-const backgroundLayers = computed(() => store.getters.backgroundLayers)
-const currentBackgroundLayer = computed(() => store.getters.currentBackgroundLayer)
-const squaredDesign = computed(() => store.getters.isDesktopMode)
+const layersStore = useLayersStore()
+const uiStore = useUIStore()
+const backgroundLayers = computed(() => layersStore.backgroundLayers)
+const currentBackgroundLayer = computed(() => layersStore.currentBackgroundLayer)
+const squaredDesign = computed(() => uiStore.isDesktopMode)
 
-function generateBackgroundCategories(bg) {
+function generateBackgroundCategories(bg: { id: string }) {
     return {
         farbe: bg.id.indexOf('farbe') !== -1,
         grau: bg.id.indexOf('grau') !== -1,
@@ -24,8 +26,8 @@ function generateBackgroundCategories(bg) {
 
 /** Sorted backgrounds so that they are ordered such as [ void, grau, farbe, aerial ] */
 const sortedBackgroundLayersWithVoid = computed(() =>
-    [...backgroundLayers.value, null].sort((bg1, bg2) => {
-        // if bg1 is void (null), it is placed "on-top" (1st in the list)
+    [...backgroundLayers.value, undefined].sort((bg1, bg2) => {
+        // if bg1 is void (undefined), it is placed "on-top" (1st in the list)
         if (!bg1) {
             return 1
         }
@@ -45,11 +47,8 @@ const sortedBackgroundLayersWithVoid = computed(() =>
     })
 )
 
-function selectBackground(backgroundLayerId) {
-    store.dispatch('setBackground', {
-        bgLayerId: backgroundLayerId,
-        ...dispatcher,
-    })
+function selectBackground(backgroundLayerId: string | undefined) {
+    layersStore.setBackground(backgroundLayerId, dispatcher)
 }
 </script>
 

@@ -1,55 +1,28 @@
-<script setup lang="js">
-const { sourceId, sourceName, sourceUrl, hasDataDisclaimer, isLast } = defineProps({
-    sourceId: {
-        type: String,
-        required: true,
-    },
-    sourceName: {
-        type: String,
-        required: true,
-    },
-    sourceUrl: {
-        type: String,
-        default: null,
-    },
-    hasDataDisclaimer: {
-        type: Boolean,
-        default: false,
-    },
-    isLast: {
-        type: Boolean,
-        default: false,
-    },
-})
+<script setup lang="ts">
+import { defineProps } from 'vue'
+
+defineProps<{
+    label: string
+    url: string
+}>()
 </script>
 
 <template>
-    <component
-        :is="sourceUrl ? 'a' : 'span'"
-        :id="`source-${sourceId}`"
-        :href="sourceUrl"
-        :target="sourceUrl ? '_blank' : null"
-        class="map-footer-attribution-source clear-no-ios-long-press"
-        :class="{ 'text-primary': hasDataDisclaimer, 'is-link': sourceUrl || hasDataDisclaimer }"
-        :data-cy="`layer-copyright-${sourceName}`"
+    <a
+        class="map-footer-attribution-item"
+        :href="url"
+        target="_blank"
     >
-        {{ `${sourceName}${isLast ? '' : ','}` }}
-    </component>
+        {{ label }}
+    </a>
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
-
-.map-footer-attribution-source {
-    margin-left: 2px;
-    color: $black;
-
-    &.is-link {
-        text-decoration: none;
-        &:hover {
-            text-decoration: underline;
-            cursor: pointer;
-        }
+.map-footer-attribution-item {
+    color: inherit;
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
     }
 }
 </style>

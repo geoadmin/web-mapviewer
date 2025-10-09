@@ -1,15 +1,16 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { useI18n } from 'vue-i18n'
 
 import useBackgroundSelector from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelector'
 import useBackgroundLayerProps from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelectorProps'
 
-const { backgroundLayers, currentBackgroundLayer } = defineProps(useBackgroundLayerProps())
+const props = defineProps(useBackgroundLayerProps())
+const { backgroundLayers, currentBackgroundLayer } = props
 
 const emit = defineEmits({
-    selectBackground: (backgroundLayerId) => {
-        return backgroundLayerId === null || typeof backgroundLayerId === 'string'
+    selectBackground: (backgroundLayerId: string | undefined) => {
+        return backgroundLayerId === undefined || typeof backgroundLayerId === 'string'
     },
 })
 
@@ -26,29 +27,15 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
             :class="{ show, animate }"
         >
             <button
-                v-for="(backgroundLayer, index) in backgroundLayers"
-                :key="index"
-                class="bg-selector-squared-wheel-button"
-                :class="[
-                    { active: backgroundLayer?.id === currentBackgroundLayer?.id },
-                    `bg-selector-squared-wheel-button-${index}`,
-                ]"
-                type="button"
-                :data-cy="`background-selector-${backgroundLayer?.id || 'void'}`"
-                @click="onSelectBackground(backgroundLayer?.id || null)"
+                v-for="backgroundLayer in backgroundLayers"
+                :key="backgroundLayer?.id"
+                @click="onSelectBackground(backgroundLayer?.id || undefined)"
             >
-                <span class="bg-selector-squared-wheel-button-image-cropper">
-                    <img
-                        v-if="backgroundLayer"
-                        :src="getImageForBackgroundLayer(backgroundLayer)"
-                        alt="background image"
-                    />
-                </span>
-                <span
-                    class="bg-selector-squared-wheel-button-label text-bg-dark bg-opacity-75 show"
-                >
-                    {{ t(backgroundLayer?.id || 'void_layer') }}
-                </span>
+                <img
+                    v-if="backgroundLayer"
+                    :src="getImageForBackgroundLayer(backgroundLayer)"
+                    alt="background image"
+                />
             </button>
         </div>
         <button
@@ -59,26 +46,17 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
             @click="toggleShowSelector"
         >
             <FontAwesomeIcon
-                icon="circle-chevron-right"
-                class="bg-selector-squared-wheel-button-close"
+                :icon="['fas', 'circle']"
                 :class="{ show, animate }"
             />
             <span class="bg-selector-squared-wheel-button-image-cropper">
                 <img
                     :src="getImageForBackgroundLayer(currentBackgroundLayer)"
-                    alt="background image"
+                    alt="current background image"
                 />
             </span>
-            <span
-                :class="{ spread: show, animate }"
-                class="bg-selector-squared-wheel-button-label text-bg-dark bg-opacity-75"
-            >
-                <span
-                    class="text-nowrap bg-selector-squared-wheel-button-label-inner"
-                    :class="{ show: !show, animate }"
-                >
-                    {{ t('bg_chooser_label') }}
-                </span>
+            <span class="bg-selector-squared-wheel-button-label text-bg-dark bg-opacity-75">
+                {{ t('backgroundSelector.label') }}
             </span>
         </button>
     </div>
