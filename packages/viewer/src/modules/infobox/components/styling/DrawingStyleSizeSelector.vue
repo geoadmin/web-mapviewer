@@ -44,7 +44,7 @@ function onSizeSelect(dropdownItem: DropdownItem<FeatureStyleSize>): void {
             data-cy="drawing-style-size-selector"
             :title="sizeLabel"
             :items="dropdownItems"
-            :current-value="currentSize"
+            :current-value="currentSize!.label"
             @select-item="onSizeSelect"
         />
     </div>

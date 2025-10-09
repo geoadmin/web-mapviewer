@@ -6,14 +6,14 @@ import { useTemplateRef, computed } from 'vue'
 type Props = {
     /** The button should have either a title or icons (or both) */
     icon?: string
-    popoverTitle?: string | null
-    buttonClassOptions?: string | null
+    popoverTitle?: string
+    buttonClassOptions?: string
 }
 
 const { icon, popoverTitle, buttonClassOptions } = defineProps<Props>()
 const iconValue = computed<string>(() => icon ?? 'pen')
 
-type TooltipRef = { closeTooltip: () => void } | null
+type TooltipRef = { closeTooltip: () => void } | undefined
 const tooltipElement = useTemplateRef<TooltipRef>('tooltipElement')
 
 /** Hides the popover container, can be called outside (by this component's parent) */
