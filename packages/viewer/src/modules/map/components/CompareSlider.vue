@@ -148,7 +148,7 @@ function onPreRenderWebGL(event: RenderEvent, context: WebGLRenderingContext) {
     context.scissor(bottomLeft[0]!, bottomLeft[1]!, width, height)
 }
 
-function onPreRender2d(event: RenderEvent, context: CanvasRenderingContext2D) {
+function onPreRender2d(_event: RenderEvent, context: CanvasRenderingContext2D) {
     const width =
         compareRatio.value > 0 && compareRatio.value < 1.0
             ? compareRatio.value * context.canvas.width
@@ -160,8 +160,8 @@ function onPreRender2d(event: RenderEvent, context: CanvasRenderingContext2D) {
 }
 
 function useWebGLContext(
-    context: WebGLRenderingContext | CanvasRenderingContext2D
-): context is WebGLRenderingContext {
+    _context: WebGLRenderingContext | CanvasRenderingContext2D
+): _context is WebGLRenderingContext {
     return shouldUseWebGlContext.value
 }
 

@@ -1,20 +1,19 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed } from 'vue'
-import { useStore } from 'vuex'
 
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSocialNetworks.vue'
+import useUIStore from '@/store/modules/ui.store'
 
-const { shareLinkUrlShorten } = defineProps({
-    shareLinkUrlShorten: {
-        type: String,
-        default: null,
-    },
-})
+interface Props {
+    shareLinkUrlShorten: string | undefined
+}
 
-const store = useStore()
+const props = defineProps<Props>()
 
-const isDesktopMode = computed(() => store.getters.isDesktopMode)
+const uiStore = useUIStore()
+
+const isDesktopMode = computed(() => uiStore.isDesktopMode)
 </script>
 
 <template>
@@ -27,11 +26,11 @@ const isDesktopMode = computed(() => store.getters.isDesktopMode)
         data-cy="import-file-online-content"
     >
         <MenuShareSocialNetworks
-            :short-link="shareLinkUrlShorten"
+            :short-link="props.shareLinkUrlShorten"
             class="pt-1"
         />
         <MenuShareInputCopyButton
-            :input-text="shareLinkUrlShorten"
+            :input-text="props.shareLinkUrlShorten"
             :label-text="'share_link'"
             :copy-text="'copy_url'"
             :copied-text="'copy_success'"

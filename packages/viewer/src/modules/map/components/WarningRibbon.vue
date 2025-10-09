@@ -1,10 +1,10 @@
-<script setup lang="js">
+<script setup lang="ts">
+import useUIStore from '@/store/modules/ui.store'
 import { computed } from 'vue'
-import { useStore } from 'vuex'
 
-const store = useStore()
+const uiStore = useUIStore()
 
-const hasWarningRibbon = computed(() => store.getters.hasWarningRibbon)
+const hasWarningRibbon = computed(() => uiStore.hasWarningRibbon)
 </script>
 
 <template>

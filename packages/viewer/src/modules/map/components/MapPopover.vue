@@ -1,16 +1,8 @@
-<script lang="js">
-/** @enum */
-export const MapPopoverMode = {
-    FLOATING: 'FLOATING',
-    FEATURE_TOOLTIP: 'FEATURE_TOOLTIP',
-}
-</script>
-<script setup lang="js">
+<script setup lang="ts">
 /** Map popover content and styles. Position handling is done in corresponding library components */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
-import { useStore } from 'vuex'
 
 import {
     cssDevDisclaimerHeight,
@@ -22,56 +14,50 @@ import {
 } from '@/scss/exports'
 import PrintButton from '@/utils/components/PrintButton.vue'
 import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
+import useUIStore from '@/store/modules/ui.store'
+import useDrawingStore from '@/store/modules/drawing.store'
+import { MapPopoverMode } from '@/modules/map/components/MapPopoverMode.enum'
 
-const { authorizePrint, title, useContentPadding, anchorPosition, mode } = defineProps({
-    authorizePrint: {
-        type: Boolean,
-        default: false,
-    },
-    title: {
-        type: String,
-        default: '',
-    },
-    useContentPadding: {
-        type: Boolean,
-        default: false,
-    },
-    anchorPosition: {
-        type: Object,
-        default: null,
-        validator: (value, props) =>
-            props.mode !== MapPopoverMode.FEATURE_TOOLTIP ||
-            (value && value.top >= 0 && value.left >= 0),
-    },
-    mode: {
-        type: String,
-        default: MapPopoverMode.FLOATING,
-        validator: (value) => Object.values(MapPopoverMode).includes(value),
-    },
-})
+interface AnchorPosition {
+    top: number
+    left: number
+}
 
+const {
+    authorizePrint,
+    title,
+    useContentPadding,
+    anchorPosition,
+    mode = MapPopoverMode.FLOATING,
+} = defineProps<{
+    authorizePrint: boolean
+    title: string
+    useContentPadding: boolean
+    anchorPosition?: AnchorPosition
+    mode?: MapPopoverMode
+}>()
 const emits = defineEmits(['close'])
 
-const popoverHeader = useTemplateRef('popoverHeader')
-const popover = useTemplateRef('popover')
-const mapPopoverContent = useTemplateRef('mapPopoverContent')
+const popoverHeader = useTemplateRef<HTMLDivElement>('popoverHeader')
+const popover = useTemplateRef<HTMLDivElement>('popover')
+const mapPopoverContent = useTemplateRef<HTMLDivElement>('mapPopoverContent')
 
 const width = computed(() => popover.value?.clientWidth)
 
 const showContent = ref(true)
 
-const store = useStore()
-// as the drawing toolbox takes the space of the header on mobile, we have to keep track of its state so that we
-// can adapt the limits for the floating tooltip.
-const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.show)
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
-const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
-const currentHeaderHeight = computed(() => store.state.ui.headerHeight)
-const isPhoneMode = computed(() => store.getters.isPhoneMode)
-const isDesktopMode = computed(() => store.getters.isTraditionalDesktopSize)
+const uiStore = useUIStore()
+const drawingStore = useDrawingStore()
+
+const isCurrentlyDrawing = computed(() => drawingStore.drawingOverlay.show)
+const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
+const isTimeSliderActive = computed(() => uiStore.isTimeSliderActive)
+const currentHeaderHeight = computed(() => uiStore.headerHeight)
+const isPhoneMode = computed(() => uiStore.isPhoneMode)
+const isDesktopMode = computed(() => uiStore.isTraditionalDesktopSize)
 
 const cssPositionOnScreen = computed(() => {
-    if (mode === MapPopoverMode.FEATURE_TOOLTIP) {
+    if (mode === MapPopoverMode.FEATURE_TOOLTIP && anchorPosition) {
         return {
             top: `${anchorPosition.top}px`,
             left: `${anchorPosition.left}px`,
@@ -153,7 +139,7 @@ defineExpose({
                 ref="popoverHeader"
                 class="map-popover-header card-header d-flex"
             >
-                <span class="flex-grow-1 align-self-center">
+                <span class="align-self-center flex-grow-1">
                     {{ title }}
                 </span>
                 <PrintButton

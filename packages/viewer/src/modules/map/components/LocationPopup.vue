@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
 import log from '@swissgeo/log'
@@ -6,50 +6,49 @@ import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { useStore } from 'vuex'
 
 import { createShortLink } from '@/api/shortlink.api'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
 import LocationPopupPosition from '@/modules/map/components/LocationPopupPosition.vue'
 import LocationPopupShare from '@/modules/map/components/LocationPopupShare.vue'
-import { MapPopoverMode } from '@/modules/map/components/MapPopover.vue'
+import { MapPopoverMode } from '@/modules/map/components/MapPopoverMode.enum'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import { stringifyQuery } from '@/utils/url-router.js'
+import useMapStore from '@/store/modules/map.store'
+import usePositionStore from '@/store/modules/position.store'
+import useCesiumStore from '@/store/modules/cesium.store'
+import { useI18nStore } from '@/store/modules/i18n.store'
 
-const dispatcher = { dispatcher: 'LocationPopup.vue' }
+const dispatcher = { name: 'LocationPopup.vue' }
 
 const { t } = useI18n()
-const store = useStore()
 const route = useRoute()
+const mapStore = useMapStore()
+const positionStore = usePositionStore()
+const cesiumStore = useCesiumStore()
+const i18nStore = useI18nStore()
 
-const clickInfo = computed(() => store.state.map.clickInfo)
-const projection = computed(() => store.state.position.projection)
-const showIn3d = computed(() => store.state.cesium.active)
-const currentLang = computed(() => store.state.i18n.lang)
+const clickInfo = computed(() => mapStore.clickInfo)
+const projection = computed(() => positionStore.projection)
+const showIn3d = computed(() => cesiumStore.active)
+const currentLang = computed(() => i18nStore.lang)
 const showEmbedSharing = computed(() => selectedTab.value === 'share')
-const coordinate = computed(() => store.state.map.locationPopupCoordinates)
+const coordinate = computed(() => mapStore.locationPopupCoordinates)
 
-const selectedTab = ref('position')
+const selectedTab = ref<'position' | 'share'>('position')
 const shareTooltip = useTemplateRef('shareTooltip')
 const newClickInfo = ref(true)
 const requestClipboard = ref(false)
 const shareLinkCopied = ref(false)
-const shareLinkUrl = ref(null)
-const shareLinkUrlShorten = ref(null)
+const shareLinkUrl = ref<string | undefined>(undefined)
+const shareLinkUrlShorten = ref<string | undefined>(undefined)
 
 const mappingFrameworkSpecificPopup = computed(() => {
-    if (showIn3d.value) {
-        return CesiumPopover
-    }
-    return OpenLayersPopover
+    return showIn3d.value ? CesiumPopover : OpenLayersPopover
 })
 
 const copyButtonIcon = computed(() => {
-    if (shareLinkCopied.value) {
-        return 'check'
-    }
-    // as copy is part of the "Regular" icon set, we have to give the 'far' identifier
-    return ['far', 'copy']
+    return shareLinkCopied.value ? 'check' : ['far', 'copy']
 })
 
 watch(clickInfo, () => {
@@ -62,7 +61,9 @@ watch(clickInfo, () => {
 
 watch(shareLinkUrlShorten, () => {
     if (requestClipboard.value) {
-        copyShareLink()
+        copyShareLink().catch((error: unknown) => {
+            log.error('Failed to copy share link', error as string)
+        })
         requestClipboard.value = false
     }
 })
@@ -86,29 +87,31 @@ watch(
 )
 
 function showCopiedTooltip() {
-    shareTooltip.value.openTooltip()
+    shareTooltip.value?.openTooltip()
 }
 
 function closeCopiedTooltip() {
-    shareTooltip.value.closeTooltip()
+    shareTooltip.value?.closeTooltip()
 }
 
 function updateShareLink() {
     const query = {
         ...route.query,
         crosshair: 'marker',
-        center: coordinate.value.join(','),
+        center: coordinate.value?.join(','),
     }
     shareLinkUrl.value = `${location.origin}/#/map?${stringifyQuery(query)}`
-    shortenShareLink(shareLinkUrl.value)
+    shortenShareLink(shareLinkUrl.value).catch((error: unknown) => {
+        log.error('Failed to create shortlink', error as string)
+    })
 }
 
-async function shortenShareLink(url) {
+async function shortenShareLink(url: string) {
     try {
         shareLinkUrlShorten.value = await createShortLink(url)
-    } catch (error) {
-        log.error(`Failed to create shortlink`, error)
-        shareLinkUrlShorten.value = null
+    } catch (error: unknown) {
+        log.error(`Failed to create shortlink`, error as string)
+        shareLinkUrlShorten.value = undefined
     }
 }
 
@@ -117,12 +120,13 @@ function onPositionTabClick() {
     newClickInfo.value = false
 }
 
-async function onShareTabClick() {
-    if (newClickInfo.value && showEmbedSharing.value === false) {
-        //copyShareLink is called by watcher since new shortlink is computed with a delay
+function onShareTabClick() {
+    if (newClickInfo.value && !showEmbedSharing.value) {
         requestClipboard.value = true
     } else {
-        copyShareLink()
+        copyShareLink().catch((error: unknown) => {
+            log.error('Failed to copy share link', error as string)
+        })
     }
     selectedTab.value = 'share'
     newClickInfo.value = false
@@ -130,20 +134,22 @@ async function onShareTabClick() {
 
 async function copyShareLink() {
     try {
-        await navigator.clipboard.writeText(shareLinkUrlShorten.value)
-        showCopiedTooltip()
-        shareLinkCopied.value = true
-        setTimeout(() => {
-            shareLinkCopied.value = false
-            closeCopiedTooltip()
-        }, 1000)
-    } catch (error) {
-        log.error(`Failed to copy to clipboard:`, error)
+        if (shareLinkUrlShorten.value) {
+            await navigator.clipboard.writeText(shareLinkUrlShorten.value)
+            showCopiedTooltip()
+            shareLinkCopied.value = true
+            setTimeout(() => {
+                shareLinkCopied.value = false
+                closeCopiedTooltip()
+            }, 1000)
+        }
+    } catch (error: unknown) {
+        log.error(`Failed to copy to clipboard:`, error as string)
     }
 }
 
 function clearClick() {
-    store.dispatch('clearLocationPopupCoordinates', dispatcher)
+    mapStore.clearLocationPopupCoordinates(dispatcher)
     requestClipboard.value = false
 }
 </script>
