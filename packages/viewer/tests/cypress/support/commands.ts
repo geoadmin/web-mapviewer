@@ -5,7 +5,7 @@ import { registerProj4, WEBMERCATOR } from '@swissgeo/coordinates'
 import { randomIntBetween } from '@swissgeo/numbers'
 import proj4 from 'proj4'
 
-import type { Layer as OLLayer } from 'ol/layer'
+import { Layer as OLLayer } from 'ol/layer'
 import type { GeoAdminLayer } from '@swissgeo/layers'
 import { getDefaultFixturesAndIntercepts, type InterceptCallback } from './intercepts'
 import { isMobile } from './utils'
@@ -427,13 +427,9 @@ Cypress.Commands.add('checkOlLayer', (args) => {
         })
     } else if (typeof args === 'string') {
         layers.push({ id: args, visible: true, opacity: 1 })
-    } else if (args instanceof Object) {
-        layers.push(Cypress._.cloneDeep(args))
     } else {
-        throw new Error('Invalid checkOlLayer argument')
+        layers.push(Cypress._.cloneDeep(args))
     }
-
-    // validate the layers arguments
     layers = layers.map((l) => {
         if (!l.id) {
             throw new Error(`Invalid layer object ${JSON.stringify(l)}: don't have an id`)
@@ -448,7 +444,6 @@ Cypress.Commands.add('checkOlLayer', (args) => {
     })
     const visibleLayers: PartialLayer[] = layers.filter((l) => l.visible)
     const invisibleLayers: PartialLayer[] = layers.filter((l) => !l.visible)
-
     cy.window().its('map').invoke('getAllLayers').then((olLayers: OLLayer[]) => {
         const layerIds = layers.map((l) => l.id).join(',')
         const olLayerIds = olLayers
@@ -462,7 +457,6 @@ Cypress.Commands.add('checkOlLayer', (args) => {
                 layers,
             }),
         })
-
         visibleLayers.forEach((layer: PartialLayer, index: number) => {
             Cypress.log({
                 name: 'checkOlLayer',
@@ -472,12 +466,10 @@ Cypress.Commands.add('checkOlLayer', (args) => {
                     index,
                 }),
             })
-            const olLayer = olLayers.find(
-                (l) => l.get('id') === layer.id && l.get('zIndex') === index
-            )
+            const olLayer = olLayers.find((l) =>  l.get('id') === layer.id && l.get('zIndex') === index)
             expect(olLayer, `[${layer.id}] layer at index ${index} not found`).not.to.be.null
             expect(olLayer, `[${layer.id}] layer at index ${index} not found`).not.to.be.undefined
-            expect(olLayer!.getVisible(), `[${layer.id}] layer.visible`).to.be.equal(layer.visible)
+            expect(olLayer!.getVisible(), `[${layer.id}] layer.isVisible`).to.be.equal(layer.visible)
             expect(olLayer!.getOpacity(), `[${layer.id}] layer.opacity`).to.be.equal(layer.opacity)
             // The rendered flag is set asynchronously; therefore, we need to do some retry here
             // Also, the rendered flag is protected, so we're checking if it is set with a getRenderSource().getState()
