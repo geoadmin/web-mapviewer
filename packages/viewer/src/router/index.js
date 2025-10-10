@@ -10,9 +10,9 @@ import {
     LEGACY_EMBED_PARAM_VIEW,
     LEGACY_PARAM_VIEW,
     MAP_VIEW,
-} from '@/router/viewNames.js'
+} from '@/router/viewNames'
 import store from '@/store'
-import { parseQuery, stringifyQuery } from '@/utils/url-router.js'
+import { parseQuery, stringifyQuery } from '@/utils/url-router'
 import EmbedView from '@/views/EmbedView.vue'
 import LegacyParamsView from '@/views/LegacyParamsView.vue'
 import MapView from '@/views/MapView.vue'

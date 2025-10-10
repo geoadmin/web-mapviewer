@@ -20,7 +20,7 @@ import OpenLayersPrintResolutionEnforcer from '@/modules/map/components/openlaye
 import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale.vue'
 import MapModule from '@/modules/map/MapModule.vue'
 import ConfederationFullLogo from '@/modules/menu/components/header/ConfederationFullLogo.vue'
-import { stringifyQuery } from '@/utils/url-router.js'
+import { stringifyQuery } from '@/utils/url-router'
 import usePositionStore from '@/store/modules/position.store'
 import { useI18nStore } from '@/store/modules/i18n.store'
 import usePrintStore from '@/store/modules/print.store'

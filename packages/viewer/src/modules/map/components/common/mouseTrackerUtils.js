@@ -3,7 +3,7 @@ import { round } from '@swissgeo/numbers'
 import proj4 from 'proj4'
 
 import i18n from '@/modules/i18n'
-import { LV03Format, LV95Format } from '@/utils/coordinates/coordinateFormat.js'
+import { LV03Format, LV95Format } from '@/utils/coordinates/coordinateFormat'
 
 /**
  * Transform the coordinate, expressed in the given projection, into the wanted display format.
