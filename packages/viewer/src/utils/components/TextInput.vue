@@ -74,7 +74,7 @@ const props = defineProps({
     /**
      * Mark the field as valid
      *
-     * This can be used if the field requires some external validation. When not set or set to null
+     * This can be used if the field requires some external validation. When not set or set to undefined
      * this props is ignored.
      *
      * NOTE: this props is ignored when activate-validation is false
@@ -83,7 +83,7 @@ const props = defineProps({
      */
     validMarker: {
         type: [Boolean, null],
-        default: null,
+        default: undefined,
     },
     /**
      * Valid message that will be added in green below the field once the validation has been done
@@ -98,7 +98,7 @@ const props = defineProps({
     /**
      * Mark the field as invalid
      *
-     * This can be used if the field requires some external validation. When not set or set to null
+     * This can be used if the field requires some external validation. When not set or set to undefined
      * this props is ignored.
      *
      * NOTE: this props is ignored when activate-validation is false
@@ -107,7 +107,7 @@ const props = defineProps({
      */
     invalidMarker: {
         type: [Boolean, null],
-        default: null,
+        default: undefined,
     },
     /**
      * Invalid message that will be added in red below the field once the validation has been done
@@ -126,11 +126,11 @@ const props = defineProps({
      * Parameters for replacing any placeholder within an invalid message translated text (will be
      * passed to Vue I18N when translating the invalid message).
      *
-     * @type {Object | null}
+     * @type {Object | undefined}
      */
     invalidMessageParams: {
         type: [Object, null],
-        default: null,
+        default: undefined,
     },
     /**
      * Mark the field has validated.
@@ -149,11 +149,11 @@ const props = defineProps({
      *
      * NOTE: this function is called each time the field is modified
      *
-     * @type {Function | null}
+     * @type {Function | undefined}
      */
     validate: {
         type: [Function, null],
-        default: null,
+        default: undefined,
         validator: propsValidator4ValidateFunc,
     },
     dataCy: {
@@ -180,7 +180,7 @@ function onClearInput(): void {
 }
 
 function focus(): void {
-    nextTick(() => inputElement.value?.focus())
+    void nextTick(() => inputElement.value?.focus())
 }
 
 defineExpose({ focus })
@@ -216,7 +216,6 @@ defineExpose({ focus })
                 }"
                 :aria-describedby="clearButtonId"
                 :placeholder="placeholder ? t(placeholder) : ''"
-                :value="value"
                 data-cy="text-input"
                 @focusin="onFocus($event, true)"
                 @focusout="onFocus($event, false)"
@@ -239,7 +238,7 @@ defineExpose({ focus })
                 class="invalid-feedback"
                 data-cy="text-input-invalid-feedback"
             >
-                {{ t(invalidMessage, invalidMessageParams) }}
+                {{ t(invalidMessage, invalidMessageParams ?? {}) }}
             </div>
             <div
                 v-if="validMessage"

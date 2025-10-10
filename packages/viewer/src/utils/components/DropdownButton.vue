@@ -22,7 +22,7 @@ export interface DropdownItem<T> {
 interface DropdownButtonProps<T> {
     title: string
     items: DropdownItem<T>[]
-    currentValue: null | string | number | object
+    currentValue: undefined | string | number | object
     withToggleButton?: boolean
     disabled?: boolean
     small?: boolean
@@ -50,11 +50,11 @@ const dropdownMenuRef = useTemplateRef<HTMLUListElement>('dropdownMenu')
 const dropdownToggleButtonRef = useTemplateRef<HTMLButtonElement>('dropdownToggleButton')
 const dropdownMainButtonRef = useTemplateRef<HTMLButtonElement>('dropdownMainButton')
 
-const anchorElement = computed<HTMLElement | null>(() => {
+const anchorElement = computed<HTMLElement | undefined>(() => {
     if (withToggleButton) {
-        return dropdownToggleButtonRef.value
+        return dropdownToggleButtonRef.value ?? undefined
     }
-    return dropdownMainButtonRef.value
+    return dropdownMainButtonRef.value ?? undefined
 })
 
 // generating a unique HTML ID for this dropdown
