@@ -1,46 +1,35 @@
-<script setup lang="js">
-import { CoordinateSystem } from '@swissgeo/coordinates'
+<script setup lang="ts">
+import type { CoordinateSystem } from '@swissgeo/coordinates'
+
 import log from '@swissgeo/log'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import usePositionStore from '@/store/modules/position.store'
-import { CoordinateFormat } from '@/utils/coordinates/coordinateFormat.js'
+import formatCoordinates, { type CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 
-const { identifier, value, extraValue, resetDelay, coordinateFormat, coordinateProjection } =
-    defineProps({
-        identifier: {
-            type: String,
-            required: true,
-        },
-        value: {
-            type: [Array, String],
-            required: true,
-        },
-        extraValue: {
-            type: String,
-            default: null,
-        },
-        resetDelay: {
-            type: Number,
-            default: 1000,
-        },
-        coordinateFormat: {
-            type: CoordinateFormat,
-            default: null,
-        },
-        coordinateProjection: {
-            type: CoordinateSystem,
-            default: null,
-        },
-    })
+interface Props {
+    identifier: string
+    value: number[] | string
+    extraValue?: string | null
+    resetDelay?: number
+    coordinateFormat?: CoordinateFormat | null
+    coordinateProjection?: CoordinateSystem | null
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    extraValue: null,
+    resetDelay: 1000,
+    coordinateFormat: null,
+    coordinateProjection: null,
+})
 
 const copied = ref(false)
 
 const positionStore = usePositionStore()
 const { t } = useI18n()
-const projection = computed(() => coordinateProjection ?? positionStore.projection)
+const projection = computed(() => props.coordinateProjection ?? positionStore.projection)
 const copyButtonText = computed(() => t(copied.value ? 'copy_done' : 'copy_cta'))
 
 const buttonIcon = computed(() => {
@@ -51,20 +40,25 @@ const buttonIcon = computed(() => {
     return ['far', 'copy']
 })
 
-function display(coordinates) {
-    return coordinateFormat?.format(coordinates, projection.value) ?? coordinates
+function display(coordinates: number[] | string): string | number[] {
+    if (props.coordinateFormat && Array.isArray(coordinates) && coordinates.length >= 2) {
+        return formatCoordinates(props.coordinateFormat, coordinates as [number, number], projection.value)
+    }
+    return coordinates
 }
 
-async function copyValue() {
+async function copyValue(): Promise<void> {
     try {
-        await navigator.clipboard.writeText(display(value))
+        const displayValue = display(props.value)
+        const textValue = typeof displayValue === 'string' ? displayValue : displayValue.join(', ')
+        await navigator.clipboard.writeText(textValue)
         copied.value = true
         // leaving the "Copied" text for the wanted delay, and then reverting to "Copy"
         setTimeout(() => {
             copied.value = false
-        }, resetDelay)
+        }, props.resetDelay)
     } catch (error) {
-        log.error(`Failed to copy to clipboard:`, error)
+        log.error(`Failed to copy to clipboard:`, error as Error)
     }
 }
 </script>
@@ -75,14 +69,14 @@ async function copyValue() {
     </div>
     <div class="location-popup-data align-items-center gap-1">
         <div>
-            <div :data-cy="`${identifier}`">
-                {{ display(value) }}
+            <div :data-cy="`${props.identifier}`">
+                {{ display(props.value) }}
             </div>
             <div
-                v-if="extraValue"
-                :data-cy="`${identifier}-extra-value`"
+                v-if="props.extraValue"
+                :data-cy="`${props.identifier}-extra-value`"
             >
-                {{ extraValue }}
+                {{ props.extraValue }}
             </div>
         </div>
         <GeoadminTooltip
@@ -90,7 +84,7 @@ async function copyValue() {
             :tooltip-content="copyButtonText"
         >
             <button
-                :data-cy="`${identifier}-button`"
+                :data-cy="`${props.identifier}-button`"
                 class="location-popup-copy-button btn btn-sm btn-light text-black-50"
                 type="button"
                 @click="copyValue"
@@ -98,7 +92,7 @@ async function copyValue() {
                 <FontAwesomeIcon
                     class="icon"
                     :icon="buttonIcon"
-                    :data-cy="`${identifier}-icon`"
+                    :data-cy="`${props.identifier}-icon`"
                 />
             </button>
         </GeoadminTooltip>

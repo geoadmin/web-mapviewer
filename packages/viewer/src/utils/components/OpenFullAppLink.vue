@@ -1,10 +1,10 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
-import { MAP_VIEW } from '@/router/viewNames.js'
+import { MAP_VIEW } from '@/router/viewNames'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -14,7 +14,12 @@ const currentHost = ref(window.location.host)
 const linkMessage = computed(() =>
     t('view_on_mapgeoadminch_webmapviewer', { url: currentHost.value })
 )
-const mapView = computed(() => router.resolve({ ...router.currentRoute.value, name: MAP_VIEW }))
+const mapView = computed(() =>
+    router.resolve({
+        name: MAP_VIEW,
+        params: router.currentRoute.value.params
+    })
+)
 </script>
 
 <template>
