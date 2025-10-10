@@ -109,7 +109,7 @@ onMounted(() => {
                 />
                 <PrintButton
                     v-if="allowPrint && showBody"
-                    :content="contentRef"
+                    :content="contentRef ?? undefined"
                 />
                 <button
                     class="btn btn-light btn-sm me-2"
