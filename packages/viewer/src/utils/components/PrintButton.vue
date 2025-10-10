@@ -6,11 +6,11 @@ import { useI18n } from 'vue-i18n'
 import ModalPrintWithBackdrop from '@/utils/components/ModalPrintWithBackdrop.vue'
 
 interface Props {
-    content?: HTMLDivElement | null
+    content?: HTMLDivElement
 }
 
 withDefaults(defineProps<Props>(), {
-    content: null,
+    content: undefined,
 })
 
 const emits = defineEmits<{

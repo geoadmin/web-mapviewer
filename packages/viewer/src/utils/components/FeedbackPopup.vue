@@ -15,13 +15,13 @@ const error = computed(() => {
     if (uiStore.errors.size > 0) {
         return uiStore.errors.values().next().value
     }
-    return null
+    return undefined
 })
 const warning = computed(() => {
     if (uiStore.warnings.size > 0) {
         return uiStore.warnings.values().next().value
     }
-    return null
+    return undefined
 })
 </script>
 

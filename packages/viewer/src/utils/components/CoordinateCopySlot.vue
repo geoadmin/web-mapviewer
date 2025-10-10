@@ -12,17 +12,17 @@ import formatCoordinates, { type CoordinateFormat } from '@/utils/coordinates/co
 interface Props {
     identifier: string
     value: number[] | string
-    extraValue?: string | null
+    extraValue?: string
     resetDelay?: number
-    coordinateFormat?: CoordinateFormat | null
-    coordinateProjection?: CoordinateSystem | null
+    coordinateFormat?: CoordinateFormat
+    coordinateProjection?: CoordinateSystem
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    extraValue: null,
+    extraValue: undefined,
     resetDelay: 1000,
-    coordinateFormat: null,
-    coordinateProjection: null,
+    coordinateFormat: undefined,
+    coordinateProjection: undefined,
 })
 
 const copied = ref(false)
