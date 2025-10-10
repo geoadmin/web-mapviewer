@@ -32,7 +32,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-    if (timer) {s
+    if (timer) {
         clearTimeout(timer)
     }
     log.debug(`progress finished after ${Date.now() - (started ?? 0)}ms`)
