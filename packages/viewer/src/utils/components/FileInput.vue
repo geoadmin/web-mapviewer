@@ -62,7 +62,7 @@ const props = defineProps({
      * @type {[String]} List Of extension string
      */
     acceptedFileTypes: {
-        type:   Array as () => string[],
+        type: Array as () => string[],
         default: () => [],
     },
     /**
