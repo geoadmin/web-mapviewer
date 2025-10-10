@@ -1,24 +1,25 @@
 <script setup lang="ts">
-import { useTemplateRef } from 'vue'
+import { useTemplateRef, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
 import {
     propsValidator4ValidateFunc,
     useFieldValidation,
+    type FieldValidationProps,
 } from '@/utils/composables/useFieldValidation'
 
 const textAreaInputId = useComponentUniqueId('text-area-input')
 
-const model = defineModel<string>()
-const emits = defineEmits<{
-    change: []
-    validate: []
-    focusin: []
-    focusout: []
-    'keydown.enter': []
-}>()
+const model = defineModel<string>({ default: '' })
+const emits = defineEmits(['change', 'validate', 'focusin', 'focusout', 'keydown.enter'])
 const { t } = useI18n()
+
+// Create a computed ref wrapper for the model to match the expected type
+const modelRef = computed({
+    get: () => model.value,
+    set: (value: string) => { model.value = value }
+})
 
 const props = defineProps({
     /**
@@ -153,7 +154,7 @@ const { placeholder, disabled, label, description, dataCy } = props
 const textAreaElement = useTemplateRef('textAreaElement')
 
 const { value, validMarker, invalidMarker, validMessage, invalidMessage, onFocus, required } =
-    useFieldValidation(props, model, emits)
+    useFieldValidation(props as unknown as FieldValidationProps, modelRef, emits as (_event: string, ..._args: unknown[]) => void)
 
 function focus(): void {
     textAreaElement.value?.focus()

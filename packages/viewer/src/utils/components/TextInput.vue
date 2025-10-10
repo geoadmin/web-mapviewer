@@ -1,27 +1,27 @@
 <script setup lang="ts">
 /** Input with clear button component */
-import { nextTick, ref, useSlots, useTemplateRef } from 'vue'
+import { nextTick, ref, useSlots, useTemplateRef, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
 import {
     propsValidator4ValidateFunc,
     useFieldValidation,
+    type FieldValidationProps,
 } from '@/utils/composables/useFieldValidation'
 
 // On each component creation set the current component unique ID
 const clearButtonId = useComponentUniqueId('button-addon-clear')
 const textInputId = useComponentUniqueId('text-input')
 
-const model = defineModel<string>()
-const emits = defineEmits<{
-    change: []
-    validate: []
-    focusin: []
-    focusout: []
-    clear: []
-    'keydown.enter': []
-}>()
+const model = defineModel<string>({ default: '' })
+const emits = defineEmits(['change', 'validate', 'focusin', 'focusout', 'clear', 'keydown.enter'])
+
+// Create a computed ref wrapper for the model to match the expected type
+const modelRef = computed({
+    get: () => model.value,
+    set: (value: string) => { model.value = value }
+})
 
 const props = defineProps({
     /**
@@ -152,8 +152,8 @@ const props = defineProps({
      * @type {Function | undefined}
      */
     validate: {
-        type: [Function, null],
-        default: undefined,
+        type: Function,
+        default: null,
         validator: propsValidator4ValidateFunc,
     },
     dataCy: {
@@ -164,7 +164,7 @@ const props = defineProps({
 const { placeholder, disabled, label, description, invalidMessageParams, dataCy } = props
 
 const { value, validMarker, invalidMarker, validMessage, invalidMessage, onFocus, required } =
-    useFieldValidation(props, model, emits)
+    useFieldValidation(props as unknown as FieldValidationProps, modelRef, emits as (_event: string, ..._args: unknown[]) => void)
 
 const { t } = useI18n()
 const slots = useSlots()
