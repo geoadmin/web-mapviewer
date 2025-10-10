@@ -31,7 +31,7 @@ const theme = computed(() => (props.isLocalFile ? 'secondary' : 'danger'))
 
 function onClick(): void {
     showCompleteDisclaimer.value =
-        props.completeDisclaimerOnClick && props.sourceName && props.sourceName.length > 0
+        props.completeDisclaimerOnClick && !!props.sourceName && props.sourceName.length > 0
 }
 </script>
 

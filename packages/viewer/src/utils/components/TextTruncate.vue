@@ -23,7 +23,7 @@ interface Props {
      * content is a simple text then the slot content is taken as tooltip
      */
     text?: string
-    tooltipPlacement?: string
+    tooltipPlacement?: 'top' | 'right' | 'bottom' | 'left'
     dataCy?: string
 }
 
@@ -47,16 +47,18 @@ const showTooltip = computed(() => innerElementWidth.value > outerElementWidth.v
 
 const tooltipContent = computed(() => {
     if (!showTooltip.value) {
-        return null
+        return undefined
     }
     if (props.text) {
         return props.text
     }
     if (
+        slots.default &&
         slots?.default()?.length === 1 &&
-        ['string', 'String'].includes(typeof slots?.default()[0]?.children)
+        slots?.default()?.[0] &&
+        ['string', 'String'].includes(typeof slots?.default()?.[0]?.children)
     ) {
-        return slots.default()[0].children as string
+        return slots?.default()?.[0]?.children as string
     }
     return ''
 })

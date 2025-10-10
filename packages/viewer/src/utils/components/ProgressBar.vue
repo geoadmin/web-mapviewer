@@ -18,8 +18,8 @@ const slot = ref(0)
 
 const maxValue = 100
 
-let started: number | null = null
-let timer: ReturnType<typeof setTimeout> | null = null
+let started: number | undefined = undefined
+let timer: ReturnType<typeof setTimeout> | undefined = undefined
 onMounted(() => {
     started = Date.now()
     totalTime.value = props.duration * 1000
@@ -32,7 +32,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-    if (timer) {
+    if (timer) {s
         clearTimeout(timer)
     }
     log.debug(`progress finished after ${Date.now() - (started ?? 0)}ms`)

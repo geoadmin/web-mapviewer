@@ -12,7 +12,7 @@ import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 import PrintButton from '@/utils/components/PrintButton.vue'
 
 interface Props {
-    title?: string | null
+    title?: string
     allowPrint?: boolean
     showConfirmationButtons?: boolean
     fluid?: boolean
@@ -20,14 +20,14 @@ interface Props {
     top?: boolean
     confirmKey?: string
     cancelKey?: string
-    confirmIcon?: string | null
-    cancelIcon?: string | null
+    confirmIcon?: string
+    cancelIcon?: string
     /** Hide the modal with backdrop, can be used to temporarily hide the modal without loosing its content */
     hide?: boolean
 }
 
 withDefaults(defineProps<Props>(), {
-    title: null,
+    title: undefined,
     allowPrint: false,
     showConfirmationButtons: false,
     fluid: false,
@@ -35,8 +35,8 @@ withDefaults(defineProps<Props>(), {
     top: false,
     confirmKey: 'success',
     cancelKey: 'cancel',
-    confirmIcon: null,
-    cancelIcon: null,
+    confirmIcon: undefined,
+    cancelIcon: undefined,
     hide: false,
 })
 
