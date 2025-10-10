@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 /**
  * Component to mark matching pattern within a text using HTML element in a safe manner.
  *
@@ -9,52 +9,32 @@ import { computed } from 'vue'
 
 import { segmentizeMatch } from '@/utils/utils'
 
-const { text, search, markers } = defineProps({
-    /**
-     * Text to mark matching pattern
-     *
-     * @type {String}
-     */
-    text: {
-        type: String,
-        required: true,
-    },
-    /**
-     * Allow HTML tags in text
-     *
-     * @type {Boolean}
-     * @WARNING Should only be used if the text source is safe !
-     */
-    allowHtml: { type: Boolean, default: false },
-    /**
-     * Search pattern to match for marking in text. Can be either a string or a Regular Expression
-     *
-     * @default '' Empty string
-     * @type {String | RegExp}
-     */
-    search: {
-        type: [String, RegExp],
-        default: '',
-    },
-    /**
-     * List of class to use as markers for matching text.
-     *
-     * @default ['fw-bolder', 'bg-info', 'bg-opacity-25'] Default to bold
-     * @type {[String]}
-     */
-    markers: {
-        type: [Array, String],
-        default: new Array(['fw-bold', 'bg-info', 'bg-opacity-25']),
-    },
+interface Props {
+    /** Text to mark matching pattern */
+    text: string
+    /** Allow HTML tags in text - WARNING: Should only be used if the text source is safe! */
+    allowHtml?: boolean
+    /** Search pattern to match for marking in text. Can be either a string or a Regular Expression */
+    search?: string | RegExp
+    /** List of class to use as markers for matching text */
+    markers?: string[] | string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    allowHtml: false,
+    search: '',
+    markers: () => ['fw-bold', 'bg-info', 'bg-opacity-25'],
 })
 
-const segments = computed(() => segmentizeMatch(text, search))
+const segments = computed(() => segmentizeMatch(props.text, props.search))
 
-const emit = defineEmits(['click'])
+const emit = defineEmits<{
+    click: []
+}>()
 
-function getClasses(match) {
+function getClasses(match: boolean): string[] | string {
     if (match) {
-        return markers
+        return props.markers
     }
     return []
 }
