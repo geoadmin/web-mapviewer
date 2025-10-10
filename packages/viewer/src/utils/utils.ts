@@ -118,8 +118,8 @@ export function generateFilename(fileExtension: string): string {
  * @param minutes
  * @returns Time in 'Hh Mmin'
  */
-export function formatMinutesTime(minutes: number | null): string {
-    if (minutes === null || isNaN(minutes)) {
+export function formatMinutesTime(minutes: number | undefined): string {
+    if (minutes === undefined || Number.isNaN(minutes)) {
         return '-'
     }
     let result = ''

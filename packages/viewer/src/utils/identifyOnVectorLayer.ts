@@ -12,9 +12,9 @@ import type {
     Position,
 } from 'geojson'
 
-import { WGS84 } from '@swissgeo/coordinates'
+import { WGS84, extentUtils } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
-import { booleanPointInPolygon, distance, point, pointToLineDistance, centroid, type Coord } from '@turf/turf'
+import { booleanPointInPolygon, distance, point, pointToLineDistance, centroid, bbox, type Coord } from '@turf/turf'
 import proj4 from 'proj4'
 import { reproject } from 'reproject'
 
@@ -178,6 +178,10 @@ export function identifyGeoJSONFeatureAt(
                 featureCoordinates = coordinates as SingleCoordinate
             }
 
+            // Calculate extent from the geometry
+            const featureExtent = bbox(geometry) as [number, number, number, number]
+            const normalizedExtent = extentUtils.normalizeExtent(featureExtent)
+
             const layerFeature: LayerFeature = {
                 isEditable: false,
                 layer: geoJsonLayer,
@@ -188,6 +192,7 @@ export function identifyGeoJSONFeatureAt(
                        featureId.toString(),
                 data: feature.properties || {},
                 coordinates: featureCoordinates,
+                extent: normalizedExtent,
                 geometry: geometry,
                 popupDataCanBeTrusted: false, // GeoJSON layers are external data
             }
