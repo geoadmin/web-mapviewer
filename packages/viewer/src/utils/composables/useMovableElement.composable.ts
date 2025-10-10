@@ -77,9 +77,9 @@ export function useMovableElement(config: MovableElementConfig): void {
     } = config
 
     if (!config.element || !config.grabElement || !config.offset) {
-        const elementInfo = formatElementInfo(element)
-        const grabElementInfo = formatElementInfo(grabElement)
-        const offsetInfo = JSON.stringify(offset)
+        const elementInfo = formatElementInfo(config.element)
+        const grabElementInfo = formatElementInfo(config.grabElement)
+        const offsetInfo = JSON.stringify(config.offset)
         throw new Error(
             `[useMovableElement] Element, grabElement and offset are required
              to use a movable element.
