@@ -99,7 +99,7 @@ function onHideParentModal(hide: boolean): void {
                         </span>
                         <PrintButton
                             v-if="allowPrint"
-                            :content="modalContent"
+                            :content="modalContent ?? undefined"
                             @hide-parent-modal="onHideParentModal"
                         />
                         <button
