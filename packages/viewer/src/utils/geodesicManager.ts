@@ -451,7 +451,7 @@ function coordNormalize(coord: number[] | CoordObject): number[] {
         coord = { lon: coord[0]!, lat: coord[1]! }
         return [geographicMath.AngNormalize(coord.lon), coord.lat]
     } else {
-        return []
+         throw new Error('Invalid coordinate input: expected [lon, lat] array or CoordObject')
     }
 }
 
