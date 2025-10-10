@@ -1,6 +1,7 @@
 import type { GeoadminLogInput } from '@swissgeo/log'
-import log from '@swissgeo/log'
 import type { LocationQuery, LocationQueryRaw } from 'vue-router'
+
+import log from '@swissgeo/log'
 
 /**
  * The code below is a copy from the Vue Router github repository, see

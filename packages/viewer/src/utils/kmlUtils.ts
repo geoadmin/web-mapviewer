@@ -1,6 +1,10 @@
 import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
-import { WGS84 } from '@swissgeo/coordinates'
 import type { KMLLayer } from '@swissgeo/layers'
+import type { Geometry } from 'ol/geom'
+import type { Type as GeometryType } from 'ol/geom/Geometry'
+import type { Size } from 'ol/size'
+
+import { WGS84 } from '@swissgeo/coordinates'
 import { KMLStyle } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { kml as kmlToGeoJSON } from '@tmcw/togeojson'
@@ -13,7 +17,6 @@ import {
     isEmpty as isExtentEmpty,
 } from 'ol/extent'
 import Feature from 'ol/Feature'
-import type { Type as GeometryType } from 'ol/geom/Geometry'
 import GeoJSON, { type GeoJSONGeometry, type GeoJSONGeometryCollection } from 'ol/format/GeoJSON'
 import IconStyle from 'ol/style/Icon'
 import Style from 'ol/style/Style'
@@ -44,8 +47,6 @@ import { GeodesicGeometries } from '@/utils/geodesicManager'
 // FIXME: as soon as https://github.com/openlayers/openlayers/pull/15964 is merged and released, go back to using OL files
 import KML, { getDefaultStyle } from '@/utils/ol/format/KML'
 import { parseRGBColor } from '@/utils/utils'
-import type { Size } from 'ol/size'
-import type { Geometry } from 'ol/geom'
 
 export const EMPTY_KML_DATA: string = '<kml></kml>'
 
