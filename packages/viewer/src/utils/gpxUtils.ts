@@ -1,7 +1,7 @@
+import type { FlatExtent } from '@swissgeo/coordinates'
 import type { Feature } from 'ol'
 import type { Geometry } from 'ol/geom'
 
-import type { FlatExtent } from '@swissgeo/coordinates'
 import { CoordinateSystem, WGS84 } from '@swissgeo/coordinates'
 import { gpx as gpxToGeoJSON } from '@tmcw/togeojson'
 import { bbox } from '@turf/turf'

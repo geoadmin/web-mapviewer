@@ -5,7 +5,6 @@ import CircleStyle from 'ol/style/Circle'
 
 import { MIN_PRINT_SCALE_SIZE, PRINT_DPI_COMPENSATION } from '@/config/print.config'
 import { StyleZIndex } from '@/modules/drawing/lib/style'
-
 import variables from '@/scss/variables-admin.module.scss'
 
 const { red, mocassin, mocassinToRed1, mocassinToRed2, malibu, black, white } = variables
