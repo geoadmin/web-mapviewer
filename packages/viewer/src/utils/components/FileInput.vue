@@ -7,21 +7,18 @@
  * NOTE: the validation only happens when the prop activate-validation is set to true, this allow to
  * validate all fields of a form at once.
  */
-import { computed, useTemplateRef } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
-import {
-    propsValidator4ValidateFunc,
-    useFieldValidation,
-} from '@/utils/composables/useFieldValidation'
+import { propsValidator4ValidateFunc } from '@/utils/composables/useFieldValidation'
 import { humanFileSize } from '@/utils/utils'
 
 // On each component creation set the current component unique ID
 const inputFileId = useComponentUniqueId('file-input')
 
 const { t } = useI18n()
-const model = defineModel<File | undefined>()
+const model = defineModel<File | undefined>({ default: undefined })
 const emits = defineEmits<{
     change: []
     validate: []
@@ -65,7 +62,7 @@ const props = defineProps({
      * @type {[String]} List Of extension string
      */
     acceptedFileTypes: {
-        type: Array,
+        type:   Array as () => string[],
         default: () => [],
     },
     /**
@@ -188,48 +185,94 @@ const props = defineProps({
         default: '',
     },
 })
-const { acceptedFileTypes, placeholder, maxFileSize, disabled, label, description, dataCy } = props
-
-const { value, validMarker, invalidMarker, validMessage, invalidMessage, required } =
-    useFieldValidation(props, model, emits, {
-        customValidate: validateFile,
-        requiredInvalidMessage: 'no_file',
-    })
+const {
+    acceptedFileTypes,
+    placeholder,
+    maxFileSize,
+    disabled,
+    label,
+    description,
+    dataCy,
+    required,
+    activateValidation,
+    validMarker,
+    invalidMarker,
+    validMessage,
+    invalidMessage,
+} = props
 
 // Reactive data
 const inputLocalFile = useTemplateRef<HTMLInputElement>('inputLocalFile')
+const internalInvalidMessage = ref<string>('')
 
 // Computed properties
-
 const filePathInfo = computed(() =>
-    value.value ? `${value.value.name}, ${value.value.size / 1000} kb` : ''
+    model.value ? `${model.value.name}, ${model.value.size / 1000} kb` : ''
 )
 const maxFileSizeHuman = computed(() => humanFileSize(maxFileSize))
 
+
+
 // Methods
-function validateFile() {
+function validateFile(): { valid: boolean; invalidMessage: string } {
+    const file = model.value
     if (
-        value.value &&
+        file &&
         acceptedFileTypes?.length > 0 &&
         !acceptedFileTypes.some((type) =>
-            value.value!.name.toLowerCase().endsWith(type.toLowerCase())
+            file.name.toLowerCase().endsWith(type.toLowerCase())
         )
     ) {
         return { valid: false, invalidMessage: 'file_unsupported_format' }
     }
-    if (value.value && value.value.size > maxFileSize) {
+    if (file && file.size > maxFileSize) {
         return { valid: false, invalidMessage: 'file_too_large' }
+    }
+    if (required && !model.value) {
+        return { valid: false, invalidMessage: 'no_file' }
     }
     return {
         valid: true,
         invalidMessage: '',
     }
 }
+
 function onFileSelected(evt: Event): void {
     const target = evt.target as HTMLInputElement
     const file = target?.files?.[0] ?? undefined
-    value.value = file
+    model.value = file
+
+    // Validate if custom validation is provided
+    if (props.validate) {
+        const result = props.validate(file)
+        if (!result.valid) {
+            internalInvalidMessage.value = result.invalidMessage
+        } else {
+            internalInvalidMessage.value = ''
+        }
+    } else {
+        const result = validateFile()
+        if (!result.valid) {
+            internalInvalidMessage.value = result.invalidMessage
+        } else {
+            internalInvalidMessage.value = ''
+        }
+    }
+
+    emits('change')
 }
+
+// Watch for validation changes
+watch(
+    () => [model.value, activateValidation],
+    () => {
+        if (activateValidation) {
+            const result = props.validate ? props.validate(model.value) : validateFile()
+            internalInvalidMessage.value = result.valid ? '' : result.invalidMessage
+            emits('validate')
+        }
+    }
+)
 </script>
 
 <template>
@@ -255,7 +298,7 @@ function onFileSelected(evt: Event): void {
                 type="button"
                 :disabled="disabled"
                 data-cy="file-input-browse-button"
-                @click="inputLocalFile.click()"
+                @click="inputLocalFile?.click()"
             >
                 {{ t('browse') }}
             </button>
@@ -279,7 +322,7 @@ function onFileSelected(evt: Event): void {
                 tabindex="-1"
                 data-cy="file-input-text"
                 :disabled="disabled"
-                @click="inputLocalFile.click()"
+                @click="inputLocalFile?.click()"
             />
             <div
                 v-if="invalidMessage"
