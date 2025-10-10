@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 /**
  * Utility component that will wrap your modal content and make sure it is above the overlay of the
  * map
@@ -11,73 +11,51 @@ import { useI18n } from 'vue-i18n'
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 import PrintButton from '@/utils/components/PrintButton.vue'
 
-const { title, allowPrint, showConfirmationButtons, fluid, headerPrimary, top, hide } = defineProps(
-    {
-        title: {
-            type: String,
-            default: null,
-        },
-        allowPrint: {
-            type: Boolean,
-            default: false,
-        },
-        showConfirmationButtons: {
-            type: Boolean,
-            default: false,
-        },
-        fluid: {
-            type: Boolean,
-            default: false,
-        },
-        headerPrimary: {
-            type: Boolean,
-            default: false,
-        },
-        top: {
-            type: Boolean,
-            default: false,
-        },
-        confirmKey: {
-            type: String,
-            default: 'success',
-        },
-        cancelKey: {
-            type: String,
-            default: 'cancel',
-        },
-        confirmIcon: {
-            type: String,
-            default: null,
-        },
-        cancelIcon: {
-            type: String,
-            default: null,
-        },
-        /**
-         * Hide the modal with backdrop, can be used to temporarily hide the modal without loosing
-         * its content
-         */
-        hide: {
-            type: Boolean,
-            default: false,
-        },
-    }
-)
+interface Props {
+    title?: string | null
+    allowPrint?: boolean
+    showConfirmationButtons?: boolean
+    fluid?: boolean
+    headerPrimary?: boolean
+    top?: boolean
+    confirmKey?: string
+    cancelKey?: string
+    confirmIcon?: string | null
+    cancelIcon?: string | null
+    /** Hide the modal with backdrop, can be used to temporarily hide the modal without loosing its content */
+    hide?: boolean
+}
 
-const emits = defineEmits(['close'])
+withDefaults(defineProps<Props>(), {
+    title: null,
+    allowPrint: false,
+    showConfirmationButtons: false,
+    fluid: false,
+    headerPrimary: false,
+    top: false,
+    confirmKey: 'success',
+    cancelKey: 'cancel',
+    confirmIcon: null,
+    cancelIcon: null,
+    hide: false,
+})
 
-const modalContent = useTemplateRef('modalContent')
+const emits = defineEmits<{
+    close: [withConfirmation: boolean]
+}>()
+
+const modalContent = useTemplateRef<HTMLDivElement>('modalContent')
 
 const { t } = useI18n()
 
 const hideForPrint = ref(false)
 
-function onClose(withConfirmation) {
+function onClose(withConfirmation: boolean): void {
     // it will go through preventOverlayToClose first and only remove our callback from the stack
     emits('close', withConfirmation)
 }
 
-function onHideParentModal(hide) {
+function onHideParentModal(hide: boolean): void {
     hideForPrint.value = hide
 }
 </script>

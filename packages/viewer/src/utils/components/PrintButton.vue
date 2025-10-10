@@ -1,26 +1,30 @@
-<script setup lang="js">
+<script setup lang="ts">
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import ModalPrintWithBackdrop from '@/utils/components/ModalPrintWithBackdrop.vue'
 
-const { content } = defineProps({
-    content: {
-        type: [HTMLDivElement, null],
-        default: null,
-    },
+interface Props {
+    content?: HTMLDivElement | null
+}
+
+withDefaults(defineProps<Props>(), {
+    content: null,
 })
 
-const emits = defineEmits(['hideParentModal'])
+const emits = defineEmits<{
+    hideParentModal: [hide: boolean]
+}>()
+
 const { t } = useI18n()
 
 const showModal = ref(false)
 
-function printContent() {
+function printContent(): void {
     showModal.value = true
 }
-function onHideParentModal(hide) {
+function onHideParentModal(hide: boolean): void {
     emits('hideParentModal', hide)
 }
 </script>

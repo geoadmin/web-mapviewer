@@ -1,16 +1,14 @@
-<script setup lang="js">
+<script setup lang="ts">
 import log from '@swissgeo/log'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
-const { duration, barClass } = defineProps({
-    duration: {
-        type: Number,
-        required: true,
-    },
-    barClass: {
-        type: String,
-        default: '',
-    },
+interface Props {
+    duration: number
+    barClass?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    barClass: '',
 })
 
 const value = ref(0)
@@ -20,25 +18,27 @@ const slot = ref(0)
 
 const maxValue = 100
 
-let started = null
-let timer = null
+let started: number | null = null
+let timer: ReturnType<typeof setTimeout> | null = null
 onMounted(() => {
     started = Date.now()
-    totalTime.value = duration * 1000
+    totalTime.value = props.duration * 1000
     slot.value = Math.floor((maxValue * 2) / 3)
     waitTime.value = (totalTime.value * 2) / 3 / slot.value
     log.debug(
-        `progress value=${value.value} slot=${slot.value} duration=${duration} waitTime=${waitTime.value}`
+        `progress value=${value.value} slot=${slot.value} duration=${props.duration} waitTime=${waitTime.value}`
     )
     timer = setTimeout(progress, waitTime.value)
 })
 
 onBeforeUnmount(() => {
-    clearTimeout(timer)
-    log.debug(`progress finished after ${Date.now() - started}ms`)
+    if (timer) {
+        clearTimeout(timer)
+    }
+    log.debug(`progress finished after ${Date.now() - (started ?? 0)}ms`)
 })
 
-function progress() {
+function progress(): void {
     value.value += 1
     if (value.value < maxValue) {
         if (value.value === slot.value) {

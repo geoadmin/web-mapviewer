@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 /** Input with clear button component */
 import { nextTick, ref, useSlots, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -13,8 +13,15 @@ import {
 const clearButtonId = useComponentUniqueId('button-addon-clear')
 const textInputId = useComponentUniqueId('text-input')
 
-const model = defineModel({ type: String })
-const emits = defineEmits(['change', 'validate', 'focusin', 'focusout', 'clear', 'keydown.enter'])
+const model = defineModel<string>()
+const emits = defineEmits<{
+    change: []
+    validate: []
+    focusin: []
+    focusout: []
+    clear: []
+    'keydown.enter': []
+}>()
 
 const props = defineProps({
     /**
@@ -165,15 +172,15 @@ const slots = useSlots()
 const inputElement = useTemplateRef('inputElement')
 const error = ref('')
 
-function onClearInput() {
+function onClearInput(): void {
     value.value = ''
     error.value = ''
-    inputElement.value.focus()
+    inputElement.value?.focus()
     emits('clear')
 }
 
-function focus() {
-    nextTick(() => inputElement.value.focus())
+function focus(): void {
+    nextTick(() => inputElement.value?.focus())
 }
 
 defineExpose({ focus })
