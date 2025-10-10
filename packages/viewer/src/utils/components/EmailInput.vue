@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { useTemplateRef } from 'vue'
+import { useTemplateRef, type PropType, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
 import {
     propsValidator4ValidateFunc,
-    useFieldValidation,
+    useFieldValidation
 } from '@/utils/composables/useFieldValidation'
 import { isValidEmail } from '@/utils/utils'
 
 const inputEmailId = useComponentUniqueId('email-input')
 
-const model = defineModel<string>()
-const emits = defineEmits<{
-    change: []
-    validate: []
-    focusin: []
-    focusout: []
-    'keydown.enter': []
-}>()
+const model = defineModel<string>({ default: '' })
+const emits = defineEmits(['change', 'validate', 'focusin', 'focusout', 'keydown.enter'])
 const { t } = useI18n()
+
+// Create a computed ref wrapper for the model to match the expected type
+const modelRef = computed({
+    get: () => model.value,
+    set: (value: string) => { model.value = value }
+})
 
 const props = defineProps({
     /**
@@ -132,15 +132,15 @@ const props = defineProps({
     },
     /**
      * Validate function to run when the input changes The function should return an object of type
-     * `{valid: Boolean, invalidMessage: Sting}`. The `invalidMessage` string should be a
+     * `{valid: Boolean, invalidMessage: String}`. The `invalidMessage` string should be a
      * translation key.
      *
      * NOTE: this function is called each time the field is modified
      *
-     * @type {Function | undefined}
+     * @type {ValidateFunction | undefined}
      */
     validate: {
-        type: [Function, null],
+        type: Function as PropType<((_value?: string) => { valid: boolean; invalidMessage: string }) | undefined>,
         default: undefined,
         validator: propsValidator4ValidateFunc,
     },
@@ -152,7 +152,7 @@ const props = defineProps({
 const { placeholder, disabled, label, description, dataCy } = props
 
 const { value, validMarker, invalidMarker, validMessage, invalidMessage, required, onFocus } =
-    useFieldValidation(props, model, emits, {
+    useFieldValidation(props, modelRef, emits as (_event: string, ..._args: unknown[]) => void, {
         customValidate: validateEmail,
         requiredInvalidMessage: 'no_email',
     })
