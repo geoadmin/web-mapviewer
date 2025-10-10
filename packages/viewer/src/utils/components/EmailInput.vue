@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -11,8 +11,14 @@ import { isValidEmail } from '@/utils/utils'
 
 const inputEmailId = useComponentUniqueId('email-input')
 
-const model = defineModel({ type: String })
-const emits = defineEmits(['change', 'validate', 'focusin', 'focusout', 'keydown.enter'])
+const model = defineModel<string>()
+const emits = defineEmits<{
+    change: []
+    validate: []
+    focusin: []
+    focusout: []
+    'keydown.enter': []
+}>()
 const { t } = useI18n()
 
 const props = defineProps({
@@ -151,7 +157,7 @@ const { value, validMarker, invalidMarker, validMessage, invalidMessage, require
         requiredInvalidMessage: 'no_email',
     })
 
-const emailInputElement = useTemplateRef('emailInputElement')
+const emailInputElement = useTemplateRef<HTMLInputElement>('emailInputElement')
 
 function validateEmail() {
     if (value.value && !isValidEmail(value.value)) {
@@ -160,8 +166,8 @@ function validateEmail() {
     return { valid: true, invalidMessage: '' }
 }
 
-function focus() {
-    emailInputElement.value.focus()
+function focus(): void {
+    emailInputElement.value?.focus()
 }
 
 defineExpose({ focus })

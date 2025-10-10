@@ -1,15 +1,14 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-const { withSpinner, placeForModal } = defineProps({
-    withSpinner: {
-        type: Boolean,
-        default: false,
-    },
-    placeForModal: {
-        type: Boolean,
-        default: false,
-    },
+interface Props {
+    withSpinner?: boolean
+    placeForModal?: boolean
+}
+
+withDefaults(defineProps<Props>(), {
+    withSpinner: false,
+    placeForModal: false,
 })
 </script>
 

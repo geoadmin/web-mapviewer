@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
