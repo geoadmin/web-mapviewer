@@ -71,7 +71,7 @@ const props = defineProps({
     /**
      * Mark the field as valid
      *
-     * This can be used if the field requires some external validation. When not set or set to null
+     * This can be used if the field requires some external validation. When not set or set to undefined
      * this props is ignored.
      *
      * NOTE: this props is ignored when activate-validation is false
@@ -80,7 +80,7 @@ const props = defineProps({
      */
     validMarker: {
         type: [Boolean, null],
-        default: null,
+        default: undefined,
     },
     /**
      * Valid message Message that will be added in green below the field once the validation has
@@ -95,7 +95,7 @@ const props = defineProps({
     /**
      * Mark the field as invalid
      *
-     * This can be used if the field requires some external validation. When not set or set to null
+     * This can be used if the field requires some external validation. When not set or set to undefined
      * this props is ignored.
      *
      * NOTE: :data-cy="`${dataCyPrefix}-description`"this props is ignored when activate-validation
@@ -105,7 +105,7 @@ const props = defineProps({
      */
     invalidMarker: {
         type: [Boolean, null],
-        default: null,
+        default: undefined,
     },
     /**
      * Invalid message Message that will be added in red below the field once the validation has
@@ -137,11 +137,11 @@ const props = defineProps({
      *
      * NOTE: this function is called each time the field is modified
      *
-     * @type {Function | null}
+     * @type {Function | undefined}
      */
     validate: {
         type: [Function, null],
-        default: null,
+        default: undefined,
         validator: propsValidator4ValidateFunc,
     },
     dataCy: {
