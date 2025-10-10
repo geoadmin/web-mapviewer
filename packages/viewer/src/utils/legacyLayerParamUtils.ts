@@ -174,7 +174,7 @@ export function getLayersFromLegacyUrlParams(
             }
             // checking if opacity is set in the URL
             if (layerOpacities.length > index) {
-                layer.opacity = layerOpacities[index] || 0
+                layer.opacity = layerOpacities[index] ?? 0
             }
             // checking if a timestamp is defined for this layer
             if (layerTimestamps.length > index && layerTimestamps[index] !== '') {

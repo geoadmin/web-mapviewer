@@ -117,9 +117,9 @@ function extractLV95Coordinates(text: string): [number, number] | undefined {
     const coordinates = numericalExtractor(REGEX_METRIC_COORDINATES.exec(text.trim()))
     if (coordinates) {
         if (LV95.isInBounds(coordinates[0], coordinates[1])) {
-            return [coordinates[0], coordinates[1]].map((v) => LV95.roundCoordinateValue(v)) as [number, number]
+            return [LV95.roundCoordinateValue(coordinates[0]), LV95.roundCoordinateValue(coordinates[1])]
         } else if (LV95.isInBounds(coordinates[1], coordinates[0])) {
-            return [coordinates[1], coordinates[0]].map((v) => LV95.roundCoordinateValue(v)) as [number, number]
+            return [LV95.roundCoordinateValue(coordinates[1]), LV95.roundCoordinateValue(coordinates[0])]
         }
     }
     return undefined
@@ -133,9 +133,9 @@ function extractLV03Coordinates(text: string): [number, number] | undefined {
     const coordinates = numericalExtractor(REGEX_METRIC_COORDINATES.exec(text.trim()))
     if (coordinates) {
         if (LV03.isInBounds(coordinates[0], coordinates[1])) {
-            return [coordinates[0], coordinates[1]].map((v) => LV03.roundCoordinateValue(v)) as [number, number]
+            return [LV03.roundCoordinateValue(coordinates[0]), LV03.roundCoordinateValue(coordinates[1])]
         } else if (LV03.isInBounds(coordinates[1], coordinates[0])) {
-            return [coordinates[1], coordinates[0]].map((v) => LV03.roundCoordinateValue(v)) as [number, number]
+            return [LV03.roundCoordinateValue(coordinates[1]), LV03.roundCoordinateValue(coordinates[0])]
         }
     }
     return undefined
@@ -145,9 +145,9 @@ function extractMetricMercatorCoordinates(text: string): [number, number] | unde
     const coordinates = numericalExtractor(REGEX_METRIC_COORDINATES.exec(text.trim()))
     if (coordinates) {
         if (LV95_BOUNDS_IN_METRIC_MERCATOR.isInBounds(coordinates[0], coordinates[1])) {
-            return [coordinates[0], coordinates[1]].map((v) => WEBMERCATOR.roundCoordinateValue(v)) as [number, number]
+            return [WEBMERCATOR.roundCoordinateValue(coordinates[0]), WEBMERCATOR.roundCoordinateValue(coordinates[1])]
         } else if (LV95_BOUNDS_IN_METRIC_MERCATOR.isInBounds(coordinates[1], coordinates[0])) {
-            return [coordinates[1], coordinates[0]].map((v) => WEBMERCATOR.roundCoordinateValue(v)) as [number, number]
+            return [WEBMERCATOR.roundCoordinateValue(coordinates[1]), WEBMERCATOR.roundCoordinateValue(coordinates[0])]
         }
     }
     return undefined
@@ -253,10 +253,10 @@ const wgs84Extractor = (regexMatches: RegExpExecArray | null): [number, number] 
                 break
         }
         if (LV95_BOUNDS_IN_WGS84.isInBounds(lon, lat)) {
-            return [lon, lat].map((v) => WGS84.roundCoordinateValue(v)) as [number, number]
+            return [WGS84.roundCoordinateValue(lon), WGS84.roundCoordinateValue(lat)]
         }
         if (LV95_BOUNDS_IN_WGS84.isInBounds(lat, lon)) {
-            return [lat, lon].map((v) => WGS84.roundCoordinateValue(v)) as [number, number]
+            return [WGS84.roundCoordinateValue(lat), WGS84.roundCoordinateValue(lon)]
         }
     }
     return undefined
@@ -273,7 +273,8 @@ const mgrsExtractor = (regexMatches: RegExpExecArray | null): [number, number] |
     }
     const mgrsString = regexMatches[0].split(' ').join('')
     if ((mgrsString.length - MGRSMinimalPrecision) % 2 === 0) {
-        return mgrsToWGS84(mgrsString).map((v) => WGS84.roundCoordinateValue(v)) as [number, number]
+        const coords = mgrsToWGS84(mgrsString)
+        return [WGS84.roundCoordinateValue(coords[0]), WGS84.roundCoordinateValue(coords[1])]
     }
     return undefined
 }
