@@ -5,7 +5,7 @@ import { computed, inject, nextTick, onMounted, onUnmounted, ref, useTemplateRef
 import { useStore } from 'vuex'
 
 import getHumanReadableCoordinate from '@/modules/map/components/common/mouseTrackerUtils'
-import allFormats, { LV95Format } from '@/utils/coordinates/coordinateFormat.js'
+import allFormats, { LV95Format } from '@/utils/coordinates/coordinateFormat'
 
 const dispatcher = { dispatcher: 'OpenLayersMouseTracker.vue' }
 
