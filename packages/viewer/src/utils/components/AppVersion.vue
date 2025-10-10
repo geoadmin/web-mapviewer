@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed, ref } from 'vue'
 
 import { APP_VERSION } from '@/config/staging.config'
@@ -11,7 +11,7 @@ const appVersion = ref(APP_VERSION)
 
 const isProd = computed(() => uiStore.isProductionSite)
 
-function openGithubReleaseLink() {
+function openGithubReleaseLink(): void {
     const isAppVersionClean = appVersion.value.match(cleanAppVersionRegex)
     if (!isAppVersionClean) {
         openGithubRepoLink()
@@ -19,7 +19,7 @@ function openGithubReleaseLink() {
         window.open(GITHUB_REPOSITORY + `/releases/tag/` + APP_VERSION, '_blank')
     }
 }
-function openGithubRepoLink() {
+function openGithubRepoLink(): void {
     window.open(GITHUB_REPOSITORY, '_blank')
 }
 </script>

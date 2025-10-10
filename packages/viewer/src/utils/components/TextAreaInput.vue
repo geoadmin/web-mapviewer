@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -10,8 +10,14 @@ import {
 
 const textAreaInputId = useComponentUniqueId('text-area-input')
 
-const model = defineModel({ type: String })
-const emits = defineEmits(['change', 'validate', 'focusin', 'focusout', 'keydown.enter'])
+const model = defineModel<string>()
+const emits = defineEmits<{
+    change: []
+    validate: []
+    focusin: []
+    focusout: []
+    'keydown.enter': []
+}>()
 const { t } = useI18n()
 
 const props = defineProps({
@@ -149,8 +155,8 @@ const textAreaElement = useTemplateRef('textAreaElement')
 const { value, validMarker, invalidMarker, validMessage, invalidMessage, onFocus, required } =
     useFieldValidation(props, model, emits)
 
-function focus() {
-    textAreaElement.value.focus()
+function focus(): void {
+    textAreaElement.value?.focus()
 }
 
 defineExpose({ focus })

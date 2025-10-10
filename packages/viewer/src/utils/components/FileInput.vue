@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 /**
  * Input field for local file
  *
@@ -21,8 +21,11 @@ import { humanFileSize } from '@/utils/utils'
 const inputFileId = useComponentUniqueId('file-input')
 
 const { t } = useI18n()
-const model = defineModel({ type: [File, null] })
-const emits = defineEmits(['change', 'validate'])
+const model = defineModel<File | null>()
+const emits = defineEmits<{
+    change: []
+    validate: []
+}>()
 
 // Props
 const props = defineProps({
@@ -194,7 +197,7 @@ const { value, validMarker, invalidMarker, validMessage, invalidMessage, require
     })
 
 // Reactive data
-const inputLocalFile = useTemplateRef('inputLocalFile')
+const inputLocalFile = useTemplateRef<HTMLInputElement>('inputLocalFile')
 
 // Computed properties
 
@@ -209,7 +212,7 @@ function validateFile() {
         value.value &&
         acceptedFileTypes?.length > 0 &&
         !acceptedFileTypes.some((type) =>
-            value.value.name.toLowerCase().endsWith(type.toLowerCase())
+            value.value!.name.toLowerCase().endsWith(type.toLowerCase())
         )
     ) {
         return { valid: false, invalidMessage: 'file_unsupported_format' }
@@ -222,8 +225,9 @@ function validateFile() {
         invalidMessage: '',
     }
 }
-function onFileSelected(evt) {
-    const file = evt.target?.files[0] ?? null
+function onFileSelected(evt: Event): void {
+    const target = evt.target as HTMLInputElement
+    const file = target?.files?.[0] ?? null
     value.value = file
 }
 </script>
