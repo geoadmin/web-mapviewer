@@ -1,30 +1,33 @@
-<script setup lang="ts">
-import type { Map } from 'ol'
+<script lang="ts" setup>
+import type Map from 'ol/Map'
 
-import { computed, inject, onBeforeUnmount, onMounted, ref } from 'vue'
+import log from '@swissgeo/log'
+
+import { inject, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import usePositionStore from '@/store/modules/position.store'
 
-interface Props {
+const { resolution } = defineProps<{
     resolution: number
+}>()
+
+const olMap = inject<Map>('olMap')
+if (!olMap) {
+    log.error('OpenLayersMap is not available')
+    throw new Error('OpenLayersMap is not available')
 }
 
-const props = defineProps<Props>()
-
-const olMap = inject<Map>('olMap')!
-
 const positionStore = usePositionStore()
-const mapResolution = computed(() => positionStore.resolution)
 
-const startingResolution = ref<number | undefined>(undefined)
+const startingResolution = ref<number>(positionStore.resolution)
 
 onMounted(() => {
-    startingResolution.value = mapResolution.value
-    olMap.getView().setResolution(props.resolution)
+    startingResolution.value = positionStore.resolution
+    olMap.getView().setResolution(resolution)
 })
 
 onBeforeUnmount(() => {
-    if (startingResolution.value !== undefined) {
+    if (startingResolution.value !== positionStore.resolution) {
         olMap.getView().setResolution(startingResolution.value)
     }
 })

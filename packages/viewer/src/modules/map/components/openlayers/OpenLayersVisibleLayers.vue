@@ -9,27 +9,22 @@ import useLayersStore from '@/store/modules/layers.store'
 const layersStore = useLayersStore()
 const drawingStore = useDrawingStore()
 
-const visibleLayers = computed(() => layersStore.visibleLayers)
-const isCurrentlyDrawing = computed(() => drawingStore.drawingOverlay.show)
-const currentDrawingKmlLayer = computed(() => layersStore.activeKmlLayer)
-const temporaryKmlId = computed(() => drawingStore.temporaryKmlId)
-const online = computed(() => drawingStore.online)
-
 // We do not want the drawing layer be added to the visible layers while it is being edited, so we filter
 // it out in this case
 const filteredVisibleLayers = computed(() => {
     // In normal drawing mode show only the drawing layer
-    if (isCurrentlyDrawing.value && online.value && currentDrawingKmlLayer.value) {
-        return visibleLayers.value.filter(
+    if (drawingStore.drawingOverlay.show && drawingStore.online && layersStore.activeKmlLayer) {
+        return layersStore.visibleLayers.filter(
             (layer) =>
-                layer.id !== currentDrawingKmlLayer.value?.id && layer.id !== temporaryKmlId.value
+                layer.id !== layersStore.activeKmlLayer!.id &&
+                layer.id !== drawingStore.temporaryKmlId
         )
     }
     // In report problem drawing mode show the drawing layer and the temporary layer
-    if (isCurrentlyDrawing.value && !online.value && temporaryKmlId.value) {
-        return visibleLayers.value.filter((layer) => layer.id !== temporaryKmlId.value)
+    if (drawingStore.drawingOverlay.show && !drawingStore.online && drawingStore.temporaryKmlId) {
+        return layersStore.visibleLayers.filter((layer) => layer.id !== drawingStore.temporaryKmlId)
     }
-    return visibleLayers.value
+    return layersStore.visibleLayers
 })
 
 const { getZIndexForLayer } = useLayerZIndexCalculation()

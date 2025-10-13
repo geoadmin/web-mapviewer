@@ -14,24 +14,6 @@ import { Geometry } from 'ol/geom'
 import type { LayerFeature } from '@/api/features.api'
 
 /**
- * Returns the index of the max resolution, which is used to determine the maximum zoom level
- * default to the array length
- */
-export function indexOfMaxResolution(
-    projection: CoordinateSystem,
-    layerMaxResolution: number
-): number {
-    const resolutionSteps = projection.getResolutionSteps()
-    const matchResolutionStep = resolutionSteps.find(
-        (step) => step.resolution === layerMaxResolution
-    )
-    if (!matchResolutionStep) {
-        return resolutionSteps.length - 1
-    }
-    return resolutionSteps.indexOf(matchResolutionStep)
-}
-
-/**
  * Creates a LayerFeature object from an OpenLayers feature and a layer.
  *
  * @param olFeature The OpenLayers feature to convert.
