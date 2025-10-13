@@ -18,7 +18,7 @@ import { LineString, Point, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
 import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 
-import type { KMLLayer as KMLLayerType, Layer } from '@swissgeo/layers'
+import type { GeoAdminGeoJSONLayer, KMLLayer as KMLLayerType, Layer } from '@swissgeo/layers'
 import { LayerType } from '@swissgeo/layers'
 
 import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
@@ -227,7 +227,7 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
             .filter((l) => l.type === LayerType.GEOJSON)
             .forEach((geoJSonLayer) => {
                 const identified = identifyGeoJSONFeatureAt(
-                    geoJSonLayer,
+                    geoJSonLayer as GeoAdminGeoJSONLayer,
                     coordinates as SingleCoordinate,
                     projection.value,
                     resolution.value
