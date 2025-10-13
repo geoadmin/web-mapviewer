@@ -1,51 +1,51 @@
-<script setup lang="js">
+<script setup lang="ts">
 /** Adds a GeoJSON layer to the OpenLayers map */
+
+import type { Map } from 'ol'
+import type { GeoAdminGeoJSONLayer } from '@swissgeo/layers'
 
 import log from '@swissgeo/log'
 import GeoJSON from 'ol/format/GeoJSON'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { computed, inject, watch } from 'vue'
-import { useStore } from 'vuex'
 
-import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
-import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/geoJsonStyleFromLiterals.js'
+import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/geoJsonStyleFromLiterals'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
+import usePositionStore from '@/store/modules/position.store'
 import { reprojectGeoJsonGeometry } from '@/utils/geoJsonUtils'
 
-const { geoJsonConfig, parentLayerOpacity, zIndex } = defineProps({
-    geoJsonConfig: {
-        type: GeoAdminGeoJsonLayer,
-        required: true,
-    },
-    parentLayerOpacity: {
-        type: Number,
-        default: null,
-    },
-    zIndex: {
-        type: Number,
-        default: -1,
-    },
+interface Props {
+    geoJsonConfig: GeoAdminGeoJSONLayer
+    parentLayerOpacity?: number
+    zIndex?: number
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    parentLayerOpacity: undefined,
+    zIndex: -1,
 })
 
 // mapping relevant store values
-const store = useStore()
-const projection = computed(() => store.state.position.projection)
+const positionStore = usePositionStore()
+const projection = computed(() => positionStore.projection)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => geoJsonConfig.technicalName)
-const opacity = computed(() => parentLayerOpacity ?? geoJsonConfig.opacity)
-const geoJsonData = computed(() => geoJsonConfig.geoJsonData)
-const geoJsonStyle = computed(() => geoJsonConfig.geoJsonStyle)
-const isLoading = computed(() => geoJsonConfig.isLoading)
+const layerId = computed(() => props.geoJsonConfig.technicalName)
+const opacity = computed(() => props.parentLayerOpacity ?? props.geoJsonConfig.opacity)
+const geoJsonData = computed(() => props.geoJsonConfig.geoJsonData)
+const geoJsonStyle = computed(() => props.geoJsonConfig.geoJsonStyle)
+const isLoading = computed(() => props.geoJsonConfig.isLoading)
 
 const layer = new VectorLayer({
-    id: layerId.value,
-    uuid: geoJsonConfig.uuid,
+    properties: {
+        id: layerId.value,
+        uuid: props.geoJsonConfig.uuid,
+    },
     opacity: opacity.value,
 })
 
-function setGeoJsonStyle() {
+function setGeoJsonStyle(): void {
     if (!geoJsonStyle.value) {
         log.debug('style was not loaded, could not create source')
         return
@@ -53,27 +53,30 @@ function setGeoJsonStyle() {
     const styleFunction = new OlStyleForPropertyValue(geoJsonStyle.value)
     layer.setStyle((feature, res) => styleFunction.getFeatureStyle(feature, res))
 }
-function setFeatures() {
+function setFeatures(): void {
     if (!geoJsonData.value) {
         log.debug('no GeoJSON data loaded yet, could not create source')
         return
     }
+    const geoJsonObject = typeof geoJsonData.value === 'string'
+        ? JSON.parse(geoJsonData.value)
+        : geoJsonData.value
     layer.setSource(
         new VectorSource({
             features: new GeoJSON().readFeatures(
-                reprojectGeoJsonGeometry(geoJsonData.value, projection.value)
+                reprojectGeoJsonGeometry(geoJsonObject, projection.value)
             ),
         })
     )
 }
 
-function createSourceForProjection() {
+function createSourceForProjection(): void {
     setGeoJsonStyle()
     setFeatures()
 }
 
-const olMap = inject('olMap')
-useAddLayerToMap(layer, olMap, () => zIndex)
+const olMap = inject<Map>('olMap')!
+useAddLayerToMap(layer, olMap, props.zIndex)
 
 createSourceForProjection()
 
