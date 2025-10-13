@@ -1,15 +1,15 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed } from 'vue'
-import { useStore } from 'vuex'
 
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import OpenLayersMarker from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
-import { OpenLayersMarkerStyles } from '@/modules/map/components/openlayers/utils/markerStyle.js'
+import { OpenLayersMarkerStyles } from '@/modules/map/components/openlayers/utils/markerStyle'
+import usePositionStore from '@/store/modules/position.store'
 import { CrossHairs } from '@/store/modules/position.store'
 
-const store = useStore()
-const crossHair = computed(() => store.state.position.crossHair)
-const crossHairPosition = computed(() => store.state.position.crossHairPosition)
+const positionStore = usePositionStore()
+const crossHair = computed(() => positionStore.crossHair)
+const crossHairPosition = computed(() => positionStore.crossHairPosition)
 const crossHairStyle = computed(() => {
     switch (crossHair.value) {
         case CrossHairs.point:
@@ -23,14 +23,14 @@ const crossHairStyle = computed(() => {
         case CrossHairs.circle:
             return OpenLayersMarkerStyles.Circle
     }
-    return null
+    return undefined
 })
 const { zIndexCrossHair } = useLayerZIndexCalculation()
 </script>
 
 <template>
     <OpenLayersMarker
-        v-if="crossHair"
+        v-if="crossHair && crossHairPosition"
         :position="crossHairPosition"
         :marker-style="crossHairStyle"
         :z-index="zIndexCrossHair"

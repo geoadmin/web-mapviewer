@@ -1,12 +1,12 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed } from 'vue'
-import { useStore } from 'vuex'
 
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import OpenLayersInternalLayer from '@/modules/map/components/openlayers/OpenLayersInternalLayer.vue'
+import useLayersStore from '@/store/modules/layers.store'
 
-const store = useStore()
-const currentBackgroundLayer = computed(() => store.getters.currentBackgroundLayer)
+const layersStore = useLayersStore()
+const currentBackgroundLayer = computed(() => layersStore.currentBackgroundLayer)
 
 const { getZIndexForLayer } = useLayerZIndexCalculation()
 </script>
