@@ -1,8 +1,12 @@
-<script setup lang="js">
+<script setup lang="ts">
 /**
  * Renders all selected features as geometry on the map with a highlighted style and opens up the
  * popup with the features' information
  */
+
+import type { Map } from 'ol'
+import type { StyleLike } from 'ol/style/Style'
+import type { SingleCoordinate } from '@swissgeo/coordinates'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { WGS84 } from '@swissgeo/coordinates'
@@ -14,35 +18,48 @@ import { LineString } from 'ol/geom'
 import proj4 from 'proj4'
 import { computed, inject } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import { MapPopoverMode } from '@/modules/map/components/MapPopover.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
-import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle.js'
-import useVectorLayer from '@/modules/map/components/openlayers/utils/useVectorLayer.composable'
-import { FeatureInfoPositions } from '@/store/modules/ui.store'
+import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle'
+import useVectorLayer from '@/modules/map/components/openlayers/utils/useVectorLayer.composable.ts'
+import useDrawingStore from '@/store/modules/drawing.store'
+import useFeaturesStore from '@/store/modules/features.store'
+import useMapStore from '@/store/modules/map.store'
+import usePositionStore from '@/store/modules/position.store'
+import useProfileStore from '@/store/modules/profile.store'
+import useUiStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 
-const dispatcher = { dispatcher: 'OpenLayersHighlightedFeatures.vue' }
+const dispatcher = { dispatcher: 'OpenLayersHighlightedFeatures.vue', name: 'OpenLayersHighlightedFeatures' }
 
 const { t } = useI18n()
 
 // mapping relevant store values
-const store = useStore()
-const selectedFeatures = computed(() => store.getters.selectedFeatures)
-const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
-const selectedLayerFeatures = computed(() => store.getters.selectedLayerFeatures)
-const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.show)
-const projection = computed(() => store.state.position.projection)
-const highlightedFeatureId = computed(() => store.state.features.highlightedFeatureId)
-const tooltipFeatureInfo = computed(() => store.getters.showFeatureInfoInTooltip)
-const profileFeature = computed(() => store.state.profile.feature)
-const currentGeometryElements = computed(() => profileFeature.value?.geometry.coordinates)
-const currentFeatureSegmentIndex = computed(() => store.state.profile.currentFeatureSegmentIndex)
-const isMultiFeature = computed(() => store.getters.isProfileFeatureMultiFeature)
+const featuresStore = useFeaturesStore()
+const drawingStore = useDrawingStore()
+const positionStore = usePositionStore()
+const profileStore = useProfileStore()
+const uiStore = useUiStore()
+const mapStore = useMapStore()
+
+const selectedFeatures = computed(() => featuresStore.selectedFeatures)
+const selectedEditableFeatures = computed(() => featuresStore.selectedEditableFeatures)
+const selectedLayerFeatures = computed(() => featuresStore.selectedLayerFeatures)
+const isCurrentlyDrawing = computed(() => drawingStore.drawingOverlay.show)
+const projection = computed(() => positionStore.projection)
+const highlightedFeatureId = computed(() => featuresStore.highlightedFeatureId)
+const tooltipFeatureInfo = computed(() => uiStore.showFeatureInfoInTooltip)
+const profileFeature = computed(() => profileStore.feature)
+const currentGeometryElements = computed(() => {
+    const geometry = profileFeature.value?.geometry
+    return geometry && 'coordinates' in geometry ? geometry.coordinates : undefined
+})
+const currentFeatureSegmentIndex = computed(() => profileStore.currentFeatureGeometryIndex)
+const isMultiFeature = computed(() => profileStore.isProfileFeatureMultiFeature)
 
 const featureTransformedAsOlFeatures = computed(() => {
     // While drawing module is active, we do not want any other feature as the editable one highlighted.
@@ -61,12 +78,12 @@ const featureTransformedAsOlFeatures = computed(() => {
     })
 })
 
-const segmentTransformedAsOlFeatures = computed(() => {
-    if (!profileFeature.value || !isMultiFeature.value) {
+const segmentTransformedAsOlFeatures = computed((): Feature[] => {
+    if (!profileFeature.value || !isMultiFeature.value || !currentGeometryElements.value || !Array.isArray(currentGeometryElements.value)) {
         return []
     }
 
-    return currentGeometryElements.value.reduce((features, geometry, index) => {
+    return (currentGeometryElements.value as number[][][]).reduce((features: Feature[], geometry: number[][], index: number) => {
         if (currentFeatureSegmentIndex.value === index) {
             features.push(
                 new Feature({
@@ -82,57 +99,63 @@ const segmentTransformedAsOlFeatures = computed(() => {
 })
 
 const southPole = point([0.0, -90.0])
-const popoverCoordinate = computed(() => {
+const popoverCoordinate = computed((): SingleCoordinate | undefined => {
     // if we are dealing with any editable feature while drawing, we return its last coordinate
     if (isCurrentlyDrawing.value && selectedEditableFeatures.value.length > 0) {
         const [topEditableFeature] = selectedEditableFeatures.value
-        return topEditableFeature.lastCoordinate
+        if (topEditableFeature && topEditableFeature.coordinates && topEditableFeature.coordinates.length > 0) {
+            const lastCoordinate = topEditableFeature.coordinates[topEditableFeature.coordinates.length - 1]
+            return Array.isArray(lastCoordinate) && lastCoordinate.length === 2 ? lastCoordinate as SingleCoordinate : undefined
+        }
     }
     // If no editable feature is selected while drawing, we place the popover depending on the geometry of all
     // selected features. We will find the most southern coordinate present in all features and use it as anchor.
     const mostSouthernFeature = selectedFeatures.value
-        .filter((feature) => feature.geometry !== null)
-        .map((feature) => feature.geometry)
+        .filter((feature) => feature.geometry !== undefined)
+        .map((feature) => feature.geometry!)
         .map((geometry) => transformIntoTurfEquivalent(geometry, projection.value))
+        .filter((turfGeom) => turfGeom !== undefined)
         .map((turfGeom) => explode(turfGeom))
         .map((points) => nearestPoint(southPole, points))
-        .reduce((previousPoint, currentPoint) => {
-            if (
-                !previousPoint ||
-                previousPoint.geometry.coordinates[1] > currentPoint.geometry.coordinates[1]
-            ) {
+        .reduce<typeof southPole | undefined>((previousPoint, currentPoint) => {
+            if (!previousPoint) {
+                return currentPoint
+            }
+            const prevCoords = previousPoint.geometry?.coordinates
+            const currCoords = currentPoint.geometry?.coordinates
+            if (prevCoords && currCoords && Array.isArray(prevCoords) && Array.isArray(currCoords) &&
+                prevCoords.length > 1 && currCoords.length > 1 &&
+                typeof prevCoords[1] === 'number' && typeof currCoords[1] === 'number' &&
+                prevCoords[1] > currCoords[1]) {
                 return currentPoint
             }
             return previousPoint
-        }, null)
+        }, undefined)
     if (!mostSouthernFeature) {
-        return null
+        return undefined
     }
     return proj4(WGS84.epsg, projection.value.epsg, mostSouthernFeature.geometry.coordinates).map(
         projection.value.roundCoordinateValue
-    )
+    ) as SingleCoordinate
 })
 
-const olMap = inject('olMap')
+const olMap = inject<Map>('olMap')!
 const { zIndexHighlightedFeatures } = useLayerZIndexCalculation()
 useVectorLayer(olMap, featureTransformedAsOlFeatures, {
     zIndex: zIndexHighlightedFeatures,
-    styleFunction: highlightFeatureStyle,
+    styleFunction: highlightFeatureStyle as StyleLike,
 })
 useVectorLayer(olMap, segmentTransformedAsOlFeatures, {
     zIndex: zIndexHighlightedFeatures,
-    styleFunction: highlightFeatureStyle,
+    styleFunction: highlightFeatureStyle as StyleLike,
 })
 
-function clearAllSelectedFeatures() {
-    store.dispatch('clearAllSelectedFeatures', dispatcher)
-    store.dispatch('clearClick', dispatcher)
+function clearAllSelectedFeatures(): void {
+    featuresStore.clearAllSelectedFeatures(dispatcher)
+    mapStore.clearClick(dispatcher)
 }
-function setBottomPanelFeatureInfoPosition() {
-    store.dispatch('setFeatureInfoPosition', {
-        position: FeatureInfoPositions.BOTTOMPANEL,
-        ...dispatcher,
-    })
+function setBottomPanelFeatureInfoPosition(): void {
+    uiStore.setFeatureInfoPosition(FeatureInfoPositions.BOTTOMPANEL, dispatcher)
 }
 </script>
 
