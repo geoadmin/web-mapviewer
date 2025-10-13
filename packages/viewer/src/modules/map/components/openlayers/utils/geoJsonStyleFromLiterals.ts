@@ -23,7 +23,6 @@ import { Circle, Fill, Icon, RegularShape, Stroke, Style, Text } from 'ol/style'
 
 // TODO I don't know enough about styles to do this right now...
 
-
 // copied and adapted from https://github.com/geoadmin/mf-geoadmin3/blob/master/src/components/StylesFromLiteralsService.js
 
 export function getOlImageStyleForShape(
@@ -207,16 +206,15 @@ class OlStyleForPropertyValue {
     defaultStyle: Style
     styles: Record<GeoAdminGeoJSONStyleType, Record<string, Style[]>>
 
-
     constructor(geoadminStyleJson: GeoAdminGeoJSONStyleDefinition) {
         this.key = geoadminStyleJson.property
         this.singleStyle = null
         this.defaultVal = 'defaultVal'
         this.defaultStyle = new Style()
         this.styles = {
-            'single': {},
-            'unique': {},
-            'range': {}
+            single: {},
+            unique: {},
+            range: {},
         }
         // this.styles: [key in Language]GeoAdminGeoJSONStyleType //{
         //     // point: {},
@@ -225,7 +223,9 @@ class OlStyleForPropertyValue {
         // //}
         this.type = geoadminStyleJson.type
 
-        const isStyleSingle = (style: GeoAdminGeoJSONStyleDefinition): style is GeoAdminGeoJSONStyleSingle => {
+        const isStyleSingle = (
+            style: GeoAdminGeoJSONStyleDefinition
+        ): style is GeoAdminGeoJSONStyleSingle => {
             return style.type === 'single'
         }
 
