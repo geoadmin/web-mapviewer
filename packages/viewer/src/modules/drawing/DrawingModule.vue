@@ -37,13 +37,6 @@ import type { ActionDispatcher } from '@/store/types'
 import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
 import { layerUtils } from '@swissgeo/layers/utils'
 
-// Type augmentation for Cypress testing: expose drawingLayer on window
-declare global {
-    interface Window {
-        drawingLayer?: VectorLayer<VectorSource<Feature<Geometry>>>
-    }
-}
-
 const dispatcher: ActionDispatcher = { name: 'DrawingModule.vue' }
 
 // OL map instance provided by the map module

@@ -1,14 +1,14 @@
-<script setup lang="js">
+<script setup lang="ts">
+import useUIStore from '@/store/modules/ui.store'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-const dispatcher = { dispatcher: 'FullScreenButton.vue' }
+const dispatcher = { name: 'FullScreenButton.vue' }
 
 const { t } = useI18n()
-const store = useStore()
+const uiStore = useUIStore()
 
 const tooltipContent = computed(() => {
     if (isInFullScreenMode.value) {
@@ -17,13 +17,13 @@ const tooltipContent = computed(() => {
     return t('full_screen')
 })
 
-const isInFullScreenMode = computed(() => store.state.ui.fullscreenMode)
+const isInFullScreenMode = computed(() => uiStore.fullscreenMode)
 
 function toggleFullScreen() {
-    store.dispatch('toggleFullscreenMode', dispatcher)
+    uiStore.toggleFullscreenMode(dispatcher)
 }
-const height = computed(() => store.state.ui.height)
-const width = computed(() => store.state.ui.width)
+const height = computed(() => uiStore.height)
+const width = computed(() => uiStore.width)
 const isInWindowFullScreenModeNotChromium = computed(
     () => screen.width === width.value && screen.height === height.value && !window.chrome
 )
@@ -34,7 +34,7 @@ onUnmounted(() => {
     window.removeEventListener('keydown', handleKeydown)
 })
 
-function handleKeydown(event) {
+function handleKeydown(event: KeyboardEvent) {
     if (event.key === 'Escape' && isInFullScreenMode.value) {
         toggleFullScreen()
     }

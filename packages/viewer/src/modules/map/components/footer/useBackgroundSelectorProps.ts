@@ -1,4 +1,5 @@
 import { computed } from 'vue'
+
 import { useBackgroundSelector } from './useBackgroundSelector'
 
 export function useBackgroundSelectorProps() {
