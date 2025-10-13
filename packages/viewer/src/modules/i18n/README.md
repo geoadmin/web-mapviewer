@@ -29,10 +29,10 @@ Current locale can be accessed through the store
 
 ```javascript
 import { computed } from 'vue'
-import { useStore } from 'vuex'
+import { useI18nStore } from '@/store/modules/i18n.store'
 
-const store = useStore()
-const currentLocal = computed(() => store.state.i18n.lang)
+const i18nStore = useI18nStore()
+const currentLocal = computed(() => i18nStore.lang)
 ```
 
 ```html
