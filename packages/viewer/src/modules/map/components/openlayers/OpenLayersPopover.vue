@@ -7,31 +7,34 @@
 import type { Map } from 'ol'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 import { inject, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
+import log from '@swissgeo/log'
 
 import MapPopover, { MapPopoverMode } from '@/modules/map/components/MapPopover.vue'
 
-interface Props {
+const {
+    coordinates,
+    authorizePrint = false,
+    title = '',
+    useContentPadding = false,
+    mode = MapPopoverMode.FLOATING,
+} = defineProps<{
     coordinates?: SingleCoordinate
     authorizePrint?: boolean
     title?: string
     useContentPadding?: boolean
     mode?: MapPopoverMode
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    coordinates: undefined,
-    authorizePrint: false,
-    title: '',
-    useContentPadding: false,
-    mode: MapPopoverMode.FLOATING,
-})
+}>()
 
 const anchorPosition = ref({ top: 0, left: 0 })
 const popoverAnchor = useTemplateRef<InstanceType<typeof MapPopover>>('popoverAnchor')
 
-const olMap = inject<Map>('olMap')!
+const olMap = inject<Map>('olMap')
+if (!olMap) {
+    log.error('OpenLayersMap is not available')
+    throw new Error('OpenLayersMap is not available')
+}
 
-watch(() => props.coordinates, calculateAnchorPosition)
+watch(() => coordinates, calculateAnchorPosition)
 
 onMounted(() => {
     calculateAnchorPosition()
@@ -42,10 +45,10 @@ onUnmounted(() => {
 })
 
 function calculateAnchorPosition(): void {
-    if (!props.coordinates) {
+    if (!coordinates) {
         return
     }
-    const computedPixel = olMap.getPixelFromCoordinate(props.coordinates)
+    const computedPixel = olMap?.getPixelFromCoordinate(coordinates)
     // when switching back from Cesium (or any other map framework), there can be a very small
     // period where the map isn't yet able to process a pixel, this if is there to defend against that
     if (computedPixel && computedPixel.length >= 2) {

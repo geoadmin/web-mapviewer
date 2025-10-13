@@ -1,13 +1,15 @@
 import type { FlatExtent } from '@swissgeo/coordinates'
+
 import { LV95, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import { readFile } from 'fs/promises'
 import { Interval } from 'luxon'
 import { assertType, beforeAll, describe, expect, it } from 'vitest'
 
-import wmtsCapabilitiesParser from '@/parsers/WMTSCapabilitiesParser'
-import type { ExternalWMTSLayer, LayerLegend } from '@/types/layers'
-import { timeConfigUtils } from '@/utils'
 import type { WMTSCapabilitiesResponse } from '@/types'
+import type { ExternalWMTSLayer, LayerLegend } from '@/types/layers'
+
+import wmtsCapabilitiesParser from '@/parsers/WMTSCapabilitiesParser'
+import { timeConfigUtils } from '@/utils'
 
 describe('WMTSCapabilitiesParser - invalid', () => {
     it('Throw Error on invalid input', () => {

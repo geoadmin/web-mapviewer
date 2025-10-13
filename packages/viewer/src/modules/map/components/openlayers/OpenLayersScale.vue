@@ -1,39 +1,43 @@
 <script setup lang="ts">
 import type { Map } from 'ol'
 
+import log from '@swissgeo/log'
 import { LV95 } from '@swissgeo/coordinates'
 import ScaleLine from 'ol/control/ScaleLine'
 import { computed, inject, onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
 
 import usePositionStore from '@/store/modules/position.store'
 
-interface Props {
+const {
+    scaleType = 'line',
+    minWidth = 100,
+    withRelativeSize = false,
+} = defineProps<{
     scaleType?: 'line' | 'bar'
     minWidth?: number
     withRelativeSize?: boolean
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    scaleType: 'line',
-    minWidth: 100,
-    withRelativeSize: false,
-})
+}>()
 
 const scaleLineElement = useTemplateRef<HTMLElement>('scaleLineElement')
 
 const positionStore = usePositionStore()
-const zoom = computed(() => positionStore.zoom)
-const projection = computed(() => positionStore.projection)
 
-const showScaleLine = computed(() => projection.value.epsg === LV95.epsg || zoom.value >= 9)
+const showScaleLine = computed<boolean>(
+    () => positionStore.projection.epsg === LV95.epsg || positionStore.zoom >= 9
+)
 
 const scaleLine = new ScaleLine({
-    className: `scale-${props.scaleType}`,
-    bar: props.scaleType === 'bar',
-    minWidth: props.minWidth,
+    className: `scale-${scaleType}`,
+    bar: scaleType === 'bar',
+    minWidth: minWidth,
 })
 
-const olMap = inject<Map>('olMap')!
+const olMap = inject<Map>('olMap')
+if (!olMap) {
+    log.error('OpenLayersMap is not available')
+    throw new Error('OpenLayersMap is not available')
+}
+
 onMounted(() => {
     if (scaleLineElement.value) {
         scaleLine.setTarget(scaleLineElement.value)

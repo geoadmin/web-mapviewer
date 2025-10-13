@@ -1,11 +1,12 @@
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
-import { CoordinateSystem } from '@swissgeo/coordinates'
 import type { Options } from 'ol/source/WMTS'
+
+import { CoordinateSystem } from '@swissgeo/coordinates'
 import { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 
-import type { LayerTimeConfig } from '@/types/timeConfig'
 import type { WMSRequestCapabilities } from '@/types/capabilities'
 import type { GeoAdminGeoJSONStyleDefinition } from '@/types/geoJsonStyle'
+import type { LayerTimeConfig } from '@/types/timeConfig'
 
 export type * from '@/types/geoJsonStyle'
 

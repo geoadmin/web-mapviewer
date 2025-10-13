@@ -1,5 +1,5 @@
-import { resolve } from 'path'
 import vue from '@vitejs/plugin-vue'
+import { resolve } from 'path'
 import dts from 'unplugin-dts/vite'
 import { fileURLToPath, URL } from 'url'
 import { defineConfig, type UserConfig } from 'vite'
