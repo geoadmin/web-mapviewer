@@ -19,26 +19,26 @@ import type { GeoAdminVectorLayer } from '@swissgeo/layers'
 import { VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config/vectortiles.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 
-interface Props {
+const {
+    vectorLayerConfig,
+    parentLayerOpacity,
+    zIndex = -1,
+} = defineProps<{
     vectorLayerConfig: GeoAdminVectorLayer
     parentLayerOpacity?: number
     zIndex?: number
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    parentLayerOpacity: undefined,
-    zIndex: -1,
-})
+}>()
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => props.vectorLayerConfig.id)
-const opacity = computed(() => props.parentLayerOpacity ?? props.vectorLayerConfig.opacity)
-const styleUrl = computed(() => `${props.vectorLayerConfig.baseUrl}styles/${layerId.value}/style.json`)
+const opacity = computed(() => parentLayerOpacity ?? vectorLayerConfig.opacity)
+const styleUrl = computed(
+    () => `${vectorLayerConfig.baseUrl}styles/${vectorLayerConfig.id}/style.json`
+)
 
 const layer = new MapLibreLayer({
     properties: {
-        id: layerId.value,
-        uuid: props.vectorLayerConfig.uuid,
+        id: vectorLayerConfig.id,
+        uuid: vectorLayerConfig.uuid,
     },
     opacity: opacity.value,
     mapLibreOptions: {
@@ -47,8 +47,12 @@ const layer = new MapLibreLayer({
 })
 setMapLibreStyle(styleUrl.value)
 
-const olMap = inject<Map>('olMap')!
-useAddLayerToMap(layer, olMap, props.zIndex)
+const olMap = inject<Map>('olMap')
+if (!olMap) {
+    log.error('OpenLayersMap is not available')
+    throw new Error('OpenLayersMap is not available')
+}
+useAddLayerToMap(layer, olMap, zIndex)
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(styleUrl, (newStyleUrl) => setMapLibreStyle(newStyleUrl))
@@ -58,7 +62,7 @@ function setMapLibreStyle(styleUrl: string): void {
         return
     }
     // most of this methods will be edited while doing https://jira.swisstopo.ch/browse/BGDIINF_SB-2741
-    if (layerId.value === VECTOR_TILES_IMAGERY_STYLE_ID) {
+    if (vectorLayerConfig.id === VECTOR_TILES_IMAGERY_STYLE_ID) {
         // special case here, as the imagery is only over Switzerland (for now)
         // we inject a fair-use WMTS that covers the globe under our aerial images
         axios

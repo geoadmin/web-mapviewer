@@ -31,7 +31,7 @@ import {
     WMS_SUPPORTED_VERSIONS,
 } from '@/types/layers'
 import { layerUtils } from '@/utils'
-import { makeTimeConfig, makeTimeConfigEntry } from '@/utils/timeConfigUtils'
+import timeConfigUtils from '@/utils/timeConfigUtils'
 import { CapabilitiesError } from '@/validation'
 
 type WMSLayerAndItsParents = {
@@ -331,8 +331,9 @@ function getTimeConfig(dimensions?: ExternalLayerTimeDimension[]): LayerTimeConf
         return
     }
     const timeEntries =
-        timeDimension.values?.map((value: string) => makeTimeConfigEntry(value)) ?? []
-    return makeTimeConfig(timeDimension.defaultValue, timeEntries)
+        timeDimension.values?.map((value: string) => timeConfigUtils.makeTimeConfigEntry(value)) ??
+        []
+    return timeConfigUtils.makeTimeConfig(timeDimension.defaultValue, timeEntries)
 }
 
 function getLayerAttributes(

@@ -5,22 +5,22 @@
  */
 
 import Feature from 'ol/Feature'
+import type { Map } from 'ol'
 import { Circle } from 'ol/geom'
 import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
+import type { Coordinate } from 'ol/coordinate'
 import { v4 as uuidv4 } from 'uuid'
-import { computed, inject, watch } from 'vue'
+import { computed, inject, toRef, watch } from 'vue'
+import log from '@swissgeo/log'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { geolocationAccuracyCircleStyle } from '@/utils/styleUtils'
 import useGeolocationStore from '@/store/modules/geolocation.store'
 
-const { zIndex } = defineProps({
-    zIndex: {
-        type: Number,
-        default: -1,
-    },
-})
+const { zIndex = -1 } = defineProps<{
+    zIndex?: number
+}>()
 
 // mapping relevant store values
 const geolocationStore = useGeolocationStore()
@@ -28,7 +28,7 @@ const position = computed(() => geolocationStore.position)
 const accuracy = computed(() => geolocationStore.accuracy)
 
 if (position.value) {
-    const accuracyCircle = new Circle(position.value, accuracy.value)
+    const accuracyCircle = new Circle(position.value as Coordinate, accuracy.value)
     const accuracyCircleFeature = new Feature({
         geometry: accuracyCircle,
     })
@@ -37,7 +37,7 @@ if (position.value) {
 
     const layer = new VectorLayer({
         properties: {
-            id: `geolocation-accuracy-layer`,
+            id: 'geolocation-accuracy-layer',
             uuid: uuidv4(),
         },
         source: new VectorSource({
@@ -46,14 +46,20 @@ if (position.value) {
     })
 
     // grabbing the map from the main OpenLayersMap component and use the composable that adds this layer to the map
-    const olMap = inject('olMap', null)
-    if (olMap) {
-        useAddLayerToMap(layer, olMap, zIndex)
+    const olMap = inject<Map>('olMap')
+    if (!olMap) {
+        log.error('OpenLayersMap is not available')
+        throw new Error('OpenLayersMap is not available')
     }
+    useAddLayerToMap(layer, olMap, toRef(zIndex))
 
     // reacting to changes accordingly
-    watch(position, (newPosition) => accuracyCircle.setCenter(newPosition!))
-    watch(accuracy, (newAccuracy) => accuracyCircle.setRadius(newAccuracy))
+    watch(position, (newPosition) => {
+        if (newPosition) {
+            accuracyCircle.setCenter(newPosition as Coordinate)
+        }
+    })
+    watch(accuracy, (newAccuracy: number) => accuracyCircle.setRadius(newAccuracy))
 }
 </script>
 

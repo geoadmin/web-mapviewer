@@ -11,29 +11,22 @@ import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import Style from 'ol/style/Style'
 import { computed, inject, watch } from 'vue'
+import log from '@swissgeo/log'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import useGeolocationStore from '@/store/modules/geolocation.store'
 
-interface Props {
+const { zIndex = -1, effectiveHeading = 0 } = defineProps<{
     zIndex?: number
     effectiveHeading?: number
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    zIndex: -1,
-    effectiveHeading: undefined,
-})
+}>()
 
 const geolocationStore = useGeolocationStore()
 
 const geolocationPosition = computed(() => geolocationStore.position)
 // CSS angle context differ from the effective heading therefore we have to turn of PI/2 (90°)
 // Also we need to inverse the cone and its rotation (-1 factor)
-const coneAngle = computed(() => {
-    const heading = props.effectiveHeading ?? 0
-    return -1 * (heading + Math.PI / 2)
-})
+const coneAngle = computed(() => -1 * (effectiveHeading + Math.PI / 2))
 
 const visionConeGeometry = new Point(geolocationPosition.value as SingleCoordinate)
 const visionConeFeature = new Feature({
@@ -75,18 +68,23 @@ const layer = new VectorLayer({
     }),
 })
 
-const olMap = inject<Map>('olMap')!
-useAddLayerToMap(layer, olMap, props.zIndex)
+const olMap = inject<Map>('olMap')
+if (!olMap) {
+    log.error('OpenLayersMap component not found')
+    throw new Error('OpenLayersMap component not found')
+}
+
+useAddLayerToMap(layer, olMap, zIndex)
 
 watch(geolocationPosition, () => {
     if (geolocationPosition.value) {
         visionConeGeometry.setCoordinates(geolocationPosition.value)
     }
 })
-watch(() => props.effectiveHeading, rotateConeOnCompassHeading)
+watch(() => effectiveHeading, rotateConeOnCompassHeading)
 
 function rotateConeOnCompassHeading(): void {
-    const heading = props.effectiveHeading
+    const heading = effectiveHeading
     if (heading !== undefined && geolocationPosition.value) {
         visionConeGeometry.rotate(heading, geolocationPosition.value)
     }

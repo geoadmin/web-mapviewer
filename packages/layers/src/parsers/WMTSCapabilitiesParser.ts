@@ -14,7 +14,6 @@ import type {
     LayerAttribution,
     LayerLegend,
     LayerTimeConfig,
-    WMTSOnlineResource,
     TileMatrixSet,
     WMTSCapabilitiesResponse,
     WMTSCapabilitiesTileMatrixSet,
@@ -22,12 +21,13 @@ import type {
     WMTSCapabilityLayerDimension,
     WMTSCapabilityLayerStyle,
     WMTSLegendURL,
+    WMTSOnlineResource,
     WMTSTileMatrixSetLink,
 } from '@/types'
 
 import { LayerType, WMTSEncodingType } from '@/types'
 import layerUtils from '@/utils/layerUtils'
-import { makeTimeConfig, makeTimeConfigEntry } from '@/utils/timeConfigUtils'
+import timeConfigUtils from '@/utils/timeConfigUtils'
 import { CapabilitiesError } from '@/validation'
 
 function parseCrs(crs?: string): CoordinateSystem | undefined {
@@ -391,8 +391,10 @@ function getTimeConfig(
         return
     }
 
-    const timeEntries = timeDimension.values?.map((value) => makeTimeConfigEntry(value))
-    return makeTimeConfig(timeDimension.defaultValue, timeEntries)
+    const timeEntries = timeDimension.values?.map((value) =>
+        timeConfigUtils.makeTimeConfigEntry(value)
+    )
+    return timeConfigUtils.makeTimeConfig(timeDimension.defaultValue, timeEntries)
 }
 
 function getExternalLayer(
