@@ -423,7 +423,7 @@ const useUIStore = defineStore('ui', {
         },
 
         setTimeSliderActive(isActive: boolean, dispatcher: ActionDispatcher) {
-            this.isTimeSliderActive = !!isActive
+            this.isTimeSliderActive = isActive
         },
 
         setShowDisclaimer(showDisclaimer: boolean, dispatcher: ActionDispatcher) {
@@ -476,7 +476,7 @@ const useUIStore = defineStore('ui', {
                 warnings
                     .filter(
                         (warning) =>
-                            // we only add the warnings that are already present in the store
+                            // we only add the warnings that are not already present in the store
                             ![...this.warnings].some((otherWarning) =>
                                 warning.isEqual(otherWarning)
                             )

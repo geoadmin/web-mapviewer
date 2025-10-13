@@ -1,19 +1,22 @@
-<script setup lang="js">
+<script setup lang="ts">
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
 import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
+import useGeolocationStore from '@/store/modules/geolocation.store'
+import useCesiumStore from '@/store/modules/cesium.store'
+import usePositionStore from '@/store/modules/position.store'
 
-const dispatcher = { dispatcher: 'GeolocButton.vue' }
+const dispatcher = { name: 'GeolocButton.vue' }
 
-const { compassButton } = defineProps({
-    /** Add the compass button (only available in 2D mode) */
-    compassButton: { type: Boolean, default: false },
-})
+const { compassButton = false } = defineProps<{
+    compassButton?: boolean
+}>()
 
-const store = useStore()
+const geolocationStore = useGeolocationStore()
+const cesiumStore = useCesiumStore()
+const positionStore = usePositionStore()
 const { t } = useI18n()
 
 const tooltipContent = computed(() => {
@@ -32,31 +35,31 @@ const tooltipContent = computed(() => {
     return t(key)
 })
 
-const isActive = computed(() => store.state.geolocation.active)
-const isDenied = computed(() => store.state.geolocation.denied)
-const isTracking = computed(() => store.state.geolocation.tracking)
-const autoRotation = computed(() => store.state.position.autoRotation)
-const hasOrientation = computed(() => store.state.position.hasOrientation)
-const is3dActive = computed(() => store.state.cesium.active)
+const isActive = computed(() => geolocationStore.active)
+const isDenied = computed(() => geolocationStore.denied)
+const isTracking = computed(() => geolocationStore.tracking)
+const autoRotation = computed(() => positionStore.autoRotation)
+const hasOrientation = computed(() => positionStore.hasOrientation)
+const is3dActive = computed(() => cesiumStore.active)
 const hasTrackingFeedback = computed(() => isActive.value && !isTracking.value)
 const hastAutoRotationFeedback = computed(
     () => isActive.value && hasOrientation.value && !autoRotation.value
 )
-function toggleGeolocation() {
+function toggleGeolocation(): void {
     if (!isActive.value) {
-        store.dispatch('toggleGeolocation', dispatcher)
+        geolocationStore.toggleGeolocation(dispatcher)
         if (hasTrackingFeedback.value) {
-            store.dispatch('setGeolocationTracking', { tracking: true, ...dispatcher })
+            geolocationStore.setGeolocationTracking(true, dispatcher)
         }
     } else {
         if (hasTrackingFeedback.value) {
-            store.dispatch('setGeolocationTracking', { tracking: true, ...dispatcher })
+            geolocationStore.setGeolocationTracking(true, dispatcher)
         } else if (hastAutoRotationFeedback.value) {
-            store.dispatch('setAutoRotation', { autoRotation: true, ...dispatcher })
+            positionStore.setAutoRotation(true, dispatcher)
         } else {
-            store.dispatch('toggleGeolocation', dispatcher)
-            store.dispatch('setAutoRotation', { autoRotation: false, ...dispatcher })
-            store.dispatch('setGeolocationTracking', { tracking: false, ...dispatcher })
+            geolocationStore.toggleGeolocation(dispatcher)
+            positionStore.setAutoRotation(false, dispatcher)
+            geolocationStore.setGeolocationTracking(false, dispatcher)
         }
     }
 }
