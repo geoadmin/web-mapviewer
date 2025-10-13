@@ -1,54 +1,56 @@
-<script setup lang="js">
+<script setup lang="ts">
+import type { Map } from 'ol'
+
 import log from '@swissgeo/log'
 import { Tile as TileLayer } from 'ol/layer'
 import { WMTS as WMTSSource } from 'ol/source'
 import WMTSTileGrid from 'ol/tilegrid/WMTS'
 import { computed, inject, watch } from 'vue'
-import { useStore } from 'vuex'
 
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class'
+import type { GeoAdminWMTSLayer } from '@swissgeo/layers'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import { getTimestampFromConfig, getWmtsXyzUrl, indexOfMaxResolution } from '@/utils/layerUtils'
+import useMapStore from '@/store/modules/map.store'
+import usePositionStore from '@/store/modules/position.store'
+import { getTimestampFromConfig, getWmtsXyzUrl } from '@swissgeo/layers/utils'
+import { indexOfMaxResolution } from '@/utils/layerUtils'
 
-const { wmtsLayerConfig, parentLayerOpacity, zIndex } = defineProps({
-    wmtsLayerConfig: {
-        type: GeoAdminWMTSLayer,
-        required: true,
-    },
-    parentLayerOpacity: {
-        type: Number,
-        default: null,
-    },
-    zIndex: {
-        type: Number,
-        default: -1,
-    },
+interface Props {
+    wmtsLayerConfig: GeoAdminWMTSLayer
+    parentLayerOpacity?: number
+    zIndex?: number
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    parentLayerOpacity: undefined,
+    zIndex: -1,
 })
 
 // mapping relevant store values
-const store = useStore()
-const projection = computed(() => store.state.position.projection)
-const printMode = computed(() => store.state.map.printMode)
+const positionStore = usePositionStore()
+const mapStore = useMapStore()
+const projection = computed(() => positionStore.projection)
+const printMode = computed(() => mapStore.printMode)
 // extracting useful info from what we've linked so far
-const layerId = computed(() => wmtsLayerConfig.technicalName)
-const maxResolution = computed(() => wmtsLayerConfig.maxResolution)
-const opacity = computed(() => parentLayerOpacity ?? wmtsLayerConfig.opacity)
+const layerId = computed(() => props.wmtsLayerConfig.technicalName)
+const maxResolution = computed(() => props.wmtsLayerConfig.maxResolution)
+const opacity = computed(() => props.parentLayerOpacity ?? props.wmtsLayerConfig.opacity)
 // Use "current" as the default timestamp if not defined in the layer config (or no preview year)
-const timestamp = computed(() => getTimestampFromConfig(wmtsLayerConfig))
+const timestamp = computed(() => getTimestampFromConfig(props.wmtsLayerConfig))
 const wmtsSourceConfig = computed(() => {
     return {
         // No local cache, so that our CloudFront cache is always used. Was creating an issue on mf-geoadmin3, see :
         // https://github.com/geoadmin/mf-geoadmin3/issues/3491
         cacheSize: 0,
-        layer: layerId.value,
-        format: wmtsLayerConfig.format,
+        layer: layerId.value || '',
+        format: props.wmtsLayerConfig.format,
         projection: projection.value.epsg,
         tileGrid: createTileGridForProjection(),
         url: getTransformedXYZUrl(),
         matrixSet: projection.value.epsg,
-        attributions: wmtsLayerConfig.attribution,
+        attributions: props.wmtsLayerConfig.attributions.map(attr => attr.name),
+        style: 'default',
         // so that XYZ values will be filled as TileCol, TileRow and TileMatrix in the URL (see getWMTSUrl below)
-        requestEncoding: 'REST',
+        requestEncoding: 'REST' as const,
     }
 })
 const wmtsTimeConfig = computed(() => {
@@ -56,15 +58,17 @@ const wmtsTimeConfig = computed(() => {
 })
 
 const layer = new TileLayer({
-    id: layerId.value,
-    uuid: wmtsLayerConfig.uuid,
+    properties: {
+        id: layerId.value,
+        uuid: props.wmtsLayerConfig.uuid,
+    },
     opacity: opacity.value,
     source: createWMTSSourceForProjection(),
 })
 
 // grabbing the map from the main OpenLayersMap component and use the composable that adds this layer to the map
-const olMap = inject('olMap', null)
-useAddLayerToMap(layer, olMap, () => zIndex)
+const olMap = inject<Map>('olMap')!
+useAddLayerToMap(layer, olMap, props.zIndex)
 
 // reacting to changes accordingly
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
@@ -72,19 +76,23 @@ watch(projection, () => layer.setSource(createWMTSSourceForProjection()))
 watch(wmtsSourceConfig, () => layer.setSource(createWMTSSourceForProjection()), { deep: true })
 watch(wmtsTimeConfig, () => {
     log.debug('Update wmts dimension', wmtsTimeConfig.value)
-    layer.getSource().updateDimensions(wmtsTimeConfig.value.dimensions)
+    const source = layer.getSource()
+    if (source) {
+        source.updateDimensions(wmtsTimeConfig.value.dimensions)
+    }
 })
 watch(printMode, () => layer.setSource(createWMTSSourceForProjection()))
 
-function getTransformedXYZUrl() {
-    return getWmtsXyzUrl(wmtsLayerConfig, projection.value)
+function getTransformedXYZUrl(): string {
+    // @ts-expect-error - projection.value is guaranteed to be defined in this context
+    return getWmtsXyzUrl(props.wmtsLayerConfig, projection.value)
         .replace('{z}', '{TileMatrix}')
         .replace('{x}', '{TileCol}')
         .replace('{y}', '{TileRow}')
 }
 
-/** @returns {WMTSTileGrid} The tile grid system for the wmts source */
-function createTileGridForProjection() {
+/** @returns The tile grid system for the wmts source */
+function createTileGridForProjection(): WMTSTileGrid {
     const maxResolutionIndex = indexOfMaxResolution(projection.value, maxResolution.value)
     let resolutionSteps = projection.value.getResolutionSteps()
     if (resolutionSteps.length > maxResolutionIndex) {
@@ -93,8 +101,8 @@ function createTileGridForProjection() {
     return new WMTSTileGrid({
         resolutions: resolutionSteps.map((step) => step.resolution),
         origin: projection.value.getTileOrigin(),
-        matrixIds: resolutionSteps.map((_, index) => index),
-        extent: projection.value.bounds.flatten,
+        matrixIds: resolutionSteps.map((_, index) => index.toString()),
+        extent: projection.value.bounds?.flatten,
     })
 }
 
@@ -107,10 +115,8 @@ function createTileGridForProjection() {
  *
  * If the projection is not a CustomCoordinateSystem, it will default to a worldwide coverage,
  * meaning no limit where tiles shouldn't be requested.
- *
- * @returns {WMTSSource}
  */
-function createWMTSSourceForProjection() {
+function createWMTSSourceForProjection(): WMTSSource {
     log.debug('Create new WMTS source for projection', wmtsSourceConfig.value, wmtsTimeConfig.value)
     return new WMTSSource({
         ...wmtsSourceConfig.value,

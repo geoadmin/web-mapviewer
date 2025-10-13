@@ -1,5 +1,8 @@
-<script setup lang="js">
+<script setup lang="ts">
 /** Component managing the rendering of a vision cone, in the direction the device is pointing at */
+
+import type { Map } from 'ol'
+import type { SingleCoordinate } from '@swissgeo/coordinates'
 
 import Feature from 'ol/Feature'
 import { Point } from 'ol/geom'
@@ -8,28 +11,31 @@ import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import Style from 'ol/style/Style'
 import { computed, inject, watch } from 'vue'
-import { useStore } from 'vuex'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
+import useGeolocationStore from '@/store/modules/geolocation.store'
 
-const { zIndex, effectiveHeading } = defineProps({
-    zIndex: {
-        type: Number,
-        default: -1,
-    },
-    effectiveHeading: {
-        type: Number,
-        default: null,
-    },
+interface Props {
+    zIndex?: number
+    effectiveHeading?: number
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    zIndex: -1,
+    effectiveHeading: undefined,
 })
-const store = useStore()
 
-const geolocationPosition = computed(() => store.state.geolocation.position)
+const geolocationStore = useGeolocationStore()
+
+const geolocationPosition = computed(() => geolocationStore.position)
 // CSS angle context differ from the effective heading therefore we have to turn of PI/2 (90°)
 // Also we need to inverse the cone and its rotation (-1 factor)
-const coneAngle = computed(() => -1 * (effectiveHeading + Math.PI / 2))
+const coneAngle = computed(() => {
+    const heading = props.effectiveHeading ?? 0
+    return -1 * (heading + Math.PI / 2)
+})
 
-const visionConeGeometry = new Point(geolocationPosition.value)
+const visionConeGeometry = new Point(geolocationPosition.value as SingleCoordinate)
 const visionConeFeature = new Feature({
     geometry: visionConeGeometry,
 })
@@ -37,7 +43,7 @@ const coneSize = 50 * DEVICE_PIXEL_RATIO // px
 visionConeFeature.setStyle(
     new Style({
         renderer(coordinates, state) {
-            const [x, y] = coordinates
+            const [x, y] = coordinates as [number, number]
             const ctx = state.context
 
             const innerRadius = 0
@@ -61,20 +67,29 @@ visionConeFeature.setStyle(
 )
 
 const layer = new VectorLayer({
-    id: `vision-cone-layer`,
+    properties: {
+        id: `vision-cone-layer`,
+    },
     source: new VectorSource({
         features: [visionConeFeature],
     }),
 })
 
-const olMap = inject('olMap', null)
-useAddLayerToMap(layer, olMap, () => zIndex)
+const olMap = inject<Map>('olMap')!
+useAddLayerToMap(layer, olMap, props.zIndex)
 
-watch(geolocationPosition, () => visionConeGeometry.setCoordinates(geolocationPosition.value))
-watch(() => effectiveHeading, rotateConeOnCompassHeading)
+watch(geolocationPosition, () => {
+    if (geolocationPosition.value) {
+        visionConeGeometry.setCoordinates(geolocationPosition.value)
+    }
+})
+watch(() => props.effectiveHeading, rotateConeOnCompassHeading)
 
-function rotateConeOnCompassHeading() {
-    visionConeGeometry.rotate(effectiveHeading, geolocationPosition.value)
+function rotateConeOnCompassHeading(): void {
+    const heading = props.effectiveHeading
+    if (heading !== undefined && geolocationPosition.value) {
+        visionConeGeometry.rotate(heading, geolocationPosition.value)
+    }
 }
 </script>
 

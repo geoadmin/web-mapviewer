@@ -1,41 +1,43 @@
-<script setup lang="js">
+<script setup lang="ts">
+import type { Map } from 'ol'
+
 import { LV95 } from '@swissgeo/coordinates'
 import ScaleLine from 'ol/control/ScaleLine'
 import { computed, inject, onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
-import { useStore } from 'vuex'
 
-const { scaleType, minWidth, withRelativeSize } = defineProps({
-    scaleType: {
-        type: String,
-        default: 'line',
-    },
-    minWidth: {
-        type: Number,
-        default: 100,
-    },
-    withRelativeSize: {
-        type: Boolean,
-        default: false,
-    },
+import usePositionStore from '@/store/modules/position.store'
+
+interface Props {
+    scaleType?: 'line' | 'bar'
+    minWidth?: number
+    withRelativeSize?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    scaleType: 'line',
+    minWidth: 100,
+    withRelativeSize: false,
 })
 
-const scaleLineElement = useTemplateRef('scaleLineElement')
+const scaleLineElement = useTemplateRef<HTMLElement>('scaleLineElement')
 
-const store = useStore()
-const zoom = computed(() => store.state.position.zoom)
-const projection = computed(() => store.state.position.projection)
+const positionStore = usePositionStore()
+const zoom = computed(() => positionStore.zoom)
+const projection = computed(() => positionStore.projection)
 
 const showScaleLine = computed(() => projection.value.epsg === LV95.epsg || zoom.value >= 9)
 
 const scaleLine = new ScaleLine({
-    className: `scale-${scaleType}`,
-    bar: scaleType === 'bar',
-    minWidth: minWidth,
+    className: `scale-${props.scaleType}`,
+    bar: props.scaleType === 'bar',
+    minWidth: props.minWidth,
 })
 
-const olMap = inject('olMap')
+const olMap = inject<Map>('olMap')!
 onMounted(() => {
-    scaleLine.setTarget(scaleLineElement.value)
+    if (scaleLineElement.value) {
+        scaleLine.setTarget(scaleLineElement.value)
+    }
     olMap.addControl(scaleLine)
 })
 onBeforeUnmount(() => olMap.removeControl(scaleLine))
