@@ -1,27 +1,44 @@
+import type { Feature } from 'ol'
+import type { Map } from 'ol'
+import type { StyleLike } from 'ol/style/Style'
+import type { Ref } from 'vue'
+
 import { randomIntBetween } from '@swissgeo/numbers'
 import { Select } from 'ol/interaction'
 import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
 import { onUnmounted, toValue, watchEffect } from 'vue'
 
-import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle.js'
+import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
+
+interface UseVectorLayerConfig {
+    /** The Z index of the layer */
+    zIndex?: Readonly<Ref<number>> | number
+    /** A function that defines the style for the vector layer */
+    styleFunction?: StyleLike
+    /** A callback function that is called when a feature is selected */
+    onFeatureSelectCallback?: (feature: Feature) => void
+    /** If true, the selected feature will be deselected after the select callback is called */
+    deselectAfterSelect?: boolean
+}
 
 /**
  * Add a vector layer to the map, and will update its source whenever the feature reference changes.
  *
  * Caveat: it will not update the style!
  *
- * @param {Map} map
- * @param {Readonly<Ref<Feature[]>>} features
- * @param {Readonly<Ref<Number>>} [config.zIndex] The Z index of the layer
- * @param {Function} [config.styleFunction] A function that defines the style for the vector layer.
- * @param {Function} [config.onFeatureSelectCallback] A callback function that is called when a
- *   feature is selected.
- * @param {boolean} [config.deselectAfterSelect] If true, the selected feature will be deselected
- *   after the select callback is called
+ * @param map OpenLayers Map instance
+ * @param features Reactive array of features to display
+ * @param config Configuration options for the vector layer
  */
-export default function useVectorLayer(map, features, config) {
+export default function useVectorLayer(
+    map: Map,
+    features: Readonly<Ref<Feature[]>>,
+    config: UseVectorLayerConfig = {}
+): {
+    layer: VectorLayer<VectorSource>
+} {
     const {
         zIndex = -1,
         styleFunction = highlightFeatureStyle,
@@ -29,18 +46,20 @@ export default function useVectorLayer(map, features, config) {
         deselectAfterSelect = false,
     } = config
     const layer = new VectorLayer({
-        id: `vector-layer-${randomIntBetween(0, 100000)}`,
+        properties: {
+            id: `vector-layer-${randomIntBetween(0, 100000)}`,
+        },
         source: new VectorSource({
             features: toValue(features),
         }),
-        style: styleFunction,
+        style: styleFunction as StyleLike,
     })
     useAddLayerToMap(layer, map, zIndex)
 
     // Create and add the Select interaction to the map
     const selectInteraction = new Select({
         layers: [layer], // Only apply the interaction to this layer
-        style: null, // Do not update the style of the selected features
+        style: undefined, // Do not update the style of the selected features
     })
     map.addInteraction(selectInteraction)
 
@@ -57,8 +76,11 @@ export default function useVectorLayer(map, features, config) {
     })
 
     watchEffect(() => {
-        layer.getSource().clear()
-        layer.getSource().addFeatures(toValue(features))
+        const source = layer.getSource()
+        if (source) {
+            source.clear()
+            source.addFeatures(toValue(features))
+        }
     })
 
     // Clean up: remove the interaction when the composable is unmounted

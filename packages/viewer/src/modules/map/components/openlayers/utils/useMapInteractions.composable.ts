@@ -1,20 +1,23 @@
+import type { Map, MapBrowserEvent } from 'ol'
+
+import { LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { altKeyOnly, platformModifierKeyOnly, primaryAction } from 'ol/events/condition'
 import { DragPan, DragRotate, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import { computed, onBeforeUnmount, watch } from 'vue'
-import { useStore } from 'vuex'
 
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
 import { useDragBoxSelect } from '@/modules/map/components/openlayers/utils/useDragBoxSelect.composable'
-import { ClickInfo, ClickType } from '@/store/modules/map.store'
+import useDrawingStore from '@/store/modules/drawing.store'
+import useLayersStore from '@/store/modules/layers.store'
+import useMapStore, { ClickType, type ClickInfo } from '@/store/modules/map.store'
 import { createLayerFeature } from '@/utils/layerUtils'
 
 const dispatcher = {
-    dispatcher: 'useMapInteractions.composable',
+    name: 'useMapInteractions.composable',
 }
 const longPressEvents = [
     'touch',
@@ -22,13 +25,22 @@ const longPressEvents = [
     '', // This is necessary for IoS support
 ]
 
-export default function useMapInteractions(map) {
-    const store = useStore()
+interface ExtendedPointerEvent extends PointerEvent {
+    originalEvent?: PointerEvent
+    pixel?: number[]
+    coordinate?: number[]
+    updateLongClickTriggered?: boolean
+}
 
-    const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.show)
+export default function useMapInteractions(map: Map): void {
+    const drawingStore = useDrawingStore()
+    const layersStore = useLayersStore()
+    const mapStore = useMapStore()
+
+    const isCurrentlyDrawing = computed(() => drawingStore.drawingOverlay.show)
     const activeVectorLayers = computed(() =>
-        store.state.layers.activeLayers.filter((layer) =>
-            [LayerTypes.KML, LayerTypes.GPX, LayerTypes.GEOJSON].includes(layer.type)
+        layersStore.activeLayers.filter((layer) =>
+            [LayerType.KML, LayerType.GPX, LayerType.GEOJSON].includes(layer.type)
         )
     )
 
@@ -42,8 +54,8 @@ export default function useMapInteractions(map) {
     // Add interaction to drag the map using the middle mouse button
     map.addInteraction(
         new DragPan({
-            condition: function (event) {
-                return event.originalEvent.buttons === 4
+            condition: function (event: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>) {
+                return (event.originalEvent as MouseEvent).buttons === 4
             },
         })
     )
@@ -89,39 +101,39 @@ export default function useMapInteractions(map) {
      */
     let mapHasMoved = false
     let longClickTriggered = false
-    let longClickTimeout
+    let longClickTimeout: ReturnType<typeof setTimeout> | undefined = undefined
 
-    function registerPointerEvents() {
+    function registerPointerEvents(): void {
         log.debug(`Register map pointer events`)
         map.on('singleclick', onMapLeftClick)
-        map.on('contextmenu', onMapRightClick)
+        map.on('contextmenu' as 'singleclick', onMapRightClick)
         map.on('pointermove', onMapMove)
         // also registering double click as a map move, so that location popup (right click)
         // isn't triggered when zooming by double-click
         map.on('dblclick', onMapMove)
 
-        map.getTargetElement().addEventListener('pointerdown', onMapPointerDown)
+        map.getTargetElement()?.addEventListener('pointerdown', onMapPointerDown)
 
         if (IS_TESTING_WITH_CYPRESS) {
-            window.mapPointerEventReady = true
+            ;(window as Window & { mapPointerEventReady?: boolean }).mapPointerEventReady = true
         }
     }
 
-    function unregisterPointerEvents() {
+    function unregisterPointerEvents(): void {
         log.debug(`Unregister map pointer events`)
         if (IS_TESTING_WITH_CYPRESS) {
-            window.mapPointerEventReady = false
+            ;(window as Window & { mapPointerEventReady?: boolean }).mapPointerEventReady = false
         }
 
-        map.getTargetElement().removeEventListener('pointerdown', onMapPointerDown)
+        map.getTargetElement()?.removeEventListener('pointerdown', onMapPointerDown)
 
         map.un('dblclick', onMapMove)
         map.un('pointermove', onMapMove)
         map.un('singleclick', onMapLeftClick)
-        map.un('contextmenu', onMapRightClick)
+        map.un('contextmenu' as 'singleclick', onMapRightClick)
     }
 
-    function onMapLeftClick(event) {
+    function onMapLeftClick(event: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>): void {
         clearTimeout(longClickTimeout)
         if (longClickTriggered) {
             // click was already processed, ignoring (will otherwise select features at the same time as the right click has been triggered)
@@ -129,7 +141,7 @@ export default function useMapInteractions(map) {
             return
         }
         const { coordinate, pixel } = event
-        const features = []
+        const features: ReturnType<typeof createLayerFeature>[] = []
         activeVectorLayers.value.forEach((vectorLayer) => {
             map.getLayers().forEach((olLayer) => {
                 if (olLayer.get('id') === vectorLayer.id) {
@@ -143,7 +155,7 @@ export default function useMapInteractions(map) {
                         .filter(
                             (feature, index, self) =>
                                 self.indexOf(
-                                    self.find((anotherFeature) => anotherFeature.id === feature.id)
+                                    self.find((anotherFeature) => anotherFeature?.id === feature?.id)
                                 ) === index
                         )
                     if (layerFeatures.length > 0) {
@@ -156,59 +168,62 @@ export default function useMapInteractions(map) {
         if (platformModifierKeyOnly(event)) {
             clickType = ClickType.CtrlLeftSingleClick
         }
-        store.dispatch('click', {
-            clickInfo: new ClickInfo({
+        mapStore.click(
+            {
                 coordinate,
                 pixelCoordinate: pixel,
                 features,
                 clickType: clickType,
-            }),
-            ...dispatcher,
-        })
+            } as unknown as ClickInfo,
+            dispatcher
+        )
     }
 
-    function onMapRightClick(event) {
+    function onMapRightClick(event: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent> | ExtendedPointerEvent): void {
         clearTimeout(longClickTimeout)
-        longClickTriggered = event.updateLongClickTriggered ?? event.type === 'contextmenu'
-        store.dispatch('click', {
-            clickInfo: new ClickInfo({
-                coordinate: event.coordinate,
-                pixelCoordinate: event.pixel,
+        longClickTriggered =
+            ('updateLongClickTriggered' in event && event.updateLongClickTriggered) ||
+            event.type === 'contextmenu'
+        mapStore.click(
+            {
+                coordinate: event.coordinate!,
+                pixelCoordinate: event.pixel!,
                 features: [],
                 clickType: ClickType.ContextMenu,
-            }),
-            ...dispatcher,
-        })
+            } as unknown as ClickInfo,
+            dispatcher
+        )
     }
 
-    function onMapMove() {
+    function onMapMove(): void {
         mapHasMoved = true
         clearTimeout(longClickTimeout)
     }
 
-    function onMapPointerDown(event) {
-        const { target } = event
+    function onMapPointerDown(event: Event): void {
+        const pointerEvent = event as ExtendedPointerEvent
+        const { target } = pointerEvent
         // only reacting to pointer down on the map itself (on canvas, each layer being a canvas)
         // without this check, clicking into the map popover triggers a mousedown event, which will
         // then show the location popup and hide any feature info that was there (impossible to interact
         // with feature info)
-        if (target.nodeName?.toLowerCase() === 'canvas') {
+        if ((target as HTMLElement).nodeName?.toLowerCase() === 'canvas') {
             clearTimeout(longClickTimeout)
             mapHasMoved = false
             // triggering a long click on the same spot after 500ms, so that mobile cas have access to the
             // LocationPopup by touching the same-ish spot for 500ms
             longClickTimeout = setTimeout(() => {
                 // we need to ensure long mouse clicks don't trigger this.
+                const originalPointerType = pointerEvent.originalEvent?.pointerType ?? pointerEvent.pointerType
                 if (
                     !mapHasMoved &&
-                    (longPressEvents.includes(event.originalEvent?.pointerType) ||
-                        longPressEvents.includes(event.pointerType))
+                    longPressEvents.includes(originalPointerType ?? '')
                 ) {
                     // we are outside of OL event handling, on the HTML element, so we do not receive map pixel and coordinate automatically
-                    const pixel = map.getEventPixel(event)
+                    const pixel = map.getEventPixel(pointerEvent)
                     const coordinate = map.getCoordinateFromPixel(pixel)
                     onMapRightClick({
-                        ...event,
+                        ...pointerEvent,
                         pixel,
                         coordinate,
                         updateLongClickTriggered: true,
