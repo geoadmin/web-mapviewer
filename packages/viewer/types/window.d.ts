@@ -18,6 +18,6 @@ declare global {
         CESIUM_BASE_URL?: string
         cesiumViewer?: Viewer
         drawingLayer?: VectorLayer<VectorSource<Feature<Geometry>>>
-        chrome?: any
+        chrome?: unknown
     }
 }

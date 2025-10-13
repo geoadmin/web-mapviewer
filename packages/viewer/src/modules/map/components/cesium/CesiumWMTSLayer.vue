@@ -27,7 +27,7 @@ const unsupportedProjectionError = new ErrorMessage('3d_unsupported_projection')
 const { wmtsLayerConfig, zIndex, parentLayerOpacity } = defineProps<{
     wmtsLayerConfig: GeoAdminWMTSLayer | ExternalWMTSLayer
     zIndex?: number
-    parentLayerOpacity?: number | null
+    parentLayerOpacity?: number
 }>()
 
 const getViewer = inject<() => Viewer | undefined>('getViewer', () => undefined)

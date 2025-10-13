@@ -13,10 +13,10 @@ import {
     cssTimeSliderDropdownHeight,
 } from '@/scss/exports'
 import PrintButton from '@/utils/components/PrintButton.vue'
-import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
 import useUIStore from '@/store/modules/ui.store'
 import useDrawingStore from '@/store/modules/drawing.store'
 import { MapPopoverMode } from '@/modules/map/components/MapPopoverMode.enum'
+import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
 
 interface AnchorPosition {
     top: number
@@ -40,7 +40,7 @@ const emits = defineEmits(['close'])
 
 const popoverHeader = useTemplateRef<HTMLDivElement>('popoverHeader')
 const popover = useTemplateRef<HTMLDivElement>('popover')
-const mapPopoverContent = useTemplateRef<HTMLDivElement>('mapPopoverContent')
+const mapPopoverContent = useTemplateRef<HTMLDivElement | undefined>('mapPopoverContent')
 
 const width = computed(() => popover.value?.clientWidth)
 
@@ -144,7 +144,7 @@ defineExpose({
                 </span>
                 <PrintButton
                     v-if="authorizePrint && showContent"
-                    :content="mapPopoverContent"
+                    :content="mapPopoverContent ?? undefined"
                 />
                 <slot name="extra-buttons" />
                 <button
