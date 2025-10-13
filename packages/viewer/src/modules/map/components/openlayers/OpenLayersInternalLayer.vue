@@ -48,19 +48,19 @@ const projection = computed(() => positionStore.projection)
         -->
         <OpenLayersVectorLayer
             v-if="projection.epsg === WEBMERCATOR.epsg && props.layerConfig?.type === LayerType.VECTOR"
-            :vector-layer-config="props.layerConfig"
+            :vector-layer-config="props.layerConfig as any"
             :parent-layer-opacity="props.parentLayerOpacity"
             :z-index="props.zIndex"
         />
         <OpenLayersWMTSLayer
             v-if="props.layerConfig?.type === LayerType.WMTS && !props.layerConfig?.isExternal"
-            :wmts-layer-config="props.layerConfig"
+            :wmts-layer-config="props.layerConfig as any"
             :parent-layer-opacity="props.parentLayerOpacity"
             :z-index="props.zIndex"
         />
         <OpenLayersExternalWMTSLayer
             v-if="props.layerConfig?.type === LayerType.WMTS && props.layerConfig?.isExternal"
-            :external-wmts-layer-config="props.layerConfig"
+            :external-wmts-layer-config="props.layerConfig as any"
             :parent-layer-opacity="props.parentLayerOpacity"
             :z-index="props.zIndex"
         />
@@ -68,13 +68,13 @@ const projection = computed(() => positionStore.projection)
              we do not have a specific component for external layers but we reuse the one for geoadmin's layers-->
         <OpenLayersWMSLayer
             v-if="props.layerConfig?.type === LayerType.WMS"
-            :wms-layer-config="props.layerConfig"
+            :wms-layer-config="props.layerConfig as any"
             :parent-layer-opacity="props.parentLayerOpacity"
             :z-index="props.zIndex"
         />
         <OpenLayersGeoJSONLayer
             v-if="props.layerConfig?.type === LayerType.GEOJSON"
-            :geo-json-config="props.layerConfig"
+            :geo-json-config="props.layerConfig as any"
             :parent-layer-opacity="props.parentLayerOpacity"
             :z-index="props.zIndex"
         />
@@ -123,7 +123,7 @@ const projection = computed(() => positionStore.projection)
         />
         <OpenLayersCOGTiffLayer
             v-if="props.layerConfig?.type === LayerType.COG"
-            :geotiff-config="props.layerConfig"
+            :geotiff-config="props.layerConfig as any"
             :parent-layer-opacity="props.parentLayerOpacity"
             :z-index="props.zIndex"
         />
