@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 /**
  * Renders a Vector layer on the map with MapLibre.
  *
@@ -9,49 +9,51 @@
  * Most of the specific code found bellow, plus import of layer ID should be removed then.
  */
 
+import type { Map } from 'ol'
 import log from '@swissgeo/log'
 import { MapLibreLayer } from '@geoblocks/ol-maplibre-layer'
 import axios from 'axios'
 import { computed, inject, watch } from 'vue'
 
-import GeoAdminVectorLayer from '@/api/layers/GeoAdminVectorLayer.class'
+import type { GeoAdminVectorLayer } from '@swissgeo/layers'
 import { VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config/vectortiles.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 
-const { vectorLayerConfig, parentLayerOpacity, zIndex } = defineProps({
-    vectorLayerConfig: {
-        type: GeoAdminVectorLayer,
-        required: true,
-    },
-    parentLayerOpacity: {
-        type: Number,
-        default: null,
-    },
-    zIndex: {
-        type: Number,
-        default: -1,
-    },
+interface Props {
+    vectorLayerConfig: GeoAdminVectorLayer
+    parentLayerOpacity?: number
+    zIndex?: number
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    parentLayerOpacity: undefined,
+    zIndex: -1,
 })
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => vectorLayerConfig.id)
-const opacity = computed(() => parentLayerOpacity ?? vectorLayerConfig.opacity)
-const styleUrl = computed(() => `${vectorLayerConfig.baseUrl}styles/${layerId.value}/style.json`)
+const layerId = computed(() => props.vectorLayerConfig.id)
+const opacity = computed(() => props.parentLayerOpacity ?? props.vectorLayerConfig.opacity)
+const styleUrl = computed(() => `${props.vectorLayerConfig.baseUrl}styles/${layerId.value}/style.json`)
 
 const layer = new MapLibreLayer({
-    id: layerId.value,
-    uuid: vectorLayerConfig.uuid,
+    properties: {
+        id: layerId.value,
+        uuid: props.vectorLayerConfig.uuid,
+    },
     opacity: opacity.value,
+    mapLibreOptions: {
+        style: styleUrl.value,
+    },
 })
 setMapLibreStyle(styleUrl.value)
 
-const olMap = inject('olMap')
-useAddLayerToMap(layer, olMap, () => zIndex)
+const olMap = inject<Map>('olMap')!
+useAddLayerToMap(layer, olMap, props.zIndex)
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(styleUrl, (newStyleUrl) => setMapLibreStyle(newStyleUrl))
-function setMapLibreStyle(styleUrl) {
-    if (!layer?.maplibreMap) {
+function setMapLibreStyle(styleUrl: string): void {
+    if (!layer?.mapLibreMap) {
         log.error('MapLibre instance is not attached to the layer')
         return
     }
@@ -83,13 +85,17 @@ function setMapLibreStyle(styleUrl) {
                     source: 'sentinel2_wmts',
                     type: 'raster',
                 })
-                layer.maplibreMap.setStyle(vectorStyle)
+                if (layer.mapLibreMap) {
+                    layer.mapLibreMap.setStyle(vectorStyle)
+                }
             })
-            .catch((err) => {
-                log.error('Error while fetching MapLibre style', styleUrl, err)
+            .catch((err: unknown) => {
+                log.error('Error while fetching MapLibre style', styleUrl, err as string)
             })
     } else {
-        layer.maplibreMap.setStyle(styleUrl)
+        if (layer.mapLibreMap) {
+            layer.mapLibreMap.setStyle(styleUrl)
+        }
     }
 }
 </script>

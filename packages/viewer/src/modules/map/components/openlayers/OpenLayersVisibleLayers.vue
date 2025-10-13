@@ -1,16 +1,19 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed } from 'vue'
-import { useStore } from 'vuex'
 
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import OpenLayersInternalLayer from '@/modules/map/components/openlayers/OpenLayersInternalLayer.vue'
+import useDrawingStore from '@/store/modules/drawing.store'
+import useLayersStore from '@/store/modules/layers.store'
 
-const store = useStore()
-const visibleLayers = computed(() => store.getters.visibleLayers)
-const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.show)
-const currentDrawingKmlLayer = computed(() => store.getters.activeKmlLayer)
-const temporaryKmlId = computed(() => store.state.drawing.temporaryKmlId)
-const online = computed(() => store.state.drawing.online)
+const layersStore = useLayersStore()
+const drawingStore = useDrawingStore()
+
+const visibleLayers = computed(() => layersStore.visibleLayers)
+const isCurrentlyDrawing = computed(() => drawingStore.drawingOverlay.show)
+const currentDrawingKmlLayer = computed(() => layersStore.activeKmlLayer)
+const temporaryKmlId = computed(() => drawingStore.temporaryKmlId)
+const online = computed(() => drawingStore.online)
 
 // We do not want the drawing layer be added to the visible layers while it is being edited, so we filter
 // it out in this case
@@ -19,7 +22,7 @@ const filteredVisibleLayers = computed(() => {
     if (isCurrentlyDrawing.value && online.value && currentDrawingKmlLayer.value) {
         return visibleLayers.value.filter(
             (layer) =>
-                layer.id !== currentDrawingKmlLayer.value.id && layer.id !== temporaryKmlId.value
+                layer.id !== currentDrawingKmlLayer.value?.id && layer.id !== temporaryKmlId.value
         )
     }
     // In report problem drawing mode show the drawing layer and the temporary layer
