@@ -124,7 +124,11 @@ export default function useViewBasedOnProjection(map: Map): void {
             const centerCoordinates = currentView.getCenter()
             if (centerCoordinates) {
                 const [x, y] = centerCoordinates
-                if (x !== undefined && y !== undefined && (x !== center.value[0] || y !== center.value[1])) {
+                if (
+                    x !== undefined &&
+                    y !== undefined &&
+                    (x !== center.value[0] || y !== center.value[1])
+                ) {
                     positionStore.setCenter([x, y], dispatcher)
                 }
             }
