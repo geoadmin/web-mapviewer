@@ -1,10 +1,18 @@
-<script setup lang="js">
+<script setup lang="ts">
+import type Map from 'ol/Map'
+
+// Extend Window interface for Cypress testing
+declare global {
+    interface Window {
+        map?: Map
+    }
+}
+
 import { allCoordinateSystems, WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
-import Map from 'ol/Map'
+import OlMap from 'ol/Map'
 import { get as getProjection } from 'ol/proj'
 import { computed, onMounted, provide, useTemplateRef } from 'vue'
-import { useStore } from 'vuex'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
@@ -18,11 +26,16 @@ import OpenLayersPinnedLocation from '@/modules/map/components/openlayers/OpenLa
 import OpenLayersRectangleSelectionFeedback from '@/modules/map/components/openlayers/OpenLayersRectangleSelectionFeedback.vue'
 import OpenLayersSelectionRectangle from '@/modules/map/components/openlayers/OpenLayersSelectionRectangle.vue'
 import OpenLayersVisibleLayers from '@/modules/map/components/openlayers/OpenLayersVisibleLayers.vue'
-import useMapInteractions from '@/modules/map/components/openlayers/utils/useMapInteractions.composable'
-import usePrintAreaRenderer from '@/modules/map/components/openlayers/utils/usePrintAreaRenderer.composable'
-import useViewBasedOnProjection from '@/modules/map/components/openlayers/utils/useViewBasedOnProjection.composable'
+import useMapInteractions from '@/modules/map/components/openlayers/utils/useMapInteractions.composable.ts'
+import usePrintAreaRenderer from '@/modules/map/components/openlayers/utils/usePrintAreaRenderer.composable.ts'
+import useViewBasedOnProjection from '@/modules/map/components/openlayers/utils/useViewBasedOnProjection.composable.ts'
+import useAppStore from '@/store/modules/app.store'
+import useDebugStore from '@/store/modules/debug.store'
+import useGeolocationStore from '@/store/modules/geolocation.store'
+import useLayersStore from '@/store/modules/layers.store'
+import useMapStore from '@/store/modules/map.store'
 
-const dispatcher = { dispatcher: 'OpenLayersMap.vue' }
+const dispatcher = { name: 'OpenLayersMap.vue' }
 
 // setting the boundaries for projection, in the OpenLayers context, whenever bounds are defined
 // this will help OpenLayers know when tiles shouldn't be requested because coordinates are out of bounds
@@ -30,20 +43,27 @@ allCoordinateSystems
     .filter((projection) => projection.bounds && projection.epsg !== WGS84.epsg)
     .forEach((projection) => {
         const olProjection = getProjection(projection.epsg)
-        olProjection?.setExtent(projection.bounds.flatten)
+        if (projection.bounds) {
+            olProjection?.setExtent(projection.bounds.flatten)
+        }
     })
 
-const mapElement = useTemplateRef('mapElement')
+const mapElement = useTemplateRef<HTMLElement>('mapElement')
 
-const store = useStore()
-const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
-const showLayerExtents = computed(() => store.state.debug.showLayerExtents)
-const showSelectionRectangle = computed(() => !!store.state.map.rectangleSelectionExtent)
-const geolocationActive = computed(() => store.state.geolocation.active)
-const geoPosition = computed(() => store.state.geolocation.position)
-const visibleLayers = computed(() => store.getters.visibleLayers)
+const debugStore = useDebugStore()
+const mapStore = useMapStore()
+const geolocationStore = useGeolocationStore()
+const layersStore = useLayersStore()
+const appStore = useAppStore()
 
-const map = new Map({ controls: [] })
+const showTileDebugInfo = computed(() => debugStore.showTileDebugInfo)
+const showLayerExtents = computed(() => debugStore.showLayerExtents)
+const showSelectionRectangle = computed(() => !!mapStore.rectangleSelectionExtent)
+const geolocationActive = computed(() => geolocationStore.active)
+const geoPosition = computed(() => geolocationStore.position)
+const visibleLayers = computed(() => layersStore.visibleLayers)
+
+const map: Map = new OlMap({ controls: [] })
 useViewBasedOnProjection(map)
 
 provide('olMap', map)
@@ -52,7 +72,7 @@ if (IS_TESTING_WITH_CYPRESS) {
     window.map = map
 }
 
-function triggerReadyFlagIfAllRendered() {
+function triggerReadyFlagIfAllRendered(): void {
     if (
         map.getAllLayers().length < visibleLayers.value.filter((layer) => !layer.hasError).length ||
         visibleLayers.value.some((layer) => layer.isLoading)
@@ -62,14 +82,16 @@ function triggerReadyFlagIfAllRendered() {
     } else {
         // This is needed for cypress to start the tests only
         // when OpenLayers is rendered, otherwise some tests will fail.
-        store.dispatch('mapModuleReady', dispatcher)
+        appStore.setMapModuleReady(dispatcher)
         log.info('OpenLayers map rendered')
     }
 }
 map.once('rendercomplete', triggerReadyFlagIfAllRendered)
 
 onMounted(() => {
-    map.setTarget(mapElement.value)
+    if (mapElement.value) {
+        map.setTarget(mapElement.value)
+    }
     useMapInteractions(map)
     usePrintAreaRenderer(map)
     log.info('OpenLayersMap component mounted and ready')
