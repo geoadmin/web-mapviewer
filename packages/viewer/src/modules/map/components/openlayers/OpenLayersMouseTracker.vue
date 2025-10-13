@@ -1,48 +1,50 @@
-<script setup lang="js">
+<script setup lang="ts">
+import type { Map } from 'ol'
+
 import log from '@swissgeo/log'
 import MousePosition from 'ol/control/MousePosition'
 import { computed, inject, nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue'
-import { useStore } from 'vuex'
 
 import getHumanReadableCoordinate from '@/modules/map/components/common/mouseTrackerUtils'
-import allFormats, { LV95Format } from '@/utils/coordinates/coordinateFormat'
+import usePositionStore from '@/store/modules/position.store'
+import { allFormats, LV95Format } from '@/utils/coordinates/coordinateFormat'
 
-const dispatcher = { dispatcher: 'OpenLayersMouseTracker.vue' }
+const dispatcher = { name: 'OpenLayersMouseTracker.vue' }
 
-const mousePosition = useTemplateRef('mousePosition')
+const mousePosition = useTemplateRef<HTMLElement>('mousePosition')
 const displayedFormatId = ref(LV95Format.id)
 
-const store = useStore()
-const projection = computed(() => store.state.position.projection)
+const positionStore = usePositionStore()
+const projection = computed(() => positionStore.projection)
 
-const olMap = inject('olMap')
+const olMap = inject<Map>('olMap')!
 
-let mousePositionControl
+let mousePositionControl: MousePosition | undefined
 
 onMounted(() => {
     mousePositionControl = new MousePosition({
         className: 'mouse-position-inner',
-        undefinedHTML: '&nbsp;',
     })
-    mousePositionControl.setTarget(mousePosition.value)
+    mousePositionControl.setTarget(mousePosition.value!)
     olMap.addControl(mousePositionControl)
     // we wait for the next cycle to set the projection, otherwise the info can
     // sometimes be lost (and we end up with a different projection in the position display)
-    nextTick(() => {
+    void nextTick(() => {
         setDisplayedFormatWithId()
     })
 })
 onUnmounted(() => {
-    olMap.removeControl(mousePositionControl)
+    if (mousePositionControl) {
+        olMap.removeControl(mousePositionControl)
+    }
 })
 
-function setDisplayedFormatWithId() {
-    store.dispatch('setDisplayedFormatId', {
-        displayedFormatId: displayedFormatId.value,
-        ...dispatcher,
-    })
+function setDisplayedFormatWithId(): void {
     const displayedFormat = allFormats.find((format) => format.id === displayedFormatId.value)
     if (displayedFormat) {
+        positionStore.setDisplayedFormat(displayedFormat, dispatcher)
+    }
+    if (displayedFormat && mousePositionControl) {
         mousePositionControl.setCoordinateFormat((coordinates) => {
             return getHumanReadableCoordinate({
                 coordinates,
