@@ -36,8 +36,8 @@ interface PointerPosition {
 }
 
 export interface MovableElementConfig {
-    element: HTMLElement | null
-    grabElement: HTMLElement | null
+    element: HTMLElement | undefined
+    grabElement: HTMLElement | undefined
     offset: Offset | undefined
     initialPositionClasses?: string[]
 }
@@ -51,7 +51,7 @@ export interface MovableElementConfig {
  *
  * @param config Configuration object
  */
-function formatElementInfo(element: HTMLElement | null | undefined): string {
+function formatElementInfo(element: HTMLElement | undefined  ): string {
     if (!element) {
         return typeof element
     }
