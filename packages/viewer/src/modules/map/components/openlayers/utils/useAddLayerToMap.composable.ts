@@ -1,3 +1,7 @@
+import type { Map } from 'ol'
+import type { Layer } from 'ol/layer'
+import type { Ref } from 'vue'
+
 import { onBeforeUnmount, onMounted, ref, toValue, watch } from 'vue'
 
 /**
@@ -13,19 +17,28 @@ import { onBeforeUnmount, onMounted, ref, toValue, watch } from 'vue'
  * It is also possible to set a prop called zIndex, which will be used (if defined) to place the
  * layer accordingly in the layer stack of OpenLayers.
  *
- * @param {VectorLayer | TileLayer | MapLibreLayer} layer
- * @param {Map} map
- * @param {Readonly<Ref<Number>>} zIndex
+ * @param layer OpenLayers layer (Vector, Tile, MapLibre, etc.)
+ * @param map OpenLayers Map instance
+ * @param zIndex Z-index for layer stacking orders
  */
-export default function useAddLayerToMap(layer, map, zIndex) {
+export default function useAddLayerToMap(
+    layer: Layer,
+    map: Map,
+    zIndex: Readonly<Ref<number>> | number
+): {
+    addLayerToMap: () => void
+    removeLayerFromMap: () => void
+} {
     const internalZIndex = ref(toValue(zIndex))
 
-    watch(zIndex, (newValue) => {
-        internalZIndex.value = newValue
-        if (newValue >= 0) {
-            layer.setZIndex(newValue)
-        }
-    })
+    if (typeof zIndex === 'object' && 'value' in zIndex) {
+        watch(zIndex, (newValue) => {
+            internalZIndex.value = newValue
+            if (newValue >= 0) {
+                layer.setZIndex(newValue)
+            }
+        })
+    }
 
     onMounted(() => {
         addLayerToMap()
@@ -34,20 +47,22 @@ export default function useAddLayerToMap(layer, map, zIndex) {
     onBeforeUnmount(() => {
         // if the source of this layer can be cleared (if it's a vector layer),
         // we clear it before removing it from the map, ensuring that all features are unloaded
-        if (layer.getSource()?.clear) {
-            layer.getSource().clear()
+        const source = layer.getSource()
+        if (source && 'clear' in source && typeof source.clear === 'function') {
+            source.clear()
         }
         layer.setSource(null)
         removeLayerFromMap()
     })
 
-    function addLayerToMap() {
+    function addLayerToMap(): void {
         if (internalZIndex.value !== -1) {
             layer.setZIndex(internalZIndex.value)
         }
         map.addLayer(layer)
     }
-    function removeLayerFromMap() {
+
+    function removeLayerFromMap(): void {
         map.removeLayer(layer)
     }
 
