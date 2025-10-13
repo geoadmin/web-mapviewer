@@ -1,34 +1,37 @@
-<script setup lang="js">
+<script setup lang="ts">
+import type { Map } from 'ol'
+
 import TileLayer from 'ol/layer/Tile'
 import { TileDebug } from 'ol/source'
 import TileGrid from 'ol/tilegrid/TileGrid'
 import { computed, inject, watch } from 'vue'
-import { useStore } from 'vuex'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
+import usePositionStore from '@/store/modules/position.store'
 
-const { zIndex } = defineProps({
-    zIndex: {
-        type: Number,
-        default: -1,
-    },
+interface Props {
+    zIndex?: number
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    zIndex: -1,
 })
 
-const store = useStore()
-const currentProjection = computed(() => store.state.position.projection)
+const positionStore = usePositionStore()
+const currentProjection = computed(() => positionStore.projection)
 
 const layer = new TileLayer({
     source: createDebugSourceForProjection(),
 })
 
-const olMap = inject('olMap', null)
-useAddLayerToMap(layer, olMap, () => zIndex)
+const olMap = inject<Map>('olMap')!
+useAddLayerToMap(layer, olMap, props.zIndex)
 
 watch(currentProjection, () => layer.setSource(createDebugSourceForProjection()))
 
-function createDebugSourceForProjection() {
-    let tileGrid = null
-    if (!currentProjection.value.usesMercatorPyramid) {
+function createDebugSourceForProjection(): TileDebug {
+    let tileGrid = undefined
+    if (!currentProjection.value.usesMercatorPyramid && currentProjection.value.bounds) {
         tileGrid = new TileGrid({
             resolutions: currentProjection.value
                 .getResolutionSteps()
