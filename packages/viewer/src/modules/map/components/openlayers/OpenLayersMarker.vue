@@ -1,6 +1,9 @@
-<script setup lang="js">
+<script setup lang="ts">
 /** Renders a marker on the map (different styling are available) */
 
+import type { Map } from 'ol'
+import type { StyleLike } from 'ol/style/Style'
+import type { SingleCoordinate } from '@swissgeo/coordinates'
 import { randomIntBetween } from '@swissgeo/numbers'
 import Feature from 'ol/Feature'
 import { Point } from 'ol/geom'
@@ -10,53 +13,48 @@ import {
     getMarkerStyle,
     highlightFeatureStyle,
     OpenLayersMarkerStyles,
-} from '@/modules/map/components/openlayers/utils/markerStyle.js'
+} from '@/modules/map/components/openlayers/utils/markerStyle'
 import useVectorLayer from '@/modules/map/components/openlayers/utils/useVectorLayer.composable'
 
-const { position, markerStyle, zIndex, selectFeatureCallback, deselectAfterSelect } = defineProps({
-    position: {
-        type: Array,
-        required: true,
-    },
-    markerStyle: {
-        type: String,
-        default: OpenLayersMarkerStyles.Balloon,
-    },
-    zIndex: {
-        type: Number,
-        default: -1,
-    },
-    selectFeatureCallback: {
-        type: Function,
-        default: () => {},
-    },
-    deselectAfterSelect: {
-        type: Boolean,
-        default: false,
-    },
+interface Props {
+    position: SingleCoordinate | SingleCoordinate[]
+    markerStyle?: OpenLayersMarkerStyles
+    zIndex?: number
+    selectFeatureCallback?: (_feature: Feature) => void
+    deselectAfterSelect?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    markerStyle: OpenLayersMarkerStyles.Balloon,
+    zIndex: -1,
+    selectFeatureCallback: () => {},
+    deselectAfterSelect: false,
 })
 
 const features = computed(() => {
-    if (!Array.isArray(position)) {
+    if (!Array.isArray(props.position)) {
         return []
     }
-    if (Array.isArray(position) && position.length === 2 && typeof position[0] === 'number') {
-        return [featuresForPosition(position, markerStyle)]
+    if (Array.isArray(props.position) && props.position.length === 2 && typeof props.position[0] === 'number') {
+        const feature = featuresForPosition(props.position as SingleCoordinate, props.markerStyle)
+        return feature ? [feature] : []
     }
     // we have received multiple point at once, we need to parse them each one at a time
-    return position.map((point) => featuresForPosition(point, markerStyle))
+    return (props.position as SingleCoordinate[])
+        .map((point) => featuresForPosition(point, props.markerStyle))
+        .filter((f): f is Feature<Point> => f !== undefined)
 })
 
-const olMap = inject('olMap')
+const olMap = inject<Map>('olMap')!
 useVectorLayer(olMap, features, {
-    zIndex: zIndex,
-    styleFunction: highlightFeatureStyle,
-    onFeatureSelectCallback: selectFeatureCallback,
-    deselectAfterSelect: deselectAfterSelect,
+    zIndex: props.zIndex,
+    styleFunction: highlightFeatureStyle as StyleLike,
+    onFeatureSelectCallback: props.selectFeatureCallback,
+    deselectAfterSelect: props.deselectAfterSelect,
 })
 
 watch(
-    () => markerStyle,
+    () => props.markerStyle,
     (newStyle) => {
         const olStyle = getMarkerStyle(newStyle)
         features.value.forEach((feature) => feature.setStyle(olStyle))
@@ -68,7 +66,7 @@ watch(
  * @param style
  * @returns {Feature<Point>}
  */
-function featuresForPosition(position, style) {
+function featuresForPosition(position: SingleCoordinate, style: OpenLayersMarkerStyles): Feature<Point> | undefined {
     if (!Array.isArray(position)) {
         return undefined
     }

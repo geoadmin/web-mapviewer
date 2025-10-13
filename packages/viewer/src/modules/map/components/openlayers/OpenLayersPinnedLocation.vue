@@ -1,24 +1,22 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed } from 'vue'
-import { useStore } from 'vuex'
 
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import OpenLayersMarker from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
+import { OpenLayersMarkerStyles } from '@/modules/map/components/openlayers/utils/markerStyle'
+import useMapStore from '@/store/modules/map.store'
 
-const store = useStore()
+const mapStore = useMapStore()
 
-const pinnedLocation = computed(() => store.state.map.pinnedLocation)
-const previewedPinnedLocation = computed(() => store.state.map.previewedPinnedLocation)
+const pinnedLocation = computed(() => mapStore.pinnedLocation)
+const previewedPinnedLocation = computed(() => mapStore.previewedPinnedLocation)
 
 const { zIndexDroppedPin, zIndexPreviewPosition } = useLayerZIndexCalculation()
 
-const dispatcher = { dispatcher: 'OpenLayersPinnedLocation.vue' }
+const dispatcher = { name: 'OpenLayersPinnedLocation.vue' }
 
-function selectFeatureCallback() {
-    store.dispatch('setLocationPopupCoordinates', {
-        coordinates: pinnedLocation.value,
-        dispatcher,
-    })
+function selectFeatureCallback(): void {
+    mapStore.setLocationPopupCoordinates(pinnedLocation.value, dispatcher)
 }
 </script>
 
@@ -26,7 +24,7 @@ function selectFeatureCallback() {
     <OpenLayersMarker
         v-if="pinnedLocation"
         :position="pinnedLocation"
-        marker-style="balloon"
+        :marker-style="OpenLayersMarkerStyles.Balloon"
         :z-index="zIndexDroppedPin"
         :deselect-after-select="true"
         :select-feature-callback="selectFeatureCallback"
@@ -34,7 +32,7 @@ function selectFeatureCallback() {
     <OpenLayersMarker
         v-if="previewedPinnedLocation"
         :position="previewedPinnedLocation"
-        marker-style="balloon"
+        :marker-style="OpenLayersMarkerStyles.Balloon"
         :z-index="zIndexPreviewPosition"
     />
 </template>
