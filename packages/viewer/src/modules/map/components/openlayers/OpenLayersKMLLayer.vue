@@ -1,49 +1,60 @@
-<script setup lang="js">
+<script setup lang="ts">
 /** Renders a KML file on the map */
+
+import type { Map } from 'ol'
+import VectorLayer from 'ol/layer/Vector'
+import type { KMLLayer } from '@swissgeo/layers'
+
+// Extend Window interface for Cypress testing
+declare global {
+    interface Window {
+        kmlLayer?: VectorLayer
+        kmlLayerUrl?: string
+    }
+}
 
 import log from '@swissgeo/log'
 import { WarningMessage } from '@swissgeo/log/Message'
-import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
-import { useStore } from 'vuex'
 
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
+import useDrawingStore from '@/store/modules/drawing.store'
+import usePositionStore from '@/store/modules/position.store'
+import useUiStore from '@/store/modules/ui.store'
 import { iconUrlProxyFy, parseKml } from '@/utils/kmlUtils'
 
-const dispatcher = { dispatcher: 'OpenLayersKMLLayer.vue' }
+const dispatcher = { name: 'OpenLayersKMLLayer.vue' }
 
-const { kmlLayerConfig, parentLayerOpacity, zIndex } = defineProps({
-    kmlLayerConfig: {
-        type: KMLLayer,
-        required: true,
-    },
-    parentLayerOpacity: {
-        type: Number,
-        default: null,
-    },
-    zIndex: {
-        type: Number,
-        default: -1,
-    },
+interface Props {
+    kmlLayerConfig: KMLLayer
+    parentLayerOpacity?: number
+    zIndex?: number
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    parentLayerOpacity: undefined,
+    zIndex: -1,
 })
 
 // mapping relevant store values
-const store = useStore()
-const projection = computed(() => store.state.position.projection)
-const availableIconSets = computed(() => store.state.drawing.iconSets)
+const positionStore = usePositionStore()
+const drawingStore = useDrawingStore()
+const uiStore = useUiStore()
+const projection = computed(() => positionStore.projection)
+const resolution = computed(() => positionStore.resolution)
+const availableIconSets = computed(() => drawingStore.iconSets)
 
 const iconsArePresent = computed(() => availableIconSets.value.length > 0)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => kmlLayerConfig.id)
-const layerName = computed(() => kmlLayerConfig.name)
-const opacity = computed(() => parentLayerOpacity ?? kmlLayerConfig.opacity)
-const url = computed(() => kmlLayerConfig.baseUrl)
-const kmlData = computed(() => kmlLayerConfig.kmlData)
-const kmlStyle = computed(() => kmlLayerConfig.style)
+const layerId = computed(() => props.kmlLayerConfig.id)
+const layerName = computed(() => props.kmlLayerConfig.name)
+const opacity = computed(() => props.parentLayerOpacity ?? props.kmlLayerConfig.opacity)
+const url = computed(() => props.kmlLayerConfig.baseUrl)
+const kmlData = computed(() => props.kmlLayerConfig.kmlData)
+const kmlStyle = computed(() => props.kmlLayerConfig.style)
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(projection, createSourceForProjection)
@@ -57,17 +68,19 @@ function on each feature before it is added to the vectorsource, as it may overw
 the getExtent() function and a wrong extent causes the features to sometimes disappear
 from the screen.  */
 const layer = new VectorLayer({
-    id: layerId.value,
-    uuid: kmlLayerConfig.uuid,
+    properties: {
+        id: layerId.value,
+        uuid: props.kmlLayerConfig.uuid,
+    },
     opacity: opacity.value,
 })
 
-const olMap = inject('olMap')
-useAddLayerToMap(layer, olMap, () => zIndex)
+const olMap = inject<Map>('olMap')!
+useAddLayerToMap(layer, olMap, props.zIndex)
 
 onMounted(() => {
     if (!iconsArePresent.value) {
-        store.dispatch('loadAvailableIconSets', dispatcher)
+        void drawingStore.loadAvailableIconSets(dispatcher)
     }
 
     // exposing things for Cypress testing
@@ -85,35 +98,35 @@ onUnmounted(() => {
     }
 })
 
-function iconUrlProxy(url) {
+function iconUrlProxy(url: string): string {
     return iconUrlProxyFy(
         url,
-        (url) => {
-            store.dispatch('addWarnings', {
-                warnings: [
+        (url: string) => {
+            uiStore.addWarnings(
+                [
                     new WarningMessage('kml_icon_url_cors_issue', {
                         layerName: layerName.value,
                         url: url,
                     }),
                 ],
-                ...dispatcher,
-            })
+                dispatcher
+            )
         },
-        (url) => {
-            store.dispatch('addWarnings', {
-                warnings: [
+        (url: string) => {
+            uiStore.addWarnings(
+                [
                     new WarningMessage('kml_icon_url_scheme_http', {
                         layerName: layerName.value,
                         url: url,
                     }),
                 ],
-                ...dispatcher,
-            })
+                dispatcher
+            )
         }
     )
 }
 
-function createSourceForProjection() {
+function createSourceForProjection(): void {
     if (!kmlData.value) {
         log.debug('no KML data loaded yet, could not create source')
         return
@@ -125,11 +138,11 @@ function createSourceForProjection() {
     layer.setSource(
         new VectorSource({
             wrapX: true,
-            projection: projection.value.epsg,
             features: parseKml(
-                kmlLayerConfig,
+                props.kmlLayerConfig,
                 projection.value,
                 availableIconSets.value,
+                resolution.value,
                 iconUrlProxy
             ),
         })

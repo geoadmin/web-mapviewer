@@ -1,41 +1,47 @@
-<script setup lang="js">
+<script setup lang="ts">
 /** Renders a GPX file on the map */
 
-import log from '@swissgeo/log'
+import type { Map } from 'ol'
 import VectorLayer from 'ol/layer/Vector'
+import type { GPXLayer } from '@swissgeo/layers'
+
+// Extend Window interface for Cypress testing
+declare global {
+    interface Window {
+        gpxLayer?: VectorLayer
+        gpxLayerUrl?: string
+    }
+}
+
+import log from '@swissgeo/log'
 import VectorSource from 'ol/source/Vector'
 import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
-import { useStore } from 'vuex'
 
-import GPXLayer from '@/api/layers/GPXLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
+import usePositionStore from '@/store/modules/position.store'
 import { parseGpx } from '@/utils/gpxUtils'
 
-const { gpxLayerConfig, parentLayerOpacity, zIndex } = defineProps({
-    gpxLayerConfig: {
-        type: GPXLayer,
-        required: true,
-    },
-    parentLayerOpacity: {
-        type: Number,
-        default: null,
-    },
-    zIndex: {
-        type: Number,
-        default: -1,
-    },
+interface Props {
+    gpxLayerConfig: GPXLayer
+    parentLayerOpacity?: number
+    zIndex?: number
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    parentLayerOpacity: undefined,
+    zIndex: -1,
 })
 
 // mapping relevant store values
-const store = useStore()
-const projection = computed(() => store.state.position.projection)
+const positionStore = usePositionStore()
+const projection = computed(() => positionStore.projection)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => gpxLayerConfig.id)
-const opacity = computed(() => parentLayerOpacity ?? gpxLayerConfig.opacity)
-const url = computed(() => gpxLayerConfig.baseUrl)
-const gpxData = computed(() => gpxLayerConfig.gpxData)
+const layerId = computed(() => props.gpxLayerConfig.id)
+const opacity = computed(() => props.parentLayerOpacity ?? props.gpxLayerConfig.opacity)
+const url = computed(() => props.gpxLayerConfig.baseUrl)
+const gpxData = computed(() => props.gpxLayerConfig.gpxData)
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(projection, createSourceForProjection)
@@ -46,13 +52,15 @@ function on each feature before it is added to the vectorsource, as it may overw
 the getExtent() function and a wrong extent causes the features to sometimes disappear
 from the screen.  */
 const layer = new VectorLayer({
-    id: layerId.value,
-    uuid: gpxLayerConfig.uuid,
+    properties: {
+        id: layerId.value,
+        uuid: props.gpxLayerConfig.uuid,
+    },
     opacity: opacity.value,
 })
 
-const olMap = inject('olMap')
-useAddLayerToMap(layer, olMap, () => zIndex)
+const olMap = inject<Map>('olMap')!
+useAddLayerToMap(layer, olMap, props.zIndex)
 
 onMounted(() => {
     // exposing things for Cypress testing
@@ -70,7 +78,7 @@ onUnmounted(() => {
     }
 })
 
-function createSourceForProjection() {
+function createSourceForProjection(): void {
     if (!gpxData.value) {
         log.debug('no GPX data loaded yet, could not create source')
         return
@@ -78,7 +86,6 @@ function createSourceForProjection() {
     layer.setSource(
         new VectorSource({
             wrapX: true,
-            projection: projection.value.epsg,
             features: parseGpx(gpxData.value, projection.value),
         })
     )
