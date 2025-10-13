@@ -1,4 +1,5 @@
-import type { GeoAdminLayer, Layer } from '@swissgeo/layers'
+import type { GeoAdminGroupOfLayers, GeoAdminLayer, Layer } from '@swissgeo/layers'
+
 import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
@@ -11,7 +12,6 @@ import {
     getBackgroundLayerFromLegacyUrlParams,
     getLayersFromLegacyUrlParams,
 } from '@/utils/legacyLayerParamUtils'
-import GeoAdminGroupOfLayers from './layers/GeoAdminGroupOfLayers.class'
 
 /** Representation of a topic (a subset of layers to be shown to the user) */
 export interface Topic {
@@ -62,7 +62,7 @@ const validateBaseData = (values: Partial<Layer>): void => {
 }
 
 function makeGeoAdminGroupOfLayers(values: Partial<GeoAdminGroupOfLayers>): GeoAdminGroupOfLayers {
-    const layer = new GeoAdminGroupOfLayers({
+    const layer = layerUtils.makeGeoAdminGroupOfLayers({
         id: values.id,
         name: values.name,
         uuid: uuidv4(),
@@ -121,7 +121,7 @@ const readTopicTreeRecursive = (
                 }
             }
         })
-        // TODO: can't use layerUtils.makeGeoAdminGroupOfLayers for this as it does not return a GeoAdminGroupOfLayers object 
+        // TODO: can't use layerUtils.makeGeoAdminGroupOfLayers for this as it does not return a GeoAdminGroupOfLayers object
         return makeGeoAdminGroupOfLayers({
             id: `${node.id}`,
             name: node.label,
@@ -288,7 +288,7 @@ export function parseTopics(layersConfig: GeoAdminLayer[], rawTopics: ServicesRe
             legacyUrlParams
         )
         // first we get the background from the "plConfig" of the API response
-        let defaultBackgroundLayer = backgroundLayerFromUrlParam
+        let defaultBackgroundLayer: GeoAdminLayer | null | undefined = undefined
         // checking if there was something in the "plConfig"
         // null is a valid background as it is the void layer in our app
         // so we have to exclude only the "undefined" value and fill this variable

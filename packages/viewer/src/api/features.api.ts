@@ -1,9 +1,5 @@
-import type { FlatExtent, NormalizedExtent, SingleCoordinate } from '@swissgeo/coordinates'
-import { allCoordinateSystems, CoordinateSystem, extentUtils, LV95 } from '@swissgeo/coordinates'
-import log from '@swissgeo/log'
-import axios, { type AxiosResponse } from 'axios'
+import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import type { ExternalLayer, ExternalWMSLayer, GeoAdminLayer, Layer } from '@swissgeo/layers'
-import { ALL_YEARS_TIMESTAMP, CURRENT_YEAR_TIMESTAMP, LayerType } from '@swissgeo/layers'
 import type {
     Feature as GeoJsonFeature,
     FeatureCollection,
@@ -12,23 +8,29 @@ import type {
 } from 'geojson'
 import type Feature from 'ol/Feature'
 import type { LineString, MultiLineString, MultiPolygon, Point, Polygon } from 'ol/geom'
+
+import { allCoordinateSystems, CoordinateSystem, extentUtils, LV95 } from '@swissgeo/coordinates'
+import { ALL_YEARS_TIMESTAMP, CURRENT_YEAR_TIMESTAMP, LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
+import log from '@swissgeo/log'
+import axios, { type AxiosResponse } from 'axios'
 import { WMSGetFeatureInfo } from 'ol/format'
 import GeoJSON from 'ol/format/GeoJSON'
 import proj4 from 'proj4'
+
+import type { DrawingIcon } from '@/api/icon.api'
 
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
 import {
     DEFAULT_FEATURE_COUNT_SINGLE_POINT,
     DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE,
 } from '@/config/map.config'
-import { getGeoJsonFeatureCenter, reprojectGeoJsonGeometry } from '@/utils/geoJsonUtils'
 import {
     type FeatureStyleColor,
     type FeatureStyleSize,
     TextPlacement,
 } from '@/utils/featureStyleUtils.ts'
-import type { DrawingIcon } from '@/api/icon.api'
+import { getGeoJsonFeatureCenter, reprojectGeoJsonGeometry } from '@/utils/geoJsonUtils'
 
 const GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE = 100
 
@@ -49,8 +51,8 @@ export interface SelectableFeature<IsEditable extends boolean> {
     title: string
     /** A description of this feature. Cannot be HTML content (only text). */
     description?: string
-    /** Extent of this feature (if any) expressed as [minX, minY, maxX, maxY]. */
-    extent?: NormalizedExtent
+    /** The extent of this feature (if any) expressed as [minX, minY, maxX, maxY]. */
+    extent?: FlatExtent
     /** GeoJSON representation of this feature (if it has a geometry, for points it isn't necessary). */
     geometry?: Geometry
     /** Whether this feature is editable when selected (color, size, etc...). */
