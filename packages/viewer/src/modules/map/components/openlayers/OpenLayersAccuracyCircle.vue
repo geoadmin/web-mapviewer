@@ -36,8 +36,10 @@ if (position.value) {
     accuracyCircleFeature.setStyle(geolocationAccuracyCircleStyle)
 
     const layer = new VectorLayer({
-        id: `geolocation-accuracy-layer`,
-        uuid: uuidv4(),
+        properties: {
+            id: `geolocation-accuracy-layer`,
+            uuid: uuidv4(),
+        },
         source: new VectorSource({
             features: [accuracyCircleFeature],
         }),
@@ -46,7 +48,7 @@ if (position.value) {
     // grabbing the map from the main OpenLayersMap component and use the composable that adds this layer to the map
     const olMap = inject('olMap', null)
     if (olMap) {
-        useAddLayerToMap(layer, olMap, () => zIndex)
+        useAddLayerToMap(layer, olMap, zIndex)
     }
 
     // reacting to changes accordingly
