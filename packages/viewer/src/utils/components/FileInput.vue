@@ -11,8 +11,114 @@ import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
-import { propsValidator4ValidateFunc } from '@/utils/composables/useFieldValidation'
 import { humanFileSize } from '@/utils/utils'
+
+interface Props {
+    /**
+     * Label to add above the field
+     */
+    label?: string
+    /**
+     * Description to add below the input
+     */
+    description?: string
+    /**
+     * Mark the field as disable
+     */
+    disabled?: boolean
+    /**
+     * Accepted file types
+     *
+     * List of file extension that are accepted. If the file doesn't match the type it will be
+     * rejected with a proper message and the field will be marked as invalid.
+     */
+    acceptedFileTypes?: string[]
+    /**
+     * Maximum File Size allowed
+     */
+    maxFileSize?: number
+    /**
+     * Placeholder text
+     *
+     * NOTE: this should be a translation key
+     */
+    placeholder?: string
+    /**
+     * Field is required and will be marked as invalid if empty
+     */
+    required?: boolean
+    /**
+     * Mark the field as valid
+     *
+     * This can be used if the field requires some external validation. When not set or set to undefined
+     * this props is ignored.
+     *
+     * NOTE: this props is ignored when activate-validation is false
+     */
+    validMarker?: boolean | undefined
+    /**
+     * Valid message Message that will be added in green below the field once the validation has
+     * been done and the field is valid.
+     */
+    validMessage?: string
+    /**
+     * Mark the field as invalid
+     *
+     * This can be used if the field requires some external validation. When not set or set to undefined
+     * this props is ignored.
+     *
+     * NOTE: this props is ignored when activate-validation is false
+     */
+    invalidMarker?: boolean | undefined
+    /**
+     * Invalid message Message that will be added in red below the field once the validation has
+     * been done and the field is invalid.
+     *
+     * NOTE: this message is overwritten if the internal validation failed (not allow file type or
+     * file too big or required empty file)
+     */
+    invalidMessage?: string
+    /**
+     * Invalid message might sometimes require extra parameters to correctly set all placeholder in
+     * the translated message. This object is used to convey this dynamic placeholder replacement to
+     * the i18n call.
+     */
+    invalidMessageExtraParams?: Record<string, unknown>
+    /**
+     * Mark the field has validated.
+     *
+     * As long as the flag is false, no validation is run and no validation marks are set. Also the
+     * props is-invalid and is-valid are ignored.
+     */
+    activateValidation?: boolean
+    /**
+     * Validate function to run when the input changes The function should return an object of type
+     * `{valid: Boolean, invalidMessage: String}`. The `invalidMessage` string should be a
+     * translation key.
+     *
+     * NOTE: this function is called each time the field is modified
+     */
+    validate?: ((_value?: File) => { valid: boolean; invalidMessage: string }) | undefined
+    dataCy?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    label: '',
+    description: '',
+    disabled: false,
+    acceptedFileTypes: () => [],
+    maxFileSize: 250 * 1024 * 1024, // 250 MB
+    placeholder: '',
+    required: false,
+    validMarker: undefined,
+    validMessage: '',
+    invalidMarker: undefined,
+    invalidMessage: '',
+    invalidMessageExtraParams: () => ({}),
+    activateValidation: false,
+    validate: undefined,
+    dataCy: '',
+})
 
 // On each component creation set the current component unique ID
 const inputFileId = useComponentUniqueId('file-input')
@@ -24,183 +130,6 @@ const emits = defineEmits<{
     validate: []
 }>()
 
-// Props
-const props = defineProps({
-    /**
-     * Label to add above the field
-     *
-     * @type {String}
-     */
-    label: {
-        type: String,
-        default: '',
-    },
-    /**
-     * Description to add below the input
-     *
-     * @type {String}
-     */
-    description: {
-        type: String,
-        default: '',
-    },
-    /**
-     * Mark the field as disable
-     *
-     * @type {Boolean}
-     */
-    disabled: {
-        type: Boolean,
-        default: false,
-    },
-    /**
-     * Accepted file types
-     *
-     * List of file extension that are accepted. If the file doesn't match the type it will be
-     * rejected with a proper message and the field will be marked as invalid.
-     *
-     * @type {[String]} List Of extension string
-     */
-    acceptedFileTypes: {
-        type: Array as () => string[],
-        default: () => [],
-    },
-    /**
-     * Maximum File Size allowed
-     *
-     * @type {Number}
-     */
-    maxFileSize: {
-        type: Number,
-        default: 250 * 1024 * 1024, // 250 MB,
-    },
-    /**
-     * Placeholder text
-     *
-     * NOTE: this should be a translation key
-     *
-     * @type {string}
-     */
-    placeholder: {
-        type: String,
-        default: '',
-    },
-    /**
-     * Field is required and will be marked as invalid if empty
-     *
-     * @type {Boolean}
-     */
-    required: {
-        type: Boolean,
-        default: false,
-    },
-    /**
-     * Mark the field as valid
-     *
-     * This can be used if the field requires some external validation. When not set or set to undefined
-     * this props is ignored.
-     *
-     * NOTE: this props is ignored when activate-validation is false
-     *
-     * @type {Boolean}
-     */
-    validMarker: {
-        type: [Boolean, null],
-        default: undefined,
-    },
-    /**
-     * Valid message Message that will be added in green below the field once the validation has
-     * been done and the field is valid.
-     *
-     * @type {Sting}
-     */
-    validMessage: {
-        type: String,
-        default: '',
-    },
-    /**
-     * Mark the field as invalid
-     *
-     * This can be used if the field requires some external validation. When not set or set to undefined
-     * this props is ignored.
-     *
-     * NOTE: this props is ignored when activate-validation is false
-     *
-     * @type {Boolean}
-     */
-    invalidMarker: {
-        type: [Boolean, null],
-        default: undefined,
-    },
-    /**
-     * Invalid message Message that will be added in red below the field once the validation has
-     * been done and the field is invalid.
-     *
-     * NOTE: this message is overwritten if the internal validation failed (not allow file type or
-     * file too big or required empty file)
-     *
-     * @type {Sting}
-     */
-    invalidMessage: {
-        type: String,
-        default: '',
-    },
-    /**
-     * Invalid message might sometimes require extra parameters to correctly set all placeholder in
-     * the translated message. This object is used to convey this dynamic placeholder replacement to
-     * the i18n call.
-     *
-     * @type {Object}
-     */
-    invalidMessageExtraParams: {
-        type: Object,
-        default: () => {},
-    },
-    /**
-     * Mark the field has validated.
-     *
-     * As long as the flag is false, no validation is run and no validation marks are set. Also the
-     * props is-invalid and is-valid are ignored.
-     */
-    activateValidation: {
-        type: Boolean,
-        default: false,
-    },
-    /**
-     * Validate function to run when the input changes The function should return an object of type
-     * `{valid: Boolean, invalidMessage: Sting}`. The `invalidMessage` string should be a
-     * translation key.
-     *
-     * NOTE: this function is called each time the field is modified
-     *
-     * @type {Function | undefined}
-     */
-    validate: {
-        type: [Function, null],
-        default: undefined,
-        validator: propsValidator4ValidateFunc,
-    },
-    dataCy: {
-        type: String,
-        default: '',
-    },
-})
-const {
-    acceptedFileTypes,
-    placeholder,
-    maxFileSize,
-    disabled,
-    label,
-    description,
-    dataCy,
-    required,
-    activateValidation,
-    validMarker,
-    invalidMarker,
-    validMessage,
-    invalidMessage,
-} = props
-
 // Reactive data
 const inputLocalFile = useTemplateRef<HTMLInputElement>('inputLocalFile')
 const internalInvalidMessage = ref<string>('')
@@ -209,7 +138,7 @@ const internalInvalidMessage = ref<string>('')
 const filePathInfo = computed(() =>
     model.value ? `${model.value.name}, ${model.value.size / 1000} kb` : ''
 )
-const maxFileSizeHuman = computed(() => humanFileSize(maxFileSize))
+const maxFileSizeHuman = computed(() => humanFileSize(props.maxFileSize))
 
 
 
@@ -218,17 +147,17 @@ function validateFile(): { valid: boolean; invalidMessage: string } {
     const file = model.value
     if (
         file &&
-        acceptedFileTypes?.length > 0 &&
-        !acceptedFileTypes.some((type) =>
+        props.acceptedFileTypes?.length > 0 &&
+        !props.acceptedFileTypes.some((type: string) =>
             file.name.toLowerCase().endsWith(type.toLowerCase())
         )
     ) {
         return { valid: false, invalidMessage: 'file_unsupported_format' }
     }
-    if (file && file.size > maxFileSize) {
+    if (file && file.size > props.maxFileSize) {
         return { valid: false, invalidMessage: 'file_too_large' }
     }
-    if (required && !model.value) {
+    if (props.required && !model.value) {
         return { valid: false, invalidMessage: 'no_file' }
     }
     return {
@@ -264,9 +193,9 @@ function onFileSelected(evt: Event): void {
 
 // Watch for validation changes
 watch(
-    () => [model.value, activateValidation],
+    () => [model.value, props.activateValidation],
     () => {
-        if (activateValidation) {
+        if (props.activateValidation) {
             const result = props.validate ? props.validate(model.value) : validateFile()
             internalInvalidMessage.value = result.valid ? '' : result.invalidMessage
             emits('validate')

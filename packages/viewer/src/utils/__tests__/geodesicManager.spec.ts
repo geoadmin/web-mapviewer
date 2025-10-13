@@ -11,7 +11,7 @@ import { GeodesicGeometries, HALFSIZE_WEBMERCATOR } from '@/utils/geodesicManage
 
 interface ExpectedResults {
     geodesicGeom: number[][][]
-    geodesicPolygonGeom?: number[][][] | null
+    geodesicPolygonGeom?: number[][][] | undefined
     maxStyles: number
     minStyles: number
     segmentExtents: Extent[]
@@ -189,7 +189,7 @@ describe('Unit tests for Geodesic geometries', () => {
                     [-HALFSIZE_WEBMERCATOR + 2000, 0],
                 ],
             ],
-            geodesicPolygonGeom: null,
+            geodesicPolygonGeom: undefined,
             maxStyles: 6, // 3 measure points, azimuth circle, total length, transparent circle for printing
             minStyles: 3, // azimuth circle + total length, transparent circle for printing
             segmentExtents: [[-HALFSIZE_WEBMERCATOR + 500, 0, HALFSIZE_WEBMERCATOR + 500, 0]],
@@ -229,7 +229,7 @@ describe('Unit tests for Geodesic geometries', () => {
                     [-HALFSIZE_WEBMERCATOR + 2000, 0],
                 ],
             ],
-            geodesicPolygonGeom: null,
+            geodesicPolygonGeom: undefined,
             maxStyles: 5, // 3 measure points, total length, transparent circle for printing
             minStyles: 2, // total length, transparent circle for printing
             segmentExtents: [[-HALFSIZE_WEBMERCATOR + 500, 0, HALFSIZE_WEBMERCATOR + 500, 0]],
