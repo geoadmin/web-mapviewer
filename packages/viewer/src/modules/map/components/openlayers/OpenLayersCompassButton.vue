@@ -1,24 +1,29 @@
-<script setup lang="js">
+<script setup lang="ts">
+import type { Map } from 'ol'
+import type MapEvent from 'ol/MapEvent'
+
 import { computed, inject, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-const dispatcher = { dispatcher: 'OpenLayersCompassButton.vue' }
+import usePositionStore from '@/store/modules/position.store'
 
-const { hideIfNorth } = defineProps({
-    hideIfNorth: {
-        type: Boolean,
-        default: false,
-    },
+const dispatcher = { name: 'OpenLayersCompassButton.vue' }
+
+interface Props {
+    hideIfNorth?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    hideIfNorth: false,
 })
 
-const olMap = inject('olMap')
-const store = useStore()
+const olMap = inject<Map>('olMap')!
+const positionStore = usePositionStore()
 const { t } = useI18n()
 
 const rotation = ref(0)
 
-const showCompass = computed(() => Math.abs(rotation.value) >= 1e-9 || !hideIfNorth)
+const showCompass = computed(() => Math.abs(rotation.value) >= 1e-9 || !props.hideIfNorth)
 
 onMounted(() => {
     olMap.on('postrender', onRotate)
@@ -28,14 +33,14 @@ onUnmounted(() => {
     olMap.un('postrender', onRotate)
 })
 
-function resetRotation() {
-    store.dispatch('setAutoRotation', { autoRotation: false, ...dispatcher })
-    store.dispatch('setRotation', { rotation: 0, ...dispatcher })
+function resetRotation(): void {
+    positionStore.setAutoRotation(false, dispatcher)
+    positionStore.setRotation(0, dispatcher)
 }
 
-const onRotate = (mapEvent) => {
-    const newRotation = mapEvent.frameState.viewState.rotation
-    if (newRotation !== rotation.value) {
+function onRotate(mapEvent: MapEvent): void {
+    const newRotation = mapEvent.frameState?.viewState.rotation
+    if (newRotation !== undefined && newRotation !== rotation.value) {
         rotation.value = newRotation
     }
 }
