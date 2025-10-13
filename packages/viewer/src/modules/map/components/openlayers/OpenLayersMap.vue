@@ -48,13 +48,6 @@ const geolocationStore = useGeolocationStore()
 const layersStore = useLayersStore()
 const mapStore = useMapStore()
 
-const showTileDebugInfo = computed(() => debugStore.showTileDebugInfo)
-const showLayerExtents = computed(() => debugStore.showLayerExtents)
-const showSelectionRectangle = computed(() => !!mapStore.rectangleSelectionExtent)
-const geolocationActive = computed(() => geolocationStore.active)
-const geoPosition = computed(() => geolocationStore.position)
-const visibleLayers = computed(() => layersStore.visibleLayers)
-
 const map: Map = new OlMap({ controls: [] })
 useViewBasedOnProjection(map)
 

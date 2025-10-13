@@ -58,9 +58,8 @@ function setFeatures(): void {
         log.debug('no GeoJSON data loaded yet, could not create source')
         return
     }
-    const geoJsonObject = typeof geoJsonData.value === 'string'
-        ? JSON.parse(geoJsonData.value)
-        : geoJsonData.value
+    const geoJsonObject =
+        typeof geoJsonData.value === 'string' ? JSON.parse(geoJsonData.value) : geoJsonData.value
     layer.setSource(
         new VectorSource({
             features: new GeoJSON().readFeatures(

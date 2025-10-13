@@ -63,7 +63,8 @@ export function usePrint(map: Map) {
 
     /**
      * @param printGrid Print the coordinate grid on the finished PDF, true or false
-     * @param printLegend Print all visible layer legend (if they have one) on the map, true or false
+     * @param printLegend Print all visible layer legend (if they have one) on the map, true or
+     *   false
      */
     async function print(
         printGrid: boolean = false,
