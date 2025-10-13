@@ -10,10 +10,10 @@ import {
     YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
 } from '@/types'
 
-export const hasTimestamp = (timeConfig: LayerTimeConfig, timestamp: string): boolean =>
+const hasTimestamp = (timeConfig: LayerTimeConfig, timestamp: string): boolean =>
     timeConfig.timeEntries.some((entry: LayerTimeConfigEntry) => entry.timestamp === timestamp)
 
-export const getTimeEntryForYear = (
+const getTimeEntryForYear = (
     timeConfig: LayerTimeConfig,
     year: number
 ): LayerTimeConfigEntry | undefined => {
@@ -29,7 +29,7 @@ export const getTimeEntryForYear = (
     })
 }
 
-export const updateCurrentTimeEntry = (
+const updateCurrentTimeEntry = (
     timeConfig: LayerTimeConfig,
     entryOrTimestamp: LayerTimeConfigEntry | string | undefined
 ) => {
@@ -44,7 +44,7 @@ export const updateCurrentTimeEntry = (
     timeConfig.currentTimeEntry = currentTimeEntry
 }
 
-export const makeTimeConfigEntry = (timestamp: string): LayerTimeConfigEntry => {
+const makeTimeConfigEntry = (timestamp: string): LayerTimeConfigEntry => {
     let interval: Interval | undefined
     let nonTimeBasedValue: string | undefined
     if (timestamp.startsWith('9999')) {
@@ -101,7 +101,7 @@ export const makeTimeConfigEntry = (timestamp: string): LayerTimeConfigEntry => 
     }
 }
 
-export const makeTimeConfig = (
+const makeTimeConfig = (
     behaviour?: string,
     timeEntries?: LayerTimeConfigEntry[]
 ): LayerTimeConfig | undefined => {
@@ -142,7 +142,7 @@ export const makeTimeConfig = (
     return timeConfig
 }
 
-export const hasMultipleTimestamps = (layer: Layer): boolean => {
+const hasMultipleTimestamps = (layer: Layer): boolean => {
     return (layer.timeConfig?.timeEntries?.length || 0) > 1
 }
 
@@ -156,7 +156,7 @@ export function getYearFromLayerTimeEntry(timeEntry: LayerTimeConfigEntry): numb
     return undefined
 }
 
-export const getTimeEntryForInterval = (
+const getTimeEntryForInterval = (
     layer: Layer,
     interval: Interval
 ): LayerTimeConfigEntry | undefined => {
@@ -172,7 +172,7 @@ export const getTimeEntryForInterval = (
 }
 
 /** Returns timestamp for WMS or WMTS layer from config data */
-export function getTimestampFromConfig(layer: Layer): string | undefined {
+function getTimestampFromConfig(layer: Layer): string | undefined {
     let timestamp = layer.timeConfig?.currentTimeEntry?.timestamp
     if (!timestamp && layer.type === LayerType.WMTS) {
         // for WMTS layer fallback to current

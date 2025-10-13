@@ -1,74 +1,75 @@
 <script setup lang="ts">
-import type { Map } from 'ol'
 import type { CloudOptimizedGeoTIFFLayer } from '@swissgeo/layers'
+import log from '@swissgeo/log'
 
+import type Map from 'ol/Map'
 import TileLayer from 'ol/layer/Tile'
 import WebGLTileLayer from 'ol/layer/WebGLTile'
-import GeoTIFFSource from 'ol/source/GeoTIFF'
+import GeoTIFFSource, { type SourceInfo } from 'ol/source/GeoTIFF'
 import TileDebug from 'ol/source/TileDebug'
-import { computed, inject, onMounted, watch } from 'vue'
+import { computed, inject, onMounted, toRef, watch } from 'vue'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import useDebugStore from '@/store/modules/debug.store'
 
-interface Props {
+const {
+    geotiffConfig,
+    parentLayerOpacity,
+    zIndex = -1,
+} = defineProps<{
     geotiffConfig: CloudOptimizedGeoTIFFLayer
     parentLayerOpacity?: number
     zIndex?: number
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    parentLayerOpacity: undefined,
-    zIndex: -1,
-})
+}>()
 
 const olMap = inject<Map>('olMap')
 
 const debugStore = useDebugStore()
-const showTileDebugInfo = computed(() => debugStore.showTileDebugInfo)
+const showTileDebugInfo = computed<boolean>(() => debugStore.showTileDebugInfo)
 
-const source = computed(() => {
-    const base: { blob?: Blob; url?: string } = {}
-    if (props.geotiffConfig.isLocalFile) {
-        const data = props.geotiffConfig.data
-        if (data instanceof Blob) {
+const source = computed<SourceInfo>(() => {
+    const base: SourceInfo = {}
+    if (geotiffConfig.isLocalFile) {
+        const data = geotiffConfig.data
+        if (typeof data === 'string') {
+            base.blob = new Blob([data])
+        } else if (data instanceof Blob) {
             base.blob = data
         }
     } else {
-        base.url = props.geotiffConfig.fileSource
+        base.url = geotiffConfig.fileSource
     }
     return base
 })
-const opacity = computed(() => props.parentLayerOpacity ?? props.geotiffConfig.opacity)
+const opacity = computed<number>(() => parentLayerOpacity ?? geotiffConfig.opacity)
 
 const cogSource = createLayerSource()
 const layer = new WebGLTileLayer({
-    source: cogSource,
-    opacity: opacity.value,
     properties: {
         interpolate: false,
-        // local files do not have an url so we take the blob name if it's a File
-        id: source.value.url ?? (source.value.blob instanceof File ? source.value.blob.name : 'local-geotiff'),
-        uuid: props.geotiffConfig.uuid,
+        id: source.value.url ?? geotiffConfig.uuid,
+        uuid: geotiffConfig.uuid,
     },
+    source: cogSource,
+    opacity: opacity.value,
 })
 
 // If we want to have debug tiles for COG, it requires a TileLayer per COG source.
 // So it is easier to manage that directly here (where we have access to the source) instead of letting
 // OpenLayersTileDebugInfo.vue do it.
-const debugSource = new TileDebug({
-    source: cogSource,
-    color: 'red',
-})
 const debugLayer = new TileLayer({
-    source: debugSource,
+    source: createTileDebugSource(cogSource),
 })
 
-useAddLayerToMap(layer, olMap, props.zIndex)
+if (!olMap) {
+    log.error('OpenLayersMap is not available')
+    throw new Error('OpenLayersMap is not available')
+}
+useAddLayerToMap(layer, olMap, toRef(zIndex))
 const { removeLayerFromMap: removeDebugLayer, addLayerToMap: addDebugLayer } = useAddLayerToMap(
     debugLayer,
     olMap,
-    props.zIndex + 1
+    toRef(zIndex + 1)
 )
 onMounted(() => {
     if (!showTileDebugInfo.value) {
@@ -80,12 +81,7 @@ watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(source, () => {
     const newSource = createLayerSource()
     layer.setSource(newSource)
-    // TileDebug doesn't have setSource, so we need to create a new debug source
-    const newDebugSource = new TileDebug({
-        source: newSource,
-        color: 'red',
-    })
-    debugLayer.setSource(newDebugSource)
+    debugLayer.setSource(createTileDebugSource(newSource))
 })
 watch(showTileDebugInfo, () => {
     if (showTileDebugInfo.value) {
@@ -100,6 +96,13 @@ function createLayerSource(): GeoTIFFSource {
         convertToRGB: 'auto',
         sources: [source.value],
         interpolate: false,
+    })
+}
+
+function createTileDebugSource(cogSource: GeoTIFFSource): TileDebug {
+    return new TileDebug({
+        source: cogSource,
+        color: 'red',
     })
 }
 </script>

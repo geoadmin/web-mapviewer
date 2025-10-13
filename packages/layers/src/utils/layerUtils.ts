@@ -671,7 +671,7 @@ function cloneLayer<T extends Layer>(layer: T): T {
  * @param options.addTimestamp Add the timestamp from the time config to the URL. When false, the
  *   timestamp is set to `{Time}` and needs to be processed later (i.e., by the mapping framework).
  */
-export function getWmtsXyzUrl(
+function getWmtsXyzUrl(
     wmtsLayerConfig: GeoAdminWMTSLayer | ExternalWMTSLayer,
     projection: CoordinateSystem,
     options?: {
