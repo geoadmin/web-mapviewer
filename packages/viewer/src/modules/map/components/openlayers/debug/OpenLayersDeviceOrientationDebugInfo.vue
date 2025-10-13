@@ -1,29 +1,41 @@
-<script setup lang="js">
+<script setup lang="ts">
 import log from '@swissgeo/log'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { Toast } from 'bootstrap'
 import { onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-const { parameters } = defineProps({
-    parameters: {
-        type: Array,
-        required: true,
-    },
-})
+interface Parameter {
+    title?: string
+    parameters: Array<{
+        key?: string
+        value: string
+        hasCopyBtn?: boolean
+    }>
+}
+
+interface Props {
+    parameters: Parameter[]
+}
+
+defineProps<Props>()
 
 const { t } = useI18n()
 
 const tooltipContent = ref(t('copy_cta'))
-const deviceOrientationToast = ref(null)
-const deviceOrientationToastElement = useTemplateRef('deviceOrientationToastElement')
+const deviceOrientationToast = ref<Toast | undefined>(undefined)
+const deviceOrientationToastElement = useTemplateRef<HTMLElement>('deviceOrientationToastElement')
 const isToastActive = ref(false)
 
 onMounted(() => {
-    deviceOrientationToast.value = Toast.getOrCreateInstance(deviceOrientationToastElement.value)
+    if (deviceOrientationToastElement.value) {
+        deviceOrientationToast.value = Toast.getOrCreateInstance(deviceOrientationToastElement.value)
+    }
 })
 
-function toggleToast() {
+function toggleToast(): void {
+    if (!deviceOrientationToast.value) return
+
     if (isToastActive.value) {
         deviceOrientationToast.value.hide()
         isToastActive.value = false
@@ -33,7 +45,7 @@ function toggleToast() {
     }
 }
 
-async function copyValue(event, value) {
+async function copyValue(_event: Event, value: string): Promise<void> {
     try {
         await navigator.clipboard.writeText(value)
         tooltipContent.value = t('copy_done')
@@ -41,8 +53,8 @@ async function copyValue(event, value) {
         setTimeout(() => {
             tooltipContent.value = t('copy_cta')
         }, 3000)
-    } catch (error) {
-        log.error(`Failed to copy ${value} to clipboard`, error)
+    } catch (error: unknown) {
+        log.error(`Failed to copy ${value} to clipboard`, error as Error)
     }
 }
 </script>
