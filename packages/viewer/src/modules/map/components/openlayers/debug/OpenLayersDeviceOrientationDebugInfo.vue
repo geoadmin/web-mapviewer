@@ -14,11 +14,9 @@ interface Parameter {
     }>
 }
 
-interface Props {
+const { parameters } = defineProps<{
     parameters: Parameter[]
-}
-
-defineProps<Props>()
+}>()
 
 const { t } = useI18n()
 
@@ -29,7 +27,9 @@ const isToastActive = ref(false)
 
 onMounted(() => {
     if (deviceOrientationToastElement.value) {
-        deviceOrientationToast.value = Toast.getOrCreateInstance(deviceOrientationToastElement.value)
+        deviceOrientationToast.value = Toast.getOrCreateInstance(
+            deviceOrientationToastElement.value
+        )
     }
 })
 
@@ -75,7 +75,7 @@ async function copyValue(_event: Event, value: string): Promise<void> {
         </div>
     </teleport>
 
-    <div class="toast-container position-fixed bottom-0 end-0 p-5 clear-no-ios-long-press">
+    <div class="toast-container position-fixed clear-no-ios-long-press end-0 bottom-0 p-5">
         <div
             id="DeviceOrientationToast"
             ref="deviceOrientationToastElement"

@@ -86,9 +86,7 @@ export default function useDeviceOrientation(): {
     const headingDegree = ref<number | undefined>(undefined)
 
     const autoRotation = computed(() => positionStore.autoRotation)
-    const hasOrientation = computed(
-        () => supportDeviceOrientation && positionStore.hasOrientation
-    )
+    const hasOrientation = computed(() => supportDeviceOrientation && positionStore.hasOrientation)
 
     onBeforeMount(() => {
         startDeviceOrientationListener()
@@ -193,7 +191,9 @@ export default function useDeviceOrientation(): {
                     )
                     window.addEventListener(orientation.value.default.listener, handleOrientation)
                 })
-                .catch((error: unknown) => log.error(`Failed to add device orientation listener: ${String(error)}`))
+                .catch((error: unknown) =>
+                    log.error(`Failed to add device orientation listener: ${String(error)}`)
+                )
         } else {
             window.addEventListener(orientation.value.absolute.listener, handleOrientationAbsolute)
             window.addEventListener(orientation.value.default.listener, handleOrientation)
@@ -221,9 +221,14 @@ export default function useDeviceOrientation(): {
         ) {
             // When the default listener doesn't return an alpha nor an webkitCompassHeading
             // this means that the device don't support at all orientation and we stop all listeners.
-            const compassHeading = 'webkitCompassHeading' in orientationEvent
-                ? (orientationEvent as DeviceOrientationEvent & { webkitCompassHeading?: number }).webkitCompassHeading
-                : undefined
+            const compassHeading =
+                'webkitCompassHeading' in orientationEvent
+                    ? (
+                          orientationEvent as DeviceOrientationEvent & {
+                              webkitCompassHeading?: number
+                          }
+                      ).webkitCompassHeading
+                    : undefined
             log.warn(
                 `Invalid alpha value from ${orientation.value.default.listener} listener: ${orientationEvent.alpha}/${compassHeading}, stopping listener`,
                 orientationEvent

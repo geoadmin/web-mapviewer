@@ -57,7 +57,10 @@ export function useDragBoxSelect(): {
         const minDragDistance = DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE * resolution
         const [minX, minY, maxX, maxY] = selectExtent
         const selectExtentCenter: SingleCoordinate = [(minX! + maxX!) / 2, (minY! + maxY!) / 2]
-        if (Math.abs(minX! - maxX!) < minDragDistance || Math.abs(minY! - maxY!) < minDragDistance) {
+        if (
+            Math.abs(minX! - maxX!) < minDragDistance ||
+            Math.abs(minY! - maxY!) < minDragDistance
+        ) {
             return
         }
         // Only clear selection if a real box was drawn
@@ -88,7 +91,12 @@ export function useDragBoxSelect(): {
         const vectorFeatures = visibleLayers
             .flatMap((layer) => {
                 if (layer.type === LayerType.KML) {
-                    const kmlFeatures = parseKml(layer as KMLLayer, positionStore.projection, [], positionStore.resolution)
+                    const kmlFeatures = parseKml(
+                        layer as KMLLayer,
+                        positionStore.projection,
+                        [],
+                        positionStore.resolution
+                    )
                     return kmlFeatures.map((feature) => ({ feature: feature, layer }))
                 }
                 if (layer.type === LayerType.GPX) {

@@ -54,7 +54,9 @@ export default function useMapInteractions(map: Map): void {
     // Add interaction to drag the map using the middle mouse button
     map.addInteraction(
         new DragPan({
-            condition: function (event: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>) {
+            condition: function (
+                event: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>
+            ) {
                 return (event.originalEvent as MouseEvent).buttons === 4
             },
         })
@@ -133,7 +135,9 @@ export default function useMapInteractions(map: Map): void {
         map.un('contextmenu' as 'singleclick', onMapRightClick)
     }
 
-    function onMapLeftClick(event: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>): void {
+    function onMapLeftClick(
+        event: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>
+    ): void {
         clearTimeout(longClickTimeout)
         if (longClickTriggered) {
             // click was already processed, ignoring (will otherwise select features at the same time as the right click has been triggered)
@@ -155,7 +159,9 @@ export default function useMapInteractions(map: Map): void {
                         .filter(
                             (feature, index, self) =>
                                 self.indexOf(
-                                    self.find((anotherFeature) => anotherFeature?.id === feature?.id)
+                                    self.find(
+                                        (anotherFeature) => anotherFeature?.id === feature?.id
+                                    )
                                 ) === index
                         )
                     if (layerFeatures.length > 0) {
@@ -179,7 +185,9 @@ export default function useMapInteractions(map: Map): void {
         )
     }
 
-    function onMapRightClick(event: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent> | ExtendedPointerEvent): void {
+    function onMapRightClick(
+        event: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent> | ExtendedPointerEvent
+    ): void {
         clearTimeout(longClickTimeout)
         longClickTriggered =
             ('updateLongClickTriggered' in event && event.updateLongClickTriggered) ||
@@ -214,11 +222,9 @@ export default function useMapInteractions(map: Map): void {
             // LocationPopup by touching the same-ish spot for 500ms
             longClickTimeout = setTimeout(() => {
                 // we need to ensure long mouse clicks don't trigger this.
-                const originalPointerType = pointerEvent.originalEvent?.pointerType ?? pointerEvent.pointerType
-                if (
-                    !mapHasMoved &&
-                    longPressEvents.includes(originalPointerType ?? '')
-                ) {
+                const originalPointerType =
+                    pointerEvent.originalEvent?.pointerType ?? pointerEvent.pointerType
+                if (!mapHasMoved && longPressEvents.includes(originalPointerType ?? '')) {
                     // we are outside of OL event handling, on the HTML element, so we do not receive map pixel and coordinate automatically
                     const pixel = map.getEventPixel(pointerEvent)
                     const coordinate = map.getCoordinateFromPixel(pixel)

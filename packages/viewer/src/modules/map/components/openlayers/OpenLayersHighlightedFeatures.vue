@@ -34,7 +34,10 @@ import useProfileStore from '@/store/modules/profile.store'
 import useUiStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 
-const dispatcher = { dispatcher: 'OpenLayersHighlightedFeatures.vue', name: 'OpenLayersHighlightedFeatures' }
+const dispatcher = {
+    dispatcher: 'OpenLayersHighlightedFeatures.vue',
+    name: 'OpenLayersHighlightedFeatures',
+}
 
 const { t } = useI18n()
 
@@ -79,23 +82,31 @@ const featureTransformedAsOlFeatures = computed(() => {
 })
 
 const segmentTransformedAsOlFeatures = computed((): Feature[] => {
-    if (!profileFeature.value || !isMultiFeature.value || !currentGeometryElements.value || !Array.isArray(currentGeometryElements.value)) {
+    if (
+        !profileFeature.value ||
+        !isMultiFeature.value ||
+        !currentGeometryElements.value ||
+        !Array.isArray(currentGeometryElements.value)
+    ) {
         return []
     }
 
-    return (currentGeometryElements.value as number[][][]).reduce((features: Feature[], geometry: number[][], index: number) => {
-        if (currentFeatureSegmentIndex.value === index) {
-            features.push(
-                new Feature({
-                    id: `geom-segment-${randomIntBetween(0, 100000)}`,
-                    geometry: new LineString(geometry),
-                    // flag that will be processed by the style function to change the color when the segment is selected
-                    isCurrentSegment: currentFeatureSegmentIndex.value === index,
-                })
-            )
-        }
-        return features
-    }, [])
+    return (currentGeometryElements.value as number[][][]).reduce(
+        (features: Feature[], geometry: number[][], index: number) => {
+            if (currentFeatureSegmentIndex.value === index) {
+                features.push(
+                    new Feature({
+                        id: `geom-segment-${randomIntBetween(0, 100000)}`,
+                        geometry: new LineString(geometry),
+                        // flag that will be processed by the style function to change the color when the segment is selected
+                        isCurrentSegment: currentFeatureSegmentIndex.value === index,
+                    })
+                )
+            }
+            return features
+        },
+        []
+    )
 })
 
 const southPole = point([0.0, -90.0])
@@ -103,9 +114,16 @@ const popoverCoordinate = computed((): SingleCoordinate | undefined => {
     // if we are dealing with any editable feature while drawing, we return its last coordinate
     if (isCurrentlyDrawing.value && selectedEditableFeatures.value.length > 0) {
         const [topEditableFeature] = selectedEditableFeatures.value
-        if (topEditableFeature && topEditableFeature.coordinates && topEditableFeature.coordinates.length > 0) {
-            const lastCoordinate = topEditableFeature.coordinates[topEditableFeature.coordinates.length - 1]
-            return Array.isArray(lastCoordinate) && lastCoordinate.length === 2 ? lastCoordinate as SingleCoordinate : undefined
+        if (
+            topEditableFeature &&
+            topEditableFeature.coordinates &&
+            topEditableFeature.coordinates.length > 0
+        ) {
+            const lastCoordinate =
+                topEditableFeature.coordinates[topEditableFeature.coordinates.length - 1]
+            return Array.isArray(lastCoordinate) && lastCoordinate.length === 2
+                ? (lastCoordinate as SingleCoordinate)
+                : undefined
         }
     }
     // If no editable feature is selected while drawing, we place the popover depending on the geometry of all
@@ -123,10 +141,17 @@ const popoverCoordinate = computed((): SingleCoordinate | undefined => {
             }
             const prevCoords = previousPoint.geometry?.coordinates
             const currCoords = currentPoint.geometry?.coordinates
-            if (prevCoords && currCoords && Array.isArray(prevCoords) && Array.isArray(currCoords) &&
-                prevCoords.length > 1 && currCoords.length > 1 &&
-                typeof prevCoords[1] === 'number' && typeof currCoords[1] === 'number' &&
-                prevCoords[1] > currCoords[1]) {
+            if (
+                prevCoords &&
+                currCoords &&
+                Array.isArray(prevCoords) &&
+                Array.isArray(currCoords) &&
+                prevCoords.length > 1 &&
+                currCoords.length > 1 &&
+                typeof prevCoords[1] === 'number' &&
+                typeof currCoords[1] === 'number' &&
+                prevCoords[1] > currCoords[1]
+            ) {
                 return currentPoint
             }
             return previousPoint

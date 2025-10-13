@@ -20,7 +20,10 @@ const OpenLayersDeviceOrientationDebugInfo = defineAsyncComponent(
         import('@/modules/map/components/openlayers/debug/OpenLayersDeviceOrientationDebugInfo.vue')
 )
 
-const dispatcher = { dispatcher: 'OpenLayersGeolocationFeedback.vue', name: 'OpenLayersGeolocationFeedback' }
+const dispatcher = {
+    dispatcher: 'OpenLayersGeolocationFeedback.vue',
+    name: 'OpenLayersGeolocationFeedback',
+}
 
 const olMap = inject<Map>('olMap')!
 

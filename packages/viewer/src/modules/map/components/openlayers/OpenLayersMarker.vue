@@ -35,7 +35,11 @@ const features = computed(() => {
     if (!Array.isArray(props.position)) {
         return []
     }
-    if (Array.isArray(props.position) && props.position.length === 2 && typeof props.position[0] === 'number') {
+    if (
+        Array.isArray(props.position) &&
+        props.position.length === 2 &&
+        typeof props.position[0] === 'number'
+    ) {
         const feature = featuresForPosition(props.position as SingleCoordinate, props.markerStyle)
         return feature ? [feature] : []
     }
@@ -66,7 +70,10 @@ watch(
  * @param style
  * @returns {Feature<Point>}
  */
-function featuresForPosition(position: SingleCoordinate, style: OpenLayersMarkerStyles): Feature<Point> | undefined {
+function featuresForPosition(
+    position: SingleCoordinate,
+    style: OpenLayersMarkerStyles
+): Feature<Point> | undefined {
     if (!Array.isArray(position)) {
         return undefined
     }
