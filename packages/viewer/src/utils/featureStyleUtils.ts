@@ -1,16 +1,18 @@
 import type { Color } from 'ol/color'
-import { fromString } from 'ol/color'
 import type { ColorLike, PatternDescriptor } from 'ol/colorlike'
 import type { default as Feature, FeatureLike } from 'ol/Feature'
 import type { Size } from 'ol/size'
+
+import { fromString } from 'ol/color'
 import { Fill, Stroke, Text } from 'ol/style'
 import Style from 'ol/style/Style'
 
 import type { EditableFeature } from '@/api/features.api'
+
 import { EditableFeatureTypes } from '@/api/features.api'
 import { DEFAULT_TITLE_OFFSET } from '@/api/icon.api'
-import { dashedRedStroke, whiteSketchFill } from '@/utils/styleUtils'
 import { StyleZIndex } from '@/modules/drawing/lib/style.ts'
+import { dashedRedStroke, whiteSketchFill } from '@/utils/styleUtils'
 
 /**
  * @returns CSS string describing the text shadow that must be applied when coloring a text with

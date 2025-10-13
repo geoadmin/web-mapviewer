@@ -4,7 +4,7 @@ import { reactive, watch, ref, onMounted } from 'vue'
 import { useTemplateRef } from 'vue'
 
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
-import { getLongestCommonPrefix } from '@/utils/utils.js'
+import { getLongestCommonPrefix } from '@/utils/utils'
 
 /** @enum */
 const NodeType = {

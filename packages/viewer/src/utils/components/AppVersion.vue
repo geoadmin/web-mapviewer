@@ -1,17 +1,17 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed, ref } from 'vue'
-import { useStore } from 'vuex'
 
 import { APP_VERSION } from '@/config/staging.config'
 import { GITHUB_REPOSITORY } from '@/config/staging.config'
+import useUiStore from '@/store/modules/ui.store'
 
 const cleanAppVersionRegex = /v\d+\.\d+\.\d+$/
-const store = useStore()
+const uiStore = useUiStore()
 const appVersion = ref(APP_VERSION)
 
-const isProd = computed(() => store.getters.isProductionSite)
+const isProd = computed(() => uiStore.isProductionSite)
 
-function openGithubReleaseLink() {
+function openGithubReleaseLink(): void {
     const isAppVersionClean = appVersion.value.match(cleanAppVersionRegex)
     if (!isAppVersionClean) {
         openGithubRepoLink()
@@ -19,7 +19,7 @@ function openGithubReleaseLink() {
         window.open(GITHUB_REPOSITORY + `/releases/tag/` + APP_VERSION, '_blank')
     }
 }
-function openGithubRepoLink() {
+function openGithubRepoLink(): void {
     window.open(GITHUB_REPOSITORY, '_blank')
 }
 </script>

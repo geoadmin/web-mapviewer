@@ -1,4 +1,12 @@
+import type { Directive, DirectiveBinding } from 'vue'
+
 import log from '@swissgeo/log'
+
+type ClickOutsideHandler = (event: MouseEvent) => void
+
+interface ClickOutsideElement extends HTMLElement {
+    clickOutsideEvent?: ClickOutsideHandler
+}
 
 /*
  * V-click-outside directive
@@ -31,11 +39,11 @@ import log from '@swissgeo/log'
  *          <div v-click-outside="onClickOutside"></div>
  *      </template>
  */
-const clickOutside = {
-    beforeMount: (el, binding) => {
-        el.clickOutsideEvent = (event) => {
+const clickOutside: Directive<ClickOutsideElement, ClickOutsideHandler> = {
+    beforeMount: (el: ClickOutsideElement, binding: DirectiveBinding<ClickOutsideHandler>) => {
+        el.clickOutsideEvent = (event: MouseEvent) => {
             // here I check that click was outside the el and his children
-            if (!(el === event.target || el.contains(event.target))) {
+            if (!(el === event.target || el.contains(event.target as Node))) {
                 // and if it did, call method provided in attribute value
                 if (typeof binding.value === 'function') {
                     binding.value(event)
@@ -46,8 +54,10 @@ const clickOutside = {
         }
         document.addEventListener('click', el.clickOutsideEvent)
     },
-    unmounted: (el) => {
-        document.removeEventListener('click', el.clickOutsideEvent)
+    unmounted: (el: ClickOutsideElement) => {
+        if (el.clickOutsideEvent) {
+            document.removeEventListener('click', el.clickOutsideEvent)
+        }
     },
 }
 export default clickOutside

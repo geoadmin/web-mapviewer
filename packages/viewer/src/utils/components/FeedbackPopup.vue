@@ -1,23 +1,27 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
+import useUiStore from '@/store/modules/ui.store'
 import ErrorWindow from '@/utils/components/ErrorWindow.vue'
 import WarningWindow from '@/utils/components/WarningWindow.vue'
-const store = useStore()
+
+const uiStore = useUiStore()
 const { t } = useI18n()
+
+const dispatcher = { name: 'FeedbackPopup.vue' }
+
 const error = computed(() => {
-    if (store.state.ui.errors.size > 0) {
-        return store.state.ui.errors.values().next().value
+    if (uiStore.errors.size > 0) {
+        return uiStore.errors.values().next().value
     }
-    return null
+    return undefined
 })
 const warning = computed(() => {
-    if (store.state.ui.warnings.size > 0) {
-        return store.state.ui.warnings.values().next().value
+    if (uiStore.warnings.size > 0) {
+        return uiStore.warnings.values().next().value
     }
-    return null
+    return undefined
 })
 </script>
 
@@ -26,7 +30,7 @@ const warning = computed(() => {
         <ErrorWindow
             v-if="error"
             title="error"
-            @close="store.dispatch('removeError', { error, ...dispatcher })"
+            @close="uiStore.removeError(error, dispatcher)"
         >
             <div>
                 {{ t(error.msg, error.params) }}
@@ -35,7 +39,7 @@ const warning = computed(() => {
         <WarningWindow
             v-if="warning"
             title="warning"
-            @close="store.dispatch('removeWarning', { warning, ...dispatcher })"
+            @close="uiStore.removeWarning(warning, dispatcher)"
         >
             <div>{{ t(warning.msg, warning.params) }}</div>
         </WarningWindow>

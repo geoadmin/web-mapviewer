@@ -1,12 +1,17 @@
+import type  {
+    GeoAdminLayer,
+    Layer,
+    KMLLayer,
+} from '@swissgeo/layers'
+import type { LocationQueryValue } from 'vue-router'
+
+import { KMLStyle } from '@swissgeo/layers'
+import { updateCurrentTimeEntry, layerUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
 
 import { getKmlMetadataByAdminId } from '@/api/files.api'
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
-import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import GPXLayer from '@/api/layers/GPXLayer.class'
-import KMLLayer from '@/api/layers/KMLLayer.class'
-import KmlStyles from '@/api/layers/KmlStyles.enum'
 import storeSyncConfig from '@/router/storeSync/storeSync.config'
+import useLayersStore from '@/store/modules/layers.store'
 
 const standardURLParams = storeSyncConfig.map((param) => {
     return param.urlParamName
@@ -28,9 +33,9 @@ const legacyOnlyURLParams = [
     'heading',
     'showTooltip',
 ]
-function readUrlParamValue(url, paramName) {
+function readUrlParamValue(url: string, paramName: string): string | undefined {
     if (url && paramName && url.indexOf(paramName) !== -1) {
-        const urlStartingAtParamDeclaration = url.substr(url.indexOf(paramName) + 1)
+        const urlStartingAtParamDeclaration = url.substring(url.indexOf(paramName) + 1)
         const indexOfNextParamSeparator = urlStartingAtParamDeclaration.indexOf('&')
         return urlStartingAtParamDeclaration.substring(
             paramName.length,
@@ -41,10 +46,10 @@ function readUrlParamValue(url, paramName) {
 }
 
 /**
- * @param {String} search The query made to the mapviewer
- * @returns {Boolean} True if the query starts with ? or /?
+ * @param search The query made to the mapviewer
+ * @returns True if the query starts with ? or /?
  */
-export const isLegacyParams = (search) => {
+export const isLegacyParams = (search: string | undefined): boolean => {
     return !!search?.match(/^(\?|\/\?).+$/g)
 }
 
@@ -52,17 +57,17 @@ export const isLegacyParams = (search) => {
  * Ensure opacity is within its bounds (0 and 1). Also assign a default value of 1 should the
  * parameter be something unexpected
  *
- * @param {String} value
- * @returns {Number} A float between 0 and 1
+ * @param value
+ * @returns A float between 0 and 1
  */
-export function parseOpacity(value) {
+export function parseOpacity(value: string): number {
     try {
         if (isNaN(Number(value))) {
             throw new Error()
         }
         return Math.max(Math.min(Number(value), 1), 0)
     } catch (error) {
-        log.error(`failed to parse opacity value : ${value}, default to 1`, error)
+        log.error(`failed to parse opacity value : ${value}, default to 1`, error as Error)
         return 1
     }
 }
@@ -79,22 +84,21 @@ export function parseOpacity(value) {
  * to the store (they are deep copy of what was given as layersConfig param, with opacity/visibility
  * set according to the legacyLayersParam)
  *
- * @param {GeoAdminLayer[]} layersConfig
- * @param {String} layers A string containing all layers ids
- * @param {String} legacyVisibilities A string containing the visibility value for each layer
- * @param {String} legacyOpacities A string containing the opacity value for each layer
- * @param {String} legacyTimestamp A string containing the timestamp or year for each time enabled
- *   layer
- * @returns {AbstractLayer[]}
+ * @param layersConfig
+ * @param layers A string containing all layers ids
+ * @param legacyVisibilities A string containing the visibility value for each layer
+ * @param legacyOpacities A string containing the opacity value for each layer
+ * @param legacyTimestamp A string containing the timestamp or year for each time enabled layer
+ * @returns
  */
 export function getLayersFromLegacyUrlParams(
-    layersConfig,
-    layers,
-    legacyVisibilities,
-    legacyOpacities,
-    legacyTimestamp
-) {
-    const layersToBeActivated = []
+    layersConfig: GeoAdminLayer[],
+    layers?: string,
+    legacyVisibilities?: string,
+    legacyOpacities?: string,
+    legacyTimestamp?: string
+): Layer[] {
+    const layersToBeActivated: Layer[] = []
     // In the case these parameters are not defined, we ensure we have empty arrays rather than
     // 'undefined' elements. Since the function is also called in `topics.api.js`, it can be called
     // with a completely empty string.
@@ -103,33 +107,33 @@ export function getLayersFromLegacyUrlParams(
     const layerVisibilities = legacyVisibilities?.split(',') ?? []
     const layerTimestamps = legacyTimestamp?.split(',') ?? []
     layersIds.forEach((layerId, index) => {
-        let layer = layersConfig.find((layer) => layer.id === layerId)
+        let layer: Layer | undefined = layersConfig.find((layer) => layer.id === layerId)
         // if this layer can be found in the list of GeoAdminLayers (from the config), we use that as the basis
         // to add it to the map
         if (layer) {
             // we can't modify "layer" straight because it comes from the Vuex state, so we deep copy it
             // in order to alter it before returning it
-            layer = layer.clone()
+            layer = { ...layer }
         }
         if (layerId.startsWith('KML||')) {
             const [_layerType, url] = layerId.split('||')
-            layer = new KMLLayer({ kmlFileUrl: url, visible: true, style: KmlStyles.GEOADMIN })
+            layer = layerUtils.makeKMLLayer({ kmlFileUrl: url, isVisible: true, style: KMLStyle.GEOADMIN })
         }
         if (layerId.startsWith('GPX||')) {
             const [_layerType, url] = layerId.split('||')
-            layer = new GPXLayer({ gpxFileUrl: url, visible: true })
+            layer = layerUtils.makeGPXLayer({ gpxFileUrl: url, isVisible: true })
         }
         if (layerId.startsWith('WMTS||')) {
             const [_layerType, id, url] = layerId.split('||')
             if (layerId && url) {
-                layer = new ExternalWMTSLayer({ name: id, baseUrl: url, id })
+                layer = layerUtils.makeExternalWMTSLayer({ name: id, baseUrl: url, id })
             }
         }
         if (layerId.startsWith('WMS||')) {
             const [_layerType, name, url, id, version] = layerId.split('||')
             // we only decode if we have enough material
             if (url && id) {
-                const customAttributes = {}
+                const customAttributes: Record<string, string> = {}
                 try {
                     const parsedUrl = new URL(url)
                     for (const [key, value] of parsedUrl.searchParams) {
@@ -139,32 +143,42 @@ export function getLayersFromLegacyUrlParams(
                         }
                     }
                 } catch (error) {
-                    log.error(`Invalid URL ${url}`, error)
+                    log.error(`Invalid URL ${url}`, error as Error)
                 }
-                layer = new ExternalWMSLayer({
+                layer = layerUtils.makeExternalWMSLayer({
                     id,
                     name: name ? name : id,
                     baseUrl: url,
                     wmsVersion: version,
                     customAttributes,
+                    wmsOperations: {
+                        GetCapabilities: {
+                            DCPType: [{ HTTP: { Get: { OnlineResource: url } } }],
+                            Format: ['text/xml']
+                        },
+                        GetMap: {
+                            DCPType: [{ HTTP: { Get: { OnlineResource: url } } }],
+                            Format: ['image/png', 'image/jpeg']
+                        }
+                    }
                 })
             }
         }
         if (layer) {
             // checking if visibility is set in URL
             if (layerVisibilities.length > index) {
-                layer.visible = layerVisibilities[index] === 'true'
+                layer.isVisible = layerVisibilities[index] === 'true'
             } else {
                 // if param layers_visibility is not present, it means all layers are visible
-                layer.visible = true
+                layer.isVisible = true
             }
             // checking if opacity is set in the URL
             if (layerOpacities.length > index) {
-                layer.opacity = layerOpacities[index]
+                layer.opacity = layerOpacities[index] ?? 0
             }
             // checking if a timestamp is defined for this layer
             if (layerTimestamps.length > index && layerTimestamps[index] !== '') {
-                layer.timeConfig.updateCurrentTimeEntry(layerTimestamps[index])
+                updateCurrentTimeEntry(layer.timeConfig, layerTimestamps[index])
             }
             layersToBeActivated.push(layer)
         }
@@ -179,12 +193,15 @@ export function getLayersFromLegacyUrlParams(
  *
  * If no "bgLayer" param is present in the URL, `undefined` is returned
  *
- * @param {GeoAdminLayer[]} layersConfig
- * @param {String} legacyUrlParams
- * @returns {null | undefined | GeoAdminLayer} The background layer defined in the URL (`null` for
- *   void layer, `undefined` if nothing is set in the URL)
+ * @param layersConfig
+ * @param legacyUrlParams
+ * @returns The background layer defined in the URL (`null` for void layer, `undefined` if nothing
+ *   is set in the URL)
  */
-export function getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlParams) {
+export function getBackgroundLayerFromLegacyUrlParams(
+    layersConfig: GeoAdminLayer[],
+    legacyUrlParams: string
+): string | null | undefined {
     if (Array.isArray(layersConfig) && typeof legacyUrlParams === 'string') {
         const bgLayerId = readUrlParamValue(legacyUrlParams, 'bgLayer')
         if (bgLayerId === 'voidLayer') {
@@ -198,14 +215,14 @@ export function getBackgroundLayerFromLegacyUrlParams(layersConfig, legacyUrlPar
 /**
  * Returns a KML Layer from the legacy adminId url param.
  *
- * @param {String} adminId KML admin ID
- * @returns {Promise<KMLLayer>} KML Layer
+ * @param adminId KML admin ID
+ * @returns KML Layer
  */
-export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
+export async function getKmlLayerFromLegacyAdminIdParam(adminId: string): Promise<KMLLayer> {
     const kmlMetadata = await getKmlMetadataByAdminId(adminId)
-    return new KMLLayer({
+    return layerUtils.makeKMLLayer({
         kmlFileUrl: kmlMetadata.links.kml,
-        visible: true,
+        isVisible: true,
         adminId: kmlMetadata.adminId,
         kmlMetadata,
     })
@@ -217,50 +234,60 @@ export async function getKmlLayerFromLegacyAdminIdParam(adminId) {
  * layers param if it exists and the layer is not part of it, or we need to insert the features to
  * the existing layer
  *
- * @param {URLSearchParams} params The parameters sent to the legacy router
- * @param {Store} store
- * @param {Query} newQuery
+ * @param params The parameters sent to the legacy router
+ * @param newQuery
  */
-export function handleLegacyFeaturePreSelectionParam(params, store, newQuery) {
+export function handleLegacyFeaturePreSelectionParam(
+    params: URLSearchParams,
+    newQuery: Record<string, LocationQueryValue | LocationQueryValue[]>
+): void {
+    const layersStore = useLayersStore()
+
     // we begin by removing all params that are either a standard URL param, or a
     // legacy specific param
     const relevantParams = Object.entries(Object.fromEntries(params)).filter(
         ([key]) => !(standardURLParams.includes(key) || legacyOnlyURLParams.includes(key))
     )
     relevantParams
-        .filter(([key]) => store.state.layers.config.some((layer) => layer.id === key))
+        .filter(([key]) => layersStore.config.some((layer: GeoAdminLayer) => layer.id === key))
         .forEach(([layerId, featuresIds]) => {
             // we only iterate on layers
-            if (newQuery.layers?.match(new RegExp(`\\b${layerId}\\b`))) {
+            const currentLayers = (newQuery.layers as string) ?? ''
+            if (currentLayers.match(new RegExp(`\\b${layerId}\\b`))) {
                 // the layer given as key is also in the query 'layers'
                 // we need to ensure all params are kept intact
                 newQuery.layers = createLayersParamForFeaturePreselection(
                     layerId,
                     featuresIds,
-                    newQuery.layers
+                    currentLayers
                 )
             } else {
                 // the layer is not yet part of the `layers` parameter
-                if (!newQuery.layers) {
+                let layersString = currentLayers
+                if (!layersString) {
                     // if there are no layers parameters at all, we need to create one
-                    newQuery.layers = ''
+                    layersString = ''
                 }
-                if (newQuery.layers.length > 0) {
-                    newQuery.layers += ';'
+                if (layersString.length > 0) {
+                    layersString += ';'
                 }
-                newQuery.layers += `${layerId}@features=${featuresIds.split(',').join(':')}`
+                layersString += `${layerId}@features=${featuresIds.split(',').join(':')}`
+                newQuery.layers = layersString
             }
         })
 }
 
 /**
- * @param {String} layerId The layer Id for which we have features
- * @param {String} featuresIds The features ids we need to add as a parameter. This a coma-separated
- *   string
- * @param {String} layers The new Query layers parameter, a semicolon separated string
+ * @param layerId The layer Id for which we have features
+ * @param featuresIds The features ids we need to add as a parameter. This a coma-separated string
+ * @param layers The new Query layers parameter, a semicolon separated string
  * @returns
  */
-export function createLayersParamForFeaturePreselection(layerId, featuresIds, layers) {
+export function createLayersParamForFeaturePreselection(
+    layerId: string,
+    featuresIds: string,
+    layers: string
+): string {
     // if the features Ids are null, we replace them with an empty array
     // we also remove all empty strings from the featuresIds
     const featuresArray = (featuresIds ? featuresIds.split(',') : []).filter(
@@ -275,18 +302,23 @@ export function createLayersParamForFeaturePreselection(layerId, featuresIds, la
     // we find the Layer which is already present
     const layer = layersArray.find((l) => l.match(new RegExp(`^${layerId}([@,].*)?$`)))
 
-    const [layerIdWithCustomParams, visible, opacity] = layer.split(',')
+    if (!layer) {
+        return layers
+    }
+
+    const [layerIdWithCustomParams = '', visible, opacity] = layer.split(',')
 
     let layerString = layerIdWithCustomParams
     const featuresParam = layerIdWithCustomParams
         .split('@')
         .filter((extraParam) => extraParam.includes('features='))
-    if (featuresParam.length > 0) {
+    if (featuresParam.length > 0 && featuresParam[0]) {
         const layerAndParams = layerIdWithCustomParams.split('@')
         // in case there are extra parameters other than 'features', we ensure they are kept
         layerString = layerAndParams.filter((param) => !param.includes('features=')).join('@')
 
-        const featuresIds = featuresParam[0].split('=')[1].split(':')
+        const featuresParts = featuresParam[0].split('=')
+        const featuresIds = (featuresParts[1] ?? '').split(':')
         featuresIds.forEach((featureId) => {
             if (!featuresArray.includes(featureId)) {
                 featuresArray.push(featureId)

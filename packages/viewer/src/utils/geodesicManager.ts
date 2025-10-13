@@ -1,3 +1,8 @@
+import type { CoordinateSystem } from '@swissgeo/coordinates'
+import type { Extent } from 'ol/extent'
+import type Feature from 'ol/Feature'
+import type { Geometry } from 'ol/geom'
+
 import { WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import { Geodesic, Math as geographicMath, PolygonArea } from 'geographiclib-geodesic'
@@ -21,23 +26,29 @@ const geod = Geodesic.WGS84
 [-HALF_SIZE, -HALF_SIZE, HALF_SIZE, HALF_SIZE] in webmercator */
 export const HALFSIZE_WEBMERCATOR = Math.PI * 6378137
 
+interface PolygonAreaResult {
+    area: number
+    perimeter: number
+}
+
 /**
  * Calculate the area and perimeter of a polygon using the GeographicLib library
  *
- * @param {number[][]} coords - An array of coordinates representing the polygon. The coordinates
- *   should be in the format [[longitude, latitude], [longitude, latitude], ...].
- * @param {Boolean} isPolyline Tells if the given coords are describing a polyline (unclosed
- *   polygon) or a polygon. If true is given, the length will be calculated (instead of area)
- * @returns {Object} An object containing the calculated area and perimeter of the polygon.
- * @returns {number} Return.area - The calculated area of the polygon in square meters.
- * @returns {number} Return.perimeter - The calculated perimeter of the polygon in meters.
+ * @param coords - An array of coordinates representing the polygon. The coordinates should be in
+ *   the format [[longitude, latitude], [longitude, latitude], ...].
+ * @param isPolyline Tells if the given coords are describing a polyline (unclosed polygon) or a
+ *   polygon. If true is given, the length will be calculated (instead of area)
+ * @returns An object containing the calculated area and perimeter of the polygon.
  */
-export function computePolygonPerimeterArea(coords, isPolyline = false) {
+export function computePolygonPerimeterArea(
+    coords: number[][],
+    isPolyline = false
+): PolygonAreaResult {
     const geodesicPolygon = new PolygonArea.PolygonArea(geod, isPolyline)
     for (const coord of coords) {
-        geodesicPolygon.AddPoint(coord[1], coord[0])
+        geodesicPolygon.AddPoint(coord[1]!, coord[0]!)
     }
-    const result = geodesicPolygon.Compute(false, true)
+    const result = geodesicPolygon.Compute(false, true) as PolygonAreaResult
     result.area = Math.abs(result.area)
     return result
 }
@@ -95,7 +106,29 @@ export function computePolygonPerimeterArea(coords, isPolyline = false) {
  * @property {Style} azimuthCircleStyle Style for the azimuth circle
  */
 export class GeodesicGeometries {
-    constructor(feature, projection) {
+    feature: Feature<Geometry>
+    projection: CoordinateSystem
+    featureRevision: number
+    geom!: Polygon | LineString
+    coords!: number[][]
+    isDrawing!: boolean
+    isPolygon!: boolean
+    hasAzimuthCircle!: boolean
+    stylesReady!: boolean
+    extent!: Extent
+    totalLength!: number
+    totalArea!: number
+    rotation?: number
+    resolution!: number
+    geodesicCoords!: AutoSplitArray
+    geodesicGeom!: MultiLineString
+    geodesicPolygonGeom!: MultiPolygon | null
+    measurePoints!: MeasureStyles
+    subsegmentRTrees!: RBush<number[][]>[]
+    azimuthCircle?: MultiLineString
+    azimuthCircleStyle?: Style
+
+    constructor(feature: Feature<Geometry>, projection: CoordinateSystem) {
         this.feature = feature
         this.projection = projection
         this.featureRevision = feature.getRevision()
@@ -112,8 +145,7 @@ export class GeodesicGeometries {
     }
 
     _calculateEverything() {
-        this.geom = this.feature.getGeometry().clone().transform(this.projection.epsg, WGS84.epsg)
-        this.coords = this.geom.getCoordinates()
+        this.geom = this.feature.getGeometry()!.clone().transform(this.projection.epsg, WGS84.epsg) as Polygon | LineString
         this.isDrawing = this.feature.get('isDrawing')
         this.isPolygon = false
         if (this.geom instanceof Polygon) {
@@ -122,7 +154,7 @@ export class GeodesicGeometries {
             if (this.geom.getCoordinates().length > 1) {
                 log.error(`Multi Polygon not supported in geodesic manager`)
             }
-            this.coords = this.geom.getCoordinates()[0]
+            this.coords = this.geom.getCoordinates()[0] as number[][]
             if (this.isDrawing) {
                 // When starting the drawing mode, it uses always Polygon. The polygon
                 // will be converted if needed to a LineString when the drawing mode is ended.
@@ -135,6 +167,8 @@ export class GeodesicGeometries {
             } else {
                 this.isPolygon = true
             }
+        } else {
+            this.coords = this.geom.getCoordinates() as number[][]
         }
         // The azimuth circle is only for non polygon and if we have two points.
         // If we have 3 points check that the last two points are different otherwise also
@@ -143,11 +177,15 @@ export class GeodesicGeometries {
             !this.isPolygon &&
             (this.coords.length === 2 ||
                 (this.coords.length === 3 &&
+                    this.coords[1] !== undefined &&
+                    this.coords[2] !== undefined &&
                     this.coords[1][0] === this.coords[2][0] &&
                     this.coords[1][1] === this.coords[2][1]))
         this.stylesReady = !(
             this.coords.length < 2 ||
             (this.coords.length === 2 &&
+                this.coords[0] !== undefined &&
+                this.coords[1] !== undefined &&
                 this.coords[0][0] === this.coords[1][0] &&
                 this.coords[0][1] === this.coords[1][1])
         )
@@ -160,14 +198,14 @@ export class GeodesicGeometries {
 
         // Overwrites public method getExtent of the feature to include the whole geodesic geometry.
         this.extent = createOrUpdateFromFlatCoordinates(
-            this.geodesicGeom.flatCoordinates,
+            this.geodesicGeom.getFlatCoordinates(),
             0,
-            this.geodesicGeom.flatCoordinates.length,
-            this.geodesicGeom.stride,
+            this.geodesicGeom.getFlatCoordinates().length,
+            this.geodesicGeom.getStride(),
             this.extent
         )
         this.extent = bufferExtent(this.extent, 0.0001, this.extent) //account for imprecisions in the calculation
-        this.feature.getGeometry().getExtent = (extent) => {
+        this.feature.getGeometry()!.getExtent = (extent?: Extent) => {
             this._update()
             return returnOrUpdate(this.extent, extent)
         }
@@ -180,10 +218,10 @@ export class GeodesicGeometries {
         this.totalArea = res.area
         if (this.hasAzimuthCircle) {
             const geodesicLine = geod.InverseLine(
-                this.coords[0][1],
-                this.coords[0][0],
-                this.coords[1][1],
-                this.coords[1][0]
+                (this.coords[0]?.[1] ?? 0),
+                (this.coords[0]?.[0] ?? 0),
+                (this.coords[1]?.[1] ?? 0),
+                (this.coords[1]?.[0] ?? 0)
             )
             this.rotation = geodesicLine.azi1 < 0 ? geodesicLine.azi1 + 360 : geodesicLine.azi1
         }
@@ -220,20 +258,25 @@ export class GeodesicGeometries {
         let currentDistance = 0
         const measurePoints = new MeasureStyles(this.resolution, this.projection.epsg)
         const geodesicCoords = new AutoSplitArray(this.projection.epsg)
-        const segments = []
+        const segments: number[][][] = []
         for (let i = 0; i < this.coords.length - 1; i++) {
-            const from = coordNormalize(this.coords[i])
-            const to = coordNormalize(this.coords[i + 1])
+            const from = coordNormalize(this.coords[i]!)
+            const to = coordNormalize(this.coords[i + 1]!)
             segments[i] = []
             geodesicCoords.autoPush(from, true)
-            const geodesicLine = geod.InverseLine(from[1], from[0], to[1], to[0])
+            const geodesicLine = geod.InverseLine(
+                from[1] ?? 0,
+                from[0] ?? 0,
+                to[1] ?? 0,
+                to[0] ?? 0
+            )
             let length = geodesicLine.s13
             let distToPoint = 0
             while ((currentDistance % this.resolution) + length >= this.resolution) {
                 const partialLength = this.resolution - (currentDistance % this.resolution)
                 distToPoint += partialLength
                 const positionCalcRes = geodesicLine.Position(distToPoint)
-                const pos = [positionCalcRes.lon2, positionCalcRes.lat2]
+                const pos = [positionCalcRes.lon2 as number, positionCalcRes.lat2 as number]
                 currentDistance += partialLength
                 length -= partialLength
                 if (geodesicLine.s13 >= 1000) geodesicCoords.autoPush(pos)
@@ -242,15 +285,15 @@ export class GeodesicGeometries {
             currentDistance += length
         }
         if (this.coords.length) {
-            geodesicCoords.autoPush(coordNormalize(this.coords[this.coords.length - 1]))
+            geodesicCoords.autoPush(coordNormalize(this.coords[this.coords.length - 1]!))
         }
 
-        const subsegmentRTrees = []
+        const subsegmentRTrees: RBush<number[][]>[] = []
         for (let i = 0; i < geodesicCoords.subsegments.length; i++) {
             subsegmentRTrees[i] = new RBush()
-            subsegmentRTrees[i].load(
-                geodesicCoords.subsegmentExtents[i],
-                geodesicCoords.subsegments[i]
+            subsegmentRTrees[i]!.load(
+                geodesicCoords.subsegmentExtents[i]!,
+                geodesicCoords.subsegments[i]!
             )
         }
 
@@ -268,13 +311,13 @@ export class GeodesicGeometries {
             const circleCoords = new AutoSplitArray(this.projection.epsg)
             for (let i = 0; i <= nbPoints; i++) {
                 const res = geod.Direct(
-                    this.coords[0][1],
-                    this.coords[0][0],
+                    this.coords[0]![1]!,
+                    this.coords[0]![0]!,
                     //Adding "this.rotation" to be sure that the line meets the circle perfectly
-                    arcLength * i + this.rotation,
+                    arcLength * i + (this.rotation ?? 0),
                     this.totalLength
                 )
-                circleCoords.autoPush({ lon: res.lon2, lat: res.lat2 })
+                circleCoords.autoPush({ lon: res.lon2!, lat: res.lat2! })
             }
             this.azimuthCircle = circleCoords.generateGeom()
             this.azimuthCircleStyle = new Style({
@@ -307,34 +350,34 @@ export class GeodesicGeometries {
     /**
      * Get the extent of the specified segment. The segmentIndex must be valid!
      *
-     * @param {number} segmentIndex
-     * @returns {Extent}
+     * @param segmentIndex
+     * @returns
      */
-    getSegmentExtent(segmentIndex) {
+    getSegmentExtent(segmentIndex: number): Extent {
         this._update()
-        let extent = this.subsegmentRTrees[segmentIndex].getExtent()
+        const extent = this.subsegmentRTrees[segmentIndex]!.getExtent()
         return bufferExtent(extent, 0.0001, extent)
     }
 
     /**
      * Get all subsegments that are inside the specified extent. The segmentIndex must be valid!
      *
-     * @param {number} segmentIndex
-     * @param {Extent} extent
-     * @returns {[[number]]}
+     * @param segmentIndex
+     * @param extent
+     * @returns
      */
-    getSubsegments(segmentIndex, extent) {
+    getSubsegments(segmentIndex: number, extent: Extent): unknown[] {
         this._update()
-        return this.subsegmentRTrees[segmentIndex].getInExtent(extent)
+        return this.subsegmentRTrees[segmentIndex]!.getInExtent(extent)
     }
 
     /**
      * Get an array of styles for the measure feature
      *
-     * @param {number} resolution The resolution of the map in equatorial meters / pixel
-     * @returns {[Style]}
+     * @param resolution The resolution of the map in equatorial meters / pixel
+     * @returns
      */
-    getMeasureStyles(resolution) {
+    getMeasureStyles(resolution: number): Style[] {
         this._update()
         if (!this.stylesReady) {
             return []
@@ -342,17 +385,19 @@ export class GeodesicGeometries {
         //Measure points
         const styles = this.measurePoints.getStyles(resolution)
         //Azimuth circle
-        if (this.hasAzimuthCircle) styles.push(this.azimuthCircleStyle)
+        if (this.hasAzimuthCircle && this.azimuthCircleStyle) {
+            styles.push(this.azimuthCircleStyle)
+        }
         //Total length tooltip
         let lengthText = formatMeters(this.totalLength)
-        if (this.hasAzimuthCircle) {
+        if (this.hasAzimuthCircle && this.rotation !== undefined) {
             lengthText = formatAngle(this.rotation) + ' / ' + lengthText
         }
         styles.push(
             new Style({
                 image: tooltipArrow,
                 text: getTooltipTextBox(lengthText),
-                geometry: new Point(coordNormalize(this.coords[this.coords.length - 1])).transform(
+                geometry: new Point(coordNormalize(this.coords[this.coords.length - 1]!)).transform(
                     WGS84.epsg,
                     this.projection.epsg
                 ),
@@ -370,7 +415,7 @@ export class GeodesicGeometries {
                         color: [255, 0, 0, 0.0],
                     }),
                 }),
-                geometry: new Point(coordNormalize(this.coords[this.coords.length - 1])).transform(
+                geometry: new Point(coordNormalize(this.coords[this.coords.length - 1]!)).transform(
                     WGS84.epsg,
                     this.projection.epsg
                 ),
@@ -396,20 +441,27 @@ export class GeodesicGeometries {
     }
 }
 
-function coordNormalize(coord) {
-    if (Array.isArray(coord)) {
-        coord = { lon: coord[0], lat: coord[1] }
-    }
-    return [geographicMath.AngNormalize(coord.lon), coord.lat]
+interface CoordObject {
+    lon: number
+    lat: number
 }
 
-export function segmentExtent(feature, segmentIndex) {
+function coordNormalize(coord: number[] | CoordObject): number[] {
+    if (Array.isArray(coord) && coord.length === 2) {
+        coord = { lon: coord[0]!, lat: coord[1]! }
+        return [geographicMath.AngNormalize(coord.lon), coord.lat]
+    } else {
+         throw new Error('Invalid coordinate input: expected [lon, lat] array or CoordObject')
+    }
+}
+
+export function segmentExtent(feature: Feature<Geometry>, segmentIndex: number): Extent | undefined {
     if (feature.get('geodesic')) {
         return feature.get('geodesic').getSegmentExtent(segmentIndex)
     }
 }
 
-export function subsegments(feature, segmentIndex, viewExtent) {
+export function subsegments(feature: Feature<Geometry>, segmentIndex: number, viewExtent: Extent): number[][] | undefined {
     if (feature.get('geodesic')) {
         return feature.get('geodesic').getSubsegments(segmentIndex, viewExtent)
     }
@@ -436,7 +488,7 @@ const tooltipArrow = new RegularShape({
     displacement: [0, 10],
 })
 
-const getTooltipTextBox = (text) =>
+const getTooltipTextBox = (text: string) =>
     new Text({
         text: text,
         font: 'normal 12px Helvetica',
@@ -469,7 +521,13 @@ const getTooltipTextBox = (text) =>
  * display these points on the line.
  */
 class MeasureStyles {
-    constructor(resolution, epsg) {
+    resolution: number
+    epsg: string
+    top10Styles: Style[]
+    top100Styles: Style[]
+    styles: Style[]
+
+    constructor(resolution: number, epsg: string) {
         this.resolution = resolution
         this.epsg = epsg
         this.top10Styles = []
@@ -480,10 +538,10 @@ class MeasureStyles {
     /**
      * Push a new point
      *
-     * @param {any} pos Coordinate of the point in the format [lon, lat]
-     * @param {any} dist Distance of that point from the beginning
+     * @param pos Coordinate of the point in the format [lon, lat]
+     * @param dist Distance of that point from the beginning
      */
-    push(pos, dist) {
+    push(pos: number[], dist: number): void {
         const style = this._createMeasureStyle(pos, dist)
         this.styles.push(style)
         if (this.styles.length % 10 === 0) {
@@ -494,7 +552,7 @@ class MeasureStyles {
         }
     }
 
-    _createMeasureStyle(point, dist) {
+    _createMeasureStyle(point: number[], dist: number): Style {
         return new Style({
             image: circleStyle,
             text: new Text({
@@ -518,10 +576,10 @@ class MeasureStyles {
     /**
      * Get the styles
      *
-     * @param {number} resolution The resolution of the map in equatorial meters / pixel
-     * @returns {[Style]} An array of styles with more or less points depending on the zoom level
+     * @param resolution The resolution of the map in equatorial meters / pixel
+     * @returns An array of styles with more or less points depending on the zoom level
      */
-    getStyles(resolution) {
+    getStyles(resolution: number): Style[] {
         // Minimal distance in meters between each measure point (real meters / measure point)
         const distRepeat = resolution * 60 // i.e. minimal distance of 60 equatorial pixels
         const ratio = distRepeat / this.resolution
@@ -543,7 +601,17 @@ class MeasureStyles {
  * - As a list of subsegments
  */
 class AutoSplitArray {
-    constructor(epsg) {
+    epsg: string
+    lastCoord: CoordObject | null
+    lineStrNr: number
+    lineStrings: number[][][]
+    subsegments: number[][][][]
+    subsegmentExtents: Extent[][]
+    segmentNr: number
+    polygons: Record<string, number[][]>
+    worldNr: number
+
+    constructor(epsg: string) {
         this.epsg = epsg
         this.lastCoord = null
 
@@ -561,34 +629,37 @@ class AutoSplitArray {
     /**
      * Pushes a new Point
      *
-     * @param {[number] | Object} point The point to push
-     * @param {[[number]]} newSegment True if this vertex is the binding vertex of two segments
+     * @param point The point to push
+     * @param newSegment True if this vertex is the binding vertex of two segments
      */
-    autoPush(point, newSegment) {
+    autoPush(point: number[] | CoordObject, newSegment?: boolean): void {
         if (newSegment) {
             this.segmentNr++
         }
+        let coordObj: CoordObject
         if (Array.isArray(point)) {
-            point = { lon: point[0], lat: point[1] }
+            coordObj = { lon: point[0]!, lat: point[1]! }
+        } else {
+            coordObj = point
         }
         if (this.lastCoord && 180 - Math.abs(this.lastCoord.lon) < 40) {
-            if (point.lon < 0 && this.lastCoord.lon > 0) {
-                this._push(point, 1)
+            if (coordObj.lon < 0 && this.lastCoord.lon > 0) {
+                this._push(coordObj, 1)
                 this.lineStrings[++this.lineStrNr] = []
-            } else if (point.lon > 0 && this.lastCoord.lon < 0) {
-                this._push(point, -1)
+            } else if (coordObj.lon > 0 && this.lastCoord.lon < 0) {
+                this._push(coordObj, -1)
                 this.lineStrings[++this.lineStrNr] = []
             }
         }
-        this._push(point)
-        this.lastCoord = point
+        this._push(coordObj)
+        this.lastCoord = coordObj
     }
-    _push(point, offset = 0) {
+    _push(point: CoordObject, offset = 0): void {
         const coord = [point.lon + offset * 360, point.lat]
         const polygonId = 'polygon_' + this.worldNr
         this.worldNr += offset
         //Push to lineString (border of the shape)
-        this.lineStrings[this.lineStrNr].push(coord)
+        this.lineStrings[this.lineStrNr]!.push(coord)
         //Push to polygons (To color the area of the shape)
         if (this.polygons[polygonId] === undefined) {
             this.polygons[polygonId] = []
@@ -596,38 +667,38 @@ class AutoSplitArray {
         this.polygons[polygonId].push(coord)
         /* Push to subsegments (Used to calculate distances form mouse cursor to shape and to
         calculate the extent of each segment and subsegment) */
-        if (this.segmentNr >= 0 && this.lineStrings[this.lineStrNr].length > 1) {
-            const lastCoord = [this.lastCoord.lon, this.lastCoord.lat]
-            let subsegment = [
+        if (this.segmentNr >= 0 && this.lineStrings[this.lineStrNr]!.length > 1) {
+            const lastCoord = [this.lastCoord!.lon, this.lastCoord!.lat]
+            const subsegment = [
                 proj4(WGS84.epsg, this.epsg, lastCoord),
                 proj4(WGS84.epsg, this.epsg, coord),
             ]
-            subsegment[1][0] += offset * 2 * HALFSIZE_WEBMERCATOR
+            subsegment[1]![0]! += offset * 2 * HALFSIZE_WEBMERCATOR
             const subsegmentExtent = boundingExtent(subsegment)
             if (!this.subsegments[this.segmentNr]) {
                 if (this.segmentNr > 0) {
-                    this.subsegments[this.segmentNr - 1].push(subsegment)
-                    this.subsegmentExtents[this.segmentNr - 1].push(subsegmentExtent)
+                    this.subsegments[this.segmentNr - 1]!.push(subsegment)
+                    this.subsegmentExtents[this.segmentNr - 1]!.push(subsegmentExtent)
                 }
                 this.subsegments[this.segmentNr] = []
                 this.subsegmentExtents[this.segmentNr] = []
             } else {
-                this.subsegments[this.segmentNr].push(subsegment)
-                this.subsegmentExtents[this.segmentNr].push(subsegmentExtent)
+                this.subsegments[this.segmentNr]!.push(subsegment)
+                this.subsegmentExtents[this.segmentNr]!.push(subsegmentExtent)
             }
         }
     }
-    generateGeom() {
-        if (this.lineStrings[this.lineStrNr].length <= 1) {
+    generateGeom(): MultiLineString {
+        if (this.lineStrings[this.lineStrNr]!.length <= 1) {
             this.lineStrings.pop()
         }
         return new MultiLineString(this.lineStrings).transform(WGS84.epsg, this.epsg)
     }
     /**
-     * @param {GeodesicGeometries} geodesic
-     * @returns {MultiPolygon | null}
+     * @param geodesic
+     * @returns
      */
-    generatePolygonGeom(geodesic) {
+    generatePolygonGeom(geodesic: GeodesicGeometries): MultiPolygon | null {
         if (
             (!geodesic.isDrawing && !geodesic.isPolygon) ||
             (geodesic.isDrawing && this.lineStrNr === 1) ||
@@ -640,15 +711,15 @@ class AutoSplitArray {
         }
         return new MultiPolygon(
             Object.values(this.polygons).map((coords) => {
-                const first = coords[0]
+                const first = coords[0]!
                 if (this.lineStrNr === 1) {
                     /* The polygon goes through north or south pol. The coloring will be correct as
                     long as the shape is not too complex (no overlapping) */
                     if (coords.length <= 1) return [coords]
-                    const last = coords[coords.length - 1]
+                    const last = coords[coords.length - 1]!
                     // Drawing at 90deg breaks things, thats why we stop at 89
                     const lat = geographicMath.copysign(89, this.worldNr * geodesic.totalArea)
-                    coords.push([last[0], lat], [first[0], lat])
+                    coords.push([last[0]!, lat], [first[0]!, lat])
                 }
                 coords.push(first)
                 return [coords]

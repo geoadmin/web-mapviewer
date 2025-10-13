@@ -1,3 +1,6 @@
+import type { Extent } from 'ol/extent'
+import type { Geometry } from 'ol/geom'
+
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 import { Feature } from 'ol'
 import { LineString, MultiLineString, MultiPolygon } from 'ol/geom'
@@ -6,38 +9,46 @@ import { describe, expect, it } from 'vitest'
 
 import { GeodesicGeometries, HALFSIZE_WEBMERCATOR } from '@/utils/geodesicManager'
 
-function constructGeodLineString(...coords) {
-    const feature = new Feature(new LineString(coords))
+interface ExpectedResults {
+    geodesicGeom: number[][][]
+    geodesicPolygonGeom?: number[][][] | undefined
+    maxStyles: number
+    minStyles: number
+    segmentExtents: Extent[]
+}
+
+function constructGeodLineString(...coords: number[][]): GeodesicGeometries {
+    const feature = new Feature<Geometry>(new LineString(coords))
     feature.set('isDrawing', true)
     return new GeodesicGeometries(feature, WEBMERCATOR)
 }
 
-function checkCoordsEqual(coords1, coords2, precision) {
+function checkCoordsEqual(coords1: number[][], coords2: number[][], precision?: number): void {
     expect(coords1).to.have.length(coords2.length)
     coords1.forEach((coord, i) => {
         expect(coord).to.have.length(2)
         expect(coords2[i]).to.have.length(2)
-        expect(coord[0]).to.be.closeTo(coords2[i][0], precision ?? 0.0001)
-        expect(coord[1]).to.be.closeTo(coords2[i][1], precision ?? 0.0001)
+        expect(coord[0]).to.be.closeTo(coords2[i]![0]!, precision ?? 0.0001)
+        expect(coord[1]).to.be.closeTo(coords2[i]![1]!, precision ?? 0.0001)
     })
 }
 
-function checkExtentEqual(extent, extent2) {
+function checkExtentEqual(extent: Extent, extent2: Extent): void {
     expect(extent).to.have.length(4) //minX, minY, maxX, maxY
     for (let i = 0; i < 4; i++) {
         // not so high precision as we also append a buffer to each extent
-        expect(extent[i]).to.be.closeTo(extent2[i], 0.01)
+        expect(extent[i]).to.be.closeTo(extent2[i]!, 0.01)
     }
 }
 
-function validateResults(geodesic, exp) {
+function validateResults(geodesic: GeodesicGeometries, exp: ExpectedResults): void {
     // Validate geodesicGeom
     const geom = geodesic.getGeodesicGeom()
     expect(geom).to.be.instanceOf(MultiLineString)
     expect(geom.getCoordinates()).to.have.length(exp.geodesicGeom.length)
     for (let i = 0; i < exp.geodesicGeom.length; i++) {
-        expect(geom.getCoordinates()[i]).to.have.length(exp.geodesicGeom[i].length)
-        checkCoordsEqual(geom.getCoordinates()[i], exp.geodesicGeom[i])
+        expect(geom.getCoordinates()[i]!).to.have.length(exp.geodesicGeom[i]!.length)
+        checkCoordsEqual(geom.getCoordinates()[i]!, exp.geodesicGeom[i]!)
     }
 
     // Validate geodesicPolygonGeom
@@ -46,13 +57,13 @@ function validateResults(geodesic, exp) {
         exp.geodesicPolygonGeom === undefined ? exp.geodesicGeom : exp.geodesicPolygonGeom
     if (expPolygonGeom) {
         expect(polygonGeom).to.be.instanceOf(MultiPolygon)
-        expect(polygonGeom.getCoordinates()).to.have.length(expPolygonGeom.length) // nb polygons
+        expect(polygonGeom!.getCoordinates()).to.have.length(expPolygonGeom.length) // nb polygons
         for (let i = 0; i < expPolygonGeom.length; i++) {
-            expect(polygonGeom.getCoordinates()[i]).to.have.length(1) // 1 Subpolygon
-            expect(polygonGeom.getCoordinates()[i][0]).to.have.length(expPolygonGeom[i].length + 1)
-            checkCoordsEqual(polygonGeom.getCoordinates()[i][0], [
-                ...expPolygonGeom[i],
-                expPolygonGeom[i][0],
+            expect(polygonGeom!.getCoordinates()[i]!).to.have.length(1) // 1 Subpolygon
+            expect(polygonGeom!.getCoordinates()[i]![0]!).to.have.length(expPolygonGeom[i]!.length + 1)
+            checkCoordsEqual(polygonGeom!.getCoordinates()[i]![0]!, [
+                ...expPolygonGeom[i]!,
+                expPolygonGeom[i]![0]!,
             ])
         }
     } else {
@@ -74,8 +85,8 @@ function validateResults(geodesic, exp) {
 describe('Unit tests for Geodesic geometries', () => {
     it('test azimuth calculation', () => {
         expect(constructGeodLineString([0, 500], [0, 600]).rotation).to.equal(0)
-        expect(constructGeodLineString([500, 10], [600, 10]).rotation.toFixed(2)).to.equal('90.00')
-        expect(constructGeodLineString([600, 10], [500, 10]).rotation.toFixed(2)).to.equal('270.00')
+        expect(constructGeodLineString([500, 10], [600, 10]).rotation!.toFixed(2)).to.equal('90.00')
+        expect(constructGeodLineString([600, 10], [500, 10]).rotation!.toFixed(2)).to.equal('270.00')
         const line = constructGeodLineString([1064265.7618468616, 5882082.735211225])
         expect(line.rotation).to.equal(undefined)
     })
@@ -121,15 +132,15 @@ describe('Unit tests for Geodesic geometries', () => {
         // Validate getSubsegments
         const subsegments = geodesic.getSubsegments(0, [500, -0.0001, 2000, 0.0001])
         expect(subsegments).to.have.length(3) // [0-1000], [1000-2000], [2000-3000]
-        checkCoordsEqual(subsegments[0], [
+        checkCoordsEqual(subsegments[0] as number[][], [
             [0, 0],
             [1000, 0],
         ])
-        checkCoordsEqual(subsegments[1], [
+        checkCoordsEqual(subsegments[1] as number[][], [
             [1000, 0],
             [2000, 0],
         ])
-        checkCoordsEqual(subsegments[2], [
+        checkCoordsEqual(subsegments[2] as number[][], [
             [2000, 0],
             [3000, 0],
         ])
@@ -153,7 +164,7 @@ describe('Unit tests for Geodesic geometries', () => {
         // Validate getSubsegments
         const subsegments = geodesic.getSubsegments(0, [-100, -0.001, 2000, 0.0001])
         expect(subsegments).to.have.length(1)
-        checkCoordsEqual(subsegments[0], [
+        checkCoordsEqual(subsegments[0] as number[][], [
             [0, 0],
             [0, 0],
         ])
@@ -178,7 +189,7 @@ describe('Unit tests for Geodesic geometries', () => {
                     [-HALFSIZE_WEBMERCATOR + 2000, 0],
                 ],
             ],
-            geodesicPolygonGeom: null,
+            geodesicPolygonGeom: undefined,
             maxStyles: 6, // 3 measure points, azimuth circle, total length, transparent circle for printing
             minStyles: 3, // azimuth circle + total length, transparent circle for printing
             segmentExtents: [[-HALFSIZE_WEBMERCATOR + 500, 0, HALFSIZE_WEBMERCATOR + 500, 0]],
@@ -192,7 +203,7 @@ describe('Unit tests for Geodesic geometries', () => {
             +0.0001,
         ])
         expect(subsegments).to.have.length(1) // [0-1000], [1000-2000], [2000-3000]
-        checkCoordsEqual(subsegments[0], [
+        checkCoordsEqual(subsegments[0] as number[][], [
             [HALFSIZE_WEBMERCATOR - 500, 0],
             [HALFSIZE_WEBMERCATOR + 500, 0],
         ])
@@ -218,7 +229,7 @@ describe('Unit tests for Geodesic geometries', () => {
                     [-HALFSIZE_WEBMERCATOR + 2000, 0],
                 ],
             ],
-            geodesicPolygonGeom: null,
+            geodesicPolygonGeom: undefined,
             maxStyles: 5, // 3 measure points, total length, transparent circle for printing
             minStyles: 2, // total length, transparent circle for printing
             segmentExtents: [[-HALFSIZE_WEBMERCATOR + 500, 0, HALFSIZE_WEBMERCATOR + 500, 0]],
@@ -232,7 +243,7 @@ describe('Unit tests for Geodesic geometries', () => {
             +0.0001,
         ])
         expect(subsegments).to.have.length(1)
-        checkCoordsEqual(subsegments[0], [
+        checkCoordsEqual(subsegments[0] as number[][], [
             [-HALFSIZE_WEBMERCATOR + 500, 0],
             [-HALFSIZE_WEBMERCATOR + 1100, 0],
         ])

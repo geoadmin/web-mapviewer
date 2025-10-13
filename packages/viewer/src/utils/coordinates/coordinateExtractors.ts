@@ -1,6 +1,13 @@
+import type { CoordinateSystem } from '@swissgeo/coordinates'
+
 import { LV03, LV95, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 
 import { toPoint as mgrsToWGS84 } from '@/utils/militaryGridProjection'
+
+export interface ExtractedCoordinate {
+    coordinateSystem: CoordinateSystem
+    coordinate: [number, number]
+}
 
 const RE_DEGREE_IDENTIFIER = '\\s*°\\s*'
 const RE_DEGREE = `\\d{1,3}(\\.\\d+)?`
@@ -74,10 +81,10 @@ const REGEX_WGS_84_WITH_SECONDS_PREFIXED = new RegExp(
 )
 
 /**
- * @param {String} text
- * @returns {[Number, Number] | undefined}
+ * @param text
+ * @returns
  */
-function extractWGS84Coordinates(text) {
+function extractWGS84Coordinates(text: string): [number, number] | undefined {
     const regexMatch = [
         REGEX_WGS_84,
         REGEX_WGS_84_WITH_CARDINALS,
@@ -103,44 +110,44 @@ const REGEX_METRIC_COORDINATES = new RegExp(
 )
 
 /**
- * @param {String} text
- * @returns {[Number, Number] | undefined}
+ * @param text
+ * @returns
  */
-function extractLV95Coordinates(text) {
+function extractLV95Coordinates(text: string): [number, number] | undefined {
     const coordinates = numericalExtractor(REGEX_METRIC_COORDINATES.exec(text.trim()))
     if (coordinates) {
         if (LV95.isInBounds(coordinates[0], coordinates[1])) {
-            return [coordinates[0], coordinates[1]].map(LV95.roundCoordinateValue)
+            return [LV95.roundCoordinateValue(coordinates[0]), LV95.roundCoordinateValue(coordinates[1])]
         } else if (LV95.isInBounds(coordinates[1], coordinates[0])) {
-            return [coordinates[1], coordinates[0]].map(LV95.roundCoordinateValue)
+            return [LV95.roundCoordinateValue(coordinates[1]), LV95.roundCoordinateValue(coordinates[0])]
         }
     }
     return undefined
 }
 
 /**
- * @param {String} text
- * @returns {[Number, Number] | undefined}
+ * @param text
+ * @returns
  */
-function extractLV03Coordinates(text) {
+function extractLV03Coordinates(text: string): [number, number] | undefined {
     const coordinates = numericalExtractor(REGEX_METRIC_COORDINATES.exec(text.trim()))
     if (coordinates) {
         if (LV03.isInBounds(coordinates[0], coordinates[1])) {
-            return [coordinates[0], coordinates[1]].map(LV03.roundCoordinateValue)
+            return [LV03.roundCoordinateValue(coordinates[0]), LV03.roundCoordinateValue(coordinates[1])]
         } else if (LV03.isInBounds(coordinates[1], coordinates[0])) {
-            return [coordinates[1], coordinates[0]].map(LV03.roundCoordinateValue)
+            return [LV03.roundCoordinateValue(coordinates[1]), LV03.roundCoordinateValue(coordinates[0])]
         }
     }
     return undefined
 }
 
-function extractMetricMercatorCoordinates(text) {
+function extractMetricMercatorCoordinates(text: string): [number, number] | undefined {
     const coordinates = numericalExtractor(REGEX_METRIC_COORDINATES.exec(text.trim()))
     if (coordinates) {
         if (LV95_BOUNDS_IN_METRIC_MERCATOR.isInBounds(coordinates[0], coordinates[1])) {
-            return [coordinates[0], coordinates[1]].map(WEBMERCATOR.roundCoordinateValue)
+            return [WEBMERCATOR.roundCoordinateValue(coordinates[0]), WEBMERCATOR.roundCoordinateValue(coordinates[1])]
         } else if (LV95_BOUNDS_IN_METRIC_MERCATOR.isInBounds(coordinates[1], coordinates[0])) {
-            return [coordinates[1], coordinates[0]].map(WEBMERCATOR.roundCoordinateValue)
+            return [WEBMERCATOR.roundCoordinateValue(coordinates[1]), WEBMERCATOR.roundCoordinateValue(coordinates[0])]
         }
     }
     return undefined
@@ -149,7 +156,7 @@ function extractMetricMercatorCoordinates(text) {
 // Military Grid Reference System (MGRS) (e.g. 32TMS 40959 89723)
 const REGEX_MILITARY_GRID = /^3[123]\s*[a-z]{3}\s*\d{1,5}\s*\d{1,5}$/i
 
-function extractMgrsCoordinates(text) {
+function extractMgrsCoordinates(text: string): [number, number] | undefined {
     const coordinate = mgrsExtractor(REGEX_MILITARY_GRID.exec(text.trim()))
     if (coordinate) {
         return coordinate
@@ -157,18 +164,20 @@ function extractMgrsCoordinates(text) {
     return undefined
 }
 
-const LV95_BOUNDS_IN_WGS84 = LV95.getBoundsAs(WGS84)
-const LV95_BOUNDS_IN_METRIC_MERCATOR = LV95.getBoundsAs(WEBMERCATOR)
+const LV95_BOUNDS_IN_WGS84 = LV95.getBoundsAs(WGS84)!
+const LV95_BOUNDS_IN_METRIC_MERCATOR = LV95.getBoundsAs(WEBMERCATOR)!
 
-/**
- * @param {RegExpExecArray | undefined} regexMatches Matches from REGEX_METRIC_COORDINATES
- * @returns {[Number, Number] | undefined}
- */
-const numericalExtractor = (regexMatches) => {
-    if (!regexMatches) {
+const numericalExtractor = (regexMatches: RegExpExecArray | null): [number, number] | undefined => {
+    if (!regexMatches || !regexMatches.groups) {
         return undefined
     }
     // removing thousand separators
+    if (
+        typeof regexMatches.groups.coord1 !== 'string' ||
+        typeof regexMatches.groups.coord2 !== 'string'
+    ) {
+        return undefined
+    }
     const x = Number(regexMatches.groups.coord1.replace(thousandSeparatorRegex, ''))
     const y = Number(regexMatches.groups.coord2.replace(thousandSeparatorRegex, ''))
     if (Number.isNaN(x) || Number.isNaN(y)) {
@@ -177,12 +186,12 @@ const numericalExtractor = (regexMatches) => {
     return [x, y]
 }
 
-const wgs84Extractor = (regexMatches) => {
-    if (!regexMatches) {
+const wgs84Extractor = (regexMatches: RegExpExecArray | null): [number, number] | undefined => {
+    if (!regexMatches || !regexMatches.groups) {
         return undefined
     }
-    let firstNumber, secondNumber
-    let firstCardinal, secondCardinal
+    let firstNumber: number, secondNumber: number
+    let firstCardinal: string | undefined, secondCardinal: string | undefined
 
     // Extract degrees
     firstNumber = Number(regexMatches.groups.degree1)
@@ -244,39 +253,31 @@ const wgs84Extractor = (regexMatches) => {
                 break
         }
         if (LV95_BOUNDS_IN_WGS84.isInBounds(lon, lat)) {
-            return [lon, lat].map(WGS84.roundCoordinateValue)
+            return [WGS84.roundCoordinateValue(lon), WGS84.roundCoordinateValue(lat)]
         }
         if (LV95_BOUNDS_IN_WGS84.isInBounds(lat, lon)) {
-            return [lat, lon].map(WGS84.roundCoordinateValue)
+            return [WGS84.roundCoordinateValue(lat), WGS84.roundCoordinateValue(lon)]
         }
     }
-    return null
+    return undefined
 }
 
 // copied from https://github.com/geoadmin/mf-geoadmin3/blob/f421edcbb216d6a7e27e483b504616d99a475d0b/src/components/search/SearchService.js#L122
 // Grid zone designation for Switzerland + two 100km letters + two digits
 // It's a limitation of proj4 and a sensible default (precision is 10km)
 const MGRSMinimalPrecision = 7
-/**
- * @param {RegExpExecArray} regexMatches
- * @returns {[Number, Number] | undefined}
- */
-const mgrsExtractor = (regexMatches) => {
+
+const mgrsExtractor = (regexMatches: RegExpExecArray | null): [number, number] | undefined => {
     if (!regexMatches) {
         return undefined
     }
     const mgrsString = regexMatches[0].split(' ').join('')
     if ((mgrsString.length - MGRSMinimalPrecision) % 2 === 0) {
-        return mgrsToWGS84(mgrsString).map(WGS84.roundCoordinateValue)
+        const coords = mgrsToWGS84(mgrsString)
+        return [WGS84.roundCoordinateValue(coords[0]), WGS84.roundCoordinateValue(coords[1])]
     }
     return undefined
 }
-
-/**
- * @typedef ExtractedCoordinate
- * @property {CoordinateSystem} coordinateSystem
- * @property {[Number, Number]} coordinate
- */
 
 /**
  * Extracts (if possible) a set of coordinates from the text as an array. The text must contain only
@@ -316,11 +317,11 @@ const mgrsExtractor = (regexMatches) => {
  *
  * - I.e. `zufall.anders.blaumeise`
  *
- * @param {String} text The text in which we want to find coordinates
- * @returns {ExtractedCoordinate | undefined} Coordinates in the given order in text with
- *   information about which projection they are expressed in, or `undefined` if nothing was found
+ * @param text The text in which we want to find coordinates
+ * @returns Coordinates in the given order in text with information about which projection they are
+ *   expressed in, or `undefined` if nothing was found
  */
-const coordinateFromString = (text) => {
+const coordinateFromString = (text: string): ExtractedCoordinate | undefined => {
     if (typeof text !== 'string') {
         return undefined
     }

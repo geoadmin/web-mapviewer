@@ -1,6 +1,6 @@
-import type { Feature, GeoJSON, Geometry, Position } from 'geojson'
-
 import type { NormalizedExtent, SingleCoordinate } from '@swissgeo/coordinates'
+import type { Feature, FeatureCollection, GeoJSON, Geometry, Position } from 'geojson'
+
 import { CoordinateSystem, extentUtils, WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import {
@@ -18,6 +18,48 @@ import proj4 from 'proj4'
 import { reproject } from 'reproject'
 
 /**
+ * Re-projecting the GeoJSON data (FeatureCollection) if not in the wanted projection
+ *
+ * The default projection for GeoJSON is WGS84 as stated in the reference
+ * https://tools.ietf.org/html/rfc7946#section-4
+ *
+ * This function will look first in the GeoJSON own CRS property, to determine which projection
+ * system is used to describe the coordinate. If no CRS is defined, it will default to the given
+ * fromProjection, and if nothing is found in both places it will default to WGS84.
+ *
+ * @param geoJsonData GeoJSON data (FeatureCollection) to be reprojected
+ * @param toProjection Wanted projection for these data
+ * @param fromProjection Source projection, in which the data is being described (or `undefined` if none
+ *   were set in the GeoJSON data, meaning it is described with WGS84)
+ */
+export function reprojectGeoJsonData(
+    geoJsonData: FeatureCollection,
+    toProjection: CoordinateSystem,
+    fromProjection?: CoordinateSystem
+): FeatureCollection | undefined {
+    if (!geoJsonData) {
+        return undefined
+    }
+    const matchingProjection: CoordinateSystem =
+        // GeoJSONs don't give CRS anymore, since some later revision (see https://datatracker.ietf.org/doc/html/rfc7946#appendix-B.1)
+        fromProjection ??
+        // if nothing is found in the GeoJSON or the param value, we default to WGS84
+        // according to the IETF reference, if nothing is said about the projection used, it should be WGS84
+        WGS84
+    if (matchingProjection.epsg !== toProjection.epsg) {
+        return reproject(
+            // (deep) cloning the geom before reprojecting it, because reproject function might alter something in the geom
+            // and the geom comes sometimes directly from the Vuex store (ending in an error when that happen)
+            JSON.parse(JSON.stringify(geoJsonData)) as FeatureCollection,
+            matchingProjection.epsg,
+            toProjection.epsg
+        )
+    }
+    // it's already in the correct projection, we don't re-project
+    return geoJsonData
+}
+
+/**
  * Re-projecting the GeoJSON if not in the wanted projection
  *
  * The default projection for GeoJSON is WGS84 as stated in the reference
@@ -29,7 +71,7 @@ import { reproject } from 'reproject'
  *
  * @param geometry Geometry to be reprojected
  * @param toProjection Wanted projection for these data
- * @param fromProjection Source projection, in which the data is being described (or `null` if none
+ * @param fromProjection Source projection, in which the data is being described (or `undefined` if none
  *   were set in the GeoJSON data, meaning it is described with WGS84)
  */
 export function reprojectGeoJsonGeometry(
@@ -63,7 +105,7 @@ export function reprojectGeoJsonGeometry(
  *
  * @param geometry
  * @param fromProjection In which coordinate-system is this GeoJSON data described as. If nothing is
- *   specified, the default projection of GeoJSON data must be WGS84. Default is `null`
+ *   specified, the default projection of GeoJSON data must be WGS84. Default is `undefined`
  */
 export function transformIntoTurfEquivalent(
     geometry: Geometry,

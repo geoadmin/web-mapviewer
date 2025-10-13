@@ -1,13 +1,15 @@
-import log, { LogPreDefinedColor } from '@swissgeo/log'
-import type { Layer } from '@swissgeo/layers'
-import { LayerType } from '@swissgeo/layers'
-import { randomIntBetween } from '@swissgeo/numbers'
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
-import { CoordinateSystem } from '@swissgeo/coordinates'
-import { Geometry } from 'ol/geom'
+import type { Layer } from '@swissgeo/layers'
+import type { Feature } from 'ol'
+import type { FeatureLike } from 'ol/Feature'
+
+import { CoordinateSystem, extentUtils } from '@swissgeo/coordinates'
+import { LayerType } from '@swissgeo/layers'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
+import { randomIntBetween } from '@swissgeo/numbers'
 import { centroid } from '@turf/turf'
 import GeoJSON, { type GeoJSONGeometry } from 'ol/format/GeoJSON'
-import type { FeatureLike } from 'ol/Feature'
+import { Geometry } from 'ol/geom'
 
 import type { LayerFeature } from '@/api/features.api'
 
@@ -39,7 +41,7 @@ export function indexOfMaxResolution(
  * @returns The created LayerFeature object or undefined if the feature has no geometry.
  */
 export function createLayerFeature(
-    olFeature: FeatureLike,
+    olFeature: FeatureLike | Feature,
     layer: Layer,
     coordinates?: SingleCoordinate,
     geometry?: GeoJSONGeometry
@@ -92,7 +94,7 @@ export function createLayerFeature(
         },
         coordinates: featureCoordinates,
         geometry: geometryToReturn,
-        extent: olFeatureGeometry.getExtent() as FlatExtent,
+        extent: extentUtils.normalizeExtent(olFeatureGeometry.getExtent() as FlatExtent),
         popupDataCanBeTrusted: !layer.isExternal && layer.type !== LayerType.KML,
     }
 }

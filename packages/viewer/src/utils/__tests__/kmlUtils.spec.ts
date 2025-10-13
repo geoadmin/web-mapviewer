@@ -1,10 +1,13 @@
+import type { Feature } from 'ol'
+
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 import { layerUtils } from '@swissgeo/layers/utils'
 import { readFileSync } from 'fs'
 import IconStyle from 'ol/style/Icon'
 import { resolve } from 'path'
 import { beforeEach, describe, expect, it } from 'vitest'
-import type { Feature } from 'ol'
+
+import type { EditableFeature } from '@/api/features.api'
 
 import { type DrawingIconSet, generateIconURL } from '@/api/icon.api'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
@@ -18,7 +21,6 @@ import {
     parseIconUrl,
     parseKml,
 } from '@/utils/kmlUtils'
-import type { EditableFeature } from '@/api/features.api'
 
 describe('Test KML utils', () => {
     describe('get KML Extent', () => {

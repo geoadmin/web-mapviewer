@@ -9,7 +9,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import getHumanReadableCoordinate from '@/modules/map/components/common/mouseTrackerUtils'
-import allFormats, { LV95Format } from '@/utils/coordinates/coordinateFormat.js'
+import allFormats, { LV95Format } from '@/utils/coordinates/coordinateFormat'
 
 const mousePosition = useTemplateRef('mousePosition')
 const displayedFormatId = ref(LV95Format.id)

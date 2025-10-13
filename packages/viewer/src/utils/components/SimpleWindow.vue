@@ -1,89 +1,75 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
+import useUiStore from '@/store/modules/ui.store'
 import PrintButton from '@/utils/components/PrintButton.vue'
 import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
 
-const acceptedInitialPositions = ['top-left', 'top-center', 'top-right', 'bottom-center']
+const acceptedInitialPositions = ['top-left', 'top-center', 'top-right', 'bottom-center'] as const
+type InitialPosition = (typeof acceptedInitialPositions)[number]
 
-const { title, hide, movable, resizeable, allowPrint, initialPosition, wide, small, dataCy } =
-    defineProps({
-        title: {
-            type: String,
-            default: '',
-        },
-        /**
-         * Hide the modal with backdrop, can be used to temporarily hide the modal without loosing
-         * its content
-         */
-        hide: {
-            type: Boolean,
-            default: false,
-        },
-        movable: {
-            type: Boolean,
-            default: false,
-        },
-        resizeable: {
-            type: Boolean,
-            default: false,
-        },
-        allowPrint: {
-            type: Boolean,
-            default: false,
-        },
-        initialPosition: {
-            type: String,
-            default: 'top-center',
-        },
-        // If true, the window will be displayed in 80% of the screen width, else it will be displayed in compact mode (400px)
-        wide: {
-            type: Boolean,
-            default: false,
-        },
-        small: {
-            type: Boolean,
-            default: false,
-        },
-        dataCy: {
-            type: String,
-            default: 'simple-window',
-        },
-    })
+interface Props {
+    title?: string
+    /** Hide the modal with backdrop, can be used to temporarily hide the modal without loosing its content */
+    hide?: boolean
+    movable?: boolean
+    resizeable?: boolean
+    allowPrint?: boolean
+    initialPosition?: string
+    /** If true, the window will be displayed in 80% of the screen width, else it will be displayed in compact mode (400px) */
+    wide?: boolean
+    small?: boolean
+    dataCy?: string
+}
 
-const store = useStore()
+const props = withDefaults(defineProps<Props>(), {
+    title: '',
+    hide: false,
+    movable: false,
+    resizeable: false,
+    allowPrint: false,
+    initialPosition: 'top-center',
+    wide: false,
+    small: false,
+    dataCy: 'simple-window',
+})
+
+const uiStore = useUiStore()
 
 const showBody = ref(true)
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
+const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
 
 const { t } = useI18n()
 
-const emit = defineEmits(['close'])
+const emit = defineEmits<{
+    close: []
+}>()
 
-const windowRef = useTemplateRef('windowRef')
-const headerRef = useTemplateRef('headerRef')
-const contentRef = useTemplateRef('contentRef')
+const windowRef = useTemplateRef<HTMLDivElement>('windowRef')
+const headerRef = useTemplateRef<HTMLDivElement>('headerRef')
+const contentRef = useTemplateRef<HTMLDivElement>('contentRef')
 
 const initialPositionClass = computed(() => {
-    if (acceptedInitialPositions.includes(initialPosition)) {
-        return initialPosition
+    if (acceptedInitialPositions.includes(props.initialPosition as InitialPosition)) {
+        return props.initialPosition
     } else {
         return 'top-center'
     }
 })
 
 onMounted(() => {
-    if (movable) {
+    if (props.movable) {
         const windowElement = windowRef.value
         const headerElement = headerRef.value
-        useMovableElement({
-            element: windowElement,
-            grabElement: headerElement,
-            initialPositionClasses: [initialPositionClass.value],
-            offset: { bottom: 0, right: 0, left: 0 },
-        })
+        if (windowElement && headerElement) {
+            useMovableElement({
+                element: windowElement,
+                grabElement: headerElement,
+                initialPositionClasses: [initialPositionClass.value],
+                offset: { bottom: 0, right: 0, left: 0 },
+            })
+        }
     }
 })
 </script>
@@ -123,7 +109,7 @@ onMounted(() => {
                 />
                 <PrintButton
                     v-if="allowPrint && showBody"
-                    :content="contentRef"
+                    :content="contentRef ?? undefined"
                 />
                 <button
                     class="btn btn-light btn-sm me-2"
