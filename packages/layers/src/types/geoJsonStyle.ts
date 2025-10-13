@@ -76,7 +76,7 @@ export type GeoAdminGeoJSONVectorOptions =
     | GeoAdminGeoJSONVectorOptionsWithRadius
     | GeoAdminGeoJSONVectorOptionsFinite
 
-export type GeoAdminGeoJSONStyleType = 'single' | 'unique' | 'range'
+export type GeoAdminGeoJSONStyleType = 'single' | 'unique' | 'range' | 'point'
 
 export interface GeoAdminGeoJSONStyle<Type extends GeoAdminGeoJSONStyleType> {
     type: Type
