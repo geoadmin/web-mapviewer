@@ -1,28 +1,32 @@
-<script setup lang="js">
+<script setup lang="ts">
+import type { Map } from 'ol'
+
 import { computed, inject, onBeforeUnmount, onMounted, ref } from 'vue'
-import { useStore } from 'vuex'
 
-const { resolution } = defineProps({
-    resolution: {
-        type: Number,
-        required: true,
-    },
-})
+import usePositionStore from '@/store/modules/position.store'
 
-const olMap = inject('olMap')
+interface Props {
+    resolution: number
+}
 
-const store = useStore()
-const mapResolution = computed(() => store.getters.resolution)
+const props = defineProps<Props>()
 
-const startingResolution = ref(null)
+const olMap = inject<Map>('olMap')!
+
+const positionStore = usePositionStore()
+const mapResolution = computed(() => positionStore.resolution)
+
+const startingResolution = ref<number | undefined>(undefined)
 
 onMounted(() => {
     startingResolution.value = mapResolution.value
-    olMap.getView().setResolution(resolution)
+    olMap.getView().setResolution(props.resolution)
 })
 
 onBeforeUnmount(() => {
-    olMap.getView().setResolution(startingResolution.value)
+    if (startingResolution.value !== undefined) {
+        olMap.getView().setResolution(startingResolution.value)
+    }
 })
 </script>
 
