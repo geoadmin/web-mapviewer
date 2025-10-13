@@ -1,16 +1,20 @@
+import type { Map } from 'ol'
+import type { Ref } from 'vue'
+
 import log from '@swissgeo/log'
 import { toRadians } from 'ol/math'
 import { computed, inject, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
-import { useStore } from 'vuex'
 
-const dispatcher = { dispatcher: 'useDeviceOrientation.composable' }
+import usePositionStore from '@/store/modules/position.store'
+
+const dispatcher = { name: 'useDeviceOrientation.composable' }
 
 // The values here below have been taken in order to have a good balance between reactivity
 // performance and user experience. It is important to use a production build to test any changes
 // on those values as on a debug build we have poorer performance
 const DOWN_SAMPLING_INTERVAL_MS = 50
 const ANIMATION_DURATION_MS = 200
-let downSamplingDescriptor = null
+let downSamplingDescriptor: ReturnType<typeof setInterval> | undefined = undefined
 
 // Unfortunately some mobile devices (like samsung) does not work well with device orientation
 // they provide a bad absolute device orientation, while testing different devices I could not find
@@ -19,40 +23,71 @@ let downSamplingDescriptor = null
 // on iphone where it works well and it can be detected from the user agent
 const supportDeviceOrientation = /iphone/i.test(navigator.userAgent)
 
-export default function useDeviceOrientation() {
-    const olMap = inject('olMap')
-    const store = useStore()
+interface OrientationData {
+    absolute: {
+        listener: string
+        degree: number | undefined
+        compassHeading: number | undefined
+    }
+    default: {
+        listener: string
+        absolute: boolean | undefined
+        degree: number | undefined
+        compassHeading: number | undefined
+    }
+}
 
-    const orientation = ref({
+interface OrientationSampledData {
+    absolute: {
+        degree: number | undefined
+        compassHeading: number | undefined
+    }
+    default: {
+        absolute: boolean | undefined
+        degree: number | undefined
+        compassHeading: number | undefined
+    }
+}
+
+export default function useDeviceOrientation(): {
+    heading: Ref<number | undefined>
+    headingDegree: Ref<number | undefined>
+    orientation: Ref<OrientationData>
+    orientationSampled: Ref<OrientationSampledData>
+} {
+    const olMap = inject<Map>('olMap')!
+    const positionStore = usePositionStore()
+
+    const orientation = ref<OrientationData>({
         absolute: {
             listener: 'deviceorientationabsolute',
-            degree: null,
-            compassHeading: null,
+            degree: undefined,
+            compassHeading: undefined,
         },
         default: {
             listener: 'deviceorientation',
-            absolute: null,
-            degree: null,
-            compassHeading: null,
+            absolute: undefined,
+            degree: undefined,
+            compassHeading: undefined,
         },
     })
-    const orientationSampled = ref({
+    const orientationSampled = ref<OrientationSampledData>({
         absolute: {
-            degree: null,
-            compassHeading: null,
+            degree: undefined,
+            compassHeading: undefined,
         },
         default: {
-            absolute: null,
-            degree: null,
-            compassHeading: null,
+            absolute: undefined,
+            degree: undefined,
+            compassHeading: undefined,
         },
     })
-    const heading = ref(null) // heading in radian
-    const headingDegree = ref(null)
+    const heading = ref<number | undefined>(undefined)
+    const headingDegree = ref<number | undefined>(undefined)
 
-    const autoRotation = computed(() => store.state.position.autoRotation)
+    const autoRotation = computed(() => positionStore.autoRotation)
     const hasOrientation = computed(
-        () => supportDeviceOrientation && store.state.position.hasOrientation
+        () => supportDeviceOrientation && positionStore.hasOrientation
     )
 
     onBeforeMount(() => {
@@ -65,7 +100,7 @@ export default function useDeviceOrientation() {
         stopOrientationDownSampling()
 
         // We need to reset the map rotation back to 0
-        store.dispatch('setRotation', { rotation: 0, ...dispatcher })
+        positionStore.setRotation(0, dispatcher)
         olMap.getView().animate({
             rotation: 0,
             duration: ANIMATION_DURATION_MS,
@@ -80,37 +115,37 @@ export default function useDeviceOrientation() {
         ],
         () => {
             if (
-                orientationSampled.value.absolute.compassHeading !== null ||
-                orientationSampled.value.default.compassHeading !== null
+                orientationSampled.value.absolute.compassHeading !== undefined ||
+                orientationSampled.value.default.compassHeading !== undefined
             ) {
                 // On Iphone webkitCompassHeading is clockwise, while the alpha is counterclockwise
-                // to keep consistency we use everythink in counterclockwise therefore we use
+                // to keep consistency we use everything in counterclockwise therefore we use
                 // 360 - heading
                 headingDegree.value =
                     360 -
                     (orientationSampled.value.absolute.compassHeading ??
-                        orientationSampled.value.default.compassHeading)
+                        orientationSampled.value.default.compassHeading!)
                 heading.value = toRadians(headingDegree.value)
-            } else if (orientationSampled.value.absolute.degree !== null) {
+            } else if (orientationSampled.value.absolute.degree !== undefined) {
                 headingDegree.value = orientationSampled.value.absolute.degree
                 heading.value = toRadians(headingDegree.value)
             } else if (
                 orientationSampled.value.default.absolute === true &&
-                orientationSampled.value.default.degree !== null
+                orientationSampled.value.default.degree !== undefined
             ) {
                 headingDegree.value = orientationSampled.value.default.degree
                 heading.value = toRadians(headingDegree.value)
             } else {
-                headingDegree.value = null
-                heading.value = null
+                headingDegree.value = undefined
+                heading.value = undefined
             }
         }
     )
 
     watch(heading, (newValue) => {
-        if (newValue !== null) {
+        if (newValue !== undefined) {
             if (!hasOrientation.value) {
-                store.dispatch('setHasOrientation', { hasOrientation: true, ...dispatcher })
+                positionStore.setHasOrientation(true, dispatcher)
             }
 
             if (autoRotation.value) {
@@ -121,20 +156,20 @@ export default function useDeviceOrientation() {
 
     watch(autoRotation, (newValue) => {
         if (newValue) {
-            rotateMap(heading.value)
+            rotateMap(heading.value ?? 0)
         } else {
             rotateMap(0)
         }
     })
 
-    function rotateMap(value) {
+    function rotateMap(value: number): void {
         olMap.getView().animate({
             rotation: value,
             duration: ANIMATION_DURATION_MS,
         })
     }
 
-    function startDeviceOrientationListener() {
+    function startDeviceOrientationListener(): void {
         // There is 2 different event that returns the orientation;
         //  - deviceorientationabsolute
         //  - deviceorientation
@@ -145,7 +180,11 @@ export default function useDeviceOrientation() {
         // So here we listen to both events
         log.debug(`Activate device orientation listener`)
         // request permissions if IOS
-        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+        if (
+            typeof DeviceOrientationEvent !== 'undefined' &&
+            'requestPermission' in DeviceOrientationEvent &&
+            typeof DeviceOrientationEvent.requestPermission === 'function'
+        ) {
             DeviceOrientationEvent.requestPermission()
                 .then(() => {
                     window.addEventListener(
@@ -154,40 +193,46 @@ export default function useDeviceOrientation() {
                     )
                     window.addEventListener(orientation.value.default.listener, handleOrientation)
                 })
-                .catch((error) => log.error(`Failed to add device orientation listener: ${error}`))
+                .catch((error: unknown) => log.error(`Failed to add device orientation listener: ${String(error)}`))
         } else {
             window.addEventListener(orientation.value.absolute.listener, handleOrientationAbsolute)
             window.addEventListener(orientation.value.default.listener, handleOrientation)
         }
     }
 
-    function stopDeviceOrientationListener() {
+    function stopDeviceOrientationListener(): void {
         window.removeEventListener(orientation.value.absolute.listener, handleOrientationAbsolute)
         window.removeEventListener(orientation.value.default.listener, handleOrientation)
     }
 
-    function handleOrientation(event) {
+    function handleOrientation(event: Event): void {
+        const orientationEvent = event as DeviceOrientationEvent
         // default listener
-        orientation.value.default.absolute = event.absolute ?? null
-        orientation.value.default.degree = event.alpha ?? null
-        orientation.value.default.compassHeading = event.webkitCompassHeading ?? null
+        orientation.value.default.absolute = orientationEvent.absolute ?? undefined
+        orientation.value.default.degree = orientationEvent.alpha ?? undefined
+        orientation.value.default.compassHeading =
+            'webkitCompassHeading' in orientationEvent
+                ? (orientationEvent.webkitCompassHeading as number | undefined)
+                : undefined
 
         if (
-            orientation.value.default.degree === null &&
-            orientation.value.default.compassHeading === null
+            orientation.value.default.degree === undefined &&
+            orientation.value.default.compassHeading === undefined
         ) {
             // When the default listener doesn't return an alpha nor an webkitCompassHeading
             // this means that the device don't support at all orientation and we stop all listeners.
+            const compassHeading = 'webkitCompassHeading' in orientationEvent
+                ? (orientationEvent as DeviceOrientationEvent & { webkitCompassHeading?: number }).webkitCompassHeading
+                : undefined
             log.warn(
-                `Invalid alpha value from ${orientation.value.default.listener} listener: `,
-                `${event.alpha}/${event.webkitCompassHeading}, stopping listener`,
-                event
+                `Invalid alpha value from ${orientation.value.default.listener} listener: ${orientationEvent.alpha}/${compassHeading}, stopping listener`,
+                orientationEvent
             )
             stopDeviceOrientationListener()
             stopOrientationDownSampling()
         } else if (
             orientation.value.default.absolute === false &&
-            orientation.value.default.compassHeading === null
+            orientation.value.default.compassHeading === undefined
         ) {
             // the default listener only provide relative orientation that cannot be used therefore
             // remove the listener
@@ -195,14 +240,18 @@ export default function useDeviceOrientation() {
         }
     }
 
-    function handleOrientationAbsolute(event) {
+    function handleOrientationAbsolute(event: Event): void {
+        const orientationEvent = event as DeviceOrientationEvent
         // absolute listener
-        orientation.value.absolute.degree = event.alpha ?? null
-        orientation.value.absolute.compassHeading = event.webkitCompassHeading ?? null
+        orientation.value.absolute.degree = orientationEvent.alpha ?? undefined
+        orientation.value.absolute.compassHeading =
+            'webkitCompassHeading' in orientationEvent
+                ? (orientationEvent.webkitCompassHeading as number | undefined)
+                : undefined
 
         if (
-            orientation.value.absolute.degree === null &&
-            orientation.value.absolute.compassHeading === null
+            orientation.value.absolute.degree === undefined &&
+            orientation.value.absolute.compassHeading === undefined
         ) {
             // the absolute listener don't provide any orientation, therefore remove the listener
             window.removeEventListener(
@@ -212,7 +261,7 @@ export default function useDeviceOrientation() {
         }
     }
 
-    function startOrientationDownSampling() {
+    function startOrientationDownSampling(): void {
         downSamplingDescriptor = setInterval(() => {
             // default listener
             orientationSampled.value.default.absolute = orientation.value.default.absolute
@@ -227,17 +276,19 @@ export default function useDeviceOrientation() {
         }, DOWN_SAMPLING_INTERVAL_MS)
     }
 
-    function stopOrientationDownSampling() {
+    function stopOrientationDownSampling(): void {
         // default listener
-        orientationSampled.value.default.absolute = null
-        orientationSampled.value.default.degree = null
-        orientationSampled.value.default.compassHeading = null
+        orientationSampled.value.default.absolute = undefined
+        orientationSampled.value.default.degree = undefined
+        orientationSampled.value.default.compassHeading = undefined
 
         // absolute listener
-        orientationSampled.value.absolute.degree = null
-        orientationSampled.value.absolute.compassHeading = null
-        clearInterval(downSamplingDescriptor)
-        downSamplingDescriptor = null
+        orientationSampled.value.absolute.degree = undefined
+        orientationSampled.value.absolute.compassHeading = undefined
+        if (downSamplingDescriptor !== undefined) {
+            clearInterval(downSamplingDescriptor)
+            downSamplingDescriptor = undefined
+        }
     }
 
     return {
