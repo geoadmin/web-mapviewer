@@ -99,7 +99,7 @@ export interface PositionState {
      */
     projection: CoordinateSystem
     crossHair?: CrossHairs
-    crossHairPosition?: number[]
+    crossHairPosition?: SingleCoordinate
     /**
      * Position of the view when we are in 3D, always expressed in EPSG:3857 (only projection system
      * that works with Cesium)
