@@ -15,12 +15,12 @@ export interface FieldValidationProps {
     disabled?: boolean
     placeholder?: string
     required?: boolean
-    validMarker?: boolean | null
+    validMarker?: boolean | undefined
     validMessage?: string
-    invalidMarker?: boolean | null
+    invalidMarker?: boolean | undefined
     invalidMessage?: string
     activateValidation?: boolean
-    validate?: ValidateFunction | null
+    validate?: ValidateFunction | undefined
 }
 
 export interface FieldValidationOptions {
@@ -41,7 +41,7 @@ export interface FieldValidationReturn {
 }
 
 export function propsValidator4ValidateFunc(value: unknown, _props: unknown): boolean {
-    if (value === null) {
+    if (value === undefined) {
         return true
     }
     if (typeof value !== 'function') {
@@ -106,7 +106,7 @@ export function useFieldValidation(
             return false
         }
         let _validMarker = isValid.value
-        if (props.validMarker !== null) {
+        if (props.validMarker !== undefined) {
             _validMarker = _validMarker && (props.validMarker ?? false)
         }
         return _validMarker
@@ -116,7 +116,7 @@ export function useFieldValidation(
             return false
         }
         let _invalidMarker = !isValid.value
-        if (props.invalidMarker !== null) {
+        if (props.invalidMarker !== undefined) {
             _invalidMarker = _invalidMarker || !!props.invalidMarker
         }
         return _invalidMarker

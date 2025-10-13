@@ -4,10 +4,96 @@ import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
 import {
-    propsValidator4ValidateFunc,
     useFieldValidation,
     type FieldValidationProps,
 } from '@/utils/composables/useFieldValidation'
+
+interface Props {
+    /**
+     * Label to add above the field
+     */
+    label?: string
+    /**
+     * Description to add below the input
+     */
+    description?: string
+    /**
+     * Mark the field as disable
+     */
+    disabled?: boolean
+    /**
+     * Placeholder
+     *
+     * NOTE: this should be a translation key
+     */
+    placeholder?: string
+    /**
+     * Field is required and will be marked as invalid if empty
+     */
+    required?: boolean
+    /**
+     * Mark the field as valid
+     *
+     * This can be used if the field requires some external validation. When not set or set to undefined
+     * this props is ignored.
+     *
+     * NOTE: this props is ignored when activate-validation is false
+     */
+    validMarker?: boolean | undefined
+    /**
+     * Valid message Message that will be added in green below the field once the validation has
+     * been done and the field is valid.
+     */
+    validMessage?: string
+    /**
+     * Mark the field as invalid
+     *
+     * This can be used if the field requires some external validation. When not set or set to undefined
+     * this props is ignored.
+     *
+     * NOTE: this props is ignored when activate-validation is false
+     */
+    invalidMarker?: boolean | undefined
+    /**
+     * Invalid message Message that will be added in red below the field once the validation has
+     * been done and the field is invalid.
+     *
+     * NOTE: this message is overwritten if the internal validation failed (not allow file type or
+     * file too big or required empty file)
+     */
+    invalidMessage?: string
+    /**
+     * Mark the field has validated.
+     *
+     * As long as the flag is false, no validation is run and no validation marks are set. Also the
+     * props is-invalid and is-valid are ignored.
+     */
+    activateValidation?: boolean
+    /**
+     * Validate function to run when the input changes The function should return an object of type
+     * `{valid: Boolean, invalidMessage: String}`. The `invalidMessage` string should be a
+     * translation key.
+     *
+     * NOTE: this function is called each time the field is modified
+     */
+    validate?: ((_value?: string) => { valid: boolean; invalidMessage: string }) | undefined
+    dataCy?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    label: '',
+    description: '',
+    disabled: false,
+    placeholder: '',
+    required: false,
+    validMarker: undefined,
+    validMessage: '',
+    invalidMarker: undefined,
+    invalidMessage: '',
+    activateValidation: false,
+    validate: undefined,
+    dataCy: '',
+})
 
 const textAreaInputId = useComponentUniqueId('text-area-input')
 
@@ -20,137 +106,6 @@ const modelRef = computed({
     get: () => model.value,
     set: (value: string) => { model.value = value }
 })
-
-const props = defineProps({
-    /**
-     * Label to add above the field
-     *
-     * @type {String}
-     */
-    label: {
-        type: String,
-        default: '',
-    },
-    /**
-     * Description to add below the input
-     *
-     * @type {String}
-     */
-    description: {
-        type: String,
-        default: '',
-    },
-    /**
-     * Mark the field as disable
-     *
-     * @type {Boolean}
-     */
-    disabled: {
-        type: Boolean,
-        default: false,
-    },
-    /**
-     * Placeholder
-     *
-     * NOTE: this should be a translation key
-     *
-     * @type {string}
-     */
-    placeholder: {
-        type: String,
-        default: '',
-    },
-    /**
-     * Field is required and will be marked as invalid if empty
-     *
-     * @type {Boolean}
-     */
-    required: {
-        type: Boolean,
-        default: false,
-    },
-    /**
-     * Mark the field as valid
-     *
-     * This can be used if the field requires some external validation. When not set or set to undefined
-     * this props is ignored.
-     *
-     * NOTE: this props is ignored when activate-validation is false
-     *
-     * @type {Boolean}
-     */
-    validMarker: {
-        type: [Boolean, null],
-        default: undefined,
-    },
-    /**
-     * Valid message Message that will be added in green below the field once the validation has
-     * been done and the field is valid.
-     *
-     * @type {Sting}
-     */
-    validMessage: {
-        type: String,
-        default: '',
-    },
-    /**
-     * Mark the field as invalid
-     *
-     * This can be used if the field requires some external validation. When not set or set to undefined
-     * this props is ignored.
-     *
-     * NOTE: :data-cy="`${dataCyPrefix}-description`"this props is ignored when activate-validation
-     * is false
-     *
-     * @type {Boolean}
-     */
-    invalidMarker: {
-        type: [Boolean, null],
-        default: undefined,
-    },
-    /**
-     * Invalid message Message that will be added in red below the field once the validation has
-     * been done and the field is invalid.
-     *
-     * NOTE: this message is overwritten if the internal validation failed (not allow file type or
-     * file too big or required empty file)
-     *
-     * @type {Sting}
-     */
-    invalidMessage: {
-        type: String,
-        default: '',
-    },
-    /**
-     * Mark the field has validated.
-     *
-     * As long as the flag is false, no validation is run and no validation marks are set. Also the
-     * props is-invalid and is-valid are ignored.
-     */
-    activateValidation: {
-        type: Boolean,
-        default: false,
-    },
-    /**
-     * Validate function to run when the input changes The function should return an empty string if
-     * the validation pass or an error message key that will be translated and set as invalid error
-     * message.
-     *
-     * NOTE: this function is called each time the field is modified
-     *
-     * @type {Function | undefined}
-     */
-    validate: {
-        type: [Function, null],
-        default: undefined,
-        validator: propsValidator4ValidateFunc,
-    },
-    dataCy: {
-        type: String,
-        default: '',
-    },
-})
-const { placeholder, disabled, label, description, dataCy } = props
 const textAreaElement = useTemplateRef('textAreaElement')
 
 const { value, validMarker, invalidMarker, validMessage, invalidMessage, onFocus, required } =

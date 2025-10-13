@@ -29,16 +29,16 @@ import { reproject } from 'reproject'
  *
  * @param geoJsonData GeoJSON data (FeatureCollection) to be reprojected
  * @param toProjection Wanted projection for these data
- * @param fromProjection Source projection, in which the data is being described (or `null` if none
+ * @param fromProjection Source projection, in which the data is being described (or `undefined` if none
  *   were set in the GeoJSON data, meaning it is described with WGS84)
  */
 export function reprojectGeoJsonData(
     geoJsonData: FeatureCollection,
     toProjection: CoordinateSystem,
     fromProjection?: CoordinateSystem
-): FeatureCollection | null {
+): FeatureCollection | undefined {
     if (!geoJsonData) {
-        return null
+        return undefined
     }
     const matchingProjection: CoordinateSystem =
         // GeoJSONs don't give CRS anymore, since some later revision (see https://datatracker.ietf.org/doc/html/rfc7946#appendix-B.1)
@@ -71,7 +71,7 @@ export function reprojectGeoJsonData(
  *
  * @param geometry Geometry to be reprojected
  * @param toProjection Wanted projection for these data
- * @param fromProjection Source projection, in which the data is being described (or `null` if none
+ * @param fromProjection Source projection, in which the data is being described (or `undefined` if none
  *   were set in the GeoJSON data, meaning it is described with WGS84)
  */
 export function reprojectGeoJsonGeometry(
@@ -105,7 +105,7 @@ export function reprojectGeoJsonGeometry(
  *
  * @param geometry
  * @param fromProjection In which coordinate-system is this GeoJSON data described as. If nothing is
- *   specified, the default projection of GeoJSON data must be WGS84. Default is `null`
+ *   specified, the default projection of GeoJSON data must be WGS84. Default is `undefined`
  */
 export function transformIntoTurfEquivalent(
     geometry: Geometry,
