@@ -2,6 +2,7 @@
 import { allCoordinateSystems, WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import OlMap from 'ol/Map'
+import type { Map as OlMapType } from 'ol'
 import { get as getProjection } from 'ol/proj'
 import { onMounted, provide, useTemplateRef } from 'vue'
 
@@ -17,9 +18,9 @@ import OpenLayersPinnedLocation from '@/modules/map/components/openlayers/OpenLa
 import OpenLayersRectangleSelectionFeedback from '@/modules/map/components/openlayers/OpenLayersRectangleSelectionFeedback.vue'
 import OpenLayersSelectionRectangle from '@/modules/map/components/openlayers/OpenLayersSelectionRectangle.vue'
 import OpenLayersVisibleLayers from '@/modules/map/components/openlayers/OpenLayersVisibleLayers.vue'
-import useMapInteractions from '@/modules/map/components/openlayers/utils/useMapInteractions.composable'
-import usePrintAreaRenderer from '@/modules/map/components/openlayers/utils/usePrintAreaRenderer.composable'
-import useViewBasedOnProjection from '@/modules/map/components/openlayers/utils/useViewBasedOnProjection.composable'
+import useMapInteractions from '@/modules/map/components/openlayers/utils/useMapInteractions.composable.ts'
+import usePrintAreaRenderer from '@/modules/map/components/openlayers/utils/usePrintAreaRenderer.composable.ts'
+import useViewBasedOnProjection from '@/modules/map/components/openlayers/utils/useViewBasedOnProjection.composable.ts'
 import type { ActionDispatcher } from '@/store/types'
 import useDebugStore from '@/store/modules/debug.store'
 import useMapStore from '@/store/modules/map.store'
@@ -48,10 +49,10 @@ const geolocationStore = useGeolocationStore()
 const layersStore = useLayersStore()
 const mapStore = useMapStore()
 
-const map: Map = new OlMap({ controls: [] })
+const map: OlMapType = new OlMap({ controls: [] })
 useViewBasedOnProjection(map)
 
-provide<Map>('olMap', map)
+provide<OlMapType>('olMap', map)
 
 if (IS_TESTING_WITH_CYPRESS) {
     window.map = map

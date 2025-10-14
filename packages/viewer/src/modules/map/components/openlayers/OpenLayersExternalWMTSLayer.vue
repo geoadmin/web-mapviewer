@@ -33,7 +33,7 @@ const options = computed<WMTSOptions | undefined>(() => {
     if (!externalWmtsLayerConfig.options) {
         return undefined
     }
-    const clonedOptions: WMTSOptions = cloneDeep(externalWmtsLayerConfig.options)
+    const clonedOptions = cloneDeep(externalWmtsLayerConfig.options) as WMTSOptions
     if ('dimension' in clonedOptions) {
         delete clonedOptions.dimensions
     }
