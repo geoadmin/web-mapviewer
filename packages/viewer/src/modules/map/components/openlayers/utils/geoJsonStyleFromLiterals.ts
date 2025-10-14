@@ -114,11 +114,11 @@ function getOlBasicStyles(vectorOptions: GeoAdminGeoJSONVectorOptions): OLBasicS
         olStyles.stroke = new Stroke(vectorOptions.stroke)
     }
     if (vectorOptions.label) {
-        let backgroundFill: Fill | undefined = undefined
+        let backgroundFill: Fill | undefined
         if (vectorOptions.label.text.backgroundFill) {
             backgroundFill = new Fill(vectorOptions.label.text.backgroundFill)
         }
-        let backgroundStroke: Stroke | undefined = undefined
+        let backgroundStroke: Stroke | undefined
         if (vectorOptions.label.text.backgroundStroke) {
             backgroundStroke = new Stroke(vectorOptions.label.text.backgroundStroke)
         }
@@ -224,7 +224,6 @@ class OlStyleForPropertyValue {
 
     constructor(geoadminStyleJson: GeoAdminGeoJSONStyleDefinition) {
         this.key = geoadminStyleJson.property
-        this.singleStyle = undefined
         this.defaultVal = 'defaultVal'
         this.defaultStyle = new Style()
         this.styles = {
@@ -285,7 +284,7 @@ class OlStyleForPropertyValue {
     }
 
     findOlStyleInRange_(value: number, geomType: string): StyleSpec[] | undefined {
-        let olStyleSpecs: StyleSpec[] | undefined = undefined
+        let olStyleSpecs: StyleSpec[] | undefined
 
         const geomStyles = this.styles[geomType]
         if (!geomStyles) {
@@ -300,7 +299,7 @@ class OlStyleForPropertyValue {
             const max = parseFloat(limits[1]?.replace(/\s/g, '') || '0')
 
             if (!olStyleSpecs && value >= min && value < max) {
-                olStyleSpecs = geomStyles[range] || undefined
+                olStyleSpecs = geomStyles[range]
             }
         })
         return olStyleSpecs
@@ -324,7 +323,7 @@ class OlStyleForPropertyValue {
     }
 
     setOlText_(olStyle: Style, labelProperty: string | undefined, labelTemplate: string | undefined, properties: Record<string, unknown>): Style {
-        let text: string | undefined = undefined
+        let text: string | undefined
         properties = properties || {}
         if (labelProperty) {
             text = properties[labelProperty] as string
@@ -364,10 +363,10 @@ class OlStyleForPropertyValue {
         const value = properties[this.key] ?? this.defaultVal
         const geomType = getGeomTypeFromGeometry(feature.getGeometry() as SimpleGeometry)
 
-        let olStyles: StyleSpec[] | undefined = undefined
+        let olStyles: StyleSpec[] | undefined
         if (this.type === 'unique' && geomType) {
             const geomStyles = this.styles[geomType]
-            olStyles = geomStyles?.[value as string] || undefined
+            olStyles = geomStyles?.[value as string]
         } else if (this.type === 'range' && geomType) {
             olStyles = this.findOlStyleInRange_(value as number, geomType)
         }
@@ -387,8 +386,8 @@ class OlStyleForPropertyValue {
         if (styleSpec && styleSpec.olStyle) {
             const olStyle = this.setOlText_(
                 styleSpec.olStyle,
-                styleSpec.labelProperty || undefined,
-                styleSpec.labelTemplate || undefined,
+                styleSpec.labelProperty,
+                styleSpec.labelTemplate,
                 properties
             )
             return this.setOlRotation_(olStyle, styleSpec.imageRotationProperty, properties)
@@ -415,8 +414,8 @@ class OlStyleForPropertyValue {
             }
             const olStyle = this.setOlText_(
                 this.singleStyle.olStyle,
-                this.singleStyle.labelProperty || undefined,
-                this.singleStyle.labelTemplate || undefined,
+                this.singleStyle.labelProperty,
+                this.singleStyle.labelTemplate,
                 properties
             )
             return this.setOlRotation_(olStyle, this.singleStyle.imageRotationProperty, properties)
