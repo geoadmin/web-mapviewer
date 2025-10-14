@@ -2,9 +2,11 @@
 /** Adds a GeoJSON layer to the OpenLayers map */
 
 import type { Map } from 'ol'
+import type { FeatureLike } from 'ol/Feature'
 import type { GeoAdminGeoJSONLayer } from '@swissgeo/layers'
 
 import log from '@swissgeo/log'
+import { Feature } from 'ol'
 import GeoJSON from 'ol/format/GeoJSON'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
@@ -51,7 +53,15 @@ function setGeoJsonStyle(): void {
         return
     }
     const styleFunction = new OlStyleForPropertyValue(geoJsonStyle.value)
-    layer.setStyle((feature, res) => styleFunction.getFeatureStyle(feature, res))
+    layer.setStyle((feature: FeatureLike, res) => {
+        // OpenLayers passes FeatureLike, but our style function expects Feature
+        // RenderFeature doesn't have the same methods as Feature, so we need to handle this
+        if (feature instanceof Feature) {
+            return styleFunction.getFeatureStyle(feature, res)
+        }
+        // For RenderFeature, return a default style or handle differently
+        return styleFunction.defaultStyle
+    })
 }
 function setFeatures(): void {
     if (!geoJsonData.value) {
