@@ -1,4 +1,4 @@
-import type Layer from 'ol/layer'
+import type { default as Layer } from 'ol/layer/Layer'
 import type Map from 'ol/Map'
 
 import VectorSource from 'ol/source/Vector'

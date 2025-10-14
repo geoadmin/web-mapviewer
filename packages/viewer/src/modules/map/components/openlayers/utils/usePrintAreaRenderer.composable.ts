@@ -194,15 +194,19 @@ export default function usePrintAreaRenderer(map: Map): void {
             printRectangle[3],
         ])
 
-        printStore.setPrintExtent(
-            [
-                topLeftCoordinate[0], // minX
-                rightBottomCoordinate[1], // minY
-                rightBottomCoordinate[0], // maxX
-                topLeftCoordinate[1], // maxY
-            ],
-            dispatcher
-        )
+        if (topLeftCoordinate && rightBottomCoordinate &&
+            topLeftCoordinate[0] !== undefined && topLeftCoordinate[1] !== undefined &&
+            rightBottomCoordinate[0] !== undefined && rightBottomCoordinate[1] !== undefined) {
+            printStore.setPrintExtent(
+                [
+                    topLeftCoordinate[0], // minX
+                    rightBottomCoordinate[1], // minY
+                    rightBottomCoordinate[0], // maxX
+                    topLeftCoordinate[1], // maxY
+                ],
+                dispatcher
+            )
+        }
 
         const getRenderPixelAsCoordinate = (x: number, y: number): SingleCoordinate => {
             return getRenderPixel(event, [x, y]) as SingleCoordinate
