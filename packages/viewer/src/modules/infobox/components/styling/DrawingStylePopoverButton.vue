@@ -3,14 +3,12 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { useTemplateRef, computed } from 'vue'
 
-type Props = {
+const { icon, popoverTitle, buttonClassOptions } = defineProps<{
     /** The button should have either a title or icons (or both) */
     icon?: string
     popoverTitle?: string
     buttonClassOptions?: string
-}
-
-const { icon, popoverTitle, buttonClassOptions } = defineProps<Props>()
+}>()
 const iconValue = computed<string>(() => icon ?? 'pen')
 
 type TooltipRef = { closeTooltip: () => void } | undefined

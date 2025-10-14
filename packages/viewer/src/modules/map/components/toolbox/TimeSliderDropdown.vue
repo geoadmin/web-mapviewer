@@ -9,13 +9,15 @@ const { t } = useI18n()
 
 const emit = defineEmits(['update:modelValue', 'play'])
 
-interface Props {
+const {
+    modelValue,
+    entries = [],
+    isPlaying = false,
+} = defineProps<{
     modelValue: number | string
     entries: number[]
     isPlaying: boolean
-}
-
-const { modelValue, entries = [], isPlaying = false } = defineProps<Props>()
+}>()
 
 const isDropdownOpen = ref(false)
 const inputValue = ref<string>('')

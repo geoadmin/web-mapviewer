@@ -9,31 +9,35 @@ import { useMovableElement } from '@/utils/composables/useMovableElement.composa
 const acceptedInitialPositions = ['top-left', 'top-center', 'top-right', 'bottom-center'] as const
 type InitialPosition = (typeof acceptedInitialPositions)[number]
 
-interface Props {
+const {
+    title = '',
+    hide = false,
+    movable = false,
+    resizeable = false,
+    allowPrint = false,
+    initialPosition = 'top-center',
+    wide = false,
+    small = false,
+    dataCy = 'simple-window',
+} = defineProps<{
     title?: string
-    /** Hide the modal with backdrop, can be used to temporarily hide the modal without loosing its content */
+    /**
+     * Hide the modal with backdrop, can be used to temporarily hide the modal without loosing its
+     * content
+     */
     hide?: boolean
     movable?: boolean
     resizeable?: boolean
     allowPrint?: boolean
     initialPosition?: string
-    /** If true, the window will be displayed in 80% of the screen width, else it will be displayed in compact mode (400px) */
+    /**
+     * If true, the window will be displayed in 80% of the screen width, else it will be displayed
+     * in compact mode (400px)
+     */
     wide?: boolean
     small?: boolean
     dataCy?: string
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    title: '',
-    hide: false,
-    movable: false,
-    resizeable: false,
-    allowPrint: false,
-    initialPosition: 'top-center',
-    wide: false,
-    small: false,
-    dataCy: 'simple-window',
-})
+}>()
 
 const uiStore = useUiStore()
 
@@ -51,15 +55,15 @@ const headerRef = useTemplateRef<HTMLDivElement>('headerRef')
 const contentRef = useTemplateRef<HTMLDivElement>('contentRef')
 
 const initialPositionClass = computed(() => {
-    if (acceptedInitialPositions.includes(props.initialPosition as InitialPosition)) {
-        return props.initialPosition
+    if (acceptedInitialPositions.includes(initialPosition as InitialPosition)) {
+        return initialPosition
     } else {
         return 'top-center'
     }
 })
 
 onMounted(() => {
-    if (props.movable) {
+    if (movable) {
         const windowElement = windowRef.value
         const headerElement = headerRef.value
         if (windowElement && headerElement) {

@@ -9,27 +9,27 @@ import { useI18n } from 'vue-i18n'
 import usePositionStore from '@/store/modules/position.store'
 import formatCoordinates, { type CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 
-interface Props {
+const {
+    identifier,
+    value,
+    extraValue,
+    resetDelay = 1000,
+    coordinateFormat,
+    coordinateProjection,
+} = defineProps<{
     identifier: string
     value: number[] | string
     extraValue?: string
     resetDelay?: number
     coordinateFormat?: CoordinateFormat
     coordinateProjection?: CoordinateSystem
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    extraValue: undefined,
-    resetDelay: 1000,
-    coordinateFormat: undefined,
-    coordinateProjection: undefined,
-})
+}>()
 
 const copied = ref(false)
 
 const positionStore = usePositionStore()
 const { t } = useI18n()
-const projection = computed(() => props.coordinateProjection ?? positionStore.projection)
+const projection = computed(() => coordinateProjection ?? positionStore.projection)
 const copyButtonText = computed(() => t(copied.value ? 'copy_done' : 'copy_cta'))
 
 const buttonIcon = computed(() => {
@@ -41,9 +41,9 @@ const buttonIcon = computed(() => {
 })
 
 function display(coordinates: number[] | string): string | number[] {
-    if (props.coordinateFormat && Array.isArray(coordinates) && coordinates.length >= 2) {
+    if (coordinateFormat && Array.isArray(coordinates) && coordinates.length >= 2) {
         return formatCoordinates(
-            props.coordinateFormat,
+            coordinateFormat,
             coordinates as [number, number],
             projection.value
         )
@@ -53,14 +53,14 @@ function display(coordinates: number[] | string): string | number[] {
 
 async function copyValue(): Promise<void> {
     try {
-        const displayValue = display(props.value)
+        const displayValue = display(value)
         const textValue = typeof displayValue === 'string' ? displayValue : displayValue.join(', ')
         await navigator.clipboard.writeText(textValue)
         copied.value = true
         // leaving the "Copied" text for the wanted delay, and then reverting to "Copy"
         setTimeout(() => {
             copied.value = false
-        }, props.resetDelay)
+        }, resetDelay)
     } catch (error) {
         log.error(`Failed to copy to clipboard:`, error as Error)
     }
@@ -73,14 +73,14 @@ async function copyValue(): Promise<void> {
     </div>
     <div class="location-popup-data align-items-center gap-1">
         <div>
-            <div :data-cy="`${props.identifier}`">
-                {{ display(props.value) }}
+            <div :data-cy="`${identifier}`">
+                {{ display(value) }}
             </div>
             <div
-                v-if="props.extraValue"
-                :data-cy="`${props.identifier}-extra-value`"
+                v-if="extraValue"
+                :data-cy="`${identifier}-extra-value`"
             >
-                {{ props.extraValue }}
+                {{ extraValue }}
             </div>
         </div>
         <GeoadminTooltip
@@ -88,7 +88,7 @@ async function copyValue(): Promise<void> {
             :tooltip-content="copyButtonText"
         >
             <button
-                :data-cy="`${props.identifier}-button`"
+                :data-cy="`${identifier}-button`"
                 class="location-popup-copy-button btn btn-sm btn-light text-black-50"
                 type="button"
                 @click="copyValue"
@@ -96,7 +96,7 @@ async function copyValue(): Promise<void> {
                 <FontAwesomeIcon
                     class="icon"
                     :icon="buttonIcon"
-                    :data-cy="`${props.identifier}-icon`"
+                    :data-cy="`${identifier}-icon`"
                 />
             </button>
         </GeoadminTooltip>

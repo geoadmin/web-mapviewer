@@ -9,27 +9,17 @@ const uiStore = useUIStore()
 const { t } = useI18n()
 const emit = defineEmits(['loadFile'])
 
-// Props
-const props = defineProps({
-    buttonState: {
-        type: String,
-        default: 'default',
-    },
-    disabled: {
-        type: Boolean,
-        default: false,
-    },
-})
-
-// Reactive data
-const buttonState = toRef(props, 'buttonState')
+const { buttonState = 'default', disabled = false } = defineProps<{
+    buttonState?: 'default' | 'loading' | 'succeeded'
+    disabled?: boolean
+}>()
 
 // Store mapping (input)
 const toggleImportFile = () => uiStore.toggleImportFile(dispatcher)
 
 // Computed properties
 const buttonI18nKey = computed(() => {
-    switch (buttonState.value) {
+    switch (buttonState) {
         case 'loading':
             return 'loading_file'
         case 'succeeded':
@@ -39,7 +29,7 @@ const buttonI18nKey = computed(() => {
             return 'import'
     }
 })
-const isLoading = computed(() => buttonState.value === 'loading')
+const isLoading = computed(() => buttonState === 'loading')
 </script>
 
 <template>

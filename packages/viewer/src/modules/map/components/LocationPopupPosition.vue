@@ -20,14 +20,12 @@ import {
     WGS84Format,
 } from '@/utils/coordinates/coordinateFormat.js'
 
-interface Props {
+const { coordinate, clickInfo, projection, currentLang } = defineProps<{
     coordinate: SingleCoordinate
     clickInfo?: ClickInfo
     projection: CoordinateSystem
     currentLang: string
-}
-
-const props = defineProps<Props>()
+}>()
 
 const lv03Coordinate = ref<SingleCoordinate | undefined>(undefined)
 const what3Words = ref<string | undefined>(undefined)
@@ -36,7 +34,7 @@ const height = ref<{ heightInFeet?: number; heightInMeter?: number } | undefined
 const { t } = useI18n()
 
 const coordinateWGS84Metric = computed(() => {
-    return coordinatesUtils.reprojectAndRound(props.projection, WGS84, props.coordinate)
+    return coordinatesUtils.reprojectAndRound(projection, WGS84, coordinate)
 })
 const coordinateWGS84Plain = computed(() => {
     return coordinateWGS84Metric.value
@@ -53,7 +51,7 @@ const heightInMeter = computed(() => {
 })
 
 onMounted(() => {
-    if (props.clickInfo) {
+    if (clickInfo) {
         updateLV03Coordinate().catch((error: unknown) => {
             log.error('Failed to retrieve LV03 coordinate', error as GeoadminLogInput)
         })
@@ -67,7 +65,7 @@ onMounted(() => {
 })
 
 watch(
-    () => props.clickInfo,
+    () => clickInfo,
     (newClickInfo) => {
         if (newClickInfo) {
             updateLV03Coordinate().catch((error: unknown) => {
@@ -82,15 +80,11 @@ watch(
         }
     }
 )
-watch(() => props.currentLang, updateWhat3Word)
+watch(() => currentLang, updateWhat3Word)
 
 async function updateLV03Coordinate() {
     try {
-        const lv95coordinate = coordinatesUtils.reprojectAndRound(
-            props.projection,
-            LV95,
-            props.coordinate
-        )
+        const lv95coordinate = coordinatesUtils.reprojectAndRound(projection, LV95, coordinate)
         lv03Coordinate.value = await reframe({
             inputCoordinates: lv95coordinate,
             inputProjection: LV95,
@@ -104,11 +98,7 @@ async function updateLV03Coordinate() {
 
 async function updateWhat3Word() {
     try {
-        what3Words.value = await registerWhat3WordsLocation(
-            props.coordinate,
-            props.projection,
-            props.currentLang
-        )
+        what3Words.value = await registerWhat3WordsLocation(coordinate, projection, currentLang)
     } catch (error: unknown) {
         log.error(`Failed to retrieve What3Words Location`, error as GeoadminLogInput)
         what3Words.value = undefined
@@ -116,7 +106,7 @@ async function updateWhat3Word() {
 }
 async function updateHeight() {
     try {
-        height.value = await requestHeight(props.coordinate, props.projection)
+        height.value = await requestHeight(coordinate, projection)
     } catch (error: unknown) {
         log.error(`Failed to get position height`, error as GeoadminLogInput)
         height.value = undefined

@@ -9,7 +9,12 @@ import { computed } from 'vue'
 
 import { segmentizeMatch } from '@/utils/utils'
 
-interface Props {
+const {
+    text,
+    allowHtml = false,
+    search = '',
+    markers = ['fw-bold', 'bg-info', 'bg-opacity-25'],
+} = defineProps<{
     /** Text to mark matching pattern */
     text: string
     /** Allow HTML tags in text - WARNING: Should only be used if the text source is safe! */
@@ -18,15 +23,9 @@ interface Props {
     search?: string | RegExp
     /** List of class to use as markers for matching text */
     markers?: string[] | string
-}
+}>()
 
-const props = withDefaults(defineProps<Props>(), {
-    allowHtml: false,
-    search: '',
-    markers: () => ['fw-bold', 'bg-info', 'bg-opacity-25'],
-})
-
-const segments = computed(() => segmentizeMatch(props.text, props.search))
+const segments = computed(() => segmentizeMatch(text, search))
 
 const emit = defineEmits<{
     click: []
@@ -34,7 +33,7 @@ const emit = defineEmits<{
 
 function getClasses(match: boolean): string[] | string {
     if (match) {
-        return props.markers
+        return markers
     }
     return []
 }

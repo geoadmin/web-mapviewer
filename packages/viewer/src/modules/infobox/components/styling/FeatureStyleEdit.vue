@@ -36,15 +36,10 @@ import type { DrawingIcon } from '@/api/icon.api'
 
 const dispatcher = { name: 'FeatureStyleEdit.vue' }
 
-type Props = {
+const { feature, readOnly = false } = defineProps<{
     feature: EditableFeature
     readOnly?: boolean
-}
-
-const { feature, readOnly } = withDefaults(defineProps<Props>(), {
-    readOnly: false,
-})
-
+}>()
 const { t } = useI18n()
 
 const drawingStore = useDrawingStore()
