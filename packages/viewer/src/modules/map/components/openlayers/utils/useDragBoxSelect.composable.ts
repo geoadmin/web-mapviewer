@@ -8,7 +8,6 @@ import log from '@swissgeo/log'
 import {
     booleanIntersects,
     circle,
-    geometryCollection,
     lineString,
     multiLineString,
     multiPoint,
@@ -80,7 +79,10 @@ export function useDragBoxSelect(): {
                     )
             )
         ) {
-            log.error('Invalid dragBoxCoordinates:', dragBoxCoordinates)
+            log.error({
+                title: 'useDragBoxSelect.composable',
+                messages: ['Invalid dragBoxCoordinates:', dragBoxCoordinates]
+            })
             return
         }
 
@@ -153,40 +155,67 @@ export function useDragBoxSelect(): {
  */
 function fromOlGeometryToTurfGeometry(olGeometry: Geometry | undefined): TurfGeometry | undefined {
     if (!olGeometry) {
-        log.error('Invalid OpenLayers geometry provided.', 'undefined geometry')
+        log.error({
+            title: 'useDragBoxSelect.composable',
+            messages: ['Invalid OpenLayers geometry provided.', 'undefined geometry']
+        })
         return undefined
-    }
-
-    // Mapping OpenLayers geometry types to Turf.js functions
-    const geometryMapping: Record<
-        string,
-        ((coords: unknown) => TurfGeometry) | ((geom: Circle) => TurfGeometry)
-    > = {
-        Point: (coords: unknown) => point(coords as any).geometry, // eslint-disable-line @typescript-eslint/no-explicit-any
-        MultiPoint: (coords: unknown) => multiPoint(coords as any).geometry, // eslint-disable-line @typescript-eslint/no-explicit-any
-        LineString: (coords: unknown) => lineString(coords as any).geometry, // eslint-disable-line @typescript-eslint/no-explicit-any
-        MultiLineString: (coords: unknown) => multiLineString(coords as any).geometry, // eslint-disable-line @typescript-eslint/no-explicit-any
-        Polygon: (coords: unknown) => polygon(coords as any).geometry, // eslint-disable-line @typescript-eslint/no-explicit-any
-        MultiPolygon: (coords: unknown) => multiPolygon(coords as any).geometry, // eslint-disable-line @typescript-eslint/no-explicit-any
-        GeometryCollection: (coords: unknown) => geometryCollection(coords as any).geometry, // eslint-disable-line @typescript-eslint/no-explicit-any
-        Circle: function (olGeometry: Circle) {
-            const center = olGeometry.getCenter()
-            const radius = olGeometry.getRadius()
-            return circle(center, radius).geometry
-        },
     }
 
     const olGeometryType = olGeometry.getType()
 
-    const turfGeometryFunction = geometryMapping[olGeometryType]
-
-    if (turfGeometryFunction) {
-        if (olGeometryType === 'Circle') {
-            return turfGeometryFunction(olGeometry as Circle)
+    // Handle each geometry type specifically to avoid complex union types
+    switch (olGeometryType) {
+        case 'Point': {
+            const coords = (olGeometry as Geometry & { getCoordinates(): SingleCoordinate }).getCoordinates()
+            return point(coords).geometry
         }
-        return turfGeometryFunction((olGeometry as any).getCoordinates()) // eslint-disable-line @typescript-eslint/no-explicit-any
-    } else {
-        log.error('Unsupported geometry type:', olGeometryType)
-        return undefined
+        case 'MultiPoint': {
+            const coords = (olGeometry as Geometry & { getCoordinates(): SingleCoordinate[] }).getCoordinates()
+            return multiPoint(coords).geometry
+        }
+        case 'LineString': {
+            const coords = (olGeometry as Geometry & { getCoordinates(): SingleCoordinate[] }).getCoordinates()
+            return lineString(coords).geometry
+        }
+        case 'MultiLineString': {
+            const coords = (olGeometry as Geometry & { getCoordinates(): SingleCoordinate[][] }).getCoordinates()
+            return multiLineString(coords).geometry
+        }
+        case 'Polygon': {
+            const coords = (olGeometry as Geometry & { getCoordinates(): SingleCoordinate[][] }).getCoordinates()
+            return polygon(coords).geometry
+        }
+        case 'MultiPolygon': {
+            const coords = (olGeometry as Geometry & { getCoordinates(): SingleCoordinate[][][] }).getCoordinates()
+            return multiPolygon(coords).geometry
+        }
+        case 'GeometryCollection': {
+            // GeometryCollection in OpenLayers contains other geometries, not coordinates
+            // We need to recursively convert each geometry in the collection
+            const olGeometryCollection = olGeometry as Geometry & {
+                getGeometries(): Geometry[]
+            }
+            const geometries = olGeometryCollection.getGeometries()
+                .map(fromOlGeometryToTurfGeometry)
+                .filter((geom): geom is TurfGeometry => !!geom)
+
+            // Return a GeometryCollection directly
+            return {
+                type: 'GeometryCollection',
+                geometries: geometries
+            } as TurfGeometry
+        }
+        case 'Circle': {
+            const center = (olGeometry as Circle).getCenter()
+            const radius = (olGeometry as Circle).getRadius()
+            return circle(center as SingleCoordinate, radius).geometry
+        }
+        default:
+            log.error({
+                title: 'useDragBoxSelect.composable',
+                messages: ['Unsupported geometry type:', olGeometryType]
+            })
+            return
     }
 }
