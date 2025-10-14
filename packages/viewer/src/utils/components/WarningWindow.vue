@@ -4,16 +4,14 @@ import { useI18n } from 'vue-i18n'
 
 import useUiStore from '@/store/modules/ui.store'
 
-interface Props {
+const { title = '', hide = false } = defineProps<{
     title?: string
-    /** Hide the modal with backdrop, can be used to temporarily hide the modal without loosing its content */
+    /**
+     * Hide the modal with backdrop, can be used to temporarily hide the modal without loosing its
+     * content
+     */
     hide?: boolean
-}
-
-withDefaults(defineProps<Props>(), {
-    title: '',
-    hide: false,
-})
+}>()
 
 const uiStore = useUiStore()
 

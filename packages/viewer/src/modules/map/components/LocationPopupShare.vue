@@ -5,11 +5,9 @@ import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareI
 import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSocialNetworks.vue'
 import useUIStore from '@/store/modules/ui.store'
 
-interface Props {
-    shareLinkUrlShorten: string | undefined
-}
-
-const props = defineProps<Props>()
+const { shareLinkUrlShorten } = defineProps<{
+    shareLinkUrlShorten?: string
+}>()
 
 const uiStore = useUIStore()
 
@@ -26,11 +24,11 @@ const isDesktopMode = computed(() => uiStore.isDesktopMode)
         data-cy="import-file-online-content"
     >
         <MenuShareSocialNetworks
-            :short-link="props.shareLinkUrlShorten"
+            :short-link="shareLinkUrlShorten"
             class="pt-1"
         />
         <MenuShareInputCopyButton
-            :input-text="props.shareLinkUrlShorten"
+            :input-text="shareLinkUrlShorten"
             :label-text="'share_link'"
             :copy-text="'copy_url'"
             :copied-text="'copy_success'"

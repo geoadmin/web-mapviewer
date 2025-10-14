@@ -1,26 +1,21 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-interface Props {
+const { withSpinner = false, placeForModal = false } = defineProps<{
     withSpinner?: boolean
     placeForModal?: boolean
-}
-
-withDefaults(defineProps<Props>(), {
-    withSpinner: false,
-    placeForModal: false,
-})
+}>()
 </script>
 
 <template>
     <div
-        class="black-backdrop position-fixed w-100 h-100 start-0 top-0 bg-black bg-opacity-50"
+        class="black-backdrop position-fixed bg-opacity-50 start-0 top-0 h-100 w-100 bg-black"
         :class="{ 'modal-z-index': placeForModal }"
         data-cy="black-backdrop"
     >
         <div
             v-if="withSpinner"
-            class="position-absolute start-50 top-50 translate-middle text-light"
+            class="position-absolute translate-middle text-light start-50 top-50"
         >
             <FontAwesomeIcon
                 icon="spinner"

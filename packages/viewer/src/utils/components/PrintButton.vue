@@ -5,13 +5,9 @@ import { useI18n } from 'vue-i18n'
 
 import ModalPrintWithBackdrop from '@/utils/components/ModalPrintWithBackdrop.vue'
 
-interface Props {
+const { content } = defineProps<{
     content?: HTMLDivElement
-}
-
-withDefaults(defineProps<Props>(), {
-    content: undefined,
-})
+}>()
 
 const emits = defineEmits<{
     hideParentModal: [hide: boolean]

@@ -15,7 +15,11 @@
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, onBeforeUnmount, onMounted, ref, useSlots, useTemplateRef } from 'vue'
 
-interface Props {
+const {
+    text = '',
+    tooltipPlacement = 'top',
+    dataCy = '',
+} = defineProps<{
     /**
      * Text to use in tooltip.
      *
@@ -25,14 +29,7 @@ interface Props {
     text?: string
     tooltipPlacement?: 'top' | 'right' | 'bottom' | 'left'
     dataCy?: string
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    text: '',
-    tooltipPlacement: 'top',
-    dataCy: '',
-})
-
+}>()
 const slots = useSlots()
 
 const outerElement = useTemplateRef<InstanceType<typeof GeoadminTooltip>>('outerElement')
@@ -49,8 +46,8 @@ const tooltipContent = computed(() => {
     if (!showTooltip.value) {
         return undefined
     }
-    if (props.text) {
-        return props.text
+    if (text) {
+        return text
     }
     if (
         slots.default &&
