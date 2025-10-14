@@ -82,8 +82,8 @@ export default function useDeviceOrientation(): {
             compassHeading: undefined,
         },
     })
-    const heading = ref<number | undefined>(undefined)
-    const headingDegree = ref<number | undefined>(undefined)
+    const heading = ref<number | undefined>()
+    const headingDegree = ref<number | undefined>()
 
     const autoRotation = computed(() => positionStore.autoRotation)
     const hasOrientation = computed(() => supportDeviceOrientation && positionStore.hasOrientation)
@@ -113,8 +113,8 @@ export default function useDeviceOrientation(): {
         ],
         () => {
             if (
-                orientationSampled.value.absolute.compassHeading !== undefined ||
-                orientationSampled.value.default.compassHeading !== undefined
+                orientationSampled.value.absolute.compassHeading ||
+                orientationSampled.value.default.compassHeading
             ) {
                 // On Iphone webkitCompassHeading is clockwise, while the alpha is counterclockwise
                 // to keep consistency we use everything in counterclockwise therefore we use
@@ -124,12 +124,12 @@ export default function useDeviceOrientation(): {
                     (orientationSampled.value.absolute.compassHeading ??
                         orientationSampled.value.default.compassHeading!)
                 heading.value = toRadians(headingDegree.value)
-            } else if (orientationSampled.value.absolute.degree !== undefined) {
+            } else if (orientationSampled.value.absolute.degree) {
                 headingDegree.value = orientationSampled.value.absolute.degree
                 heading.value = toRadians(headingDegree.value)
             } else if (
                 orientationSampled.value.default.absolute === true &&
-                orientationSampled.value.default.degree !== undefined
+                orientationSampled.value.default.degree
             ) {
                 headingDegree.value = orientationSampled.value.default.degree
                 heading.value = toRadians(headingDegree.value)
@@ -141,7 +141,7 @@ export default function useDeviceOrientation(): {
     )
 
     watch(heading, (newValue) => {
-        if (newValue !== undefined) {
+        if (newValue) {
             if (!hasOrientation.value) {
                 positionStore.setHasOrientation(true, dispatcher)
             }
@@ -191,9 +191,12 @@ export default function useDeviceOrientation(): {
                     )
                     window.addEventListener(orientation.value.default.listener, handleOrientation)
                 })
-                .catch((error: unknown) =>
-                    log.error(`Failed to add device orientation listener: ${String(error)}`)
-                )
+                .catch((error: Error) => {
+                    log.error({
+                        title: 'useDeviceOrientation.composable',
+                        messages: [`Failed to add device orientation listener`, error]
+                    })
+                })
         } else {
             window.addEventListener(orientation.value.absolute.listener, handleOrientationAbsolute)
             window.addEventListener(orientation.value.default.listener, handleOrientation)
@@ -216,19 +219,19 @@ export default function useDeviceOrientation(): {
                 : undefined
 
         if (
-            orientation.value.default.degree === undefined &&
-            orientation.value.default.compassHeading === undefined
+            !orientation.value.default.degree &&
+            !orientation.value.default.compassHeading
         ) {
             // When the default listener doesn't return an alpha nor an webkitCompassHeading
             // this means that the device don't support at all orientation and we stop all listeners.
-            const compassHeading =
-                'webkitCompassHeading' in orientationEvent
-                    ? (
-                          orientationEvent as DeviceOrientationEvent & {
-                              webkitCompassHeading?: number
-                          }
-                      ).webkitCompassHeading
-                    : undefined
+            let compassHeading: number | undefined
+            if ('webkitCompassHeading' in orientationEvent) {
+                compassHeading = (orientationEvent as DeviceOrientationEvent & {
+                    webkitCompassHeading?: number
+                }).webkitCompassHeading
+            } else {
+                compassHeading = undefined
+            }
             log.warn(
                 `Invalid alpha value from ${orientation.value.default.listener} listener: ${orientationEvent.alpha}/${compassHeading}, stopping listener`,
                 orientationEvent
@@ -237,7 +240,7 @@ export default function useDeviceOrientation(): {
             stopOrientationDownSampling()
         } else if (
             orientation.value.default.absolute === false &&
-            orientation.value.default.compassHeading === undefined
+            !orientation.value.default.compassHeading
         ) {
             // the default listener only provide relative orientation that cannot be used therefore
             // remove the listener
@@ -255,8 +258,8 @@ export default function useDeviceOrientation(): {
                 : undefined
 
         if (
-            orientation.value.absolute.degree === undefined &&
-            orientation.value.absolute.compassHeading === undefined
+            !orientation.value.absolute.degree &&
+            !orientation.value.absolute.compassHeading
         ) {
             // the absolute listener don't provide any orientation, therefore remove the listener
             window.removeEventListener(
@@ -290,7 +293,7 @@ export default function useDeviceOrientation(): {
         // absolute listener
         orientationSampled.value.absolute.degree = undefined
         orientationSampled.value.absolute.compassHeading = undefined
-        if (downSamplingDescriptor !== undefined) {
+        if (downSamplingDescriptor) {
             clearInterval(downSamplingDescriptor)
             downSamplingDescriptor = undefined
         }
