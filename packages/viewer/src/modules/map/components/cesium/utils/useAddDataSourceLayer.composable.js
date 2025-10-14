@@ -1,4 +1,4 @@
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { GeoJsonDataSource, KmlDataSource } from 'cesium'
 import { onBeforeUnmount, toValue, watch } from 'vue'
 
@@ -33,7 +33,11 @@ export default function useAddDataSourceLayer(
     let dataSource = null
 
     async function refreshDataSource(loadingDataSource) {
-        log.debug(`[Cesium] refreshing data source layer ${toValue(layerId)}`)
+        log.debug({
+            title: 'useAddDataSourceLayer.composable',
+            titleColor: LogPreDefinedColor.Blue,
+            message: ['refreshing data source layer', toValue(layerId)],
+        })
         if (dataSource) {
             viewer.dataSources.remove(dataSource)
             viewer.scene.requestRender()
@@ -72,7 +76,11 @@ export default function useAddDataSourceLayer(
                     )
             }
         } catch (error) {
-            log.error('Error while parsing data source in Cesium', error)
+            log.error({
+                title: 'useAddDataSourceLayer.composable',
+                titleColor: LogPreDefinedColor.Red,
+                message: ['Error while parsing data source in Cesium', error],
+            })
         }
     }
 

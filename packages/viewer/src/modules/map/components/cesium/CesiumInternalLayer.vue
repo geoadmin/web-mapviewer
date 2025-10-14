@@ -30,22 +30,20 @@ const { layerConfig, zIndex, projection, isTimeSliderActive, parentLayerOpacity 
     zIndex?: number
     projection: CoordinateSystem
     isTimeSliderActive?: boolean
-    parentLayerOpacity?: number | null
+    parentLayerOpacity?: number
 }>()
 
 const positionStore = usePositionStore()
 const resolution = computed(() => positionStore.resolution)
 
 const isWMTS = computed(() => layerConfig.type === LayerType.WMTS)
-const wmtsLayerConfig = computed(
-    () => layerConfig as unknown as GeoAdminWMTSLayer | ExternalWMTSLayer
-)
+const wmtsLayerConfig = computed(() => layerConfig as GeoAdminWMTSLayer | ExternalWMTSLayer)
 const isWMS = computed(() => layerConfig.type === LayerType.WMS)
-const wmsLayerConfig = computed(() => layerConfig as unknown as GeoAdminWMSLayer | ExternalWMSLayer)
+const wmsLayerConfig = computed(() => layerConfig as GeoAdminWMSLayer | ExternalWMSLayer)
 const isGroup = computed(() => layerConfig.type === LayerType.GROUP)
-const groupConfig = computed(() => layerConfig as unknown as GeoAdminGroupOfLayers)
+const groupConfig = computed(() => layerConfig as GeoAdminGroupOfLayers)
 const isAggregate = computed(() => layerConfig.type === LayerType.AGGREGATE)
-const aggregateConfig = computed(() => layerConfig as unknown as GeoAdminAggregateLayer)
+const aggregateConfig = computed(() => layerConfig as GeoAdminAggregateLayer)
 
 function shouldAggregateSubLayerBeVisible(subLayer: {
     minResolution: number

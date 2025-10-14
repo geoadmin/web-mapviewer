@@ -12,12 +12,9 @@ const { t } = useI18n()
 const cesiumStore = useCesiumStore()
 const positionStore = usePositionStore()
 
-const is3dActive = computed(() => cesiumStore.active)
-const resolution = computed(() => positionStore.resolution)
-
 const getViewer = inject<() => Viewer | undefined>('getViewer', () => undefined, true)
 
-const step = computed(() => resolution.value * 200)
+const step = computed(() => positionStore.resolution * 200)
 
 function moveCamera(distance: number) {
     const viewer = getViewer()
@@ -36,7 +33,7 @@ function moveCamera(distance: number) {
 }
 
 function increaseZoom() {
-    if (is3dActive.value) {
+    if (cesiumStore.active) {
         moveCamera(step.value)
     } else {
         positionStore.increaseZoom(dispatcher)
@@ -44,7 +41,7 @@ function increaseZoom() {
 }
 
 function decreaseZoom() {
-    if (is3dActive.value) {
+    if (cesiumStore.active) {
         moveCamera(-step.value)
     } else {
         positionStore.decreaseZoom(dispatcher)

@@ -245,18 +245,18 @@ type MediaButton = {
 function mediaTypes(): MediaButton[] {
     return [
         {
-            type: MediaType.LINK,
+            type: MediaType.Link,
             buttonClassOptions: 'rounded-0 rounded-top-2 rounded-end-0',
             icon: 'fa-link' as IconProp,
             extraUrlDescription: 'text_to_display',
         },
         {
-            type: MediaType.IMAGE,
+            type: MediaType.Image,
             buttonClassOptions: 'rounded-0',
             icon: 'fa-image' as IconProp,
         },
         {
-            type: MediaType.VIDEO,
+            type: MediaType.Video,
             buttonClassOptions: 'rounded-0 rounded-top-2 rounded-start-0',
             icon: 'fa-film' as IconProp,
         },

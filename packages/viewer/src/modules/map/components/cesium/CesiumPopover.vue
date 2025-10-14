@@ -6,10 +6,11 @@
 
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 import { CoordinateSystem, WGS84 } from '@swissgeo/coordinates'
-import log from '@swissgeo/log'
-import { Cartesian3, Cartographic, defined, Ellipsoid, SceneTransforms, type Viewer } from 'cesium'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
+import { Cartesian3, Cartographic, defined, Ellipsoid, SceneTransforms } from 'cesium'
 import proj4 from 'proj4'
-import { computed, inject, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
+import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 
 import MapPopover from '@/modules/map/components/MapPopover.vue'
 
@@ -23,8 +24,6 @@ const { coordinates, projection, authorizePrint, title, useContentPadding } = de
 
 const emits = defineEmits(['close'])
 
-const getViewer = inject<() => Viewer | undefined>('getViewer')
-
 // Cesium will create an instance of Cartesian3 or Cartographic each time a calculation is made if
 // we do not provide one, so here we declare two "buffer" instances that will be used throughout this component
 const tempCartesian3 = new Cartesian3()
@@ -36,12 +35,12 @@ const anchorPosition = ref({
     top: 0,
     left: 0,
 })
-const coordinatesHeight = ref<number | undefined>(undefined)
+const coordinatesHeight = ref<number | undefined>()
 
 const wgs84Coordinates = computed(() => proj4(projection.epsg, WGS84.epsg, coordinates))
 
 onMounted(() => {
-    const viewer = getViewer?.()
+    const viewer = getCesiumViewer()
     if (viewer) {
         // By default, the `camera.changed` event will trigger when the camera has changed by 50%
         // To make it more sensitive (and improve tooltip "tracking" on the map), we set down sensitivity to 0.1%
@@ -59,11 +58,15 @@ onMounted(() => {
         updateCoordinateHeight()
         updatePosition()
     } else {
-        log.error('Cesium viewer unavailable, could not hook up popover to Cesium')
+        log.error({
+            title: 'CesiumPopover.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: ['Cesium viewer unavailable, could not hook up popover to Cesium'],
+        })
     }
 })
 onUnmounted(() => {
-    const viewer = getViewer?.()
+    const viewer = getCesiumViewer()
     if (viewer) {
         viewer.camera.changed.removeEventListener(updatePosition)
         viewer.scene.globe.tileLoadProgressEvent.removeEventListener(onTileLoadProgress)
@@ -85,7 +88,7 @@ watch(
  * this.coordinatesHeight
  */
 function updateCoordinateHeight(): void {
-    const viewer = getViewer?.()
+    const viewer = getCesiumViewer()
     coordinatesHeight.value =
         viewer?.scene.globe.getHeight(
             Cartographic.fromDegrees(
@@ -102,7 +105,7 @@ function updatePosition(): void {
         emits('close')
         return
     }
-    const viewer = getViewer?.()
+    const viewer = getCesiumViewer()
     if (!viewer) {
         return
     }
@@ -125,7 +128,7 @@ function updatePosition(): void {
 }
 
 function onTileLoadProgress(): void {
-    const viewer = getViewer?.()
+    const viewer = getCesiumViewer()
     // recalculating height and position as soon as all new terrain tiles are loaded (after camera movement, or at init)
     if (viewer && viewer.scene.globe.tilesLoaded) {
         updateCoordinateHeight()

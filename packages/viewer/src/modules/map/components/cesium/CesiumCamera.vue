@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { LV95, WGS84 } from '@swissgeo/coordinates'
-import log, { type GeoadminLogInput } from '@swissgeo/log'
+import log, { LogPreDefinedColor, type GeoadminLogInput } from '@swissgeo/log'
 import { wrapDegrees } from '@swissgeo/numbers'
-import { Cartesian2, Cartesian3, defined, Ellipsoid, Math as CesiumMath, type Viewer } from 'cesium'
+import { Cartesian2, Cartesian3, defined, Ellipsoid, Math as CesiumMath } from 'cesium'
 import { isEqual } from 'lodash'
 import proj4 from 'proj4'
-import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
 import usePositionStore from '@/store/modules/position.store'
 import type { ActionDispatcher } from '@/store/types'
 
@@ -20,10 +20,9 @@ import {
     limitCameraCenter,
     limitCameraPitchRoll,
 } from '@/modules/map/components/cesium/utils/cameraUtils'
+import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumCamera.vue' }
-
-const getViewer = inject<() => Viewer | undefined>('getViewer')
 
 const positionStore = usePositionStore()
 const cameraPosition = computed(() => positionStore.camera)
@@ -31,8 +30,9 @@ const cameraPosition = computed(() => positionStore.camera)
 onMounted(() => {
     initCamera()
 })
+
 onBeforeUnmount(() => {
-    const viewer = getViewer?.()
+    const viewer = getCesiumViewer()
     if (viewer) {
         // the camera position that is for now dispatched to the store doesn't correspond where the 2D
         // view is looking at, as if the camera is tilted, its position will be over swaths of lands that
@@ -50,14 +50,30 @@ watch(cameraPosition, flyToPosition, {
 
 function flyToPosition(): void {
     try {
-        const viewer = getViewer?.()
+        const viewer = getCesiumViewer()
         if (viewer && cameraPosition.value) {
-            log.debug(
-                `[Cesium] Fly to camera position ${cameraPosition.value.x}, ${cameraPosition.value.y}, ${cameraPosition.value.z}`
-            )
-            log.debug(
-                `[Cesium] With heading, pitch, roll: ${cameraPosition.value.heading}, ${cameraPosition.value.pitch}, ${cameraPosition.value.roll}`
-            )
+            log.debug({
+                title: 'TimeSlider.vue',
+                titleColor: LogPreDefinedColor.Blue,
+                message: [
+                    'Cesium',
+                    'Fly to camera position',
+                    cameraPosition.value.x,
+                    cameraPosition.value.y,
+                    cameraPosition.value.z,
+                ],
+            })
+            log.debug({
+                title: 'TimeSlider.vue',
+                titleColor: LogPreDefinedColor.Blue,
+                message: [
+                    'Cesium',
+                    'With heading, pitch, roll',
+                    cameraPosition.value.heading,
+                    cameraPosition.value.pitch,
+                    cameraPosition.value.roll,
+                ],
+            })
             viewer.camera.flyTo({
                 destination: Cartesian3.fromDegrees(
                     cameraPosition.value.x,
@@ -73,16 +89,16 @@ function flyToPosition(): void {
             })
         }
     } catch (error: unknown) {
-        log.error(
-            '[Cesium] Error while moving the camera',
-            error as string,
-            cameraPosition.value as GeoadminLogInput
-        )
+        log.error({
+            title: 'TimeSlider.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: ['Cesium', 'Error while moving the camera', error, cameraPosition.value],
+        })
     }
 }
 
 function setCenterToCameraTarget(): void {
-    const viewer = getViewer?.()
+    const viewer = getCesiumViewer()
     if (!viewer) {
         return
     }
@@ -105,7 +121,7 @@ function setCenterToCameraTarget(): void {
 }
 
 function onCameraMoveEnd(): void {
-    const viewer = getViewer?.()
+    const viewer = getCesiumViewer()
     if (!viewer) {
         return
     }
@@ -126,12 +142,20 @@ function onCameraMoveEnd(): void {
 }
 
 function initCamera(): void {
-    let viewer = getViewer?.()
+    let viewer = getCesiumViewer()
     let destination
     let orientation
     if (cameraPosition.value) {
         // a camera position was already define in the URL, we use it
-        log.debug('[Cesium] Existing camera position found at startup, using', cameraPosition.value)
+        log.debug({
+            title: 'TimeSlider.vue',
+            titleColor: LogPreDefinedColor.Blue,
+            message: [
+                'Cesium',
+                'Existing camera position found at startup, using',
+                cameraPosition.value,
+            ],
+        })
         destination = Cartesian3.fromDegrees(
             cameraPosition.value.x,
             cameraPosition.value.y,
@@ -144,10 +168,14 @@ function initCamera(): void {
         }
     } else {
         // no camera position was ever calculated, so we create one using the 2D coordinates
-        log.debug(
-            '[Cesium] No camera initial position defined, creating one using 2D coordinates',
-            positionStore.centerEpsg4326
-        )
+        log.debug({
+            title: 'CesiumCamera.vue',
+            titleColor: LogPreDefinedColor.Blue,
+            message: [
+                'Cesium',
+                'No camera initial position defined, creating one using 2D coordinates',
+            ],
+        })
         destination = Cartesian3.fromDegrees(
             positionStore.centerEpsg4326[0],
             positionStore.centerEpsg4326[1],
@@ -161,7 +189,7 @@ function initCamera(): void {
     }
 
     if (!viewer) {
-        viewer = getViewer?.()
+        viewer = getCesiumViewer()
         if (!viewer) {
             return
         }

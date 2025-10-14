@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import { extentUtils, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { bbox, centroid } from '@turf/turf'
 import {
     Cartesian2,
@@ -16,7 +16,7 @@ import {
 import GeoJSON from 'ol/format/GeoJSON'
 import { LineString, Point, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
-import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
+import { computed, onMounted, onUnmounted, watch } from 'vue'
 
 import type { GeoAdminGeoJSONLayer, KMLLayer as KMLLayerType, Layer } from '@swissgeo/layers'
 import { LayerType } from '@swissgeo/layers'
@@ -36,10 +36,9 @@ import useLayersStore from '@/store/modules/layers.store'
 import useMapStore from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
+import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 
 const dispatcher = { name: 'CesiumInteractions.vue' }
-
-const getViewer = inject<() => Viewer | undefined>('getViewer')
 
 const hoveredHighlightPostProcessor = PostProcessStageLibrary.createEdgeDetectionStage()
 
@@ -51,20 +50,15 @@ const cesiumStore = useCesiumStore()
 const featuresStore = useFeaturesStore()
 const mapStore = useMapStore()
 
-const projection = computed(() => positionStore.projection)
-const resolution = computed(() => positionStore.resolution)
-const visibleLayers = computed(() => layersStore.visibleLayers)
-const layersWithTooltips = computed(() => cesiumStore.layersWithTooltips)
-const layersTooltipConfig = computed(() => cesiumStore.layersTooltipConfig)
 const selectedFeatures = computed(() => featuresStore.selectedFeatures)
 const visiblePrimitiveLayers = computed(() =>
-    visibleLayers.value.filter((l: Layer) =>
+    layersStore.visibleLayers.filter((l: Layer) =>
         [LayerType.GEOJSON, LayerType.KML, LayerType.GPX].includes(l.type)
     )
 )
 
 onMounted(() => {
-    const viewer = getViewer?.()
+    const viewer = getCesiumViewer()
     if (viewer) {
         initialize3dHighlights()
         viewer.scene.postProcessStages.add(
@@ -83,7 +77,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-    const viewer = getViewer?.()
+    const viewer = getCesiumViewer()
     if (viewer) {
         viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.LEFT_CLICK)
         viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.RIGHT_CLICK)
@@ -98,7 +92,7 @@ watch(selectedFeatures, () => {
     if (
         !selectedFeatures.value.find((feature) => {
             if ('layer' in feature) {
-                return layersTooltipConfig.value
+                return cesiumStore.layersTooltipConfig
                     .map((layerConfig) => layerConfig.layerId)
                     .includes(feature.layer.id)
             }
@@ -107,7 +101,7 @@ watch(selectedFeatures, () => {
         clickedHighlightPostProcessor.selected.length > 0
     ) {
         clickedHighlightPostProcessor.selected = []
-        const viewer = getViewer?.()
+        const viewer = getCesiumViewer()
         viewer?.scene.requestRender()
     }
 })
@@ -122,22 +116,26 @@ function initialize3dHighlights(): void {
     clickedHighlightPostProcessor.selected = []
 }
 function getCoordinateAtScreenCoordinate(x: number, y: number): SingleCoordinate | undefined {
-    const cartesian = getViewer?.()?.scene.pickPosition(new Cartesian2(x, y))
+    const cartesian = getCesiumViewer()?.scene.pickPosition(new Cartesian2(x, y))
     let coordinates: SingleCoordinate | undefined
     if (cartesian) {
         const cartCoords = Cartographic.fromCartesian(cartesian)
-        coordinates = proj4(WGS84.epsg, projection.value.epsg, [
+        coordinates = proj4(WGS84.epsg, positionStore.projection.epsg, [
             (cartCoords.longitude * 180) / CesiumMath.PI,
             (cartCoords.latitude * 180) / CesiumMath.PI,
         ]) as SingleCoordinate
     } else {
-        log.error('no coordinate found at this screen coordinates', [x, y])
+        log.error({
+            title: 'CesiumInteractions.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: ['no coordinate found at this screen coordinates', [x, y]],
+        })
     }
     return coordinates
 }
 
-function getlayerIdFrom3dFeature(feature: SelectableFeature<false>): string | undefined {
-    return feature.tileset?.resource?.url?.replace(get3dTilesBaseUrl(), '').split('/')[0]
+function getlayerIdFrom3dFeature(featureTileSetResourceUrl: string): string | undefined {
+    return featureTileSetResourceUrl.replace(get3dTilesBaseUrl(), '').split('/')[0]
 }
 
 /**
@@ -154,10 +152,10 @@ function create3dFeature(
     feature: SelectableFeature<false>,
     coordinates: SingleCoordinate
 ): LayerFeature | undefined {
-    const layerId = getlayerIdFrom3dFeature(feature as LayerFeature)
+    const layerId = getlayerIdFrom3dFeature(feature.id.toString())
 
-    const layer = layersWithTooltips.value.find((l) => l.id === layerId)
-    const layerConfig = layersTooltipConfig.value.find((lc) => lc.layerId === layerId)
+    const layer = cesiumStore.layersWithTooltips.find((l) => l.id === layerId)
+    const layerConfig = cesiumStore.layersTooltipConfig.find((lc) => lc.layerId === layerId)
     if (!layer || !layerConfig) {
         return undefined
     }
@@ -183,8 +181,8 @@ function create3dFeature(
             extentUtils.createPixelExtentAround({
                 size: 5,
                 coordinate: coordinates,
-                projection: projection.value,
-                resolution: resolution.value,
+                projection: positionStore.projection,
+                resolution: positionStore.resolution,
             })!
         ),
         // geometry intentionally omitted for 3D tiles features
@@ -207,19 +205,24 @@ function handleClickHighlight(
 }
 
 function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
-    const viewer = getViewer?.()
+    const viewer = getCesiumViewer()
     unhighlightGroup(viewer)
     const features: SelectableFeature<false | true>[] = []
     let coordinates = getCoordinateAtScreenCoordinate(event.position.x, event.position.y)
 
     const objects = viewer?.scene.drillPick(event.position) ?? []
 
-    log.debug(
-        '[Cesium] click caught at',
-        { pixel: event.position, coordinates },
-        'with objects',
-        objects
-    )
+    log.debug({
+        title: 'CesiumInteractions.vue',
+        titleColor: LogPreDefinedColor.Blue,
+        message: [
+            'Cesium',
+            'click caught at',
+            { pixel: event.position, coordinates },
+            'with objects',
+            objects,
+        ],
+    })
 
     // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
     if (Array.isArray(coordinates) && coordinates.length === 2) {
@@ -229,8 +232,8 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
                 const identified = identifyGeoJSONFeatureAt(
                     geoJSonLayer as GeoAdminGeoJSONLayer,
                     coordinates as SingleCoordinate,
-                    projection.value,
-                    resolution.value
+                    positionStore.projection,
+                    positionStore.resolution
                 )
                 if (Array.isArray(identified)) {
                     features.push(...identified)
@@ -244,12 +247,17 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
             objects
                 .filter((obj) => obj.id?.layerId === kmlLayer.id)
                 .forEach((kmlFeature) => {
-                    log.debug(
-                        '[Cesium] KML feature click detection',
-                        kmlFeature,
-                        'for KML layer',
-                        kmlLayer
-                    )
+                    log.debug({
+                        title: 'CesiumInteractions.vue',
+                        titleColor: LogPreDefinedColor.Blue,
+                        message: [
+                            'Cesium',
+                            'KML feature click detection',
+                            kmlFeature,
+                            'for KML layer',
+                            kmlLayer,
+                        ],
+                    })
                     const kmlLayerFeature = create3dKmlFeature(
                         viewer!,
                         kmlFeature,
@@ -268,7 +276,7 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
             ? features[0]!.coordinates[0]
             : features[0]!.coordinates
         coordinates = proj4(
-            projection.value.epsg,
+            positionStore.projection.epsg,
             WEBMERCATOR.epsg,
             featureCoords as SingleCoordinate
         )
@@ -373,14 +381,14 @@ function onContextMenu(event: ScreenSpaceEventHandler.PositionedEvent): void {
 }
 // when moving over a building, we should highlight
 function onMouseMove(event: ScreenSpaceEventHandler.MotionEvent): void {
-    const viewer = getViewer?.()
+    const viewer = getCesiumViewer()
     const aFeatureIsHighlighted = hoveredHighlightPostProcessor.selected.length === 1
 
     // we pick the first 3d feature if it's in the config
     const object = viewer?.scene.pick(event.endPosition)
     if (
         object &&
-        layersTooltipConfig.value
+        cesiumStore.layersTooltipConfig
             .map((layerConfig) => layerConfig.layerId)
             .includes(getlayerIdFrom3dFeature(object as SelectableFeature<false>)!)
     ) {
@@ -394,7 +402,7 @@ function onMouseMove(event: ScreenSpaceEventHandler.MotionEvent): void {
     }
 }
 
-const viewerForDrag = getViewer?.()
+const viewerForDrag = getCesiumViewer()
 if (viewerForDrag) {
     useDragFileOverlay(viewerForDrag.container as HTMLElement)
 }

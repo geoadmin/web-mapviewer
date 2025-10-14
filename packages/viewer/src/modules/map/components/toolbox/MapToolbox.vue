@@ -5,8 +5,6 @@
  *
  * By default the toolbox only contains the zoom in/out buttons
  */
-import { computed } from 'vue'
-
 import FullScreenButton from '@/modules/map/components/toolbox/FullScreenButton.vue'
 import GeolocButton from '@/modules/map/components/toolbox/GeolocButton.vue'
 import Toggle3dButton from '@/modules/map/components/toolbox/Toggle3dButton.vue'
@@ -34,19 +32,15 @@ const {
 
 const uiStore = useUIStore()
 const drawingStore = useDrawingStore()
-
-const isFullscreenMode = computed(() => uiStore.fullscreenMode)
-const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
-const isDrawingMode = computed(() => drawingStore.drawingOverlay.show)
 </script>
 
 <template>
     <div
         class="toolbox-right position-absolute end-0 m-2"
         :class="{
-            'dev-disclaimer-present': hasDevSiteWarning,
-            'fullscreen-mode': isFullscreenMode || !hasHeader,
-            'drawing-mode': isDrawingMode,
+            'dev-disclaimer-present': uiStore.hasDevSiteWarning,
+            'fullscreen-mode': uiStore.fullscreenMode || !hasHeader,
+            'drawing-mode': drawingStore.drawingOverlay.show,
         }"
         data-cy="toolbox-right"
     >

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { WGS84 } from '@swissgeo/coordinates'
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { round } from '@swissgeo/numbers'
 import {
     Cartesian2,
@@ -8,10 +8,9 @@ import {
     Math,
     ScreenSpaceEventHandler,
     ScreenSpaceEventType,
-    type Viewer,
 } from 'cesium'
 import proj4 from 'proj4'
-import { computed, inject, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import useCesiumStore from '@/store/modules/cesium.store'
 import usePositionStore from '@/store/modules/position.store'
@@ -20,6 +19,7 @@ import coordinateFormat, {
     LV95Format,
     type CoordinateFormat,
 } from '@/utils/coordinates/coordinateFormat'
+import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 
 const mousePosition = useTemplateRef<HTMLDivElement>('mousePosition')
 const displayedFormatId = ref(LV95Format.id)
@@ -29,10 +29,8 @@ const positionStore = usePositionStore()
 const { t } = useI18n()
 
 const is3DReady = computed(() => cesiumStore.isViewerReady)
-const projection = computed(() => positionStore.projection)
 import type { ActionDispatcher } from '@/store/types'
 const dispatcher: ActionDispatcher = { name: 'CesiumMouseTracker.vue' }
-const getViewer = inject<() => Viewer | undefined>('getViewer')
 
 let handler: ScreenSpaceEventHandler | undefined
 
@@ -57,7 +55,7 @@ onBeforeUnmount(() => {
 
 function setupHandler(): void {
     // If the handler already exists for some reason, there is no need to create it again
-    const viewer = getViewer?.()
+    const viewer = getCesiumViewer()
     if (handler || !viewer) {
         return
     }
@@ -70,7 +68,10 @@ function setupHandler(): void {
             const cartographic = Cartographic.fromCartesian(cartesian)
             const longitude = Math.toDegrees(cartographic.longitude)
             const latitude = Math.toDegrees(cartographic.latitude)
-            const projected = proj4(WGS84.epsg, projection.value.epsg, [longitude, latitude])
+            const projected = proj4(WGS84.epsg, positionStore.projection.epsg, [
+                longitude,
+                latitude,
+            ])
             const coordinate: [number, number, number] = [
                 projected[0] as number,
                 projected[1] as number,
@@ -99,11 +100,15 @@ function formatCoordinate(coordinate: [number, number, number]): string | undefi
         const humanReadable = coordinateFormat(
             displayedFormat,
             [coordinate[0], coordinate[1]],
-            projection.value
+            positionStore.projection
         )
         return `${humanReadable}, ${t('elevation')}: ${round(coordinate[2] ?? 0, 2)} m`
     } else {
-        log.error('Unknown coordinates display format', displayedFormatId.value)
+        log.error({
+            title: 'CesiumMouseTracker.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: ['Unknown coordinates display format', displayedFormatId.value],
+        })
     }
 }
 </script>

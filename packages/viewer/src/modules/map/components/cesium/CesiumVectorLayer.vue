@@ -1,17 +1,12 @@
 <script setup lang="ts">
 import type { GeoAdmin3DLayer } from '@swissgeo/layers'
-import { Cesium3DTileset, type Viewer } from 'cesium'
-import { computed, inject, toRef } from 'vue'
+import { Cesium3DTileset } from 'cesium'
+import { computed, toRef } from 'vue'
 
 import useAddPrimitiveLayer from '@/modules/map/components/cesium/utils/useAddPrimitiveLayer.composable'
+import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 
 const { layerConfig } = defineProps<{ layerConfig: GeoAdmin3DLayer }>()
-
-const getViewer = inject<() => Viewer | undefined>('getViewer')
-
-const baseUrl = computed(() => layerConfig.baseUrl)
-const layerId = computed(() => layerConfig.id)
-const opacity = computed(() => layerConfig.opacity)
 
 const url = computed(() => {
     let rootFolder = ''
@@ -22,12 +17,17 @@ const url = computed(() => {
     if (layerConfig.urlTimestampToUse) {
         timeFolder = `/${layerConfig.urlTimestampToUse}`
     }
-    return `${baseUrl.value}${rootFolder}${layerId.value}${timeFolder}/tileset.json`
+    return `${layerConfig.baseUrl}${rootFolder}${layerConfig.id}${timeFolder}/tileset.json`
 })
 
-useAddPrimitiveLayer(getViewer?.(), Cesium3DTileset.fromUrl(url.value), toRef(opacity), {
-    withEnhancedLabelStyle: layerId.value === 'ch.swisstopo.swissnames3d.3d',
-})
+useAddPrimitiveLayer(
+    getCesiumViewer(),
+    Cesium3DTileset.fromUrl(url.value),
+    toRef(layerConfig.opacity),
+    {
+        withEnhancedLabelStyle: layerConfig.id === 'ch.swisstopo.swissnames3d.3d',
+    }
+)
 </script>
 
 <template>

@@ -1,5 +1,5 @@
 export enum MediaType {
-    LINK = 'link',
-    IMAGE = 'image',
-    VIDEO = 'video',
+    Link = 'link',
+    Image = 'image',
+    Video = 'video',
 }

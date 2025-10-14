@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import useUIStore from '@/store/modules/ui.store'
-import log from '@swissgeo/log'
-import { computed, onUpdated, ref, useSlots } from 'vue'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
+import { onUpdated, ref, useSlots } from 'vue'
 
 const uiStore = useUIStore()
 const slots = useSlots()
 
-const isFullscreenMode = computed(() => uiStore.fullscreenMode)
 const hasTopLeftFooter = ref(!!slots['top-left'])
 const hasTopRightFooter = ref(!!slots['top-right'])
 const hasBottomLeftFooter = ref(!!slots['bottom-left'])
@@ -21,7 +20,11 @@ onUpdated(() => {
 })
 
 function handleSlotChange() {
-    log.debug('Slot content updated')
+    log.debug({
+        title: 'MapFooter.vue',
+        titleColor: LogPreDefinedColor.Blue,
+        message: ['Slot content updated'],
+    })
 }
 </script>
 
@@ -45,7 +48,7 @@ function handleSlotChange() {
             <slot name="middle" />
         </div>
         <div
-            v-if="(hasBottomLeftFooter || hasBottomRightFooter) && !isFullscreenMode"
+            v-if="(hasBottomLeftFooter || hasBottomRightFooter) && !uiStore.fullscreenMode"
             class="map-footer-bottom"
         >
             <slot

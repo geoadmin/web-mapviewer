@@ -2,7 +2,7 @@
 const {
     sourceId,
     sourceName,
-    sourceUrl = undefined,
+    sourceUrl,
     hasDataDisclaimer = false,
     isLast = false,
 } = defineProps<{

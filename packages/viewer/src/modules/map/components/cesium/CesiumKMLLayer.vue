@@ -11,24 +11,22 @@ import {
     LabelStyle,
     VerticalOrigin,
 } from 'cesium'
-import { computed, inject, toRef, watch } from 'vue'
+import { computed, toRef, watch } from 'vue'
 
 import type { KMLLayer } from '@swissgeo/layers'
 import { DEFAULT_MARKER_HORIZONTAL_OFFSET } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
 import { getFeatureDescriptionMap } from '@/utils/kmlUtils'
-import type { Viewer, KmlDataSource as KmlDataSourceType, Entity } from 'cesium'
+import type { KmlDataSource as KmlDataSourceType, Entity } from 'cesium'
+import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 
 const { kmlLayerConfig } = defineProps<{ kmlLayerConfig: KMLLayer }>()
 
-const layerId = computed(() => kmlLayerConfig.id)
 const kmlData = computed(() => kmlLayerConfig.kmlData)
 const kmlStyle = computed(() => kmlLayerConfig.style)
 const isClampedToGround = computed(() => kmlLayerConfig.clampToGround)
-const layerOpacity = computed(() => kmlLayerConfig.opacity)
 
-const getViewer = inject<() => Viewer | undefined>('getViewer')
-const viewer = getViewer?.()
+const viewer = getCesiumViewer()
 
 async function createSource(): Promise<KmlDataSourceType> {
     try {
@@ -39,7 +37,7 @@ async function createSource(): Promise<KmlDataSourceType> {
         return kmlDataSource
     } catch (error: unknown) {
         log.error(
-            `[Cesium] Error while parsing KML data for layer ${layerId.value}`,
+            `[Cesium] Error while parsing KML data for layer ${kmlLayerConfig.id}`,
             error as string
         )
         throw error
@@ -98,7 +96,7 @@ function applyStyleToKmlEntity(entity: Entity, opacity: number) {
         entity.billboard.heightReference = new ConstantProperty(HeightReference.CLAMP_TO_GROUND)
         entity.billboard.verticalOrigin = new ConstantProperty(VerticalOrigin.CENTER)
         entity.billboard.horizontalOrigin = new ConstantProperty(
-            (HorizontalOrigin.CENTER as unknown as number) +
+            (HorizontalOrigin.CENTER as number) +
                 (isDefaultMarker ? DEFAULT_MARKER_HORIZONTAL_OFFSET : 0)
         )
         entity.billboard.color = new ConstantProperty(Color.WHITE.withAlpha(opacity))
@@ -125,8 +123,8 @@ const { refreshDataSource } = useAddDataSourceLayer(
     viewer!,
     createSource(),
     applyStyleToKmlEntity,
-    toRef(layerOpacity),
-    toRef(layerId)
+    toRef(kmlLayerConfig.opacity),
+    toRef(kmlLayerConfig.id)
 )
 
 watch(kmlData, () => refreshDataSource(createSource()))

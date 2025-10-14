@@ -10,18 +10,13 @@ const layersStore = useLayersStore()
 const positionStore = usePositionStore()
 const cesiumStore = useCesiumStore()
 
-const visibleLayers = computed(() => layersStore.visibleLayers)
-const layersConfig = computed(() => layersStore.config)
-const projection = computed(() => positionStore.projection)
-const backgroundLayersFor3D = computed(() => cesiumStore.backgroundLayersFor3D)
-
 const visibleImageryLayers = computed<Layer[]>(() =>
-    visibleLayers.value.filter(isImageryLayer).map((imageryLayer) => {
+    layersStore.visibleLayers.filter(isImageryLayer).map((imageryLayer) => {
         // If this layer has a 3D counterpart, try to map to the 3D config while keeping the 2D opacity
         // idIn3d only exists on GeoAdmin layers
         const withIdIn3d = imageryLayer as Partial<GeoAdminLayer>
         if (withIdIn3d.idIn3d) {
-            const configIn3d = layersConfig.value.find(
+            const configIn3d = layersStore.config.find(
                 (layer: GeoAdminLayer) => layer.id === withIdIn3d.idIn3d
             )
             if (configIn3d) {
@@ -31,10 +26,12 @@ const visibleImageryLayers = computed<Layer[]>(() =>
         return imageryLayer
     })
 )
-const visiblePrimitiveLayers = computed<Layer[]>(() => visibleLayers.value.filter(isPrimitiveLayer))
+const visiblePrimitiveLayers = computed<Layer[]>(() =>
+    layersStore.visibleLayers.filter(isPrimitiveLayer)
+)
 
 const startingZIndexForImageryLayers = computed(
-    () => backgroundLayersFor3D.value.filter(isImageryLayer).length
+    () => cesiumStore.backgroundLayersFor3D.filter(isImageryLayer).length
 )
 
 function isImageryLayer(layer: Layer): boolean {
@@ -56,13 +53,13 @@ function isPrimitiveLayer(layer: Layer): boolean {
         v-for="(layer, index) in visibleImageryLayers"
         :key="layer.id + layer.uuid"
         :layer-config="layer"
-        :projection="projection"
+        :projection="positionStore.projection"
         :z-index="index + startingZIndexForImageryLayers"
     />
     <CesiumInternalLayer
         v-for="layer in visiblePrimitiveLayers"
         :key="layer.id + layer.uuid"
         :layer-config="layer"
-        :projection="projection"
+        :projection="positionStore.projection"
     />
 </template>

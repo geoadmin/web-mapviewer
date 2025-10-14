@@ -1,7 +1,7 @@
 <script setup lang="ts">
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -29,9 +29,7 @@ const cesiumStore = useCesiumStore()
 const i18nStore = useI18nStore()
 
 const clickInfo = computed(() => mapStore.clickInfo)
-const projection = computed(() => positionStore.projection)
 const showIn3d = computed(() => cesiumStore.active)
-const currentLang = computed(() => i18nStore.lang)
 const showEmbedSharing = computed(() => selectedTab.value === 'share')
 const coordinate = computed(() => mapStore.locationPopupCoordinates)
 
@@ -40,8 +38,8 @@ const shareTooltip = useTemplateRef('shareTooltip')
 const newClickInfo = ref(true)
 const requestClipboard = ref(false)
 const shareLinkCopied = ref(false)
-const shareLinkUrl = ref<string | undefined>(undefined)
-const shareLinkUrlShorten = ref<string | undefined>(undefined)
+const shareLinkUrl = ref<string | undefined>()
+const shareLinkUrlShorten = ref<string | undefined>()
 
 const mappingFrameworkSpecificPopup = computed(() => {
     return showIn3d.value ? CesiumPopover : OpenLayersPopover
@@ -62,7 +60,11 @@ watch(clickInfo, () => {
 watch(shareLinkUrlShorten, () => {
     if (requestClipboard.value) {
         copyShareLink().catch((error: unknown) => {
-            log.error('Failed to copy share link', error as string)
+            log.error({
+                title: 'LocationPopup.vue',
+                titleColor: LogPreDefinedColor.Red,
+                message: ['Failed to copy share link', error as Error],
+            })
         })
         requestClipboard.value = false
     }
@@ -102,7 +104,11 @@ function updateShareLink() {
     }
     shareLinkUrl.value = `${location.origin}/#/map?${stringifyQuery(query)}`
     shortenShareLink(shareLinkUrl.value).catch((error: unknown) => {
-        log.error('Failed to create shortlink', error as string)
+        log.error({
+            title: 'LocationPopup.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: ['Failed to create shortlink', error as Error],
+        })
     })
 }
 
@@ -110,7 +116,11 @@ async function shortenShareLink(url: string) {
     try {
         shareLinkUrlShorten.value = await createShortLink(url)
     } catch (error: unknown) {
-        log.error(`Failed to create shortlink`, error as string)
+        log.error({
+            title: 'LocationPopup.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: ['Failed to create shortlink', error as Error],
+        })
         shareLinkUrlShorten.value = undefined
     }
 }
@@ -125,7 +135,11 @@ function onShareTabClick() {
         requestClipboard.value = true
     } else {
         copyShareLink().catch((error: unknown) => {
-            log.error('Failed to copy share link', error as string)
+            log.error({
+                title: 'LocationPopup.vue',
+                titleColor: LogPreDefinedColor.Red,
+                message: ['Failed to copy share link', error as Error],
+            })
         })
     }
     selectedTab.value = 'share'
@@ -144,7 +158,11 @@ async function copyShareLink() {
             }, 1000)
         }
     } catch (error: unknown) {
-        log.error(`Failed to copy to clipboard:`, error as string)
+        log.error({
+            title: 'LocationPopup.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: ['Failed to copy to clipboard', error as Error],
+        })
     }
 }
 
@@ -160,8 +178,8 @@ function clearClick() {
         v-if="coordinate"
         :title="selectedTab === 'position' ? t('position') : t('link_bowl_crosshair')"
         :coordinates="coordinate"
-        :projection="projection"
-        :mode="MapPopoverMode.FEATURE_TOOLTIP"
+        :projection="positionStore.projection"
+        :mode="MapPopoverMode.FeatureTooltip"
         use-content-padding
         class="location-popup"
         data-cy="location-popup"
@@ -216,7 +234,7 @@ function clearClick() {
                         <!-- Italian text does not fit on one line with normal sized text -->
                         <div
                             :class="{
-                                small: currentLang === 'it',
+                                small: i18nStore.lang === 'it',
                             }"
                         >
                             {{ t('link_bowl_crosshair') }} &nbsp;&nbsp;<FontAwesomeIcon
@@ -238,8 +256,8 @@ function clearClick() {
                 }"
                 :coordinate="coordinate"
                 :click-info="clickInfo"
-                :projection="projection"
-                :current-lang="currentLang"
+                :projection="positionStore.projection"
+                :current-lang="i18nStore.lang"
             />
             <!-- Share tab -->
             <LocationPopupShare

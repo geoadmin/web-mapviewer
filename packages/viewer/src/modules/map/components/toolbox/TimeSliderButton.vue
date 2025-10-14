@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n'
 import TimeSlider from '@/modules/map/components/toolbox/TimeSlider.vue'
 import useUIStore from '@/store/modules/ui.store'
 import useLayersStore from '@/store/modules/layers.store'
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 
 const dispatcher = { name: 'TimeSliderButton.vue' }
 
@@ -15,7 +15,6 @@ const uiStore = useUIStore()
 const layersStore = useLayersStore()
 
 const visibleLayersWithTimeConfig = computed(() => layersStore.visibleLayersWithTimeConfig)
-const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
 const isTimeSliderActive = computed(() => uiStore.isTimeSliderActive)
 
 const tooltipContent = computed(() => t(isTimeSliderActive.value ? 'time_hide' : 'time_show'))
@@ -26,7 +25,11 @@ watch(visibleLayersWithTimeConfig, () => {
             uiStore.setTimeSliderActive(false, dispatcher)
         }
     }).catch((error) => {
-        log.error('Error in TimeSliderButton.vue watcher:', error as Error)
+        log.error({
+            title: 'TimeSliderButton.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: ['Error in TimeSliderButton.vue watcher:', error],
+        })
     })
 })
 
@@ -63,7 +66,7 @@ function toggleTimeSlider(): void {
         <div
             class="time-sliders position-fixed m-1"
             :class="{
-                'dev-disclaimer-present': hasDevSiteWarning,
+                'dev-disclaimer-present': uiStore.hasDevSiteWarning,
             }"
         >
             <div class="d-flex justify-content-center">

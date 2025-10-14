@@ -1,5 +1,5 @@
 import { WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { Cartesian3, Color, Entity, HeightReference } from 'cesium'
 import proj4 from 'proj4'
 
@@ -30,7 +30,11 @@ export function highlightSelectedArea(viewer, geometry) {
             highlightPoint(viewer, coordinates)
             break
         default:
-            log.error(`Geometry "${geometry.type}" not handled`)
+            log.error({
+                title: 'highlightUtils',
+                titleColor: LogPreDefinedColor.Red,
+                message: [`Geometry "${geometry.type}" not handled`],
+            })
     }
     viewer.scene.requestRender()
 }

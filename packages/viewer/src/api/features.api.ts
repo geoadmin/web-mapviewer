@@ -50,9 +50,7 @@ export interface SelectableFeature<IsEditable extends boolean> {
     geometry?: Geometry
     /** Whether this feature is editable when selected (color, size, etc...). */
     readonly isEditable: IsEditable
-    // TODO: figure out if tileset exists
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    tileset?: any
+
     getProperty?(key: string): string | number | undefined
 }
 

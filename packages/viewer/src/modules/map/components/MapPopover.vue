@@ -27,8 +27,8 @@ const {
     authorizePrint,
     title,
     useContentPadding,
-    anchorPosition,
-    mode = MapPopoverMode.FLOATING,
+    anchorPosition = { top: 0, left: 0 },
+    mode = MapPopoverMode.Floating,
 } = defineProps<{
     authorizePrint: boolean
     title: string
@@ -49,15 +49,8 @@ const showContent = ref(true)
 const uiStore = useUIStore()
 const drawingStore = useDrawingStore()
 
-const isCurrentlyDrawing = computed(() => drawingStore.drawingOverlay.show)
-const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
-const isTimeSliderActive = computed(() => uiStore.isTimeSliderActive)
-const currentHeaderHeight = computed(() => uiStore.headerHeight)
-const isPhoneMode = computed(() => uiStore.isPhoneMode)
-const isDesktopMode = computed(() => uiStore.isTraditionalDesktopSize)
-
 const cssPositionOnScreen = computed(() => {
-    if (mode === MapPopoverMode.FEATURE_TOOLTIP && anchorPosition) {
+    if (mode === MapPopoverMode.FeatureTooltip && anchorPosition) {
         return {
             top: `${anchorPosition.top}px`,
             left: `${anchorPosition.left}px`,
@@ -67,30 +60,32 @@ const cssPositionOnScreen = computed(() => {
 })
 
 const popoverLimits = computed(() => {
-    let top = currentHeaderHeight.value
-    if (isCurrentlyDrawing.value) {
-        if (isPhoneMode.value) {
+    let top = uiStore.headerHeight
+    if (drawingStore.drawingOverlay.show) {
+        if (uiStore.isPhoneMode) {
             top = cssDrawingMobileToolbarHeight
         } else {
             // drawing header ("Draw & Measure" gray bar) height
             top = cssHeaderHeight
         }
-    } else if (hasDevSiteWarning.value) {
+    } else if (uiStore.hasDevSiteWarning) {
         top += cssDevDisclaimerHeight
     }
-    if (isTimeSliderActive.value) {
-        top += isDesktopMode.value ? cssTimeSliderBarHeight : cssTimeSliderDropdownHeight
+    if (uiStore.hasDevSiteWarning) {
+        top += uiStore.isTraditionalDesktopSize
+            ? cssTimeSliderBarHeight
+            : cssTimeSliderDropdownHeight
     }
     return {
         top,
-        bottom: isPhoneMode.value ? 0 : cssFooterHeight,
+        bottom: uiStore.isPhoneMode ? 0 : cssFooterHeight,
         left: 0,
         right: 0,
     }
 })
 
 onMounted(() => {
-    if (mode === MapPopoverMode.FLOATING && popover.value && popoverHeader.value) {
+    if (mode === MapPopoverMode.Floating && popover.value && popoverHeader.value) {
         useMovableElement({
             element: popover.value,
             grabElement: popoverHeader.value,
@@ -115,17 +110,22 @@ defineExpose({
         data-cy="popover"
         :style="cssPositionOnScreen"
         :class="{
-            floating: mode === MapPopoverMode.FLOATING,
-            'feature-anchored': mode === MapPopoverMode.FEATURE_TOOLTIP,
-            'with-dev-disclaimer': hasDevSiteWarning,
-            'with-time-slider-bar': isTimeSliderActive && isDesktopMode,
+            floating: mode === MapPopoverMode.Floating,
+            'feature-anchored': mode === MapPopoverMode.FeatureTooltip,
+            'with-dev-disclaimer': uiStore.hasDevSiteWarning,
+            'with-time-slider-bar': uiStore.hasDevSiteWarning && uiStore.isTraditionalDesktopSize,
             'with-dev-disclaimer-and-time-slider-bar':
-                hasDevSiteWarning && isTimeSliderActive && isDesktopMode,
-            'with-time-slider-dropdown': isTimeSliderActive && !isDesktopMode,
+                uiStore.hasDevSiteWarning &&
+                uiStore.hasDevSiteWarning &&
+                uiStore.isTraditionalDesktopSize,
+            'with-time-slider-dropdown':
+                uiStore.hasDevSiteWarning && !uiStore.isTraditionalDesktopSize,
             'with-dev-disclaimer-and-time-slider-dropdown':
-                hasDevSiteWarning && isTimeSliderActive && !isDesktopMode,
-            'phone-mode': isPhoneMode,
-            'is-drawing': isCurrentlyDrawing,
+                uiStore.hasDevSiteWarning &&
+                uiStore.hasDevSiteWarning &&
+                !uiStore.isTraditionalDesktopSize,
+            'phone-mode': uiStore.isPhoneMode,
+            'is-drawing': drawingStore.drawingOverlay.show,
         }"
     >
         <!--

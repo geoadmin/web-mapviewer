@@ -6,11 +6,10 @@ import {
     HeightReference,
     ConstantPositionProperty,
     ConstantProperty,
-    type Viewer,
     type Entity,
 } from 'cesium'
 import proj4 from 'proj4'
-import { computed, inject, onMounted, watch } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import useGeolocationStore from '@/store/modules/geolocation.store'
 import usePositionStore from '@/store/modules/position.store'
 
@@ -21,12 +20,10 @@ import {
     geolocationPointFillColor,
     geolocationPointWidth,
 } from '@/utils/styleUtils'
-
-const getViewer = inject<() => Viewer | undefined>('getViewer')
+import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 
 const positionStore = usePositionStore()
 const geolocationStore = useGeolocationStore()
-const projection = computed(() => positionStore.projection)
 const geolocationActive = computed(() => geolocationStore.active)
 const geolocationPosition = computed(() => geolocationStore.position)
 const accuracy = computed(() => geolocationStore.accuracy)
@@ -40,7 +37,7 @@ const geolocationPositionCartesian3 = computed(() => {
         geolocationPosition.value.some((coordinate) => coordinate !== 0)
     ) {
         const geolocationPositionWGS84 = proj4(
-            projection.value.epsg,
+            positionStore.projection.epsg,
             WGS84.epsg,
             geolocationPosition.value
         )
@@ -98,7 +95,7 @@ function transformArrayColorIntoCesiumColor(arrayColor: number[]): Color {
 }
 
 function activateTracking(): void {
-    const viewer = getViewer?.()
+    const viewer = getCesiumViewer()
     if (viewer && geolocationPositionCartesian3.value) {
         accuracyCircleEntity = viewer.entities.add({
             id: 'geolocation-accuracy-circle',
@@ -127,7 +124,7 @@ function activateTracking(): void {
 }
 
 function removeTracking(): void {
-    const viewer = getViewer?.()
+    const viewer = getCesiumViewer()
     if (viewer) {
         if (accuracyCircleEntity) {
             viewer.entities.removeById(accuracyCircleEntity.id)

@@ -1,4 +1,4 @@
 export enum MapPopoverMode {
-    FLOATING = 'FLOATING',
-    FEATURE_TOOLTIP = 'FEATURE_TOOLTIP',
+    Floating = 'FLOATING',
+    FeatureTooltip = 'FEATURE_TOOLTIP',
 }

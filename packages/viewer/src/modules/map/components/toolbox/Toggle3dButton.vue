@@ -15,14 +15,12 @@ const drawingStore = useDrawingStore()
 const printStore = usePrintStore()
 const tooltipContent = computed(() => {
     if (webGlIsSupported.value) {
-        return t(`tilt3d_${isActive.value ? 'active' : 'inactive'}`)
+        return t(`tilt3d_${cesiumStore.active ? 'active' : 'inactive'}`)
     }
     return t('3d_render_error')
 })
 
 const webGlIsSupported = ref(false)
-const isActive = computed(() => cesiumStore.active)
-const showDrawingOverlay = computed(() => drawingStore.drawingOverlay.show)
 
 onMounted(() => {
     webGlIsSupported.value = checkWebGlSupport()
@@ -35,8 +33,8 @@ function checkWebGlSupport(): boolean {
 }
 
 function toggle3d() {
-    if (webGlIsSupported.value && !showDrawingOverlay.value) {
-        cesiumStore.set3dActive(!isActive.value, dispatcher)
+    if (webGlIsSupported.value && !drawingStore.drawingOverlay.show) {
+        cesiumStore.set3dActive(!cesiumStore.active, dispatcher)
         printStore.setPrintSectionShown(false, dispatcher)
     }
 }
@@ -51,7 +49,10 @@ function toggle3d() {
             ref="toggle3DButton"
             class="toolbox-button"
             type="button"
-            :class="{ active: isActive, disabled: !webGlIsSupported || showDrawingOverlay }"
+            :class="{
+                active: cesiumStore.active,
+                disabled: !webGlIsSupported || drawingStore.drawingOverlay.show,
+            }"
             data-cy="3d-button"
             @click="toggle3d"
         >
