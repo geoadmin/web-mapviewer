@@ -1,13 +1,13 @@
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
-import { LV95, registerProj4, WGS84 } from '@swissgeo/coordinates'
 import type { ExternalWMSLayer, ExternalWMTSLayer } from '@swissgeo/layers'
-import { layerUtils } from '@swissgeo/layers/utils'
-import { randomIntBetween } from '@swissgeo/numbers'
-import proj4 from 'proj4'
-
 import type { Geometry } from 'geojson'
 
+import { LV95, registerProj4, WGS84 } from '@swissgeo/coordinates'
+import { layerUtils } from '@swissgeo/layers/utils'
+import { randomIntBetween } from '@swissgeo/numbers'
 import { centroid } from '@turf/turf'
+import proj4 from 'proj4'
+
 import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/storeSync/storeSync.routerPlugin'
 
 registerProj4(proj4)

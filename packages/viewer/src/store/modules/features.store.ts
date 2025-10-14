@@ -1,8 +1,8 @@
 import type { FlatExtent, NormalizedExtent, SingleCoordinate } from '@swissgeo/coordinates'
-import { extentUtils } from '@swissgeo/coordinates'
 import type { GeoAdminLayer, Layer } from '@swissgeo/layers'
 import type { Geometry } from 'geojson'
 
+import { extentUtils } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { containsCoordinate, getIntersection as getExtentIntersection } from 'ol/extent'
 import { defineStore } from 'pinia'

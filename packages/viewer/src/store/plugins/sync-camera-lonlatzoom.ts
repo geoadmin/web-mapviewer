@@ -1,18 +1,19 @@
+import type { PiniaPlugin } from 'pinia'
+
 import { WGS84, type SingleCoordinate } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import { Math as CesiumMath } from 'cesium'
 import proj4 from 'proj4'
 
+import type { ActionDispatcher } from '@/store/types'
+
 import {
     calculateHeight,
     calculateResolution,
 } from '@/modules/map/components/cesium/utils/cameraUtils'
-
-import type { ActionDispatcher } from '@/store/types'
+import useCesiumStore from '@/store/modules/cesium.store'
 import usePositionStore, { normalizeAngle } from '@/store/modules/position.store'
 import useUIStore from '@/store/modules/ui.store'
-import useCesiumStore from '@/store/modules/cesium.store'
-import type { PiniaPlugin } from 'pinia'
 
 /**
  * Plugin to synchronize the 3d camera position and orientation with the center and zoom.

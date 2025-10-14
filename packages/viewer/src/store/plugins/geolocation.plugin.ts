@@ -1,4 +1,6 @@
 import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type { PiniaPlugin } from 'pinia'
+
 import { LV95, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { ErrorMessage } from '@swissgeo/log/Message'
@@ -7,13 +9,13 @@ import { Math as CesiumMath } from 'cesium'
 import { isEqual } from 'lodash'
 import proj4 from 'proj4'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import type { ActionDispatcher } from '@/store/types'
-import type { PiniaPlugin } from 'pinia'
-import useGeolocationStore from '@/store/modules/geolocation.store.ts'
-import useUIStore from '@/store/modules/ui.store.ts'
-import usePositionStore from '@/store/modules/position.store.ts'
-import useCesiumStore from '@/store/modules/cesium.store.ts'
+
+import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import useCesiumStore from '@/store/modules/cesium.store'
+import useGeolocationStore from '@/store/modules/geolocation.store'
+import usePositionStore from '@/store/modules/position.store'
+import useUIStore from '@/store/modules/ui.store'
 
 const { GeolocationPositionError } = window
 

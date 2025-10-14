@@ -1,7 +1,11 @@
+import type { WMSCapabilitiesResponse, WMTSCapabilitiesResponse } from '@swissgeo/layers'
+
+import { EXTERNAL_SERVER_TIMEOUT } from '@swissgeo/layers/api'
 import {
     wmsCapabilitiesParser,
     wmtsCapabilitiesParser,
 } from '@swissgeo/layers/parsers'
+import { CapabilitiesError } from '@swissgeo/layers/validation'
 import log from '@swissgeo/log'
 import axios, { AxiosError, AxiosHeaders } from 'axios'
 import { computed, ref } from 'vue'
@@ -11,11 +15,8 @@ import {
     isWmsGetCap,
     isWmtsGetCap,
 } from '@/modules/menu/components/advancedTools/ImportCatalogue/utils'
-import { EXTERNAL_SERVER_TIMEOUT } from '@swissgeo/layers/api'
-import { CapabilitiesError } from '@swissgeo/layers/validation'
-import usePositionStore from '@/store/modules/position.store'
 import { useI18nStore } from '@/store/modules/i18n.store'
-import type { WMSCapabilitiesResponse, WMTSCapabilitiesResponse } from '@swissgeo/layers'
+import usePositionStore from '@/store/modules/position.store'
 
 export function useCapabilities(newUrl: URL) {
     const url = ref(newUrl)

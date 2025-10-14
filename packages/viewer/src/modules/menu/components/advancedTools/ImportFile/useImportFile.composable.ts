@@ -6,8 +6,8 @@ import { computed } from 'vue'
 import { parseLayerFromFile } from '@/modules/menu/components/advancedTools/ImportFile/parser'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import useLayersStore from '@/store/modules/layers.store'
-import useUIStore from '@/store/modules/ui.store'
 import usePositionStore from '@/store/modules/position.store'
+import useUIStore from '@/store/modules/ui.store'
 
 const dispatcher = {
     name: 'useImportFile.composable',

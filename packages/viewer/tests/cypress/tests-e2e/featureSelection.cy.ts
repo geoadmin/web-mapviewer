@@ -1,13 +1,15 @@
+import type Map from 'ol/Map'
+import type { MockFeature } from 'support/intercepts'
+
 /// <reference types="cypress" />
 import { registerProj4 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
+import { assertDefined } from 'support/utils'
+
+import type LayerFeature from '@/api/features/LayerFeature.class'
 
 import { DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION } from '@/config/map.config'
 import { FeatureInfoPositions } from '@/store/modules/ui.store'
-import { assertDefined } from 'support/utils'
-import type Map from 'ol/Map'
-import type LayerFeature from '@/api/features/LayerFeature.class'
-import type { MockFeature } from 'support/intercepts'
 
 registerProj4(proj4)
 type FeatureInfoPosition = (typeof FeatureInfoPositions)[keyof typeof FeatureInfoPositions]

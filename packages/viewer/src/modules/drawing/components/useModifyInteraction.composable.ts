@@ -1,11 +1,17 @@
-import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
-import type Map from 'ol/Map'
-import type Feature from 'ol/Feature'
 import type Collection from 'ol/Collection'
+import type Feature from 'ol/Feature'
+import type Map from 'ol/Map'
+import type MapBrowserEvent from 'ol/MapBrowserEvent'
+import type { StyleFunction } from 'ol/style/Style'
+
+import log from '@swissgeo/log'
+import { noModifierKeys, primaryAction } from 'ol/events/condition'
 import { LineString, type Geometry, type SimpleGeometry } from 'ol/geom'
 import ModifyInteraction, { type ModifyEvent } from 'ol/interaction/Modify'
-import { noModifierKeys, primaryAction } from 'ol/events/condition'
-import type MapBrowserEvent from 'ol/MapBrowserEvent'
+import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
+
+import type { EditableFeature } from '@/api/features.api'
+import type { ActionDispatcher } from '@/store/types'
 
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
@@ -13,10 +19,6 @@ import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import useDrawingStore, { EditMode } from '@/store/modules/drawing.store'
 import useFeaturesStore from '@/store/modules/features.store'
-import type { ActionDispatcher } from '@/store/types'
-import log from '@swissgeo/log'
-import type { StyleFunction } from 'ol/style/Style'
-import type { EditableFeature } from '@/api/features.api'
 
 const dispatcher: ActionDispatcher = { name: 'useModifyInteraction.composable' }
 const cursorGrabbingClass = 'cursor-grabbing'

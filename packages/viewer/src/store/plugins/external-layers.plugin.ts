@@ -9,18 +9,20 @@ import type {
     WMTSCapabilitiesResponse,
     WMTSCapabilityLayer,
 } from '@swissgeo/layers'
+
 import { CapabilitiesError, LayerType } from '@swissgeo/layers'
+import { readWmsCapabilities, readWmtsCapabilities } from '@swissgeo/layers/api'
 import { wmsCapabilitiesParser, wmtsCapabilitiesParser } from '@swissgeo/layers/parsers'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
-import { readWmsCapabilities, readWmtsCapabilities } from '@swissgeo/layers/api'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { ErrorMessage } from '@swissgeo/log/Message'
 
-import type { ActionDispatcher } from '@/store/types'
-import usePositionStore from '@/store/modules/position.store'
 import type { SupportedLang } from '@/modules/i18n'
+import type { ActionDispatcher } from '@/store/types'
+
 import { useI18nStore } from '@/store/modules/i18n.store'
 import useLayersStore from '@/store/modules/layers.store'
+import usePositionStore from '@/store/modules/position.store'
 
 const dispatcher: ActionDispatcher = { name: 'external-layers.plugin' }
 

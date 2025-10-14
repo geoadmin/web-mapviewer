@@ -1,7 +1,6 @@
 import log from '@swissgeo/log'
-import axios from 'axios'
-
 import { servicesBaseUrl, type Staging } from '@swissgeo/staging-config'
+import axios from 'axios'
 
 import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config'
 import {

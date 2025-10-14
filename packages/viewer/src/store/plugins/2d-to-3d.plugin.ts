@@ -1,3 +1,5 @@
+import type { PiniaPlugin } from 'pinia'
+
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
 
@@ -7,7 +9,6 @@ import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useCesiumStore from '@/store/modules/cesium.store'
 import useGeolocationStore from '@/store/modules/geolocation.store'
 import usePositionStore from '@/store/modules/position.store'
-import type { PiniaPlugin } from 'pinia'
 
 const dispatcher: ActionDispatcher = { name: '2d-to-3d.plugin' }
 

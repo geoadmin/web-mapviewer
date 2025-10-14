@@ -2,7 +2,6 @@ import 'cypress-real-events'
 import { mount } from 'cypress/vue'
 
 import i18n from '@/modules/i18n'
-
 import '@/scss/main.scss'
 
 Cypress.Commands.add('mount', (component, options = {}) => {

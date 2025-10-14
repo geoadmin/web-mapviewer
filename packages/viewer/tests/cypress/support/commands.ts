@@ -1,12 +1,13 @@
 import 'cypress-real-events'
 import 'cypress-wait-until'
 import '@4tw/cypress-drag-drop'
+import type { GeoAdminLayer } from '@swissgeo/layers'
+import type { Layer as OLLayer } from 'ol/layer'
+
 import { registerProj4, WEBMERCATOR } from '@swissgeo/coordinates'
 import { randomIntBetween } from '@swissgeo/numbers'
 import proj4 from 'proj4'
 
-import type { Layer as OLLayer } from 'ol/layer'
-import type { GeoAdminLayer } from '@swissgeo/layers'
 import { getDefaultFixturesAndIntercepts, type InterceptCallback } from './intercepts'
 import { isMobile } from './utils'
 

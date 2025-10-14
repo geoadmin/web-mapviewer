@@ -1,4 +1,5 @@
 import type { CoordinateSystem, SingleCoordinate, FlatExtent } from '@swissgeo/coordinates'
+
 import type { BoundingBox, Layer } from '@/types/layers'
 
 // @microsoft/api-extractor struggles to export only types from a file, so we need to export a dummy variable to make it happy

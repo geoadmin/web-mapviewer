@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
 
+import type { DrawingIconSet } from '@/api/icon.api'
 import type { ActionDispatcher } from '@/store/types'
 
-import type { DrawingIconSet } from '@/api/icon.api'
+import { EditableFeatureTypes } from '@/api/features.api'
 import { loadAllIconSetsFromBackend } from '@/api/icon.api'
 import useFeaturesStore from '@/store/modules/features.store'
-import { EditableFeatureTypes } from '@/api/features.api'
 
 const defaultDrawingTitle = 'draw_mode_title'
 

@@ -3,15 +3,17 @@
  * it here
  */
 
+import type { PiniaPlugin } from 'pinia'
+
+import { LayerType, type GPXLayer } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { ErrorMessage } from '@swissgeo/log/Message'
 
+import type { ActionDispatcher } from '@/store/types'
+
 import GPXParser from '@/modules/menu/components/advancedTools/ImportFile/parser/GPXParser.class'
-import { LayerType, type GPXLayer } from '@swissgeo/layers'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
-import type { PiniaPlugin } from 'pinia'
-import type { ActionDispatcher } from '@/store/types'
 
 const gpxParser = new GPXParser()
 

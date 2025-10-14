@@ -29,7 +29,7 @@ import {
     type FeatureStyleColor,
     type FeatureStyleSize,
     TextPlacement,
-} from '@/utils/featureStyleUtils.ts'
+} from '@/utils/featureStyleUtils'
 import { getGeoJsonFeatureCenter, reprojectGeoJsonGeometry } from '@/utils/geoJsonUtils'
 
 const GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE = 100

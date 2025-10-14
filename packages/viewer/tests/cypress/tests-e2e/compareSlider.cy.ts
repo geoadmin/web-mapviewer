@@ -1,7 +1,8 @@
-/// <reference types="cypress" />
-import type AbstractLayer from '@/api/layers/AbstractLayer.class'
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 import { assertDefined } from 'support/utils'
+
+/// <reference types="cypress" />
+import type AbstractLayer from '@/api/layers/AbstractLayer.class'
 
 describe('Testing of the compare slider', () => {
     function expectCompareRatioToBe(value: number | null) {

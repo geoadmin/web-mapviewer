@@ -2,6 +2,7 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import axios from 'axios'
 import { fromString } from 'ol/color'
 
+import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'
 import {
     calculateTextOffset,
     type FeatureStyleColor,
@@ -9,8 +10,6 @@ import {
     RED,
     TextPlacement,
 } from '@/utils/featureStyleUtils'
-
-import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'
 
 /** Default Icon parameters for the URL. */
 export const DEFAULT_ICON_URL_PARAMS = {

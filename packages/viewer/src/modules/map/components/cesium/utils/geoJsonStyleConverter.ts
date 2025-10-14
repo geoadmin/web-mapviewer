@@ -3,8 +3,9 @@ import type {
     GeoAdminGeoJSONStyleDefinition,
     GeoAdminGeoJSONVectorOptions,
 } from '@swissgeo/layers'
-import log, { LogPreDefinedColor } from '@swissgeo/log'
 import type { Entity } from 'cesium'
+
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import {
     BillboardGraphics,
     Cartesian2,

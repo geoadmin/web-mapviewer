@@ -8,11 +8,11 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { ActionDispatcher } from '@/store/types.ts'
+import type { ActionDispatcher } from '@/store/types'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
-import useUIStore from '@/store/modules/ui.store.ts'
+import useUIStore from '@/store/modules/ui.store'
 import FeedbackPopup from '@/utils/components/FeedbackPopup.vue'
 import debounce from '@/utils/debounce'
 

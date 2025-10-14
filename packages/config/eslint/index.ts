@@ -1,3 +1,5 @@
+import type { FlatConfig } from '@typescript-eslint/utils/ts-eslint'
+
 import jsESLint from '@eslint/js'
 import markdown from '@eslint/markdown'
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
@@ -9,7 +11,6 @@ import perfectionist from 'eslint-plugin-perfectionist'
 import pluginVue from 'eslint-plugin-vue'
 import globals from 'globals'
 import tsESLint, { plugin as tsESLintPlugin } from 'typescript-eslint'
-import type { FlatConfig } from '@typescript-eslint/utils/ts-eslint'
 
 type PartialRules = Partial<Record<string, FlatConfig.RuleEntry>>
 type PartialConfig = Partial<FlatConfig.Config>

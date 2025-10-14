@@ -1,4 +1,6 @@
 import type { FlatExtent, NormalizedExtent, SingleCoordinate } from '@swissgeo/coordinates'
+import type { Position } from 'geojson'
+
 import {
     allCoordinateSystems,
     CoordinateSystem,
@@ -9,7 +11,6 @@ import {
     SwissCoordinateSystem,
     WGS84,
 } from '@swissgeo/coordinates'
-import type { Position } from 'geojson'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { isNumber, wrapDegrees } from '@swissgeo/numbers'
 import { center, points } from '@turf/turf'
@@ -17,10 +18,10 @@ import { defineStore } from 'pinia'
 import proj4 from 'proj4'
 
 import type { ActionDispatcher } from '@/store/types'
+import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useUIStore from '@/store/modules/ui.store'
-import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 import { LV95Format } from '@/utils/coordinates/coordinateFormat'
 
 /**

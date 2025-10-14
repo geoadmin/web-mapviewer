@@ -1,10 +1,11 @@
+import type { UserConfig } from 'vite'
+
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import dts from 'unplugin-dts/vite'
 import { fileURLToPath, URL } from 'url'
 import vueDevTools from 'vite-plugin-vue-devtools'
-import type { UserConfig } from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 const config: UserConfig = {
