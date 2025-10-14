@@ -1,13 +1,12 @@
 /// <reference types="cypress" />
-function expectLayerCountToBe(viewer, layerCount) {
+
+import type { Viewer } from "cesium"
+
+function expectLayerCountToBe(viewer: Viewer, layerCount: number) {
     const layers = viewer.scene.imageryLayers
-    const layerUrls = []
-    for (let i = 0; i < layers.length; i++) {
-        layerUrls.push(layers.get(i).imageryProvider.url)
-    }
     expect(layers.length).to.eq(
         layerCount,
-        `Wrong layer count. Expected ${layerCount} but got ${layers.length}. Layers: \n${layerUrls.join('\n')}`
+        `Wrong layer count. Expected ${layerCount} but got ${layers.length}.`
     )
 }
 describe('Testing the feature selection in 3D', () => {

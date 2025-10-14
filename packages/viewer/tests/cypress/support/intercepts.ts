@@ -48,7 +48,6 @@ Cypress.Commands.add('getExternalWmsMockConfig', () => cy.wrap([
     Cypress._.cloneDeep(mockExternalWms4),
 ]))
 
-
 const mockExternalWmts1 = layerUtils.makeExternalWMTSLayer({
     id: 'TestExternalWMTS-1',
     name: 'Test External WMTS 1',
