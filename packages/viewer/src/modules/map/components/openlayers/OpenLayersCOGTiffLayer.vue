@@ -37,7 +37,7 @@ const source = computed<SourceInfo>(() => {
             base.blob = data
         }
     } else {
-        base.url = props.geotiffConfig.fileSource
+        base.url = geotiffConfig.fileSource
     }
     return base
 })
