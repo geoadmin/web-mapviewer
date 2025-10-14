@@ -3,8 +3,7 @@
 
 import { coordinatesUtils, LV03, LV95, WGS84 } from '@swissgeo/coordinates'
 import type { SingleCoordinate, CoordinateSystem } from '@swissgeo/coordinates'
-import log from '@swissgeo/log'
-import type { GeoadminLogInput } from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -28,9 +27,9 @@ const { coordinate, clickInfo, projection, currentLang } = defineProps<{
     currentLang: string
 }>()
 
-const lv03Coordinate = ref<SingleCoordinate | undefined>(undefined)
+const lv03Coordinate = ref<SingleCoordinate | undefined>()
 const what3Words = ref<string | undefined>(undefined)
-const height = ref<{ heightInFeet?: number; heightInMeter?: number } | undefined>(undefined)
+const height = ref<{ heightInFeet?: number; heightInMeter?: number } | undefined>()
 
 const { t } = useI18n()
 
@@ -54,13 +53,25 @@ const heightInMeter = computed(() => {
 onMounted(() => {
     if (clickInfo) {
         updateLV03Coordinate().catch((error: unknown) => {
-            log.error('Failed to retrieve LV03 coordinate', error as GeoadminLogInput)
+            log.error({
+                title: 'LocationPopup.vue',
+                titleColor: LogPreDefinedColor.Red,
+                message: ['Failed to retrieve LV03 coordinate', error as Error],
+            })
         })
         updateWhat3Word().catch((error: unknown) => {
-            log.error(`Failed to update What3Words`, error as GeoadminLogInput)
+            log.error({
+                title: 'LocationPopup.vue',
+                titleColor: LogPreDefinedColor.Red,
+                message: ['Failed to update What3Words', error as Error],
+            })
         })
         updateHeight().catch((error: unknown) => {
-            log.error(`Failed to update height`, error as GeoadminLogInput)
+            log.error({
+                title: 'LocationPopup.vue',
+                titleColor: LogPreDefinedColor.Red,
+                message: ['Failed to update height', error as Error],
+            })
         })
     }
 })
@@ -70,13 +81,25 @@ watch(
     (newClickInfo) => {
         if (newClickInfo) {
             updateLV03Coordinate().catch((error: unknown) => {
-                log.error('Failed to retrieve LV03 coordinate', error as GeoadminLogInput)
+                log.error({
+                    title: 'LocationPopup.vue',
+                    titleColor: LogPreDefinedColor.Red,
+                    message: ['Failed to retrieve LV03 coordinate', error as Error],
+                })
             })
             updateWhat3Word().catch((error: unknown) => {
-                log.error('Failed to update What3Words', error as GeoadminLogInput)
+                log.error({
+                    title: 'LocationPopup.vue',
+                    titleColor: LogPreDefinedColor.Red,
+                    message: ['Failed to update What3Words', error as Error],
+                })
             })
             updateHeight().catch((error: unknown) => {
-                log.error('Failed to update height', error as GeoadminLogInput)
+                log.error({
+                    title: 'LocationPopup.vue',
+                    titleColor: LogPreDefinedColor.Red,
+                    message: ['Failed to update height', error as Error],
+                })
             })
         }
     }
@@ -92,7 +115,11 @@ async function updateLV03Coordinate() {
             outputProjection: LV03,
         })
     } catch (error: unknown) {
-        log.error('Failed to retrieve LV03 coordinate', error as GeoadminLogInput)
+        log.error({
+            title: 'LocationPopup.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: ['Failed to retrieve LV03 coordinate', error as Error],
+        })
         lv03Coordinate.value = undefined
     }
 }
@@ -101,7 +128,11 @@ async function updateWhat3Word() {
     try {
         what3Words.value = await registerWhat3WordsLocation(coordinate, projection, currentLang)
     } catch (error: unknown) {
-        log.error(`Failed to retrieve What3Words Location`, error as GeoadminLogInput)
+        log.error({
+            title: 'LocationPopup.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: ['Failed to retrieve What3Words Location', error as Error],
+        })
         what3Words.value = undefined
     }
 }
@@ -109,7 +140,11 @@ async function updateHeight() {
     try {
         height.value = await requestHeight(coordinate, projection)
     } catch (error: unknown) {
-        log.error(`Failed to get position height`, error as GeoadminLogInput)
+        log.error({
+            title: 'LocationPopup.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: ['Failed to get position height', error as Error],
+        })
         height.value = undefined
     }
 }

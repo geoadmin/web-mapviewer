@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import '@geoblocks/cesium-compass'
 import { WEBMERCATOR } from '@swissgeo/coordinates'
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import {
     CesiumTerrainProvider,
     Color,
@@ -50,20 +50,25 @@ const cesiumStore = useCesiumStore()
 const positionStore = usePositionStore()
 const uiStore = useUIStore()
 
-const projection = computed(() => positionStore.projection)
-const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
-const isDesktopMode = computed(() => uiStore.isDesktopMode)
-const isProjectionWebMercator = computed(() => projection.value.epsg === WEBMERCATOR.epsg)
+const isProjectionWebMercator = computed(() => positionStore.projection.epsg === WEBMERCATOR.epsg)
 
 watch(
     isProjectionWebMercator,
     () => {
         if (!viewer && isProjectionWebMercator.value) {
             createViewer().catch((e) => {
-                log.error(`[Cesium] Error while creating the viewer: ${e.message}`)
+                log.error({
+                    title: 'CesiumMap.vue',
+                    titleColor: LogPreDefinedColor.Red,
+                    message: ['Error while creating the viewer:', e.message],
+                })
             })
         } else {
-            log.error('[Cesium] Cesium only supports WebMercator as projection')
+            log.error({
+                title: 'CesiumMap.vue',
+                titleColor: LogPreDefinedColor.Red,
+                message: ['Cesium only supports WebMercator as projection'],
+            })
         }
     },
     {
@@ -81,12 +86,24 @@ onBeforeMount(() => {
 })
 onMounted(() => {
     if (isProjectionWebMercator.value) {
-        log.debug('[Cesium] Projection is now WebMercator, Cesium will start loading')
+        log.debug({
+            title: 'CesiumMap.vue',
+            titleColor: LogPreDefinedColor.Blue,
+            message: ['Cesium', 'Projection is now WebMercator, Cesium will start loading'],
+        })
         createViewer().catch((e) => {
-            log.error(`[Cesium] Error while creating the viewer: ${e.message}`)
+            log.error({
+                title: 'CesiumMap.vue',
+                titleColor: LogPreDefinedColor.Red,
+                message: ['Cesium', 'Error while creating the viewer', e.message],
+            })
         })
     } else {
-        log.warn('[Cesium] Projection is not set to WebMercator, Cesium will not load yet')
+        log.warn({
+            title: 'CesiumMap.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: ['Cesium', 'Projection is not set to WebMercator, Cesium will not load yet'],
+        })
     }
 })
 onUnmounted(() => {
@@ -102,7 +119,7 @@ async function createViewer(): Promise<void> {
         return
     }
     viewer = new Viewer(viewerElement.value, {
-        showRenderLoopErrors: hasDevSiteWarning.value,
+        showRenderLoopErrors: uiStore.hasDevSiteWarning,
         // de-activating default Cesium UI elements
         animation: false,
         baseLayerPicker: false,
@@ -128,7 +145,7 @@ async function createViewer(): Promise<void> {
         requestRenderMode: true,
     })
 
-    if (hasDevSiteWarning.value) {
+    if (uiStore.hasDevSiteWarning) {
         viewer.scene.debugShowFramesPerSecond = true
     }
 
@@ -186,7 +203,7 @@ provide('getViewer', () => viewer ?? undefined)
             <CesiumHighlightedFeatures />
             <CesiumGeolocationFeedback />
             <cesium-compass
-                v-show="isDesktopMode"
+                v-show="uiStore.isDesktopMode"
                 ref="compassElement"
                 class="position-absolute translate-middle-x cesium-compass start-50"
             />

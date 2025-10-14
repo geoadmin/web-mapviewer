@@ -2,7 +2,7 @@
 import { nextTick, useTemplateRef } from 'vue'
 
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 
 const { showList = false, entries = [] } = defineProps<{
     showList?: boolean
@@ -21,7 +21,11 @@ function goToSpecific(value: number) {
             elem?.scrollIntoView()
             elem?.focus()
         }).catch((error) => {
-            log.error('Error in TimeSliderDropdownSearchList.vue goToSpecific:', error as Error)
+            log.error({
+                title: 'TimeSliderDropdownSearchList.vue',
+                titleColor: LogPreDefinedColor.Red,
+                message: ['Error in TimeSliderDropdownSearchList.vue goToSpecific:', error],
+            })
         })
     }
 }

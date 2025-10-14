@@ -34,11 +34,10 @@ const getViewer = inject<() => Viewer | undefined>('getViewer', () => undefined)
 
 const positionStore = usePositionStore()
 const layersStore = useLayersStore()
-const projection = computed(() => positionStore.projection)
 const opacity = computed(() => parentLayerOpacity ?? wmtsLayerConfig.opacity ?? 1.0)
 
 const url = computed(() =>
-    getWmtsXyzUrl(wmtsLayerConfig, projection.value, {
+    getWmtsXyzUrl(wmtsLayerConfig, positionStore.projection, {
         addTimestamp: true,
     })
 )
@@ -52,9 +51,11 @@ const tileMatrixSet = computed(() => {
     if (!sets || sets.length === 0) {
         return undefined
     }
-    const match = sets.find((set) => set.projection.epsg === projection.value.epsg)
+    const match = sets.find((set) => set.projection.epsg === positionStore.projection.epsg)
     if (!match) {
-        log.error(`External layer ${wmtsLayerConfig.id} does not support ${projection.value.epsg}`)
+        log.error(
+            `External layer ${wmtsLayerConfig.id} does not support ${positionStore.projection.epsg}`
+        )
         if (!hasUnsupportedProjectionError.value) {
             layersStore.addLayerError(
                 {
@@ -88,7 +89,7 @@ const tileMatrixSet = computed(() => {
 function setHasUnsupportedProjectionError(value: boolean) {
     hasUnsupportedProjectionError.value = value
 }
-const tileMatrixSetId = computed(() => tileMatrixSet.value?.id ?? projection.value.epsg)
+const tileMatrixSetId = computed(() => tileMatrixSet.value?.id ?? positionStore.projection.epsg)
 const tileMatrixLabels = computed(() =>
     (wmtsLayerConfig as ExternalWMTSLayer)?.options?.tileGrid?.getMatrixIds()
 )

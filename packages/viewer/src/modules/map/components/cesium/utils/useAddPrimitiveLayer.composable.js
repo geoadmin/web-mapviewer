@@ -1,4 +1,4 @@
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import {
     Billboard,
     BillboardCollection,
@@ -111,7 +111,11 @@ export default function useAddPrimitiveLayer(cesiumViewer, tileSet, opacity, opt
                 disableDepthTestDistance: PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE,
             })
         } catch (error) {
-            log.error('Error while loading tileset for', tileSet, error)
+            log.error({
+                title: 'useAddPrimitiveLayer.composable',
+                titleColor: LogPreDefinedColor.Red,
+                message: ['Error while loading tileset for', tileSet, error],
+            })
         }
     })
 

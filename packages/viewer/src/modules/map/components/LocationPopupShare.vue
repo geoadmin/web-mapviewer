@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSocialNetworks.vue'
 import useUIStore from '@/store/modules/ui.store'
@@ -10,8 +8,6 @@ const { shareLinkUrlShorten } = defineProps<{
 }>()
 
 const uiStore = useUIStore()
-
-const isDesktopMode = computed(() => uiStore.isDesktopMode)
 </script>
 
 <template>
@@ -34,7 +30,7 @@ const isDesktopMode = computed(() => uiStore.isDesktopMode)
             :copied-text="'copy_success'"
             class="px-0 py-2"
             data-cy="location-popup-link-bowl-crosshair"
-            :small="isDesktopMode"
+            :small="uiStore.isDesktopMode"
         />
     </div>
 </template>

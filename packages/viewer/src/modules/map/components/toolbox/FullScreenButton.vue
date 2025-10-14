@@ -11,21 +11,17 @@ const { t } = useI18n()
 const uiStore = useUIStore()
 
 const tooltipContent = computed(() => {
-    if (isInFullScreenMode.value) {
+    if (uiStore.fullscreenMode) {
         return t('full_screen_exit')
     }
     return t('full_screen')
 })
 
-const isInFullScreenMode = computed(() => uiStore.fullscreenMode)
-
 function toggleFullScreen() {
     uiStore.toggleFullscreenMode(dispatcher)
 }
-const height = computed(() => uiStore.height)
-const width = computed(() => uiStore.width)
 const isInWindowFullScreenModeNotChromium = computed(
-    () => screen.width === width.value && screen.height === height.value && !window.chrome
+    () => screen.width === uiStore.width && screen.height === uiStore.height && !window.chrome
 )
 onMounted(() => {
     window.addEventListener('keydown', handleKeydown)
@@ -35,7 +31,7 @@ onUnmounted(() => {
 })
 
 function handleKeydown(event: KeyboardEvent) {
-    if (event.key === 'Escape' && isInFullScreenMode.value) {
+    if (event.key === 'Escape' && uiStore.fullscreenMode) {
         toggleFullScreen()
     }
 }
@@ -55,7 +51,7 @@ function handleKeydown(event: KeyboardEvent) {
         <button
             ref="fullscreenButton"
             class="toolbox-button d-print-none"
-            :class="{ active: isInFullScreenMode }"
+            :class="{ active: uiStore.fullscreenMode }"
             data-cy="toolbox-fullscreen-button"
             @click="toggleFullScreen()"
         >

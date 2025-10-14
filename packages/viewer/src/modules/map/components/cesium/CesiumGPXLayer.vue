@@ -10,21 +10,20 @@ import {
     HeightReference,
     ConstantProperty,
 } from 'cesium'
-import { computed, inject, toRef, watch } from 'vue'
+import { computed, toRef, watch } from 'vue'
 
 import type { GPXLayer } from '@swissgeo/layers'
 import { GPX_BILLBOARD_RADIUS } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
-import type { Viewer, Entity } from 'cesium'
+import type { Entity } from 'cesium'
+import { getCesiumViewer } from './utils/viewerUtils'
 
 const { gpxLayerConfig } = defineProps<{ gpxLayerConfig: GPXLayer }>()
 
-const layerId = computed(() => gpxLayerConfig.id)
 const gpxData = computed(() => gpxLayerConfig.gpxData)
 const layerOpacity = computed(() => gpxLayerConfig.opacity)
 
-const getViewer = inject<() => Viewer | undefined>('getViewer')
-const viewer = getViewer?.()
+const viewer = getCesiumViewer()
 
 async function createSource(): Promise<GpxDataSource> {
     try {
@@ -36,7 +35,7 @@ async function createSource(): Promise<GpxDataSource> {
         )
     } catch (error: unknown) {
         log.error(
-            `[Cesium] Error while parsing GPX data for layer ${layerId.value}`,
+            `[Cesium] Error while parsing GPX data for layer ${gpxLayerConfig.id}`,
             error as string
         )
         throw error
@@ -116,7 +115,7 @@ const { refreshDataSource } = useAddDataSourceLayer(
     createSource(),
     applyStyleToGpxEntity,
     toRef(layerOpacity),
-    toRef(layerId)
+    toRef(gpxLayerConfig.id)
 )
 
 watch(gpxData, () => refreshDataSource(createSource()))

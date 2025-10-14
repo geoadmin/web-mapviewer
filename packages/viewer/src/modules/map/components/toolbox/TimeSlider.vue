@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { isNumber, round } from '@swissgeo/numbers'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
@@ -28,11 +28,11 @@ const PLAY_BUTTON_SIZE = 54
 
 const sliderWidth = ref(0)
 const currentYear = ref<number>(DEFAULT_YOUNGEST_YEAR)
-const falseYear = ref<number | undefined>(undefined)
+const falseYear = ref<number | undefined>()
 let cursorX = 0
 const playYearsWithData = ref(false)
 let yearCursorIsGrabbed = false
-let playYearInterval: NodeJS.Timeout | undefined = undefined
+let playYearInterval: NodeJS.Timeout | undefined
 
 const yearCursor = useTemplateRef<HTMLDivElement>('yearCursor')
 const sliderContainer = useTemplateRef<HTMLDivElement>('sliderContainer')
@@ -150,7 +150,11 @@ watch(isInputYearValid, (newValue) => {
 })
 
 onMounted(() => {
-    log.debug(`Activating time slider, previewYear=${previewYear.value}`)
+    log.debug({
+        title: 'TimeSlider.vue',
+        titleColor: LogPreDefinedColor.Blue,
+        message: [`Activating time slider, previewYear=${previewYear.value}`],
+    })
     setSliderWidth()
 
     if (previewYear.value === undefined) {
@@ -174,8 +178,11 @@ onMounted(() => {
         setPreviewYearToLayers()
     }
 
-    log.debug(`Time slider activated, currentYear=${currentYear.value}`)
-
+    log.debug({
+        title: 'TimeSlider.vue',
+        titleColor: LogPreDefinedColor.Blue,
+        message: [`Time slider activated, currentYear=${currentYear.value}`],
+    })
     window.addEventListener('keydown', handleKeyDownEvent)
 
     watch(currentYear, () => {
@@ -220,7 +227,11 @@ const dispatchPreviewYearToStoreDebounced = debounce(() => {
 function setSliderWidth() {
     const padding = 112
     if (!sliderContainer.value?.clientWidth) {
-        log.error('TimeSlider: sliderContainer clientWidth is undefined')
+        log.error({
+            title: 'TimeSlider.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: ['sliderContainer clientWidth is undefined'],
+        })
         return
     }
     sliderWidth.value = sliderContainer.value.clientWidth - padding - PLAY_BUTTON_SIZE || 0

@@ -53,13 +53,13 @@ function addLink(): void {
         return
     }
     switch (mediaType) {
-        case MediaType.LINK:
+        case MediaType.Link:
             emit('generatedMediaLink', createLink())
             break
-        case MediaType.IMAGE:
+        case MediaType.Image:
             emit('generatedMediaLink', createImage())
             break
-        case MediaType.VIDEO:
+        case MediaType.Video:
             emit('generatedMediaLink', createVideo())
             break
     }

@@ -10,9 +10,6 @@ const dispatcher = { name: 'BackgroundSelector.vue' }
 
 const layersStore = useLayersStore()
 const uiStore = useUIStore()
-const backgroundLayers = computed(() => layersStore.backgroundLayers)
-const currentBackgroundLayer = computed(() => layersStore.currentBackgroundLayer)
-const squaredDesign = computed(() => uiStore.isDesktopMode)
 
 function generateBackgroundCategories(bg: { id: string }) {
     return {
@@ -26,7 +23,7 @@ function generateBackgroundCategories(bg: { id: string }) {
 
 /** Sorted backgrounds so that they are ordered such as [ void, grau, farbe, aerial ] */
 const sortedBackgroundLayersWithVoid = computed(() =>
-    [...backgroundLayers.value, undefined].sort((bg1, bg2) => {
+    [...layersStore.backgroundLayers, undefined].sort((bg1, bg2) => {
         // if bg1 is void (undefined), it is placed "on-top" (1st in the list)
         if (!bg1) {
             return 1
@@ -54,15 +51,15 @@ function selectBackground(backgroundLayerId: string | undefined) {
 
 <template>
     <BackgroundSelectorSquared
-        v-if="squaredDesign"
+        v-if="uiStore.isDesktopMode"
         :background-layers="sortedBackgroundLayersWithVoid"
-        :current-background-layer="currentBackgroundLayer"
+        :current-background-layer="layersStore.currentBackgroundLayer"
         @select-background="selectBackground"
     />
     <BackgroundSelectorWheelRounded
         v-else
         :background-layers="sortedBackgroundLayersWithVoid"
-        :current-background-layer="currentBackgroundLayer"
+        :current-background-layer="layersStore.currentBackgroundLayer"
         @select-background="selectBackground"
     />
 </template>

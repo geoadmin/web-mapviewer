@@ -21,13 +21,13 @@ const { t } = useI18n()
 
 const tooltipContent = computed(() => {
     let key
-    if (isDenied.value) {
+    if (geolocationStore.denied) {
         key = 'geoloc_permission_denied'
     } else if (hasTrackingFeedback.value) {
         key = 're_center_map'
     } else if (hastAutoRotationFeedback.value) {
         key = 'orient_map_north'
-    } else if (isActive.value) {
+    } else if (geolocationStore.active) {
         key = 'geoloc_stop_tracking'
     } else {
         key = 'geoloc_start_tracking'
@@ -35,18 +35,12 @@ const tooltipContent = computed(() => {
     return t(key)
 })
 
-const isActive = computed(() => geolocationStore.active)
-const isDenied = computed(() => geolocationStore.denied)
-const isTracking = computed(() => geolocationStore.tracking)
-const autoRotation = computed(() => positionStore.autoRotation)
-const hasOrientation = computed(() => positionStore.hasOrientation)
-const is3dActive = computed(() => cesiumStore.active)
-const hasTrackingFeedback = computed(() => isActive.value && !isTracking.value)
+const hasTrackingFeedback = computed(() => geolocationStore.active && !geolocationStore.tracking)
 const hastAutoRotationFeedback = computed(
-    () => isActive.value && hasOrientation.value && !autoRotation.value
+    () => geolocationStore.active && positionStore.hasOrientation && !positionStore.autoRotation
 )
 function toggleGeolocation(): void {
-    if (!isActive.value) {
+    if (!geolocationStore.active) {
         geolocationStore.toggleGeolocation(dispatcher)
         if (hasTrackingFeedback.value) {
             geolocationStore.setGeolocationTracking(true, dispatcher)
@@ -77,8 +71,8 @@ function toggleGeolocation(): void {
             <button
                 class="toolbox-button d-print-none"
                 type="button"
-                :disabled="isDenied"
-                :class="{ active: isActive, disabled: isDenied }"
+                :disabled="geolocationStore.denied"
+                :class="{ active: geolocationStore.active, disabled: geolocationStore.denied }"
                 data-cy="geolocation-button"
                 @click="toggleGeolocation"
             >
@@ -89,12 +83,12 @@ function toggleGeolocation(): void {
                         transform="grow-4"
                     />
                     <FontAwesomeIcon
-                        v-if="autoRotation"
+                        v-if="positionStore.autoRotation"
                         icon="minus"
                         transform="shrink-10 up-7 rotate--90"
                     />
                     <FontAwesomeIcon
-                        v-if="autoRotation"
+                        v-if="positionStore.autoRotation"
                         icon="location-arrow"
                         transform="shrink-4 down-4 rotate--45"
                     />
@@ -107,8 +101,8 @@ function toggleGeolocation(): void {
             </button>
         </GeoadminTooltip>
         <OpenLayersCompassButton
-            v-if="!is3dActive && compassButton"
-            :hide-if-north="!autoRotation"
+            v-if="!cesiumStore.active && compassButton"
+            :hide-if-north="!positionStore.autoRotation"
         />
     </div>
 </template>
