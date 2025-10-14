@@ -1,15 +1,17 @@
 /// <reference types="cypress" />
 
+import type { MFPLayer, MFPMap, MFPSymbolizer, MFPSymbolizerLine, MFPSymbolizers, MFPVectorLayer, MFPWmsLayer, MFPWmtsLayer } from '@geoblocks/mapfishprint'
+import type { Interception } from 'cypress/types/net-stubbing'
+import type { Feature, FeatureCollection } from 'geojson';
+
 import { formatThousand } from '@swissgeo/numbers'
+import { kmlMetadataTemplate } from 'support/drawing'
+import { assertDefined } from 'support/utils'
+
+import type ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
-import type ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-import { assertDefined } from 'support/utils'
-import type { MFPLayer, MFPMap, MFPSymbolizer, MFPSymbolizerLine, MFPSymbolizers, MFPVectorLayer, MFPWmsLayer, MFPWmtsLayer } from '@geoblocks/mapfishprint'
-import type { Feature, FeatureCollection } from 'geojson';
-import type { Interception } from 'cypress/types/net-stubbing'
-import { kmlMetadataTemplate } from 'support/drawing'
 
 interface LaunchPrintOptions {
     layout?: string

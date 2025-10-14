@@ -1,10 +1,10 @@
 /// <reference types="cypress" />
 
 import { constants, coordinatesUtils, LV03, LV95, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
+import { assertDefined } from 'support/utils'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
-import { latLonToMGRS } from '@/utils/militaryGridProjection.ts'
-import { assertDefined } from 'support/utils'
+import { latLonToMGRS } from '@/utils/militaryGridProjection'
 
 const searchbarSelector = '[data-cy="searchbar"]'
 

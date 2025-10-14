@@ -1,7 +1,8 @@
+import type { PluginOption } from 'vite'
+
 import gitconfig from 'gitconfig'
 import { exec as execCallback } from 'node:child_process'
 import { promisify } from 'node:util'
-import type { PluginOption } from 'vite'
 
 const exec = promisify(execCallback)
 

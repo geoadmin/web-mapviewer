@@ -1,12 +1,13 @@
 /// <reference types="cypress" />
 
+import type { Layer } from '@swissgeo/layers'
+
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { BREAKPOINT_TABLET } from '@/config/responsive.config'
 import { CrossHairs } from '@/store/modules/position.store'
-import type { Layer } from '@swissgeo/layers'
 
 registerProj4(proj4)
 

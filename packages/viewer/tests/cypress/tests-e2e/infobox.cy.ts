@@ -1,7 +1,8 @@
 /// <reference types="cypress" />
 
-import { LV95, WEBMERCATOR } from '@swissgeo/coordinates'
 import type { MockFeature } from 'support/intercepts'
+
+import { LV95, WEBMERCATOR } from '@swissgeo/coordinates'
 
 describe('The infobox', () => {
     const generateInfoboxTestsForMapSelector = (mapSelector: string): void => {

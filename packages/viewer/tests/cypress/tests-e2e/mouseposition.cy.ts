@@ -2,6 +2,9 @@
 
 import { LV03, LV95, registerProj4, WGS84 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
+import { assertDefined } from 'support/utils'
+
+import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 
 import { getServiceShortLinkBaseUrl } from '@/config/baseUrl.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
@@ -12,9 +15,7 @@ import {
     MGRSFormat,
     UTMFormat,
     WGS84Format,
-} from '@/utils/coordinates/coordinateFormat.ts'
-import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat.ts'
-import { assertDefined } from 'support/utils'
+} from '@/utils/coordinates/coordinateFormat'
 
 registerProj4(proj4)
 

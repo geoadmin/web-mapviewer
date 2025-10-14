@@ -8,7 +8,7 @@ import BaseUrlOverrideModal from '@/modules/menu/components/debug/BaseUrlOverrid
 import DebugLayerFinder from '@/modules/menu/components/debug/DebugLayerFinder.vue'
 import DebugPrint from '@/modules/menu/components/debug/DebugPrint.vue'
 import DebugViewSelector from '@/modules/menu/components/debug/DebugViewSelector.vue'
-import { PRINT_VIEW } from '@/router/viewNames.ts'
+import { PRINT_VIEW } from '@/router/viewNames'
 import usePositionStore from '@/store/modules/position.store'
 import useCesiumStore from '@/store/modules/cesium.store'
 import useDebugStore from '@/store/modules/debug.store'

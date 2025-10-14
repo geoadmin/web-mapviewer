@@ -1,5 +1,3 @@
-import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
-import type { Layer } from '@swissgeo/layers'
 import type {
     MFPEncoder as MFPBaseEncoder,
     MFPReportResponse,
@@ -9,6 +7,13 @@ import type {
     MFPSymbolizerText,
     MFPWmsLayer,
 } from '@geoblocks/mapfishprint/lib/types'
+import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
+import type { Layer } from '@swissgeo/layers'
+import type { GeoJSONFeature } from 'ol/format/GeoJSON'
+import type { State } from 'ol/layer/Layer'
+import type Map from 'ol/Map'
+import type { Size } from 'ol/size'
+
 import {
     BaseCustomizer,
     cancelPrint,
@@ -16,11 +21,6 @@ import {
     MFPEncoder,
     requestReport,
 } from '@geoblocks/mapfishprint'
-import type { GeoJSONFeature } from 'ol/format/GeoJSON'
-import type { State } from 'ol/layer/Layer'
-import type Map from 'ol/Map'
-import type { Size } from 'ol/size'
-
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import axios from 'axios'
 import { Circle, type Image, type Stroke, type Text } from 'ol/style'
@@ -32,8 +32,8 @@ import {
     getWmsBaseUrl,
 } from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
-import { adjustWidth } from '@/utils/styleUtils'
 import { useI18nStore } from '@/store/modules/i18n.store'
+import { adjustWidth } from '@/utils/styleUtils'
 
 /** Interval between each polling of the printing job status (ms) */
 const PRINTING_DEFAULT_POLL_INTERVAL: number = 2000

@@ -1,15 +1,17 @@
 /// <reference types="cypress" />
 
+import type { Viewer } from 'cesium'
+import type BaseLayer from 'ol/layer/Base'
+import type Map from 'ol/Map'
+
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
+import { assertDefined } from 'support/utils'
+
+import type AbstractLayer from '@/api/layers/AbstractLayer.class'
 
 import { proxifyUrl } from '@/api/file-proxy.api.js'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
-import type AbstractLayer from '@/api/layers/AbstractLayer.class'
-import type Map from 'ol/Map'
-import type BaseLayer from 'ol/layer/Base'
-import type { Viewer } from 'cesium'
-import { assertDefined } from 'support/utils'
 
 registerProj4(proj4)
 

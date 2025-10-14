@@ -7,6 +7,12 @@
  * - Add pointerWrapX to normalize pointer coordinates around world wrap.
  */
 
+import type { Map } from 'ol'
+import type { Circle, Geometry, GeometryCollection, LineString, MultiLineString, MultiPoint, MultiPolygon, Polygon, SimpleGeometry } from 'ol/geom'
+import type { Layer } from 'ol/layer'
+import type { Pixel } from 'ol/pixel'
+import type { FlatStyleLike } from 'ol/style/flat'
+
 import { equals as arrayEquals } from 'ol/array'
 import Collection from 'ol/Collection'
 import CollectionEventType from 'ol/CollectionEventType'
@@ -40,10 +46,10 @@ import { fromCircle } from 'ol/geom/Polygon'
 import PointerInteraction, {
     type Options as PointerInteractionOptions,
 } from 'ol/interaction/Pointer'
-import CanvasVectorLayerRenderer from 'ol/renderer/canvas/VectorLayer';
 import BaseVectorLayer from 'ol/layer/BaseVector'
-import MapBrowserEventType from 'ol/MapBrowserEventType'
+import VectorLayer from 'ol/layer/Vector'
 import MapBrowserEvent from 'ol/MapBrowserEvent'
+import MapBrowserEventType from 'ol/MapBrowserEventType'
 import {
     fromUserCoordinate,
     fromUserExtent,
@@ -52,16 +58,11 @@ import {
     toUserExtent,
     type ProjectionLike,
 } from 'ol/proj'
+import CanvasVectorLayerRenderer from 'ol/renderer/canvas/VectorLayer';
 import VectorSource, { type VectorSourceEvent } from 'ol/source/Vector'
 import RBush from 'ol/structs/RBush'
 import { createEditingStyle, type StyleFunction, type StyleLike } from 'ol/style/Style'
-import type { FlatStyleLike } from 'ol/style/flat'
 import { getUid } from 'ol/util'
-import type { Circle, Geometry, GeometryCollection, LineString, MultiLineString, MultiPoint, MultiPolygon, Polygon, SimpleGeometry } from 'ol/geom'
-import type { Pixel } from 'ol/pixel'
-import type { Map } from 'ol'
-import type { Layer } from 'ol/layer'
-import VectorLayer from 'ol/layer/Vector'
 
 /**
  * The segment index assigned to a circle's center when breaking up a circle.

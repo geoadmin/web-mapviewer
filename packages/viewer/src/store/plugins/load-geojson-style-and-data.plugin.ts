@@ -1,19 +1,21 @@
-import log, { LogPreDefinedColor } from '@swissgeo/log'
-import { ErrorMessage } from '@swissgeo/log/Message'
-import axios from 'axios'
-
 import type {
     GeoAdminGeoJSONLayer,
     GeoAdminGeoJSONStyleUnique,
     GeoAdminGeoJSONStyleRange,
     Layer,
 } from '@swissgeo/layers'
+import type { PiniaPlugin } from 'pinia'
+
 import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
+import { ErrorMessage } from '@swissgeo/log/Message'
+import axios from 'axios'
+
 import type { ActionDispatcher } from '@/store/types'
-import type { PiniaPlugin } from 'pinia'
-import useLayersStore, { type AddLayerPayload } from '@/store/modules/layers.store.ts'
-import useUIStore from '@/store/modules/ui.store.ts'
+
+import useLayersStore, { type AddLayerPayload } from '@/store/modules/layers.store'
+import useUIStore from '@/store/modules/ui.store'
 
 const dispatcher: ActionDispatcher = { name: 'load-geojson-style-and-data.plugin' }
 

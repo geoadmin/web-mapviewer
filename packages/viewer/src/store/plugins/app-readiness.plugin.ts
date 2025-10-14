@@ -5,6 +5,7 @@ import { START_LOCATION, useRouter } from 'vue-router'
 
 import type { ActionDispatcher } from '@/store/types'
 
+import { isSupportedLang } from '@/modules/i18n'
 import useAppStore from '@/store/modules/app.store'
 import { useI18nStore } from '@/store/modules/i18n.store'
 import useLayersStore from '@/store/modules/layers.store'
@@ -12,7 +13,6 @@ import useTopicsStore from '@/store/modules/topics.store'
 import useUIStore from '@/store/modules/ui.store'
 import { isLegacyParams } from '@/utils/legacyLayerParamUtils'
 import { readSingleParamAsString } from '@/utils/url-router'
-import { isSupportedLang } from '@/modules/i18n'
 
 const dispatcher: ActionDispatcher = { name: 'app-readiness.plugin' }
 

@@ -1,7 +1,8 @@
 /// <reference types="cypress" />
 
-import type AbstractLayer from "@/api/layers/AbstractLayer.class"
 import { assertDefined } from "support/utils"
+
+import type AbstractLayer from "@/api/layers/AbstractLayer.class"
 
 describe('Topics', () => {
     // mimic the output of `/rest/services` endpoint

@@ -1,8 +1,9 @@
 import log from '@swissgeo/log'
+import { defineStore } from 'pinia'
+
+import type { ActionDispatcher } from '@/store/types'
 
 import { createShortLink } from '@/api/shortlink.api.js'
-import { defineStore } from 'pinia'
-import type { ActionDispatcher } from '@/store/types'
 
 interface ShareStoreState {
     shortLink: string | null

@@ -4,7 +4,7 @@ import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { SupportedLocales } from '@/config.ts'
+import type { SupportedLocales } from '@/config'
 import type { VueI18nTranslateFunction } from '@/vue-i18n'
 
 import {

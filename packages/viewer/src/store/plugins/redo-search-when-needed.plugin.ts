@@ -1,8 +1,10 @@
+import type { PiniaPlugin } from "pinia"
+
+import log from '@swissgeo/log'
+
 import { useI18nStore } from "@/store/modules/i18n.store"
 import useLayersStore from "@/store/modules/layers.store"
 import useSearchStore from "@/store/modules/search.store"
-import log from '@swissgeo/log'
-import type { PiniaPlugin } from "pinia"
 
 /**
  * Redo the search results on lang change if the search query is defined

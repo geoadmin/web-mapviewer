@@ -1,8 +1,9 @@
+import type { FlatExtent } from '@swissgeo/coordinates'
+
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { defineStore } from 'pinia'
 
 import type { ActionDispatcher } from '@/store/types'
-import type { FlatExtent } from '@swissgeo/coordinates'
 
 import { PrintLayout, readPrintCapabilities } from '@/api/print.api'
 import { PRINT_DEFAULT_DPI } from '@/config/print.config'

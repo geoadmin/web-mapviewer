@@ -1,9 +1,10 @@
 /// <reference types="cypress" />
 
-import { DEFAULT_PROJECTION } from '@/config/map.config'
-import { CrossHairs } from '@/store/modules/position.store'
 import type { CoordinateSystem } from '@swissgeo/coordinates'
 import type { Router, RouterHistory } from 'vue-router'
+
+import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { CrossHairs } from '@/store/modules/position.store'
 
 // Temporary until the store is migrated to pinia and typescript
 interface PositionStore {

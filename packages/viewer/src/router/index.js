@@ -10,15 +10,14 @@ import {
     LEGACY_EMBED_PARAM_VIEW,
     LEGACY_PARAM_VIEW,
     MAP_VIEW,
+    PRINT_VIEW,
 } from '@/router/viewNames'
 import store from '@/store'
 import { parseQuery, stringifyQuery } from '@/utils/url-router'
 import EmbedView from '@/views/EmbedView.vue'
 import LegacyParamsView from '@/views/LegacyParamsView.vue'
 import MapView from '@/views/MapView.vue'
-
-import PrintView from '../views/PrintView.vue'
-import { PRINT_VIEW } from './viewNames.ts'
+import PrintView from '@/views/PrintView.vue'
 
 const history = createWebHashHistory()
 

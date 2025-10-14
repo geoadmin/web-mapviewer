@@ -1,7 +1,8 @@
+import type { PiniaPlugin } from 'pinia'
+
 import useFeaturesStore from '@/store/modules/features.store'
 import useLayersStore from '@/store/modules/layers.store'
 import useMapStore from '@/store/modules/map.store'
-import type { PiniaPlugin } from 'pinia'
 
 const dispatcher = { name: 'update-selected-features.plugin' }
 

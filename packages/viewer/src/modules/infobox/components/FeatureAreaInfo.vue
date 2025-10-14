@@ -39,7 +39,7 @@ const humanReadableArea: ComputedRef<string> = computed(() => {
     if (!res || !('area' in res)) {
         return result
     }
-    const calculatedArea = res.area as number
+    const calculatedArea = res.area
     if (calculatedArea) {
         const unitThreshold = 1e5
         const divider = 1e6

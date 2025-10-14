@@ -53,7 +53,7 @@ const initSortable = () => {
         onStart: function () {
             aLayerIsDragged.value = true
         },
-        onEnd: async function (event) {
+        onEnd: function (event) {
             aLayerIsDragged.value = false
             const { newIndex, oldIndex } = event
             if (
@@ -66,7 +66,7 @@ const initSortable = () => {
             ) {
                 onMoveLayer(reverseIndex(oldIndex), reverseIndex(newIndex))
 
-                await nextTick(() => {
+                nextTick(() => {
                     if (!activeLayersList.value) {
                         return
                     }
@@ -88,6 +88,8 @@ const initSortable = () => {
                     } else {
                         log.debug('No non-draggable children found')
                     }
+                }).catch((error) => {
+                    log.error('Error while removing non-draggable children', error)
                 })
             } else {
                 log.warn('Invalid index for layer move', { newIndex, oldIndex })
