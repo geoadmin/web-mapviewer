@@ -9,5 +9,6 @@ declare global {
         store: Pinia
         vueRouterHistory: RouterHistory
         vueRouter: Router
+        mapPointerEventReady?: boolean
     }
 }

@@ -120,14 +120,14 @@ export default function useMapInteractions(map: Map): void {
         map.getTargetElement()?.addEventListener('pointerdown', onMapPointerDown)
 
         if (IS_TESTING_WITH_CYPRESS) {
-            ;(window as Window & { mapPointerEventReady?: boolean }).mapPointerEventReady = true
+            window.mapPointerEventReady = true
         }
     }
 
     function unregisterPointerEvents(): void {
         log.debug(`Unregister map pointer events`)
         if (IS_TESTING_WITH_CYPRESS) {
-            ;(window as Window & { mapPointerEventReady?: boolean }).mapPointerEventReady = false
+            window.mapPointerEventReady = false
         }
 
         map.getTargetElement()?.removeEventListener('pointerdown', onMapPointerDown)
