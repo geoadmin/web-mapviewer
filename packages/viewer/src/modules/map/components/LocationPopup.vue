@@ -13,7 +13,7 @@ import LocationPopupPosition from '@/modules/map/components/LocationPopupPositio
 import LocationPopupShare from '@/modules/map/components/LocationPopupShare.vue'
 import { MapPopoverMode } from '@/modules/map/components/MapPopoverMode.enum'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
-import { stringifyQuery } from '@/utils/url-router.js'
+import { stringifyQuery } from '@/utils/url-router'
 import useMapStore from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'
 import useCesiumStore from '@/store/modules/cesium.store'
