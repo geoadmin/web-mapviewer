@@ -1,5 +1,6 @@
-import { ErrorMessage } from '@swissgeo/log/Message'
 import type { LocationQuery } from 'vue-router'
+
+import { ErrorMessage } from '@swissgeo/log/Message'
 
 function getStandardErrorMessage(query: LocationQuery, urlParamName: string) {
     return new ErrorMessage('url_parameter_error', {

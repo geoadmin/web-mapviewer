@@ -1,6 +1,7 @@
 /// <reference types="cypress" />
 
 import { SUPPORTED_LANG } from '@/modules/i18n'
+
 import { isMobile } from '../support/utils'
 
 function checkLanguage(lang: string): void {

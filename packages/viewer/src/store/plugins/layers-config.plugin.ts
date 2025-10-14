@@ -1,15 +1,17 @@
-import log, { LogPreDefinedColor } from '@swissgeo/log'
 import type { GeoAdminLayer } from '@swissgeo/layers'
+import type { PiniaPlugin } from 'pinia'
+
 import { loadGeoadminLayersConfig } from '@swissgeo/layers/api'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
+
+import type { SupportedLang } from '@/modules/i18n'
+import type { ActionDispatcher } from '@/store/types'
 
 import { loadTopics, parseTopics } from '@/api/topics.api'
-import type { ActionDispatcher } from '@/store/types'
-import type { SupportedLang } from '@/modules/i18n'
-import type { PiniaPlugin } from 'pinia'
-import { useI18nStore } from '@/store/modules/i18n.store'
-import useTopicsStore from '@/store/modules/topics.store'
-import useLayersStore from '@/store/modules/layers.store'
 import useDebugStore from '@/store/modules/debug.store'
+import { useI18nStore } from '@/store/modules/i18n.store'
+import useLayersStore from '@/store/modules/layers.store'
+import useTopicsStore from '@/store/modules/topics.store'
 
 const dispatcher: ActionDispatcher = { name: 'layers-config.plugin' }
 

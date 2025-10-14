@@ -1,22 +1,23 @@
+import type { KMLLayer } from '@swissgeo/layers'
+import type { Feature } from 'ol'
+import type { Geometry } from 'ol/geom'
+import type VectorLayer from 'ol/layer/Vector'
+import type VectorSource from 'ol/source/Vector'
+
+import { layerUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
 import { computed, inject, ref, toValue, type MaybeRefOrGetter } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import type { ActionDispatcher } from '@/store/types'
+
 import { createKml, deleteKml, getKmlUrl, updateKml } from '@/api/files.api'
-import type { KMLLayer } from '@swissgeo/layers'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { DrawingState, generateKmlString } from '@/modules/drawing/lib/export-utils'
-import { parseKml } from '@/utils/kmlUtils'
 import useDrawingStore from '@/store/modules/drawing.store'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
-import type { ActionDispatcher } from '@/store/types'
-
-import type VectorLayer from 'ol/layer/Vector'
-import type VectorSource from 'ol/source/Vector'
-import type { Geometry } from 'ol/geom'
-import type { Feature } from 'ol'
-import { layerUtils } from '@swissgeo/layers/utils'
+import { parseKml } from '@/utils/kmlUtils'
 
 const dispatcher: ActionDispatcher = { name: 'useKmlDataManagement.composable' }
 

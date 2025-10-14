@@ -1,5 +1,8 @@
 /// <reference types="cypress" />
 
+import type { CyHttpMessages } from 'cypress/types/net-stubbing'
+import type Feature from 'ol/Feature'
+
 import { registerProj4, WGS84, type SingleCoordinate } from '@swissgeo/coordinates'
 import { LayerType, type KMLLayer } from '@swissgeo/layers'
 import { randomIntBetween } from '@swissgeo/numbers'
@@ -20,8 +23,6 @@ import {
     getKmlAdminIdFromRequest,
     kmlMetadataTemplate,
 } from '../support/drawing'
-import type { CyHttpMessages } from 'cypress/types/net-stubbing'
-import type Feature from 'ol/Feature'
 
 registerProj4(proj4)
 

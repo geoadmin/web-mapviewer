@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { Single3DCoordinate, SingleCoordinate } from '@/coordinatesUtils'
+
 import coordinatesUtils from '@/coordinatesUtils'
 import { CoordinateSystem, LV95, WEBMERCATOR, WGS84 } from '@/proj'
 

@@ -1,13 +1,14 @@
+import type { CloudOptimizedGeoTIFFLayer, Layer } from '@swissgeo/layers'
+import type { PiniaPlugin } from 'pinia'
+
+import { LayerType } from '@swissgeo/layers'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { toValue } from 'vue'
 
-import log, { LogPreDefinedColor } from '@swissgeo/log'
-import type { CloudOptimizedGeoTIFFLayer, Layer } from '@swissgeo/layers'
-import { LayerType } from '@swissgeo/layers'
+import type { ActionDispatcher } from '@/store/types'
 
 import { CloudOptimizedGeoTIFFParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/CloudOptimizedGeoTIFFParser.class'
-import type { PiniaPlugin } from 'pinia'
 import useLayersStore from '@/store/modules/layers.store'
-import type { ActionDispatcher } from '@/store/types'
 import usePositionStore from '@/store/modules/position.store'
 
 const cogParser = new CloudOptimizedGeoTIFFParser()

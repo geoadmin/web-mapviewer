@@ -1,16 +1,16 @@
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import type { GeoAdminLayer, GPXLayer, KMLLayer, Layer } from '@swissgeo/layers'
-import type { Geometry } from 'ol/geom'
 import type Feature from 'ol/Feature'
+import type { Geometry } from 'ol/geom'
 
 import {
     constants,
+    coordinatesUtils,
     CoordinateSystem,
     CustomCoordinateSystem,
+    extentUtils,
     LV03,
-    coordinatesUtils,
 } from '@swissgeo/coordinates'
-
 import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
@@ -19,7 +19,11 @@ import { defineStore } from 'pinia'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import getFeature, { extractOlFeatureCoordinates, type LayerFeature, type SelectableFeature } from '@/api/features.api'
+import getFeature, {
+    extractOlFeatureCoordinates,
+    type LayerFeature,
+    type SelectableFeature,
+} from '@/api/features.api'
 import reframe from '@/api/lv03Reframe.api'
 import search, {
     type LayerFeatureSearchResult,
@@ -28,7 +32,6 @@ import search, {
     type SearchResult,
     SearchResultTypes,
 } from '@/api/search.api'
-
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
 import useFeaturesStore from '@/store/modules/features.store'
 import { useI18nStore } from '@/store/modules/i18n.store'
@@ -37,10 +40,8 @@ import useMapStore from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'
 import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
 import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
-
-import { extentUtils } from '@swissgeo/coordinates'
 import { parseGpx } from '@/utils/gpxUtils'
-import { parseKml } from '@/utils/kmlUtils.ts'
+import { parseKml } from '@/utils/kmlUtils'
 
 function zoomToSearchResult(
     entry: LocationSearchResult | LayerFeatureSearchResult,
@@ -271,7 +272,6 @@ export const useSearchStore = defineStore('search', {
                 // Automatically select the feature
                 try {
                     if (layerUtils.getTopicForIdentifyAndTooltipRequests(featureEntry.layer)) {
-
                         const feature = await getFeature(
                             // probably all feature results have to be geoadminlayer
                             featureEntry.layer as GeoAdminLayer,
@@ -332,10 +332,7 @@ export const useSearchStore = defineStore('search', {
                                 dispatcher
                             )
 
-                            uiStore.setFeatureInfoPosition(
-                                FeatureInfoPositions.TOOLTIP,
-                                dispatcher
-                            )
+                            uiStore.setFeatureInfoPosition(FeatureInfoPositions.TOOLTIP, dispatcher)
                         }
                     }
                 } catch (error) {
@@ -373,7 +370,10 @@ function getResultForAutoselect(results: SearchResult[]): SearchResult {
     return locationResult ?? results[0]! // the outer function established that this element should exist
 }
 
-function createLayerFeature(olFeature: Feature<Geometry>, layer: Layer): SelectableFeature<false> | null {
+function createLayerFeature(
+    olFeature: Feature<Geometry>,
+    layer: Layer
+): SelectableFeature<false> | null {
     const geometry = olFeature.getGeometry()
 
     if (!geometry) {
@@ -405,7 +405,7 @@ function createLayerFeature(olFeature: Feature<Geometry>, layer: Layer): Selecta
         geometry: new GeoJSON().writeGeometryObject(geometry),
         extent,
         isEditable: false,
-        popupDataCanBeTrusted: false
+        popupDataCanBeTrusted: false,
     } as LayerFeature
 }
 

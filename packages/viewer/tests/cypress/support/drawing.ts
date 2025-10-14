@@ -1,10 +1,10 @@
+import type { CyHttpMessages } from 'cypress/types/net-stubbing'
+
 import { randomIntBetween } from '@swissgeo/numbers'
 import pako from 'pako'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import { generateRGBFillString, GREEN, RED } from '@/utils/featureStyleUtils'
-
-import type { CyHttpMessages } from 'cypress/types/net-stubbing'
 
 function transformHeaders(headers: { [key: string]: string | string[] }): HeadersInit {
     const transformedHeaders: HeadersInit = {}

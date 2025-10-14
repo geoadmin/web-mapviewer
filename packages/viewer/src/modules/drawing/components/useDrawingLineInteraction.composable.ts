@@ -1,9 +1,10 @@
+import type Feature from 'ol/Feature'
+import type { SimpleGeometry } from 'ol/geom'
+import type { StyleFunction } from 'ol/style/Style'
+
 import { EditableFeatureTypes } from '@/api/features.api'
 import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable'
 import { drawLineStyle } from '@/modules/drawing/lib/style'
-import type { StyleFunction } from 'ol/style/Style'
-import type Feature from 'ol/Feature'
-import type { SimpleGeometry } from 'ol/geom'
 
 interface UseDrawingLineInteractionConfig {
     styleFunction?: StyleFunction

@@ -1,3 +1,4 @@
+import type { FlatExtent } from '@swissgeo/coordinates'
 import type {
     GeoAdminGeoJSONLayer,
     GPXLayer,
@@ -9,6 +10,7 @@ import type {
 import type { Interval } from 'luxon'
 
 import { WGS84 } from '@swissgeo/coordinates'
+import { extentUtils } from '@swissgeo/coordinates'
 import {
     addErrorMessageToLayer,
     clearErrorMessages,
@@ -26,8 +28,6 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 import usePositionStore from '@/store/modules/position.store'
-import type { FlatExtent } from '@swissgeo/coordinates'
-import { extentUtils } from '@swissgeo/coordinates'
 import { getGpxExtent } from '@/utils/gpxUtils'
 import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
 

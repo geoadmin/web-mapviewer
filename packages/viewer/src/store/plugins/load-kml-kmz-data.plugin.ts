@@ -3,6 +3,9 @@
  * it here
  */
 
+import type { PiniaPlugin } from 'pinia'
+
+import { LayerType, type KMLLayer } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { ErrorMessage } from '@swissgeo/log/Message'
 
@@ -11,9 +14,7 @@ import { checkOnlineFileCompliance, getFileContentFromUrl, loadKmlMetadata } fro
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
-import type { PiniaPlugin } from 'pinia'
 import useLayersStore from '@/store/modules/layers.store'
-import { LayerType, type KMLLayer } from '@swissgeo/layers'
 import usePositionStore from '@/store/modules/position.store'
 
 const dispatcher = { name: 'load-kml-kmz-data.plugin' }

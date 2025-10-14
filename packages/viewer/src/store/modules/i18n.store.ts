@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia'
 
+import type { ActionDispatcher } from '@/store/types'
+
 import i18n, {
     defaultLocal,
     isSupportedLang,
     langToLocale,
     type SupportedLang,
 } from '@/modules/i18n'
-import type { ActionDispatcher } from '@/store/types'
 
 export interface I18nState {
     /**

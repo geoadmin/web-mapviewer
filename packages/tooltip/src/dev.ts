@@ -1,4 +1,4 @@
-import '@/index.ts'
+import '@/index'
 
 import { createApp } from 'vue'
 

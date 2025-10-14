@@ -1,6 +1,7 @@
+import { assertDefined } from 'support/utils'
+
 import { moveTimeSlider } from '@/../tests/cypress/tests-e2e/utils'
 import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
-import { assertDefined } from 'support/utils'
 
 /// <reference types="cypress" />
 describe('Cypress tests covering the time slider, its functionalities and its URL parameter', () => {

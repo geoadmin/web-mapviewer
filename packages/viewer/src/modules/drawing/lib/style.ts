@@ -1,4 +1,9 @@
+import type { Coordinate } from 'ol/coordinate'
+import type { FeatureLike } from 'ol/Feature'
+import type { GeometryFunction } from 'ol/style/Style'
+
 import { type Geometry, LineString, MultiPoint, Point, Polygon } from 'ol/geom'
+import RenderFeature from 'ol/render/Feature'
 import { Circle, Fill, Style } from 'ol/style'
 
 import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
@@ -9,10 +14,6 @@ import {
     whiteCircleStyle,
     whiteSketchFill,
 } from '@/utils/styleUtils'
-import type { FeatureLike } from 'ol/Feature'
-import type { Coordinate } from 'ol/coordinate'
-import RenderFeature from 'ol/render/Feature'
-import type { GeometryFunction } from 'ol/style/Style'
 
 export enum StyleZIndex {
     AzimuthCircle = 0,

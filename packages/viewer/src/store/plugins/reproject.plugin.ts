@@ -1,17 +1,19 @@
 import type { CoordinateSystem } from '@swissgeo/coordinates'
-import { coordinatesUtils, extentUtils } from '@swissgeo/coordinates'
 import type { Layer } from '@swissgeo/layers'
+import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
+
+import { coordinatesUtils, extentUtils } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
+import { cloneDeep } from 'lodash'
+import { reproject } from 'reproject'
 
 import type { EditableFeature, LayerFeature, SelectableFeature } from '@/api/features.api'
 import type { ActionDispatcher } from '@/store/types'
-import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
-import usePositionStore from '@/store/modules/position.store'
-import useFeaturesStore from '@/store/modules/features.store'
-import { cloneDeep } from 'lodash'
+
 import { DEFAULT_PROJECTION } from '@/config/map.config'
-import { reproject } from 'reproject'
+import useFeaturesStore from '@/store/modules/features.store'
 import useLayersStore from '@/store/modules/layers.store'
+import usePositionStore from '@/store/modules/position.store'
 
 const dispatcher: ActionDispatcher = { name: 'reproject-layers-on-projection-change.plugin' }
 

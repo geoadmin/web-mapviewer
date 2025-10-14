@@ -13,7 +13,7 @@ import { computed, watch, type WatchHandle } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { PrintError } from '@/api/print.api.ts'
+import { PrintError } from '@/api/print.api'
 import usePrintStore, { type PrintLayoutSize } from '@/store/modules/print.store'
 import useUIStore from '@/store/modules/ui.store'
 

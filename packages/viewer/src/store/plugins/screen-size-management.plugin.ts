@@ -1,6 +1,7 @@
+import type { PiniaPlugin } from 'pinia'
+
 import { BREAKPOINT_PHONE_HEIGHT, BREAKPOINT_PHONE_WIDTH } from '@/config/responsive.config'
 import useUIStore, { UIModes } from '@/store/modules/ui.store'
-import type { PiniaPlugin } from 'pinia'
 
 const dispatcher = { name: 'screen-size-management.plugin' }
 

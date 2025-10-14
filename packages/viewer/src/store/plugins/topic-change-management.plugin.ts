@@ -1,12 +1,14 @@
+import type { PiniaPlugin } from 'pinia'
+
 import log from '@swissgeo/log'
+
+import type { ActionDispatcher } from '@/store/types'
 
 import { loadTopicTreeForTopic } from '@/api/topics.api'
 import router from '@/router'
-import type { PiniaPlugin } from 'pinia'
-import useTopicsStore from '@/store/modules/topics.store'
-import type { ActionDispatcher } from '@/store/types'
-import useLayersStore from '@/store/modules/layers.store'
 import { useI18nStore } from '@/store/modules/i18n.store'
+import useLayersStore from '@/store/modules/layers.store'
+import useTopicsStore from '@/store/modules/topics.store'
 
 //const dispatcher = { dispatcher: 'topic-change-management.plugin' }
 
@@ -117,7 +119,7 @@ const topicChangeManagement: PiniaPlugin = () => {
                         )
                     }
 
-                    log.debug(`Finished Topic change management plugin: topic changed to ${args}`)
+                    log.debug(`Finished Topic change management plugin: topic changed to`, args)
                 })
                 .catch((error) => {
                     log.error({

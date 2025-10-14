@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import GeoadminTooltip from '@swissgeo/tooltip'
-import { computed, type ComputedRef, type Ref } from 'vue'
+import { computed, type ComputedRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import TextTruncate from '@/utils/components/TextTruncate.vue'
