@@ -113,7 +113,7 @@ declare global {
              * @returns One of the layer's timestamp, different from the default one (not equal to
              *   `timeBehaviour`)
              */
-            getRandomTimestampFromSeries(layer: MockLayer): string
+            getRandomTimestampFromSeries(layer: MockLayer): Cypress.Chainable<string | undefined>
             openLayerSettings(layerId: string): void
             /**
              * Check if the layer(s) have been successfully added and rendered on Open Layer Map.

@@ -9,6 +9,7 @@ import type { Geometry } from 'geojson'
 
 import { centroid } from '@turf/turf'
 import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/storeSync/storeSync.routerPlugin'
+import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 
 registerProj4(proj4)
 
@@ -40,12 +41,13 @@ const mockExternalWms4 = layerUtils.makeExternalWMSLayer({
     opacity: 0.4,
 })
 
-Cypress.Commands.add('getExternalWmsMockConfig', () => [
+Cypress.Commands.add('getExternalWmsMockConfig', () => cy.wrap([
     Cypress._.cloneDeep(mockExternalWms1),
     Cypress._.cloneDeep(mockExternalWms2),
     Cypress._.cloneDeep(mockExternalWms3),
     Cypress._.cloneDeep(mockExternalWms4),
-])
+]))
+
 
 const mockExternalWmts1 = layerUtils.makeExternalWMTSLayer({
     id: 'TestExternalWMTS-1',
@@ -71,12 +73,12 @@ const mockExternalWmts4 = layerUtils.makeExternalWMTSLayer({
     baseUrl: 'https://fake.wmts.getcap-2.url/WMTSGetCapabilities.xml',
 })
 
-Cypress.Commands.add('getExternalWmtsMockConfig', () => [
+Cypress.Commands.add('getExternalWmtsMockConfig', () => cy.wrap([
     Cypress._.cloneDeep(mockExternalWmts1),
     Cypress._.cloneDeep(mockExternalWmts2),
     Cypress._.cloneDeep(mockExternalWmts3),
     Cypress._.cloneDeep(mockExternalWmts4),
-])
+]))
 
 /**
  * Adds an intercept to the fake URL called each time the Vue-router changes route.
