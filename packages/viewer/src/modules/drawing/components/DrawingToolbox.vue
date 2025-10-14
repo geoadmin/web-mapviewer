@@ -96,8 +96,6 @@ const drawingName = computed({
 })
 const isDrawingStateError = computed(() => (saveState.value as number) < 0)
 /** Return a different translation key depending on the saving status */
-// Widen literal type of saveState (avoid it being inferred as 0 literal)
-const saveStateValue = computed<number>(() => saveState.value as number)
 const drawingStateMessage = computed(() => {
     switch (saveState.value as (typeof DrawingState)[keyof typeof DrawingState]) {
         case DrawingState.SAVING:

@@ -18,7 +18,8 @@ import {
     MGRSFormat,
     UTMFormat,
     WGS84Format,
-} from '@/utils/coordinates/coordinateFormat.js'
+} from '@/utils/coordinates/coordinateFormat'
+import type { ClickInfo } from '@/store/modules/map.store'
 
 const { coordinate, clickInfo, projection, currentLang } = defineProps<{
     coordinate: SingleCoordinate

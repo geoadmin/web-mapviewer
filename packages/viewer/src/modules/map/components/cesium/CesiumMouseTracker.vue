@@ -21,7 +21,7 @@ import coordinateFormat, {
     type CoordinateFormat,
 } from '@/utils/coordinates/coordinateFormat'
 
-const mousePosition = useTemplateRef('mousePosition')
+const mousePosition = useTemplateRef<HTMLDivElement>('mousePosition')
 const displayedFormatId = ref(LV95Format.id)
 
 const cesiumStore = useCesiumStore()

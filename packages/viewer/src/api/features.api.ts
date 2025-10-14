@@ -1,4 +1,4 @@
-import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
+import type { FlatExtent, NormalizedExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import type { ExternalLayer, ExternalWMSLayer, GeoAdminLayer, Layer } from '@swissgeo/layers'
 import type {
     Feature as GeoJsonFeature,
@@ -44,8 +44,8 @@ export interface SelectableFeature<IsEditable extends boolean> {
     title: string
     /** A description of this feature. Cannot be HTML content (only text). */
     description?: string
-    /** The extent of this feature (if any) expressed as [minX, minY, maxX, maxY]. */
-    extent?: FlatExtent
+    /** Extent of this feature (if any) expressed as [minX, minY, maxX, maxY]. */
+    extent?: NormalizedExtent
     /** GeoJSON representation of this feature (if it has a geometry, for points it isn't necessary). */
     geometry?: Geometry
     /** Whether this feature is editable when selected (color, size, etc...). */
