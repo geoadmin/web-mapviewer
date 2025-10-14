@@ -1,3 +1,4 @@
+import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { Map, MapBrowserEvent } from 'ol'
 
 import { LayerType } from '@swissgeo/layers'
@@ -7,13 +8,15 @@ import { DragPan, DragRotate, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import { computed, onBeforeUnmount, watch } from 'vue'
 
+import type { LayerFeature } from '@/api/features.api'
+
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
 import { useDragBoxSelect } from '@/modules/map/components/openlayers/utils/useDragBoxSelect.composable'
 import useDrawingStore from '@/store/modules/drawing.store'
 import useLayersStore from '@/store/modules/layers.store'
-import useMapStore, { ClickType, type ClickInfo } from '@/store/modules/map.store'
+import useMapStore, { ClickType } from '@/store/modules/map.store'
 import { createLayerFeature } from '@/utils/layerUtils'
 
 const dispatcher = {
@@ -176,11 +179,11 @@ export default function useMapInteractions(map: Map): void {
         }
         mapStore.click(
             {
-                coordinate,
-                pixelCoordinate: pixel,
-                features,
+                coordinate: coordinate as SingleCoordinate,
+                pixelCoordinate: pixel as SingleCoordinate,
+                features: features.filter((f): f is LayerFeature => f !== undefined),
                 clickType: clickType,
-            } as unknown as ClickInfo,
+            },
             dispatcher
         )
     }
@@ -194,11 +197,11 @@ export default function useMapInteractions(map: Map): void {
             event.type === 'contextmenu'
         mapStore.click(
             {
-                coordinate: event.coordinate!,
-                pixelCoordinate: event.pixel!,
+                coordinate: event.coordinate! as SingleCoordinate,
+                pixelCoordinate: event.pixel! as SingleCoordinate,
                 features: [],
                 clickType: ClickType.ContextMenu,
-            } as unknown as ClickInfo,
+            },
             dispatcher
         )
     }
