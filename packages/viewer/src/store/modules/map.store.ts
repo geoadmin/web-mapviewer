@@ -20,7 +20,7 @@ export enum ClickType {
 export interface ClickInfo {
     coordinate: SingleCoordinate
     pixelCoordinate?: SingleCoordinate
-    features?: SelectableFeature<true>[] // TODO unsure if it's editable
+    features?: SelectableFeature<false>[] // LayerFeatures are not editable
     clickType?: ClickType
 }
 

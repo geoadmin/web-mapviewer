@@ -132,7 +132,7 @@ export function useDragBoxSelect(): {
         mapStore.click(
             {
                 coordinate: selectExtentCenter,
-                features: vectorFeatures as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+                features: vectorFeatures,
                 clickType: ClickType.DrawBox,
             } as ClickInfo,
             dispatcher
