@@ -158,7 +158,7 @@ export default function useMapInteractions(map: MaybeRef<Map>): void {
                 .getLayers()
                 .forEach((olLayer) => {
                     if (olLayer.get('id') === vectorLayer.id) {
-                        const layerFeatures = map
+                        const layerFeatures = toValue(map)
                             .getFeaturesAtPixel(pixel, {
                                 layerFilter: (layer) => layer.get('id') === olLayer.get('id'),
                                 hitTolerance: DRAWING_HIT_TOLERANCE,
