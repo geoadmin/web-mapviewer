@@ -1,50 +1,56 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { isNumber, round } from '@swissgeo/numbers'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-import { DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 import TimeSliderDropdown from '@/modules/map/components/toolbox/TimeSliderDropdown.vue'
 import debounce from '@/utils/debounce'
+import useUIStore from '@/store/modules/ui.store'
+import useLayersStore from '@/store/modules/layers.store'
+import { timeConfigUtils } from '@swissgeo/layers/utils'
+import type { LayerTimeConfig } from '@swissgeo/layers'
+import type { ActionDispatcher } from '@/store/types'
+import { DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 
-const dispatcher = { dispatcher: 'TimeSlider.vue' }
+type LayerTimeConfigWithYears = LayerTimeConfig & { years: number[] }
+
+const dispatcher: ActionDispatcher = { name: 'TimeSlider.vue' }
+
 const { t } = useI18n()
+const uiStore = useUIStore()
+const layersStore = useLayersStore()
 
 const LABEL_WIDTH = 32
 const MARGIN_BETWEEN_LABELS = 50
 const PLAY_BUTTON_SIZE = 54
-// dynamic internal data
+
 const sliderWidth = ref(0)
-const currentYear = ref(DEFAULT_YOUNGEST_YEAR)
-// used to hold the value in case the entered year is invalid
-const falseYear = ref(null)
+const currentYear = ref<number>(DEFAULT_YOUNGEST_YEAR)
+const falseYear = ref<number | undefined>()
 let cursorX = 0
 const playYearsWithData = ref(false)
 let yearCursorIsGrabbed = false
-let playYearInterval = null
+let playYearInterval: ReturnType<typeof setTimeout> | undefined
 
-// refs to dom elements
-const yearCursor = useTemplateRef('yearCursor')
-const sliderContainer = useTemplateRef('sliderContainer')
+const yearCursor = useTemplateRef<HTMLDivElement>('yearCursor')
+const sliderContainer = useTemplateRef<HTMLDivElement>('sliderContainer')
+const yearCursorInput = useTemplateRef<HTMLInputElement>('yearCursorInput')
+const outsideRangeTooltip = useTemplateRef<{ openTooltip: () => void; closeTooltip: () => void }>(
+    'outsideRangeTooltip'
+)
 
-// ref to year cursor input
-const yearCursorInput = useTemplateRef('yearCursorInput')
-const outsideRangeTooltip = useTemplateRef('outsideRangeTooltip')
-
-const store = useStore()
-const screenWidth = computed(() => store.state.ui.width)
-const layersWithTimestamps = computed(() => store.getters.visibleLayersWithTimeConfig)
-const activeLayers = computed(() => store.state.layers.activeLayers)
-const youngestYear = computed(() => store.getters.youngestYear)
-const oldestYear = computed(() => store.getters.oldestYear)
-const previewYear = computed(() => store.state.layers.previewYear)
+const screenWidth = computed(() => uiStore.width)
+const layersWithTimestamps = computed(() => layersStore.visibleLayersWithTimeConfig)
+const activeLayers = computed(() => layersStore.activeLayers)
+const youngestYear = computed(() => layersStore.youngestYear ?? 0)
+const oldestYear = computed(() => layersStore.oldestYear ?? 0)
+const previewYear = computed(() => layersStore.previewYear ?? 0)
 
 const allYears = computed(() => {
-    const years = []
+    const years: number[] = []
     for (let year = oldestYear.value; year <= youngestYear.value; year++) {
         years.push(year)
     }
@@ -55,47 +61,29 @@ const isInputYearValid = ref(true)
 
 const tooltipYearOutsideRangeContent = computed(
     () =>
-        `${t('outside_valid_year_range')} ${allYears.value[0]}-${
-            allYears.value[allYears.value.length - 1]
-        }`
+        `${t('outside_valid_year_range')} ${allYears.value[0]}-${allYears.value[allYears.value.length - 1]}`
 )
 
-/**
- * Used for the year in the input field Validate the input from the user. In case it's invalid, we
- * don't propagate the value to the state, but instead save it to an intermediate state variable to
- * be displayed along with an error message. This is important so that the cursor doesn't jump
- * around to invalid years
- */
 const inputYear = computed({
     get() {
-        if (falseYear.value !== null) {
-            return falseYear.value
-        }
-        return currentYear.value
+        return falseYear.value ?? currentYear.value
     },
-    set(value) {
-        value = parseInt(value)
-        // only if the year is valid we write this to the property
-        // otherwise we show errors
-        if (!allYears.value.includes(value)) {
+    set(value: string) {
+        const parsedValue = parseInt(value)
+        if (!allYears.value.includes(parsedValue)) {
             isInputYearValid.value = false
-            falseYear.value = value || ''
+            falseYear.value = parsedValue || undefined
         } else {
             isInputYearValid.value = true
-            currentYear.value = parseInt(value)
-            falseYear.value = null
+            currentYear.value = parsedValue
+            falseYear.value = undefined
         }
     },
 })
 
-/**
- * Filtering of all years to only give ones that will need to be shown in the label section of the
- * time selector. Depending on the selector's width, we will show all 10s or 25s or 50s years.
- */
 const yearsShownAsLabel = computed(() => {
     const amountOfLabelsOnScreen = round(sliderWidth.value / (LABEL_WIDTH + MARGIN_BETWEEN_LABELS))
 
-    // how many year between each labels
     let yearThreshold = 10
     if (amountOfLabelsOnScreen < 10) {
         yearThreshold = 50
@@ -104,110 +92,103 @@ const yearsShownAsLabel = computed(() => {
     }
     return allYears.value.filter((year) => year % yearThreshold === 0)
 })
-const innerBarStyle = computed(() => {
-    return { width: `${sliderWidth.value}px` }
-})
 
+const innerBarStyle = computed(() => ({ width: `${sliderWidth.value}px` }))
 const yearPositionOnSlider = computed(
     () => (1 + allYears.value.indexOf(currentYear.value)) * distanceBetweenLabels.value + 42
 )
-
 const cursorPosition = computed(() => {
     const yearCursorWidth = yearCursor.value?.clientWidth || 0
-    // we need to add 4.5 pixels which is half the size of the arrow for the slider to
-    // really be in the middle of the arrow
-    // make sure it doesn't go below 0
-    const left = Math.max(yearPositionOnSlider.value - yearCursorWidth / 2 + 4.5, 0)
-
-    return `${left}px`
+    return `${Math.max(yearPositionOnSlider.value - yearCursorWidth / 2 + 4.5, 0)}px`
 })
-const cursorArrowPosition = computed(() => {
-    return {
-        left: `${yearPositionOnSlider.value - 4.5}px`, // 4.5 is half the arrow width of 9px
-    }
-})
+const cursorArrowPosition = computed(() => ({ left: `${yearPositionOnSlider.value - 4.5}px` }))
 const distanceBetweenLabels = computed(() => sliderWidth.value / allYears.value.length)
-const innerBarStepStyle = computed(() => {
-    return {
-        width: `${distanceBetweenLabels.value}px`,
-    }
-})
+const innerBarStepStyle = computed(() => ({ width: `${distanceBetweenLabels.value}px` }))
 const yearsWithData = computed(() => {
     const timeConfigs = layersWithTimestamps.value.map((layer) => layer.timeConfig)
-    let yearsJoint = [...timeConfigs[0].years]
-    let yearsSeparate = []
-    timeConfigs.forEach((timeConfig) =>
+    if (timeConfigs.some((timeConfig) => !timeConfig || !('years' in timeConfig))) {
+        return {
+            yearsJoint: [],
+            yearsSeparate: [],
+        }
+    }
+    let yearsJoint = Array.isArray((timeConfigs[0] as LayerTimeConfigWithYears).years)
+        ? [...(timeConfigs[0] as LayerTimeConfigWithYears).years]
+        : []
+    let yearsSeparate: number[] = []
+    timeConfigs.forEach((timeConfig) => {
+        if (!('years' in timeConfig) || !Array.isArray(timeConfig.years)) {
+            return
+        }
         timeConfig.years
             .filter((year) => !yearsSeparate.includes(year))
             .forEach((year) => yearsSeparate.push(year))
-    )
+    })
     if (timeConfigs.length > 1) {
         timeConfigs.slice(1).forEach((timeConfig) => {
-            yearsJoint = yearsJoint.filter((year) => timeConfig.years.includes(year))
+            yearsJoint = yearsJoint.filter((year) =>
+                (timeConfig as LayerTimeConfigWithYears).years.includes(year)
+            )
         })
     }
     yearsSeparate = yearsSeparate.filter((year) => !yearsJoint.includes(year))
-    // Here below we need to filter out non valid number years (e.g. 'current' and/or 'all')
     return {
         yearsJoint: yearsJoint.sort((a, b) => b - a).filter((year) => isNumber(year)),
         yearsSeparate: yearsSeparate.sort((a, b) => b - a).filter((year) => isNumber(year)),
     }
 })
 
-watch(screenWidth, (newValue) => {
-    setSliderWidth(newValue)
+watch(screenWidth, () => {
+    setSliderWidth()
 })
 
 watch(isInputYearValid, (newValue) => {
     if (!newValue) {
-        outsideRangeTooltip.value.openTooltip()
+        outsideRangeTooltip.value?.openTooltip()
     } else {
-        outsideRangeTooltip.value.closeTooltip()
+        outsideRangeTooltip.value?.closeTooltip()
     }
 })
 
 onMounted(() => {
-    log.debug(`Activating time slider, previewYear=${previewYear.value}`)
+    log.debug({
+        title: 'TimeSlider.vue',
+        titleColor: LogPreDefinedColor.Blue,
+        message: [`Activating time slider, previewYear=${previewYear.value}`],
+    })
     setSliderWidth()
 
-    /*
-    When mounting the time slider, the preview year should be set to one of the following, checked in the given order :
-        - if it is already set, we don't do anything
-        - if there is only one layer, with a valid year, we set it to its current year
-        - if there is joint data (when there is only one layer, all data is joint data), we go to the most recent joint data
-        - else, we set it to the most recent year with data
-    */
-    if (previewYear.value === null) {
-        // initialize the current year from the timeConfig layers
+    if (previewYear.value === undefined) {
         if (
             layersWithTimestamps.value.length === 1 &&
-            allYears.value.includes(layersWithTimestamps.value[0].timeConfig.currentYear)
+            'currentYear' in layersWithTimestamps.value[0]!.timeConfig &&
+            allYears.value.includes(layersWithTimestamps.value[0]!.timeConfig.currentYear as number)
         ) {
-            currentYear.value = layersWithTimestamps.value[0].timeConfig.currentYear
+            currentYear.value = layersWithTimestamps.value[0]!.timeConfig.currentYear as number
         } else if (yearsWithData.value.yearsJoint.length > 0) {
-            currentYear.value = yearsWithData.value.yearsJoint[0]
-        } else {
+            currentYear.value = yearsWithData.value.yearsJoint[0]!
+        } else if (yearsWithData.value.yearsSeparate[0]) {
             currentYear.value = yearsWithData.value.yearsSeparate[0]
+        } else {
+            return
         }
 
-        // dispatch current year to the preview year
         dispatchPreviewYearToStore()
     } else {
         currentYear.value = previewYear.value
-        // make sure that all layers uses the preview year
         setPreviewYearToLayers()
     }
 
-    log.debug(`Time slider activated, currentYear=${currentYear.value}`)
-
+    log.debug({
+        title: 'TimeSlider.vue',
+        titleColor: LogPreDefinedColor.Blue,
+        message: [`Time slider activated, currentYear=${currentYear.value}`],
+    })
     window.addEventListener('keydown', handleKeyDownEvent)
 
     watch(currentYear, () => {
-        // we need to reset those here, otherwise, when the error is shown and the users drags
-        // the cursor to a correct year, the error won't go away
-        falseYear.value = null
+        falseYear.value = undefined
         isInputYearValid.value = true
-
         dispatchPreviewYearToStoreDebounced()
     })
 
@@ -220,29 +201,23 @@ onUnmounted(() => {
     window.removeEventListener('keydown', handleKeyDownEvent)
 })
 
-/** Set the current preview years to the layers if they have the year available in their data */
 function setPreviewYearToLayers() {
     activeLayers.value.forEach((layer, index) => {
         const year = previewYear.value
         if (
-            layer.visible &&
-            layer.hasMultipleTimestamps &&
+            layer.isVisible &&
+            timeConfigUtils.hasMultipleTimestamps(layer) &&
             layer.timeConfig &&
+            'currentYear' in layer.timeConfig &&
             layer.timeConfig.currentYear !== year
         ) {
-            // if there is not timeEntry for the given year we need to set the year to
-            // null which will result to setting the currentTimeEntry to null as well
-            store.dispatch('setTimedLayerCurrentYear', {
-                index,
-                year: year,
-                ...dispatcher,
-            })
+            layersStore.setTimedLayerCurrentYear(index, year, dispatcher)
         }
     })
 }
 
 function dispatchPreviewYearToStore() {
-    store.dispatch('setPreviewYear', { year: currentYear.value, ...dispatcher })
+    layersStore.setPreviewYear(currentYear.value)
     setPreviewYearToLayers()
 }
 
@@ -251,13 +226,19 @@ const dispatchPreviewYearToStoreDebounced = debounce(() => {
 }, 100)
 
 function setSliderWidth() {
-    // the padding of the slider container (4px each side) + the padding of the
-    // slider bar (48px each side) = 112
     const padding = 112
-    sliderWidth.value = sliderContainer.value.clientWidth - padding - PLAY_BUTTON_SIZE
+    if (!sliderContainer.value?.clientWidth) {
+        log.error({
+            title: 'TimeSlider.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: ['sliderContainer clientWidth is undefined'],
+        })
+        return
+    }
+    sliderWidth.value = sliderContainer.value.clientWidth - padding - PLAY_BUTTON_SIZE || 0
 }
 
-function positionNodeLabel(year) {
+function positionNodeLabel(year: number) {
     const timestampIndex = allYears.value.indexOf(year) ?? 1
     const leftPosition = Math.max(
         LABEL_WIDTH / 2.0,
@@ -269,12 +250,10 @@ function positionNodeLabel(year) {
     }
 }
 
-function grabCursor(event) {
+function grabCursor(event: MouseEvent | TouchEvent) {
     yearCursorIsGrabbed = true
-    if (event.type === 'touchstart') {
-        // for touch events we have to select which touch we want to get the screen position
-        // (there can be multiple fingers gestures)
-        cursorX = event.touches[0].screenX
+    if ('touches' in event) {
+        cursorX = event.touches[0]!.screenX
     } else {
         cursorX = event.screenX
     }
@@ -284,20 +263,17 @@ function grabCursor(event) {
     window.addEventListener('touchend', releaseCursor, { passive: true })
 }
 
-function listenToMouseMove(event) {
-    const currentPosition = event.type === 'touchmove' ? event.touches[0].screenX : event.screenX
+function listenToMouseMove(event: MouseEvent | TouchEvent) {
+    const currentPosition = 'touches' in event ? event.touches[0]!.screenX : event.screenX
     const deltaX = cursorX - currentPosition
     if (Math.abs(deltaX) >= distanceBetweenLabels.value) {
         let futureYearIndex = allYears.value.indexOf(currentYear.value)
 
-        // maybe we must skip multiple indexes, checking how wide is the delta
         const absoluteDeltaIndex = Math.floor(Math.abs(deltaX) / distanceBetweenLabels.value)
         if (deltaX < 0) {
             if (allYears.value.length > futureYearIndex + absoluteDeltaIndex) {
-                // we can skip steps
                 futureYearIndex += absoluteDeltaIndex
             } else if (allYears.value.length > futureYearIndex + 1) {
-                // we can't skip steps
                 futureYearIndex++
             }
         } else if (deltaX > 0) {
@@ -308,9 +284,8 @@ function listenToMouseMove(event) {
             }
         }
         const futureYear = allYears.value[futureYearIndex]
-        // reset of the starting position for delta calculation
         cursorX = currentPosition
-        currentYear.value = futureYear
+        currentYear.value = futureYear!
     }
 }
 
@@ -333,33 +308,31 @@ function togglePlayYearsWithData() {
             )
             .sort()
             .reverse()
-        // if current year is the last (most recent) one, or we're not on a year with data, we set the starting year for our
-        // player to the oldest year with data
         if (
             !yearsWithDataForPlayer.includes(currentYear.value) ||
             currentYear.value === yearsWithDataForPlayer[0]
         ) {
-            currentYear.value = yearsWithDataForPlayer.slice(-1)[0]
+            currentYear.value = yearsWithDataForPlayer.slice(-1)[0]!
         }
         playYearInterval = setInterval(() => {
             const currentYearIndex = yearsWithDataForPlayer.indexOf(currentYear.value)
-            // if last (most recent) year, we stop the player
             if (currentYearIndex === 0) {
                 clearInterval(playYearInterval)
-                playYearInterval = null
+                playYearInterval = undefined
                 playYearsWithData.value = false
             } else {
-                currentYear.value = yearsWithDataForPlayer[currentYearIndex - 1]
+                currentYear.value = yearsWithDataForPlayer[currentYearIndex - 1]!
             }
         }, 1000)
     } else {
         clearInterval(playYearInterval)
-        playYearInterval = null
+        playYearInterval = undefined
     }
 }
 
-function handleKeyDownEvent(event) {
-    if (['mainBody', 'timeSliderButton', 'timeSliderPlayButton'].includes(event.srcElement?.id)) {
+function handleKeyDownEvent(event: KeyboardEvent) {
+    const target = event.target as HTMLElement
+    if (['mainBody', 'timeSliderButton', 'timeSliderPlayButton'].includes(target.id)) {
         if (event.key === 'ArrowLeft') {
             const value = currentYear.value - 1
             if (allYears.value.includes(value)) {
@@ -383,7 +356,7 @@ function handleKeyDownEvent(event) {
         class="time-slider card"
         :class="{ grabbed: yearCursorIsGrabbed }"
     >
-        <div class="p-2 d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center justify-content-between p-2">
             <div
                 class="time-slider-bar px-5"
                 data-cy="time-slider-bar"
@@ -391,11 +364,11 @@ function handleKeyDownEvent(event) {
                 <div
                     ref="yearCursor"
                     data-cy="times-slider-cursor"
-                    class="time-slider-bar-cursor py-1 user-select-none d-flex gap-1 bg-body border rounded"
+                    class="time-slider-bar-cursor user-select-none d-flex bg-body gap-1 rounded border py-1"
                     :style="{ left: cursorPosition }"
                 >
                     <div
-                        class="px-2 border-end d-flex align-items-center"
+                        class="border-end d-flex align-items-center px-2"
                         data-cy="time-slider-bar-cursor-grab"
                         @touchstart.passive="grabCursor"
                         @mousedown.passive="grabCursor"
@@ -417,11 +390,11 @@ function handleKeyDownEvent(event) {
                             maxlength="4"
                             type="text"
                             onkeypress="return event.charCode >= 48 && event.charCode <= 57"
-                            @keypress.enter="yearCursorInput.blur()"
+                            @keypress.enter="yearCursorInput?.blur()"
                         />
                     </GeoadminTooltip>
                     <div
-                        class="px-2 border-start d-flex align-items-center"
+                        class="border-start d-flex align-items-center px-2"
                         @touchstart.passive="grabCursor"
                         @mousedown.passive="grabCursor"
                     >
@@ -510,7 +483,7 @@ function handleKeyDownEvent(event) {
                 <button
                     id="timeSliderPlayButton"
                     data-cy="time-slider-play-button"
-                    class="btn btn-light btn-lg d-flex align-self-center p-3 m-1 border"
+                    class="btn btn-light btn-lg d-flex align-self-center m-1 border p-3"
                     @click="togglePlayYearsWithData"
                 >
                     <FontAwesomeIcon :icon="playYearsWithData ? 'pause' : 'play'" />

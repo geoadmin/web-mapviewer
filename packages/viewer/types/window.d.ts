@@ -15,5 +15,9 @@ declare global {
         kmlLayerUrl?: string
         gpxLayer?: VectorLayer
         gpxLayerUrl?: string
+        CESIUM_BASE_URL?: string
+        cesiumViewer?: Viewer
+        drawingLayer?: VectorLayer<VectorSource<Feature<Geometry>>>
+        chrome?: unknown
     }
 }

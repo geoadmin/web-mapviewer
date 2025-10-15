@@ -1,31 +1,28 @@
-<script setup lang="js">
+<script setup lang="ts">
+import useUIStore from '@/store/modules/ui.store'
+import type { ActionDispatcher } from '@/store/types'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-const dispatcher = { dispatcher: 'FullScreenButton.vue' }
+const dispatcher: ActionDispatcher = { name: 'FullScreenButton.vue' }
 
 const { t } = useI18n()
-const store = useStore()
+const uiStore = useUIStore()
 
 const tooltipContent = computed(() => {
-    if (isInFullScreenMode.value) {
+    if (uiStore.fullscreenMode) {
         return t('full_screen_exit')
     }
     return t('full_screen')
 })
 
-const isInFullScreenMode = computed(() => store.state.ui.fullscreenMode)
-
 function toggleFullScreen() {
-    store.dispatch('toggleFullscreenMode', dispatcher)
+    uiStore.toggleFullscreenMode(dispatcher)
 }
-const height = computed(() => store.state.ui.height)
-const width = computed(() => store.state.ui.width)
 const isInWindowFullScreenModeNotChromium = computed(
-    () => screen.width === width.value && screen.height === height.value && !window.chrome
+    () => screen.width === uiStore.width && screen.height === uiStore.height && !window.chrome
 )
 onMounted(() => {
     window.addEventListener('keydown', handleKeydown)
@@ -34,8 +31,8 @@ onUnmounted(() => {
     window.removeEventListener('keydown', handleKeydown)
 })
 
-function handleKeydown(event) {
-    if (event.key === 'Escape' && isInFullScreenMode.value) {
+function handleKeydown(event: KeyboardEvent) {
+    if (event.key === 'Escape' && uiStore.fullscreenMode) {
         toggleFullScreen()
     }
 }
@@ -55,7 +52,7 @@ function handleKeydown(event) {
         <button
             ref="fullscreenButton"
             class="toolbox-button d-print-none"
-            :class="{ active: isInFullScreenMode }"
+            :class="{ active: uiStore.fullscreenMode }"
             data-cy="toolbox-fullscreen-button"
             @click="toggleFullScreen()"
         >

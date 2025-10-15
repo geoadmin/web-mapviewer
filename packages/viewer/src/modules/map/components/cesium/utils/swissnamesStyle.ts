@@ -1,11 +1,7 @@
 import { Cesium3DTileStyle } from 'cesium'
 
-/**
- * Custom style for our tileset ch.swisstopo.swissnames3d.3d.
- *
- * @type {module:cesium.Cesium3DTileStyle}
- */
-export const CESIUM_SWISSNAMES3D_STYLE = new Cesium3DTileStyle({
+/** Custom style for our tileset ch.swisstopo.swissnames3d.3d. */
+export const CESIUM_SWISSNAMES3D_STYLE: Cesium3DTileStyle = new Cesium3DTileStyle({
     show: true,
     labelStyle: 2,
     labelText: '${DISPLAY_TEXT}',

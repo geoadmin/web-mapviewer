@@ -5,33 +5,31 @@ import { useI18n } from 'vue-i18n'
 
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 
-interface Props {
+const {
+    completeDisclaimerOnClick = false,
+    showTooltip = true,
+    sourceName = '',
+    isLocalFile = false,
+} = defineProps<{
     completeDisclaimerOnClick?: boolean
     showTooltip?: boolean
     sourceName?: string
     isLocalFile?: boolean
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    completeDisclaimerOnClick: false,
-    showTooltip: true,
-    sourceName: '',
-    isLocalFile: false,
-})
+}>()
 
 const showCompleteDisclaimer = ref(false)
 
 const { t } = useI18n()
 
 const tooltipText = computed(() =>
-    t(props.isLocalFile ? 'warn_share_local_file' : 'external_data_tooltip')
+    t(isLocalFile ? 'warn_share_local_file' : 'external_data_tooltip')
 )
 
-const theme = computed(() => (props.isLocalFile ? 'secondary' : 'danger'))
+const theme = computed(() => (isLocalFile ? 'secondary' : 'danger'))
 
 function onClick(): void {
     showCompleteDisclaimer.value =
-        props.completeDisclaimerOnClick && !!props.sourceName && props.sourceName.length > 0
+        completeDisclaimerOnClick && !!sourceName && sourceName.length > 0
 }
 </script>
 

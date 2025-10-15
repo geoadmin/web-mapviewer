@@ -1,47 +1,80 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { LV03, LV95, WGS84 } from '@swissgeo/coordinates'
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { GeoJsonDataSource } from 'cesium'
 import { cloneDeep } from 'lodash'
 import { reproject } from 'reproject'
-import { computed, inject, toRef } from 'vue'
+import { computed, toRef } from 'vue'
 
-import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
 import { setEntityStyle } from '@/modules/map/components/cesium/utils/geoJsonStyleConverter'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
+import type { GeoAdminGeoJSONLayer } from '@swissgeo/layers'
+import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
+import type { GeoJSON, Geometry } from 'geojson'
+import { getSafe } from '@/utils/utils'
 
-const { geoJsonConfig } = defineProps({
-    geoJsonConfig: {
-        type: GeoAdminGeoJsonLayer,
-        required: true,
-    },
+const { geoJsonConfig } = defineProps<{ geoJsonConfig: GeoAdminGeoJSONLayer }>()
+
+const viewer = getCesiumViewer()
+if (!viewer) {
+    log.error({
+        title: 'CesiumGeoJSONLayer.vue',
+        titleColor: LogPreDefinedColor.Blue,
+        message: ['Viewer not initialized, cannot create GeoJSON layer'],
+    })
+    throw new Error('Viewer not initialized, cannot create GeoJSON layer')
+}
+
+const layerId = computed<string>(() => geoJsonConfig.id)
+const geoJsonData = computed<string | undefined>(() => geoJsonConfig.geoJsonData)
+const geoJsonObject = computed<GeoJSON | undefined>(() => {
+    if (geoJsonData.value) {
+        return cloneDeep<GeoJSON>(JSON.parse(geoJsonData.value))
+    }
+    return undefined
 })
-
-const getViewer = inject('getViewer')
-const viewer = getViewer()
-
-const layerId = computed(() => geoJsonConfig.id)
-const geoJsonData = computed(() => geoJsonConfig.geoJsonData)
 const geoJsonStyle = computed(() => geoJsonConfig.geoJsonStyle)
 const opacity = computed(() => geoJsonConfig.opacity)
 
-/** @returns {Promise<GeoJsonDataSource>} */
-async function createSource() {
+async function createSource(): Promise<GeoJsonDataSource> {
     let geoJsonDataInMercator = geoJsonConfig.geoJsonData
-    if ([LV95.epsg, LV03.epsg].includes(geoJsonData.value?.crs?.properties?.name)) {
-        log.debug(`[Cesium] GeoJSON ${layerId.value} is not expressed in WGS84, reprojecting it`)
-        const reprojectedData = reproject(
-            cloneDeep(geoJsonData.value),
-            geoJsonData.value.crs.properties.name,
-            WGS84.epsg
-        )
-        delete reprojectedData.crs
-        geoJsonDataInMercator = reprojectedData
+    let crsName: string | undefined
+
+    const crsEntry = getSafe<object>(geoJsonObject, 'crs')
+    // CRS isn't part of the "standard" anymore, but we might have some old GeoJSON still providing it
+    // @see https://datatracker.ietf.org/doc/html/rfc7946#appendix-B.1
+    if (crsEntry) {
+        const properties = getSafe<object>(crsEntry, 'properties')
+        if (properties) {
+            crsName = getSafe<string>(properties, 'name')
+        }
+    }
+    if (crsName && [LV95.epsg, LV03.epsg].includes(crsName)) {
+        log.debug({
+            title: 'CesiumGeoJSONLayer.vue',
+            titleColor: LogPreDefinedColor.Blue,
+            message: [`GeoJSON ${layerId.value} is not expressed in WGS84, reprojecting it`],
+        })
+        const reprojectedData = reproject(geoJsonObject.value as Geometry, crsName, WGS84.epsg)
+        if (reprojectedData && typeof reprojectedData === 'object') {
+            if (
+                reprojectedData &&
+                typeof reprojectedData === 'object' &&
+                'crs' in reprojectedData
+            ) {
+                delete (reprojectedData as { crs?: unknown }).crs
+            }
+        }
+        geoJsonDataInMercator = JSON.stringify(reprojectedData)
     }
     try {
         return await GeoJsonDataSource.load(geoJsonDataInMercator)
     } catch (error) {
-        log.error(`[Cesium] Error while parsing GeoJSON data for layer ${layerId.value}`, error)
+        log.error({
+            title: 'CesiumGeoJSONLayer.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: ['Error while parsing GeoJSON data for layer', layerId.value, error],
+        })
         throw error
     }
 }
@@ -49,7 +82,7 @@ async function createSource() {
 useAddDataSourceLayer(
     viewer,
     createSource(),
-    (entity, opacity) => setEntityStyle(entity, geoJsonStyle.value, opacity),
+    (entity, opacity) => setEntityStyle(entity, geoJsonStyle.value!, opacity),
     toRef(opacity),
     toRef(layerId)
 )

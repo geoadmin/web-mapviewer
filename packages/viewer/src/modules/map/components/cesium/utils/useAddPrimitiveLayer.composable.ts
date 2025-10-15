@@ -1,9 +1,10 @@
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import {
     Billboard,
     BillboardCollection,
     Cartesian2,
     Cartesian3,
+    Cesium3DTileset,
     Color,
     GroundPolylinePrimitive,
     HeightReference,
@@ -14,19 +15,26 @@ import {
     Primitive,
     PrimitiveCollection,
     VerticalOrigin,
+    Viewer,
 } from 'cesium'
-import { onBeforeUnmount, onMounted, toValue, watch } from 'vue'
+import { type MaybeRef, onBeforeUnmount, onMounted, toRef, toValue, watch } from 'vue'
 
 import { PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE } from '@/config/cesium.config'
-import { CESIUM_SWISSNAMES3D_STYLE } from '@/modules/map/components/cesium/utils/swissnamesStyle'
+import { CESIUM_SWISSNAMES3D_STYLE } from '@/modules/map/components/cesium/utils/swissnamesStyle.ts'
 
-/**
- * This function goes throw the primitive collection and update passed properties
- *
- * @param {PrimitiveCollection} collection
- * @param {{ opacity: number | undefined; disableDepthTestDistance: number | undefined }} properties
- */
-export function updateCollectionProperties(collection, properties) {
+type AllCollectionPrimitives = PrimitiveCollection | BillboardCollection | LabelCollection
+type AllPrimitives =
+    | AllCollectionPrimitives
+    | Primitive
+    | Billboard
+    | Label
+    | GroundPolylinePrimitive
+
+/** This function goes throw the primitive collection and updates passed properties */
+export function updateCollectionProperties(
+    collection: MaybeRef<AllPrimitives>,
+    properties: { opacity?: number; disableDepthTestDistance?: number }
+): void {
     const opacity =
         typeof properties.opacity === 'number' && properties.opacity >= 0 && properties.opacity <= 1
             ? properties.opacity
@@ -36,8 +44,18 @@ export function updateCollectionProperties(collection, properties) {
             ? properties.disableDepthTestDistance
             : undefined
 
-    for (let i = 0; i < collection.length; i++) {
-        const primitive = collection.get(i)
+    if (
+        !(toValue(collection) instanceof PrimitiveCollection) &&
+        !(toValue(collection) instanceof BillboardCollection) &&
+        !(toValue(collection) instanceof LabelCollection)
+    ) {
+        return
+    }
+    const primitiveCollection = toValue(collection) as AllCollectionPrimitives
+
+    for (let i = 0; i < primitiveCollection.length; i++) {
+        const primitive: AllPrimitives = primitiveCollection.get(i)
+        // common for both label and billboard
         if (primitive instanceof Label || primitive instanceof Billboard) {
             // https://community.cesium.com/t/points-labels-stuck-under-terrain/11141/17
             primitive.eyeOffset = new Cartesian3(0.0, 0.0, -10.0)
@@ -87,43 +105,51 @@ export function updateCollectionProperties(collection, properties) {
     }
 }
 
-/**
- * @param {Viewer} cesiumViewer
- * @param {Promise<Cesium3DTileset> | Cesium3DTileset} tileSet
- * @param {Ref<Number>} opacity
- * @param {Object} options
- * @param {Boolean} options.withEnhancedLabelStyle
- */
-export default function useAddPrimitiveLayer(cesiumViewer, tileSet, opacity, options = {}) {
-    let layer
+interface UseAddPrimitiveLayerOptions {
+    withEnhancedLabelStyle?: boolean
+}
 
-    const { withEnhancedLabelStyle = false } = options
+export default function useAddPrimitiveLayer(
+    cesiumViewer: MaybeRef<Viewer>,
+    tileSet: MaybeRef<Promise<Cesium3DTileset> | Cesium3DTileset>,
+    opacity: MaybeRef<number>,
+    options: MaybeRef<UseAddPrimitiveLayerOptions> = {}
+) {
+    let layer: AllPrimitives | undefined
+
+    const { withEnhancedLabelStyle = false } = toValue(options)
 
     onMounted(async () => {
         try {
-            const loadedTileSet = await tileSet
+            const loadedTileSet = await toValue(tileSet)
             if (withEnhancedLabelStyle) {
                 loadedTileSet.style = CESIUM_SWISSNAMES3D_STYLE
             }
-            layer = cesiumViewer.scene.primitives.add(loadedTileSet)
-            updateCollectionProperties(layer, {
-                opacity: toValue(opacity),
-                disableDepthTestDistance: PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE,
-            })
+            layer = toValue(cesiumViewer).scene.primitives.add(loadedTileSet)
+            if (layer) {
+                updateCollectionProperties(layer, {
+                    opacity: toValue(opacity),
+                    disableDepthTestDistance: PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE,
+                })
+            }
         } catch (error) {
-            log.error('Error while loading tileset for', tileSet, error)
+            log.error({
+                title: 'useAddPrimitiveLayer.composable',
+                titleColor: LogPreDefinedColor.Red,
+                message: ['Error while loading tileset for', toValue(tileSet), error],
+            })
         }
     })
 
     onBeforeUnmount(() => {
         if (layer) {
             layer.show = false
-            cesiumViewer.scene.primitives.remove(layer)
-            cesiumViewer.scene.requestRender()
+            toValue(cesiumViewer).scene.primitives.remove(layer)
+            toValue(cesiumViewer).scene.requestRender()
         }
     })
 
-    watch(opacity, () => {
+    watch(toRef(opacity), () => {
         if (layer) {
             updateCollectionProperties(layer, {
                 opacity: toValue(opacity),

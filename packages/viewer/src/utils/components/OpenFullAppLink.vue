@@ -17,7 +17,7 @@ const linkMessage = computed(() =>
 const mapView = computed(() =>
     router.resolve({
         name: MAP_VIEW,
-        params: router.currentRoute.value.params
+        params: router.currentRoute.value.params,
     })
 )
 </script>

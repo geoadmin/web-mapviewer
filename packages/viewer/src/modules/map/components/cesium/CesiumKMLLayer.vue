@@ -1,47 +1,52 @@
-<script setup lang="js">
+<script setup lang="ts">
 import log from '@swissgeo/log'
+import type { Entity, KmlDataSource as KmlDataSourceType } from 'cesium'
 import {
     ArcType,
     Color,
+    ColorMaterialProperty,
+    ConstantProperty,
     HeightReference,
     HorizontalOrigin,
     KmlDataSource,
     LabelStyle,
     VerticalOrigin,
 } from 'cesium'
-import { computed, inject, toRef, watch } from 'vue'
+import { computed, toRef, watch } from 'vue'
 
-import KMLLayer from '@/api/layers/KMLLayer.class'
+import type { KMLLayer } from '@swissgeo/layers'
 import { DEFAULT_MARKER_HORIZONTAL_OFFSET } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
 import { getFeatureDescriptionMap } from '@/utils/kmlUtils'
+import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 
-const { kmlLayerConfig } = defineProps({
-    kmlLayerConfig: {
-        type: KMLLayer,
-        required: true,
-    },
-})
+const { kmlLayerConfig } = defineProps<{ kmlLayerConfig: KMLLayer }>()
 
-const layerId = computed(() => kmlLayerConfig.id)
 const kmlData = computed(() => kmlLayerConfig.kmlData)
 const kmlStyle = computed(() => kmlLayerConfig.style)
 const isClampedToGround = computed(() => kmlLayerConfig.clampToGround)
-const layerOpacity = computed(() => kmlLayerConfig.opacity)
 
-const getViewer = inject('getViewer')
-const viewer = getViewer()
+const viewer = getCesiumViewer()
+if (!viewer) {
+    log.error({
+        title: 'CesiumKMLLayer.vue',
+        message: ['Viewer not initialized, cannot create KML layer'],
+    })
+    throw new Error('Viewer not initialized, cannot create KML layer')
+}
 
-/** @returns {Promise<KmlDataSource>} */
-async function createSource() {
+async function createSource(): Promise<KmlDataSourceType> {
     try {
-        const kmlDataSource = await KmlDataSource.load(new Blob([kmlData.value]), {
+        const kmlDataSource = await KmlDataSource.load(new Blob([kmlData.value ?? '']), {
             clampToGround: isClampedToGround.value,
         })
         resetKmlDescription(kmlDataSource)
         return kmlDataSource
-    } catch (error) {
-        log.error(`[Cesium] Error while parsing KML data for layer ${layerId.value}`, error)
+    } catch (error: unknown) {
+        log.error({
+            title: 'Cesium',
+            message: [`Error while parsing KML data for layer ${kmlLayerConfig.id}`, error],
+        })
         throw error
     }
 }
@@ -52,18 +57,16 @@ async function createSource() {
  * the KML description is not set it uses the geometry type as description. This is not the desired
  * behavior. Therefore we need to reset the description to the original KML description. The
  * description is changed in place.
- *
- * @param {KmlDataSource} kmlDataSource The KML data source
  */
-function resetKmlDescription(kmlDataSource) {
-    const descriptionMap = getFeatureDescriptionMap(kmlData.value)
-    kmlDataSource.entities.values.forEach((entity) => {
-        entity.description = descriptionMap.get(entity.id)
+function resetKmlDescription(kmlDataSource: KmlDataSource) {
+    const descriptionMap = getFeatureDescriptionMap(kmlData.value ?? '')
+    kmlDataSource.entities.values.forEach((entity: Entity) => {
+        entity.description = new ConstantProperty(descriptionMap.get(entity.id)!)
     })
 }
 
 // adding some visual improvements to KML feature, depending on their type
-function applyStyleToKmlEntity(entity, opacity) {
+function applyStyleToKmlEntity(entity: Entity, opacity: number) {
     let geometry
     let alphaToApply = 0.8
     if (entity.ellipse) {
@@ -76,8 +79,8 @@ function applyStyleToKmlEntity(entity, opacity) {
         geometry = entity.polyline
         alphaToApply = 1.0
         if (isClampedToGround.value) {
-            geometry.arcType = ArcType.GEODESIC
-            geometry.clampToGround = true
+            geometry.arcType = new ConstantProperty(ArcType.GEODESIC)
+            geometry.clampToGround = new ConstantProperty(true)
         }
     }
     if (entity.billboard) {
@@ -95,23 +98,25 @@ function applyStyleToKmlEntity(entity, opacity) {
 
         const isDefaultMarker = !!imageUrl?.includes('001-marker')
 
-        entity.billboard.heightReference = HeightReference.CLAMP_TO_GROUND
-        entity.billboard.verticalOrigin = VerticalOrigin.CENTER
-        entity.billboard.horizontalOrigin =
-            HorizontalOrigin.CENTER + isDefaultMarker * DEFAULT_MARKER_HORIZONTAL_OFFSET
-        entity.billboard.color = Color.WHITE.withAlpha(opacity)
+        entity.billboard.heightReference = new ConstantProperty(HeightReference.CLAMP_TO_GROUND)
+        entity.billboard.verticalOrigin = new ConstantProperty(VerticalOrigin.CENTER)
+        entity.billboard.horizontalOrigin = new ConstantProperty(
+            (HorizontalOrigin.CENTER as number) +
+                (isDefaultMarker ? DEFAULT_MARKER_HORIZONTAL_OFFSET : 0)
+        )
+        entity.billboard.color = new ConstantProperty(Color.WHITE.withAlpha(opacity))
     }
     if (entity.label) {
         const { label } = entity
-        label.disableDepthTestDistance = Number.POSITIVE_INFINITY
-        label.heightReference = HeightReference.CLAMP_TO_GROUND
-        label.verticalOrigin = VerticalOrigin.CENTER
-        label.outlineColor = Color.BLACK
-        label.outlineWidth = 2
-        label.style = LabelStyle.FILL_AND_OUTLINE
+        label.disableDepthTestDistance = new ConstantProperty(Number.POSITIVE_INFINITY)
+        label.heightReference = new ConstantProperty(HeightReference.CLAMP_TO_GROUND)
+        label.verticalOrigin = new ConstantProperty(VerticalOrigin.CENTER)
+        label.outlineColor = new ConstantProperty(Color.BLACK)
+        label.outlineWidth = new ConstantProperty(2)
+        label.style = new ConstantProperty(LabelStyle.FILL_AND_OUTLINE)
     }
     if (geometry) {
-        if (geometry.material?.color) {
+        if (geometry.material instanceof ColorMaterialProperty && geometry.material.color) {
             geometry.material.color = geometry.material.color
                 .getValue()
                 .withAlpha(alphaToApply * opacity)
@@ -123,8 +128,8 @@ const { refreshDataSource } = useAddDataSourceLayer(
     viewer,
     createSource(),
     applyStyleToKmlEntity,
-    toRef(layerOpacity),
-    toRef(layerId)
+    toRef(kmlLayerConfig.opacity),
+    toRef(kmlLayerConfig.id)
 )
 
 watch(kmlData, () => refreshDataSource(createSource()))

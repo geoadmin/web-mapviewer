@@ -1,15 +1,12 @@
-<script setup lang="js">
-import { computed } from 'vue'
-import { useStore } from 'vuex'
+<script setup lang="ts">
+import useUIStore from '@/store/modules/ui.store'
 
-const store = useStore()
-
-const hasWarningRibbon = computed(() => store.getters.hasWarningRibbon)
+const uiStore = useUIStore()
 </script>
 
 <template>
     <div
-        v-if="hasWarningRibbon"
+        v-if="uiStore.hasWarningRibbon"
         class="corner-ribbon"
         data-cy="warning-ribbon"
     >

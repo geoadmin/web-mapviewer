@@ -13,7 +13,23 @@ import { useI18n } from 'vue-i18n'
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
 import { humanFileSize } from '@/utils/utils'
 
-interface Props {
+const {
+    label = '',
+    description = '',
+    disabled = false,
+    acceptedFileTypes = [],
+    maxFileSize = 250 * 1024 * 1024, // 250 MB
+    placeholder = '',
+    required = false,
+    validMarker = undefined,
+    validMessage = '',
+    invalidMarker = undefined,
+    invalidMessage = '',
+    invalidMessageExtraParams = {},
+    activateValidation = false,
+    validate = undefined,
+    dataCy = '',
+} = defineProps<{
     /** Label to add above the field */
     label?: string
     /** Description to add below the input */
@@ -90,25 +106,7 @@ interface Props {
      */
     validate?: ((_value?: File) => { valid: boolean; invalidMessage: string }) | undefined
     dataCy?: string
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    label: '',
-    description: '',
-    disabled: false,
-    acceptedFileTypes: () => [],
-    maxFileSize: 250 * 1024 * 1024, // 250 MB
-    placeholder: '',
-    required: false,
-    validMarker: undefined,
-    validMessage: '',
-    invalidMarker: undefined,
-    invalidMessage: '',
-    invalidMessageExtraParams: () => ({}),
-    activateValidation: false,
-    validate: undefined,
-    dataCy: '',
-})
+}>()
 
 // On each component creation set the current component unique ID
 const inputFileId = useComponentUniqueId('file-input')
@@ -128,24 +126,24 @@ const internalInvalidMessage = ref<string>('')
 const filePathInfo = computed(() =>
     model.value ? `${model.value.name}, ${model.value.size / 1000} kb` : ''
 )
-const maxFileSizeHuman = computed(() => humanFileSize(props.maxFileSize))
+const maxFileSizeHuman = computed(() => humanFileSize(maxFileSize))
 
 // Methods
 function validateFile(): { valid: boolean; invalidMessage: string } {
     const file = model.value
     if (
         file &&
-        props.acceptedFileTypes?.length > 0 &&
-        !props.acceptedFileTypes.some((type: string) =>
+        acceptedFileTypes?.length > 0 &&
+        !acceptedFileTypes.some((type: string) =>
             file.name.toLowerCase().endsWith(type.toLowerCase())
         )
     ) {
         return { valid: false, invalidMessage: 'file_unsupported_format' }
     }
-    if (file && file.size > props.maxFileSize) {
+    if (file && file.size > maxFileSize) {
         return { valid: false, invalidMessage: 'file_too_large' }
     }
-    if (props.required && !model.value) {
+    if (required && !model.value) {
         return { valid: false, invalidMessage: 'no_file' }
     }
     return {
@@ -160,8 +158,8 @@ function onFileSelected(evt: Event): void {
     model.value = file
 
     // Validate if custom validation is provided
-    if (props.validate) {
-        const result = props.validate(file)
+    if (validate) {
+        const result = validate(file)
         if (!result.valid) {
             internalInvalidMessage.value = result.invalidMessage
         } else {
@@ -181,10 +179,10 @@ function onFileSelected(evt: Event): void {
 
 // Watch for validation changes
 watch(
-    () => [model.value, props.activateValidation],
+    () => [model.value, activateValidation],
     () => {
-        if (props.activateValidation) {
-            const result = props.validate ? props.validate(model.value) : validateFile()
+        if (activateValidation) {
+            const result = validate ? validate(model.value) : validateFile()
             internalInvalidMessage.value = result.valid ? '' : result.invalidMessage
             emits('validate', result.valid)
         }

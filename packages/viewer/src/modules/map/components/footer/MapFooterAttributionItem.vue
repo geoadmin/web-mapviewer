@@ -1,26 +1,17 @@
-<script setup lang="js">
-const { sourceId, sourceName, sourceUrl, hasDataDisclaimer, isLast } = defineProps({
-    sourceId: {
-        type: String,
-        required: true,
-    },
-    sourceName: {
-        type: String,
-        required: true,
-    },
-    sourceUrl: {
-        type: String,
-        default: null,
-    },
-    hasDataDisclaimer: {
-        type: Boolean,
-        default: false,
-    },
-    isLast: {
-        type: Boolean,
-        default: false,
-    },
-})
+<script setup lang="ts">
+const {
+    sourceId,
+    sourceName,
+    sourceUrl,
+    hasDataDisclaimer = false,
+    isLast = false,
+} = defineProps<{
+    sourceId: string
+    sourceName: string
+    sourceUrl?: string
+    hasDataDisclaimer?: boolean
+    isLast?: boolean
+}>()
 </script>
 
 <template>

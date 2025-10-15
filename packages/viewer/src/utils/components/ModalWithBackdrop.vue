@@ -11,7 +11,19 @@ import { useI18n } from 'vue-i18n'
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 import PrintButton from '@/utils/components/PrintButton.vue'
 
-interface Props {
+const {
+    title,
+    allowPrint = false,
+    showConfirmationButtons = false,
+    fluid = false,
+    headerPrimary = false,
+    top = false,
+    confirmKey = 'success',
+    cancelKey = 'cancel',
+    confirmIcon,
+    cancelIcon,
+    hide = false,
+} = defineProps<{
     title?: string
     allowPrint?: boolean
     showConfirmationButtons?: boolean
@@ -22,23 +34,12 @@ interface Props {
     cancelKey?: string
     confirmIcon?: string
     cancelIcon?: string
-    /** Hide the modal with backdrop, can be used to temporarily hide the modal without loosing its content */
+    /**
+     * Hide the modal with backdrop, can be used to temporarily hide the modal without losing its
+     * content
+     */
     hide?: boolean
-}
-
-withDefaults(defineProps<Props>(), {
-    title: undefined,
-    allowPrint: false,
-    showConfirmationButtons: false,
-    fluid: false,
-    headerPrimary: false,
-    top: false,
-    confirmKey: 'success',
-    cancelKey: 'cancel',
-    confirmIcon: undefined,
-    cancelIcon: undefined,
-    hide: false,
-})
+}>()
 
 const emits = defineEmits<{
     close: [withConfirmation: boolean]
@@ -75,7 +76,7 @@ function onHideParentModal(hide: boolean): void {
             <div
                 class="modal-popup position-fixed start-50"
                 :class="{
-                    'top-50 translate-middle': !top,
+                    'translate-middle top-50': !top,
                     'translate-middle-x on-top-with-padding': top,
                 }"
             >
@@ -92,7 +93,7 @@ function onHideParentModal(hide: boolean): void {
                     >
                         <span
                             v-if="title"
-                            class="flex-grow-1 text-truncate text-start"
+                            class="text-truncate flex-grow-1 text-start"
                             data-cy="modal-with-backdrop-title"
                         >
                             {{ title }}
@@ -116,7 +117,7 @@ function onHideParentModal(hide: boolean): void {
                     </div>
                     <div
                         ref="modalContent"
-                        class="card-body pe-4 ps-4 pt-3"
+                        class="card-body ps-4 pe-4 pt-3"
                         data-cy="modal-content"
                     >
                         <slot />

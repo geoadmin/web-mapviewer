@@ -359,18 +359,18 @@ const usePositionStore = defineStore('position', {
             }
         },
 
-        setCameraPosition(position: CameraPosition, dispatcher: ActionDispatcher) {
+        setCameraPosition(position: CameraPosition | undefined, dispatcher: ActionDispatcher) {
             // position can be null (in 2d mode), we do not wrap it in this case
             this.camera = position
                 ? {
-                      x: position.x,
-                      y: position.y,
-                      z: position.z,
-                      // wrapping all angle-based values so that they do not exceed a full-circle value
-                      roll: wrapDegrees(position.roll),
-                      pitch: wrapDegrees(position.pitch),
-                      heading: wrapDegrees(position.heading),
-                  }
+                    x: position.x,
+                    y: position.y,
+                    z: position.z,
+                    // wrapping all angle-based values so that they do not exceed a full-circle value
+                    roll: wrapDegrees(position.roll),
+                    pitch: wrapDegrees(position.pitch),
+                    heading: wrapDegrees(position.heading),
+                }
                 : undefined
         },
 

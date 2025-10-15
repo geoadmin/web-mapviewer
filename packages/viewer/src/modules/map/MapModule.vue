@@ -1,25 +1,30 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed, defineAsyncComponent } from 'vue'
-import { useStore } from 'vuex'
 
-import CompareSlider from './components/CompareSlider.vue'
-import LocationPopup from './components/LocationPopup.vue'
-import WarningRibbon from './components/WarningRibbon.vue'
+import CompareSlider from '@/modules/map/components/CompareSlider.vue'
+import LocationPopup from '@/modules/map/components/LocationPopup.vue'
+import WarningRibbon from '@/modules/map/components/WarningRibbon.vue'
+import useCesiumStore from '@/store/modules/cesium.store'
+import useMapStore from '@/store/modules/map.store'
+import useUIStore from '@/store/modules/ui.store'
+import useLayersStore from '@/store/modules/layers.store'
+
 const CesiumMap = defineAsyncComponent(() => import('./components/cesium/CesiumMap.vue'))
 const OpenLayersMap = defineAsyncComponent(
     () => import('./components/openlayers/OpenLayersMap.vue')
 )
 
-const store = useStore()
+const cesiumStore = useCesiumStore()
+const layersStore = useLayersStore()
+const mapStore = useMapStore()
+const uiStore = useUIStore()
 
-const is3DActive = computed(() => store.state.cesium.active)
-
-const displayLocationPopup = computed(
-    () => store.state.map.locationPopupCoordinates && !store.state.ui.embed
+const displayLocationPopup = computed<boolean>(
+    () => !!mapStore.locationPopupCoordinates && !uiStore.embed
 )
-const isCompareSliderActive = computed(() => {
-    return store.state.ui.isCompareSliderActive && store.getters.visibleLayerOnTop
-})
+const isCompareSliderActive = computed<boolean>(
+    () => uiStore.isCompareSliderActive && !!layersStore.visibleLayerOnTop
+)
 </script>
 
 <template>
@@ -27,7 +32,7 @@ const isCompareSliderActive = computed(() => {
         class="full-screen-map"
         data-cy="map"
     >
-        <CesiumMap v-if="is3DActive">
+        <CesiumMap v-if="cesiumStore.active">
             <!-- So that external modules can have access to the viewer instance through the provided 'getViewer' -->
             <slot />
             <LocationPopup v-if="displayLocationPopup" />

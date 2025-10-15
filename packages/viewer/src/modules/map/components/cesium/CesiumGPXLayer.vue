@@ -1,54 +1,59 @@
-<script setup lang="js">
+<script setup lang="ts">
 import log from '@swissgeo/log'
+import type { Entity } from 'cesium'
 import {
     BillboardGraphics,
     Cartesian3,
     Color,
     ColorMaterialProperty,
+    ConstantProperty,
     defined as cesiumDefined,
     GpxDataSource,
     HeightReference,
 } from 'cesium'
-import { computed, inject, toRef, watch } from 'vue'
+import { computed, toRef, watch } from 'vue'
 
-import GPXLayer from '@/api/layers/GPXLayer.class'
+import type { GPXLayer } from '@swissgeo/layers'
 import { GPX_BILLBOARD_RADIUS } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
+import { getCesiumViewer } from './utils/viewerUtils'
 
-const { gpxLayerConfig } = defineProps({
-    gpxLayerConfig: {
-        type: GPXLayer,
-        required: true,
-    },
-})
+const { gpxLayerConfig } = defineProps<{ gpxLayerConfig: GPXLayer }>()
 
-const layerId = computed(() => gpxLayerConfig.id)
 const gpxData = computed(() => gpxLayerConfig.gpxData)
 const layerOpacity = computed(() => gpxLayerConfig.opacity)
 
-const getViewer = inject('getViewer')
-const viewer = getViewer()
+const viewer = getCesiumViewer()
+if (!viewer) {
+    log.error({
+        title: 'CesiumGPXLayer.vue',
+        message: ['Viewer not initialized, cannot create GPX layer'],
+    })
+    throw new Error('Viewer not initialized, cannot create GPX layer')
+}
 
-/** @returns {Promise<GpxDataSource>} */
-async function createSource() {
+async function createSource(): Promise<GpxDataSource> {
     try {
         return await GpxDataSource.load(
-            new Blob([gpxData.value], { type: 'application/gpx+xml' }),
+            new Blob([gpxData.value ?? ''], { type: 'application/gpx+xml' }),
             {
                 clampToGround: true,
             }
         )
     } catch (error) {
-        log.error(`[Cesium] Error while parsing GPX data for layer ${layerId.value}`, error)
+        log.error({
+            title: 'CesiumGPXLayer.vue',
+            message: [`Could not load GPX ${gpxLayerConfig.id}`, error],
+        })
         throw error
     }
 }
 
 // Function to create a red circle image using a canvas
-function createRedCircleImage(opacity = 1) {
+function createRedCircleImage(opacity: number = 1): string {
     // Create a new canvas element
     const canvas = document.createElement('canvas')
-    const context = canvas.getContext('2d')
+    const context = canvas.getContext('2d')!
 
     // Set the canvas sizes
     canvas.width = GPX_BILLBOARD_RADIUS * 2
@@ -71,7 +76,7 @@ function createRedCircleImage(opacity = 1) {
     return canvas.toDataURL()
 }
 
-function createRedCircleBillboard(opacity = 1) {
+function createRedCircleBillboard(opacity: number = 1): BillboardGraphics {
     const redCircleImage = createRedCircleImage(opacity)
     const billboardSize = GPX_BILLBOARD_RADIUS * 2
     return new BillboardGraphics({
@@ -83,7 +88,7 @@ function createRedCircleBillboard(opacity = 1) {
     })
 }
 
-function applyStyleToGpxEntity(entity, opacity) {
+function applyStyleToGpxEntity(entity: Entity, opacity: number): void {
     const redCircleBillboard = createRedCircleBillboard(opacity)
     const redColorMaterial = new ColorMaterialProperty(Color.RED.withAlpha(opacity))
     // Hide the billboard for billboard on the lines by checking if there is a description
@@ -99,14 +104,16 @@ function applyStyleToGpxEntity(entity, opacity) {
     }
 
     if (cesiumDefined(entity.polyline)) {
-        entity.polyline.material = redColorMaterial
-        entity.polyline.width = 3
+        const pl = entity.polyline
+        pl.material = redColorMaterial
+        pl.width = new ConstantProperty(3)
     }
 
     if (cesiumDefined(entity.polygon)) {
-        entity.polygon.material = redColorMaterial
-        entity.polygon.outline = true
-        entity.polygon.outlineColor = Color.BLACK.withAlpha(opacity.value)
+        const pg = entity.polygon
+        pg.material = redColorMaterial
+        pg.outline = new ConstantProperty(true)
+        pg.outlineColor = new ConstantProperty(Color.BLACK.withAlpha(opacity))
     }
 }
 
@@ -115,7 +122,7 @@ const { refreshDataSource } = useAddDataSourceLayer(
     createSource(),
     applyStyleToGpxEntity,
     toRef(layerOpacity),
-    toRef(layerId)
+    toRef(gpxLayerConfig.id)
 )
 
 watch(gpxData, () => refreshDataSource(createSource()))

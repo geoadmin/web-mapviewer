@@ -1,27 +1,24 @@
-<script setup lang="js">
+<script setup lang="ts">
+import useCesiumStore from '@/store/modules/cesium.store'
+import usePositionStore from '@/store/modules/position.store'
+import type { ActionDispatcher } from '@/store/types'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { Ray } from 'cesium'
-import { computed, inject } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
+import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 
-const dispatcher = { dispatcher: 'ZoomButtons.vue' }
+const dispatcher: ActionDispatcher = { name: 'ZoomButtons.vue' }
 
-const store = useStore()
 const { t } = useI18n()
-const is3dActive = computed(() => store.state.cesium.active)
-const resolution = computed(() => store.getters.resolution)
+const cesiumStore = useCesiumStore()
+const positionStore = usePositionStore()
 
-// telling vue that getViewer is a factory method (avoid unnecessary computation or side effects)
-const getViewer = inject('getViewer', () => {}, true)
+const step = computed(() => positionStore.resolution * 200)
 
-// The `step` variable is used with the 3D viewer. The goal was to find an increase or
-// decrease in the zoom that emulated a zoom level in an agreeable way. `200` here is a
-// magic number, found empirically, to achieve that goal.
-const step = computed(() => resolution.value * 200)
-
-function moveCamera(distance) {
-    const camera = getViewer().scene?.camera
+function moveCamera(distance: number) {
+    const viewer = getCesiumViewer()
+    const camera = viewer?.scene?.camera
     if (camera) {
         camera.flyTo({
             destination: Ray.getPoint(new Ray(camera.position, camera.direction), distance),
@@ -36,17 +33,18 @@ function moveCamera(distance) {
 }
 
 function increaseZoom() {
-    if (is3dActive.value) {
+    if (cesiumStore.active) {
         moveCamera(step.value)
     } else {
-        store.dispatch('increaseZoom', dispatcher)
+        positionStore.increaseZoom(dispatcher)
     }
 }
+
 function decreaseZoom() {
-    if (is3dActive.value) {
+    if (cesiumStore.active) {
         moveCamera(-step.value)
     } else {
-        store.dispatch('decreaseZoom', dispatcher)
+        positionStore.decreaseZoom(dispatcher)
     }
 }
 </script>

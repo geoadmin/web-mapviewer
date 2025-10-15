@@ -1,48 +1,46 @@
-<script setup lang="js">
+<script setup lang="ts">
 /**
  * MapToolbox component contains some basic map tool that are displayed as button on the top right
  * map corner.
  *
  * By default the toolbox only contains the zoom in/out buttons
  */
-import { computed } from 'vue'
-import { useStore } from 'vuex'
-
 import FullScreenButton from '@/modules/map/components/toolbox/FullScreenButton.vue'
 import GeolocButton from '@/modules/map/components/toolbox/GeolocButton.vue'
 import Toggle3dButton from '@/modules/map/components/toolbox/Toggle3dButton.vue'
 import ZoomButtons from '@/modules/map/components/toolbox/ZoomButtons.vue'
+import useUIStore from '@/store/modules/ui.store'
+import useDrawingStore from '@/store/modules/drawing.store'
 
-const { fullScreenButton, geolocButton, toggle3dButton, compassButton, hasHeader } = defineProps({
+const {
+    fullScreenButton = false,
+    geolocButton = false,
+    toggle3dButton = false,
+    compassButton = false,
     /**
      * Tell the component if the map has a header, if set to true the buttons will be put right
      * below the header
      */
-    hasHeader: { type: Boolean, default: true },
-    /** Add the fullscreen button */
-    fullScreenButton: { type: Boolean, default: false },
-    /** Add the geo location button */
-    geolocButton: { type: Boolean, default: false },
-    /** Add the 3D view button */
-    toggle3dButton: { type: Boolean, default: false },
-    /** Add the compass button (only available in 2D mode) */
-    compassButton: { type: Boolean, default: false },
-})
+    hasHeader = true,
+} = defineProps<{
+    fullScreenButton?: boolean
+    geolocButton?: boolean
+    toggle3dButton?: boolean
+    compassButton?: boolean
+    hasHeader?: boolean
+}>()
 
-const store = useStore()
-
-const isFullscreenMode = computed(() => store.state.ui.fullscreenMode)
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
-const isDrawingMode = computed(() => store.state.drawing.drawingOverlay.show)
+const uiStore = useUIStore()
+const drawingStore = useDrawingStore()
 </script>
 
 <template>
     <div
-        class="toolbox-right m-2 position-absolute end-0"
+        class="toolbox-right position-absolute end-0 m-2"
         :class="{
-            'dev-disclaimer-present': hasDevSiteWarning,
-            'fullscreen-mode': isFullscreenMode || !hasHeader,
-            'drawing-mode': isDrawingMode,
+            'dev-disclaimer-present': uiStore.hasDevSiteWarning,
+            'fullscreen-mode': uiStore.fullscreenMode || !hasHeader,
+            'drawing-mode': drawingStore.drawingOverlay.show,
         }"
         data-cy="toolbox-right"
     >

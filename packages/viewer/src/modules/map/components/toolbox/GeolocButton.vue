@@ -1,30 +1,34 @@
-<script setup lang="js">
+<script setup lang="ts">
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
 import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
+import useGeolocationStore from '@/store/modules/geolocation.store'
+import useCesiumStore from '@/store/modules/cesium.store'
+import usePositionStore from '@/store/modules/position.store'
+import type { ActionDispatcher } from '@/store/types'
 
-const dispatcher = { dispatcher: 'GeolocButton.vue' }
+const dispatcher: ActionDispatcher = { name: 'GeolocButton.vue' }
 
-const { compassButton } = defineProps({
-    /** Add the compass button (only available in 2D mode) */
-    compassButton: { type: Boolean, default: false },
-})
+const { compassButton = false } = defineProps<{
+    compassButton?: boolean
+}>()
 
-const store = useStore()
+const geolocationStore = useGeolocationStore()
+const cesiumStore = useCesiumStore()
+const positionStore = usePositionStore()
 const { t } = useI18n()
 
 const tooltipContent = computed(() => {
     let key
-    if (isDenied.value) {
+    if (geolocationStore.denied) {
         key = 'geoloc_permission_denied'
     } else if (hasTrackingFeedback.value) {
         key = 're_center_map'
     } else if (hastAutoRotationFeedback.value) {
         key = 'orient_map_north'
-    } else if (isActive.value) {
+    } else if (geolocationStore.active) {
         key = 'geoloc_stop_tracking'
     } else {
         key = 'geoloc_start_tracking'
@@ -32,31 +36,25 @@ const tooltipContent = computed(() => {
     return t(key)
 })
 
-const isActive = computed(() => store.state.geolocation.active)
-const isDenied = computed(() => store.state.geolocation.denied)
-const isTracking = computed(() => store.state.geolocation.tracking)
-const autoRotation = computed(() => store.state.position.autoRotation)
-const hasOrientation = computed(() => store.state.position.hasOrientation)
-const is3dActive = computed(() => store.state.cesium.active)
-const hasTrackingFeedback = computed(() => isActive.value && !isTracking.value)
+const hasTrackingFeedback = computed(() => geolocationStore.active && !geolocationStore.tracking)
 const hastAutoRotationFeedback = computed(
-    () => isActive.value && hasOrientation.value && !autoRotation.value
+    () => geolocationStore.active && positionStore.hasOrientation && !positionStore.autoRotation
 )
-function toggleGeolocation() {
-    if (!isActive.value) {
-        store.dispatch('toggleGeolocation', dispatcher)
+function toggleGeolocation(): void {
+    if (!geolocationStore.active) {
+        geolocationStore.toggleGeolocation(dispatcher)
         if (hasTrackingFeedback.value) {
-            store.dispatch('setGeolocationTracking', { tracking: true, ...dispatcher })
+            geolocationStore.setGeolocationTracking(true, dispatcher)
         }
     } else {
         if (hasTrackingFeedback.value) {
-            store.dispatch('setGeolocationTracking', { tracking: true, ...dispatcher })
+            geolocationStore.setGeolocationTracking(true, dispatcher)
         } else if (hastAutoRotationFeedback.value) {
-            store.dispatch('setAutoRotation', { autoRotation: true, ...dispatcher })
+            positionStore.setAutoRotation(true, dispatcher)
         } else {
-            store.dispatch('toggleGeolocation', dispatcher)
-            store.dispatch('setAutoRotation', { autoRotation: false, ...dispatcher })
-            store.dispatch('setGeolocationTracking', { tracking: false, ...dispatcher })
+            geolocationStore.toggleGeolocation(dispatcher)
+            positionStore.setAutoRotation(false, dispatcher)
+            geolocationStore.setGeolocationTracking(false, dispatcher)
         }
     }
 }
@@ -74,8 +72,8 @@ function toggleGeolocation() {
             <button
                 class="toolbox-button d-print-none"
                 type="button"
-                :disabled="isDenied"
-                :class="{ active: isActive, disabled: isDenied }"
+                :disabled="geolocationStore.denied"
+                :class="{ active: geolocationStore.active, disabled: geolocationStore.denied }"
                 data-cy="geolocation-button"
                 @click="toggleGeolocation"
             >
@@ -86,12 +84,12 @@ function toggleGeolocation() {
                         transform="grow-4"
                     />
                     <FontAwesomeIcon
-                        v-if="autoRotation"
+                        v-if="positionStore.autoRotation"
                         icon="minus"
                         transform="shrink-10 up-7 rotate--90"
                     />
                     <FontAwesomeIcon
-                        v-if="autoRotation"
+                        v-if="positionStore.autoRotation"
                         icon="location-arrow"
                         transform="shrink-4 down-4 rotate--45"
                     />
@@ -104,8 +102,8 @@ function toggleGeolocation() {
             </button>
         </GeoadminTooltip>
         <OpenLayersCompassButton
-            v-if="!is3dActive && compassButton"
-            :hide-if-north="!autoRotation"
+            v-if="!cesiumStore.active && compassButton"
+            :hide-if-north="!positionStore.autoRotation"
         />
     </div>
 </template>

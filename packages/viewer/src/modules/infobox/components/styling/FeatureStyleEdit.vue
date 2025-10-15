@@ -18,7 +18,7 @@ import DrawingStylePositionSelector from '@/modules/infobox/components/styling/D
 import DrawingStylePopoverButton from '@/modules/infobox/components/styling/DrawingStylePopoverButton.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
-import type { MediaType } from '@/modules/infobox/DrawingStyleMediaTypes.enum'
+import { MediaType } from '@/modules/infobox/DrawingStyleMediaTypes.enum'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import { allFormats, LV95Format, type CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 import debounce from '@/utils/debounce'
@@ -36,15 +36,10 @@ import type { DrawingIcon } from '@/api/icon.api'
 
 const dispatcher = { name: 'FeatureStyleEdit.vue' }
 
-type Props = {
+const { feature, readOnly = false } = defineProps<{
     feature: EditableFeature
     readOnly?: boolean
-}
-
-const { feature, readOnly } = withDefaults(defineProps<Props>(), {
-    readOnly: false,
-})
-
+}>()
 const { t } = useI18n()
 
 const drawingStore = useDrawingStore()
@@ -250,18 +245,18 @@ type MediaButton = {
 function mediaTypes(): MediaButton[] {
     return [
         {
-            type: 'link' as MediaType,
+            type: MediaType.Link,
             buttonClassOptions: 'rounded-0 rounded-top-2 rounded-end-0',
             icon: 'fa-link' as IconProp,
             extraUrlDescription: 'text_to_display',
         },
         {
-            type: 'image' as MediaType,
+            type: MediaType.Image,
             buttonClassOptions: 'rounded-0',
             icon: 'fa-image' as IconProp,
         },
         {
-            type: 'video' as MediaType,
+            type: MediaType.Video,
             buttonClassOptions: 'rounded-0 rounded-top-2 rounded-start-0',
             icon: 'fa-film' as IconProp,
         },
@@ -338,7 +333,7 @@ function mediaTypes(): MediaButton[] {
                                 :icon="media.icon as string"
                             >
                                 <DrawingStyleMediaLink
-                                    :media-type="media.type as MediaType"
+                                    :media-type="media.type"
                                     :url-label="`url_${media.type}`"
                                     :description-label="
                                         media.extraUrlDescription ? media.extraUrlDescription : ''

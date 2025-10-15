@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -9,27 +9,24 @@ const { t } = useI18n()
 
 const emit = defineEmits(['update:modelValue', 'play'])
 
-const { modelValue, entries, isPlaying } = defineProps({
-    modelValue: {
-        type: [Number, String],
-        required: true,
-    },
-    entries: {
-        type: Array,
-        default: () => [],
-    },
-    isPlaying: {
-        type: Boolean,
-        default: false,
-    },
-})
+const {
+    modelValue,
+    entries = [],
+    isPlaying = false,
+} = defineProps<{
+    modelValue: number | string
+    entries: number[]
+    isPlaying: boolean
+}>()
 
 const isDropdownOpen = ref(false)
-const inputValue = ref('')
+const inputValue = ref<string>('')
 
 const searchList = useTemplateRef('searchList')
-const input = useTemplateRef('input')
-const errorTooltip = useTemplateRef('errorTooltip')
+const input = useTemplateRef<HTMLInputElement>('input')
+const errorTooltip = useTemplateRef<{ openTooltip: () => void; closeTooltip: () => void }>(
+    'errorTooltip'
+)
 
 const tooltipContent = computed(() => {
     const firstEntry = entries[0]
@@ -39,12 +36,9 @@ const tooltipContent = computed(() => {
 
 const displayEntry = computed({
     get() {
-        if (isDropdownOpen.value) {
-            return inputValue.value
-        }
-        return modelValue
+        return isDropdownOpen.value ? inputValue.value : modelValue
     },
-    set(value) {
+    set(value: string) {
         inputValue.value = value
     },
 })
@@ -54,17 +48,13 @@ const dropdownEntries = computed(() => {
         .filter((entry) => !inputValue.value || entry.toString().includes(inputValue.value))
         .map((entry) => ({
             htmlDisplay: entry.toString(),
-            emphasize: inputValue.value?.toString() ?? '',
+            emphasize: inputValue.value,
             year: entry,
         }))
 })
 
 function toggleList() {
-    if (isDropdownOpen.value) {
-        closeList()
-    } else {
-        openList()
-    }
+    isDropdownOpen.value = !isDropdownOpen.value
 }
 
 function openList() {
@@ -73,29 +63,34 @@ function openList() {
 
 function closeList() {
     isDropdownOpen.value = false
-    inputValue.value = null
+    inputValue.value = ''
 }
 
-function chooseEntry(value) {
+function chooseEntry(value: number) {
     emit('update:modelValue', value)
-    errorTooltip.value.closeTooltip()
+    errorTooltip.value?.closeTooltip()
     closeList()
 }
 
 function focusSearchlist() {
+    if (!searchList.value) {
+        return
+    }
     if (inputValue.value) {
         searchList.value.goToFirst()
     } else {
-        searchList.value.goToSpecific(modelValue)
+        // + converts string to number
+        searchList.value.goToSpecific(+modelValue)
     }
 }
 
 function onEnter() {
-    if (entries.includes(parseInt(inputValue.value))) {
-        chooseEntry(inputValue.value)
-        input.value.blur()
+    const year = parseInt(inputValue.value)
+    if (entries.includes(year)) {
+        chooseEntry(year)
+        input.value?.blur()
     } else {
-        errorTooltip.value.openTooltip()
+        errorTooltip.value?.openTooltip()
     }
 }
 
@@ -104,7 +99,7 @@ function onEnter() {
  * tooltip isn't being hidden though, which is why we do it explicitly here
  */
 function onFocusOut() {
-    errorTooltip.value.closeTooltip()
+    errorTooltip.value?.closeTooltip()
 }
 </script>
 
@@ -130,7 +125,7 @@ function onFocusOut() {
                         class="form-control rounded-end-0"
                         :class="{ 'rounded-bottom-0': isDropdownOpen }"
                         data-cy="time-slider-dropdown-input"
-                        @input="inputValue = $event.target.value"
+                        @input="inputValue = ($event.target as any).value"
                         @focusin="openList"
                         @focusout="onFocusOut"
                         @keydown.esc.prevent="closeList"
@@ -141,7 +136,7 @@ function onFocusOut() {
 
                 <div class="input-group-append btn-group">
                     <button
-                        class="btn border btn-outline-group d-flex align-items-center rounded-start-0 rounded-end-0"
+                        class="btn btn-outline-group d-flex align-items-center rounded-start-0 rounded-end-0 border"
                         :class="{
                             'url-input-dropdown-open': isDropdownOpen,
                         }"
@@ -155,7 +150,7 @@ function onFocusOut() {
                     </button>
                     <button
                         data-cy="time-slider-play-button"
-                        class="btn btn-outline-group d-flex align-items-center px-3 border rounded-start-0"
+                        class="btn btn-outline-group d-flex align-items-center rounded-start-0 border px-3"
                         :class="{ 'rounded-bottom-0': isDropdownOpen }"
                         @click="emit('play')"
                     >

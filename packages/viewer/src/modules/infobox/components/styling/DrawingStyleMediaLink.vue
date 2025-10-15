@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { MediaType } from '@/modules/infobox/DrawingStyleMediaTypes.enum'
+import { MediaType } from '@/modules/infobox/DrawingStyleMediaTypes.enum'
 import TextInput, { type TextInputValidateResult } from '@/utils/components/TextInput.vue'
 import { isValidUrl } from '@/utils/utils'
 
@@ -53,13 +53,13 @@ function addLink(): void {
         return
     }
     switch (mediaType) {
-        case 'link' as MediaType:
+        case MediaType.Link:
             emit('generatedMediaLink', createLink())
             break
-        case 'image' as MediaType:
+        case MediaType.Image:
             emit('generatedMediaLink', createImage())
             break
-        case 'video' as MediaType:
+        case MediaType.Video:
             emit('generatedMediaLink', createVideo())
             break
     }

@@ -29,7 +29,11 @@ export default function useImportFile() {
      *   if false, it will ignore it. Default is `true`
      * @returns {Promise<void>}
      */
-    async function handleFileSource(source: string | File, sendErrorToStore = true, sendWarningToStore = true) {
+    async function handleFileSource(
+        source: string | File,
+        sendErrorToStore = true,
+        sendWarningToStore = true
+    ) {
         if (!source) {
             return
         }
@@ -56,34 +60,31 @@ export default function useImportFile() {
                     }
                 }
 
-                layersStore.addLayer({
-                    layer,
-                    zoomToLayerExtent: true
-                },
-                    dispatcher,
+                layersStore.addLayer(
+                    {
+                        layer,
+                        zoomToLayerExtent: true,
+                    },
+                    dispatcher
                 )
 
                 if (sendWarningToStore && layer.hasWarning) {
-                    uiStore.addWarnings(
-                        Array.from(layer.warningMessages),
-                        dispatcher,
-                    )
+                    uiStore.addWarnings(Array.from(layer.warningMessages), dispatcher)
                 }
             }
-        } catch (error:unknown) {
+        } catch (error: unknown) {
             if (!sendErrorToStore) {
                 throw error
             }
-            log.error({ messages: [`Error loading file`, (source as File).name ?? source, error]})
-            uiStore.addErrors(
-                [generateErrorMessageFromErrorType(error as Error)],
-                dispatcher
-            )
+            log.error({
+                title: 'useImportFile.composable',
+                messages: [`Error loading file`, (source as File).name ?? source, error],
+            })
+            if (error instanceof Error) {
+                uiStore.addErrors([generateErrorMessageFromErrorType(error)], dispatcher)
+            }
         } finally {
-            uiStore.clearLoadingBarRequester(
-                (source as File).name ?? source,
-                dispatcher,
-            )
+            uiStore.clearLoadingBarRequester((source as File).name ?? source, dispatcher)
         }
     }
 

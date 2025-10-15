@@ -1,13 +1,11 @@
-<script setup lang="js">
-import { computed } from 'vue'
-import { useStore } from 'vuex'
+<script setup lang="ts">
+import useCesiumStore from '@/store/modules/cesium.store'
+import usePositionStore from '@/store/modules/position.store'
 
 import CesiumInternalLayer from '@/modules/map/components/cesium/CesiumInternalLayer.vue'
 
-const store = useStore()
-
-const backgroundLayersFor3D = computed(() => store.getters.backgroundLayersFor3D)
-const projection = computed(() => store.state.position.projection)
+const cesiumStore = useCesiumStore()
+const positionStore = usePositionStore()
 </script>
 
 <template>
@@ -17,10 +15,10 @@ const projection = computed(() => store.state.position.projection)
        primitive layer and will ignore this prop
     -->
     <CesiumInternalLayer
-        v-for="(bgLayer, index) in backgroundLayersFor3D"
+        v-for="(bgLayer, index) in cesiumStore.backgroundLayersFor3D"
         :key="bgLayer.id"
         :layer-config="bgLayer"
-        :projection="projection"
+        :projection="positionStore.projection"
         :z-index="index"
     />
 </template>

@@ -1,46 +1,53 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { WGS84 } from '@swissgeo/coordinates'
 import { Rectangle, WebMapServiceImageryProvider } from 'cesium'
 import { cloneDeep } from 'lodash'
-import { computed, inject, toRef, watch } from 'vue'
-import { useStore } from 'vuex'
+import { computed, toRef, watch } from 'vue'
 
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class'
-import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import { ALL_YEARS_TIMESTAMP } from '@/api/layers/LayerTimeConfigEntry.class'
+import type { ExternalWMSLayer, GeoAdminWMSLayer } from '@swissgeo/layers'
+import { ALL_YEARS_TIMESTAMP } from '@swissgeo/layers'
+import log from '@swissgeo/log'
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useAddImageryLayer from '@/modules/map/components/cesium/utils/useAddImageryLayer.composable'
-import { getTimestampFromConfig } from '@/utils/layerUtils'
+import { timeConfigUtils } from '@swissgeo/layers/utils'
+import { useI18nStore } from '@/store/modules/i18n.store'
+import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 
 const MAXIMUM_LEVEL_OF_DETAILS = 18
 
-const { wmsLayerConfig, zIndex, parentLayerOpacity } = defineProps({
-    wmsLayerConfig: {
-        type: [GeoAdminWMSLayer, ExternalWMSLayer],
-        required: true,
-    },
-    zIndex: {
-        type: Number,
-        default: -1,
-    },
-    parentLayerOpacity: {
-        type: Number,
-        default: null,
-    },
-})
+const {
+    wmsLayerConfig,
+    zIndex = -1,
+    parentLayerOpacity,
+} = defineProps<{
+    wmsLayerConfig: GeoAdminWMSLayer | ExternalWMSLayer
+    zIndex?: number
+    parentLayerOpacity?: number
+}>()
 
-const getViewer = inject('getViewer')
+const viewer = getCesiumViewer()
+if (!viewer) {
+    log.error({
+        title: 'CesiumWMSLayer.vue',
+        message: ['Viewer not initialized, cannot create WMS layer'],
+    })
+    throw new Error('Viewer not initialized, cannot create WMS layer')
+}
 
-const store = useStore()
-const currentLang = computed(() => store.state.i18n.lang)
+const i18nStore = useI18nStore()
+const currentLang = computed(() => i18nStore.lang)
 
-const layerId = computed(() => wmsLayerConfig.technicalName ?? wmsLayerConfig.id)
+const layerId = computed(() =>
+    'technicalName' in wmsLayerConfig
+        ? (wmsLayerConfig.technicalName ?? wmsLayerConfig.id)
+        : wmsLayerConfig.id
+)
 const opacity = computed(() => parentLayerOpacity ?? wmsLayerConfig.opacity ?? 1.0)
 const wmsVersion = computed(() => wmsLayerConfig.wmsVersion ?? '1.3.0')
 const format = computed(() => wmsLayerConfig.format ?? 'png')
 const url = computed(() => getBaseUrlOverride('wms') ?? wmsLayerConfig.baseUrl)
-const timestamp = computed(() => getTimestampFromConfig(wmsLayerConfig))
+const timestamp = computed(() => timeConfigUtils.getTimestampFromConfig(wmsLayerConfig))
 const customAttributes = computed(() => cloneDeep(wmsLayerConfig.customAttributes))
 
 /**
@@ -53,7 +60,7 @@ const customAttributes = computed(() => cloneDeep(wmsLayerConfig.customAttribute
  * @returns Object
  */
 const wmsUrlParams = computed(() => {
-    let params = {
+    let params: Record<string, unknown> = {
         SERVICE: 'WMS',
         REQUEST: 'GetMap',
         TRANSPARENT: true,
@@ -80,15 +87,10 @@ function createProvider() {
         layers: layerId.value,
         maximumLevel: MAXIMUM_LEVEL_OF_DETAILS,
         enablePickFeatures: false,
-        rectangle: Rectangle.fromDegrees(...DEFAULT_PROJECTION.getBoundsAs(WGS84).flatten),
+        rectangle: Rectangle.fromDegrees(...DEFAULT_PROJECTION.getBoundsAs(WGS84)!.flatten),
     })
 }
-const { refreshLayer } = useAddImageryLayer(
-    getViewer(),
-    createProvider,
-    () => zIndex,
-    toRef(opacity)
-)
+const { refreshLayer } = useAddImageryLayer(viewer, createProvider, toRef(zIndex), toRef(opacity))
 </script>
 
 <template>

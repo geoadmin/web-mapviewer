@@ -77,7 +77,10 @@ export function parseRGBColor(color: string): number {
     try {
         return Math.max(Math.min(Number(color), 255), 0)
     } catch (error) {
-        log.error(`Invalid RGB color code`, color, error as Error)
+        log.error({
+            title: 'utils / parseRGBColor',
+            messages: [`Invalid RGB color code`, color, error],
+        })
         return 255
     }
 }
@@ -301,8 +304,8 @@ export function humanFileSize(size: number): string {
  * prefix will always end with a `/` if it exists.
  *
  * @param urls - An array of URLs to find the common prefix for.
- * @returns The longest common prefix of the URLs. Returns an empty string if no common
- *   prefix exists.
+ * @returns The longest common prefix of the URLs. Returns an empty string if no common prefix
+ *   exists.
  */
 export function getLongestCommonPrefix(urls: string[]): string {
     if (!urls.length) {
@@ -370,4 +373,24 @@ export function downloadFile(urlOrBlob: string | Blob, filename: string): void {
     if (typeof urlOrBlob !== 'string') {
         window.URL.revokeObjectURL(downloadUrl)
     }
+}
+
+function isKeyOf<T>(obj: T, key: PropertyKey): key is keyof T {
+    if (typeof obj !== 'object' || !obj) {
+        return false
+    }
+    return key in obj
+}
+
+function asDict(o: unknown): Record<string, unknown> {
+    return o as Record<string, unknown>
+}
+
+/** Access a non-listed property of an object (type-)safely. */
+export function getSafe<T>(obj: unknown, prop: string): T | undefined {
+    if (typeof obj !== 'object' || !obj) {
+        return
+    }
+    const dict = asDict(obj)
+    return isKeyOf(obj, prop) ? (dict[prop] as T) : undefined
 }

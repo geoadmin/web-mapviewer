@@ -1,24 +1,26 @@
-<script setup lang="js">
+<script setup lang="ts">
+import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import { extentUtils, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { bbox, centroid } from '@turf/turf'
 import {
     Cartesian2,
+    Cartesian3,
     Cartographic,
-    Math,
+    Math as CesiumMath,
     PostProcessStageLibrary,
+    ScreenSpaceEventHandler,
     ScreenSpaceEventType,
+    Viewer,
 } from 'cesium'
 import GeoJSON from 'ol/format/GeoJSON'
 import { LineString, Point, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
-import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
-import { useStore } from 'vuex'
+import { computed, onMounted, onUnmounted, watch } from 'vue'
 
-import LayerFeature from '@/api/features/LayerFeature.class'
-import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class'
-import GPXLayer from '@/api/layers/GPXLayer.class'
-import KMLLayer from '@/api/layers/KMLLayer.class'
+import type { GeoAdminGeoJSONLayer, KMLLayer as KMLLayerType, Layer } from '@swissgeo/layers'
+import { LayerType } from '@swissgeo/layers'
+
 import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
 import {
     clicked3DFeatureFill,
@@ -26,77 +28,87 @@ import {
     unhighlightGroup,
 } from '@/modules/map/components/cesium/utils/highlightUtils'
 import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
-import { ClickInfo, ClickType } from '@/store/modules/map.store'
+import useMapStore, { ClickType } from '@/store/modules/map.store'
+import type { LayerFeature, SelectableFeature } from '@/api/features.api'
+import useCesiumStore from '@/store/modules/cesium.store'
+import useFeaturesStore from '@/store/modules/features.store'
+import useLayersStore from '@/store/modules/layers.store'
+import usePositionStore from '@/store/modules/position.store'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
+import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
+import type { ActionDispatcher } from '@/store/types'
+import type { LayerTooltipConfig } from '@/config/cesium.config'
+import { getSafe } from '@/utils/utils'
 
-const dispatcher = { dispatcher: 'CesiumInteractions.vue' }
-
-const getViewer = inject('getViewer')
+const dispatcher: ActionDispatcher = { name: 'CesiumInteractions.vue' }
 
 const hoveredHighlightPostProcessor = PostProcessStageLibrary.createEdgeDetectionStage()
 
 const clickedHighlightPostProcessor = PostProcessStageLibrary.createEdgeDetectionStage()
 
-const store = useStore()
-const projection = computed(() => store.state.position.projection)
-const resolution = computed(() => store.getters.resolution)
-const visibleLayers = computed(() => store.getters.visibleLayers)
-const layersWithTooltips = computed(() => store.getters.layersWithTooltips)
-const layersTooltipConfig = computed(() => store.getters.layersTooltipConfig)
-const selectedFeatures = computed(() => store.getters.selectedFeatures)
+const positionStore = usePositionStore()
+const layersStore = useLayersStore()
+const cesiumStore = useCesiumStore()
+const featuresStore = useFeaturesStore()
+const mapStore = useMapStore()
+
+const selectedFeatures = computed(() => featuresStore.selectedFeatures)
 const visiblePrimitiveLayers = computed(() =>
-    visibleLayers.value.filter(
-        (l) => l instanceof GeoAdminGeoJsonLayer || l instanceof KMLLayer || l instanceof GPXLayer
+    layersStore.visibleLayers.filter((l: Layer) =>
+        [LayerType.GEOJSON, LayerType.KML, LayerType.GPX].includes(l.type)
     )
 )
 
+const viewer = getCesiumViewer()
+if (!viewer) {
+    log.error({
+        title: 'CesiumInteractions.vue',
+        titleColor: LogPreDefinedColor.Blue,
+        message: ['Viewer not initialized, cannot initialize Cesium interactions'],
+    })
+    throw new Error('Viewer not initialized, cannot initialize Cesium interactions')
+}
+
 onMounted(() => {
-    const viewer = getViewer()
-    if (viewer) {
-        initialize3dHighlights()
-        viewer.scene.postProcessStages.add(
-            PostProcessStageLibrary.createSilhouetteStage([
-                hoveredHighlightPostProcessor,
-                clickedHighlightPostProcessor,
-            ])
-        )
-        viewer.screenSpaceEventHandler.setInputAction(onClick, ScreenSpaceEventType.LEFT_CLICK)
-        viewer.screenSpaceEventHandler.setInputAction(
-            onContextMenu,
-            ScreenSpaceEventType.RIGHT_CLICK
-        )
-        viewer.screenSpaceEventHandler.setInputAction(onMouseMove, ScreenSpaceEventType.MOUSE_MOVE)
-    }
+    initialize3dHighlights()
+    viewer.scene.postProcessStages.add(
+        PostProcessStageLibrary.createSilhouetteStage([
+            hoveredHighlightPostProcessor,
+            clickedHighlightPostProcessor,
+        ])
+    )
+    viewer.screenSpaceEventHandler.setInputAction(onClick, ScreenSpaceEventType.LEFT_CLICK)
+    viewer.screenSpaceEventHandler.setInputAction(onContextMenu, ScreenSpaceEventType.RIGHT_CLICK)
+    viewer.screenSpaceEventHandler.setInputAction(onMouseMove, ScreenSpaceEventType.MOUSE_MOVE)
 })
 
 onUnmounted(() => {
-    const viewer = getViewer()
-    if (viewer) {
-        viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.LEFT_CLICK)
-        viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.RIGHT_CLICK)
-        viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.MOUSE_MOVE)
-        viewer.scene.postProcessStages.remove(hoveredHighlightPostProcessor)
-        viewer.scene.postProcessStages.remove(clickedHighlightPostProcessor)
-    }
+    viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.LEFT_CLICK)
+    viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.RIGHT_CLICK)
+    viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.MOUSE_MOVE)
+    viewer.scene.postProcessStages.remove(hoveredHighlightPostProcessor)
+    viewer.scene.postProcessStages.remove(clickedHighlightPostProcessor)
 })
 
 // this is to remove the highlight when we close the tooltip
 watch(selectedFeatures, () => {
     if (
-        !selectedFeatures.value.find((feature) =>
-            layersTooltipConfig.value
-                .map((layerConfig) => layerConfig.layerId)
-                .includes(feature.layer.id)
-        ) &&
+        !selectedFeatures.value.find((feature) => {
+            if ('layer' in feature) {
+                return cesiumStore.layersTooltipConfig
+                    .map((layerConfig) => layerConfig.layerId)
+                    .includes(feature.layer.id)
+            }
+            return false
+        }) &&
         clickedHighlightPostProcessor.selected.length > 0
     ) {
         clickedHighlightPostProcessor.selected = []
-        const viewer = getViewer()
         viewer.scene.requestRender()
     }
 })
 
-function initialize3dHighlights() {
+function initialize3dHighlights(): void {
     hoveredHighlightPostProcessor.uniforms.color = hovered3DFeatureFill
     hoveredHighlightPostProcessor.uniforms.length = 0
     hoveredHighlightPostProcessor.selected = []
@@ -105,23 +117,42 @@ function initialize3dHighlights() {
     clickedHighlightPostProcessor.uniforms.length = 0
     clickedHighlightPostProcessor.selected = []
 }
-function getCoordinateAtScreenCoordinate(x, y) {
-    const cartesian = getViewer()?.scene.pickPosition(new Cartesian2(x, y))
-    let coordinates = []
+function getCoordinateAtScreenCoordinate(x: number, y: number): SingleCoordinate | undefined {
+    const cartesian = getCesiumViewer()?.scene.pickPosition(new Cartesian2(x, y))
+    let coordinates: SingleCoordinate | undefined
     if (cartesian) {
         const cartCoords = Cartographic.fromCartesian(cartesian)
-        coordinates = proj4(WGS84.epsg, projection.value.epsg, [
-            (cartCoords.longitude * 180) / Math.PI,
-            (cartCoords.latitude * 180) / Math.PI,
-        ])
+        coordinates = proj4(WGS84.epsg, positionStore.projection.epsg, [
+            (cartCoords.longitude * 180) / CesiumMath.PI,
+            (cartCoords.latitude * 180) / CesiumMath.PI,
+        ]) as SingleCoordinate
     } else {
-        log.error('no coordinate found at this screen coordinates', [x, y])
+        log.error({
+            title: 'CesiumInteractions.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: ['no coordinate found at this screen coordinates', [x, y]],
+        })
     }
     return coordinates
 }
 
-function getlayerIdFrom3dFeature(feature) {
-    return feature.tileset?.resource?.url?.replace(get3dTilesBaseUrl(), '').split('/')[0]
+function getLayerIdFrom3dFeature(featureTileSetResourceUrl: string): string | undefined {
+    return featureTileSetResourceUrl.replace(get3dTilesBaseUrl(), '').split('/')[0]
+}
+
+function getFeatureProperty(
+    feature: LayerFeature,
+    propertyName: string,
+    defaultValue: string
+): string {
+    let value: string | undefined = getSafe<string>(feature, propertyName)
+    if (!value && feature.data) {
+        value = getSafe<string>(feature.data, propertyName)
+    }
+    if (!value) {
+        value = defaultValue
+    }
+    return value
 }
 
 /**
@@ -134,169 +165,209 @@ function getlayerIdFrom3dFeature(feature) {
  *
  *   Return LayerFeature a layer feature from the 3d layer
  */
-function create3dFeature(feature, coordinates) {
-    const layerId = getlayerIdFrom3dFeature(feature)
+function create3dFeature(
+    feature: LayerFeature,
+    coordinates: SingleCoordinate
+): LayerFeature | undefined {
+    const layerId = getLayerIdFrom3dFeature(feature.id.toString())
 
-    const layer = layersWithTooltips.value.find((layer) => layer.id === layerId)
-    const layerConfig = layersTooltipConfig.value.find(
-        (layerConfig) => layerConfig.layerId === layerId
+    const layer = cesiumStore.layersWithTooltips.find((layer: Layer) => layer.id === layerId)
+    const layerConfig = cesiumStore.layersTooltipConfig.find(
+        (layerConfig: LayerTooltipConfig) => layerConfig.layerId === layerId
     )
-    const id = feature.getProperty(layerConfig.idParam) ?? '-'
-    const data = {}
-    layerConfig.nonTranslatedKeys.forEach(
-        (property) =>
-            (data[`${layerId}_${property}`] =
-                feature.getProperty(property) ?? `${layerId}_no_data_available`)
-    )
-    layerConfig.translatedKeys.forEach(
-        (property) =>
-            (data[`${layerId}_${property}`] =
-                `${layerId}_${feature.getProperty(property) ?? '_no_data_available'}`)
-    )
-    return new LayerFeature({
+    if (!layer || !layerConfig) {
+        return
+    }
+    const id = getFeatureProperty(feature, layerConfig.idParam, '-')
+    const data: Record<string, string> = {}
+    layerConfig.nonTranslatedKeys.forEach((property: string) => {
+        data[`${layerId}_${property}`] = getFeatureProperty(
+            feature,
+            property,
+            `${layerId}_no_data_available`
+        )
+    })
+    layerConfig.translatedKeys.forEach((property: string) => {
+        data[`${layerId}_${property}`] =
+            `${layerId}_${getFeatureProperty(feature, property, '_no_data_available')}`
+    })
+    return {
+        isEditable: false,
         layer,
         id,
         data,
-        title: id,
+        title: id.toString(),
         coordinates,
         extent: extentUtils.createPixelExtentAround({
             size: 5,
-            coordinates,
-            projection: projection.value,
+            coordinate: coordinates,
+            projection: positionStore.projection,
+            resolution: positionStore.resolution,
         }),
-        geometry: new Point(coordinates),
-    })
+        // geometry intentionally omitted for 3D tiles features
+        popupDataCanBeTrusted: true,
+    }
 }
 
-function handleClickHighlight(features, coordinates) {
+function handleClickHighlight(
+    features: SelectableFeature<false>[],
+    coordinates: SingleCoordinate | []
+): void {
     clickedHighlightPostProcessor.selected = hoveredHighlightPostProcessor.selected
     hoveredHighlightPostProcessor.selected.forEach((feature) => {
-        features.push(create3dFeature(feature, coordinates))
+        if (Array.isArray(coordinates) && coordinates.length === 2) {
+            const lf = create3dFeature(feature, coordinates)
+            if (lf) features.push(lf)
+        }
     })
     hoveredHighlightPostProcessor.selected = []
 }
 
-function onClick(event) {
-    const viewer = getViewer()
-    unhighlightGroup(viewer)
-    const features = []
+function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
+    unhighlightGroup(viewer!)
+    const features: SelectableFeature<false | true>[] = []
     let coordinates = getCoordinateAtScreenCoordinate(event.position.x, event.position.y)
 
-    const objects = viewer.scene.drillPick(event.position)
+    const objects = viewer!.scene.drillPick(event.position) ?? []
 
-    log.debug(
-        '[Cesium] click caught at',
-        { pixel: event.position, coordinates },
-        'with objects',
-        objects
-    )
+    log.debug({
+        title: 'CesiumInteractions.vue',
+        titleColor: LogPreDefinedColor.Blue,
+        message: [
+            'click caught at',
+            { pixel: event.position, coordinates },
+            'with objects',
+            objects,
+        ],
+    })
 
     // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
-    visiblePrimitiveLayers.value
-        .filter((l) => l instanceof GeoAdminGeoJsonLayer)
-        .forEach((geoJSonLayer) => {
-            features.push(
-                ...identifyGeoJSONFeatureAt(
-                    geoJSonLayer,
-                    coordinates,
-                    projection.value,
-                    resolution.value
+    if (Array.isArray(coordinates) && coordinates.length === 2) {
+        visiblePrimitiveLayers.value
+            .filter((layer: Layer) => layer.type === LayerType.GEOJSON)
+            .forEach((geoJSonLayer: Layer) => {
+                const identified = identifyGeoJSONFeatureAt(
+                    geoJSonLayer as GeoAdminGeoJSONLayer,
+                    coordinates as SingleCoordinate,
+                    positionStore.projection,
+                    positionStore.resolution
                 )
-            )
-        })
+                if (Array.isArray(identified)) {
+                    features.push(...identified.filter((f) => f !== undefined))
+                }
+            })
+    }
 
     visiblePrimitiveLayers.value
-        .filter((l) => l instanceof KMLLayer)
-        .forEach((kmlLayer) => {
+        .filter((layer: Layer) => layer.type === LayerType.KML)
+        .forEach((kmlLayer: Layer) => {
             objects
                 .filter((obj) => obj.id?.layerId === kmlLayer.id)
                 .forEach((kmlFeature) => {
-                    log.debug(
-                        '[Cesium] KML feature click detection',
+                    log.debug({
+                        title: 'CesiumInteractions.vue',
+                        titleColor: LogPreDefinedColor.Blue,
+                        message: [
+                            'KML feature click detection',
+                            kmlFeature,
+                            'for KML layer',
+                            kmlLayer,
+                        ],
+                    })
+                    const kmlLayerFeature = create3dKmlFeature(
+                        viewer!,
                         kmlFeature,
-                        'for KML layer',
-                        kmlLayer
+                        kmlLayer as KMLLayerType
                     )
-                    const kmlLayerFeature = create3dKmlFeature(viewer, kmlFeature, kmlLayer)
                     if (kmlLayerFeature) {
                         features.push(kmlLayerFeature)
                     }
                 })
         })
 
-    handleClickHighlight(features, coordinates)
+    handleClickHighlight(features as SelectableFeature<false>[], coordinates!)
 
-    if (!coordinates.length && features.length) {
-        const featureCoords = Array.isArray(features[0].coordinates[0])
-            ? features[0].coordinates[0]
-            : features[0].coordinates
-        coordinates = proj4(projection.value.epsg, WEBMERCATOR.epsg, featureCoords)
+    if ((!Array.isArray(coordinates) || !coordinates.length) && features.length) {
+        const featureCoords = Array.isArray(features[0]!.coordinates?.[0])
+            ? features[0]!.coordinates[0]
+            : features[0]!.coordinates
+        coordinates = proj4(
+            positionStore.projection.epsg,
+            WEBMERCATOR.epsg,
+            featureCoords as SingleCoordinate
+        )
     }
-    store.dispatch('click', {
-        clickInfo: new ClickInfo({
-            coordinate: coordinates,
-            pixelCoordinate: [event.position.x, event.position.y],
-            features,
-            clickType: ClickType.LeftSingleClick,
-        }),
-        ...dispatcher,
-    })
-    viewer.scene.requestRender()
+    if (Array.isArray(coordinates) && coordinates.length === 2) {
+        mapStore.click(
+            {
+                coordinate: coordinates,
+                pixelCoordinate: [event.position.x, event.position.y],
+                features: features as SelectableFeature<false>[],
+                clickType: ClickType.LeftSingleClick,
+            },
+            dispatcher
+        )
+    } else {
+        mapStore.click(undefined, dispatcher)
+    }
+    viewer?.scene.requestRender()
 }
 
-/**
- * This function creates a LayerFeature from a KML feature in 3D.
- *
- * @param {Viewer} viewer Cesium viewer
- * @param {KmlFeatureData} kmlFeature KML feature
- * @param {KMLLayer} kmlLayer KML layer
- * @returns {LayerFeature} LayerFeature
- */
-function create3dKmlFeature(viewer, kmlFeature, kmlLayer) {
+function create3dKmlFeature(
+    viewer: Viewer,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    kmlFeature: any, // TODO figure out what type this is, might be KmlFeatureData
+    kmlLayer: KMLLayerType
+): LayerFeature | undefined {
     if (!kmlFeature || !kmlFeature.id) {
         return
     }
-    let geometry
-    let featureCoordinates
+    let geometry: Point | LineString | Polygon | undefined
+    let featureCoordinates: number[] | number[][] | undefined
     if (kmlFeature.id.position) {
         const position = kmlFeature.id.position.getValue(viewer.clock.currentTime)
         const cartographic = Cartographic.fromCartesian(position)
         // position is in Cartesian then it is converted to WGS84 to project it then to WEBMERCATOR
         featureCoordinates = proj4(WGS84.epsg, WEBMERCATOR.epsg, [
-            Math.toDegrees(cartographic.longitude),
-            Math.toDegrees(cartographic.latitude),
+            CesiumMath.toDegrees(cartographic.longitude),
+            CesiumMath.toDegrees(cartographic.latitude),
         ])
         geometry = new Point(featureCoordinates)
     }
     if (kmlFeature.id.polyline) {
         const positions = kmlFeature.id.polyline.positions.getValue(viewer.clock.currentTime)
-        featureCoordinates = positions.map((pos) => {
+        const polylineCoords = positions.map((pos: Cartesian3) => {
             // pos is in Cartesian then it is converted to WGS84 to project it then to WEBMERCATOR
             const carto = Cartographic.fromCartesian(pos)
-            const lon = Math.toDegrees(carto.longitude)
-            const lat = Math.toDegrees(carto.latitude)
+            const lon = CesiumMath.toDegrees(carto.longitude)
+            const lat = CesiumMath.toDegrees(carto.latitude)
 
             return proj4(WGS84.epsg, WEBMERCATOR.epsg, [lon, lat])
         })
-        geometry = new LineString(featureCoordinates)
+        featureCoordinates = polylineCoords
+        geometry = new LineString(polylineCoords)
     }
     if (kmlFeature.id.polygon) {
         const hierarchy = kmlFeature.id.polygon.hierarchy.getValue(viewer.clock.currentTime)
 
-        featureCoordinates = hierarchy.positions.map((pos) => {
+        const polygonCoords = hierarchy.positions.map((pos: Cartesian3) => {
             // pos is in Cartesian then it is converted to WGS84 to project it then to WEBMERCATOR
             const carto = Cartographic.fromCartesian(pos)
-            const lon = Math.toDegrees(carto.longitude)
-            const lat = Math.toDegrees(carto.latitude)
+            const lon = CesiumMath.toDegrees(carto.longitude)
+            const lat = CesiumMath.toDegrees(carto.latitude)
 
             return proj4(WGS84.epsg, WEBMERCATOR.epsg, [lon, lat])
         })
-
-        geometry = new Polygon([featureCoordinates])
+        featureCoordinates = polygonCoords
+        geometry = new Polygon([polygonCoords])
+    }
+    if (!geometry) {
+        return undefined
     }
     const geoJsonGeometry = new GeoJSON().writeGeometryObject(geometry)
     const extent = bbox(geoJsonGeometry)
-    return new LayerFeature({
+    return {
+        isEditable: false,
         layer: kmlLayer,
         id: kmlFeature.id.id,
         data: {
@@ -304,47 +375,53 @@ function create3dKmlFeature(viewer, kmlFeature, kmlLayer) {
             description: kmlFeature.id.description,
         },
         title: kmlFeature.id.name || kmlFeature.id.id,
-        coordinates: centroid(geoJsonGeometry).geometry.coordinates,
-        extent,
+        coordinates: centroid(geoJsonGeometry).geometry.coordinates as SingleCoordinate,
+        extent: extentUtils.flattenExtent(extent as FlatExtent),
         geometry: geoJsonGeometry,
-    })
+        popupDataCanBeTrusted: false,
+    }
 }
 
-function onContextMenu(event) {
+function onContextMenu(event: ScreenSpaceEventHandler.PositionedEvent): void {
     const coordinates = getCoordinateAtScreenCoordinate(event.position.x, event.position.y)
-    store.dispatch('click', {
-        clickInfo: new ClickInfo({
-            coordinate: coordinates,
-            pixelCoordinate: [event.position.x, event.position.y],
-            clickType: ClickType.ContextMenu,
-        }),
-        ...dispatcher,
-    })
+    if (Array.isArray(coordinates) && coordinates.length === 2) {
+        mapStore.click(
+            {
+                coordinate: coordinates,
+                pixelCoordinate: [event.position.x, event.position.y],
+                clickType: ClickType.ContextMenu,
+            },
+            dispatcher
+        )
+    }
 }
 // when moving over a building, we should highlight
-function onMouseMove(event) {
-    const viewer = getViewer()
+function onMouseMove(event: ScreenSpaceEventHandler.MotionEvent): void {
+    const viewer = getCesiumViewer()
     const aFeatureIsHighlighted = hoveredHighlightPostProcessor.selected.length === 1
 
     // we pick the first 3d feature if it's in the config
-    const object = viewer.scene.pick(event.endPosition)
+    const object = viewer?.scene.pick(event.endPosition)
     if (
         object &&
-        layersTooltipConfig.value
+        cesiumStore.layersTooltipConfig
             .map((layerConfig) => layerConfig.layerId)
-            .includes(getlayerIdFrom3dFeature(object))
+            .includes(getLayerIdFrom3dFeature(object)!)
     ) {
         hoveredHighlightPostProcessor.selected = [object]
-        viewer.scene.requestRender()
+        viewer?.scene.requestRender()
     } else {
         hoveredHighlightPostProcessor.selected = []
         if (aFeatureIsHighlighted) {
-            viewer.scene.requestRender()
+            viewer?.scene.requestRender()
         }
     }
 }
 
-useDragFileOverlay(getViewer().container)
+const viewerForDrag = getCesiumViewer()
+if (viewerForDrag) {
+    useDragFileOverlay(viewerForDrag.container as HTMLElement)
+}
 </script>
 
 <template>

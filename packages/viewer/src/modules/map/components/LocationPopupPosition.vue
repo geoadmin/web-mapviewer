@@ -1,8 +1,9 @@
-<script setup lang="js">
+<script setup lang="ts">
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
 import { coordinatesUtils, LV03, LV95, WGS84 } from '@swissgeo/coordinates'
-import log from '@swissgeo/log'
+import type { SingleCoordinate, CoordinateSystem } from '@swissgeo/coordinates'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -17,29 +18,18 @@ import {
     UTMFormat,
     WGS84Format,
 } from '@/utils/coordinates/coordinateFormat'
+import type { ClickInfo } from '@/store/modules/map.store'
 
-const { coordinate, clickInfo, projection, currentLang } = defineProps({
-    coordinate: {
-        type: Array,
-        required: true,
-    },
-    clickInfo: {
-        type: Object,
-        required: true,
-    },
-    projection: {
-        type: Object,
-        required: true,
-    },
-    currentLang: {
-        type: String,
-        required: true,
-    },
-})
+const { coordinate, clickInfo, projection, currentLang } = defineProps<{
+    coordinate: SingleCoordinate
+    clickInfo?: ClickInfo
+    projection: CoordinateSystem
+    currentLang: string
+}>()
 
-const lv03Coordinate = ref(null)
-const what3Words = ref(null)
-const height = ref(null)
+const lv03Coordinate = ref<SingleCoordinate | undefined>()
+const what3Words = ref<string | undefined>()
+const height = ref<{ heightInFeet?: number; heightInMeter?: number } | undefined>()
 
 const { t } = useI18n()
 
@@ -47,7 +37,6 @@ const coordinateWGS84Metric = computed(() => {
     return coordinatesUtils.reprojectAndRound(projection, WGS84, coordinate)
 })
 const coordinateWGS84Plain = computed(() => {
-    // we want to output lat / lon, meaning we have to give the coordinate as y / x
     return coordinateWGS84Metric.value
         .slice()
         .reverse()
@@ -55,23 +44,35 @@ const coordinateWGS84Plain = computed(() => {
         .join(', ')
 })
 const heightInFeet = computed(() => {
-    if (height.value?.heightInFeet) {
-        return `${height.value.heightInFeet}ft`
-    }
-    return null
+    return height.value?.heightInFeet ? `${height.value.heightInFeet}ft` : undefined
 })
 const heightInMeter = computed(() => {
-    if (height.value?.heightInMeter) {
-        return `${height.value.heightInMeter}m`
-    }
-    return ''
+    return height.value?.heightInMeter ? `${height.value.heightInMeter}m` : ''
 })
 
 onMounted(() => {
     if (clickInfo) {
-        updateLV03Coordinate()
-        updateWhat3Word()
-        updateHeight()
+        updateLV03Coordinate().catch((error) => {
+            log.error({
+                title: 'LocationPopup.vue',
+                titleColor: LogPreDefinedColor.Red,
+                message: ['Failed to retrieve LV03 coordinate', error],
+            })
+        })
+        updateWhat3Word().catch((error) => {
+            log.error({
+                title: 'LocationPopup.vue',
+                titleColor: LogPreDefinedColor.Red,
+                message: ['Failed to update What3Words', error],
+            })
+        })
+        updateHeight().catch((error) => {
+            log.error({
+                title: 'LocationPopup.vue',
+                titleColor: LogPreDefinedColor.Red,
+                message: ['Failed to update height', error],
+            })
+        })
     }
 })
 
@@ -79,9 +80,27 @@ watch(
     () => clickInfo,
     (newClickInfo) => {
         if (newClickInfo) {
-            updateLV03Coordinate()
-            updateWhat3Word()
-            updateHeight()
+            updateLV03Coordinate().catch((error) => {
+                log.error({
+                    title: 'LocationPopup.vue',
+                    titleColor: LogPreDefinedColor.Red,
+                    message: ['Failed to retrieve LV03 coordinate', error],
+                })
+            })
+            updateWhat3Word().catch((error) => {
+                log.error({
+                    title: 'LocationPopup.vue',
+                    titleColor: LogPreDefinedColor.Red,
+                    message: ['Failed to update What3Words', error],
+                })
+            })
+            updateHeight().catch((error) => {
+                log.error({
+                    title: 'LocationPopup.vue',
+                    titleColor: LogPreDefinedColor.Red,
+                    message: ['Failed to update height', error],
+                })
+            })
         }
     }
 )
@@ -96,8 +115,12 @@ async function updateLV03Coordinate() {
             outputProjection: LV03,
         })
     } catch (error) {
-        log.error('Failed to retrieve LV03 coordinate', error)
-        lv03Coordinate.value = null
+        log.error({
+            title: 'LocationPopup.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: ['Failed to retrieve LV03 coordinate', error],
+        })
+        lv03Coordinate.value = undefined
     }
 }
 
@@ -105,16 +128,24 @@ async function updateWhat3Word() {
     try {
         what3Words.value = await registerWhat3WordsLocation(coordinate, projection, currentLang)
     } catch (error) {
-        log.error(`Failed to retrieve What3Words Location`, error)
-        what3Words.value = null
+        log.error({
+            title: 'LocationPopup.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: ['Failed to retrieve What3Words Location', error],
+        })
+        what3Words.value = undefined
     }
 }
 async function updateHeight() {
     try {
         height.value = await requestHeight(coordinate, projection)
     } catch (error) {
-        log.error(`Failed to get position height`, error)
-        height.value = null
+        log.error({
+            title: 'LocationPopup.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: ['Failed to get position height', error],
+        })
+        height.value = undefined
     }
 }
 </script>
@@ -157,8 +188,8 @@ async function updateHeight() {
             <CoordinateCopySlot
                 identifier="location-popup-wgs84"
                 :value="coordinateWGS84Plain"
-                :coordinate-format="null"
-                :extra-value="WGS84Format.format(coordinate, projection)"
+                :coordinate-format="undefined"
+                :extra-value="WGS84Format.formatCallback(coordinate, false)"
             >
                 <a
                     href="https://epsg.io/4326"
@@ -193,7 +224,7 @@ async function updateHeight() {
                 v-if="what3Words"
                 identifier="location-popup-w3w"
                 :value="what3Words"
-                :coordinate-format="null"
+                :coordinate-format="undefined"
             >
                 <a
                     href="http://what3words.com/"
@@ -207,7 +238,7 @@ async function updateHeight() {
                 v-if="height"
                 identifier="location-popup-height"
                 :value="heightInMeter"
-                :coordinate-format="null"
+                :coordinate-format="undefined"
                 :extra-value="heightInFeet"
             >
                 <a

@@ -2,7 +2,7 @@ import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 
 import { defineStore } from 'pinia'
 
-import type {SelectableFeature } from '@/api/features.api'
+import type { SelectableFeature } from '@/api/features.api'
 import type { ActionDispatcher } from '@/store/types'
 
 export enum ClickType {

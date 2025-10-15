@@ -2,14 +2,10 @@
 import log from '@swissgeo/log'
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 
-interface Props {
+const { duration, barClass = '' } = defineProps<{
     duration: number
     barClass?: string
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    barClass: '',
-})
+}>()
 
 const value = ref(0)
 const waitTime = ref(0)
@@ -22,11 +18,11 @@ let started: number | undefined = undefined
 let timer: ReturnType<typeof setTimeout> | undefined = undefined
 onMounted(() => {
     started = Date.now()
-    totalTime.value = props.duration * 1000
+    totalTime.value = duration * 1000
     slot.value = Math.floor((maxValue * 2) / 3)
     waitTime.value = (totalTime.value * 2) / 3 / slot.value
     log.debug(
-        `progress value=${value.value} slot=${slot.value} duration=${props.duration} waitTime=${waitTime.value}`
+        `progress value=${value.value} slot=${slot.value} duration=${duration} waitTime=${waitTime.value}`
     )
     timer = setTimeout(progress, waitTime.value)
 })

@@ -114,7 +114,6 @@ export default function coordinateFormat(
     withExtra: boolean = false
 ): string {
     let reprojectedCoordinates = [...coordinates]
-
     if (projection && projection.epsg !== format.requiredInputProjection.epsg) {
         reprojectedCoordinates = proj4(
             projection.epsg,

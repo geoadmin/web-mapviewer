@@ -5,7 +5,6 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import type { GeoJsonProperties } from 'geojson'
 
 import { BLOCKED_EXTENSIONS, WHITELISTED_HOSTNAMES } from '@/config/security.config'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
@@ -25,11 +24,15 @@ const { t } = useI18n()
 const positionStore = usePositionStore()
 const { displayFormat } = storeToRefs(positionStore)
 
-const featureData = computed<GeoJsonProperties | object | string | undefined>(() => {
+const featureData = computed<Record<string, string> | string | undefined>(() => {
     if (feature.isEditable) {
         return
     }
-    return (feature as LayerFeature).data
+    const layerFeature = feature as LayerFeature
+    if (layerFeature.popupData) {
+        return layerFeature.popupData
+    }
+    return layerFeature.data
 })
 
 const hasFeatureStringData = computed<boolean>(
@@ -53,7 +56,7 @@ const sanitizedFeatureDataEntries = computed<SanitizedEntry[]>(() => {
     if (!featureData.value) {
         return []
     }
-    return Object.entries(featureData.value)
+    return Object.entries(featureData.value as Record<string, string>)
         .filter(([, value]) => Boolean(value))
         .map(([key, value]) => {
             const isDescription = key === 'description'

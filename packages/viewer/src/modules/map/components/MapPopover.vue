@@ -1,16 +1,8 @@
-<script lang="js">
-/** @enum */
-export const MapPopoverMode = {
-    FLOATING: 'FLOATING',
-    FEATURE_TOOLTIP: 'FEATURE_TOOLTIP',
-}
-</script>
-<script setup lang="js">
+<script setup lang="ts">
 /** Map popover content and styles. Position handling is done in corresponding library components */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
-import { useStore } from 'vuex'
 
 import {
     cssDevDisclaimerHeight,
@@ -21,57 +13,44 @@ import {
     cssTimeSliderDropdownHeight,
 } from '@/scss/exports'
 import PrintButton from '@/utils/components/PrintButton.vue'
+import useUIStore from '@/store/modules/ui.store'
+import useDrawingStore from '@/store/modules/drawing.store'
+import { MapPopoverMode } from '@/modules/map/components/MapPopoverMode.enum'
 import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
 
-const { authorizePrint, title, useContentPadding, anchorPosition, mode } = defineProps({
-    authorizePrint: {
-        type: Boolean,
-        default: false,
-    },
-    title: {
-        type: String,
-        default: '',
-    },
-    useContentPadding: {
-        type: Boolean,
-        default: false,
-    },
-    anchorPosition: {
-        type: Object,
-        default: null,
-        validator: (value, props) =>
-            props.mode !== MapPopoverMode.FEATURE_TOOLTIP ||
-            (value && value.top >= 0 && value.left >= 0),
-    },
-    mode: {
-        type: String,
-        default: MapPopoverMode.FLOATING,
-        validator: (value) => Object.values(MapPopoverMode).includes(value),
-    },
-})
+interface AnchorPosition {
+    top: number
+    left: number
+}
 
+const {
+    authorizePrint,
+    title = '',
+    useContentPadding,
+    anchorPosition = { top: 0, left: 0 },
+    mode = MapPopoverMode.Floating,
+} = defineProps<{
+    authorizePrint: boolean
+    title?: string
+    useContentPadding: boolean
+    anchorPosition?: AnchorPosition
+    mode?: MapPopoverMode
+}>()
 const emits = defineEmits(['close'])
 
-const popoverHeader = useTemplateRef('popoverHeader')
-const popover = useTemplateRef('popover')
-const mapPopoverContent = useTemplateRef('mapPopoverContent')
+const popoverHeader = useTemplateRef<HTMLDivElement>('popoverHeader')
+const popover = useTemplateRef<HTMLDivElement>('popover')
+const mapPopoverContent = useTemplateRef<HTMLDivElement | undefined>('mapPopoverContent')
 
 const width = computed(() => popover.value?.clientWidth)
 
 const showContent = ref(true)
 
-const store = useStore()
-// as the drawing toolbox takes the space of the header on mobile, we have to keep track of its state so that we
-// can adapt the limits for the floating tooltip.
-const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.show)
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
-const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
-const currentHeaderHeight = computed(() => store.state.ui.headerHeight)
-const isPhoneMode = computed(() => store.getters.isPhoneMode)
-const isDesktopMode = computed(() => store.getters.isTraditionalDesktopSize)
+const uiStore = useUIStore()
+const drawingStore = useDrawingStore()
 
 const cssPositionOnScreen = computed(() => {
-    if (mode === MapPopoverMode.FEATURE_TOOLTIP) {
+    if (mode === MapPopoverMode.FeatureTooltip && anchorPosition) {
         return {
             top: `${anchorPosition.top}px`,
             left: `${anchorPosition.left}px`,
@@ -81,30 +60,32 @@ const cssPositionOnScreen = computed(() => {
 })
 
 const popoverLimits = computed(() => {
-    let top = currentHeaderHeight.value
-    if (isCurrentlyDrawing.value) {
-        if (isPhoneMode.value) {
+    let top = uiStore.headerHeight
+    if (drawingStore.drawingOverlay.show) {
+        if (uiStore.isPhoneMode) {
             top = cssDrawingMobileToolbarHeight
         } else {
             // drawing header ("Draw & Measure" gray bar) height
             top = cssHeaderHeight
         }
-    } else if (hasDevSiteWarning.value) {
+    } else if (uiStore.hasDevSiteWarning) {
         top += cssDevDisclaimerHeight
     }
-    if (isTimeSliderActive.value) {
-        top += isDesktopMode.value ? cssTimeSliderBarHeight : cssTimeSliderDropdownHeight
+    if (uiStore.hasDevSiteWarning) {
+        top += uiStore.isTraditionalDesktopSize
+            ? cssTimeSliderBarHeight
+            : cssTimeSliderDropdownHeight
     }
     return {
         top,
-        bottom: isPhoneMode.value ? 0 : cssFooterHeight,
+        bottom: uiStore.isPhoneMode ? 0 : cssFooterHeight,
         left: 0,
         right: 0,
     }
 })
 
 onMounted(() => {
-    if (mode === MapPopoverMode.FLOATING && popover.value && popoverHeader.value) {
+    if (mode === MapPopoverMode.Floating && popover.value && popoverHeader.value) {
         useMovableElement({
             element: popover.value,
             grabElement: popoverHeader.value,
@@ -129,17 +110,22 @@ defineExpose({
         data-cy="popover"
         :style="cssPositionOnScreen"
         :class="{
-            floating: mode === MapPopoverMode.FLOATING,
-            'feature-anchored': mode === MapPopoverMode.FEATURE_TOOLTIP,
-            'with-dev-disclaimer': hasDevSiteWarning,
-            'with-time-slider-bar': isTimeSliderActive && isDesktopMode,
+            floating: mode === MapPopoverMode.Floating,
+            'feature-anchored': mode === MapPopoverMode.FeatureTooltip,
+            'with-dev-disclaimer': uiStore.hasDevSiteWarning,
+            'with-time-slider-bar': uiStore.hasDevSiteWarning && uiStore.isTraditionalDesktopSize,
             'with-dev-disclaimer-and-time-slider-bar':
-                hasDevSiteWarning && isTimeSliderActive && isDesktopMode,
-            'with-time-slider-dropdown': isTimeSliderActive && !isDesktopMode,
+                uiStore.hasDevSiteWarning &&
+                uiStore.hasDevSiteWarning &&
+                uiStore.isTraditionalDesktopSize,
+            'with-time-slider-dropdown':
+                uiStore.hasDevSiteWarning && !uiStore.isTraditionalDesktopSize,
             'with-dev-disclaimer-and-time-slider-dropdown':
-                hasDevSiteWarning && isTimeSliderActive && !isDesktopMode,
-            'phone-mode': isPhoneMode,
-            'is-drawing': isCurrentlyDrawing,
+                uiStore.hasDevSiteWarning &&
+                uiStore.hasDevSiteWarning &&
+                !uiStore.isTraditionalDesktopSize,
+            'phone-mode': uiStore.isPhoneMode,
+            'is-drawing': drawingStore.drawingOverlay.show,
         }"
     >
         <!--
@@ -153,12 +139,12 @@ defineExpose({
                 ref="popoverHeader"
                 class="map-popover-header card-header d-flex"
             >
-                <span class="flex-grow-1 align-self-center">
+                <span class="align-self-center flex-grow-1">
                     {{ title }}
                 </span>
                 <PrintButton
                     v-if="authorizePrint && showContent"
-                    :content="mapPopoverContent"
+                    :content="mapPopoverContent ?? undefined"
                 />
                 <slot name="extra-buttons" />
                 <button

@@ -1,11 +1,6 @@
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import type { ExternalLayer, ExternalWMSLayer, GeoAdminLayer, Layer } from '@swissgeo/layers'
-import type {
-    Feature as GeoJsonFeature,
-    FeatureCollection,
-    GeoJsonProperties,
-    Geometry,
-} from 'geojson'
+import type { Feature as GeoJsonFeature, FeatureCollection, Geometry } from 'geojson'
 import type Feature from 'ol/Feature'
 import type { LineString, MultiLineString, MultiPolygon, Point, Polygon } from 'ol/geom'
 
@@ -85,7 +80,9 @@ export interface LayerFeature extends SelectableFeature<false> {
     /** The layer in which this feature belongs */
     readonly layer: Layer
     /** Data for this feature's popup (or tooltip). */
-    readonly data: GeoJsonProperties | object | string
+    readonly data?: Record<string, string>
+    /** HTML representation of this feature */
+    readonly popupData?: string
     /**
      * If sanitization should take place before rendering the popup (as HTML) or not (trusted
      * source)
@@ -572,7 +569,7 @@ async function identifyOnExternalWmsLayer(config: IdentifyConfig): Promise<Layer
                 layer,
                 id: featureId,
                 title: featureName,
-                data: feature.properties,
+                data: feature.properties ?? undefined,
                 coordinates: getGeoJsonFeatureCenter(
                     geometry,
                     projection,
@@ -771,7 +768,7 @@ function parseGeomAdminFeature(
         layer,
         id: featureMetadata.id,
         title: featureName,
-        data: featureHtmlPopup,
+        popupData: featureHtmlPopup,
         coordinates: center,
         extent: featureExtent,
         geometry: featureGeoJSONGeometry,

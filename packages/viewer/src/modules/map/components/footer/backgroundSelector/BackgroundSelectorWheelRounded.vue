@@ -1,17 +1,22 @@
-<script setup lang="js">
+<script setup lang="ts">
+import type { Layer } from '@swissgeo/layers'
 import useBackgroundSelector from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelector'
-import useBackgroundLayerProps from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelectorProps'
 
-const { backgroundLayers, currentBackgroundLayer } = defineProps(useBackgroundLayerProps())
+const { backgroundLayers, currentBackgroundLayer } = defineProps<{
+    backgroundLayers: Array<Layer | undefined>
+    currentBackgroundLayer?: Layer
+}>()
 
-const emit = defineEmits({
-    selectBackground: (backgroundLayer) => {
-        return backgroundLayer === null || typeof backgroundLayer === 'string'
-    },
-})
+const emit = defineEmits<{
+    selectBackground: [backgroundLayerId: string | undefined]
+}>()
+
+function selectBackgroundCallback(backgroundLayerId: string | undefined): void {
+    emit('selectBackground', backgroundLayerId)
+}
 
 const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectBackground } =
-    useBackgroundSelector(backgroundLayers, currentBackgroundLayer, emit)
+    useBackgroundSelector(selectBackgroundCallback)
 </script>
 
 <template>
@@ -30,7 +35,7 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
                 ]"
                 type="button"
                 :data-cy="`background-selector-${backgroundLayer?.id || 'void'}`"
-                @click="onSelectBackground(backgroundLayer?.id || null)"
+                @click="onSelectBackground(backgroundLayer?.id)"
             >
                 <span class="bg-selector-rounded-wheel-button-image-cropper">
                     <img

@@ -1,44 +1,45 @@
-<script setup lang="js">
+<script setup lang="ts">
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, nextTick, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
 import TimeSlider from '@/modules/map/components/toolbox/TimeSlider.vue'
+import useUIStore from '@/store/modules/ui.store'
+import useLayersStore from '@/store/modules/layers.store'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
+import type { ActionDispatcher } from '@/store/types'
 
-const dispatcher = { dispatcher: 'TimeSliderButton.vue' }
+const dispatcher: ActionDispatcher = { name: 'TimeSliderButton.vue' }
 
-const store = useStore()
 const { t } = useI18n()
+const uiStore = useUIStore()
+const layersStore = useLayersStore()
 
-const visibleLayersWithTimeConfig = computed(() => store.getters.visibleLayersWithTimeConfig)
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
-const isTimeSliderActive = computed(() => store.state.ui.isTimeSliderActive)
+const visibleLayersWithTimeConfig = computed(() => layersStore.visibleLayersWithTimeConfig)
+const isTimeSliderActive = computed(() => uiStore.isTimeSliderActive)
 
 const tooltipContent = computed(() => t(isTimeSliderActive.value ? 'time_hide' : 'time_show'))
 
-watch(visibleLayersWithTimeConfig, () =>
+watch(visibleLayersWithTimeConfig, () => {
     nextTick(() => {
         if (isTimeSliderActive.value && visibleLayersWithTimeConfig.value.length === 0) {
-            store.dispatch('setTimeSliderActive', {
-                timeSliderActive: false,
-                ...dispatcher,
-            })
+            uiStore.setTimeSliderActive(false, dispatcher)
         }
+    }).catch((error) => {
+        log.error({
+            title: 'TimeSliderButton.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: ['Error in TimeSliderButton.vue watcher:', error],
+        })
     })
-)
+})
 
-function toggleTimeSlider() {
+function toggleTimeSlider(): void {
     if (isTimeSliderActive.value) {
-        // when closing the timeslider we reset the preview year to null so that next time
-        // we reopen it we use the correct year from the layer current configurations and not reuse
-        // the last preview.
-        store.dispatch('setPreviewYear', { year: null, ...dispatcher })
+        // Reset the preview year to undefined when closing the time slider.
+        layersStore.setPreviewYear(undefined)
     }
-    store.dispatch('setTimeSliderActive', {
-        timeSliderActive: !isTimeSliderActive.value,
-        ...dispatcher,
-    })
+    uiStore.setTimeSliderActive(!isTimeSliderActive.value, dispatcher)
 }
 </script>
 
@@ -64,9 +65,9 @@ function toggleTimeSlider() {
             </button>
         </GeoadminTooltip>
         <div
-            class="time-sliders m-1 position-fixed"
+            class="time-sliders position-fixed m-1"
             :class="{
-                'dev-disclaimer-present': hasDevSiteWarning,
+                'dev-disclaimer-present': uiStore.hasDevSiteWarning,
             }"
         >
             <div class="d-flex justify-content-center">

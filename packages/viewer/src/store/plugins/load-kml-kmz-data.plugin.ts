@@ -3,9 +3,10 @@
  * it here
  */
 
-import type { PiniaPlugin } from 'pinia'
+import type { KMLLayer } from '@swissgeo/layers'
+import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 
-import { LayerType, type KMLLayer } from '@swissgeo/layers'
+import { LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { ErrorMessage } from '@swissgeo/log/Message'
 
@@ -22,12 +23,7 @@ const dispatcher = { name: 'load-kml-kmz-data.plugin' }
 const kmzParser = new KMZParser()
 const kmlParser = new KMLParser()
 
-/**
- * @param {Vuex.Store} store
- * @param {KMLLayer} kmlLayer
- * @returns {Promise<void>}
- */
-async function loadMetadata(kmlLayer: KMLLayer) {
+async function loadMetadata(kmlLayer: KMLLayer): Promise<void> {
     log.debug(`Loading metadata for added KML layer`, kmlLayer)
 
     const layersStore = useLayersStore()
@@ -50,10 +46,6 @@ async function loadMetadata(kmlLayer: KMLLayer) {
     }
 }
 
-/**
- * @param store
- * @param {KMLLayer} layer
- */
 function sendLayerToStore(layer: KMLLayer) {
     const layersStore = useLayersStore()
 
@@ -73,11 +65,7 @@ function sendLayerToStore(layer: KMLLayer) {
     )
 }
 
-/**
- * @param {KMLLayer} kmlLayer
- * @returns {Promise<void>}
- */
-async function loadData(kmlLayer: KMLLayer) {
+async function loadData(kmlLayer: KMLLayer): Promise<void> {
     const layersStore = useLayersStore()
     const positionStore = usePositionStore()
 
@@ -166,29 +154,30 @@ async function loadData(kmlLayer: KMLLayer) {
         )
         sendLayerToStore(kml)
     } catch (error) {
-        log.error(
-            `[load-kml-kmz-data] Error while fetching KML data for layer ${kmlLayer?.id}: ${error as Error}`
-        )
-        layersStore.addLayerError(
-            {
-                layerId: kmlLayer.id,
-                isExternal: kmlLayer.isExternal,
-                baseUrl: kmlLayer.baseUrl,
-                error: generateErrorMessageFromErrorType(error as Error),
-            },
-            dispatcher
-        )
+        log.error({
+            title: 'load-kml-kmz-data',
+            messages: [`Error while fetching KML data for layer ${kmlLayer?.id}:`, error],
+        })
+        if (error instanceof Error) {
+            layersStore.addLayerError(
+                {
+                    layerId: kmlLayer.id,
+                    isExternal: kmlLayer.isExternal,
+                    baseUrl: kmlLayer.baseUrl,
+                    error: generateErrorMessageFromErrorType(error),
+                },
+                dispatcher
+            )
+        }
     }
 }
 
 /**
  * Load KML data and metadata whenever a KML layer is added (or does nothing if the layer was
  * already processed/loaded)
- *
- * @param {Vuex.Store} store
  */
-const loadKmlDataAndMetadata: PiniaPlugin = () => {
-    const layersStore = useLayersStore()
+const loadKmlDataAndMetadata: PiniaPlugin = (context: PiniaPluginContext) => {
+    const { store } = context
 
     const addLayerSubscriber = (layer: KMLLayer) => {
         if (!layer.kmlData || !layer.kmlMetadata) {
@@ -205,7 +194,7 @@ const loadKmlDataAndMetadata: PiniaPlugin = () => {
         }
     }
 
-    layersStore.$onAction(({ name, args }) => {
+    store.$onAction(({ name, args }) => {
         if (name === 'addLayer') {
             if (args[0].layer?.type === LayerType.KML) {
                 addLayerSubscriber(args[0].layer as KMLLayer)

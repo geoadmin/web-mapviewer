@@ -1,1 +1,5 @@
-export type MediaType = 'link' | 'image' | 'video'
+export enum MediaType {
+    Link = 'link',
+    Image = 'image',
+    Video = 'video',
+}

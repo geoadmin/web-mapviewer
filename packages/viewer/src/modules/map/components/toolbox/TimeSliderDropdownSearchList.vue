@@ -1,60 +1,61 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { nextTick, useTemplateRef } from 'vue'
 
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-const { showList, entries } = defineProps({
-    showList: {
-        type: Boolean,
-        default: false,
-    },
-    entries: {
-        type: Array /* Array of Entries */,
-        default() {
-            return []
-        },
-    },
-})
+const { showList = false, entries = [] } = defineProps<{
+    showList?: boolean
+    entries?: Array<{ htmlDisplay: string; emphasize: string; year: number }>
+}>()
 
 const emit = defineEmits(['chooseEntry', 'hide'])
 
-const searchList = useTemplateRef('searchList')
+const searchList = useTemplateRef<HTMLDivElement>('searchList')
 
-function goToSpecific(value) {
-    const key = entries.findIndex((entry) => {
-        return entry.url === value
-    })
+function goToSpecific(value: number) {
+    const key = entries.findIndex((entry) => entry.year === value)
     if (key >= 0) {
-        const elem = searchList.value.querySelector(`[tabindex="${key}"]`)
+        const elem = searchList.value?.querySelector(`[tabindex="${key}"]`) as HTMLElement
         nextTick(() => {
-            elem.scrollIntoView()
-            elem.focus()
+            elem?.scrollIntoView()
+            elem?.focus()
+        }).catch((error) => {
+            log.error({
+                title: 'TimeSliderDropdownSearchList.vue',
+                titleColor: LogPreDefinedColor.Red,
+                message: ['Error in TimeSliderDropdownSearchList.vue goToSpecific:', error],
+            })
         })
     }
 }
 
-function goToPrevious(currentKey) {
-    if (currentKey === 0) {
-        return
+function goToPrevious(currentKey: number) {
+    if (currentKey > 0) {
+        const key = currentKey - 1
+        const elem = searchList.value?.querySelector(`[tabindex="${key}"]`) as HTMLElement
+        elem?.focus()
     }
-    const key = currentKey - 1
-    searchList.value.querySelector(`[tabindex="${key}"]`).focus()
 }
 
-function goToNext(currentKey) {
-    if (currentKey >= entries.length - 1) {
-        return
+function goToNext(currentKey: number) {
+    if (currentKey < entries.length - 1) {
+        const key = currentKey + 1
+        const elem = searchList.value?.querySelector(`[tabindex="${key}"]`) as HTMLElement
+        elem?.focus()
     }
-    const key = currentKey + 1
-    searchList.value.querySelector(`[tabindex="${key}"]`).focus()
 }
 
 function goToFirst() {
-    searchList.value.querySelector('[tabindex="0"]').focus()
+    const elem = searchList.value?.querySelector('[tabindex="0"]') as HTMLElement
+    elem?.focus()
 }
 
 function goToLast() {
-    searchList.value.querySelector(`[tabindex="${entries.length - 1}"]`).focus()
+    const elem = searchList.value?.querySelector(
+        `[tabindex="${entries.length - 1}"]`
+    ) as HTMLElement
+    elem?.focus()
 }
 
 defineExpose({ goToFirst, goToSpecific })
@@ -63,7 +64,7 @@ defineExpose({ goToFirst, goToSpecific })
 <template>
     <div
         v-show="showList"
-        class="entries-list-container shadow border rounded-bottom overflow-auto"
+        class="entries-list-container rounded-bottom overflow-auto border shadow"
     >
         <div
             ref="searchList"
@@ -71,7 +72,7 @@ defineExpose({ goToFirst, goToSpecific })
         >
             <div
                 v-for="(entry, key) in entries"
-                :key="entry"
+                :key="JSON.stringify(entry)"
                 :tabindex="key"
                 :data-cy="`time-slider-dropdown-entry-${entry.year}`"
                 class="entries-list-item px-2 py-1 text-nowrap"

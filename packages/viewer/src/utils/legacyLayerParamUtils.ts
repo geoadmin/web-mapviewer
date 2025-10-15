@@ -63,7 +63,10 @@ export function parseOpacity(value: string): number {
         }
         return Math.max(Math.min(Number(value), 1), 0)
     } catch (error) {
-        log.error(`failed to parse opacity value : ${value}, default to 1`, error as Error)
+        log.error({
+            title: 'legacyLayerParamUtils / parseOpacity',
+            messages: [`failed to parse opacity value : ${value}, default to 1`, error],
+        })
         return 1
     }
 }
@@ -143,7 +146,10 @@ export function getLayersFromLegacyUrlParams(
                         }
                     }
                 } catch (error) {
-                    log.error(`Invalid URL ${url}`, error as Error)
+                    log.error({
+                        title: 'legacyLayerParamUtils / getLayersFromLegacyUrlParams',
+                        messages: [`Invalid URL ${url}`, error],
+                    })
                 }
                 layer = layerUtils.makeExternalWMSLayer({
                     id,

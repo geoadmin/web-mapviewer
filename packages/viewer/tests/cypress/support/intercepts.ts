@@ -9,7 +9,6 @@ import { centroid } from '@turf/turf'
 import proj4 from 'proj4'
 
 import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/storeSync/storeSync.routerPlugin'
-import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 
 registerProj4(proj4)
 
