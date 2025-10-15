@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import log from '@swissgeo/log'
+import type { Entity, KmlDataSource as KmlDataSourceType } from 'cesium'
 import {
     ArcType,
     Color,
@@ -17,7 +18,6 @@ import type { KMLLayer } from '@swissgeo/layers'
 import { DEFAULT_MARKER_HORIZONTAL_OFFSET } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
 import { getFeatureDescriptionMap } from '@/utils/kmlUtils'
-import type { KmlDataSource as KmlDataSourceType, Entity } from 'cesium'
 import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 
 const { kmlLayerConfig } = defineProps<{ kmlLayerConfig: KMLLayer }>()
@@ -38,8 +38,7 @@ async function createSource(): Promise<KmlDataSourceType> {
     } catch (error: unknown) {
         log.error({
             title: 'Cesium',
-            message: [`Error while parsing KML data for layer ${kmlLayerConfig.id}`],
-            error,
+            message: [`Error while parsing KML data for layer ${kmlLayerConfig.id}`, error],
         })
         throw error
     }
@@ -51,8 +50,6 @@ async function createSource(): Promise<KmlDataSourceType> {
  * the KML description is not set it uses the geometry type as description. This is not the desired
  * behavior. Therefore we need to reset the description to the original KML description. The
  * description is changed in place.
- *
- * @param {KmlDataSource} kmlDataSource The KML data source
  */
 function resetKmlDescription(kmlDataSource: KmlDataSource) {
     const descriptionMap = getFeatureDescriptionMap(kmlData.value ?? '')
