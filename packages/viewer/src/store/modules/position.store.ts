@@ -114,13 +114,13 @@ const usePositionStore = defineStore('position', {
         displayFormat: LV95Format,
         // some unit tests fail because DEFAULT_PROJECTION is somehow not yet defined when they are run
         // hence the `?.` operator
-        zoom: DEFAULT_PROJECTION?.getDefaultZoom(),
+        zoom: DEFAULT_PROJECTION.getDefaultZoom(),
         rotation: 0,
         autoRotation: false,
         hasOrientation: false,
         // some unit tests fail because DEFAULT_PROJECTION is somehow not yet defined when they are run
         // hence the `?.` operator
-        center: DEFAULT_PROJECTION?.bounds.center,
+        center: DEFAULT_PROJECTION.bounds!.center,
         projection: DEFAULT_PROJECTION,
         crossHair: undefined,
         crossHairPosition: undefined,

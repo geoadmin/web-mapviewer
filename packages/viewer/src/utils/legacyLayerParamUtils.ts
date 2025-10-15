@@ -1,12 +1,8 @@
-import type  {
-    GeoAdminLayer,
-    Layer,
-    KMLLayer,
-} from '@swissgeo/layers'
+import type { GeoAdminLayer, KMLLayer, Layer } from '@swissgeo/layers'
 import type { LocationQueryValue } from 'vue-router'
 
 import { KMLStyle } from '@swissgeo/layers'
-import { updateCurrentTimeEntry, layerUtils } from '@swissgeo/layers/utils'
+import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
 
 import { getKmlMetadataByAdminId } from '@/api/files.api'
@@ -117,7 +113,11 @@ export function getLayersFromLegacyUrlParams(
         }
         if (layerId.startsWith('KML||')) {
             const [_layerType, url] = layerId.split('||')
-            layer = layerUtils.makeKMLLayer({ kmlFileUrl: url, isVisible: true, style: KMLStyle.GEOADMIN })
+            layer = layerUtils.makeKMLLayer({
+                kmlFileUrl: url,
+                isVisible: true,
+                style: KMLStyle.GEOADMIN,
+            })
         }
         if (layerId.startsWith('GPX||')) {
             const [_layerType, url] = layerId.split('||')
@@ -154,13 +154,13 @@ export function getLayersFromLegacyUrlParams(
                     wmsOperations: {
                         GetCapabilities: {
                             DCPType: [{ HTTP: { Get: { OnlineResource: url } } }],
-                            Format: ['text/xml']
+                            Format: ['text/xml'],
                         },
                         GetMap: {
                             DCPType: [{ HTTP: { Get: { OnlineResource: url } } }],
-                            Format: ['image/png', 'image/jpeg']
-                        }
-                    }
+                            Format: ['image/png', 'image/jpeg'],
+                        },
+                    },
                 })
             }
         }
@@ -178,7 +178,7 @@ export function getLayersFromLegacyUrlParams(
             }
             // checking if a timestamp is defined for this layer
             if (layerTimestamps.length > index && layerTimestamps[index] !== '') {
-                updateCurrentTimeEntry(layer.timeConfig, layerTimestamps[index])
+                timeConfigUtils.updateCurrentTimeEntry(layer.timeConfig, layerTimestamps[index])
             }
             layersToBeActivated.push(layer)
         }

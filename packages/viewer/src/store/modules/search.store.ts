@@ -373,20 +373,18 @@ function getResultForAutoselect(results: SearchResult[]): SearchResult {
 function createLayerFeature(
     olFeature: Feature<Geometry>,
     layer: Layer
-): SelectableFeature<false> | null {
+): SelectableFeature<false> | undefined {
     const geometry = olFeature.getGeometry()
 
     if (!geometry) {
-        return null
+        return
     }
-
-    const extent = extentUtils.normalizeExtent(geometry.getExtent() as FlatExtent)
 
     const coordinates = extractOlFeatureCoordinates(olFeature)
 
-    return {
+    const layerFeature: LayerFeature = {
         layer: layer,
-        id: olFeature.getId(),
+        id: olFeature.getId() ?? olFeature.get('name'),
         title:
             olFeature.get('label') ??
             // exception for MeteoSchweiz GeoJSONs, we use the station name instead of the ID
@@ -403,10 +401,11 @@ function createLayerFeature(
         },
         coordinates,
         geometry: new GeoJSON().writeGeometryObject(geometry),
-        extent,
+        extent: geometry.getExtent() as FlatExtent,
         isEditable: false,
         popupDataCanBeTrusted: false,
-    } as LayerFeature
+    }
+    return layerFeature
 }
 
 export default useSearchStore

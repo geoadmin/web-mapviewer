@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import log from '@swissgeo/log'
-import { computed, nextTick, ref, useTemplateRef, watch, type ComputedRef } from 'vue'
+import { computed, type ComputedRef, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import sendFeedback, { ATTACHMENT_MAX_SIZE, KML_MAX_SIZE } from '@/api/feedback.api'
@@ -20,8 +20,9 @@ import useUIStore from '@/store/modules/ui.store'
 import { type KMLLayer } from '@swissgeo/layers'
 
 import { layerUtils } from '@swissgeo/layers/utils'
+import type { ActionDispatcher } from '@/store/types'
 
-const dispatcher = { name: 'ReportProblemButton.vue' }
+const dispatcher: ActionDispatcher = { name: 'ReportProblemButton.vue' }
 const temporaryKmlId = getKmlUrl('temporary-kml-for-reporting-a-problem')
 
 const acceptedFileTypes = ['.kml', '.gpx', '.pdf', '.zip', '.jpg', '.jpeg', '.png', '.kmz']
@@ -31,7 +32,6 @@ const drawingStore = useDrawingStore()
 const layersStore = useLayersStore()
 const uiStore = useUIStore()
 
-/** @type {DropdownItem[]} */
 const feedbackCategories: DropdownItem<string>[] = [
     {
         id: 'background_map',
@@ -272,7 +272,7 @@ function selectItem(dropdownItem: DropdownItem<string>) {
                     feedback.category ? `feedback_category_${feedback.category}` : 'select_category'
                 "
                 :items="feedbackCategories"
-                :current-value="feedback.category ?? null"
+                :current-value="feedback.category"
                 data-cy="report-problem-category"
                 class="my-2"
                 :class="{
