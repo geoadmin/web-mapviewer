@@ -9,7 +9,7 @@ import { ALL_YEARS_TIMESTAMP } from '@swissgeo/layers'
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useAddImageryLayer from '@/modules/map/components/cesium/utils/useAddImageryLayer.composable'
-import { getTimestampFromConfig } from '@swissgeo/layers/utils'
+import { timeConfigUtils } from '@swissgeo/layers/utils'
 import { useI18nStore } from '@/store/modules/i18n.store'
 import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 
@@ -33,7 +33,7 @@ const opacity = computed(() => parentLayerOpacity ?? wmsLayerConfig.opacity ?? 1
 const wmsVersion = computed(() => wmsLayerConfig.wmsVersion ?? '1.3.0')
 const format = computed(() => wmsLayerConfig.format ?? 'png')
 const url = computed(() => getBaseUrlOverride('wms') ?? wmsLayerConfig.baseUrl)
-const timestamp = computed(() => getTimestampFromConfig(wmsLayerConfig))
+const timestamp = computed(() => timeConfigUtils.getTimestampFromConfig(wmsLayerConfig))
 const customAttributes = computed(() => cloneDeep(wmsLayerConfig.customAttributes))
 
 /**

@@ -3,11 +3,11 @@ import { WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import { ErrorMessage } from '@swissgeo/log/Message'
 import { Rectangle, UrlTemplateImageryProvider, WebMapTileServiceImageryProvider } from 'cesium'
-import { computed, onBeforeUnmount, toRef, watch, ref } from 'vue'
+import { computed, onBeforeUnmount, ref, toRef, watch } from 'vue'
 
 import type { ExternalWMTSLayer, GeoAdminWMTSLayer } from '@swissgeo/layers'
 import { WMTSEncodingType } from '@swissgeo/layers'
-import { getWmtsXyzUrl } from '@swissgeo/layers/utils'
+import { layerUtils } from '@swissgeo/layers/utils'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useAddImageryLayer from '@/modules/map/components/cesium/utils/useAddImageryLayer.composable'
 import usePositionStore from '@/store/modules/position.store'
@@ -33,7 +33,7 @@ const layersStore = useLayersStore()
 const opacity = computed(() => parentLayerOpacity ?? wmtsLayerConfig.opacity ?? 1.0)
 
 const url = computed(() =>
-    getWmtsXyzUrl(wmtsLayerConfig, positionStore.projection, {
+    layerUtils.getWmtsXyzUrl(wmtsLayerConfig, positionStore.projection, {
         addTimestamp: true,
     })
 )

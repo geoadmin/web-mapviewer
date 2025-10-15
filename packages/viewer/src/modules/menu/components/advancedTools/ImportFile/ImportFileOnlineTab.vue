@@ -30,7 +30,7 @@ const errorFileLoadingMessage = ref<ErrorMessage | undefined>()
 const isFormValid = ref<boolean>(false)
 const activateValidation = ref<boolean>(false)
 
-const buttonState = computed<string>(() => (isLoading.value ? 'loading' : 'default'))
+const buttonState = computed<'loading' | 'default'>(() => (isLoading.value ? 'loading' : 'default'))
 
 watch(
     () => active,
