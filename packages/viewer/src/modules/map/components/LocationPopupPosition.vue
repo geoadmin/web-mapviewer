@@ -28,7 +28,7 @@ const { coordinate, clickInfo, projection, currentLang } = defineProps<{
 }>()
 
 const lv03Coordinate = ref<SingleCoordinate | undefined>()
-const what3Words = ref<string | undefined>(undefined)
+const what3Words = ref<string | undefined>()
 const height = ref<{ heightInFeet?: number; heightInMeter?: number } | undefined>()
 
 const { t } = useI18n()

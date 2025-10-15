@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CoordinateSystem } from '@swissgeo/coordinates'
+import type { CoordinateSystem, SingleCoordinate } from '@swissgeo/coordinates'
 
 import log from '@swissgeo/log'
 import GeoadminTooltip from '@swissgeo/tooltip'
@@ -44,7 +44,7 @@ function display(coordinates: number[] | string): string | number[] {
     if (coordinateFormat && Array.isArray(coordinates) && coordinates.length >= 2) {
         return formatCoordinates(
             coordinateFormat,
-            coordinates as [number, number],
+            coordinates as SingleCoordinate,
             projection.value
         )
     }

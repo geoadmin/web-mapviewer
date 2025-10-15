@@ -37,8 +37,9 @@ import useMapStore from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
 import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
+import type { ActionDispatcher } from '@/store/types'
 
-const dispatcher = { name: 'CesiumInteractions.vue' }
+const dispatcher: ActionDispatcher = { name: 'CesiumInteractions.vue' }
 
 const hoveredHighlightPostProcessor = PostProcessStageLibrary.createEdgeDetectionStage()
 
@@ -177,13 +178,13 @@ function create3dFeature(
         data,
         title: id.toString(),
         coordinates,
-        extent: extentUtils.normalizeExtent(
-            extentUtils.createPixelExtentAround({
+        extent: extentUtils.createPixelExtentAround(
+            {
                 size: 5,
                 coordinate: coordinates,
                 projection: positionStore.projection,
                 resolution: positionStore.resolution,
-            })!
+            }
         ),
         // geometry intentionally omitted for 3D tiles features
         popupDataCanBeTrusted: true,
@@ -236,7 +237,7 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
                     positionStore.resolution
                 )
                 if (Array.isArray(identified)) {
-                    features.push(...identified)
+                    features.push(...identified.filter((f) => f !== undefined))
                 }
             })
     }
@@ -286,7 +287,7 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
             {
                 coordinate: coordinates,
                 pixelCoordinate: [event.position.x, event.position.y],
-                features: features as SelectableFeature<true>[],
+                features: features as SelectableFeature<false>[],
                 clickType: ClickType.LeftSingleClick,
             },
             dispatcher
@@ -360,7 +361,7 @@ function create3dKmlFeature(
         },
         title: kmlFeature.id.name || kmlFeature.id.id,
         coordinates: centroid(geoJsonGeometry).geometry.coordinates as SingleCoordinate,
-        extent: extentUtils.normalizeExtent(extent as FlatExtent),
+        extent: extentUtils.flattenExtent(extent as FlatExtent),
         geometry: geoJsonGeometry,
         popupDataCanBeTrusted: false,
     }
@@ -390,7 +391,7 @@ function onMouseMove(event: ScreenSpaceEventHandler.MotionEvent): void {
         object &&
         cesiumStore.layersTooltipConfig
             .map((layerConfig) => layerConfig.layerId)
-            .includes(getlayerIdFrom3dFeature(object as SelectableFeature<false>)!)
+            .includes(getlayerIdFrom3dFeature(object)!)
     ) {
         hoveredHighlightPostProcessor.selected = [object]
         viewer?.scene.requestRender()

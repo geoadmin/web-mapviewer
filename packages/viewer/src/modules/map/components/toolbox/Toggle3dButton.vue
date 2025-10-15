@@ -2,12 +2,13 @@
 import useCesiumStore from '@/store/modules/cesium.store'
 import useDrawingStore from '@/store/modules/drawing.store'
 import usePrintStore from '@/store/modules/print.store'
+import type { ActionDispatcher } from '@/store/types'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-const dispatcher = { name: 'Toggle3dButton.vue' }
+const dispatcher: ActionDispatcher = { name: 'Toggle3dButton.vue' }
 
 const { t } = useI18n()
 const cesiumStore = useCesiumStore()

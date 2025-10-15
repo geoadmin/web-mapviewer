@@ -36,10 +36,11 @@ async function createSource(): Promise<KmlDataSourceType> {
         resetKmlDescription(kmlDataSource)
         return kmlDataSource
     } catch (error: unknown) {
-        log.error(
-            `[Cesium] Error while parsing KML data for layer ${kmlLayerConfig.id}`,
-            error as string
-        )
+        log.error({
+            title: 'Cesium',
+            message: [`Error while parsing KML data for layer ${kmlLayerConfig.id}`],
+            error,
+        })
         throw error
     }
 }
@@ -120,7 +121,7 @@ function applyStyleToKmlEntity(entity: Entity, opacity: number) {
 }
 
 const { refreshDataSource } = useAddDataSourceLayer(
-    viewer!,
+    viewer,
     createSource(),
     applyStyleToKmlEntity,
     toRef(kmlLayerConfig.opacity),

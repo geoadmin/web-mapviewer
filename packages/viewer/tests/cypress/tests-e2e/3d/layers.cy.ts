@@ -1,8 +1,9 @@
+import type { Viewer } from 'cesium'
+
 import { LV95, WEBMERCATOR } from '@swissgeo/coordinates'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
-import type { Viewer } from 'cesium'
 
 function expectLayerCountToBe(viewer: Viewer, layerCount: number) {
     const layers = viewer.scene.imageryLayers

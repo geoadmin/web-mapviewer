@@ -25,13 +25,13 @@ interface AnchorPosition {
 
 const {
     authorizePrint,
-    title,
+    title = '',
     useContentPadding,
     anchorPosition = { top: 0, left: 0 },
     mode = MapPopoverMode.Floating,
 } = defineProps<{
     authorizePrint: boolean
-    title: string
+    title?: string
     useContentPadding: boolean
     anchorPosition?: AnchorPosition
     mode?: MapPopoverMode

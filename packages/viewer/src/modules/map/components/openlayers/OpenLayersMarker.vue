@@ -15,7 +15,7 @@ import {
     getMarkerStyle,
     highlightFeatureStyle,
     OpenLayersMarkerStyles,
-} from '@/modules/map/components/openlayers/utils/markerStyle.js'
+} from '@/modules/map/components/openlayers/utils/markerStyle'
 import useVectorLayer from '@/modules/map/components/openlayers/utils/useVectorLayer.composable'
 
 const {

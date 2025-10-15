@@ -9,8 +9,9 @@ import Map from 'ol/Map'
 import useUIStore from '@/store/modules/ui.store'
 import useLayersStore from '@/store/modules/layers.store'
 import type RenderEvent from 'ol/render/Event'
+import type { ActionDispatcher } from '@/store/types'
 
-const dispatcher = { name: 'CompareSlider.vue' }
+const dispatcher: ActionDispatcher = { name: 'CompareSlider.vue' }
 
 const olMap = inject<Map>('olMap')
 

@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import type { Layer } from '@swissgeo/layers'
 import useBackgroundSelector from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelector'
-import useBackgroundLayerProps from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelectorProps'
 
-const props = defineProps(useBackgroundLayerProps())
-const { backgroundLayers, currentBackgroundLayer } = props
+const { backgroundLayers, currentBackgroundLayer } = defineProps<{
+    backgroundLayers: Layer[]
+    currentBackgroundLayer?: Layer
+}>()
 
 const emit = defineEmits({
     selectBackground: (backgroundLayer: string | undefined) => {
@@ -31,7 +33,7 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
                 ]"
                 type="button"
                 :data-cy="`background-selector-${backgroundLayer?.id || 'void'}`"
-                @click="onSelectBackground(backgroundLayer?.id || undefined)"
+                @click="onSelectBackground(backgroundLayer?.id)"
             >
                 <span class="bg-selector-rounded-wheel-button-image-cropper">
                     <img

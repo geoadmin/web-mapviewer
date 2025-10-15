@@ -7,8 +7,9 @@ import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLay
 import useGeolocationStore from '@/store/modules/geolocation.store'
 import useCesiumStore from '@/store/modules/cesium.store'
 import usePositionStore from '@/store/modules/position.store'
+import type { ActionDispatcher } from '@/store/types'
 
-const dispatcher = { name: 'GeolocButton.vue' }
+const dispatcher: ActionDispatcher = { name: 'GeolocButton.vue' }
 
 const { compassButton = false } = defineProps<{
     compassButton?: boolean

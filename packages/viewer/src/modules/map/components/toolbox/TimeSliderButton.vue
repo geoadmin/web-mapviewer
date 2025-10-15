@@ -7,8 +7,9 @@ import TimeSlider from '@/modules/map/components/toolbox/TimeSlider.vue'
 import useUIStore from '@/store/modules/ui.store'
 import useLayersStore from '@/store/modules/layers.store'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
+import type { ActionDispatcher } from '@/store/types'
 
-const dispatcher = { name: 'TimeSliderButton.vue' }
+const dispatcher: ActionDispatcher = { name: 'TimeSliderButton.vue' }
 
 const { t } = useI18n()
 const uiStore = useUIStore()

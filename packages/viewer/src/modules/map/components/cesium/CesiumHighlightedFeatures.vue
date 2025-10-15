@@ -26,7 +26,7 @@ const dispatcher: ActionDispatcher = { name: 'CesiumHighlightedFeatures.vue' }
 
 const { t } = useI18n()
 
-const popoverCoordinates = ref<number[] | number[][]>([])
+const popoverCoordinates = ref<SingleCoordinate>()
 
 const featuresStore = useFeaturesStore()
 const uiStore = useUIStore()
@@ -109,8 +109,8 @@ function highlightSelectedFeatures(): void {
     if (firstFeature && Array.isArray(firstFeature.coordinates)) {
         const coords = firstFeature.coordinates
         popoverCoordinates.value = Array.isArray(coords[0])
-            ? (coords[coords.length - 1] as number[])
-            : (coords as number[])
+            ? (coords[coords.length - 1] as SingleCoordinate)
+            : (coords as SingleCoordinate)
     }
 }
 function onPopupClose() {

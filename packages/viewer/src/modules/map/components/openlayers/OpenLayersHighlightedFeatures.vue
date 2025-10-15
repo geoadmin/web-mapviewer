@@ -22,7 +22,7 @@ import { useI18n } from 'vue-i18n'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
-import { MapPopoverMode } from '@/modules/map/components/MapPopover.vue'
+import { MapPopoverMode } from '@/modules/map/components/MapPopoverMode.enum'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle'
 import useVectorLayer from '@/modules/map/components/openlayers/utils/useVectorLayer.composable.ts'
@@ -201,7 +201,7 @@ function setBottomPanelFeatureInfoPosition(): void {
         :title="isCurrentlyDrawing ? t('draw_modify_description') : t('object_information')"
         authorize-print
         :use-content-padding="selectedEditableFeatures.length > 0"
-        :mode="MapPopoverMode.FLOATING"
+        :mode="MapPopoverMode.Floating"
         @close="clearAllSelectedFeatures"
     >
         <template #extra-buttons>

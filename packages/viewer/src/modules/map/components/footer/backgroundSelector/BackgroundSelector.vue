@@ -5,8 +5,10 @@ import BackgroundSelectorSquared from '@/modules/map/components/footer/backgroun
 import BackgroundSelectorWheelRounded from '@/modules/map/components/footer/backgroundSelector/BackgroundSelectorWheelRounded.vue'
 import useLayersStore from '@/store/modules/layers.store'
 import useUIStore from '@/store/modules/ui.store'
+import type { ActionDispatcher } from '@/store/types'
+import type { Layer } from '@swissgeo/layers'
 
-const dispatcher = { name: 'BackgroundSelector.vue' }
+const dispatcher: ActionDispatcher = { name: 'BackgroundSelector.vue' }
 
 const layersStore = useLayersStore()
 const uiStore = useUIStore()
@@ -52,13 +54,13 @@ function selectBackground(backgroundLayerId: string | undefined) {
 <template>
     <BackgroundSelectorSquared
         v-if="uiStore.isDesktopMode"
-        :background-layers="sortedBackgroundLayersWithVoid"
+        :background-layers="sortedBackgroundLayersWithVoid as Layer[]"
         :current-background-layer="layersStore.currentBackgroundLayer"
         @select-background="selectBackground"
     />
     <BackgroundSelectorWheelRounded
         v-else
-        :background-layers="sortedBackgroundLayersWithVoid"
+        :background-layers="sortedBackgroundLayersWithVoid as Layer[]"
         :current-background-layer="layersStore.currentBackgroundLayer"
         @select-background="selectBackground"
     />
