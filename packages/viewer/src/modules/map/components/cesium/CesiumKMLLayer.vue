@@ -27,6 +27,13 @@ const kmlStyle = computed(() => kmlLayerConfig.style)
 const isClampedToGround = computed(() => kmlLayerConfig.clampToGround)
 
 const viewer = getCesiumViewer()
+if (!viewer) {
+    log.error({
+        title: 'CesiumKMLLayer.vue',
+        message: ['Viewer not initialized, cannot create KML layer'],
+    })
+    throw new Error('Viewer not initialized, cannot create KML layer')
+}
 
 async function createSource(): Promise<KmlDataSourceType> {
     try {

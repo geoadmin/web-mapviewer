@@ -27,6 +27,13 @@ const { wmtsLayerConfig, zIndex, parentLayerOpacity } = defineProps<{
 }>()
 
 const viewer = getCesiumViewer()
+if (!viewer) {
+    log.error({
+        title: 'CesiumWMTSLayer.vue',
+        message: ['Viewer not initialized, cannot create WMTS layer'],
+    })
+    throw new Error('Viewer not initialized, cannot create WMTS layer')
+}
 
 const positionStore = usePositionStore()
 const layersStore = useLayersStore()
