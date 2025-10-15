@@ -6,10 +6,11 @@ import MousePosition from 'ol/control/MousePosition'
 import { computed, inject, nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue'
 
 import getHumanReadableCoordinate from '@/modules/map/components/common/mouseTrackerUtils'
+import type { ActionDispatcher } from '@/store/types'
 import usePositionStore from '@/store/modules/position.store'
 import { allFormats, LV95Format } from '@/utils/coordinates/coordinateFormat'
 
-const dispatcher = { name: 'OpenLayersMouseTracker.vue' }
+const dispatcher: ActionDispatcher = { name: 'OpenLayersMouseTracker.vue' }
 
 const mousePosition = useTemplateRef<HTMLElement>('mousePosition')
 const displayedFormatId = ref(LV95Format.id)
@@ -17,11 +18,16 @@ const displayedFormatId = ref(LV95Format.id)
 const positionStore = usePositionStore()
 const projection = computed(() => positionStore.projection)
 
-const olMap = inject<Map>('olMap')!
+const olMap = inject<Map>('olMap')
+if (!olMap) {
+    log.error({ title: 'OpenLayersMouseTracker', message: 'OpenLayers map not found' })
+}
 
 let mousePositionControl: MousePosition | undefined
 
 onMounted(() => {
+    if (!olMap) return
+
     mousePositionControl = new MousePosition({
         className: 'mouse-position-inner',
     })
@@ -34,7 +40,7 @@ onMounted(() => {
     })
 })
 onUnmounted(() => {
-    if (mousePositionControl) {
+    if (mousePositionControl && olMap) {
         olMap.removeControl(mousePositionControl)
     }
 })

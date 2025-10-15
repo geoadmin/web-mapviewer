@@ -5,6 +5,8 @@ import log from '@swissgeo/log'
 import { isNumber, round } from '@swissgeo/numbers'
 import { computed, defineAsyncComponent, inject, onBeforeMount, onBeforeUnmount } from 'vue'
 
+import type { ActionDispatcher } from '@/store/types'
+
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import OpenLayersAccuracyCircle from '@/modules/map/components/openlayers/OpenLayersAccuracyCircle.vue'
 import OpenLayersMarker from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
@@ -20,12 +22,11 @@ const OpenLayersDeviceOrientationDebugInfo = defineAsyncComponent(
         import('@/modules/map/components/openlayers/debug/OpenLayersDeviceOrientationDebugInfo.vue')
 )
 
-const dispatcher = {
-    dispatcher: 'OpenLayersGeolocationFeedback.vue',
-    name: 'OpenLayersGeolocationFeedback',
+const dispatcher: ActionDispatcher = {
+    name: 'OpenLayersGeolocationFeedback.vue',
 }
 
-const olMap = inject<Map>('olMap')!
+const olMap = inject<Map>('olMap')
 
 const geolocationStore = useGeolocationStore()
 const positionStore = usePositionStore()
@@ -91,8 +92,16 @@ const orientationParameters = computed(() => {
 // the center in store is set during the moveend event, so this means that if we disable tracking
 // by using the store event, it can lead to race condition when moving the map between the
 // moveend event and the geolocation event.
-onBeforeMount(() => olMap.on('movestart', disableTrackingAndAutoRotation))
-onBeforeUnmount(() => olMap.un('movestart', disableTrackingAndAutoRotation))
+onBeforeMount(() => {
+    if (olMap) {
+        olMap.on('movestart', disableTrackingAndAutoRotation)
+    }
+})
+onBeforeUnmount(() => {
+    if (olMap) {
+        olMap.un('movestart', disableTrackingAndAutoRotation)
+    }
+})
 
 function roundIfNumber(v: unknown, d: number): string {
     return isNumber(v) ? String(round(v as number, d)) : String(v)

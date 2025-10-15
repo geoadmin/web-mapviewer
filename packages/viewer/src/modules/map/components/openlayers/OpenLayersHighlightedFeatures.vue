@@ -26,6 +26,7 @@ import { MapPopoverMode } from '@/modules/map/components/MapPopover.vue'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle'
 import useVectorLayer from '@/modules/map/components/openlayers/utils/useVectorLayer.composable.ts'
+import type { ActionDispatcher } from '@/store/types'
 import useDrawingStore from '@/store/modules/drawing.store'
 import useFeaturesStore from '@/store/modules/features.store'
 import useMapStore from '@/store/modules/map.store'
@@ -34,9 +35,8 @@ import useProfileStore from '@/store/modules/profile.store'
 import useUiStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 
-const dispatcher = {
-    dispatcher: 'OpenLayersHighlightedFeatures.vue',
-    name: 'OpenLayersHighlightedFeatures',
+const dispatcher: ActionDispatcher = {
+    name: 'OpenLayersHighlightedFeatures.vue',
 }
 
 const { t } = useI18n()
