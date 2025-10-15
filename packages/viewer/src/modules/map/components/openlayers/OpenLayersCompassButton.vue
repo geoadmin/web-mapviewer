@@ -25,8 +25,9 @@ const rotation = ref(0)
 const showCompass = computed(() => Math.abs(rotation.value) >= 1e-9 || !hideIfNorth)
 
 onMounted(() => {
-    if (!olMap) return
-    olMap.on('postrender', onRotate)
+    if (olMap) {
+        olMap.on('postrender', onRotate)
+    }
 })
 
 onUnmounted(() => {
@@ -42,7 +43,7 @@ function resetRotation(): void {
 
 function onRotate(mapEvent: MapEvent): void {
     const newRotation = mapEvent.frameState?.viewState.rotation
-    if (newRotation !== undefined && newRotation !== rotation.value) {
+    if (newRotation && newRotation !== rotation.value) {
         rotation.value = newRotation
     }
 }
