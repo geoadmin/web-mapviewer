@@ -9,7 +9,7 @@ import { DEVICE_PIXEL_RATIO } from 'ol/has'
 import VectorLayer from 'ol/layer/Vector'
 import { getRenderPixel } from 'ol/render'
 import VectorSource from 'ol/source/Vector'
-import { computed, watch, type WatchHandle } from 'vue'
+import { computed, type MaybeRef, toValue, watch, type WatchHandle } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 
@@ -19,7 +19,7 @@ import useUIStore from '@/store/modules/ui.store'
 
 const dispatcher: ActionDispatcher = { name: 'print-area-renderer.composable' }
 
-export default function usePrintAreaRenderer(map: Map): void {
+export default function usePrintAreaRenderer(map: MaybeRef<Map>): void {
     let printPreviewLayer: VectorLayer | undefined
     let deregister: (EventsKey | WatchHandle)[] = []
     const POINTS_PER_INCH = 72 // PostScript points 1/72"
@@ -57,7 +57,7 @@ export default function usePrintAreaRenderer(map: Map): void {
             }),
             zIndex: 10000,
         })
-        map.addLayer(printPreviewLayer)
+        toValue(map).addLayer(printPreviewLayer)
 
         deregister = [
             printPreviewLayer.on('prerender', handlePreRender),
@@ -69,12 +69,14 @@ export default function usePrintAreaRenderer(map: Map): void {
             watch(selectedScale, () => {
                 updatePrintOverlay()
             }),
-            map.on('change:size', () => {
+            toValue(map).on('change:size', () => {
                 updatePrintOverlay()
             }),
-            map.getView().on('propertychange', () => {
-                updatePrintOverlay()
-            }),
+            toValue(map)
+                .getView()
+                .on('propertychange', () => {
+                    updatePrintOverlay()
+                }),
         ]
         printStore.setSelectedScale(getOptimalScale(), dispatcher)
         updatePrintOverlay()
@@ -101,14 +103,14 @@ export default function usePrintAreaRenderer(map: Map): void {
             }
         }
         if (printPreviewLayer) {
-            map.removeLayer(printPreviewLayer)
+            toValue(map).removeLayer(printPreviewLayer)
         }
-        map.render()
+        toValue(map).render()
     }
 
     function updatePrintOverlay() {
         if (isActive.value) {
-            map.render()
+            toValue(map).render()
         }
     }
 
@@ -121,9 +123,9 @@ export default function usePrintAreaRenderer(map: Map): void {
             messages: [`Calculate page bounds pixels for scale ${scale} for size,`, size],
         })
 
-        const view = map.getView()
+        const view = toValue(map).getView()
         const resolution = view.getResolution()
-        const mapSize = map.getSize()
+        const mapSize = toValue(map).getSize()
         if (!resolution || !mapSize) {
             const message = 'No map size or resolution, cannot compute page bounds in pixels'
             log.error({
@@ -177,7 +179,7 @@ export default function usePrintAreaRenderer(map: Map): void {
             return
         }
         const context = event.context as CanvasRenderingContext2D
-        const size: Size | undefined = map.getSize()
+        const size: Size | undefined = toValue(map).getSize()
 
         if (!Array.isArray(size) || size.length < 2) {
             return
@@ -188,8 +190,11 @@ export default function usePrintAreaRenderer(map: Map): void {
 
         const printRectangle = calculatePageBoundsPixels(selectedScale.value, printLayoutSize.value)
 
-        const topLeftCoordinate = map.getCoordinateFromPixel([printRectangle[0], printRectangle[1]])
-        const rightBottomCoordinate = map.getCoordinateFromPixel([
+        const topLeftCoordinate = toValue(map).getCoordinateFromPixel([
+            printRectangle[0],
+            printRectangle[1],
+        ])
+        const rightBottomCoordinate = toValue(map).getCoordinateFromPixel([
             printRectangle[2],
             printRectangle[3],
         ])
@@ -255,7 +260,7 @@ export default function usePrintAreaRenderer(map: Map): void {
     // Compute the optimal scale based on the map size (layout), resolution,
     // non-covered map vie (by header and menu tray)
     function getOptimalScale(): number | undefined {
-        const resolution = map.getView().getResolution()
+        const resolution = toValue(map).getView().getResolution()
         if (!resolution || !printStore.selectedLayout?.scales) {
             return
         }

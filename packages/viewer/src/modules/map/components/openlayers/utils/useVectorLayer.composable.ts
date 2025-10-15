@@ -1,7 +1,6 @@
-import type { Feature } from 'ol'
-import type { Map } from 'ol'
+import type { Feature, Map } from 'ol'
 import type { StyleLike } from 'ol/style/Style'
-import type { MaybeRef, Ref } from 'vue'
+import type { MaybeRef } from 'vue'
 
 import { randomIntBetween } from '@swissgeo/numbers'
 import { Select } from 'ol/interaction'
@@ -14,7 +13,7 @@ import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLa
 
 interface UseVectorLayerConfig {
     /** The Z index of the layer */
-    zIndex?: MaybeRef<number>
+    zIndex?: number
     /** A function that defines the style for the vector layer */
     styleFunction?: StyleLike
     /** A callback function that is called when a feature is selected */
@@ -33,9 +32,9 @@ interface UseVectorLayerConfig {
  * @param config Configuration options for the vector layer
  */
 export default function useVectorLayer(
-    map: Map,
-    features: Readonly<Ref<Feature[]>>,
-    config: UseVectorLayerConfig = {}
+    map: MaybeRef<Map>,
+    features: MaybeRef<Feature[]>,
+    config: MaybeRef<UseVectorLayerConfig> = {}
 ): {
     layer: VectorLayer<VectorSource>
 } {
@@ -44,7 +43,7 @@ export default function useVectorLayer(
         styleFunction = highlightFeatureStyle,
         onFeatureSelectCallback = () => {},
         deselectAfterSelect = false,
-    } = config
+    } = toValue(config)
     const layer = new VectorLayer({
         properties: {
             id: `vector-layer-${randomIntBetween(0, 100000)}`,
@@ -52,7 +51,7 @@ export default function useVectorLayer(
         source: new VectorSource({
             features: toValue(features),
         }),
-        style: styleFunction as StyleLike,
+        style: styleFunction,
     })
     useAddLayerToMap(layer, map, zIndex)
 
@@ -61,7 +60,7 @@ export default function useVectorLayer(
         layers: [layer], // Only apply the interaction to this layer
         style: undefined, // Do not update the style of the selected features
     })
-    map.addInteraction(selectInteraction)
+    toValue(map).addInteraction(selectInteraction)
 
     // Listen for feature selection
     selectInteraction.on('select', function (event) {
@@ -85,7 +84,7 @@ export default function useVectorLayer(
 
     // Clean up: remove the interaction when the composable is unmounted
     onUnmounted(() => {
-        map.removeInteraction(selectInteraction)
+        toValue(map).removeInteraction(selectInteraction)
     })
 
     return {
