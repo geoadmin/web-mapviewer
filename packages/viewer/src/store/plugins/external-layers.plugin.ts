@@ -32,8 +32,8 @@ function getCapabilitiesForLayers<
     layers: Layer[],
     currentLang: SupportedLang,
     layerType: LayerType
-): Record<string, Promise<CapabilitiesResponse | undefined>> {
-    const capabilities: Record<string, Promise<CapabilitiesResponse | undefined>> = {}
+): Record<string, Promise<CapabilitiesResponse>> {
+    const capabilities: Record<string, Promise<CapabilitiesResponse>> = {}
     const baseUrls = layers
         .filter((layer) => layer.type === layerType && layer.isExternal)
         .map((layer) => layer.baseUrl)
@@ -42,13 +42,11 @@ function getCapabilitiesForLayers<
         .filter((baseUrl, index) => baseUrls.indexOf(baseUrl) === index)
         .forEach((url: string) => {
             if (layerType === LayerType.WMS) {
-                capabilities[url] = readWmsCapabilities(url, currentLang) as Promise<
-                    CapabilitiesResponse | undefined
-                >
+                // @ts-expect-error For some reason, the type of the capabilities is not correct here
+                capabilities[url] = readWmsCapabilities(url, currentLang)
             } else {
-                capabilities[url] = readWmtsCapabilities(url, currentLang) as Promise<
-                    CapabilitiesResponse | undefined
-                >
+                // @ts-expect-error For some reason, the type of the capabilities is not correct here
+                capabilities[url] = readWmtsCapabilities(url, currentLang)
             }
         })
     return capabilities
@@ -59,7 +57,7 @@ async function updateExternalLayer<
     CapabilitiesLayerType extends WMSCapabilityLayer | WMTSCapabilityLayer,
     ExternalLayerType extends ExternalWMSLayer | ExternalWMTSLayer,
 >(
-    capabilities: Promise<CapabilitiesResponse | undefined>,
+    capabilities: Promise<CapabilitiesResponse>,
     parser: CapabilitiesParser<CapabilitiesResponse, CapabilitiesLayerType, ExternalLayerType>,
     layer: Layer,
     projection: CoordinateSystem
