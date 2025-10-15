@@ -53,8 +53,11 @@ async function copyValue(_event: Event, value: string): Promise<void> {
         setTimeout(() => {
             tooltipContent.value = t('copy_cta')
         }, 3000)
-    } catch (error: unknown) {
-        log.error(`Failed to copy ${value} to clipboard`, error as Error)
+    } catch (error) {
+        log.error({
+            title: 'OpenLayersDeviceOrientationDebugInfo.vue',
+            messages: [`Failed to copy ${value} to clipboard`, error],
+        })
     }
 }
 </script>

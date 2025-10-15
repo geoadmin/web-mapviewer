@@ -91,10 +91,15 @@ async function loadFile() {
         importSuccessMessage.value = 'file_imported_success'
 
         setTimeout(() => (isLoading.value = false), 3000)
-    } catch (error: unknown) {
-        log.error({ messages: [`Failed to load file from url ${fileUrl.value}`, error] })
+    } catch (error) {
+        log.error({
+            title: 'Import File Online Tab',
+            messages: [`Failed to load file from url ${fileUrl.value}`, error],
+        })
         isLoading.value = false
-        errorFileLoadingMessage.value = generateErrorMessageFromErrorType(error as Error)
+        if (error instanceof Error) {
+            errorFileLoadingMessage.value = generateErrorMessageFromErrorType(error)
+        }
     }
     isLoading.value = false
 }

@@ -3,9 +3,10 @@ import useCesiumStore from '@/store/modules/cesium.store'
 import usePositionStore from '@/store/modules/position.store'
 import type { ActionDispatcher } from '@/store/types'
 import GeoadminTooltip from '@swissgeo/tooltip'
-import { Ray, Viewer } from 'cesium'
-import { computed, inject } from 'vue'
+import { Ray } from 'cesium'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 
 const dispatcher: ActionDispatcher = { name: 'ZoomButtons.vue' }
 
@@ -13,12 +14,10 @@ const { t } = useI18n()
 const cesiumStore = useCesiumStore()
 const positionStore = usePositionStore()
 
-const getViewer = inject<() => Viewer | undefined>('getViewer', () => undefined, true)
-
 const step = computed(() => positionStore.resolution * 200)
 
 function moveCamera(distance: number) {
-    const viewer = getViewer()
+    const viewer = getCesiumViewer()
     const camera = viewer?.scene?.camera
     if (camera) {
         camera.flyTo({
