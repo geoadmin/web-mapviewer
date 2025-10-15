@@ -53,10 +53,9 @@ function flyToPosition(): void {
         const viewer = getCesiumViewer()
         if (viewer && cameraPosition.value) {
             log.debug({
-                title: 'TimeSlider.vue',
+                title: 'CesiumCamera.vue',
                 titleColor: LogPreDefinedColor.Blue,
                 message: [
-                    'Cesium',
                     'Fly to camera position',
                     cameraPosition.value.x,
                     cameraPosition.value.y,
@@ -64,10 +63,9 @@ function flyToPosition(): void {
                 ],
             })
             log.debug({
-                title: 'TimeSlider.vue',
+                title: 'CesiumCamera.vue',
                 titleColor: LogPreDefinedColor.Blue,
                 message: [
-                    'Cesium',
                     'With heading, pitch, roll',
                     cameraPosition.value.heading,
                     cameraPosition.value.pitch,
@@ -88,11 +86,11 @@ function flyToPosition(): void {
                 duration: 1,
             })
         }
-    } catch (error: unknown) {
+    } catch (error) {
         log.error({
-            title: 'TimeSlider.vue',
+            title: 'CesiumCamera.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: ['Cesium', 'Error while moving the camera', error, cameraPosition.value],
+            message: ['Error while moving the camera', error, cameraPosition.value],
         })
     }
 }
@@ -148,13 +146,9 @@ function initCamera(): void {
     if (cameraPosition.value) {
         // a camera position was already define in the URL, we use it
         log.debug({
-            title: 'TimeSlider.vue',
+            title: 'CesiumCamera.vue',
             titleColor: LogPreDefinedColor.Blue,
-            message: [
-                'Cesium',
-                'Existing camera position found at startup, using',
-                cameraPosition.value,
-            ],
+            message: ['Existing camera position found at startup, using', cameraPosition.value],
         })
         destination = Cartesian3.fromDegrees(
             cameraPosition.value.x,
@@ -171,10 +165,7 @@ function initCamera(): void {
         log.debug({
             title: 'CesiumCamera.vue',
             titleColor: LogPreDefinedColor.Blue,
-            message: [
-                'Cesium',
-                'No camera initial position defined, creating one using 2D coordinates',
-            ],
+            message: ['No camera initial position defined, creating one using 2D coordinates'],
         })
         destination = Cartesian3.fromDegrees(
             positionStore.centerEpsg4326[0],

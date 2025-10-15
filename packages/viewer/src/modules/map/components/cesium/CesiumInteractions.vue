@@ -59,34 +59,35 @@ const visiblePrimitiveLayers = computed(() =>
     )
 )
 
+const viewer = getCesiumViewer()
+if (!viewer) {
+    log.error({
+        title: 'CesiumInteractions.vue',
+        titleColor: LogPreDefinedColor.Blue,
+        message: ['Viewer not initialized, cannot initialize Cesium interactions'],
+    })
+    throw new Error('Viewer not initialized, cannot initialize Cesium interactions')
+}
+
 onMounted(() => {
-    const viewer = getCesiumViewer()
-    if (viewer) {
-        initialize3dHighlights()
-        viewer.scene.postProcessStages.add(
-            PostProcessStageLibrary.createSilhouetteStage([
-                hoveredHighlightPostProcessor,
-                clickedHighlightPostProcessor,
-            ])
-        )
-        viewer.screenSpaceEventHandler.setInputAction(onClick, ScreenSpaceEventType.LEFT_CLICK)
-        viewer.screenSpaceEventHandler.setInputAction(
-            onContextMenu,
-            ScreenSpaceEventType.RIGHT_CLICK
-        )
-        viewer.screenSpaceEventHandler.setInputAction(onMouseMove, ScreenSpaceEventType.MOUSE_MOVE)
-    }
+    initialize3dHighlights()
+    viewer.scene.postProcessStages.add(
+        PostProcessStageLibrary.createSilhouetteStage([
+            hoveredHighlightPostProcessor,
+            clickedHighlightPostProcessor,
+        ])
+    )
+    viewer.screenSpaceEventHandler.setInputAction(onClick, ScreenSpaceEventType.LEFT_CLICK)
+    viewer.screenSpaceEventHandler.setInputAction(onContextMenu, ScreenSpaceEventType.RIGHT_CLICK)
+    viewer.screenSpaceEventHandler.setInputAction(onMouseMove, ScreenSpaceEventType.MOUSE_MOVE)
 })
 
 onUnmounted(() => {
-    const viewer = getCesiumViewer()
-    if (viewer) {
-        viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.LEFT_CLICK)
-        viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.RIGHT_CLICK)
-        viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.MOUSE_MOVE)
-        viewer.scene.postProcessStages.remove(hoveredHighlightPostProcessor)
-        viewer.scene.postProcessStages.remove(clickedHighlightPostProcessor)
-    }
+    viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.LEFT_CLICK)
+    viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.RIGHT_CLICK)
+    viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.MOUSE_MOVE)
+    viewer.scene.postProcessStages.remove(hoveredHighlightPostProcessor)
+    viewer.scene.postProcessStages.remove(clickedHighlightPostProcessor)
 })
 
 // this is to remove the highlight when we close the tooltip
@@ -103,8 +104,7 @@ watch(selectedFeatures, () => {
         clickedHighlightPostProcessor.selected.length > 0
     ) {
         clickedHighlightPostProcessor.selected = []
-        const viewer = getCesiumViewer()
-        viewer?.scene.requestRender()
+        viewer.scene.requestRender()
     }
 })
 
@@ -224,12 +224,11 @@ function handleClickHighlight(
 }
 
 function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
-    const viewer = getCesiumViewer()
     unhighlightGroup(viewer)
     const features: SelectableFeature<false | true>[] = []
     let coordinates = getCoordinateAtScreenCoordinate(event.position.x, event.position.y)
 
-    const objects = viewer?.scene.drillPick(event.position) ?? []
+    const objects = viewer!.scene.drillPick(event.position) ?? []
 
     log.debug({
         title: 'CesiumInteractions.vue',

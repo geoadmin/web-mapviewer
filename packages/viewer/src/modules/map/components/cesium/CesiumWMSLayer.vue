@@ -6,6 +6,7 @@ import { computed, toRef, watch } from 'vue'
 
 import type { ExternalWMSLayer, GeoAdminWMSLayer } from '@swissgeo/layers'
 import { ALL_YEARS_TIMESTAMP } from '@swissgeo/layers'
+import log from '@swissgeo/log'
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useAddImageryLayer from '@/modules/map/components/cesium/utils/useAddImageryLayer.composable'
@@ -20,6 +21,15 @@ const { wmsLayerConfig, zIndex, parentLayerOpacity } = defineProps<{
     zIndex?: number
     parentLayerOpacity?: number
 }>()
+
+const viewer = getCesiumViewer()
+if (!viewer) {
+    log.error({
+        title: 'CesiumWMSLayer.vue',
+        message: ['Viewer not initialized, cannot create WMS layer'],
+    })
+    throw new Error('Viewer not initialized, cannot create WMS layer')
+}
 
 const i18nStore = useI18nStore()
 const currentLang = computed(() => i18nStore.lang)
@@ -76,12 +86,7 @@ function createProvider() {
         rectangle: Rectangle.fromDegrees(...DEFAULT_PROJECTION.getBoundsAs(WGS84)!.flatten),
     })
 }
-const { refreshLayer } = useAddImageryLayer(
-    getCesiumViewer(),
-    createProvider,
-    () => zIndex,
-    toRef(opacity)
-)
+const { refreshLayer } = useAddImageryLayer(viewer, createProvider, () => zIndex, toRef(opacity))
 </script>
 
 <template>

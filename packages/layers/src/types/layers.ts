@@ -10,8 +10,6 @@ import type { LayerTimeConfig } from '@/types/timeConfig'
 
 export type * from '@/types/geoJsonStyle'
 
-export type * from '@/types/geoJsonStyle'
-
 export const DEFAULT_OPACITY = 1.0
 export const WMS_SUPPORTED_VERSIONS = ['1.3.0']
 

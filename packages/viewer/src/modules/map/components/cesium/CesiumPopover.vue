@@ -22,7 +22,19 @@ const { coordinates, projection, authorizePrint, title, useContentPadding } = de
     useContentPadding?: boolean
 }>()
 
-const emits = defineEmits(['close'])
+const emits = defineEmits<{
+    close: [void]
+}>()
+
+const viewer = getCesiumViewer()
+if (!viewer) {
+    log.error({
+        title: 'CesiumPopover.vue',
+        titleColor: LogPreDefinedColor.Red,
+        message: ['Cesium viewer unavailable, could not hook up popover to Cesium'],
+    })
+    throw new Error('CesiumPopover.vue: viewer is not defined')
+}
 
 // Cesium will create an instance of Cartesian3 or Cartographic each time a calculation is made if
 // we do not provide one, so here we declare two "buffer" instances that will be used throughout this component
@@ -40,39 +52,27 @@ const coordinatesHeight = ref<number | undefined>()
 const wgs84Coordinates = computed(() => proj4(projection.epsg, WGS84.epsg, coordinates))
 
 onMounted(() => {
-    const viewer = getCesiumViewer()
-    if (viewer) {
-        // By default, the `camera.changed` event will trigger when the camera has changed by 50%
-        // To make it more sensitive (and improve tooltip "tracking" on the map), we set down sensitivity to 0.1%
-        // meaning that a change of 0.1% in any direction/rotation axis of the camera will trigger a change event
-        viewer.camera.percentageChanged = 0.001
-        viewer.camera.changed.addEventListener(updatePosition)
+    // By default, the `camera.changed` event will trigger when the camera has changed by 50%
+    // To make it more sensitive (and improve tooltip "tracking" on the map), we set down sensitivity to 0.1%
+    // meaning that a change of 0.1% in any direction/rotation axis of the camera will trigger a change event
+    viewer.camera.percentageChanged = 0.001
+    viewer.camera.changed.addEventListener(updatePosition)
 
-        // if the user zooms in (or out) we want to be sure that the new loaded terrain
-        // is taken into account for the tooltip positioning
-        viewer.scene.globe.tileLoadProgressEvent.addEventListener(onTileLoadProgress)
-        // implementing something similar to the sandcastle found on https://github.com/CesiumGS/cesium/issues/3247#issuecomment-1533505387
-        // but taking into account height using globe.getHeight for the given coordinate
-        // without taking height into account, the anchor for the tooltip will be the virtual bottom of the map (at sea level), rendering poorly as
-        // there will be a gap between the tooltip and the selected feature
-        updateCoordinateHeight()
-        updatePosition()
-    } else {
-        log.error({
-            title: 'CesiumPopover.vue',
-            titleColor: LogPreDefinedColor.Red,
-            message: ['Cesium viewer unavailable, could not hook up popover to Cesium'],
-        })
-    }
+    // if the user zooms in (or out) we want to be sure that the new loaded terrain
+    // is taken into account for the tooltip positioning
+    viewer.scene.globe.tileLoadProgressEvent.addEventListener(onTileLoadProgress)
+    // implementing something similar to the sandcastle found on https://github.com/CesiumGS/cesium/issues/3247#issuecomment-1533505387
+    // but taking into account height using globe.getHeight for the given coordinate
+    // without taking height into account, the anchor for the tooltip will be the virtual bottom of the map (at sea level), rendering poorly as
+    // there will be a gap between the tooltip and the selected feature
+    updateCoordinateHeight()
+    updatePosition()
 })
 onUnmounted(() => {
-    const viewer = getCesiumViewer()
-    if (viewer) {
-        viewer.camera.changed.removeEventListener(updatePosition)
-        viewer.scene.globe.tileLoadProgressEvent.removeEventListener(onTileLoadProgress)
-        // Set back the camera change sensitivity to default value (see mounted())
-        viewer.camera.percentageChanged = 0.5
-    }
+    viewer.camera.changed.removeEventListener(updatePosition)
+    viewer.scene.globe.tileLoadProgressEvent.removeEventListener(onTileLoadProgress)
+    // Set back the camera change sensitivity to default value (see mounted())
+    viewer.camera.percentageChanged = 0.5
 })
 
 watch(
@@ -88,7 +88,6 @@ watch(
  * this.coordinatesHeight
  */
 function updateCoordinateHeight(): void {
-    const viewer = getCesiumViewer()
     coordinatesHeight.value =
         viewer?.scene.globe.getHeight(
             Cartographic.fromDegrees(
@@ -105,7 +104,6 @@ function updatePosition(): void {
         emits('close')
         return
     }
-    const viewer = getCesiumViewer()
     if (!viewer) {
         return
     }
@@ -128,7 +126,6 @@ function updatePosition(): void {
 }
 
 function onTileLoadProgress(): void {
-    const viewer = getCesiumViewer()
     // recalculating height and position as soon as all new terrain tiles are loaded (after camera movement, or at init)
     if (viewer && viewer.scene.globe.tilesLoaded) {
         updateCoordinateHeight()

@@ -16,10 +16,11 @@ import useCesiumStore from '@/store/modules/cesium.store'
 import usePositionStore from '@/store/modules/position.store'
 import coordinateFormat, {
     allFormats,
-    LV95Format,
     type CoordinateFormat,
+    LV95Format,
 } from '@/utils/coordinates/coordinateFormat'
 import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
+import type { ActionDispatcher } from '@/store/types'
 
 const mousePosition = useTemplateRef<HTMLDivElement>('mousePosition')
 const displayedFormatId = ref(LV95Format.id)
@@ -29,10 +30,19 @@ const positionStore = usePositionStore()
 const { t } = useI18n()
 
 const is3DReady = computed(() => cesiumStore.isViewerReady)
-import type { ActionDispatcher } from '@/store/types'
 const dispatcher: ActionDispatcher = { name: 'CesiumMouseTracker.vue' }
 
 let handler: ScreenSpaceEventHandler | undefined
+
+const viewer = getCesiumViewer()
+if (!viewer) {
+    log.error({
+        title: 'CesiumMouseTracker.vue',
+        titleColor: LogPreDefinedColor.Red,
+        message: ['Viewer is not defined', 'CesiumMouseTracker.vue: viewer cannot be initialized'],
+    })
+    throw new Error('CesiumMouseTracker.vue: viewer is not defined')
+}
 
 watch(
     is3DReady,
@@ -55,7 +65,6 @@ onBeforeUnmount(() => {
 
 function setupHandler(): void {
     // If the handler already exists for some reason, there is no need to create it again
-    const viewer = getCesiumViewer()
     if (handler || !viewer) {
         return
     }

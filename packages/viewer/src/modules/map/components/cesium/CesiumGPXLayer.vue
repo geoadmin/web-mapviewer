@@ -1,21 +1,21 @@
 <script setup lang="ts">
 import log from '@swissgeo/log'
+import type { Entity } from 'cesium'
 import {
     BillboardGraphics,
     Cartesian3,
     Color,
     ColorMaterialProperty,
+    ConstantProperty,
     defined as cesiumDefined,
     GpxDataSource,
     HeightReference,
-    ConstantProperty,
 } from 'cesium'
 import { computed, toRef, watch } from 'vue'
 
 import type { GPXLayer } from '@swissgeo/layers'
 import { GPX_BILLBOARD_RADIUS } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
-import type { Entity } from 'cesium'
 import { getCesiumViewer } from './utils/viewerUtils'
 
 const { gpxLayerConfig } = defineProps<{ gpxLayerConfig: GPXLayer }>()
@@ -24,6 +24,13 @@ const gpxData = computed(() => gpxLayerConfig.gpxData)
 const layerOpacity = computed(() => gpxLayerConfig.opacity)
 
 const viewer = getCesiumViewer()
+if (!viewer) {
+    log.error({
+        title: 'CesiumGPXLayer.vue',
+        message: ['Viewer not initialized, cannot create GPX layer'],
+    })
+    throw new Error('Viewer not initialized, cannot create GPX layer')
+}
 
 async function createSource(): Promise<GpxDataSource> {
     try {
@@ -33,11 +40,10 @@ async function createSource(): Promise<GpxDataSource> {
                 clampToGround: true,
             }
         )
-    } catch (error: unknown) {
+    } catch (error) {
         log.error({
-            title: 'Cesium',
-            message: [`Could not load GPX ${gpxLayerConfig.id}`],
-            error,
+            title: 'CesiumGPXLayer.vue',
+            message: [`Could not load GPX ${gpxLayerConfig.id}`, error],
         })
         throw error
     }
@@ -112,7 +118,7 @@ function applyStyleToGpxEntity(entity: Entity, opacity: number): void {
 }
 
 const { refreshDataSource } = useAddDataSourceLayer(
-    viewer!,
+    viewer,
     createSource(),
     applyStyleToGpxEntity,
     toRef(layerOpacity),

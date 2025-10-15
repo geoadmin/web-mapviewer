@@ -16,6 +16,14 @@ import { getSafe } from '@/utils/utils'
 const { geoJsonConfig } = defineProps<{ geoJsonConfig: GeoAdminGeoJSONLayer }>()
 
 const viewer = getCesiumViewer()
+if (!viewer) {
+    log.error({
+        title: 'CesiumGeoJSONLayer.vue',
+        titleColor: LogPreDefinedColor.Blue,
+        message: ['Viewer not initialized, cannot create GeoJSON layer'],
+    })
+    throw new Error('Viewer not initialized, cannot create GeoJSON layer')
+}
 
 const layerId = computed<string>(() => geoJsonConfig.id)
 const geoJsonData = computed<string | undefined>(() => geoJsonConfig.geoJsonData)
@@ -72,7 +80,7 @@ async function createSource(): Promise<GeoJsonDataSource> {
 }
 
 useAddDataSourceLayer(
-    viewer!,
+    viewer,
     createSource(),
     (entity, opacity) => setEntityStyle(entity, geoJsonStyle.value!, opacity),
     toRef(opacity),
