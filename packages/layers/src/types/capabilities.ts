@@ -1,4 +1,4 @@
-import type { CoordinateSystem, SingleCoordinate, FlatExtent } from '@swissgeo/coordinates'
+import type { CoordinateSystem, FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 
 import type { BoundingBox, Layer } from '@/types/layers'
 
@@ -112,8 +112,8 @@ export interface WMSCapabilitiesResponse {
         OnlineResource: string
         MaxWidth?: number
         MaxHeight?: number
-    },
-    getAllExternalLayerObjects(one: CoordinateSystem, two: number,  three: boolean): Layer[]
+    }
+    getAllExternalLayerObjects(one: CoordinateSystem, two: number, three: boolean): Layer[]
 }
 // endregion
 // #endregion
@@ -221,8 +221,8 @@ export interface WMTSCapabilitiesResponse {
         ServiceType?: string
         Title?: string
         Abstract?: string
-    },
-    getAllExternalLayerObjects(one: CoordinateSystem, two: number,  three: boolean): Layer[]
+    }
+    getAllExternalLayerObjects(one: CoordinateSystem, two: number, three: boolean): Layer[]
 }
 // endregion
 // #endregion
@@ -243,8 +243,8 @@ export interface ExternalLayerParsingOptions<ExternalLayerType> {
 }
 
 export interface CapabilitiesParser<
-    CapabilitiesResponseType,
-    CapabilitiesLayerType,
+    CapabilitiesResponseType extends WMSCapabilitiesResponse | WMTSCapabilitiesResponse,
+    CapabilitiesLayerType extends WMSCapabilityLayer | WMTSCapabilityLayer,
     ExternalLayerType extends Layer,
 > {
     /**
