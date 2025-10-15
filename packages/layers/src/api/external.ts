@@ -51,9 +51,9 @@ export function setWmsGetMapParams(url: URL, layer: string, crs: string, style: 
 export async function readWmsCapabilities(
     baseUrl: string,
     language?: string
-): Promise<WMSCapabilitiesResponse | undefined> {
+): Promise<WMSCapabilitiesResponse> {
     const url = setWmsGetCapabilitiesParams(new URL(baseUrl), language)
-    log.debug(`Read WMTS Get Capabilities: ${url.toString()}`)
+    log.debug(`Read WMS Get Capabilities: ${url.toString()}`)
     let response = null
     try {
         response = await axios.get(url.toString(), { timeout: EXTERNAL_SERVER_TIMEOUT })

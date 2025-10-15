@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import log from '@swissgeo/log'
 import { getPointResolution } from 'ol/proj'
-import { computed, onBeforeUnmount, onMounted, ref, watch, type ComputedRef } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
@@ -25,8 +25,9 @@ import usePositionStore from '@/store/modules/position.store'
 import { useI18nStore } from '@/store/modules/i18n.store'
 import usePrintStore from '@/store/modules/print.store'
 import useMapStore from '@/store/modules/map.store'
+import type { ActionDispatcher } from '@/store/types'
 
-const dispatcher = { name: 'PrintView.vue' }
+const dispatcher: ActionDispatcher = { name: 'PrintView.vue' }
 
 const route = useRoute()
 const { t } = useI18n()
@@ -38,25 +39,30 @@ const mapStore = useMapStore()
 
 const inchToMillimeter = 25.4
 
-const shortLink = ref<string>()
-const qrCodeUrl = computed(() => shortLink.value && getGenerateQRCodeUrl(shortLink.value))
+const shortLink = ref<string | undefined>()
+const qrCodeUrl = computed<string | undefined>(
+    () => shortLink.value && getGenerateQRCodeUrl(shortLink.value)
+)
 
 const now = new Date()
 
-const printLayout = computed(() => printStore.config.layout ?? 'A4_L')
+const printLayout = computed<string>(() => printStore.config.layout ?? 'A4_L')
 
-const isLayerLandscape = computed(() => printLayout.value.endsWith('_L'))
-const printDPI = computed(() => printStore.config.dpi ?? PRINT_DEFAULT_DPI)
+const isLayerLandscape = computed<boolean>(() => printLayout.value.endsWith('_L'))
+const printDPI = computed<number>(() => printStore.config.dpi ?? PRINT_DEFAULT_DPI)
 
-const layoutIdentifier: ComputedRef<keyof typeof PRINT_DIMENSIONS> = computed(
-    () => printLayout.value.replace('_L', '').replace('_P', '') as keyof typeof PRINT_DIMENSIONS
+const layoutIdentifier = computed<string>(() =>
+    printLayout.value.replace('_L', '').replace('_P', '')
 )
 
-const layoutDimensions: ComputedRef<typeof PRINT_DIMENSIONS.A0 | null> = computed(() => {
-    if (!layoutIdentifier.value) {
-        return null
+const layoutDimensions = computed<number[] | undefined>(() => {
+    if (
+        !layoutIdentifier.value ||
+        !Object.keys(PRINT_DIMENSIONS).includes(layoutIdentifier.value)
+    ) {
+        return
     }
-    const dimensions = PRINT_DIMENSIONS[layoutIdentifier.value]
+    const dimensions = PRINT_DIMENSIONS[layoutIdentifier.value as keyof typeof PRINT_DIMENSIONS]
 
     if (!isLayerLandscape.value) {
         return dimensions.toReversed()
@@ -64,18 +70,15 @@ const layoutDimensions: ComputedRef<typeof PRINT_DIMENSIONS.A0 | null> = compute
     return dimensions
 })
 
-const mapResolution = computed(() => positionStore.resolution)
-const mapRotation = computed(() => positionStore.rotation)
-const currentProjection = computed(() => positionStore.projection)
 const mapCenter = computed(() => positionStore.center)
 const currentLang = computed(() => i18nStore.lang)
-const printContainerSize = computed(() => {
-    if (!layoutDimensions.value || layoutDimensions.value.length == 0) {
-        return null
+const printContainerSize = computed<{ width: number; height: number } | undefined>(() => {
+    if (!layoutDimensions.value || layoutDimensions.value.length < 2) {
+        return
     }
     return {
-        width: Math.round((layoutDimensions.value[0] * printDPI.value) / inchToMillimeter),
-        height: Math.round((layoutDimensions.value[1] * printDPI.value) / inchToMillimeter),
+        width: Math.round((layoutDimensions.value[0]! * printDPI.value) / inchToMillimeter),
+        height: Math.round((layoutDimensions.value[1]! * printDPI.value) / inchToMillimeter),
     }
 })
 const printContainerStyle = computed(() => {
@@ -96,15 +99,15 @@ const mapScaleWidth = computed(() => {
     return Math.min(printContainerSize.value.width * 0.1, 200)
 })
 const northArrowStyle = computed(() => {
-    if (mapRotation.value === 0) {
+    if (positionStore.rotation === 0) {
         return {}
     }
     return {
-        transform: `rotate(${mapRotation.value}rad)`,
+        transform: `rotate(${positionStore.rotation}rad)`,
     }
 })
 const matchingResolutionStepWithLabel = computed(() =>
-    currentProjection.value
+    positionStore.projection
         .getResolutionSteps()
         .filter((step) => step.label)
         .find((res, index, otherResolution) => {
@@ -116,8 +119,8 @@ const matchingResolutionStepWithLabel = computed(() =>
             const previousStep = otherResolution[index - 1]
             if (previousStep) {
                 return (
-                    previousStep.resolution > mapResolution.value &&
-                    mapResolution.value > res.resolution
+                    previousStep.resolution > positionStore.resolution &&
+                    positionStore.resolution > res.resolution
                 )
             }
         })
@@ -125,9 +128,9 @@ const matchingResolutionStepWithLabel = computed(() =>
 
 const printResolution = computed(
     () =>
-        mapResolution.value /
+        positionStore.resolution /
         getPointResolution(
-            currentProjection.value.epsg,
+            positionStore.projection.epsg,
             printDPI.value / inchToMillimeter,
             mapCenter.value
         )
