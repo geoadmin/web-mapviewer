@@ -5,14 +5,6 @@ import type { Map } from 'ol'
 import VectorLayer from 'ol/layer/Vector'
 import type { KMLLayer } from '@swissgeo/layers'
 
-// Extend Window interface for Cypress testing
-declare global {
-    interface Window {
-        kmlLayer?: VectorLayer
-        kmlLayerUrl?: string
-    }
-}
-
 import log from '@swissgeo/log'
 import { WarningMessage } from '@swissgeo/log/Message'
 import VectorSource from 'ol/source/Vector'
