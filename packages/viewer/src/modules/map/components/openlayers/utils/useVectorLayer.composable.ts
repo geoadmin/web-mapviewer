@@ -1,21 +1,15 @@
 import type { Feature, Map } from 'ol'
-import type { StyleLike } from 'ol/style/Style'
-import type { MaybeRef } from 'vue'
+import type { StyleFunction } from 'ol/style/Style'
 
 import { randomIntBetween } from '@swissgeo/numbers'
 import { Select } from 'ol/interaction'
 import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
-import { onUnmounted, toValue, watchEffect } from 'vue'
+import { type MaybeRef, onUnmounted, toValue, watchEffect } from 'vue'
 
-import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 
-interface UseVectorLayerConfig {
-    /** The Z index of the layer */
-    zIndex?: number
-    /** A function that defines the style for the vector layer */
-    styleFunction?: StyleLike
+interface UseVectorLayerOptions {
     /** A callback function that is called when a feature is selected */
     onFeatureSelectCallback?: (feature: Feature) => void
     /** If true, the selected feature will be deselected after the select callback is called */
@@ -29,21 +23,22 @@ interface UseVectorLayerConfig {
  *
  * @param map OpenLayers Map instance
  * @param features Reactive array of features to display
- * @param config Configuration options for the vector layer
+ * @param zIndex The z-index of the layer
+ * @param styleFunction A function that defines the style for the vector layer
+ * @param options Options for the vector layer
  */
 export default function useVectorLayer(
     map: MaybeRef<Map>,
     features: MaybeRef<Feature[]>,
-    config: MaybeRef<UseVectorLayerConfig> = {}
+    zIndex: MaybeRef<number>,
+    styleFunction: MaybeRef<StyleFunction>,
+    options?: MaybeRef<UseVectorLayerOptions>
 ): {
     layer: VectorLayer<VectorSource>
 } {
-    const {
-        zIndex = -1,
-        styleFunction = highlightFeatureStyle,
-        onFeatureSelectCallback = () => {},
-        deselectAfterSelect = false,
-    } = toValue(config)
+    const { onFeatureSelectCallback = () => {}, deselectAfterSelect = false } = toValue(
+        options ?? {}
+    )
     const layer = new VectorLayer({
         properties: {
             id: `vector-layer-${randomIntBetween(0, 100000)}`,
@@ -51,7 +46,7 @@ export default function useVectorLayer(
         source: new VectorSource({
             features: toValue(features),
         }),
-        style: styleFunction,
+        style: toValue(styleFunction),
     })
     useAddLayerToMap(layer, map, zIndex)
 
