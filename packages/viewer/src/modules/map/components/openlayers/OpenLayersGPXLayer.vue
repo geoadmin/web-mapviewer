@@ -5,14 +5,6 @@ import type { Map } from 'ol'
 import VectorLayer from 'ol/layer/Vector'
 import type { GPXLayer } from '@swissgeo/layers'
 
-// Extend Window interface for Cypress testing
-declare global {
-    interface Window {
-        gpxLayer?: VectorLayer
-        gpxLayerUrl?: string
-    }
-}
-
 import log from '@swissgeo/log'
 import VectorSource from 'ol/source/Vector'
 import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
