@@ -5,9 +5,11 @@ import log from '@swissgeo/log'
 import { toRadians } from 'ol/math'
 import { computed, inject, onBeforeMount, onBeforeUnmount, ref, watch } from 'vue'
 
+import type { ActionDispatcher } from '@/store/types'
+
 import usePositionStore from '@/store/modules/position.store'
 
-const dispatcher = { name: 'useDeviceOrientation.composable' }
+const dispatcher: ActionDispatcher = { name: 'useDeviceOrientation.composable' }
 
 // The values here below have been taken in order to have a good balance between reactivity
 // performance and user experience. It is important to use a production build to test any changes
@@ -55,7 +57,12 @@ export default function useDeviceOrientation(): {
     orientation: Ref<OrientationData>
     orientationSampled: Ref<OrientationSampledData>
 } {
-    const olMap = inject<Map>('olMap')!
+    const olMap = inject<Map>('olMap')
+    if (!olMap) {
+        log.error('OpenLayersMap is not available')
+        throw new Error('OpenLayersMap is not available')
+    }
+
     const positionStore = usePositionStore()
 
     const orientation = ref<OrientationData>({

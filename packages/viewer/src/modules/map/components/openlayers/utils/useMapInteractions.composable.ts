@@ -1,4 +1,5 @@
 import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type { Layer } from '@swissgeo/layers'
 import type { Map, MapBrowserEvent } from 'ol'
 
 import { LayerType } from '@swissgeo/layers'
@@ -6,9 +7,10 @@ import log from '@swissgeo/log'
 import { altKeyOnly, platformModifierKeyOnly, primaryAction } from 'ol/events/condition'
 import { DragPan, DragRotate, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
-import { computed, onBeforeUnmount, watch } from 'vue'
+import { computed, type MaybeRef, onBeforeUnmount, toValue, watch } from 'vue'
 
 import type { LayerFeature } from '@/api/features.api'
+import type { ActionDispatcher } from '@/store/types'
 
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
@@ -19,7 +21,7 @@ import useLayersStore from '@/store/modules/layers.store'
 import useMapStore, { ClickType } from '@/store/modules/map.store'
 import { createLayerFeature } from '@/utils/layerUtils'
 
-const dispatcher = {
+const dispatcher: ActionDispatcher = {
     name: 'useMapInteractions.composable',
 }
 const longPressEvents = [
@@ -35,14 +37,14 @@ interface ExtendedPointerEvent extends PointerEvent {
     updateLongClickTriggered?: boolean
 }
 
-export default function useMapInteractions(map: Map): void {
+export default function useMapInteractions(map: MaybeRef<Map>): void {
     const drawingStore = useDrawingStore()
     const layersStore = useLayersStore()
     const mapStore = useMapStore()
 
     const isCurrentlyDrawing = computed(() => drawingStore.drawingOverlay.show)
     const activeVectorLayers = computed(() =>
-        layersStore.activeLayers.filter((layer) =>
+        layersStore.activeLayers.filter((layer: Layer) =>
             [LayerType.KML, LayerType.GPX, LayerType.GEOJSON].includes(layer.type)
         )
     )
@@ -52,10 +54,10 @@ export default function useMapInteractions(map: Map): void {
 
     // Make it possible to select by dragging the map with ctrl down
     const { dragBoxSelect } = useDragBoxSelect()
-    map.addInteraction(dragBoxSelect)
+    toValue(map).addInteraction(dragBoxSelect)
 
     // Add interaction to drag the map using the middle mouse button
-    map.addInteraction(
+    toValue(map).addInteraction(
         new DragPan({
             condition: function (
                 event: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>
@@ -65,7 +67,7 @@ export default function useMapInteractions(map: Map): void {
         })
     )
 
-    map.addInteraction(
+    toValue(map).addInteraction(
         new DragRotate({
             condition: (event) => primaryAction(event) && altKeyOnly(event),
         })
@@ -75,11 +77,13 @@ export default function useMapInteractions(map: Map): void {
         // We iterate through the map "interaction" classes, to enable/disable the "double click zoom" interaction
         // while a drawing is currently made. Otherwise, when the user double-clicks to finish his/her drawing,
         // the map zooms in.
-        map.getInteractions().forEach((interaction) => {
-            if (interaction instanceof DoubleClickZoomInteraction) {
-                interaction.setActive(!newValue)
-            }
-        })
+        toValue(map)
+            .getInteractions()
+            .forEach((interaction) => {
+                if (interaction instanceof DoubleClickZoomInteraction) {
+                    interaction.setActive(!newValue)
+                }
+            })
         // activating/deactivating identification of feature on click, depending on if we are drawing
         // (we do not want identification while drawing)
         if (newValue) {
@@ -90,7 +94,7 @@ export default function useMapInteractions(map: Map): void {
     })
 
     registerPointerEvents()
-    map.addInteraction(freeMouseWheelInteraction)
+    toValue(map).addInteraction(freeMouseWheelInteraction)
 
     onBeforeUnmount(() => {
         unregisterPointerEvents()
@@ -110,14 +114,14 @@ export default function useMapInteractions(map: Map): void {
 
     function registerPointerEvents(): void {
         log.debug(`Register map pointer events`)
-        map.on('singleclick', onMapLeftClick)
-        map.on('contextmenu' as 'singleclick', onMapRightClick)
-        map.on('pointermove', onMapMove)
+        toValue(map).on('singleclick', onMapLeftClick)
+        toValue(map).on('contextmenu' as 'singleclick', onMapRightClick)
+        toValue(map).on('pointermove', onMapMove)
         // also registering double click as a map move, so that location popup (right click)
         // isn't triggered when zooming by double-click
-        map.on('dblclick', onMapMove)
+        toValue(map).on('dblclick', onMapMove)
 
-        map.getTargetElement()?.addEventListener('pointerdown', onMapPointerDown)
+        toValue(map).getTargetElement()?.addEventListener('pointerdown', onMapPointerDown)
 
         if (IS_TESTING_WITH_CYPRESS) {
             window.mapPointerEventReady = true
@@ -130,12 +134,12 @@ export default function useMapInteractions(map: Map): void {
             window.mapPointerEventReady = false
         }
 
-        map.getTargetElement()?.removeEventListener('pointerdown', onMapPointerDown)
+        toValue(map).getTargetElement()?.removeEventListener('pointerdown', onMapPointerDown)
 
-        map.un('dblclick', onMapMove)
-        map.un('pointermove', onMapMove)
-        map.un('singleclick', onMapLeftClick)
-        map.un('contextmenu' as 'singleclick', onMapRightClick)
+        toValue(map).un('dblclick', onMapMove)
+        toValue(map).un('pointermove', onMapMove)
+        toValue(map).un('singleclick', onMapLeftClick)
+        toValue(map).un('contextmenu' as 'singleclick', onMapRightClick)
     }
 
     function onMapLeftClick(
@@ -150,28 +154,30 @@ export default function useMapInteractions(map: Map): void {
         const { coordinate, pixel } = event
         const features: ReturnType<typeof createLayerFeature>[] = []
         activeVectorLayers.value.forEach((vectorLayer) => {
-            map.getLayers().forEach((olLayer) => {
-                if (olLayer.get('id') === vectorLayer.id) {
-                    const layerFeatures = map
-                        .getFeaturesAtPixel(pixel, {
-                            layerFilter: (layer) => layer.get('id') === olLayer.get('id'),
-                            hitTolerance: DRAWING_HIT_TOLERANCE,
-                        })
-                        .map((olFeature) => createLayerFeature(olFeature, vectorLayer))
-                        // unique filter on features (OL sometimes return twice the same features)
-                        .filter(
-                            (feature, index, self) =>
-                                self.indexOf(
-                                    self.find(
-                                        (anotherFeature) => anotherFeature?.id === feature?.id
-                                    )
-                                ) === index
-                        )
-                    if (layerFeatures.length > 0) {
-                        features.push(...layerFeatures)
+            toValue(map)
+                .getLayers()
+                .forEach((olLayer) => {
+                    if (olLayer.get('id') === vectorLayer.id) {
+                        const layerFeatures = map
+                            .getFeaturesAtPixel(pixel, {
+                                layerFilter: (layer) => layer.get('id') === olLayer.get('id'),
+                                hitTolerance: DRAWING_HIT_TOLERANCE,
+                            })
+                            .map((olFeature) => createLayerFeature(olFeature, vectorLayer))
+                            // unique filter on features (OL sometimes return twice the same features)
+                            .filter(
+                                (feature, index, self) =>
+                                    self.indexOf(
+                                        self.find(
+                                            (anotherFeature) => anotherFeature?.id === feature?.id
+                                        )
+                                    ) === index
+                            )
+                        if (layerFeatures.length > 0) {
+                            features.push(...layerFeatures)
+                        }
                     }
-                }
-            })
+                })
         })
         let clickType = ClickType.LeftSingleClick
         if (platformModifierKeyOnly(event)) {
@@ -229,8 +235,8 @@ export default function useMapInteractions(map: Map): void {
                     pointerEvent.originalEvent?.pointerType ?? pointerEvent.pointerType
                 if (!mapHasMoved && longPressEvents.includes(originalPointerType ?? '')) {
                     // we are outside of OL event handling, on the HTML element, so we do not receive map pixel and coordinate automatically
-                    const pixel = map.getEventPixel(pointerEvent)
-                    const coordinate = map.getCoordinateFromPixel(pixel)
+                    const pixel = toValue(map).getEventPixel(pointerEvent)
+                    const coordinate = toValue(map).getCoordinateFromPixel(pixel)
                     onMapRightClick({
                         ...pointerEvent,
                         pixel,
@@ -243,5 +249,5 @@ export default function useMapInteractions(map: Map): void {
         }
     }
 
-    useDragFileOverlay(map.getTargetElement())
+    useDragFileOverlay(toValue(map).getTargetElement())
 }
