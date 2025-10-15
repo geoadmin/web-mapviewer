@@ -1,7 +1,16 @@
 import type { SingleCoordinate } from '@swissgeo/coordinates'
-import type { GPXLayer, KMLLayer, GeoAdminGeoJSONLayer } from '@swissgeo/layers'
+import type { GeoAdminGeoJSONLayer, GPXLayer, KMLLayer } from '@swissgeo/layers'
 import type { Geometry as TurfGeometry } from 'geojson'
-import type { Geometry } from 'ol/geom'
+import type {
+    Geometry,
+    GeometryCollection,
+    LineString,
+    MultiLineString,
+    MultiPoint,
+    MultiPolygon,
+    Point,
+    Polygon,
+} from 'ol/geom'
 
 import { LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
@@ -23,8 +32,7 @@ import { DragBox } from 'ol/interaction'
 import { DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@/config/map.config'
 import useFeaturesStore from '@/store/modules/features.store'
 import useLayersStore from '@/store/modules/layers.store'
-import { type ClickInfo, ClickType } from '@/store/modules/map.store'
-import useMapStore from '@/store/modules/map.store'
+import useMapStore, { type ClickInfo, ClickType } from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'
 import { parseGpx } from '@/utils/gpxUtils'
 import { parseKml } from '@/utils/kmlUtils'
@@ -167,47 +175,27 @@ function fromOlGeometryToTurfGeometry(olGeometry: Geometry | undefined): TurfGeo
     // Handle each geometry type specifically to avoid complex union types
     switch (olGeometryType) {
         case 'Point': {
-            const coords = (
-                olGeometry as Geometry & { getCoordinates(): SingleCoordinate }
-            ).getCoordinates()
-            return point(coords).geometry
+            return point((olGeometry as Point).getCoordinates()).geometry
         }
         case 'MultiPoint': {
-            const coords = (
-                olGeometry as Geometry & { getCoordinates(): SingleCoordinate[] }
-            ).getCoordinates()
-            return multiPoint(coords).geometry
+            return multiPoint((olGeometry as MultiPoint).getCoordinates()).geometry
         }
         case 'LineString': {
-            const coords = (
-                olGeometry as Geometry & { getCoordinates(): SingleCoordinate[] }
-            ).getCoordinates()
-            return lineString(coords).geometry
+            return lineString((olGeometry as LineString).getCoordinates()).geometry
         }
         case 'MultiLineString': {
-            const coords = (
-                olGeometry as Geometry & { getCoordinates(): SingleCoordinate[][] }
-            ).getCoordinates()
-            return multiLineString(coords).geometry
+            return multiLineString((olGeometry as MultiLineString).getCoordinates()).geometry
         }
         case 'Polygon': {
-            const coords = (
-                olGeometry as Geometry & { getCoordinates(): SingleCoordinate[][] }
-            ).getCoordinates()
-            return polygon(coords).geometry
+            return polygon((olGeometry as Polygon).getCoordinates()).geometry
         }
         case 'MultiPolygon': {
-            const coords = (
-                olGeometry as Geometry & { getCoordinates(): SingleCoordinate[][][] }
-            ).getCoordinates()
-            return multiPolygon(coords).geometry
+            return multiPolygon((olGeometry as MultiPolygon).getCoordinates()).geometry
         }
         case 'GeometryCollection': {
             // GeometryCollection in OpenLayers contains other geometries, not coordinates
             // We need to recursively convert each geometry in the collection
-            const olGeometryCollection = olGeometry as Geometry & {
-                getGeometries(): Geometry[]
-            }
+            const olGeometryCollection = olGeometry as GeometryCollection
             const geometries = olGeometryCollection
                 .getGeometries()
                 .map(fromOlGeometryToTurfGeometry)
