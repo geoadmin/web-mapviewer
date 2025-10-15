@@ -224,7 +224,7 @@ function handleClickHighlight(
 }
 
 function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
-    unhighlightGroup(viewer)
+    unhighlightGroup(viewer!)
     const features: SelectableFeature<false | true>[] = []
     let coordinates = getCoordinateAtScreenCoordinate(event.position.x, event.position.y)
 

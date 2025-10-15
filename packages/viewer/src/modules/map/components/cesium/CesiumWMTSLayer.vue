@@ -20,7 +20,11 @@ const dispatcher: ActionDispatcher = { name: 'CesiumWMTSLayer.vue' }
 const MAXIMUM_LEVEL_OF_DETAILS = 18
 const unsupportedProjectionError = new ErrorMessage('3d_unsupported_projection')
 
-const { wmtsLayerConfig, zIndex, parentLayerOpacity } = defineProps<{
+const {
+    wmtsLayerConfig,
+    zIndex = -1,
+    parentLayerOpacity,
+} = defineProps<{
     wmtsLayerConfig: GeoAdminWMTSLayer | ExternalWMTSLayer
     zIndex?: number
     parentLayerOpacity?: number
@@ -138,7 +142,7 @@ function createProvider(): WebMapTileServiceImageryProvider | UrlTemplateImagery
     return provider
 }
 
-const { refreshLayer } = useAddImageryLayer(viewer, createProvider, () => zIndex, toRef(opacity))
+const { refreshLayer } = useAddImageryLayer(viewer, createProvider, toRef(zIndex), toRef(opacity))
 </script>
 
 <template>
