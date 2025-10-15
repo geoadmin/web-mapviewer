@@ -194,7 +194,7 @@ export default function useDeviceOrientation(): {
                 .catch((error: Error) => {
                     log.error({
                         title: 'useDeviceOrientation.composable',
-                        messages: [`Failed to add device orientation listener`, error]
+                        messages: [`Failed to add device orientation listener`, error],
                     })
                 })
         } else {
@@ -218,17 +218,16 @@ export default function useDeviceOrientation(): {
                 ? (orientationEvent.webkitCompassHeading as number | undefined)
                 : undefined
 
-        if (
-            !orientation.value.default.degree &&
-            !orientation.value.default.compassHeading
-        ) {
+        if (!orientation.value.default.degree && !orientation.value.default.compassHeading) {
             // When the default listener doesn't return an alpha nor an webkitCompassHeading
             // this means that the device don't support at all orientation and we stop all listeners.
             let compassHeading: number | undefined
             if ('webkitCompassHeading' in orientationEvent) {
-                compassHeading = (orientationEvent as DeviceOrientationEvent & {
-                    webkitCompassHeading?: number
-                }).webkitCompassHeading
+                compassHeading = (
+                    orientationEvent as DeviceOrientationEvent & {
+                        webkitCompassHeading?: number
+                    }
+                ).webkitCompassHeading
             } else {
                 compassHeading = undefined
             }
@@ -257,10 +256,7 @@ export default function useDeviceOrientation(): {
                 ? (orientationEvent.webkitCompassHeading as number | undefined)
                 : undefined
 
-        if (
-            !orientation.value.absolute.degree &&
-            !orientation.value.absolute.compassHeading
-        ) {
+        if (!orientation.value.absolute.degree && !orientation.value.absolute.compassHeading) {
             // the absolute listener don't provide any orientation, therefore remove the listener
             window.removeEventListener(
                 orientation.value.absolute.listener,

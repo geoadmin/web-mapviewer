@@ -194,9 +194,14 @@ export default function usePrintAreaRenderer(map: Map): void {
             printRectangle[3],
         ])
 
-        if (topLeftCoordinate && rightBottomCoordinate &&
-            topLeftCoordinate[0] !== undefined && topLeftCoordinate[1] !== undefined &&
-            rightBottomCoordinate[0] !== undefined && rightBottomCoordinate[1] !== undefined) {
+        if (
+            topLeftCoordinate &&
+            rightBottomCoordinate &&
+            topLeftCoordinate[0] !== undefined &&
+            topLeftCoordinate[1] !== undefined &&
+            rightBottomCoordinate[0] !== undefined &&
+            rightBottomCoordinate[1] !== undefined
+        ) {
             printStore.setPrintExtent(
                 [
                     topLeftCoordinate[0], // minX
