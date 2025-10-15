@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Layer } from '@swissgeo/layers'
+
 import { computed } from 'vue'
 
 import BackgroundSelectorSquared from '@/modules/map/components/footer/backgroundSelector/BackgroundSelectorSquared.vue'
@@ -6,14 +8,13 @@ import BackgroundSelectorWheelRounded from '@/modules/map/components/footer/back
 import useLayersStore from '@/store/modules/layers.store'
 import useUIStore from '@/store/modules/ui.store'
 import type { ActionDispatcher } from '@/store/types'
-import type { Layer } from '@swissgeo/layers'
 
 const dispatcher: ActionDispatcher = { name: 'BackgroundSelector.vue' }
 
 const layersStore = useLayersStore()
 const uiStore = useUIStore()
 
-function generateBackgroundCategories(bg: { id: string }) {
+function generateBackgroundCategories(bg: Layer) {
     return {
         farbe: bg.id.indexOf('farbe') !== -1,
         grau: bg.id.indexOf('grau') !== -1,
@@ -24,7 +25,7 @@ function generateBackgroundCategories(bg: { id: string }) {
 }
 
 /** Sorted backgrounds so that they are ordered such as [ void, grau, farbe, aerial ] */
-const sortedBackgroundLayersWithVoid = computed(() =>
+const sortedBackgroundLayersWithVoid = computed<Array<Layer | undefined>>(() =>
     [...layersStore.backgroundLayers, undefined].sort((bg1, bg2) => {
         // if bg1 is void (undefined), it is placed "on-top" (1st in the list)
         if (!bg1) {
@@ -54,13 +55,13 @@ function selectBackground(backgroundLayerId: string | undefined) {
 <template>
     <BackgroundSelectorSquared
         v-if="uiStore.isDesktopMode"
-        :background-layers="sortedBackgroundLayersWithVoid as Layer[]"
+        :background-layers="sortedBackgroundLayersWithVoid"
         :current-background-layer="layersStore.currentBackgroundLayer"
         @select-background="selectBackground"
     />
     <BackgroundSelectorWheelRounded
         v-else
-        :background-layers="sortedBackgroundLayersWithVoid as Layer[]"
+        :background-layers="sortedBackgroundLayersWithVoid"
         :current-background-layer="layersStore.currentBackgroundLayer"
         @select-background="selectBackground"
     />
