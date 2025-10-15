@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
 import SwissFlag from '@/modules/menu/components/header/SwissFlag.vue'
-import { MAP_VIEW } from '@/router/viewNames.js'
+import { MAP_VIEW } from '@/router/viewNames'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -17,7 +17,7 @@ const linkMessage = computed(() =>
 const mapView = computed(() =>
     router.resolve({
         name: MAP_VIEW,
-        params: router.currentRoute.value.params
+        params: router.currentRoute.value.params,
     })
 )
 </script>
