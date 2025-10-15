@@ -1,3 +1,4 @@
+import type VectorLayer from 'ol/layer/Vector'
 import type Map from 'ol/Map'
 import type { Pinia } from 'pinia'
 import type { Router, RouterHistory } from 'vue-router'
@@ -10,5 +11,9 @@ declare global {
         vueRouterHistory: RouterHistory
         vueRouter: Router
         mapPointerEventReady?: boolean
+        kmlLayer?: VectorLayer
+        kmlLayerUrl?: string
+        gpxLayer?: VectorLayer
+        gpxLayerUrl?: string
     }
 }
