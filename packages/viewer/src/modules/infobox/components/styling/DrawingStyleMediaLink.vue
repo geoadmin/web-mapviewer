@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { MediaType } from '@/modules/infobox/DrawingStyleMediaTypes.enum'
-import TextInput from '@/utils/components/TextInput.vue'
+import TextInput, { type TextInputValidateResult } from '@/utils/components/TextInput.vue'
 import { isValidUrl } from '@/utils/utils'
 
 const { mediaType, urlLabel, descriptionLabel } = defineProps<{
@@ -13,7 +13,7 @@ const { mediaType, urlLabel, descriptionLabel } = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (_e: 'generatedMediaLink', _payload: string): void
+    generatedMediaLink: [mediaLink: string]
 }>()
 
 const { t } = useI18n()
@@ -87,8 +87,8 @@ function validateForm(): boolean {
     return isFormValid.value
 }
 
-function onUrlValidate(valid: boolean): void {
-    isFormValid.value = valid
+function onUrlValidate(result: TextInputValidateResult): void {
+    isFormValid.value = result.valid
 }
 </script>
 

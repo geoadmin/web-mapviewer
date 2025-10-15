@@ -14,17 +14,11 @@ import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
 import { humanFileSize } from '@/utils/utils'
 
 interface Props {
-    /**
-     * Label to add above the field
-     */
+    /** Label to add above the field */
     label?: string
-    /**
-     * Description to add below the input
-     */
+    /** Description to add below the input */
     description?: string
-    /**
-     * Mark the field as disable
-     */
+    /** Mark the field as disable */
     disabled?: boolean
     /**
      * Accepted file types
@@ -33,9 +27,7 @@ interface Props {
      * rejected with a proper message and the field will be marked as invalid.
      */
     acceptedFileTypes?: string[]
-    /**
-     * Maximum File Size allowed
-     */
+    /** Maximum File Size allowed */
     maxFileSize?: number
     /**
      * Placeholder text
@@ -43,15 +35,13 @@ interface Props {
      * NOTE: this should be a translation key
      */
     placeholder?: string
-    /**
-     * Field is required and will be marked as invalid if empty
-     */
+    /** Field is required and will be marked as invalid if empty */
     required?: boolean
     /**
      * Mark the field as valid
      *
-     * This can be used if the field requires some external validation. When not set or set to undefined
-     * this props is ignored.
+     * This can be used if the field requires some external validation. When not set or set to
+     * undefined this props is ignored.
      *
      * NOTE: this props is ignored when activate-validation is false
      */
@@ -64,8 +54,8 @@ interface Props {
     /**
      * Mark the field as invalid
      *
-     * This can be used if the field requires some external validation. When not set or set to undefined
-     * this props is ignored.
+     * This can be used if the field requires some external validation. When not set or set to
+     * undefined this props is ignored.
      *
      * NOTE: this props is ignored when activate-validation is false
      */
@@ -127,7 +117,7 @@ const { t } = useI18n()
 const model = defineModel<File | undefined>({ default: undefined })
 const emits = defineEmits<{
     change: []
-    validate: []
+    validate: [isValid: boolean]
 }>()
 
 // Reactive data
@@ -139,8 +129,6 @@ const filePathInfo = computed(() =>
     model.value ? `${model.value.name}, ${model.value.size / 1000} kb` : ''
 )
 const maxFileSizeHuman = computed(() => humanFileSize(props.maxFileSize))
-
-
 
 // Methods
 function validateFile(): { valid: boolean; invalidMessage: string } {
@@ -198,7 +186,7 @@ watch(
         if (props.activateValidation) {
             const result = props.validate ? props.validate(model.value) : validateFile()
             internalInvalidMessage.value = result.valid ? '' : result.invalidMessage
-            emits('validate')
+            emits('validate', result.valid)
         }
     }
 )
