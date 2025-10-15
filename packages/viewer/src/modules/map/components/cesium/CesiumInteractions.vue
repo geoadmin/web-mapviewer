@@ -28,16 +28,17 @@ import {
     unhighlightGroup,
 } from '@/modules/map/components/cesium/utils/highlightUtils'
 import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
-import { ClickType } from '@/store/modules/map.store'
+import useMapStore, { ClickType } from '@/store/modules/map.store'
 import type { LayerFeature, SelectableFeature } from '@/api/features.api'
 import useCesiumStore from '@/store/modules/cesium.store'
 import useFeaturesStore from '@/store/modules/features.store'
 import useLayersStore from '@/store/modules/layers.store'
-import useMapStore from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
 import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 import type { ActionDispatcher } from '@/store/types'
+import type { LayerTooltipConfig } from '@/config/cesium.config'
+import { getSafe } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumInteractions.vue' }
 
@@ -135,8 +136,23 @@ function getCoordinateAtScreenCoordinate(x: number, y: number): SingleCoordinate
     return coordinates
 }
 
-function getlayerIdFrom3dFeature(featureTileSetResourceUrl: string): string | undefined {
+function getLayerIdFrom3dFeature(featureTileSetResourceUrl: string): string | undefined {
     return featureTileSetResourceUrl.replace(get3dTilesBaseUrl(), '').split('/')[0]
+}
+
+function getFeatureProperty(
+    feature: LayerFeature,
+    propertyName: string,
+    defaultValue: string
+): string {
+    let value: string | undefined = getSafe<string>(feature, propertyName)
+    if (!value && feature.data) {
+        value = getSafe<string>(feature.data, propertyName)
+    }
+    if (!value) {
+        value = defaultValue
+    }
+    return value
 }
 
 /**
@@ -150,26 +166,30 @@ function getlayerIdFrom3dFeature(featureTileSetResourceUrl: string): string | un
  *   Return LayerFeature a layer feature from the 3d layer
  */
 function create3dFeature(
-    feature: SelectableFeature<false>,
+    feature: LayerFeature,
     coordinates: SingleCoordinate
 ): LayerFeature | undefined {
-    const layerId = getlayerIdFrom3dFeature(feature.id.toString())
+    const layerId = getLayerIdFrom3dFeature(feature.id.toString())
 
-    const layer = cesiumStore.layersWithTooltips.find((l) => l.id === layerId)
-    const layerConfig = cesiumStore.layersTooltipConfig.find((lc) => lc.layerId === layerId)
+    const layer = cesiumStore.layersWithTooltips.find((layer: Layer) => layer.id === layerId)
+    const layerConfig = cesiumStore.layersTooltipConfig.find(
+        (layerConfig: LayerTooltipConfig) => layerConfig.layerId === layerId
+    )
     if (!layer || !layerConfig) {
-        return undefined
+        return
     }
-    const id = feature.getProperty!(layerConfig.idParam) ?? '-'
-    const data: Record<string, unknown> = {}
-    layerConfig.nonTranslatedKeys.forEach((property) => {
-        data[`${layerId}_${property}`] =
-            feature.getProperty!(property) ?? `${layerId}_no_data_available`
+    const id = getFeatureProperty(feature, layerConfig.idParam, '-')
+    const data: Record<string, string> = {}
+    layerConfig.nonTranslatedKeys.forEach((property: string) => {
+        data[`${layerId}_${property}`] = getFeatureProperty(
+            feature,
+            property,
+            `${layerId}_no_data_available`
+        )
     })
-    layerConfig.translatedKeys.forEach((property) => {
-        data[`${layerId}_${property}`] = `${layerId}_${
-            feature.getProperty!(property) ?? '_no_data_available'
-        }`
+    layerConfig.translatedKeys.forEach((property: string) => {
+        data[`${layerId}_${property}`] =
+            `${layerId}_${getFeatureProperty(feature, property, '_no_data_available')}`
     })
     return {
         isEditable: false,
@@ -178,14 +198,12 @@ function create3dFeature(
         data,
         title: id.toString(),
         coordinates,
-        extent: extentUtils.createPixelExtentAround(
-            {
-                size: 5,
-                coordinate: coordinates,
-                projection: positionStore.projection,
-                resolution: positionStore.resolution,
-            }
-        ),
+        extent: extentUtils.createPixelExtentAround({
+            size: 5,
+            coordinate: coordinates,
+            projection: positionStore.projection,
+            resolution: positionStore.resolution,
+        }),
         // geometry intentionally omitted for 3D tiles features
         popupDataCanBeTrusted: true,
     }
@@ -217,7 +235,6 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
         title: 'CesiumInteractions.vue',
         titleColor: LogPreDefinedColor.Blue,
         message: [
-            'Cesium',
             'click caught at',
             { pixel: event.position, coordinates },
             'with objects',
@@ -228,8 +245,8 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
     // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
     if (Array.isArray(coordinates) && coordinates.length === 2) {
         visiblePrimitiveLayers.value
-            .filter((l) => l.type === LayerType.GEOJSON)
-            .forEach((geoJSonLayer) => {
+            .filter((layer: Layer) => layer.type === LayerType.GEOJSON)
+            .forEach((geoJSonLayer: Layer) => {
                 const identified = identifyGeoJSONFeatureAt(
                     geoJSonLayer as GeoAdminGeoJSONLayer,
                     coordinates as SingleCoordinate,
@@ -243,8 +260,8 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
     }
 
     visiblePrimitiveLayers.value
-        .filter((l) => l.type === LayerType.KML)
-        .forEach((kmlLayer) => {
+        .filter((layer: Layer) => layer.type === LayerType.KML)
+        .forEach((kmlLayer: Layer) => {
             objects
                 .filter((obj) => obj.id?.layerId === kmlLayer.id)
                 .forEach((kmlFeature) => {
@@ -252,7 +269,6 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
                         title: 'CesiumInteractions.vue',
                         titleColor: LogPreDefinedColor.Blue,
                         message: [
-                            'Cesium',
                             'KML feature click detection',
                             kmlFeature,
                             'for KML layer',
@@ -391,7 +407,7 @@ function onMouseMove(event: ScreenSpaceEventHandler.MotionEvent): void {
         object &&
         cesiumStore.layersTooltipConfig
             .map((layerConfig) => layerConfig.layerId)
-            .includes(getlayerIdFrom3dFeature(object)!)
+            .includes(getLayerIdFrom3dFeature(object)!)
     ) {
         hoveredHighlightPostProcessor.selected = [object]
         viewer?.scene.requestRender()
