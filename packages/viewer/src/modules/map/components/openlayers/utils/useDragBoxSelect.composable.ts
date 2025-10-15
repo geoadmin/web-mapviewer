@@ -81,7 +81,7 @@ export function useDragBoxSelect(): {
         ) {
             log.error({
                 title: 'useDragBoxSelect.composable',
-                messages: ['Invalid dragBoxCoordinates:', dragBoxCoordinates]
+                messages: ['Invalid dragBoxCoordinates:', dragBoxCoordinates],
             })
             return
         }
@@ -157,7 +157,7 @@ function fromOlGeometryToTurfGeometry(olGeometry: Geometry | undefined): TurfGeo
     if (!olGeometry) {
         log.error({
             title: 'useDragBoxSelect.composable',
-            messages: ['Invalid OpenLayers geometry provided.', 'undefined geometry']
+            messages: ['Invalid OpenLayers geometry provided.', 'undefined geometry'],
         })
         return undefined
     }
@@ -167,27 +167,39 @@ function fromOlGeometryToTurfGeometry(olGeometry: Geometry | undefined): TurfGeo
     // Handle each geometry type specifically to avoid complex union types
     switch (olGeometryType) {
         case 'Point': {
-            const coords = (olGeometry as Geometry & { getCoordinates(): SingleCoordinate }).getCoordinates()
+            const coords = (
+                olGeometry as Geometry & { getCoordinates(): SingleCoordinate }
+            ).getCoordinates()
             return point(coords).geometry
         }
         case 'MultiPoint': {
-            const coords = (olGeometry as Geometry & { getCoordinates(): SingleCoordinate[] }).getCoordinates()
+            const coords = (
+                olGeometry as Geometry & { getCoordinates(): SingleCoordinate[] }
+            ).getCoordinates()
             return multiPoint(coords).geometry
         }
         case 'LineString': {
-            const coords = (olGeometry as Geometry & { getCoordinates(): SingleCoordinate[] }).getCoordinates()
+            const coords = (
+                olGeometry as Geometry & { getCoordinates(): SingleCoordinate[] }
+            ).getCoordinates()
             return lineString(coords).geometry
         }
         case 'MultiLineString': {
-            const coords = (olGeometry as Geometry & { getCoordinates(): SingleCoordinate[][] }).getCoordinates()
+            const coords = (
+                olGeometry as Geometry & { getCoordinates(): SingleCoordinate[][] }
+            ).getCoordinates()
             return multiLineString(coords).geometry
         }
         case 'Polygon': {
-            const coords = (olGeometry as Geometry & { getCoordinates(): SingleCoordinate[][] }).getCoordinates()
+            const coords = (
+                olGeometry as Geometry & { getCoordinates(): SingleCoordinate[][] }
+            ).getCoordinates()
             return polygon(coords).geometry
         }
         case 'MultiPolygon': {
-            const coords = (olGeometry as Geometry & { getCoordinates(): SingleCoordinate[][][] }).getCoordinates()
+            const coords = (
+                olGeometry as Geometry & { getCoordinates(): SingleCoordinate[][][] }
+            ).getCoordinates()
             return multiPolygon(coords).geometry
         }
         case 'GeometryCollection': {
@@ -196,14 +208,15 @@ function fromOlGeometryToTurfGeometry(olGeometry: Geometry | undefined): TurfGeo
             const olGeometryCollection = olGeometry as Geometry & {
                 getGeometries(): Geometry[]
             }
-            const geometries = olGeometryCollection.getGeometries()
+            const geometries = olGeometryCollection
+                .getGeometries()
                 .map(fromOlGeometryToTurfGeometry)
                 .filter((geom): geom is TurfGeometry => !!geom)
 
             // Return a GeometryCollection directly
             return {
                 type: 'GeometryCollection',
-                geometries: geometries
+                geometries: geometries,
             } as TurfGeometry
         }
         case 'Circle': {
@@ -214,7 +227,7 @@ function fromOlGeometryToTurfGeometry(olGeometry: Geometry | undefined): TurfGeo
         default:
             log.error({
                 title: 'useDragBoxSelect.composable',
-                messages: ['Unsupported geometry type:', olGeometryType]
+                messages: ['Unsupported geometry type:', olGeometryType],
             })
             return
     }

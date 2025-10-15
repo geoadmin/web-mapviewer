@@ -210,14 +210,16 @@ class OlStyleForPropertyValue {
     private readonly key: string
     private readonly type: GeoAdminGeoJSONStyleType
 
-    singleStyle: {
-        type: GeoAdminGeoJSONStyleType;
-        property: string;
-        olStyle?: Style;
-        labelProperty?: string | undefined;
-        labelTemplate?: string | undefined;
-        imageRotationProperty?: string
-    } | undefined
+    singleStyle:
+        | {
+              type: GeoAdminGeoJSONStyleType
+              property: string
+              olStyle?: Style
+              labelProperty?: string | undefined
+              labelTemplate?: string | undefined
+              imageRotationProperty?: string
+          }
+        | undefined
     defaultVal: string
     defaultStyle: Style
     styles: Record<string, Record<string, StyleSpec[]>>
@@ -251,10 +253,15 @@ class OlStyleForPropertyValue {
             this.singleStyle = {
                 type: geoadminStyleJson.type,
                 property: geoadminStyleJson.property,
-                olStyle: getOlStyleFromLiterals(geoadminStyleJson as unknown as GeoAdminGeoJSONRangeDefinition),
+                olStyle: getOlStyleFromLiterals(
+                    geoadminStyleJson as unknown as GeoAdminGeoJSONRangeDefinition
+                ),
                 labelProperty: getLabelProperty(geoadminStyleJson.vectorOptions?.label),
                 labelTemplate: getLabelTemplate(geoadminStyleJson.vectorOptions?.label),
-                imageRotationProperty: 'rotation' in geoadminStyleJson ? (geoadminStyleJson as { rotation?: string }).rotation : undefined,
+                imageRotationProperty:
+                    'rotation' in geoadminStyleJson
+                        ? (geoadminStyleJson as { rotation?: string }).rotation
+                        : undefined,
             }
         } else if (geoadminStyleJson.type === 'unique') {
             for (const value of geoadminStyleJson.values) {
@@ -307,7 +314,9 @@ class OlStyleForPropertyValue {
 
     getOlStyleForResolution_(olStyles: StyleSpec[], resolution: number): StyleSpec | undefined {
         return olStyles.find(
-            (style) => (style.minResolution ?? 0) <= resolution && (style.maxResolution ?? Infinity) > resolution
+            (style) =>
+                (style.minResolution ?? 0) <= resolution &&
+                (style.maxResolution ?? Infinity) > resolution
         )
     }
 
@@ -322,7 +331,12 @@ class OlStyleForPropertyValue {
         })
     }
 
-    setOlText_(olStyle: Style, labelProperty: string | undefined, labelTemplate: string | undefined, properties: Record<string, unknown>): Style {
+    setOlText_(
+        olStyle: Style,
+        labelProperty: string | undefined,
+        labelTemplate: string | undefined,
+        properties: Record<string, unknown>
+    ): Style {
         let text: string | undefined
         properties = properties || {}
         if (labelProperty) {
@@ -333,7 +347,8 @@ class OlStyleForPropertyValue {
         } else if (labelTemplate) {
             text = labelTemplate
             Object.keys(properties).forEach(
-                (prop) => (text = (text as string).replace('${' + prop + '}', String(properties[prop])))
+                (prop) =>
+                    (text = (text as string).replace('${' + prop + '}', String(properties[prop])))
             )
         }
         if (text) {
@@ -345,7 +360,11 @@ class OlStyleForPropertyValue {
         return olStyle
     }
 
-    setOlRotation_(olStyle: Style, imageRotationProperty: string | undefined, properties: Record<string, unknown>): Style {
+    setOlRotation_(
+        olStyle: Style,
+        imageRotationProperty: string | undefined,
+        properties: Record<string, unknown>
+    ): Style {
         if (imageRotationProperty) {
             const rotation = properties[imageRotationProperty]
             if (rotation && isNumber(rotation)) {
