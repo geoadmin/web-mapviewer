@@ -41,7 +41,7 @@ const wmtsSourceConfig = computed(() => {
         format: wmtsLayerConfig.format,
         projection: positionStore.projection.epsg,
         tileGrid: createTileGridForProjection(),
-        url: getTransformedXYZUrl(),
+        url: getTransformedXYZUrl(wmtsLayerConfig, positionStore.projection, true),
         matrixSet: positionStore.projection.epsg,
         attributions: wmtsLayerConfig.attributions.map((attr) => attr.name),
         style: 'default',
@@ -87,10 +87,19 @@ watch(
     () => layer.setSource(createWMTSSourceForProjection())
 )
 
-function getTransformedXYZUrl(): string {
-    // @ts-expect-error - positionStore.projection is guaranteed to be defined in this context
-    return layerUtils
-        .getWmtsXyzUrl(wmtsLayerConfig, positionStore.projection, { addTimestamp: true })
+function getTransformedXYZUrl(
+    layerConfig: GeoAdminWMTSLayer | undefined,
+    projection: CoordinateSystem | undefined,
+    addTimestamp: boolean = true
+): string {
+    if (!layerConfig || !projection) {
+        return ''
+    }
+    const url = layerUtils.getWmtsXyzUrl?.(layerConfig, projection, { addTimestamp })
+    if (!url) {
+        return ''
+    }
+    return url
         .replace('{z}', '{TileMatrix}')
         .replace('{x}', '{TileCol}')
         .replace('{y}', '{TileRow}')
