@@ -2,7 +2,6 @@
 /** Renders a marker on the map (different styling are available) */
 
 import type { Map } from 'ol'
-import type { StyleLike } from 'ol/style/Style'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { MaybeRef } from 'vue'
 import { computed, inject, watch } from 'vue'
@@ -53,9 +52,7 @@ if (!olMap) {
     throw new Error('OpenLayersMap is not available')
 }
 
-useVectorLayer(olMap, features, {
-    zIndex: zIndex,
-    styleFunction: highlightFeatureStyle as StyleLike,
+useVectorLayer(olMap, features, zIndex, highlightFeatureStyle, {
     onFeatureSelectCallback: selectFeatureCallback,
     deselectAfterSelect: deselectAfterSelect,
 })

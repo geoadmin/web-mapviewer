@@ -6,7 +6,6 @@
 
 import type { Map } from 'ol'
 import { Feature } from 'ol'
-import type { StyleLike } from 'ol/style/Style'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 import { WGS84 } from '@swissgeo/coordinates'
 
@@ -173,14 +172,18 @@ if (!olMap) {
 
 const { zIndexHighlightedFeatures } = useLayerZIndexCalculation()
 
-useVectorLayer(olMap, featureTransformedAsOlFeatures, {
-    zIndex: zIndexHighlightedFeatures,
-    styleFunction: highlightFeatureStyle as StyleLike,
-})
-useVectorLayer(olMap, segmentTransformedAsOlFeatures, {
-    zIndex: zIndexHighlightedFeatures,
-    styleFunction: highlightFeatureStyle as StyleLike,
-})
+useVectorLayer(
+    olMap,
+    featureTransformedAsOlFeatures,
+    zIndexHighlightedFeatures,
+    highlightFeatureStyle
+)
+useVectorLayer(
+    olMap,
+    segmentTransformedAsOlFeatures,
+    zIndexHighlightedFeatures,
+    highlightFeatureStyle
+)
 
 function clearAllSelectedFeatures(): void {
     featuresStore.clearAllSelectedFeatures(dispatcher)
