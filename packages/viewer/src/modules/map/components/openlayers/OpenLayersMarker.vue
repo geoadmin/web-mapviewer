@@ -49,13 +49,15 @@ const features = computed(() => {
         .filter((f): f is Feature<Point> => f !== undefined)
 })
 
-const olMap = inject<Map>('olMap')!
-useVectorLayer(olMap, features, {
-    zIndex: zIndex,
-    styleFunction: highlightFeatureStyle as StyleLike,
-    onFeatureSelectCallback: selectFeatureCallback,
-    deselectAfterSelect: deselectAfterSelect,
-})
+const olMap = inject<Map>('olMap')
+if (olMap) {
+    useVectorLayer(olMap, features, {
+        zIndex: zIndex,
+        styleFunction: highlightFeatureStyle as StyleLike,
+        onFeatureSelectCallback: selectFeatureCallback,
+        deselectAfterSelect: deselectAfterSelect,
+    })
+}
 
 watch(
     () => markerStyle,

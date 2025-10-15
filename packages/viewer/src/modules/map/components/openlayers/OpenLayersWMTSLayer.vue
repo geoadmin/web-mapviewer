@@ -63,8 +63,10 @@ const layer = new TileLayer({
 })
 
 // grabbing the map from the main OpenLayersMap component and use the composable that adds this layer to the map
-const olMap = inject<Map>('olMap')!
-useAddLayerToMap(layer, olMap, zIndex)
+const olMap = inject<Map>('olMap')
+if (olMap) {
+    useAddLayerToMap(layer, olMap, zIndex)
+}
 
 // reacting to changes accordingly
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))

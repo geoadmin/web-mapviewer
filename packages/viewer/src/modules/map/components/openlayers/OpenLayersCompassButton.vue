@@ -5,9 +5,10 @@ import type MapEvent from 'ol/MapEvent'
 import { computed, inject, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import type { ActionDispatcher } from '@/store/types'
 import usePositionStore from '@/store/modules/position.store'
 
-const dispatcher = { name: 'OpenLayersCompassButton.vue' }
+const dispatcher: ActionDispatcher = { name: 'OpenLayersCompassButton.vue' }
 
 const {
     hideIfNorth = false,
@@ -15,7 +16,7 @@ const {
     hideIfNorth?: boolean
 }>()
 
-const olMap = inject<Map>('olMap')!
+const olMap = inject<Map>('olMap')
 const positionStore = usePositionStore()
 const { t } = useI18n()
 
@@ -24,11 +25,14 @@ const rotation = ref(0)
 const showCompass = computed(() => Math.abs(rotation.value) >= 1e-9 || !hideIfNorth)
 
 onMounted(() => {
+    if (!olMap) return
     olMap.on('postrender', onRotate)
 })
 
 onUnmounted(() => {
-    olMap.un('postrender', onRotate)
+    if (olMap) {
+        olMap.un('postrender', onRotate)
+    }
 })
 
 function resetRotation(): void {
