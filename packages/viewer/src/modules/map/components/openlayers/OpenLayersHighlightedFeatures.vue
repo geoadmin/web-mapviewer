@@ -5,14 +5,15 @@
  */
 
 import type { Map } from 'ol'
+import { Feature } from 'ol'
 import type { StyleLike } from 'ol/style/Style'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
+import { WGS84 } from '@swissgeo/coordinates'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { WGS84 } from '@swissgeo/coordinates'
+import log from '@swissgeo/log'
 import { randomIntBetween } from '@swissgeo/numbers'
 import { explode, nearestPoint, point } from '@turf/turf'
-import { Feature } from 'ol'
 import GeoJSON from 'ol/format/GeoJSON'
 import { LineString } from 'ol/geom'
 import proj4 from 'proj4'
@@ -165,18 +166,21 @@ const popoverCoordinate = computed((): SingleCoordinate | undefined => {
 })
 
 const olMap = inject<Map>('olMap')
+if (!olMap) {
+    log.error('OpenLayersMap is not available')
+    throw new Error('OpenLayersMap is not available')
+}
+
 const { zIndexHighlightedFeatures } = useLayerZIndexCalculation()
 
-if (olMap) {
-    useVectorLayer(olMap, featureTransformedAsOlFeatures, {
-        zIndex: zIndexHighlightedFeatures,
-        styleFunction: highlightFeatureStyle as StyleLike,
-    })
-    useVectorLayer(olMap, segmentTransformedAsOlFeatures, {
-        zIndex: zIndexHighlightedFeatures,
-        styleFunction: highlightFeatureStyle as StyleLike,
-    })
-}
+useVectorLayer(olMap, featureTransformedAsOlFeatures, {
+    zIndex: zIndexHighlightedFeatures,
+    styleFunction: highlightFeatureStyle as StyleLike,
+})
+useVectorLayer(olMap, segmentTransformedAsOlFeatures, {
+    zIndex: zIndexHighlightedFeatures,
+    styleFunction: highlightFeatureStyle as StyleLike,
+})
 
 function clearAllSelectedFeatures(): void {
     featuresStore.clearAllSelectedFeatures(dispatcher)
