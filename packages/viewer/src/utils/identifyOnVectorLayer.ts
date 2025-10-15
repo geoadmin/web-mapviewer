@@ -1,4 +1,4 @@
-import type { CoordinateSystem, SingleCoordinate } from '@swissgeo/coordinates'
+import type { CoordinateSystem, FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import type { GeoAdminGeoJSONLayer } from '@swissgeo/layers'
 import type {
     Feature,
@@ -12,9 +12,17 @@ import type {
     Position,
 } from 'geojson'
 
-import { WGS84, extentUtils } from '@swissgeo/coordinates'
+import { WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
-import { booleanPointInPolygon, distance, point, pointToLineDistance, centroid, bbox, type Coord } from '@turf/turf'
+import {
+    bbox,
+    booleanPointInPolygon,
+    centroid,
+    type Coord,
+    distance,
+    point,
+    pointToLineDistance,
+} from '@turf/turf'
 import proj4 from 'proj4'
 import { reproject } from 'reproject'
 
@@ -24,10 +32,6 @@ import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJs
 
 const pixelToleranceForIdentify = 20
 
-/**
- * @param coordinates
- * @param targetProjection
- */
 function reprojectCoordinates(
     coordinates: Position | Position[] | Position[][] | Position[][][],
     targetProjection: CoordinateSystem
@@ -38,12 +42,14 @@ function reprojectCoordinates(
     }
 
     // Check if it's a Position[][][] (multipolygon coordinates)
-    if (Array.isArray(coordinates[0]) && Array.isArray(coordinates[0][0]) && Array.isArray(coordinates[0][0][0])) {
+    if (
+        Array.isArray(coordinates[0]) &&
+        Array.isArray(coordinates[0][0]) &&
+        Array.isArray(coordinates[0][0][0])
+    ) {
         return (coordinates as Position[][][]).map((polygon) =>
             polygon.map((coords) =>
-                coords.map((coord) =>
-                    proj4(WGS84.epsg, targetProjection.epsg, coord)
-                )
+                coords.map((coord) => proj4(WGS84.epsg, targetProjection.epsg, coord))
             )
         )
     }
@@ -51,9 +57,7 @@ function reprojectCoordinates(
     // Check if it's a Position[][] (polygon coordinates)
     if (Array.isArray(coordinates[0]) && Array.isArray(coordinates[0][0])) {
         return (coordinates as Position[][]).map((coords) =>
-            coords.map((coord) =>
-                proj4(WGS84.epsg, targetProjection.epsg, coord)
-            )
+            coords.map((coord) => proj4(WGS84.epsg, targetProjection.epsg, coord))
         )
     }
 
@@ -74,8 +78,9 @@ function identifyInGeoJson(
     const coordinateWGS84 = point(proj4(projection.epsg, WGS84.epsg, coordinate))
     const matchingFeatures = geoJson.features
         // only keeping feature with geometry (required to run Turf below)
-        .filter((feature): feature is Feature & { geometry: NonNullable<Feature['geometry']> } =>
-            feature.geometry !== null && feature.geometry !== undefined
+        .filter(
+            (feature): feature is Feature & { geometry: NonNullable<Feature['geometry']> } =>
+                feature.geometry !== null && feature.geometry !== undefined
         )
         .filter((feature) => {
             const turfFeature = transformIntoTurfEquivalent(feature.geometry)
@@ -91,9 +96,13 @@ function identifyInGeoJson(
                 case 'LineString':
                 case 'MultiLineString':
                     return (
-                        pointToLineDistance(coordinateWGS84, geometry as Feature<LineString> | LineString, {
-                            units: 'meters',
-                        }) <= distanceThreshold
+                        pointToLineDistance(
+                            coordinateWGS84,
+                            geometry as Feature<LineString> | LineString,
+                            {
+                                units: 'meters',
+                            }
+                        ) <= distanceThreshold
                     )
                 case 'Point':
                 case 'MultiPoint':
@@ -118,24 +127,22 @@ function identifyInGeoJson(
  * This means we do not require OpenLayers to perform this search anymore, and that this code can be
  * used in any mapping framework.
  *
- * @param geoJsonLayer The GeoJSON layer in which we want to find feature at
- *   the given coordinate. This layer must have its geoJsonData loaded in order for this
- *   identification of feature to work properly (this function will not load the data if it is
- *   missing)
+ * @param geoJsonLayer The GeoJSON layer in which we want to find feature at the given coordinate.
+ *   This layer must have its geoJsonData loaded in order for this identification of feature to work
+ *   properly (this function will not load the data if it is missing)
  * @param coordinate Where we want to find features ([x, y])
- * @param projection The projection used to describe the coordinate where we want
- *   to search for feature
- * @param resolution The current map resolution, in meters/pixel. Used to calculate a
- *   tolerance of 10 pixels around the given coordinate.
- * @returns The feature found at the coordinate, or an empty array if none
- *   were found
+ * @param projection The projection used to describe the coordinate where we want to search for
+ *   feature
+ * @param resolution The current map resolution, in meters/pixel. Used to calculate a tolerance of
+ *   10 pixels around the given coordinate.
+ * @returns The feature found at the coordinate, or an empty array if none were found
  */
 export function identifyGeoJSONFeatureAt(
     geoJsonLayer: GeoAdminGeoJSONLayer,
     coordinate: Position,
     projection: CoordinateSystem,
     resolution: number
-): (LayerFeature | undefined) [] {
+): (LayerFeature | undefined)[] {
     if (!geoJsonLayer?.geoJsonData) {
         log.error('No data for layer', geoJsonLayer, 'no identification of feature possible')
         return []
@@ -172,27 +179,29 @@ export function identifyGeoJSONFeatureAt(
 
             let featureCoordinates: SingleCoordinate
             // creating a centroid is especially important for Polygon geometries
-            if (['LineString', 'MultiLineString', 'Polygon', 'MultiPolygon'].includes(geometry.type)) {
+            if (
+                ['LineString', 'MultiLineString', 'Polygon', 'MultiPolygon'].includes(geometry.type)
+            ) {
                 featureCoordinates = centroid(geometry).geometry.coordinates as SingleCoordinate
             } else {
                 featureCoordinates = coordinates as SingleCoordinate
             }
 
-            // Calculate extent from the geometry
-            const featureExtent = bbox(geometry) as [number, number, number, number]
-            const normalizedExtent = extentUtils.normalizeExtent(featureExtent)
+            // Calculate the extent from the geometry
+            const featureExtent = bbox(geometry) as FlatExtent
 
             const layerFeature: LayerFeature = {
                 isEditable: false,
                 layer: geoJsonLayer,
                 id: featureId,
-                title: feature.properties?.label ||
-                       feature.properties?.name ||
-                       feature.properties?.title ||
-                       featureId.toString(),
+                title:
+                    feature.properties?.label ||
+                    feature.properties?.name ||
+                    feature.properties?.title ||
+                    featureId.toString(),
                 data: feature.properties || {},
                 coordinates: featureCoordinates,
-                extent: normalizedExtent,
+                extent: featureExtent,
                 geometry: geometry,
                 popupDataCanBeTrusted: false, // GeoJSON layers are external data
             }
