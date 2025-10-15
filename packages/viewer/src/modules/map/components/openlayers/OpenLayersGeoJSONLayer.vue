@@ -2,11 +2,11 @@
 /** Adds a GeoJSON layer to the OpenLayers map */
 
 import type { Map } from 'ol'
+import { Feature } from 'ol'
 import type { FeatureLike } from 'ol/Feature'
 import type { GeoAdminGeoJSONLayer } from '@swissgeo/layers'
 
 import log from '@swissgeo/log'
-import { Feature } from 'ol'
 import GeoJSON from 'ol/format/GeoJSON'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
@@ -84,10 +84,12 @@ function createSourceForProjection(): void {
 }
 
 const olMap = inject<Map>('olMap')
-if (olMap) {
-    useAddLayerToMap(layer, olMap, zIndex)
+if (!olMap) {
+    log.error('OpenLayersMap is not available')
+    throw new Error('OpenLayersMap is not available')
 }
 
+useAddLayerToMap(layer, olMap, zIndex)
 createSourceForProjection()
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))

@@ -20,14 +20,13 @@ const projection = computed(() => positionStore.projection)
 
 const olMap = inject<Map>('olMap')
 if (!olMap) {
-    log.error({ title: 'OpenLayersMouseTracker', message: 'OpenLayers map not found' })
+    log.error('OpenLayersMap is not available')
+    throw new Error('OpenLayersMap is not available')
 }
 
 let mousePositionControl: MousePosition | undefined
 
 onMounted(() => {
-    if (!olMap) return
-
     mousePositionControl = new MousePosition({
         className: 'mouse-position-inner',
     })
@@ -40,7 +39,7 @@ onMounted(() => {
     })
 })
 onUnmounted(() => {
-    if (mousePositionControl && olMap) {
+    if (mousePositionControl) {
         olMap.removeControl(mousePositionControl)
     }
 })

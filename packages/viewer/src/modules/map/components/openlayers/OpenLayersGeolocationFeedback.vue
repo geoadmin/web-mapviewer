@@ -27,6 +27,10 @@ const dispatcher: ActionDispatcher = {
 }
 
 const olMap = inject<Map>('olMap')
+if (!olMap) {
+    log.error('OpenLayersMap is not available')
+    throw new Error('OpenLayersMap is not available')
+}
 
 const geolocationStore = useGeolocationStore()
 const positionStore = usePositionStore()
@@ -93,14 +97,10 @@ const orientationParameters = computed(() => {
 // by using the store event, it can lead to race condition when moving the map between the
 // moveend event and the geolocation event.
 onBeforeMount(() => {
-    if (olMap) {
-        olMap.on('movestart', disableTrackingAndAutoRotation)
-    }
+    olMap.on('movestart', disableTrackingAndAutoRotation)
 })
 onBeforeUnmount(() => {
-    if (olMap) {
-        olMap.un('movestart', disableTrackingAndAutoRotation)
-    }
+    olMap.un('movestart', disableTrackingAndAutoRotation)
 })
 
 function roundIfNumber(v: unknown, d: number): string {

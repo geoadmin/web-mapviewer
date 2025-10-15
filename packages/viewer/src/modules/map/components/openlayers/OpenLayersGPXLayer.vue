@@ -51,9 +51,12 @@ const layer = new VectorLayer({
 })
 
 const olMap = inject<Map>('olMap')
-if (olMap) {
-    useAddLayerToMap(layer, olMap, zIndex)
+if (!olMap) {
+    log.error('OpenLayersMap is not available')
+    throw new Error('OpenLayersMap is not available')
 }
+
+useAddLayerToMap(layer, olMap, zIndex)
 
 onMounted(() => {
     // exposing things for Cypress testing

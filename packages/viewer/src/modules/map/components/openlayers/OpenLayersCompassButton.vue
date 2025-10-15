@@ -2,6 +2,7 @@
 import type { Map } from 'ol'
 import type MapEvent from 'ol/MapEvent'
 
+import log from '@swissgeo/log'
 import { computed, inject, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -10,13 +11,16 @@ import usePositionStore from '@/store/modules/position.store'
 
 const dispatcher: ActionDispatcher = { name: 'OpenLayersCompassButton.vue' }
 
-const {
-    hideIfNorth = false,
-} = defineProps<{
+const { hideIfNorth = false } = defineProps<{
     hideIfNorth?: boolean
 }>()
 
 const olMap = inject<Map>('olMap')
+if (!olMap) {
+    log.error('OpenLayersMap is not available')
+    throw new Error('OpenLayersMap is not available')
+}
+
 const positionStore = usePositionStore()
 const { t } = useI18n()
 
@@ -25,15 +29,11 @@ const rotation = ref(0)
 const showCompass = computed(() => Math.abs(rotation.value) >= 1e-9 || !hideIfNorth)
 
 onMounted(() => {
-    if (olMap) {
-        olMap.on('postrender', onRotate)
-    }
+    olMap.on('postrender', onRotate)
 })
 
 onUnmounted(() => {
-    if (olMap) {
-        olMap.un('postrender', onRotate)
-    }
+    olMap.un('postrender', onRotate)
 })
 
 function resetRotation(): void {
