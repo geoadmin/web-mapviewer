@@ -83,8 +83,10 @@ function createSourceForProjection(): void {
     setFeatures()
 }
 
-const olMap = inject<Map>('olMap')!
-useAddLayerToMap(layer, olMap, zIndex)
+const olMap = inject<Map>('olMap')
+if (olMap) {
+    useAddLayerToMap(layer, olMap, zIndex)
+}
 
 createSourceForProjection()
 
