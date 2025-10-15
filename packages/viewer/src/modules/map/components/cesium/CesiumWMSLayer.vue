@@ -16,7 +16,11 @@ import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUti
 
 const MAXIMUM_LEVEL_OF_DETAILS = 18
 
-const { wmsLayerConfig, zIndex, parentLayerOpacity } = defineProps<{
+const {
+    wmsLayerConfig,
+    zIndex = -1,
+    parentLayerOpacity,
+} = defineProps<{
     wmsLayerConfig: GeoAdminWMSLayer | ExternalWMSLayer
     zIndex?: number
     parentLayerOpacity?: number
@@ -86,7 +90,7 @@ function createProvider() {
         rectangle: Rectangle.fromDegrees(...DEFAULT_PROJECTION.getBoundsAs(WGS84)!.flatten),
     })
 }
-const { refreshLayer } = useAddImageryLayer(viewer, createProvider, () => zIndex, toRef(opacity))
+const { refreshLayer } = useAddImageryLayer(viewer, createProvider, toRef(zIndex), toRef(opacity))
 </script>
 
 <template>
