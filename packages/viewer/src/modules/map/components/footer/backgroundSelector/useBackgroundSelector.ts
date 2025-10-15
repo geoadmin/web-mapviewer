@@ -1,3 +1,5 @@
+import type { Layer } from '@swissgeo/layers'
+
 import { ref } from 'vue'
 
 /**
@@ -5,21 +7,20 @@ import { ref } from 'vue'
  * background selector with the same Vue code basis.
  */
 export default function useBackgroundSelector(
-    _backgroundLayers: Array<{ id: string } | undefined>,
-    _currentBackgroundLayer: { id: string } | undefined,
-    emit: (event: 'selectBackground', backgroundLayer: string | undefined) => void
+    selectBackgroundCallback: (backgroundLayerId?: string) => void
 ) {
-    const show = ref(false)
-    const animate = ref(false)
-    function getImageForBackgroundLayer(backgroundLayer: { id: string } | undefined) {
+    const show = ref<boolean>(false)
+    const animate = ref<boolean>(false)
+
+    function getImageForBackgroundLayer(backgroundLayer?: Layer) {
         let backgroundId = backgroundLayer?.id
         if (!backgroundId) {
             backgroundId = 'void'
         }
         return new URL(`../../../assets/${backgroundId}.png`, import.meta.url).href
     }
-    function onSelectBackground(backgroundLayer: string | undefined) {
-        emit('selectBackground', backgroundLayer)
+    function onSelectBackground(backgroundLayerId: string | undefined) {
+        selectBackgroundCallback(backgroundLayerId)
         toggleShowSelector()
     }
     function toggleShowSelector() {

@@ -1,25 +1,28 @@
 <script setup lang="ts">
+import type { Layer } from '@swissgeo/layers'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { useI18n } from 'vue-i18n'
 
 import useBackgroundSelector from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelector'
-import type { Layer } from '@swissgeo/layers'
 
 const { backgroundLayers, currentBackgroundLayer } = defineProps<{
-    backgroundLayers: Layer[]
+    backgroundLayers: Array<Layer | undefined>
     currentBackgroundLayer?: Layer
 }>()
 
-const emit = defineEmits({
-    selectBackground: (backgroundLayerId: string | undefined) => {
-        return backgroundLayerId === undefined || typeof backgroundLayerId === 'string'
-    },
-})
+const emit = defineEmits<{
+    selectBackground: [backgroundLayerId: string | undefined]
+}>()
+
+function selectBackgroundCallback(backgroundLayerId: string | undefined): void {
+    emit('selectBackground', backgroundLayerId)
+}
 
 const { t } = useI18n()
 
 const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectBackground } =
-    useBackgroundSelector(backgroundLayers, currentBackgroundLayer, emit)
+    useBackgroundSelector(selectBackgroundCallback)
 </script>
 
 <template>
