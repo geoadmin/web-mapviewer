@@ -168,7 +168,7 @@ export default function useDeviceOrientation(): {
     })
 
     function rotateMap(value: number): void {
-        olMap.getView().animate({
+        olMap!.getView().animate({
             rotation: value,
             duration: ANIMATION_DURATION_MS,
         })
