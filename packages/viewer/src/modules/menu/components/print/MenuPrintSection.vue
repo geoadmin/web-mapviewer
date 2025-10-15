@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import log from '@swissgeo/log'
 import { formatThousand } from '@swissgeo/numbers'
-import { computed, inject, ref, watch, type ComputedRef, type WritableComputedRef } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import Map from 'ol/Map'
 
-import { PrintError, PrintLayout } from '@/api/print.api.js'
+import { PrintError, PrintLayout } from '@/api/print.api'
 import {
     PrintStatus,
     usePrint,
@@ -16,19 +16,26 @@ import ProgressBar from '@/utils/components/ProgressBar.vue'
 import { downloadFile, generateFilename } from '@/utils/utils'
 import usePrintStore from '@/store/modules/print.store'
 import useLayersStore from '@/store/modules/layers.store'
+import type { ActionDispatcher } from '@/store/types'
 
-const dispatcher = { name: 'MapPrintSection.vue' }
+const dispatcher: ActionDispatcher = { name: 'MapPrintSection.vue' }
 
-const emits = defineEmits(['openMenuSection'])
+const emits = defineEmits<{
+    openMenuSection: [sectionId: string]
+}>()
 
 const sectionId = 'printSection'
-const isSectionShown = ref(false)
-const printGrid = ref(false)
-const printLegend = ref(false)
+const isSectionShown = ref<boolean>(false)
+const printGrid = ref<boolean>(false)
+const printLegend = ref<boolean>(false)
 
 const olMap = inject<Map>('olMap')
+if (!olMap) {
+    log.error('OpenLayers map is not available')
+    throw new Error('OpenLayers map is not available')
+}
 
-const { printStatus, print, abortCurrentJob, printError } = usePrint(olMap!)
+const { printStatus, print, abortCurrentJob, printError } = usePrint(olMap)
 
 const { t } = useI18n()
 
@@ -36,9 +43,9 @@ const printStore = usePrintStore()
 const layersStore = useLayersStore()
 
 // approximate print duration := 8s per layer (+1 is for the background layer and to avoid 0 duration)
-const printDuration = computed(() => 8 * (layersStore.visibleLayers.length + 1))
+const printDuration = computed<number>(() => 8 * (layersStore.visibleLayers.length + 1))
 
-const availablePrintLayouts: ComputedRef<DropdownItem<PrintLayout>[]> = computed(() =>
+const availablePrintLayouts = computed<DropdownItem<PrintLayout>[]>(() =>
     printStore.layouts.map((layout) => ({
         id: formatTitle(layout.name),
         title: formatTitle(layout.name),
@@ -46,7 +53,7 @@ const availablePrintLayouts: ComputedRef<DropdownItem<PrintLayout>[]> = computed
     }))
 )
 
-const availableScales: ComputedRef<DropdownItem<number>[]> = computed(
+const availableScales = computed<DropdownItem<number>[]>(
     () =>
         selectedLayout?.value?.scales?.map((scale) => ({
             id: scale,
@@ -55,7 +62,7 @@ const availableScales: ComputedRef<DropdownItem<number>[]> = computed(
         })) ?? []
 )
 
-const selectedLayout: WritableComputedRef<PrintLayout | undefined> = computed({
+const selectedLayout = computed<PrintLayout | undefined>({
     get() {
         return printStore.selectedLayout
     },
@@ -64,16 +71,16 @@ const selectedLayout: WritableComputedRef<PrintLayout | undefined> = computed({
     },
 })
 
-const selectedScale = computed({
+const selectedScale = computed<number | undefined>({
     get() {
         return printStore.selectedScale
     },
-    set(value: number) {
+    set(value: number | undefined) {
         printStore.setSelectedScale(value, dispatcher)
     },
 })
 
-const printErrorMessage = computed(() => {
+const printErrorMessage = computed<string>(() => {
     if (PrintStatus.FINISHED_ABORTED) {
         return t('operation_aborted')
     } else {
@@ -188,7 +195,7 @@ defineExpose({
                 id="print-layout-selector"
                 :title="formatTitle(selectedLayout?.name)"
                 :items="availablePrintLayouts"
-                :current-value="selectedLayout?.name || null"
+                :current-value="selectedLayout?.name"
                 data-cy="print-layout-selector"
                 @select-item="selectPrintLayout"
             />

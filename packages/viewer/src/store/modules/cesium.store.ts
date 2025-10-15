@@ -123,7 +123,7 @@ const useCesiumStore = defineStore('cesium', {
         layersWithTooltips(): Layer[] {
             return this.backgroundLayersFor3D.filter((bgLayer) =>
                 this.layersTooltipConfig
-                    .map((layerConfig) => layerConfig.layerId)
+                    .map((layerConfig: LayerTooltipConfig) => layerConfig.layerId)
                     .includes(bgLayer.id)
             )
         },
