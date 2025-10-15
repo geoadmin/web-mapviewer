@@ -9,13 +9,11 @@ import usePositionStore from '@/store/modules/position.store'
 
 const dispatcher = { name: 'OpenLayersCompassButton.vue' }
 
-interface Props {
+const {
+    hideIfNorth = false,
+} = defineProps<{
     hideIfNorth?: boolean
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    hideIfNorth: false,
-})
+}>()
 
 const olMap = inject<Map>('olMap')!
 const positionStore = usePositionStore()
@@ -23,7 +21,7 @@ const { t } = useI18n()
 
 const rotation = ref(0)
 
-const showCompass = computed(() => Math.abs(rotation.value) >= 1e-9 || !props.hideIfNorth)
+const showCompass = computed(() => Math.abs(rotation.value) >= 1e-9 || !hideIfNorth)
 
 onMounted(() => {
     olMap.on('postrender', onRotate)
