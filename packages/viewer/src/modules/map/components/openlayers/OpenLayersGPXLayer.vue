@@ -22,26 +22,25 @@ import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLa
 import usePositionStore from '@/store/modules/position.store'
 import { parseGpx } from '@/utils/gpxUtils'
 
-interface Props {
+const {
+    gpxLayerConfig,
+    parentLayerOpacity,
+    zIndex = -1,
+} = defineProps<{
     gpxLayerConfig: GPXLayer
     parentLayerOpacity?: number
     zIndex?: number
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    parentLayerOpacity: undefined,
-    zIndex: -1,
-})
+}>()
 
 // mapping relevant store values
 const positionStore = usePositionStore()
 const projection = computed(() => positionStore.projection)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => props.gpxLayerConfig.id)
-const opacity = computed(() => props.parentLayerOpacity ?? props.gpxLayerConfig.opacity)
-const url = computed(() => props.gpxLayerConfig.baseUrl)
-const gpxData = computed(() => props.gpxLayerConfig.gpxData)
+const layerId = computed(() => gpxLayerConfig.id)
+const opacity = computed(() => parentLayerOpacity ?? gpxLayerConfig.opacity)
+const url = computed(() => gpxLayerConfig.baseUrl)
+const gpxData = computed(() => gpxLayerConfig.gpxData)
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(projection, createSourceForProjection)
@@ -54,13 +53,13 @@ from the screen.  */
 const layer = new VectorLayer({
     properties: {
         id: layerId.value,
-        uuid: props.gpxLayerConfig.uuid,
+        uuid: gpxLayerConfig.uuid,
     },
     opacity: opacity.value,
 })
 
 const olMap = inject<Map>('olMap')!
-useAddLayerToMap(layer, olMap, props.zIndex)
+useAddLayerToMap(layer, olMap, zIndex)
 
 onMounted(() => {
     // exposing things for Cypress testing

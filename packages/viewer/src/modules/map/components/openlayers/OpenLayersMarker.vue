@@ -4,6 +4,7 @@
 import type { Map } from 'ol'
 import type { StyleLike } from 'ol/style/Style'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type { MaybeRef } from 'vue'
 import { randomIntBetween } from '@swissgeo/numbers'
 import Feature from 'ol/Feature'
 import { Point } from 'ol/geom'
@@ -16,49 +17,48 @@ import {
 } from '@/modules/map/components/openlayers/utils/markerStyle'
 import useVectorLayer from '@/modules/map/components/openlayers/utils/useVectorLayer.composable'
 
-interface Props {
+const {
+    position,
+    markerStyle = OpenLayersMarkerStyles.Balloon,
+    zIndex = -1,
+    selectFeatureCallback = () => {},
+    deselectAfterSelect = false,
+} = defineProps<{
     position: SingleCoordinate | SingleCoordinate[]
     markerStyle?: OpenLayersMarkerStyles
-    zIndex?: number
+    zIndex?: MaybeRef<number>
     selectFeatureCallback?: (_feature: Feature) => void
     deselectAfterSelect?: boolean
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    markerStyle: OpenLayersMarkerStyles.Balloon,
-    zIndex: -1,
-    selectFeatureCallback: () => {},
-    deselectAfterSelect: false,
-})
+}>()
 
 const features = computed(() => {
-    if (!Array.isArray(props.position)) {
+    if (!Array.isArray(position)) {
         return []
     }
     if (
-        Array.isArray(props.position) &&
-        props.position.length === 2 &&
-        typeof props.position[0] === 'number'
+        Array.isArray(position) &&
+        position.length === 2 &&
+        typeof position[0] === 'number'
     ) {
-        const feature = featuresForPosition(props.position as SingleCoordinate, props.markerStyle)
+        const feature = featuresForPosition(position as SingleCoordinate, markerStyle)
         return feature ? [feature] : []
     }
     // we have received multiple point at once, we need to parse them each one at a time
-    return (props.position as SingleCoordinate[])
-        .map((point) => featuresForPosition(point, props.markerStyle))
+    return (position as SingleCoordinate[])
+        .map((point) => featuresForPosition(point, markerStyle))
         .filter((f): f is Feature<Point> => f !== undefined)
 })
 
 const olMap = inject<Map>('olMap')!
 useVectorLayer(olMap, features, {
-    zIndex: props.zIndex,
+    zIndex: zIndex,
     styleFunction: highlightFeatureStyle as StyleLike,
-    onFeatureSelectCallback: props.selectFeatureCallback,
-    deselectAfterSelect: props.deselectAfterSelect,
+    onFeatureSelectCallback: selectFeatureCallback,
+    deselectAfterSelect: deselectAfterSelect,
 })
 
 watch(
-    () => props.markerStyle,
+    () => markerStyle,
     (newStyle) => {
         const olStyle = getMarkerStyle(newStyle)
         features.value.forEach((feature) => feature.setStyle(olStyle))

@@ -27,16 +27,15 @@ import { iconUrlProxyFy, parseKml } from '@/utils/kmlUtils'
 
 const dispatcher = { name: 'OpenLayersKMLLayer.vue' }
 
-interface Props {
+const {
+    kmlLayerConfig,
+    parentLayerOpacity,
+    zIndex = -1,
+} = defineProps<{
     kmlLayerConfig: KMLLayer
     parentLayerOpacity?: number
     zIndex?: number
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    parentLayerOpacity: undefined,
-    zIndex: -1,
-})
+}>()
 
 // mapping relevant store values
 const positionStore = usePositionStore()
@@ -49,12 +48,12 @@ const availableIconSets = computed(() => drawingStore.iconSets)
 const iconsArePresent = computed(() => availableIconSets.value.length > 0)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => props.kmlLayerConfig.id)
-const layerName = computed(() => props.kmlLayerConfig.name)
-const opacity = computed(() => props.parentLayerOpacity ?? props.kmlLayerConfig.opacity)
-const url = computed(() => props.kmlLayerConfig.baseUrl)
-const kmlData = computed(() => props.kmlLayerConfig.kmlData)
-const kmlStyle = computed(() => props.kmlLayerConfig.style)
+const layerId = computed(() => kmlLayerConfig.id)
+const layerName = computed(() => kmlLayerConfig.name)
+const opacity = computed(() => parentLayerOpacity ?? kmlLayerConfig.opacity)
+const url = computed(() => kmlLayerConfig.baseUrl)
+const kmlData = computed(() => kmlLayerConfig.kmlData)
+const kmlStyle = computed(() => kmlLayerConfig.style)
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(projection, createSourceForProjection)
@@ -70,13 +69,13 @@ from the screen.  */
 const layer = new VectorLayer({
     properties: {
         id: layerId.value,
-        uuid: props.kmlLayerConfig.uuid,
+        uuid: kmlLayerConfig.uuid,
     },
     opacity: opacity.value,
 })
 
 const olMap = inject<Map>('olMap')!
-useAddLayerToMap(layer, olMap, props.zIndex)
+useAddLayerToMap(layer, olMap, zIndex)
 
 onMounted(() => {
     if (!iconsArePresent.value) {
@@ -139,7 +138,7 @@ function createSourceForProjection(): void {
         new VectorSource({
             wrapX: true,
             features: parseKml(
-                props.kmlLayerConfig,
+                kmlLayerConfig,
                 projection.value,
                 availableIconSets.value,
                 resolution.value,
