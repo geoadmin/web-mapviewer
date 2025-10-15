@@ -3,10 +3,12 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { useI18n } from 'vue-i18n'
 
 import useBackgroundSelector from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelector'
-import useBackgroundLayerProps from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelectorProps'
+import type { Layer } from '@swissgeo/layers'
 
-const props = defineProps(useBackgroundLayerProps())
-const { backgroundLayers, currentBackgroundLayer } = props
+const { backgroundLayers, currentBackgroundLayer } = defineProps<{
+    backgroundLayers: Layer[]
+    currentBackgroundLayer?: Layer
+}>()
 
 const emit = defineEmits({
     selectBackground: (backgroundLayerId: string | undefined) => {

@@ -62,7 +62,9 @@ function setupHandler(): void {
     handler = new ScreenSpaceEventHandler(viewer.scene.canvas)
     handler.setInputAction((movement: { endPosition: Cartesian2 }) => {
         const ray = viewer.camera.getPickRay(movement.endPosition)
-        if (!ray) return
+        if (!ray) {
+            return
+        }
         const cartesian = viewer.scene.globe.pick(ray, viewer.scene)
         if (cartesian) {
             const cartographic = Cartographic.fromCartesian(cartesian)

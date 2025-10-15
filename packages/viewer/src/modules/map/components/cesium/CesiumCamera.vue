@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { LV95, WGS84 } from '@swissgeo/coordinates'
-import log, { LogPreDefinedColor, type GeoadminLogInput } from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { wrapDegrees } from '@swissgeo/numbers'
 import { Cartesian2, Cartesian3, defined, Ellipsoid, Math as CesiumMath } from 'cesium'
 import { isEqual } from 'lodash'
@@ -194,23 +194,22 @@ function initCamera(): void {
             return
         }
     }
-    const v = viewer
-    const sscController = v.scene.screenSpaceCameraController
+    const sscController = viewer.scene.screenSpaceCameraController
     sscController.minimumZoomDistance = CAMERA_MIN_ZOOM_DISTANCE
     sscController.maximumZoomDistance = CAMERA_MAX_ZOOM_DISTANCE
 
-    v.scene.postRender.addEventListener(limitCameraCenter(LV95.getBoundsAs(WGS84)!.flatten))
-    v.scene.postRender.addEventListener(
+    viewer.scene.postRender.addEventListener(limitCameraCenter(LV95.getBoundsAs(WGS84)!.flatten))
+    viewer.scene.postRender.addEventListener(
         limitCameraPitchRoll(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH, 0.0, 0.0)
     )
 
-    v.camera.flyTo({
+    viewer.camera.flyTo({
         destination,
         orientation,
         duration: 0,
     })
 
-    v.camera.moveEnd.addEventListener(onCameraMoveEnd)
+    viewer.camera.moveEnd.addEventListener(onCameraMoveEnd)
 }
 </script>
 

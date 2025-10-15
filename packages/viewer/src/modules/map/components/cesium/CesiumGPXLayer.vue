@@ -34,10 +34,11 @@ async function createSource(): Promise<GpxDataSource> {
             }
         )
     } catch (error: unknown) {
-        log.error(
-            `[Cesium] Error while parsing GPX data for layer ${gpxLayerConfig.id}`,
-            error as string
-        )
+        log.error({
+            title: 'Cesium',
+            message: [`Could not load GPX ${gpxLayerConfig.id}`],
+            error,
+        })
         throw error
     }
 }

@@ -1,14 +1,16 @@
 import log, { LogPreDefinedColor } from '@swissgeo/log'
-import { onBeforeUnmount, onMounted } from 'vue'
+import { onBeforeUnmount, onMounted, toValue, type MaybeRef } from 'vue'
+
+import type { ActionDispatcher } from '@/store/types'
 
 import useImportFile from '@/modules/menu/components/advancedTools/ImportFile/useImportFile.composable'
 import useUiStore from '@/store/modules/ui.store'
 
-const dispatcher = {
+const dispatcher: ActionDispatcher = {
     name: 'useDragFileOverlay.composable',
 }
 
-export default function useDragFileOverlay(mapHtmlElement: HTMLElement) {
+export default function useDragFileOverlay(mapHtmlElementRef: MaybeRef<HTMLElement | undefined>) {
     const { handleFileSource } = useImportFile()
     const uiStore = useUiStore()
 
@@ -51,6 +53,16 @@ export default function useDragFileOverlay(mapHtmlElement: HTMLElement) {
     }
 
     function registerDragAndDropEvent() {
+        const mapHtmlElement = toValue(mapHtmlElementRef)
+
+        if (!mapHtmlElement) {
+            log.error({
+                title: 'useDragFileOverlay.composable',
+                message: ['Cannot register drag and drop events: mapHtmlElement is undefined'],
+            })
+            return
+        }
+
         log.debug({
             title: 'useDragFileOverlay.composable',
             titleColor: LogPreDefinedColor.Blue,
@@ -62,6 +74,12 @@ export default function useDragFileOverlay(mapHtmlElement: HTMLElement) {
     }
 
     function unregisterDragAndDropEvent() {
+        const mapHtmlElement = toValue(mapHtmlElementRef)
+
+        if (!mapHtmlElement) {
+            return
+        }
+
         log.debug({
             title: 'useDragFileOverlay.composable',
             titleColor: LogPreDefinedColor.Blue,
@@ -75,7 +93,8 @@ export default function useDragFileOverlay(mapHtmlElement: HTMLElement) {
     onMounted(registerDragAndDropEvent)
     onBeforeUnmount(unregisterDragAndDropEvent)
 
-    if (mapHtmlElement) {
+    // Immediate registration if element is already available
+    if (toValue(mapHtmlElementRef)) {
         registerDragAndDropEvent()
     }
 }

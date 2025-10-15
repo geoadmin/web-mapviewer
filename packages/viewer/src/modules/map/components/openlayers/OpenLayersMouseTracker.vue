@@ -9,6 +9,7 @@ import getHumanReadableCoordinate from '@/modules/map/components/common/mouseTra
 import type { ActionDispatcher } from '@/store/types'
 import usePositionStore from '@/store/modules/position.store'
 import { allFormats, LV95Format } from '@/utils/coordinates/coordinateFormat'
+import type { SingleCoordinate } from '@swissgeo/coordinates'
 
 const dispatcher: ActionDispatcher = { name: 'OpenLayersMouseTracker.vue' }
 
@@ -52,7 +53,7 @@ function setDisplayedFormatWithId(): void {
     if (displayedFormat && mousePositionControl) {
         mousePositionControl.setCoordinateFormat((coordinates) => {
             return getHumanReadableCoordinate({
-                coordinates,
+                coordinates: coordinates as SingleCoordinate,
                 displayedFormat,
                 projection: projection.value,
             })

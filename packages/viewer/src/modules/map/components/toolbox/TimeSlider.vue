@@ -6,17 +6,18 @@ import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 import TimeSliderDropdown from '@/modules/map/components/toolbox/TimeSliderDropdown.vue'
 import debounce from '@/utils/debounce'
 import useUIStore from '@/store/modules/ui.store'
 import useLayersStore from '@/store/modules/layers.store'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
 import type { LayerTimeConfig } from '@swissgeo/layers'
+import type { ActionDispatcher } from '@/store/types'
+import { DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 
 type LayerTimeConfigWithYears = LayerTimeConfig & { years: number[] }
 
-const dispatcher = { name: 'TimeSlider.vue' }
+const dispatcher: ActionDispatcher = { name: 'TimeSlider.vue' }
 
 const { t } = useI18n()
 const uiStore = useUIStore()
@@ -32,7 +33,7 @@ const falseYear = ref<number | undefined>()
 let cursorX = 0
 const playYearsWithData = ref(false)
 let yearCursorIsGrabbed = false
-let playYearInterval: NodeJS.Timeout | undefined
+let playYearInterval: ReturnType<typeof setTimeout> | undefined
 
 const yearCursor = useTemplateRef<HTMLDivElement>('yearCursor')
 const sliderContainer = useTemplateRef<HTMLDivElement>('sliderContainer')

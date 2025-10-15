@@ -2,13 +2,8 @@
 import { WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import { ErrorMessage } from '@swissgeo/log/Message'
-import {
-    Rectangle,
-    UrlTemplateImageryProvider,
-    Viewer,
-    WebMapTileServiceImageryProvider,
-} from 'cesium'
-import { computed, inject, onBeforeUnmount, toRef, watch, ref } from 'vue'
+import { Rectangle, UrlTemplateImageryProvider, WebMapTileServiceImageryProvider } from 'cesium'
+import { computed, onBeforeUnmount, toRef, watch, ref } from 'vue'
 
 import type { ExternalWMTSLayer, GeoAdminWMTSLayer } from '@swissgeo/layers'
 import { WMTSEncodingType } from '@swissgeo/layers'
@@ -18,6 +13,7 @@ import useAddImageryLayer from '@/modules/map/components/cesium/utils/useAddImag
 import usePositionStore from '@/store/modules/position.store'
 import useLayersStore from '@/store/modules/layers.store'
 import type { ActionDispatcher } from '@/store/types'
+import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumWMTSLayer.vue' }
 
@@ -30,7 +26,7 @@ const { wmtsLayerConfig, zIndex, parentLayerOpacity } = defineProps<{
     parentLayerOpacity?: number
 }>()
 
-const getViewer = inject<() => Viewer | undefined>('getViewer', () => undefined)
+const viewer = getCesiumViewer()
 
 const positionStore = usePositionStore()
 const layersStore = useLayersStore()
@@ -113,23 +109,21 @@ onBeforeUnmount(() => {
 
 function createProvider(): WebMapTileServiceImageryProvider | UrlTemplateImageryProvider {
     let provider
-    if (
-        (wmtsLayerConfig as ExternalWMTSLayer).getTileEncoding !== undefined &&
-        tileMatrixSetId.value
-    ) {
+    const wmtsLayerConfigExternal = wmtsLayerConfig as ExternalWMTSLayer
+    if (wmtsLayerConfigExternal.getTileEncoding !== undefined && tileMatrixSetId.value) {
         provider = new WebMapTileServiceImageryProvider({
             url:
-                (wmtsLayerConfig as ExternalWMTSLayer).getTileEncoding === WMTSEncodingType.KVP
-                    ? (wmtsLayerConfig as ExternalWMTSLayer).baseUrl
-                    : (wmtsLayerConfig as ExternalWMTSLayer).urlTemplate,
-            layer: (wmtsLayerConfig as ExternalWMTSLayer).id,
-            style: (wmtsLayerConfig as ExternalWMTSLayer).style ?? 'default',
+                wmtsLayerConfigExternal.getTileEncoding === WMTSEncodingType.KVP
+                    ? wmtsLayerConfigExternal.baseUrl
+                    : wmtsLayerConfigExternal.urlTemplate,
+            layer: wmtsLayerConfigExternal.id,
+            style: wmtsLayerConfigExternal.style ?? 'default',
             tileMatrixSetID: tileMatrixSetId.value,
             tileMatrixLabels: tileMatrixLabels.value,
         })
     } else {
         provider = new UrlTemplateImageryProvider({
-            rectangle: Rectangle.fromDegrees(...DEFAULT_PROJECTION.getBoundsAs(WGS84).flatten),
+            rectangle: Rectangle.fromDegrees(...DEFAULT_PROJECTION.getBoundsAs(WGS84)!.flatten),
             maximumLevel: MAXIMUM_LEVEL_OF_DETAILS,
             url: url.value!,
         })
@@ -137,12 +131,7 @@ function createProvider(): WebMapTileServiceImageryProvider | UrlTemplateImagery
     return provider
 }
 
-const { refreshLayer } = useAddImageryLayer(
-    getViewer(),
-    createProvider,
-    () => zIndex,
-    toRef(opacity)
-)
+const { refreshLayer } = useAddImageryLayer(viewer, createProvider, () => zIndex, toRef(opacity))
 </script>
 
 <template>
