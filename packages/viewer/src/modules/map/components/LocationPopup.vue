@@ -60,11 +60,11 @@ watch(clickInfo, () => {
 
 watch(shareLinkUrlShorten, () => {
     if (requestClipboard.value) {
-        copyShareLink().catch((error: unknown) => {
+        copyShareLink().catch((error) => {
             log.error({
                 title: 'LocationPopup.vue',
                 titleColor: LogPreDefinedColor.Red,
-                message: ['Failed to copy share link', error as Error],
+                message: ['Failed to copy share link', error],
             })
         })
         requestClipboard.value = false
@@ -104,11 +104,11 @@ function updateShareLink() {
         center: coordinate.value?.join(','),
     }
     shareLinkUrl.value = `${location.origin}/#/map?${stringifyQuery(query)}`
-    shortenShareLink(shareLinkUrl.value).catch((error: unknown) => {
+    shortenShareLink(shareLinkUrl.value).catch((error) => {
         log.error({
             title: 'LocationPopup.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: ['Failed to create shortlink', error as Error],
+            message: ['Failed to create shortlink', error],
         })
     })
 }
@@ -116,11 +116,11 @@ function updateShareLink() {
 async function shortenShareLink(url: string) {
     try {
         shareLinkUrlShorten.value = await createShortLink(url)
-    } catch (error: unknown) {
+    } catch (error) {
         log.error({
             title: 'LocationPopup.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: ['Failed to create shortlink', error as Error],
+            message: ['Failed to create shortlink', error],
         })
         shareLinkUrlShorten.value = undefined
     }
@@ -135,11 +135,11 @@ function onShareTabClick() {
     if (newClickInfo.value && !showEmbedSharing.value) {
         requestClipboard.value = true
     } else {
-        copyShareLink().catch((error: unknown) => {
+        copyShareLink().catch((error) => {
             log.error({
                 title: 'LocationPopup.vue',
                 titleColor: LogPreDefinedColor.Red,
-                message: ['Failed to copy share link', error as Error],
+                message: ['Failed to copy share link', error],
             })
         })
     }
@@ -158,11 +158,11 @@ async function copyShareLink() {
                 closeCopiedTooltip()
             }, 1000)
         }
-    } catch (error: unknown) {
+    } catch (error) {
         log.error({
             title: 'LocationPopup.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: ['Failed to copy to clipboard', error as Error],
+            message: ['Failed to copy to clipboard', error],
         })
     }
 }

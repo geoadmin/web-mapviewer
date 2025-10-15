@@ -77,7 +77,10 @@ export function parseRGBColor(color: string): number {
     try {
         return Math.max(Math.min(Number(color), 255), 0)
     } catch (error) {
-        log.error(`Invalid RGB color code`, color, error as Error)
+        log.error({
+            title: 'utils / parseRGBColor',
+            messages: [`Invalid RGB color code`, color, error],
+        })
         return 255
     }
 }

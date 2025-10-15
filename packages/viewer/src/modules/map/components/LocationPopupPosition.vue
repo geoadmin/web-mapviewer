@@ -52,25 +52,25 @@ const heightInMeter = computed(() => {
 
 onMounted(() => {
     if (clickInfo) {
-        updateLV03Coordinate().catch((error: unknown) => {
+        updateLV03Coordinate().catch((error) => {
             log.error({
                 title: 'LocationPopup.vue',
                 titleColor: LogPreDefinedColor.Red,
-                message: ['Failed to retrieve LV03 coordinate', error as Error],
+                message: ['Failed to retrieve LV03 coordinate', error],
             })
         })
-        updateWhat3Word().catch((error: unknown) => {
+        updateWhat3Word().catch((error) => {
             log.error({
                 title: 'LocationPopup.vue',
                 titleColor: LogPreDefinedColor.Red,
-                message: ['Failed to update What3Words', error as Error],
+                message: ['Failed to update What3Words', error],
             })
         })
-        updateHeight().catch((error: unknown) => {
+        updateHeight().catch((error) => {
             log.error({
                 title: 'LocationPopup.vue',
                 titleColor: LogPreDefinedColor.Red,
-                message: ['Failed to update height', error as Error],
+                message: ['Failed to update height', error],
             })
         })
     }
@@ -80,25 +80,25 @@ watch(
     () => clickInfo,
     (newClickInfo) => {
         if (newClickInfo) {
-            updateLV03Coordinate().catch((error: unknown) => {
+            updateLV03Coordinate().catch((error) => {
                 log.error({
                     title: 'LocationPopup.vue',
                     titleColor: LogPreDefinedColor.Red,
-                    message: ['Failed to retrieve LV03 coordinate', error as Error],
+                    message: ['Failed to retrieve LV03 coordinate', error],
                 })
             })
-            updateWhat3Word().catch((error: unknown) => {
+            updateWhat3Word().catch((error) => {
                 log.error({
                     title: 'LocationPopup.vue',
                     titleColor: LogPreDefinedColor.Red,
-                    message: ['Failed to update What3Words', error as Error],
+                    message: ['Failed to update What3Words', error],
                 })
             })
-            updateHeight().catch((error: unknown) => {
+            updateHeight().catch((error) => {
                 log.error({
                     title: 'LocationPopup.vue',
                     titleColor: LogPreDefinedColor.Red,
-                    message: ['Failed to update height', error as Error],
+                    message: ['Failed to update height', error],
                 })
             })
         }
@@ -114,11 +114,11 @@ async function updateLV03Coordinate() {
             inputProjection: LV95,
             outputProjection: LV03,
         })
-    } catch (error: unknown) {
+    } catch (error) {
         log.error({
             title: 'LocationPopup.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: ['Failed to retrieve LV03 coordinate', error as Error],
+            message: ['Failed to retrieve LV03 coordinate', error],
         })
         lv03Coordinate.value = undefined
     }
@@ -127,11 +127,11 @@ async function updateLV03Coordinate() {
 async function updateWhat3Word() {
     try {
         what3Words.value = await registerWhat3WordsLocation(coordinate, projection, currentLang)
-    } catch (error: unknown) {
+    } catch (error) {
         log.error({
             title: 'LocationPopup.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: ['Failed to retrieve What3Words Location', error as Error],
+            message: ['Failed to retrieve What3Words Location', error],
         })
         what3Words.value = undefined
     }
@@ -139,11 +139,11 @@ async function updateWhat3Word() {
 async function updateHeight() {
     try {
         height.value = await requestHeight(coordinate, projection)
-    } catch (error: unknown) {
+    } catch (error) {
         log.error({
             title: 'LocationPopup.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: ['Failed to get position height', error as Error],
+            message: ['Failed to get position height', error],
         })
         height.value = undefined
     }

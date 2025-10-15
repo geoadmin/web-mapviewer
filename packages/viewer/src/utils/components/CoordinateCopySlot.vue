@@ -62,7 +62,10 @@ async function copyValue(): Promise<void> {
             copied.value = false
         }, resetDelay)
     } catch (error) {
-        log.error(`Failed to copy to clipboard:`, error as Error)
+        log.error({
+            title: 'CoordinateCopySlot.vue',
+            messages: [`Failed to copy to clipboard:`, error],
+        })
     }
 }
 </script>

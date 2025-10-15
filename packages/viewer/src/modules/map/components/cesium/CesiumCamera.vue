@@ -24,6 +24,16 @@ import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUti
 
 const dispatcher: ActionDispatcher = { name: 'CesiumCamera.vue' }
 
+const viewer = getCesiumViewer()
+if (!viewer) {
+    log.error({
+        title: 'CesiumCamera.vue',
+        titleColor: LogPreDefinedColor.Red,
+        message: ['Viewer is not defined', 'CesiumCamera.vue: viewer cannot be initialized'],
+    })
+    throw new Error('CesiumCamera.vue: viewer is not defined')
+}
+
 const positionStore = usePositionStore()
 const cameraPosition = computed(() => positionStore.camera)
 
@@ -32,15 +42,12 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-    const viewer = getCesiumViewer()
-    if (viewer) {
-        // the camera position that is for now dispatched to the store doesn't correspond where the 2D
-        // view is looking at, as if the camera is tilted, its position will be over swaths of lands that
-        // have nothing to do with the top-down 2D view.
-        // here we ray trace the coordinate of where the camera is looking at, and send this "target"
-        // to the store as the new center
-        setCenterToCameraTarget()
-    }
+    // the camera position that is for now dispatched to the store doesn't correspond where the 2D
+    // view is looking at, as if the camera is tilted, its position will be over swaths of lands that
+    // have nothing to do with the top-down 2D view.
+    // here we ray trace the coordinate of where the camera is looking at, and send this "target"
+    // to the store as the new center
+    setCenterToCameraTarget()
 })
 
 watch(cameraPosition, flyToPosition, {
@@ -50,7 +57,6 @@ watch(cameraPosition, flyToPosition, {
 
 function flyToPosition(): void {
     try {
-        const viewer = getCesiumViewer()
         if (viewer && cameraPosition.value) {
             log.debug({
                 title: 'CesiumCamera.vue',
@@ -96,17 +102,13 @@ function flyToPosition(): void {
 }
 
 function setCenterToCameraTarget(): void {
-    const viewer = getCesiumViewer()
-    if (!viewer) {
-        return
-    }
-    const ray = viewer.camera.getPickRay(
+    const ray = viewer!.camera.getPickRay(
         new Cartesian2(
-            Math.round(viewer.scene.canvas.clientWidth / 2),
-            Math.round(viewer.scene.canvas.clientHeight / 2)
+            Math.round(viewer!.scene.canvas.clientWidth / 2),
+            Math.round(viewer!.scene.canvas.clientHeight / 2)
         )
     )
-    const cameraTarget = viewer.scene.globe.pick(ray!, viewer.scene)
+    const cameraTarget = viewer!.scene.globe.pick(ray!, viewer!.scene)
     if (defined(cameraTarget)) {
         const cameraTargetCartographic = Ellipsoid.WGS84.cartesianToCartographic(cameraTarget)
         const lat = CesiumMath.toDegrees(cameraTargetCartographic.latitude)
@@ -119,11 +121,7 @@ function setCenterToCameraTarget(): void {
 }
 
 function onCameraMoveEnd(): void {
-    const viewer = getCesiumViewer()
-    if (!viewer) {
-        return
-    }
-    const camera = viewer.camera
+    const camera = viewer!.camera
     const position = camera.positionCartographic
     const newCameraPosition = {
         x: parseFloat(CesiumMath.toDegrees(position.longitude).toFixed(6)),
@@ -140,7 +138,6 @@ function onCameraMoveEnd(): void {
 }
 
 function initCamera(): void {
-    let viewer = getCesiumViewer()
     let destination
     let orientation
     if (cameraPosition.value) {
@@ -170,7 +167,7 @@ function initCamera(): void {
         destination = Cartesian3.fromDegrees(
             positionStore.centerEpsg4326[0],
             positionStore.centerEpsg4326[1],
-            calculateHeight(positionStore.resolution, viewer?.canvas.clientWidth ?? 1024)
+            calculateHeight(positionStore.resolution, viewer!.canvas.clientWidth ?? 1024)
         )
         orientation = {
             heading: -CesiumMath.toRadians(positionStore.rotation),
@@ -179,28 +176,22 @@ function initCamera(): void {
         }
     }
 
-    if (!viewer) {
-        viewer = getCesiumViewer()
-        if (!viewer) {
-            return
-        }
-    }
-    const sscController = viewer.scene.screenSpaceCameraController
+    const sscController = viewer!.scene.screenSpaceCameraController
     sscController.minimumZoomDistance = CAMERA_MIN_ZOOM_DISTANCE
     sscController.maximumZoomDistance = CAMERA_MAX_ZOOM_DISTANCE
 
-    viewer.scene.postRender.addEventListener(limitCameraCenter(LV95.getBoundsAs(WGS84)!.flatten))
-    viewer.scene.postRender.addEventListener(
+    viewer!.scene.postRender.addEventListener(limitCameraCenter(LV95.getBoundsAs(WGS84)!.flatten))
+    viewer!.scene.postRender.addEventListener(
         limitCameraPitchRoll(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH, 0.0, 0.0)
     )
 
-    viewer.camera.flyTo({
+    viewer!.camera.flyTo({
         destination,
         orientation,
         duration: 0,
     })
 
-    viewer.camera.moveEnd.addEventListener(onCameraMoveEnd)
+    viewer!.camera.moveEnd.addEventListener(onCameraMoveEnd)
 }
 </script>
 
