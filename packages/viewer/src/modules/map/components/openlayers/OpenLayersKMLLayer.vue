@@ -12,12 +12,13 @@ import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
+import type { ActionDispatcher } from '@/store/types'
 import useDrawingStore from '@/store/modules/drawing.store'
 import usePositionStore from '@/store/modules/position.store'
 import useUiStore from '@/store/modules/ui.store'
 import { iconUrlProxyFy, parseKml } from '@/utils/kmlUtils'
 
-const dispatcher = { name: 'OpenLayersKMLLayer.vue' }
+const dispatcher: ActionDispatcher = { name: 'OpenLayersKMLLayer.vue' }
 
 const {
     kmlLayerConfig,
@@ -66,8 +67,10 @@ const layer = new VectorLayer({
     opacity: opacity.value,
 })
 
-const olMap = inject<Map>('olMap')!
-useAddLayerToMap(layer, olMap, zIndex)
+const olMap = inject<Map>('olMap')
+if (olMap) {
+    useAddLayerToMap(layer, olMap, zIndex)
+}
 
 onMounted(() => {
     if (!iconsArePresent.value) {
