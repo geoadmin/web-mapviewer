@@ -29,6 +29,8 @@ import GeoJSON from 'ol/format/GeoJSON'
 import Circle from 'ol/geom/Circle'
 import { DragBox } from 'ol/interaction'
 
+import type { ActionDispatcher } from '@/store/types'
+
 import { DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@/config/map.config'
 import useFeaturesStore from '@/store/modules/features.store'
 import useLayersStore from '@/store/modules/layers.store'
@@ -38,7 +40,7 @@ import { parseGpx } from '@/utils/gpxUtils'
 import { parseKml } from '@/utils/kmlUtils'
 import { createLayerFeature } from '@/utils/layerUtils'
 
-const dispatcher = {
+const dispatcher: ActionDispatcher = {
     name: 'useDragBoxSelect.composable',
 }
 

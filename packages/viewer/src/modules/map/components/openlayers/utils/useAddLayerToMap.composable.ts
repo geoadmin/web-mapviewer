@@ -17,13 +17,17 @@ import { type MaybeRef, onBeforeUnmount, onMounted, ref, toRef, toValue, watch }
  * It is also possible to set a prop called zIndex, which will be used (if defined) to place the
  * layer accordingly in the layer stack of OpenLayers.
  */
-export default function useAddLayerToMap(layer: Layer, map: Map, zIndex: MaybeRef<number> = -1) {
+export default function useAddLayerToMap(
+    layer: MaybeRef<Layer>,
+    map: MaybeRef<Map>,
+    zIndex: MaybeRef<number> = -1
+) {
     const internalZIndex = ref(toValue(zIndex))
 
     watch(toRef(zIndex), (newValue) => {
         internalZIndex.value = newValue
         if (newValue >= 0) {
-            layer.setZIndex(newValue)
+            toValue(layer).setZIndex(newValue)
         }
     })
 
@@ -34,22 +38,22 @@ export default function useAddLayerToMap(layer: Layer, map: Map, zIndex: MaybeRe
     onBeforeUnmount(() => {
         // if the source of this layer can be cleared (if it's a vector layer),
         // we clear it before removing it from the map, ensuring that all features are unloaded
-        if (layer.getSource() instanceof VectorSource) {
-            ;(layer.getSource() as VectorSource).clear()
+        if (toValue(layer).getSource() instanceof VectorSource) {
+            ;(toValue(layer).getSource() as VectorSource).clear()
         }
-        layer.setSource(null)
+        toValue(layer).setSource(null)
         removeLayerFromMap()
     })
 
     function addLayerToMap(): void {
         if (internalZIndex.value !== -1) {
-            layer.setZIndex(internalZIndex.value)
+            toValue(layer).setZIndex(internalZIndex.value)
         }
-        map.addLayer(layer)
+        toValue(map).addLayer(toValue(layer))
     }
 
     function removeLayerFromMap(): void {
-        map.removeLayer(layer)
+        toValue(map).removeLayer(toValue(layer))
     }
 
     return {

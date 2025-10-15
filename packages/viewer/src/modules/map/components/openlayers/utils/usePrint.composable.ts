@@ -2,7 +2,7 @@ import type { GeoAdminLayer, LayerAttribution } from '@swissgeo/layers'
 import type Map from 'ol/Map'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
-import { computed, ref } from 'vue'
+import { computed, type MaybeRef, ref, toValue } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 
@@ -32,7 +32,7 @@ export enum PrintStatus {
 }
 
 /** Gathering of all the logic that will trigger and manage a print request to service-print3 */
-export function usePrint(map: Map) {
+export function usePrint(map: MaybeRef<Map>) {
     const requester = 'print-map'
 
     const currentJobReference = ref<string | undefined>()
@@ -90,7 +90,7 @@ export function usePrint(map: Map) {
             const qrCodeUrl = getGenerateQRCodeUrl(shortLink)
             // using store values directly (instead of going through computed) so that it is a bit more performant
             // (we do not need to have reactivity on these values, if they change while printing we do nothing)
-            const printJob = await createPrintJob(map, {
+            const printJob = await createPrintJob(toValue(map), {
                 // .pdf extension will be written by MapFish too, so we remove it to not have it twice in a row
                 outputFilename: generateFilename('pdf').replace('.pdf', ''),
                 layout: printStore.selectedLayout,

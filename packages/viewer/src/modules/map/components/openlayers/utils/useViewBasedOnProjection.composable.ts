@@ -6,20 +6,22 @@ import log from '@swissgeo/log'
 import { round } from '@swissgeo/numbers'
 import { View } from 'ol'
 import { DoubleClickZoom } from 'ol/interaction'
-import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
+import { computed, type MaybeRef, onBeforeUnmount, onMounted, toValue, watch } from 'vue'
+
+import type { ActionDispatcher } from '@/store/types'
 
 import { VIEW_MIN_RESOLUTION } from '@/config/map.config'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import usePositionStore from '@/store/modules/position.store'
 
-const dispatcher = { dispatcher: 'map-views.composable', name: 'useViewBasedOnProjection' }
+const dispatcher: ActionDispatcher = { name: 'useViewBasedOnProjection' }
 
 let animationDuration = 200
 if (IS_TESTING_WITH_CYPRESS) {
     animationDuration = 0
 }
 
-export default function useViewBasedOnProjection(map: Map): void {
+export default function useViewBasedOnProjection(map: MaybeRef<Map>): void {
     const positionStore = usePositionStore()
     const center = computed(() => positionStore.center)
     const projection = computed(() => positionStore.projection)
@@ -50,7 +52,7 @@ export default function useViewBasedOnProjection(map: Map): void {
         if (event.type === 'dblclick') {
             event.preventDefault()
             event.stopPropagation()
-            const view = map.getView()
+            const view = toValue(map).getView()
             const zoom = view.getZoom()
             if (zoom !== undefined) {
                 const roundedZoom = positionStore.projection.roundZoomLevel(zoom)
@@ -98,13 +100,13 @@ export default function useViewBasedOnProjection(map: Map): void {
 
     onMounted(() => {
         setViewAccordingToProjection()
-        map.on('moveend', updateMapPositionInStore)
-        map.addInteraction(roundedDoubleClickZoom)
+        toValue(map).on('moveend', updateMapPositionInStore)
+        toValue(map).addInteraction(roundedDoubleClickZoom)
     })
 
     onBeforeUnmount(() => {
-        map.un('moveend', updateMapPositionInStore)
-        map.removeInteraction(roundedDoubleClickZoom)
+        toValue(map).un('moveend', updateMapPositionInStore)
+        toValue(map).removeInteraction(roundedDoubleClickZoom)
     })
 
     function setViewAccordingToProjection(): void {
@@ -112,7 +114,7 @@ export default function useViewBasedOnProjection(map: Map): void {
         if (viewForProjection) {
             viewForProjection.setCenter(center.value)
             viewForProjection.setZoom(zoom.value)
-            map.setView(viewForProjection)
+            toValue(map).setView(viewForProjection)
         } else {
             log.error('View for projection was not found', projection.value)
         }
