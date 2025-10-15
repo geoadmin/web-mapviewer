@@ -23,6 +23,10 @@ const {
 }>()
 
 const olMap = inject<Map>('olMap')
+if (!olMap) {
+    log.error('OpenLayersMap is not available')
+    throw new Error('OpenLayersMap is not available')
+}
 
 const debugStore = useDebugStore()
 const showTileDebugInfo = computed<boolean>(() => debugStore.showTileDebugInfo)
@@ -61,10 +65,6 @@ const debugLayer = new TileLayer({
     source: createTileDebugSource(cogSource),
 })
 
-if (!olMap) {
-    log.error('OpenLayersMap is not available')
-    throw new Error('OpenLayersMap is not available')
-}
 useAddLayerToMap(layer, olMap, toRef(zIndex))
 const { removeLayerFromMap: removeDebugLayer, addLayerToMap: addDebugLayer } = useAddLayerToMap(
     debugLayer,

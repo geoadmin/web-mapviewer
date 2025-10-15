@@ -5,10 +5,12 @@ import type { Map } from 'ol'
 import type { StyleLike } from 'ol/style/Style'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { MaybeRef } from 'vue'
+import { computed, inject, watch } from 'vue'
+
+import log from '@swissgeo/log'
 import { randomIntBetween } from '@swissgeo/numbers'
 import Feature from 'ol/Feature'
 import { Point } from 'ol/geom'
-import { computed, inject, watch } from 'vue'
 
 import {
     getMarkerStyle,
@@ -35,11 +37,7 @@ const features = computed(() => {
     if (!Array.isArray(position)) {
         return []
     }
-    if (
-        Array.isArray(position) &&
-        position.length === 2 &&
-        typeof position[0] === 'number'
-    ) {
+    if (Array.isArray(position) && position.length === 2 && typeof position[0] === 'number') {
         const feature = featuresForPosition(position as SingleCoordinate, markerStyle)
         return feature ? [feature] : []
     }
@@ -50,14 +48,17 @@ const features = computed(() => {
 })
 
 const olMap = inject<Map>('olMap')
-if (olMap) {
-    useVectorLayer(olMap, features, {
-        zIndex: zIndex,
-        styleFunction: highlightFeatureStyle as StyleLike,
-        onFeatureSelectCallback: selectFeatureCallback,
-        deselectAfterSelect: deselectAfterSelect,
-    })
+if (!olMap) {
+    log.error('OpenLayersMap is not available')
+    throw new Error('OpenLayersMap is not available')
 }
+
+useVectorLayer(olMap, features, {
+    zIndex: zIndex,
+    styleFunction: highlightFeatureStyle as StyleLike,
+    onFeatureSelectCallback: selectFeatureCallback,
+    deselectAfterSelect: deselectAfterSelect,
+})
 
 watch(
     () => markerStyle,
