@@ -17,32 +17,31 @@ import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLa
 import usePositionStore from '@/store/modules/position.store'
 import { reprojectGeoJsonGeometry } from '@/utils/geoJsonUtils'
 
-interface Props {
+const {
+    geoJsonConfig,
+    parentLayerOpacity,
+    zIndex = -1,
+} = defineProps<{
     geoJsonConfig: GeoAdminGeoJSONLayer
     parentLayerOpacity?: number
     zIndex?: number
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    parentLayerOpacity: undefined,
-    zIndex: -1,
-})
+}>()
 
 // mapping relevant store values
 const positionStore = usePositionStore()
 const projection = computed(() => positionStore.projection)
 
 // extracting useful info from what we've linked so far
-const layerId = computed(() => props.geoJsonConfig.technicalName)
-const opacity = computed(() => props.parentLayerOpacity ?? props.geoJsonConfig.opacity)
-const geoJsonData = computed(() => props.geoJsonConfig.geoJsonData)
-const geoJsonStyle = computed(() => props.geoJsonConfig.geoJsonStyle)
-const isLoading = computed(() => props.geoJsonConfig.isLoading)
+const layerId = computed(() => geoJsonConfig.technicalName)
+const opacity = computed(() => parentLayerOpacity ?? geoJsonConfig.opacity)
+const geoJsonData = computed(() => geoJsonConfig.geoJsonData)
+const geoJsonStyle = computed(() => geoJsonConfig.geoJsonStyle)
+const isLoading = computed(() => geoJsonConfig.isLoading)
 
 const layer = new VectorLayer({
     properties: {
         id: layerId.value,
-        uuid: props.geoJsonConfig.uuid,
+        uuid: geoJsonConfig.uuid,
     },
     opacity: opacity.value,
 })
@@ -85,7 +84,7 @@ function createSourceForProjection(): void {
 }
 
 const olMap = inject<Map>('olMap')!
-useAddLayerToMap(layer, olMap, props.zIndex)
+useAddLayerToMap(layer, olMap, zIndex)
 
 createSourceForProjection()
 

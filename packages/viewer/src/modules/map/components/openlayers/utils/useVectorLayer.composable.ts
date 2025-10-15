@@ -1,7 +1,7 @@
 import type { Feature } from 'ol'
 import type { Map } from 'ol'
 import type { StyleLike } from 'ol/style/Style'
-import type { Ref } from 'vue'
+import type { MaybeRef, Ref } from 'vue'
 
 import { randomIntBetween } from '@swissgeo/numbers'
 import { Select } from 'ol/interaction'
@@ -14,7 +14,7 @@ import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLa
 
 interface UseVectorLayerConfig {
     /** The Z index of the layer */
-    zIndex?: Readonly<Ref<number>> | number
+    zIndex?: MaybeRef<number>
     /** A function that defines the style for the vector layer */
     styleFunction?: StyleLike
     /** A callback function that is called when a feature is selected */
