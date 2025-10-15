@@ -164,16 +164,19 @@ const popoverCoordinate = computed((): SingleCoordinate | undefined => {
     ) as SingleCoordinate
 })
 
-const olMap = inject<Map>('olMap')!
+const olMap = inject<Map>('olMap')
 const { zIndexHighlightedFeatures } = useLayerZIndexCalculation()
-useVectorLayer(olMap, featureTransformedAsOlFeatures, {
-    zIndex: zIndexHighlightedFeatures,
-    styleFunction: highlightFeatureStyle as StyleLike,
-})
-useVectorLayer(olMap, segmentTransformedAsOlFeatures, {
-    zIndex: zIndexHighlightedFeatures,
-    styleFunction: highlightFeatureStyle as StyleLike,
-})
+
+if (olMap) {
+    useVectorLayer(olMap, featureTransformedAsOlFeatures, {
+        zIndex: zIndexHighlightedFeatures,
+        styleFunction: highlightFeatureStyle as StyleLike,
+    })
+    useVectorLayer(olMap, segmentTransformedAsOlFeatures, {
+        zIndex: zIndexHighlightedFeatures,
+        styleFunction: highlightFeatureStyle as StyleLike,
+    })
+}
 
 function clearAllSelectedFeatures(): void {
     featuresStore.clearAllSelectedFeatures(dispatcher)

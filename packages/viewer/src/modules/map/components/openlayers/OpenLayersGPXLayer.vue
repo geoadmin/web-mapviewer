@@ -50,8 +50,10 @@ const layer = new VectorLayer({
     opacity: opacity.value,
 })
 
-const olMap = inject<Map>('olMap')!
-useAddLayerToMap(layer, olMap, zIndex)
+const olMap = inject<Map>('olMap')
+if (olMap) {
+    useAddLayerToMap(layer, olMap, zIndex)
+}
 
 onMounted(() => {
     // exposing things for Cypress testing
