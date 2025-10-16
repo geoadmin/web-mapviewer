@@ -1,4 +1,5 @@
 import type { FlatExtent } from '@swissgeo/coordinates'
+
 import { allCoordinateSystems, CoordinateSystem, extentUtils, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { default as olWMTSCapabilities } from 'ol/format/WMTSCapabilities'
