@@ -37,7 +37,7 @@ watch(visibleLayersWithTimeConfig, () => {
 function toggleTimeSlider(): void {
     if (isTimeSliderActive.value) {
         // Reset the preview year to undefined when closing the time slider.
-        layersStore.setPreviewYear(undefined)
+        layersStore.setPreviewYear(undefined, dispatcher)
     }
     uiStore.setTimeSliderActive(!isTimeSliderActive.value, dispatcher)
 }

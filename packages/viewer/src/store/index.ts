@@ -1,5 +1,6 @@
 import { createPinia } from 'pinia'
 
+import storeSyncRouterPlugin from '@/router/storeSync'
 import from2Dto3DPlugin from '@/store/plugins/2d-to-3d.plugin'
 import appReadinessPlugin from '@/store/plugins/app-readiness.plugin'
 import clickOnMapPlugin from '@/store/plugins/click-on-map.plugin'
@@ -36,5 +37,6 @@ pinia.use(topicChangeManagement)
 pinia.use(updateSelectedFeatures)
 pinia.use(vuexLogPlugin)
 pinia.use(registerSyncCameraLonLatZoom)
+pinia.use(storeSyncRouterPlugin)
 
 export default pinia

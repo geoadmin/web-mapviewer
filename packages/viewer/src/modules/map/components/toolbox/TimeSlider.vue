@@ -217,7 +217,7 @@ function setPreviewYearToLayers() {
 }
 
 function dispatchPreviewYearToStore() {
-    layersStore.setPreviewYear(currentYear.value)
+    layersStore.setPreviewYear(currentYear.value, dispatcher)
     setPreviewYearToLayers()
 }
 
