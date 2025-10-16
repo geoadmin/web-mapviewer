@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import type { CustomCoordinateSystem, SingleCoordinate } from '@swissgeo/coordinates'
+
 import { constants, coordinatesUtils, LV03, LV95, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import { assertDefined } from 'support/utils'
 
@@ -12,7 +14,9 @@ describe('Testing coordinates typing in search bar', () => {
     beforeEach(() => {
         cy.goToMapView()
     })
-    const expectedCenter = DEFAULT_PROJECTION.bounds.center.map((value: number) => value - 1000)
+    const expectedCenter: SingleCoordinate = DEFAULT_PROJECTION.bounds!.center.map(
+        (value: number) => value - 1000
+    ) as SingleCoordinate
     const expectedCenterLV95 = coordinatesUtils.reprojectAndRound(
         DEFAULT_PROJECTION,
         LV95,
@@ -45,9 +49,9 @@ describe('Testing coordinates typing in search bar', () => {
         // checking that the zoom level is at the 1:25'000 map level after a coordinate input in the search bar
         let expectedZoomLevel = constants.STANDARD_ZOOM_LEVEL_1_25000_MAP
         if (!DEFAULT_PROJECTION.usesMercatorPyramid) {
-            expectedZoomLevel = DEFAULT_PROJECTION.transformStandardZoomLevelToCustom(
-                constants.STANDARD_ZOOM_LEVEL_1_25000_MAP
-            )
+            expectedZoomLevel = (
+                DEFAULT_PROJECTION as CustomCoordinateSystem
+            ).transformStandardZoomLevelToCustom(constants.STANDARD_ZOOM_LEVEL_1_25000_MAP)
         }
         cy.readStoreValue('state.position.zoom').should('be.eq', expectedZoomLevel)
     }
