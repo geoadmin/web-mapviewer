@@ -9,6 +9,7 @@ import type {
     WMTSCapabilitiesResponse,
     WMTSCapabilityLayer,
 } from '@swissgeo/layers'
+import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 
 import { CapabilitiesError, LayerType } from '@swissgeo/layers'
 import { readWmsCapabilities, readWmtsCapabilities } from '@swissgeo/layers/api'
@@ -21,8 +22,9 @@ import type { SupportedLang } from '@/modules/i18n'
 import type { ActionDispatcher } from '@/store/types'
 
 import { useI18nStore } from '@/store/modules/i18n.store'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore, { LayerStoreActions } from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
+import { isEnumValue } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'external-layers.plugin' }
 
@@ -153,25 +155,26 @@ const externalLayerFilter = (layer: Layer): boolean => {
 }
 
 /** Load External layers attributes (title, abstract, extent, attributions, ...) on layer added */
-const registerLoadExternalLayerAttributesWatcher = (): void => {
-    const layersStore = useLayersStore()
-    const positionStore = usePositionStore()
-    const i18nStore = useI18nStore()
+const registerLoadExternalLayerAttributesWatcher: PiniaPlugin = (
+    context: PiniaPluginContext
+): void => {
+    const { store } = context
 
-    layersStore.$onAction(({ name, args, store }) => {
+    store.$onAction(({ name, args }) => {
         const layers: Layer[] = []
 
-        if (name === 'addLayer') {
-            const addLayerArgs: Parameters<typeof store.addLayer> = args
+        const layerStore = useLayersStore()
+        const positionStore = usePositionStore()
+        const i18nStore = useI18nStore()
 
-            if (addLayerArgs[0].layer && externalLayerFilter(addLayerArgs[0].layer)) {
-                layers.push(addLayerArgs[0].layer)
+        if (isEnumValue<LayerStoreActions>(LayerStoreActions.AddLayer, name)) {
+            const [payload] = args as Parameters<typeof layerStore.addLayer>
+
+            if (payload.layer && externalLayerFilter(payload.layer)) {
+                layers.push(payload.layer)
             }
-        }
-
-        if (name === 'setLayers') {
-            const setLayerArgs: Parameters<typeof store.setLayers> = args
-            const layerArg = setLayerArgs[0]
+        } else if (isEnumValue<LayerStoreActions>(LayerStoreActions.SetLayers, name)) {
+            const [layerArg] = args as Parameters<typeof layerStore.setLayers>
 
             const externalLayers = layerArg
                 // if it's string, we don't even test for externality
@@ -232,7 +235,7 @@ const registerLoadExternalLayerAttributesWatcher = (): void => {
                             }
                         })
                         .filter((layer) => !!layer)
-                    store.updateLayers(updatedLayer, dispatcher)
+                    layerStore.updateLayers(updatedLayer, dispatcher)
                 })
                 .catch((error) => {
                     log.error({

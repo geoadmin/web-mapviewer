@@ -1,4 +1,4 @@
-import type { PiniaPlugin } from 'pinia'
+import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
@@ -6,9 +6,10 @@ import proj4 from 'proj4'
 import type { ActionDispatcher } from '@/store/types'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
-import useCesiumStore from '@/store/modules/cesium.store'
+import { CesiumStoreActions } from '@/store/modules/cesium.store'
 import useGeolocationStore from '@/store/modules/geolocation.store'
 import usePositionStore from '@/store/modules/position.store'
+import { isEnumValue } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: '2d-to-3d.plugin' }
 
@@ -16,14 +17,15 @@ const dispatcher: ActionDispatcher = { name: '2d-to-3d.plugin' }
  * Plugin to switch to WebMercator coordinate system when we go 3D, and swap back to the default
  * projection when 2D is re-activated
  */
-export const from2Dto3DPlugin: PiniaPlugin = (): void => {
-    const cesiumStore = useCesiumStore()
-    const geolocationStore = useGeolocationStore()
-    const positionStore = usePositionStore()
+export const from2Dto3DPlugin: PiniaPlugin = (context: PiniaPluginContext): void => {
+    const { store } = context
 
-    cesiumStore.$onAction(({ name, store, after }) => {
+    store.$onAction(({ name, store, after }) => {
         after(() => {
-            if (name === 'set3dActive') {
+            const geolocationStore = useGeolocationStore()
+            const positionStore = usePositionStore()
+
+            if (isEnumValue<CesiumStoreActions>(CesiumStoreActions.Set3dActive, name)) {
                 if (DEFAULT_PROJECTION.epsg !== WEBMERCATOR.epsg) {
                     if (store.active) {
                         // We also need to re-project the geolocation position

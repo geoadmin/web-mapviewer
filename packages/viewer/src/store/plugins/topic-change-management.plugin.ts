@@ -1,4 +1,4 @@
-import type { PiniaPlugin } from 'pinia'
+import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 
 import log from '@swissgeo/log'
 
@@ -8,7 +8,8 @@ import { loadTopicTreeForTopic } from '@/api/topics.api'
 import router from '@/router'
 import { useI18nStore } from '@/store/modules/i18n.store'
 import useLayersStore from '@/store/modules/layers.store'
-import useTopicsStore from '@/store/modules/topics.store'
+import useTopicsStore, { TopicsStoreActions } from '@/store/modules/topics.store'
+import { isEnumValue } from '@/utils/utils'
 
 //const dispatcher = { dispatcher: 'topic-change-management.plugin' }
 
@@ -29,34 +30,33 @@ import useTopicsStore from '@/store/modules/topics.store'
  * - Clear up any active layers
  * - Add any layer to the app that are set in the topic metadata (and set their opacity/visibility
  *   accordingly)
- *
- * @param store
  */
-const topicChangeManagement: PiniaPlugin = () => {
+const topicChangeManagement: PiniaPlugin = (context: PiniaPluginContext) => {
+    const { store } = context
+
     const topicStore = useTopicsStore()
     const layersStore = useLayersStore()
     const i18nStore = useI18nStore()
 
-    topicStore.$onAction(({ store, name, args }) => {
+    store.$onAction(({ name, args }) => {
         // we listen to the "change topic" mutation
         if (
-            // During application startup we trigger a changeTopic before the topics are loaded
-            // therefore in this case we ignore the changeTopic event
-            (name === 'changeTopic' && store.config.length > 0) ||
-            name === 'setTopics'
+            isEnumValue<TopicsStoreActions>(TopicsStoreActions.SetTopics, name) ||
+            // During application startup we trigger a changeTopic before the topics are loaded,
+            // in this case we ignore the changeTopic event
+            (isEnumValue<TopicsStoreActions>(TopicsStoreActions.ChangeTopic, name) &&
+                topicStore.config.length > 0)
         ) {
             const queryKeys = Object.keys(router.currentRoute.value.query ?? {})
-            const currentTopic = store.currentTopic
+            const currentTopic = topicStore.currentTopic
 
-            log.debug(
-                `[Topic change management plugin]: topic changed to`,
-                args,
-                currentTopic || 'No Topic',
-                queryKeys
-            )
+            log.debug({
+                title: 'Topic change management plugin',
+                messages: [`topic changed to`, args, currentTopic ?? 'No Topic', queryKeys],
+            })
 
             // last argument is the dispatcher
-            const dispatcher: ActionDispatcher = args.slice(-1) as unknown as ActionDispatcher
+            const dispatcher: ActionDispatcher = args.at(-1) as unknown as ActionDispatcher
 
             if (!currentTopic) {
                 // the rest depends on this
@@ -92,38 +92,48 @@ const topicChangeManagement: PiniaPlugin = () => {
             // loading topic tree
             loadTopicTreeForTopic(i18nStore.lang, currentTopic.id, layersStore.config)
                 .then((topicTree) => {
-                    store.setTopicTree(topicTree.layers, dispatcher)
+                    topicStore.setTopicTree(topicTree.layers, dispatcher)
 
                     // Here we have different behavior possible
                     if (
                         dispatcher.name === 'MenuTopicSection.vue' ||
-                        (!queryKeys.includes('catalogNodes') && !store.isDefaultTopic)
+                        (!queryKeys.includes('catalogNodes') && !topicStore.isDefaultTopic)
                     ) {
                         // 1. When changing the topic from the menu always open the topic menu and its sub
                         //    themes defined by the topic
                         // 2. When setting the query parameter topic and we don't have a catalogNodes query
                         //    parameter and the topic is not the default, then we want the topic catalog
                         //    to be open
-                        store.setTopicTreeOpenedThemesIds(
+                        topicStore.setTopicTreeOpenedThemesIds(
                             [currentTopic.id, ...topicTree.itemIdToOpen],
                             dispatcher
                         )
-                    } else if (!queryKeys.includes('catalogNodes') && store.isDefaultTopic) {
+                    } else if (!queryKeys.includes('catalogNodes') && topicStore.isDefaultTopic) {
                         // 3. When setting the query parameter topic to the default topic, without
                         //    having a catalogNodes query param, then we don't want to have the main
                         //    catalog menu open but only the sub menus.
-                        store.setTopicTreeOpenedThemesIds([...topicTree.itemIdToOpen], dispatcher)
-                    } else {
-                        log.debug(
-                            `[Topic change management plugin]: do not set topic tree opened themes ids, let them be set by catalogNodes`
+                        topicStore.setTopicTreeOpenedThemesIds(
+                            [...topicTree.itemIdToOpen],
+                            dispatcher
                         )
+                    } else {
+                        log.debug({
+                            title: 'Topic change management plugin',
+                            messages: [
+                                `do not set topic tree opened themes ids, let them be set by catalogNodes`,
+                            ],
+                        })
                     }
 
-                    log.debug(`Finished Topic change management plugin: topic changed to`, args)
+                    log.debug({
+                        title: 'Topic change management plugin',
+                        messages: [`Finished topic change: topic changed to`, args],
+                    })
                 })
                 .catch((error) => {
                     log.error({
-                        messages: [error],
+                        title: 'Topic change management plugin',
+                        messages: ['Error while changing topic', error],
                     })
                 })
         }

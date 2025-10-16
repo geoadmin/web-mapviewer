@@ -13,7 +13,8 @@ import type { ActionDispatcher } from '@/store/types'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useFeaturesStore from '@/store/modules/features.store'
 import useLayersStore from '@/store/modules/layers.store'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore, { PositionStoreActions } from '@/store/modules/position.store'
+import { isEnumValue } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'reproject-layers-on-projection-change.plugin' }
 
@@ -79,7 +80,11 @@ function reprojectSelectedFeatures(
             )
             reprojectedSelectedFeatures.push(editableFeature)
         } else {
-            log.debug('do not know what to do with this feature', selectedFeature)
+            log.debug({
+                title: 'Reproject pinia plugin',
+                titleColor: LogPreDefinedColor.Yellow,
+                messages: ['do not know what to do with this feature', selectedFeature],
+            })
         }
     })
     if (reprojectedSelectedFeatures.length > 0) {
@@ -99,12 +104,14 @@ function reprojectSelectedFeatures(
 const reprojectPlugin: PiniaPlugin = (context: PiniaPluginContext): void => {
     const positionStore = usePositionStore()
 
-    context.store.$onAction(({ after, name }) => {
-        if (name === 'setProjection') {
+    const { store } = context
+
+    store.$onAction(({ after, name }) => {
+        if (isEnumValue<PositionStoreActions>(PositionStoreActions.SetProjection, name)) {
             oldProjection = positionStore.projection
         }
         after(() => {
-            if (name === 'setProjection') {
+            if (isEnumValue<PositionStoreActions>(PositionStoreActions.SetProjection, name)) {
                 const newProjection = positionStore.projection
                 log.debug({
                     title: 'Reproject pinia plugin',

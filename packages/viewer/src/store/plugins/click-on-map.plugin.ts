@@ -1,14 +1,15 @@
-import type { PiniaPlugin } from 'pinia'
+import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import useDrawingStore from '@/store/modules/drawing.store'
+import useDrawingStore, { DrawingStoreActions } from '@/store/modules/drawing.store'
 import useFeaturesStore, { IdentifyMode } from '@/store/modules/features.store'
 import useLayersStore from '@/store/modules/layers.store'
-import useMapStore, { type ClickInfo, ClickType } from '@/store/modules/map.store'
+import useMapStore, { type ClickInfo, ClickType, MapStoreActions } from '@/store/modules/map.store'
 import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
+import { isEnumValue } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'click-on-map.plugin' }
 
@@ -16,17 +17,14 @@ const dispatcher: ActionDispatcher = { name: 'click-on-map.plugin' }
  * Pinia plugins that will listen to click events and act depending on what's under the click (or
  * how long the mouse button was down)
  */
-const clickOnMapManagementPlugin: PiniaPlugin = (): void => {
-    const mapStore = useMapStore()
-    const drawingStore = useDrawingStore()
-    const featuresStore = useFeaturesStore()
-    const layersStore = useLayersStore()
-    const uiStore = useUIStore()
+const clickOnMapManagementPlugin: PiniaPlugin = (context: PiniaPluginContext): void => {
+    const { store } = context
 
-    drawingStore.$onAction(({ after, name, store }) => {
+    store.$onAction(({ after, name, store, args }) => {
         after(() => {
+            const mapStore = useMapStore()
             if (
-                name === 'toggleDrawingOverlay' &&
+                isEnumValue<DrawingStoreActions>(DrawingStoreActions.ToggleDrawingOverlay, name) &&
                 store.drawingOverlay.show &&
                 mapStore.locationPopupCoordinates
             ) {
@@ -34,10 +32,16 @@ const clickOnMapManagementPlugin: PiniaPlugin = (): void => {
                 mapStore.clearLocationPopupCoordinates(dispatcher)
             }
         })
-    })
 
-    mapStore.$onAction(({ name, store, args }) => {
-        if (name === 'click' && !drawingStore.drawingOverlay.show) {
+        const drawingStore = useDrawingStore()
+        const featuresStore = useFeaturesStore()
+        const layersStore = useLayersStore()
+        const uiStore = useUIStore()
+
+        if (
+            isEnumValue<MapStoreActions>(MapStoreActions.Click, name) &&
+            !drawingStore.drawingOverlay.show
+        ) {
             // if a click occurs, we only take it into account (for identify and fullscreen toggle)
             // when the user is not currently drawing something on the map.
             const clickInfo: ClickInfo = args[0] as ClickInfo

@@ -1,5 +1,5 @@
 import type { GeoAdminLayer } from '@swissgeo/layers'
-import type { PiniaPlugin } from 'pinia'
+import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 
 import { loadGeoadminLayersConfig } from '@swissgeo/layers/api'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
@@ -8,10 +8,11 @@ import type { SupportedLang } from '@/modules/i18n'
 import type { ActionDispatcher } from '@/store/types'
 
 import { loadTopics, parseTopics } from '@/api/topics.api'
-import useDebugStore from '@/store/modules/debug.store'
-import { useI18nStore } from '@/store/modules/i18n.store'
+import { DebugStoreActions } from '@/store/modules/debug.store'
+import { I18nStoreActions, useI18nStore } from '@/store/modules/i18n.store'
 import useLayersStore from '@/store/modules/layers.store'
 import useTopicsStore from '@/store/modules/topics.store'
+import { isEnumValue } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'layers-config.plugin' }
 
@@ -88,9 +89,8 @@ async function loadLayersAndTopicsConfigAndDispatchToStore(
 }
 
 /** Reload (if necessary from the backend) the layers config on language change */
-const layersConfigPlugin: PiniaPlugin = (): void => {
-    const i18nStore = useI18nStore()
-    const debugstore = useDebugStore()
+const layersConfigPlugin: PiniaPlugin = (context: PiniaPluginContext): void => {
+    const { store } = context
 
     const afterAction = () => {
         loadLayersAndTopicsConfigAndDispatchToStore(dispatcher)
@@ -110,22 +110,16 @@ const layersConfigPlugin: PiniaPlugin = (): void => {
             })
     }
 
-    i18nStore.$onAction(({ after, name }) => {
-        if (name === 'setLang') {
+    store.$onAction(({ after, name }) => {
+        if (isEnumValue<I18nStoreActions>(I18nStoreActions.SetLang, name)) {
             after(afterAction)
-        }
-    })
-
-    debugstore.$onAction(({ after, name }) => {
-        if (name === 'setHasBaseUrlOverrides') {
+        } else if (isEnumValue<DebugStoreActions>(DebugStoreActions.SetHasBaseUrlOverrides, name)) {
             // in case of changes in URL overrides, we clear the layers config cache
-            if (name === 'setHasBaseUrlOverrides') {
-                layersConfigByLang.en = []
-                layersConfigByLang.de = []
-                layersConfigByLang.fr = []
-                layersConfigByLang.it = []
-                layersConfigByLang.rm = []
-            }
+            layersConfigByLang.en = []
+            layersConfigByLang.de = []
+            layersConfigByLang.fr = []
+            layersConfigByLang.it = []
+            layersConfigByLang.rm = []
             after(afterAction)
         }
     })

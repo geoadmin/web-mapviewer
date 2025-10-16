@@ -8,8 +8,9 @@ import { toValue } from 'vue'
 import type { ActionDispatcher } from '@/store/types'
 
 import { CloudOptimizedGeoTIFFParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/CloudOptimizedGeoTIFFParser.class'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore, { LayerStoreActions } from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
+import { isEnumValue } from '@/utils/utils'
 
 const cogParser = new CloudOptimizedGeoTIFFParser()
 const dispatcher: ActionDispatcher = { name: 'load-cog-metadata.plugin' }
@@ -59,20 +60,22 @@ const loadCOGMetadataPlugin: PiniaPlugin = () => {
     const layersStore = useLayersStore()
 
     layersStore.$onAction(({ name, args }) => {
-        if (name === 'addLayer' && 'layer' in args && args[0].layer) {
-            addLayerSubscriber(args[0].layer).catch((error) => {
-                log.error({
-                    title: 'Load COG metadata plugin',
-                    titleColor: LogPreDefinedColor.Green,
-                    messages: ['Error while adding a COG layer', args, error],
+        if (isEnumValue<LayerStoreActions>(LayerStoreActions.AddLayer, name)) {
+            const [payload] = args as Parameters<typeof layersStore.addLayer>
+            if (payload.layer) {
+                addLayerSubscriber(payload.layer).catch((error) => {
+                    log.error({
+                        title: 'Load COG metadata plugin',
+                        titleColor: LogPreDefinedColor.Green,
+                        messages: ['Error while adding a COG layer', args, error],
+                    })
                 })
-            })
-        }
-
-        if (name === 'setLayers' && 'layers' in args && Array.isArray(args[0])) {
+            }
+        } else if (isEnumValue<LayerStoreActions>(LayerStoreActions.SetLayers, name)) {
+            const [layers] = args as Parameters<typeof layersStore.setLayers>
             // sometimes the setLayers can receive strings. This can't work
             // with anything in here, so let's filter this away
-            const nonStringLayers = args[0].filter((layer) => !(typeof layer === 'string'))
+            const nonStringLayers = layers.filter((layer) => !(typeof layer === 'string'))
 
             for (const layer of nonStringLayers) {
                 addLayerSubscriber(layer).catch((error) => {
