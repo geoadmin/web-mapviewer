@@ -10,14 +10,15 @@ import { defineStore } from 'pinia'
 import type { DrawingIcon } from '@/api/icon.api'
 import type { ActionDispatcher } from '@/store/types'
 
-import {
+import getFeature, {
     type EditableFeature,
     EditableFeatureTypes,
+    identify,
     type IdentifyConfig,
+    identifyOnGeomAdminLayer,
     type LayerFeature,
     type SelectableFeature,
 } from '@/api/features.api'
-import getFeature, { identify, identifyOnGeomAdminLayer } from '@/api/features.api'
 import { sendFeatureInformationToIFrameParent } from '@/api/iframePostMessageEvent.api'
 import {
     DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION,
@@ -176,6 +177,28 @@ export interface FeaturesState {
     highlightedFeatureId: string | undefined
 }
 
+export enum FeatureStoreActions {
+    SetSelectedFeatures = 'setSelectedFeatures',
+    IdentifyFeatureAt = 'identifyFeatureAt',
+    LoadMoreFeaturesForLayer = 'loadMoreFeaturesForLayer',
+    ClearAllSelectedFeatures = 'clearAllSelectedFeatures',
+    SetHighlightedFeatureId = 'setHighlightedFeatureId',
+    ChangeFeatureCoordinates = 'changeFeatureCoordinates',
+    ChangeFeatureGeometry = 'changeFeatureGeometry',
+    ChangeFeatureTitle = 'changeFeatureTitle',
+    ChangeFeatureDescription = 'changeFeatureDescription',
+    ChangeFeatureShownDescriptionOnMap = 'changeFeatureShownDescriptionOnMap',
+    ChangeFeatureColor = 'changeFeatureColor',
+    ChangeFeatureTextColor = 'changeFeatureTextColor',
+    ChangeFeatureIcon = 'changeFeatureIcon',
+    ChangeFeatureIconSize = 'changeFeatureIconSize',
+    ChangeFeatureTextPlacement = 'changeFeatureTextPlacement',
+    ChangeFeatureTextOffset = 'changeFeatureTextOffset',
+    ChangeFeatureTextSize = 'changeFeatureTextSize',
+    ChangeFeatureIsDragged = 'changeFeatureIsDragged',
+    UpdateFeatures = 'updateFeatures',
+}
+
 const useFeaturesStore = defineStore('features', {
     state: (): FeaturesState => ({
         selectedFeaturesByLayerId: [],
@@ -205,7 +228,7 @@ const useFeaturesStore = defineStore('features', {
          *   can have more data or not (if its feature count is a multiple of paginationSize)
          * @param dispatcher
          */
-        setSelectedFeatures(
+        [FeatureStoreActions.SetSelectedFeatures](
             payload: { features: SelectableFeature<boolean>[]; paginationSize?: number },
             dispatcher: ActionDispatcher
         ) {
@@ -277,7 +300,7 @@ const useFeaturesStore = defineStore('features', {
          * @returns As some callers might want to know when identify has been done/finished, this
          *   returns a promise that will be resolved when this is the case
          */
-        async identifyFeatureAt(
+        async [FeatureStoreActions.IdentifyFeatureAt](
             payload: {
                 layers: Layer[]
                 coordinate: SingleCoordinate | FlatExtent
@@ -378,7 +401,7 @@ const useFeaturesStore = defineStore('features', {
          *   ([minX, maxX, minY, maxY]).
          * @param dispatcher
          */
-        loadMoreFeaturesForLayer(
+        [FeatureStoreActions.LoadMoreFeaturesForLayer](
             payload: { layer: GeoAdminLayer; coordinate: SingleCoordinate | FlatExtent },
             dispatcher: ActionDispatcher
         ) {
@@ -416,7 +439,7 @@ const useFeaturesStore = defineStore('features', {
                         const canLoadMore =
                             moreFeatures.length > 0 &&
                             moreFeatures.length % featuresAlreadyLoaded.featureCountForMoreData ===
-                            0
+                                0
 
                         featuresForLayer.features.push(...moreFeatures)
                         featuresForLayer.featureCountForMoreData = canLoadMore
@@ -443,7 +466,7 @@ const useFeaturesStore = defineStore('features', {
         },
 
         /** Removes all selected features from the map */
-        clearAllSelectedFeatures(dispatcher: ActionDispatcher) {
+        [FeatureStoreActions.ClearAllSelectedFeatures](dispatcher: ActionDispatcher) {
             this.selectedFeaturesByLayerId = []
             this.selectedEditableFeatures = []
             if (this.highlightedFeatureId) {
@@ -455,7 +478,7 @@ const useFeaturesStore = defineStore('features', {
             }
         },
 
-        setHighlightedFeatureId(
+        [FeatureStoreActions.SetHighlightedFeatureId](
             highlightedFeatureId: string | undefined,
             dispatcher: ActionDispatcher
         ) {
@@ -476,7 +499,7 @@ const useFeaturesStore = defineStore('features', {
          * @param payload.coordinates
          * @param dispatcher
          */
-        changeFeatureCoordinates(
+        [FeatureStoreActions.ChangeFeatureCoordinates](
             payload: { feature: EditableFeature; coordinates: SingleCoordinate[] },
             dispatcher: ActionDispatcher
         ) {
@@ -490,7 +513,7 @@ const useFeaturesStore = defineStore('features', {
             }
         },
 
-        changeFeatureGeometry(
+        [FeatureStoreActions.ChangeFeatureGeometry](
             payload: { feature: EditableFeature; geometry: Geometry },
             dispatcher: ActionDispatcher
         ) {
@@ -511,7 +534,7 @@ const useFeaturesStore = defineStore('features', {
          * Changes the title of the feature. Only change the title if the feature is editable and
          * part of the currently selected features
          */
-        changeFeatureTitle(
+        [FeatureStoreActions.ChangeFeatureTitle](
             payload: { feature: EditableFeature; title: string },
             dispatcher: ActionDispatcher
         ) {
@@ -529,7 +552,7 @@ const useFeaturesStore = defineStore('features', {
          * Changes the description of the feature. Only change the description if the feature is
          * editable and part of the currently selected features
          */
-        changeFeatureDescription(
+        [FeatureStoreActions.ChangeFeatureDescription](
             payload: {
                 feature: EditableFeature
                 description: string
@@ -546,7 +569,7 @@ const useFeaturesStore = defineStore('features', {
             }
         },
 
-        changeFeatureShownDescriptionOnMap(
+        [FeatureStoreActions.ChangeFeatureShownDescriptionOnMap](
             payload: { feature: EditableFeature; showDescriptionOnMap: boolean },
             dispatcher: ActionDispatcher
         ) {
@@ -565,7 +588,7 @@ const useFeaturesStore = defineStore('features', {
          * editable, part of the currently selected features and that the given color is a valid
          * color from {@link FeatureStyleColor}
          */
-        changeFeatureColor(
+        [FeatureStoreActions.ChangeFeatureColor](
             payload: { feature: EditableFeature; color: FeatureStyleColor },
             dispatcher: ActionDispatcher
         ) {
@@ -587,7 +610,7 @@ const useFeaturesStore = defineStore('features', {
          * editable, part of the currently selected features and that the given size is a valid size
          * from {@link FeatureStyleSize}
          */
-        changeFeatureTextSize(
+        [FeatureStoreActions.ChangeFeatureTextSize](
             payload: { feature: EditableFeature; textSize: FeatureStyleSize },
             dispatcher: ActionDispatcher
         ) {
@@ -606,7 +629,7 @@ const useFeaturesStore = defineStore('features', {
          * Changes the text placement of the title of the feature. Only changes the text placement
          * if the feature is editable and part of the currently selected features
          */
-        changeFeatureTextPlacement(
+        [FeatureStoreActions.ChangeFeatureTextPlacement](
             payload: { feature: EditableFeature; textPlacement: TextPlacement },
             dispatcher: ActionDispatcher
         ) {
@@ -627,7 +650,7 @@ const useFeaturesStore = defineStore('features', {
          * Changes the text offset of the feature. Only change the text offset if the feature is
          * editable and part of the currently selected features
          */
-        changeFeatureTextOffset(
+        [FeatureStoreActions.ChangeFeatureTextOffset](
             payload: { feature: EditableFeature; textOffset: [number, number] },
             dispatcher: ActionDispatcher
         ) {
@@ -646,7 +669,7 @@ const useFeaturesStore = defineStore('features', {
          * editable, part of the currently selected features and that the given color is a valid
          * color from {@link FeatureStyleColor}
          */
-        changeFeatureTextColor(
+        [FeatureStoreActions.ChangeFeatureTextColor](
             payload: { feature: EditableFeature; textColor: FeatureStyleColor },
             dispatcher: ActionDispatcher
         ) {
@@ -668,7 +691,7 @@ const useFeaturesStore = defineStore('features', {
          * the currently selected feature, is a marker type feature and that the given icon is valid
          * (non-null)
          */
-        changeFeatureIcon(
+        [FeatureStoreActions.ChangeFeatureIcon](
             payload: { feature: EditableFeature; icon: DrawingIcon },
             dispatcher: ActionDispatcher
         ) {
@@ -692,7 +715,7 @@ const useFeaturesStore = defineStore('features', {
          * editable, part of the currently selected features, is a marker type feature and that the
          * given size is a valid size from {@link FeatureStyleSize}
          */
-        changeFeatureIconSize(
+        [FeatureStoreActions.ChangeFeatureIconSize](
             payload: { feature: EditableFeature; iconSize: FeatureStyleSize },
             dispatcher: ActionDispatcher
         ) {
@@ -713,7 +736,7 @@ const useFeaturesStore = defineStore('features', {
         },
 
         /** In drawing mode, tells the state if a given feature is being dragged. */
-        changeFeatureIsDragged(
+        [FeatureStoreActions.ChangeFeatureIsDragged](
             payload: { feature: EditableFeature; isDragged: boolean },
             dispatcher: ActionDispatcher
         ) {
@@ -733,7 +756,7 @@ const useFeaturesStore = defineStore('features', {
          * language, we need to update the selected features otherwise we keep them in the old
          * language until new features are selected.
          */
-        async updateFeatures(dispatcher: ActionDispatcher) {
+        async [FeatureStoreActions.UpdateFeatures](dispatcher: ActionDispatcher) {
             const featuresPromises: Promise<LayerFeature>[] = []
 
             const i18nStore = useI18nStore()

@@ -9,11 +9,9 @@ import type {
 } from '@swissgeo/layers'
 import type { Interval } from 'luxon'
 
-import { WGS84 } from '@swissgeo/coordinates'
-import { extentUtils } from '@swissgeo/coordinates'
+import { extentUtils, WGS84 } from '@swissgeo/coordinates'
 import {
     addErrorMessageToLayer,
-    clearErrorMessages,
     type GeoAdminLayer,
     type Layer,
     LayerType,
@@ -70,6 +68,32 @@ export interface LayersState {
     previewYear?: number
 }
 
+export enum LayerStoreActions {
+    SetBackground = 'setBackground',
+    SetPreviewYear = 'setPreviewYear',
+    SetTimedLayerCurrentYear = 'setTimedLayerCurrentYear',
+    SetLayerConfig = 'setLayerConfig',
+    AddLayer = 'addLayer',
+    SetLayers = 'setLayers',
+    RemoveLayer = 'removeLayer',
+    UpdateLayer = 'updateLayer',
+    UpdateLayers = 'updateLayers',
+    ClearLayers = 'clearLayers',
+    ToggleLayerVisibility = 'toggleLayerVisibility',
+    SetLayerVisibility = 'setLayerVisibility',
+    SetLayerOpacity = 'setLayerOpacity',
+    SetTimedLayerCurrentTimeEntry = 'setTimedLayerCurrentTimeEntry',
+    MoveActiveLayerToIndex = 'moveActiveLayerToIndex',
+    SetPreviewLayer = 'setPreviewLayer',
+    ClearPreviewLayer = 'clearPreviewLayer',
+    AddLayerError = 'addLayerError',
+    RemoveLayerError = 'removeLayerError',
+    SetKmlGpxLayerData = 'setKmlGpxLayerData',
+    AddSystemLayer = 'addSystemLayer',
+    UpdateSystemLayer = 'updateSystemLayer',
+    RemoveSystemLayer = 'removeSystemLayer',
+}
+
 /**
  * Check if a layer match with the layerId, isExternal, and baseUrl
  *
@@ -114,7 +138,7 @@ const cloneActiveLayerConfig = (sourceLayer: Layer, activeLayerConfig: Partial<L
                 )
             }
             if (updateDelay && clone.type === LayerType.GEOJSON) {
-                ; (clone as GeoAdminGeoJSONLayer).updateDelay = updateDelay
+                ;(clone as GeoAdminGeoJSONLayer).updateDelay = updateDelay
             }
         }
     }
@@ -381,7 +405,10 @@ const useLayersStore = defineStore('layers', {
          * @param bgLayerId The background layer id object
          * @param dispatcher Action dispatcher name
          */
-        setBackground(bgLayerId: string | undefined, dispatcher: ActionDispatcher): void {
+        [LayerStoreActions.SetBackground](
+            bgLayerId: string | undefined,
+            dispatcher: ActionDispatcher
+        ): void {
             if (bgLayerId === undefined || bgLayerId === 'void') {
                 // setting it to no background
                 this.currentBackgroundLayerId = undefined
@@ -399,11 +426,11 @@ const useLayersStore = defineStore('layers', {
             }
         },
 
-        setPreviewYear(year: number | undefined) {
+        [LayerStoreActions.SetPreviewYear](year: number | undefined) {
             this.previewYear = year
         },
 
-        setTimedLayerCurrentYear(
+        [LayerStoreActions.SetTimedLayerCurrentYear](
             index: number,
             year: number | undefined,
             dispatcher: ActionDispatcher
@@ -443,7 +470,10 @@ const useLayersStore = defineStore('layers', {
          *
          * Will add layers back, if some were already added before the config was changed
          */
-        setLayerConfig(config: GeoAdminLayer[], dispatcher: ActionDispatcher): void {
+        [LayerStoreActions.SetLayerConfig](
+            config: GeoAdminLayer[],
+            dispatcher: ActionDispatcher
+        ): void {
             const activeLayerBeforeConfigChange = [...this.activeLayers]
             if (Array.isArray(config)) {
                 this.config = [...config]
@@ -486,7 +516,7 @@ const useLayersStore = defineStore('layers', {
          * @param payload
          * @param dispatcher
          */
-        addLayer(payload: AddLayerPayload, dispatcher: ActionDispatcher) {
+        [LayerStoreActions.AddLayer](payload: AddLayerPayload, dispatcher: ActionDispatcher) {
             const { layer, layerId, layerConfig, zoomToLayerExtent = false } = payload
 
             let initialLayer: Layer | undefined = layer
@@ -559,7 +589,7 @@ const useLayersStore = defineStore('layers', {
          */
         // NOTE trying to get rid of the union type for " Partial<Layer>[]" here
         // TODO if possible, get rid of the string too man
-        setLayers(layers: Layer[] | string[], dispatcher: ActionDispatcher) {
+        [LayerStoreActions.SetLayers](layers: Layer[] | string[], dispatcher: ActionDispatcher) {
             this.activeLayers = layers
                 .map((layer) => {
                     let clone: Layer | undefined
@@ -590,7 +620,7 @@ const useLayersStore = defineStore('layers', {
          * @param payload.isExternal If the layer must be external, not, or both (undefined)
          * @param payload.baseUrl Base URL of the layer(s) to retrieve. If undefined, accept all
          */
-        removeLayer(
+        [LayerStoreActions.RemoveLayer](
             payload: { index?: number; layerId?: string; isExternal?: boolean; baseUrl?: string },
             dispatcher: ActionDispatcher
         ) {
@@ -626,7 +656,7 @@ const useLayersStore = defineStore('layers', {
          *   properties to update (partial update)
          * @param dispatcher
          */
-        updateLayer<T extends Layer>(
+        [LayerStoreActions.UpdateLayer]<T extends Layer>(
             payload: { layerId: string; values: Partial<T> },
             dispatcher: ActionDispatcher
         ) {
@@ -657,7 +687,7 @@ const useLayersStore = defineStore('layers', {
          *   to update and any property to update (partial update)
          * @param dispatcher
          */
-        updateLayers(
+        [LayerStoreActions.UpdateLayers](
             // we want at least `Layer`, it can contain more
             layers: Partial<Layer>[],
             dispatcher: ActionDispatcher
@@ -706,7 +736,7 @@ const useLayersStore = defineStore('layers', {
         },
 
         /** Clear all active layers */
-        clearLayers(dispatcher: ActionDispatcher) {
+        [LayerStoreActions.ClearLayers](dispatcher: ActionDispatcher) {
             this.activeLayers = []
         },
 
@@ -714,7 +744,7 @@ const useLayersStore = defineStore('layers', {
          * Toggle the layer visibility of the layer corresponding to this index, in the active layer
          * list
          */
-        toggleLayerVisibility(index: number, dispatcher: ActionDispatcher) {
+        [LayerStoreActions.ToggleLayerVisibility](index: number, dispatcher: ActionDispatcher) {
             const layer = this.getActiveLayerByIndex(index)
             if (layer) {
                 layer.isVisible = !layer.isVisible
@@ -730,7 +760,11 @@ const useLayersStore = defineStore('layers', {
         },
 
         /** Set a layer's visibility flag */
-        setLayerVisibility(index: number, isVisible: boolean, dispatcher: ActionDispatcher) {
+        [LayerStoreActions.SetLayerVisibility](
+            index: number,
+            isVisible: boolean,
+            dispatcher: ActionDispatcher
+        ) {
             const layer = this.getActiveLayerByIndex(index)
             if (layer) {
                 layer.isVisible = isVisible
@@ -746,7 +780,11 @@ const useLayersStore = defineStore('layers', {
         },
 
         /** Set a layer's opacity */
-        setLayerOpacity(index: number, opacity: number, dispatcher: ActionDispatcher) {
+        [LayerStoreActions.SetLayerOpacity](
+            index: number,
+            opacity: number,
+            dispatcher: ActionDispatcher
+        ) {
             const layer = this.getActiveLayerByIndex(index)
             if (layer) {
                 layer.opacity = Number(opacity)
@@ -762,7 +800,7 @@ const useLayersStore = defineStore('layers', {
         },
 
         /** Set layer current year */
-        setTimedLayerCurrentTimeEntry(
+        [LayerStoreActions.SetTimedLayerCurrentTimeEntry](
             index: number,
             timeEntry: LayerTimeConfigEntry | undefined,
             dispatcher: ActionDispatcher
@@ -797,7 +835,11 @@ const useLayersStore = defineStore('layers', {
         },
 
         /** Move an active layer to the given index */
-        moveActiveLayerToIndex(index: number, newIndex: number, dispatcher: ActionDispatcher) {
+        [LayerStoreActions.MoveActiveLayerToIndex](
+            index: number,
+            newIndex: number,
+            dispatcher: ActionDispatcher
+        ) {
             if (newIndex >= this.activeLayers.length || newIndex < 0) {
                 log.error({
                     title: 'Layers store / moveActiveLayerToIndex',
@@ -834,7 +876,7 @@ const useLayersStore = defineStore('layers', {
         },
 
         /** Set the preview layer */
-        setPreviewLayer(layer: Layer | string, dispatcher: ActionDispatcher) {
+        [LayerStoreActions.SetPreviewLayer](layer: Layer | string, dispatcher: ActionDispatcher) {
             let clone
             if (typeof layer === 'object') {
                 // got the layer, thus we copy it directly
@@ -865,49 +907,8 @@ const useLayersStore = defineStore('layers', {
         },
 
         /** Clear the preview layer */
-        clearPreviewLayer(dispatcher: ActionDispatcher) {
+        [LayerStoreActions.ClearPreviewLayer](dispatcher: ActionDispatcher) {
             this.previewLayer = undefined
-        },
-
-        /**
-         * Will take the first time entry that matches the interval for each layer (if multiple
-         * entries are possible), or set the current time entry to undefined if no matching time
-         * entry is found in the layer.
-         */
-        setPreviewInterval(interval: Interval, dispatcher: ActionDispatcher) {
-            if (!interval.isValid) {
-                log.error({
-                    title: 'Layers store / setPreviewInterval',
-                    titleStyle: {
-                        backgroundColor: LogPreDefinedColor.Red,
-                    },
-                    messages: [
-                        'Failed to setPreviewInterval: invalid interval',
-                        interval,
-                        dispatcher,
-                    ],
-                })
-                return
-            }
-            this.previewInterval = interval
-            this.activeLayers
-                .filter((layer) => timeConfigUtils.hasMultipleTimestamps(layer))
-                .forEach((layer) => {
-                    if (!layer.timeConfig) {
-                        return
-                    }
-                    layer.timeConfig.currentTimeEntry = timeConfigUtils.getTimeEntryForInterval(
-                        layer,
-                        interval
-                    )
-                })
-        },
-
-        /** Clear preview year */
-        clearPreviewInterval(dispatcher: ActionDispatcher) {
-            this.previewInterval = undefined
-            // we leave the active layers as they were and do not revert to any default time entry
-            // (what was selected through the time slider is permanent)
         },
 
         /**
@@ -916,7 +917,7 @@ const useLayersStore = defineStore('layers', {
          * NOTE: This set the error key to all layers matching the ID, isExternal, and baseUrl
          * properties.
          */
-        addLayerError(
+        [LayerStoreActions.AddLayerError](
             payload: {
                 layerId: string
                 isExternal?: boolean
@@ -959,7 +960,7 @@ const useLayersStore = defineStore('layers', {
          * NOTE: This set the error key to all layers matching the ID, isExternal, and baseUrl
          * properties.
          */
-        removeLayerError(
+        [LayerStoreActions.RemoveLayerError](
             payload: {
                 layerId: string
                 isExternal?: boolean
@@ -994,34 +995,6 @@ const useLayersStore = defineStore('layers', {
         },
 
         /**
-         * Remove all layer error translation keys.
-         *
-         * NOTE: This set the error key to all layers matching the ID.
-         */
-        clearLayerErrors(layerId: string, dispatcher: ActionDispatcher) {
-            const layers = this.getLayersById(layerId)
-            if (layers.length === 0) {
-                log.error({
-                    title: 'Layers store / clearLayerErrors',
-                    titleStyle: {
-                        backgroundColor: LogPreDefinedColor.Red,
-                    },
-                    messages: [
-                        'Failed to clear layer errors: invalid layerId (no matching layer found)',
-                        layerId,
-                    ],
-                })
-                return
-            }
-            const updatedLayers = layers.map((layer) => {
-                const clone = layerUtils.cloneLayer(layer)
-                clearErrorMessages(clone)
-                return clone
-            })
-            this.updateLayers(updatedLayers, dispatcher)
-        },
-
-        /**
          * Set KML/GPX layer(s) with its data and metadata.
          *
          * NOTE: all matching layer id will be set.
@@ -1034,7 +1007,7 @@ const useLayersStore = defineStore('layers', {
          *   inside a KMZ archive and can be referenced inside the KML (e.g. icon, image, ...).
          * @param dispatcher
          */
-        setKmlGpxLayerData(
+        [LayerStoreActions.SetKmlGpxLayerData](
             payload: {
                 layerId: string
                 data?: string
@@ -1128,7 +1101,7 @@ const useLayersStore = defineStore('layers', {
          * NOTE: unlike the activeLayers, systemLayers cannot have duplicate and they are
          * added/remove by ID
          */
-        addSystemLayer(layer: Layer, dispatcher: ActionDispatcher) {
+        [LayerStoreActions.AddSystemLayer](layer: Layer, dispatcher: ActionDispatcher) {
             if (this.systemLayers.find((systemLayer) => systemLayer.id === layer.id)) {
                 log.error({
                     title: 'Layers store / addSystemLayer',
@@ -1143,7 +1116,7 @@ const useLayersStore = defineStore('layers', {
         },
 
         /** Update a system layer */
-        updateSystemLayer(layer: Partial<Layer>, dispatcher: ActionDispatcher) {
+        [LayerStoreActions.UpdateSystemLayer](layer: Partial<Layer>, dispatcher: ActionDispatcher) {
             const layer2Update = this.systemLayers.find(
                 (systemLayer) => systemLayer.id === layer.id
             )
@@ -1170,7 +1143,7 @@ const useLayersStore = defineStore('layers', {
          * NOTE: unlike the activeLayers, systemLayers cannot have duplicate and they are
          * added/remove by ID
          */
-        removeSystemLayer(layerId: string, dispatcher: ActionDispatcher) {
+        [LayerStoreActions.RemoveSystemLayer](layerId: string, dispatcher: ActionDispatcher) {
             const index = this.systemLayers.findIndex((systemLayer) => systemLayer.id === layerId)
             if (index === -1) {
                 log.warn({
@@ -1187,11 +1160,6 @@ const useLayersStore = defineStore('layers', {
             } else {
                 this.systemLayers.splice(index, 1)
             }
-        },
-
-        /** Set all system layers */
-        setSystemLayers(layers: Layer[], dispatcher: ActionDispatcher) {
-            this.systemLayers = [...layers]
         },
     },
 })

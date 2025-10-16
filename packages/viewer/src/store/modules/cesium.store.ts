@@ -78,6 +78,14 @@ export interface CesiumState {
     layersTooltipConfig: LayerTooltipConfig[]
 }
 
+export enum CesiumStoreActions {
+    Set3dActive = 'set3dActive',
+    SetShowConstructionsBuildings = 'setShowConstructionsBuildings',
+    SetShowVegetation = 'setShowVegetation',
+    SetShowLabels = 'setShowLabels',
+    SetViewerReady = 'setViewerReady',
+}
+
 const useCesiumStore = defineStore('cesium', {
     state: (): CesiumState => ({
         active: false,
@@ -129,24 +137,23 @@ const useCesiumStore = defineStore('cesium', {
         },
     },
     actions: {
-        set3dActive(active: boolean, dispatcher: ActionDispatcher) {
+        [CesiumStoreActions.Set3dActive](active: boolean, dispatcher: ActionDispatcher) {
             this.active = active
         },
-
-        setShowConstructionsBuildings(show: boolean, dispatcher: ActionDispatcher) {
+        [CesiumStoreActions.SetShowConstructionsBuildings](
+            show: boolean,
+            dispatcher: ActionDispatcher
+        ) {
             this.showConstructions = show
             this.showBuildings = show
         },
-
-        setShowVegetation(show: boolean, dispatcher: ActionDispatcher) {
+        [CesiumStoreActions.SetShowVegetation](show: boolean, dispatcher: ActionDispatcher) {
             this.showVegetation = show
         },
-
-        setShowLabels(show: boolean, dispatcher: ActionDispatcher) {
+        [CesiumStoreActions.SetShowLabels](show: boolean, dispatcher: ActionDispatcher) {
             this.showLabels = show
         },
-
-        setViewerReady(isReady: boolean, dispatcher: ActionDispatcher) {
+        [CesiumStoreActions.SetViewerReady](isReady: boolean, dispatcher: ActionDispatcher) {
             this.isViewerReady = isReady
         },
     },

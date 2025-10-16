@@ -15,6 +15,11 @@ interface AppState {
     isMapReady: boolean
 }
 
+export enum AppStoreActions {
+    SetAppIsReady = 'setAppIsReady',
+    SetMapModuleReady = 'setMapModuleReady',
+}
+
 const useAppStore = defineStore('app', {
     state: (): AppState => ({
         isReady: false,
@@ -22,10 +27,10 @@ const useAppStore = defineStore('app', {
     }),
     getters: {},
     actions: {
-        setAppIsReady(dispatcher: ActionDispatcher) {
+        [AppStoreActions.SetAppIsReady](dispatcher: ActionDispatcher) {
             this.isReady = true
         },
-        setMapModuleReady(dispatcher: ActionDispatcher) {
+        [AppStoreActions.SetMapModuleReady](dispatcher: ActionDispatcher) {
             this.isMapReady = true
             sendMapReadyEventToParent()
         },

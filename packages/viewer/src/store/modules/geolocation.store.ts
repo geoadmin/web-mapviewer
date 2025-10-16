@@ -19,6 +19,16 @@ export interface GeolocationState {
     accuracy: number
 }
 
+export enum GeolocationStoreActions {
+    SetGeolocationActive = 'setGeolocationActive',
+    ToggleGeolocation = 'toggleGeolocation',
+    SetGeolocationTracking = 'setGeolocationTracking',
+    SetGeolocationDenied = 'setGeolocationDenied',
+    SetGeolocationPosition = 'setGeolocationPosition',
+    SetGeolocationAccuracy = 'setGeolocationAccuracy',
+    SetGeolocationData = 'setGeolocationData',
+}
+
 const useGeolocationStore = defineStore('geolocation', {
     state: (): GeolocationState => ({
         active: false,
@@ -29,19 +39,28 @@ const useGeolocationStore = defineStore('geolocation', {
     }),
     getters: {},
     actions: {
-        setGeolocationActive(active: boolean, dispatcher: ActionDispatcher) {
+        [GeolocationStoreActions.SetGeolocationActive](
+            active: boolean,
+            dispatcher: ActionDispatcher
+        ) {
             this.active = active
         },
 
-        toggleGeolocation(dispatcher: ActionDispatcher) {
+        [GeolocationStoreActions.ToggleGeolocation](dispatcher: ActionDispatcher) {
             this.active = !this.active
         },
 
-        setGeolocationTracking(isTracking: boolean, dispatcher: ActionDispatcher) {
+        [GeolocationStoreActions.SetGeolocationTracking](
+            isTracking: boolean,
+            dispatcher: ActionDispatcher
+        ) {
             this.tracking = isTracking
         },
 
-        setGeolocationDenied(isDenied: boolean, dispatcher: ActionDispatcher) {
+        [GeolocationStoreActions.SetGeolocationDenied](
+            isDenied: boolean,
+            dispatcher: ActionDispatcher
+        ) {
             this.denied = isDenied
             if (this.denied) {
                 this.active = false
@@ -49,7 +68,10 @@ const useGeolocationStore = defineStore('geolocation', {
             }
         },
 
-        setGeolocationPosition(position: SingleCoordinate, dispatcher: ActionDispatcher) {
+        [GeolocationStoreActions.SetGeolocationPosition](
+            position: SingleCoordinate,
+            dispatcher: ActionDispatcher
+        ) {
             if (Array.isArray(position) && position.length === 2) {
                 this.position = position
             } else {
@@ -63,7 +85,10 @@ const useGeolocationStore = defineStore('geolocation', {
             }
         },
 
-        setGeolocationAccuracy(accuracy: number, dispatcher: ActionDispatcher) {
+        [GeolocationStoreActions.SetGeolocationAccuracy](
+            accuracy: number,
+            dispatcher: ActionDispatcher
+        ) {
             if (isNumber(accuracy)) {
                 this.accuracy = Number(accuracy)
             } else {
@@ -77,7 +102,7 @@ const useGeolocationStore = defineStore('geolocation', {
             }
         },
 
-        setGeolocationData(
+        [GeolocationStoreActions.SetGeolocationData](
             position: SingleCoordinate,
             accuracy: number,
             dispatcher: ActionDispatcher

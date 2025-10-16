@@ -21,6 +21,15 @@ export interface TopicsState {
     openedTreeThemesIds: string[]
 }
 
+export enum TopicsStoreActions {
+    SetTopics = 'setTopics',
+    SetTopicTree = 'setTopicTree',
+    ChangeTopic = 'changeTopic',
+    SetTopicTreeOpenedThemesIds = 'setTopicTreeOpenedThemesIds',
+    AddTopicTreeOpenedThemeId = 'addTopicTreeOpenedThemeId',
+    RemoveTopicTreeOpenedThemeId = 'removeTopicTreeOpenedThemeId',
+}
+
 const useTopicsStore = defineStore('topics', {
     state: (): TopicsState => ({
         config: [],
@@ -37,18 +46,18 @@ const useTopicsStore = defineStore('topics', {
         },
     },
     actions: {
-        setTopics(topics: Topic[], dispatcher: ActionDispatcher) {
+        [TopicsStoreActions.SetTopics](topics: Topic[], dispatcher: ActionDispatcher) {
             this.config = [...topics]
         },
 
-        setTopicTree(
+        [TopicsStoreActions.SetTopicTree](
             layers: (GeoAdminLayer | GeoAdminGroupOfLayers)[],
             dispatcher: ActionDispatcher
         ) {
             this.tree = layers.map((layer) => layerUtils.cloneLayer(layer))
         },
 
-        changeTopic(topicId: string, dispatcher: ActionDispatcher) {
+        [TopicsStoreActions.ChangeTopic](topicId: string, dispatcher: ActionDispatcher) {
             if (
                 this.config.some((topic) => topic.id === topicId) ||
                 // during appLoadingManagement.routerPlugin the topics are not yet set,
@@ -67,7 +76,10 @@ const useTopicsStore = defineStore('topics', {
             }
         },
 
-        setTopicTreeOpenedThemesIds(themes: string | string[], dispatcher: ActionDispatcher) {
+        [TopicsStoreActions.SetTopicTreeOpenedThemesIds](
+            themes: string | string[],
+            dispatcher: ActionDispatcher
+        ) {
             if (typeof themes === 'string') {
                 this.openedTreeThemesIds = themes.split(',')
             } else if (Array.isArray(themes)) {
@@ -75,11 +87,17 @@ const useTopicsStore = defineStore('topics', {
             }
         },
 
-        addTopicTreeOpenedThemeId(themeId: string, dispatcher: ActionDispatcher) {
+        [TopicsStoreActions.AddTopicTreeOpenedThemeId](
+            themeId: string,
+            dispatcher: ActionDispatcher
+        ) {
             this.openedTreeThemesIds.push(themeId)
         },
 
-        removeTopicTreeOpenedThemeId(themeId: string, dispatcher: ActionDispatcher) {
+        [TopicsStoreActions.RemoveTopicTreeOpenedThemeId](
+            themeId: string,
+            dispatcher: ActionDispatcher
+        ) {
             if (this.openedTreeThemesIds.includes(themeId)) {
                 this.openedTreeThemesIds.splice(this.openedTreeThemesIds.indexOf(themeId), 1)
             }

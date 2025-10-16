@@ -131,6 +131,34 @@ export interface UIState {
     forceNoDevSiteWarning: boolean
 }
 
+export enum UIStoreActions {
+    SetSize = 'setSize',
+    ToggleMenu = 'toggleMenu',
+    CloseMenu = 'closeMenu',
+    ToggleFullscreenMode = 'toggleFullscreenMode',
+    SetEmbed = 'setEmbed',
+    SetNoSimpleZoomEmbed = 'setNoSimpleZoomEmbed',
+    SetShowLoadingBar = 'setShowLoadingBar',
+    SetLoadingBarRequester = 'setLoadingBarRequester',
+    ClearLoadingBarRequester = 'clearLoadingBarRequester',
+    SetUiMode = 'setUiMode',
+    ToggleImportCatalogue = 'toggleImportCatalogue',
+    ToggleImportFile = 'toggleImportFile',
+    SetHeaderHeight = 'setHeaderHeight',
+    SetCompareRatio = 'setCompareRatio',
+    SetCompareSliderActive = 'setCompareSliderActive',
+    SetFeatureInfoPosition = 'setFeatureInfoPosition',
+    SetTimeSliderActive = 'setTimeSliderActive',
+    SetShowDisclaimer = 'setShowDisclaimer',
+    AddErrors = 'addErrors',
+    RemoveError = 'removeError',
+    AddWarnings = 'addWarnings',
+    RemoveWarning = 'removeWarning',
+    SetShowDragAndDropOverlay = 'setShowDragAndDropOverlay',
+    SetHideEmbedUI = 'setHideEmbedUI',
+    SetForceNoDevSiteWarning = 'setForceNoDevSiteWarning',
+}
+
 const useUIStore = defineStore('ui', {
     state: (): UIState => ({
         height: window.innerHeight,
@@ -281,7 +309,7 @@ const useUIStore = defineStore('ui', {
         },
     },
     actions: {
-        setSize(width: number, height: number, dispatcher: ActionDispatcher) {
+        [UIStoreActions.SetSize](width: number, height: number, dispatcher: ActionDispatcher) {
             this.height = height
             this.width = width
 
@@ -296,27 +324,34 @@ const useUIStore = defineStore('ui', {
             }
         },
 
-        toggleMenu(dispatcher: ActionDispatcher) {
+        [UIStoreActions.ToggleMenu](dispatcher: ActionDispatcher) {
             this.showMenu = !this.showMenu
         },
 
-        closeMenu(dispatcher: ActionDispatcher) {
+        [UIStoreActions.CloseMenu](dispatcher: ActionDispatcher) {
             this.showMenu = false
         },
 
-        toggleFullscreenMode(dispatcher: ActionDispatcher) {
+        [UIStoreActions.ToggleFullscreenMode](dispatcher: ActionDispatcher) {
             this.fullscreenMode = !this.fullscreenMode
         },
 
-        setEmbed(embed: boolean, dispatcher: ActionDispatcher) {
+        [UIStoreActions.SetEmbed](embed: boolean, dispatcher: ActionDispatcher) {
             this.embed = !!embed
         },
 
-        setNoSimpleZoomEmbed(noSimpleZoomEmbed: boolean, dispatcher: ActionDispatcher) {
+        [UIStoreActions.SetNoSimpleZoomEmbed](
+            noSimpleZoomEmbed: boolean,
+            dispatcher: ActionDispatcher
+        ) {
             this.noSimpleZoomEmbed = !!noSimpleZoomEmbed
         },
 
-        setShowLoadingBar(loading: boolean, requester: string, dispatcher: ActionDispatcher) {
+        [UIStoreActions.SetShowLoadingBar](
+            loading: boolean,
+            requester: string,
+            dispatcher: ActionDispatcher
+        ) {
             if (!this.loadingBarRequesters[requester]) {
                 return
             }
@@ -346,38 +381,34 @@ const useUIStore = defineStore('ui', {
             })
         },
 
-        setLoadingBarRequester(requester: string, dispatcher: ActionDispatcher) {
+        [UIStoreActions.SetLoadingBarRequester](requester: string, dispatcher: ActionDispatcher) {
             this.setShowLoadingBar(true, requester, dispatcher)
         },
 
-        clearLoadingBarRequester(requester: string, dispatcher: ActionDispatcher) {
+        [UIStoreActions.ClearLoadingBarRequester](requester: string, dispatcher: ActionDispatcher) {
             this.setShowLoadingBar(false, requester, dispatcher)
         },
 
-        clearLoadingBar4MapLoading(dispatcher: ActionDispatcher) {
-            this.setShowLoadingBar(false, MAP_LOADING_BAR_REQUESTER, dispatcher)
-        },
-
-        setUiMode(mode: UIModes, dispatcher: ActionDispatcher) {
+        [UIStoreActions.SetUiMode](mode: UIModes, dispatcher: ActionDispatcher) {
             if (mode in UIModes) {
                 this.mode = mode
                 this.fullscreenMode = false
             }
         },
 
-        toggleImportCatalogue(dispatcher: ActionDispatcher) {
+        [UIStoreActions.ToggleImportCatalogue](dispatcher: ActionDispatcher) {
             this.importCatalogue = !this.importCatalogue
         },
 
-        toggleImportFile(dispatcher: ActionDispatcher) {
+        [UIStoreActions.ToggleImportFile](dispatcher: ActionDispatcher) {
             this.importFile = !this.importFile
         },
 
-        setHeaderHeight(height: number, dispatcher: ActionDispatcher) {
+        [UIStoreActions.SetHeaderHeight](height: number, dispatcher: ActionDispatcher) {
             this.headerHeight = height
         },
 
-        setCompareRatio(compareRatio: number, dispatcher: ActionDispatcher) {
+        [UIStoreActions.SetCompareRatio](compareRatio: number, dispatcher: ActionDispatcher) {
             /*
                 This check is here to make sure the compare ratio doesn't get out of hand
                 The logic is, we want the compare ratio to be either in its visible range,
@@ -391,11 +422,14 @@ const useUIStore = defineStore('ui', {
             }
         },
 
-        setCompareSliderActive(isActive: boolean, dispatcher: ActionDispatcher) {
+        [UIStoreActions.SetCompareSliderActive](isActive: boolean, dispatcher: ActionDispatcher) {
             this.isCompareSliderActive = !!isActive
         },
 
-        setFeatureInfoPosition(position: FeatureInfoPositions, dispatcher: ActionDispatcher) {
+        [UIStoreActions.SetFeatureInfoPosition](
+            position: FeatureInfoPositions,
+            dispatcher: ActionDispatcher
+        ) {
             const featurePosition: FeatureInfoPositions =
                 FeatureInfoPositions[position?.toUpperCase() as keyof typeof FeatureInfoPositions]
 
@@ -422,15 +456,15 @@ const useUIStore = defineStore('ui', {
             }
         },
 
-        setTimeSliderActive(isActive: boolean, dispatcher: ActionDispatcher) {
+        [UIStoreActions.SetTimeSliderActive](isActive: boolean, dispatcher: ActionDispatcher) {
             this.isTimeSliderActive = isActive
         },
 
-        setShowDisclaimer(showDisclaimer: boolean, dispatcher: ActionDispatcher) {
+        [UIStoreActions.SetShowDisclaimer](showDisclaimer: boolean, dispatcher: ActionDispatcher) {
             this.showDisclaimer = !!showDisclaimer
         },
 
-        addErrors(errors: ErrorMessage[], dispatcher: ActionDispatcher) {
+        [UIStoreActions.AddErrors](errors: ErrorMessage[], dispatcher: ActionDispatcher) {
             if (Array.isArray(errors) && errors.every((error) => error instanceof ErrorMessage)) {
                 errors
                     .filter(
@@ -452,7 +486,7 @@ const useUIStore = defineStore('ui', {
             }
         },
 
-        removeError(error: ErrorMessage, dispatcher: ActionDispatcher) {
+        [UIStoreActions.RemoveError](error: ErrorMessage, dispatcher: ActionDispatcher) {
             if (!(error instanceof ErrorMessage)) {
                 log.error({
                     title: 'UI store / removeError',
@@ -468,7 +502,7 @@ const useUIStore = defineStore('ui', {
             }
         },
 
-        addWarnings(warnings: WarningMessage[], dispatcher: ActionDispatcher) {
+        [UIStoreActions.AddWarnings](warnings: WarningMessage[], dispatcher: ActionDispatcher) {
             if (
                 Array.isArray(warnings) &&
                 warnings.every((warning) => warning instanceof WarningMessage)
@@ -498,7 +532,7 @@ const useUIStore = defineStore('ui', {
                 })
             }
         },
-        removeWarning(warning: WarningMessage, dispatcher: ActionDispatcher) {
+        [UIStoreActions.RemoveWarning](warning: WarningMessage, dispatcher: ActionDispatcher) {
             if (!(warning instanceof WarningMessage)) {
                 log.error({
                     title: 'UI store / removeWarning',
@@ -518,15 +552,18 @@ const useUIStore = defineStore('ui', {
             }
         },
 
-        setShowDragAndDropOverlay(showDragAndDropOverlay: boolean, dispatcher: ActionDispatcher) {
+        [UIStoreActions.SetShowDragAndDropOverlay](
+            showDragAndDropOverlay: boolean,
+            dispatcher: ActionDispatcher
+        ) {
             this.showDragAndDropOverlay = !!showDragAndDropOverlay
         },
 
-        setHideEmbedUI(hideEmbedUI: boolean, dispatcher: ActionDispatcher) {
+        [UIStoreActions.SetHideEmbedUI](hideEmbedUI: boolean, dispatcher: ActionDispatcher) {
             this.hideEmbedUI = !!hideEmbedUI
         },
 
-        setForceNoDevSiteWarning(dispatcher: ActionDispatcher) {
+        [UIStoreActions.SetForceNoDevSiteWarning](dispatcher: ActionDispatcher) {
             this.forceNoDevSiteWarning = true
         },
     },

@@ -9,6 +9,12 @@ interface DebugState {
     hasBaseUrlOverrides: boolean
 }
 
+export enum DebugStoreActions {
+    ToggleShowTileDebugInfo = 'toggleShowTileDebugInfo',
+    ToggleShowLayerExtents = 'toggleShowLayerExtents',
+    SetHasBaseUrlOverrides = 'setHasBaseUrlOverrides',
+}
+
 const useDebugStore = defineStore('debug', {
     state: (): DebugState => ({
         showTileDebugInfo: false,
@@ -17,15 +23,18 @@ const useDebugStore = defineStore('debug', {
     }),
     getters: {},
     actions: {
-        toggleShowTileDebugInfo(dispatcher: ActionDispatcher) {
+        [DebugStoreActions.ToggleShowTileDebugInfo](dispatcher: ActionDispatcher) {
             this.showTileDebugInfo = !this.showTileDebugInfo
         },
 
-        toggleShowLayerExtents(dispatcher: ActionDispatcher) {
+        [DebugStoreActions.ToggleShowLayerExtents](dispatcher: ActionDispatcher) {
             this.showLayerExtents = !this.showLayerExtents
         },
 
-        setHasBaseUrlOverrides(hasOverrides: boolean, dispatcher: ActionDispatcher) {
+        [DebugStoreActions.SetHasBaseUrlOverrides](
+            hasOverrides: boolean,
+            dispatcher: ActionDispatcher
+        ) {
             this.hasBaseUrlOverrides = hasOverrides
         },
     },

@@ -48,6 +48,18 @@ export interface MapState {
     rectangleSelectionExtent: FlatExtent | undefined
 }
 
+export enum MapStoreActions {
+    Click = 'click',
+    ClearClick = 'clearClick',
+    SetPinnedLocation = 'setPinnedLocation',
+    SetPreviewedPinnedLocation = 'setPreviewedPinnedLocation',
+    ClearPreviewPinnedLocation = 'clearPreviewPinnedLocation',
+    ClearLocationPopupCoordinates = 'clearLocationPopupCoordinates',
+    SetLocationPopupCoordinates = 'setLocationPopupCoordinates',
+    SetPrintMode = 'setPrintMode',
+    SetRectangleSelectionExtent = 'setRectangleSelectionExtent',
+}
+
 const useMapStore = defineStore('map', {
     state: (): MapState => ({
         clickInfo: undefined,
@@ -59,16 +71,19 @@ const useMapStore = defineStore('map', {
     }),
     actions: {
         /** Sets all information about the last click that occurred on the map* */
-        click(clickInfo: ClickInfo | undefined, dispatcher: ActionDispatcher) {
+        [MapStoreActions.Click](clickInfo: ClickInfo | undefined, dispatcher: ActionDispatcher) {
             this.clickInfo = clickInfo
         },
 
-        clearClick(dispatcher: ActionDispatcher) {
+        [MapStoreActions.ClearClick](dispatcher: ActionDispatcher) {
             this.clickInfo = undefined
         },
 
         /** Sets the dropped pin on the map. If coordinates are undefined, the dropped pin is removed */
-        setPinnedLocation(coordinates: SingleCoordinate | undefined, dispatcher: ActionDispatcher) {
+        [MapStoreActions.SetPinnedLocation](
+            coordinates: SingleCoordinate | undefined,
+            dispatcher: ActionDispatcher
+        ) {
             if (Array.isArray(coordinates) && coordinates.length === 2) {
                 this.pinnedLocation = coordinates
             } else {
@@ -76,7 +91,7 @@ const useMapStore = defineStore('map', {
             }
         },
 
-        setPreviewedPinnedLocation(
+        [MapStoreActions.SetPreviewedPinnedLocation](
             coordinates: SingleCoordinate | undefined,
             dispatcher: ActionDispatcher
         ) {
@@ -87,11 +102,11 @@ const useMapStore = defineStore('map', {
             }
         },
 
-        clearPreviewPinnedLocation(dispatcher: ActionDispatcher) {
+        [MapStoreActions.ClearPreviewPinnedLocation](dispatcher: ActionDispatcher) {
             this.previewedPinnedLocation = undefined
         },
 
-        clearLocationPopupCoordinates(dispatcher: ActionDispatcher) {
+        [MapStoreActions.ClearLocationPopupCoordinates](dispatcher: ActionDispatcher) {
             this.locationPopupCoordinates = undefined
         },
 
@@ -99,7 +114,7 @@ const useMapStore = defineStore('map', {
          * Sets the locationPopup on the map. Ff coordinates are undefined, the locationPopup is
          * removed
          */
-        setLocationPopupCoordinates(
+        [MapStoreActions.SetLocationPopupCoordinates](
             coordinates: SingleCoordinate | undefined,
             dispatcher: ActionDispatcher
         ) {
@@ -116,11 +131,14 @@ const useMapStore = defineStore('map', {
          * Print mode was added for the new headless print service to test out some
          * OpenLayers-specific setup when printing.
          */
-        setPrintMode(isActive: boolean, dispatcher: ActionDispatcher) {
+        [MapStoreActions.SetPrintMode](isActive: boolean, dispatcher: ActionDispatcher) {
             this.printMode = isActive
         },
 
-        setRectangleSelectionExtent(extent: FlatExtent | undefined, dispatcher: ActionDispatcher) {
+        [MapStoreActions.SetRectangleSelectionExtent](
+            extent: FlatExtent | undefined,
+            dispatcher: ActionDispatcher
+        ) {
             if (Array.isArray(extent) && extent.length === 4) {
                 this.rectangleSelectionExtent = extent
             } else {

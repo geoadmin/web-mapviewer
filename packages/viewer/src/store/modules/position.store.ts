@@ -109,6 +109,21 @@ export interface PositionState {
     camera?: CameraPosition
 }
 
+export enum PositionStoreActions {
+    SetDisplayedFormat = 'setDisplayedFormat',
+    SetZoom = 'setZoom',
+    IncreaseZoom = 'increaseZoom',
+    DecreaseZoom = 'decreaseZoom',
+    ZoomToExtent = 'zoomToExtent',
+    SetRotation = 'setRotation',
+    SetAutoRotation = 'setAutoRotation',
+    SetHasOrientation = 'setHasOrientation',
+    SetCenter = 'setCenter',
+    SetCrossHair = 'setCrossHair',
+    SetCameraPosition = 'setCameraPosition',
+    SetProjection = 'setProjection',
+}
+
 const usePositionStore = defineStore('position', {
     state: (): PositionState => ({
         displayFormat: LV95Format,
@@ -183,11 +198,14 @@ const usePositionStore = defineStore('position', {
         },
     },
     actions: {
-        setDisplayedFormat(displayedFormat: CoordinateFormat, dispatcher: ActionDispatcher) {
+        [PositionStoreActions.SetDisplayedFormat](
+            displayedFormat: CoordinateFormat,
+            dispatcher: ActionDispatcher
+        ) {
             this.displayFormat = displayedFormat
         },
 
-        setZoom(zoom: number, dispatcher: ActionDispatcher) {
+        [PositionStoreActions.SetZoom](zoom: number, dispatcher: ActionDispatcher) {
             if (!isNumber(zoom) || zoom < 0) {
                 log.error({
                     title: 'Position store / setZoom',
@@ -201,7 +219,7 @@ const usePositionStore = defineStore('position', {
             this.zoom = this.projection.roundZoomLevel(zoom)
         },
 
-        increaseZoom(dispatcher: ActionDispatcher) {
+        [PositionStoreActions.IncreaseZoom](dispatcher: ActionDispatcher) {
             if (this.projection instanceof SwissCoordinateSystem) {
                 // for Swiss coordinate system, there's an extra param to trigger normalization
                 // (snapping to the closest rounded value)
@@ -210,7 +228,7 @@ const usePositionStore = defineStore('position', {
             this.zoom = this.projection.roundZoomLevel(this.zoom) + 1
         },
 
-        decreaseZoom(dispatcher: ActionDispatcher) {
+        [PositionStoreActions.DecreaseZoom](dispatcher: ActionDispatcher) {
             if (this.projection instanceof SwissCoordinateSystem) {
                 // for Swiss coordinate system, there's an extra param to trigger normalization
                 // (snapping to the closest rounded value)
@@ -219,7 +237,7 @@ const usePositionStore = defineStore('position', {
             this.zoom = this.projection.roundZoomLevel(this.zoom) - 1
         },
 
-        zoomToExtent(
+        [PositionStoreActions.ZoomToExtent](
             payload: {
                 extent: FlatExtent | NormalizedExtent
                 extentProjection?: CoordinateSystem
@@ -289,7 +307,7 @@ const usePositionStore = defineStore('position', {
             }
         },
 
-        setRotation(rotation: number, dispatcher: ActionDispatcher) {
+        [PositionStoreActions.SetRotation](rotation: number, dispatcher: ActionDispatcher) {
             if (!isNumber(rotation)) {
                 log.error({
                     title: 'Position store / setRotation',
@@ -303,15 +321,21 @@ const usePositionStore = defineStore('position', {
             this.rotation = normalizeAngle(rotation)
         },
 
-        setAutoRotation(autoRotation: boolean, dispatcher: ActionDispatcher) {
+        [PositionStoreActions.SetAutoRotation](
+            autoRotation: boolean,
+            dispatcher: ActionDispatcher
+        ) {
             this.autoRotation = autoRotation
         },
 
-        setHasOrientation(hasOrientation: boolean, dispatcher: ActionDispatcher) {
+        [PositionStoreActions.SetHasOrientation](
+            hasOrientation: boolean,
+            dispatcher: ActionDispatcher
+        ) {
             this.hasOrientation = hasOrientation
         },
 
-        setCenter(center: SingleCoordinate, dispatcher: ActionDispatcher) {
+        [PositionStoreActions.SetCenter](center: SingleCoordinate, dispatcher: ActionDispatcher) {
             if (!center || (Array.isArray(center) && center.length !== 2)) {
                 log.error({
                     title: 'Position store / setCenter',
@@ -340,7 +364,7 @@ const usePositionStore = defineStore('position', {
             }
         },
 
-        setCrossHair(
+        [PositionStoreActions.SetCrossHair](
             payload: {
                 crossHair?: CrossHairs
                 crossHairPosition?: SingleCoordinate
@@ -359,22 +383,25 @@ const usePositionStore = defineStore('position', {
             }
         },
 
-        setCameraPosition(position: CameraPosition | undefined, dispatcher: ActionDispatcher) {
+        [PositionStoreActions.SetCameraPosition](
+            position: CameraPosition | undefined,
+            dispatcher: ActionDispatcher
+        ) {
             // position can be null (in 2d mode), we do not wrap it in this case
             this.camera = position
                 ? {
-                    x: position.x,
-                    y: position.y,
-                    z: position.z,
-                    // wrapping all angle-based values so that they do not exceed a full-circle value
-                    roll: wrapDegrees(position.roll),
-                    pitch: wrapDegrees(position.pitch),
-                    heading: wrapDegrees(position.heading),
-                }
+                      x: position.x,
+                      y: position.y,
+                      z: position.z,
+                      // wrapping all angle-based values so that they do not exceed a full-circle value
+                      roll: wrapDegrees(position.roll),
+                      pitch: wrapDegrees(position.pitch),
+                      heading: wrapDegrees(position.heading),
+                  }
                 : undefined
         },
 
-        setProjection(
+        [PositionStoreActions.SetProjection](
             projection: CoordinateSystem | number | string,
             dispatcher: ActionDispatcher
         ) {

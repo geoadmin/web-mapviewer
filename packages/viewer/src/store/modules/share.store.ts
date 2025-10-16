@@ -10,6 +10,15 @@ interface ShareStoreState {
     isMenuSectionShown: boolean
 }
 
+export enum ShareStoreActions {
+    SetShortLink = 'setShortLink',
+    SetIsMenuSectionShown = 'setIsMenuSectionShown',
+    GenerateShortLinks = 'generateShortLinks',
+    CloseShareMenuAndRemoveShortLinks = 'closeShareMenuAndRemoveShortLinks',
+    ToggleShareMenuSection = 'toggleShareMenuSection',
+    ClearShortLinks = 'clearShortLinks',
+}
+
 const useShareStore = defineStore('share', {
     state: (): ShareStoreState => ({
         /**
@@ -25,14 +34,17 @@ const useShareStore = defineStore('share', {
         isMenuSectionShown: false,
     }),
     actions: {
-        setShortLink(shortLink: string | null, dispatcher: ActionDispatcher) {
+        [ShareStoreActions.SetShortLink](shortLink: string | null, dispatcher: ActionDispatcher) {
             this.shortLink = shortLink
         },
-        setIsMenuSectionShown(show: boolean, dispatcher: ActionDispatcher) {
+        [ShareStoreActions.SetIsMenuSectionShown](show: boolean, dispatcher: ActionDispatcher) {
             this.isMenuSectionShown = show
         },
 
-        async generateShortLinks(withCrosshair: boolean = false, dispatcher: ActionDispatcher) {
+        async [ShareStoreActions.GenerateShortLinks](
+            withCrosshair: boolean = false,
+            dispatcher: ActionDispatcher
+        ) {
             try {
                 const shortLink = await createShortLink(window.location.href, withCrosshair)
 
@@ -40,19 +52,21 @@ const useShareStore = defineStore('share', {
                     this.setShortLink(shortLink, dispatcher)
                 }
             } catch (err) {
-                log.error({messages: ['Error while creating short link for', window.location.href, err]})
+                log.error({
+                    messages: ['Error while creating short link for', window.location.href, err],
+                })
                 this.setShortLink(window.location.href, dispatcher)
             }
         },
-        closeShareMenuAndRemoveShortLinks(dispatcher: ActionDispatcher) {
-            this.setIsMenuSectionShown(false, dispatcher )
+        [ShareStoreActions.CloseShareMenuAndRemoveShortLinks](dispatcher: ActionDispatcher) {
+            this.setIsMenuSectionShown(false, dispatcher)
             this.clearShortLinks(dispatcher)
         },
-        toggleShareMenuSection(dispatcher: ActionDispatcher) {
-            this.setIsMenuSectionShown(!this.isMenuSectionShown, dispatcher )
+        [ShareStoreActions.ToggleShareMenuSection](dispatcher: ActionDispatcher) {
+            this.setIsMenuSectionShown(!this.isMenuSectionShown, dispatcher)
         },
-        clearShortLinks(dispatcher: ActionDispatcher ) {
-            this.shortLink =  null
+        [ShareStoreActions.ClearShortLinks](dispatcher: ActionDispatcher) {
+            this.shortLink = null
         },
     },
 })
