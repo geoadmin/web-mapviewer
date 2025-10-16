@@ -1,6 +1,6 @@
 import type { CoordinateSystem, FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 
-import type { BoundingBox, Layer } from '@/types/layers'
+import type { BoundingBox, ExternalLayer, Layer } from '@/types/layers'
 
 // @microsoft/api-extractor struggles to export only types from a file, so we need to export a dummy variable to make it happy
 export const _WHY_NOT: string = 'just so that it is not only type exports...'
@@ -222,7 +222,6 @@ export interface WMTSCapabilitiesResponse {
         Title?: string
         Abstract?: string
     }
-    getAllExternalLayerObjects(one: CoordinateSystem, two: number, three: boolean): Layer[]
 }
 // endregion
 // #endregion
@@ -245,7 +244,7 @@ export interface ExternalLayerParsingOptions<ExternalLayerType> {
 export interface CapabilitiesParser<
     CapabilitiesResponseType extends WMSCapabilitiesResponse | WMTSCapabilitiesResponse,
     CapabilitiesLayerType extends WMSCapabilityLayer | WMTSCapabilityLayer,
-    ExternalLayerType extends Layer,
+    ExternalLayerType extends ExternalLayer,
 > {
     /**
      * Parse all capabilities (layers, services, etc...) from this server.

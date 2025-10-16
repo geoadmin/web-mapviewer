@@ -5,17 +5,17 @@ import { ref } from 'vue'
 import ProviderUrl from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderUrl.vue'
 import LayerCatalogue from '@/modules/menu/components/LayerCatalogue.vue'
 import useUIStore from '@/store/modules/ui.store'
-import type { GeoAdminGroupOfLayers, GeoAdminLayer } from '@swissgeo/layers'
+import type { ExternalLayer } from '@swissgeo/layers'
 
 const { compact } = defineProps<{
     compact: boolean
 }>()
 
-const capabilities = ref<(GeoAdminLayer | GeoAdminGroupOfLayers)[]>([])
+const capabilities = ref<ExternalLayer[]>([])
 
 const uiStore = useUIStore()
 
-function onNewCapabilities(newCapabilities: (GeoAdminLayer | GeoAdminGroupOfLayers)[]): void {
+function onNewCapabilities(newCapabilities: ExternalLayer[]): void {
     log.debug(`New capabilities`, newCapabilities)
 
     capabilities.value = newCapabilities.sort((layerA, layerB) =>

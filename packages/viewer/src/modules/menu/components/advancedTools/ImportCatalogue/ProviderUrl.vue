@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Layer } from '@swissgeo/layers'
+import type { ExternalLayer } from '@swissgeo/layers'
 
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -12,7 +12,7 @@ import { useI18nStore } from '@/store/modules/i18n.store'
 import { CapabilitiesError } from '@swissgeo/layers/validation'
 
 const emit = defineEmits<{
-    capabilitiesParsed: [layers: Layer[]]
+    capabilitiesParsed: [layers: ExternalLayer[]]
     capabilitiesCleared: [void]
 }>()
 
