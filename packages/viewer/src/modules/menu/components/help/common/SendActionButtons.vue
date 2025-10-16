@@ -6,7 +6,7 @@ const emits = defineEmits<{
     cancel: []
 }>()
 
-const { isDisabled, isPending } = defineProps<{
+const { isDisabled = false, isPending = false } = defineProps<{
     isDisabled?: boolean
     isPending?: boolean
 }>()

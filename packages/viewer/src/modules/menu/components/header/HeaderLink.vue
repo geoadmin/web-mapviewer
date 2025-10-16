@@ -4,7 +4,12 @@
  * such link-button once
  */
 
-const { primary, secondary, showAsButton, dataCy } = defineProps<{
+const {
+    primary = false,
+    secondary = false,
+    showAsButton = false,
+    dataCy = '',
+} = defineProps<{
     primary?: boolean
     secondary?: boolean
     showAsButton?: boolean

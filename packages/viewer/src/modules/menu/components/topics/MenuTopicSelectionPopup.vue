@@ -3,13 +3,9 @@ import { useI18n } from 'vue-i18n'
 
 import TopicIcon from '@/modules/menu/components/topics/TopicIcon.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+import type { Topic } from '@/api/topics.api'
 
-interface Topic {
-    id: string
-    [key: string]: any
-}
-
-const { topics, currentId } = defineProps<{
+const { topics = [], currentId } = defineProps<{
     topics?: Topic[]
     currentId?: string
 }>()

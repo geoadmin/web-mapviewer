@@ -46,7 +46,7 @@ function setShowTopicSelectionPopup() {
     showTopicSelectionPopup.value = true
 }
 
-function selectTopic(topic: Topic) {
+function selectTopic(topic: Topic): void {
     topicsStore.changeTopic(topic.id, dispatcher)
     showTopicSelectionPopup.value = false
 }

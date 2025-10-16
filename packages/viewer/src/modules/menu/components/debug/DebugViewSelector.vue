@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { MAP_VIEWS } from '@/router/viewNames.js'
+import log from '@swissgeo/log'
 
 const router = useRouter()
 
@@ -10,10 +11,17 @@ const views = MAP_VIEWS
 const currentView = computed(() => router.currentRoute.value.name)
 
 function onRouteChange(routeName: string) {
-    router.push({
-        name: routeName,
-        replace: true,
-    })
+    router
+        .push({
+            name: routeName,
+            replace: true,
+        })
+        .catch((error) => {
+            log.error({
+                title: 'Failed to change view',
+                message: [error instanceof Error ? error.message : String(error)],
+            })
+        })
 }
 </script>
 

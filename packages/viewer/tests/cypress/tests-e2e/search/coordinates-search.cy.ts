@@ -91,7 +91,7 @@ describe('Testing coordinates typing in search bar', () => {
 
     it('Paste EPSG:4326 (WGS84) coordinate', () => {
         const expectedCenterWGS84_DD: string[] = expectedCenterWGS84.map((val) => {
-            const [degree, minutesFraction] = `${val}`.split('.')
+            const [degree, minutesFraction] = `${val.toString()}`.split('.')
             const minutes = parseFloat(`0.${minutesFraction}`)
             return `${degree}° ${(minutes * 60.0).toFixed(4)}'`
         })

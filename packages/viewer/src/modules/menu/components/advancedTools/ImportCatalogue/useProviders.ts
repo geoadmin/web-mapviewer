@@ -1,6 +1,7 @@
+import type { ComputedRef, Ref } from 'vue'
+
 import log from '@swissgeo/log'
 import { computed, ref } from 'vue'
-import type { ComputedRef, Ref } from 'vue'
 
 import providersJson from '@/modules/menu/components/advancedTools/ImportCatalogue/external-providers.json'
 

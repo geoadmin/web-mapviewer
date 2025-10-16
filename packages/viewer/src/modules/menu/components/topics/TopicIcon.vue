@@ -4,7 +4,7 @@
  * stored in a separate file, see the import
  */
 
-const { topicId } = defineProps<{
+const { topicId = 'ech' } = defineProps<{
     topicId?: string
 }>()
 </script>

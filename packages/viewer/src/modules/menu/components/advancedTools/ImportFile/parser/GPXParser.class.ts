@@ -1,8 +1,9 @@
-import { extentUtils, WGS84 } from '@swissgeo/coordinates'
-import GPX from 'ol/format/GPX'
 import type { CoordinateSystem } from '@swissgeo/coordinates'
-import { LayerType, type GPXLayer } from '@swissgeo/layers'
-import { v4 as uuidv4 } from 'uuid'
+import type { GPXLayer } from '@swissgeo/layers'
+
+import { extentUtils, WGS84 } from '@swissgeo/coordinates'
+import { layerUtils } from '@swissgeo/layers/utils'
+import GPX from 'ol/format/GPX'
 
 import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'
 import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
@@ -30,6 +31,7 @@ export default class GPXParser extends FileParser {
         })
     }
 
+    // eslint-disable-next-line @typescript-eslint/require-await
     async parseFileContent(
         fileContent: ArrayBuffer | undefined,
         fileSource: File | string,
@@ -49,40 +51,24 @@ export default class GPXParser extends FileParser {
             currentProjection
         )
         if (!extentInCurrentProjection) {
-            throw new OutOfBoundsError(`GPX is out of bounds of current projection: ${extent}`)
+            throw new OutOfBoundsError(`GPX is out of bounds of current projection: ${extent.toString()}`)
         }
 
-        const gpxFileUrl = this.isLocalFile(fileSource) ? fileSource.name : fileSource
-        const isLocalFile = this.isLocalFile(fileSource)
-        const gpxMetadata = (gpxMetadataParser.readMetadata(gpxAsText) ?? undefined) as any
-        const attributionName = isLocalFile ? gpxFileUrl : new URL(gpxFileUrl).hostname
-        const name = gpxMetadata?.name ?? 'GPX'
+        const olGpxMetadata = (gpxMetadataParser.readMetadata(gpxAsText) ?? undefined)
+        const gpxMetadata = olGpxMetadata ? {
+            ...olGpxMetadata,
+            bounds: olGpxMetadata.bounds && olGpxMetadata.bounds.length === 4
+                ? olGpxMetadata.bounds as [number, number, number, number]
+                : undefined
+        } : undefined
 
-        const gpxLayer: GPXLayer = {
-            uuid: uuidv4(),
-            id: `GPX|${gpxFileUrl}`,
-            type: LayerType.GPX,
-            name,
-            baseUrl: gpxFileUrl,
+        const gpxLayer: GPXLayer = layerUtils.makeGPXLayer({
             opacity: 1.0,
             isVisible: true,
-            attributions: [{ name: attributionName }],
-            hasTooltip: false,
-            hasDescription: false,
-            hasLegend: false,
-            timeConfig: {
-                timeEntries: [],
-            },
-            customAttributes: {},
             extent: extentInCurrentProjection,
-            gpxFileUrl,
             gpxData: gpxAsText,
             gpxMetadata,
-            isExternal: !isLocalFile,
-            hasError: false,
-            hasWarning: false,
-            isLoading: false,
-        }
+        })
 
         return gpxLayer
     }

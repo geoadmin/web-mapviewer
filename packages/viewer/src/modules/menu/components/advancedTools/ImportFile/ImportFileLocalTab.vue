@@ -12,7 +12,7 @@ const acceptedFileTypes = ['.kml', '.kmz', '.gpx', '.tif', '.tiff']
 
 const { handleFileSource } = useImportFile()
 
-const { active } = defineProps<{
+const { active = false } = defineProps<{
     active?: boolean
 }>()
 

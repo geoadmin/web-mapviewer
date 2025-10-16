@@ -1,6 +1,11 @@
-import log from '@swissgeo/log'
 import type { CoordinateSystem } from '@swissgeo/coordinates'
 import type { Layer } from '@swissgeo/layers'
+
+import log from '@swissgeo/log'
+
+import type {
+    ParseOptions,
+} from '@/modules/menu/components/advancedTools/ImportFile/parser/types'
 
 import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api'
 import { checkOnlineFileCompliance, getFileContentFromUrl } from '@/api/files.api'
@@ -8,10 +13,6 @@ import { CloudOptimizedGeoTIFFParser } from '@/modules/menu/components/advancedT
 import GPXParser from '@/modules/menu/components/advancedTools/ImportFile/parser/GPXParser.class'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
-import type {
-    OnlineFileCompliance,
-    ParseOptions,
-} from '@/modules/menu/components/advancedTools/ImportFile/parser/types'
 
 const allParsers = [
     new CloudOptimizedGeoTIFFParser(),

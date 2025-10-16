@@ -57,7 +57,9 @@ const buttonClass = `btn btn-sm btn-light share-network-button`
 const iconSize = '2x'
 
 function openQrcode() {
-    if (!shortLink) return
+    if (!shortLink) {
+        return
+    }
 
     const windowSize = 250
     const windowPosition = [

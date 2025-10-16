@@ -44,7 +44,7 @@ export default function useImportFile() {
             const layer = await parseLayerFromFile(source, projection.value)
 
             // checking that the same layer is not already present before adding it
-            if (layersStore.getActiveLayersById(layer.id).length === 0) {
+            if (layersStore.getActiveLayersById(layer.id).length === 0 && layer.extent) {
                 const extent = extentUtils.flattenExtent(layer.extent)
 
                 if (projection.value.bounds) {
@@ -52,11 +52,13 @@ export default function useImportFile() {
                         projection.value.bounds.isInBounds(extent[0], extent[1]) &&
                         projection.value.bounds.isInBounds(extent[2], extent[3])
                     if (!isLayerFullyInBound) {
-                        layer.addWarningMessage(
-                            new WarningMessage('file_imported_partially_out_of_bounds', {
-                                filename: layer.name ?? layer.id,
-                            })
-                        )
+                        layer.warningMessages = (layer.warningMessages ?? []).concat([
+                            new WarningMessage(
+                                'Layer is out of bounds of current projection',
+                                { filename: `Layer extent: ${extent.toString()}` }
+                            ),
+                        ])
+                        layer.hasWarning = true
                     }
                 }
 
@@ -69,7 +71,7 @@ export default function useImportFile() {
                 )
 
                 if (sendWarningToStore && layer.hasWarning) {
-                    uiStore.addWarnings(Array.from(layer.warningMessages), dispatcher)
+                    uiStore.addWarnings(Array.from(layer.warningMessages ?? []), dispatcher)
                 }
             }
         } catch (error: unknown) {
