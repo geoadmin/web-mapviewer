@@ -9,7 +9,6 @@ import useFeaturesStore from '@/store/modules/features.store'
 
 const defaultDrawingTitle = 'draw_mode_title'
 
-/** @enum */
 export enum EditMode {
     OFF = 'OFF',
     /** Mode for modifying existing features */
@@ -57,6 +56,21 @@ export interface DrawingState {
     isVisitWithAdminId: boolean
 }
 
+export enum DrawingStoreActions {
+    SetDrawingMode = 'setDrawingMode',
+    SetIsDrawingEditShared = 'setIsDrawingEditShared',
+    SetIsDrawingModified = 'setIsDrawingModified',
+    SetIsVisitWithAdminId = 'setIsVisitWithAdminId',
+    LoadAvailableIconSets = 'loadAvailableIconSets',
+    AddDrawingFeature = 'addDrawingFeature',
+    DeleteDrawingFeature = 'deleteDrawingFeature',
+    ClearDrawingFeatures = 'clearDrawingFeatures',
+    SetDrawingFeatures = 'setDrawingFeatures',
+    ToggleDrawingOverlay = 'toggleDrawingOverlay',
+    SetDrawingName = 'setDrawingName',
+    SetEditingMode = 'setEditingMode',
+}
+
 const useDrawingStore = defineStore('drawing', {
     state: (): DrawingState => ({
         mode: undefined,
@@ -90,36 +104,51 @@ const useDrawingStore = defineStore('drawing', {
         },
     },
     actions: {
-        setDrawingMode(mode: EditableFeatureTypes | undefined, dispatcher: ActionDispatcher) {
+        [DrawingStoreActions.SetDrawingMode](
+            mode: EditableFeatureTypes | undefined,
+            dispatcher: ActionDispatcher
+        ) {
             if (mode === undefined || mode in EditableFeatureTypes) {
                 this.mode = mode
             }
         },
 
-        setIsDrawingEditShared(isShared: boolean, dispatcher: ActionDispatcher) {
+        [DrawingStoreActions.SetIsDrawingEditShared](
+            isShared: boolean,
+            dispatcher: ActionDispatcher
+        ) {
             this.isDrawingEditShared = isShared
         },
 
-        setIsDrawingModified(isModified: boolean, dispatcher: ActionDispatcher) {
+        [DrawingStoreActions.SetIsDrawingModified](
+            isModified: boolean,
+            dispatcher: ActionDispatcher
+        ) {
             this.isDrawingModified = isModified
         },
 
-        setIsVisitWithAdminId(isVisitingWithAdminId: boolean, dispatcher: ActionDispatcher) {
+        [DrawingStoreActions.SetIsVisitWithAdminId](
+            isVisitingWithAdminId: boolean,
+            dispatcher: ActionDispatcher
+        ) {
             this.isVisitWithAdminId = isVisitingWithAdminId
         },
 
-        async loadAvailableIconSets(dispatcher: ActionDispatcher) {
+        async [DrawingStoreActions.LoadAvailableIconSets](dispatcher: ActionDispatcher) {
             const iconSets = await loadAllIconSetsFromBackend()
             if (iconSets?.length > 0) {
                 this.iconSets = iconSets
             }
         },
 
-        addDrawingFeature(featureId: string, dispatcher: ActionDispatcher) {
+        [DrawingStoreActions.AddDrawingFeature](featureId: string, dispatcher: ActionDispatcher) {
             this.featureIds.push(featureId)
         },
 
-        deleteDrawingFeature(featureId: string, dispatcher: ActionDispatcher) {
+        [DrawingStoreActions.DeleteDrawingFeature](
+            featureId: string,
+            dispatcher: ActionDispatcher
+        ) {
             const featuresStore = useFeaturesStore()
             featuresStore.clearAllSelectedFeatures(dispatcher)
             this.featureIds = this.featureIds.filter(
@@ -127,15 +156,18 @@ const useDrawingStore = defineStore('drawing', {
             )
         },
 
-        clearDrawingFeatures(dispatcher: ActionDispatcher) {
+        [DrawingStoreActions.ClearDrawingFeatures](dispatcher: ActionDispatcher) {
             this.featureIds = []
         },
 
-        setDrawingFeatures(featureIds: string[], dispatcher: ActionDispatcher) {
+        [DrawingStoreActions.SetDrawingFeatures](
+            featureIds: string[],
+            dispatcher: ActionDispatcher
+        ) {
             this.featureIds = [...featureIds]
         },
 
-        toggleDrawingOverlay(
+        [DrawingStoreActions.ToggleDrawingOverlay](
             payload: { online?: boolean; kmlId?: string; title?: string },
             dispatcher: ActionDispatcher
         ) {
@@ -146,11 +178,11 @@ const useDrawingStore = defineStore('drawing', {
             this.temporaryKmlId = kmlId
         },
 
-        setDrawingName(name: string, dispatcher: ActionDispatcher) {
+        [DrawingStoreActions.SetDrawingName](name: string, dispatcher: ActionDispatcher) {
             this.name = name
         },
 
-        setEditingMode(
+        [DrawingStoreActions.SetEditingMode](
             mode: EditMode,
             reverseLineStringExtension: boolean,
             dispatcher: ActionDispatcher

@@ -65,6 +65,12 @@ export interface SearchState {
     autoSelect: boolean
 }
 
+export enum SearchStoreActions {
+    SetAutoSelect = 'setAutoSelect',
+    SetSearchQuery = 'setSearchQuery',
+    SelectResultEntry = 'selectResultEntry',
+}
+
 export const useSearchStore = defineStore('search', {
     state: (): SearchState => ({
         query: '',
@@ -73,11 +79,11 @@ export const useSearchStore = defineStore('search', {
     }),
     getters: {},
     actions: {
-        setAutoSelect(autoSelect: boolean, dispatcher: ActionDispatcher) {
+        [SearchStoreActions.SetAutoSelect](autoSelect: boolean, dispatcher: ActionDispatcher) {
             this.autoSelect = autoSelect
         },
 
-        async setSearchQuery(
+        async [SearchStoreActions.SetSearchQuery](
             payload: {
                 query: string
                 /**
@@ -207,7 +213,10 @@ export const useSearchStore = defineStore('search', {
             this.results = results
         },
 
-        async selectResultEntry(entry: SearchResult, dispatcher: ActionDispatcher) {
+        async [SearchStoreActions.SelectResultEntry](
+            entry: SearchResult,
+            dispatcher: ActionDispatcher
+        ) {
             const i18nStore = useI18nStore()
             const layerStore = useLayersStore()
             const mapStore = useMapStore()

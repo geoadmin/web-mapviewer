@@ -17,6 +17,10 @@ export interface I18nState {
     lang: SupportedLang
 }
 
+export enum I18nStoreActions {
+    SetLang = 'setLang',
+}
+
 function enforceStartupLangIsSupported(lang: string): SupportedLang {
     if (isSupportedLang(lang)) {
         return lang
@@ -30,7 +34,7 @@ export const useI18nStore = defineStore('i18n', {
     }),
     getters: {},
     actions: {
-        setLang(lang: SupportedLang, dispatcher: ActionDispatcher) {
+        [I18nStoreActions.SetLang](lang: SupportedLang, dispatcher: ActionDispatcher) {
             this.lang = lang
             i18n.global.locale.value = langToLocale(lang)
         },

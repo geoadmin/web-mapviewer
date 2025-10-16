@@ -27,6 +27,15 @@ export interface PrintLayoutSize {
     height: number
 }
 
+export enum PrintStoreActions {
+    LoadPrintLayouts = 'loadPrintLayouts',
+    SetSelectedScale = 'setSelectedScale',
+    SetSelectedLayout = 'setSelectedLayout',
+    SetPrintSectionShown = 'setPrintSectionShown',
+    SetPrintExtent = 'setPrintExtent',
+    SetPrintConfig = 'setPrintConfig',
+}
+
 const usePrintStore = defineStore('print', {
     state: (): PrintState => ({
         layouts: [],
@@ -67,7 +76,7 @@ const usePrintStore = defineStore('print', {
         },
     },
     actions: {
-        async loadPrintLayouts(dispatcher: ActionDispatcher) {
+        async [PrintStoreActions.LoadPrintLayouts](dispatcher: ActionDispatcher) {
             try {
                 this.layouts = await readPrintCapabilities()
             } catch (error) {
@@ -81,23 +90,35 @@ const usePrintStore = defineStore('print', {
             }
         },
 
-        setSelectedScale(scale: number | undefined, dispatcher: ActionDispatcher) {
+        [PrintStoreActions.SetSelectedScale](
+            scale: number | undefined,
+            dispatcher: ActionDispatcher
+        ) {
             this.selectedScale = scale
         },
 
-        setSelectedLayout(layout: PrintLayout | undefined, dispatcher: ActionDispatcher) {
+        [PrintStoreActions.SetSelectedLayout](
+            layout: PrintLayout | undefined,
+            dispatcher: ActionDispatcher
+        ) {
             this.selectedLayout = layout
         },
 
-        setPrintSectionShown(show: boolean, dispatcher: ActionDispatcher) {
+        [PrintStoreActions.SetPrintSectionShown](show: boolean, dispatcher: ActionDispatcher) {
             this.printSectionShown = show
         },
 
-        setPrintExtent(printExtent: FlatExtent | undefined, dispatcher: ActionDispatcher) {
+        [PrintStoreActions.SetPrintExtent](
+            printExtent: FlatExtent | undefined,
+            dispatcher: ActionDispatcher
+        ) {
             this.printExtent = printExtent
         },
 
-        setPrintConfig(config: NewPrintServiceConfig, dispatcher: ActionDispatcher) {
+        [PrintStoreActions.SetPrintConfig](
+            config: NewPrintServiceConfig,
+            dispatcher: ActionDispatcher
+        ) {
             this.config = config
         },
     },

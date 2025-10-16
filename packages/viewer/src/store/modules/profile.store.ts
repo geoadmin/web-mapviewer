@@ -117,6 +117,11 @@ export interface ProfileState {
     currentFeatureGeometryIndex: number
 }
 
+export enum ProfileStoreActions {
+    SetCurrentFeatureSegmentIndex = 'setCurrentFeatureSegmentIndex',
+    SetProfileFeature = 'setProfileFeature',
+}
+
 const useProfileStore = defineStore('profile', {
     state: (): ProfileState => ({
         feature: undefined,
@@ -180,7 +185,10 @@ const useProfileStore = defineStore('profile', {
          * Sets the current feature segment index. This is used to highlight the current segment of
          * a feature is inspecting the feature profile.
          */
-        setCurrentFeatureSegmentIndex(index: number, dispatcher: ActionDispatcher) {
+        [ProfileStoreActions.SetCurrentFeatureSegmentIndex](
+            index: number,
+            dispatcher: ActionDispatcher
+        ) {
             this.currentFeatureGeometryIndex = index ?? 0
         },
 
@@ -201,7 +209,7 @@ const useProfileStore = defineStore('profile', {
          *   the small jumps due to GPS errors)
          * @param dispatcher
          */
-        setProfileFeature(
+        [ProfileStoreActions.SetProfileFeature](
             payload: { feature?: SelectableFeature<boolean>; simplifyGeometry?: boolean },
             dispatcher: ActionDispatcher
         ) {
