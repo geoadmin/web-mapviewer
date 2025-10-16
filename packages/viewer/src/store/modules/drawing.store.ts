@@ -168,11 +168,11 @@ const useDrawingStore = defineStore('drawing', {
         },
 
         [DrawingStoreActions.ToggleDrawingOverlay](
-            payload: { online?: boolean; kmlId?: string; title?: string },
+            payload: { show?: boolean; online?: boolean; kmlId?: string; title?: string },
             dispatcher: ActionDispatcher
         ) {
-            const { online, kmlId, title = defaultDrawingTitle } = payload
-            this.drawingOverlay.show = !this.drawingOverlay.show
+            const { show, online, kmlId, title = defaultDrawingTitle } = payload
+            this.drawingOverlay.show = typeof show === 'boolean' ? show : !this.drawingOverlay.show
             this.drawingOverlay.title = title
             this.online = typeof online === 'boolean' ? online : true
             this.temporaryKmlId = kmlId

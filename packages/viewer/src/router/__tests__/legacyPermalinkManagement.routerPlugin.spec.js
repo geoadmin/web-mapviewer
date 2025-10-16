@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import { handleLegacyParam } from '@/router/legacyPermalinkManagement.routerPlugin'
-import * as utils from '@/utils/legacyLayerParamUtils'
+import { handleLegacyParam } from '@/router/legacy-permalink.plugin.js'
+import * as utils from '@/utils/legacyLayerParamUtils.js'
 
 describe('Testing legacyPermalinkManagement', () => {
     let fakeStore
@@ -28,9 +28,7 @@ describe('Testing legacyPermalinkManagement', () => {
                 },
             },
             getters: {
-                getLayerConfigById: (_) => (
-                    layerConfig
-                ),
+                getLayerConfigById: (_) => layerConfig,
             },
         }
     })
@@ -146,14 +144,7 @@ describe('Testing legacyPermalinkManagement', () => {
             testHandleLegacyParam(param, legacyValue)
 
             expect(latlongCoordinates).to.eql([Number(legacyValue), 0])
-            expect(cameraPosition).to.eql([
-                Number(legacyValue),
-                null,
-                null,
-                null,
-                null,
-                null,
-            ])
+            expect(cameraPosition).to.eql([Number(legacyValue), null, null, null, null, null])
         })
         it('lat', () => {
             const param = 'lat'
@@ -163,14 +154,7 @@ describe('Testing legacyPermalinkManagement', () => {
             testHandleLegacyParam(param, legacyValue)
 
             expect(latlongCoordinates).to.eql([0, Number(legacyValue)])
-            expect(cameraPosition).to.eql([
-                null,
-                Number(legacyValue),
-                null,
-                null,
-                null,
-                null,
-            ])
+            expect(cameraPosition).to.eql([null, Number(legacyValue), null, null, null, null])
         })
         // for some reason this breaks with the new TS/ESLint config
         // TODO PB-1383: reactivate this test as soon as the store is moved to TS (and this test file too)
@@ -254,14 +238,7 @@ describe('Testing legacyPermalinkManagement', () => {
 
             testHandleLegacyParam(param, legacyValue)
 
-            expect(cameraPosition).to.eql([
-                null,
-                null,
-                Number(legacyValue),
-                null,
-                null,
-                null,
-            ])
+            expect(cameraPosition).to.eql([null, null, Number(legacyValue), null, null, null])
         })
         it('pitch', () => {
             const param = 'pitch'
@@ -269,14 +246,7 @@ describe('Testing legacyPermalinkManagement', () => {
 
             testHandleLegacyParam(param, legacyValue)
 
-            expect(cameraPosition).to.eql([
-                null,
-                null,
-                null,
-                Number(legacyValue),
-                null,
-                null,
-            ])
+            expect(cameraPosition).to.eql([null, null, null, Number(legacyValue), null, null])
         })
         it('heading', () => {
             const param = 'heading'
@@ -284,14 +254,7 @@ describe('Testing legacyPermalinkManagement', () => {
 
             testHandleLegacyParam(param, legacyValue)
 
-            expect(cameraPosition).to.eql([
-                null,
-                null,
-                null,
-                null,
-                Number(legacyValue),
-                null,
-            ])
+            expect(cameraPosition).to.eql([null, null, null, null, Number(legacyValue), null])
         })
         it('showTooltip with legacyValue true', () => {
             const param = 'showTooltip'

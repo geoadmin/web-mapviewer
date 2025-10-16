@@ -53,13 +53,15 @@ export interface LayerCustomAttributes {
      *
      * Affects only time-enabled layers (including External WMS/WMTS layer with timestamp)
      */
-    year?: string | number
+    year?: 'none' | 'all' | 'current' | number
     /** Automatic refresh time in milliseconds of the layer. Affects GeoAdminGeoJsonLayer only. */
     updateDelay?: number
     /** Colon-separated list of feature IDs to select.` */
     features?: string
     /** KML style to be applied (in case this layer is a KML layer) */
     style?: KMLStyle
+    /** Token to prove ownership of the KML layer on our backend. */
+    adminId?: string
     /** Any unlisted param will go here */
     [key: string]: string | number | boolean | undefined
 }

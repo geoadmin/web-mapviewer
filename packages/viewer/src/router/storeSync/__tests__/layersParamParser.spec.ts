@@ -1,64 +1,65 @@
+import type {
+    GeoAdminLayer,
+    Layer,
+    LayerCustomAttributes,
+    LayerTimeConfigEntry,
+} from '@swissgeo/layers'
+
+import { LayerType } from '@swissgeo/layers'
+import { layerUtils } from '@swissgeo/layers/utils'
+import { cloneDeep } from 'lodash'
+import { Interval } from 'luxon'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { LayerAttribution } from '@/api/layers/AbstractLayer.class'
-import ExternalWMSLayer from '@/api/layers/ExternalWMSLayer.class.js'
-import ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class.js'
-import GeoAdminAggregateLayer from '@/api/layers/GeoAdminAggregateLayer.class.js'
-import GeoAdminGeoJsonLayer from '@/api/layers/GeoAdminGeoJsonLayer.class.js'
-import GeoAdminWMSLayer from '@/api/layers/GeoAdminWMSLayer.class'
-import GeoAdminWMTSLayer from '@/api/layers/GeoAdminWMTSLayer.class.js'
-import KMLLayer from '@/api/layers/KMLLayer.class.js'
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class.js'
-import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class.js'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { parseLayersParam, transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 
 describe('Testing layersParamParser', () => {
-    const checkParsedLayer = (
-        layer,
-        id,
-        visible = true,
-        opacity = undefined,
-        customAttributes = {}
-    ) => {
-        expect(layer).to.be.an('Object')
-        expect(layer.id).to.eq(id)
-        expect(layer.visible).to.eq(visible, `visible parsing failed for layer ${id}`)
-        expect(layer.opacity).to.eq(opacity, `opacity parsing failed for layer ${id}`)
+    function checkParsedLayer(
+        layer: Partial<Layer> | undefined,
+        id: string | undefined = undefined,
+        isVisible: boolean = true,
+        opacity: number | undefined = undefined,
+        customAttributes: LayerCustomAttributes = {}
+    ): void {
+        expect(layer).toBeDefined()
+        expect(layer!.id).to.eq(id)
+        expect(layer!.isVisible).to.eq(isVisible, `isVisible parsing failed for layer ${id}`)
+        expect(layer!.opacity).to.eq(opacity, `opacity parsing failed for layer ${id}`)
         Object.keys(customAttributes).forEach((key) => {
-            expect(layer.customAttributes).to.haveOwnProperty(key)
-            expect(layer.customAttributes[key]).to.eq(
+            expect(layer!.customAttributes).toBeDefined()
+            expect(layer!.customAttributes).to.haveOwnProperty(key)
+            expect(layer!.customAttributes![key]).to.eq(
                 customAttributes[key],
                 `custom param "${key}" parsing failed for layer ${id}`
             )
         })
     }
-    const checkSingleCustomParam = (customParamValue) => {
+    function checkSingleCustomParam(customParamValue: string | number | boolean | undefined): void {
         const layerId = 'fake-layer-id'
-        const customAttributes = {
+        const customAttributes: LayerCustomAttributes = {
             myCustomParam: customParamValue,
         }
         const [layer] = parseLayersParam(`${layerId}@myCustomParam=${customParamValue}`)
+        expect(layer).toBeDefined()
         checkParsedLayer(layer, layerId, true, undefined, customAttributes)
     }
 
     describe('parseLayersParam', () => {
         it('Returns nothing if the query value is an empty array', () => {
-            expect(parseLayersParam(null)).to.be.an('Array').empty
-            expect(parseLayersParam(null)).to.be.an('Array').empty
+            expect(parseLayersParam('')).to.be.an('Array').lengthOf(0)
         })
         it('Returns an object containing the layer info if a layer ID is in the query', () => {
             const layerId = 'fake-layer-id'
             const result = parseLayersParam(layerId)
-            expect(result).to.be.an('Array').length(1)
+            expect(result).to.be.an('Array').lengthOf(1)
             checkParsedLayer(result[0], layerId, true)
         })
         it('Parses correctly multiple layers with different types of configuration', () => {
-            const layers = [
+            const layers: Partial<Layer>[] = [
                 {
                     id: 'test-visible-and-opacity',
-                    visible: false,
+                    isVisible: false,
                     opacity: 0.8,
                 },
                 {
@@ -73,7 +74,7 @@ describe('Testing layersParamParser', () => {
                 },
                 {
                     id: 'test-visible-with-custom-attrs',
-                    visible: false,
+                    isVisible: false,
                     customAttributes: {
                         attr1: 'test1',
                         attr2: true,
@@ -81,13 +82,13 @@ describe('Testing layersParamParser', () => {
                     },
                 },
                 {
-                    type: LayerTypes.KML,
+                    type: LayerType.KML,
                     id: 'somerandomurl.ch/file.kml',
                     baseUrl: 'somerandomurl.ch/file.kml',
                     opacity: 0.4,
                 },
                 {
-                    type: LayerTypes.WMTS,
+                    type: LayerType.WMTS,
                     baseUrl: 'https://totally.fake.wmts.url/WMTSGetCapabilties.xml',
                     id: 'a.layer.id',
                     opacity: 0.8,
@@ -102,11 +103,11 @@ describe('Testing layersParamParser', () => {
                 queryString += layer.id
                 if (layer.customAttributes) {
                     Object.keys(layer.customAttributes).forEach((key) => {
-                        queryString += `@${key}=${layer.customAttributes[key]}`
+                        queryString += `@${key}=${layer.customAttributes![key]}`
                     })
                 }
-                if ('visible' in layer) {
-                    queryString += `,${layer.visible === true ? 't' : 'f'}`
+                if ('isVisible' in layer) {
+                    queryString += `,${layer.isVisible ? 't' : 'f'}`
                 } else if (layer.opacity) {
                     queryString += ','
                 }
@@ -120,7 +121,7 @@ describe('Testing layersParamParser', () => {
                 checkParsedLayer(
                     results[index],
                     layer.id,
-                    layer.visible,
+                    layer.isVisible,
                     layer.opacity,
                     layer.customAttributes
                 )
@@ -175,7 +176,7 @@ describe('Testing layersParamParser', () => {
             })
             it('Parses correctly multiple custom params with visible and opacity set', () => {
                 const layerId = 'fake-layer-id'
-                const customParams = {
+                const customParams: LayerCustomAttributes = {
                     test: true,
                     year: 2020,
                     customString: 'oneTwoThreeTest',
@@ -199,12 +200,12 @@ describe('Testing layersParamParser', () => {
                 const result = parseLayersParam(`${externalLayerUrlId},f,0.6`)
                 expect(result).to.be.an('Array').with.lengthOf(1)
                 const [layer] = result
-                expect(layer).to.be.an('Object')
-                expect(layer.type).to.eq(LayerTypes.KML)
-                expect(layer.id).to.eq(kmlFileUrl)
-                expect(layer.baseUrl).to.eq(kmlFileUrl)
-                expect(layer.visible).to.be.false
-                expect(layer.opacity).to.eq(0.6)
+                expect(layer).toBeDefined()
+                expect(layer!.type).to.eq(LayerType.KML)
+                expect(layer!.id).to.eq(kmlFileUrl)
+                expect(layer!.baseUrl).to.eq(kmlFileUrl)
+                expect(layer!.isVisible).to.be.false
+                expect(layer!.opacity).to.eq(0.6)
             })
             it('parses an external WMTS layer correctly', () => {
                 const baseUrl = 'https://fake.wmts.admin.ch'
@@ -214,11 +215,11 @@ describe('Testing layersParamParser', () => {
                 expect(results).to.be.an('Array').length(1)
                 const [externalWMTSLayer] = results
                 expect(externalWMTSLayer).to.be.an('Object')
-                expect(externalWMTSLayer.id).to.eq(layerId)
-                expect(externalWMTSLayer.type).to.eq(LayerTypes.WMTS)
-                expect(externalWMTSLayer.baseUrl).to.eq(baseUrl)
-                expect(externalWMTSLayer.visible).to.be.true
-                expect(externalWMTSLayer.opacity).to.eq(1.0)
+                expect(externalWMTSLayer!.id).to.eq(layerId)
+                expect(externalWMTSLayer!.type).to.eq(LayerType.WMTS)
+                expect(externalWMTSLayer!.baseUrl).to.eq(baseUrl)
+                expect(externalWMTSLayer!.isVisible).to.be.true
+                expect(externalWMTSLayer!.opacity).to.eq(1.0)
             })
             it('parses an external WMS layer correctly', () => {
                 const baseUrl = 'https://fake.wms.admin.ch'
@@ -228,19 +229,26 @@ describe('Testing layersParamParser', () => {
                 expect(results).to.be.an('Array').length(1)
                 const [externalWMSLayer] = results
                 expect(externalWMSLayer).to.be.an('Object')
-                expect(externalWMSLayer.id).to.eq(layerId)
-                expect(externalWMSLayer.type).to.eq(LayerTypes.WMS)
-                expect(externalWMSLayer.baseUrl).to.eq(baseUrl)
-                expect(externalWMSLayer.visible).to.be.true
-                expect(externalWMSLayer.opacity).to.eq(0.8)
+                expect(externalWMSLayer!.id).to.eq(layerId)
+                expect(externalWMSLayer!.type).to.eq(LayerType.WMS)
+                expect(externalWMSLayer!.baseUrl).to.eq(baseUrl)
+                expect(externalWMSLayer!.isVisible).to.be.true
+                expect(externalWMSLayer!.opacity).to.eq(0.8)
             })
         })
     })
     describe('transformLayerIntoUrlString', () => {
-        const attributions = [new LayerAttribution('fake layer attribution')]
-        describe.each([
+        const attributions = [{ name: 'fake layer attribution' }]
+        interface TransformLayerIntoUrlStringTestPayload {
+            pristineLayer: Layer
+            defaultLayerConfig?: GeoAdminLayer
+            expectedLayerUrlId: string
+            testTime?: boolean
+            testFeaturePreSelection?: boolean
+        }
+        describe.each<TransformLayerIntoUrlStringTestPayload>([
             {
-                pristineLayer: new GeoAdminWMSLayer({
+                pristineLayer: layerUtils.makeGeoAdminWMSLayer({
                     name: 'Fake layer',
                     id: 'fake.wms.id',
                     technicalName: 'fake.wms.id',
@@ -251,7 +259,7 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: true,
             },
             {
-                pristineLayer: new GeoAdminWMTSLayer({
+                pristineLayer: layerUtils.makeGeoAdminWMTSLayer({
                     name: 'fake WMTS layer',
                     id: 'fake.wmts.id',
                     technicalName: 'fake.wmts.id',
@@ -261,23 +269,33 @@ describe('Testing layersParamParser', () => {
                 testTime: true,
             },
             {
-                pristineLayer: new GeoAdminAggregateLayer({
+                pristineLayer: layerUtils.makeGeoAdminAggregateLayer({
                     name: 'fake aggregate layer',
                     id: 'fake.aggregate.id',
                     attributions,
                     subLayers: [
-                        new GeoAdminWMSLayer({
-                            name: 'sub layer 1',
-                            id: 'sub.layer.id.1',
-                            technicalName: 'sub.layer.id.1',
-                            attributions,
-                        }),
-                        new GeoAdminWMSLayer({
-                            name: 'sub layer 2',
-                            id: 'sub.layer.id.2',
-                            technicalName: 'sub.layer.id.2',
-                            attributions,
-                        }),
+                        {
+                            subLayerId: 'sub.layer.id.1',
+                            minResolution: 5000,
+                            maxResolution: 10000000,
+                            layer: layerUtils.makeGeoAdminWMSLayer({
+                                name: 'sub layer 1',
+                                id: 'sub.layer.id.1',
+                                technicalName: 'sub.layer.id.1',
+                                attributions,
+                            }),
+                        },
+                        {
+                            subLayerId: 'sub.layer.id.2',
+                            minResolution: 1,
+                            maxResolution: 5000,
+                            layer: layerUtils.makeGeoAdminWMSLayer({
+                                name: 'sub layer 2',
+                                id: 'sub.layer.id.2',
+                                technicalName: 'sub.layer.id.2',
+                                attributions,
+                            }),
+                        },
                     ],
                 }),
                 expectedLayerUrlId: 'fake.aggregate.id',
@@ -285,7 +303,7 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: true,
             },
             {
-                pristineLayer: new GeoAdminGeoJsonLayer({
+                pristineLayer: layerUtils.makeGeoAdminGeoJSONLayer({
                     name: 'fake GeoJSON layer',
                     id: 'fake.geojson.id',
                     geoJsonUrl: 'https://fake.geo.admin.ch',
@@ -297,7 +315,7 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: true,
             },
             {
-                pristineLayer: new KMLLayer({
+                pristineLayer: layerUtils.makeKMLLayer({
                     // using an service-kml base URL to make it "internal"
                     kmlFileUrl: `${getServiceKmlBaseUrl()}fakeKmlId`,
                 }),
@@ -306,7 +324,7 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: false,
             },
             {
-                pristineLayer: new KMLLayer({
+                pristineLayer: layerUtils.makeKMLLayer({
                     // using any other URL as service-kml base URL to make it "external"
                     kmlFileUrl: 'https://some.random.domain.ch/file.kml',
                 }),
@@ -315,7 +333,7 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: false,
             },
             {
-                pristineLayer: new ExternalWMSLayer({
+                pristineLayer: layerUtils.makeExternalWMSLayer({
                     id: 'fake.external.wms',
                     name: 'Fake external WMS',
                     baseUrl: 'https://fake.wms.url?',
@@ -326,7 +344,7 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: true,
             },
             {
-                pristineLayer: new ExternalWMTSLayer({
+                pristineLayer: layerUtils.makeExternalWMTSLayer({
                     id: 'fake.external.wmts',
                     name: 'Fake external WMTS',
                     baseUrl: 'https://fake.wtms.url/getCap.xml',
@@ -337,12 +355,12 @@ describe('Testing layersParamParser', () => {
                 testFeaturePreSelection: true,
             },
             {
-                pristineLayer: new ExternalWMSLayer({
+                pristineLayer: layerUtils.makeExternalWMSLayer({
                     id: 'fake.external.group',
                     name: 'Fake external group',
                     baseUrl: 'https://fake.wms.url?',
                     layers: [
-                        new ExternalWMTSLayer({
+                        layerUtils.makeExternalWMSLayer({
                             id: 'fake.external.wmts',
                             name: 'Fake external WMTS',
                             baseUrl: 'https://fake.wtms.url/getCap.xml',
@@ -359,55 +377,67 @@ describe('Testing layersParamParser', () => {
             'Test layers $pristineLayer.type isExternal: $pristineLayer.isExternal',
             ({
                 pristineLayer,
+                defaultLayerConfig,
                 expectedLayerUrlId,
                 testTime = false,
                 testFeaturePreSelection = false,
-            }) => {
-                let layer
+            }: TransformLayerIntoUrlStringTestPayload) => {
+                let layer: Layer
                 beforeEach(() => {
-                    layer = pristineLayer.clone()
+                    layer = cloneDeep(pristineLayer)
                 })
                 it('correctly transforms a layer', () => {
-                    expect(transformLayerIntoUrlString(layer, pristineLayer)).to.eq(
+                    expect(transformLayerIntoUrlString(layer, defaultLayerConfig)).to.eq(
                         expectedLayerUrlId
                     )
                 })
                 it('does not add visibility flag if only opacity is defined', () => {
                     layer.opacity = 0.3
-                    expect(transformLayerIntoUrlString(layer, pristineLayer)).to.eq(
+                    expect(transformLayerIntoUrlString(layer, defaultLayerConfig)).to.eq(
                         `${expectedLayerUrlId},,0.3`
                     )
                 })
                 it('adds both visibility and opacity if not default values', () => {
                     layer.opacity = 0.3
-                    layer.visible = false
-                    expect(transformLayerIntoUrlString(layer, pristineLayer)).to.eq(
+                    layer.isVisible = false
+                    expect(transformLayerIntoUrlString(layer, defaultLayerConfig)).to.eq(
                         `${expectedLayerUrlId},f,0.3`
                     )
                 })
                 it('does not add opacity comma if set to default value', () => {
-                    layer.visible = false
-                    expect(transformLayerIntoUrlString(layer, pristineLayer)).to.eq(
+                    layer.isVisible = false
+                    expect(transformLayerIntoUrlString(layer, defaultLayerConfig)).to.eq(
                         `${expectedLayerUrlId},f`
                     )
                 })
                 if (testTime) {
                     it('handles correctly time as extra param', () => {
-                        const wantedTimeEntry = new LayerTimeConfigEntry('20500101')
-                        layer.timeConfig = new LayerTimeConfig('last', [
-                            wantedTimeEntry,
-                            // adding a bunch more
-                            new LayerTimeConfigEntry('20000101'),
-                            new LayerTimeConfigEntry('19500101'),
-                        ])
-                        layer.hasMultipleTimestamps = true
-                        layer.timeConfig.currentTimeEntry = wantedTimeEntry
-                        expect(transformLayerIntoUrlString(layer, pristineLayer)).to.eq(
+                        const wantedTimeEntry: LayerTimeConfigEntry = {
+                            timestamp: '20500101',
+                            interval: Interval.fromISO('2050-01-01/P1Y'),
+                        }
+                        layer.timeConfig = {
+                            behaviour: 'last',
+                            timeEntries: [
+                                wantedTimeEntry,
+                                // adding a bunch more
+                                {
+                                    timestamp: '20000101',
+                                    interval: Interval.fromISO('2000-01-01/P1Y'),
+                                },
+                                {
+                                    timestamp: '19500101',
+                                    interval: Interval.fromISO('1950-01-01/P1Y'),
+                                },
+                            ],
+                            currentTimeEntry: wantedTimeEntry,
+                        }
+                        expect(transformLayerIntoUrlString(layer, defaultLayerConfig)).to.eq(
                             `${expectedLayerUrlId}@year=2050`
                         )
                         // checking that the visibility flag and opacity are added AFTER the extra param
                         layer.opacity = 0.3
-                        expect(transformLayerIntoUrlString(layer, pristineLayer)).to.eq(
+                        expect(transformLayerIntoUrlString(layer, defaultLayerConfig)).to.eq(
                             `${expectedLayerUrlId}@year=2050,,0.3`
                         )
                     })
@@ -415,9 +445,9 @@ describe('Testing layersParamParser', () => {
                 if (testFeaturePreSelection) {
                     it('handles correctly pre-selected feature IDs', () => {
                         const featureIds = ['123', 'feature_1']
-                        expect(transformLayerIntoUrlString(layer, pristineLayer, featureIds)).to.eq(
-                            `${expectedLayerUrlId}@features=${featureIds.join(':')}`
-                        )
+                        expect(
+                            transformLayerIntoUrlString(layer, defaultLayerConfig, featureIds)
+                        ).to.eq(`${expectedLayerUrlId}@features=${featureIds.join(':')}`)
                     })
                 }
             }
@@ -425,7 +455,7 @@ describe('Testing layersParamParser', () => {
         it('GeoAdmin GeoJSON layer : adds the updateDelay to the URL if not default value', () => {
             const geoJsonId = 'fake.geojson.id'
             const defaultUpdateDelay = 20000
-            const geoJsonLayer = new GeoAdminGeoJsonLayer({
+            const geoJsonLayer = layerUtils.makeGeoAdminGeoJSONLayer({
                 name: 'fake GeoJSON layer',
                 id: geoJsonId,
                 geoJsonUrl: 'https://fake.geo.admin.ch',
@@ -433,7 +463,7 @@ describe('Testing layersParamParser', () => {
                 attributions,
                 updateDelay: defaultUpdateDelay,
             })
-            const layer = geoJsonLayer.clone()
+            const layer = cloneDeep(geoJsonLayer)
             expect(transformLayerIntoUrlString(layer, geoJsonLayer)).to.eq(`${layer.id}`)
             layer.updateDelay = defaultUpdateDelay + 200
             expect(transformLayerIntoUrlString(layer, geoJsonLayer)).to.eq(
