@@ -1,9 +1,10 @@
 /// <reference types="cypress" />
 
+import type { ExternalWMSLayer, ExternalWMTSLayer, GeoAdminWMTSLayer, Layer } from '@swissgeo/layers'
+
 import { WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
-import type { ExternalWMSLayer, ExternalWMTSLayer, GeoAdminWMTSLayer, Layer } from '@swissgeo/layers'
 
 /**
  * This function is used as a parameter to `JSON.stringify` to remove all properties with the name
