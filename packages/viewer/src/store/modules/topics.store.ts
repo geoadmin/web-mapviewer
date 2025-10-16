@@ -1,4 +1,4 @@
-import type { GeoAdminGroupOfLayers, GeoAdminLayer } from '@swissgeo/layers'
+import type { GeoAdminLayer } from '@swissgeo/layers'
 
 import { layerUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
@@ -16,7 +16,7 @@ export interface TopicsState {
      */
     current: string
     /** Current topic's layers tree (that will help the user select layers belonging to this topic) */
-    tree: (GeoAdminLayer | GeoAdminGroupOfLayers)[]
+    tree: GeoAdminLayer[]
     /** The ids of the catalog nodes that should be open. */
     openedTreeThemesIds: string[]
 }
@@ -50,10 +50,7 @@ const useTopicsStore = defineStore('topics', {
             this.config = [...topics]
         },
 
-        [TopicsStoreActions.SetTopicTree](
-            layers: (GeoAdminLayer | GeoAdminGroupOfLayers)[],
-            dispatcher: ActionDispatcher
-        ) {
+        [TopicsStoreActions.SetTopicTree](layers: GeoAdminLayer[], dispatcher: ActionDispatcher) {
             this.tree = layers.map((layer) => layerUtils.cloneLayer(layer))
         },
 

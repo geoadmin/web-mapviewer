@@ -1,41 +1,43 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch, type ComputedRef } from 'vue'
+import { computed, type ComputedRef, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 import { useI18nStore } from '@/store/modules/i18n.store'
 import type { Layer, LayerLegend } from '@swissgeo/layers'
 import { getGeoadminLayerDescription } from '@swissgeo/layers/api'
+import { getSafe } from '@/utils/utils'
 
 const { layer, layerId, layerName } = defineProps<{
     layer?: Layer
     layerId?: string
     layerName?: string
 }>()
-const emit = defineEmits(['close'])
+const emit = defineEmits<{
+    close: [layerId?: string]
+}>()
 const { t } = useI18n()
 
 const i18nStore = useI18nStore()
 
-const htmlContent = ref('')
+const htmlContent = ref<string>('')
 
-const currentLang = computed(() => i18nStore.lang)
-const title = computed(() => layer?.name ?? layerName)
-const body = computed(() => (layer && 'abstract' in layer && layer?.abstract) ?? '')
+const title = computed<string | undefined>(() => layer?.name ?? layerName)
+const body = computed<string>(() => getSafe<string>(layer, 'abstract') ?? '')
 
 const attributionName = computed(() => layer?.attributions[0]?.name ?? '')
 const attributionUrl = computed(() => layer?.attributions[0]?.url ?? '')
 const isExternal = computed(() => layer?.isExternal ?? false)
 
-const legends: ComputedRef<LayerLegend[]> = computed(() =>
-    layer && 'legends' in layer && layer?.legends ? (layer.legends as LayerLegend[]) : []
+const legends: ComputedRef<LayerLegend[]> = computed(
+    () => getSafe<LayerLegend[]>(layer, 'legends') ?? []
 )
 
 watch(
     () => layer,
     async (newLayer) => {
         if (!isExternal.value && newLayer) {
-            htmlContent.value = await getGeoadminLayerDescription(currentLang.value, newLayer.id)
+            htmlContent.value = await getGeoadminLayerDescription(i18nStore.lang, newLayer.id)
         }
     }
 )
@@ -44,16 +46,16 @@ watch(
     () => layerId,
     async (newLayerId) => {
         if (!isExternal.value && newLayerId) {
-            htmlContent.value = await getGeoadminLayerDescription(currentLang.value, newLayerId)
+            htmlContent.value = await getGeoadminLayerDescription(i18nStore.lang, newLayerId)
         }
     }
 )
 
 onMounted(async () => {
     if (!isExternal.value && layer) {
-        htmlContent.value = await getGeoadminLayerDescription(currentLang.value, layer.id)
+        htmlContent.value = await getGeoadminLayerDescription(i18nStore.lang, layer.id)
     } else if (!isExternal.value && layerId) {
-        htmlContent.value = await getGeoadminLayerDescription(currentLang.value, layerId)
+        htmlContent.value = await getGeoadminLayerDescription(i18nStore.lang, layerId)
     }
 })
 </script>

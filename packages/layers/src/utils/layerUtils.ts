@@ -609,6 +609,11 @@ function makeGeoAdminGroupOfLayers(values: Partial<GeoAdminGroupOfLayers>): GeoA
         },
         hasError: false,
         hasWarning: false,
+        isBackground: false,
+        isHighlightable: false,
+        isSpecificFor3d: false,
+        searchable: false,
+        topics: [],
     }
 
     const layer = merge(defaults, values)

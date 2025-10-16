@@ -1,4 +1,4 @@
-import type { Layer, WMTSCapabilitiesResponse } from '@swissgeo/layers'
+import type { ExternalLayer } from '@swissgeo/layers'
 
 import { EXTERNAL_SERVER_TIMEOUT } from '@swissgeo/layers/api'
 import { wmsCapabilitiesParser, wmtsCapabilitiesParser } from '@swissgeo/layers/parsers'
@@ -20,6 +20,11 @@ interface WMSMaxSize {
     height: number
 }
 
+interface UseCapabilitiesResponse {
+    layers: ExternalLayer[]
+    wmsMaxSize?: WMSMaxSize
+}
+
 export function useCapabilities(newUrl: MaybeRef<URL>) {
     const url = toRef(newUrl)
 
@@ -30,7 +35,7 @@ export function useCapabilities(newUrl: MaybeRef<URL>) {
         content: string,
         fullUrl: URL,
         contentType: string
-    ): { layers: Layer[]; wmsMaxSize?: WMSMaxSize } {
+    ): UseCapabilitiesResponse {
         if (isWmsGetCap(content)) {
             return handleWms(content, fullUrl)
         } else if (isWmtsGetCap(content)) {
@@ -43,10 +48,7 @@ export function useCapabilities(newUrl: MaybeRef<URL>) {
         }
     }
 
-    function handleWms(
-        content: string,
-        fullUrl: URL
-    ): { layers: Layer[]; wmsMaxSize?: WMSMaxSize } {
+    function handleWms(content: string, fullUrl: URL): UseCapabilitiesResponse {
         let wmsMaxSize: WMSMaxSize | undefined
 
         const capabilities = wmsCapabilitiesParser.parse(content, fullUrl)
@@ -59,20 +61,25 @@ export function useCapabilities(newUrl: MaybeRef<URL>) {
         }
 
         return {
-            layers: capabilities.getAllExternalLayerObjects(positionStore.projection, 1, true),
+            layers: wmsCapabilitiesParser.getAllExternalLayers(capabilities, {
+                outputProjection: positionStore.projection,
+                initialValues: { opacity: 1, isVisible: true },
+            }),
             wmsMaxSize,
         }
     }
 
-    function handleWmts(content: string, fullUrl: URL): { layers: Layer[] } {
+    function handleWmts(content: string, fullUrl: URL): UseCapabilitiesResponse {
+        const capabilities = wmtsCapabilitiesParser.parse(content, fullUrl)
         return {
-            layers: (
-                wmtsCapabilitiesParser.parse(content, fullUrl) as WMTSCapabilitiesResponse
-            ).getAllExternalLayerObjects(positionStore.projection, 1, true),
+            layers: wmtsCapabilitiesParser.getAllExternalLayers(capabilities, {
+                outputProjection: positionStore.projection,
+                initialValues: { opacity: 1, isVisible: true },
+            }),
         }
     }
 
-    async function loadCapabilities(): Promise<{ layers: Layer[]; wmsMaxSize?: WMSMaxSize }> {
+    async function loadCapabilities(): Promise<UseCapabilitiesResponse> {
         const fullUrl = guessExternalLayerUrl(url.value.toString(), i18nStore.lang)
 
         try {
