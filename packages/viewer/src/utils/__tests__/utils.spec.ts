@@ -153,8 +153,11 @@ describe('utils', () => {
 
     describe('isEnumValue', () => {
         enum TestEnum {
+            // eslint-disable-next-line no-unused-vars
             Value1 = 'value1',
+            // eslint-disable-next-line no-unused-vars
             Value2 = 'value2',
+            // eslint-disable-next-line no-unused-vars
             Value3 = 'something-else',
         }
         it('returns false if the value if a specific enum value is matched', () => {
