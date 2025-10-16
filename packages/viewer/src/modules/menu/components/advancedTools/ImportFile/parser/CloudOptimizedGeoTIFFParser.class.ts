@@ -1,8 +1,9 @@
+import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
+import type { CloudOptimizedGeoTIFFLayer } from '@swissgeo/layers'
+
 import { allCoordinateSystems, extentUtils } from '@swissgeo/coordinates'
+import { layerUtils } from '@swissgeo/layers/utils'
 import { fromBlob, fromUrl } from 'geotiff'
-import type { CoordinateSystem } from '@swissgeo/coordinates'
-import { LayerType, type CloudOptimizedGeoTIFFLayer } from '@swissgeo/layers'
-import { v4 as uuidv4 } from 'uuid'
 
 import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
@@ -65,44 +66,25 @@ export class CloudOptimizedGeoTIFFParser extends FileParser {
                 `EPSG:${imageGeoKey}`
             )
         }
-        const cogExtent = firstImage.getBoundingBox() as any
+        const cogExtent = firstImage.getBoundingBox()
         const intersection = extentUtils.getExtentIntersectionWithCurrentProjection(
-            cogExtent,
+            cogExtent as FlatExtent,
             cogProjection,
             currentProjection
         )
         if (!intersection) {
-            throw new OutOfBoundsError(`COG is out of bounds of current projection: ${cogExtent}`)
+            throw new OutOfBoundsError(`COG is out of bounds of current projection: ${cogExtent.toString()}`)
         }
 
         const fileUrl = this.isLocalFile(fileSource) ? fileSource.name : fileSource
-        const isLocalFile = this.isLocalFile(fileSource)
 
-        const cogLayer: CloudOptimizedGeoTIFFLayer = {
-            uuid: uuidv4(),
-            id: `COG|${fileUrl}`,
-            type: LayerType.COG,
-            name: fileUrl,
-            baseUrl: fileUrl,
+        const cogLayer: CloudOptimizedGeoTIFFLayer = layerUtils.makeCloudOptimizedGeoTIFFLayer({
             opacity: 1.0,
             isVisible: true,
-            attributions: [],
-            hasTooltip: false,
-            hasDescription: false,
-            hasLegend: false,
-            timeConfig: {
-                timeEntries: [],
-            },
-            customAttributes: {},
             extent: extentUtils.flattenExtent(intersection),
             fileSource: fileUrl,
-            data: fileSource,
-            isLocalFile,
-            hasError: false,
-            hasWarning: false,
-            isLoading: false,
-            isExternal: !isLocalFile,
-        }
+            data: fileSource
+        })
 
         return cogLayer
     }

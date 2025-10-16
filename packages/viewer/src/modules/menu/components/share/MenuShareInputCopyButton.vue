@@ -1,9 +1,17 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import log from '@swissgeo/log'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-const { inputText, small, copyText, copiedText, labelText, hasWarning } = defineProps<{
+const {
+    inputText,
+    small = true,
+    copyText = 'copy_cta',
+    copiedText = 'copy_done',
+    labelText,
+    hasWarning = false,
+} = defineProps<{
     inputText?: string
     small?: boolean
     copyText?: string
@@ -13,7 +21,7 @@ const { inputText, small, copyText, copiedText, labelText, hasWarning } = define
 }>()
 
 const copiedInClipboard = ref(false)
-const timeoutCopied = ref<ReturnType<typeof setTimeout> | undefined>(undefined)
+const timeoutCopied = ref<ReturnType<typeof setTimeout> | undefined>()
 
 const { t } = useI18n()
 
@@ -32,7 +40,12 @@ const clearIsCopiedInClipboard = () => {
 
 const copyInputToClipboard = () => {
     if (inputText) {
-        navigator.clipboard.writeText(inputText)
+        navigator.clipboard.writeText(inputText).catch((error) => {
+            log.error({
+                title: 'Failed to copy text to clipboard',
+                message: [error instanceof Error ? error.message : String(error)],
+            })
+        })
         copiedInClipboard.value = true
         timeoutCopied.value = setTimeout(clearIsCopiedInClipboard, 2500)
     }
@@ -65,12 +78,7 @@ onBeforeUnmount(() => {
                     readonly
                     :value="inputText"
                     data-cy="menu-share-input-copy-text"
-                    @focus="
-                        (event) => {
-                            const target = event.target as HTMLInputElement
-                            target?.select()
-                        }
-                    "
+                    @focus="(event) => (event.target as HTMLInputElement)?.select()"
                 />
                 <button
                     class="btn rounded-start-0"

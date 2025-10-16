@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 
-const { maxRating, disabled } = defineProps<{
+const { maxRating = 5, disabled = false } = defineProps<{
     maxRating?: number
     disabled?: boolean
 }>()

@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 
-const { showAsButton } = defineProps<{
+const { showAsButton = false } = defineProps<{
     showAsButton?: boolean
 }>()
 

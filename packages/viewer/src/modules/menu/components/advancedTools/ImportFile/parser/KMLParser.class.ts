@@ -1,8 +1,9 @@
-import { extentUtils, WGS84 } from '@swissgeo/coordinates'
-import { WarningMessage } from '@swissgeo/log/Message'
 import type { CoordinateSystem } from '@swissgeo/coordinates'
-import { LayerType, type KMLLayer } from '@swissgeo/layers'
-import { v4 as uuidv4 } from 'uuid'
+import type { KMLLayer } from '@swissgeo/layers'
+
+import { extentUtils, WGS84 } from '@swissgeo/coordinates'
+import { layerUtils } from '@swissgeo/layers/utils'
+import { WarningMessage } from '@swissgeo/log/Message'
 
 import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'
 import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
@@ -28,6 +29,7 @@ export class KMLParser extends FileParser {
      * @param linkFiles Used in the context of a KMZ to carry the
      *   embedded files with the layer
      */
+    // eslint-disable-next-line @typescript-eslint/require-await
     async parseFileContent(
         fileContent: ArrayBuffer | undefined,
         fileSource: string | File,
@@ -48,11 +50,10 @@ export class KMLParser extends FileParser {
             currentProjection
         )
         if (!extentInCurrentProjection) {
-            throw new OutOfBoundsError(`KML is out of bounds of current projection: ${extent}`)
+            throw new OutOfBoundsError(`KML is out of bounds of current projection: ${extent.toString()}`)
         }
 
         const kmlFileUrl = this.isLocalFile(fileSource) ? fileSource.name : fileSource
-        const isLocalFile = this.isLocalFile(fileSource)
         const internalFiles: Record<string, ArrayBuffer> = {}
         linkFiles.forEach((value, key) => {
             internalFiles[key] = value
@@ -67,36 +68,14 @@ export class KMLParser extends FileParser {
             )
         }
 
-        const kmlLayer: KMLLayer = {
-            uuid: uuidv4(),
-            id: `KML|${kmlFileUrl}`,
-            type: LayerType.KML,
-            name: kmlFileUrl,
-            baseUrl: kmlFileUrl,
+        const kmlLayer: KMLLayer = layerUtils.makeKMLLayer({
             opacity: 1.0,
             isVisible: true,
-            attributions: [],
-            hasTooltip: false,
-            hasDescription: false,
-            hasLegend: false,
-            timeConfig: {
-                timeEntries: [],
-            },
-            customAttributes: {},
             extent: extentInCurrentProjection,
             kmlFileUrl,
             kmlData: kmlAsText,
-            clampToGround: true,
-            isExternal: !isLocalFile,
-            isLocalFile,
-            internalFiles,
             extentProjection: currentProjection,
-            adminId: undefined,
-            warningMessages,
-            hasError: false,
-            hasWarning: warningMessages.length > 0,
-            isLoading: false,
-        }
+        })
 
         return kmlLayer
     }

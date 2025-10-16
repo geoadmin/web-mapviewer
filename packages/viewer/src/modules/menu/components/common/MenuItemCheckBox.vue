@@ -10,7 +10,11 @@ const emits = defineEmits<{
 }>()
 const { t } = useI18n()
 
-const { compact, label, dataCy } = defineProps<{
+const {
+    compact = false,
+    label = '',
+    dataCy = '',
+} = defineProps<{
     label?: string
     compact?: boolean
     dataCy?: string

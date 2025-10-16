@@ -1,15 +1,16 @@
-import log from '@swissgeo/log'
 import type { CoordinateSystem } from '@swissgeo/coordinates'
 import type { Layer } from '@swissgeo/layers'
 
-import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api'
-import { checkOnlineFileCompliance, getFileContentFromUrl } from '@/api/files.api'
+import log from '@swissgeo/log'
+
 import type {
-    OnlineFileCompliance,
     ParseConfig,
     ParseOptions,
     ValidateFileContent,
 } from '@/modules/menu/components/advancedTools/ImportFile/parser/types'
+
+import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api'
+import { checkOnlineFileCompliance, getFileContentFromUrl } from '@/api/files.api'
 
 interface FileParserConfig {
     displayedName?: string
@@ -148,7 +149,7 @@ export default abstract class FileParser {
             // if no MIME type match and file content can be checked, we load it now
             if (this.shouldLoadOnlineContent) {
                 try {
-                    let loadedContent: ArrayBuffer | undefined = undefined
+                    let loadedContent: ArrayBuffer | undefined
                     if (supportsCORS && supportsHTTPS) {
                         loadedContent = await getFileContentFromUrl(fileUrl)
                     } else {
@@ -192,7 +193,7 @@ export default abstract class FileParser {
         currentProjection: CoordinateSystem,
         options: ParseOptions = {}
     ): Promise<Layer> {
-        const { loadedContent = undefined, fileCompliance = undefined } = options
+        const { loadedContent, fileCompliance } = options
         if (loadedContent) {
             log.debug(
                 `[FileParser][${this.constructor.name}] preloaded content detected, won't create new requests`
@@ -203,7 +204,7 @@ export default abstract class FileParser {
             // checking for CORS/HTTPS support
             const { supportsCORS, supportsHTTPS } =
                 fileCompliance ?? (await checkOnlineFileCompliance(fileUrl))
-            let fileContent: ArrayBuffer | undefined = undefined
+            let fileContent: ArrayBuffer | undefined
             if (supportsCORS && supportsHTTPS) {
                 fileContent = await getFileContentFromUrl(fileUrl)
             } else if (this.allowServiceProxy) {
@@ -240,6 +241,6 @@ export default abstract class FileParser {
             return this.parseUrl(fileSource, currentProjection, options)
         }
         // rejecting parsing
-        throw false
+        throw new Error('Parsing rejected')
     }
 }

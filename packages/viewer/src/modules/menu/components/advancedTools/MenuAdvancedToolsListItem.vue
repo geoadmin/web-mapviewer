@@ -2,7 +2,12 @@
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { useI18n } from 'vue-i18n'
 
-const { isSelected, title, tooltip, dropdownMenu } = defineProps<{
+const {
+    isSelected = false,
+    title,
+    tooltip = '',
+    dropdownMenu = false,
+} = defineProps<{
     isSelected?: boolean
     title: string
     tooltip?: string

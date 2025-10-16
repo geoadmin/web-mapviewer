@@ -35,7 +35,7 @@ const layersStore = useLayersStore()
 const hasMultipleTimestamps = computed<boolean>(() => timeConfig.timeEntries.length > 1)
 const hasValidTimestamps = computed<boolean>(() =>
     // External layers may have timestamp that we don't support (not "all", "current" or ISO timestamp)
-    timeConfig.timeEntries.every((entry) => !!entry.year)
+    timeConfig.timeEntries.every((entry) => 'year' in entry && !!entry.year)
 )
 const hasTimeSelector = computed<boolean>(
     () => hasMultipleTimestamps.value && hasValidTimestamps.value
@@ -44,18 +44,20 @@ const isTimeSliderActive = computed<boolean>(() => uiStore.isTimeSliderActive)
 
 const timeConfigEntriesWithYear = computed<(LayerTimeConfigEntry & { year: string })[]>(() =>
     timeConfig.timeEntries.filter(
-        (entry): entry is LayerTimeConfigEntry & { year: string } => !!entry.year
+        (entry): entry is LayerTimeConfigEntry & { year: string } => 'year' in entry && !!entry.year
     )
 )
 
 const humanReadableCurrentTimestamp = computed<string>(() => {
     if (timeConfig.currentTimeEntry) {
-        return renderHumanReadableTimestamp(timeConfig.currentTimeEntry)
+        return renderHumanReadableTimestamp(
+            timeConfig.currentTimeEntry as LayerTimeConfigEntry & { year: string }
+        )
     }
     return ''
 })
 
-function renderHumanReadableTimestamp(timeEntry: LayerTimeConfigEntry): string {
+function renderHumanReadableTimestamp(timeEntry: LayerTimeConfigEntry & { year: string }): string {
     if (!timeEntry || !timeEntry.year) {
         return '-'
     }
