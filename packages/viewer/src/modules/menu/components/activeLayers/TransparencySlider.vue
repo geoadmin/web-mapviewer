@@ -5,15 +5,16 @@ import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import debounce from '@/utils/debounce'
 import type { Layer } from '@swissgeo/layers'
 import useLayersStore from '@/store/modules/layers.store'
+import type { ActionDispatcher } from '@/store/types'
 
-const dispatcher = { name: 'MenuActiveLayersListItem.vue' }
+const dispatcher: ActionDispatcher = { name: 'MenuActiveLayersListItem.vue' }
 
 const { layer, index } = defineProps<{
     layer: Layer
     index: number
 }>()
 
-const localTransparency = ref(0)
+const localTransparency = ref<number>(0)
 
 const layersStore = useLayersStore()
 
@@ -21,11 +22,11 @@ onMounted(() => {
     syncOpacity()
 })
 
-const syncOpacity = () => {
+function syncOpacity(): void {
     localTransparency.value = 1 - layer.opacity
 }
 
-const saveOpacityToLayer = (opacity: number) => {
+function saveOpacityToLayer(opacity: number): void {
     layersStore.setLayerOpacity(index, opacity, dispatcher)
 }
 

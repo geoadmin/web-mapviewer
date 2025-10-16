@@ -9,7 +9,10 @@ import { isValidUrl } from '@/utils/utils'
 import { useI18nStore } from '@/store/modules/i18n.store'
 import { CapabilitiesError } from '@swissgeo/layers/validation'
 
-const emit = defineEmits(['capabilities:parsed', 'capabilities:cleared'])
+const emit = defineEmits<{
+    'capabilities:parsed': [void]
+    'capabilities:cleared': [void]
+}>()
 
 const { t } = useI18n()
 const i18nStore = useI18nStore()

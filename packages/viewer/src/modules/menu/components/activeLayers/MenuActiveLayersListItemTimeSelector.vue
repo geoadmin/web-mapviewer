@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import GeoadminTooltip from '@swissgeo/tooltip'
-import { computed, type ComputedRef } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import TextTruncate from '@/utils/components/TextTruncate.vue'
@@ -12,8 +12,9 @@ import {
 } from '@swissgeo/layers'
 import useUIStore from '@/store/modules/ui.store'
 import useLayersStore from '@/store/modules/layers.store'
+import type { ActionDispatcher } from '@/store/types'
 
-const dispatcher = { name: 'MenuActiveLayersListItemTimeSelector.vue' }
+const dispatcher: ActionDispatcher = { name: 'MenuActiveLayersListItemTimeSelector.vue' }
 
 const {
     layerIndex,
@@ -31,33 +32,30 @@ const { t } = useI18n()
 const uiStore = useUIStore()
 const layersStore = useLayersStore()
 
-const hasMultipleTimestamps = computed(() => timeConfig.timeEntries.length > 1)
-const hasValidTimestamps = computed(() =>
+const hasMultipleTimestamps = computed<boolean>(() => timeConfig.timeEntries.length > 1)
+const hasValidTimestamps = computed<boolean>(() =>
     // External layers may have timestamp that we don't support (not "all", "current" or ISO timestamp)
-    timeConfig.timeEntries.every((entry) => entry.year !== null)
+    timeConfig.timeEntries.every((entry) => !!entry.year)
 )
-const hasTimeSelector = computed(() => hasMultipleTimestamps.value && hasValidTimestamps.value)
-const isTimeSliderActive = computed(() => uiStore.isTimeSliderActive)
+const hasTimeSelector = computed<boolean>(
+    () => hasMultipleTimestamps.value && hasValidTimestamps.value
+)
+const isTimeSliderActive = computed<boolean>(() => uiStore.isTimeSliderActive)
 
-const timeConfigEntriesWithYear: ComputedRef<(LayerTimeConfigEntry & { year: string })[]> =
-    computed(() =>
-        timeConfig.timeEntries.filter(
-            (entry): entry is LayerTimeConfigEntry & { year: string } => entry.year !== undefined
-        )
+const timeConfigEntriesWithYear = computed<(LayerTimeConfigEntry & { year: string })[]>(() =>
+    timeConfig.timeEntries.filter(
+        (entry): entry is LayerTimeConfigEntry & { year: string } => !!entry.year
     )
+)
 
-const humanReadableCurrentTimestamp = computed(() => {
+const humanReadableCurrentTimestamp = computed<string>(() => {
     if (timeConfig.currentTimeEntry) {
         return renderHumanReadableTimestamp(timeConfig.currentTimeEntry)
     }
     return ''
 })
 
-/**
- * @param {LayerTimeConfigEntry} timeEntry
- * @returns {string}
- */
-function renderHumanReadableTimestamp(timeEntry: LayerTimeConfigEntry) {
+function renderHumanReadableTimestamp(timeEntry: LayerTimeConfigEntry): string {
     if (!timeEntry || !timeEntry.year) {
         return '-'
     }
@@ -70,7 +68,7 @@ function renderHumanReadableTimestamp(timeEntry: LayerTimeConfigEntry) {
     return `${timeEntry.year}`
 }
 
-function handleClickOnTimestamp(entry: LayerTimeConfigEntry) {
+function handleClickOnTimestamp(entry: LayerTimeConfigEntry): void {
     // deactivating the time slider, as a change on this time selector is incompatible with
     // the time slider being shown and active
     if (isTimeSliderActive.value) {
@@ -79,7 +77,7 @@ function handleClickOnTimestamp(entry: LayerTimeConfigEntry) {
     layersStore.setTimedLayerCurrentTimeEntry(layerIndex, entry, dispatcher)
 }
 
-function isSelected(timeEntry: LayerTimeConfigEntry) {
+function isSelected(timeEntry: LayerTimeConfigEntry): boolean {
     return timeConfig.currentTimeEntry?.timestamp === timeEntry?.timestamp
 }
 </script>

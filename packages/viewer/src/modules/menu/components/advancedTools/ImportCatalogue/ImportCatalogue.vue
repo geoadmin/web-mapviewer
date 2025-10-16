@@ -1,26 +1,21 @@
 <script setup lang="ts">
 import log from '@swissgeo/log'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 import ProviderUrl from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderUrl.vue'
 import LayerCatalogue from '@/modules/menu/components/LayerCatalogue.vue'
 import useUIStore from '@/store/modules/ui.store'
 import type { GeoAdminGroupOfLayers, GeoAdminLayer } from '@swissgeo/layers'
 
-const { compact } = defineProps({
-    compact: {
-        type: Boolean,
-        default: false,
-    },
-})
+const { compact } = defineProps<{
+    compact: boolean
+}>()
 
 const capabilities = ref<(GeoAdminLayer | GeoAdminGroupOfLayers)[]>([])
 
 const uiStore = useUIStore()
 
-const isDesktopMode = computed(() => uiStore.isDesktopMode)
-
-function onNewCapabilities(newCapabilities: (GeoAdminLayer | GeoAdminGroupOfLayers)[]) {
+function onNewCapabilities(newCapabilities: (GeoAdminLayer | GeoAdminGroupOfLayers)[]): void {
     log.debug(`New capabilities`, newCapabilities)
 
     capabilities.value = newCapabilities.sort((layerA, layerB) =>
@@ -28,7 +23,7 @@ function onNewCapabilities(newCapabilities: (GeoAdminLayer | GeoAdminGroupOfLaye
     )
 }
 
-function onClear() {
+function onClear(): void {
     capabilities.value = []
 }
 </script>
@@ -36,7 +31,7 @@ function onClear() {
 <template>
     <div
         class="import-catalogue ps-2"
-        :class="{ 'desktop-mode': isDesktopMode, 'me-2': !isDesktopMode }"
+        :class="{ 'desktop-mode': uiStore.isDesktopMode, 'me-2': !uiStore.isDesktopMode }"
         data-cy="import-catalog-content"
     >
         <ProviderUrl

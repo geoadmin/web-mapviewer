@@ -11,24 +11,25 @@ import { useI18n } from 'vue-i18n'
 
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import TransparencySlider from '@/modules/menu/components/activeLayers/TransparencySlider.vue'
-import DropdownButton from '@/utils/components/DropdownButton.vue'
+import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
 import ExtLayerInfoButton from '@/utils/components/ExtLayerInfoButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 import {
+    type ExternalLayer,
     type KMLLayer,
     KMLStyle,
-    LayerType,
     type Layer,
-    type ExternalLayer,
+    LayerType,
 } from '@swissgeo/layers'
 import useLayersStore from '@/store/modules/layers.store'
 import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
 import useUIStore from '@/store/modules/ui.store'
 import useCesiumStore from '@/store/modules/cesium.store'
+import type { ActionDispatcher } from '@/store/types'
 
-const dispatcher = { name: 'MenuActiveLayersListItem.vue' }
+const dispatcher: ActionDispatcher = { name: 'MenuActiveLayersListItem.vue' }
 
 const {
     index,
@@ -48,46 +49,43 @@ const {
     compact?: boolean
 }>()
 
-const emit = defineEmits(['showLayerDescriptionPopup', 'toggleLayerDetail', 'moveLayer'])
+const emit = defineEmits<{
+    showLayerDescriptionPopup: [layerId: string]
+    toggleLayerDetail: [layerIndex: number]
+    moveLayer: [oldIndex: number, newIndex: number]
+}>()
 
 const { t } = useI18n()
 const layersStore = useLayersStore()
 const uiStore = useUIStore()
 const cesiumStore = useCesiumStore()
 
-const layerUpButton = useTemplateRef('layerUpButton')
-const layerDownButton = useTemplateRef('layerDownButton')
-const currentKmlStyle = ref<KMLStyle | null>((layer as KMLLayer)?.style ?? null)
-const id = computed(() => layer.id)
+const layerUpButton = useTemplateRef<HTMLButtonElement>('layerUpButton')
+const layerDownButton = useTemplateRef<HTMLButtonElement>('layerDownButton')
+const currentKmlStyle = ref<KMLStyle | undefined>((layer as KMLLayer)?.style)
+const id = computed<string>(() => layer.id)
 
-/** @type {ComputedRef<DropdownItem[]>} */
-const kmlStylesAsDropdownItems = computed(() =>
+const kmlStylesAsDropdownItems = computed<DropdownItem<KMLStyle>[]>(() =>
     Object.values(KMLStyle).map((style: KMLStyle) => ({
         id: style,
         title: style.toLowerCase(),
         value: style,
     }))
 )
-
-const isLocalFile = computed(() => layersStore.isLocalFile(layer))
-
-const hasDataDisclaimer = computed(() =>
+const isLocalFile = computed<boolean>(() => layersStore.isLocalFile(layer))
+const hasDataDisclaimer = computed<boolean>(() =>
     layersStore.hasDataDisclaimer(id.value, layer.isExternal, layer.baseUrl)
 )
-
-const attributionName = computed(() =>
+const attributionName = computed<string>(() =>
     layer.attributions.map((attribution) => attribution.name).join(', ')
 )
-
-const showLayerDescriptionIcon = computed(() => layer.hasDescription)
-const hasMultipleTimestamps = computed(() => timeConfigUtils.hasMultipleTimestamps(layer))
-const isPhoneMode = computed(() => uiStore.isPhoneMode)
-const is3dActive = computed(() => cesiumStore.active)
-
-const isLayerKml = computed(() => layer.type === LayerType.KML)
-
-const isLayerClampedToGround = computed({
-    get: () => 'clampToGround' in layer && layer.clampToGround,
+const showLayerDescriptionIcon = computed<boolean>(() => layer.hasDescription)
+const hasMultipleTimestamps = computed<boolean>(() => timeConfigUtils.hasMultipleTimestamps(layer))
+const isPhoneMode = computed<boolean>(() => uiStore.isPhoneMode)
+const is3dActive = computed<boolean>(() => cesiumStore.active)
+const isLayerKml = computed<boolean>(() => layer.type === LayerType.KML)
+const isLayerClampedToGround = computed<boolean>({
+    get: () => 'clampToGround' in layer && !!layer.clampToGround,
     set: (value: boolean) => {
         layersStore.updateLayer<KMLLayer>(
             {
@@ -100,10 +98,9 @@ const isLayerClampedToGround = computed({
         )
     },
 })
-
 // only show the spinner for external layer, for our layers the
 // backend should be quick enough and don't require any spinner
-const showSpinner = computed(() => layer.isLoading && layer.isExternal && !layer.hasError)
+const showSpinner = computed<boolean>(() => layer.isLoading && layer.isExternal && !layer.hasError)
 
 onMounted(() => {
     if (showLayerDetail) {

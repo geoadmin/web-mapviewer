@@ -3,26 +3,25 @@ import { computed } from 'vue'
 
 import MenuItemCheckBox from '@/modules/menu/components/common/MenuItemCheckBox.vue'
 import useCesiumStore from '@/store/modules/cesium.store'
+import type { ActionDispatcher } from '@/store/types'
 
-const dispatcher = { name: 'MenuThreeD.vue' }
+const dispatcher: ActionDispatcher = { name: 'MenuThreeD.vue' }
 
-const { compact } = defineProps({
-    compact: {
-        type: Boolean,
-        default: false,
-    },
-})
+const { compact } = defineProps<{
+    compact: boolean
+}>()
+
 const cesiumStore = useCesiumStore()
 
-const labels = computed({
+const labels = computed<boolean>({
     get: () => cesiumStore.showLabels,
     set: (value) => cesiumStore.setShowLabels(!!value, dispatcher),
 })
-const vegetation = computed({
+const vegetation = computed<boolean>({
     get: () => cesiumStore.showVegetation,
     set: (value) => cesiumStore.setShowVegetation(!!value, dispatcher),
 })
-const constructions = computed({
+const constructions = computed<boolean>({
     get: () => cesiumStore.showBuildings && cesiumStore.showConstructions,
     set: (value) => cesiumStore.setShowConstructionsBuildings(!!value, dispatcher),
 })
