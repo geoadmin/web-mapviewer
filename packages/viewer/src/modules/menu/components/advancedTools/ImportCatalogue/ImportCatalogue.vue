@@ -35,8 +35,8 @@ function onClear(): void {
         data-cy="import-catalog-content"
     >
         <ProviderUrl
-            @capabilities:parsed="onNewCapabilities"
-            @capabilities:cleared="onClear"
+            @capabilities-parsed="onNewCapabilities"
+            @capabilities-cleared="onClear"
         />
         <LayerCatalogue
             class="mb-2"

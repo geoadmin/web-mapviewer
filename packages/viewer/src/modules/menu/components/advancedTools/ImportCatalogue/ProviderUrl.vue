@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Layer } from '@swissgeo/layers'
+
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -10,8 +12,8 @@ import { useI18nStore } from '@/store/modules/i18n.store'
 import { CapabilitiesError } from '@swissgeo/layers/validation'
 
 const emit = defineEmits<{
-    'capabilities:parsed': [void]
-    'capabilities:cleared': [void]
+    capabilitiesParsed: [layers: Layer[]]
+    capabilitiesCleared: [void]
 }>()
 
 const { t } = useI18n()
@@ -19,11 +21,12 @@ const i18nStore = useI18nStore()
 
 // Reactive data
 const url = ref('')
-const capabilitiesParsed = ref(false)
-const errorMessage = ref<string | null>(null)
+const isCapabilitiesParsed = ref<boolean>(false)
+const errorMessage = ref<string | undefined>()
+// TODO: type this to ComponentPublicInstance<ProviderList> as soon as ProviderList is migrated to TS (and exposes an interface describing what is exported)
 const providerList = useTemplateRef('providerList')
-const isLoading = ref(false)
-const providerInput = useTemplateRef('providerInput')
+const isLoading = ref<boolean>(false)
+const providerInput = useTemplateRef<HTMLInputElement>('providerInput')
 
 const { groupedProviders, showProviders, filterApplied, toggleProviders, filterText } =
     useProviders(url)
@@ -31,24 +34,26 @@ const { groupedProviders, showProviders, filterApplied, toggleProviders, filterT
 const { loadCapabilities } = useCapabilities(new URL(url.value))
 
 // Computed properties
-const isValid = computed(() => !errorMessage.value && capabilitiesParsed.value)
-const isInvalid = computed(() => errorMessage.value)
-const connectButtonKey = computed(() => (isLoading.value ? 'loading' : 'connect'))
-const lang = computed(() => i18nStore.lang)
+const isValid = computed<boolean>(() => !errorMessage.value && isCapabilitiesParsed.value)
+const isInvalid = computed<boolean>(() => !!errorMessage.value)
+const connectButtonKey = computed<string>(() => (isLoading.value ? 'loading' : 'connect'))
 
-watch(lang, () => {
-    if (isValid.value) {
-        // When the language changes re-connect to reload the translated capabilities
-        connect().catch((_) => {
-            // satisfying the type-checker
-        })
+watch(
+    () => i18nStore.lang,
+    () => {
+        if (isValid.value) {
+            // When the language changes re-connect to reload the translated capabilities
+            connect().catch((_) => {
+                // satisfying the type-checker
+            })
+        }
     }
-})
+)
 
 // Methods
 function onUrlChange(_event: Event) {
-    capabilitiesParsed.value = false
-    errorMessage.value = null
+    isCapabilitiesParsed.value = false
+    errorMessage.value = undefined
 }
 
 function validateUrl() {
@@ -59,10 +64,10 @@ function validateUrl() {
 }
 
 function clearUrl(event: MouseEvent) {
-    capabilitiesParsed.value = false
+    isCapabilitiesParsed.value = false
     url.value = ''
     showProviders.value = false
-    errorMessage.value = null
+    errorMessage.value = undefined
     if (event.screenX !== 0 || event.screenY !== 0) {
         // only focus on the provider input when the clear button has been clicked
         // and when it is a real click event (not a key stroke)
@@ -70,7 +75,7 @@ function clearUrl(event: MouseEvent) {
             providerInput.value.focus()
         }
     }
-    emit('capabilities:cleared')
+    emit('capabilitiesCleared')
 }
 
 function chooseProvider(providerUrl: string) {
@@ -88,20 +93,20 @@ function goToProviderList() {
 
 async function connect() {
     showProviders.value = false
-    errorMessage.value = null
+    errorMessage.value = undefined
     try {
         isLoading.value = true
 
         const { layers } = await loadCapabilities()
 
         isLoading.value = false
-        capabilitiesParsed.value = true
-        emit('capabilities:parsed', layers)
+        isCapabilitiesParsed.value = true
+        emit('capabilitiesParsed', layers)
     } catch (error) {
         isLoading.value = false
 
         if (error instanceof CapabilitiesError) {
-            errorMessage.value = error.key ?? null
+            errorMessage.value = error.key
         } else {
             errorMessage.value = 'error'
             throw error
@@ -190,7 +195,7 @@ function hideProviders() {
                     v-if="
                         // We use v-if instead of v-show here in order to have bootstrap handling
                         // the rounded corner correctly
-                        !capabilitiesParsed && url?.length && isValidUrl(url)
+                        !isCapabilitiesParsed && url?.length && isValidUrl(url)
                     "
                     id="urlConnectButton"
                     type="button"
