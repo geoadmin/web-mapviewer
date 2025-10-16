@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import useUIStore from '@/store/modules/ui.store'
-import { computed, toRef } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import type { ActionDispatcher } from '@/store/types'
 
-const dispatcher = { name: 'ImportFileButtons.vue' }
+const dispatcher: ActionDispatcher = { name: 'ImportFileButtons.vue' }
+
+const emit = defineEmits<{
+    loadFile: [void]
+}>()
 
 const uiStore = useUIStore()
 const { t } = useI18n()
-const emit = defineEmits(['loadFile'])
 
 const { buttonState = 'default', disabled = false } = defineProps<{
     buttonState?: 'default' | 'loading' | 'succeeded'
@@ -18,7 +22,7 @@ const { buttonState = 'default', disabled = false } = defineProps<{
 const toggleImportFile = () => uiStore.toggleImportFile(dispatcher)
 
 // Computed properties
-const buttonI18nKey = computed(() => {
+const buttonI18nKey = computed<string>(() => {
     switch (buttonState) {
         case 'loading':
             return 'loading_file'
@@ -29,7 +33,7 @@ const buttonI18nKey = computed(() => {
             return 'import'
     }
 })
-const isLoading = computed(() => buttonState === 'loading')
+const isLoading = computed<boolean>(() => buttonState === 'loading')
 </script>
 
 <template>
