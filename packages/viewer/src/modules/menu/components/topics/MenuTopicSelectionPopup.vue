@@ -1,25 +1,27 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
 import TopicIcon from '@/modules/menu/components/topics/TopicIcon.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 
-const { topics, currentId } = defineProps({
-    topics: {
-        type: Array,
-        default: () => [],
-    },
-    currentId: {
-        type: [String, null],
-        default: null,
-    },
-})
+interface Topic {
+    id: string
+    [key: string]: any
+}
 
-const emits = defineEmits(['selectTopic', 'close'])
+const { topics, currentId } = defineProps<{
+    topics?: Topic[]
+    currentId?: string
+}>()
+
+const emits = defineEmits<{
+    selectTopic: [topic: Topic]
+    close: []
+}>()
 
 const { t } = useI18n()
 
-function selectTopic(topic) {
+function selectTopic(topic: Topic) {
     emits('selectTopic', topic)
 }
 
@@ -27,7 +29,7 @@ function onClose() {
     emits('close')
 }
 
-function getTooltipMessage(id) {
+function getTooltipMessage(id: string) {
     const translationKey = `topic_${id}_tooltip`
     const message = t(translationKey)
     return message === translationKey || message === t(id) ? '' : message

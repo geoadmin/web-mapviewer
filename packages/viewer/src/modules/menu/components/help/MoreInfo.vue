@@ -1,15 +1,12 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 
-const { showAsButton } = defineProps({
-    showAsButton: {
-        type: Boolean,
-        default: false,
-    },
-})
+const { showAsButton } = defineProps<{
+    showAsButton?: boolean
+}>()
 
 const { t } = useI18n()
 const cmsUrl = computed(() => t('cms_news_url'))

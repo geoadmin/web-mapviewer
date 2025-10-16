@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 /**
  * List of buttons enabling the user to easily share a short link to some social networks. All
  * sharing to external social media will be done through a popup.
@@ -11,16 +11,20 @@ import { ShareNetwork } from 'vue3-social-sharing'
 
 import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
 
-const { shortLink } = defineProps({
-    shortLink: {
-        type: String,
-        default: null,
-    },
-})
+const { shortLink } = defineProps<{
+    shortLink?: string
+}>()
 
 const { t } = useI18n()
 
-const networks = ref([
+interface SocialNetwork {
+    id: string
+    icons: string | string[]
+    tooltip: string
+    subject?: string
+}
+
+const networks = ref<SocialNetwork[]>([
     {
         id: 'email',
         icons: 'envelope',
@@ -53,6 +57,8 @@ const buttonClass = `btn btn-sm btn-light share-network-button`
 const iconSize = '2x'
 
 function openQrcode() {
+    if (!shortLink) return
+
     const windowSize = 250
     const windowPosition = [
         window.screenTop + window.innerHeight / 2,

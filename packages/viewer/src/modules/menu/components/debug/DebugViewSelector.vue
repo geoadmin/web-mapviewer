@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -9,7 +9,7 @@ const router = useRouter()
 const views = MAP_VIEWS
 const currentView = computed(() => router.currentRoute.value.name)
 
-function onRouteChange(routeName) {
+function onRouteChange(routeName: string) {
     router.push({
         name: routeName,
         replace: true,

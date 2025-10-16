@@ -1,18 +1,14 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { ref, watch } from 'vue'
 
-const { maxRating, disabled } = defineProps({
-    maxRating: {
-        type: Number,
-        default: 5,
-    },
-    disabled: {
-        type: Boolean,
-        default: false,
-    },
-})
+const { maxRating, disabled } = defineProps<{
+    maxRating?: number
+    disabled?: boolean
+}>()
 
-const emit = defineEmits(['ratingChange'])
+const emit = defineEmits<{
+    ratingChange: [rating: number]
+}>()
 
 const rating = ref(0)
 const previewRating = ref(0)
@@ -28,19 +24,19 @@ watch(
     }
 )
 
-function setPreviewRating(newRating) {
+function setPreviewRating(newRating: number) {
     if (!disabled) {
         previewRating.value = newRating
     }
 }
-function setRating(newRating) {
+function setRating(newRating: number) {
     if (!disabled) {
         pristine.value = false
         rating.value = newRating
         emit('ratingChange', rating.value)
     }
 }
-function shouldStarBeChecked(starRating) {
+function shouldStarBeChecked(starRating: number) {
     if (previewRating.value > 0) {
         return previewRating.value >= starRating
     }
