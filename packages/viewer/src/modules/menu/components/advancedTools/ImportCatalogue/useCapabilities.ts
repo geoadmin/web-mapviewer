@@ -1,14 +1,11 @@
-import type { WMSCapabilitiesResponse, WMTSCapabilitiesResponse } from '@swissgeo/layers'
+import type { Layer, WMTSCapabilitiesResponse } from '@swissgeo/layers'
 
 import { EXTERNAL_SERVER_TIMEOUT } from '@swissgeo/layers/api'
-import {
-    wmsCapabilitiesParser,
-    wmtsCapabilitiesParser,
-} from '@swissgeo/layers/parsers'
+import { wmsCapabilitiesParser, wmtsCapabilitiesParser } from '@swissgeo/layers/parsers'
 import { CapabilitiesError } from '@swissgeo/layers/validation'
 import log from '@swissgeo/log'
 import axios, { AxiosError, AxiosHeaders } from 'axios'
-import { computed, ref } from 'vue'
+import { type MaybeRef, toRef } from 'vue'
 
 import {
     guessExternalLayerUrl,
@@ -18,16 +15,22 @@ import {
 import { useI18nStore } from '@/store/modules/i18n.store'
 import usePositionStore from '@/store/modules/position.store'
 
-export function useCapabilities(newUrl: URL) {
-    const url = ref(newUrl)
+interface WMSMaxSize {
+    width: number
+    height: number
+}
+
+export function useCapabilities(newUrl: MaybeRef<URL>) {
+    const url = toRef(newUrl)
 
     const positionStore = usePositionStore()
     const i18nStore = useI18nStore()
 
-    const projection = computed(() => positionStore.projection)
-    const lang = computed(() => i18nStore.lang)
-
-    function handleFileContent(content: string, fullUrl: URL, contentType: string) {
+    function handleFileContent(
+        content: string,
+        fullUrl: URL,
+        contentType: string
+    ): { layers: Layer[]; wmsMaxSize?: WMSMaxSize } {
         if (isWmsGetCap(content)) {
             return handleWms(content, fullUrl)
         } else if (isWmtsGetCap(content)) {
@@ -40,10 +43,13 @@ export function useCapabilities(newUrl: URL) {
         }
     }
 
-    function handleWms(content: string, fullUrl:URL) {
-        let wmsMaxSize = null
+    function handleWms(
+        content: string,
+        fullUrl: URL
+    ): { layers: Layer[]; wmsMaxSize?: WMSMaxSize } {
+        let wmsMaxSize: WMSMaxSize | undefined
 
-        const capabilities = wmsCapabilitiesParser.parse(content, fullUrl) as WMSCapabilitiesResponse
+        const capabilities = wmsCapabilitiesParser.parse(content, fullUrl)
 
         if (capabilities.Service.MaxWidth && capabilities.Service.MaxHeight) {
             wmsMaxSize = {
@@ -53,24 +59,26 @@ export function useCapabilities(newUrl: URL) {
         }
 
         return {
-            layers: capabilities.getAllExternalLayerObjects(projection.value, 1, true),
+            layers: capabilities.getAllExternalLayerObjects(positionStore.projection, 1, true),
             wmsMaxSize,
         }
     }
 
-    function handleWmts(content: string, fullUrl: URL) {
+    function handleWmts(content: string, fullUrl: URL): { layers: Layer[] } {
         return {
-            layers: (wmtsCapabilitiesParser
-                .parse(content, fullUrl) as WMTSCapabilitiesResponse)
-                .getAllExternalLayerObjects(projection.value, 1, true),
+            layers: (
+                wmtsCapabilitiesParser.parse(content, fullUrl) as WMTSCapabilitiesResponse
+            ).getAllExternalLayerObjects(positionStore.projection, 1, true),
         }
     }
 
-    async function loadCapabilities() {
-        const fullUrl = guessExternalLayerUrl(url.value.toString(), lang.value)
+    async function loadCapabilities(): Promise<{ layers: Layer[]; wmsMaxSize?: WMSMaxSize }> {
+        const fullUrl = guessExternalLayerUrl(url.value.toString(), i18nStore.lang)
 
         try {
-            const response = await axios.get(fullUrl.toString(), { timeout: EXTERNAL_SERVER_TIMEOUT })
+            const response = await axios.get(fullUrl.toString(), {
+                timeout: EXTERNAL_SERVER_TIMEOUT,
+            })
             if (response.status !== 200) {
                 throw new CapabilitiesError(
                     `Failed to fetch ${fullUrl}; status_code=${response.status}`,
@@ -84,19 +92,15 @@ export function useCapabilities(newUrl: URL) {
                 contentType = response.headers.get('Content-Type') as string
             }
 
-            const props = handleFileContent(
-                response.data,
-                fullUrl,
-                contentType
-            )
+            const content = handleFileContent(response.data, fullUrl, contentType)
 
-            if (props?.layers.length === 0) {
+            if (content?.layers.length === 0) {
                 throw new CapabilitiesError(`No valid layer found in ${fullUrl}`, 'no_layer_found')
             }
 
-            return props
+            return content
         } catch (error) {
-            log.error({messages: [`Failed to fetch url ${fullUrl}`, error]})
+            log.error({ messages: [`Failed to fetch url ${fullUrl}`, error] })
 
             if (error instanceof AxiosError) {
                 throw new CapabilitiesError(error.message, 'network_error')
