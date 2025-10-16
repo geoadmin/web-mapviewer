@@ -1,6 +1,6 @@
-import type { PiniaPlugin } from 'pinia'
+import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 
-import { WGS84, type SingleCoordinate } from '@swissgeo/coordinates'
+import { type SingleCoordinate, WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import { Math as CesiumMath } from 'cesium'
 import proj4 from 'proj4'
@@ -12,23 +12,29 @@ import {
     calculateResolution,
 } from '@/modules/map/components/cesium/utils/cameraUtils'
 import useCesiumStore from '@/store/modules/cesium.store'
-import usePositionStore, { normalizeAngle } from '@/store/modules/position.store'
+import usePositionStore, {
+    normalizeAngle,
+    PositionStoreActions,
+} from '@/store/modules/position.store'
+import { SearchStoreActions } from '@/store/modules/search.store'
 import useUIStore from '@/store/modules/ui.store'
+import { isEnumValue } from '@/utils/utils'
 
-/**
- * Plugin to synchronize the 3d camera position and orientation with the center and zoom.
- *
- * @param {Vuex.Store} store
- */
-const registerSyncCameraLonLatZoom: PiniaPlugin = (): void => {
-    const dispatcher: ActionDispatcher = { name: 'sync-camera-lonlatzoom.plugin' }
+const dispatcher: ActionDispatcher = { name: 'sync-camera-lonlatzoom.plugin' }
+
+/** Plugin to synchronize the 3d camera position and orientation with the center and zoom. */
+const registerSyncCameraLonLatZoom: PiniaPlugin = (context: PiniaPluginContext): void => {
+    const { store } = context
 
     const positionStore = usePositionStore()
     const uiStore = useUIStore()
     const cesiumStore = useCesiumStore()
 
-    positionStore.$onAction(({ name, store, args }) => {
-        if (name === 'setCameraPosition' && store.camera) {
+    store.$onAction(({ name, args }) => {
+        if (
+            isEnumValue<PositionStoreActions>(PositionStoreActions.SetCameraPosition, name) &&
+            positionStore.camera
+        ) {
             const lon = store.camera.x
             const lat = store.camera.y
             const height = store.camera.z
@@ -51,43 +57,58 @@ const registerSyncCameraLonLatZoom: PiniaPlugin = (): void => {
             store.setCenter(centerExpressedInWantedProjection, dispatcher)
             store.setZoom(zoom, dispatcher)
             store.setRotation(normalizeAngle((rotation * Math.PI) / 180), self)
-        } else if (name === 'setCenter' && cesiumStore.active && store.camera) {
-            const setCenterArgs: Parameters<typeof store.setCenter> = args
+        } else if (
+            isEnumValue<PositionStoreActions>(PositionStoreActions.SetCenter, name) &&
+            cesiumStore.active &&
+            positionStore.camera
+        ) {
+            const [newCenter] = args as Parameters<typeof positionStore.setCenter>
 
             // transform the center to camera
             const centerWgs84 = proj4<SingleCoordinate>(store.projection.epsg, WGS84.epsg, [
-                setCenterArgs[0][0], // x
-                setCenterArgs[0][1], // y
+                newCenter[0], // x
+                newCenter[1], // y
             ])
 
-            store.setCameraPosition(
+            positionStore.setCameraPosition(
                 {
                     x: centerWgs84[0],
                     y: centerWgs84[1],
-                    z: store.camera.z,
-                    roll: store.camera.roll,
-                    pitch: store.camera.pitch,
-                    heading: store.camera.heading,
+                    z: positionStore.camera.z,
+                    roll: positionStore.camera.roll,
+                    pitch: positionStore.camera.pitch,
+                    heading: positionStore.camera.heading,
                 },
                 dispatcher
             )
-        } else if (name === 'setZoom' && cesiumStore.active && store.camera) {
+        } else if (
+            isEnumValue<PositionStoreActions>(PositionStoreActions.SetZoom, name) &&
+            cesiumStore.active &&
+            positionStore.camera
+        ) {
             // Notes(IS): It should be cesium viewer clientWidth, but we do not have access to it here.
             // We are using the store width instead.
-            const newHeight = calculateHeight(store.resolution, uiStore.width)
-            store.setCameraPosition(
+            const newHeight = calculateHeight(positionStore.resolution, uiStore.width)
+            positionStore.setCameraPosition(
                 {
-                    x: store.camera.x,
-                    y: store.camera.y,
+                    x: positionStore.camera.x,
+                    y: positionStore.camera.y,
                     z: newHeight,
-                    roll: store.camera.roll,
-                    pitch: store.camera.pitch,
-                    heading: store.camera.heading,
+                    roll: positionStore.camera.roll,
+                    pitch: positionStore.camera.pitch,
+                    heading: positionStore.camera.heading,
                 },
                 dispatcher
             )
-        } else if (['zoomToExtent', 'selectResultEntry'].includes(name) && store.camera) {
-            log.debug('Adapting camera position to match zoomToExtent/selectResultEntry')
+        } else if (
+            (isEnumValue<PositionStoreActions>(PositionStoreActions.ZoomToExtent, name) ||
+                isEnumValue<SearchStoreActions>(SearchStoreActions.SelectResultEntry, name)) &&
+            positionStore.camera
+        ) {
+            log.debug({
+                title: 'Sync camera lon-lat-zoom plugin',
+                messages: ['Adapting camera position to match zoomToExtent/selectResultEntry'],
+            })
             const newHeight = calculateHeight(positionStore.resolution, uiStore.width)
             positionStore.setCameraPosition(
                 {

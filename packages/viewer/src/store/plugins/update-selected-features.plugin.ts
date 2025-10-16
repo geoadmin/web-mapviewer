@@ -1,26 +1,29 @@
-import type { PiniaPlugin } from 'pinia'
+import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
+
+import log from '@swissgeo/log'
+
+import type { ActionDispatcher } from '@/store/types'
 
 import useFeaturesStore from '@/store/modules/features.store'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore, { LayerStoreActions } from '@/store/modules/layers.store'
 import useMapStore from '@/store/modules/map.store'
+import { isEnumValue } from '@/utils/utils'
 
-const dispatcher = { name: 'update-selected-features.plugin' }
+const dispatcher: ActionDispatcher = { name: 'update-selected-features.plugin' }
 
-/** @param store */
-const updateSelectedFeatures: PiniaPlugin = () => {
+const updateSelectedFeatures: PiniaPlugin = (context: PiniaPluginContext) => {
+    const { store } = context
+
     const layersStore = useLayersStore()
     const featuresStore = useFeaturesStore()
     const mapStore = useMapStore()
 
-    layersStore.$onAction(({ name, store, args }) => {
+    store.$onAction(({ name, args }) => {
         if (
-            ![
-                // 'setLayerYear',
-                'toggleLayerVisibility',
-                'addLayer',
-                'removeLayer',
-                'clearLayers',
-            ].includes(name)
+            !isEnumValue<LayerStoreActions>(LayerStoreActions.ToggleLayerVisibility, name) &&
+            !isEnumValue<LayerStoreActions>(LayerStoreActions.AddLayer, name) &&
+            !isEnumValue<LayerStoreActions>(LayerStoreActions.RemoveLayer, name) &&
+            !isEnumValue<LayerStoreActions>(LayerStoreActions.ClearLayers, name)
         ) {
             return
         }
@@ -37,8 +40,9 @@ const updateSelectedFeatures: PiniaPlugin = () => {
         let layerId
 
         // if selected features do not have id of removed layer dont update features
-        if (name === 'toggleLayerVisibility') {
-            const layer = store.activeLayers.at(args[0])
+        if (isEnumValue<LayerStoreActions>(LayerStoreActions.ToggleLayerVisibility, name)) {
+            const [layerIndex] = args as Parameters<typeof layersStore.toggleLayerVisibility>
+            const layer = layersStore.getActiveLayerByIndex(layerIndex)
 
             if (layer?.isVisible) {
                 updateFeatures = true // for toggleLayerVisibility we always update if layer has gone from invisible to visible
@@ -49,15 +53,16 @@ const updateSelectedFeatures: PiniaPlugin = () => {
         }
 
         // if selected features do not have id of removed layer dont update features
-        if (name === 'removeLayer' && args[0].layerId) {
-            layerId = args[0].layerId
-        }
-
-        // removing a layer by index
-        if (name === 'removeLayer' && args[0].index) {
-            const layerByIndex = store.getActiveLayerByIndex(args[0].index)
-            if (layerByIndex) {
-                layerId = layerByIndex.id
+        if (isEnumValue<LayerStoreActions>(LayerStoreActions.RemoveLayer, name)) {
+            const [payload] = args as Parameters<typeof layersStore.removeLayer>
+            if (payload.layerId) {
+                layerId = payload.layerId
+            } else if (payload.index) {
+                // removing a layer by index
+                const layerByIndex = layersStore.getActiveLayerByIndex(payload.index)
+                if (layerByIndex) {
+                    layerId = layerByIndex.id
+                }
             }
         }
 
@@ -71,13 +76,22 @@ const updateSelectedFeatures: PiniaPlugin = () => {
             featuresStore
                 .identifyFeatureAt(
                     {
-                        layers: store.visibleLayers.filter((layer) => layer.hasTooltip),
+                        layers: layersStore.visibleLayers.filter((layer) => layer.hasTooltip),
                         vectorFeatures: clickInfo.features,
                         coordinate: clickInfo.coordinate,
                     },
                     dispatcher
                 )
-                .catch((_) => {})
+                .catch((error) => {
+                    log.error({
+                        title: 'Update selected features plugin',
+                        messages: [
+                            'Error while updating selected features after a click on the map',
+                            args,
+                            error,
+                        ],
+                    })
+                })
         }
     })
 }

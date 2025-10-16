@@ -1,27 +1,34 @@
-import type { PiniaPlugin } from 'pinia'
+import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
+
+import type { ActionDispatcher } from '@/store/types'
 
 import { BREAKPOINT_PHONE_HEIGHT, BREAKPOINT_PHONE_WIDTH } from '@/config/responsive.config'
-import useUIStore, { UIModes } from '@/store/modules/ui.store'
+import useUIStore, { UIModes, UIStoreActions } from '@/store/modules/ui.store'
+import { isEnumValue } from '@/utils/utils'
 
-const dispatcher = { name: 'screen-size-management.plugin' }
+const dispatcher: ActionDispatcher = { name: 'screen-size-management.plugin' }
 
-/** @param store */
-const screenSizeManagement: PiniaPlugin = () => {
-    const uiStore = useUIStore()
+const screenSizeManagement: PiniaPlugin = (context: PiniaPluginContext) => {
+    const { store } = context
 
-    uiStore.$onAction(({ name, store }) => {
-        if (name === 'setSize') {
+    store.$onAction(({ name }) => {
+        if (isEnumValue<UIStoreActions>(UIStoreActions.SetSize, name)) {
+            const uiStore = useUIStore()
+
             // listening to screen size change to decide if we should switch UI mode too
             let wantedUiMode
 
-            if (store.width < BREAKPOINT_PHONE_WIDTH || store.height < BREAKPOINT_PHONE_HEIGHT) {
+            if (
+                uiStore.width < BREAKPOINT_PHONE_WIDTH ||
+                uiStore.height < BREAKPOINT_PHONE_HEIGHT
+            ) {
                 wantedUiMode = UIModes.PHONE
             } else {
                 // so the UI mode DESKTOP also includes the tablet mode.
                 wantedUiMode = UIModes.DESKTOP
             }
-            if (wantedUiMode !== store.mode) {
-                store.setUiMode(wantedUiMode, dispatcher)
+            if (wantedUiMode !== uiStore.mode) {
+                uiStore.setUiMode(wantedUiMode, dispatcher)
             }
         }
     })

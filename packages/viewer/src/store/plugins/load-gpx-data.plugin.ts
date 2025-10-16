@@ -3,90 +3,97 @@
  * it here
  */
 
-import type { PiniaPlugin } from 'pinia'
+import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 
-import { LayerType, type GPXLayer } from '@swissgeo/layers'
+import { type GPXLayer, LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { ErrorMessage } from '@swissgeo/log/Message'
 
 import type { ActionDispatcher } from '@/store/types'
 
 import GPXParser from '@/modules/menu/components/advancedTools/ImportFile/parser/GPXParser.class'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore, { LayerStoreActions } from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
+import { isEnumValue } from '@/utils/utils'
 
 const gpxParser = new GPXParser()
 
-/**
- * Load GPX data and metadata whenever a GPX layer is added (or does nothing if the layer was
- * already processed/loaded)
- *
- * @param {Vuex.Store} store
- */
-const loadGpxDataAndMetadataPlugin: PiniaPlugin = () => {
-    const dispatcher: ActionDispatcher = { name: 'layers-gpx-data.plugin' }
+const dispatcher: ActionDispatcher = { name: 'layers-gpx-data.plugin' }
+
+async function loadGpx(gpxLayer: GPXLayer): Promise<void> {
+    log.debug({
+        title: 'load-gpx-data',
+        messages: [`Loading data for added GPX layer`, gpxLayer],
+    })
 
     const layerStore = useLayersStore()
     const positionStore = usePositionStore()
 
-    /**
-     * @param {Vuex.Store} store
-     * @param {GPXLayer} gpxLayer
-     * @returns {Promise<void>}
-     */
-    async function loadGpx(gpxLayer: GPXLayer) {
-        log.debug(`Loading data for added GPX layer`, gpxLayer)
-        try {
-            const updatedLayer = await gpxParser.parse({
-                fileSource: gpxLayer.gpxFileUrl || '',
-                currentProjection: positionStore.projection,
-            })
+    try {
+        const updatedLayer = await gpxParser.parse({
+            fileSource: gpxLayer.gpxFileUrl || '',
+            currentProjection: positionStore.projection,
+        })
 
-            layerStore.updateLayer(
-                {
-                    layerId: updatedLayer.id,
-                    values: updatedLayer,
-                },
-                dispatcher
-            )
-        } catch (error) {
-            log.error({
-                messages: [`Error while fetching GPX data for layer ${gpxLayer?.id}`, error],
-            })
+        layerStore.updateLayer(
+            {
+                layerId: updatedLayer.id,
+                values: updatedLayer,
+            },
+            dispatcher
+        )
+    } catch (error) {
+        log.error({
+            title: 'load-gpx-data',
+            messages: [`Error while fetching GPX data for layer ${gpxLayer?.id}`, error],
+        })
 
-            layerStore.addLayerError(
-                {
-                    layerId: gpxLayer.id,
-                    isExternal: gpxLayer.isExternal,
-                    baseUrl: gpxLayer.baseUrl,
-                    error: new ErrorMessage('loading_error_network_failure'),
-                },
-                dispatcher
-            )
-        }
+        layerStore.addLayerError(
+            {
+                layerId: gpxLayer.id,
+                isExternal: gpxLayer.isExternal,
+                baseUrl: gpxLayer.baseUrl,
+                error: new ErrorMessage('loading_error_network_failure'),
+            },
+            dispatcher
+        )
     }
+}
 
-    layerStore.$onAction(({ args, name }) => {
-        const addLayerSubscriber = (layer: GPXLayer) => {
-            if (layer.type === LayerType.GPX && !layer.gpxData) {
-                loadGpx(layer).catch((error) => {
-                    log.error({
-                        messages: [`Unable to add gpx layer from plugin`, error],
-                    })
-                })
+function addLayerSubscriber(layer: GPXLayer): void {
+    if (layer.type === LayerType.GPX && !layer.gpxData) {
+        loadGpx(layer).catch((error) => {
+            log.error({
+                title: 'load-gpx-data',
+                messages: [`Unable to add gpx layer from plugin`, error],
+            })
+        })
+    }
+}
+
+/**
+ * Load GPX data and metadata whenever a GPX layer is added (or does nothing if the layer was
+ * already processed/loaded)
+ */
+const loadGpxDataAndMetadataPlugin: PiniaPlugin = (context: PiniaPluginContext) => {
+    const { store } = context
+
+    const layersStore = useLayersStore()
+
+    store.$onAction(({ args, name }) => {
+        if (isEnumValue<LayerStoreActions>(LayerStoreActions.AddLayer, name)) {
+            const [payload] = args as Parameters<typeof layersStore.addLayer>
+            if (payload.layer?.type === LayerType.GPX) {
+                addLayerSubscriber(payload.layer)
             }
-        }
-
-        if (name === 'addLayer' && args[0].layer) {
-            if (args[0].layer.type === LayerType.GPX) {
-                addLayerSubscriber(args[0].layer)
-            }
-        }
-
-        if (name === 'setLayers') {
-            for (const layer of args[0]) {
+        } else if (isEnumValue<LayerStoreActions>(LayerStoreActions.SetLayers, name)) {
+            const [layers] = args as Parameters<typeof layersStore.setLayers>
+            for (const layer of layers) {
                 if (typeof layer === 'string') {
-                    log.debug(`Not adding ${layer} in GPX plugin because it's a string`)
+                    log.debug({
+                        title: 'load-gpx-data',
+                        messages: [`Not adding ${layer} in GPX plugin because it's a string`],
+                    })
                 } else if (layer.type === LayerType.GPX) {
                     addLayerSubscriber(layer)
                 }

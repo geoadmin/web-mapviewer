@@ -394,3 +394,15 @@ export function getSafe<T>(obj: unknown, prop: string): T | undefined {
     const dict = asDict(obj)
     return isKeyOf(obj, prop) ? (dict[prop] as T) : undefined
 }
+
+export function isEnumValue<E>(enumValue: E[keyof E], candidate: string): boolean {
+    // For string enums, compare as string
+    if (typeof enumValue === 'string') {
+        return enumValue === candidate
+    }
+    // For numeric enums, the candidate must be a number-like string and match the numeric value
+    if (typeof enumValue === 'number') {
+        return Number(candidate) === enumValue
+    }
+    return false
+}

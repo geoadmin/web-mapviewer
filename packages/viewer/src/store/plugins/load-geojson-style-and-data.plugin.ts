@@ -1,7 +1,7 @@
 import type {
     GeoAdminGeoJSONLayer,
-    GeoAdminGeoJSONStyleUnique,
     GeoAdminGeoJSONStyleRange,
+    GeoAdminGeoJSONStyleUnique,
     Layer,
 } from '@swissgeo/layers'
 import type { PiniaPlugin } from 'pinia'
@@ -14,8 +14,9 @@ import axios from 'axios'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import useLayersStore, { type AddLayerPayload } from '@/store/modules/layers.store'
+import useLayersStore, { LayerStoreActions } from '@/store/modules/layers.store'
 import useUIStore from '@/store/modules/ui.store'
+import { isEnumValue } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'load-geojson-style-and-data.plugin' }
 
@@ -263,20 +264,21 @@ const loadGeojsonStyleAndDataPlugin: PiniaPlugin = (): void => {
     const layersStore = useLayersStore()
 
     layersStore.$onAction(({ name, args }) => {
-        if (name === 'addLayer') {
-            const payload: AddLayerPayload = args[0]
-            if (payload?.layer) {
+        if (isEnumValue<LayerStoreActions>(LayerStoreActions.AddLayer, name)) {
+            const [payload] = args as Parameters<typeof layersStore.addLayer>
+            if (payload.layer) {
                 addLayersSubscriber([payload.layer]).catch((error) => {
                     log.error({ messages: [error] })
                 })
             }
-        } else if (name === 'setLayers') {
-            const layers = args[0] as Layer[]
-            addLayersSubscriber(layers).catch((error) => {
+        } else if (isEnumValue<LayerStoreActions>(LayerStoreActions.SetLayers, name)) {
+            const [layers] = args as Parameters<typeof layersStore.setLayers>
+            const nonStringLayers = layers.filter((layer) => !(typeof layer === 'string'))
+            addLayersSubscriber(nonStringLayers).catch((error) => {
                 log.error({ messages: [error] })
             })
-        } else if (name === 'setPreviewLayer') {
-            const previewLayer = args[0]
+        } else if (isEnumValue<LayerStoreActions>(LayerStoreActions.SetPreviewLayer, name)) {
+            const [previewLayer] = args as Parameters<typeof layersStore.setPreviewLayer>
 
             if (typeof previewLayer === 'string') {
                 const matchingLayers: Layer[] = layersStore.getLayersById(previewLayer)
@@ -304,28 +306,23 @@ const loadGeojsonStyleAndDataPlugin: PiniaPlugin = (): void => {
                     })
                 })
             }
-
-            // TODO it used to be the case that setPreviewLayer could be set to null
-            // not the typing forbids this, so we don't need this.
-            // question is, if the typing is correct over there
-            // } else if (name === 'setPreviewLayer' && mutation.payload.layer === null) {
-            //     cancelLoadPreviewLayer()
-        } else if (
-            name === 'removeLayer' &&
-            args[0].layerId &&
-            intervalsByLayerId[args[0].layerId]
-        ) {
-            // when a layer is removed, if a matching interval is found, we clear it
-            clearAutoReload(args[0].layerId)
-        } else if (name === 'removeLayer') {
-            // As we come after the work has been done,
-            // we cannot get the layer ID removed from the store from the mutation's payload.
-            // So we instead go through all intervals, and clear any that has no matching layer in the active layers
-            Object.keys(intervalsByLayerId)
-                .filter(
-                    (layerId) => !layersStore.activeLayers.some((layer) => layer.id === layerId)
-                )
-                .forEach((layerId) => clearAutoReload(layerId))
+        } else if (isEnumValue<LayerStoreActions>(LayerStoreActions.ClearPreviewLayer, name)) {
+            cancelLoadPreviewLayer()
+        } else if (isEnumValue<LayerStoreActions>(LayerStoreActions.RemoveLayer, name)) {
+            const [payload] = args as Parameters<typeof layersStore.removeLayer>
+            if (payload.layerId && intervalsByLayerId[payload.layerId]) {
+                // when a layer is removed, if a matching interval is found, we clear it
+                clearAutoReload(payload.layerId)
+            } else {
+                // As we come after the work has been done,
+                // we cannot get the layer ID removed from the store from the mutation's payload.
+                // So we instead go through all intervals, and clear any that has no matching layer in the active layers
+                Object.keys(intervalsByLayerId)
+                    .filter(
+                        (layerId) => !layersStore.activeLayers.some((layer) => layer.id === layerId)
+                    )
+                    .forEach((layerId) => clearAutoReload(layerId))
+            }
         }
     })
 }

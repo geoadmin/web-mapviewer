@@ -1,4 +1,4 @@
-import type { PiniaPlugin } from 'pinia'
+import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { START_LOCATION, useRouter } from 'vue-router'
@@ -27,7 +27,9 @@ const dispatcher: ActionDispatcher = { name: 'app-readiness.plugin' }
  * - Have loaded the layers config
  * - Have loaded the topics config
  */
-export const appReadinessPlugin: PiniaPlugin = (): void => {
+export const appReadinessPlugin: PiniaPlugin = (context: PiniaPluginContext): void => {
+    const { store } = context
+
     log.debug({
         title: '[App loading management plugin]',
         titleColor: LogPreDefinedColor.Yellow,
@@ -84,8 +86,10 @@ export const appReadinessPlugin: PiniaPlugin = (): void => {
         })
     }
 
-    const unsubscribe = appStore.$subscribe(() => {
+    const unsubscribe = store.$subscribe(() => {
         // TODO restrict the stores that we should subscribe to?
+
+        const appStore = useAppStore()
 
         // if the app is not ready yet, we go through the checklist
         if (!appStore.isReady) {

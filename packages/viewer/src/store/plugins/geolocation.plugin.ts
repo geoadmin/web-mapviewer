@@ -1,5 +1,5 @@
 import type { SingleCoordinate } from '@swissgeo/coordinates'
-import type { PiniaPlugin } from 'pinia'
+import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 
 import { LV95, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
@@ -13,9 +13,10 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useCesiumStore from '@/store/modules/cesium.store'
-import useGeolocationStore from '@/store/modules/geolocation.store'
-import usePositionStore from '@/store/modules/position.store'
+import useGeolocationStore, { GeolocationStoreActions } from '@/store/modules/geolocation.store'
+import usePositionStore, { PositionStoreActions } from '@/store/modules/position.store'
 import useUIStore from '@/store/modules/ui.store'
+import { isEnumValue } from '@/utils/utils'
 
 const { GeolocationPositionError } = window
 
@@ -219,16 +220,17 @@ const activateGeolocation = (options?: GeolocationActivationOptions) => {
  * Plugin that handles the HTML5 Geolocation API interaction, and dispatch its output to the store
  * when geolocation is active.
  */
-const geolocationManagementPlugin: PiniaPlugin = (): void => {
-    const geolocationStore = useGeolocationStore()
-    const positionStore = usePositionStore()
+const geolocationManagementPlugin: PiniaPlugin = (context: PiniaPluginContext): void => {
+    const { store } = context
 
-    geolocationStore.$onAction(({ name, args }) => {
-        // grabbing the dispatcher (always the last argument)
-        const actionDispatcher: ActionDispatcher = args[args.length - 1] as ActionDispatcher
+    store.$onAction(({ name, args }) => {
+        const geolocationStore = useGeolocationStore()
+        const positionStore = usePositionStore()
 
         // listening to the start/stop of geolocation
-        if (name === 'setGeolocationActive') {
+        if (
+            isEnumValue<GeolocationStoreActions>(GeolocationStoreActions.SetGeolocationActive, name)
+        ) {
             if (geolocationStore.active) {
                 errorCount = 0 // reset the error counter when starting the geolocation
                 activateGeolocation()
@@ -238,25 +240,26 @@ const geolocationManagementPlugin: PiniaPlugin = (): void => {
                 geolocationWatcherId = undefined
             }
         } else if (
-            name === 'setGeolocationTracking' &&
-            typeof args[0] === 'boolean' &&
-            args[0] === true &&
-            actionDispatcher &&
-            actionDispatcher.name !== dispatcher.name
+            isEnumValue<GeolocationStoreActions>(
+                GeolocationStoreActions.SetGeolocationTracking,
+                name
+            )
         ) {
-            // If tracking has been re-enabled by clicking on the geolocation button we re-center
-            // the map.
-            if (geolocationStore.position) {
+            const [isTracking, actionDispatcher] = args as Parameters<
+                typeof geolocationStore.setGeolocationTracking
+            >
+            // If tracking has been re-enabled by clicking on the geolocation button we re-center the map.
+            if (
+                isTracking &&
+                actionDispatcher.name !== dispatcher.name &&
+                geolocationStore.position
+            ) {
                 setCenterIfInBounds(geolocationStore.position)
             }
-        }
-    })
-
-    positionStore.$onAction(({ name, store }) => {
-        if (name === 'setCenter') {
+        } else if (isEnumValue<PositionStoreActions>(PositionStoreActions.SetCenter, name)) {
             // if we moved the map we disabled the tracking (unless the tracking moved the map)
             geolocationStore.setGeolocationTracking(false, dispatcher)
-            store.setAutoRotation(false, dispatcher)
+            positionStore.setAutoRotation(false, dispatcher)
         }
     })
 }

@@ -15,8 +15,9 @@ import { checkOnlineFileCompliance, getFileContentFromUrl, loadKmlMetadata } fro
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore, { LayerStoreActions } from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
+import { isEnumValue } from '@/utils/utils'
 
 const dispatcher = { name: 'load-kml-kmz-data.plugin' }
 
@@ -24,7 +25,10 @@ const kmzParser = new KMZParser()
 const kmlParser = new KMLParser()
 
 async function loadMetadata(kmlLayer: KMLLayer): Promise<void> {
-    log.debug(`Loading metadata for added KML layer`, kmlLayer)
+    log.debug({
+        title: 'load-kml-kmz-data',
+        messages: [`Loading metadata for added KML layer`, kmlLayer],
+    })
 
     const layersStore = useLayersStore()
 
@@ -41,12 +45,13 @@ async function loadMetadata(kmlLayer: KMLLayer): Promise<void> {
         )
     } catch (error) {
         log.error({
+            title: 'load-kml-kmz-data',
             messages: [`Error while fetching KML metadata for layer ${kmlLayer?.id}`, error],
         })
     }
 }
 
-function sendLayerToStore(layer: KMLLayer) {
+function sendLayerToStore(layer: KMLLayer): void {
     const layersStore = useLayersStore()
 
     layersStore.updateLayer<KMLLayer>(
@@ -69,7 +74,10 @@ async function loadData(kmlLayer: KMLLayer): Promise<void> {
     const layersStore = useLayersStore()
     const positionStore = usePositionStore()
 
-    log.debug(`[load-kml-kmz-data] Loading data for added KML layer`, kmlLayer)
+    log.debug({
+        title: 'load-kml-kmz-data',
+        messages: [`Loading data for added KML layer`, kmlLayer],
+    })
 
     // to avoid having 2 HEAD and 2 GET request in case the file is a KML, we load this data here (instead of letting each file parser load it for itself)
     let complianceCheck = null
@@ -77,8 +85,9 @@ async function loadData(kmlLayer: KMLLayer): Promise<void> {
         complianceCheck = await checkOnlineFileCompliance(kmlLayer.kmlFileUrl)
     } catch (error) {
         log.error({
+            title: 'load-kml-kmz-data',
             messages: [
-                `[load-kml-kmz-data] Error while checking online file compliance for ${kmlLayer.kmlFileUrl}`,
+                `Error while checking online file compliance for ${kmlLayer.kmlFileUrl}`,
                 error,
             ],
         })
@@ -95,15 +104,15 @@ async function loadData(kmlLayer: KMLLayer): Promise<void> {
         }
     } catch (error) {
         log.error({
-            messages: [
-                '[load-kml-kmz-data] error while loading file content for',
-                kmlLayer.kmlFileUrl,
-                error,
-            ],
+            title: 'load-kml-kmz-data',
+            messages: ['error while loading file content for', kmlLayer.kmlFileUrl, error],
         })
     }
     if (!mimeType && !loadedContent) {
-        log.error('[load-kml-kmz-data] could not get content for KML', kmlLayer.kmlFileUrl)
+        log.error({
+            title: 'load-kml-kmz-data',
+            messages: ['[load-kml-kmz-data] could not get content for KML', kmlLayer.kmlFileUrl],
+        })
         layersStore.addLayerError(
             {
                 layerId: kmlLayer.id,
@@ -137,7 +146,8 @@ async function loadData(kmlLayer: KMLLayer): Promise<void> {
     } catch (error) {
         // not a KMZ layer, we proceed below to check if it is a KML
         log.debug({
-            messages: ['[load-kml-kmz-data] error while parsing KMZ file', error],
+            title: 'load-kml-kmz-data',
+            messages: ['error while parsing KMZ file', error],
         })
     }
 
@@ -172,6 +182,27 @@ async function loadData(kmlLayer: KMLLayer): Promise<void> {
     }
 }
 
+function addLayerSubscriber(layer: KMLLayer): void {
+    if (!layer.kmlData || !layer.kmlMetadata) {
+        if (!layer.kmlData) {
+            loadData(layer).catch((error) => {
+                log.error({
+                    title: 'load-kml-kmz-data',
+                    messages: ['Error while loading KML data for layer', layer, error],
+                })
+            })
+        }
+        if (!layer.kmlMetadata && !layer.isExternal) {
+            loadMetadata(layer).catch((error) => {
+                log.error({
+                    title: 'load-kml-kmz-data',
+                    messages: ['Error while loading KML metadata for layer', layer, error],
+                })
+            })
+        }
+    }
+}
+
 /**
  * Load KML data and metadata whenever a KML layer is added (or does nothing if the layer was
  * already processed/loaded)
@@ -179,31 +210,25 @@ async function loadData(kmlLayer: KMLLayer): Promise<void> {
 const loadKmlDataAndMetadata: PiniaPlugin = (context: PiniaPluginContext) => {
     const { store } = context
 
-    const addLayerSubscriber = (layer: KMLLayer) => {
-        if (!layer.kmlData || !layer.kmlMetadata) {
-            if (!layer.kmlData) {
-                loadData(layer).catch((error) => {
-                    log.error({ messages: [error] })
-                })
-            }
-            if (!layer.kmlMetadata && !layer.isExternal) {
-                loadMetadata(layer).catch((error) => {
-                    log.error({ messages: [error] })
-                })
-            }
-        }
-    }
+    const layersStore = useLayersStore()
 
     store.$onAction(({ name, args }) => {
-        if (name === 'addLayer') {
-            if (args[0].layer?.type === LayerType.KML) {
-                addLayerSubscriber(args[0].layer as KMLLayer)
+        if (isEnumValue<LayerStoreActions>(LayerStoreActions.AddLayer, name)) {
+            const [payload] = args as Parameters<typeof layersStore.addLayer>
+            if (payload.layer?.type === LayerType.KML) {
+                addLayerSubscriber(payload.layer as KMLLayer)
             }
-        }
-
-        if (name === 'setLayers') {
-            for (const layer of args[0]) {
-                addLayerSubscriber(layer as KMLLayer)
+        } else if (isEnumValue<LayerStoreActions>(LayerStoreActions.SetLayers, name)) {
+            const [layers] = args as Parameters<typeof layersStore.setLayers>
+            for (const layer of layers) {
+                if (typeof layer === 'string') {
+                    log.debug({
+                        title: 'load-kml-kmz-data',
+                        messages: [`Not adding ${layer} in KML plugin because it's a string`],
+                    })
+                } else if (layer.type === LayerType.KML) {
+                    addLayerSubscriber(layer as KMLLayer)
+                }
             }
         }
     })
