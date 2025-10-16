@@ -1,7 +1,9 @@
 import { extentUtils, WGS84 } from '@swissgeo/coordinates'
 import GPX from 'ol/format/GPX'
+import type { CoordinateSystem } from '@swissgeo/coordinates'
+import { LayerType, type GPXLayer } from '@swissgeo/layers'
+import { v4 as uuidv4 } from 'uuid'
 
-import GPXLayer from '@/api/layers/GPXLayer.class'
 import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'
 import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
@@ -10,11 +12,8 @@ import { getGpxExtent } from '@/utils/gpxUtils'
 
 /**
  * Checks if file is GPX
- *
- * @param {ArrayBuffer} fileContent
- * @returns {boolean}
  */
-export function isGpx(fileContent) {
+export function isGpx(fileContent: ArrayBuffer): boolean {
     const stringValue = new TextDecoder('utf-8').decode(fileContent)
     return /<gpx/.test(stringValue) && /<\/gpx\s*>/.test(stringValue)
 }
@@ -31,8 +30,12 @@ export default class GPXParser extends FileParser {
         })
     }
 
-    async parseFileContent(fileContent, fileSource, currentProjection) {
-        if (!isGpx(fileContent)) {
+    async parseFileContent(
+        fileContent: ArrayBuffer | undefined,
+        fileSource: File | string,
+        currentProjection: CoordinateSystem
+    ): Promise<GPXLayer> {
+        if (!fileContent || !isGpx(fileContent)) {
             throw new InvalidFileContentError()
         }
         const gpxAsText = new TextDecoder('utf-8').decode(fileContent)
@@ -48,14 +51,39 @@ export default class GPXParser extends FileParser {
         if (!extentInCurrentProjection) {
             throw new OutOfBoundsError(`GPX is out of bounds of current projection: ${extent}`)
         }
-        return new GPXLayer({
-            gpxFileUrl: this.isLocalFile(fileSource) ? fileSource.name : fileSource,
-            visible: true,
+
+        const gpxFileUrl = this.isLocalFile(fileSource) ? fileSource.name : fileSource
+        const isLocalFile = this.isLocalFile(fileSource)
+        const gpxMetadata = (gpxMetadataParser.readMetadata(gpxAsText) ?? undefined) as any
+        const attributionName = isLocalFile ? gpxFileUrl : new URL(gpxFileUrl).hostname
+        const name = gpxMetadata?.name ?? 'GPX'
+
+        const gpxLayer: GPXLayer = {
+            uuid: uuidv4(),
+            id: `GPX|${gpxFileUrl}`,
+            type: LayerType.GPX,
+            name,
+            baseUrl: gpxFileUrl,
             opacity: 1.0,
-            gpxData: gpxAsText,
-            gpxMetadata: gpxMetadataParser.readMetadata(gpxAsText),
+            isVisible: true,
+            attributions: [{ name: attributionName }],
+            hasTooltip: false,
+            hasDescription: false,
+            hasLegend: false,
+            timeConfig: {
+                timeEntries: [],
+            },
+            customAttributes: {},
             extent: extentInCurrentProjection,
-            extentProjection: currentProjection,
-        })
+            gpxFileUrl,
+            gpxData: gpxAsText,
+            gpxMetadata,
+            isExternal: !isLocalFile,
+            hasError: false,
+            hasWarning: false,
+            isLoading: false,
+        }
+
+        return gpxLayer
     }
 }

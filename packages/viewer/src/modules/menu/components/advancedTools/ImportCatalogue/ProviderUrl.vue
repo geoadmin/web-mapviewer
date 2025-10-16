@@ -29,7 +29,7 @@ const isLoading = ref<boolean>(false)
 const providerInput = useTemplateRef<HTMLInputElement>('providerInput')
 
 const { groupedProviders, showProviders, filterApplied, toggleProviders, filterText } =
-    useProviders(url)
+    useProviders(url.value)
 
 const { loadCapabilities } = useCapabilities(new URL(url.value))
 

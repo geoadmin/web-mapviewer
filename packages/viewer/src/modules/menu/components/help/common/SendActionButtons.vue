@@ -1,18 +1,15 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
-const emits = defineEmits(['send', 'cancel'])
+const emits = defineEmits<{
+    send: []
+    cancel: []
+}>()
 
-const { isDisabled, isPending } = defineProps({
-    isDisabled: {
-        type: Boolean,
-        default: false,
-    },
-    isPending: {
-        type: Boolean,
-        default: false,
-    },
-})
+const { isDisabled, isPending } = defineProps<{
+    isDisabled?: boolean
+    isPending?: boolean
+}>()
 
 const { t } = useI18n()
 

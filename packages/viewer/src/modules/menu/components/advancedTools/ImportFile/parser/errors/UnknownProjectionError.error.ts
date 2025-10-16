@@ -1,5 +1,7 @@
 export default class UnknownProjectionError extends Error {
-    constructor(message, epsg) {
+    epsg: string
+
+    constructor(message: string, epsg: string) {
         super(message)
         this.epsg = epsg
     }
