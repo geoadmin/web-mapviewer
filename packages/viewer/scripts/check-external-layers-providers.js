@@ -1,5 +1,5 @@
 #!./node_modules/.bin/vite-node --script
- 
+
 
 import { JSDOM } from 'jsdom'
 
@@ -9,6 +9,12 @@ global.DOMParser = dom.window.DOMParser
 global.Node = dom.window.Node
 
 import { LV95 } from '@swissgeo/coordinates'
+import {
+    EXTERNAL_SERVER_TIMEOUT,
+    parseWmsCapabilities,
+    parseWmtsCapabilities,
+    setWmsGetMapParams,
+} from '@swissgeo/layers/api'
 import axios, { AxiosError } from 'axios'
 import axiosRetry from 'axios-retry'
 import { promises as fs } from 'fs'
@@ -18,12 +24,6 @@ import writeYamlFile from 'write-yaml-file'
 import yargs from 'yargs'
 import { hideBin } from 'yargs/helpers'
 
-import {
-    EXTERNAL_SERVER_TIMEOUT,
-    parseWmsCapabilities,
-    parseWmtsCapabilities,
-    setWmsGetMapParams,
-} from '@/api/layers/layers-external.api'
 import {
     guessExternalLayerUrl,
     isWmsGetCap,
@@ -252,7 +252,7 @@ function replaceUrlPlaceholders(urlTemplate, params) {
     }, {})
     return urlTemplate.replace(/{(\w+)}/g, (_, key) => {
         const lowerKey = key.toLowerCase()
-         
+
         if (normalizedParams.hasOwnProperty(lowerKey)) {
             return normalizedParams[lowerKey]
         } else {
