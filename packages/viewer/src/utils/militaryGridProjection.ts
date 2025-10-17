@@ -76,8 +76,7 @@ export function inverse(mgrs: string): FlatExtent {
     if (type == 'latlon') {
         const _bbox = bbox as LatLon
         return [_bbox.lon, _bbox.lat, _bbox.lon, _bbox.lat]
-    }
-    else {
+    } else {
         const _bbox = bbox as Bbox
         return [_bbox.left, _bbox.bottom, _bbox.right, _bbox.top]
     }
@@ -92,8 +91,7 @@ export function toPoint(mgrs: string): SingleCoordinate {
     if (type == 'latlon') {
         const _bbox = bbox as LatLon
         return [_bbox.lon, _bbox.lat]
-    }
-    else {
+    } else {
         const _bbox = bbox as Bbox
         return [(_bbox.left + _bbox.right) / 2, (_bbox.top + _bbox.bottom) / 2]
     }

@@ -282,7 +282,9 @@ export class GeodesicGeometries {
                 const pos = [positionCalcRes.lon2 as number, positionCalcRes.lat2 as number]
                 currentDistance += partialLength
                 length -= partialLength
-                if (geodesicLine.s13 >= 1000) geodesicCoords.autoPush(pos)
+                if (geodesicLine.s13 >= 1000) {
+                    geodesicCoords.autoPush(pos)
+                }
                 measurePoints.push(pos, currentDistance)
             }
             currentDistance += length
