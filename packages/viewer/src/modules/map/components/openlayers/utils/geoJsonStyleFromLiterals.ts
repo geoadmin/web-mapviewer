@@ -300,7 +300,7 @@ class OlStyleForPropertyValue {
 
         Object.keys(geomStyles).forEach((range) => {
             const limits = range.split(',')
-            if (limits.length < 2) return
+            if (limits.length < 2) { return }
 
             const min = parseFloat(limits[0]?.replace(/\s/g, '') || '0')
             const max = parseFloat(limits[1]?.replace(/\s/g, '') || '0')

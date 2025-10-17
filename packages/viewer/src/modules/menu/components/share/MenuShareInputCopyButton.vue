@@ -21,7 +21,7 @@ const {
 }>()
 
 const copiedInClipboard = ref(false)
-const timeoutCopied = ref<ReturnType<typeof setTimeout> | undefined>()
+let timeoutCopied: ReturnType<typeof setTimeout> | undefined
 
 const { t } = useI18n()
 
@@ -33,8 +33,8 @@ const buttonText = computed(() => {
 
 const clearIsCopiedInClipboard = () => {
     copiedInClipboard.value = false
-    if (timeoutCopied.value) {
-        clearTimeout(timeoutCopied.value)
+    if (timeoutCopied) {
+        clearTimeout(timeoutCopied)
     }
 }
 
@@ -42,20 +42,20 @@ const copyInputToClipboard = () => {
     if (inputText) {
         navigator.clipboard.writeText(inputText).catch((error) => {
             log.error({
-                title: 'Failed to copy text to clipboard',
-                message: [error instanceof Error ? error.message : String(error)],
+                title: 'MenuShareInputCopyButton.vue',
+                message: ['Failed to copy text to clipboard', error],
             })
         })
         copiedInClipboard.value = true
-        timeoutCopied.value = setTimeout(clearIsCopiedInClipboard, 2500)
+        timeoutCopied = setTimeout(clearIsCopiedInClipboard, 2500)
     }
 }
 
 watch(() => inputText, clearIsCopiedInClipboard)
 
 onBeforeUnmount(() => {
-    if (timeoutCopied.value) {
-        clearTimeout(timeoutCopied.value)
+    if (timeoutCopied) {
+        clearTimeout(timeoutCopied)
     }
 })
 </script>

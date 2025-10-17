@@ -2,8 +2,8 @@
 import { useI18n } from 'vue-i18n'
 
 const emits = defineEmits<{
-    send: []
-    cancel: []
+    send: [void]
+    cancel: [void]
 }>()
 
 const { isDisabled = false, isPending = false } = defineProps<{
