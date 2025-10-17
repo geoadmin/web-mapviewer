@@ -1,5 +1,6 @@
 #!./node_modules/.bin/vite-node --script
 
+
 import { JSDOM } from 'jsdom'
 
 // faking browser support, so that OpenLayers has what it requires to parse XMLs
@@ -10,10 +11,9 @@ global.Node = dom.window.Node
 import { LV95 } from '@swissgeo/coordinates'
 import {
     EXTERNAL_SERVER_TIMEOUT,
-    parseWmsCapabilities,
-    parseWmtsCapabilities,
     setWmsGetMapParams,
 } from '@swissgeo/layers/api'
+import { wmsCapabilitiesParser, wmtsCapabilitiesParser } from '@swissgeo/layers/parsers'
 import axios, { AxiosError } from 'axios'
 import axiosRetry from 'axios-retry'
 import { promises as fs } from 'fs'
@@ -108,18 +108,16 @@ async function checkProviderGetMapTile(provider: string, capabilitiesResponse: a
 
 async function handleWms(provider: string, content: string, result: any): Promise<boolean> {
     let isProviderMapValid = true
-    const capabilities = parseWmsCapabilities(content) as any
-    const layers = capabilities.getAllExternalLayerObjects(
-        LV95,
-        1, // opacity
-        true, // visible
-        false // throw error in case of an error
-    )
+    const capabilities = wmsCapabilitiesParser.parse(content, new URL(provider)) as any
+    const layers = wmsCapabilitiesParser.getAllExternalLayers(capabilities, {
+        outputProjection: LV95,
+        initialValues: { opacity: 1, isVisible: true },
+    })
 
     const firstLeaf = findFirstLeaf(layers)
-    const finding = capabilities.findLayer(firstLeaf.id)
+    const capabilitiesLayer = wmsCapabilitiesParser.getCapabilitiesLayer(capabilities, firstLeaf.id)
     const crs = capabilities.Capability.Layer.CRS[0]
-    const style = finding.layer?.Style ? finding.layer?.Style[0]?.Name : 'default'
+    const style = capabilitiesLayer?.Style ? capabilitiesLayer?.Style[0]?.Identifier : 'default'
     const getCapabilitiesUrl =
         capabilities.Capability.Request.GetCapabilities.DCPType[0].HTTP.Get.OnlineResource
 
@@ -131,16 +129,16 @@ async function handleWms(provider: string, content: string, result: any): Promis
         .filter((url: string) => getCapabilitiesUrl !== url)
 
     for (const getMapUrl of getMapUrls) {
-        const url = setWmsGetMapParams(new URL(getMapUrl), firstLeaf.id, crs, style).toString()
+        const url = setWmsGetMapParams(new URL(getMapUrl), firstLeaf.id, crs, style!).toString()
 
         try {
-            const { responseGetMap, redirectHeaders } = await fetchMapTile(url, provider)
+            const { response, redirectHeaders } = await fetchMapTile(url, provider)
             isProviderMapValid =
                 isProviderMapValid &&
                 (await checkProviderResponse(
                     provider,
                     url,
-                    responseGetMap,
+                    response,
                     result,
                     redirectHeaders,
                     checkProviderResponseContentGetMap
@@ -156,13 +154,11 @@ async function handleWms(provider: string, content: string, result: any): Promis
 
 async function handleWmts(provider: string, content: string, result: any): Promise<boolean> {
     let isProviderGetTileValid = true
-    const capabilities = parseWmtsCapabilities(content, new URL(provider)) as any
-    const layers = capabilities.getAllExternalLayerObjects(
-        LV95,
-        1, // opacity
-        true, // visible
-        false // throw error in case of an error
-    )
+    const capabilities = wmtsCapabilitiesParser.parse(content, new URL(provider)) as any
+    const layers = wmtsCapabilitiesParser.getAllExternalLayers(capabilities, {
+        outputProjection: LV95,
+        initialValues: { opacity: 1, isVisible: true },
+    })
 
     const exampleLayer = findFirstLeaf(layers)
     const getTileUrlWithPlaceholders = exampleLayer.urlTemplate
@@ -233,7 +229,7 @@ async function fetchMapTile(url: string, provider: string): Promise<any> {
         )
     }
 
-    return { response, responseGetMap: response, redirectHeaders }
+    return { response, redirectHeaders }
 }
 
 function createErrorEntry(provider: string, url: string, error: Error, content: string): any {
@@ -346,7 +342,7 @@ async function checkProviderResponse(
             url: url,
             status: response.status,
         })
-    } else if (!response.headers.hasOwnProperty('access-control-allow-origin')) {
+    } else if (!response.headers.has('access-control-allow-origin')) {
         console.error(
             `Provider ${provider} does not support CORS: status=${response.status}, ` +
                 `missing access-control-allow-origin header`
@@ -355,7 +351,7 @@ async function checkProviderResponse(
             provider: provider,
             url: url,
             status: response.status,
-            headers: response.headers,
+            headers: response.headers.toJSON(),
         })
     } else if (redirectHeaders.some((header) => !header['access-control-allow-origin'])) {
         console.error(
@@ -371,19 +367,19 @@ async function checkProviderResponse(
         })
     } else if (
         !['*', 'https://map.geo.admin.ch'].includes(
-            response.headers['access-control-allow-origin']?.toString()?.trim()
+            response.headers.get('access-control-allow-origin').toString()?.trim()
         )
     ) {
         console.error(
             `Provider ${provider} does not have geoadmin in its CORS: status=${
                 response.status
-            }, Access-Control-Allow-Origin=${response.headers['access-control-allow-origin']}`
+            }, Access-Control-Allow-Origin=${response.headers.get('access-control-allow-origin')}`
         )
         result.invalid_cors.push({
             provider: provider,
             url: url,
             status: response.status,
-            headers: response.headers,
+            headers: response.headers.toJSON(),
         })
     } else if (await checkContentFnc(provider, url, response, result)) {
         console.log(`Provider ${provider} is OK`)
@@ -394,19 +390,17 @@ async function checkProviderResponse(
 
 function checkProviderResponseContent(provider: string, url: string, response: any, result: any): boolean {
     const content = response.data
-    const parseCapabilities = (isCapFn: any, parseFn: any, type: string, result: any, resultArray: string): boolean => {
+    const parseCapabilities = (isCapFn: any, parser: any, type: string, result: any, resultArray: string): boolean => {
         if (!isCapFn(content)) {
             return false
         }
 
         try {
-            const capabilities = parseFn(content, new URL(url))
-            const layers = capabilities.getAllExternalLayerObjects(
-                LV95,
-                1, // opacity
-                true, // visible
-                false // throw Error in case of error
-            )
+            const capabilities = parser.parse(content, new URL(url))
+            const layers = parser.getAllExternalLayers(capabilities, {
+                outputProjection: LV95,
+                initialValues: { opacity: 1, isVisible: true },
+            })
 
             if (layers.length === 0) {
                 throw new Error(`No valid ${type} layers found`)
@@ -424,8 +418,8 @@ function checkProviderResponseContent(provider: string, url: string, response: a
         return true
     }
     if (
-        parseCapabilities(isWmsGetCap, parseWmsCapabilities, 'WMS', result, 'invalid_wms') ||
-        parseCapabilities(isWmtsGetCap, parseWmtsCapabilities, 'WMTS', result, 'invalid_wmts')
+        parseCapabilities(isWmsGetCap, wmsCapabilitiesParser, 'WMS', result, 'invalid_wms') ||
+        parseCapabilities(isWmtsGetCap, wmtsCapabilitiesParser, 'WMTS', result, 'invalid_wmts')
     ) {
         return true
     }
@@ -434,7 +428,6 @@ function checkProviderResponseContent(provider: string, url: string, response: a
     result.invalid_content.push({
         provider,
         url,
-        error: 'file type not recognized',
         content: content.slice(0, SIZE_OF_CONTENT_DISPLAY),
     })
     return false

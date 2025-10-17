@@ -1,3 +1,5 @@
+import { setWmsGetCapabilitiesParams, setWmtsGetCapParams } from '@swissgeo/layers/api'
+
 /**
  * Checks if file has WMS Capabilities XML content
  */
@@ -34,29 +36,12 @@ export function isWmtsUrl(url: string): boolean {
  * @returns Url object with backend parameters (eg. SERVICE=WMS, ...)
  */
 export function guessExternalLayerUrl(provider: string, language: string): URL {
-    // Note: setWmsGetCapParams and setWmtsGetCapParams would need to be migrated too
-    // For now, just return a basic URL construction
-    const url = new URL(provider)
-
     if (isWmtsUrl(provider)) {
-        // Add WMTS parameters
-        url.searchParams.set('SERVICE', 'WMTS')
-        url.searchParams.set('REQUEST', 'GetCapabilities')
-        url.searchParams.set('lang', language)
-        return url
+        return setWmtsGetCapParams(new URL(provider), language)
     }
-
     if (isWmsUrl(provider)) {
-        // Add WMS parameters
-        url.searchParams.set('SERVICE', 'WMS')
-        url.searchParams.set('REQUEST', 'GetCapabilities')
-        url.searchParams.set('lang', language)
-        return url
+        return setWmsGetCapabilitiesParams(new URL(provider), language)
     }
-
     // By default if the URL service type cannot be guessed we use WMS
-    url.searchParams.set('SERVICE', 'WMS')
-    url.searchParams.set('REQUEST', 'GetCapabilities')
-    url.searchParams.set('lang', language)
-    return url
+    return setWmsGetCapabilitiesParams(new URL(provider), language)
 }
