@@ -1,6 +1,5 @@
 #!./node_modules/.bin/vite-node --script
 
-
 import { JSDOM } from 'jsdom'
 
 // faking browser support, so that OpenLayers has what it requires to parse XMLs
@@ -21,7 +20,11 @@ import { promises as fs } from 'fs'
 import { exit } from 'process'
 import sharp from 'sharp'
 import writeYamlFile from 'write-yaml-file'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import yargs from 'yargs'
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
 import { hideBin } from 'yargs/helpers'
 
 import {
@@ -31,6 +34,7 @@ import {
     isWmtsGetCap,
     isWmtsUrl,
 } from '@/modules/menu/components/advancedTools/ImportCatalogue/utils'
+
 const SIZE_OF_CONTENT_DISPLAY = 150
 
 const options = yargs(hideBin(process.argv))
@@ -56,25 +60,27 @@ const options = yargs(hideBin(process.argv))
     .help('h')
     .alias('h', 'help').argv
 
-function setupAxiosRetry() {
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+function setupAxiosRetry(): void {
     axiosRetry(axios, {
         retries: 8, // number of retries
-        retryDelay: (retryCount) => {
+        retryDelay: (retryCount: number): number => {
             console.log(`retry attempt: ${retryCount}`)
             return retryCount * 2000 // time interval between retries
         },
-        retryCondition: (error) => {
+        retryCondition: (error: any): boolean => {
             // if retry condition is not specified, by default idempotent requests are retried
             return !error?.response || error?.response?.status >= 500
         },
     })
 }
 
-function compareResultByProvider(a, b) {
+function compareResultByProvider(a: any, b: any): number {
     return compareCaseInsensitive(a['provider'], b['provider'])
 }
 
-function compareCaseInsensitive(a, b) {
+function compareCaseInsensitive(a: string, b: string): number {
     if (a.toLowerCase() > b.toLowerCase()) {
         return 1
     } else if (a.toLowerCase() < b.toLowerCase()) {
@@ -88,7 +94,7 @@ const requestHeaders = {
     'Sec-Fetch-Site': 'cross-site',
 }
 
-async function checkProviderGetMapTile(provider, capabilitiesResponse, result) {
+async function checkProviderGetMapTile(provider: string, capabilitiesResponse: any, result: any): Promise<boolean> {
     const content = capabilitiesResponse.data
     let isProviderMapTileValid = true
     if (isWmsGetCap(content)) {
@@ -100,9 +106,9 @@ async function checkProviderGetMapTile(provider, capabilitiesResponse, result) {
     return isProviderMapTileValid
 }
 
-async function handleWms(provider, content, result) {
+async function handleWms(provider: string, content: string, result: any): Promise<boolean> {
     let isProviderMapValid = true
-    const capabilities = parseWmsCapabilities(content, provider)
+    const capabilities = parseWmsCapabilities(content) as any
     const layers = capabilities.getAllExternalLayerObjects(
         LV95,
         1, // opacity
@@ -119,10 +125,10 @@ async function handleWms(provider, content, result) {
 
     // If the GetMap URL is the same as the GetCapabilities URL, we skip it because it's already checked
     const getMapUrls = capabilities.Capability.Request.GetMap.DCPType.map(
-        (d) => d.HTTP.Get.OnlineResource
+        (d: any) => d.HTTP.Get.OnlineResource
     )
         .filter(Boolean)
-        .filter((url) => getCapabilitiesUrl !== url)
+        .filter((url: string) => getCapabilitiesUrl !== url)
 
     for (const getMapUrl of getMapUrls) {
         const url = setWmsGetMapParams(new URL(getMapUrl), firstLeaf.id, crs, style).toString()
@@ -141,16 +147,16 @@ async function handleWms(provider, content, result) {
                 ))
         } catch (error) {
             isProviderMapValid = false
-            result.invalid_wms.push(createErrorEntry(provider, url, error, content))
+            result.invalid_wms.push(createErrorEntry(provider, url, error as Error, content))
         }
     }
 
     return isProviderMapValid
 }
 
-async function handleWmts(provider, content, result) {
+async function handleWmts(provider: string, content: string, result: any): Promise<boolean> {
     let isProviderGetTileValid = true
-    const capabilities = parseWmtsCapabilities(content, provider)
+    const capabilities = parseWmtsCapabilities(content, new URL(provider)) as any
     const layers = capabilities.getAllExternalLayerObjects(
         LV95,
         1, // opacity
@@ -175,46 +181,48 @@ async function handleWmts(provider, content, result) {
 
     // Find the default value for each dimension
     const placeHolderParams =
-        exampleLayer[dimensionKey]?.reduce((acc, curr) => {
+        dimensionKey && exampleLayer[dimensionKey]?.reduce((acc: any, curr: any) => {
             // Find the key for the default value
             const defaultKey = Object.keys(curr).find((key) => key.toLowerCase() === 'default')
             // Find the key for the identifier
             const identifierKey = Object.keys(curr).find(
                 (key) => key.toLowerCase() === 'identifier' || key.toLowerCase() === 'id'
             )
-            if (curr[defaultKey]) {
+            if (defaultKey && identifierKey && curr[defaultKey]) {
                 acc[curr[identifierKey]] = curr[defaultKey]
             }
             return acc
         }, params) || params
 
-    let getTileUrl
+    let getTileUrl: string | undefined
     try {
         getTileUrl = replaceUrlPlaceholders(getTileUrlWithPlaceholders, placeHolderParams)
-        const { response, redirectHeaders } = await fetchMapTile(getTileUrl, provider)
-        isProviderGetTileValid = await checkProviderResponse(
-            provider,
-            getTileUrl,
-            response,
-            result,
-            redirectHeaders,
-            checkProviderResponseContentGetMap
-        )
+        if (getTileUrl) {
+            const { response, redirectHeaders } = await fetchMapTile(getTileUrl, provider)
+            isProviderGetTileValid = await checkProviderResponse(
+                provider,
+                getTileUrl,
+                response,
+                result,
+                redirectHeaders,
+                checkProviderResponseContentGetMap
+            )
+        }
     } catch (error) {
         isProviderGetTileValid = false
-        result.invalid_wmts.push(createErrorEntry(provider, getTileUrl, error, content))
+        result.invalid_wmts.push(createErrorEntry(provider, getTileUrl || '', error as Error, content))
     }
 
     return isProviderGetTileValid
 }
 
-async function fetchMapTile(url, provider) {
-    let redirectHeaders = []
+async function fetchMapTile(url: string, provider: string): Promise<any> {
+    const redirectHeaders: any[] = []
     const response = await axios.get(url, {
         headers: requestHeaders,
         timeout: EXTERNAL_SERVER_TIMEOUT,
         responseType: 'arraybuffer',
-        beforeRedirect: (options_, response) => {
+        beforeRedirect: (options_: any, response: any) => {
             redirectHeaders.push(response.headers)
         },
     })
@@ -225,10 +233,10 @@ async function fetchMapTile(url, provider) {
         )
     }
 
-    return { response, redirectHeaders }
+    return { response, responseGetMap: response, redirectHeaders }
 }
 
-function createErrorEntry(provider, url, error, content) {
+function createErrorEntry(provider: string, url: string, error: Error, content: string): any {
     return {
         provider,
         url,
@@ -239,18 +247,13 @@ function createErrorEntry(provider, url, error, content) {
 
 /**
  * Replace placeholders in a URL template with values from a params object
- *
- * @param {string} urlTemplate URL template with placeholders
- * @param {Object} params Object with placeholder values
- * @returns {string} URL with placeholders replaced
- * @throws {Error} If a placeholder is missing in the params object
  */
-function replaceUrlPlaceholders(urlTemplate, params) {
-    const normalizedParams = Object.entries(params).reduce((acc, [key, _]) => {
+function replaceUrlPlaceholders(urlTemplate: string, params: any): string {
+    const normalizedParams = Object.entries(params).reduce((acc: any, [key, _]) => {
         acc[key.toLowerCase()] = params[key]
         return acc
     }, {})
-    return urlTemplate.replace(/{(\w+)}/g, (_, key) => {
+    return urlTemplate.replace(/{(\w+)}/g, (_: any, key: string) => {
         const lowerKey = key.toLowerCase()
 
         if (normalizedParams.hasOwnProperty(lowerKey)) {
@@ -263,11 +266,8 @@ function replaceUrlPlaceholders(urlTemplate, params) {
 
 /**
  * Find the first leaf layer in a layer tree
- *
- * @param {Array} layers Array of layers
- * @returns {Object} First leaf layer
  */
-function findFirstLeaf(layers) {
+function findFirstLeaf(layers: any[]): any {
     if (!layers || layers.length === 0) {
         return null
     }
@@ -285,21 +285,21 @@ function findFirstLeaf(layers) {
     return null
 }
 
-async function checkProvider(provider, result) {
+async function checkProvider(provider: string, result: any): Promise<void> {
     const url = guessExternalLayerUrl(provider, 'en').toString()
-    let capabilitiesResponse
-    const redirectHeaders = []
+    let capabilitiesResponse: any
+    const redirectHeaders: any[] = []
     try {
         capabilitiesResponse = await axios.get(url, {
             headers: requestHeaders,
-            beforeRedirect: (options_, response) => {
+            beforeRedirect: (options_: any, response: any) => {
                 redirectHeaders.push(response.headers)
             },
             timeout: EXTERNAL_SERVER_TIMEOUT,
         })
     } catch (error) {
         if (error instanceof AxiosError) {
-            console.error(`Provider ${provider} is not accessible: ${error}`)
+            console.error(`Provider ${provider} is not accessible: ${error.message}`)
             result.invalid_providers.push({
                 provider,
                 url,
@@ -332,13 +332,13 @@ async function checkProvider(provider, result) {
 }
 
 async function checkProviderResponse(
-    provider,
-    url,
-    response,
-    result,
-    redirectHeaders,
-    checkContentFnc
-) {
+    provider: string,
+    url: string,
+    response: any,
+    result: any,
+    redirectHeaders: any[],
+    checkContentFnc: any
+): Promise<boolean> {
     if (![200, 201].includes(response.status)) {
         console.error(`Provider ${provider} is not valid: status=${response.status}`)
         result.invalid_providers.push({
@@ -346,7 +346,7 @@ async function checkProviderResponse(
             url: url,
             status: response.status,
         })
-    } else if (!response.headers.has('access-control-allow-origin')) {
+    } else if (!response.headers.hasOwnProperty('access-control-allow-origin')) {
         console.error(
             `Provider ${provider} does not support CORS: status=${response.status}, ` +
                 `missing access-control-allow-origin header`
@@ -355,7 +355,7 @@ async function checkProviderResponse(
             provider: provider,
             url: url,
             status: response.status,
-            headers: response.headers.toJSON(),
+            headers: response.headers,
         })
     } else if (redirectHeaders.some((header) => !header['access-control-allow-origin'])) {
         console.error(
@@ -371,19 +371,19 @@ async function checkProviderResponse(
         })
     } else if (
         !['*', 'https://map.geo.admin.ch'].includes(
-            response.headers.get('access-control-allow-origin').toString()?.trim()
+            response.headers['access-control-allow-origin']?.toString()?.trim()
         )
     ) {
         console.error(
             `Provider ${provider} does not have geoadmin in its CORS: status=${
                 response.status
-            }, Access-Control-Allow-Origin=${response.headers.get('access-control-allow-origin')}`
+            }, Access-Control-Allow-Origin=${response.headers['access-control-allow-origin']}`
         )
         result.invalid_cors.push({
             provider: provider,
             url: url,
             status: response.status,
-            headers: response.headers.toJSON(),
+            headers: response.headers,
         })
     } else if (await checkContentFnc(provider, url, response, result)) {
         console.log(`Provider ${provider} is OK`)
@@ -392,15 +392,15 @@ async function checkProviderResponse(
     return false
 }
 
-function checkProviderResponseContent(provider, url, response, result) {
+function checkProviderResponseContent(provider: string, url: string, response: any, result: any): boolean {
     const content = response.data
-    const parseCapabilities = (isCapFn, parseFn, type, result, resultArray) => {
+    const parseCapabilities = (isCapFn: any, parseFn: any, type: string, result: any, resultArray: string): boolean => {
         if (!isCapFn(content)) {
             return false
         }
 
         try {
-            const capabilities = parseFn(content, url)
+            const capabilities = parseFn(content, new URL(url))
             const layers = capabilities.getAllExternalLayerObjects(
                 LV95,
                 1, // opacity
@@ -412,11 +412,11 @@ function checkProviderResponseContent(provider, url, response, result) {
                 throw new Error(`No valid ${type} layers found`)
             }
         } catch (error) {
-            console.error(`Invalid provider ${provider}, ${type} get Cap parsing failed: ${error}`)
+            console.error(`Invalid provider ${provider}, ${type} get Cap parsing failed: ${String(error)}`)
             result[resultArray].push({
                 provider,
                 url,
-                error: `${error}`,
+                error: `${String(error)}`,
                 content: content.slice(0, SIZE_OF_CONTENT_DISPLAY),
             })
             return false
@@ -434,12 +434,13 @@ function checkProviderResponseContent(provider, url, response, result) {
     result.invalid_content.push({
         provider,
         url,
+        error: 'file type not recognized',
         content: content.slice(0, SIZE_OF_CONTENT_DISPLAY),
     })
     return false
 }
 
-async function checkProviderResponseContentGetMap(provider, url, response, result) {
+async function checkProviderResponseContentGetMap(provider: string, url: string, response: any, result: any): Promise<boolean> {
     const content = Buffer.from(response.data)
     let isValid = false
     try {
@@ -449,21 +450,21 @@ async function checkProviderResponseContentGetMap(provider, url, response, resul
     } catch (error) {
         if (isWmsUrl(url)) {
             console.error(
-                `Invalid provider ${provider}, WMS get Map content parsing failed: ${error}`
+                `Invalid provider ${provider}, WMS get Map content parsing failed: ${String(error)}`
             )
             result.invalid_wms.push({
                 provider: provider,
                 url: url,
-                error: `${error}`,
+                error: `${String(error)}`,
             })
         } else if (isWmtsUrl(url)) {
             console.error(
-                `Invalid provider ${provider}, WMTS get Tiles content parsing failed: ${error}`
+                `Invalid provider ${provider}, WMTS get Tiles content parsing failed: ${String(error)}`
             )
             result.invalid_wmts.push({
                 provider: provider,
                 url: url,
-                error: `${error}`,
+                error: `${String(error)}`,
             })
         }
     }
@@ -471,11 +472,11 @@ async function checkProviderResponseContentGetMap(provider, url, response, resul
     return isValid
 }
 
-async function checkProviders(providers, result) {
+async function checkProviders(providers: string[], result: any): Promise<void[]> {
     return Promise.all(providers.map(async (provider) => checkProvider(provider, result)))
 }
 
-async function writeResult(result) {
+async function writeResult(result: any): Promise<void[]> {
     const resultsFolder = 'scripts/check-layer-providers-results'
     let prefix = ''
     if (options.datetime) {
@@ -513,7 +514,7 @@ async function writeResult(result) {
     ])
 }
 
-async function main() {
+async function main(): Promise<void> {
     const result = {
         valid_providers: [],
         invalid_providers: [],
@@ -524,11 +525,11 @@ async function main() {
     }
     setupAxiosRetry()
 
-    let providers = []
+    let providers: string[] = []
     if (options.url) {
         providers = [options.url]
     } else {
-        providers = JSON.parse(await fs.readFile(options.input, { encoding: 'utf-8' }))
+        providers = JSON.parse(await fs.readFile(options.input, { encoding: 'utf-8' })) as string[]
     }
 
     await checkProviders(providers, result)
@@ -541,9 +542,8 @@ async function main() {
             } where invalids and ${result.invalid_cors.length} don't support CORS`
         )
     } catch (error) {
-        console.error(`Failed to write results: ${error}`)
+        console.error(`Failed to write results: ${String(error)}`)
     }
-    return
 }
 
-main().then(() => exit())
+void main().then(() => exit())

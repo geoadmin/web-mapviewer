@@ -8,7 +8,7 @@
         "build:int": "pnpm run build --mode integration",
         "build:prod": "pnpm run build --mode production",
         "build:test": "pnpm run build --mode test",
-        "check:external": "pnpx vite-node scripts/check-external-layers-providers.js",
+        "check:external": "pnpx vite-node scripts/check-external-layers-providers.ts",
         "delete:reports": "rimraf tests/results/ || true",
         "delete:reports:unit": "rimraf tests/results/unit/ || true",
         "dev": "vite --port 8080 --host --cors",
