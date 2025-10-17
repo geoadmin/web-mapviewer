@@ -182,6 +182,10 @@ export const jsConfig: FlatConfig.ConfigArray = [
                 'error',
                 { type: 'alphabetical', internalPattern: ['^@/.*'] },
             ],
+            // Enforce consistent brace style for all control statements
+            'curly': ['error', 'all'],
+            // Enforce opening brace on same line and closing brace on new line
+            'brace-style': ['error', '1tbs', { allowSingleLine: false }],
             ...noUnusedVarsRules,
         },
     },
@@ -219,6 +223,10 @@ const defaultConfig: FlatConfig.ConfigArray = tsESLint.config(
                 'error',
                 { type: 'alphabetical', internalPattern: ['^@/.*'] },
             ],
+            // Enforce consistent brace style for all control statements
+            'curly': ['error', 'all'],
+            // Enforce opening brace on same line and closing brace on new line
+            'brace-style': ['error', '1tbs', { allowSingleLine: false }],
         },
     },
     // we have to declare that AFTER the TS specifics, our unit test rules from the JS config are otherwise ignored (when the tests are written in TS)
