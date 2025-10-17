@@ -1,8 +1,9 @@
 import { resolve } from 'path'
 import dts from 'unplugin-dts/vite'
 import { fileURLToPath, URL } from 'url'
+import { defineConfig } from 'vite'
 
-export default {
+export default defineConfig({
     build: {
         lib: {
             entry: [resolve(__dirname, 'src/index.ts')],
@@ -24,4 +25,4 @@ export default {
             bundleTypes: true,
         }),
     ],
-}
+})

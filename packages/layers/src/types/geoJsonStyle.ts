@@ -76,7 +76,9 @@ export type GeoAdminGeoJSONVectorOptions =
     | GeoAdminGeoJSONVectorOptionsWithRadius
     | GeoAdminGeoJSONVectorOptionsFinite
 
-export type GeoAdminGeoJSONStyleType = 'single' | 'unique' | 'range' | 'point'
+export type GeoAdminGeoJSONStyleType = 'single' | 'unique' | 'range'
+
+export type GeoAdminGeoJSONGeometryType = 'point' | 'line' | 'polygon'
 
 export interface GeoAdminGeoJSONStyle<Type extends GeoAdminGeoJSONStyleType> {
     type: Type
@@ -85,7 +87,7 @@ export interface GeoAdminGeoJSONStyle<Type extends GeoAdminGeoJSONStyleType> {
 }
 
 interface CommonRangeDefinition {
-    geomType: GeoAdminGeoJSONStyleType
+    geomType: GeoAdminGeoJSONGeometryType
     minResolution?: number
     maxResolution?: number
     vectorOptions?: GeoAdminGeoJSONVectorOptions
