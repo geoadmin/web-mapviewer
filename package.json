@@ -27,13 +27,15 @@
         "test:e2e:headless": "pnpm --filter=web-mapviewer run test:e2e:headless",
         "test:unit": "pnpm run --recursive --parallel --no-bail --if-present test:unit",
         "test:unit:watch": "pnpm run --recursive --if-present  test:unit:watch",
-        "update:workspace": "node ./scripts/update-pnpm-workspace.js"
+        "update:workspace": "tsx ./scripts/update-pnpm-workspace.ts"
     },
     "engines": {
         "node": ">=22.18",
         "pnpm": ">=10.15"
     },
     "devDependencies": {
+        "@types/node": "catalog:",
+        "tsx": "catalog:",
         "yaml": "catalog:"
     },
     "pnpm": {
