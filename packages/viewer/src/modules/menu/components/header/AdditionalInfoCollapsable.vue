@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { ref } from 'vue'
 
@@ -23,11 +23,11 @@ const isOpen = ref(false)
         <!-- Collapsible Menu Items -->
         <div
             v-if="isOpen"
-            class="d-flex flex-column-reverse shadow-lg position-absolute z-menu-1 background bg-white"
+            class="d-flex flex-column-reverse position-absolute z-menu-1 background bg-white shadow-lg"
             data-cy="news-menu"
         >
-            <MoreInfo class="darken-on-hover collapsable-menu-element p-1 px-2 rounded-0" />
-            <UpdateInfo class="darken-on-hover collapsable-menu-element p-1 px-2 rounded-0" />
+            <MoreInfo class="darken-on-hover collapsable-menu-element rounded-0 p-1 px-2" />
+            <UpdateInfo class="darken-on-hover collapsable-menu-element rounded-0 p-1 px-2" />
         </div>
     </div>
 </template>

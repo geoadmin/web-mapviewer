@@ -1,7 +1,10 @@
+import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
+import type { CloudOptimizedGeoTIFFLayer } from '@swissgeo/layers'
+
 import { allCoordinateSystems, extentUtils } from '@swissgeo/coordinates'
+import { layerUtils } from '@swissgeo/layers/utils'
 import { fromBlob, fromUrl } from 'geotiff'
 
-import CloudOptimizedGeoTIFFLayer from '@/api/layers/CloudOptimizedGeoTIFFLayer.class'
 import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
 import UnknownProjectionError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/UnknownProjectionError.error'
@@ -33,7 +36,11 @@ export class CloudOptimizedGeoTIFFParser extends FileParser {
         })
     }
 
-    async parseFileContent(fileContent, fileSource, currentProjection) {
+    async parseFileContent(
+        _fileContent: ArrayBuffer | undefined,
+        fileSource: File | string,
+        currentProjection: CoordinateSystem
+    ): Promise<CloudOptimizedGeoTIFFLayer> {
         let geoTIFFInstance
         if (this.isLocalFile(fileSource)) {
             geoTIFFInstance = await fromBlob(fileSource)
@@ -61,20 +68,24 @@ export class CloudOptimizedGeoTIFFParser extends FileParser {
         }
         const cogExtent = firstImage.getBoundingBox()
         const intersection = extentUtils.getExtentIntersectionWithCurrentProjection(
-            cogExtent,
+            cogExtent as FlatExtent,
             cogProjection,
             currentProjection
         )
         if (!intersection) {
-            throw new OutOfBoundsError(`COG is out of bounds of current projection: ${cogExtent}`)
+            throw new OutOfBoundsError(`COG is out of bounds of current projection: ${cogExtent.toString()}`)
         }
-        return new CloudOptimizedGeoTIFFLayer({
-            fileSource: this.isLocalFile(fileSource) ? fileSource.name : fileSource,
-            visible: true,
+
+        const fileUrl = this.isLocalFile(fileSource) ? fileSource.name : fileSource
+
+        const cogLayer: CloudOptimizedGeoTIFFLayer = layerUtils.makeCloudOptimizedGeoTIFFLayer({
             opacity: 1.0,
-            data: fileSource,
-            noDataValue: firstImage.getGDALNoData(),
+            isVisible: true,
             extent: extentUtils.flattenExtent(intersection),
+            fileSource: fileUrl,
+            data: fileSource
         })
+
+        return cogLayer
     }
 }

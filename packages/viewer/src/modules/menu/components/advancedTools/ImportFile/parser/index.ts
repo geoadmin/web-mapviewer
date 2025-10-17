@@ -1,8 +1,14 @@
+import type { CoordinateSystem } from '@swissgeo/coordinates'
+import type { Layer } from '@swissgeo/layers'
+
 import log from '@swissgeo/log'
+
+import type {
+    ParseOptions,
+} from '@/modules/menu/components/advancedTools/ImportFile/parser/types'
 
 import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api'
 import { checkOnlineFileCompliance, getFileContentFromUrl } from '@/api/files.api'
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import { CloudOptimizedGeoTIFFParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/CloudOptimizedGeoTIFFParser.class'
 import GPXParser from '@/modules/menu/components/advancedTools/ImportFile/parser/GPXParser.class'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
@@ -15,27 +21,25 @@ const allParsers = [
     new GPXParser(),
 ]
 
-/**
- * @param {Object} config
- * @param {File | String} config.fileSource
- * @param {CoordinateSystem} config.currentProjection
- * @param {Object} [options]
- * @param {OnlineFileCompliance} [options.fileCompliance]
- * @param {ArrayBuffer} [options.loadedContent]
- * @returns {Promise<AbstractLayer>}
- */
-async function parseAll(config, options) {
+interface ParseAllConfig {
+    fileSource: File | string
+    currentProjection: CoordinateSystem
+}
+
+async function parseAll(config: ParseAllConfig, options?: ParseOptions): Promise<Layer> {
     const allSettled = await Promise.allSettled(
         allParsers.map((parser) => parser.parse(config, options))
     )
     const firstFulfilled = allSettled.find(
-        (response) => response.status === 'fulfilled' && response.value instanceof AbstractLayer
+        (response): response is PromiseFulfilledResult<Layer> =>
+            response.status === 'fulfilled' && response.value !== undefined
     )
     if (firstFulfilled) {
         return firstFulfilled.value
     }
     const anyErrorRaised = allSettled.find(
-        (response) => response.status === 'rejected' && response.reason
+        (response): response is PromiseRejectedResult =>
+            response.status === 'rejected' && response.reason
     )
     if (anyErrorRaised) {
         throw anyErrorRaised.reason
@@ -44,12 +48,14 @@ async function parseAll(config, options) {
 }
 
 /**
- * @param {File | String} fileSource
- * @param {CoordinateSystem} currentProjection Can be used to check bounds of parsed file against
+ * @param fileSource
+ * @param currentProjection Can be used to check bounds of parsed file against
  *   the current projection (and raise OutOfBoundError in case no mutual data is available)
- * @returns {Promise<AbstractLayer>}
  */
-export async function parseLayerFromFile(fileSource, currentProjection) {
+export async function parseLayerFromFile(
+    fileSource: File | string,
+    currentProjection: CoordinateSystem
+): Promise<Layer> {
     // if local file, just parse it
     if (fileSource instanceof File) {
         return await parseAll({
@@ -92,7 +98,7 @@ export async function parseLayerFromFile(fileSource, currentProjection) {
             '[FileParser][parseLayerFromFile] no MIME type match, loading file content for',
             fileSource
         )
-        let loadedContent = null
+        let loadedContent: ArrayBuffer | undefined = undefined
         if (supportsCORS && supportsHTTPS) {
             loadedContent = await getFileContentFromUrl(fileSource)
         } else {
@@ -109,11 +115,13 @@ export async function parseLayerFromFile(fileSource, currentProjection) {
             }
         )
     } catch (error) {
-        log.error(
-            '[FileParser][parseLayerFromFile] could not get content for file',
-            fileSource,
-            error
-        )
+        log.error({
+            title: '[FileParser][parseLayerFromFile]',
+            message: [
+                `could not get content for file ${fileSource}`,
+                error instanceof Error ? error.message : String(error),
+            ],
+        })
         throw error
     }
 }

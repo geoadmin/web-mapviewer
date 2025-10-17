@@ -1,19 +1,27 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { MAP_VIEWS } from '@/router/viewNames.js'
+import log from '@swissgeo/log'
 
 const router = useRouter()
 
 const views = MAP_VIEWS
 const currentView = computed(() => router.currentRoute.value.name)
 
-function onRouteChange(routeName) {
-    router.push({
-        name: routeName,
-        replace: true,
-    })
+function onRouteChange(routeName: string) {
+    router
+        .push({
+            name: routeName,
+            replace: true,
+        })
+        .catch((error) => {
+            log.error({
+                title: 'DebugViewSelector.vue',
+                message: ['Failed to change view', error],
+            })
+        })
 }
 </script>
 

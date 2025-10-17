@@ -1,59 +1,62 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import log from '@swissgeo/log'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-const { inputText, small, copyText, copiedText, labelText, hasWarning } = defineProps({
-    inputText: {
-        type: String,
-        default: null,
-    },
-    small: {
-        type: Boolean,
-        default: true,
-    },
-    copyText: {
-        type: String,
-        default: 'copy_cta',
-    },
-    copiedText: {
-        type: String,
-        default: 'copy_done',
-    },
-    labelText: {
-        type: String,
-        default: null,
-    },
-    hasWarning: {
-        type: Boolean,
-        default: false,
-    },
-})
+const {
+    inputText,
+    small = true,
+    copyText = 'copy_cta',
+    copiedText = 'copy_done',
+    labelText,
+    hasWarning = false,
+} = defineProps<{
+    inputText?: string
+    small?: boolean
+    copyText?: string
+    copiedText?: string
+    labelText?: string
+    hasWarning?: boolean
+}>()
 
 const copiedInClipboard = ref(false)
-const timeoutCopied = ref(null)
+let timeoutCopied: ReturnType<typeof setTimeout> | undefined
 
 const { t } = useI18n()
 
 const buttonText = computed(() => {
-    return t(copiedInClipboard.value ? copiedText : copyText).replace('&nbsp;', '\xa0')
+    return t(
+        copiedInClipboard.value ? (copiedText ?? 'copy_done') : (copyText ?? 'copy_cta')
+    ).replace('&nbsp;', '\xa0')
 })
 
 const clearIsCopiedInClipboard = () => {
     copiedInClipboard.value = false
-    clearTimeout(timeoutCopied.value)
+    if (timeoutCopied) {
+        clearTimeout(timeoutCopied)
+    }
 }
 
 const copyInputToClipboard = () => {
-    navigator.clipboard.writeText(inputText)
-    copiedInClipboard.value = true
-    timeoutCopied.value = setTimeout(clearIsCopiedInClipboard, 2500)
+    if (inputText) {
+        navigator.clipboard.writeText(inputText).catch((error) => {
+            log.error({
+                title: 'MenuShareInputCopyButton.vue',
+                message: ['Failed to copy text to clipboard', error],
+            })
+        })
+        copiedInClipboard.value = true
+        timeoutCopied = setTimeout(clearIsCopiedInClipboard, 2500)
+    }
 }
 
 watch(() => inputText, clearIsCopiedInClipboard)
 
 onBeforeUnmount(() => {
-    clearTimeout(timeoutCopied.value)
+    if (timeoutCopied) {
+        clearTimeout(timeoutCopied)
+    }
 })
 </script>
 
@@ -72,10 +75,10 @@ onBeforeUnmount(() => {
                     type="text"
                     class="form-control"
                     :class="{ 'border-warning': hasWarning }"
-                    readonly="readonly"
+                    readonly
                     :value="inputText"
                     data-cy="menu-share-input-copy-text"
-                    @focus="(event) => event.target.select()"
+                    @focus="(event) => (event.target as HTMLInputElement)?.select()"
                 />
                 <button
                     class="btn rounded-start-0"

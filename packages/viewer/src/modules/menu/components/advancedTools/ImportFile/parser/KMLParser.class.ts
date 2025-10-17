@@ -1,7 +1,10 @@
+import type { CoordinateSystem } from '@swissgeo/coordinates'
+import type { KMLLayer } from '@swissgeo/layers'
+
 import { extentUtils, WGS84 } from '@swissgeo/coordinates'
+import { layerUtils } from '@swissgeo/layers/utils'
 import { WarningMessage } from '@swissgeo/log/Message'
 
-import KMLLayer from '@/api/layers/KMLLayer.class'
 import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'
 import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
@@ -23,15 +26,17 @@ export class KMLParser extends FileParser {
     }
 
     /**
-     * @param {ArrayBuffer} fileContent
-     * @param {String | File} fileSource
-     * @param currentProjection
-     * @param {Map<string, ArrayBuffer>} [linkFiles] Used in the context of a KMZ to carry the
+     * @param linkFiles Used in the context of a KMZ to carry the
      *   embedded files with the layer
-     * @returns {Promise<KMLLayer>}
      */
-    async parseFileContent(fileContent, fileSource, currentProjection, linkFiles = new Map()) {
-        if (!isKml(fileContent)) {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async parseFileContent(
+        fileContent: ArrayBuffer | undefined,
+        fileSource: string | File,
+        currentProjection: CoordinateSystem,
+        linkFiles: Map<string, ArrayBuffer> = new Map()
+    ): Promise<KMLLayer> {
+        if (!fileContent || !isKml(fileContent)) {
             throw new InvalidFileContentError('No KML data found in this file')
         }
         const kmlAsText = new TextDecoder('utf-8').decode(fileContent)
@@ -45,26 +50,33 @@ export class KMLParser extends FileParser {
             currentProjection
         )
         if (!extentInCurrentProjection) {
-            throw new OutOfBoundsError(`KML is out of bounds of current projection: ${extent}`)
+            throw new OutOfBoundsError(`KML is out of bounds of current projection: ${extent.toString()}`)
         }
-        const kmlLayer = new KMLLayer({
-            kmlFileUrl: this.isLocalFile(fileSource) ? fileSource.name : fileSource,
-            visible: true,
-            opacity: 1.0,
-            adminId: null,
-            kmlData: kmlAsText,
-            extent: extentInCurrentProjection,
-            extentProjection: currentProjection,
-            linkFiles,
+
+        const kmlFileUrl = this.isLocalFile(fileSource) ? fileSource.name : fileSource
+        const internalFiles: Record<string, ArrayBuffer> = {}
+        linkFiles.forEach((value, key) => {
+            internalFiles[key] = value
         })
 
+        const warningMessages: WarningMessage[] = []
         if (!isKmlFeaturesValid(kmlAsText)) {
-            kmlLayer.addWarningMessage(
+            warningMessages.push(
                 new WarningMessage('kml_malformed', {
-                    filename: kmlLayer.name ?? kmlLayer.id,
+                    filename: kmlFileUrl,
                 })
             )
         }
+
+        const kmlLayer: KMLLayer = layerUtils.makeKMLLayer({
+            opacity: 1.0,
+            isVisible: true,
+            extent: extentInCurrentProjection,
+            kmlFileUrl,
+            kmlData: kmlAsText,
+            extentProjection: currentProjection,
+        })
+
         return kmlLayer
     }
 }

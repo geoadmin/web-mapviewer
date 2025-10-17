@@ -34,7 +34,9 @@ onMounted(() => {
 })
 
 function toggleToast(): void {
-    if (!deviceOrientationToast.value) return
+    if (!deviceOrientationToast.value) {
+        return
+    }
 
     if (isToastActive.value) {
         deviceOrientationToast.value.hide()

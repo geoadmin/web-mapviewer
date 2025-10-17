@@ -1,6 +1,8 @@
 /** Coordinates or extent out of bounds error */
 export default class OutOfBoundsError extends Error {
-    constructor(message, messageKey) {
+    messageKey?: string
+
+    constructor(message: string, messageKey?: string) {
         super(message)
         this.name = 'OutOfBoundsError'
         this.messageKey = messageKey

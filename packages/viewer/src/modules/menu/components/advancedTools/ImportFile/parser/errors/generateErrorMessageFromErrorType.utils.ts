@@ -8,11 +8,8 @@ import UnknownProjectionError from '@/modules/menu/components/advancedTools/Impo
 /**
  * Generates an error message from the type of error received from a FileParser (or the parseAll
  * function).
- *
- * @param {Error} error An error raised by a FileParser, or the parseAll
- * @returns {ErrorMessage}
  */
-export default function generateErrorMessageFromErrorType(error) {
+export default function generateErrorMessageFromErrorType(error: Error): ErrorMessage {
     if (error instanceof AxiosError || /fetch/.test(error.message)) {
         return new ErrorMessage('loading_error_network_failure')
     } else if (error instanceof OutOfBoundsError) {

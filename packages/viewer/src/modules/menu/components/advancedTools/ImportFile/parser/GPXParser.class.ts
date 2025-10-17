@@ -1,7 +1,10 @@
+import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
+import type { GPXLayer } from '@swissgeo/layers'
+
 import { extentUtils, WGS84 } from '@swissgeo/coordinates'
+import { layerUtils } from '@swissgeo/layers/utils'
 import GPX from 'ol/format/GPX'
 
-import GPXLayer from '@/api/layers/GPXLayer.class'
 import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'
 import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
@@ -10,11 +13,8 @@ import { getGpxExtent } from '@/utils/gpxUtils'
 
 /**
  * Checks if file is GPX
- *
- * @param {ArrayBuffer} fileContent
- * @returns {boolean}
  */
-export function isGpx(fileContent) {
+export function isGpx(fileContent: ArrayBuffer): boolean {
     const stringValue = new TextDecoder('utf-8').decode(fileContent)
     return /<gpx/.test(stringValue) && /<\/gpx\s*>/.test(stringValue)
 }
@@ -31,8 +31,13 @@ export default class GPXParser extends FileParser {
         })
     }
 
-    async parseFileContent(fileContent, fileSource, currentProjection) {
-        if (!isGpx(fileContent)) {
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async parseFileContent(
+        fileContent: ArrayBuffer | undefined,
+        fileSource: File | string,
+        currentProjection: CoordinateSystem
+    ): Promise<GPXLayer> {
+        if (!fileContent || !isGpx(fileContent)) {
             throw new InvalidFileContentError()
         }
         const gpxAsText = new TextDecoder('utf-8').decode(fileContent)
@@ -46,16 +51,25 @@ export default class GPXParser extends FileParser {
             currentProjection
         )
         if (!extentInCurrentProjection) {
-            throw new OutOfBoundsError(`GPX is out of bounds of current projection: ${extent}`)
+            throw new OutOfBoundsError(`GPX is out of bounds of current projection: ${extent.toString()}`)
         }
-        return new GPXLayer({
-            gpxFileUrl: this.isLocalFile(fileSource) ? fileSource.name : fileSource,
-            visible: true,
+
+        const olGpxMetadata = (gpxMetadataParser.readMetadata(gpxAsText) ?? undefined)
+        const gpxMetadata = olGpxMetadata ? {
+            ...olGpxMetadata,
+            bounds: olGpxMetadata.bounds && olGpxMetadata.bounds.length === 4
+                ? olGpxMetadata.bounds as FlatExtent
+                : undefined
+        } : undefined
+
+        const gpxLayer: GPXLayer = layerUtils.makeGPXLayer({
             opacity: 1.0,
-            gpxData: gpxAsText,
-            gpxMetadata: gpxMetadataParser.readMetadata(gpxAsText),
+            isVisible: true,
             extent: extentInCurrentProjection,
-            extentProjection: currentProjection,
+            gpxData: gpxAsText,
+            gpxMetadata,
         })
+
+        return gpxLayer
     }
 }
