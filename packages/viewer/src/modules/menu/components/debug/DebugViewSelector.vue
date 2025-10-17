@@ -18,8 +18,8 @@ function onRouteChange(routeName: string) {
         })
         .catch((error) => {
             log.error({
-                title: 'Failed to change view',
-                message: [error instanceof Error ? error.message : String(error)],
+                title: 'DebugViewSelector.vue',
+                message: ['Failed to change view', error],
             })
         })
 }

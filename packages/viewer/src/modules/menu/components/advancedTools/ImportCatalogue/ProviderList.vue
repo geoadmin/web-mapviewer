@@ -149,7 +149,9 @@ function assignTabIndex(node: ProviderTreeNode, startIndex: number): number {
 watch(
     () => groupedProviders,
     (newGroupedProviders) => {
-        if (!newGroupedProviders) return
+        if (!newGroupedProviders) {
+            return
+        }
         treeData.length = 0 // Clear the existing treeData
         Object.entries(newGroupedProviders).forEach(([baseUrl, providers]) => {
             treeData.push(buildTreeNode(baseUrl, providers))

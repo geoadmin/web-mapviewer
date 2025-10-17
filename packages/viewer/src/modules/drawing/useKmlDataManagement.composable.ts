@@ -61,7 +61,7 @@ export default function useKmlDataManagement(
     const savesInProgress = ref<Promise<unknown>[]>([])
 
     function addKmlToDrawing(retryOnError = true) {
-        if (!drawingLayer) return
+        if (!drawingLayer) { return }
         if (addKmlLayerTimeout) {
             clearTimeout(addKmlLayerTimeout)
             addKmlLayerTimeout = null
@@ -120,7 +120,7 @@ export default function useKmlDataManagement(
     }
 
     async function saveDrawing({ retryOnError = true }: { retryOnError?: boolean }) {
-        if (!drawingLayer) return
+        if (!drawingLayer) { return }
         try {
             log.debug(
                 `Save drawing retryOnError ${retryOnError}, differSaveDrawing=${!!differSaveDrawingTimeout}`

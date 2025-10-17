@@ -90,7 +90,7 @@ export default abstract class FileParser {
             this.fileTypeLittleEndianSignature.every((signature) => signature.length === 4)
         ) {
             const littleEndianSignature = new Uint8Array(fileArrayBuffer.slice(0, 4))
-            return !!this.fileTypeLittleEndianSignature.find((signature) =>
+            return this.fileTypeLittleEndianSignature.some((signature) =>
                 signature.every((byte, index) => byte === littleEndianSignature[index])
             )
         }
@@ -160,8 +160,9 @@ export default abstract class FileParser {
                     log.error({
                         title: `[FileParser][${this.constructor.name}]`,
                         message: [
-                            `Could not load file content for ${fileUrl}`,
-                            error instanceof Error ? error.message : String(error),
+                            'Could not load file content for',
+                            fileUrl,
+                            error,
                         ],
                     })
                 }
@@ -170,9 +171,9 @@ export default abstract class FileParser {
             log.warn({
                 title: `[FileParser][${this.constructor.name}]`,
                 message: [
-                    `HEAD request failed, could not parse ${fileUrl}`,
-                    this.constructor.name,
-                    error instanceof Error ? error.message : String(error),
+                    'HEAD request failed, could not parse',
+                    fileUrl,
+                    error,
                 ],
             })
         }

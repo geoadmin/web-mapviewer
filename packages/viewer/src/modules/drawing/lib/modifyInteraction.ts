@@ -1325,7 +1325,7 @@ export default class Modify extends PointerInteraction {
         const segments =
             this.subsegmentsFunction?.(segmentData.feature, index, viewExtent) ??
             [segmentData.segment]
-        if (!segments.length) return Infinity
+        if (!segments.length) { return Infinity }
         return segments
             .map((segment) => {
                 const tempSegment: Segment = [
@@ -1342,13 +1342,13 @@ export default class Modify extends PointerInteraction {
         segmentData: SegmentData,
         viewProjection: ProjectionLike,
         viewExtent?: Extent
-    ): Coordinate | null {
+    ): Coordinate | undefined {
         const coordinate = fromUserCoordinate(point, viewProjection)
         const index = segmentData.index ?? 0
         const segments =
             this.subsegmentsFunction?.(segmentData.feature, index, viewExtent!) ??
             [segmentData.segment]
-        if (!segments.length) return null
+        if (!segments.length) { return undefined }
         const closestIndex = segments
             .map((segment, i) => {
                 const tempSegment: Segment = [

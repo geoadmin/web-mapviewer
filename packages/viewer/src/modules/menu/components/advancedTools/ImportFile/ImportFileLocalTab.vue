@@ -42,8 +42,8 @@ async function loadFile() {
                 error instanceof Error ? error : new Error(String(error))
             )
             log.error({
-                title: 'Failed to load file',
-                message: [error instanceof Error ? error.message : String(error)],
+                title: 'ImportFileLocalTab.vue',
+                message: ['Failed to load file', error],
             })
         }
     }

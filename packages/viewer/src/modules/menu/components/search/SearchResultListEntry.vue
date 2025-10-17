@@ -56,12 +56,16 @@ function selectItem() {
 }
 
 function goToFirst() {
-    if (!item.value) return
+    if (!item.value) {
+        return
+    }
     ;(item.value.parentElement!.firstElementChild as HTMLLIElement)?.focus()
 }
 
 function goToPrevious() {
-    if (!item.value || !item.value.previousElementSibling) return
+    if (!item.value || !item.value.previousElementSibling) {
+        return
+    }
 
     if (item.value.previousElementSibling) {
         ;(item.value.previousElementSibling as HTMLLIElement).focus()
@@ -71,7 +75,9 @@ function goToPrevious() {
 }
 
 function goToNext() {
-    if (!item.value || !item.value.nextElementSibling) return
+    if (!item.value || !item.value.nextElementSibling) {
+        return
+    }
 
     if (item.value.nextElementSibling) {
         ;(item.value.nextElementSibling as HTMLLIElement).focus()
@@ -81,7 +87,9 @@ function goToNext() {
 }
 
 function goToLast() {
-    if (!item.value || !item.value.parentElement) return
+    if (!item.value || !item.value.parentElement) {
+        return
+    }
     ;(item.value.parentElement.lastElementChild as HTMLLIElement)?.focus()
 }
 

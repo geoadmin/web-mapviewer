@@ -1,7 +1,7 @@
-import type { ComputedRef, Ref } from 'vue'
+import type { ComputedRef, MaybeRef, Ref } from 'vue'
 
 import log from '@swissgeo/log'
-import { computed, ref } from 'vue'
+import { computed, ref, toRef } from 'vue'
 
 import providersJson from '@/modules/menu/components/advancedTools/ImportCatalogue/external-providers.json'
 
@@ -23,7 +23,7 @@ class Provider {
         } catch (e) {
             log.error({
                 title: 'Invalid URL',
-                message: [this.url, e instanceof Error ? e.message : String(e)],
+                message: [this.url, e],
             })
             return undefined
         }
@@ -57,8 +57,8 @@ interface UseProvidersReturn {
     filterText: ComputedRef<string>
 }
 
-export function useProviders(newUrl: string): UseProvidersReturn {
-    const url = ref(newUrl)
+export function useProviders(newUrl: MaybeRef<string>): UseProvidersReturn {
+    const url = toRef(newUrl)
     const allProviders = ref(new Providers(providersJson))
     const showProviders = ref(false)
 

@@ -16,7 +16,9 @@ describe('Topics', () => {
     }
 
     const checkThatActiveLayerFromTopicAreActive = (rawTopic: MockupTopicsConfig) => {
-        if (!rawTopic) return
+        if (!rawTopic) {
+            return
+        }
         cy.readStoreValue('state.layers.activeLayers').should((activeLayers: AbstractLayer[]) => {
             expect(activeLayers).to.be.an('Array')
             expect(activeLayers.length).to.eq(rawTopic.activatedLayers.length)

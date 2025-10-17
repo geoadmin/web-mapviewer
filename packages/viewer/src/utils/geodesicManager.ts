@@ -138,7 +138,7 @@ export class GeodesicGeometries {
         ) {
             throw new Error(
                 'This class only accepts Polygons (and Linestrings ' +
-                    'after initial drawing is finished)'
+                'after initial drawing is finished)'
             )
         }
         this._calculateEverything()
@@ -451,7 +451,7 @@ function coordNormalize(coord: number[] | CoordObject): number[] {
         coord = { lon: coord[0]!, lat: coord[1]! }
         return [geographicMath.AngNormalize(coord.lon), coord.lat]
     } else {
-         throw new Error('Invalid coordinate input: expected [lon, lat] array or CoordObject')
+        throw new Error('Invalid coordinate input: expected [lon, lat] array or CoordObject')
     }
 }
 
@@ -586,10 +586,10 @@ class MeasureStyles {
         return ratio <= 1
             ? this.styles
             : ratio <= 10
-              ? this.top100Styles
-              : ratio <= 100
-                ? this.top10Styles
-                : []
+                ? this.top100Styles
+                : ratio <= 100
+                    ? this.top10Styles
+                    : []
     }
 }
 
@@ -715,7 +715,9 @@ class AutoSplitArray {
                 if (this.lineStrNr === 1) {
                     /* The polygon goes through north or south pol. The coloring will be correct as
                     long as the shape is not too complex (no overlapping) */
-                    if (coords.length <= 1) return [coords]
+                    if (coords.length <= 1) {
+                        return [coords]
+                    }
                     const last = coords[coords.length - 1]!
                     // Drawing at 90deg breaks things, thats why we stop at 89
                     const lat = geographicMath.copysign(89, this.worldNr * geodesic.totalArea)

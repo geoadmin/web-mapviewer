@@ -1,4 +1,4 @@
-import type { CoordinateSystem } from '@swissgeo/coordinates'
+import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
 import type { GPXLayer } from '@swissgeo/layers'
 
 import { extentUtils, WGS84 } from '@swissgeo/coordinates'
@@ -58,7 +58,7 @@ export default class GPXParser extends FileParser {
         const gpxMetadata = olGpxMetadata ? {
             ...olGpxMetadata,
             bounds: olGpxMetadata.bounds && olGpxMetadata.bounds.length === 4
-                ? olGpxMetadata.bounds as [number, number, number, number]
+                ? olGpxMetadata.bounds as FlatExtent
                 : undefined
         } : undefined
 

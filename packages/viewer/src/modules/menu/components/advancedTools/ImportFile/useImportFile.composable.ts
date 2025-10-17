@@ -54,8 +54,8 @@ export default function useImportFile() {
                     if (!isLayerFullyInBound) {
                         layer.warningMessages = (layer.warningMessages ?? []).concat([
                             new WarningMessage(
-                                'Layer is out of bounds of current projection',
-                                { filename: `Layer extent: ${extent.toString()}` }
+                                'file_imported_partially_out_of_bounds',
+                                { filename: layer.name ?? layer.id }
                             ),
                         ])
                         layer.hasWarning = true
