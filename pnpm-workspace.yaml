@@ -6,7 +6,7 @@ catalog:
   '@4tw/cypress-drag-drop': ^2.3.1
   '@cypress/vite-dev-server': ^7.0.0
   '@cypress/vue': ^6.0.2
-  '@eslint/js': ^9.37.0
+  '@eslint/js': ^9.38.0
   '@eslint/markdown': ^7.4.0
   '@floating-ui/vue': ^1.1.9
   '@fontsource/noto-sans': ^5.2.10
@@ -36,7 +36,7 @@ catalog:
   '@types/jsdom': ^27.0.0
   '@types/lodash': ^4.17.20
   '@types/luxon': ^3.7.1
-  '@types/node': ^24.7.2
+  '@types/node': ^24.8.1
   '@types/openlayers': ^4.6.23
   '@types/pako': ^2.0.4
   '@typescript-eslint/utils': ^8.46.1
@@ -57,7 +57,7 @@ catalog:
   chai: ^6.2.0
   chart.js: ^4.5.1
   chartjs-plugin-zoom: ^2.2.0
-  cypress: ^15.4.0
+  cypress: ^15.5.0
   cypress-browser-permissions: ^1.1.0
   cypress-real-events: ^1.15.0
   cypress-recurse: ^1.37.1
@@ -65,24 +65,24 @@ catalog:
   cypress-wait-until: ^3.0.2
   dompurify: ^3.3.0
   dotenv: ^17.2.3
-  eslint: ^9.37.0
+  eslint: ^9.38.0
   eslint-config-prettier: ^10.1.8
   eslint-plugin-chai-friendly: ^1.1.0
   eslint-plugin-cypress: ^5.2.0
   eslint-plugin-mocha: ^11.2.0
   eslint-plugin-perfectionist: ^4.15.1
   eslint-plugin-prettier: ^5.5.4
-  eslint-plugin-vue: ^10.5.0
+  eslint-plugin-vue: ^10.5.1
   form-data: ^4.0.4
   geographiclib-geodesic: ^2.2.0
   geotiff: ^2.1.4-beta.0
   git-describe: ^4.1.1
   gitconfig: ^2.0.8
   globals: ^16.4.0
-  googleapis: ^162.0.0
+  googleapis: ^164.0.0
   hammerjs: ^2.0.8
   jquery: ^3.7.1
-  jsdom: ^27.0.0
+  jsdom: ^27.0.1
   jszip: ^3.10.1
   lodash: ^4.17.21
   luxon: ^3.7.2
@@ -97,12 +97,12 @@ catalog:
   prettier: ^3.6.2
   prettier-plugin-jsdoc: ^1.3.3
   prettier-plugin-packagejson: ^2.5.19
-  prettier-plugin-tailwindcss: ^0.7.0
+  prettier-plugin-tailwindcss: ^0.7.1
   print-js: ^1.6.0
   proj4: ^2.19.10
   reproject: ^1.2.7
   rimraf: ^6.0.1
-  rollup: ^4.52.4
+  rollup: ^4.52.5
   sass: ^1.93.2
   sharp: ^0.34.4
   sortablejs: ^1.15.6
@@ -118,18 +118,18 @@ catalog:
   typescript-eslint: ^8.46.1
   unplugin-dts: 1.0.0-beta.6
   uuid: ^13.0.0
-  vite: ^7.1.10
+  vite: ^7.1.11
   vite-node: ^3.2.4
   vite-plugin-conditional-compiler: ^0.3.1
   vite-plugin-pwa: ^1.1.0
-  vite-plugin-static-copy: ^3.1.3
-  vite-plugin-vue-devtools: ^8.0.2
+  vite-plugin-static-copy: ^3.1.4
+  vite-plugin-vue-devtools: ^8.0.3
   vite-tsconfig-paths: ^5.1.4
   vitest: ^3.2.4
   vue: ^3.5.22
   vue-chartjs: ^5.3.2
   vue-i18n: ^11.1.12
-  vue-router: ^4.6.0
+  vue-router: ^4.6.3
   vue-tsc: ^3.1.1
   vue3-social-sharing: ^1.4.1
   vuex: ^4.1.0
