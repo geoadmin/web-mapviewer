@@ -1,6 +1,5 @@
 import { LayerType } from '@swissgeo/layers'
-import { expect } from 'chai'
-import { describe, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { createLayerObject, validateUrlInput } from '@/router/storeSync/LayerParamConfig.class'

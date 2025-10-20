@@ -14,8 +14,8 @@ import usePositionStore, { CrossHairs, PositionStoreActions } from '@/store/modu
 import { isEnumValue } from '@/utils/utils'
 
 interface ParsedCrosshair {
-    crossHair: CrossHairs | undefined
-    crossHairPosition: SingleCoordinate | undefined
+    crossHair?: CrossHairs
+    crossHairPosition?: SingleCoordinate
 }
 
 function parseCrosshairParam(urlParamValue?: string): ParsedCrosshair {
