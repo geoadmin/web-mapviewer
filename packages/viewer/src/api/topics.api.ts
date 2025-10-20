@@ -1,17 +1,21 @@
 import type { GeoAdminGroupOfLayers, GeoAdminLayer, Layer } from '@swissgeo/layers'
 
-import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
+import { WarningMessage } from '@swissgeo/log/Message'
 import axios from 'axios'
-import { v4 as uuidv4 } from 'uuid'
+
+import type { ActionDispatcher } from '@/store/types'
 
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
 import { ENVIRONMENT } from '@/config/staging.config'
+import useUIStore from '@/store/modules/ui.store'
 import {
     getBackgroundLayerFromLegacyUrlParams,
     getLayersFromLegacyUrlParams,
 } from '@/utils/legacyLayerParamUtils'
+
+const dispatcher: ActionDispatcher = { name: 'Topics API' }
 
 /** Representation of a topic (a subset of layers to be shown to the user) */
 export interface Topic {
@@ -52,41 +56,6 @@ function gatherItemIdThatShouldBeOpened(
     return ids
 }
 
-const validateBaseData = (values: Partial<Layer>): void => {
-    if (!values.name) {
-        throw new Error('Missing layer name')
-    }
-    if (!values.id) {
-        throw new Error('Missing layer ID')
-    }
-}
-
-function makeGeoAdminGroupOfLayers(values: Partial<GeoAdminGroupOfLayers>): GeoAdminGroupOfLayers {
-    const layer = layerUtils.makeGeoAdminGroupOfLayers({
-        id: values.id,
-        name: values.name,
-        uuid: uuidv4(),
-        layers: values.layers ?? [],
-        type: LayerType.GROUP,
-        opacity: 1,
-        isVisible: true,
-        attributions: [],
-        hasTooltip: false,
-        hasDescription: false,
-        hasLegend: false,
-        isExternal: false,
-        isLoading: false,
-        timeConfig: {
-            timeEntries: [],
-        },
-        hasError: false,
-        hasWarning: false,
-    })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    validateBaseData(layer as any)
-    return layer
-}
-
 /**
  * Reads the output of the topic tree endpoint, and creates all themes and layers object accordingly
  *
@@ -99,6 +68,7 @@ const readTopicTreeRecursive = (
 ): GeoAdminLayer | GeoAdminGroupOfLayers => {
     if (node.category === 'topic') {
         const children: (GeoAdminLayer | GeoAdminGroupOfLayers)[] = []
+        const warnings: WarningMessage[] = []
         node.children.forEach((topicChild) => {
             try {
                 children.push(readTopicTreeRecursive(topicChild, availableLayers))
@@ -112,6 +82,13 @@ const readTopicTreeRecursive = (
                             err,
                         ],
                     })
+                    if (err instanceof Error) {
+                        warnings.push(
+                            new WarningMessage(
+                                `Topic element ${topicChild.id} can't be loaded, probably due to data integration work ongoing. cause: ${err.message}`
+                            )
+                        )
+                    }
                 } else {
                     log.error({
                         title: 'Topics API',
@@ -121,8 +98,10 @@ const readTopicTreeRecursive = (
                 }
             }
         })
-        // TODO: can't use layerUtils.makeGeoAdminGroupOfLayers for this as it does not return a GeoAdminGroupOfLayers object
-        return makeGeoAdminGroupOfLayers({
+        if (ENVIRONMENT === 'development' && warnings.length > 0) {
+            useUIStore().addWarnings(warnings, dispatcher)
+        }
+        return layerUtils.makeGeoAdminGroupOfLayers({
             id: `${node.id}`,
             name: node.label,
             layers: children,
