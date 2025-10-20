@@ -34,6 +34,8 @@ function redoSearch() {
 const redoSearchWhenNeeded: PiniaPlugin = (context: PiniaPluginContext) => {
     const { store } = context
 
+    // it is used to get the type of the action arguments
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const layersStore = useLayersStore()
 
     store.$onAction(({ name, args }) => {

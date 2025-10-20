@@ -56,7 +56,7 @@ const topicChangeManagement: PiniaPlugin = (context: PiniaPluginContext) => {
             })
 
             // last argument is the dispatcher
-            const dispatcher: ActionDispatcher = args.at(-1) as unknown as ActionDispatcher
+            const dispatcher: ActionDispatcher = args.slice(-1) as unknown as ActionDispatcher
 
             if (!currentTopic) {
                 // the rest depends on this

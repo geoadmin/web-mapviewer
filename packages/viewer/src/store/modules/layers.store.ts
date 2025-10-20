@@ -426,7 +426,7 @@ const useLayersStore = defineStore('layers', {
             }
         },
 
-        [LayerStoreActions.SetPreviewYear](year: number | undefined) {
+        [LayerStoreActions.SetPreviewYear](year: number | undefined, dispatcher: ActionDispatcher) {
             this.previewYear = year
         },
 

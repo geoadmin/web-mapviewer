@@ -132,8 +132,11 @@ export function parseQuery(search: string): LocationQuery {
  * @returns String version of the query without the leading `?`
  * @internal
  */
-export function stringifyQuery(query: LocationQueryRaw): string {
+export function stringifyQuery(query?: LocationQueryRaw): string {
     let search = ''
+    if (!query) {
+        return search
+    }
     for (let key in query) {
         const value = query[key]
         key = encodeQueryKey(key)
