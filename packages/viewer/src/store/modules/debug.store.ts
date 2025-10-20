@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import type { ActionDispatcher } from '@/store/types'
 
 import { DebugStoreActions } from '@/store/actions'
+import useLayersStore from '@/store/modules/layers.store'
 
 /** Module that contains debug tools things */
 interface DebugState {
@@ -32,6 +33,7 @@ const useDebugStore = defineStore('debug', {
             dispatcher: ActionDispatcher
         ) {
             this.hasBaseUrlOverrides = hasOverrides
+            useLayersStore().loadLayersConfig(dispatcher)
         },
     },
 })
