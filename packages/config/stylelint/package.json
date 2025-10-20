@@ -2,7 +2,7 @@
     "name": "@swissgeo/config-stylelint",
     "private": true,
     "type": "module",
-    "main": "index.js",
+    "main": "index.ts",
     "dependencies": {
         "stylelint-config-recommended-scss": "catalog:",
         "stylelint-config-recommended-vue": "catalog:",
