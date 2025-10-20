@@ -78,7 +78,7 @@ function createKmlLayer(parsedLayer: Partial<Layer>, adminId: string | undefined
         isVisible: parsedLayer.isVisible,
         opacity: parsedLayer.opacity ?? DEFAULT_OPACITY,
         adminId: adminId,
-        style: parsedLayer.customAttributes?.style ?? undefined,
+        style: parsedLayer.customAttributes?.style,
     })
 }
 

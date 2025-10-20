@@ -16,10 +16,10 @@ import { parseLayersParam, transformLayerIntoUrlString } from '@/router/storeSyn
 
 describe('Testing layersParamParser', () => {
     function checkParsedLayer(
-        layer: Partial<Layer> | undefined,
-        id: string | undefined = undefined,
+        layer?: Partial<Layer>,
+        id?: string,
         isVisible: boolean = true,
-        opacity: number | undefined = undefined,
+        opacity?: number,
         customAttributes: LayerCustomAttributes = {}
     ): void {
         expect(layer).toBeDefined()

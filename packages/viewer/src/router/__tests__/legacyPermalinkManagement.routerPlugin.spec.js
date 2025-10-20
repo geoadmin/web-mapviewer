@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import { handleLegacyParam } from '@/router/legacy-permalink.plugin.js'
-import * as utils from '@/utils/legacyLayerParamUtils.js'
+import { handleLegacyParam } from '@/router/legacy-permalink.plugin'
+import * as utils from '@/utils/legacyLayerParamUtils'
 
 describe('Testing legacyPermalinkManagement', () => {
     let fakeStore
