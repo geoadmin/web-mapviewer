@@ -29,31 +29,26 @@ import {
 } from '@/utils/legacyLayerParamUtils'
 
 async function handleLegacyKmlAdminIdParam(
-    legacyParams: URLSearchParams,
+    adminId: string,
     newQuery: LocationQueryRaw
 ): Promise<void> {
-    log.debug({
-        title: 'Legacy URL',
-        titleColor: LogPreDefinedColor.Amber,
-        messages: ['Transforming legacy kml adminId, get KML ID from adminId...'],
-    })
-    const adminId = legacyParams.get('adminId')
-    if (adminId) {
+    log.debug('Transforming legacy kml adminId, get KML ID from adminId...')
+    try {
         const kmlLayer = await getKmlLayerFromLegacyAdminIdParam(adminId)
-        log.debug({
-            title: 'Legacy URL',
-            titleColor: LogPreDefinedColor.Amber,
-            messages: ['Adding KML layer from legacy kml adminId'],
-        })
-        if (newQuery.layers && typeof newQuery.layers === 'string') {
-            newQuery.layers = `${newQuery.layers};KML|${kmlLayer.id}@adminId=${kmlLayer.adminId}`
+        log.debug('Adding KML layer from legacy kml adminId')
+        if (newQuery.layers) {
+            // upon reaching this point, we know that newQuery.layers is a string, we just inform Typescript of that
+            newQuery.layers = `${newQuery.layers as string};KML|${kmlLayer.id}@adminId=${kmlLayer.adminId}`
         } else {
             newQuery.layers = `KML|${kmlLayer.id}@adminId=${kmlLayer.adminId}`
         }
-
-        // remove the legacy param from the newQuery
-        delete newQuery.adminId
     }
+    catch (err){
+        log.error(`Invalid admin Id [${adminId}] received, causing the following error:
+             ${err.toString()}`)
+    }
+    // remove the legacy param from the newQuery
+    delete newQuery.adminId
 }
 
 export function handleLegacyParam(
@@ -129,11 +124,7 @@ export function handleLegacyParam(
                     )
                 )
                 .join(';')
-            log.debug({
-                title: 'Legacy URL',
-                titleColor: LogPreDefinedColor.Amber,
-                messages: ['Importing legacy layers as', newValue],
-            })
+            log.debug('Importing legacy layers as', newValue)
 
             break
         // Setting the position of the compare slider
@@ -153,7 +144,7 @@ export function handleLegacyParam(
             break
 
         case 'elevation':
-            cameraPosition.y = Number(legacyValue)
+            cameraPosition.z = Number(legacyValue)
             break
 
         case 'pitch':
@@ -185,17 +176,12 @@ export function handleLegacyParam(
         // for example, we avoid having " " becoming %2520 in the URI
         // But we don't decode the value if it's a layer, as it's already encoded in transformLayerIntoUrlString function
         newQuery[key] = param === 'layers' ? newValue : decodeURIComponent(`${newValue}`)
-        log.info({
-            title: 'Legacy URL',
-            titleColor: LogPreDefinedColor.Amber,
-            messages: [`${param}=${legacyValue} parameter changed to ${key}=${newValue}`, newQuery],
-        })
+        log.info(
+            `[Legacy URL] ${param}=${legacyValue} parameter changed to ${key}=${newValue}`,
+            newQuery
+        )
     } else {
-        log.error({
-            title: 'Legacy URL',
-            titleColor: LogPreDefinedColor.Amber,
-            messages: [`${param}=${legacyValue} parameter not processed`],
-        })
+        log.error(`[Legacy URL] ${param}=${legacyValue} parameter not processed`)
     }
 }
 
@@ -241,7 +227,8 @@ async function handleLegacyParams(
     })
     if (
         cameraPosition.x !== Number.NEGATIVE_INFINITY &&
-        cameraPosition.y !== Number.NEGATIVE_INFINITY
+        cameraPosition.y !== Number.NEGATIVE_INFINITY &&
+        cameraPosition.z !== Number.NEGATIVE_INFINITY
     ) {
         const { x, y, z, pitch, heading, roll } = cameraPosition
         newQuery['camera'] = [x, y, z, pitch, heading, roll]
@@ -255,31 +242,23 @@ async function handleLegacyParams(
     if (latLongCoordinates.length === 2 && !newQuery['camera']) {
         newCoordinates = proj4(WGS84.epsg, projection.epsg, latLongCoordinates)
         newQuery['center'] = newCoordinates.join(',')
-        log.info({
-            title: 'Legacy URL',
-            titleColor: LogPreDefinedColor.Amber,
-            messages: [
-                `lat/lon=${JSON.stringify(latLongCoordinates)} parameter changed to center=${newQuery['center']}`,
-            ],
-        })
+        log.info(
+            `[Legacy URL] lat/lon=${JSON.stringify(latLongCoordinates)} parameter changed to center=${newQuery['center']}`
+        )
     } else if (legacyCoordinates.length === 2 && !newQuery['camera']) {
         // The legacy viewer supports coordinate in LV03 and LV95 in X/Y and E/N parameter
         newCoordinates = legacyCoordinates
         if (
-            LV95.isInBounds(legacyCoordinates[0]!, legacyCoordinates[1]!) &&
+            LV95.isInBounds(legacyCoordinates[0], legacyCoordinates[1]) &&
             projection.epsg !== LV95.epsg
         ) {
             // if the current projection is not LV95, we also need to re-project x/y or N/E
             newCoordinates = proj4(LV95.epsg, projection.epsg, legacyCoordinates)
-            log.info({
-                title: 'Legacy URL',
-                titleColor: LogPreDefinedColor.Amber,
-                messages: [
-                    `converting LV95 X/Y|E/N=${JSON.stringify(legacyCoordinates)} to ${projection.epsg} => ${JSON.stringify(newCoordinates)}`,
-                ],
-            })
+            log.info(
+                `[Legacy URL] converting LV95 X/Y|E/N=${JSON.stringify(legacyCoordinates)} to ${projection.epsg} => ${JSON.stringify(newCoordinates)}`
+            )
         } else if (
-            LV03.isInBounds(legacyCoordinates[0]!, legacyCoordinates[1]!) &&
+            LV03.isInBounds(legacyCoordinates[0], legacyCoordinates[1]) &&
             projection.epsg !== LV03.epsg
         ) {
             // if the current projection is not LV03, we also need to re-project x/y or N/E
@@ -288,22 +267,14 @@ async function handleLegacyParams(
                 inputProjection: LV03,
                 outputProjection: projection,
             })
-            log.info({
-                title: 'Legacy URL',
-                titleColor: LogPreDefinedColor.Amber,
-                messages: [
-                    `converting LV03 X/Y|E/N=${JSON.stringify(legacyCoordinates)} to ${projection.epsg} => ${JSON.stringify(newCoordinates)}`,
-                ],
-            })
+            log.info(
+                `[Legacy URL] converting LV03 X/Y|E/N=${JSON.stringify(legacyCoordinates)} to ${projection.epsg} => ${JSON.stringify(newCoordinates)}`
+            )
         }
         newQuery['center'] = newCoordinates.join(',')
-        log.info({
-            title: 'Legacy URL',
-            titleColor: LogPreDefinedColor.Amber,
-            messages: [
-                `X/Y|E/N=${JSON.stringify(legacyCoordinates)} parameter changed to center=${newQuery['center']}`,
-            ],
-        })
+        log.info(
+            `[Legacy URL] X/Y|E/N=${JSON.stringify(legacyCoordinates)} parameter changed to center=${newQuery['center']}`
+        )
     }
 
     handleLegacyFeaturePreSelectionParam(legacyParams, newQuery)
@@ -318,13 +289,9 @@ async function handleLegacyParams(
         // adminId legacy param cannot be handle above in the loop because it needs to add a layer
         // to the layers param, thats why we do handle after.
         try {
-            await handleLegacyKmlAdminIdParam(legacyParams, newQuery)
+            await handleLegacyKmlAdminIdParam(legacyParams.get('adminId'), newQuery)
         } catch (error) {
-            log.error({
-                title: 'Legacy URL',
-                titleColor: LogPreDefinedColor.Amber,
-                messages: [`Failed to retrieve KML from admin_id`, error],
-            })
+            log.error(`Failed to retrieve KML from admin_id`, error)
             // make sure to remove the adminId from the query
             delete newQuery.adminId
         }
