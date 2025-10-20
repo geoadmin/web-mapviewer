@@ -21,13 +21,16 @@ import type { EditableFeature } from '@/api/features.api'
 import type { ActionDispatcher } from '@/store/types'
 
 import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@/api/features.api'
-import { DEFAULT_MARKER_TITLE_OFFSET } from '@/api/icon.api'
 import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import useDrawingStore, { EditMode } from '@/store/modules/drawing.store'
 import usePositionStore from '@/store/modules/position.store'
-import { geoadminStyleFunction, TextPlacement } from '@/utils/featureStyleUtils'
+import {
+    DEFAULT_MARKER_TITLE_OFFSET,
+    geoadminStyleFunction,
+    TextPlacement,
+} from '@/utils/featureStyleUtils'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
 
 const dispatcher: ActionDispatcher = { name: 'useDrawingModeInteraction.composable' }

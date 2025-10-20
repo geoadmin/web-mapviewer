@@ -3,9 +3,9 @@ import Feature from 'ol/Feature'
 import type { SimpleGeometry } from 'ol/geom'
 
 import { EditableFeatureTypes } from '@/api/features.api'
-import { DEFAULT_MARKER_TITLE_OFFSET } from '@/api/icon.api'
 import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable'
 import useDrawingStore from '@/store/modules/drawing.store'
+import { DEFAULT_MARKER_TITLE_OFFSET } from '@/utils/featureStyleUtils'
 
 type EmitType = {
     (_e: 'drawEnd', _feature: Feature<SimpleGeometry>): void

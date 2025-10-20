@@ -4,10 +4,19 @@ import { Circle, Fill, Stroke, Style } from 'ol/style'
 import CircleStyle from 'ol/style/Circle'
 
 import { MIN_PRINT_SCALE_SIZE, PRINT_DPI_COMPENSATION } from '@/config/print.config'
-import { StyleZIndex } from '@/modules/drawing/lib/style'
 import variables from '@/scss/variables-admin.module.scss'
 
 const { red, mocassin, mocassinToRed1, mocassinToRed2, malibu, black, white } = variables
+
+export enum StyleZIndex {
+    AzimuthCircle = 0,
+    MainStyle = 10,
+    Line = 20,
+    MeasurePoint = 21,
+    WhiteDot = 30,
+    Tooltip = 40,
+    OnTop = 9999,
+}
 
 // OL needs color as RGBA arrays, so we convert them through this function
 function hexToRgba(hexValue: string, alpha: number = 1.0): number[] {

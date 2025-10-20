@@ -22,10 +22,15 @@ import IconStyle from 'ol/style/Icon'
 import Style from 'ol/style/Style'
 
 import type { EditableFeature } from '@/api/features.api'
+import type { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
 
-import { EditableFeatureTypes, extractOlFeatureCoordinates, isLineOrMeasure } from '@/api/features.api'
+import {
+    EditableFeatureTypes,
+    extractOlFeatureCoordinates,
+    isLineOrMeasure,
+} from '@/api/features.api'
 import { proxifyUrl } from '@/api/file-proxy.api'
-import { DEFAULT_TITLE_OFFSET, type DrawingIcon, type DrawingIconSet } from '@/api/icon.api'
+import { DEFAULT_TITLE_OFFSET } from '@/config/icons.config'
 import { LOCAL_OR_INTERNAL_URL_REGEX } from '@/config/regex.config'
 import {
     allStylingSizes,
@@ -288,13 +293,13 @@ function generateIconFromStyle(iconStyle: IconStyle, iconArgs: IconArgs): Drawin
 
     return anchor
         ? {
-            name: iconArgs.name,
-            imageURL: url,
-            imageTemplateURL: url,
-            iconSetName: iconArgs.set,
-            anchor: anchor as [number, number],
-            size: size as [number, number],
-        }
+              name: iconArgs.name,
+              imageURL: url,
+              imageTemplateURL: url,
+              iconSetName: iconArgs.set,
+              anchor: anchor as [number, number],
+              size: size as [number, number],
+          }
         : undefined
 }
 
@@ -504,7 +509,7 @@ export function getEditableFeatureFromKmlFeature(
         }
     }
 
-    return ({
+    return {
         id: featureId,
         featureType: featureType as EditableFeatureTypes,
         title,
@@ -519,7 +524,7 @@ export function getEditableFeatureFromKmlFeature(
         iconSize,
         textPlacement,
         showDescriptionOnMap,
-    }) as EditableFeature
+    } as EditableFeature
 }
 
 /**

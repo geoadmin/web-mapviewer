@@ -80,6 +80,9 @@ export function getMarkerStyle(markerStyle: OpenLayersMarkerStyles): Style {
 }
 
 export const highlightFeatureStyle: StyleFunction = (olFeature, _resolution) => {
+    if (!olFeature) {
+        return
+    }
     const geometryType = olFeature.getGeometry()?.getType()
     const isHovered = !!olFeature.get('isHovered')
     const isCurrentSegment = !!olFeature.get('isCurrentSegment')

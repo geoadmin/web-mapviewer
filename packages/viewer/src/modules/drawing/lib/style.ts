@@ -11,19 +11,10 @@ import {
     dashedRedStroke,
     redStroke,
     sketchPointStyle,
+    StyleZIndex,
     whiteCircleStyle,
     whiteSketchFill,
 } from '@/utils/styleUtils'
-
-export enum StyleZIndex {
-    AzimuthCircle = 0,
-    MainStyle = 10,
-    Line = 20,
-    MeasurePoint = 21,
-    WhiteDot = 30,
-    Tooltip = 40,
-    OnTop = 9999,
-}
 
 /**
  * Style function as used by the Modify Interaction. Used to display a translucent point on a line

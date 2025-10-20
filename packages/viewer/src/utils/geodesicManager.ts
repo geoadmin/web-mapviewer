@@ -17,7 +17,7 @@ import RBush from 'ol/structs/RBush' /* Warning: private class of openlayers */
 import { Circle, Fill, RegularShape, Stroke, Style, Text } from 'ol/style'
 import proj4 from 'proj4'
 
-import { StyleZIndex } from '@/modules/drawing/lib/style'
+import { StyleZIndex } from '@/utils/styleUtils'
 import { formatAngle, formatMeters } from '@/utils/utils'
 
 const geod = Geodesic.WGS84
@@ -138,14 +138,17 @@ export class GeodesicGeometries {
         ) {
             throw new Error(
                 'This class only accepts Polygons (and Linestrings ' +
-                'after initial drawing is finished)'
+                    'after initial drawing is finished)'
             )
         }
         this._calculateEverything()
     }
 
     _calculateEverything() {
-        this.geom = this.feature.getGeometry()!.clone().transform(this.projection.epsg, WGS84.epsg) as Polygon | LineString
+        this.geom = this.feature
+            .getGeometry()!
+            .clone()
+            .transform(this.projection.epsg, WGS84.epsg) as Polygon | LineString
         this.isDrawing = this.feature.get('isDrawing')
         this.isPolygon = false
         if (this.geom instanceof Polygon) {
@@ -218,10 +221,10 @@ export class GeodesicGeometries {
         this.totalArea = res.area
         if (this.hasAzimuthCircle) {
             const geodesicLine = geod.InverseLine(
-                (this.coords[0]?.[1] ?? 0),
-                (this.coords[0]?.[0] ?? 0),
-                (this.coords[1]?.[1] ?? 0),
-                (this.coords[1]?.[0] ?? 0)
+                this.coords[0]?.[1] ?? 0,
+                this.coords[0]?.[0] ?? 0,
+                this.coords[1]?.[1] ?? 0,
+                this.coords[1]?.[0] ?? 0
             )
             this.rotation = geodesicLine.azi1 < 0 ? geodesicLine.azi1 + 360 : geodesicLine.azi1
         }
@@ -455,13 +458,20 @@ function coordNormalize(coord: number[] | CoordObject): number[] {
     }
 }
 
-export function segmentExtent(feature: Feature<Geometry>, segmentIndex: number): Extent | undefined {
+export function segmentExtent(
+    feature: Feature<Geometry>,
+    segmentIndex: number
+): Extent | undefined {
     if (feature.get('geodesic')) {
         return feature.get('geodesic').getSegmentExtent(segmentIndex)
     }
 }
 
-export function subsegments(feature: Feature<Geometry>, segmentIndex: number, viewExtent: Extent): number[][] | undefined {
+export function subsegments(
+    feature: Feature<Geometry>,
+    segmentIndex: number,
+    viewExtent: Extent
+): number[][] | undefined {
     if (feature.get('geodesic')) {
         return feature.get('geodesic').getSubsegments(segmentIndex, viewExtent)
     }
@@ -586,10 +596,10 @@ class MeasureStyles {
         return ratio <= 1
             ? this.styles
             : ratio <= 10
-                ? this.top100Styles
-                : ratio <= 100
-                    ? this.top10Styles
-                    : []
+              ? this.top100Styles
+              : ratio <= 100
+                ? this.top10Styles
+                : []
     }
 }
 
