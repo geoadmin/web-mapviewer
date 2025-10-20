@@ -12,7 +12,7 @@ import {
 import log from '@swissgeo/log'
 import proj4 from 'proj4'
 import { computed, inject, onMounted, watch } from 'vue'
-import useGeolocationStore from '@/store/modules/geolocation.store'
+import useGeolocationStore from '@/store/modules/geolocation'
 import usePositionStore from '@/store/modules/position.store'
 
 import {

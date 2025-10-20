@@ -1,9 +1,6 @@
 import { createPinia } from 'pinia'
 
-import storeSyncRouterPlugin from '@/router/storeSync'
-import appReadinessPlugin from '@/store/plugins/app-readiness.plugin'
 import loadExternalLayerAttributes from '@/store/plugins/external-layers.plugin'
-import geolocationManagement from '@/store/plugins/geolocation.plugin'
 import legacyPermalinkPlugin from '@/store/plugins/legacy-permalink.plugin'
 import loadCOGMetadataPlugin from '@/store/plugins/load-cog-metadata.plugin'
 import loadGeojsonStyleAndData from '@/store/plugins/load-geojson-style-and-data.plugin'
@@ -18,10 +15,8 @@ import topicChangeManagement from '@/store/plugins/topic-change-management.plugi
 import updateSelectedFeatures from '@/store/plugins/update-selected-features.plugin'
 
 const pinia = createPinia()
-pinia.use(appReadinessPlugin)
 pinia.use(legacyPermalinkPlugin)
 pinia.use(loadExternalLayerAttributes)
-pinia.use(geolocationManagement)
 pinia.use(loadCOGMetadataPlugin)
 pinia.use(loadGeojsonStyleAndData)
 pinia.use(loadGpxDataAndMetadata)
@@ -33,6 +28,5 @@ pinia.use(topicChangeManagement)
 pinia.use(updateSelectedFeatures)
 pinia.use(storeActionLogPlugin)
 pinia.use(registerSyncCameraLonLatZoom)
-pinia.use(storeSyncRouterPlugin)
 
 export default pinia

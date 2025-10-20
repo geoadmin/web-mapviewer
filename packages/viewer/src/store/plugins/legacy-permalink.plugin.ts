@@ -482,7 +482,9 @@ export const legacyPermalinkManagementRouterPlugin: PiniaPlugin = (
                     messages: ['Work is done, unsuscribing from the mutations'],
                 })
                 unsubscribeRouter()
-                unSubscribeStoreAction()
+                if (unSubscribeStoreAction) {
+                    unSubscribeStoreAction()
+                }
             }
             log.debug({
                 title: 'Legacy URL',

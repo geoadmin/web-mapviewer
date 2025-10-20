@@ -1,13 +1,7 @@
-import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
+import type { LocationQuery, RouteLocationNormalizedGeneric, Router } from 'vue-router'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import axios from 'axios'
-import {
-    type LocationQuery,
-    type RouteLocationNormalizedGeneric,
-    type Router,
-    useRouter,
-} from 'vue-router'
 
 import type { ActionDispatcher } from '@/store/types'
 
@@ -272,11 +266,7 @@ function initialUrlQueryWatcher(to: RouteLocationNormalizedGeneric, router: Rout
  * change the url when the app is not on the MapView. The store is also only updated with the query
  * parameter when on the MapView.
  */
-const storeSyncRouterPlugin: PiniaPlugin = (context: PiniaPluginContext) => {
-    const { store } = context
-
-    const router = useRouter()
-
+const storeSyncRouterPlugin = (router: Router) => {
     let unsubscribeStoreMutation: () => void
     router.beforeEach(
         (to: RouteLocationNormalizedGeneric, from: RouteLocationNormalizedGeneric) => {
@@ -364,8 +354,9 @@ const storeSyncRouterPlugin: PiniaPlugin = (context: PiniaPluginContext) => {
                 messages: [`MapView entered, register store mutation watcher`],
             })
             const appStore = useAppStore()
+
             // listening to store mutation to update URL
-            unsubscribeStoreMutation = store.$onAction(({ name, args }) => {
+            unsubscribeStoreMutation = appStore.$onAction(({ name, args }) => {
                 if (isEnumValue<AppStoreActions>(name, AppStoreActions.SetAppIsReady)) {
                     // If the app was not yet ready after entering the map view, we need to
                     // trigger the initial urlQuery watcher otherwise we have a blank application.

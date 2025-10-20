@@ -18,7 +18,7 @@ import {
 } from '@/config/cesium.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { CesiumStoreActions } from '@/store/actions'
-import useGeolocationStore from '@/store/modules/geolocation.store'
+import useGeolocationStore from '@/store/modules/geolocation'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
 
