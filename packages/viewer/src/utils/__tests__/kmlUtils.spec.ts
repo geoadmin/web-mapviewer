@@ -147,17 +147,16 @@ describe('Test KML utils', () => {
                 kmlData: kml,
             })
             const resolution = 1000
-            const olFeatures: Feature[] = parseKml(
-                kmlLayer,
-                WEBMERCATOR,
-                fakeIconSets,
-                resolution
-            )
-            features = olFeatures.map((f) => {
-                const ef = f.get('editableFeature')
-                ef.olFeature = f
-                return ef
-            })
+            const olFeatures: Feature[] = parseKml(kmlLayer, WEBMERCATOR, fakeIconSets, resolution)
+            features = olFeatures
+                .map((f) => {
+                    const ef = f.get('editableFeature')
+                    if (ef) {
+                        ef.olFeature = f
+                    }
+                    return ef
+                })
+                .filter((f) => f !== undefined) as EditableFeature[]
         })
         it('handles correctly text offset from extended data', () => {
             const icon = findFeatureWithId('drawing_feature_1714651153088')

@@ -1,8 +1,4 @@
-import type  {
-    GeoAdminLayer,
-    Layer,
-    ExternalWMSLayer,
-} from '@swissgeo/layers'
+import type { GeoAdminLayer, Layer, ExternalWMSLayer } from '@swissgeo/layers'
 
 import { LayerType } from '@swissgeo/layers'
 import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
@@ -70,7 +66,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 )
                 expect(result).to.be.an('Array').length(1)
                 const [firstLayer] = result
-                expect(firstLayer).to.haveOwnProperty('visible')
+                expect(firstLayer).to.haveOwnProperty('isVisible')
                 expect(firstLayer!.isVisible).to.eq(
                     flagValue,
                     'param layer_visibility was not parsed correctly'
@@ -147,7 +143,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 expect(layer.id).to.eq(expectedId)
                 expect(layer).to.haveOwnProperty('opacity')
                 expect(layer.opacity).to.eq(expectedOpacity)
-                expect(layer).to.haveOwnProperty('visible')
+                expect(layer).to.haveOwnProperty('isVisible')
                 expect(layer.isVisible).to.eq(expectedVisibility)
                 if (expecedTimestamp) {
                     expect(layer).to.haveOwnProperty('timeConfig')
@@ -170,7 +166,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 )
                 expect(result).to.be.an('Array').length(1)
                 const [kmlLayer] = result
-                expect(kmlLayer!.id).to.eq(kmlFileUrl)
+                expect(kmlLayer!.id).to.eq(`KML|${kmlFileUrl}`)
                 expect(kmlLayer!.type).to.eq(LayerType.KML)
                 expect(kmlLayer!.baseUrl).to.eq(kmlFileUrl)
             })
@@ -312,7 +308,12 @@ describe('Test parsing of legacy URL param into new params', () => {
                     }
                 }
             }
-            function testLayersStringCreation(params: { layerId: string; featuresId: string | null; layers: string; expectedResult: string }) {
+            function testLayersStringCreation(params: {
+                layerId: string
+                featuresId: string | null
+                layers: string
+                expectedResult: string
+            }) {
                 const result = createLayersParamForFeaturePreselection(
                     params.layerId,
                     params.featuresId ?? '',

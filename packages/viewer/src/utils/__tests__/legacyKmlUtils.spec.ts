@@ -118,7 +118,9 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
         })
         const resolution = 12345
         const olFeatures: Feature[] = parseKml(kmlLayer, WEBMERCATOR, fakeIconSets, resolution)
-        features = olFeatures.map((f) => f.get('editableFeature'))
+        features = olFeatures
+            .map((f) => f.get('editableFeature'))
+            .filter((f) => f !== undefined) as EditableFeature[]
     })
     describe('icon parsing', () => {
         it('parses a marker with a very small scale and blue fill color correctly', () => {
