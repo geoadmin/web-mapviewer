@@ -53,7 +53,7 @@
             "sharp"
         ],
         "patchedDependencies": {
-            "vite": "patches/vite.patch"
+            "vite@7.1.11": "patches/vite@7.1.11.patch"
         }
     }
 }
