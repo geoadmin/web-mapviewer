@@ -7,6 +7,8 @@ import { defineStore } from 'pinia'
 import type { Topic } from '@/api/topics.api'
 import type { ActionDispatcher } from '@/store/types'
 
+import { TopicsStoreActions } from '@/store/actions'
+
 export interface TopicsState {
     /** List of all available topics */
     config: Topic[]
@@ -21,14 +23,6 @@ export interface TopicsState {
     openedTreeThemesIds: string[]
 }
 
-export enum TopicsStoreActions {
-    SetTopics = 'setTopics',
-    SetTopicTree = 'setTopicTree',
-    ChangeTopic = 'changeTopic',
-    SetTopicTreeOpenedThemesIds = 'setTopicTreeOpenedThemesIds',
-    AddTopicTreeOpenedThemeId = 'addTopicTreeOpenedThemeId',
-    RemoveTopicTreeOpenedThemeId = 'removeTopicTreeOpenedThemeId',
-}
 
 const useTopicsStore = defineStore('topics', {
     state: (): TopicsState => ({

@@ -3,20 +3,12 @@ import { defineStore } from 'pinia'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { createShortLink } from '@/api/shortlink.api.js'
+import { createShortLink } from '@/api/shortlink.api'
+import { ShareStoreActions } from '@/store/actions'
 
 interface ShareStoreState {
     shortLink: string | null
     isMenuSectionShown: boolean
-}
-
-export enum ShareStoreActions {
-    SetShortLink = 'setShortLink',
-    SetIsMenuSectionShown = 'setIsMenuSectionShown',
-    GenerateShortLinks = 'generateShortLinks',
-    CloseShareMenuAndRemoveShortLinks = 'closeShareMenuAndRemoveShortLinks',
-    ToggleShareMenuSection = 'toggleShareMenuSection',
-    ClearShortLinks = 'clearShortLinks',
 }
 
 const useShareStore = defineStore('share', {

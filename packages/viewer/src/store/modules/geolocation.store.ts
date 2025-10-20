@@ -5,6 +5,7 @@ import { isNumber } from '@swissgeo/numbers'
 import { defineStore } from 'pinia'
 
 import type { ActionDispatcher } from '@/store/types'
+import { GeolocationStoreActions } from '@/store/actions'
 
 export interface GeolocationState {
     /** Flag telling if the user has activated the geolocation feature */
@@ -17,16 +18,6 @@ export interface GeolocationState {
     position: SingleCoordinate | undefined
     /** Accuracy of the geolocation position, in meters */
     accuracy: number
-}
-
-export enum GeolocationStoreActions {
-    SetGeolocationActive = 'setGeolocationActive',
-    ToggleGeolocation = 'toggleGeolocation',
-    SetGeolocationTracking = 'setGeolocationTracking',
-    SetGeolocationDenied = 'setGeolocationDenied',
-    SetGeolocationPosition = 'setGeolocationPosition',
-    SetGeolocationAccuracy = 'setGeolocationAccuracy',
-    SetGeolocationData = 'setGeolocationData',
 }
 
 const useGeolocationStore = defineStore('geolocation', {

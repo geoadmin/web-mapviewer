@@ -15,7 +15,8 @@ import { checkOnlineFileCompliance, getFileContentFromUrl, loadKmlMetadata } fro
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
-import useLayersStore, { LayerStoreActions } from '@/store/modules/layers.store'
+import { LayerStoreActions } from '@/store/actions'
+import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
 import { isEnumValue } from '@/utils/utils'
 

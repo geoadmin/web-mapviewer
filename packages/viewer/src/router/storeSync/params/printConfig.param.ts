@@ -4,10 +4,8 @@ import { PRINT_DEFAULT_DPI } from '@/config/print.config'
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
-import usePrintStore, {
-    type NewPrintServiceConfig,
-    PrintStoreActions,
-} from '@/store/modules/print.store'
+import { PrintStoreActions } from '@/store/actions'
+import usePrintStore, { type NewPrintServiceConfig } from '@/store/modules/print.store'
 
 export function readPrintConfigFromUrlParam(urlParamValue?: string): NewPrintServiceConfig {
     if (urlParamValue) {

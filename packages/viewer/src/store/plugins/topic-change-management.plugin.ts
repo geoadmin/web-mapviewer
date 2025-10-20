@@ -6,9 +6,10 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { loadTopicTreeForTopic } from '@/api/topics.api'
 import router from '@/router'
+import { TopicsStoreActions } from '@/store/actions'
 import useI18nStore from '@/store/modules/i18n.store'
 import useLayersStore from '@/store/modules/layers.store'
-import useTopicsStore, { TopicsStoreActions } from '@/store/modules/topics.store'
+import useTopicsStore from '@/store/modules/topics.store'
 import { isEnumValue } from '@/utils/utils'
 
 //const dispatcher = { dispatcher: 'topic-change-management.plugin' }

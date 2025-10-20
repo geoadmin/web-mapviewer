@@ -33,6 +33,7 @@ import search, {
     SearchResultTypes,
 } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
+import { SearchStoreActions } from '@/store/actions'
 import useFeaturesStore from '@/store/modules/features.store'
 import useI18nStore from '@/store/modules/i18n.store'
 import useLayersStore from '@/store/modules/layers.store'
@@ -63,12 +64,6 @@ export interface SearchState {
     results: SearchResult[]
     /** If true, the first search result will be automatically selected */
     autoSelect: boolean
-}
-
-export enum SearchStoreActions {
-    SetAutoSelect = 'setAutoSelect',
-    SetSearchQuery = 'setSearchQuery',
-    SelectResultEntry = 'selectResultEntry',
 }
 
 export const useSearchStore = defineStore('search', {

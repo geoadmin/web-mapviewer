@@ -3,7 +3,8 @@ import type { RouteLocationNormalizedGeneric } from 'vue-router'
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
-import useCesiumStore, { CesiumStoreActions } from '@/store/modules/cesium.store'
+import { CesiumStoreActions } from '@/store/actions'
+import useCesiumStore from '@/store/modules/cesium.store'
 
 const cesiumParamConfig = new UrlParamConfig<boolean>({
     urlParamName: '3d',

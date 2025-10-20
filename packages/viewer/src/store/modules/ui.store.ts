@@ -12,6 +12,7 @@ import {
     REPORT_PROBLEM_HOSTNAMES,
     WARNING_RIBBON_HOSTNAMES,
 } from '@/config/staging.config'
+import { UIStoreActions } from '@/store/actions'
 import useDrawingStore from '@/store/modules/drawing.store'
 
 const MAP_LOADING_BAR_REQUESTER = 'app-map-loading'
@@ -131,34 +132,6 @@ export interface UIState {
     forceNoDevSiteWarning: boolean
 }
 
-export enum UIStoreActions {
-    SetSize = 'setSize',
-    ToggleMenu = 'toggleMenu',
-    CloseMenu = 'closeMenu',
-    ToggleFullscreenMode = 'toggleFullscreenMode',
-    SetEmbed = 'setEmbed',
-    SetNoSimpleZoomEmbed = 'setNoSimpleZoomEmbed',
-    SetShowLoadingBar = 'setShowLoadingBar',
-    SetLoadingBarRequester = 'setLoadingBarRequester',
-    ClearLoadingBarRequester = 'clearLoadingBarRequester',
-    SetUiMode = 'setUiMode',
-    ToggleImportCatalogue = 'toggleImportCatalogue',
-    ToggleImportFile = 'toggleImportFile',
-    SetHeaderHeight = 'setHeaderHeight',
-    SetCompareRatio = 'setCompareRatio',
-    SetCompareSliderActive = 'setCompareSliderActive',
-    SetFeatureInfoPosition = 'setFeatureInfoPosition',
-    SetTimeSliderActive = 'setTimeSliderActive',
-    SetShowDisclaimer = 'setShowDisclaimer',
-    AddErrors = 'addErrors',
-    RemoveError = 'removeError',
-    AddWarnings = 'addWarnings',
-    RemoveWarning = 'removeWarning',
-    SetShowDragAndDropOverlay = 'setShowDragAndDropOverlay',
-    SetHideEmbedUI = 'setHideEmbedUI',
-    SetForceNoDevSiteWarning = 'setForceNoDevSiteWarning',
-}
-
 const useUIStore = defineStore('ui', {
     state: (): UIState => ({
         height: window.innerHeight,
@@ -220,7 +193,7 @@ const useUIStore = defineStore('ui', {
         /** Tells if the header bar is visible */
         isHeaderShown(): boolean {
             const drawingStore = useDrawingStore()
-            return !this.fullscreenMode && drawingStore.drawingOverlay.show
+            return !this.fullscreenMode && !drawingStore.drawingOverlay.show
         },
 
         isPhoneMode(): boolean {

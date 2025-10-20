@@ -21,6 +21,7 @@ import type { ActionDispatcher } from '@/store/types'
 import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { PositionStoreActions } from '@/store/actions'
 import useUIStore from '@/store/modules/ui.store'
 import { LV95Format } from '@/utils/coordinates/coordinateFormat'
 
@@ -107,21 +108,6 @@ export interface PositionState {
      * Will be set to undefined when the 3D map is not active
      */
     camera?: CameraPosition
-}
-
-export enum PositionStoreActions {
-    SetDisplayedFormat = 'setDisplayedFormat',
-    SetZoom = 'setZoom',
-    IncreaseZoom = 'increaseZoom',
-    DecreaseZoom = 'decreaseZoom',
-    ZoomToExtent = 'zoomToExtent',
-    SetRotation = 'setRotation',
-    SetAutoRotation = 'setAutoRotation',
-    SetHasOrientation = 'setHasOrientation',
-    SetCenter = 'setCenter',
-    SetCrossHair = 'setCrossHair',
-    SetCameraPosition = 'setCameraPosition',
-    SetProjection = 'setProjection',
 }
 
 const usePositionStore = defineStore('position', {

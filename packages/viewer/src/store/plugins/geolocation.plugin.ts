@@ -12,9 +12,10 @@ import proj4 from 'proj4'
 import type { ActionDispatcher } from '@/store/types'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import { GeolocationStoreActions, PositionStoreActions } from '@/store/actions'
 import useCesiumStore from '@/store/modules/cesium.store'
-import useGeolocationStore, { GeolocationStoreActions } from '@/store/modules/geolocation.store'
-import usePositionStore, { PositionStoreActions } from '@/store/modules/position.store'
+import useGeolocationStore from '@/store/modules/geolocation.store'
+import usePositionStore from '@/store/modules/position.store'
 import useUIStore from '@/store/modules/ui.store'
 import { isEnumValue } from '@/utils/utils'
 

@@ -11,9 +11,10 @@ import type { EditableFeature, LayerFeature, SelectableFeature } from '@/api/fea
 import type { ActionDispatcher } from '@/store/types'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { PositionStoreActions } from '@/store/actions'
 import useFeaturesStore from '@/store/modules/features.store'
 import useLayersStore from '@/store/modules/layers.store'
-import usePositionStore, { PositionStoreActions } from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position.store'
 import { isEnumValue } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'reproject-layers-on-projection-change.plugin' }

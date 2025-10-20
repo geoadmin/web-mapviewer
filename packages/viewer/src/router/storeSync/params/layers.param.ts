@@ -33,10 +33,11 @@ import {
     getDefaultValidationResponse,
     type ValidationResponse,
 } from '@/router/storeSync/validation'
+import { FeatureStoreActions, LayerStoreActions } from '@/store/actions'
 import useDrawingStore from '@/store/modules/drawing.store'
-import useFeaturesStore, { FeatureStoreActions } from '@/store/modules/features.store'
+import useFeaturesStore from '@/store/modules/features.store'
 import useI18nStore from '@/store/modules/i18n.store'
-import useLayersStore, { LayerStoreActions } from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
 import useUIStore from '@/store/modules/ui.store'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'

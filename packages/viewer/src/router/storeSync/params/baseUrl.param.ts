@@ -7,7 +7,8 @@ import {
     setBaseUrlOverrides,
 } from '@/config/baseUrl.config'
 import UrlParamConfig from '@/router/storeSync/UrlParamConfig.class'
-import useDebugStore, { DebugStoreActions } from '@/store/modules/debug.store'
+import { DebugStoreActions } from '@/store/actions'
+import useDebugStore from '@/store/modules/debug.store'
 import { isValidUrl } from '@/utils/utils'
 
 export default function createBaseUrlOverrideParamConfig({

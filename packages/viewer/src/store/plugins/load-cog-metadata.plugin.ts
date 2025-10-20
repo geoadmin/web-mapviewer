@@ -8,7 +8,8 @@ import { toValue } from 'vue'
 import type { ActionDispatcher } from '@/store/types'
 
 import { CloudOptimizedGeoTIFFParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/CloudOptimizedGeoTIFFParser.class'
-import useLayersStore, { LayerStoreActions } from '@/store/modules/layers.store'
+import { LayerStoreActions } from '@/store/actions'
+import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
 import { isEnumValue } from '@/utils/utils'
 

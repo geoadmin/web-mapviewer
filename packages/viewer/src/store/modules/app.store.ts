@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import type { ActionDispatcher } from '@/store/types'
 
 import { sendMapReadyEventToParent } from '@/api/iframePostMessageEvent.api'
+import { AppStoreActions } from '@/store/actions'
 
 /** Module that tells if the app has finished loading (is ready to show stuff) */
 interface AppState {
@@ -13,11 +14,6 @@ interface AppState {
      * start before the Map Module is ready.
      */
     isMapReady: boolean
-}
-
-export enum AppStoreActions {
-    SetAppIsReady = 'setAppIsReady',
-    SetMapModuleReady = 'setMapModuleReady',
 }
 
 const useAppStore = defineStore('app', {

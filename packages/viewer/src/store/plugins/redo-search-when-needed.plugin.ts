@@ -3,8 +3,8 @@ import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 
 import log from '@swissgeo/log'
 
-import { I18nStoreActions } from '@/store/modules/i18n.store'
-import useLayersStore, { LayerStoreActions } from '@/store/modules/layers.store'
+import { I18nStoreActions, LayerStoreActions } from '@/store/actions'
+import useLayersStore from '@/store/modules/layers.store'
 import useSearchStore from '@/store/modules/search.store'
 import { isEnumValue } from '@/utils/utils'
 

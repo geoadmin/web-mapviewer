@@ -14,6 +14,7 @@ import {
     CESIUM_VEGETATION_LAYER_ID,
     type LayerTooltipConfig,
 } from '@/config/cesium.config'
+import { CesiumStoreActions } from '@/store/actions'
 import useLayersStore from '@/store/modules/layers.store'
 
 const labelLayer = layerUtils.makeGeoAdmin3DLayer({
@@ -76,14 +77,6 @@ export interface CesiumState {
      * and what should be shown to the user
      */
     layersTooltipConfig: LayerTooltipConfig[]
-}
-
-export enum CesiumStoreActions {
-    Set3dActive = 'set3dActive',
-    SetShowConstructionsBuildings = 'setShowConstructionsBuildings',
-    SetShowVegetation = 'setShowVegetation',
-    SetShowLabels = 'setShowLabels',
-    SetViewerReady = 'setViewerReady',
 }
 
 const useCesiumStore = defineStore('cesium', {

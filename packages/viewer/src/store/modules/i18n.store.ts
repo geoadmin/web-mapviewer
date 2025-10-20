@@ -8,6 +8,7 @@ import i18n, {
     langToLocale,
     type SupportedLang,
 } from '@/modules/i18n'
+import { I18nStoreActions } from '@/store/actions'
 
 export interface I18nState {
     /**
@@ -15,10 +16,6 @@ export interface I18nState {
      * (`en`,`de`,`fr,etc...)
      */
     lang: SupportedLang
-}
-
-export enum I18nStoreActions {
-    SetLang = 'setLang',
 }
 
 function enforceStartupLangIsSupported(lang: string): SupportedLang {

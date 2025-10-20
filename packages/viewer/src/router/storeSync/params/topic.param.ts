@@ -6,7 +6,8 @@ import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
 import { getDefaultValidationResponse } from '@/router/storeSync/validation'
-import useTopicsStore, { TopicsStoreActions } from '@/store/modules/topics.store'
+import { TopicsStoreActions } from '@/store/actions'
+import useTopicsStore from '@/store/modules/topics.store'
 
 const topicParamConfig = new UrlParamConfig<string>({
     urlParamName: 'topic',

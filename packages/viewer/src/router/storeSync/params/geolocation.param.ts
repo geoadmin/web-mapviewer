@@ -3,7 +3,8 @@ import type { RouteLocationNormalizedGeneric } from 'vue-router'
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
-import useGeolocationStore, { GeolocationStoreActions } from '@/store/modules/geolocation.store'
+import { GeolocationStoreActions } from '@/store/actions'
+import useGeolocationStore from '@/store/modules/geolocation.store'
 
 const geolocationParamConfig = new UrlParamConfig<boolean>({
     urlParamName: 'geolocation',
