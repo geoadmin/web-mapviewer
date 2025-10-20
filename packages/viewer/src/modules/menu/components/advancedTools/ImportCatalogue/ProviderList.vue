@@ -242,7 +242,11 @@ function goToLast() {
     goToPrevious(maxTabIndex.value + 1)
 }
 
-defineExpose({ goToFirst })
+export interface ProviderListExpose {
+    goToFirst: () => void
+}
+
+defineExpose<ProviderListExpose>({ goToFirst })
 </script>
 
 <template>
