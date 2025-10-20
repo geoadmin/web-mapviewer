@@ -7,8 +7,6 @@ platforms:
   - web
 categories:
   - geographic-information-systems
-usedBy:
-  - Various federal offices
 developmentStatus: stable
 softwareType: standalone/web
 description:
