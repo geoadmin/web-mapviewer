@@ -7,10 +7,9 @@
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 import { CoordinateSystem, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
-import { Cartesian3, Cartographic, defined, Ellipsoid, SceneTransforms } from 'cesium'
+import { Cartesian3, Cartographic, defined, Ellipsoid, SceneTransforms, type Viewer } from 'cesium'
 import proj4 from 'proj4'
-import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
-import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
+import { computed, inject, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 
 import MapPopover from '@/modules/map/components/MapPopover.vue'
 
@@ -26,7 +25,7 @@ const emits = defineEmits<{
     close: [void]
 }>()
 
-const viewer = getCesiumViewer()
+const viewer = inject<Viewer | undefined>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumPopover.vue',

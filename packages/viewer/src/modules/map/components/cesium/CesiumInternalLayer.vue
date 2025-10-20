@@ -4,18 +4,18 @@
 import type { CoordinateSystem } from '@swissgeo/coordinates'
 import { computed } from 'vue'
 import {
-    LayerType,
-    type Layer,
-    type GeoAdminWMTSLayer,
-    type ExternalWMTSLayer,
-    type GeoAdminGroupOfLayers,
-    type GeoAdminAggregateLayer,
-    type GeoAdminWMSLayer,
     type ExternalWMSLayer,
+    type ExternalWMTSLayer,
     type GeoAdmin3DLayer,
+    type GeoAdminAggregateLayer,
     type GeoAdminGeoJSONLayer,
-    type KMLLayer,
+    type GeoAdminGroupOfLayers,
+    type GeoAdminWMSLayer,
+    type GeoAdminWMTSLayer,
     type GPXLayer,
+    type KMLLayer,
+    type Layer,
+    LayerType,
 } from '@swissgeo/layers'
 import usePositionStore from '@/store/modules/position.store'
 import CesiumGeoJSONLayer from '@/modules/map/components/cesium/CesiumGeoJSONLayer.vue'

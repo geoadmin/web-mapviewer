@@ -16,7 +16,7 @@ import {
 import GeoJSON from 'ol/format/GeoJSON'
 import { LineString, Point, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
-import { computed, onMounted, onUnmounted, watch } from 'vue'
+import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 
 import type { GeoAdminGeoJSONLayer, KMLLayer as KMLLayerType, Layer } from '@swissgeo/layers'
 import { LayerType } from '@swissgeo/layers'
@@ -35,7 +35,6 @@ import useFeaturesStore from '@/store/modules/features.store'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
-import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 import type { ActionDispatcher } from '@/store/types'
 import type { LayerTooltipConfig } from '@/config/cesium.config'
 import { getSafe } from '@/utils/utils'
@@ -59,7 +58,7 @@ const visiblePrimitiveLayers = computed(() =>
     )
 )
 
-const viewer = getCesiumViewer()
+const viewer = inject<Viewer | undefined>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumInteractions.vue',
@@ -118,7 +117,7 @@ function initialize3dHighlights(): void {
     clickedHighlightPostProcessor.selected = []
 }
 function getCoordinateAtScreenCoordinate(x: number, y: number): SingleCoordinate | undefined {
-    const cartesian = getCesiumViewer()?.scene.pickPosition(new Cartesian2(x, y))
+    const cartesian = viewer?.scene.pickPosition(new Cartesian2(x, y))
     let coordinates: SingleCoordinate | undefined
     if (cartesian) {
         const cartCoords = Cartographic.fromCartesian(cartesian)
@@ -397,7 +396,6 @@ function onContextMenu(event: ScreenSpaceEventHandler.PositionedEvent): void {
 }
 // when moving over a building, we should highlight
 function onMouseMove(event: ScreenSpaceEventHandler.MotionEvent): void {
-    const viewer = getCesiumViewer()
     const aFeatureIsHighlighted = hoveredHighlightPostProcessor.selected.length === 1
 
     // we pick the first 3d feature if it's in the config
@@ -418,10 +416,7 @@ function onMouseMove(event: ScreenSpaceEventHandler.MotionEvent): void {
     }
 }
 
-const viewerForDrag = getCesiumViewer()
-if (viewerForDrag) {
-    useDragFileOverlay(viewerForDrag.container as HTMLElement)
-}
+useDragFileOverlay(viewer.container as HTMLElement)
 </script>
 
 <template>

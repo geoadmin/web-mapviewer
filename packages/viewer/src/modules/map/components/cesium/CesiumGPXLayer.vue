@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import log from '@swissgeo/log'
-import type { Entity } from 'cesium'
+import type { Entity, Viewer } from 'cesium'
 import {
     BillboardGraphics,
     Cartesian3,
@@ -11,19 +11,18 @@ import {
     GpxDataSource,
     HeightReference,
 } from 'cesium'
-import { computed, toRef, watch } from 'vue'
+import { computed, inject, toRef, watch } from 'vue'
 
 import type { GPXLayer } from '@swissgeo/layers'
 import { GPX_BILLBOARD_RADIUS } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
-import { getCesiumViewer } from './utils/viewerUtils'
 
 const { gpxLayerConfig } = defineProps<{ gpxLayerConfig: GPXLayer }>()
 
 const gpxData = computed(() => gpxLayerConfig.gpxData)
 const layerOpacity = computed(() => gpxLayerConfig.opacity)
 
-const viewer = getCesiumViewer()
+const viewer = inject<Viewer | undefined>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumGPXLayer.vue',

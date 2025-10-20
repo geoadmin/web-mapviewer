@@ -3,13 +3,15 @@ import { WGS84 } from '@swissgeo/coordinates'
 import {
     Cartesian3,
     Color,
-    HeightReference,
     ConstantPositionProperty,
     ConstantProperty,
     type Entity,
+    HeightReference,
+    type Viewer,
 } from 'cesium'
+import log from '@swissgeo/log'
 import proj4 from 'proj4'
-import { computed, onMounted, watch } from 'vue'
+import { computed, inject, onMounted, watch } from 'vue'
 import useGeolocationStore from '@/store/modules/geolocation.store'
 import usePositionStore from '@/store/modules/position.store'
 
@@ -20,7 +22,15 @@ import {
     geolocationPointFillColor,
     geolocationPointWidth,
 } from '@/utils/styleUtils'
-import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
+
+const viewer = inject<Viewer | undefined>('viewer')
+if (!viewer) {
+    log.error({
+        title: 'CesiumGeolocationFeedback.vue',
+        message: ['Viewer not initialized, cannot create geolocation feedback'],
+    })
+    throw new Error('Viewer not initialized, cannot create geolocation feedback')
+}
 
 const positionStore = usePositionStore()
 const geolocationStore = useGeolocationStore()
@@ -95,7 +105,6 @@ function transformArrayColorIntoCesiumColor(arrayColor: number[]): Color {
 }
 
 function activateTracking(): void {
-    const viewer = getCesiumViewer()
     if (viewer && geolocationPositionCartesian3.value) {
         accuracyCircleEntity = viewer.entities.add({
             id: 'geolocation-accuracy-circle',
@@ -124,7 +133,6 @@ function activateTracking(): void {
 }
 
 function removeTracking(): void {
-    const viewer = getCesiumViewer()
     if (viewer) {
         if (accuracyCircleEntity) {
             viewer.entities.removeById(accuracyCircleEntity.id)

@@ -35,6 +35,7 @@ import CesiumInteractions from '@/modules/map/components/cesium/CesiumInteractio
 import CesiumVisibleLayers from '@/modules/map/components/cesium/CesiumVisibleLayers.vue'
 
 import type { ActionDispatcher } from '@/store/types'
+
 const dispatcher: ActionDispatcher = { name: 'CesiumMap.vue' }
 
 let viewer: Viewer | undefined
@@ -185,7 +186,7 @@ async function createViewer(): Promise<void> {
     log.info('[Cesium] CesiumMap component mounted and ready')
 }
 
-provide('getViewer', () => viewer ?? undefined)
+provide<Viewer | undefined>('viewer', viewer)
 </script>
 
 <template>

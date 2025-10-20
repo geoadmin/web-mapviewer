@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { LineString, Point, Polygon } from 'ol/geom'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import useFeaturesStore from '@/store/modules/features.store'
 import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
@@ -21,11 +21,11 @@ import type { EditableFeature, LayerFeature } from '@/api/features.api'
 import useMapStore from '@/store/modules/map.store'
 import type { ActionDispatcher } from '@/store/types'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
-import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
+import type { Viewer } from 'cesium'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumHighlightedFeatures.vue' }
 
-const viewer = getCesiumViewer()
+const viewer = inject<Viewer | undefined>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumHighlightedFeatures.vue',
