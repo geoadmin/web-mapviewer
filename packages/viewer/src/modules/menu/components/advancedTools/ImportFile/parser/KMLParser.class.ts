@@ -11,7 +11,7 @@ import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
 import { getKmlExtent, isKml, isKmlFeaturesValid } from '@/utils/kmlUtils'
 
-export class KMLParser extends FileParser {
+export class KMLParser extends FileParser<KMLLayer> {
     constructor() {
         super({
             fileExtensions: ['.kml'],
@@ -26,8 +26,7 @@ export class KMLParser extends FileParser {
     }
 
     /**
-     * @param linkFiles Used in the context of a KMZ to carry the
-     *   embedded files with the layer
+     * @param linkFiles Used in the context of a KMZ to carry the embedded files with the layer
      * @param [kmzContent] Content of the whole KMZ archive (untouched/zipped), if this
      *   layer is coming from a KMZ file. Necessary to load the layer inside the Cesium viewer (to
      *   have access to the linked files).
@@ -38,7 +37,7 @@ export class KMLParser extends FileParser {
         fileSource: string | File,
         currentProjection: CoordinateSystem,
         linkFiles: Map<string, ArrayBuffer> = new Map(),
-        kmzContent?: ArrayBuffer = undefined
+        kmzContent: ArrayBuffer = undefined
     ): Promise<KMLLayer> {
         if (!fileContent || !isKml(fileContent)) {
             throw new InvalidFileContentError('No KML data found in this file')
@@ -54,7 +53,9 @@ export class KMLParser extends FileParser {
             currentProjection
         )
         if (!extentInCurrentProjection) {
-            throw new OutOfBoundsError(`KML is out of bounds of current projection: ${extent.toString()}`)
+            throw new OutOfBoundsError(
+                `KML is out of bounds of current projection: ${extent.toString()}`
+            )
         }
 
         const kmlFileUrl = this.isLocalFile(fileSource) ? fileSource.name : fileSource
@@ -72,7 +73,7 @@ export class KMLParser extends FileParser {
             )
         }
 
-        const kmlLayer: KMLLayer = layerUtils.makeKMLLayer({
+        return layerUtils.makeKMLLayer({
             opacity: 1.0,
             isVisible: true,
             extent: extentInCurrentProjection,
@@ -80,8 +81,7 @@ export class KMLParser extends FileParser {
             kmlData: kmlAsText,
             kmzContent,
             extentProjection: currentProjection,
+            warningMessages,
         })
-
-        return kmlLayer
     }
 }

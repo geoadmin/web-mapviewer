@@ -28,7 +28,7 @@ interface FileParserConfig {
  *
  * @abstract
  */
-export default abstract class FileParser {
+export default abstract class FileParser<T extends Layer> {
     fileTypeLittleEndianSignature: number[][]
     fileExtensions: string[]
     fileContentTypes: string[]
@@ -38,22 +38,21 @@ export default abstract class FileParser {
 
     /**
      * @param config.displayedName Name used to describe this file type to the end user
-     * @param config.fileTypeLittleEndianSignature Little endian signature (aka magic
-     *   numbers), if any, for this file type. Will be used to check the first 4 bytes of the file.
+     * @param config.fileTypeLittleEndianSignature Little endian signature (aka magic numbers), if
+     *   any, for this file type. Will be used to check the first 4 bytes of the file.
      * @param config.fileExtensions Which file extensions this file type is carried with
      *   (case-insensitive)
-     * @param config.fileContentTypes Which MIME types are typically associated with this
-     *   file type. Will be used with one HTTP HEAD request on the file URL (if online file) to
-     *   assert if this parser is the valid candidate for the file.
-     * @param config.shouldLoadOnlineContent Flag telling if remote content should
-     *   be loaded by this parser to properly parse it. If set to false, no GET (or proxy) request
-     *   will be fired on the file URL. Default is `true`
-     * @param config.validateFileContent Function receiving the content
-     *   from a file (as ArrayBuffer), and assessing if it is a match for this parser. Default is
-     *   `undefined`
-     * @param config.allowServiceProxy Flag telling if the content of the file can
-     *   be requested through service-proxy in case the server hosting the file doesn't support
-     *   CORS. Default is `false`
+     * @param config.fileContentTypes Which MIME types are typically associated with this file type.
+     *   Will be used with one HTTP HEAD request on the file URL (if online file) to assert if this
+     *   parser is the valid candidate for the file.
+     * @param config.shouldLoadOnlineContent Flag telling if remote content should be loaded by this
+     *   parser to properly parse it. If set to false, no GET (or proxy) request will be fired on
+     *   the file URL. Default is `true`
+     * @param config.validateFileContent Function receiving the content from a file (as
+     *   ArrayBuffer), and assessing if it is a match for this parser. Default is `undefined`
+     * @param config.allowServiceProxy Flag telling if the content of the file can be requested
+     *   through service-proxy in case the server hosting the file doesn't support CORS. Default is
+     *   `false`
      */
     constructor(config: FileParserConfig = {}) {
         const {
@@ -103,7 +102,7 @@ export default abstract class FileParser {
         )
     }
 
-    async parseLocalFile(file: File, currentProjection: CoordinateSystem): Promise<Layer> {
+    async parseLocalFile(file: File, currentProjection: CoordinateSystem): Promise<T> {
         return this.parseFileContent(await file.arrayBuffer(), file, currentProjection)
     }
 
@@ -132,11 +131,13 @@ export default abstract class FileParser {
             return this.isFileContentValid(loadedContent)
         }
 
-        log.debug(
-            `[FileParser][${this.constructor.name}] no pre-loaded content to verify, launching HEAD request on file URL`,
-            fileUrl,
-            this.constructor.name
-        )
+        log.debug({
+            title: `[FileParser][${this.constructor.name}]`,
+            messages: [
+                `no pre-loaded content to verify, launching HEAD request on file URL`,
+                fileUrl,
+            ],
+        })
         // HEAD/GET request wasn't run yet (we are not coming from the main parseLayerFromFile function)
         // so we have to run all the requests ourselves
         try {
@@ -180,25 +181,24 @@ export default abstract class FileParser {
         return false
     }
 
-    /**
-     * @abstract
-     */
+    /** @abstract */
     abstract parseFileContent(
         fileContent: ArrayBuffer | undefined,
         fileSource: File | string,
         currentProjection: CoordinateSystem
-    ): Promise<Layer>
+    ): Promise<T>
 
     async parseUrl(
         fileUrl: string,
         currentProjection: CoordinateSystem,
         options: ParseOptions = {}
-    ): Promise<Layer> {
+    ): Promise<T> {
         const { loadedContent, fileCompliance } = options
         if (loadedContent) {
-            log.debug(
-                `[FileParser][${this.constructor.name}] preloaded content detected, won't create new requests`
-            )
+            log.debug({
+                title: `[FileParser][${this.constructor.name}]`,
+                messages: [`preloaded content detected, won't create new requests`],
+            })
             return await this.parseFileContent(loadedContent, fileUrl, currentProjection)
         } else if (this.shouldLoadOnlineContent) {
             // no preloaded content, we load the file ourselves
@@ -211,6 +211,13 @@ export default abstract class FileParser {
             } else if (this.allowServiceProxy) {
                 fileContent = await getFileContentThroughServiceProxy(fileUrl)
             } else {
+                log.error({
+                    title: `[FileParser][${this.constructor.name}]`,
+                    messages: [
+                        `could not load content for file ${fileUrl}`,
+                        `CORS/HTTPS support not found`,
+                    ],
+                })
                 throw new Error(
                     `[FileParser][${this.constructor.name}] could not load content for file ${fileUrl}`
                 )
@@ -225,13 +232,16 @@ export default abstract class FileParser {
      * @throws OutOfBoundsError if the imported file is out of bound of the current projection
      * @throws EmptyFileContentError if missing data (or no data) while reading the file
      */
-    async parse(config: ParseConfig, options: ParseOptions = {}): Promise<Layer> {
+    async parse(config: ParseConfig, options: ParseOptions = {}): Promise<T> {
         const { fileSource, currentProjection } = config
         if (!fileSource || !currentProjection) {
-            log.error(
-                `[FileParser][${this.constructor.name}] Could not attempt parsing of the file, wrong configuration received`,
-                config
-            )
+            log.error({
+                title: `[FileParser][${this.constructor.name}]`,
+                messages: [
+                    ` Could not attempt parsing of the file, wrong configuration received`,
+                    config,
+                ],
+            })
             throw new Error('Invalid parsing configuration')
         }
         if (this.isLocalFile(fileSource)) {

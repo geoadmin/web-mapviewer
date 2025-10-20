@@ -13,7 +13,7 @@ import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parse
 // see http://geotiff.maptools.org/spec/geotiff6.html#6.3.3.1
 const USER_DEFINED_CS = 32767
 
-export class CloudOptimizedGeoTIFFParser extends FileParser {
+export class CloudOptimizedGeoTIFFParser extends FileParser<CloudOptimizedGeoTIFFLayer> {
     constructor() {
         super({
             fileExtensions: ['.tif', '.tiff'],
@@ -73,19 +73,19 @@ export class CloudOptimizedGeoTIFFParser extends FileParser {
             currentProjection
         )
         if (!intersection) {
-            throw new OutOfBoundsError(`COG is out of bounds of current projection: ${cogExtent.toString()}`)
+            throw new OutOfBoundsError(
+                `COG is out of bounds of current projection: ${cogExtent.toString()}`
+            )
         }
 
         const fileUrl = this.isLocalFile(fileSource) ? fileSource.name : fileSource
 
-        const cogLayer: CloudOptimizedGeoTIFFLayer = layerUtils.makeCloudOptimizedGeoTIFFLayer({
+        return layerUtils.makeCloudOptimizedGeoTIFFLayer({
             opacity: 1.0,
             isVisible: true,
             extent: extentUtils.flattenExtent(intersection),
             fileSource: fileUrl,
-            data: fileSource
+            data: fileSource,
         })
-
-        return cogLayer
     }
 }

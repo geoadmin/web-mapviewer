@@ -11,9 +11,7 @@ import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
 import { getGpxExtent } from '@/utils/gpxUtils'
 
-/**
- * Checks if file is GPX
- */
+/** Checks if file is GPX */
 export function isGpx(fileContent: ArrayBuffer): boolean {
     const stringValue = new TextDecoder('utf-8').decode(fileContent)
     return /<gpx/.test(stringValue) && /<\/gpx\s*>/.test(stringValue)
@@ -21,7 +19,7 @@ export function isGpx(fileContent: ArrayBuffer): boolean {
 
 const gpxMetadataParser = new GPX()
 
-export default class GPXParser extends FileParser {
+export default class GPXParser extends FileParser<GPXLayer> {
     constructor() {
         super({
             fileExtensions: ['.gpx'],
@@ -51,7 +49,9 @@ export default class GPXParser extends FileParser {
             currentProjection
         )
         if (!extentInCurrentProjection) {
-            throw new OutOfBoundsError(`GPX is out of bounds of current projection: ${extent.toString()}`)
+            throw new OutOfBoundsError(
+                `GPX is out of bounds of current projection: ${extent.toString()}`
+            )
         }
 
         const olGpxMetadata = (gpxMetadataParser.readMetadata(gpxAsText) ?? undefined)
