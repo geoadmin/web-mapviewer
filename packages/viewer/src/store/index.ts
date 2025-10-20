@@ -2,7 +2,6 @@ import { createPinia } from 'pinia'
 
 import storeSyncRouterPlugin from '@/router/storeSync'
 import appReadinessPlugin from '@/store/plugins/app-readiness.plugin'
-import clickOnMapPlugin from '@/store/plugins/click-on-map.plugin'
 import loadExternalLayerAttributes from '@/store/plugins/external-layers.plugin'
 import geolocationManagement from '@/store/plugins/geolocation.plugin'
 import layersConfigPlugin from '@/store/plugins/layers-config.plugin'
@@ -22,7 +21,6 @@ import updateSelectedFeatures from '@/store/plugins/update-selected-features.plu
 const pinia = createPinia()
 pinia.use(appReadinessPlugin)
 pinia.use(legacyPermalinkPlugin)
-pinia.use(clickOnMapPlugin)
 pinia.use(loadExternalLayerAttributes)
 pinia.use(geolocationManagement)
 pinia.use(loadCOGMetadataPlugin)

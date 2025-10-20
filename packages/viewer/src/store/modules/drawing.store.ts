@@ -7,6 +7,7 @@ import { EditableFeatureTypes } from '@/api/features.api'
 import { loadAllIconSetsFromBackend } from '@/api/icon.api'
 import { DrawingStoreActions } from '@/store/actions'
 import useFeaturesStore from '@/store/modules/features.store'
+import useMapStore from '@/store/modules/map.store.ts'
 
 const defaultDrawingTitle = 'draw_mode_title'
 
@@ -162,6 +163,10 @@ const useDrawingStore = defineStore('drawing', {
             this.drawingOverlay.title = title
             this.online = typeof online === 'boolean' ? online : true
             this.temporaryKmlId = kmlId
+            if (this.drawingOverlay.show) {
+                // when entering the drawing menu, we need to clear the location popup
+                useMapStore().clearLocationPopupCoordinates(dispatcher)
+            }
         },
 
         [DrawingStoreActions.SetDrawingName](name: string, dispatcher: ActionDispatcher) {
