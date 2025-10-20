@@ -2,6 +2,8 @@ import log from '@swissgeo/log'
 import { createRouter, createWebHashHistory, type Router } from 'vue-router'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import appReadinessRouterPlugin from '@/router/appReadiness.routerPlugin'
+import storeSyncRouterPlugin from '@/router/storeSync'
 import {
     EMBED_VIEW,
     LEGACY_EMBED_PARAM_VIEW,
@@ -84,4 +86,9 @@ if (IS_TESTING_WITH_CYPRESS) {
     window.vueRouterHistory = history
     window.vueRouter = router
 }
+
+appReadinessRouterPlugin(router)
+// WIP on it to make it work again, disabling it in the meantime
+// storeSyncRouterPlugin(router)
+
 export default router
