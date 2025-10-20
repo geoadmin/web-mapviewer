@@ -1,7 +1,9 @@
 import type { Layer } from '@swissgeo/layers'
 
+import { WEBMERCATOR } from '@swissgeo/coordinates'
 import { layerUtils } from '@swissgeo/layers/utils'
 import { defineStore } from 'pinia'
+import proj4 from 'proj4'
 
 import type { ActionDispatcher } from '@/store/types'
 
@@ -14,8 +16,11 @@ import {
     CESIUM_VEGETATION_LAYER_ID,
     type LayerTooltipConfig,
 } from '@/config/cesium.config'
+import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { CesiumStoreActions } from '@/store/actions'
+import useGeolocationStore from '@/store/modules/geolocation.store'
 import useLayersStore from '@/store/modules/layers.store'
+import usePositionStore from '@/store/modules/position.store'
 
 const labelLayer = layerUtils.makeGeoAdmin3DLayer({
     id: CESIUM_LABELS_LAYER_ID,
@@ -132,6 +137,35 @@ const useCesiumStore = defineStore('cesium', {
     actions: {
         [CesiumStoreActions.Set3dActive](active: boolean, dispatcher: ActionDispatcher) {
             this.active = active
+
+            const geolocationStore = useGeolocationStore()
+            const positionStore = usePositionStore()
+
+            if (DEFAULT_PROJECTION.epsg !== WEBMERCATOR.epsg) {
+                if (this.active) {
+                    // We also need to re-project the geolocation position
+                    if (geolocationStore.position) {
+                        const geolocationPosition = proj4(
+                            positionStore.projection.epsg,
+                            WEBMERCATOR.epsg,
+                            geolocationStore.position
+                        )
+                        geolocationStore.setGeolocationPosition(geolocationPosition, dispatcher)
+                    }
+                    positionStore.setProjection(WEBMERCATOR, dispatcher)
+                } else {
+                    // We also need to re-project the geolocation position
+                    if (geolocationStore.position) {
+                        const geolocationPosition = proj4(
+                            positionStore.projection.epsg,
+                            DEFAULT_PROJECTION.epsg,
+                            geolocationStore.position
+                        )
+                        geolocationStore.setGeolocationPosition(geolocationPosition, dispatcher)
+                    }
+                    positionStore.setProjection(DEFAULT_PROJECTION, dispatcher)
+                }
+            }
         },
         [CesiumStoreActions.SetShowConstructionsBuildings](
             show: boolean,

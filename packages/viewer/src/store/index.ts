@@ -1,7 +1,6 @@
 import { createPinia } from 'pinia'
 
 import storeSyncRouterPlugin from '@/router/storeSync'
-import from2Dto3DPlugin from '@/store/plugins/2d-to-3d.plugin'
 import appReadinessPlugin from '@/store/plugins/app-readiness.plugin'
 import clickOnMapPlugin from '@/store/plugins/click-on-map.plugin'
 import loadExternalLayerAttributes from '@/store/plugins/external-layers.plugin'
@@ -19,12 +18,10 @@ import storeActionLogPlugin from '@/store/plugins/store-action-log.plugin'
 import registerSyncCameraLonLatZoom from '@/store/plugins/sync-camera-lonlatzoom'
 import topicChangeManagement from '@/store/plugins/topic-change-management.plugin'
 import updateSelectedFeatures from '@/store/plugins/update-selected-features.plugin'
-import vuexLogPlugin from '@/store/plugins/vuex-log.plugin'
 
 const pinia = createPinia()
 pinia.use(appReadinessPlugin)
 pinia.use(legacyPermalinkPlugin)
-pinia.use(from2Dto3DPlugin)
 pinia.use(clickOnMapPlugin)
 pinia.use(loadExternalLayerAttributes)
 pinia.use(geolocationManagement)
