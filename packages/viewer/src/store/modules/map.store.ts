@@ -5,6 +5,8 @@ import { defineStore } from 'pinia'
 import type { SelectableFeature } from '@/api/features.api'
 import type { ActionDispatcher } from '@/store/types'
 
+import { MapStoreActions } from '@/store/actions'
+
 export enum ClickType {
     /* Any action that triggers the context menu, so for example, right click with a mouse or
     a long click with the finger on a touch device.*/
@@ -46,18 +48,6 @@ export interface MapState {
     /** Tells if the map is in print mode, meaning it will jump to a higher zoom level early. */
     printMode: boolean
     rectangleSelectionExtent: FlatExtent | undefined
-}
-
-export enum MapStoreActions {
-    Click = 'click',
-    ClearClick = 'clearClick',
-    SetPinnedLocation = 'setPinnedLocation',
-    SetPreviewedPinnedLocation = 'setPreviewedPinnedLocation',
-    ClearPreviewPinnedLocation = 'clearPreviewPinnedLocation',
-    ClearLocationPopupCoordinates = 'clearLocationPopupCoordinates',
-    SetLocationPopupCoordinates = 'setLocationPopupCoordinates',
-    SetPrintMode = 'setPrintMode',
-    SetRectangleSelectionExtent = 'setRectangleSelectionExtent',
 }
 
 const useMapStore = defineStore('map', {

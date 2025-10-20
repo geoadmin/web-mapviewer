@@ -8,6 +8,8 @@ import { defineStore } from 'pinia'
 import type { SelectableFeature } from '@/api/features.api'
 import type { ActionDispatcher } from '@/store/types'
 
+import { ProfileStoreActions } from '@/store/actions'
+
 export function canFeatureShowProfile(feature?: SelectableFeature<boolean>): boolean {
     return (
         !!feature?.geometry &&
@@ -115,11 +117,6 @@ export interface ProfileState {
      * used jointly with the currentMultiFeatureIndex when dealing with MultiPolygons
      */
     currentFeatureGeometryIndex: number
-}
-
-export enum ProfileStoreActions {
-    SetCurrentFeatureSegmentIndex = 'setCurrentFeatureSegmentIndex',
-    SetProfileFeature = 'setProfileFeature',
 }
 
 const useProfileStore = defineStore('profile', {

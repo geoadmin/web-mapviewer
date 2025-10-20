@@ -2,17 +2,13 @@ import { defineStore } from 'pinia'
 
 import type { ActionDispatcher } from '@/store/types'
 
+import { DebugStoreActions } from '@/store/actions'
+
 /** Module that contains debug tools things */
 interface DebugState {
     showTileDebugInfo: boolean
     showLayerExtents: boolean
     hasBaseUrlOverrides: boolean
-}
-
-export enum DebugStoreActions {
-    ToggleShowTileDebugInfo = 'toggleShowTileDebugInfo',
-    ToggleShowLayerExtents = 'toggleShowLayerExtents',
-    SetHasBaseUrlOverrides = 'setHasBaseUrlOverrides',
 }
 
 const useDebugStore = defineStore('debug', {

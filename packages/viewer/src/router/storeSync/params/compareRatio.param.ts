@@ -4,7 +4,8 @@ import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
 import { getDefaultValidationResponse } from '@/router/storeSync/validation'
-import useUIStore, { UIStoreActions } from '@/store/modules/ui.store'
+import { UIStoreActions } from '@/store/actions'
+import useUIStore from '@/store/modules/ui.store'
 
 function dispatchCompareSliderFromUrlParam(
     _: RouteLocationNormalizedGeneric,

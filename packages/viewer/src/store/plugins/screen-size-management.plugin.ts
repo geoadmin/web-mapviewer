@@ -3,7 +3,8 @@ import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 import type { ActionDispatcher } from '@/store/types'
 
 import { BREAKPOINT_PHONE_HEIGHT, BREAKPOINT_PHONE_WIDTH } from '@/config/responsive.config'
-import useUIStore, { UIModes, UIStoreActions } from '@/store/modules/ui.store'
+import { UIStoreActions } from '@/store/actions'
+import useUIStore, { UIModes } from '@/store/modules/ui.store'
 import { isEnumValue } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'screen-size-management.plugin' }

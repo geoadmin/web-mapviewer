@@ -24,6 +24,7 @@ import {
     DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION,
     DEFAULT_FEATURE_COUNT_SINGLE_POINT,
 } from '@/config/map.config'
+import { FeatureStoreActions } from '@/store/actions'
 import useI18nStore from '@/store/modules/i18n.store'
 import useLayersStore from '@/store/modules/layers.store'
 import useMapStore from '@/store/modules/map.store'
@@ -175,28 +176,6 @@ export interface FeaturesState {
     selectedFeaturesByLayerId: FeaturesForLayer[]
     selectedEditableFeatures: EditableFeature[]
     highlightedFeatureId: string | undefined
-}
-
-export enum FeatureStoreActions {
-    SetSelectedFeatures = 'setSelectedFeatures',
-    IdentifyFeatureAt = 'identifyFeatureAt',
-    LoadMoreFeaturesForLayer = 'loadMoreFeaturesForLayer',
-    ClearAllSelectedFeatures = 'clearAllSelectedFeatures',
-    SetHighlightedFeatureId = 'setHighlightedFeatureId',
-    ChangeFeatureCoordinates = 'changeFeatureCoordinates',
-    ChangeFeatureGeometry = 'changeFeatureGeometry',
-    ChangeFeatureTitle = 'changeFeatureTitle',
-    ChangeFeatureDescription = 'changeFeatureDescription',
-    ChangeFeatureShownDescriptionOnMap = 'changeFeatureShownDescriptionOnMap',
-    ChangeFeatureColor = 'changeFeatureColor',
-    ChangeFeatureTextColor = 'changeFeatureTextColor',
-    ChangeFeatureIcon = 'changeFeatureIcon',
-    ChangeFeatureIconSize = 'changeFeatureIconSize',
-    ChangeFeatureTextPlacement = 'changeFeatureTextPlacement',
-    ChangeFeatureTextOffset = 'changeFeatureTextOffset',
-    ChangeFeatureTextSize = 'changeFeatureTextSize',
-    ChangeFeatureIsDragged = 'changeFeatureIsDragged',
-    UpdateFeatures = 'updateFeatures',
 }
 
 const useFeaturesStore = defineStore('features', {

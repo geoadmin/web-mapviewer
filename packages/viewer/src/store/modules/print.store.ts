@@ -7,6 +7,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { PrintLayout, readPrintCapabilities } from '@/api/print.api'
 import { PRINT_DEFAULT_DPI } from '@/config/print.config'
+import { PrintStoreActions } from '@/store/actions'
 
 export interface NewPrintServiceConfig {
     dpi: number
@@ -25,15 +26,6 @@ export interface PrintState {
 export interface PrintLayoutSize {
     width: number
     height: number
-}
-
-export enum PrintStoreActions {
-    LoadPrintLayouts = 'loadPrintLayouts',
-    SetSelectedScale = 'setSelectedScale',
-    SetSelectedLayout = 'setSelectedLayout',
-    SetPrintSectionShown = 'setPrintSectionShown',
-    SetPrintExtent = 'setPrintExtent',
-    SetPrintConfig = 'setPrintConfig',
 }
 
 const usePrintStore = defineStore('print', {

@@ -3,7 +3,8 @@ import type { RouteLocationNormalizedGeneric } from 'vue-router'
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
-import useUIStore, { UIStoreActions } from '@/store/modules/ui.store'
+import { UIStoreActions } from '@/store/actions'
+import useUIStore from '@/store/modules/ui.store'
 
 const hideEmbedUIParam = new UrlParamConfig<boolean>({
     urlParamName: 'hideEmbedUI',

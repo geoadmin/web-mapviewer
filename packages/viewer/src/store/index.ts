@@ -15,6 +15,7 @@ import loadKmlDataAndMetadata from '@/store/plugins/load-kml-kmz-data.plugin'
 import redoSearchWhenNeeded from '@/store/plugins/redo-search-when-needed.plugin'
 import reprojectPlugin from '@/store/plugins/reproject.plugin'
 import screenSizeManagement from '@/store/plugins/screen-size-management.plugin'
+import storeActionLogPlugin from '@/store/plugins/store-action-log.plugin'
 import registerSyncCameraLonLatZoom from '@/store/plugins/sync-camera-lonlatzoom'
 import topicChangeManagement from '@/store/plugins/topic-change-management.plugin'
 import updateSelectedFeatures from '@/store/plugins/update-selected-features.plugin'
@@ -37,7 +38,7 @@ pinia.use(reprojectPlugin)
 pinia.use(screenSizeManagement)
 pinia.use(topicChangeManagement)
 pinia.use(updateSelectedFeatures)
-pinia.use(vuexLogPlugin)
+pinia.use(storeActionLogPlugin)
 pinia.use(registerSyncCameraLonLatZoom)
 pinia.use(storeSyncRouterPlugin)
 

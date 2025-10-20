@@ -4,7 +4,8 @@ import { URL_PARAM_NAME_SWISSSEARCH } from '@/router/storeSync/params/swisssearc
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
-import useSearchStore, { SearchStoreActions } from '@/store/modules/search.store'
+import { SearchStoreActions } from '@/store/actions'
+import useSearchStore from '@/store/modules/search.store'
 import { removeQueryParamFromHref } from '@/utils/searchParamUtils'
 
 const URL_PARAM_NAME = 'swisssearch_autoselect'

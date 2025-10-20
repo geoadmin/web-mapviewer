@@ -25,6 +25,7 @@ import { defineStore } from 'pinia'
 import type { ActionDispatcher } from '@/store/types'
 
 import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
+import { LayerStoreActions } from '@/store/actions'
 import usePositionStore from '@/store/modules/position.store'
 import { getGpxExtent } from '@/utils/gpxUtils'
 import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
@@ -66,32 +67,6 @@ export interface LayersState {
     systemLayers: Layer[]
 
     previewYear?: number
-}
-
-export enum LayerStoreActions {
-    SetBackground = 'setBackground',
-    SetPreviewYear = 'setPreviewYear',
-    SetTimedLayerCurrentYear = 'setTimedLayerCurrentYear',
-    SetLayerConfig = 'setLayerConfig',
-    AddLayer = 'addLayer',
-    SetLayers = 'setLayers',
-    RemoveLayer = 'removeLayer',
-    UpdateLayer = 'updateLayer',
-    UpdateLayers = 'updateLayers',
-    ClearLayers = 'clearLayers',
-    ToggleLayerVisibility = 'toggleLayerVisibility',
-    SetLayerVisibility = 'setLayerVisibility',
-    SetLayerOpacity = 'setLayerOpacity',
-    SetTimedLayerCurrentTimeEntry = 'setTimedLayerCurrentTimeEntry',
-    MoveActiveLayerToIndex = 'moveActiveLayerToIndex',
-    SetPreviewLayer = 'setPreviewLayer',
-    ClearPreviewLayer = 'clearPreviewLayer',
-    AddLayerError = 'addLayerError',
-    RemoveLayerError = 'removeLayerError',
-    SetKmlGpxLayerData = 'setKmlGpxLayerData',
-    AddSystemLayer = 'addSystemLayer',
-    UpdateSystemLayer = 'updateSystemLayer',
-    RemoveSystemLayer = 'removeSystemLayer',
 }
 
 /**

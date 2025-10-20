@@ -4,8 +4,9 @@ import log from '@swissgeo/log'
 
 import type { ActionDispatcher } from '@/store/types'
 
+import { LayerStoreActions } from '@/store/actions'
 import useFeaturesStore from '@/store/modules/features.store'
-import useLayersStore, { LayerStoreActions } from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers.store'
 import useMapStore from '@/store/modules/map.store'
 import { isEnumValue } from '@/utils/utils'
 

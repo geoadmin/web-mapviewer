@@ -5,7 +5,8 @@ import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
 import { getDefaultValidationResponse } from '@/router/storeSync/validation'
-import useI18nStore, { I18nStoreActions } from '@/store/modules/i18n.store'
+import { I18nStoreActions } from '@/store/actions'
+import useI18nStore from '@/store/modules/i18n.store'
 
 function parseLang(urlParamValue?: string): SupportedLang | undefined {
     if (!urlParamValue) {

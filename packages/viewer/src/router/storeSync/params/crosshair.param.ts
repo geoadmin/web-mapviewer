@@ -10,7 +10,8 @@ import {
     getDefaultValidationResponse,
     type ValidationResponse,
 } from '@/router/storeSync/validation'
-import usePositionStore, { CrossHairs, PositionStoreActions } from '@/store/modules/position.store'
+import { PositionStoreActions } from '@/store/actions'
+import usePositionStore, { CrossHairs } from '@/store/modules/position.store'
 import { isEnumValue } from '@/utils/utils'
 
 interface ParsedCrosshair {

@@ -12,7 +12,8 @@ import { ErrorMessage } from '@swissgeo/log/Message'
 import type { ActionDispatcher } from '@/store/types'
 
 import GPXParser from '@/modules/menu/components/advancedTools/ImportFile/parser/GPXParser.class'
-import useLayersStore, { LayerStoreActions } from '@/store/modules/layers.store'
+import { LayerStoreActions } from '@/store/actions'
+import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
 import { isEnumValue } from '@/utils/utils'
 

@@ -18,7 +18,8 @@ import UrlParamConfig, {
     type UrlParamConfigTypes,
 } from '@/router/storeSync/UrlParamConfig.class'
 import { MAP_VIEWS } from '@/router/viewNames'
-import useAppStore, { AppStoreActions } from '@/store/modules/app.store'
+import { AppStoreActions } from '@/store/actions'
+import useAppStore from '@/store/modules/app.store'
 import useShareStore from '@/store/modules/share.store'
 import { isEnumValue } from '@/utils/utils'
 

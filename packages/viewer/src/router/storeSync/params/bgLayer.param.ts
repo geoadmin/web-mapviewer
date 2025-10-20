@@ -4,7 +4,8 @@ import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
 import { getDefaultValidationResponse } from '@/router/storeSync/validation'
-import useLayersStore, { LayerStoreActions } from '@/store/modules/layers.store'
+import { LayerStoreActions } from '@/store/actions'
+import useLayersStore from '@/store/modules/layers.store'
 
 const backgroundLayerParamConfig = new UrlParamConfig<string>({
     urlParamName: 'bgLayer',

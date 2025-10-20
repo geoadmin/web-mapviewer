@@ -14,7 +14,8 @@ import axios from 'axios'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import useLayersStore, { LayerStoreActions } from '@/store/modules/layers.store'
+import { LayerStoreActions } from '@/store/actions'
+import useLayersStore from '@/store/modules/layers.store'
 import useUIStore from '@/store/modules/ui.store'
 import { isEnumValue } from '@/utils/utils'
 

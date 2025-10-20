@@ -5,6 +5,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import { loadAllIconSetsFromBackend } from '@/api/icon.api'
+import { DrawingStoreActions } from '@/store/actions'
 import useFeaturesStore from '@/store/modules/features.store'
 
 const defaultDrawingTitle = 'draw_mode_title'
@@ -54,21 +55,6 @@ export interface DrawingState {
     isDrawingModified: boolean
     /** Flag to indicate if the website is visited with an admin id */
     isVisitWithAdminId: boolean
-}
-
-export enum DrawingStoreActions {
-    SetDrawingMode = 'setDrawingMode',
-    SetIsDrawingEditShared = 'setIsDrawingEditShared',
-    SetIsDrawingModified = 'setIsDrawingModified',
-    SetIsVisitWithAdminId = 'setIsVisitWithAdminId',
-    LoadAvailableIconSets = 'loadAvailableIconSets',
-    AddDrawingFeature = 'addDrawingFeature',
-    DeleteDrawingFeature = 'deleteDrawingFeature',
-    ClearDrawingFeatures = 'clearDrawingFeatures',
-    SetDrawingFeatures = 'setDrawingFeatures',
-    ToggleDrawingOverlay = 'toggleDrawingOverlay',
-    SetDrawingName = 'setDrawingName',
-    SetEditingMode = 'setEditingMode',
 }
 
 const useDrawingStore = defineStore('drawing', {
