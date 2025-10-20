@@ -51,7 +51,11 @@ if (position.value) {
         log.error('OpenLayersMap is not available')
         throw new Error('OpenLayersMap is not available')
     }
-    useAddLayerToMap(layer, olMap, toRef(zIndex))
+    useAddLayerToMap(
+        layer,
+        olMap,
+        toRef(() => zIndex)
+    )
 
     // reacting to changes accordingly
     watch(position, (newPosition) => {
