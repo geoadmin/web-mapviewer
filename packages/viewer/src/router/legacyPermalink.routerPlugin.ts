@@ -35,7 +35,7 @@ function toNumber(input: string | number): number {
 }
 
 async function handleLegacyKmlAdminIdParam(
-    legacyParams: URLSearchParams,
+    adminId: string,
     newQuery: LocationQueryRaw
 ): Promise<void> {
     log.debug({
@@ -43,22 +43,16 @@ async function handleLegacyKmlAdminIdParam(
         titleColor: LogPreDefinedColor.Amber,
         messages: ['Transforming legacy kml adminId, get KML ID from adminId...'],
     })
-    const adminId = legacyParams.get('adminId')
-    if (adminId) {
-        const kmlLayer = await getKmlLayerFromLegacyAdminIdParam(adminId)
-        log.debug({
-            title: 'Legacy URL',
-            titleColor: LogPreDefinedColor.Amber,
-            messages: ['Adding KML layer from legacy kml adminId'],
-        })
-        if (newQuery.layers && typeof newQuery.layers === 'string') {
-            newQuery.layers = `${newQuery.layers};KML|${kmlLayer.id}@adminId=${kmlLayer.adminId}`
-        } else {
-            newQuery.layers = `KML|${kmlLayer.id}@adminId=${kmlLayer.adminId}`
-        }
-
-        // remove the legacy param from the newQuery
-        delete newQuery.adminId
+    const kmlLayer = await getKmlLayerFromLegacyAdminIdParam(adminId)
+    log.debug({
+        title: 'Legacy URL',
+        titleColor: LogPreDefinedColor.Amber,
+        messages: ['Adding KML layer from legacy kml adminId'],
+    })
+    if (newQuery.layers && typeof newQuery.layers === 'string') {
+        newQuery.layers = `${newQuery.layers};KML|${kmlLayer.id}@adminId=${kmlLayer.adminId}`
+    } else {
+        newQuery.layers = `KML|${kmlLayer.id}@adminId=${kmlLayer.adminId}`
     }
 }
 
@@ -254,7 +248,8 @@ async function handleLegacyParams(
     })
     if (
         cameraPosition.x !== Number.NEGATIVE_INFINITY &&
-        cameraPosition.y !== Number.NEGATIVE_INFINITY
+        cameraPosition.y !== Number.NEGATIVE_INFINITY &&
+        cameraPosition.z !== Number.NEGATIVE_INFINITY
     ) {
         const { x, y, z, pitch, heading, roll } = cameraPosition
         newQuery['camera'] = [x, y, z, pitch, heading, roll]
@@ -327,20 +322,23 @@ async function handleLegacyParams(
         window.location.href.indexOf('?')
     )
     window.history.replaceState(window.history.state, document.title, urlWithoutQueryParam)
-    if (legacyParams.get('adminId')) {
+    const adminId : string | null = legacyParams.get('adminId')
+    if (adminId) {
         // adminId legacy param cannot be handle above in the loop because it needs to add a layer
         // to the layers param, thats why we do handle after.
         try {
-            await handleLegacyKmlAdminIdParam(legacyParams, newQuery)
+            await handleLegacyKmlAdminIdParam(adminId, newQuery)
         } catch (error) {
             log.error({
                 title: 'Legacy URL',
                 titleColor: LogPreDefinedColor.Amber,
                 messages: [`Failed to retrieve KML from admin_id`, error],
             })
-            // make sure to remove the adminId from the query
-            delete newQuery.adminId
         }
+
+        // make sure to remove the adminId from the query
+        delete newQuery.adminId
+
         return {
             name: originView,
             query: newQuery,
