@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { ExternalLayer } from '@swissgeo/layers'
 
-import { computed, ref, useTemplateRef, watch } from 'vue'
+import { type ComponentPublicInstance, computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import ProviderList from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderList.vue'
+import ProviderList, {
+    type ProviderListExpose,
+} from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderList.vue'
 import { useCapabilities } from '@/modules/menu/components/advancedTools/ImportCatalogue/useCapabilities'
 import { useProviders } from '@/modules/menu/components/advancedTools/ImportCatalogue/useProviders'
 import { isValidUrl } from '@/utils/utils'
@@ -23,15 +25,14 @@ const i18nStore = useI18nStore()
 const url = ref('')
 const isCapabilitiesParsed = ref<boolean>(false)
 const errorMessage = ref<string | undefined>()
-// TODO: type this to ComponentPublicInstance<ProviderList> as soon as ProviderList is migrated to TS (and exposes an interface describing what is exported)
-const providerList = useTemplateRef('providerList')
+const providerList = useTemplateRef<ComponentPublicInstance<ProviderListExpose>>('providerList')
 const isLoading = ref<boolean>(false)
 const providerInput = useTemplateRef<HTMLInputElement>('providerInput')
 
 const { groupedProviders, showProviders, filterApplied, toggleProviders, filterText } =
     useProviders(url.value)
 
-const { loadCapabilities } = useCapabilities(new URL(url.value))
+const { loadCapabilities } = useCapabilities(url)
 
 // Computed properties
 const isValid = computed<boolean>(() => !errorMessage.value && isCapabilitiesParsed.value)

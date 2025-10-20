@@ -25,7 +25,7 @@ interface UseCapabilitiesResponse {
     wmsMaxSize?: WMSMaxSize
 }
 
-export function useCapabilities(newUrl: MaybeRef<URL>) {
+export function useCapabilities(newUrl: MaybeRef<string>) {
     const url = toRef(newUrl)
 
     const positionStore = usePositionStore()
@@ -80,7 +80,7 @@ export function useCapabilities(newUrl: MaybeRef<URL>) {
     }
 
     async function loadCapabilities(): Promise<UseCapabilitiesResponse> {
-        const fullUrl = guessExternalLayerUrl(url.value.toString(), i18nStore.lang)
+        const fullUrl = guessExternalLayerUrl(url.value, i18nStore.lang)
 
         try {
             const response = await axios.get(fullUrl.toString(), {
