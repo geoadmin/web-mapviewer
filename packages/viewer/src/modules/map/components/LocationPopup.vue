@@ -17,7 +17,7 @@ import { stringifyQuery } from '@/utils/url-router'
 import useMapStore from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'
 import useCesiumStore from '@/store/modules/cesium.store'
-import { useI18nStore } from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n.store'
 import type { ActionDispatcher } from '@/store/types'
 
 const dispatcher: ActionDispatcher = { name: 'LocationPopup.vue' }

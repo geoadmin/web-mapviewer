@@ -8,7 +8,7 @@ import ProviderList from '@/modules/menu/components/advancedTools/ImportCatalogu
 import { useCapabilities } from '@/modules/menu/components/advancedTools/ImportCatalogue/useCapabilities'
 import { useProviders } from '@/modules/menu/components/advancedTools/ImportCatalogue/useProviders'
 import { isValidUrl } from '@/utils/utils'
-import { useI18nStore } from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n.store'
 import { CapabilitiesError } from '@swissgeo/layers/validation'
 
 const emit = defineEmits<{

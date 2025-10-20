@@ -21,7 +21,7 @@ import { ErrorMessage } from '@swissgeo/log/Message'
 import type { SupportedLang } from '@/modules/i18n'
 import type { ActionDispatcher } from '@/store/types'
 
-import { useI18nStore } from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n.store'
 import useLayersStore, { LayerStoreActions } from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
 import { isEnumValue } from '@/utils/utils'

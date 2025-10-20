@@ -28,7 +28,7 @@ function enforceStartupLangIsSupported(lang: string): SupportedLang {
     return 'en'
 }
 
-export const useI18nStore = defineStore('i18n', {
+const useI18nStore = defineStore('i18n', {
     state: (): I18nState => ({
         lang: enforceStartupLangIsSupported(defaultLocal),
     }),
@@ -40,3 +40,5 @@ export const useI18nStore = defineStore('i18n', {
         },
     },
 })
+
+export default useI18nStore

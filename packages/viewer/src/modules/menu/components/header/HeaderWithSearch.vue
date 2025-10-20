@@ -13,7 +13,7 @@ import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import useUIStore from '@/store/modules/ui.store'
 import useLayersStore from '@/store/modules/layers.store'
-import { useI18nStore } from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n.store'
 import useTopicsStore from '@/store/modules/topics.store'
 
 const dispatcher = { name: 'HeaderWithSearch.vue' }

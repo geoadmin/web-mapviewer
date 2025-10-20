@@ -31,7 +31,7 @@ import {
 
 import useDrawingStore from '@/store/modules/drawing.store'
 import useFeatureStore from '@/store/modules/features.store'
-import { useI18nStore } from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n.store'
 import type { DrawingIcon } from '@/api/icon.api'
 
 const dispatcher = { name: 'FeatureStyleEdit.vue' }

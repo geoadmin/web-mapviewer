@@ -12,7 +12,7 @@ import {
     isWmsGetCap,
     isWmtsGetCap,
 } from '@/modules/menu/components/advancedTools/ImportCatalogue/utils'
-import { useI18nStore } from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n.store'
 import usePositionStore from '@/store/modules/position.store'
 
 interface WMSMaxSize {
