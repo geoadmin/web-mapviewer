@@ -11,7 +11,7 @@ import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
 import { getKmlExtent, isKml, isKmlFeaturesValid } from '@/utils/kmlUtils'
 
-export class KMLParser extends FileParser {
+export class KMLParser extends FileParser<KMLLayer> {
     constructor() {
         super({
             fileExtensions: ['.kml'],
@@ -25,10 +25,7 @@ export class KMLParser extends FileParser {
         })
     }
 
-    /**
-     * @param linkFiles Used in the context of a KMZ to carry the
-     *   embedded files with the layer
-     */
+    /** @param linkFiles Used in the context of a KMZ to carry the embedded files with the layer */
     // eslint-disable-next-line @typescript-eslint/require-await
     async parseFileContent(
         fileContent: ArrayBuffer | undefined,
@@ -50,7 +47,9 @@ export class KMLParser extends FileParser {
             currentProjection
         )
         if (!extentInCurrentProjection) {
-            throw new OutOfBoundsError(`KML is out of bounds of current projection: ${extent.toString()}`)
+            throw new OutOfBoundsError(
+                `KML is out of bounds of current projection: ${extent.toString()}`
+            )
         }
 
         const kmlFileUrl = this.isLocalFile(fileSource) ? fileSource.name : fileSource
@@ -68,15 +67,14 @@ export class KMLParser extends FileParser {
             )
         }
 
-        const kmlLayer: KMLLayer = layerUtils.makeKMLLayer({
+        return layerUtils.makeKMLLayer({
             opacity: 1.0,
             isVisible: true,
             extent: extentInCurrentProjection,
             kmlFileUrl,
             kmlData: kmlAsText,
             extentProjection: currentProjection,
+            warningMessages,
         })
-
-        return kmlLayer
     }
 }

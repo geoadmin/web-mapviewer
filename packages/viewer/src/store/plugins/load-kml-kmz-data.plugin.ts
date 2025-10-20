@@ -136,7 +136,7 @@ async function loadData(kmlLayer: KMLLayer): Promise<void> {
                 currentProjection: positionStore.projection,
             },
             {
-                fileCompliance: mimeType,
+                fileCompliance: complianceCheck,
                 loadedContent: loadedContent ?? undefined,
             }
         )
@@ -158,7 +158,7 @@ async function loadData(kmlLayer: KMLLayer): Promise<void> {
                 currentProjection: positionStore.projection,
             },
             {
-                fileCompliance: mimeType,
+                fileCompliance: complianceCheck,
                 loadedContent: loadedContent ?? undefined,
             }
         )
