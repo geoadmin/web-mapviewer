@@ -2,8 +2,13 @@
 import { WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import { ErrorMessage } from '@swissgeo/log/Message'
-import { Rectangle, UrlTemplateImageryProvider, WebMapTileServiceImageryProvider } from 'cesium'
-import { computed, onBeforeUnmount, ref, toRef, watch } from 'vue'
+import {
+    Rectangle,
+    UrlTemplateImageryProvider,
+    type Viewer,
+    WebMapTileServiceImageryProvider,
+} from 'cesium'
+import { computed, inject, onBeforeUnmount, ref, toRef, watch } from 'vue'
 
 import type { ExternalWMTSLayer, GeoAdminWMTSLayer } from '@swissgeo/layers'
 import { WMTSEncodingType } from '@swissgeo/layers'
@@ -13,7 +18,6 @@ import useAddImageryLayer from '@/modules/map/components/cesium/utils/useAddImag
 import usePositionStore from '@/store/modules/position.store'
 import useLayersStore from '@/store/modules/layers.store'
 import type { ActionDispatcher } from '@/store/types'
-import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumWMTSLayer.vue' }
 
@@ -30,7 +34,7 @@ const {
     parentLayerOpacity?: number
 }>()
 
-const viewer = getCesiumViewer()
+const viewer = inject<Viewer | undefined>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumWMTSLayer.vue',
@@ -142,7 +146,12 @@ function createProvider(): WebMapTileServiceImageryProvider | UrlTemplateImagery
     return provider
 }
 
-const { refreshLayer } = useAddImageryLayer(viewer, createProvider, toRef(zIndex), toRef(opacity))
+const { refreshLayer } = useAddImageryLayer(
+    viewer,
+    createProvider,
+    toRef(() => zIndex),
+    toRef(opacity)
+)
 </script>
 
 <template>

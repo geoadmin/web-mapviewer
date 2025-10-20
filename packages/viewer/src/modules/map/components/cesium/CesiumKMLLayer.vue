@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import log from '@swissgeo/log'
-import type { Entity, KmlDataSource as KmlDataSourceType } from 'cesium'
+import type { Entity, KmlDataSource as KmlDataSourceType, Viewer } from 'cesium'
 import {
     ArcType,
     Color,
@@ -12,13 +12,12 @@ import {
     LabelStyle,
     VerticalOrigin,
 } from 'cesium'
-import { computed, toRef, watch } from 'vue'
+import { computed, inject, toRef, watch } from 'vue'
 
 import type { KMLLayer } from '@swissgeo/layers'
 import { DEFAULT_MARKER_HORIZONTAL_OFFSET } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
 import { getFeatureDescriptionMap } from '@/utils/kmlUtils'
-import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 
 const { kmlLayerConfig } = defineProps<{ kmlLayerConfig: KMLLayer }>()
 
@@ -26,7 +25,7 @@ const kmlData = computed(() => kmlLayerConfig.kmlData)
 const kmlStyle = computed(() => kmlLayerConfig.style)
 const isClampedToGround = computed(() => kmlLayerConfig.clampToGround)
 
-const viewer = getCesiumViewer()
+const viewer = inject<Viewer | undefined>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumKMLLayer.vue',

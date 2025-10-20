@@ -3,10 +3,10 @@ import useCesiumStore from '@/store/modules/cesium.store'
 import usePositionStore from '@/store/modules/position.store'
 import type { ActionDispatcher } from '@/store/types'
 import GeoadminTooltip from '@swissgeo/tooltip'
-import { Ray } from 'cesium'
-import { computed } from 'vue'
+import { Ray, type Viewer } from 'cesium'
+import { computed, inject } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
+import log from '@swissgeo/log'
 
 const dispatcher: ActionDispatcher = { name: 'ZoomButtons.vue' }
 
@@ -17,8 +17,16 @@ const positionStore = usePositionStore()
 const step = computed(() => positionStore.resolution * 200)
 
 function moveCamera(distance: number) {
-    const viewer = getCesiumViewer()
-    const camera = viewer?.scene?.camera
+    const viewer = inject<Viewer | undefined>('viewer')
+    if (!viewer) {
+        log.error({
+            title: 'ZoomButton.vue',
+            message: ['3D viewer not initialized, cannot hook zoom buttons to it'],
+        })
+        throw new Error('3D viewer not initialized, cannot hook zoom buttons to it')
+    }
+
+    const camera = viewer.scene?.camera
     if (camera) {
         camera.flyTo({
             destination: Ray.getPoint(new Ray(camera.position, camera.direction), distance),

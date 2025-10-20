@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { WGS84 } from '@swissgeo/coordinates'
-import { Rectangle, WebMapServiceImageryProvider } from 'cesium'
+import { Rectangle, type Viewer, WebMapServiceImageryProvider } from 'cesium'
 import { cloneDeep } from 'lodash'
-import { computed, toRef, watch } from 'vue'
+import { computed, inject, toRef, watch } from 'vue'
 
 import type { ExternalWMSLayer, GeoAdminWMSLayer } from '@swissgeo/layers'
 import { ALL_YEARS_TIMESTAMP } from '@swissgeo/layers'
@@ -12,7 +12,6 @@ import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useAddImageryLayer from '@/modules/map/components/cesium/utils/useAddImageryLayer.composable'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
 import useI18nStore from '@/store/modules/i18n.store'
-import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 
 const MAXIMUM_LEVEL_OF_DETAILS = 18
 
@@ -26,7 +25,7 @@ const {
     parentLayerOpacity?: number
 }>()
 
-const viewer = getCesiumViewer()
+const viewer = inject<Viewer | undefined>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumWMSLayer.vue',
@@ -90,7 +89,12 @@ function createProvider() {
         rectangle: Rectangle.fromDegrees(...DEFAULT_PROJECTION.getBoundsAs(WGS84)!.flatten),
     })
 }
-const { refreshLayer } = useAddImageryLayer(viewer, createProvider, toRef(zIndex), toRef(opacity))
+const { refreshLayer } = useAddImageryLayer(
+    viewer,
+    createProvider,
+    toRef(() => zIndex),
+    toRef(opacity)
+)
 </script>
 
 <template>

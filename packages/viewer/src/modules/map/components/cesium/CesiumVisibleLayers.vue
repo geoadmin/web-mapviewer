@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { LayerType, type GeoAdminLayer, type Layer } from '@swissgeo/layers'
+import { type GeoAdminLayer, type Layer, LayerType } from '@swissgeo/layers'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
 import useCesiumStore from '@/store/modules/cesium.store'

@@ -2,10 +2,10 @@
 import { LV95, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { wrapDegrees } from '@swissgeo/numbers'
-import { Cartesian2, Cartesian3, defined, Ellipsoid, Math as CesiumMath } from 'cesium'
+import { Cartesian2, Cartesian3, defined, Ellipsoid, Math as CesiumMath, type Viewer } from 'cesium'
 import { isEqual } from 'lodash'
 import proj4 from 'proj4'
-import { computed, onBeforeUnmount, onMounted, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
 import usePositionStore from '@/store/modules/position.store'
 import type { ActionDispatcher } from '@/store/types'
 
@@ -20,11 +20,10 @@ import {
     limitCameraCenter,
     limitCameraPitchRoll,
 } from '@/modules/map/components/cesium/utils/cameraUtils'
-import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumCamera.vue' }
 
-const viewer = getCesiumViewer()
+const viewer = inject<Viewer | undefined>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumCamera.vue',

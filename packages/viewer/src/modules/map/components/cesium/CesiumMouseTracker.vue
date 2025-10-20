@@ -8,9 +8,10 @@ import {
     Math,
     ScreenSpaceEventHandler,
     ScreenSpaceEventType,
+    type Viewer,
 } from 'cesium'
 import proj4 from 'proj4'
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import useCesiumStore from '@/store/modules/cesium.store'
 import usePositionStore from '@/store/modules/position.store'
@@ -19,7 +20,6 @@ import coordinateFormat, {
     type CoordinateFormat,
     LV95Format,
 } from '@/utils/coordinates/coordinateFormat'
-import { getCesiumViewer } from '@/modules/map/components/cesium/utils/viewerUtils'
 import type { ActionDispatcher } from '@/store/types'
 
 const mousePosition = useTemplateRef<HTMLDivElement>('mousePosition')
@@ -34,7 +34,7 @@ const dispatcher: ActionDispatcher = { name: 'CesiumMouseTracker.vue' }
 
 let handler: ScreenSpaceEventHandler | undefined
 
-const viewer = getCesiumViewer()
+const viewer = inject<Viewer | undefined>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumMouseTracker.vue',
