@@ -208,7 +208,7 @@ export function getBackgroundLayerFromLegacyUrlParams(
     layersConfig: GeoAdminLayer[],
     legacyUrlParams: string
 ): string | null | undefined {
-    if (Array.isArray(layersConfig) && typeof legacyUrlParams === 'string') {
+    if (Array.isArray(layersConfig)) {
         const bgLayerId = readUrlParamValue(legacyUrlParams, 'bgLayer')
         if (bgLayerId === 'voidLayer') {
             return null
