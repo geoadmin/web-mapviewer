@@ -1,10 +1,3 @@
-import { defineStore } from 'pinia'
-
-import type { PositionState } from '@/store/modules/position.store.ts'
-
-import { DEFAULT_PROJECTION } from '@/config/map.config.ts'
-import { LV95Format } from '@/utils/coordinates/coordinateFormat.ts'
-
 export enum AppStoreActions {
     SetAppIsReady = 'setAppIsReady',
     SetMapModuleReady = 'setMapModuleReady',

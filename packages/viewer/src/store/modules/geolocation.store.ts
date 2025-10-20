@@ -5,6 +5,7 @@ import { isNumber } from '@swissgeo/numbers'
 import { defineStore } from 'pinia'
 
 import type { ActionDispatcher } from '@/store/types'
+
 import { GeolocationStoreActions } from '@/store/actions'
 
 export interface GeolocationState {

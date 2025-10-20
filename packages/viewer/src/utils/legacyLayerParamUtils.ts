@@ -1,5 +1,5 @@
 import type { GeoAdminLayer, KMLLayer, Layer } from '@swissgeo/layers'
-import type { LocationQueryValue } from 'vue-router'
+import type { LocationQueryRaw } from 'vue-router'
 
 import { KMLStyle } from '@swissgeo/layers'
 import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
@@ -245,7 +245,7 @@ export async function getKmlLayerFromLegacyAdminIdParam(adminId: string): Promis
  */
 export function handleLegacyFeaturePreSelectionParam(
     params: URLSearchParams,
-    newQuery: Record<string, LocationQueryValue | LocationQueryValue[]>
+    newQuery: LocationQueryRaw
 ): void {
     const layersStore = useLayersStore()
 
