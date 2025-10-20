@@ -15,6 +15,7 @@ import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
 import useUIStore from '@/store/modules/ui.store'
 import FeedbackPopup from '@/utils/components/FeedbackPopup.vue'
 import debounce from '@/utils/debounce'
+import useLayersStore from '@/store/modules/layers.store'
 
 const dispatcher: ActionDispatcher = { name: 'App.vue' }
 
@@ -23,6 +24,7 @@ const withOutline = ref<boolean>(false)
 const { t } = useI18n()
 
 const uiStore = useUIStore()
+const layersStore = useLayersStore()
 
 let debouncedOnResize: () => void = () => {}
 const showFeedbackPopup = computed(() => {
@@ -34,6 +36,10 @@ onMounted(() => {
     // reading size
     setScreenSizeFromWindowSize()
     debouncedOnResize = debounce(setScreenSizeFromWindowSize, 300)
+
+    // initial load of layers config
+    layersStore.loadLayersConfig(dispatcher)
+
     window.addEventListener('resize', debouncedOnResize, { passive: true })
     refreshPageTitle()
 })

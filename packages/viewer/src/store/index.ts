@@ -4,7 +4,6 @@ import storeSyncRouterPlugin from '@/router/storeSync'
 import appReadinessPlugin from '@/store/plugins/app-readiness.plugin'
 import loadExternalLayerAttributes from '@/store/plugins/external-layers.plugin'
 import geolocationManagement from '@/store/plugins/geolocation.plugin'
-import layersConfigPlugin from '@/store/plugins/layers-config.plugin'
 import legacyPermalinkPlugin from '@/store/plugins/legacy-permalink.plugin'
 import loadCOGMetadataPlugin from '@/store/plugins/load-cog-metadata.plugin'
 import loadGeojsonStyleAndData from '@/store/plugins/load-geojson-style-and-data.plugin'
@@ -27,7 +26,6 @@ pinia.use(loadCOGMetadataPlugin)
 pinia.use(loadGeojsonStyleAndData)
 pinia.use(loadGpxDataAndMetadata)
 pinia.use(loadKmlDataAndMetadata)
-pinia.use(layersConfigPlugin)
 pinia.use(redoSearchWhenNeeded)
 pinia.use(reprojectPlugin)
 pinia.use(screenSizeManagement)

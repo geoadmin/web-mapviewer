@@ -28,6 +28,7 @@ import { FeatureStoreActions } from '@/store/actions'
 import useI18nStore from '@/store/modules/i18n.store'
 import useLayersStore from '@/store/modules/layers.store'
 import useMapStore from '@/store/modules/map.store'
+import usePositionStore from '@/store/modules/position.store'
 import useProfileStore from '@/store/modules/profile.store'
 import useUIStore from '@/store/modules/ui.store'
 import {
@@ -37,8 +38,6 @@ import {
     type FeatureStyleSize,
     TextPlacement,
 } from '@/utils/featureStyleUtils'
-
-import usePositionStore from './position.store'
 
 function getEditableFeatureWithId(
     selectedEditableFeatures: EditableFeature[],

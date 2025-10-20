@@ -15,7 +15,11 @@ const topicParamConfig = new UrlParamConfig<string>({
     extractValueFromStore: () => useTopicsStore().current,
     setValuesInStore: (_: RouteLocationNormalizedGeneric, queryValue?: string) => {
         if (queryValue) {
-            useTopicsStore().changeTopic(queryValue, STORE_DISPATCHER_ROUTER_PLUGIN)
+            useTopicsStore().changeTopic(
+                queryValue,
+                { changeLayers: true },
+                STORE_DISPATCHER_ROUTER_PLUGIN
+            )
         }
     },
     keepInUrlWhenDefault: true,

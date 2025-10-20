@@ -17,6 +17,7 @@ import {
     LayerType,
     removeErrorMessageFromLayer,
 } from '@swissgeo/layers'
+import { loadGeoadminLayersConfig } from '@swissgeo/layers/api'
 import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { ErrorMessage } from '@swissgeo/log/Message'
@@ -24,9 +25,12 @@ import { defineStore } from 'pinia'
 
 import type { ActionDispatcher } from '@/store/types'
 
+import { loadTopics, parseTopics } from '@/api/topics.api'
 import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 import { LayerStoreActions } from '@/store/actions'
+import useI18nStore from '@/store/modules/i18n.store'
 import usePositionStore from '@/store/modules/position.store'
+import useTopicsStore from '@/store/modules/topics.store'
 import { getGpxExtent } from '@/utils/gpxUtils'
 import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
 
@@ -373,6 +377,59 @@ const useLayersStore = defineStore('layers', {
         },
     },
     actions: {
+        [LayerStoreActions.LoadLayersConfig](dispatcher: ActionDispatcher): void {
+            const i18nStore = useI18nStore()
+            const topicsStore = useTopicsStore()
+
+            const lang = i18nStore.lang
+            const topicId = topicsStore.current
+
+            log.debug({
+                title: 'Loading layers config',
+                titleColor: LogPreDefinedColor.Sky,
+                messages: [
+                    `Start loading layers config and topics lang=${lang} topic=${topicId} dispatcher=${dispatcher.name}`,
+                ],
+            })
+            Promise.all([loadGeoadminLayersConfig(lang), loadTopics()])
+                .then(([layersConfig, rawTopics]) => {
+                    const topics = parseTopics(layersConfig, rawTopics)
+
+                    // adding SWISSIMAGE as a possible background for 3D
+                    const swissimage = layersConfig.find(
+                        (layer) => layer.id === 'ch.swisstopo.swissimage'
+                    )
+                    const swissimage3d = layersConfig.find(
+                        (layer) => layer.id === 'ch.swisstopo.swissimage-product_3d'
+                    )
+                    if (swissimage && swissimage3d) {
+                        swissimage3d.isBackground = true
+                        swissimage.idIn3d = swissimage3d.id
+                    }
+
+                    this.setLayerConfig(layersConfig, dispatcher)
+                    topicsStore.setTopics(
+                        topics,
+                        {
+                            changeLayers: this.activeLayers.length === 0,
+                        },
+                        dispatcher
+                    )
+                    log.debug({
+                        title: 'Loading layers config',
+                        titleColor: LogPreDefinedColor.Sky,
+                        messages: [`layers config and topics dispatched`],
+                    })
+                })
+                .catch((error) => {
+                    log.error({
+                        title: 'Loading layers config',
+                        titleColor: LogPreDefinedColor.Sky,
+                        messages: ['Error while loading the layers config', error],
+                    })
+                })
+        },
+
         /**
          * Will set the background to the given layer (or layer ID), but only if this layer's
          * configuration states that this layer can be a background layer (isBackground flag)
@@ -562,26 +619,8 @@ const useLayersStore = defineStore('layers', {
          *
          * NOTE: the layer array is automatically deep cloned
          */
-        // NOTE trying to get rid of the union type for " Partial<Layer>[]" here
-        // TODO if possible, get rid of the string too man
-        [LayerStoreActions.SetLayers](layers: Layer[] | string[], dispatcher: ActionDispatcher) {
-            this.activeLayers = layers
-                .map((layer) => {
-                    let clone: Layer | undefined
-                    if (typeof layer === 'string') {
-                        const matchingLayer = this.getLayerConfigById(layer)
-                        if (matchingLayer) {
-                            clone = layerUtils.cloneLayer(matchingLayer)
-                        }
-                    } else if ('id' in layer && typeof layer.id === 'string') {
-                        const matchingLayer = this.getLayersById(layer.id)
-                        if (matchingLayer.length > 0) {
-                            clone = layerUtils.cloneLayer(matchingLayer[0]!)
-                        }
-                    }
-                    return clone
-                })
-                .filter((layer) => !!layer)
+        [LayerStoreActions.SetLayers](layers: Layer[], dispatcher: ActionDispatcher) {
+            this.activeLayers = layers.map((layer) => layerUtils.cloneLayer(layer))
         },
 
         /**
