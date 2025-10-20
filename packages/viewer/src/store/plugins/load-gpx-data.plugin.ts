@@ -92,12 +92,7 @@ const loadGpxDataAndMetadataPlugin: PiniaPlugin = (context: PiniaPluginContext) 
         } else if (isEnumValue<LayerStoreActions>(LayerStoreActions.SetLayers, name)) {
             const [layers] = args as Parameters<typeof layersStore.setLayers>
             for (const layer of layers) {
-                if (typeof layer === 'string') {
-                    log.debug({
-                        title: 'load-gpx-data',
-                        messages: [`Not adding ${layer} in GPX plugin because it's a string`],
-                    })
-                } else if (layer.type === LayerType.GPX) {
+                if (layer.type === LayerType.GPX) {
                     addLayerSubscriber(layer)
                 }
             }
