@@ -29,7 +29,7 @@ Current locale can be accessed through the store
 
 ```javascript
 import { computed } from 'vue'
-import { useI18nStore } from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n.store'
 
 const i18nStore = useI18nStore()
 const currentLocal = computed(() => i18nStore.lang)

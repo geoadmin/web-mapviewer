@@ -14,7 +14,7 @@ import {
 } from '@/api/print.api'
 import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
 import { createShortLink } from '@/api/shortlink.api'
-import { useI18nStore } from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n.store'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
 import usePrintStore from '@/store/modules/print.store'
@@ -100,12 +100,12 @@ export function usePrint(map: MaybeRef<Map>) {
                 shortLink,
                 layersWithLegends: printLegend
                     ? layerStore.visibleLayers
-                        .filter((layer) => layer.hasLegend)
-                        // remove duplicate layers for the legends to avoid duplicate legends
-                        .filter(
-                            (layer, index, self) =>
-                                self.findIndex((l) => l.id === layer.id) === index
-                        )
+                          .filter((layer) => layer.hasLegend)
+                          // remove duplicate layers for the legends to avoid duplicate legends
+                          .filter(
+                              (layer, index, self) =>
+                                  self.findIndex((l) => l.id === layer.id) === index
+                          )
                     : [],
                 lang: i18nStore.lang,
                 printGrid: printGrid,

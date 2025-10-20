@@ -32,7 +32,7 @@ import {
     getWmsBaseUrl,
 } from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
-import { useI18nStore } from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n.store'
 import { adjustWidth } from '@/utils/styleUtils'
 
 /** Interval between each polling of the printing job status (ms) */
@@ -196,9 +196,9 @@ class GeoAdminCustomizer extends BaseCustomizer {
         if (scale && anchor && anchor.length > 0 && size && size.length > 0) {
             symbolizer.graphicXOffset = symbolizer.graphicXOffset
                 ? adjustWidth(
-                    (size[0]! / 2 - anchor[0]! + symbolizer.graphicXOffset) * scale,
-                    this.printResolution
-                )
+                      (size[0]! / 2 - anchor[0]! + symbolizer.graphicXOffset) * scale,
+                      this.printResolution
+                  )
                 : 0
             // if there is no graphicYOffset, we can't print points
             symbolizer.graphicYOffset = Math.round(1000 * (symbolizer.graphicYOffset ?? 0)) / 1000

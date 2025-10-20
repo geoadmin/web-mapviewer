@@ -6,7 +6,7 @@ import { storeToRefs } from 'pinia'
 import FeatureListCategory from '@/modules/infobox/components/FeatureListCategory.vue'
 
 import useLayersStore from '@/store/modules/layers.store'
-import { useI18nStore } from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n.store'
 import useDrawingStore from '@/store/modules/drawing.store'
 import useFeaturesStore, { type FeaturesForLayer } from '@/store/modules/features.store'
 import useMapStore from '@/store/modules/map.store'

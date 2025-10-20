@@ -7,7 +7,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { isSupportedLang } from '@/modules/i18n'
 import useAppStore from '@/store/modules/app.store'
-import { useI18nStore } from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n.store'
 import useLayersStore from '@/store/modules/layers.store'
 import useTopicsStore from '@/store/modules/topics.store'
 import useUIStore from '@/store/modules/ui.store'
@@ -66,7 +66,7 @@ export const appReadinessPlugin: PiniaPlugin = (context: PiniaPluginContext): vo
                     ],
                 })
 
-                topicsStore.changeTopic(topic, dispatcher)
+                topicsStore.changeTopic(topic, { changeLayers: true }, dispatcher)
 
                 if (isSupportedLang(lang)) {
                     i18nStore.setLang(lang, dispatcher)

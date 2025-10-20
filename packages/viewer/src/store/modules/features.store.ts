@@ -24,7 +24,7 @@ import {
     DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION,
     DEFAULT_FEATURE_COUNT_SINGLE_POINT,
 } from '@/config/map.config'
-import { useI18nStore } from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n.store'
 import useLayersStore from '@/store/modules/layers.store'
 import useMapStore from '@/store/modules/map.store'
 import useProfileStore from '@/store/modules/profile.store'

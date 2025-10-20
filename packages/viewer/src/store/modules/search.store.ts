@@ -34,7 +34,7 @@ import search, {
 } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
 import useFeaturesStore from '@/store/modules/features.store'
-import { useI18nStore } from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n.store'
 import useLayersStore from '@/store/modules/layers.store'
 import useMapStore from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'
