@@ -64,11 +64,15 @@ const debugLayer = new TileLayer({
     source: createTileDebugSource(cogSource),
 })
 
-useAddLayerToMap(layer, olMap, toRef(zIndex))
+useAddLayerToMap(
+    layer,
+    olMap,
+    toRef(() => zIndex)
+)
 const { removeLayerFromMap: removeDebugLayer, addLayerToMap: addDebugLayer } = useAddLayerToMap(
     debugLayer,
     olMap,
-    toRef(zIndex + 1)
+    toRef(() => zIndex + 1)
 )
 onMounted(() => {
     if (!showTileDebugInfo.value) {

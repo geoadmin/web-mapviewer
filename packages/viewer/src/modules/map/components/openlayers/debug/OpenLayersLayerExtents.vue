@@ -7,7 +7,7 @@ import { Polygon } from 'ol/geom'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { Fill, Stroke, Style, Text } from 'ol/style'
-import { computed, inject, watch } from 'vue'
+import { computed, inject, toRef, watch } from 'vue'
 import log from '@swissgeo/log'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
@@ -65,7 +65,11 @@ if (!olMap) {
     log.error('OpenLayersMap is not available')
     throw new Error('OpenLayersMap is not available')
 }
-useAddLayerToMap(layer, olMap, zIndex)
+useAddLayerToMap(
+    layer,
+    olMap,
+    toRef(() => zIndex)
+)
 
 watch(
     () => positionStore.projection,

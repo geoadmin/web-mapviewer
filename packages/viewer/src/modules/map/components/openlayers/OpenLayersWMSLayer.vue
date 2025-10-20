@@ -114,7 +114,11 @@ if (!olMap) {
     log.error('OpenLayersMap component not found')
     throw new Error('OpenLayersMap component not found')
 }
-useAddLayerToMap(layer, olMap, toRef(zIndex))
+useAddLayerToMap(
+    layer,
+    olMap,
+    toRef(() => zIndex)
+)
 
 // reacting to changes accordingly
 watch(url, (newUrl) => {
