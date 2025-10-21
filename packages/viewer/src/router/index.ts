@@ -3,7 +3,6 @@ import { createRouter, createWebHashHistory, type Router } from 'vue-router'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import appReadinessRouterPlugin from '@/router/appReadiness.routerPlugin'
-import storeSyncRouterPlugin from '@/router/storeSync'
 import {
     EMBED_VIEW,
     LEGACY_EMBED_PARAM_VIEW,

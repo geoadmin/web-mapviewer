@@ -129,15 +129,6 @@ export enum SearchStoreActions {
     SelectResultEntry = 'selectResultEntry',
 }
 
-export enum ShareStoreActions {
-    SetShortLink = 'setShortLink',
-    SetIsMenuSectionShown = 'setIsMenuSectionShown',
-    GenerateShortLinks = 'generateShortLinks',
-    CloseShareMenuAndRemoveShortLinks = 'closeShareMenuAndRemoveShortLinks',
-    ToggleShareMenuSection = 'toggleShareMenuSection',
-    ClearShortLinks = 'clearShortLinks',
-}
-
 export enum TopicsStoreActions {
     SetTopics = 'setTopics',
     SetTopicTree = 'setTopicTree',
