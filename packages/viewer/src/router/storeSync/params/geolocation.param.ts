@@ -4,7 +4,7 @@ import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
 import { GeolocationStoreActions } from '@/store/actions'
-import useGeolocationStore from '@/store/modules/geolocation.store'
+import useGeolocationStore from '@/store/modules/geolocation'
 
 const geolocationParamConfig = new UrlParamConfig<boolean>({
     urlParamName: 'geolocation',

@@ -22,6 +22,7 @@ import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { PositionStoreActions } from '@/store/actions'
+import useGeolocationStore from '@/store/modules/geolocation'
 import useUIStore from '@/store/modules/ui.store'
 import { LV95Format } from '@/utils/coordinates/coordinateFormat'
 
@@ -347,6 +348,15 @@ const usePositionStore = defineStore('position', {
                         dispatcher,
                     ],
                 })
+            }
+
+            const geolocationStore = useGeolocationStore()
+
+            // TODO: fix this, it stops the tracking when receiving the first geolocation position update
+            if (geolocationStore.tracking && geolocationStore.position !== center) {
+                // if we moved the map we disabled the geolocation tracking (unless the tracking moved the map)
+                geolocationStore.setGeolocationTracking(false, dispatcher)
+                this.setAutoRotation(false, dispatcher)
             }
         },
 

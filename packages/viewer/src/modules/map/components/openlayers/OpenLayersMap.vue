@@ -25,7 +25,7 @@ import type { ActionDispatcher } from '@/store/types'
 import useDebugStore from '@/store/modules/debug.store'
 import useMapStore from '@/store/modules/map.store'
 import useAppStore from '@/store/modules/app.store'
-import useGeolocationStore from '@/store/modules/geolocation.store'
+import useGeolocationStore from '@/store/modules/geolocation'
 import useLayersStore from '@/store/modules/layers.store'
 
 const dispatcher: ActionDispatcher = { name: 'OpenLayersMap.vue' }

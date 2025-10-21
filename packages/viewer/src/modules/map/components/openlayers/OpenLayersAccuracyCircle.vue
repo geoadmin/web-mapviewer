@@ -16,7 +16,7 @@ import log from '@swissgeo/log'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import { geolocationAccuracyCircleStyle } from '@/utils/styleUtils'
-import useGeolocationStore from '@/store/modules/geolocation.store'
+import useGeolocationStore from '@/store/modules/geolocation'
 
 const { zIndex = -1 } = defineProps<{
     zIndex?: number

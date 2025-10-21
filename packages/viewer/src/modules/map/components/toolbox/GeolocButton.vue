@@ -4,7 +4,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
-import useGeolocationStore from '@/store/modules/geolocation.store'
+import useGeolocationStore from '@/store/modules/geolocation'
 import useCesiumStore from '@/store/modules/cesium.store'
 import usePositionStore from '@/store/modules/position.store'
 import type { ActionDispatcher } from '@/store/types'
