@@ -22,7 +22,7 @@ import useMapInteractions from '@/modules/map/components/openlayers/utils/useMap
 import usePrintAreaRenderer from '@/modules/map/components/openlayers/utils/usePrintAreaRenderer.composable'
 import useViewBasedOnProjection from '@/modules/map/components/openlayers/utils/useViewBasedOnProjection.composable'
 import type { ActionDispatcher } from '@/store/types'
-import useDebugStore from '@/store/modules/debug.store'
+import useDebugStore from '@/store/modules/debug'
 import useMapStore from '@/store/modules/map.store'
 import useAppStore from '@/store/modules/app'
 import useGeolocationStore from '@/store/modules/geolocation'
