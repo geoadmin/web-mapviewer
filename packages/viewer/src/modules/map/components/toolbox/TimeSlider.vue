@@ -221,9 +221,7 @@ function dispatchPreviewYearToStore() {
     setPreviewYearToLayers()
 }
 
-const dispatchPreviewYearToStoreDebounced = debounce(() => {
-    dispatchPreviewYearToStore()
-}, 100)
+const dispatchPreviewYearToStoreDebounced = debounce(dispatchPreviewYearToStore, 100)
 
 function setSliderWidth() {
     const padding = 112

@@ -30,7 +30,7 @@ function saveOpacityToLayer(opacity: number): void {
     layersStore.setLayerOpacity(index, opacity, dispatcher)
 }
 
-const debouncedSaveOpacityToLayer = debounce(() => saveOpacityToLayer, 50)
+const debouncedSaveOpacityToLayer = debounce(saveOpacityToLayer, 50)
 
 watch(localTransparency, (newTransparency) => {
     const newOpacity = 1 - newTransparency

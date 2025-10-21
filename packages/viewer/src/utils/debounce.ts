@@ -1,23 +1,20 @@
 /**
- * Debounce function to delay execution if called repeatedly.
+ * Debounce a function to delay execution if called repeatedly.
  *
- * @param {Function} target The actual function to execute.
- * @param {Number} delay The time to wait for another call.
+ * @param callback The actual function to execute.
+ * @param delay The time to wait for another call.
  * @returns The function that can be called repeatedly.
  */
-
-export default function debounce<T extends (...args: unknown[]) => unknown>(
-    target: T,
+export default function debounce<T extends unknown[]>(
+    callback: (...args: T) => void,
     delay: number
-): (...args: unknown[]) => void {
-    let timeout: number
+): (...args: T) => void {
+    let timeout: ReturnType<typeof setTimeout>
 
-    return function (this: T, ...args: unknown[]) {
+    return (...args: T) => {
         clearTimeout(timeout)
-        timeout = window.setTimeout(() => {
-            // Call the target function the way the debounced function was called.
-            // Passing `this` isn't necessary with arrow-functions but it doesn't hurt.
-            return target.apply(this, args)
+        timeout = setTimeout(() => {
+            return callback(...args)
         }, delay)
     }
 }

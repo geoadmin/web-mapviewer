@@ -110,40 +110,37 @@ const isLocationSearchResult = (entry: SearchResult): entry is LocationSearchRes
 
 // We debounce the preview to avoid too many store dispatch
 const PREVIEW_DEBOUNCING_DELAY = 50
-const setPreviewDebounced = debounce(
-    () => (entry: SearchResult) => {
-        log.debug({
-            messages: [
-                `Set preview`,
-                entry,
-                previewLayer.value ?? '',
-                previewedPinnedLocation.value?.toString(),
-            ],
-        })
+const setPreviewDebounced = debounce((entry?: SearchResult) => {
+    log.debug({
+        messages: [
+            `Set preview`,
+            entry,
+            previewLayer.value ?? '',
+            previewedPinnedLocation.value?.toString(),
+        ],
+    })
 
-        if (!entry) {
-            if (previewLayer.value) {
-                layersStore.clearPreviewLayer(dispatcher)
-            }
-            if (previewedPinnedLocation.value) {
-                mapStore.clearPreviewPinnedLocation(dispatcher)
-            }
-        } else if (entry.resultType === SearchResultTypes.LAYER) {
-            layersStore.setPreviewLayer(entry.id, dispatcher)
-
-            if (previewedPinnedLocation.value) {
-                mapStore.clearPreviewPinnedLocation(dispatcher)
-            }
-        } else if (isLocationSearchResult(entry)) {
-            mapStore.setPreviewedPinnedLocation(entry.coordinate, dispatcher)
-
-            if (previewLayer.value) {
-                layersStore.clearPreviewLayer(dispatcher)
-            }
+    if (!entry) {
+        if (previewLayer.value) {
+            layersStore.clearPreviewLayer(dispatcher)
         }
-    },
-    PREVIEW_DEBOUNCING_DELAY
-)
+        if (previewedPinnedLocation.value) {
+            mapStore.clearPreviewPinnedLocation(dispatcher)
+        }
+    } else if (entry.resultType === SearchResultTypes.LAYER) {
+        layersStore.setPreviewLayer(entry.id, dispatcher)
+
+        if (previewedPinnedLocation.value) {
+            mapStore.clearPreviewPinnedLocation(dispatcher)
+        }
+    } else if (isLocationSearchResult(entry)) {
+        mapStore.setPreviewedPinnedLocation(entry.coordinate, dispatcher)
+
+        if (previewLayer.value) {
+            layersStore.clearPreviewLayer(dispatcher)
+        }
+    }
+}, PREVIEW_DEBOUNCING_DELAY)
 
 defineExpose({ focusFirstEntry })
 </script>

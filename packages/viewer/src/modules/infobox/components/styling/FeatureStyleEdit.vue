@@ -134,9 +134,8 @@ function updateFeatureDescription(): void {
     )
 }
 
-type DebouncedFn = (..._args: unknown[]) => void
-const debounceTitleUpdate: DebouncedFn = debounce(updateFeatureTitle, 100)
-const debounceDescriptionUpdate: DebouncedFn = debounce(updateFeatureDescription, 300)
+const debounceTitleUpdate = debounce(updateFeatureTitle, 100)
+const debounceDescriptionUpdate = debounce(updateFeatureDescription, 300)
 
 function handleKeydown(event: KeyboardEvent): void {
     if (event.key === 'Delete' && !isEditingText.value) {
