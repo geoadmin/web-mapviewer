@@ -5,21 +5,21 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { createShortLink } from '@/api/shortlink.api'
 
-export default async function generateShortLinks(
+export default function generateShortLinks(
     this: ShareStore,
     withCrosshair: boolean = false,
     dispatcher: ActionDispatcher
-): Promise<void> {
-    try {
-        const shortLink = await createShortLink(window.location.href, withCrosshair)
-
+): void {
+    createShortLink(window.location.href, withCrosshair).then((shortLink) => {
         if (shortLink) {
             this.setShortLink(shortLink, dispatcher)
         }
-    } catch (err) {
+    }).catch((err) => {
         log.error({
+            title: 'Share store: Generate Short Links',
             messages: ['Error while creating short link for', window.location.href, err],
         })
         this.setShortLink(window.location.href, dispatcher)
-    }
+    })
 }
+

@@ -39,7 +39,7 @@ function toggleShareMenu() {
     shareStore.toggleShareMenuSection(dispatcher)
 
     if (!shortLink.value) {
-        shareStore.generateShortLinks(isTrackingGeolocation.value, dispatcher).catch((_) => {})
+        shareStore.generateShortLinks(isTrackingGeolocation.value, dispatcher)
     } else {
         shareStore.clearShortLinks(dispatcher)
     }
