@@ -5,7 +5,7 @@ import { useI18n } from 'vue-i18n'
 import LayerCatalogue from '@/modules/menu/components/LayerCatalogue.vue'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicSelectionPopup.vue'
-import useTopicsStore from '@/store/modules/topics.store'
+import useTopicsStore from '@/store/modules/topics'
 import useAppStore from '@/store/modules/app'
 import type { Topic } from '@/api/topics.api'
 

@@ -6,13 +6,9 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { loadTopicTreeForTopic } from '@/api/topics.api'
 import router from '@/router'
-import { TopicsStoreActions } from '@/store/actions'
 import useI18nStore from '@/store/modules/i18n.store'
 import useLayersStore from '@/store/modules/layers.store'
-import useTopicsStore from '@/store/modules/topics.store'
-import { isEnumValue } from '@/utils/utils'
-
-//const dispatcher = { dispatcher: 'topic-change-management.plugin' }
+import useTopicsStore from '@/store/modules/topics'
 
 /**
  * Vuex plugins that will manage topic switching.
@@ -40,16 +36,16 @@ const topicChangeManagement: PiniaPlugin = (context: PiniaPluginContext) => {
     const i18nStore = useI18nStore()
 
     store.$onAction(({ name, args }) => {
+        const typedTopicStore = topicStore
         // we listen to the "change topic" mutation
         if (
-            isEnumValue<TopicsStoreActions>(TopicsStoreActions.SetTopics, name) ||
+            name === 'setTopics' ||
             // During application startup we trigger a changeTopic before the topics are loaded,
             // in this case we ignore the changeTopic event
-            (isEnumValue<TopicsStoreActions>(TopicsStoreActions.ChangeTopic, name) &&
-                topicStore.config.length > 0)
+            (name === 'changeTopic' && topicStore.config.length > 0)
         ) {
             const queryKeys = Object.keys(router.currentRoute.value.query ?? {})
-            const currentTopic = topicStore.currentTopic
+            const currentTopic = typedTopicStore.currentTopic
 
             log.debug({
                 title: 'Topic change management plugin',
@@ -98,7 +94,7 @@ const topicChangeManagement: PiniaPlugin = (context: PiniaPluginContext) => {
                     // Here we have different behavior possible
                     if (
                         dispatcher.name === 'MenuTopicSection.vue' ||
-                        (!queryKeys.includes('catalogNodes') && !topicStore.isDefaultTopic)
+                        (!queryKeys.includes('catalogNodes') && !typedTopicStore.isDefaultTopic)
                     ) {
                         // 1. When changing the topic from the menu always open the topic menu and its sub
                         //    themes defined by the topic
@@ -109,7 +105,7 @@ const topicChangeManagement: PiniaPlugin = (context: PiniaPluginContext) => {
                             [currentTopic.id, ...topicTree.itemIdToOpen],
                             dispatcher
                         )
-                    } else if (!queryKeys.includes('catalogNodes') && topicStore.isDefaultTopic) {
+                    } else if (!queryKeys.includes('catalogNodes') && typedTopicStore.isDefaultTopic) {
                         // 3. When setting the query parameter topic to the default topic, without
                         //    having a catalogNodes query param, then we don't want to have the main
                         //    catalog menu open but only the sub menus.
