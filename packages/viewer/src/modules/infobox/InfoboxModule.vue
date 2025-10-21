@@ -12,7 +12,7 @@ import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 
 import useFeaturesStore from '@/store/modules/features.store'
-import useDrawingStore from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
 import useUiStore from '@/store/modules/ui.store'
 import useProfileStore from '@/store/modules/profile.store'
 import useMapStore from '@/store/modules/map.store'

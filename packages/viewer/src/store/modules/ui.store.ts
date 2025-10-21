@@ -13,7 +13,7 @@ import {
     WARNING_RIBBON_HOSTNAMES,
 } from '@/config/staging.config'
 import { UIStoreActions } from '@/store/actions'
-import useDrawingStore from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
 
 const MAP_LOADING_BAR_REQUESTER = 'app-map-loading'
 

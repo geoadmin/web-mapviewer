@@ -13,7 +13,7 @@ import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleE
 import { generateFilename } from '@/utils/utils'
 
 import useFeaturesStore from '@/store/modules/features.store'
-import useDrawingStore from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
 import usePositionStore from '@/store/modules/position.store'
 import useI18nStore from '@/store/modules/i18n.store'
 import useCesiumStore from '@/store/modules/cesium'

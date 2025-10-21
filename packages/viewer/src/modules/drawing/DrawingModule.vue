@@ -7,6 +7,7 @@ import type Map from 'ol/Map'
 import type { Geometry } from 'ol/geom'
 import type Feature from 'ol/Feature'
 import {
+    type ComponentPublicInstance,
     computed,
     inject,
     onBeforeUnmount,
@@ -15,7 +16,6 @@ import {
     ref,
     useTemplateRef,
     watch,
-    type ComponentPublicInstance,
 } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -28,7 +28,8 @@ import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useKmlDataManagement from '@/modules/drawing/useKmlDataManagement.composable'
-import useDrawingStore, { EditMode } from '@/store/modules/drawing.store'
+import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
+import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features.store'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
@@ -36,6 +37,7 @@ import useUiStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
 import type { ActionDispatcher } from '@/store/types'
 import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
 import { layerUtils } from '@swissgeo/layers/utils'
+import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 
 const dispatcher: ActionDispatcher = { name: 'DrawingModule.vue' }
 
@@ -214,11 +216,7 @@ onMounted(() => {
     }
     if (availableIconSets.value.length === 0) {
         // if icons have not yet been loaded, load them
-        drawingStore
-            .loadAvailableIconSets(dispatcher)
-            .catch((error: Error) =>
-                log.error(`Error while loading icon sets for drawing module : ${error}`)
-            )
+        drawingStore.loadAvailableIconSets(dispatcher)
     }
 
     // Make sure no drawing features are selected when entering the drawing mode
