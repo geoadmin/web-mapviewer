@@ -13,7 +13,7 @@ import UrlParamConfig, {
 } from '@/router/storeSync/UrlParamConfig.class'
 import { MAP_VIEWS } from '@/router/viewNames'
 import useAppStore from '@/store/modules/app'
-import useShareStore from '@/store/modules/share.store'
+import useShareStore from '@/store/modules/share'
 
 export const FAKE_URL_CALLED_AFTER_ROUTE_CHANGE: string = '/tell-cypress-route-has-changed'
 const watchedActions: string[] = [

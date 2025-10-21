@@ -9,7 +9,7 @@ import MenuShareEmbed from '@/modules/menu/components/share/MenuShareEmbed.vue'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSocialNetworks.vue'
 import useLayersStore from '@/store/modules/layers.store'
-import useShareStore from '@/store/modules/share.store'
+import useShareStore from '@/store/modules/share'
 import useGeolocationStore from '@/store/modules/geolocation'
 
 const { compact } = defineProps({
@@ -39,7 +39,7 @@ function toggleShareMenu() {
     shareStore.toggleShareMenuSection(dispatcher)
 
     if (!shortLink.value) {
-        shareStore.generateShortLinks(isTrackingGeolocation.value, dispatcher).catch((_) => {})
+        shareStore.generateShortLinks(isTrackingGeolocation.value, dispatcher)
     } else {
         shareStore.clearShortLinks(dispatcher)
     }
