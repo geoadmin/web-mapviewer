@@ -7,7 +7,7 @@ import type { SelectableFeature } from '@/api/features.api'
 import type { ActionDispatcher } from '@/store/types'
 
 import { MapStoreActions } from '@/store/actions'
-import useDrawingStore from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore, { IdentifyMode } from '@/store/modules/features.store'
 import useLayersStore from '@/store/modules/layers.store'
 import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui.store'

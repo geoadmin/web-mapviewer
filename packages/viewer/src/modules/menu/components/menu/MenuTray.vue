@@ -12,7 +12,7 @@ import MenuShareSection from '@/modules/menu/components/share/MenuShareSection.v
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
 import useCesiumStore from '@/store/modules/cesium'
 import useUIStore from '@/store/modules/ui.store'
-import useDrawingStore from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
 import useAppStore from '@/store/modules/app'
 
 const dispatcher = { name: 'MenuTray.vue' }

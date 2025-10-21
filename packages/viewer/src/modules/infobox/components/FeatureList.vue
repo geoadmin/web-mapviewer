@@ -7,7 +7,7 @@ import FeatureListCategory from '@/modules/infobox/components/FeatureListCategor
 
 import useLayersStore from '@/store/modules/layers.store'
 import useI18nStore from '@/store/modules/i18n.store'
-import useDrawingStore from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore, { type FeaturesForLayer } from '@/store/modules/features.store'
 import useMapStore from '@/store/modules/map.store'
 import useUiStore from '@/store/modules/ui.store'

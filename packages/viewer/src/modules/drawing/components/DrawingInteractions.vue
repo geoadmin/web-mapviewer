@@ -12,7 +12,9 @@ import DrawingSelectInteraction from '@/modules/drawing/components/DrawingSelect
 import DrawingTextInteraction from '@/modules/drawing/components/DrawingTextInteraction.vue'
 import ExtendLineInteraction from '@/modules/drawing/components/ExtendLineInteraction.vue'
 import ExtendMeasureInteraction from '@/modules/drawing/components/ExtendMeasureInteraction.vue'
-import useDrawingStore, { EditMode } from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
+import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
+
 // Methods exposed by the select interaction component
 type SelectInteractionExposed = {
     setActive: (_: boolean) => void

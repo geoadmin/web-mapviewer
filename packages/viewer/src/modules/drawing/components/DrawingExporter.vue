@@ -6,7 +6,7 @@ import DropdownButton from '@/utils/components/DropdownButton.vue'
 import type { DropdownItem } from '@/utils/components/DropdownButton.vue'
 import { downloadFile, generateFilename } from '@/utils/utils'
 import usePositionStore from '@/store/modules/position.store'
-import useDrawingStore from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
 import useLayersStore from '@/store/modules/layers.store'
 
 import type VectorLayer from 'ol/layer/Vector'

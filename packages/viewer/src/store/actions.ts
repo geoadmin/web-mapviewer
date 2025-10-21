@@ -1,18 +1,3 @@
-export enum DrawingStoreActions {
-    SetDrawingMode = 'setDrawingMode',
-    SetIsDrawingEditShared = 'setIsDrawingEditShared',
-    SetIsDrawingModified = 'setIsDrawingModified',
-    SetIsVisitWithAdminId = 'setIsVisitWithAdminId',
-    LoadAvailableIconSets = 'loadAvailableIconSets',
-    AddDrawingFeature = 'addDrawingFeature',
-    DeleteDrawingFeature = 'deleteDrawingFeature',
-    ClearDrawingFeatures = 'clearDrawingFeatures',
-    SetDrawingFeatures = 'setDrawingFeatures',
-    ToggleDrawingOverlay = 'toggleDrawingOverlay',
-    SetDrawingName = 'setDrawingName',
-    SetEditingMode = 'setEditingMode',
-}
-
 export enum FeatureStoreActions {
     SetSelectedFeatures = 'setSelectedFeatures',
     IdentifyFeatureAt = 'identifyFeatureAt',

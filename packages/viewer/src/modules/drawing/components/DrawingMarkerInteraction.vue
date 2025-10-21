@@ -4,7 +4,7 @@ import type { SimpleGeometry } from 'ol/geom'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable'
-import useDrawingStore from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
 import { DEFAULT_MARKER_TITLE_OFFSET } from '@/utils/featureStyleUtils'
 
 type EmitType = {

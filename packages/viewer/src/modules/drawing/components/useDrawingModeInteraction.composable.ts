@@ -24,7 +24,8 @@ import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@/api/feature
 import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
-import useDrawingStore, { EditMode } from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
+import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 import usePositionStore from '@/store/modules/position.store'
 import {
     DEFAULT_MARKER_TITLE_OFFSET,

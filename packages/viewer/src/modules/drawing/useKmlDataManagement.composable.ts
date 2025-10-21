@@ -14,7 +14,7 @@ import type { ActionDispatcher } from '@/store/types'
 import { createKml, deleteKml, getKmlUrl, updateKml } from '@/api/files.api'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { DrawingState, generateKmlString } from '@/modules/drawing/lib/export-utils'
-import useDrawingStore from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
 import { parseKml } from '@/utils/kmlUtils'
@@ -31,12 +31,13 @@ export interface DebounceOptions {
 }
 
 export default function useKmlDataManagement(
-    drawingLayerDirectReference?: MaybeRefOrGetter<VectorLayer<VectorSource<Feature<Geometry>>> | null>
+    drawingLayerDirectReference?: MaybeRefOrGetter<VectorLayer<
+        VectorSource<Feature<Geometry>>
+    > | null>
 ) {
-    const drawingLayer = (inject(
-        'drawingLayer',
+    const drawingLayer =
+        inject('drawingLayer', toValue(drawingLayerDirectReference ?? null)) ??
         toValue(drawingLayerDirectReference ?? null)
-    ) ?? toValue(drawingLayerDirectReference ?? null))
 
     const { t } = useI18n()
     const drawingStore = useDrawingStore()
@@ -47,7 +48,7 @@ export default function useKmlDataManagement(
     const projection = computed(() => positionStore.projection)
     const activeKmlLayer = computed(() => layersStore.activeKmlLayer)
     const availableIconSets = computed(() => drawingStore.iconSets)
-    const temporaryKmlId = computed(() => (drawingStore).temporaryKmlId)
+    const temporaryKmlId = computed(() => drawingStore.temporaryKmlId)
     const temporaryKml = computed<KMLLayer | undefined>(() => {
         const sysLayers = (layersStore.systemLayers ?? []) as { id: string }[]
         const match = sysLayers.find((l) => l.id === temporaryKmlId.value)
@@ -61,7 +62,9 @@ export default function useKmlDataManagement(
     const savesInProgress = ref<Promise<unknown>[]>([])
 
     function addKmlToDrawing(retryOnError = true) {
-        if (!drawingLayer) { return }
+        if (!drawingLayer) {
+            return
+        }
         if (addKmlLayerTimeout) {
             clearTimeout(addKmlLayerTimeout)
             addKmlLayerTimeout = null
@@ -120,7 +123,9 @@ export default function useKmlDataManagement(
     }
 
     async function saveDrawing({ retryOnError = true }: { retryOnError?: boolean }) {
-        if (!drawingLayer) { return }
+        if (!drawingLayer) {
+            return
+        }
         try {
             log.debug(
                 `Save drawing retryOnError ${retryOnError}, differSaveDrawing=${!!differSaveDrawingTimeout}`
@@ -145,9 +150,11 @@ export default function useKmlDataManagement(
             saveState.value = DrawingState.SAVE_ERROR
             if (!IS_TESTING_WITH_CYPRESS && retryOnError) {
                 // Retry saving in 5 seconds
-                debounceSaveDrawing({ debounceTime: 5000, retryOnError: false }).catch((error: Error) => {
-                    log.error(`Error while retrying to save drawing: ${error}`)
-                })
+                debounceSaveDrawing({ debounceTime: 5000, retryOnError: false }).catch(
+                    (error: Error) => {
+                        log.error(`Error while retrying to save drawing: ${error}`)
+                    }
+                )
             }
         }
     }
@@ -177,11 +184,12 @@ export default function useKmlDataManagement(
         } else {
             // Update existing KML
             const kmlMetadata = await updateKml(current.fileId!, current.adminId, kmlData)
-            layersStore.setKmlGpxLayerData({
-                layerId: current.id,
-                data: kmlData,
-                metadata: kmlMetadata,
-            },
+            layersStore.setKmlGpxLayerData(
+                {
+                    layerId: current.id,
+                    data: kmlData,
+                    metadata: kmlMetadata,
+                },
                 dispatcher
             )
         }
@@ -203,9 +211,7 @@ export default function useKmlDataManagement(
         }
     }
 
-    /**
-     * Deletes local drawing, and online drawing corresponding to the activeKmlLayer (if present)
-     */
+    /** Deletes local drawing, and online drawing corresponding to the activeKmlLayer (if present) */
     async function deleteDrawing() {
         const current = activeKmlLayer.value
         if (current?.adminId && current.fileId) {
@@ -248,7 +254,8 @@ export default function useKmlDataManagement(
     }
 
     /**
-     * Call this when there are or will be unsaved changes. Change the saving status to "possibly unsaved changes".
+     * Call this when there are or will be unsaved changes. Change the saving status to "possibly
+     * unsaved changes".
      */
     function willModify() {
         if (saveState.value !== DrawingState.SAVE_ERROR) {

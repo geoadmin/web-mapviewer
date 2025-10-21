@@ -7,7 +7,7 @@ import type { KMLLayer } from '@swissgeo/layers'
 import { createShortLink } from '@/api/shortlink.api'
 import router from '@/router'
 import { encodeLayerId } from '@/router/storeSync/layersParamParser'
-import useDrawingStore from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
 import type { ActionDispatcher } from '@/store/types'
 
 const dispatcher: ActionDispatcher = { name: 'ShareWarningPopup.vue' }

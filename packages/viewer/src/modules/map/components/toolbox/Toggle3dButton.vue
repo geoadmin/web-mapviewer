@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import useCesiumStore from '@/store/modules/cesium'
-import useDrawingStore from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
 import usePrintStore from '@/store/modules/print.store'
 import type { ActionDispatcher } from '@/store/types'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
