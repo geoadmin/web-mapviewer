@@ -4,7 +4,7 @@ import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import SearchResultList from '@/modules/menu/components/search/SearchResultList.vue'
-import useSearchStore from '@/store/modules/search.store'
+import useSearchStore from '@/store/modules/search'
 import useUIStore from '@/store/modules/ui.store'
 
 const dispatcher = { name: 'SearchBar' }

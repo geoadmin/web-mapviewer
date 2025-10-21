@@ -5,7 +5,7 @@ import log from '@swissgeo/log'
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
-import useSearchStore from '@/store/modules/search.store'
+import useSearchStore from '@/store/modules/search'
 import { removeQueryParamFromHref } from '@/utils/searchParamUtils'
 
 export const URL_PARAM_NAME_SWISSSEARCH: string = 'swisssearch'

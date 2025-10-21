@@ -5,7 +5,7 @@ import log from '@swissgeo/log'
 
 import { I18nStoreActions, LayerStoreActions } from '@/store/actions'
 import useLayersStore from '@/store/modules/layers.store'
-import useSearchStore from '@/store/modules/search.store'
+import useSearchStore from '@/store/modules/search'
 import { isEnumValue } from '@/utils/utils'
 
 function redoSearch() {
