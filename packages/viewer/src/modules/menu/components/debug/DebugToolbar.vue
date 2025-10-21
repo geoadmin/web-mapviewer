@@ -11,7 +11,7 @@ import DebugViewSelector from '@/modules/menu/components/debug/DebugViewSelector
 import { PRINT_VIEW } from '@/router/viewNames'
 import usePositionStore from '@/store/modules/position.store'
 import useCesiumStore from '@/store/modules/cesium'
-import useDebugStore from '@/store/modules/debug.store'
+import useDebugStore from '@/store/modules/debug'
 import useUIStore from '@/store/modules/ui.store'
 
 const dispatcher = { name: 'DebugToolbar.vue' }

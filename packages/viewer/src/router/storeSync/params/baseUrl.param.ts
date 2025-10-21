@@ -7,8 +7,7 @@ import {
     setBaseUrlOverrides,
 } from '@/config/baseUrl.config'
 import UrlParamConfig from '@/router/storeSync/UrlParamConfig.class'
-import { DebugStoreActions } from '@/store/actions'
-import useDebugStore from '@/store/modules/debug.store'
+import useDebugStore from '@/store/modules/debug'
 import { isValidUrl } from '@/utils/utils'
 
 export default function createBaseUrlOverrideParamConfig({
@@ -20,7 +19,7 @@ export default function createBaseUrlOverrideParamConfig({
 }): UrlParamConfig<string> {
     return new UrlParamConfig<string>({
         urlParamName,
-        actionsToWatch: [DebugStoreActions.SetHasBaseUrlOverrides],
+        actionsToWatch: ['setHasBaseUrlOverrides'],
         setValuesInStore: (_: RouteLocationNormalizedGeneric, urlParamValue?: string) => {
             if (urlParamValue && isValidUrl(urlParamValue)) {
                 setBaseUrlOverrides(baseUrlPropertyName, urlParamValue)

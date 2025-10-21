@@ -10,7 +10,7 @@ import TileDebug from 'ol/source/TileDebug'
 import { computed, inject, onMounted, toRef, watch } from 'vue'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import useDebugStore from '@/store/modules/debug.store'
+import useDebugStore from '@/store/modules/debug'
 
 const {
     geotiffConfig,
