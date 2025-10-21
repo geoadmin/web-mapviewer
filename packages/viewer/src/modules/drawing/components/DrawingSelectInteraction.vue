@@ -17,7 +17,7 @@ import useModifyInteraction from '@/modules/drawing/components/useModifyInteract
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { extractOlFeatureCoordinates } from '@/api/features.api'
-import useFeaturesStore from '@/store/modules/features.store'
+import useFeaturesStore from '@/store/modules/features'
 import useProfileStore from '@/store/modules/profile.store'
 import useUIStore from '@/store/modules/ui.store'
 import type { ActionDispatcher } from '@/store/types'

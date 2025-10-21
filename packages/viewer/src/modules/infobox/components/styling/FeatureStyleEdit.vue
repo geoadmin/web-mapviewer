@@ -30,7 +30,7 @@ import {
 } from '@/utils/featureStyleUtils'
 
 import useDrawingStore from '@/store/modules/drawing'
-import useFeatureStore from '@/store/modules/features.store'
+import useFeatureStore from '@/store/modules/features'
 import useI18nStore from '@/store/modules/i18n'
 import type { DrawingIcon } from '@/api/icon.api'
 

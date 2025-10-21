@@ -28,7 +28,7 @@ import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils
 import useVectorLayer from '@/modules/map/components/openlayers/utils/useVectorLayer.composable.ts'
 import type { ActionDispatcher } from '@/store/types'
 import useDrawingStore from '@/store/modules/drawing'
-import useFeaturesStore from '@/store/modules/features.store'
+import useFeaturesStore from '@/store/modules/features'
 import useMapStore from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'
 import useProfileStore from '@/store/modules/profile.store'

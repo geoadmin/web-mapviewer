@@ -1,34 +1,3 @@
-export enum FeatureStoreActions {
-    SetSelectedFeatures = 'setSelectedFeatures',
-    IdentifyFeatureAt = 'identifyFeatureAt',
-    LoadMoreFeaturesForLayer = 'loadMoreFeaturesForLayer',
-    ClearAllSelectedFeatures = 'clearAllSelectedFeatures',
-    SetHighlightedFeatureId = 'setHighlightedFeatureId',
-    ChangeFeatureCoordinates = 'changeFeatureCoordinates',
-    ChangeFeatureGeometry = 'changeFeatureGeometry',
-    ChangeFeatureTitle = 'changeFeatureTitle',
-    ChangeFeatureDescription = 'changeFeatureDescription',
-    ChangeFeatureShownDescriptionOnMap = 'changeFeatureShownDescriptionOnMap',
-    ChangeFeatureColor = 'changeFeatureColor',
-    ChangeFeatureTextColor = 'changeFeatureTextColor',
-    ChangeFeatureIcon = 'changeFeatureIcon',
-    ChangeFeatureIconSize = 'changeFeatureIconSize',
-    ChangeFeatureTextPlacement = 'changeFeatureTextPlacement',
-    ChangeFeatureTextOffset = 'changeFeatureTextOffset',
-    ChangeFeatureTextSize = 'changeFeatureTextSize',
-    ChangeFeatureIsDragged = 'changeFeatureIsDragged',
-    UpdateFeatures = 'updateFeatures',
-}
-
-export enum GeolocationStoreActions {
-    SetGeolocationActive = 'setGeolocationActive',
-    ToggleGeolocation = 'toggleGeolocation',
-    SetGeolocationTracking = 'setGeolocationTracking',
-    SetGeolocationDenied = 'setGeolocationDenied',
-    SetGeolocationPosition = 'setGeolocationPosition',
-    SetGeolocationAccuracy = 'setGeolocationAccuracy',
-    SetGeolocationData = 'setGeolocationData',
-}
 
 export enum LayerStoreActions {
     SetBackground = 'setBackground',
