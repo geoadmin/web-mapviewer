@@ -162,8 +162,7 @@ function onDeleteLastPoint() {
     emits('removeLastPoint')
 }
 
-const debounceSaveDrawingName = debounce((...args: unknown[]) => {
-    const newName = typeof args[0] === 'string' ? args[0] : undefined
+function saveDrawingName(newName?: string) {
     const sanitized = DOMPurify.sanitize(newName ?? '', {
         ALLOWED_TAGS: [],
         ALLOWED_ATTR: [],
@@ -173,7 +172,9 @@ const debounceSaveDrawingName = debounce((...args: unknown[]) => {
     debounceSaveDrawing().catch((error: Error) =>
         log.error(`Error while saving drawing after name change: ${error}`)
     )
-}, 200)
+}
+
+const debounceSaveDrawingName = debounce(saveDrawingName, 200)
 </script>
 
 <template>
