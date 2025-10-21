@@ -16,7 +16,7 @@ import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPop
 import { stringifyQuery } from '@/utils/url-router'
 import useMapStore from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'
-import useCesiumStore from '@/store/modules/cesium.store'
+import useCesiumStore from '@/store/modules/cesium'
 import useI18nStore from '@/store/modules/i18n.store'
 import type { ActionDispatcher } from '@/store/types'
 

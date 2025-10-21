@@ -6,7 +6,7 @@ import UrlParamConfig, {
 } from '@/router/storeSync/UrlParamConfig.class'
 import { getDefaultValidationResponse } from '@/router/storeSync/validation'
 import { PositionStoreActions } from '@/store/actions'
-import useCesiumStore from '@/store/modules/cesium.store'
+import useCesiumStore from '@/store/modules/cesium'
 import usePositionStore from '@/store/modules/position.store'
 
 export function readCenterFromUrlParam(urlParamValue?: string): SingleCoordinate | undefined {

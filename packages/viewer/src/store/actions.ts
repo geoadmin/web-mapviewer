@@ -1,11 +1,3 @@
-export enum CesiumStoreActions {
-    Set3dActive = 'set3dActive',
-    SetShowConstructionsBuildings = 'setShowConstructionsBuildings',
-    SetShowVegetation = 'setShowVegetation',
-    SetShowLabels = 'setShowLabels',
-    SetViewerReady = 'setViewerReady',
-}
-
 export enum DebugStoreActions {
     ToggleShowTileDebugInfo = 'toggleShowTileDebugInfo',
     ToggleShowLayerExtents = 'toggleShowLayerExtents',

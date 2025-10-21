@@ -26,7 +26,7 @@ import {
 import useLayersStore from '@/store/modules/layers.store'
 import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
 import useUIStore from '@/store/modules/ui.store'
-import useCesiumStore from '@/store/modules/cesium.store'
+import useCesiumStore from '@/store/modules/cesium'
 import type { ActionDispatcher } from '@/store/types'
 
 const dispatcher: ActionDispatcher = { name: 'MenuActiveLayersListItem.vue' }

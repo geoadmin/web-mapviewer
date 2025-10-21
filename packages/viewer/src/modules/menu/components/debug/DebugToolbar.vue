@@ -10,7 +10,7 @@ import DebugPrint from '@/modules/menu/components/debug/DebugPrint.vue'
 import DebugViewSelector from '@/modules/menu/components/debug/DebugViewSelector.vue'
 import { PRINT_VIEW } from '@/router/viewNames'
 import usePositionStore from '@/store/modules/position.store'
-import useCesiumStore from '@/store/modules/cesium.store'
+import useCesiumStore from '@/store/modules/cesium'
 import useDebugStore from '@/store/modules/debug.store'
 import useUIStore from '@/store/modules/ui.store'
 

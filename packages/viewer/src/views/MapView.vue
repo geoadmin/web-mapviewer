@@ -19,7 +19,7 @@ import AppVersion from '@/utils/components/AppVersion.vue'
 import DragDropOverlay from '@/utils/components/DragDropOverlay.vue'
 import LoadingBar from '@/utils/components/LoadingBar.vue'
 import OfflineReadinessStatus from '@/utils/offline/OfflineReadinessStatus.vue'
-import useCesiumStore from '@/store/modules/cesium.store'
+import useCesiumStore from '@/store/modules/cesium'
 import useDrawingStore from '@/store/modules/drawing.store'
 
 const DrawingModule = defineAsyncComponent(() => import('@/modules/drawing/DrawingModule.vue'))

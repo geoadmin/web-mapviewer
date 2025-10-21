@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import useCesiumStore from '@/store/modules/cesium.store'
+import useCesiumStore from '@/store/modules/cesium'
 import usePositionStore from '@/store/modules/position.store'
 import type { ActionDispatcher } from '@/store/types'
 import GeoadminTooltip from '@swissgeo/tooltip'

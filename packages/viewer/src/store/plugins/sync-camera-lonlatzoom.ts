@@ -12,7 +12,7 @@ import {
     calculateResolution,
 } from '@/modules/map/components/cesium/utils/cameraUtils'
 import { PositionStoreActions, SearchStoreActions } from '@/store/actions'
-import useCesiumStore from '@/store/modules/cesium.store'
+import useCesiumStore from '@/store/modules/cesium'
 import usePositionStore, { normalizeAngle } from '@/store/modules/position.store'
 import useUIStore from '@/store/modules/ui.store'
 import { isEnumValue } from '@/utils/utils'
