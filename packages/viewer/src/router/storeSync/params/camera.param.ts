@@ -7,7 +7,7 @@ import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
 import { PositionStoreActions } from '@/store/actions'
-import useCesiumStore from '@/store/modules/cesium.store'
+import useCesiumStore from '@/store/modules/cesium'
 import usePositionStore, { type CameraPosition } from '@/store/modules/position.store'
 
 /**

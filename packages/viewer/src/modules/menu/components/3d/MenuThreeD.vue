@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 
 import MenuItemCheckBox from '@/modules/menu/components/common/MenuItemCheckBox.vue'
-import useCesiumStore from '@/store/modules/cesium.store'
+import useCesiumStore from '@/store/modules/cesium'
 import type { ActionDispatcher } from '@/store/types'
 
 const dispatcher: ActionDispatcher = { name: 'MenuThreeD.vue' }

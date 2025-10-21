@@ -30,7 +30,7 @@ import {
 import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
 import useMapStore, { ClickType } from '@/store/modules/map.store'
 import type { LayerFeature, SelectableFeature } from '@/api/features.api'
-import useCesiumStore from '@/store/modules/cesium.store'
+import useCesiumStore from '@/store/modules/cesium'
 import useFeaturesStore from '@/store/modules/features.store'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'

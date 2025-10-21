@@ -20,7 +20,7 @@ import {
     watch,
 } from 'vue'
 import useAppStore from '@/store/modules/app'
-import useCesiumStore from '@/store/modules/cesium.store'
+import useCesiumStore from '@/store/modules/cesium'
 import usePositionStore from '@/store/modules/position.store'
 import useUIStore from '@/store/modules/ui.store'
 

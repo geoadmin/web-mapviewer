@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import useCesiumStore from '@/store/modules/cesium.store'
+import useCesiumStore from '@/store/modules/cesium'
 import useDrawingStore from '@/store/modules/drawing.store'
 import usePrintStore from '@/store/modules/print.store'
 import type { ActionDispatcher } from '@/store/types'

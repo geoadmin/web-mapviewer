@@ -4,7 +4,7 @@ import { LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { computed } from 'vue'
 
-import useCesiumStore from '@/store/modules/cesium.store'
+import useCesiumStore from '@/store/modules/cesium'
 import useLayersStore from '@/store/modules/layers.store'
 
 /** Composable that gives utility functions to calculate/get layers' and features' z-index */

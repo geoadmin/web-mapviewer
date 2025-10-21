@@ -7,7 +7,7 @@ import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/Impor
 import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 import useUIStore from '@/store/modules/ui.store'
-import useCesiumStore from '@/store/modules/cesium.store'
+import useCesiumStore from '@/store/modules/cesium'
 import useLayersStore from '@/store/modules/layers.store'
 
 const dispatcher = { name: 'MenuAdvancedToolsList.vue' }
