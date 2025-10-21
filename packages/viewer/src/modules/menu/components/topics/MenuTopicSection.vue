@@ -6,7 +6,7 @@ import LayerCatalogue from '@/modules/menu/components/LayerCatalogue.vue'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuTopicSelectionPopup from '@/modules/menu/components/topics/MenuTopicSelectionPopup.vue'
 import useTopicsStore from '@/store/modules/topics.store'
-import useAppStore from '@/store/modules/app.store'
+import useAppStore from '@/store/modules/app'
 import type { Topic } from '@/api/topics.api'
 
 const dispatcher = { name: 'MenuTopicSection.vue' }

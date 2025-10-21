@@ -5,15 +5,13 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { isSupportedLang } from '@/modules/i18n'
 import { MAP_VIEW } from '@/router/viewNames'
-import { AppStoreActions } from '@/store/actions'
-import useAppStore from '@/store/modules/app.store'
+import useAppStore from '@/store/modules/app'
 import useI18nStore from '@/store/modules/i18n.store'
 import useLayersStore from '@/store/modules/layers.store'
 import useTopicsStore from '@/store/modules/topics.store'
 import useUIStore from '@/store/modules/ui.store'
 import { isLegacyParams } from '@/utils/legacyLayerParamUtils'
 import { readSingleParamAsString } from '@/utils/url-router'
-import { isEnumValue } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'appReadiness.routerPlugin' }
 
@@ -96,11 +94,7 @@ export const appReadinessRouterPlugin = (router: Router): void => {
                         topicsStore.changeTopic(topic, { changeLayers: true }, dispatcher)
                     } else {
                         appStore.$onAction(({ name }) => {
-                            if (
-                                startingTopic &&
-                                isEnumValue<AppStoreActions>(AppStoreActions.SetAppIsReady, name) &&
-                                appStore.isReady
-                            ) {
+                            if (startingTopic && name === 'setAppIsReady' && appStore.isReady) {
                                 topicsStore.changeTopic(
                                     startingTopic,
                                     { changeLayers: true },
