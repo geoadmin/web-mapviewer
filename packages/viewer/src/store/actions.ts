@@ -1,8 +1,3 @@
-export enum AppStoreActions {
-    SetAppIsReady = 'setAppIsReady',
-    SetMapModuleReady = 'setMapModuleReady',
-}
-
 export enum CesiumStoreActions {
     Set3dActive = 'set3dActive',
     SetShowConstructionsBuildings = 'setShowConstructionsBuildings',
