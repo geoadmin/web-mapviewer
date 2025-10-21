@@ -13,7 +13,7 @@ import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.
 import useCesiumStore from '@/store/modules/cesium.store'
 import useUIStore from '@/store/modules/ui.store'
 import useDrawingStore from '@/store/modules/drawing.store'
-import useAppStore from '@/store/modules/app.store'
+import useAppStore from '@/store/modules/app'
 
 const dispatcher = { name: 'MenuTray.vue' }
 

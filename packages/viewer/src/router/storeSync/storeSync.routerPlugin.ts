@@ -12,10 +12,8 @@ import UrlParamConfig, {
     type UrlParamConfigTypes,
 } from '@/router/storeSync/UrlParamConfig.class'
 import { MAP_VIEWS } from '@/router/viewNames'
-import { AppStoreActions } from '@/store/actions'
-import useAppStore from '@/store/modules/app.store'
+import useAppStore from '@/store/modules/app'
 import useShareStore from '@/store/modules/share.store'
-import { isEnumValue } from '@/utils/utils'
 
 export const FAKE_URL_CALLED_AFTER_ROUTE_CHANGE: string = '/tell-cypress-route-has-changed'
 const watchedActions: string[] = [
@@ -357,7 +355,7 @@ const storeSyncRouterPlugin = (router: Router) => {
 
             // listening to store mutation to update URL
             unsubscribeStoreMutation = appStore.$onAction(({ name, args }) => {
-                if (isEnumValue<AppStoreActions>(name, AppStoreActions.SetAppIsReady)) {
+                if (name === 'setAppIsReady') {
                     // If the app was not yet ready after entering the map view, we need to
                     // trigger the initial urlQuery watcher otherwise we have a blank application.
                     log.info({
