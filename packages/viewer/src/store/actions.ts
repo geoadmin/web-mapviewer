@@ -102,12 +102,6 @@ export enum ProfileStoreActions {
     SetProfileFeature = 'setProfileFeature',
 }
 
-export enum SearchStoreActions {
-    SetAutoSelect = 'setAutoSelect',
-    SetSearchQuery = 'setSearchQuery',
-    SelectResultEntry = 'selectResultEntry',
-}
-
 export enum UIStoreActions {
     SetSize = 'setSize',
     ToggleMenu = 'toggleMenu',

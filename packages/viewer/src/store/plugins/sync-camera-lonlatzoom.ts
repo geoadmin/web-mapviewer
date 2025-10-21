@@ -11,7 +11,7 @@ import {
     calculateHeight,
     calculateResolution,
 } from '@/modules/map/components/cesium/utils/cameraUtils'
-import { PositionStoreActions, SearchStoreActions } from '@/store/actions'
+import { PositionStoreActions } from '@/store/actions'
 import useCesiumStore from '@/store/modules/cesium'
 import usePositionStore, { normalizeAngle } from '@/store/modules/position.store'
 import useUIStore from '@/store/modules/ui.store'
@@ -99,7 +99,7 @@ const registerSyncCameraLonLatZoom: PiniaPlugin = (context: PiniaPluginContext):
             )
         } else if (
             (isEnumValue<PositionStoreActions>(PositionStoreActions.ZoomToExtent, name) ||
-                isEnumValue<SearchStoreActions>(SearchStoreActions.SelectResultEntry, name)) &&
+                name === 'selectResultEntry') &&
             positionStore.camera
         ) {
             log.debug({
