@@ -1,9 +1,3 @@
-export enum DebugStoreActions {
-    ToggleShowTileDebugInfo = 'toggleShowTileDebugInfo',
-    ToggleShowLayerExtents = 'toggleShowLayerExtents',
-    SetHasBaseUrlOverrides = 'setHasBaseUrlOverrides',
-}
-
 export enum DrawingStoreActions {
     SetDrawingMode = 'setDrawingMode',
     SetIsDrawingEditShared = 'setIsDrawingEditShared',
