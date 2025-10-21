@@ -32,7 +32,7 @@ import { DragBox } from 'ol/interaction'
 import type { ActionDispatcher } from '@/store/types'
 
 import { DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@/config/map.config'
-import useFeaturesStore from '@/store/modules/features.store'
+import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers.store'
 import useMapStore, { type ClickInfo, ClickType } from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'

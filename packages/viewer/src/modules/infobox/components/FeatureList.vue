@@ -8,11 +8,12 @@ import FeatureListCategory from '@/modules/infobox/components/FeatureListCategor
 import useLayersStore from '@/store/modules/layers.store'
 import useI18nStore from '@/store/modules/i18n'
 import useDrawingStore from '@/store/modules/drawing'
-import useFeaturesStore, { type FeaturesForLayer } from '@/store/modules/features.store'
+import useFeaturesStore from '@/store/modules/features'
 import useMapStore from '@/store/modules/map.store'
 import useUiStore from '@/store/modules/ui.store'
 import type { GeoAdminGroupOfLayers, GeoAdminLayer, Layer } from '@swissgeo/layers'
 import log from '@swissgeo/log'
+import type { FeaturesForLayer } from '@/store/modules/features/types/features'
 
 const dispatcher = { name: 'FeatureList.vue' }
 

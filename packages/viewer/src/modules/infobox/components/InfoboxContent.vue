@@ -12,7 +12,7 @@ import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 import { generateFilename } from '@/utils/utils'
 
-import useFeaturesStore from '@/store/modules/features.store'
+import useFeaturesStore from '@/store/modules/features'
 import useDrawingStore from '@/store/modules/drawing'
 import usePositionStore from '@/store/modules/position.store'
 import useI18nStore from '@/store/modules/i18n'

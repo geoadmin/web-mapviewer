@@ -11,7 +11,7 @@ import PrintButton from '@/utils/components/PrintButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 
-import useFeaturesStore from '@/store/modules/features.store'
+import useFeaturesStore from '@/store/modules/features'
 import useDrawingStore from '@/store/modules/drawing'
 import useUiStore from '@/store/modules/ui.store'
 import useProfileStore from '@/store/modules/profile.store'

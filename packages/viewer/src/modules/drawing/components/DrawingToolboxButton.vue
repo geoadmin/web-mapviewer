@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { EditableFeatureTypes } from '@/api/features.api'
 import useUIStore from '@/store/modules/ui.store'
 import useDrawingStore from '@/store/modules/drawing'
-import useFeaturesStore from '@/store/modules/features.store'
+import useFeaturesStore from '@/store/modules/features'
 import type { ActionDispatcher } from '@/store/types'
 
 const dispatcher: ActionDispatcher = { name: 'DrawingToolboxButton.vue' }

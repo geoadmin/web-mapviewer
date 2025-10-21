@@ -9,7 +9,7 @@ import ShowGeometryProfileButton from '@/modules/infobox/components/ShowGeometry
 import { canFeatureShowProfile } from '@/store/modules/profile.store'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
-import useFeaturesStore from '@/store/modules/features.store'
+import useFeaturesStore from '@/store/modules/features'
 import type { ActionDispatcher } from '@/store/types'
 
 const dispatcher: ActionDispatcher = { name: 'FeatureListCategoryItem.vue' }

@@ -17,7 +17,7 @@ import search, {
     type SearchResult,
     SearchResultTypes,
 } from '@/api/search.api'
-import useFeaturesStore from '@/store/modules/features.store'
+import useFeaturesStore from '@/store/modules/features'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers.store'
 import useMapStore from '@/store/modules/map.store'

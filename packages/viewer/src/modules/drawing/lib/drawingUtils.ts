@@ -7,7 +7,7 @@ import { LineString, Point, Polygon, type SimpleGeometry } from 'ol/geom'
 import type { ActionDispatcher } from '@/store/types'
 
 import { type EditableFeature, extractOlFeatureCoordinates } from '@/api/features.api'
-import useFeaturesStore from '@/store/modules/features.store'
+import useFeaturesStore from '@/store/modules/features'
 
 /**
  * Checks if point is at target within tolerance.

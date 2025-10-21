@@ -5,7 +5,7 @@ import type Map from 'ol/Map'
 import log from '@swissgeo/log'
 
 import AddVertexButton from '@/modules/drawing/components/AddVertexButton.vue'
-import useFeaturesStore from '@/store/modules/features.store'
+import useFeaturesStore from '@/store/modules/features'
 import { EditableFeatureTypes } from '@/api/features.api'
 
 const BASE_OFFSET_DISTANCE = 35

@@ -31,7 +31,7 @@ import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverl
 import useMapStore, { ClickType } from '@/store/modules/map.store'
 import type { LayerFeature, SelectableFeature } from '@/api/features.api'
 import useCesiumStore from '@/store/modules/cesium'
-import useFeaturesStore from '@/store/modules/features.store'
+import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
