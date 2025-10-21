@@ -9,7 +9,7 @@ import { isEqual } from 'lodash'
 import type { GeolocationStore } from '@/store/modules/geolocation/types/geolocation'
 import type { ActionDispatcher } from '@/store/types'
 
-import useCesiumStore from '@/store/modules/cesium.store'
+import useCesiumStore from '@/store/modules/cesium'
 import usePositionStore from '@/store/modules/position.store'
 import useUIStore from '@/store/modules/ui.store'
 

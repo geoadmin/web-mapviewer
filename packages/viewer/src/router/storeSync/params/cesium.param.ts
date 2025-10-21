@@ -3,12 +3,11 @@ import type { RouteLocationNormalizedGeneric } from 'vue-router'
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
-import { CesiumStoreActions } from '@/store/actions'
-import useCesiumStore from '@/store/modules/cesium.store'
+import useCesiumStore from '@/store/modules/cesium'
 
 const cesiumParamConfig = new UrlParamConfig<boolean>({
     urlParamName: '3d',
-    actionsToWatch: [CesiumStoreActions.Set3dActive],
+    actionsToWatch: ['set3dActive'],
     extractValueFromStore: () => useCesiumStore().active,
     setValuesInStore: (_: RouteLocationNormalizedGeneric, queryValue?: boolean) => {
         const cesiumStore = useCesiumStore()
