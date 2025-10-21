@@ -3,15 +3,14 @@ import type { RouteLocationNormalizedGeneric } from 'vue-router'
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
-import { TopicsStoreActions } from '@/store/actions'
-import useTopicsStore from '@/store/modules/topics.store'
+import useTopicsStore from '@/store/modules/topics'
 
 const catalogNodesParamConfig = new UrlParamConfig<string>({
     urlParamName: 'catalogNodes',
     actionsToWatch: [
-        TopicsStoreActions.SetTopicTreeOpenedThemesIds,
-        TopicsStoreActions.AddTopicTreeOpenedThemeId,
-        TopicsStoreActions.RemoveTopicTreeOpenedThemeId,
+        'setTopicTreeOpenedThemesIds',
+        'addTopicTreeOpenedThemeId',
+        'removeTopicTreeOpenedThemeId',
     ],
     extractValueFromStore: () => {
         const topicStore = useTopicsStore()

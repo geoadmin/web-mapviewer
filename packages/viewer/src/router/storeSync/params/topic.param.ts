@@ -6,12 +6,11 @@ import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
 import { getDefaultValidationResponse } from '@/router/storeSync/validation'
-import { TopicsStoreActions } from '@/store/actions'
-import useTopicsStore from '@/store/modules/topics.store'
+import useTopicsStore from '@/store/modules/topics'
 
 const topicParamConfig = new UrlParamConfig<string>({
     urlParamName: 'topic',
-    actionsToWatch: [TopicsStoreActions.ChangeTopic],
+    actionsToWatch: ['changeTopic'],
     extractValueFromStore: () => useTopicsStore().current,
     setValuesInStore: (_: RouteLocationNormalizedGeneric, queryValue?: string) => {
         if (queryValue) {
@@ -29,9 +28,9 @@ const topicParamConfig = new UrlParamConfig<string>({
         getDefaultValidationResponse(
             queryValue,
             !!queryValue &&
-                useTopicsStore()
-                    .config.map((topic: Topic) => topic.id)
-                    .includes(queryValue),
+            useTopicsStore()
+                .config.map((topic: Topic) => topic.id)
+                .includes(queryValue),
             'topic'
         ),
 })
