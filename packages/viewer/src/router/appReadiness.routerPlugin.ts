@@ -9,7 +9,7 @@ import useAppStore from '@/store/modules/app'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers.store'
 import useTopicsStore from '@/store/modules/topics'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 import { isLegacyParams } from '@/utils/legacyLayerParamUtils'
 import { readSingleParamAsString } from '@/utils/url-router'
 

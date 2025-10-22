@@ -12,7 +12,7 @@ import { PRINT_VIEW } from '@/router/viewNames'
 import usePositionStore from '@/store/modules/position.store'
 import useCesiumStore from '@/store/modules/cesium'
 import useDebugStore from '@/store/modules/debug'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 
 const dispatcher = { name: 'DebugToolbar.vue' }
 

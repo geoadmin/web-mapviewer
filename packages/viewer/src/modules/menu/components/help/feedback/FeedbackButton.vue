@@ -11,7 +11,7 @@ import EmailInput from '@/utils/components/EmailInput.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 import TextAreaInput from '@/utils/components/TextAreaInput.vue'
 import useLayersStore from '@/store/modules/layers.store'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 
 const dispatcher = { name: 'FeedbackButton.vue' }
 

@@ -11,7 +11,7 @@ import MenuPrintSection from '@/modules/menu/components/print/MenuPrintSection.v
 import MenuShareSection from '@/modules/menu/components/share/MenuShareSection.vue'
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
 import useCesiumStore from '@/store/modules/cesium'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 import useDrawingStore from '@/store/modules/drawing'
 import useAppStore from '@/store/modules/app'
 

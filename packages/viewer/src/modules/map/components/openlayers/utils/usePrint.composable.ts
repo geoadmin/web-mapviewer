@@ -18,7 +18,7 @@ import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
 import usePrintStore from '@/store/modules/print'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 import { generateFilename } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'usePrint.composable' }

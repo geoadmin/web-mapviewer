@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
-import useUiStore from '@/store/modules/ui.store'
+import useUiStore from '@/store/modules/ui'
 
 const dispatcher = { name: 'FeatureDetail.vue' }
 

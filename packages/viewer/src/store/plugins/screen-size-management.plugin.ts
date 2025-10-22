@@ -4,7 +4,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { BREAKPOINT_PHONE_HEIGHT, BREAKPOINT_PHONE_WIDTH } from '@/config/responsive.config'
 import { UIStoreActions } from '@/store/actions'
-import useUIStore, { UIModes } from '@/store/modules/ui.store'
+import useUIStore, { UIModes } from '@/store/modules/ui'
 import { isEnumValue } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'screen-size-management.plugin' }

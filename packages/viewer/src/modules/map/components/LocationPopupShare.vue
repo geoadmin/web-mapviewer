@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSocialNetworks.vue'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 
 const { shareLinkUrlShorten } = defineProps<{
     shareLinkUrlShorten?: string

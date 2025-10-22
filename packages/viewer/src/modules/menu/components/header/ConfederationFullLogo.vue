@@ -7,7 +7,7 @@
  * @see https://www.bk.admin.ch/bk/fr/home/documentation/identite-visuelle-de-ladministration-federale-suisse/webdesign-bund.html
  */
 
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 const uiStore = useUIStore()

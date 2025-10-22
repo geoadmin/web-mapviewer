@@ -3,7 +3,7 @@ import { computed, ref } from 'vue'
 
 import { APP_VERSION } from '@/config/staging.config'
 import { GITHUB_REPOSITORY } from '@/config/staging.config'
-import useUiStore from '@/store/modules/ui.store'
+import useUiStore from '@/store/modules/ui'
 
 const cleanAppVersionRegex = /v\d+\.\d+\.\d+$/
 const uiStore = useUiStore()

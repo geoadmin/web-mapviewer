@@ -8,7 +8,7 @@ import { useI18n } from 'vue-i18n'
 
 import TimeSliderDropdown from '@/modules/map/components/toolbox/TimeSliderDropdown.vue'
 import debounce from '@/utils/debounce'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 import useLayersStore from '@/store/modules/layers.store'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
 import type { LayerTimeConfig } from '@swissgeo/layers'

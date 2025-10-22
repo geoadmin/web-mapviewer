@@ -10,7 +10,7 @@ import useI18nStore from '@/store/modules/i18n'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import useMapStore from '@/store/modules/map'
-import useUiStore from '@/store/modules/ui.store'
+import useUiStore from '@/store/modules/ui'
 import type { GeoAdminGroupOfLayers, GeoAdminLayer, Layer } from '@swissgeo/layers'
 import type { FeaturesForLayer } from '@/store/modules/features/types/features'
 

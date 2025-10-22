@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import useUiStore from '@/store/modules/ui.store'
+import useUiStore from '@/store/modules/ui'
 import ErrorWindow from '@/utils/components/ErrorWindow.vue'
 import WarningWindow from '@/utils/components/WarningWindow.vue'
 

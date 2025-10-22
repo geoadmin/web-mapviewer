@@ -9,7 +9,7 @@ import { assertDefined } from 'support/utils'
 import type LayerFeature from '@/api/features/LayerFeature.class'
 
 import { DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION } from '@/config/map.config'
-import { FeatureInfoPositions } from '@/store/modules/ui.store'
+import { FeatureInfoPositions } from '@/store/modules/ui'
 
 import { addFeatureIdentificationIntercepts } from '../support/intercepts'
 

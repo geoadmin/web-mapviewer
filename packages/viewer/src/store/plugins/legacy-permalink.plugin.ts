@@ -20,7 +20,7 @@ import {
 } from '@/router/viewNames'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore, { type CameraPosition } from '@/store/modules/position.store'
-import { FeatureInfoPositions } from '@/store/modules/ui.store'
+import { FeatureInfoPositions } from '@/store/modules/ui'
 import {
     getKmlLayerFromLegacyAdminIdParam,
     getLayersFromLegacyUrlParams,

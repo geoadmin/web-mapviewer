@@ -15,7 +15,7 @@ import { OpenLayersMarkerStyles } from '@/modules/map/components/openlayers/util
 import useDeviceOrientation from '@/modules/map/components/openlayers/utils/useDeviceOrientation.composable.ts'
 import useGeolocationStore from '@/store/modules/geolocation'
 import usePositionStore from '@/store/modules/position.store'
-import useUiStore from '@/store/modules/ui.store'
+import useUiStore from '@/store/modules/ui'
 
 const OpenLayersDeviceOrientationDebugInfo = defineAsyncComponent(
     () =>

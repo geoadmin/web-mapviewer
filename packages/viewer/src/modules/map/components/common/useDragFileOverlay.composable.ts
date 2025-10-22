@@ -4,7 +4,7 @@ import { onBeforeUnmount, onMounted, toValue, type MaybeRef } from 'vue'
 import type { ActionDispatcher } from '@/store/types'
 
 import useImportFile from '@/modules/menu/components/advancedTools/ImportFile/useImportFile.composable'
-import useUiStore from '@/store/modules/ui.store'
+import useUiStore from '@/store/modules/ui'
 
 const dispatcher: ActionDispatcher = {
     name: 'useDragFileOverlay.composable',
