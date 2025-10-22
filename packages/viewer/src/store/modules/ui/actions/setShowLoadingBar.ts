@@ -30,9 +30,7 @@ export default function setShowLoadingBar(
 
     log.debug({
         title: 'UI store / setShowLoadingBar',
-        titleStyle: {
-            color: LogPreDefinedColor.Red,
-        },
+        titleColor: LogPreDefinedColor.Red,
         messages: [
             `Loading bar has been set; requester=${requester}, loading=${loading}, loadingBarRequesters=`,
             this.loadingBarRequesters,
