@@ -11,10 +11,11 @@ import { getRenderPixel } from 'ol/render'
 import VectorSource from 'ol/source/Vector'
 import { computed, type MaybeRef, toValue, watch, type WatchHandle } from 'vue'
 
+import type { PrintLayoutSize } from '@/store/modules/print/types/print'
 import type { ActionDispatcher } from '@/store/types'
 
 import { PrintError } from '@/api/print.api'
-import usePrintStore, { type PrintLayoutSize } from '@/store/modules/print.store'
+import usePrintStore from '@/store/modules/print'
 import useUIStore from '@/store/modules/ui.store'
 
 const dispatcher: ActionDispatcher = { name: 'print-area-renderer.composable' }
@@ -63,7 +64,7 @@ export default function usePrintAreaRenderer(map: MaybeRef<Map>): void {
             printPreviewLayer.on('prerender', handlePreRender),
             printPreviewLayer.on('postrender', handlePostRender),
             watch(printLayoutSize, () => {
-                printStore.setSelectedScale(getOptimalScale(), dispatcher)
+                printStore.setSelectedScale({ scale: getOptimalScale() }, dispatcher)
                 updatePrintOverlay()
             }),
             watch(selectedScale, () => {
@@ -78,7 +79,7 @@ export default function usePrintAreaRenderer(map: MaybeRef<Map>): void {
                     updatePrintOverlay()
                 }),
         ]
-        printStore.setSelectedScale(getOptimalScale(), dispatcher)
+        printStore.setSelectedScale({ scale: getOptimalScale() }, dispatcher)
         updatePrintOverlay()
     }
 
@@ -208,12 +209,15 @@ export default function usePrintAreaRenderer(map: MaybeRef<Map>): void {
             rightBottomCoordinate[1] !== undefined
         ) {
             printStore.setPrintExtent(
-                [
-                    topLeftCoordinate[0], // minX
-                    rightBottomCoordinate[1], // minY
-                    rightBottomCoordinate[0], // maxX
-                    topLeftCoordinate[1], // maxY
-                ],
+                {
+                    printExtent:
+                        [
+                            topLeftCoordinate[0], // minX
+                            rightBottomCoordinate[1], // minY
+                            rightBottomCoordinate[0], // maxX
+                            topLeftCoordinate[1], // maxY
+                        ]
+                },
                 dispatcher
             )
         }

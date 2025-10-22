@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import useCesiumStore from '@/store/modules/cesium'
 import useDrawingStore from '@/store/modules/drawing'
-import usePrintStore from '@/store/modules/print.store'
+import usePrintStore from '@/store/modules/print'
 import type { ActionDispatcher } from '@/store/types'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import GeoadminTooltip from '@swissgeo/tooltip'

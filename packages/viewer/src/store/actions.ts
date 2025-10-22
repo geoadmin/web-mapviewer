@@ -53,15 +53,6 @@ export enum PositionStoreActions {
     SetProjection = 'setProjection',
 }
 
-export enum PrintStoreActions {
-    LoadPrintLayouts = 'loadPrintLayouts',
-    SetSelectedScale = 'setSelectedScale',
-    SetSelectedLayout = 'setSelectedLayout',
-    SetPrintSectionShown = 'setPrintSectionShown',
-    SetPrintExtent = 'setPrintExtent',
-    SetPrintConfig = 'setPrintConfig',
-}
-
 export enum ProfileStoreActions {
     SetCurrentFeatureSegmentIndex = 'setCurrentFeatureSegmentIndex',
     SetProfileFeature = 'setProfileFeature',

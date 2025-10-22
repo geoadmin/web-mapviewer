@@ -4,7 +4,7 @@ import { ref, watch } from 'vue'
 import { PRINT_DIMENSIONS } from '@/config/print.config'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 import debounce from '@/utils/debounce'
-import usePrintStore from '@/store/modules/print.store'
+import usePrintStore from '@/store/modules/print'
 
 const dispatcher = { name: 'DebugPrint.vue' }
 

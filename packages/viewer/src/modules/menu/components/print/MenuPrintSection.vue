@@ -14,7 +14,7 @@ import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
 import ProgressBar from '@/utils/components/ProgressBar.vue'
 import { downloadFile, generateFilename } from '@/utils/utils'
-import usePrintStore from '@/store/modules/print.store'
+import usePrintStore from '@/store/modules/print'
 import useLayersStore from '@/store/modules/layers.store'
 import type { ActionDispatcher } from '@/store/types'
 
@@ -67,7 +67,7 @@ const selectedLayout = computed<PrintLayout | undefined>({
         return printStore.selectedLayout
     },
     set(layout) {
-        printStore.setSelectedLayout(layout, dispatcher)
+        printStore.setSelectedLayout({ layout }, dispatcher)
     },
 })
 
@@ -76,7 +76,7 @@ const selectedScale = computed<number | undefined>({
         return printStore.selectedScale
     },
     set(value: number | undefined) {
-        printStore.setSelectedScale(value, dispatcher)
+        printStore.setSelectedScale({ scale: value }, dispatcher)
     },
 })
 
@@ -107,12 +107,9 @@ watch(availablePrintLayouts, () => {
 function togglePrintMenu() {
     // load print layouts from the backend if they were not yet loaded
     if (availablePrintLayouts.value.length === 0) {
-        printStore
-            .loadPrintLayouts(dispatcher)
-            .then(() => {
-                isSectionShown.value = !isSectionShown.value
-            })
-            .catch((_) => {})
+        printStore.loadPrintLayouts(dispatcher)
+        // TODO see if this works or if it needs to be chained with a .then()
+        isSectionShown.value = !isSectionShown.value
     } else {
         // if layouts are already present, we select the first one as default value
         selectedLayout.value = availablePrintLayouts.value[0]?.value
