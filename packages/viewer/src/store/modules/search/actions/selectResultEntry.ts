@@ -80,7 +80,7 @@ export default function selectResultEntry(
         if (locationEntry.coordinate) {
             mapStore.setPinnedLocation(locationEntry.coordinate, dispatcher)
         }
-        this.setSearchQuery(locationEntry.sanitizedTitle.trim(), undefined, dispatcher)
+        this.setSearchQuery(locationEntry.sanitizedTitle.trim(), dispatcher)
     } else if (entry.resultType === SearchResultTypes.FEATURE) {
         const featureEntry = entry as LayerFeatureSearchResult
         zoomToSearchResult(featureEntry, dispatcher)

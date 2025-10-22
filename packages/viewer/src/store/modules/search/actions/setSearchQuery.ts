@@ -22,16 +22,36 @@ import usePositionStore from '@/store/modules/position.store'
 import getResultForAutoselect from '@/store/modules/search/utils/getResultForAutoselect'
 import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
 
-export default function setSearchQuery(
-    this: SearchStore,
-    query: string,
+interface SetSearchQueryOptions {
     /**
      * Used to select the first result if there is only one. Else it will not be,
      * because this redo search is done every time the page loads
      */
-    originUrlParam: boolean | undefined = false,
+    originUrlParam?: boolean
+}
+
+export default function setSearchQuery(
+    this: SearchStore,
+    query: string,
     dispatcher: ActionDispatcher
+): void
+export default function setSearchQuery(
+    this: SearchStore,
+    query: string,
+    options: SetSearchQueryOptions,
+    dispatcher: ActionDispatcher
+): void
+export default function setSearchQuery(
+    this: SearchStore,
+    query: string,
+    optionsOrDispatcher: SetSearchQueryOptions | ActionDispatcher,
+    dispatcherOrNothing?: ActionDispatcher
 ): void {
+
+    const dispatcher = dispatcherOrNothing ?? (optionsOrDispatcher as ActionDispatcher)
+    const options = dispatcherOrNothing ? (optionsOrDispatcher as SetSearchQueryOptions) : {}
+
+    const originUrlParam = options.originUrlParam ?? false
     const i18nStore = useI18nStore()
     const layerStore = useLayersStore()
     const mapStore = useMapStore()
@@ -186,7 +206,7 @@ function performSearch(
     i18nStore: ReturnType<typeof useI18nStore>,
     layerStore: ReturnType<typeof useLayersStore>,
     positionStore: ReturnType<typeof usePositionStore>,
-    originUrlParam: boolean | undefined,
+    originUrlParam: boolean,
     dispatcher: ActionDispatcher
 ): void {
     search({
