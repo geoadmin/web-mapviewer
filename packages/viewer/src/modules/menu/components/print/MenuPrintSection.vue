@@ -67,7 +67,7 @@ const selectedLayout = computed<PrintLayout | undefined>({
         return printStore.selectedLayout
     },
     set(layout) {
-        printStore.setSelectedLayout({ layout }, dispatcher)
+        printStore.setSelectedLayout(layout, dispatcher)
     },
 })
 
@@ -76,7 +76,7 @@ const selectedScale = computed<number | undefined>({
         return printStore.selectedScale
     },
     set(value: number | undefined) {
-        printStore.setSelectedScale({ scale: value }, dispatcher)
+        printStore.setSelectedScale(value, dispatcher)
     },
 })
 
@@ -108,8 +108,14 @@ function togglePrintMenu() {
     // load print layouts from the backend if they were not yet loaded
     if (availablePrintLayouts.value.length === 0) {
         printStore.loadPrintLayouts(dispatcher)
-        // TODO see if this works or if it needs to be chained with a .then()
-        isSectionShown.value = !isSectionShown.value
+        // wait for the layouts to be loaded before showing the section
+        watch(
+            printStore.layouts,
+            () => {
+                isSectionShown.value = !isSectionShown.value
+            },
+            { once: true }
+        )
     } else {
         // if layouts are already present, we select the first one as default value
         selectedLayout.value = availablePrintLayouts.value[0]?.value

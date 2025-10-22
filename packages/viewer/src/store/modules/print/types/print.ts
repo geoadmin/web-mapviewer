@@ -7,7 +7,7 @@ export interface NewPrintServiceConfig {
     layout: string
 }
 
-export interface PrintState {
+export interface PrintStoreState {
     layouts: PrintLayout[]
     selectedLayout: PrintLayout | undefined
     selectedScale: number | undefined
@@ -21,9 +21,13 @@ export interface PrintLayoutSize {
     height: number
 }
 
+export type PrintLayoutApiSize = { default: number }
+
 export interface PrintStoreGetters {
-    printLayoutSize: PrintLayoutSize
-    selectedDPI: number | undefined
+    printLayoutSize(): PrintLayoutSize
+    selectedDPI(): number | undefined
 }
 
-export type PrintStore = PrintState & PrintStoreGetters
+export type PrintStoreStateAndGetters = PrintStoreState & PrintStoreGetters
+
+export type PrintStore = ReturnType<typeof import('@/store/modules/print').default>

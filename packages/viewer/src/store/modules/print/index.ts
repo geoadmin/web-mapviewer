@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import type { PrintState } from '@/store/modules/print/types/print'
+import type { PrintStoreState, PrintStoreGetters } from '@/store/modules/print/types/print'
 
 import { PRINT_DEFAULT_DPI } from '@/config/print.config'
 import loadPrintLayouts from '@/store/modules/print/actions/loadPrintLayouts'
@@ -12,7 +12,7 @@ import setSelectedScale from '@/store/modules/print/actions/setSelectedScale'
 import printLayoutSize from '@/store/modules/print/getters/printLayoutSize'
 import selectedDPI from '@/store/modules/print/getters/selectedDPI'
 
-const state = (): PrintState => ({
+const state = (): PrintStoreState => ({
     layouts: [],
     selectedLayout: undefined,
     selectedScale: undefined,
@@ -24,7 +24,7 @@ const state = (): PrintState => ({
     },
 })
 
-const getters = {
+const getters: PrintStoreGetters = {
     printLayoutSize,
     selectedDPI,
 }
