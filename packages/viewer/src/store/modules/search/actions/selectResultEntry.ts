@@ -24,7 +24,7 @@ import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position.store'
 import createLayerFeature from '@/store/modules/search/utils/createLayerFeature'
 import zoomToSearchResult from '@/store/modules/search/utils/zoomToSearchResult'
-import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
+import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui'
 import { parseGpx } from '@/utils/gpxUtils'
 import { parseKml } from '@/utils/kmlUtils'
 
@@ -108,9 +108,8 @@ export default function selectResultEntry(
                 .then((feature: LayerFeature) => {
                     featuresStore.setSelectedFeatures([feature], dispatcher)
 
-                    uiStore.setFeatureInfoPosition(FeatureInfoPositions.TOOLTIP, dispatcher)
-                })
-                .catch((error) => {
+                    uiStore.setFeatureInfoPosition(FeatureInfoPositions.ToolTip, dispatcher)
+                }).catch((error) => {
                     log.error({
                         title: 'Search store / selectResultEntry',
                         titleColor: LogPreDefinedColor.Red,
@@ -151,7 +150,7 @@ export default function selectResultEntry(
             if (layerFeatures) {
                 featuresStore.setSelectedFeatures(layerFeatures, dispatcher)
 
-                uiStore.setFeatureInfoPosition(FeatureInfoPositions.TOOLTIP, dispatcher)
+                uiStore.setFeatureInfoPosition(FeatureInfoPositions.ToolTip, dispatcher)
             }
         }
     }

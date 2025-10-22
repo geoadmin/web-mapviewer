@@ -30,7 +30,7 @@ const drawingStore = useDrawingStore()
 
 const is3DActive = computed(() => cesiumStore.active)
 const isDrawingMode = computed(() => drawingStore.drawingOverlay.show)
-const isPhoneMode = computed(() => uiStore.mode === UIModes.PHONE)
+const isPhoneMode = computed(() => uiStore.mode === UIModes.Phone)
 const showLoadingBar = computed(() => uiStore.showLoadingBar)
 const showDragAndDropOverlay = computed(() => uiStore.showDragAndDropOverlay)
 const loadDrawingModule = computed(() => {

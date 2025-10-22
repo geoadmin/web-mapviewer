@@ -70,7 +70,7 @@ function onToggleContent(): void {
     showContent.value = !showContent.value
 }
 function setTooltipInfoPosition(): void {
-    uiStore.setFeatureInfoPosition(FeatureInfoPositions.TOOLTIP, dispatcher)
+    uiStore.setFeatureInfoPosition(FeatureInfoPositions.ToolTip, dispatcher)
 }
 function onClose(): void {
     if (showFeatureInfoInBottomPanel.value) {

@@ -12,17 +12,17 @@ function parseFeatureInfoPosition(urlParamValue?: string): FeatureInfoPositions 
     if (!urlParamValue) {
         return undefined
     }
-    if (isEnumValue<FeatureInfoPositions>(FeatureInfoPositions.DEFAULT, urlParamValue)) {
-        return FeatureInfoPositions.DEFAULT
+    if (isEnumValue<FeatureInfoPositions>(FeatureInfoPositions.Default, urlParamValue)) {
+        return FeatureInfoPositions.Default
     }
-    if (isEnumValue<FeatureInfoPositions>(FeatureInfoPositions.TOOLTIP, urlParamValue)) {
-        return FeatureInfoPositions.TOOLTIP
+    if (isEnumValue<FeatureInfoPositions>(FeatureInfoPositions.ToolTip, urlParamValue)) {
+        return FeatureInfoPositions.ToolTip
     }
-    if (isEnumValue<FeatureInfoPositions>(FeatureInfoPositions.BOTTOMPANEL, urlParamValue)) {
-        return FeatureInfoPositions.BOTTOMPANEL
+    if (isEnumValue<FeatureInfoPositions>(FeatureInfoPositions.BottomPanel, urlParamValue)) {
+        return FeatureInfoPositions.BottomPanel
     }
-    if (isEnumValue<FeatureInfoPositions>(FeatureInfoPositions.NONE, urlParamValue)) {
-        return FeatureInfoPositions.NONE
+    if (isEnumValue<FeatureInfoPositions>(FeatureInfoPositions.None, urlParamValue)) {
+        return FeatureInfoPositions.None
     }
     return undefined
 }
@@ -39,7 +39,7 @@ const featureInfoParamConfig = new UrlParamConfig<string>({
     },
     keepInUrlWhenDefault: false,
     valueType: String,
-    defaultValue: FeatureInfoPositions.NONE,
+    defaultValue: FeatureInfoPositions.None,
     validateUrlInput: (queryValue?: string) =>
         getDefaultValidationResponse(
             queryValue,

@@ -212,7 +212,7 @@ watch(
 onMounted(() => {
     if (noFeatureInfo.value) {
         // Force feature info to be visible in drawing mode
-        uiStore.setFeatureInfoPosition(FeatureInfoPositions.DEFAULT, dispatcher)
+        uiStore.setFeatureInfoPosition(FeatureInfoPositions.Default, dispatcher)
     }
     if (availableIconSets.value.length === 0) {
         // if icons have not yet been loaded, load them

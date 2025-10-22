@@ -134,7 +134,7 @@ function onPopupClose() {
     mapStore.clearClick(dispatcher)
 }
 function setBottomPanelFeatureInfoPosition() {
-    uiStore.setFeatureInfoPosition(FeatureInfoPositions.BOTTOMPANEL, dispatcher)
+    uiStore.setFeatureInfoPosition(FeatureInfoPositions.BottomPanel, dispatcher)
 }
 </script>
 
