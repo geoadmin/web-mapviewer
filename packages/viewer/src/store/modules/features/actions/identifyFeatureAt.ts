@@ -13,7 +13,7 @@ import getFeatureCountForCoordinate from '@/store/modules/features/utils/getFeat
 import identifyOnAllLayers from '@/store/modules/features/utils/identifyOnAllLayers'
 import useI18nStore from '@/store/modules/i18n'
 import usePositionStore from '@/store/modules/position.store'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 
 /**
  * Identify features in layers at the given coordinate.
