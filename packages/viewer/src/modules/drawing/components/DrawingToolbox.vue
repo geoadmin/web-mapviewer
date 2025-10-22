@@ -85,7 +85,7 @@ const isAllowDeleteLastPoint = computed<boolean>(
         // Allow deleting the last point only if we are drawing line or measure
         // or when extending line
         isDrawingLineOrMeasure.value ||
-        (drawingStore.editingMode === EditMode.EXTEND &&
+        (drawingStore.editingMode === EditMode.Extend &&
             selectedLineString.value !== undefined &&
             selectedLineCoordinates.value !== undefined &&
             selectedLineCoordinates.value.length > 2)

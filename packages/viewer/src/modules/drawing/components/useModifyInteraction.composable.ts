@@ -73,7 +73,7 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
     watch(
         editMode,
         (newValue) => {
-            if (newValue === EditMode.EXTEND && features.getLength() > 0) {
+            if (newValue === EditMode.Extend && features.getLength() > 0) {
                 const selectedFeature = features.item(0)
                 if (selectedFeature && reverseLineStringExtension.value) {
                     const geom = selectedFeature.getGeometry()
@@ -84,7 +84,7 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
                     }
                 }
                 modifyInteraction.setActive(false)
-            } else if (newValue === EditMode.MODIFY) {
+            } else if (newValue === EditMode.Modify) {
                 modifyInteraction.setActive(true)
             } else {
                 modifyInteraction.setActive(true)
@@ -101,7 +101,7 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
     })
 
     onBeforeUnmount(() => {
-        drawingStore.setEditingMode(EditMode.OFF, reverseLineStringExtension.value, dispatcher)
+        drawingStore.setEditingMode(EditMode.Off, reverseLineStringExtension.value, dispatcher)
 
         olMap.removeInteraction(modifyInteraction)
 
@@ -110,7 +110,7 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
     })
 
     function removeLastPoint() {
-        if (editMode.value === EditMode.OFF) {
+        if (editMode.value === EditMode.Off) {
             return
         }
 

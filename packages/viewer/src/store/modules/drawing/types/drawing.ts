@@ -1,6 +1,5 @@
 import type { DrawingIconSet } from '@/api/icon.api'
 import type { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
-import type { ActionDispatcher } from '@/store/types'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 
@@ -48,35 +47,4 @@ export interface DrawingStoreGetters {
     showNotSharedDrawingWarning(): boolean
 }
 
-export type DrawingStoreStateAndGetters = DrawingStoreState & DrawingStoreGetters
-
-export interface ToggleDrawingOverlayPayload {
-    show?: boolean
-    online?: boolean
-    kmlId?: string
-    title?: string
-}
-
-export interface DrawingStoreActions {
-    addDrawingFeature: (featureId: string, dispatcher: ActionDispatcher) => void
-    clearDrawingFeatures: (dispatcher: ActionDispatcher) => void
-    deleteDrawingFeature: (featureId: string, dispatcher: ActionDispatcher) => void
-    loadAvailableIconSets: (dispatcher: ActionDispatcher) => void
-    setDrawingFeatures: (featureIds: string[], dispatcher: ActionDispatcher) => void
-    setDrawingMode: (mode: EditableFeatureTypes | undefined, dispatcher: ActionDispatcher) => void
-    setDrawingName: (name: string, dispatcher: ActionDispatcher) => void
-    setEditingMode: (
-        mode: EditMode,
-        reverseLineStringExtension: boolean,
-        dispatcher: ActionDispatcher
-    ) => void
-    setIsDrawingEditShared: (isShared: boolean, dispatcher: ActionDispatcher) => void
-    setIsDrawingModified: (isModified: boolean, dispatcher: ActionDispatcher) => void
-    setIsVisitWithAdminId: (isVisitingWithAdminId: boolean, dispatcher: ActionDispatcher) => void
-    toggleDrawingOverlay: (
-        payload: ToggleDrawingOverlayPayload,
-        dispatcher: ActionDispatcher
-    ) => void
-}
-
-export type DrawingStore = ReturnType<typeof import('../index.ts').default>
+export type DrawingStore = ReturnType<typeof import('@/store/modules/drawing').default>

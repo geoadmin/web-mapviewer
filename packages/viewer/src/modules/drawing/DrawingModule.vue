@@ -103,7 +103,7 @@ const selectedLineFeature = computed<EditableFeatureLite | null>(() => {
     return null
 })
 const showAddVertexButton = computed(
-    () => drawingStore.editingMode === EditMode.MODIFY && !!selectedLineFeature.value
+    () => drawingStore.editingMode === EditMode.Modify && !!selectedLineFeature.value
 )
 const editMode = computed(() => drawingStore.editingMode)
 const currentDrawingMode = computed(() => drawingStore.mode)
@@ -199,11 +199,11 @@ watch(
     selectedEditableFeatures,
     (newValue) => {
         if ((newValue?.length ?? 0) > 0) {
-            if (drawingStore.editingMode === EditMode.OFF) {
-                drawingStore.setEditingMode(EditMode.MODIFY, false, dispatcher)
+            if (drawingStore.editingMode === EditMode.Off) {
+                drawingStore.setEditingMode(EditMode.Modify, false, dispatcher)
             }
         } else {
-            drawingStore.setEditingMode(EditMode.OFF, false, dispatcher)
+            drawingStore.setEditingMode(EditMode.Off, false, dispatcher)
         }
     },
     { deep: false }
@@ -281,7 +281,7 @@ function createSourceForProjection() {
 
 function removeLastPoint() {
     // Only delete the last point when we are drawing a feature (or editing it)
-    if (currentDrawingMode.value != null || editMode.value === EditMode.EXTEND) {
+    if (currentDrawingMode.value != null || editMode.value === EditMode.Extend) {
         drawingInteractions.value?.removeLastPoint()
     }
 }
@@ -313,7 +313,7 @@ async function closeDrawing() {
         await debounceSaveDrawing({ debounceTime: 0, retryOnError: false })
     }
 
-    drawingStore.toggleDrawingOverlay({}, dispatcher)
+    drawingStore.toggleDrawingOverlay(dispatcher)
 }
 </script>
 

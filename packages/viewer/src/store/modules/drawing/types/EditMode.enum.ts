@@ -1,7 +1,7 @@
 export enum EditMode {
-    OFF = 'OFF',
+    Off = 'OFF',
     /** Mode for modifying existing features */
-    MODIFY = 'MODIFY',
+    Modify = 'MODIFY',
     /** Mode for extending existing features (for line only) */
-    EXTEND = 'EXTEND',
+    Extend = 'EXTEND',
 }

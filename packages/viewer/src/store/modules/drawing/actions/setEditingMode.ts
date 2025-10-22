@@ -10,7 +10,7 @@ export default function setEditingMode(
     dispatcher: ActionDispatcher
 ) {
     this.editingMode = mode
-    if (mode !== EditMode.EXTEND) {
+    if (mode !== EditMode.Extend) {
         this.reverseLineStringExtension = false
     } else {
         this.reverseLineStringExtension = reverseLineStringExtension

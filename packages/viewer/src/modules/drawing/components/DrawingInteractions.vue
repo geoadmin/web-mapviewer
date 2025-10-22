@@ -53,7 +53,7 @@ const specializedInteractionComponent = computed(() => {
             selectedInteraction = DrawingMeasureInteraction
             break
     }
-    if (editMode.value === EditMode.EXTEND) {
+    if (editMode.value === EditMode.Extend) {
         const isMeasure =
             selectedLineFeature.value?.get('editableFeature')?.featureType ===
             EditableFeatureTypes.Measure
@@ -76,7 +76,7 @@ const specializedInteractionComponent = computed(() => {
 })
 
 const specializedProps = computed(() => {
-    if (editMode.value === EditMode.EXTEND) {
+    if (editMode.value === EditMode.Extend) {
         return {
             startingFeature: selectedLineFeature.value,
         }
@@ -90,7 +90,7 @@ function onDrawEnd(feature: Feature | undefined) {
 
 function removeLastPoint() {
     currentInteraction.value?.removeLastPoint?.()
-    if (editMode.value !== EditMode.OFF) {
+    if (editMode.value !== EditMode.Off) {
         selectInteraction.value?.removeLastPoint()
     }
 }
