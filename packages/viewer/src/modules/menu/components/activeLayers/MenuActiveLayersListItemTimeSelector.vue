@@ -10,7 +10,7 @@ import {
     type LayerTimeConfig,
     type LayerTimeConfigEntry,
 } from '@swissgeo/layers'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 import useLayersStore from '@/store/modules/layers.store'
 import type { ActionDispatcher } from '@/store/types'
 

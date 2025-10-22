@@ -15,7 +15,7 @@ import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLa
 import type { ActionDispatcher } from '@/store/types'
 import useDrawingStore from '@/store/modules/drawing'
 import usePositionStore from '@/store/modules/position.store'
-import useUiStore from '@/store/modules/ui.store'
+import useUiStore from '@/store/modules/ui'
 import { iconUrlProxyFy, parseKml } from '@/utils/kmlUtils'
 
 const dispatcher: ActionDispatcher = { name: 'OpenLayersKMLLayer.vue' }

@@ -16,7 +16,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { LayerStoreActions } from '@/store/actions'
 import useLayersStore from '@/store/modules/layers.store'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 import { isEnumValue } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'load-geojson-style-and-data.plugin' }

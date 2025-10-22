@@ -6,8 +6,8 @@ import { computed, onUnmounted, ref, useTemplateRef } from 'vue'
 import { SearchResultTypes, type SearchResult } from '@/api/search.api'
 import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPopup.vue'
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
-import useUIStore from '@/store/modules/ui.store'
 import useSearchStore from '@/store/modules/search'
+import useUIStore from '@/store/modules/ui'
 import useLayersStore from '@/store/modules/layers.store'
 
 const dispatcher = { name: 'SearchResultListEntry.vue' }

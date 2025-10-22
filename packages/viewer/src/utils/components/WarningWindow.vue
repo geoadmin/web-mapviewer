@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import useUiStore from '@/store/modules/ui.store'
+import useUiStore from '@/store/modules/ui'
 
 const { title = '', hide = false } = defineProps<{
     title?: string

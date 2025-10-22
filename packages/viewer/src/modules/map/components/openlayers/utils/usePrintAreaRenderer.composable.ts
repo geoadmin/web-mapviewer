@@ -16,7 +16,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { PrintError } from '@/api/print.api'
 import usePrintStore from '@/store/modules/print'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 
 const dispatcher: ActionDispatcher = { name: 'print-area-renderer.composable' }
 

@@ -39,7 +39,7 @@ import useFeaturesStore from '@/store/modules/features'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 
 function createWMTSLayerObject(parsedLayer: Partial<Layer>): ExternalWMTSLayer {
@@ -126,7 +126,7 @@ export function createLayerObject(parsedLayer: Partial<Layer>, currentLayer: Lay
         layer.opacity = parsedLayer.opacity ?? DEFAULT_OPACITY
 
         if (adminId && layer.type === LayerType.KML) {
-            ;(layer as KMLLayer).adminId = adminId
+            ; (layer as KMLLayer).adminId = adminId
         }
     } else if (parsedLayer.type === LayerType.KML) {
         // format is KML|FILE_URL
@@ -188,7 +188,7 @@ export function createLayerObject(parsedLayer: Partial<Layer>, currentLayer: Lay
         const internalLayer = layer as GeoAdminLayer
 
         if (internalLayer.type === LayerType.GEOJSON && updateDelay !== undefined) {
-            ;(internalLayer as GeoAdminGeoJSONLayer).updateDelay = updateDelay
+            ; (internalLayer as GeoAdminGeoJSONLayer).updateDelay = updateDelay
         }
 
         // only highlightable feature will output something, for the others a click coordinate is required

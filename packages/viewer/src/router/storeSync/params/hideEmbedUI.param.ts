@@ -4,7 +4,7 @@ import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
 import { UIStoreActions } from '@/store/actions'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 
 const hideEmbedUIParam = new UrlParamConfig<boolean>({
     urlParamName: 'hideEmbedUI',

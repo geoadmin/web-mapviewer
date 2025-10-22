@@ -5,7 +5,7 @@ import UrlParamConfig, {
 } from '@/router/storeSync/UrlParamConfig.class'
 import { EMBED_VIEW } from '@/router/viewNames'
 import { UIStoreActions } from '@/store/actions'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 
 const noSimpleZoomParamConfig = new UrlParamConfig<boolean>({
     urlParamName: 'noSimpleZoom',

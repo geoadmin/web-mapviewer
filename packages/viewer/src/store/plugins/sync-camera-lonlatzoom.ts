@@ -14,7 +14,7 @@ import {
 import { PositionStoreActions } from '@/store/actions'
 import useCesiumStore from '@/store/modules/cesium'
 import usePositionStore, { normalizeAngle } from '@/store/modules/position.store'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 import { isEnumValue } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'sync-camera-lonlatzoom.plugin' }
