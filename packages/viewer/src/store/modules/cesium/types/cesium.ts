@@ -40,6 +40,4 @@ export interface CesiumStoreGetters {
     layersWithTooltips(): Layer[]
 }
 
-export type CesiumStoreStateAndGetters = CesiumStoreState & CesiumStoreGetters
-
 export type CesiumStore = ReturnType<typeof import('../index.ts').default>

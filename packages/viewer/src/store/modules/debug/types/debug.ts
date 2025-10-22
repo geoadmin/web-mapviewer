@@ -6,6 +6,4 @@ export interface DebugStoreState {
 
 export type DebugStoreGetters = object
 
-export type DebugStoreStateAndGetters = DebugStoreState & DebugStoreGetters
-
-export type DebugStore = ReturnType<typeof import('../index.ts').default>
+export type DebugStore = ReturnType<typeof import('@/store/modules/debug').default>

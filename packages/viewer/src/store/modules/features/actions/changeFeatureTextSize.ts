@@ -14,10 +14,10 @@ import { allStylingSizes, type FeatureStyleSize } from '@/utils/featureStyleUtil
  */
 export default function changeFeatureTextSize(
     this: FeaturesStore,
-    payload: { feature: EditableFeature; textSize: FeatureStyleSize },
+    feature: EditableFeature,
+    textSize: FeatureStyleSize,
     dispatcher: ActionDispatcher
 ) {
-    const { feature, textSize } = payload
     const selectedFeature = getEditableFeatureWithId(this.selectedEditableFeatures, feature.id)
     const wantedSize = allStylingSizes.find((size) => size.textScale === textSize.textScale)
     if (wantedSize && selectedFeature && selectedFeature.isEditable) {

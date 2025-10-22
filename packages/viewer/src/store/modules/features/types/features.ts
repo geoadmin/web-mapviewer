@@ -21,6 +21,4 @@ export interface FeaturesStoreGetters {
     selectedFeatures(): (EditableFeature | LayerFeature)[]
 }
 
-export type FeaturesStoreStateAndGetters = FeaturesStoreState & FeaturesStoreGetters
-
-export type FeaturesStore = ReturnType<typeof import('../index.ts').default>
+export type FeaturesStore = ReturnType<typeof import('@/store/modules/features').default>

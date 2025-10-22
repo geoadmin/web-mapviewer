@@ -13,18 +13,13 @@ import getEditableFeatureWithId from '@/store/modules/features/utils/getEditable
  *
  * Coordinates is an array of coordinate. Marker and text feature have only one entry in this array
  * while line and measure store each points describing them in this coordinates array
- *
- * @param payload
- * @param payload.feature
- * @param payload.coordinates
- * @param dispatcher
  */
 export default function changeFeatureCoordinates(
     this: FeaturesStore,
-    payload: { feature: EditableFeature; coordinates: SingleCoordinate[] },
+    feature: EditableFeature,
+    coordinates: SingleCoordinate[],
     dispatcher: ActionDispatcher
 ) {
-    const { feature, coordinates } = payload
     const selectedFeature = getEditableFeatureWithId(this.selectedEditableFeatures, feature.id)
     if (selectedFeature && selectedFeature.isEditable && Array.isArray(coordinates)) {
         selectedFeature.coordinates = coordinates

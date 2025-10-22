@@ -89,12 +89,7 @@ function reprojectSelectedFeatures(
         }
     })
     if (reprojectedSelectedFeatures.length > 0) {
-        featureStore.setSelectedFeatures(
-            {
-                features: reprojectedSelectedFeatures,
-            },
-            dispatcher
-        )
+        featureStore.setSelectedFeatures(reprojectedSelectedFeatures, dispatcher)
     }
 }
 

@@ -312,7 +312,7 @@ async function getAndDispatchFeatures(
             .filter((response) => response.status === 'fulfilled')
             .map((response) => response.value)
         if (features.length > 0) {
-            featuresStore.setSelectedFeatures({ features }, STORE_DISPATCHER_ROUTER_PLUGIN)
+            featuresStore.setSelectedFeatures(features, STORE_DISPATCHER_ROUTER_PLUGIN)
 
             const extent = getExtentOfGeometries(
                 features.map((feature) => feature.geometry).filter((geometry) => !!geometry)

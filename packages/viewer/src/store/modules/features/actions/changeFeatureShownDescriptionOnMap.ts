@@ -6,10 +6,10 @@ import getEditableFeatureWithId from '@/store/modules/features/utils/getEditable
 
 export default function changeFeatureShownDescriptionOnMap(
     this: FeaturesStore,
-    payload: { feature: EditableFeature; showDescriptionOnMap: boolean },
+    feature: EditableFeature,
+    showDescriptionOnMap: boolean,
     dispatcher: ActionDispatcher
 ) {
-    const { feature, showDescriptionOnMap } = payload
     const selectedFeature = getEditableFeatureWithId(this.selectedEditableFeatures, feature.id)
     if (selectedFeature && selectedFeature.isEditable) {
         selectedFeature.showDescriptionOnMap = showDescriptionOnMap

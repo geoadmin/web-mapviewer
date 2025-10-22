@@ -80,17 +80,13 @@ export function updateStoreFeatureCoordinatesGeometry(
     }
     const featuresStore = useFeaturesStore()
     featuresStore.changeFeatureCoordinates(
-        {
-            feature: storeFeature,
-            coordinates: extractOlFeatureCoordinates(feature),
-        },
+        storeFeature,
+        extractOlFeatureCoordinates(feature),
         dispatcher
     )
     featuresStore.changeFeatureGeometry(
-        {
-            feature: storeFeature,
-            geometry: new GeoJSON().writeGeometryObject(featureGeometry),
-        },
+        storeFeature,
+        new GeoJSON().writeGeometryObject(featureGeometry),
         dispatcher
     )
 }

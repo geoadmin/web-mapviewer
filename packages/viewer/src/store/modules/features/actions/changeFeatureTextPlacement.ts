@@ -6,19 +6,16 @@ import getEditableFeatureWithId from '@/store/modules/features/utils/getEditable
 import { TextPlacement } from '@/utils/featureStyleUtils'
 
 /**
- * Changes the title text placement of the feature. Only changes the text placement
- * if the feature is editable and part of the currently selected features
+ * Changes the title text placement of the feature. Only changes the text placement if the feature
+ * is editable and part of the currently selected features
  */
 export default function changeFeatureTextPlacement(
     this: FeaturesStore,
-    payload: { feature: EditableFeature; textPlacement: TextPlacement },
+    feature: EditableFeature,
+    textPlacement: TextPlacement,
     dispatcher: ActionDispatcher
 ) {
-    const { feature, textPlacement } = payload
-    const selectedFeature = getEditableFeatureWithId(
-        this.selectedEditableFeatures,
-        feature.id
-    )
+    const selectedFeature = getEditableFeatureWithId(this.selectedEditableFeatures, feature.id)
     const wantedPlacement = Object.values(TextPlacement).find(
         (position) => position === textPlacement
     )

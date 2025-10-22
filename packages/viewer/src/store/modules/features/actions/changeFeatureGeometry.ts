@@ -9,15 +9,11 @@ import useProfileStore from '@/store/modules/profile.store'
 
 export default function changeFeatureGeometry(
     this: FeaturesStore,
-    payload: { feature: EditableFeature; geometry: Geometry },
+    feature: EditableFeature,
+    geometry: Geometry,
     dispatcher: ActionDispatcher
 ) {
-    const { feature, geometry } = payload
-
-    const selectedFeature: EditableFeature | undefined = getEditableFeatureWithId(
-        this.selectedEditableFeatures,
-        feature.id
-    )
+    const selectedFeature = getEditableFeatureWithId(this.selectedEditableFeatures, feature.id)
     if (selectedFeature && selectedFeature.isEditable && geometry) {
         selectedFeature.geometry = geometry
         const profileStore = useProfileStore()

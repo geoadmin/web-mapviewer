@@ -1,29 +1,46 @@
 import type { EditableFeature, LayerFeature, SelectableFeature } from '@/api/features.api'
-import type { FeaturesForLayer } from '@/store/modules/features'
-import type { FeaturesStore } from '@/store/modules/features/types/features'
+import type { FeaturesForLayer, FeaturesStore } from '@/store/modules/features/types/features'
 import type { ActionDispatcher } from '@/store/types'
 
 import { sendFeatureInformationToIFrameParent } from '@/api/iframePostMessageEvent.api'
 import { DEFAULT_FEATURE_COUNT_SINGLE_POINT } from '@/config/map.config'
 import useProfileStore from '@/store/modules/profile.store'
 
+interface SetSelectedFeaturesOptions {
+    /**
+     * How many features were requested, will help set if a layer can have more data or not (if its
+     * feature count is a multiple of paginationSize)
+     */
+    paginationSize?: number
+}
+
+export default function setSelectedFeatures(
+    this: FeaturesStore,
+    features: SelectableFeature<boolean>[],
+    dispatcher: ActionDispatcher
+): void
+export default function setSelectedFeatures(
+    this: FeaturesStore,
+    features: SelectableFeature<boolean>[],
+    options: SetSelectedFeaturesOptions,
+    dispatcher: ActionDispatcher
+): void
+
 /**
  * Tells the map to highlight a list of features (place a round marker at their location). Those
  * features are currently shown by the tooltip. If in drawing mode, this function tells the store
  * which features are selected (it does not select the features by itself)
- *
- * @param payload
- * @param payload.features A list of feature we want to highlight/select on the map
- * @param payload.paginationSize How many features were requested, will help set if a layer can have
- *   more data or not (if its feature count is a multiple of paginationSize)
- * @param dispatcher
  */
 export default function setSelectedFeatures(
     this: FeaturesStore,
-    payload: { features: SelectableFeature<boolean>[]; paginationSize?: number },
-    dispatcher: ActionDispatcher
+    features: SelectableFeature<boolean>[],
+    optionsOrDispatcher: SetSelectedFeaturesOptions | ActionDispatcher,
+    dispatcherOrNothing?: ActionDispatcher
 ) {
-    const { features, paginationSize = DEFAULT_FEATURE_COUNT_SINGLE_POINT } = payload
+    const options = dispatcherOrNothing ? (optionsOrDispatcher as SetSelectedFeaturesOptions) : {}
+    const dispatcher = dispatcherOrNothing ?? (optionsOrDispatcher as ActionDispatcher)
+
+    const { paginationSize = DEFAULT_FEATURE_COUNT_SINGLE_POINT } = options
     // clearing up any relevant selected features stuff
     if (this.highlightedFeatureId) {
         this.highlightedFeatureId = undefined

@@ -12,10 +12,10 @@ import { allStylingColors, type FeatureStyleColor } from '@/utils/featureStyleUt
  */
 export default function changeFeatureTextColor(
     this: FeaturesStore,
-    payload: { feature: EditableFeature; textColor: FeatureStyleColor },
+    feature: EditableFeature,
+    textColor: FeatureStyleColor,
     dispatcher: ActionDispatcher
 ) {
-    const { feature, textColor } = payload
     const selectedFeature = getEditableFeatureWithId(this.selectedEditableFeatures, feature.id)
     const wantedColor = allStylingColors.find((styleColor) => styleColor.name === textColor.name)
     if (wantedColor && selectedFeature && selectedFeature.isEditable) {

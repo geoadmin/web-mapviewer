@@ -71,7 +71,7 @@ watch(currentlySelectedFeature, (newFeature, oldFeature) => {
         // so that we can update the style of the OL features as soon
         // as the store feature is edited
         editableFeature.on('change:style', onFeatureChange)
-        featuresStore.setSelectedFeatures({ features: [editableFeature] }, dispatcher)
+        featuresStore.setSelectedFeatures([editableFeature], dispatcher)
         if (
             [EditableFeatureTypes.Measure, EditableFeatureTypes.LinePolygon].includes(
                 editableFeature.featureType
