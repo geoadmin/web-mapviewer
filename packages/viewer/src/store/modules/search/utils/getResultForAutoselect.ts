@@ -1,4 +1,5 @@
 import type { SearchResult } from '@/api/search.api'
+
 import { SearchResultTypes } from '@/api/search.api'
 
 /**

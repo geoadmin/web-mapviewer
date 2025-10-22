@@ -74,9 +74,7 @@ const updateSearchQuery = (event: Event) => {
         clearTimeout(debounceSearch)
     }
     debounceSearch = setTimeout(() => {
-        searchStore
-            .setSearchQuery({ query: (event.target as HTMLInputElement).value }, dispatcher)
-            .catch((_) => {})
+        searchStore.setSearchQuery((event.target as HTMLInputElement).value, undefined, dispatcher)
     }, 100)
 }
 
@@ -84,7 +82,7 @@ const clearSearchQuery = () => {
     showResults.value = false
     selectedEntry.value = undefined
     searchValue.value = ''
-    searchStore.setSearchQuery({ query: '' }, dispatcher).catch((_) => {})
+    searchStore.setSearchQuery('', undefined, dispatcher)
     if (searchInput.value) {
         searchInput.value.focus()
     }

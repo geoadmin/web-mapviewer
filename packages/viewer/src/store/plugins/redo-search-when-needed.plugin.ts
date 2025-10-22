@@ -1,8 +1,6 @@
 import type { GeoAdminLayer } from '@swissgeo/layers'
 import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 
-import log from '@swissgeo/log'
-
 import { I18nStoreActions, LayerStoreActions } from '@/store/actions'
 import useLayersStore from '@/store/modules/layers.store'
 import useSearchStore from '@/store/modules/search'
@@ -14,19 +12,11 @@ function redoSearch() {
     if (searchStore.query.length > 2) {
         searchStore
             .setSearchQuery(
-                {
-                    query: searchStore.query,
-                    // necessary to select the first result if there is only one else it will not be because this redo search is done every time the page loaded
-                    originUrlParam: true,
-                },
+                searchStore.query,
+                // necessary to select the first result if there is only one else it will not be because this redo search is done every time the page loaded
+                true,
                 { name: 'redoSearchWhenNeeded' }
             )
-            .catch((error) => {
-                log.error({
-                    title: 'Redo search when needed plugin',
-                    messages: ['Error while redoing search with query', searchStore.query, error],
-                })
-            })
     }
 }
 
