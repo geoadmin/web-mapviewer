@@ -27,7 +27,7 @@ import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPop
 import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle'
 import useVectorLayer from '@/modules/map/components/openlayers/utils/useVectorLayer.composable.ts'
 import type { ActionDispatcher } from '@/store/types'
-import useDrawingStore from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features.store'
 import useMapStore from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'

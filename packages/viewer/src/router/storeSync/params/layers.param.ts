@@ -34,7 +34,7 @@ import {
     type ValidationResponse,
 } from '@/router/storeSync/validation'
 import { FeatureStoreActions, LayerStoreActions } from '@/store/actions'
-import useDrawingStore from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features.store'
 import useI18nStore from '@/store/modules/i18n.store'
 import useLayersStore from '@/store/modules/layers.store'

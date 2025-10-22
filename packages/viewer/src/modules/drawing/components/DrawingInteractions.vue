@@ -12,7 +12,9 @@ import DrawingSelectInteraction from '@/modules/drawing/components/DrawingSelect
 import DrawingTextInteraction from '@/modules/drawing/components/DrawingTextInteraction.vue'
 import ExtendLineInteraction from '@/modules/drawing/components/ExtendLineInteraction.vue'
 import ExtendMeasureInteraction from '@/modules/drawing/components/ExtendMeasureInteraction.vue'
-import useDrawingStore, { EditMode } from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
+import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
+
 // Methods exposed by the select interaction component
 type SelectInteractionExposed = {
     setActive: (_: boolean) => void
@@ -51,7 +53,7 @@ const specializedInteractionComponent = computed(() => {
             selectedInteraction = DrawingMeasureInteraction
             break
     }
-    if (editMode.value === EditMode.EXTEND) {
+    if (editMode.value === EditMode.Extend) {
         const isMeasure =
             selectedLineFeature.value?.get('editableFeature')?.featureType ===
             EditableFeatureTypes.Measure
@@ -74,7 +76,7 @@ const specializedInteractionComponent = computed(() => {
 })
 
 const specializedProps = computed(() => {
-    if (editMode.value === EditMode.EXTEND) {
+    if (editMode.value === EditMode.Extend) {
         return {
             startingFeature: selectedLineFeature.value,
         }
@@ -88,7 +90,7 @@ function onDrawEnd(feature: Feature | undefined) {
 
 function removeLastPoint() {
     currentInteraction.value?.removeLastPoint?.()
-    if (editMode.value !== EditMode.OFF) {
+    if (editMode.value !== EditMode.Off) {
         selectInteraction.value?.removeLastPoint()
     }
 }

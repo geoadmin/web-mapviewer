@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import type { SingleCoordinate } from '@swissgeo/coordinates'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import DOMPurify from 'dompurify'
 import { computed, inject, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { EditableFeatureTypes } from '@/api/features.api'
+import { type EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
 import DrawingHeader from '@/modules/drawing/components/DrawingHeader.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
@@ -13,7 +14,8 @@ import SharePopup from '@/modules/drawing/components/SharePopup.vue'
 import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
-import useDrawingStore, { EditMode } from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
+import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import debounce from '@/utils/debounce'
 import useUIStore from '@/store/modules/ui.store'
@@ -25,39 +27,39 @@ import log from '@swissgeo/log'
 
 const dispatcher: ActionDispatcher = { name: 'DrawingToolbox.vue' }
 
+const emits = defineEmits<{
+    removeLastPoint: [void]
+    closeDrawing: [void]
+}>()
+
 const drawingLayer = inject<VectorLayer>('drawingLayer')
+
 const { saveState, deleteDrawing, debounceSaveDrawing } = useSaveKmlOnChange()
+
 const { t } = useI18n()
 const drawingStore = useDrawingStore()
 const uiStore = useUIStore()
 const layersStore = useLayersStore()
 const featuresStore = useFeaturesStore()
 
-type EmitType = {
-    (_e: 'removeLastPoint'): void
-    (_e: 'closeDrawing'): void
-}
-const emits = defineEmits<EmitType>()
-const drawMenuOpen = ref(true)
-const showClearConfirmationModal = ref(false)
-const showShareModal = ref(false)
-const showNotSharedDrawingWarningModal = ref(false)
-const showNotSharedDrawingWarning = computed(() => drawingStore.showNotSharedDrawingWarning)
-const isClosingDrawing = ref(false)
-const showNoActiveKmlWarning = computed(() => !activeKmlLayer.value)
+const drawMenuOpen = ref<boolean>(true)
+const showClearConfirmationModal = ref<boolean>(false)
+const showShareModal = ref<boolean>(false)
+const showNotSharedDrawingWarningModal = ref<boolean>(false)
+const isClosingDrawing = ref<boolean>(false)
+const showNoActiveKmlWarning = computed<boolean>(() => layersStore.activeKmlLayer === undefined)
 
-const tooltipText = computed(() => t(!activeKmlLayer.value ? 'drawing_empty_cannot_edit_name' : ''))
-const isDesktopMode = computed(() => uiStore.isDesktopMode)
-const isPhoneMode = computed(() => uiStore.isPhoneMode)
-const isDrawingEmpty = computed(() => drawingStore.isDrawingEmpty)
-const currentDrawingMode = computed(() => drawingStore.mode)
-const isDrawingLineOrMeasure = computed(() => {
-    const mode = currentDrawingMode.value
-    return !!mode && [EditableFeatureTypes.LinePolygon, EditableFeatureTypes.Measure].includes(mode)
+const tooltipText = computed<string>(() =>
+    t(showNoActiveKmlWarning.value ? 'drawing_empty_cannot_edit_name' : '')
+)
+const isDrawingLineOrMeasure = computed<boolean>(() => {
+    return (
+        !!drawingStore.mode &&
+        [EditableFeatureTypes.LinePolygon, EditableFeatureTypes.Measure].includes(drawingStore.mode)
+    )
 })
-const selectedEditableFeatures = computed(() => featuresStore.selectedEditableFeatures)
-const selectedLineString = computed(() => {
-    return selectedEditableFeatures.value.find((feature) => {
+const selectedLineString = computed<EditableFeature | undefined>(() => {
+    return featuresStore.selectedEditableFeatures.find((feature) => {
         const geomType = feature.geometry?.type
         return (
             geomType === 'LineString' &&
@@ -68,29 +70,27 @@ const selectedLineString = computed(() => {
     })
 })
 
-const selectedLineCoordinates = computed<number[][] | undefined>(() => {
+const selectedLineCoordinates = computed<SingleCoordinate[] | undefined>(() => {
     const line = selectedLineString.value
     // Guard geometry existence and type
     if (line?.geometry?.type === 'LineString') {
         // geometry.coordinates is number[][] for LineString in our domain model
         // cast to be explicit (underlying geojson typing is a union)
-        return line.geometry.coordinates
+        return line.geometry.coordinates as SingleCoordinate[]
     }
     return undefined
 })
-const editMode = computed(() => drawingStore.editingMode)
-const isAllowDeleteLastPoint = computed(
+const isAllowDeleteLastPoint = computed<boolean>(
     () =>
         // Allow deleting the last point only if we are drawing line or measure
         // or when extending line
         isDrawingLineOrMeasure.value ||
-        (editMode.value === EditMode.EXTEND &&
-            selectedLineString.value &&
-            selectedLineCoordinates.value &&
+        (drawingStore.editingMode === EditMode.Extend &&
+            selectedLineString.value !== undefined &&
+            selectedLineCoordinates.value !== undefined &&
             selectedLineCoordinates.value.length > 2)
 )
-const activeKmlLayer = computed(() => layersStore.activeKmlLayer)
-const drawingName = computed({
+const drawingName = computed<string | undefined>({
     get: () => drawingStore.name,
     set: (value) => debounceSaveDrawingName(value),
 })
@@ -122,12 +122,12 @@ function onCloseClearConfirmation(confirmed: boolean) {
         drawingLayer?.getSource()?.clear()
         deleteDrawing().catch((error: Error) => log.error(`Error while deleting drawing: ${error}`))
         drawingStore.setDrawingMode(undefined, dispatcher)
-        if (activeKmlLayer.value) {
+        if (layersStore.activeKmlLayer) {
             layersStore.removeLayer(
                 {
-                    layerId: activeKmlLayer.value.id,
-                    isExternal: activeKmlLayer.value.isExternal,
-                    baseUrl: activeKmlLayer.value.baseUrl,
+                    layerId: layersStore.activeKmlLayer.id,
+                    isExternal: layersStore.activeKmlLayer.isExternal,
+                    baseUrl: layersStore.activeKmlLayer.baseUrl,
                 },
                 dispatcher
             )
@@ -137,7 +137,7 @@ function onCloseClearConfirmation(confirmed: boolean) {
 
 function closeDrawing() {
     isClosingDrawing.value = true
-    if (showNotSharedDrawingWarning.value) {
+    if (drawingStore.showNotSharedDrawingWarning) {
         showNotSharedDrawingWarningModal.value = true
     } else {
         emits('closeDrawing')
@@ -180,14 +180,14 @@ const debounceSaveDrawingName = debounce(saveDrawingName, 200)
 <template>
     <teleport to=".drawing-toolbox-in-menu">
         <DrawingHeader
-            v-if="isDesktopMode"
+            v-if="uiStore.isDesktopMode"
             :is-closing-in-toolbox="isClosingDrawing"
             @close="closeDrawing"
         />
         <div :class="[{ 'drawing-toolbox-closed': !drawMenuOpen }, 'drawing-toolbox']">
             <div
                 class="card drawing-toolbox-content rounded-bottom rounded-top-0 rounded-start-0 text-center shadow-lg"
-                :class="{ 'rounded-bottom-0': isPhoneMode }"
+                :class="{ 'rounded-bottom-0': uiStore.isPhoneMode }"
             >
                 <GeoadminTooltip
                     :tooltip-content="tooltipText"
@@ -211,7 +211,7 @@ const debounceSaveDrawingName = debounce(saveDrawingName, 200)
                             class="form-control"
                             data-cy="drawing-toolbox-file-name-input"
                             :placeholder="`${t('draw_layer_label')}`"
-                            :disabled="!activeKmlLayer"
+                            :disabled="!layersStore.activeKmlLayer"
                         />
                     </div>
                 </GeoadminTooltip>
@@ -219,26 +219,26 @@ const debounceSaveDrawingName = debounce(saveDrawingName, 200)
                 <div class="card-body position-relative container">
                     <div
                         class="row justify-content-start g-2"
-                        :class="{ 'row-cols-2': isDesktopMode }"
+                        :class="{ 'row-cols-2': uiStore.isDesktopMode }"
                     >
                         <div
                             v-for="drawingMode in Object.values(EditableFeatureTypes)"
                             :key="drawingMode"
                             class="col"
                             :class="{
-                                'd-grid': isPhoneMode,
-                                'd-block': isDesktopMode,
+                                'd-grid': uiStore.isPhoneMode,
+                                'd-block': uiStore.isDesktopMode,
                             }"
                         >
                             <DrawingToolboxButton
                                 :drawing-mode="drawingMode"
-                                :is-active="currentDrawingMode === drawingMode"
+                                :is-active="drawingStore.mode === drawingMode"
                                 :data-cy="`drawing-toolbox-mode-button-${drawingMode}`"
                                 @set-drawing-mode="selectDrawingMode"
                             />
                         </div>
                         <button
-                            v-if="isPhoneMode"
+                            v-if="uiStore.isPhoneMode"
                             class="btn d-flex align-items-center justify-content-center col-2"
                             data-cy="drawing-toolbox-close-button"
                             @click="closeDrawing"
@@ -260,7 +260,7 @@ const debounceSaveDrawingName = debounce(saveDrawingName, 200)
                     <div class="row g-2">
                         <div class="col d-grid">
                             <button
-                                :disabled="isDrawingEmpty"
+                                :disabled="drawingStore.isDrawingEmpty"
                                 class="btn-light btn"
                                 data-cy="drawing-toolbox-delete-button"
                                 @click="showClearConfirmationModal = true"
@@ -269,7 +269,7 @@ const debounceSaveDrawingName = debounce(saveDrawingName, 200)
                             </button>
                         </div>
                         <div class="col d-grid">
-                            <DrawingExporter :is-drawing-empty="isDrawingEmpty" />
+                            <DrawingExporter :is-drawing-empty="drawingStore.isDrawingEmpty" />
                         </div>
                         <div
                             v-if="online"
@@ -278,7 +278,9 @@ const debounceSaveDrawingName = debounce(saveDrawingName, 200)
                             <button
                                 type="button"
                                 class="btn btn-light"
-                                :disabled="isDrawingEmpty || !activeKmlLayer"
+                                :disabled="
+                                    drawingStore.isDrawingEmpty || !layersStore.activeKmlLayer
+                                "
                                 data-cy="drawing-toolbox-share-button"
                                 @click="showShareModal = true"
                             >
@@ -301,7 +303,7 @@ const debounceSaveDrawingName = debounce(saveDrawingName, 200)
                         </div>
                     </div>
                     <div
-                        v-if="isDesktopMode && online"
+                        v-if="uiStore.isDesktopMode && online"
                         class="row mt-2"
                     >
                         <div
@@ -316,7 +318,7 @@ const debounceSaveDrawingName = debounce(saveDrawingName, 200)
                 </div>
             </div>
             <div
-                v-if="isDesktopMode"
+                v-if="uiStore.isDesktopMode"
                 class="text-center"
             >
                 <button
@@ -354,7 +356,7 @@ const debounceSaveDrawingName = debounce(saveDrawingName, 200)
             :title="t('share')"
             @close="showShareModal = false"
         >
-            <SharePopup :kml-layer="activeKmlLayer" />
+            <SharePopup :kml-layer="layersStore.activeKmlLayer" />
         </ModalWithBackdrop>
         <ModalWithBackdrop
             v-if="showNotSharedDrawingWarningModal"
@@ -363,7 +365,7 @@ const debounceSaveDrawingName = debounce(saveDrawingName, 200)
             @close="onCloseWarningModal()"
         >
             <ShareWarningPopup
-                :kml-layer="activeKmlLayer"
+                :kml-layer="layersStore.activeKmlLayer"
                 @accept="onAcceptWarningModal()"
             />
         </ModalWithBackdrop>

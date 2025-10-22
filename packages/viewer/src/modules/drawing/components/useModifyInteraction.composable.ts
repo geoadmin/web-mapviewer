@@ -17,7 +17,8 @@ import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
 import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
-import useDrawingStore, { EditMode } from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
+import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 import useFeaturesStore from '@/store/modules/features.store'
 
 const dispatcher: ActionDispatcher = { name: 'useModifyInteraction.composable' }
@@ -28,8 +29,8 @@ export interface UseModifyInteractionOptions {
 }
 
 /**
- * Enable modifying selected features (drag vertices, delete with right click).
- * Assumes `features` is the same collection used by the select interaction.
+ * Enable modifying selected features (drag vertices, delete with right click). Assumes `features`
+ * is the same collection used by the select interaction.
  */
 export default function useModifyInteraction(features: Collection<Feature<Geometry>>) {
     const featuresStore = useFeaturesStore()
@@ -72,7 +73,7 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
     watch(
         editMode,
         (newValue) => {
-            if (newValue === EditMode.EXTEND && features.getLength() > 0) {
+            if (newValue === EditMode.Extend && features.getLength() > 0) {
                 const selectedFeature = features.item(0)
                 if (selectedFeature && reverseLineStringExtension.value) {
                     const geom = selectedFeature.getGeometry()
@@ -83,7 +84,7 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
                     }
                 }
                 modifyInteraction.setActive(false)
-            } else if (newValue === EditMode.MODIFY) {
+            } else if (newValue === EditMode.Modify) {
                 modifyInteraction.setActive(true)
             } else {
                 modifyInteraction.setActive(true)
@@ -100,7 +101,7 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
     })
 
     onBeforeUnmount(() => {
-        drawingStore.setEditingMode(EditMode.OFF, reverseLineStringExtension.value, dispatcher)
+        drawingStore.setEditingMode(EditMode.Off, reverseLineStringExtension.value, dispatcher)
 
         olMap.removeInteraction(modifyInteraction)
 
@@ -109,7 +110,7 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
     })
 
     function removeLastPoint() {
-        if (editMode.value === EditMode.OFF) {
+        if (editMode.value === EditMode.Off) {
             return
         }
 
@@ -125,7 +126,10 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
             }
             if (feature) {
                 // Update the store copy of the feature’s geometry
-                updateStoreFeatureCoordinatesGeometry(feature as Feature<SimpleGeometry>, dispatcher)
+                updateStoreFeatureCoordinatesGeometry(
+                    feature as Feature<SimpleGeometry>,
+                    dispatcher
+                )
             }
         }
     }

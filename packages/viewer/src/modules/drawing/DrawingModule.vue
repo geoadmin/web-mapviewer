@@ -7,6 +7,7 @@ import type Map from 'ol/Map'
 import type { Geometry } from 'ol/geom'
 import type Feature from 'ol/Feature'
 import {
+    type ComponentPublicInstance,
     computed,
     inject,
     onBeforeUnmount,
@@ -15,7 +16,6 @@ import {
     ref,
     useTemplateRef,
     watch,
-    type ComponentPublicInstance,
 } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -28,7 +28,8 @@ import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useKmlDataManagement from '@/modules/drawing/useKmlDataManagement.composable'
-import useDrawingStore, { EditMode } from '@/store/modules/drawing.store'
+import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
+import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features.store'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
@@ -36,6 +37,7 @@ import useUiStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
 import type { ActionDispatcher } from '@/store/types'
 import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
 import { layerUtils } from '@swissgeo/layers/utils'
+import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 
 const dispatcher: ActionDispatcher = { name: 'DrawingModule.vue' }
 
@@ -101,7 +103,7 @@ const selectedLineFeature = computed<EditableFeatureLite | null>(() => {
     return null
 })
 const showAddVertexButton = computed(
-    () => drawingStore.editingMode === EditMode.MODIFY && !!selectedLineFeature.value
+    () => drawingStore.editingMode === EditMode.Modify && !!selectedLineFeature.value
 )
 const editMode = computed(() => drawingStore.editingMode)
 const currentDrawingMode = computed(() => drawingStore.mode)
@@ -197,11 +199,11 @@ watch(
     selectedEditableFeatures,
     (newValue) => {
         if ((newValue?.length ?? 0) > 0) {
-            if (drawingStore.editingMode === EditMode.OFF) {
-                drawingStore.setEditingMode(EditMode.MODIFY, false, dispatcher)
+            if (drawingStore.editingMode === EditMode.Off) {
+                drawingStore.setEditingMode(EditMode.Modify, false, dispatcher)
             }
         } else {
-            drawingStore.setEditingMode(EditMode.OFF, false, dispatcher)
+            drawingStore.setEditingMode(EditMode.Off, false, dispatcher)
         }
     },
     { deep: false }
@@ -214,11 +216,7 @@ onMounted(() => {
     }
     if (availableIconSets.value.length === 0) {
         // if icons have not yet been loaded, load them
-        drawingStore
-            .loadAvailableIconSets(dispatcher)
-            .catch((error: Error) =>
-                log.error(`Error while loading icon sets for drawing module : ${error}`)
-            )
+        drawingStore.loadAvailableIconSets(dispatcher)
     }
 
     // Make sure no drawing features are selected when entering the drawing mode
@@ -283,7 +281,7 @@ function createSourceForProjection() {
 
 function removeLastPoint() {
     // Only delete the last point when we are drawing a feature (or editing it)
-    if (currentDrawingMode.value != null || editMode.value === EditMode.EXTEND) {
+    if (currentDrawingMode.value != null || editMode.value === EditMode.Extend) {
         drawingInteractions.value?.removeLastPoint()
     }
 }
@@ -315,7 +313,7 @@ async function closeDrawing() {
         await debounceSaveDrawing({ debounceTime: 0, retryOnError: false })
     }
 
-    drawingStore.toggleDrawingOverlay({}, dispatcher)
+    drawingStore.toggleDrawingOverlay(dispatcher)
 }
 </script>
 

@@ -14,7 +14,7 @@ import {
 } from '@/scss/exports'
 import PrintButton from '@/utils/components/PrintButton.vue'
 import useUIStore from '@/store/modules/ui.store'
-import useDrawingStore from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
 import { MapPopoverMode } from '@/modules/map/components/MapPopoverMode.enum'
 import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
 

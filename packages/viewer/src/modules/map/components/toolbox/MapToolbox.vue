@@ -10,7 +10,7 @@ import GeolocButton from '@/modules/map/components/toolbox/GeolocButton.vue'
 import Toggle3dButton from '@/modules/map/components/toolbox/Toggle3dButton.vue'
 import ZoomButtons from '@/modules/map/components/toolbox/ZoomButtons.vue'
 import useUIStore from '@/store/modules/ui.store'
-import useDrawingStore from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
 
 const {
     fullScreenButton = false,

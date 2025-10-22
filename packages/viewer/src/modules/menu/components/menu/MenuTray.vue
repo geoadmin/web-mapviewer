@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch, type ComponentPublicInstance } from 'vue'
+import { type ComponentPublicInstance, computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import MenuThreeD from '@/modules/menu/components/3d/MenuThreeD.vue'
@@ -12,7 +12,7 @@ import MenuShareSection from '@/modules/menu/components/share/MenuShareSection.v
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
 import useCesiumStore from '@/store/modules/cesium'
 import useUIStore from '@/store/modules/ui.store'
-import useDrawingStore from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
 import useAppStore from '@/store/modules/app'
 
 const dispatcher = { name: 'MenuTray.vue' }
@@ -67,8 +67,14 @@ onMounted(() => {
     }
 })
 
-function toggleDrawingOverlay(payload: Parameters<typeof drawingStore.toggleDrawingOverlay>[0]) {
-    drawingStore.toggleDrawingOverlay(payload, dispatcher)
+function toggleDrawingOverlay() {
+    drawingStore.toggleDrawingOverlay(
+        {
+            online: true,
+            title: 'draw_mode_title',
+        },
+        dispatcher
+    )
 }
 
 function onOpenMenuSection(id: string) {
@@ -150,12 +156,7 @@ const addRefBySectionId = (el: Element | ComponentPublicInstance | null): void =
                 secondary
                 :show-content="showDrawingOverlay"
                 data-cy="menu-tray-drawing-section"
-                @click:header="
-                    toggleDrawingOverlay({
-                        online: true,
-                        title: 'draw_mode_title',
-                    })
-                "
+                @click:header="toggleDrawingOverlay"
                 @open-menu-section="onOpenMenuSection"
                 @close-menu-section="onCloseMenuSection"
             />

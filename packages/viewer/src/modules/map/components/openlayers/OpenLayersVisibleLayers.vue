@@ -3,7 +3,7 @@ import { computed } from 'vue'
 
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import OpenLayersInternalLayer from '@/modules/map/components/openlayers/OpenLayersInternalLayer.vue'
-import useDrawingStore from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
 import useLayersStore from '@/store/modules/layers.store'
 
 const layersStore = useLayersStore()
