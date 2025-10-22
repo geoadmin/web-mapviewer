@@ -190,7 +190,7 @@ function clearAllSelectedFeatures(): void {
     mapStore.clearClick(dispatcher)
 }
 function setBottomPanelFeatureInfoPosition(): void {
-    uiStore.setFeatureInfoPosition(FeatureInfoPositions.BOTTOMPANEL, dispatcher)
+    uiStore.setFeatureInfoPosition(FeatureInfoPositions.BottomPanel, dispatcher)
 }
 </script>
 

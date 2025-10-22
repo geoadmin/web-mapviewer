@@ -23,10 +23,10 @@ const screenSizeManagement: PiniaPlugin = (context: PiniaPluginContext) => {
                 uiStore.width < BREAKPOINT_PHONE_WIDTH ||
                 uiStore.height < BREAKPOINT_PHONE_HEIGHT
             ) {
-                wantedUiMode = UIModes.PHONE
+                wantedUiMode = UIModes.Phone
             } else {
-                // so the UI mode DESKTOP also includes the tablet mode.
-                wantedUiMode = UIModes.DESKTOP
+                // so the UI mode Desktop also includes the tablet mode.
+                wantedUiMode = UIModes.Desktop
             }
             if (wantedUiMode !== uiStore.mode) {
                 uiStore.setUiMode(wantedUiMode, dispatcher)

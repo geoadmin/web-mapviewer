@@ -166,7 +166,7 @@ export function handleLegacyParam(
         case 'showTooltip':
             key = 'featureInfo'
             newValue =
-                legacyValue === 'true' ? FeatureInfoPositions.DEFAULT : FeatureInfoPositions.NONE
+                legacyValue === 'true' ? FeatureInfoPositions.Default : FeatureInfoPositions.None
             break
         case 'bgLayer':
             newValue = legacyValue === 'voidLayer' ? 'void' : legacyValue
