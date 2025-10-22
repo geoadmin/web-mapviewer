@@ -12,7 +12,7 @@ export default function removeError(
     if (!(error)) {
         log.error({
             title: 'UI store / removeError',
-            color: LogPreDefinedColor.Red,
+            titleColor: LogPreDefinedColor.Red,
             messages: ['Wrong type of error passed to removeError', error, dispatcher],
         })
         return
