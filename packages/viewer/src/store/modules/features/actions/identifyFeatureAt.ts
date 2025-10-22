@@ -18,29 +18,56 @@ import useUIStore from '@/store/modules/ui.store'
 /**
  * Identify features in layers at the given coordinate.
  *
- * @param payload
- * @param payload.layers List of layers for which we want to know if features are present at given
+ * @param layers List of layers for which we want to know if features are present at given
  *   coordinates
- * @param payload.vectorFeatures List of existing vector features at given coordinate (that should
- *   be added to the selected features after identification has been run on the backend). Default is
- *   `[]`
- * @param payload.coordinate A point ([x,y]), or a rectangle described by a flat extent ([minX,
- *   maxX, minY, maxY]). 10 features will be requested for a point, 50 for a rectangle.
+ * @param vectorFeatures List of existing vector features at given coordinate. That should be added
+ *   to the selected features after identification has been run on the backend.
+ * @param coordinate A point ([x,y]), or a rectangle described by a flat extent ([minX, maxX, minY,
+ *   maxY]). 10 features will be requested for a point, 50 for a rectangle.
+ * @param identifyMode The mode in which the identify should be run.
  * @param dispatcher
- * @returns As some callers might want to know when identify has been done/finished, this returns a
- *   promise that will be resolved when this is the case
  */
 export default function identifyFeatureAt(
     this: FeaturesStore,
-    payload: {
-        layers: Layer[]
-        coordinate: SingleCoordinate | FlatExtent
-        vectorFeatures: SelectableFeature<false>[]
-        identifyMode?: IdentifyMode
-    },
+    layers: Layer[],
+    coordinate: SingleCoordinate | FlatExtent,
+    vectorFeatures: SelectableFeature<false>[],
+    identifyMode: IdentifyMode,
     dispatcher: ActionDispatcher
+): void
+
+/**
+ * Identify features in layers at the given coordinate.
+ *
+ * @param layers List of layers for which we want to know if features are present at given
+ *   coordinates
+ * @param vectorFeatures List of existing vector features at given coordinate. That should be added
+ *   to the selected features after identification has been run on the backend.
+ * @param coordinate A point ([x,y]), or a rectangle described by a flat extent ([minX, maxX, minY,
+ *   maxY]). 10 features will be requested for a point, 50 for a rectangle.
+ * @param dispatcher
+ */
+export default function identifyFeatureAt(
+    this: FeaturesStore,
+    layers: Layer[],
+    coordinate: SingleCoordinate | FlatExtent,
+    vectorFeatures: SelectableFeature<false>[],
+    dispatcher: ActionDispatcher
+): void
+
+export default function identifyFeatureAt(
+    this: FeaturesStore,
+    layers: Layer[],
+    coordinate: SingleCoordinate | FlatExtent,
+    vectorFeatures: SelectableFeature<false>[],
+    identifyModeOrDispatcher: IdentifyMode | ActionDispatcher,
+    dispatcherOrNothing?: ActionDispatcher
 ) {
-    const { layers, coordinate, vectorFeatures = [], identifyMode = IdentifyMode.New } = payload
+    const dispatcher = dispatcherOrNothing ?? (identifyModeOrDispatcher as ActionDispatcher)
+    const identifyMode = dispatcherOrNothing
+        ? (identifyModeOrDispatcher as IdentifyMode)
+        : IdentifyMode.New
+
     const featureCount = getFeatureCountForCoordinate(coordinate)
 
     const i18nStore = useI18nStore()
@@ -62,13 +89,7 @@ export default function identifyFeatureAt(
             const features = [...vectorFeatures, ...backendFeatures]
             if (features.length > 0) {
                 if (identifyMode === IdentifyMode.New) {
-                    this.setSelectedFeatures(
-                        {
-                            features,
-                            paginationSize: featureCount,
-                        },
-                        dispatcher
-                    )
+                    this.setSelectedFeatures(features, { paginationSize: featureCount }, dispatcher)
                 } else if (identifyMode === IdentifyMode.Toggle) {
                     // Toggle features: remove if already selected, add if not
                     const oldFeatures = this.selectedLayerFeatures
@@ -87,10 +108,8 @@ export default function identifyFeatureAt(
                     ) {
                         // Set features to all existing features minus those that were toggled off
                         this.setSelectedFeatures(
+                            oldFeatures.filter((f) => !deselectedFeatures.includes(f)),
                             {
-                                features: oldFeatures.filter(
-                                    (f) => !deselectedFeatures.includes(f)
-                                ),
                                 paginationSize: featureCount,
                             },
                             dispatcher
@@ -98,8 +117,8 @@ export default function identifyFeatureAt(
                     } else if (newlyAddedFeatures.length > 0) {
                         // no feature was "deactivated" we can add the newly selected features
                         this.setSelectedFeatures(
+                            newlyAddedFeatures.concat(oldFeatures),
                             {
-                                features: newlyAddedFeatures.concat(oldFeatures),
                                 paginationSize: featureCount,
                             },
                             dispatcher

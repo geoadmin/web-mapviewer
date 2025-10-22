@@ -15,10 +15,10 @@ import { allStylingSizes, type FeatureStyleSize } from '@/utils/featureStyleUtil
  */
 export default function changeFeatureIconSize(
     this: FeaturesStore,
-    payload: { feature: EditableFeature; iconSize: FeatureStyleSize },
+    feature: EditableFeature,
+    iconSize: FeatureStyleSize,
     dispatcher: ActionDispatcher
 ) {
-    const { feature, iconSize } = payload
     const selectedFeature = getEditableFeatureWithId(this.selectedEditableFeatures, feature.id)
     const wantedSize = allStylingSizes.find((size) => size.textScale === iconSize.textScale)
     if (

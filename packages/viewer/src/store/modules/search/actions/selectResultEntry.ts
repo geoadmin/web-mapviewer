@@ -106,12 +106,7 @@ export default function selectResultEntry(
                 }
             )
                 .then((feature: LayerFeature) => {
-                    featuresStore.setSelectedFeatures(
-                        {
-                            features: [feature],
-                        },
-                        dispatcher
-                    )
+                    featuresStore.setSelectedFeatures([feature], dispatcher)
 
                     uiStore.setFeatureInfoPosition(FeatureInfoPositions.TOOLTIP, dispatcher)
                 })
@@ -154,12 +149,7 @@ export default function selectResultEntry(
                 .filter((feature) => !!feature)
 
             if (layerFeatures) {
-                featuresStore.setSelectedFeatures(
-                    {
-                        features: layerFeatures,
-                    },
-                    dispatcher
-                )
+                featuresStore.setSelectedFeatures(layerFeatures, dispatcher)
 
                 uiStore.setFeatureInfoPosition(FeatureInfoPositions.TOOLTIP, dispatcher)
             }

@@ -18,22 +18,13 @@ import useUIStore from '@/store/modules/ui.store'
  * Only GeoAdmin layers support this for the time being. For external layer, as we use
  * GetFeatureInfo from WMS, there's no such capabilities (we would have to switch to a WFS approach
  * to gain access to similar things).
- *
- * @param payload
- * @param payload.layer
- * @param payload.coordinate A point ([x,y]), or a rectangle described by a flat extent ([minX,
- *   maxX, minY, maxY]).
- * @param dispatcher
  */
 export default function loadMoreFeaturesForLayer(
     this: FeaturesStore,
-    payload: { layer: GeoAdminLayer; coordinate: SingleCoordinate | FlatExtent },
+    layer: GeoAdminLayer,
+    coordinate: SingleCoordinate | FlatExtent,
     dispatcher: ActionDispatcher
 ) {
-    const { layer, coordinate } = payload
-    if (!layer) {
-        return
-    }
     const featuresAlreadyLoaded = this.selectedFeaturesByLayerId.find(
         (featureForLayer) => featureForLayer.layerId === layer.id
     )

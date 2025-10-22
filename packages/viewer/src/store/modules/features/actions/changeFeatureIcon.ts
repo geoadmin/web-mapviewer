@@ -15,10 +15,10 @@ import getEditableFeatureWithId from '@/store/modules/features/utils/getEditable
  */
 export default function changeFeatureIcon(
     this: FeaturesStore,
-    payload: { feature: EditableFeature; icon: DrawingIcon },
+    feature: EditableFeature,
+    icon: DrawingIcon,
     dispatcher: ActionDispatcher
 ) {
-    const { feature, icon } = payload
     const selectedFeature = getEditableFeatureWithId(this.selectedEditableFeatures, feature.id)
     if (
         icon &&

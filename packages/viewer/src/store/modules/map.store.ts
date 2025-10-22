@@ -91,14 +91,10 @@ const useMapStore = defineStore('map', {
 
                     if (clickInfo.features) {
                         featuresStore.identifyFeatureAt(
-                            {
-                                layers: layersStore.visibleLayers.filter(
-                                    (layer) => layer.hasTooltip
-                                ),
-                                vectorFeatures: clickInfo.features,
-                                coordinate: clickInfo.coordinate,
-                                identifyMode: identifyMode,
-                            },
+                            layersStore.visibleLayers.filter((layer) => layer.hasTooltip),
+                            clickInfo.coordinate,
+                            clickInfo.features,
+                            identifyMode,
                             dispatcher
                         )
                         if (

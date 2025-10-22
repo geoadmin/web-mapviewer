@@ -1,7 +1,5 @@
 import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 
-import log from '@swissgeo/log'
-
 import type { ActionDispatcher } from '@/store/types'
 
 import { LayerStoreActions } from '@/store/actions'
@@ -74,25 +72,12 @@ const updateSelectedFeatures: PiniaPlugin = (context: PiniaPluginContext) => {
         }
 
         if (updateFeatures && clickInfo.features) {
-            featuresStore
-                .identifyFeatureAt(
-                    {
-                        layers: layersStore.visibleLayers.filter((layer) => layer.hasTooltip),
-                        vectorFeatures: clickInfo.features,
-                        coordinate: clickInfo.coordinate,
-                    },
-                    dispatcher
-                )
-                .catch((error) => {
-                    log.error({
-                        title: 'Update selected features plugin',
-                        messages: [
-                            'Error while updating selected features after a click on the map',
-                            args,
-                            error,
-                        ],
-                    })
-                })
+            featuresStore.identifyFeatureAt(
+                layersStore.visibleLayers.filter((layer) => layer.hasTooltip),
+                clickInfo.coordinate,
+                clickInfo.features,
+                dispatcher
+            )
         }
     })
 }

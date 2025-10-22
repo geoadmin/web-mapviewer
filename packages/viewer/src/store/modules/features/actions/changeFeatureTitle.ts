@@ -10,14 +10,11 @@ import getEditableFeatureWithId from '@/store/modules/features/utils/getEditable
  */
 export default function changeFeatureTitle(
     this: FeaturesStore,
-    payload: { feature: EditableFeature; title: string },
+    feature: EditableFeature,
+    title: string,
     dispatcher: ActionDispatcher
 ) {
-    const { feature, title } = payload
-    const selectedFeature: EditableFeature | undefined = getEditableFeatureWithId(
-        this.selectedEditableFeatures,
-        feature.id
-    )
+    const selectedFeature = getEditableFeatureWithId(this.selectedEditableFeatures, feature.id)
     if (selectedFeature && selectedFeature.isEditable) {
         selectedFeature.title = title
     }

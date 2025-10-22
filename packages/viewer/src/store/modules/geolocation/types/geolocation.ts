@@ -22,6 +22,4 @@ export interface GeolocationStoreState {
 
 export type GeolocationStoreGetters = object
 
-export type GeolocationStoreStateAndGetters = GeolocationStoreState & GeolocationStoreGetters
-
-export type GeolocationStore = ReturnType<typeof import('../index.ts').default>
+export type GeolocationStore = ReturnType<typeof import('@/store/modules/geolocation').default>

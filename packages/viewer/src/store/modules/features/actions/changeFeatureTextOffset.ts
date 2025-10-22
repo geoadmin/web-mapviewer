@@ -10,10 +10,10 @@ import getEditableFeatureWithId from '@/store/modules/features/utils/getEditable
  */
 export default function changeFeatureTextOffset(
     this: FeaturesStore,
-    payload: { feature: EditableFeature; textOffset: [number, number] },
+    feature: EditableFeature,
+    textOffset: [number, number],
     dispatcher: ActionDispatcher
 ) {
-    const { feature, textOffset } = payload
     const editableFeature = getEditableFeatureWithId(this.selectedEditableFeatures, feature.id)
     if (editableFeature && editableFeature.isEditable) {
         editableFeature.textOffset = textOffset
