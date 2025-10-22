@@ -36,7 +36,7 @@ import {
 import { FeatureStoreActions, LayerStoreActions } from '@/store/actions'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features.store'
-import useI18nStore from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
 import useUIStore from '@/store/modules/ui.store'

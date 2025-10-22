@@ -6,7 +6,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { loadTopicTreeForTopic } from '@/api/topics.api'
 import router from '@/router'
-import useI18nStore from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers.store'
 import useTopicsStore from '@/store/modules/topics'
 

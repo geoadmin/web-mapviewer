@@ -3,7 +3,7 @@ import { computed, type ComputedRef, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
-import useI18nStore from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n'
 import type { Layer, LayerLegend } from '@swissgeo/layers'
 import { getGeoadminLayerDescription } from '@swissgeo/layers/api'
 import { getSafe } from '@/utils/utils'

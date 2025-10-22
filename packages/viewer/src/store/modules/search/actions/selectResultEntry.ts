@@ -18,7 +18,7 @@ import search, {
     SearchResultTypes,
 } from '@/api/search.api'
 import useFeaturesStore from '@/store/modules/features.store'
-import useI18nStore from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers.store'
 import useMapStore from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'
@@ -61,17 +61,24 @@ export default function selectResultEntry(
             layersToSearch: layerStore.visibleLayers,
             resolution: positionStore.resolution,
             limit: this.autoSelect ? 1 : undefined,
-        }).then((resultIncludingLayerFeatures: SearchResult[]) => {
-            if (resultIncludingLayerFeatures.length > this.results.length) {
-                this.results = resultIncludingLayerFeatures
-            }
-        }).catch(error => {
-            log.error({
-                title: 'Search store / selectResultEntry',
-                titleColor: LogPreDefinedColor.Red,
-                messages: ['Error while searching for layer features', entry, error, dispatcher],
-            })
         })
+            .then((resultIncludingLayerFeatures: SearchResult[]) => {
+                if (resultIncludingLayerFeatures.length > this.results.length) {
+                    this.results = resultIncludingLayerFeatures
+                }
+            })
+            .catch((error) => {
+                log.error({
+                    title: 'Search store / selectResultEntry',
+                    titleColor: LogPreDefinedColor.Red,
+                    messages: [
+                        'Error while searching for layer features',
+                        entry,
+                        error,
+                        dispatcher,
+                    ],
+                })
+            })
     } else if (entry.resultType === SearchResultTypes.LOCATION) {
         const locationEntry = entry as LocationSearchResult
         zoomToSearchResult(locationEntry, dispatcher)
@@ -97,23 +104,24 @@ export default function selectResultEntry(
                     mapExtent: extentUtils.flattenExtent(positionStore.extent),
                     coordinate: featureEntry.coordinate,
                 }
-            ).then((feature: LayerFeature) => {
-                featuresStore.setSelectedFeatures(
-                    {
-                        features: [feature],
-                    },
-                    dispatcher
-                )
+            )
+                .then((feature: LayerFeature) => {
+                    featuresStore.setSelectedFeatures(
+                        {
+                            features: [feature],
+                        },
+                        dispatcher
+                    )
 
-                uiStore.setFeatureInfoPosition(FeatureInfoPositions.TOOLTIP, dispatcher)
-            }).catch((error) => {
-                log.error({
-                    title: 'Search store / selectResultEntry',
-                    titleColor: LogPreDefinedColor.Red,
-                    messages: ['Error while getting feature', featureEntry, error, dispatcher],
+                    uiStore.setFeatureInfoPosition(FeatureInfoPositions.TOOLTIP, dispatcher)
                 })
-            })
-
+                .catch((error) => {
+                    log.error({
+                        title: 'Search store / selectResultEntry',
+                        titleColor: LogPreDefinedColor.Red,
+                        messages: ['Error while getting feature', featureEntry, error, dispatcher],
+                    })
+                })
         } else {
             // For imported KML and GPX files
             let features: Feature[] = []
