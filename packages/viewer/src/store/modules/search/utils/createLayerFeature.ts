@@ -3,8 +3,9 @@ import type { Layer } from '@swissgeo/layers'
 import type Feature from 'ol/Feature'
 import type { Geometry } from 'ol/geom'
 
-import { extractOlFeatureCoordinates, type LayerFeature, type SelectableFeature } from '@/api/features.api'
 import GeoJSON from 'ol/format/GeoJSON'
+
+import { extractOlFeatureCoordinates, type LayerFeature, type SelectableFeature } from '@/api/features.api'
 
 export default function createLayerFeature(
     olFeature: Feature<Geometry>,

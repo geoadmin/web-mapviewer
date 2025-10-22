@@ -1,7 +1,5 @@
 import type { RouteLocationNormalizedGeneric } from 'vue-router'
 
-import log from '@swissgeo/log'
-
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
@@ -18,13 +16,8 @@ const swisssearchParamConfig = new UrlParamConfig<string>({
     setValuesInStore: (_: RouteLocationNormalizedGeneric, urlParamValue?: string) => {
         if (urlParamValue) {
             useSearchStore()
-                .setSearchQuery({ query: urlParamValue }, STORE_DISPATCHER_ROUTER_PLUGIN)
-                .catch((error) => {
-                    log.error({
-                        title: 'swisssearch URL param',
-                        messages: ['Failed to set search query from URL param', error],
-                    })
-                })
+                .setSearchQuery(urlParamValue, undefined, STORE_DISPATCHER_ROUTER_PLUGIN)
+
         }
     },
     afterSetValuesInStore: () => removeQueryParamFromHref(URL_PARAM_NAME_SWISSSEARCH),

@@ -1,6 +1,5 @@
 import type { GeoAdminLayer, GPXLayer, KMLLayer } from '@swissgeo/layers'
 import type Feature from 'ol/Feature'
-import type { Geometry } from 'ol/geom'
 
 import { extentUtils } from '@swissgeo/coordinates'
 import { LayerType } from '@swissgeo/layers'
@@ -10,7 +9,7 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import type { SearchStore } from '@/store/modules/search/types/search'
 import type { ActionDispatcher } from '@/store/types'
 
-import getFeature from '@/api/features.api'
+import getFeature, { type LayerFeature } from '@/api/features.api'
 import search, {
     type LayerFeatureSearchResult,
     type LayerSearchResult,
@@ -29,11 +28,11 @@ import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { parseGpx } from '@/utils/gpxUtils'
 import { parseKml } from '@/utils/kmlUtils'
 
-export default async function selectResultEntry(
+export default function selectResultEntry(
     this: SearchStore,
     entry: SearchResult,
     dispatcher: ActionDispatcher
-): Promise<void> {
+): void {
     const i18nStore = useI18nStore()
     const layerStore = useLayersStore()
     const mapStore = useMapStore()
@@ -55,19 +54,18 @@ export default async function selectResultEntry(
             )
         }
         // launching a new search to get (potential) layer features
-        try {
-            const resultIncludingLayerFeatures = await search({
-                outputProjection: positionStore.projection,
-                queryString: this.query,
-                lang: i18nStore.lang,
-                layersToSearch: layerStore.visibleLayers,
-                resolution: positionStore.resolution,
-                limit: this.autoSelect ? 1 : undefined,
-            })
+        search({
+            outputProjection: positionStore.projection,
+            queryString: this.query,
+            lang: i18nStore.lang,
+            layersToSearch: layerStore.visibleLayers,
+            resolution: positionStore.resolution,
+            limit: this.autoSelect ? 1 : undefined,
+        }).then((resultIncludingLayerFeatures: SearchResult[]) => {
             if (resultIncludingLayerFeatures.length > this.results.length) {
                 this.results = resultIncludingLayerFeatures
             }
-        } catch (error) {
+        }).catch(error => {
             log.error({
                 title: 'Search store / selectResultEntry',
                 titleStyle: {
@@ -75,35 +73,33 @@ export default async function selectResultEntry(
                 },
                 messages: ['Error while searching for layer features', entry, error, dispatcher],
             })
-        }
+        })
     } else if (entry.resultType === SearchResultTypes.LOCATION) {
         const locationEntry = entry as LocationSearchResult
         zoomToSearchResult(locationEntry, dispatcher)
         if (locationEntry.coordinate) {
             mapStore.setPinnedLocation(locationEntry.coordinate, dispatcher)
         }
-        await this.setSearchQuery({ query: locationEntry.sanitizedTitle.trim() }, dispatcher)
+        this.setSearchQuery(locationEntry.sanitizedTitle.trim(), undefined, dispatcher)
     } else if (entry.resultType === SearchResultTypes.FEATURE) {
         const featureEntry = entry as LayerFeatureSearchResult
         zoomToSearchResult(featureEntry, dispatcher)
 
         // Automatically select the feature
-        try {
-            if (layerUtils.getTopicForIdentifyAndTooltipRequests(featureEntry.layer)) {
-                const feature = await getFeature(
-                    // probably all feature results have to be geoadminlayer
-                    featureEntry.layer as GeoAdminLayer,
-                    featureEntry.featureId,
-                    positionStore.projection,
-                    {
-                        lang: i18nStore.lang,
-                        screenWidth: uiStore.width,
-                        screenHeight: uiStore.height,
-                        mapExtent: extentUtils.flattenExtent(positionStore.extent),
-                        coordinate: featureEntry.coordinate,
-                    }
-                )
-
+        if (layerUtils.getTopicForIdentifyAndTooltipRequests(featureEntry.layer)) {
+            getFeature(
+                // probably all feature results have to be geoadminlayer
+                featureEntry.layer as GeoAdminLayer,
+                featureEntry.featureId,
+                positionStore.projection,
+                {
+                    lang: i18nStore.lang,
+                    screenWidth: uiStore.width,
+                    screenHeight: uiStore.height,
+                    mapExtent: extentUtils.flattenExtent(positionStore.extent),
+                    coordinate: featureEntry.coordinate,
+                }
+            ).then((feature: LayerFeature) => {
                 featuresStore.setSelectedFeatures(
                     {
                         features: [feature],
@@ -112,48 +108,52 @@ export default async function selectResultEntry(
                 )
 
                 uiStore.setFeatureInfoPosition(FeatureInfoPositions.TOOLTIP, dispatcher)
-            } else {
-                // For imported KML and GPX files
-                let features: Feature[] = []
+            }).catch((error) => {
+                log.error({
+                    title: 'Search store / selectResultEntry',
+                    messages: ['Error while getting feature', featureEntry, error, dispatcher],
+                })
+            })
 
-                if (featureEntry.layer.type === LayerType.KML) {
-                    const kmlLayer: KMLLayer = featureEntry.layer as KMLLayer
+        } else {
+            // For imported KML and GPX files
+            let features: Feature[] = []
 
-                    features = parseKml(
-                        kmlLayer,
-                        positionStore.projection,
-                        [],
-                        positionStore.resolution
-                    )
-                } else if (featureEntry.layer.type === LayerType.GPX) {
-                    const gpxLayer = featureEntry.layer as GPXLayer
+            if (featureEntry.layer.type === LayerType.KML) {
+                const kmlLayer: KMLLayer = featureEntry.layer as KMLLayer
 
-                    if (gpxLayer.gpxData) {
-                        features = parseGpx(gpxLayer.gpxData, positionStore.projection) || []
-                    } else {
-                        log.warn({
-                            messages: [`Unable to parse GPX layer because of missing Data`],
-                        })
-                    }
-                }
+                features = parseKml(
+                    kmlLayer,
+                    positionStore.projection,
+                    [],
+                    positionStore.resolution
+                )
+            } else if (featureEntry.layer.type === LayerType.GPX) {
+                const gpxLayer = featureEntry.layer as GPXLayer
 
-                const layerFeatures = features
-                    .map((feature) => createLayerFeature(feature, featureEntry.layer))
-                    .filter((feature) => !!feature)
-
-                if (layerFeatures) {
-                    featuresStore.setSelectedFeatures(
-                        {
-                            features: layerFeatures,
-                        },
-                        dispatcher
-                    )
-
-                    uiStore.setFeatureInfoPosition(FeatureInfoPositions.TOOLTIP, dispatcher)
+                if (gpxLayer.gpxData) {
+                    features = parseGpx(gpxLayer.gpxData, positionStore.projection) || []
+                } else {
+                    log.warn({
+                        messages: [`Unable to parse GPX layer because of missing Data`],
+                    })
                 }
             }
-        } catch (error) {
-            log.error('Error getting feature:', { messages: [error] })
+
+            const layerFeatures = features
+                .map((feature) => createLayerFeature(feature, featureEntry.layer))
+                .filter((feature) => !!feature)
+
+            if (layerFeatures) {
+                featuresStore.setSelectedFeatures(
+                    {
+                        features: layerFeatures,
+                    },
+                    dispatcher
+                )
+
+                uiStore.setFeatureInfoPosition(FeatureInfoPositions.TOOLTIP, dispatcher)
+            }
         }
     }
     if (this.autoSelect) {

@@ -22,19 +22,16 @@ import usePositionStore from '@/store/modules/position.store'
 import getResultForAutoselect from '@/store/modules/search/utils/getResultForAutoselect'
 import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
 
-export default async function setSearchQuery(
+export default function setSearchQuery(
     this: SearchStore,
-    payload: {
-        query: string
-        /**
-         * Used to select the first result if there is only one. Else it will not be,
-         * because this redo search is done every time the page loads
-         */
-        originUrlParam?: boolean
-    },
+    query: string,
+    /**
+     * Used to select the first result if there is only one. Else it will not be,
+     * because this redo search is done every time the page loads
+     */
+    originUrlParam: boolean | undefined = false,
     dispatcher: ActionDispatcher
-): Promise<void> {
-    const { query, originUrlParam = false } = payload
+): void {
     const i18nStore = useI18nStore()
     const layerStore = useLayersStore()
     const mapStore = useMapStore()
@@ -42,7 +39,7 @@ export default async function setSearchQuery(
 
     const currentProjection: CoordinateSystem = positionStore.projection
 
-    let results: SearchResult[] = []
+    const results: SearchResult[] = []
     this.query = query
 
     // only firing search if the query is longer than or equal to 2 chars
@@ -51,21 +48,41 @@ export default async function setSearchQuery(
         const extractedCoordinate = coordinateFromString(query)
         let what3wordLocation: SingleCoordinate | undefined
         if (!extractedCoordinate && isWhat3WordsString(query)) {
-            try {
-                what3wordLocation = await retrieveWhat3WordsLocation(query, currentProjection)
-            } catch (error) {
-                log.info({
-                    title: 'Search store / setSearchQuery',
-                    titleStyle: {
-                        backgroundColor: LogPreDefinedColor.Red,
-                    },
-                    messages: [
-                        `Query "${query}" is not a valid What3Words, fallback to service search`,
-                        error,
-                    ],
+            retrieveWhat3WordsLocation(query, currentProjection)
+                .then((location) => {
+                    what3wordLocation = location
+                    processWhat3WordsLocation(
+                        what3wordLocation,
+                        currentProjection,
+                        positionStore,
+                        mapStore,
+                        dispatcher
+                    )
                 })
-                what3wordLocation = undefined
-            }
+                .catch((error) => {
+                    log.info({
+                        title: 'Search store / setSearchQuery',
+                        titleStyle: {
+                            backgroundColor: LogPreDefinedColor.Red,
+                        },
+                        messages: [
+                            `Query "${query}" is not a valid What3Words, fallback to service search`,
+                            error,
+                        ],
+                    })
+                    what3wordLocation = undefined
+                    performSearch(
+                        this,
+                        query,
+                        currentProjection,
+                        i18nStore,
+                        layerStore,
+                        positionStore,
+                        originUrlParam,
+                        dispatcher
+                    )
+                })
+            return
         }
 
         if (extractedCoordinate) {
@@ -76,11 +93,32 @@ export default async function setSearchQuery(
                 // So we pass through a LV95 REFRAME (done by a backend service that knows all deformations between the two)
                 // and then go to the wanted coordinate system
                 if (extractedCoordinate.coordinateSystem === LV03) {
-                    coordinates = await reframe({
+                    reframe({
                         inputProjection: LV03,
                         inputCoordinates: coordinates,
                         outputProjection: currentProjection,
+                    }).then((reframedCoordinates) => {
+                        coordinates = reframedCoordinates
+                        applyCoordinates(
+                            coordinates,
+                            currentProjection,
+                            positionStore,
+                            mapStore,
+                            dispatcher
+                        )
+                    }).catch((error) => {
+                        log.error({
+                            title: 'Search store / setSearchQuery',
+                            titleStyle: {
+                                backgroundColor: LogPreDefinedColor.Red,
+                            },
+                            messages: [
+                                `Error while reframing coordinates from LV03 to ${currentProjection.epsg}`,
+                                error,
+                            ],
+                        })
                     })
+                    return
                 } else {
                     coordinates = coordinatesUtils.reprojectAndRound(
                         extractedCoordinate.coordinateSystem,
@@ -89,60 +127,89 @@ export default async function setSearchQuery(
                     )
                 }
             }
-            positionStore.setCenter(coordinates, dispatcher)
-            if (currentProjection instanceof CustomCoordinateSystem) {
-                positionStore.setZoom(
-                    currentProjection.transformStandardZoomLevelToCustom(
-                        constants.STANDARD_ZOOM_LEVEL_1_25000_MAP
-                    ),
-                    dispatcher
-                )
-            } else {
-                positionStore.setZoom(constants.STANDARD_ZOOM_LEVEL_1_25000_MAP, dispatcher)
-            }
-            mapStore.setPinnedLocation(coordinates, dispatcher)
-        } else if (what3wordLocation) {
-            positionStore.setCenter(what3wordLocation, dispatcher)
-            if (currentProjection instanceof CustomCoordinateSystem) {
-                positionStore.setZoom(
-                    currentProjection.transformStandardZoomLevelToCustom(
-                        constants.STANDARD_ZOOM_LEVEL_1_25000_MAP
-                    ),
-                    dispatcher
-                )
-            } else {
-                positionStore.setZoom(constants.STANDARD_ZOOM_LEVEL_1_25000_MAP, dispatcher)
-            }
-            mapStore.setPinnedLocation(what3wordLocation, dispatcher)
+            applyCoordinates(coordinates, currentProjection, positionStore, mapStore, dispatcher)
         } else {
-            try {
-                results = await search({
-                    outputProjection: currentProjection,
-                    queryString: query,
-                    lang: i18nStore.lang,
-                    layersToSearch: layerStore.visibleLayers,
-                    resolution: positionStore.resolution,
-                    limit: this.autoSelect ? 1 : undefined,
-                })
-
-                if (
-                    (originUrlParam && results.length === 1) ||
-                    (originUrlParam && this.autoSelect && results.length >= 1)
-                ) {
-                    await this.selectResultEntry(getResultForAutoselect(results), dispatcher)
-                }
-            } catch (error) {
-                log.error({
-                    title: 'Search store / setSearchQuery',
-                    titleStyle: {
-                        backgroundColor: LogPreDefinedColor.Red,
-                    },
-                    messages: [`Error while searching for "${query}"`, error],
-                })
-            }
+            performSearch(
+                this,
+                query,
+                currentProjection,
+                i18nStore,
+                layerStore,
+                positionStore,
+                originUrlParam,
+                dispatcher
+            )
         }
     } else if (query.length === 0) {
         mapStore.clearPreviewPinnedLocation(dispatcher)
     }
     this.results = results
+}
+
+function applyCoordinates(
+    coordinates: SingleCoordinate,
+    currentProjection: CoordinateSystem,
+    positionStore: ReturnType<typeof usePositionStore>,
+    mapStore: ReturnType<typeof useMapStore>,
+    dispatcher: ActionDispatcher
+): void {
+    positionStore.setCenter(coordinates, dispatcher)
+    if (currentProjection instanceof CustomCoordinateSystem) {
+        positionStore.setZoom(
+            currentProjection.transformStandardZoomLevelToCustom(
+                constants.STANDARD_ZOOM_LEVEL_1_25000_MAP
+            ),
+            dispatcher
+        )
+    } else {
+        positionStore.setZoom(constants.STANDARD_ZOOM_LEVEL_1_25000_MAP, dispatcher)
+    }
+    mapStore.setPinnedLocation(coordinates, dispatcher)
+}
+
+function processWhat3WordsLocation(
+    what3wordLocation: SingleCoordinate,
+    currentProjection: CoordinateSystem,
+    positionStore: ReturnType<typeof usePositionStore>,
+    mapStore: ReturnType<typeof useMapStore>,
+    dispatcher: ActionDispatcher
+): void {
+    if (what3wordLocation) {
+        applyCoordinates(what3wordLocation, currentProjection, positionStore, mapStore, dispatcher)
+    }
+}
+
+function performSearch(
+    searchStore: SearchStore,
+    query: string,
+    currentProjection: CoordinateSystem,
+    i18nStore: ReturnType<typeof useI18nStore>,
+    layerStore: ReturnType<typeof useLayersStore>,
+    positionStore: ReturnType<typeof usePositionStore>,
+    originUrlParam: boolean | undefined,
+    dispatcher: ActionDispatcher
+): void {
+    search({
+        outputProjection: currentProjection,
+        queryString: query,
+        lang: i18nStore.lang,
+        layersToSearch: layerStore.visibleLayers,
+        resolution: positionStore.resolution,
+        limit: searchStore.autoSelect ? 1 : undefined,
+    })
+        .then((results) => {
+            searchStore.results = results
+            if (
+                (originUrlParam && results.length === 1) ||
+                (originUrlParam && searchStore.autoSelect && results.length >= 1)
+            ) {
+                searchStore.selectResultEntry(getResultForAutoselect(results), dispatcher)
+            }
+        })
+        .catch((error) => {
+            log.error({
+                title: 'Search store / setSearchQuery / performSearch',
+                messages: [`Error while searching for "${query}"`, error],
+            })
+        })
 }
