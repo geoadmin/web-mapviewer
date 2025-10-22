@@ -10,6 +10,4 @@ export interface AppStoreState {
 }
 export type AppStoreGetters = object
 
-export type AppStoreStateAndGetters = AppStoreState & AppStoreGetters
-
 export type AppStore = ReturnType<typeof import('../index.ts').default>

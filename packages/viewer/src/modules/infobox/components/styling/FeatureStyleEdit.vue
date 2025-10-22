@@ -8,7 +8,7 @@ import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 
-import { EditableFeatureTypes, type EditableFeature } from '@/api/features.api'
+import { type EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import ShowGeometryProfileButton from '@/modules/infobox/components/ShowGeometryProfileButton.vue'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
@@ -20,17 +20,17 @@ import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/Drawi
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
 import { MediaType } from '@/modules/infobox/DrawingStyleMediaTypes.enum'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
-import { allFormats, LV95Format, type CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
+import { allFormats, type CoordinateFormat, LV95Format } from '@/utils/coordinates/coordinateFormat'
 import debounce from '@/utils/debounce'
 import {
     calculateTextOffset,
-    TextPlacement,
     type FeatureStyleColor,
     type FeatureStyleSize,
+    TextPlacement,
 } from '@/utils/featureStyleUtils'
 
 import useDrawingStore from '@/store/modules/drawing'
-import useFeatureStore from '@/store/modules/features.store'
+import useFeatureStore from '@/store/modules/features'
 import useI18nStore from '@/store/modules/i18n'
 import type { DrawingIcon } from '@/api/icon.api'
 
@@ -54,13 +54,7 @@ const description = ref<string>(feature.description!)
 const showDescriptionOnMap = computed<boolean>({
     get: () => !!('showDescriptionOnMap' in feature && feature.showDescriptionOnMap),
     set: (value: boolean) => {
-        featureStore.changeFeatureShownDescriptionOnMap(
-            {
-                feature: feature,
-                showDescriptionOnMap: value,
-            },
-            dispatcher
-        )
+        featureStore.changeFeatureShownDescriptionOnMap(feature, value, dispatcher)
     },
 })
 
@@ -110,13 +104,7 @@ onBeforeUnmount(() => {
 // on closure which will not work if the debounce method is defined in a watcher)
 // The title debounce needs to be quick in order to be displayed on the map
 function updateFeatureTitle(): void {
-    featureStore.changeFeatureTitle(
-        {
-            feature: feature,
-            title: title.value.trim(),
-        },
-        dispatcher
-    )
+    featureStore.changeFeatureTitle(feature, title.value.trim(), dispatcher)
     // Update the text offset if the feature is a marker
     if (feature.featureType === EditableFeatureTypes.Marker) {
         updateTextOffset()
@@ -125,13 +113,7 @@ function updateFeatureTitle(): void {
 
 // The description don't need a quick debounce as it is not displayed on the map
 function updateFeatureDescription(): void {
-    featureStore.changeFeatureDescription(
-        {
-            feature: feature,
-            description: description.value,
-        },
-        dispatcher
-    )
+    featureStore.changeFeatureDescription(feature, description.value, dispatcher)
 }
 
 const debounceTitleUpdate = debounce(updateFeatureTitle, 100)
@@ -172,31 +154,25 @@ const availableIconSets = computed(() => drawingStore.iconSets)
 const currentLang = computed(() => lang.value)
 
 function onTextSizeChange(textSize: FeatureStyleSize): void {
-    featureStore.changeFeatureTextSize({ feature: feature, textSize }, dispatcher)
+    featureStore.changeFeatureTextSize(feature, textSize, dispatcher)
     updateTextOffset()
 }
 function onPlacementChange(textPlacement: TextPlacement): void {
-    featureStore.changeFeatureTextPlacement(
-        {
-            feature: feature,
-            textPlacement,
-        },
-        dispatcher
-    )
+    featureStore.changeFeatureTextPlacement(feature, textPlacement, dispatcher)
     updateTextOffset()
 }
 function onTextColorChange(textColor: FeatureStyleColor): void {
-    featureStore.changeFeatureTextColor({ feature: feature, textColor }, dispatcher)
+    featureStore.changeFeatureTextColor(feature, textColor, dispatcher)
 }
 function onColorChange(color: FeatureStyleColor): void {
-    featureStore.changeFeatureColor({ feature: feature, color }, dispatcher)
+    featureStore.changeFeatureColor(feature, color, dispatcher)
 }
 function onIconChange(icon: DrawingIcon): void {
-    featureStore.changeFeatureIcon({ feature: feature, icon }, dispatcher)
+    featureStore.changeFeatureIcon(feature, icon, dispatcher)
     updateTextOffset()
 }
 function onIconSizeChange(iconSize: FeatureStyleSize): void {
-    featureStore.changeFeatureIconSize({ feature: feature, iconSize }, dispatcher)
+    featureStore.changeFeatureIconSize(feature, iconSize, dispatcher)
     updateTextOffset()
 }
 function onDelete(): void {
@@ -225,13 +201,7 @@ function updateTextOffset(): void {
             title.value
         )
 
-        featureStore.changeFeatureTextOffset(
-            {
-                feature: feature,
-                textOffset: offset,
-            },
-            dispatcher
-        )
+        featureStore.changeFeatureTextOffset(feature, offset, dispatcher)
     }
 }
 

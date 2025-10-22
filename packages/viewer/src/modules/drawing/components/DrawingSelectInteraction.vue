@@ -17,7 +17,7 @@ import useModifyInteraction from '@/modules/drawing/components/useModifyInteract
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import { extractOlFeatureCoordinates } from '@/api/features.api'
-import useFeaturesStore from '@/store/modules/features.store'
+import useFeaturesStore from '@/store/modules/features'
 import useProfileStore from '@/store/modules/profile.store'
 import useUIStore from '@/store/modules/ui.store'
 import type { ActionDispatcher } from '@/store/types'
@@ -71,7 +71,7 @@ watch(currentlySelectedFeature, (newFeature, oldFeature) => {
         // so that we can update the style of the OL features as soon
         // as the store feature is edited
         editableFeature.on('change:style', onFeatureChange)
-        featuresStore.setSelectedFeatures({ features: [editableFeature] }, dispatcher)
+        featuresStore.setSelectedFeatures([editableFeature], dispatcher)
         if (
             [EditableFeatureTypes.Measure, EditableFeatureTypes.LinePolygon].includes(
                 editableFeature.featureType

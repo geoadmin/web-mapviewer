@@ -1,7 +1,7 @@
 import type { DrawingStore } from '@/store/modules/drawing/types/drawing'
 import type { ActionDispatcher } from '@/store/types'
 
-import useFeaturesStore from '@/store/modules/features.store'
+import useFeaturesStore from '@/store/modules/features'
 
 export default function deleteDrawingFeature(
     this: DrawingStore,
@@ -10,7 +10,5 @@ export default function deleteDrawingFeature(
 ) {
     const featuresStore = useFeaturesStore()
     featuresStore.clearAllSelectedFeatures(dispatcher)
-    this.featureIds = this.featureIds.filter(
-        (existingFeatureId) => existingFeatureId !== featureId
-    )
+    this.featureIds = this.featureIds.filter((existingFeatureId) => existingFeatureId !== featureId)
 }

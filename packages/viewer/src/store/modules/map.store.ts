@@ -1,6 +1,5 @@
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 
-import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { defineStore } from 'pinia'
 
 import type { SelectableFeature } from '@/api/features.api'
@@ -8,7 +7,8 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { MapStoreActions } from '@/store/actions'
 import useDrawingStore from '@/store/modules/drawing'
-import useFeaturesStore, { IdentifyMode } from '@/store/modules/features.store'
+import useFeaturesStore from '@/store/modules/features'
+import { IdentifyMode } from '@/store/modules/features/types/IdentifyMode.enum'
 import useLayersStore from '@/store/modules/layers.store'
 import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
 
@@ -90,43 +90,21 @@ const useMapStore = defineStore('map', {
                         : IdentifyMode.New
 
                     if (clickInfo.features) {
-                        featuresStore
-                            .identifyFeatureAt(
-                                {
-                                    layers: layersStore.visibleLayers.filter(
-                                        (layer) => layer.hasTooltip
-                                    ),
-                                    vectorFeatures: clickInfo.features,
-                                    coordinate: clickInfo.coordinate,
-                                    identifyMode: identifyMode,
-                                },
-                                dispatcher
-                            )
-                            .then(() => {
-                                if (
-                                    uiStore.noFeatureInfo &&
-                                    featuresStore.selectedFeaturesByLayerId.length > 0
-                                ) {
-                                    // we only change the feature Info position when it's set to 'NONE', as
-                                    // we want to keep the user's choice of position between clicks.
-                                    uiStore.setFeatureInfoPosition(
-                                        FeatureInfoPositions.DEFAULT,
-                                        dispatcher
-                                    )
-                                }
-                            })
-                            .catch((error) =>
-                                log.error({
-                                    title: 'Map Store / Click',
-                                    titleColor: LogPreDefinedColor.Cyan,
-                                    messages: [
-                                        'Error while identifying feature after a click on the map',
-                                        clickInfo,
-                                        dispatcher,
-                                        error,
-                                    ],
-                                })
-                            )
+                        featuresStore.identifyFeatureAt(
+                            layersStore.visibleLayers.filter((layer) => layer.hasTooltip),
+                            clickInfo.coordinate,
+                            clickInfo.features,
+                            identifyMode,
+                            dispatcher
+                        )
+                        if (
+                            uiStore.noFeatureInfo &&
+                            featuresStore.selectedFeaturesByLayerId.length > 0
+                        ) {
+                            // we only change the feature Info position when it's set to 'NONE', as
+                            // we want to keep the user's choice of position between clicks.
+                            uiStore.setFeatureInfoPosition(FeatureInfoPositions.DEFAULT, dispatcher)
+                        }
                     }
                 }
 

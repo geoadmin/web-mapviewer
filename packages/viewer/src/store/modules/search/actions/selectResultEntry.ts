@@ -17,7 +17,7 @@ import search, {
     type SearchResult,
     SearchResultTypes,
 } from '@/api/search.api'
-import useFeaturesStore from '@/store/modules/features.store'
+import useFeaturesStore from '@/store/modules/features'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers.store'
 import useMapStore from '@/store/modules/map.store'
@@ -106,12 +106,7 @@ export default function selectResultEntry(
                 }
             )
                 .then((feature: LayerFeature) => {
-                    featuresStore.setSelectedFeatures(
-                        {
-                            features: [feature],
-                        },
-                        dispatcher
-                    )
+                    featuresStore.setSelectedFeatures([feature], dispatcher)
 
                     uiStore.setFeatureInfoPosition(FeatureInfoPositions.TOOLTIP, dispatcher)
                 })
@@ -154,12 +149,7 @@ export default function selectResultEntry(
                 .filter((feature) => !!feature)
 
             if (layerFeatures) {
-                featuresStore.setSelectedFeatures(
-                    {
-                        features: layerFeatures,
-                    },
-                    dispatcher
-                )
+                featuresStore.setSelectedFeatures(layerFeatures, dispatcher)
 
                 uiStore.setFeatureInfoPosition(FeatureInfoPositions.TOOLTIP, dispatcher)
             }

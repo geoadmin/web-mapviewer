@@ -7,7 +7,7 @@ import { LineString, Point, Polygon, type SimpleGeometry } from 'ol/geom'
 import type { ActionDispatcher } from '@/store/types'
 
 import { type EditableFeature, extractOlFeatureCoordinates } from '@/api/features.api'
-import useFeaturesStore from '@/store/modules/features.store'
+import useFeaturesStore from '@/store/modules/features'
 
 /**
  * Checks if point is at target within tolerance.
@@ -80,17 +80,13 @@ export function updateStoreFeatureCoordinatesGeometry(
     }
     const featuresStore = useFeaturesStore()
     featuresStore.changeFeatureCoordinates(
-        {
-            feature: storeFeature,
-            coordinates: extractOlFeatureCoordinates(feature),
-        },
+        storeFeature,
+        extractOlFeatureCoordinates(feature),
         dispatcher
     )
     featuresStore.changeFeatureGeometry(
-        {
-            feature: storeFeature,
-            geometry: new GeoJSON().writeGeometryObject(featureGeometry),
-        },
+        storeFeature,
+        new GeoJSON().writeGeometryObject(featureGeometry),
         dispatcher
     )
 }

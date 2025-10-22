@@ -6,7 +6,7 @@ import type { StyleFunction } from 'ol/style/Style'
 
 import log from '@swissgeo/log'
 import { noModifierKeys, primaryAction } from 'ol/events/condition'
-import { LineString, type Geometry, type SimpleGeometry } from 'ol/geom'
+import { type Geometry, LineString, type SimpleGeometry } from 'ol/geom'
 import ModifyInteraction, { type ModifyEvent } from 'ol/interaction/Modify'
 import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
 
@@ -19,7 +19,7 @@ import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import useDrawingStore from '@/store/modules/drawing'
 import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
-import useFeaturesStore from '@/store/modules/features.store'
+import useFeaturesStore from '@/store/modules/features'
 
 const dispatcher: ActionDispatcher = { name: 'useModifyInteraction.composable' }
 const cursorGrabbingClass = 'cursor-grabbing'
@@ -140,14 +140,11 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
             return
         }
 
-        featuresStore.changeFeatureIsDragged(
-            {
-                feature: feature.get('editableFeature'),
-                isDragged: true,
-            },
-            dispatcher
-        )
+        const editableFeature: EditableFeature | undefined = feature.get('editableFeature')
 
+        if (editableFeature) {
+            featuresStore.changeFeatureIsDragged(editableFeature, true, dispatcher)
+        }
         const targetEl = olMap.getTargetElement?.() ?? (olMap.getTarget() as HTMLElement | null)
         targetEl?.classList.add(cursorGrabbingClass)
 
@@ -164,25 +161,24 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
             return
         }
 
-        const storeFeature: EditableFeature = feature.get('editableFeature')
+        const storeFeature: EditableFeature | undefined = feature.get('editableFeature')
 
-        featuresStore.changeFeatureIsDragged(
-            {
-                feature: storeFeature,
-                isDragged: false,
-            },
-            dispatcher
-        )
-
+        if (storeFeature) {
+            featuresStore.changeFeatureIsDragged(storeFeature, false, dispatcher)
+        }
         updateStoreFeatureCoordinatesGeometry(feature as Feature<SimpleGeometry>, dispatcher)
 
         const targetEl = olMap.getTargetElement?.() ?? (olMap.getTarget() as HTMLElement | null)
         targetEl?.classList.remove(cursorGrabbingClass)
 
-        debounceSaveDrawing().catch((error: Error) => {
-            log.error(
-                `Error while saving drawing after modification of feature ${storeFeature.id}: ${error}`
-            )
+        debounceSaveDrawing().catch((error) => {
+            log.error({
+                title: 'useModifyInteraction.composable',
+                message: [
+                    `Error while saving drawing after modification of feature ${storeFeature?.id}:`,
+                    error,
+                ],
+            })
         })
     }
 

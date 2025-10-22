@@ -33,9 +33,9 @@ import {
     getDefaultValidationResponse,
     type ValidationResponse,
 } from '@/router/storeSync/validation'
-import { FeatureStoreActions, LayerStoreActions } from '@/store/actions'
+import { LayerStoreActions } from '@/store/actions'
 import useDrawingStore from '@/store/modules/drawing'
-import useFeaturesStore from '@/store/modules/features.store'
+import useFeaturesStore from '@/store/modules/features'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
@@ -312,7 +312,7 @@ async function getAndDispatchFeatures(
             .filter((response) => response.status === 'fulfilled')
             .map((response) => response.value)
         if (features.length > 0) {
-            featuresStore.setSelectedFeatures({ features }, STORE_DISPATCHER_ROUTER_PLUGIN)
+            featuresStore.setSelectedFeatures(features, STORE_DISPATCHER_ROUTER_PLUGIN)
 
             const extent = getExtentOfGeometries(
                 features.map((feature) => feature.geometry).filter((geometry) => !!geometry)
@@ -430,7 +430,7 @@ const layersParam = new UrlParamConfig<string>({
         LayerStoreActions.SetTimedLayerCurrentTimeEntry,
         LayerStoreActions.SetLayers,
         LayerStoreActions.UpdateLayer,
-        FeatureStoreActions.SetSelectedFeatures,
+        'setSelectedFeatures',
     ],
     setValuesInStore: dispatchLayersFromUrlIntoStore,
     extractValueFromStore: generateLayerUrlParamFromStoreValues,

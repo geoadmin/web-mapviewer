@@ -6,14 +6,12 @@ export interface ShareStoreState {
      */
     shortLink: string | undefined
     /**
-     * The state of the shortlink share menu section. As we need to be able to change this
-     * whenever the user moves the map, and it should only be done within mutations.
+     * The state of the shortlink share menu section. As we need to be able to change this whenever
+     * the user moves the map, and it should only be done within mutations.
      */
     isMenuSectionShown: boolean
 }
 
 export type ShareStoreGetters = object
-
-export type ShareStoreStateAndGetters = ShareStoreState & ShareStoreGetters
 
 export type ShareStore = ReturnType<typeof import('@/store/modules/share').default>
