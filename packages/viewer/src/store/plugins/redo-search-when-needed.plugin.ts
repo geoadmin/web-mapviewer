@@ -14,7 +14,7 @@ function redoSearch() {
             .setSearchQuery(
                 searchStore.query,
                 // necessary to select the first result if there is only one else it will not be because this redo search is done every time the page loaded
-                true,
+                { originUrlParam: true },
                 { name: 'redoSearchWhenNeeded' }
             )
     }
