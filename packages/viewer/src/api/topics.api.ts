@@ -24,9 +24,9 @@ export interface Topic {
     readonly backgroundLayers: GeoAdminLayer[]
     /**
      * The layer that should be activated as the background layer by default when this topic is
-     * selected. The value will be set to null when the void layer should be selected.
+     * selected. The value will be set to undefined when the void layer should be selected.
      */
-    readonly defaultBackgroundLayer: GeoAdminLayer | null
+    readonly defaultBackgroundLayer: GeoAdminLayer | undefined
     /**
      * All layers that should be added to the displayed layer (but not necessarily visible, that
      * will depend on their state)
@@ -312,7 +312,7 @@ export function parseTopics(layersConfig: GeoAdminLayer[], rawTopics: ServicesRe
         topics.push({
             id: topicId,
             backgroundLayers,
-            defaultBackgroundLayer: defaultBackgroundLayer ?? null,
+            defaultBackgroundLayer: defaultBackgroundLayer,
             layersToActivate,
         })
     })

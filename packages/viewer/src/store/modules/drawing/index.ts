@@ -1,10 +1,6 @@
 import { defineStore } from 'pinia'
 
-import type {
-    DrawingStoreActions,
-    DrawingStoreGetters,
-    DrawingStoreState,
-} from '@/store/modules/drawing/types/drawing'
+import type { DrawingStoreGetters, DrawingStoreState } from '@/store/modules/drawing/types/drawing'
 
 import addDrawingFeature from '@/store/modules/drawing/actions/addDrawingFeature'
 import clearDrawingFeatures from '@/store/modules/drawing/actions/clearDrawingFeatures'
@@ -36,7 +32,7 @@ const state = (): DrawingStoreState => ({
     temporaryKmlId: undefined,
     name: undefined,
     reverseLineStringExtension: false,
-    editingMode: EditMode.OFF,
+    editingMode: EditMode.Off,
     isDrawingEditShared: false,
     isDrawingModified: false,
     isVisitWithAdminId: false,
@@ -47,7 +43,7 @@ const getters: DrawingStoreGetters = {
     showNotSharedDrawingWarning,
 }
 
-const actions: DrawingStoreActions = {
+const actions = {
     addDrawingFeature,
     clearDrawingFeatures,
     deleteDrawingFeature,

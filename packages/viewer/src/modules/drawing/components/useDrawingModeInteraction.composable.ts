@@ -247,7 +247,7 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
                 drawingStore.reverseLineStringExtension
             )
             drawingStore.setEditingMode(
-                EditMode.MODIFY,
+                EditMode.Modify,
                 drawingStore.reverseLineStringExtension,
                 dispatcher
             )

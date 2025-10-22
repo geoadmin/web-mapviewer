@@ -4,9 +4,10 @@ import type { Geometry } from 'ol/geom'
 import type VectorLayer from 'ol/layer/Vector'
 import type VectorSource from 'ol/source/Vector'
 
+import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
-import { computed, inject, ref, toValue, type MaybeRefOrGetter } from 'vue'
+import { computed, inject, type MaybeRefOrGetter, ref, toValue } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { ActionDispatcher } from '@/store/types'
@@ -22,7 +23,7 @@ import { parseKml } from '@/utils/kmlUtils'
 const dispatcher: ActionDispatcher = { name: 'useKmlDataManagement.composable' }
 
 // Shared state across composable instances
-let differSaveDrawingTimeout: ReturnType<typeof setTimeout> | null = null
+let differSaveDrawingTimeout: ReturnType<typeof setTimeout> | undefined
 const saveState = ref<DrawingState>(DrawingState.INITIAL)
 
 export interface DebounceOptions {
@@ -31,13 +32,13 @@ export interface DebounceOptions {
 }
 
 export default function useKmlDataManagement(
-    drawingLayerDirectReference?: MaybeRefOrGetter<VectorLayer<
-        VectorSource<Feature<Geometry>>
-    > | null>
+    drawingLayerDirectReference?: MaybeRefOrGetter<
+        VectorLayer<VectorSource<Feature<Geometry>>> | undefined
+    >
 ) {
     const drawingLayer =
-        inject('drawingLayer', toValue(drawingLayerDirectReference ?? null)) ??
-        toValue(drawingLayerDirectReference ?? null)
+        inject('drawingLayer', toValue(drawingLayerDirectReference)) ??
+        toValue(drawingLayerDirectReference)
 
     const { t } = useI18n()
     const drawingStore = useDrawingStore()
@@ -50,16 +51,16 @@ export default function useKmlDataManagement(
     const availableIconSets = computed(() => drawingStore.iconSets)
     const temporaryKmlId = computed(() => drawingStore.temporaryKmlId)
     const temporaryKml = computed<KMLLayer | undefined>(() => {
-        const sysLayers = (layersStore.systemLayers ?? []) as { id: string }[]
-        const match = sysLayers.find((l) => l.id === temporaryKmlId.value)
-        return match as KMLLayer | undefined
+        return layersStore.systemLayers.find(
+            (l) => l.type === LayerType.KML && l.id === temporaryKmlId.value
+        ) as KMLLayer | undefined
     })
     const drawingName = computed(
         () => drawingStore.name ?? activeKmlLayer.value?.name ?? t('draw_layer_label')
     )
 
-    let addKmlLayerTimeout: ReturnType<typeof setTimeout> | null = null
-    const savesInProgress = ref<Promise<unknown>[]>([])
+    let addKmlLayerTimeout: ReturnType<typeof setTimeout> | undefined
+    const savesInProgress = ref<Promise<void>[]>([])
 
     function addKmlToDrawing(retryOnError = true) {
         if (!drawingLayer) {
@@ -67,28 +68,38 @@ export default function useKmlDataManagement(
         }
         if (addKmlLayerTimeout) {
             clearTimeout(addKmlLayerTimeout)
-            addKmlLayerTimeout = null
+            addKmlLayerTimeout = undefined
         }
         try {
             let availableKmlLayer: KMLLayer | undefined
             if (online.value) {
-                log.debug('Add current active kml layer to drawing', activeKmlLayer.value!)
+                log.debug({
+                    title: 'useKmlDataManagement.composable',
+                    messages: ['Add current active kml layer to drawing', activeKmlLayer.value!],
+                })
                 availableKmlLayer = activeKmlLayer.value
             } else {
-                log.debug('Add current temporary kml layer to drawing', temporaryKml.value!)
+                log.debug({
+                    title: 'useKmlDataManagement.composable',
+                    messages: ['Add current temporary kml layer to drawing', temporaryKml.value!],
+                })
                 availableKmlLayer = temporaryKml.value
             }
             if (!availableKmlLayer?.kmlData) {
                 throw new Error('missing KML data')
             }
 
+            const positionStore = usePositionStore()
             const features = parseKml(
                 availableKmlLayer,
                 projection.value,
                 availableIconSets.value,
-                1000 // TODO: find good value or make optional
+                positionStore.resolution
             )
-            log.debug('Add features to drawing layer', features, drawingLayer)
+            log.debug({
+                title: 'useKmlDataManagement.composable',
+                messages: ['Add features to drawing layer', features, drawingLayer],
+            })
             drawingLayer.getSource()?.addFeatures(features)
 
             drawingStore.setDrawingName(availableKmlLayer.name, dispatcher)
@@ -100,17 +111,23 @@ export default function useKmlDataManagement(
             saveState.value = DrawingState.LOADED
         } catch (error) {
             if (online.value) {
-                log.error(
-                    `Failed to load KML ${activeKmlLayer.value?.fileId}`,
-                    error as string,
-                    activeKmlLayer.value!
-                )
+                log.error({
+                    title: 'useKmlDataManagement.composable',
+                    messages: [
+                        `Failed to load KML ${activeKmlLayer.value?.fileId}`,
+                        error,
+                        activeKmlLayer.value!,
+                    ],
+                })
             } else {
-                log.error(
-                    `Failed to load temporary KML ${temporaryKmlId.value}`,
-                    error as string,
-                    temporaryKml.value!
-                )
+                log.error({
+                    title: 'useKmlDataManagement.composable',
+                    messages: [
+                        `Failed to load temporary KML ${temporaryKmlId.value}`,
+                        error,
+                        temporaryKml.value!,
+                    ],
+                })
             }
 
             saveState.value = DrawingState.LOAD_ERROR
@@ -127,9 +144,12 @@ export default function useKmlDataManagement(
             return
         }
         try {
-            log.debug(
-                `Save drawing retryOnError ${retryOnError}, differSaveDrawing=${!!differSaveDrawingTimeout}`
-            )
+            log.debug({
+                title: 'useKmlDataManagement.composable',
+                messages: [
+                    `Save drawing retryOnError ${retryOnError}, differSaveDrawing=${!!differSaveDrawingTimeout}`,
+                ],
+            })
             clearPendingSaveDrawing()
             saveState.value = DrawingState.SAVING
 
@@ -146,15 +166,19 @@ export default function useKmlDataManagement(
             }
             saveState.value = DrawingState.SAVED
         } catch (e: unknown) {
-            log.error('Could not save KML layer: ', e as string)
+            log.error({
+                title: 'useKmlDataManagement.composable',
+                messages: ['Could not save KML layer: ', e],
+            })
             saveState.value = DrawingState.SAVE_ERROR
             if (!IS_TESTING_WITH_CYPRESS && retryOnError) {
                 // Retry saving in 5 seconds
-                debounceSaveDrawing({ debounceTime: 5000, retryOnError: false }).catch(
-                    (error: Error) => {
-                        log.error(`Error while retrying to save drawing: ${error}`)
-                    }
-                )
+                debounceSaveDrawing({ debounceTime: 5000, retryOnError: false }).catch((error) => {
+                    log.error({
+                        title: 'useKmlDataManagement.composable',
+                        messages: [`Error while retrying to save drawing:`, error],
+                    })
+                })
             }
         }
     }
@@ -223,9 +247,12 @@ export default function useKmlDataManagement(
         debounceTime = 2000,
         retryOnError = true,
     }: DebounceOptions = {}) {
-        log.debug(
-            `Debouncing save drawing debounceTime=${debounceTime} differSaveDrawingTimeout=${!!differSaveDrawingTimeout}`
-        )
+        log.debug({
+            title: 'useKmlDataManagement.composable',
+            messages: [
+                `Debouncing save drawing debounceTime=${debounceTime} differSaveDrawingTimeout=${!!differSaveDrawingTimeout}`,
+            ],
+        })
         clearPendingSaveDrawing()
         willModify()
         if (debounceTime > 0) {
@@ -243,13 +270,15 @@ export default function useKmlDataManagement(
         await savePromise
         // Remove this promise from the "in-progress" list when it's done
         const idx = savesInProgress.value.indexOf(savePromise)
-        if (idx >= 0) savesInProgress.value.splice(idx, 1)
+        if (idx >= 0) {
+            savesInProgress.value.splice(idx, 1)
+        }
     }
 
     function clearPendingSaveDrawing() {
         if (differSaveDrawingTimeout) {
             clearTimeout(differSaveDrawingTimeout)
-            differSaveDrawingTimeout = null
+            differSaveDrawingTimeout = undefined
         }
     }
 

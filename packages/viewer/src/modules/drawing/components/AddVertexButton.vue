@@ -30,7 +30,7 @@ onMounted(() => {
 })
 
 function addVertex() {
-    drawingStore.setEditingMode(EditMode.EXTEND, !!reverse, dispatcher)
+    drawingStore.setEditingMode(EditMode.Extend, !!reverse, dispatcher)
 }
 </script>
 
