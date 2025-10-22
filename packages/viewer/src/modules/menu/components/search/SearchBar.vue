@@ -4,7 +4,7 @@ import { computed, nextTick, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import SearchResultList from '@/modules/menu/components/search/SearchResultList.vue'
-import useSearchStore from '@/store/modules/search.store'
+import useSearchStore from '@/store/modules/search'
 import useUIStore from '@/store/modules/ui.store'
 
 const dispatcher = { name: 'SearchBar' }
@@ -74,9 +74,11 @@ const updateSearchQuery = (event: Event) => {
         clearTimeout(debounceSearch)
     }
     debounceSearch = setTimeout(() => {
-        searchStore
-            .setSearchQuery({ query: (event.target as HTMLInputElement).value }, dispatcher)
-            .catch((_) => {})
+        searchStore.setSearchQuery(
+            (event.target as HTMLInputElement).value,
+            { originUrlParam: undefined },
+            dispatcher
+        )
     }, 100)
 }
 
@@ -84,7 +86,7 @@ const clearSearchQuery = () => {
     showResults.value = false
     selectedEntry.value = undefined
     searchValue.value = ''
-    searchStore.setSearchQuery({ query: '' }, dispatcher).catch((_) => {})
+    searchStore.setSearchQuery('', { originUrlParam: undefined }, dispatcher)
     if (searchInput.value) {
         searchInput.value.focus()
     }

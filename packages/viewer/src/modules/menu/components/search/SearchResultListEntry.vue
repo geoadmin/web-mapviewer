@@ -7,9 +7,8 @@ import { SearchResultTypes, type SearchResult } from '@/api/search.api'
 import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPopup.vue'
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 import useUIStore from '@/store/modules/ui.store'
-import useSearchStore from '@/store/modules/search.store'
+import useSearchStore from '@/store/modules/search'
 import useLayersStore from '@/store/modules/layers.store'
-import log from '@swissgeo/log'
 
 const dispatcher = { name: 'SearchResultListEntry.vue' }
 
@@ -50,9 +49,7 @@ function selectItem() {
     emits('entrySelected')
     emits('clearPreview', entry)
 
-    searchStore.selectResultEntry(entry, dispatcher).catch(() => {
-        log.error({ messages: ['Unable to select search Result'] })
-    })
+    searchStore.selectResultEntry(entry, dispatcher)
 }
 
 function goToFirst() {

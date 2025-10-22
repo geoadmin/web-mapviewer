@@ -102,22 +102,6 @@ export enum ProfileStoreActions {
     SetProfileFeature = 'setProfileFeature',
 }
 
-export enum SearchStoreActions {
-    SetAutoSelect = 'setAutoSelect',
-    SetSearchQuery = 'setSearchQuery',
-    SelectResultEntry = 'selectResultEntry',
-}
-
-export enum TopicsStoreActions {
-    SetTopics = 'setTopics',
-    SetTopicTree = 'setTopicTree',
-    ChangeTopic = 'changeTopic',
-    LoadTopic = 'loadTopic',
-    SetTopicTreeOpenedThemesIds = 'setTopicTreeOpenedThemesIds',
-    AddTopicTreeOpenedThemeId = 'addTopicTreeOpenedThemeId',
-    RemoveTopicTreeOpenedThemeId = 'removeTopicTreeOpenedThemeId',
-}
-
 export enum UIStoreActions {
     SetSize = 'setSize',
     ToggleMenu = 'toggleMenu',

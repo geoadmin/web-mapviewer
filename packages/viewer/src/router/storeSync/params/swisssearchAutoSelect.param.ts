@@ -4,15 +4,14 @@ import { URL_PARAM_NAME_SWISSSEARCH } from '@/router/storeSync/params/swisssearc
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
-import { SearchStoreActions } from '@/store/actions'
-import useSearchStore from '@/store/modules/search.store'
+import useSearchStore from '@/store/modules/search'
 import { removeQueryParamFromHref } from '@/utils/searchParamUtils'
 
 const URL_PARAM_NAME = 'swisssearch_autoselect'
 
 const swisssearchAutoSelectParam = new UrlParamConfig<boolean>({
     urlParamName: URL_PARAM_NAME,
-    actionsToWatch: [SearchStoreActions.SetAutoSelect],
+    actionsToWatch: ['setAutoSelect'],
     setValuesInStore: (to: RouteLocationNormalizedGeneric, urlParamValue?: boolean) => {
         const searchStore = useSearchStore()
         // avoiding setting the swisssearch autoselect to the store when there is nothing to autoselect because there is no swisssearch query

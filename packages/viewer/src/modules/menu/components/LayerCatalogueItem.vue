@@ -16,7 +16,7 @@ import TextTruncate from '@/utils/components/TextTruncate.vue'
 import { LayerType, type GeoAdminGroupOfLayers, type Layer } from '@swissgeo/layers'
 import useUIStore from '@/store/modules/ui.store'
 import useLayersStore from '@/store/modules/layers.store'
-import useTopicsStore from '@/store/modules/topics.store'
+import useTopicsStore from '@/store/modules/topics'
 import usePositionStore from '@/store/modules/position.store'
 
 const dispatcher = { name: 'LayerCatalogueItem.vue' }

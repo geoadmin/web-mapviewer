@@ -30,7 +30,7 @@ import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config
 import { LayerStoreActions } from '@/store/actions'
 import useI18nStore from '@/store/modules/i18n.store'
 import usePositionStore from '@/store/modules/position.store'
-import useTopicsStore from '@/store/modules/topics.store'
+import useTopicsStore from '@/store/modules/topics'
 import { getGpxExtent } from '@/utils/gpxUtils'
 import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
 
