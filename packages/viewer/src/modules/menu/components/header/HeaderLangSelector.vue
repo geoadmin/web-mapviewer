@@ -4,7 +4,7 @@ import { computed, ref } from 'vue'
 
 import { languages as availableLanguages, type SupportedLang } from '@/modules/i18n'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
-import useI18nStore from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n'
 
 const dispatcher = { name: 'HeaderLangSelector.vue' }
 

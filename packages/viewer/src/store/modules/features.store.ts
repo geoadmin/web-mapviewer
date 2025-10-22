@@ -25,7 +25,7 @@ import {
     DEFAULT_FEATURE_COUNT_SINGLE_POINT,
 } from '@/config/map.config'
 import { FeatureStoreActions } from '@/store/actions'
-import useI18nStore from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers.store'
 import useMapStore from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'

@@ -5,8 +5,7 @@ import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
 import { getDefaultValidationResponse } from '@/router/storeSync/validation'
-import { I18nStoreActions } from '@/store/actions'
-import useI18nStore from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n'
 
 function parseLang(urlParamValue?: string): SupportedLang | undefined {
     if (!urlParamValue) {
@@ -20,7 +19,7 @@ function parseLang(urlParamValue?: string): SupportedLang | undefined {
 
 const langParamConfig = new UrlParamConfig<string>({
     urlParamName: 'lang',
-    actionsToWatch: [I18nStoreActions.SetLang],
+    actionsToWatch: ['setLang'],
     extractValueFromStore: () => useI18nStore().lang,
     setValuesInStore: (_: RouteLocationNormalizedGeneric, urlParamValue?: string) => {
         const parsedLang = parseLang(urlParamValue)

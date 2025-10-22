@@ -1,7 +1,7 @@
 import type { GeoAdminLayer } from '@swissgeo/layers'
 import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 
-import { I18nStoreActions, LayerStoreActions } from '@/store/actions'
+import { LayerStoreActions } from '@/store/actions'
 import useLayersStore from '@/store/modules/layers.store'
 import useSearchStore from '@/store/modules/search'
 import { isEnumValue } from '@/utils/utils'
@@ -29,7 +29,7 @@ const redoSearchWhenNeeded: PiniaPlugin = (context: PiniaPluginContext) => {
     const layersStore = useLayersStore()
 
     store.$onAction(({ name, args }) => {
-        if (isEnumValue<I18nStoreActions>(I18nStoreActions.SetLang, name)) {
+        if (name === 'setLang') {
             // we redispatch the same query to the search store (the lang will be picked by the search store)
             redoSearch()
         } else if (isEnumValue<LayerStoreActions>(LayerStoreActions.SetLayers, name)) {

@@ -30,10 +30,6 @@ export enum GeolocationStoreActions {
     SetGeolocationData = 'setGeolocationData',
 }
 
-export enum I18nStoreActions {
-    SetLang = 'setLang',
-}
-
 export enum LayerStoreActions {
     SetBackground = 'setBackground',
     SetPreviewYear = 'setPreviewYear',
