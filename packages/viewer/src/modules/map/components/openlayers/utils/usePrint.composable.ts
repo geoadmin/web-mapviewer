@@ -17,7 +17,7 @@ import { createShortLink } from '@/api/shortlink.api'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
-import usePrintStore from '@/store/modules/print.store'
+import usePrintStore from '@/store/modules/print'
 import useUIStore from '@/store/modules/ui.store'
 import { generateFilename } from '@/utils/utils'
 
@@ -100,12 +100,12 @@ export function usePrint(map: MaybeRef<Map>) {
                 shortLink,
                 layersWithLegends: printLegend
                     ? layerStore.visibleLayers
-                          .filter((layer) => layer.hasLegend)
-                          // remove duplicate layers for the legends to avoid duplicate legends
-                          .filter(
-                              (layer, index, self) =>
-                                  self.findIndex((l) => l.id === layer.id) === index
-                          )
+                        .filter((layer) => layer.hasLegend)
+                        // remove duplicate layers for the legends to avoid duplicate legends
+                        .filter(
+                            (layer, index, self) =>
+                                self.findIndex((l) => l.id === layer.id) === index
+                        )
                     : [],
                 lang: i18nStore.lang,
                 printGrid: printGrid,

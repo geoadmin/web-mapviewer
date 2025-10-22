@@ -1,11 +1,12 @@
 import type { RouteLocationNormalizedGeneric } from 'vue-router'
 
+import type { NewPrintServiceConfig } from '@/store/modules/print/types/print'
+
 import { PRINT_DEFAULT_DPI } from '@/config/print.config'
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
-import { PrintStoreActions } from '@/store/actions'
-import usePrintStore, { type NewPrintServiceConfig } from '@/store/modules/print.store'
+import usePrintStore from '@/store/modules/print'
 
 export function readPrintConfigFromUrlParam(urlParamValue?: string): NewPrintServiceConfig {
     if (urlParamValue) {
@@ -53,7 +54,7 @@ function generatePrintConfigForUrl(): string | undefined {
  */
 const printParamConfig = new UrlParamConfig<string>({
     urlParamName: 'printConfig',
-    actionsToWatch: [PrintStoreActions.SetPrintConfig],
+    actionsToWatch: ['setPrintConfig'],
     setValuesInStore: dispatchPrintConfig,
     extractValueFromStore: generatePrintConfigForUrl,
     keepInUrlWhenDefault: false,
