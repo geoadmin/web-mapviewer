@@ -52,8 +52,6 @@ export default function setSearchQuery(
     const options = dispatcherOrNothing ? (optionsOrDispatcher as SetSearchQueryOptions) : {}
 
     const originUrlParam = options.originUrlParam ?? false
-    const i18nStore = useI18nStore()
-    const layerStore = useLayersStore()
     const mapStore = useMapStore()
     const positionStore = usePositionStore()
 
@@ -74,17 +72,12 @@ export default function setSearchQuery(
                     processWhat3WordsLocation(
                         what3wordLocation,
                         currentProjection,
-                        positionStore,
-                        mapStore,
                         dispatcher
                     )
                 })
                 .catch((error) => {
                     log.info({
                         title: 'Search store / setSearchQuery',
-                        titleStyle: {
-                            backgroundColor: LogPreDefinedColor.Red,
-                        },
                         messages: [
                             `Query "${query}" is not a valid What3Words, fallback to service search`,
                             error,
@@ -95,9 +88,6 @@ export default function setSearchQuery(
                         this,
                         query,
                         currentProjection,
-                        i18nStore,
-                        layerStore,
-                        positionStore,
                         originUrlParam,
                         dispatcher
                     )
@@ -122,16 +112,12 @@ export default function setSearchQuery(
                         applyCoordinates(
                             coordinates,
                             currentProjection,
-                            positionStore,
-                            mapStore,
                             dispatcher
                         )
                     }).catch((error) => {
                         log.error({
                             title: 'Search store / setSearchQuery',
-                            titleStyle: {
-                                backgroundColor: LogPreDefinedColor.Red,
-                            },
+                            titleColor: LogPreDefinedColor.Red,
                             messages: [
                                 `Error while reframing coordinates from LV03 to ${currentProjection.epsg}`,
                                 error,
@@ -147,15 +133,12 @@ export default function setSearchQuery(
                     )
                 }
             }
-            applyCoordinates(coordinates, currentProjection, positionStore, mapStore, dispatcher)
+            applyCoordinates(coordinates, currentProjection, dispatcher)
         } else {
             performSearch(
                 this,
                 query,
                 currentProjection,
-                i18nStore,
-                layerStore,
-                positionStore,
                 originUrlParam,
                 dispatcher
             )
@@ -169,10 +152,10 @@ export default function setSearchQuery(
 function applyCoordinates(
     coordinates: SingleCoordinate,
     currentProjection: CoordinateSystem,
-    positionStore: ReturnType<typeof usePositionStore>,
-    mapStore: ReturnType<typeof useMapStore>,
     dispatcher: ActionDispatcher
 ): void {
+    const positionStore = usePositionStore()
+    const mapStore = useMapStore()
     positionStore.setCenter(coordinates, dispatcher)
     if (currentProjection instanceof CustomCoordinateSystem) {
         positionStore.setZoom(
@@ -190,12 +173,11 @@ function applyCoordinates(
 function processWhat3WordsLocation(
     what3wordLocation: SingleCoordinate,
     currentProjection: CoordinateSystem,
-    positionStore: ReturnType<typeof usePositionStore>,
-    mapStore: ReturnType<typeof useMapStore>,
     dispatcher: ActionDispatcher
 ): void {
+
     if (what3wordLocation) {
-        applyCoordinates(what3wordLocation, currentProjection, positionStore, mapStore, dispatcher)
+        applyCoordinates(what3wordLocation, currentProjection, dispatcher)
     }
 }
 
@@ -203,12 +185,12 @@ function performSearch(
     searchStore: SearchStore,
     query: string,
     currentProjection: CoordinateSystem,
-    i18nStore: ReturnType<typeof useI18nStore>,
-    layerStore: ReturnType<typeof useLayersStore>,
-    positionStore: ReturnType<typeof usePositionStore>,
     originUrlParam: boolean,
     dispatcher: ActionDispatcher
 ): void {
+    const i18nStore = useI18nStore()
+    const layerStore = useLayersStore()
+    const positionStore = usePositionStore()
     search({
         outputProjection: currentProjection,
         queryString: query,

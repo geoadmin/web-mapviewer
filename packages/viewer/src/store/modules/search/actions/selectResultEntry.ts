@@ -68,9 +68,7 @@ export default function selectResultEntry(
         }).catch(error => {
             log.error({
                 title: 'Search store / selectResultEntry',
-                titleStyle: {
-                    backgroundColor: LogPreDefinedColor.Red,
-                },
+                titleColor: LogPreDefinedColor.Red,
                 messages: ['Error while searching for layer features', entry, error, dispatcher],
             })
         })
@@ -111,6 +109,7 @@ export default function selectResultEntry(
             }).catch((error) => {
                 log.error({
                     title: 'Search store / selectResultEntry',
+                    titleColor: LogPreDefinedColor.Red,
                     messages: ['Error while getting feature', featureEntry, error, dispatcher],
                 })
             })
@@ -135,6 +134,8 @@ export default function selectResultEntry(
                     features = parseGpx(gpxLayer.gpxData, positionStore.projection) || []
                 } else {
                     log.warn({
+                        title: 'Search store / selectResultEntry',
+                        titleColor: LogPreDefinedColor.Red,
                         messages: [`Unable to parse GPX layer because of missing Data`],
                     })
                 }
