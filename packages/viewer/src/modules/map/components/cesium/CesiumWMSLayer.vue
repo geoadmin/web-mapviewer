@@ -11,7 +11,7 @@ import { getBaseUrlOverride } from '@/config/baseUrl.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useAddImageryLayer from '@/modules/map/components/cesium/utils/useAddImageryLayer.composable'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
-import useI18nStore from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n'
 
 const MAXIMUM_LEVEL_OF_DETAILS = 18
 

@@ -4,10 +4,14 @@ import type { LoadTopicOptions, TopicsStore } from '@/store/modules/topics/types
 import type { ActionDispatcher } from '@/store/types'
 
 import { loadTopicTreeForTopic } from '@/api/topics.api'
-import useI18nStore from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers.store'
 
-export default function loadTopic(this: TopicsStore, options: LoadTopicOptions, dispatcher: ActionDispatcher): void {
+export default function loadTopic(
+    this: TopicsStore,
+    options: LoadTopicOptions,
+    dispatcher: ActionDispatcher
+): void {
     const i18nStore = useI18nStore()
     const layersStore = useLayersStore()
 

@@ -15,7 +15,7 @@ import type { ActionDispatcher } from '@/store/types'
 import reframe from '@/api/lv03Reframe.api'
 import search, { type SearchResult } from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
-import useI18nStore from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers.store'
 import useMapStore from '@/store/modules/map.store'
 import usePositionStore from '@/store/modules/position.store'
@@ -24,8 +24,8 @@ import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
 
 interface SetSearchQueryOptions {
     /**
-     * Used to select the first result if there is only one. Else it will not be,
-     * because this redo search is done every time the page loads
+     * Used to select the first result if there is only one. Else it will not be, because this redo
+     * search is done every time the page loads
      */
     originUrlParam?: boolean
 }
@@ -47,7 +47,6 @@ export default function setSearchQuery(
     optionsOrDispatcher: SetSearchQueryOptions | ActionDispatcher,
     dispatcherOrNothing?: ActionDispatcher
 ): void {
-
     const dispatcher = dispatcherOrNothing ?? (optionsOrDispatcher as ActionDispatcher)
     const options = dispatcherOrNothing ? (optionsOrDispatcher as SetSearchQueryOptions) : {}
 
@@ -69,11 +68,7 @@ export default function setSearchQuery(
             retrieveWhat3WordsLocation(query, currentProjection)
                 .then((location) => {
                     what3wordLocation = location
-                    processWhat3WordsLocation(
-                        what3wordLocation,
-                        currentProjection,
-                        dispatcher
-                    )
+                    processWhat3WordsLocation(what3wordLocation, currentProjection, dispatcher)
                 })
                 .catch((error) => {
                     log.info({
@@ -84,13 +79,7 @@ export default function setSearchQuery(
                         ],
                     })
                     what3wordLocation = undefined
-                    performSearch(
-                        this,
-                        query,
-                        currentProjection,
-                        originUrlParam,
-                        dispatcher
-                    )
+                    performSearch(this, query, currentProjection, originUrlParam, dispatcher)
                 })
             return
         }
@@ -107,23 +96,21 @@ export default function setSearchQuery(
                         inputProjection: LV03,
                         inputCoordinates: coordinates,
                         outputProjection: currentProjection,
-                    }).then((reframedCoordinates) => {
-                        coordinates = reframedCoordinates
-                        applyCoordinates(
-                            coordinates,
-                            currentProjection,
-                            dispatcher
-                        )
-                    }).catch((error) => {
-                        log.error({
-                            title: 'Search store / setSearchQuery',
-                            titleColor: LogPreDefinedColor.Red,
-                            messages: [
-                                `Error while reframing coordinates from LV03 to ${currentProjection.epsg}`,
-                                error,
-                            ],
-                        })
                     })
+                        .then((reframedCoordinates) => {
+                            coordinates = reframedCoordinates
+                            applyCoordinates(coordinates, currentProjection, dispatcher)
+                        })
+                        .catch((error) => {
+                            log.error({
+                                title: 'Search store / setSearchQuery',
+                                titleColor: LogPreDefinedColor.Red,
+                                messages: [
+                                    `Error while reframing coordinates from LV03 to ${currentProjection.epsg}`,
+                                    error,
+                                ],
+                            })
+                        })
                     return
                 } else {
                     coordinates = coordinatesUtils.reprojectAndRound(
@@ -135,13 +122,7 @@ export default function setSearchQuery(
             }
             applyCoordinates(coordinates, currentProjection, dispatcher)
         } else {
-            performSearch(
-                this,
-                query,
-                currentProjection,
-                originUrlParam,
-                dispatcher
-            )
+            performSearch(this, query, currentProjection, originUrlParam, dispatcher)
         }
     } else if (query.length === 0) {
         mapStore.clearPreviewPinnedLocation(dispatcher)
@@ -175,7 +156,6 @@ function processWhat3WordsLocation(
     currentProjection: CoordinateSystem,
     dispatcher: ActionDispatcher
 ): void {
-
     if (what3wordLocation) {
         applyCoordinates(what3wordLocation, currentProjection, dispatcher)
     }

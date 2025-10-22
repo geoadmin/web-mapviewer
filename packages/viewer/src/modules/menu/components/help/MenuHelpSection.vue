@@ -13,7 +13,7 @@ import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import AppVersion from '@/utils/components/AppVersion.vue'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import OfflineReadinessStatus from '@/utils/offline/OfflineReadinessStatus.vue'
-import useI18nStore from '@/store/modules/i18n.store'
+import useI18nStore from '@/store/modules/i18n'
 import useUIStore from '@/store/modules/ui.store'
 
 const dispatcher = { name: 'MenuHelpSection.vue' }
