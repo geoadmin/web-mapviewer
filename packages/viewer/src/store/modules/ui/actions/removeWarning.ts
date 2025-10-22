@@ -12,9 +12,7 @@ export default function removeWarning(
     if (!(warning instanceof WarningMessage)) {
         log.error({
             title: 'UI store / removeWarning',
-            titleStyle: {
-                color: LogPreDefinedColor.Red,
-            },
+            titleColor: LogPreDefinedColor.Red,
             messages: ['Wrong type of warning passed to removeWarning', warning, dispatcher],
         })
         return

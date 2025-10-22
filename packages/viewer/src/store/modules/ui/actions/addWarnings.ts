@@ -21,9 +21,7 @@ export default function addWarnings(
     } else {
         log.error({
             title: 'UI store / addWarnings',
-            titleStyle: {
-                color: LogPreDefinedColor.Red,
-            },
+            titleColor: LogPreDefinedColor.Red,
             messages: ['Wrong type of warnings passed to addWarnings', warnings, dispatcher],
         })
     }

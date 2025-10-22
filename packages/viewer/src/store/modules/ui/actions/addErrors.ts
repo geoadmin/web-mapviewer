@@ -21,9 +21,7 @@ export default function addErrors(
     } else {
         log.error({
             title: 'UI store / addErrors',
-            titleStyle: {
-                color: LogPreDefinedColor.Red,
-            },
+            titleColor: LogPreDefinedColor.Red,
             messages: ['Wrong type of errors passed to addErrors', errors, dispatcher],
         })
     }
