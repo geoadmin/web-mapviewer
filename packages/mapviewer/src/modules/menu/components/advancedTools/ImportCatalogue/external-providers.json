@@ -124,6 +124,7 @@
     "https://map.geo.tg.ch/proxy/geofy_chsdi3/grundwasserkarte-fassung?access_key=YoW2syIQ4xe0ccJA",
     "https://map.geo.tg.ch/proxy/geofy_chsdi3/luftbelastung-stickstoff?access_key=YoW2syIQ4xe0ccJA",
     "https://map.geo.tg.ch/proxy/geofy_chsdi3/neophyten-pflanzenart?access_key=YoW2syIQ4xe0ccJA",
+    "https://www.ogc.vd.ch/public/services/OGC/wmsVD/Mapserver/Wmsserver?",
     "https://osmlab.github.io/wmts-osm/WMTSCapabilities.xml",
     "https://ows.terrestris.de/osm-gray/service",
     "https://ows.terrestris.de/osm/service",
