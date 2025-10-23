@@ -10,8 +10,8 @@ import {
     getDefaultValidationResponse,
     type ValidationResponse,
 } from '@/router/storeSync/validation'
-import { PositionStoreActions } from '@/store/actions'
-import usePositionStore, { CrossHairs } from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
+import { CrossHairs } from '@/store/modules/position/types/crossHairs.enum'
 import { isEnumValue } from '@/utils/utils'
 
 interface ParsedCrosshair {
@@ -52,7 +52,7 @@ function setValuesInStore(to: RouteLocationNormalizedGeneric, urlParamValue?: st
         } else if (parsedValue.crossHairPosition) {
             positionStore.setCrossHair(
                 {
-                    crossHair: parsedValue.crossHair ?? CrossHairs.marker,
+                    crossHair: parsedValue.crossHair ?? CrossHairs.Marker,
                     crossHairPosition: parsedValue.crossHairPosition,
                 },
                 STORE_DISPATCHER_ROUTER_PLUGIN
@@ -81,20 +81,20 @@ function parseCrossHairValue(crosshair?: string): CrossHairs | undefined {
     if (!crosshair) {
         return undefined
     }
-    if (isEnumValue<CrossHairs>(CrossHairs.bowl, crosshair)) {
-        return CrossHairs.bowl
+    if (isEnumValue<CrossHairs>(CrossHairs.Bowl, crosshair)) {
+        return CrossHairs.Bowl
     }
-    if (isEnumValue<CrossHairs>(CrossHairs.circle, crosshair)) {
-        return CrossHairs.circle
+    if (isEnumValue<CrossHairs>(CrossHairs.Circle, crosshair)) {
+        return CrossHairs.Circle
     }
-    if (isEnumValue<CrossHairs>(CrossHairs.cross, crosshair)) {
-        return CrossHairs.cross
+    if (isEnumValue<CrossHairs>(CrossHairs.Cross, crosshair)) {
+        return CrossHairs.Cross
     }
-    if (isEnumValue<CrossHairs>(CrossHairs.marker, crosshair)) {
-        return CrossHairs.marker
+    if (isEnumValue<CrossHairs>(CrossHairs.Marker, crosshair)) {
+        return CrossHairs.Marker
     }
-    if (isEnumValue<CrossHairs>(CrossHairs.point, crosshair)) {
-        return CrossHairs.point
+    if (isEnumValue<CrossHairs>(CrossHairs.Point, crosshair)) {
+        return CrossHairs.Point
     }
     return undefined
 }
@@ -131,7 +131,7 @@ function validateUrlInput(queryValue?: string): ValidationResponse {
 
 const crosshairParamConfig = new UrlParamConfig<string>({
     urlParamName: 'crosshair',
-    actionsToWatch: [PositionStoreActions.SetCrossHair],
+    actionsToWatch: ['setCrossHair'],
     setValuesInStore,
     extractValueFromStore,
     keepInUrlWhenDefault: false,

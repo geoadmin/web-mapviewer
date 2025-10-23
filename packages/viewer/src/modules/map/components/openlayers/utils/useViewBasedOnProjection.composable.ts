@@ -12,7 +12,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { VIEW_MIN_RESOLUTION } from '@/config/map.config'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 
 const dispatcher: ActionDispatcher = { name: 'useViewBasedOnProjection' }
 

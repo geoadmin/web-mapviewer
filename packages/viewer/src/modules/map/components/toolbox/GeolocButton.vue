@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n'
 import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
 import useGeolocationStore from '@/store/modules/geolocation'
 import useCesiumStore from '@/store/modules/cesium'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import type { ActionDispatcher } from '@/store/types'
 
 const dispatcher: ActionDispatcher = { name: 'GeolocButton.vue' }

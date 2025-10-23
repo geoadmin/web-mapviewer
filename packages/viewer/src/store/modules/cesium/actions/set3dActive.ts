@@ -6,7 +6,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useGeolocationStore from '@/store/modules/geolocation'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 
 export default function set3dActive(
     this: CesiumStore,

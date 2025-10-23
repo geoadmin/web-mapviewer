@@ -6,7 +6,7 @@ import { Cartesian2, Cartesian3, defined, Ellipsoid, Math as CesiumMath, type Vi
 import { isEqual } from 'lodash'
 import proj4 from 'proj4'
 import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import type { ActionDispatcher } from '@/store/types'
 
 import {

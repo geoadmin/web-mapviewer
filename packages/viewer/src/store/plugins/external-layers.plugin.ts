@@ -24,7 +24,7 @@ import type { ActionDispatcher } from '@/store/types'
 import { LayerStoreActions } from '@/store/actions'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers.store'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import { isEnumValue } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'external-layers.plugin' }

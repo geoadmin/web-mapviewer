@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest'
 // eslint-disable-next-line
 import router from '@/router'  
 import store from '@/store'
-import { normalizeAngle } from '@/store/modules/position.store'
+import { normalizeAngle } from '@/store/modules/position'
 
 function validateNormalizeAngle(angle) {
     expect(angle).to.be.lte(Math.PI)

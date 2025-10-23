@@ -17,7 +17,7 @@ import {
     type Layer,
     LayerType,
 } from '@swissgeo/layers'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import CesiumGeoJSONLayer from '@/modules/map/components/cesium/CesiumGeoJSONLayer.vue'
 import CesiumGPXLayer from '@/modules/map/components/cesium/CesiumGPXLayer.vue'
 import CesiumKMLLayer from '@/modules/map/components/cesium/CesiumKMLLayer.vue'

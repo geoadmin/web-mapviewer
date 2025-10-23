@@ -7,7 +7,7 @@ import { computed, inject, nextTick, onMounted, onUnmounted, ref, useTemplateRef
 
 import getHumanReadableCoordinate from '@/modules/map/components/common/mouseTrackerUtils'
 import type { ActionDispatcher } from '@/store/types'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import { allFormats, LV95Format } from '@/utils/coordinates/coordinateFormat'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 

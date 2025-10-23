@@ -12,7 +12,7 @@ import log from '@swissgeo/log'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import useLayersStore from '@/store/modules/layers.store'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 
 const { zIndex = -1 } = defineProps<{
     zIndex?: number

@@ -11,7 +11,7 @@ import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import { parseGpx } from '@/utils/gpxUtils'
 
 const {

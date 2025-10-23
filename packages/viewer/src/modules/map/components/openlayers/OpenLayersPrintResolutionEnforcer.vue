@@ -5,7 +5,7 @@ import log from '@swissgeo/log'
 
 import { inject, onBeforeUnmount, onMounted, ref } from 'vue'
 
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 
 const { resolution } = defineProps<{
     resolution: number

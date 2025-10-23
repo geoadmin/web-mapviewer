@@ -26,7 +26,7 @@ import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import useDrawingStore from '@/store/modules/drawing'
 import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import {
     DEFAULT_MARKER_TITLE_OFFSET,
     geoadminStyleFunction,

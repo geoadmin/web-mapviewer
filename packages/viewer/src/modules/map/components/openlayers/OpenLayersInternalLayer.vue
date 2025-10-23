@@ -30,7 +30,7 @@ import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKM
 import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayersVectorLayer.vue'
 import OpenLayersWMSLayer from '@/modules/map/components/openlayers/OpenLayersWMSLayer.vue'
 import OpenLayersWMTSLayer from '@/modules/map/components/openlayers/OpenLayersWMTSLayer.vue'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 
 const {
     layerConfig,

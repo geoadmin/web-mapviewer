@@ -12,7 +12,7 @@ import WMTS from 'ol/source/WMTS'
 import { computed, inject, onMounted, watch } from 'vue'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
 
 const {

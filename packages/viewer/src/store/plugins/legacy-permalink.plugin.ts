@@ -7,6 +7,8 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import proj4 from 'proj4'
 import { type LocationQueryRaw, type RouteLocationRaw, START_LOCATION } from 'vue-router'
 
+import type { CameraPosition } from '@/store/modules/position/types/position'
+
 import reframe from '@/api/lv03Reframe.api'
 import router from '@/router'
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
@@ -19,8 +21,8 @@ import {
     MAP_VIEWS,
 } from '@/router/viewNames'
 import useLayersStore from '@/store/modules/layers.store'
-import usePositionStore, { type CameraPosition } from '@/store/modules/position.store'
 import { FeatureInfoPositions } from '@/store/modules/ui'
+import usePositionStore from '@/store/modules/position'
 import {
     getKmlLayerFromLegacyAdminIdParam,
     getLayersFromLegacyUrlParams,
