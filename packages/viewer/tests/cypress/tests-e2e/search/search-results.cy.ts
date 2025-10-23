@@ -7,7 +7,7 @@ import proj4 from 'proj4'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { BREAKPOINT_TABLET } from '@/config/responsive.config'
-import { CrossHairs } from '@/store/modules/position.store'
+import { CrossHairs } from '@/store/modules/position'
 
 registerProj4(proj4)
 
@@ -117,11 +117,9 @@ describe('Test the search bar result handling', () => {
                     lat: expectedCenterEpsg4326[1],
                     rank: 1,
                     // we create an extent of 1km around the center
-                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0]! - 500} ${
-                        expectedCenterDefaultProjection[1]! - 500
-                    },${expectedCenterDefaultProjection[0]! + 500} ${
-                        expectedCenterDefaultProjection[1]! + 500
-                    })`,
+                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0]! - 500} ${expectedCenterDefaultProjection[1]! - 500
+                        },${expectedCenterDefaultProjection[0]! + 500} ${expectedCenterDefaultProjection[1]! + 500
+                        })`,
                     label: expectedLocationLabel,
                     origin: 'kantone',
                 },
@@ -158,11 +156,9 @@ describe('Test the search bar result handling', () => {
                     lat: expectedCenterEpsg4326[1],
                     rank: 1,
                     // we create an extent of 1km around the center
-                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0]! - 500} ${
-                        expectedCenterDefaultProjection[1]! - 500
-                    },${expectedCenterDefaultProjection[0]! + 500} ${
-                        expectedCenterDefaultProjection[1]! + 500
-                    })`,
+                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0]! - 500} ${expectedCenterDefaultProjection[1]! - 500
+                        },${expectedCenterDefaultProjection[0]! + 500} ${expectedCenterDefaultProjection[1]! + 500
+                        })`,
                     label: expectedLocationLabel,
                 },
             },
@@ -520,10 +516,10 @@ describe('Test the search bar result handling', () => {
         }).as('search-locations')
         cy.goToMapView({
             queryParams:
-                {
-                    swisssearch: '1530 Payerne',
-                    swisssearch_autoselect: 'true',
-                },
+            {
+                swisssearch: '1530 Payerne',
+                swisssearch_autoselect: 'true',
+            },
             withHash: false,
         })
         // Wait for search API calls to complete and results to be processed
@@ -579,9 +575,9 @@ describe('Test the search bar result handling', () => {
         cy.log('Swisssearch only -> center to swisssearch coordinates')
         cy.goToMapView({
             queryParams:
-                {
-                    swisssearch: swissSearchString,
-                },
+            {
+                swisssearch: swissSearchString,
+            },
             withHash: false,
         })
         testQueryPositionCrosshairStore({
@@ -598,10 +594,10 @@ describe('Test the search bar result handling', () => {
         )
         cy.goToMapView({
             queryParams:
-                {
-                    swisssearch: swissSearchString,
-                    crosshair: CrossHairs.cross,
-                },
+            {
+                swisssearch: swissSearchString,
+                crosshair: CrossHairs.cross,
+            },
             withHash: false,
         })
         testQueryPositionCrosshairStore({
@@ -619,9 +615,9 @@ describe('Test the search bar result handling', () => {
         cy.log('Swisssearch only -> center to swisssearch coordinates')
         cy.goToMapView({
             queryParams:
-                {
-                    swisssearch: swissSearchString,
-                },
+            {
+                swisssearch: swissSearchString,
+            },
             withHash: true,
         })
         testQueryPositionCrosshairStore({
@@ -638,10 +634,10 @@ describe('Test the search bar result handling', () => {
         )
         cy.goToMapView({
             queryParams:
-                {
-                    swisssearch: swissSearchString,
-                    crosshair: CrossHairs.cross,
-                },
+            {
+                swisssearch: swissSearchString,
+                crosshair: CrossHairs.cross,
+            },
             withHash: true,
         })
         testQueryPositionCrosshairStore({

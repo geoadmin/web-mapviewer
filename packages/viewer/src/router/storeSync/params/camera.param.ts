@@ -2,13 +2,14 @@ import type { RouteLocationNormalizedGeneric } from 'vue-router'
 
 import { isNumber } from 'lodash'
 
+import type { CameraPosition } from '@/store/modules/position/types/position'
+
 import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
-import { PositionStoreActions } from '@/store/actions'
 import useCesiumStore from '@/store/modules/cesium'
-import usePositionStore, { type CameraPosition } from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 
 /**
  * Reads the camera position from the single URL param. Returns null if the camera position is not
@@ -66,7 +67,7 @@ function generateCameraUrlParamFromStoreValues(): string | undefined {
  */
 const cameraParam = new UrlParamConfig<string>({
     urlParamName: 'camera',
-    actionsToWatch: [PositionStoreActions.SetCameraPosition],
+    actionsToWatch: ['setCameraPosition'],
     setValuesInStore: dispatchCameraFromUrlIntoStore,
     extractValueFromStore: generateCameraUrlParamFromStoreValues,
     keepInUrlWhenDefault: false,
@@ -75,8 +76,8 @@ const cameraParam = new UrlParamConfig<string>({
         getStandardValidationResponse(
             queryValue,
             !!queryValue &&
-                queryValue.split(',').length === 6 &&
-                queryValue.split(',').every((value) => value === '' || !isNumber(value)),
+            queryValue.split(',').length === 6 &&
+            queryValue.split(',').every((value) => value === '' || !isNumber(value)),
             'camera'
         ),
 })

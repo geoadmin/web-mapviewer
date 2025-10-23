@@ -17,7 +17,7 @@ import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { DrawingState, generateKmlString } from '@/modules/drawing/lib/export-utils'
 import useDrawingStore from '@/store/modules/drawing'
 import useLayersStore from '@/store/modules/layers.store'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import { parseKml } from '@/utils/kmlUtils'
 
 const dispatcher: ActionDispatcher = { name: 'useKmlDataManagement.composable' }

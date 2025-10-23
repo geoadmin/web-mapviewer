@@ -12,7 +12,7 @@ import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
 import type { CoordinateSystem } from '@swissgeo/coordinates'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import useMapStore from '@/store/modules/map'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 
 const {
     wmtsLayerConfig,

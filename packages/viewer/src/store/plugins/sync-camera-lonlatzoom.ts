@@ -11,10 +11,10 @@ import {
     calculateHeight,
     calculateResolution,
 } from '@/modules/map/components/cesium/utils/cameraUtils'
-import { PositionStoreActions } from '@/store/actions'
 import useCesiumStore from '@/store/modules/cesium'
-import usePositionStore, { normalizeAngle } from '@/store/modules/position.store'
 import useUIStore from '@/store/modules/ui'
+import usePositionStore from '@/store/modules/position'
+import { normalizeAngle } from '@/store/modules/position'
 import { isEnumValue } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'sync-camera-lonlatzoom.plugin' }
@@ -29,7 +29,7 @@ const registerSyncCameraLonLatZoom: PiniaPlugin = (context: PiniaPluginContext):
 
     store.$onAction(({ name, args }) => {
         if (
-            isEnumValue<PositionStoreActions>(PositionStoreActions.SetCameraPosition, name) &&
+            isEnumValue<string>('setCameraPosition', name) &&
             positionStore.camera
         ) {
             const lon = store.camera.x
@@ -55,7 +55,7 @@ const registerSyncCameraLonLatZoom: PiniaPlugin = (context: PiniaPluginContext):
             store.setZoom(zoom, dispatcher)
             store.setRotation(normalizeAngle((rotation * Math.PI) / 180), self)
         } else if (
-            isEnumValue<PositionStoreActions>(PositionStoreActions.SetCenter, name) &&
+            isEnumValue<string>('setCenter', name) &&
             cesiumStore.active &&
             positionStore.camera
         ) {
@@ -79,7 +79,7 @@ const registerSyncCameraLonLatZoom: PiniaPlugin = (context: PiniaPluginContext):
                 dispatcher
             )
         } else if (
-            isEnumValue<PositionStoreActions>(PositionStoreActions.SetZoom, name) &&
+            isEnumValue<string>('setZoom', name) &&
             cesiumStore.active &&
             positionStore.camera
         ) {
@@ -98,7 +98,7 @@ const registerSyncCameraLonLatZoom: PiniaPlugin = (context: PiniaPluginContext):
                 dispatcher
             )
         } else if (
-            (isEnumValue<PositionStoreActions>(PositionStoreActions.ZoomToExtent, name) ||
+            (isEnumValue<string>('zoomToExtent', name) ||
                 name === 'selectResultEntry') &&
             positionStore.camera
         ) {

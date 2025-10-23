@@ -14,7 +14,7 @@ import { generateFilename } from '@/utils/utils'
 
 import useFeaturesStore from '@/store/modules/features'
 import useDrawingStore from '@/store/modules/drawing'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import useI18nStore from '@/store/modules/i18n'
 import useCesiumStore from '@/store/modules/cesium'
 import useProfileStore from '@/store/modules/profile'

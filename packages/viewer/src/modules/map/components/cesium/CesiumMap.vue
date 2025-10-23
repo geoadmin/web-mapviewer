@@ -21,8 +21,8 @@ import {
 } from 'vue'
 import useAppStore from '@/store/modules/app'
 import useCesiumStore from '@/store/modules/cesium'
-import usePositionStore from '@/store/modules/position.store'
 import useUIStore from '@/store/modules/ui'
+import usePositionStore from '@/store/modules/position'
 
 import { TERRAIN_URL } from '@/config/cesium.config'
 import { CESIUM_STATIC_PATH } from '@/config/map.config'

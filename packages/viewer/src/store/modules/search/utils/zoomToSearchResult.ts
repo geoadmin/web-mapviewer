@@ -1,7 +1,7 @@
 import type { LayerFeatureSearchResult, LocationSearchResult } from '@/api/search.api'
 import type { ActionDispatcher } from '@/store/types'
 
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 
 export default function zoomToSearchResult(
     entry: LocationSearchResult | LayerFeatureSearchResult,

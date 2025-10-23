@@ -7,7 +7,7 @@ import { storeToRefs } from 'pinia'
 
 import { computePolygonPerimeterArea } from '@/utils/geodesicManager'
 import { reprojectGeoJsonGeometry } from '@/utils/geoJsonUtils'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import type { Geometry, Polygon } from 'geojson'
 
 const { geometry } = defineProps({

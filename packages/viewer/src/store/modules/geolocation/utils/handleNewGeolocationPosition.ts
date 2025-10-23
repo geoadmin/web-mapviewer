@@ -10,7 +10,7 @@ import type { GeolocationStore } from '@/store/modules/geolocation/types/geoloca
 import type { ActionDispatcher } from '@/store/types'
 
 import setCenterIfInBounds from '@/store/modules/geolocation/utils/setCenterIfInBounds'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 
 export default function handleNewGeolocationPosition(
     this: GeolocationStore,

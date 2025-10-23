@@ -9,8 +9,8 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { identifyOnGeomAdminLayer } from '@/api/features.api'
 import useI18nStore from '@/store/modules/i18n'
-import usePositionStore from '@/store/modules/position.store'
 import useUIStore from '@/store/modules/ui'
+import usePositionStore from '@/store/modules/position'
 
 /**
  * Loads (if possible) more features for the given layer.

@@ -5,7 +5,7 @@ import { extentUtils, WGS84 } from '@swissgeo/coordinates'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { useI18n } from 'vue-i18n'
 import type { ActionDispatcher } from '@/store/types'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 
 const { t } = useI18n()
 

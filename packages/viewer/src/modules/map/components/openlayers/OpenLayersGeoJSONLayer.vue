@@ -14,7 +14,7 @@ import { computed, inject, watch } from 'vue'
 
 import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/geoJsonStyleFromLiterals'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import { reprojectGeoJsonGeometry } from '@/utils/geoJsonUtils'
 
 const {

@@ -13,7 +13,7 @@ import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 import { allFormats } from '@/utils/coordinates/coordinateFormat'
 import type { LayerFeature, SelectableFeature } from '@/api/features.api'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 
 const { feature } = defineProps<{
     feature: SelectableFeature<boolean>

@@ -6,7 +6,7 @@ import { LV95 } from '@swissgeo/coordinates'
 import ScaleLine from 'ol/control/ScaleLine'
 import { computed, inject, onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
 
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 
 const {
     scaleType = 'line',

@@ -16,7 +16,7 @@ import {
     highlightGroup,
     unhighlightGroup,
 } from '@/modules/map/components/cesium/utils/highlightUtils'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import type { EditableFeature, LayerFeature } from '@/api/features.api'
 import useMapStore from '@/store/modules/map'
 import type { ActionDispatcher } from '@/store/types'

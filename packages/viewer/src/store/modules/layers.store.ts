@@ -29,7 +29,7 @@ import { loadTopics, parseTopics } from '@/api/topics.api'
 import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 import { LayerStoreActions } from '@/store/actions'
 import useI18nStore from '@/store/modules/i18n'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import useTopicsStore from '@/store/modules/topics'
 import { getGpxExtent } from '@/utils/gpxUtils'
 import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
@@ -117,7 +117,7 @@ const cloneActiveLayerConfig = (sourceLayer: Layer, activeLayerConfig: Partial<L
                 )
             }
             if (updateDelay && clone.type === LayerType.GEOJSON) {
-                ;(clone as GeoAdminGeoJSONLayer).updateDelay = updateDelay
+                ; (clone as GeoAdminGeoJSONLayer).updateDelay = updateDelay
             }
         }
     }
