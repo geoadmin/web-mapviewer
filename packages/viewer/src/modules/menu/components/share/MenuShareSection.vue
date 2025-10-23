@@ -8,7 +8,7 @@ import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuShareEmbed from '@/modules/menu/components/share/MenuShareEmbed.vue'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import MenuShareSocialNetworks from '@/modules/menu/components/share/MenuShareSocialNetworks.vue'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import useShareStore from '@/store/modules/share'
 import useGeolocationStore from '@/store/modules/geolocation'
 

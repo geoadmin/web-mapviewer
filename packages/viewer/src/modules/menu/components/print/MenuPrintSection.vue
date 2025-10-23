@@ -15,7 +15,7 @@ import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownBu
 import ProgressBar from '@/utils/components/ProgressBar.vue'
 import { downloadFile, generateFilename } from '@/utils/utils'
 import usePrintStore from '@/store/modules/print'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import type { ActionDispatcher } from '@/store/types'
 
 const dispatcher: ActionDispatcher = { name: 'MapPrintSection.vue' }

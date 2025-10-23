@@ -1,10 +1,12 @@
+import type { Layer } from '@swissgeo/layers'
+
 import type { ClickInfo, MapStore } from '@/store/modules/map/types/map'
 import type { ActionDispatcher } from '@/store/types'
 
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import { IdentifyMode } from '@/store/modules/features/types/IdentifyMode.enum'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import { ClickType } from '@/store/modules/map/types/clickType.enum'
 import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui'
 
@@ -31,22 +33,17 @@ export default function click(
             clickInfo.clickType === ClickType.DrawBox
 
         if (isIdentifyingFeature) {
-            const identifyMode = isCtrlLeftSingleClick
-                ? IdentifyMode.Toggle
-                : IdentifyMode.New
+            const identifyMode = isCtrlLeftSingleClick ? IdentifyMode.Toggle : IdentifyMode.New
 
             if (clickInfo.features) {
                 featuresStore.identifyFeatureAt(
-                    layersStore.visibleLayers.filter((layer) => layer.hasTooltip),
+                    layersStore.visibleLayers.filter((layer: Layer) => layer.hasTooltip),
                     clickInfo.coordinate,
                     clickInfo.features,
                     identifyMode,
                     dispatcher
                 )
-                if (
-                    uiStore.noFeatureInfo &&
-                    featuresStore.selectedFeaturesByLayerId.length > 0
-                ) {
+                if (uiStore.noFeatureInfo && featuresStore.selectedFeaturesByLayerId.length > 0) {
                     // we only change the feature Info position when it's set to 'NONE', as
                     // we want to keep the user's choice of position between clicks.
                     uiStore.setFeatureInfoPosition(FeatureInfoPositions.Default, dispatcher)

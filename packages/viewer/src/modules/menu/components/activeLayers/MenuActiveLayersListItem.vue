@@ -23,8 +23,8 @@ import {
     type Layer,
     LayerType,
 } from '@swissgeo/layers'
-import useLayersStore from '@/store/modules/layers.store'
-import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
+import useLayersStore from '@/store/modules/layers'
+import { timeConfigUtils } from '@swissgeo/layers/utils'
 import useUIStore from '@/store/modules/ui'
 import useCesiumStore from '@/store/modules/cesium'
 import type { ActionDispatcher } from '@/store/types'
@@ -74,7 +74,10 @@ const kmlStylesAsDropdownItems = computed<DropdownItem<KMLStyle>[]>(() =>
 )
 const isLocalFile = computed<boolean>(() => layersStore.isLocalFile(layer))
 const hasDataDisclaimer = computed<boolean>(() =>
-    layersStore.hasDataDisclaimer(id.value, layer.isExternal, layer.baseUrl)
+    layersStore.hasDataDisclaimer(id.value, {
+        isExternal: layer.isExternal,
+        baseUrl: layer.baseUrl,
+    })
 )
 const attributionName = computed<string>(() =>
     layer.attributions.map((attribution) => attribution.name).join(', ')
@@ -88,11 +91,9 @@ const isLayerClampedToGround = computed<boolean>({
     get: () => 'clampToGround' in layer && !!layer.clampToGround,
     set: (value: boolean) => {
         layersStore.updateLayer<KMLLayer>(
+            id.value,
             {
-                layerId: id.value,
-                values: {
-                    clampToGround: value,
-                },
+                clampToGround: value,
             },
             dispatcher
         )
@@ -113,7 +114,7 @@ onMounted(() => {
 })
 
 function onRemoveLayer() {
-    layersStore.removeLayer({ index }, dispatcher)
+    layersStore.removeLayer(index, dispatcher)
 }
 
 function onToggleLayerVisibility() {
@@ -129,16 +130,14 @@ function showLayerDescriptionPopup() {
 }
 
 function duplicateLayer() {
-    layersStore.addLayer({ layer: layerUtils.cloneLayer(layer) }, dispatcher)
+    layersStore.addLayer(layer, dispatcher)
 }
 
 function changeStyle(newStyle: { value: KMLStyle }) {
     layersStore.updateLayer<KMLLayer>(
+        id.value,
         {
-            layerId: id.value,
-            values: {
-                style: newStyle.value,
-            },
+            style: newStyle.value,
         },
         dispatcher
     )

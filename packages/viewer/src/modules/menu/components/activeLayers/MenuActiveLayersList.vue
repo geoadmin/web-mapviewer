@@ -13,7 +13,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef } f
 
 import MenuActiveLayersListItem from '@/modules/menu/components/activeLayers/MenuActiveLayersListItem.vue'
 import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPopup.vue'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import type { ActionDispatcher } from '@/store/types'
 
 const dispatcher: ActionDispatcher = { name: 'MenuActiveLayersList.vue' }

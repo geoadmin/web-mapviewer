@@ -14,10 +14,8 @@ import axios from 'axios'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { LayerStoreActions } from '@/store/actions'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
-import { isEnumValue } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'load-geojson-style-and-data.plugin' }
 
@@ -68,11 +66,9 @@ function autoReloadData(geoJsonLayer: GeoAdminGeoJSONLayer): void {
         load<string>(geoJsonLayer.geoJsonUrl)
             .response.then((data) => {
                 layersStore.updateLayer<GeoAdminGeoJSONLayer>(
+                    geoJsonLayer.id,
                     {
-                        layerId: geoJsonLayer.id,
-                        values: {
-                            geoJsonData: data,
-                        },
+                        geoJsonData: data,
                     },
                     dispatcher
                 )
@@ -147,10 +143,8 @@ function loadDataAndStyle(geoJsonLayer: GeoAdminGeoJSONLayer): LoadDataAndStyleR
                 const clone = layerUtils.cloneLayer(geoJsonLayer)
                 clone.isLoading = false
                 layersStore.addLayerError(
-                    {
-                        layerId: geoJsonLayer.id,
-                        error: new ErrorMessage('loading_error_network_failure'),
-                    },
+                    geoJsonLayer.id,
+                    new ErrorMessage('loading_error_network_failure'),
                     dispatcher
                 )
                 return clone
@@ -252,7 +246,11 @@ async function addLayersSubscriber(layers: Layer[]): Promise<void> {
     geoJsonLayers
         .filter((layer) => layer.updateDelay || 0 > 0)
         .forEach((layer) => {
-            log.debug('starting auto-reload of data for layer', layer)
+            log.debug({
+                title: 'Load GeoJSON style and data',
+                titleColor: LogPreDefinedColor.Indigo,
+                messages: ['starting auto-reload of data for layer', layer],
+            })
             autoReloadData(layer)
         })
 }
@@ -265,21 +263,32 @@ const loadGeojsonStyleAndDataPlugin: PiniaPlugin = (): void => {
     const layersStore = useLayersStore()
 
     layersStore.$onAction(({ name, args }) => {
-        if (isEnumValue<LayerStoreActions>(LayerStoreActions.AddLayer, name)) {
-            const [payload] = args as Parameters<typeof layersStore.addLayer>
-            if (payload.layer) {
-                addLayersSubscriber([payload.layer]).catch((error) => {
+        if (name === 'addLayer') {
+            const [input] = args
+            let layer: Layer | undefined
+            if (typeof input === 'string') {
+                layer = layersStore.getLayerConfigById(input)
+            } else {
+                layer = input as Layer
+            }
+            if (layer && layer.type === LayerType.GEOJSON) {
+                addLayersSubscriber([layer]).catch((error) => {
                     log.error({ messages: [error] })
                 })
             }
-        } else if (isEnumValue<LayerStoreActions>(LayerStoreActions.SetLayers, name)) {
-            const [layers] = args as Parameters<typeof layersStore.setLayers>
-            const nonStringLayers = layers.filter((layer) => !(typeof layer === 'string'))
-            addLayersSubscriber(nonStringLayers).catch((error) => {
-                log.error({ messages: [error] })
-            })
-        } else if (isEnumValue<LayerStoreActions>(LayerStoreActions.SetPreviewLayer, name)) {
-            const [previewLayer] = args as Parameters<typeof layersStore.setPreviewLayer>
+        } else if (name === 'setLayers') {
+            const [layers] = args
+            addLayersSubscriber(layers.filter((layer) => layer.type === LayerType.GEOJSON)).catch(
+                (error) => {
+                    log.error({
+                        title: 'Load GeoJSON style and data',
+                        titleColor: LogPreDefinedColor.Indigo,
+                        messages: ['Error while load GeoJSON data after a setLayers action', error],
+                    })
+                }
+            )
+        } else if (name === 'setPreviewLayer') {
+            const [previewLayer] = args
 
             if (typeof previewLayer === 'string') {
                 const matchingLayers: Layer[] = layersStore.getLayersById(previewLayer)
@@ -307,13 +316,19 @@ const loadGeojsonStyleAndDataPlugin: PiniaPlugin = (): void => {
                     })
                 })
             }
-        } else if (isEnumValue<LayerStoreActions>(LayerStoreActions.ClearPreviewLayer, name)) {
+        } else if (name === 'clearPreviewLayer') {
             cancelLoadPreviewLayer()
-        } else if (isEnumValue<LayerStoreActions>(LayerStoreActions.RemoveLayer, name)) {
-            const [payload] = args as Parameters<typeof layersStore.removeLayer>
-            if (payload.layerId && intervalsByLayerId[payload.layerId]) {
+        } else if (name === 'removeLayer') {
+            const [input] = args
+            let layerId: string | undefined
+            if (typeof input === 'string') {
+                layerId = input
+            } else {
+                layerId = (input as Layer).id
+            }
+            if (layerId && intervalsByLayerId[layerId]) {
                 // when a layer is removed, if a matching interval is found, we clear it
-                clearAutoReload(payload.layerId)
+                clearAutoReload(layerId)
             } else {
                 // As we come after the work has been done,
                 // we cannot get the layer ID removed from the store from the mutation's payload.

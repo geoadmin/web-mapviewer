@@ -12,7 +12,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useFeaturesStore from '@/store/modules/features'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
 
 const dispatcher: ActionDispatcher = { name: 'reproject-layers-on-projection-change.plugin' }

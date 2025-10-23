@@ -15,7 +15,7 @@ import FileInput from '@/utils/components/FileInput.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 import TextAreaInput from '@/utils/components/TextAreaInput.vue'
 import useDrawingStore from '@/store/modules/drawing'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
 import { type KMLLayer } from '@swissgeo/layers'
 

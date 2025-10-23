@@ -16,7 +16,7 @@ import { createKml, deleteKml, getKmlUrl, updateKml } from '@/api/files.api'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { DrawingState, generateKmlString } from '@/modules/drawing/lib/export-utils'
 import useDrawingStore from '@/store/modules/drawing'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
 import { parseKml } from '@/utils/kmlUtils'
 
@@ -199,23 +199,16 @@ export default function useKmlDataManagement(
             })
             // If we are copying the active layer (no adminId), remove the old one to avoid duplicates
             if (current) {
-                layersStore.removeLayer({ layerId: current.id }, dispatcher)
+                layersStore.removeLayer(current.id, dispatcher)
             }
 
             if (!layerUtils.isKmlLayerEmpty(kmlLayer)) {
-                layersStore.addLayer({ layer: kmlLayer }, dispatcher)
+                layersStore.addLayer(kmlLayer, dispatcher)
             }
         } else {
             // Update existing KML
             const kmlMetadata = await updateKml(current.fileId!, current.adminId, kmlData)
-            layersStore.setKmlGpxLayerData(
-                {
-                    layerId: current.id,
-                    data: kmlData,
-                    metadata: kmlMetadata,
-                },
-                dispatcher
-            )
+            layersStore.setKmlGpxLayerData(current.id, kmlData, kmlMetadata, dispatcher)
         }
     }
 

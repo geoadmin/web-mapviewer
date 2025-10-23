@@ -7,7 +7,7 @@ import log from '@swissgeo/log'
 
 import { getKmlMetadataByAdminId } from '@/api/files.api'
 import storeSyncConfig from '@/router/storeSync/storeSync.config'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 
 const standardURLParams = storeSyncConfig.map((param) => {
     return param.urlParamName

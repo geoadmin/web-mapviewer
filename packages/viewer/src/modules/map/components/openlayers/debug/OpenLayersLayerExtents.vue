@@ -11,7 +11,7 @@ import { computed, inject, toRef, watch } from 'vue'
 import log from '@swissgeo/log'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
 
 const { zIndex = -1 } = defineProps<{
