@@ -24,7 +24,7 @@ import { stringifyQuery } from '@/utils/url-router'
 import usePositionStore from '@/store/modules/position.store'
 import useI18nStore from '@/store/modules/i18n'
 import usePrintStore from '@/store/modules/print'
-import useMapStore from '@/store/modules/map.store'
+import useMapStore from '@/store/modules/map'
 import type { ActionDispatcher } from '@/store/types'
 
 const dispatcher: ActionDispatcher = { name: 'PrintView.vue' }

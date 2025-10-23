@@ -23,7 +23,7 @@ import usePrintAreaRenderer from '@/modules/map/components/openlayers/utils/useP
 import useViewBasedOnProjection from '@/modules/map/components/openlayers/utils/useViewBasedOnProjection.composable'
 import type { ActionDispatcher } from '@/store/types'
 import useDebugStore from '@/store/modules/debug'
-import useMapStore from '@/store/modules/map.store'
+import useMapStore from '@/store/modules/map'
 import useAppStore from '@/store/modules/app'
 import useGeolocationStore from '@/store/modules/geolocation'
 import useLayersStore from '@/store/modules/layers.store'

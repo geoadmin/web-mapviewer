@@ -18,7 +18,7 @@ import {
 } from '@/modules/map/components/cesium/utils/highlightUtils'
 import usePositionStore from '@/store/modules/position.store'
 import type { EditableFeature, LayerFeature } from '@/api/features.api'
-import useMapStore from '@/store/modules/map.store'
+import useMapStore from '@/store/modules/map'
 import type { ActionDispatcher } from '@/store/types'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { Viewer } from 'cesium'
