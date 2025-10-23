@@ -26,7 +26,7 @@ import useDebugStore from '@/store/modules/debug'
 import useMapStore from '@/store/modules/map'
 import useAppStore from '@/store/modules/app'
 import useGeolocationStore from '@/store/modules/geolocation'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 
 const dispatcher: ActionDispatcher = { name: 'OpenLayersMap.vue' }
 

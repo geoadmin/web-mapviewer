@@ -11,7 +11,7 @@ import {
     CESIUM_LABELS_LAYER_ID,
     CESIUM_VEGETATION_LAYER_ID,
 } from '@/config/cesium.config'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 
 const labelLayer = layerUtils.makeGeoAdmin3DLayer({
     id: CESIUM_LABELS_LAYER_ID,

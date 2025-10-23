@@ -8,7 +8,7 @@ import SearchResultCategory from '@/modules/menu/components/search/SearchResultC
 import debounce from '@/utils/debounce'
 import useSearchStore from '@/store/modules/search'
 import useUIStore from '@/store/modules/ui'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
 
 const dispatcher = { name: 'SearchResultList.vue' }

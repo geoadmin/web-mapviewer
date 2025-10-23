@@ -16,7 +16,7 @@ import { layerUtils } from '@swissgeo/layers/utils'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useAddImageryLayer from '@/modules/map/components/cesium/utils/useAddImageryLayer.composable'
 import usePositionStore from '@/store/modules/position'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import type { ActionDispatcher } from '@/store/types'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumWMTSLayer.vue' }
@@ -69,12 +69,12 @@ const tileMatrixSet = computed(() => {
         )
         if (!hasUnsupportedProjectionError.value) {
             layersStore.addLayerError(
+                wmtsLayerConfig,
                 {
-                    layerId: wmtsLayerConfig.id,
                     isExternal: wmtsLayerConfig.isExternal,
                     baseUrl: wmtsLayerConfig.baseUrl,
-                    error: unsupportedProjectionError,
                 },
+                unsupportedProjectionError,
                 dispatcher
             )
             setHasUnsupportedProjectionError(true)
@@ -84,12 +84,12 @@ const tileMatrixSet = computed(() => {
     // If we previously added an error but projection is now supported, remove the error
     if (hasUnsupportedProjectionError.value) {
         layersStore.removeLayerError(
+            wmtsLayerConfig,
             {
-                layerId: wmtsLayerConfig.id,
                 isExternal: wmtsLayerConfig.isExternal,
                 baseUrl: wmtsLayerConfig.baseUrl,
-                error: unsupportedProjectionError,
             },
+            unsupportedProjectionError,
             dispatcher
         )
         setHasUnsupportedProjectionError(false)
@@ -111,12 +111,12 @@ watch(url, () => refreshLayer())
 onBeforeUnmount(() => {
     if (hasUnsupportedProjectionError.value) {
         layersStore.removeLayerError(
+            wmtsLayerConfig,
             {
-                layerId: wmtsLayerConfig.id,
                 isExternal: wmtsLayerConfig.isExternal,
                 baseUrl: wmtsLayerConfig.baseUrl,
-                error: unsupportedProjectionError,
             },
+            unsupportedProjectionError,
             dispatcher
         )
     }

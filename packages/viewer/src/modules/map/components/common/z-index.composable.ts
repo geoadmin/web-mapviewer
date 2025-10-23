@@ -5,7 +5,7 @@ import log from '@swissgeo/log'
 import { computed } from 'vue'
 
 import useCesiumStore from '@/store/modules/cesium'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 
 /** Composable that gives utility functions to calculate/get layers' and features' z-index */
 export function useLayerZIndexCalculation() {

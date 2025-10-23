@@ -20,7 +20,7 @@ import {
     MAP_VIEW,
     MAP_VIEWS,
 } from '@/router/viewNames'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
 import { FeatureInfoPositions } from '@/store/modules/ui'
 import {

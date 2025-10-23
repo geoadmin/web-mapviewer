@@ -6,7 +6,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import getFeature, { type LayerFeature } from '@/api/features.api'
 import useI18nStore from '@/store/modules/i18n'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'
 import useUIStore from '@/store/modules/ui'

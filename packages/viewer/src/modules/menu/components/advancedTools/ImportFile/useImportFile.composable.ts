@@ -5,7 +5,7 @@ import { computed } from 'vue'
 
 import { parseLayerFromFile } from '@/modules/menu/components/advancedTools/ImportFile/parser'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
 import useUIStore from '@/store/modules/ui'
 
@@ -53,18 +53,17 @@ export default function useImportFile() {
                         projection.value.bounds.isInBounds(extent[2], extent[3])
                     if (!isLayerFullyInBound) {
                         layer.warningMessages = (layer.warningMessages ?? []).concat([
-                            new WarningMessage(
-                                'file_imported_partially_out_of_bounds',
-                                { filename: layer.name ?? layer.id }
-                            ),
+                            new WarningMessage('file_imported_partially_out_of_bounds', {
+                                filename: layer.name ?? layer.id,
+                            }),
                         ])
                         layer.hasWarning = true
                     }
                 }
 
                 layersStore.addLayer(
+                    layer,
                     {
-                        layer,
                         zoomToLayerExtent: true,
                     },
                     dispatcher

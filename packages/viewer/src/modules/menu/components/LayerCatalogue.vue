@@ -3,7 +3,7 @@ import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import LayerCatalogueItem from '@/modules/menu/components/LayerCatalogueItem.vue'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import type { Layer } from '@swissgeo/layers'
 import type { ActionDispatcher } from '@/store/types'
 

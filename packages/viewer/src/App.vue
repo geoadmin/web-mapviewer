@@ -15,7 +15,7 @@ import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
 import useUIStore from '@/store/modules/ui'
 import FeedbackPopup from '@/utils/components/FeedbackPopup.vue'
 import debounce from '@/utils/debounce'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 
 const dispatcher: ActionDispatcher = { name: 'App.vue' }
 

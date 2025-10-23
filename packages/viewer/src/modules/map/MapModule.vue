@@ -7,7 +7,7 @@ import WarningRibbon from '@/modules/map/components/WarningRibbon.vue'
 import useCesiumStore from '@/store/modules/cesium'
 import useMapStore from '@/store/modules/map'
 import useUIStore from '@/store/modules/ui'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 
 const CesiumMap = defineAsyncComponent(() => import('./components/cesium/CesiumMap.vue'))
 const OpenLayersMap = defineAsyncComponent(

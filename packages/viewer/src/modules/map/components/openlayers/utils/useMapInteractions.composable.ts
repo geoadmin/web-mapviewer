@@ -17,7 +17,7 @@ import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
 import { useDragBoxSelect } from '@/modules/map/components/openlayers/utils/useDragBoxSelect.composable'
 import useDrawingStore from '@/store/modules/drawing'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import useMapStore, { ClickType } from '@/store/modules/map'
 import { createLayerFeature } from '@/utils/layerUtils'
 

@@ -33,7 +33,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@/config/map.config'
 import useFeaturesStore from '@/store/modules/features'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import useMapStore, { type ClickInfo, ClickType } from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'
 import { parseGpx } from '@/utils/gpxUtils'

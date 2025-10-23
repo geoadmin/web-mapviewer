@@ -31,7 +31,7 @@ import useKmlDataManagement from '@/modules/drawing/useKmlDataManagement.composa
 import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import useUiStore, { FeatureInfoPositions } from '@/store/modules/ui'
 import usePositionStore from '@/store/modules/position'
 import type { ActionDispatcher } from '@/store/types'

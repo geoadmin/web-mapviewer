@@ -19,7 +19,7 @@ import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import debounce from '@/utils/debounce'
 import useUIStore from '@/store/modules/ui'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import useFeaturesStore from '@/store/modules/features'
 import type { ActionDispatcher } from '@/store/types'
 import type VectorLayer from 'ol/layer/Vector'
@@ -124,8 +124,8 @@ function onCloseClearConfirmation(confirmed: boolean) {
         drawingStore.setDrawingMode(undefined, dispatcher)
         if (layersStore.activeKmlLayer) {
             layersStore.removeLayer(
+                layersStore.activeKmlLayer.id,
                 {
-                    layerId: layersStore.activeKmlLayer.id,
                     isExternal: layersStore.activeKmlLayer.isExternal,
                     baseUrl: layersStore.activeKmlLayer.baseUrl,
                 },

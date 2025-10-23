@@ -3,19 +3,18 @@
  * it here
  */
 
+import type { GPXLayer, Layer } from '@swissgeo/layers'
 import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 
-import { type GPXLayer, LayerType } from '@swissgeo/layers'
+import { LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { ErrorMessage } from '@swissgeo/log/Message'
 
 import type { ActionDispatcher } from '@/store/types'
 
 import GPXParser from '@/modules/menu/components/advancedTools/ImportFile/parser/GPXParser.class'
-import { LayerStoreActions } from '@/store/actions'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
-import { isEnumValue } from '@/utils/utils'
 
 const gpxParser = new GPXParser()
 
@@ -36,13 +35,7 @@ async function loadGpx(gpxLayer: GPXLayer): Promise<void> {
             currentProjection: positionStore.projection,
         })
 
-        layerStore.updateLayer(
-            {
-                layerId: updatedLayer.id,
-                values: updatedLayer,
-            },
-            dispatcher
-        )
+        layerStore.updateLayer(updatedLayer.id, updatedLayer, dispatcher)
     } catch (error) {
         log.error({
             title: 'load-gpx-data',
@@ -50,12 +43,12 @@ async function loadGpx(gpxLayer: GPXLayer): Promise<void> {
         })
 
         layerStore.addLayerError(
+            gpxLayer.id,
             {
-                layerId: gpxLayer.id,
                 isExternal: gpxLayer.isExternal,
                 baseUrl: gpxLayer.baseUrl,
-                error: new ErrorMessage('loading_error_network_failure'),
             },
+            new ErrorMessage('loading_error_network_failure'),
             dispatcher
         )
     }
@@ -80,16 +73,23 @@ const loadGpxDataAndMetadataPlugin: PiniaPlugin = (context: PiniaPluginContext) 
     const { store } = context
 
     // it is used to get the type of the action arguments
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     const layersStore = useLayersStore()
 
     store.$onAction(({ args, name }) => {
-        if (isEnumValue<LayerStoreActions>(LayerStoreActions.AddLayer, name)) {
-            const [payload] = args as Parameters<typeof layersStore.addLayer>
-            if (payload.layer?.type === LayerType.GPX) {
-                addLayerSubscriber(payload.layer)
+        if (name === 'addLayer') {
+            const [input] = args as Parameters<typeof layersStore.addLayer>
+
+            let layer: Layer | undefined
+            if (typeof input === 'string') {
+                layer = layersStore.getLayerConfigById(input)
+            } else {
+                layer = input as Layer
             }
-        } else if (isEnumValue<LayerStoreActions>(LayerStoreActions.SetLayers, name)) {
+            if (layer && layer.type === LayerType.GPX) {
+                addLayerSubscriber(layer)
+            }
+        } else if (name === 'setLayers') {
             const [layers] = args as Parameters<typeof layersStore.setLayers>
             for (const layer of layers) {
                 if (layer.type === LayerType.GPX) {

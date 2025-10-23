@@ -4,7 +4,7 @@ import { onMounted, ref, watch } from 'vue'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import debounce from '@/utils/debounce'
 import type { Layer } from '@swissgeo/layers'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import type { ActionDispatcher } from '@/store/types'
 
 const dispatcher: ActionDispatcher = { name: 'MenuActiveLayersListItem.vue' }
