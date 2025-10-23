@@ -28,7 +28,7 @@ import {
     unhighlightGroup,
 } from '@/modules/map/components/cesium/utils/highlightUtils'
 import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
-import useMapStore, { ClickType } from '@/store/modules/map.store'
+import useMapStore, { ClickType } from '@/store/modules/map'
 import type { LayerFeature, SelectableFeature } from '@/api/features.api'
 import useCesiumStore from '@/store/modules/cesium'
 import useFeaturesStore from '@/store/modules/features'

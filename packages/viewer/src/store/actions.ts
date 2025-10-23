@@ -26,18 +26,6 @@ export enum LayerStoreActions {
     LoadLayersConfig = 'loadLayersConfig',
 }
 
-export enum MapStoreActions {
-    Click = 'click',
-    ClearClick = 'clearClick',
-    SetPinnedLocation = 'setPinnedLocation',
-    SetPreviewedPinnedLocation = 'setPreviewedPinnedLocation',
-    ClearPreviewPinnedLocation = 'clearPreviewPinnedLocation',
-    ClearLocationPopupCoordinates = 'clearLocationPopupCoordinates',
-    SetLocationPopupCoordinates = 'setLocationPopupCoordinates',
-    SetPrintMode = 'setPrintMode',
-    SetRectangleSelectionExtent = 'setRectangleSelectionExtent',
-}
-
 export enum PositionStoreActions {
     SetDisplayedFormat = 'setDisplayedFormat',
     SetZoom = 'setZoom',

@@ -20,7 +20,7 @@ import search, {
 import useFeaturesStore from '@/store/modules/features'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers.store'
-import useMapStore from '@/store/modules/map.store'
+import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position.store'
 import createLayerFeature from '@/store/modules/search/utils/createLayerFeature'
 import zoomToSearchResult from '@/store/modules/search/utils/zoomToSearchResult'

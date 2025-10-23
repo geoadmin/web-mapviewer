@@ -5,7 +5,7 @@ import CompareSlider from '@/modules/map/components/CompareSlider.vue'
 import LocationPopup from '@/modules/map/components/LocationPopup.vue'
 import WarningRibbon from '@/modules/map/components/WarningRibbon.vue'
 import useCesiumStore from '@/store/modules/cesium'
-import useMapStore from '@/store/modules/map.store'
+import useMapStore from '@/store/modules/map'
 import useUIStore from '@/store/modules/ui.store'
 import useLayersStore from '@/store/modules/layers.store'
 
