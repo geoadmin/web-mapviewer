@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { stitchMultiLine } from '../profile.store'
+import { stitchMultiLine } from '../profile'
 
 function checkLines(expectedResult, result) {
     expect(result).to.be.an('Array')

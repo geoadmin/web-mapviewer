@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { useI18n } from 'vue-i18n'
 
 import type { LayerFeature, SelectableFeature } from '@/api/features.api'
-import useProfileStore from '@/store/modules/profile.store'
+import useProfileStore from '@/store/modules/profile'
 import type { ActionDispatcher } from '@/store/types'
 
 const dispatcher: ActionDispatcher = { name: 'ShowGeometryProfileButton.vue' }
