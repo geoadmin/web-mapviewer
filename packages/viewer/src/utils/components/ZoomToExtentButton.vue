@@ -20,8 +20,8 @@ const positionStore = usePositionStore()
 
 function zoomToFeatureExtent() {
     positionStore.zoomToExtent(
+        extentUtils.normalizeExtent(extent),
         {
-            extent: extentUtils.normalizeExtent(extent),
             extentProjection: extentProjection,
         },
         dispatcher

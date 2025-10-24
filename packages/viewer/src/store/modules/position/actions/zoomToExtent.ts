@@ -10,16 +10,31 @@ import type { ActionDispatcher } from '@/store/types'
 
 import useUIStore from '@/store/modules/ui.store'
 
+interface ZoomToExtentOptions {
+    extentProjection?: CoordinateSystem
+    maxZoom?: number
+}
+
 export default function zoomToExtent(
     this: PositionStore,
-    payload: {
-        extent: FlatExtent | NormalizedExtent
-        extentProjection?: CoordinateSystem
-        maxZoom?: number
-    },
+    extent: FlatExtent | NormalizedExtent,
+    options: ZoomToExtentOptions,
     dispatcher: ActionDispatcher
+): void
+export default function zoomToExtent(
+    this: PositionStore,
+    extent: FlatExtent | NormalizedExtent,
+    dispatcher: ActionDispatcher
+): void
+export default function zoomToExtent(
+    this: PositionStore,
+    extent: FlatExtent | NormalizedExtent,
+    optionsOrDispatcher: ZoomToExtentOptions | ActionDispatcher,
+    dispatcherOrNothing?: ActionDispatcher
 ): void {
-    const { extent, extentProjection, maxZoom } = payload
+    const options = dispatcherOrNothing ? (optionsOrDispatcher as ZoomToExtentOptions) : {}
+
+    const { extentProjection, maxZoom } = options
 
     // Convert extent points to WGS84 as TurfJS needs them in this format
     const normalizedWGS84Extent: NormalizedExtent = extentUtils.projExtent(
