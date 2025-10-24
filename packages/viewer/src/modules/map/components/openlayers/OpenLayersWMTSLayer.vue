@@ -11,7 +11,7 @@ import type { GeoAdminWMTSLayer } from '@swissgeo/layers'
 import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
 import type { CoordinateSystem } from '@swissgeo/coordinates'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import useMapStore from '@/store/modules/map.store'
+import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position.store'
 
 const {

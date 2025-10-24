@@ -11,7 +11,7 @@ import { Stroke, Style } from 'ol/style'
 import { inject, watch } from 'vue'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import useMapStore from '@/store/modules/map.store'
+import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position.store'
 
 const { zIndex = -1 } = defineProps<{

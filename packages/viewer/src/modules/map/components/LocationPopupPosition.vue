@@ -18,7 +18,7 @@ import {
     UTMFormat,
     WGS84Format,
 } from '@/utils/coordinates/coordinateFormat'
-import type { ClickInfo } from '@/store/modules/map.store'
+import type { ClickInfo } from '@/store/modules/map'
 
 const { coordinate, clickInfo, projection, currentLang } = defineProps<{
     coordinate: SingleCoordinate

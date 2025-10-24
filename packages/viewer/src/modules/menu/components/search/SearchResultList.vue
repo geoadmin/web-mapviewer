@@ -9,7 +9,7 @@ import debounce from '@/utils/debounce'
 import useSearchStore from '@/store/modules/search'
 import useUIStore from '@/store/modules/ui.store'
 import useLayersStore from '@/store/modules/layers.store'
-import useMapStore from '@/store/modules/map.store'
+import useMapStore from '@/store/modules/map'
 
 const dispatcher = { name: 'SearchResultList.vue' }
 

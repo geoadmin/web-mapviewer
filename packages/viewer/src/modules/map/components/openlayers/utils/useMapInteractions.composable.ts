@@ -18,7 +18,7 @@ import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverl
 import { useDragBoxSelect } from '@/modules/map/components/openlayers/utils/useDragBoxSelect.composable'
 import useDrawingStore from '@/store/modules/drawing'
 import useLayersStore from '@/store/modules/layers.store'
-import useMapStore, { ClickType } from '@/store/modules/map.store'
+import useMapStore, { ClickType } from '@/store/modules/map'
 import { createLayerFeature } from '@/utils/layerUtils'
 
 const dispatcher: ActionDispatcher = {

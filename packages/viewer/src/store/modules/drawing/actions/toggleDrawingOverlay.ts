@@ -1,7 +1,7 @@
 import type { DrawingStore } from '@/store/modules/drawing/types/drawing'
 import type { ActionDispatcher } from '@/store/types'
 
-import useMapStore from '@/store/modules/map.store'
+import useMapStore from '@/store/modules/map'
 
 interface ToggleDrawingOverlayOptions {
     show?: boolean
