@@ -51,7 +51,7 @@ import showLoadingBar from '@/store/modules/ui/getters/showLoadingBar'
 import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 import { UIModes } from '@/store/modules/ui/types/uiModes.enum'
 
-const MAP_LOADING_BAR_REQUESTER = 'app-map-loading'
+export const MAP_LOADING_BAR_REQUESTER = 'app-map-loading'
 
 const state = (): UIStoreState => ({
     height: window.innerHeight,
