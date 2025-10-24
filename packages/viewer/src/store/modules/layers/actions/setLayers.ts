@@ -1,9 +1,13 @@
-import type { Layer } from '@swissgeo/layers'
+import type { CloudOptimizedGeoTIFFLayer, Layer } from '@swissgeo/layers'
 
+import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 
 import type { LayersStore } from '@/store/modules/layers/types/layers'
 import type { ActionDispatcher } from '@/store/types'
+
+import loadCOGMetadataAndUpdateLayer from '@/store/modules/layers/utils/loadCOGMetadataAndUpdateLayer'
 
 /**
  * Sets the list of active layers. This replaces the existing list.
@@ -15,5 +19,19 @@ export default function setLayers(
     layers: Layer[],
     dispatcher: ActionDispatcher
 ) {
-    this.activeLayers = layers.map((layer) => layerUtils.cloneLayer(layer))
+    const clones = layers.map((layer) => layerUtils.cloneLayer(layer))
+    this.activeLayers = clones
+    clones.forEach((layer) => {
+        if (layer.type === LayerType.COG) {
+            loadCOGMetadataAndUpdateLayer(layer as CloudOptimizedGeoTIFFLayer, dispatcher).catch(
+                (error) => {
+                    log.error({
+                        title: 'Layers store / setLayers',
+                        titleColor: LogPreDefinedColor.Green,
+                        messages: ['Error while loading metadata for a COG layer', layer, error],
+                    })
+                }
+            )
+        }
+    })
 }

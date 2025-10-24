@@ -2,7 +2,6 @@ import { createPinia } from 'pinia'
 
 import loadExternalLayerAttributes from '@/store/plugins/external-layers.plugin'
 import legacyPermalinkPlugin from '@/store/plugins/legacy-permalink.plugin'
-import loadCOGMetadataPlugin from '@/store/plugins/load-cog-metadata.plugin'
 import loadGeojsonStyleAndData from '@/store/plugins/load-geojson-style-and-data.plugin'
 import loadGpxDataAndMetadata from '@/store/plugins/load-gpx-data.plugin'
 import loadKmlDataAndMetadata from '@/store/plugins/load-kml-kmz-data.plugin'
@@ -17,7 +16,6 @@ import updateSelectedFeatures from '@/store/plugins/update-selected-features.plu
 const pinia = createPinia()
 pinia.use(legacyPermalinkPlugin)
 pinia.use(loadExternalLayerAttributes)
-pinia.use(loadCOGMetadataPlugin)
 pinia.use(loadGeojsonStyleAndData)
 pinia.use(loadGpxDataAndMetadata)
 pinia.use(loadKmlDataAndMetadata)
