@@ -5,6 +5,8 @@ import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
 import type { LayersStore } from '@/store/modules/layers/types/layers'
 import type { ActionDispatcher } from '@/store/types'
 
+import rerunSearchLayerSearchable from '@/store/modules/layers/utils/rerunSearchLayerSearchable'
+
 /**
  * Sets the configuration of all available layers for this application
  *
@@ -43,4 +45,5 @@ export default function setLayerConfig(
             return layerUtils.cloneLayer(layer)
         }
     })
+    rerunSearchLayerSearchable(this.activeLayers)
 }

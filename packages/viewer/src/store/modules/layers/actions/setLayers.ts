@@ -9,6 +9,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import loadCOGMetadataAndUpdateLayer from '@/store/modules/layers/utils/loadCOGMetadataAndUpdateLayer'
 import loadGeoJsonDataAndStyle from '@/store/modules/layers/utils/loadGeoJSONDataAndStyle'
+import rerunSearchLayerSearchable from '@/store/modules/layers/utils/rerunSearchLayerSearchable'
 
 /**
  * Sets the list of active layers. This replaces the existing list.
@@ -48,4 +49,5 @@ export default function setLayers(
             })
         }
     })
+    rerunSearchLayerSearchable(clones)
 }
