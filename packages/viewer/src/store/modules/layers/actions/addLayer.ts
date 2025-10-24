@@ -1,4 +1,4 @@
-import type { CloudOptimizedGeoTIFFLayer, Layer } from '@swissgeo/layers'
+import type { CloudOptimizedGeoTIFFLayer, GeoAdminGeoJSONLayer, Layer } from '@swissgeo/layers'
 
 import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
@@ -8,6 +8,7 @@ import type { LayersStore } from '@/store/modules/layers/types/layers'
 import type { ActionDispatcher } from '@/store/types'
 
 import loadCOGMetadataAndUpdateLayer from '@/store/modules/layers/utils/loadCOGMetadataAndUpdateLayer'
+import loadGeoJsonDataAndStyle from '@/store/modules/layers/utils/loadGeoJSONDataAndStyle'
 import usePositionStore from '@/store/modules/position'
 
 interface AddLayerOptions {
@@ -130,6 +131,19 @@ export default function addLayer(
                     })
                 }
             )
+        } else if (clone.type === LayerType.GEOJSON) {
+            const { promise } = loadGeoJsonDataAndStyle(clone as GeoAdminGeoJSONLayer, dispatcher)
+            promise.catch((error) => {
+                log.error({
+                    title: 'Layers store / addLayer',
+                    titleColor: LogPreDefinedColor.Green,
+                    messages: [
+                        'Error while loading data and style for a GeoJSON layer',
+                        clone,
+                        error,
+                    ],
+                })
+            })
         }
     } else {
         log.error({
