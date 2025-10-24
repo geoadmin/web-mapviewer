@@ -106,11 +106,16 @@ export const vueConfig: FlatConfig.ConfigArray = defineConfigWithVueTs(
         files: ['**/*.vue'],
         plugins: {
             '@typescript-eslint': tsESLintPlugin,
+            perfectionist,
         },
         rules: {
             'vue/html-indent': ['error', 4],
             // TODO: switch to 'error' (or remove this line) after complete TS migration
             'vue/block-lang': 'off',
+            'perfectionist/sort-imports': [
+                'error',
+                { type: 'alphabetical', internalPattern: ['^@/.*'] },
+            ],
             ...noUnusedVarsRules,
         },
     }
@@ -208,7 +213,8 @@ const defaultConfig: FlatConfig.ConfigArray = tsESLint.config(
         },
         // switching to TypeScript unused var rule (instead of JS rule), so that no error is raised
         // on unused param from abstract function arguments
-        rules: {...standardTSRules,
+        rules: {
+            ...standardTSRules,
             'perfectionist/sort-imports': [
                 'error',
                 { type: 'alphabetical', internalPattern: ['^@/.*'] },
