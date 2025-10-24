@@ -10,8 +10,8 @@ import type { GeolocationStore } from '@/store/modules/geolocation/types/geoloca
 import type { ActionDispatcher } from '@/store/types'
 
 import useCesiumStore from '@/store/modules/cesium'
-import useUIStore from '@/store/modules/ui'
 import usePositionStore from '@/store/modules/position'
+import useUIStore from '@/store/modules/ui'
 
 /**
  * Flag telling if this is the first time the geolocation is activated. This is useful when deciding

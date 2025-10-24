@@ -8,8 +8,8 @@ import getFeature, { type LayerFeature } from '@/api/features.api'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers.store'
 import useMapStore from '@/store/modules/map'
-import useUIStore from '@/store/modules/ui'
 import usePositionStore from '@/store/modules/position'
+import useUIStore from '@/store/modules/ui'
 
 export default function updateFeatures(this: FeaturesStore, dispatcher: ActionDispatcher) {
     const featuresPromises: Promise<LayerFeature>[] = []

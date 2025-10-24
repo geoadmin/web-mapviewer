@@ -38,8 +38,8 @@ import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers.store'
-import useUIStore from '@/store/modules/ui'
 import usePositionStore from '@/store/modules/position'
+import useUIStore from '@/store/modules/ui'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 
 function createWMTSLayerObject(parsedLayer: Partial<Layer>): ExternalWMTSLayer {

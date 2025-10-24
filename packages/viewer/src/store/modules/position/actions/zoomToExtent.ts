@@ -8,7 +8,7 @@ import proj4 from 'proj4'
 import type { PositionStore } from '@/store/modules/position/types/position'
 import type { ActionDispatcher } from '@/store/types'
 
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 
 interface ZoomToExtentOptions {
     extentProjection?: CoordinateSystem

@@ -21,8 +21,8 @@ import {
     MAP_VIEWS,
 } from '@/router/viewNames'
 import useLayersStore from '@/store/modules/layers.store'
-import { FeatureInfoPositions } from '@/store/modules/ui'
 import usePositionStore from '@/store/modules/position'
+import { FeatureInfoPositions } from '@/store/modules/ui'
 import {
     getKmlLayerFromLegacyAdminIdParam,
     getLayersFromLegacyUrlParams,

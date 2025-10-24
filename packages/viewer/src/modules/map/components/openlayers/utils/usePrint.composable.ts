@@ -16,9 +16,9 @@ import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
 import { createShortLink } from '@/api/shortlink.api'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers.store'
+import usePositionStore from '@/store/modules/position'
 import usePrintStore from '@/store/modules/print'
 import useUIStore from '@/store/modules/ui'
-import usePositionStore from '@/store/modules/position'
 import { generateFilename } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'usePrint.composable' }
