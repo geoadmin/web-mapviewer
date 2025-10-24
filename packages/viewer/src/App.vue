@@ -5,17 +5,18 @@
  * Will listen for screen size changes and commit this change to the store
  */
 
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { ActionDispatcher } from '@/store/types'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
-import useUIStore from '@/store/modules/ui'
+import useUIStore, { MAP_LOADING_BAR_REQUESTER } from '@/store/modules/ui'
 import FeedbackPopup from '@/utils/components/FeedbackPopup.vue'
 import debounce from '@/utils/debounce'
 import useLayersStore from '@/store/modules/layers'
+import useAppStore from '@/store/modules/app'
 
 const dispatcher: ActionDispatcher = { name: 'App.vue' }
 
@@ -23,6 +24,7 @@ const withOutline = ref<boolean>(false)
 
 const { t } = useI18n()
 
+const appStore = useAppStore()
 const uiStore = useUIStore()
 const layersStore = useLayersStore()
 
@@ -53,6 +55,15 @@ function setScreenSizeFromWindowSize() {
 function refreshPageTitle() {
     document.title = t('page_title')
 }
+
+watch(
+    () => appStore.isReady && appStore.isMapReady,
+    () => {
+        if (uiStore.loadingBarRequesters[MAP_LOADING_BAR_REQUESTER]) {
+            uiStore.clearLoadingBarRequester(MAP_LOADING_BAR_REQUESTER, dispatcher)
+        }
+    }
+)
 </script>
 
 <template>
