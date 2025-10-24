@@ -6,7 +6,7 @@ import useFeaturesStore from '@/store/modules/features'
 import { IdentifyMode } from '@/store/modules/features/types/IdentifyMode.enum'
 import useLayersStore from '@/store/modules/layers.store'
 import { ClickType } from '@/store/modules/map/types/clickType.enum'
-import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
+import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui'
 
 export default function click(
     this: MapStore,
@@ -49,7 +49,7 @@ export default function click(
                 ) {
                     // we only change the feature Info position when it's set to 'NONE', as
                     // we want to keep the user's choice of position between clicks.
-                    uiStore.setFeatureInfoPosition(FeatureInfoPositions.DEFAULT, dispatcher)
+                    uiStore.setFeatureInfoPosition(FeatureInfoPositions.Default, dispatcher)
                 }
             }
         }
