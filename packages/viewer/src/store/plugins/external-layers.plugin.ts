@@ -21,11 +21,9 @@ import { ErrorMessage } from '@swissgeo/log/Message'
 import type { SupportedLang } from '@/modules/i18n'
 import type { ActionDispatcher } from '@/store/types'
 
-import { LayerStoreActions } from '@/store/actions'
 import useI18nStore from '@/store/modules/i18n'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
-import { isEnumValue } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'external-layers.plugin' }
 
@@ -135,12 +133,12 @@ async function updateExternalLayer<
             errorMessage = new ErrorMessage('error')
         }
         layersStore.addLayerError(
+            layer.id,
             {
-                layerId: layer.id,
                 isExternal: layer.isExternal,
                 baseUrl: layer.baseUrl,
-                error: errorMessage,
             },
+            errorMessage,
             dispatcher
         )
         return undefined
@@ -168,19 +166,21 @@ const registerLoadExternalLayerAttributesWatcher: PiniaPlugin = (
         const positionStore = usePositionStore()
         const i18nStore = useI18nStore()
 
-        if (isEnumValue<LayerStoreActions>(LayerStoreActions.AddLayer, name)) {
-            const [payload] = args as Parameters<typeof layerStore.addLayer>
-
-            if (payload.layer && externalLayerFilter(payload.layer)) {
-                layers.push(payload.layer)
+        if (name === 'addLayer') {
+            const [input] = args as Parameters<typeof layerStore.addLayer>
+            let layer: Layer | undefined
+            if (typeof input === 'string') {
+                layer = layerStore.getLayerConfigById(input)
+            } else {
+                layer = input as Layer
             }
-        } else if (isEnumValue<LayerStoreActions>(LayerStoreActions.SetLayers, name)) {
+            if (layer && externalLayerFilter(layer)) {
+                layers.push(layer)
+            }
+        } else if (name === 'setLayers') {
             const [layerArg] = args as Parameters<typeof layerStore.setLayers>
 
-            const externalLayers = layerArg
-                // if it's string, we don't even test for externality
-                .filter((layer) => typeof layer !== 'string')
-                .filter(externalLayerFilter)
+            const externalLayers = layerArg.filter(externalLayerFilter)
 
             layers.push(...externalLayers)
         }

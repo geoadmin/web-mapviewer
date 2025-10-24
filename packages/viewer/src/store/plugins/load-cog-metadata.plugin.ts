@@ -8,10 +8,8 @@ import { toValue } from 'vue'
 import type { ActionDispatcher } from '@/store/types'
 
 import { CloudOptimizedGeoTIFFParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/CloudOptimizedGeoTIFFParser.class'
-import { LayerStoreActions } from '@/store/actions'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
-import { isEnumValue } from '@/utils/utils'
 
 const cogParser = new CloudOptimizedGeoTIFFParser()
 const dispatcher: ActionDispatcher = { name: 'load-cog-metadata.plugin' }
@@ -34,11 +32,9 @@ async function loadCOGMetadataAndUpdateLayer(layer: CloudOptimizedGeoTIFFLayer):
         currentProjection: toValue(positionStore.projection),
     })
     layersStore.updateLayer(
+        layer.id,
         {
-            layerId: layer.id,
-            values: {
-                extent: layerWithExtent.extent,
-            },
+            extent: layerWithExtent.extent,
         },
         dispatcher
     )
@@ -61,10 +57,16 @@ const loadCOGMetadataPlugin: PiniaPlugin = () => {
     const layersStore = useLayersStore()
 
     layersStore.$onAction(({ name, args }) => {
-        if (isEnumValue<LayerStoreActions>(LayerStoreActions.AddLayer, name)) {
-            const [payload] = args as Parameters<typeof layersStore.addLayer>
-            if (payload.layer) {
-                addLayerSubscriber(payload.layer).catch((error) => {
+        if (name === 'addLayer') {
+            const [input] = args
+            let layer: Layer | undefined
+            if (typeof input === 'string') {
+                layer = layersStore.getLayerConfigById(input)
+            } else {
+                layer = input as Layer
+            }
+            if (layer && layer.type === LayerType.COG) {
+                addLayerSubscriber(layer).catch((error) => {
                     log.error({
                         title: 'Load COG metadata plugin',
                         titleColor: LogPreDefinedColor.Green,
@@ -72,13 +74,9 @@ const loadCOGMetadataPlugin: PiniaPlugin = () => {
                     })
                 })
             }
-        } else if (isEnumValue<LayerStoreActions>(LayerStoreActions.SetLayers, name)) {
-            const [layers] = args as Parameters<typeof layersStore.setLayers>
-            // sometimes the setLayers can receive strings. This can't work
-            // with anything in here, so let's filter this away
-            const nonStringLayers = layers.filter((layer) => !(typeof layer === 'string'))
-
-            for (const layer of nonStringLayers) {
+        } else if (name === 'setLayers') {
+            const [layers] = args
+            for (const layer of layers.filter((layer) => layer.type === LayerType.COG)) {
                 addLayerSubscriber(layer).catch((error) => {
                     log.error({
                         title: 'Load COG metadata plugin',

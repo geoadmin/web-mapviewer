@@ -21,7 +21,7 @@ import {
     removeParamaterFromUrl,
     transformUrlMapToEmbed,
 } from '@/utils/utils'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 
 /**
  * Different pre-defined sizes that an iFrame can take

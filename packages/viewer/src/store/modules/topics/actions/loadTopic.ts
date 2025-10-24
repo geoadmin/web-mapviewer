@@ -5,7 +5,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { loadTopicTreeForTopic } from '@/api/topics.api'
 import useI18nStore from '@/store/modules/i18n'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 
 export default function loadTopic(
     this: TopicsStore,

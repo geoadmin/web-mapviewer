@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { type GeoAdminLayer, type Layer, LayerType } from '@swissgeo/layers'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
 import useCesiumStore from '@/store/modules/cesium'
 import CesiumInternalLayer from '@/modules/map/components/cesium/CesiumInternalLayer.vue'

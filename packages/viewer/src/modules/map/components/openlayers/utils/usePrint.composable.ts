@@ -15,7 +15,7 @@ import {
 import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
 import { createShortLink } from '@/api/shortlink.api'
 import useI18nStore from '@/store/modules/i18n'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
 import usePrintStore from '@/store/modules/print'
 import useUIStore from '@/store/modules/ui'

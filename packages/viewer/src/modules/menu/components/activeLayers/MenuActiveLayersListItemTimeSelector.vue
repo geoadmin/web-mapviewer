@@ -11,7 +11,7 @@ import {
     type LayerTimeConfigEntry,
 } from '@swissgeo/layers'
 import useUIStore from '@/store/modules/ui'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import type { ActionDispatcher } from '@/store/types'
 
 const dispatcher: ActionDispatcher = { name: 'MenuActiveLayersListItemTimeSelector.vue' }

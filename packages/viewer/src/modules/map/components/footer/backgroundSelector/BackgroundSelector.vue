@@ -5,7 +5,7 @@ import { computed } from 'vue'
 
 import BackgroundSelectorSquared from '@/modules/map/components/footer/backgroundSelector/BackgroundSelectorSquared.vue'
 import BackgroundSelectorWheelRounded from '@/modules/map/components/footer/backgroundSelector/BackgroundSelectorWheelRounded.vue'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
 import type { ActionDispatcher } from '@/store/types'
 

@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 import MapFooterAttributionItem from '@/modules/map/components/footer/MapFooterAttributionItem.vue'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 
 const layersStore = useLayersStore()
 const { t } = useI18n()
@@ -32,11 +32,10 @@ const sources = computed(() => {
                     id: attribution.name.replace(/[._]/g, '-'),
                     name: attribution.name,
                     url: attribution.url,
-                    hasDataDisclaimer: layersStore.hasDataDisclaimer(
-                        layer.id,
-                        layer.isExternal,
-                        layer.baseUrl
-                    ),
+                    hasDataDisclaimer: layersStore.hasDataDisclaimer(layer.id, {
+                        isExternal: layer.isExternal,
+                        baseUrl: layer.baseUrl,
+                    }),
                     isLocalFile: layersStore.isLocalFile(layer),
                 }
             })

@@ -19,7 +19,7 @@ import search, {
 } from '@/api/search.api'
 import useFeaturesStore from '@/store/modules/features'
 import useI18nStore from '@/store/modules/i18n'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'
 import createLayerFeature from '@/store/modules/search/utils/createLayerFeature'
@@ -42,16 +42,12 @@ export default function selectResultEntry(
 
     if (entry.resultType === SearchResultTypes.LAYER) {
         const layerEntry = entry as LayerSearchResult
-        if (layerStore.getActiveLayersById(layerEntry.layerId, false).length === 0) {
-            layerStore.addLayer(
-                { layerId: layerEntry.id, layerConfig: { isVisible: true } },
-                dispatcher
-            )
+        if (
+            layerStore.getActiveLayersById(layerEntry.layerId, { isExternal: false }).length === 0
+        ) {
+            layerStore.addLayer(layerEntry.id, { initialValues: { isVisible: true } }, dispatcher)
         } else {
-            layerStore.updateLayer(
-                { layerId: layerEntry.layerId, values: { isVisible: true } },
-                dispatcher
-            )
+            layerStore.updateLayer(layerEntry.id, { isVisible: true }, dispatcher)
         }
         // launching a new search to get (potential) layer features
         search({
@@ -109,7 +105,8 @@ export default function selectResultEntry(
                     featuresStore.setSelectedFeatures([feature], dispatcher)
 
                     uiStore.setFeatureInfoPosition(FeatureInfoPositions.ToolTip, dispatcher)
-                }).catch((error) => {
+                })
+                .catch((error) => {
                     log.error({
                         title: 'Search store / selectResultEntry',
                         titleColor: LogPreDefinedColor.Red,

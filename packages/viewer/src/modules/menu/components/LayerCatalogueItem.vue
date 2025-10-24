@@ -5,7 +5,7 @@
  */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { LV95, type FlatExtent, type NormalizedExtent } from '@swissgeo/coordinates'
+import { type FlatExtent, LV95, type NormalizedExtent } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import { booleanContains, polygon } from '@turf/turf'
 import { computed, onMounted, ref, watch } from 'vue'
@@ -13,9 +13,9 @@ import { computed, onMounted, ref, watch } from 'vue'
 import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPopup.vue'
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
-import { LayerType, type GeoAdminGroupOfLayers, type Layer } from '@swissgeo/layers'
+import { type GeoAdminGroupOfLayers, type Layer, LayerType } from '@swissgeo/layers'
 import useUIStore from '@/store/modules/ui'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import useTopicsStore from '@/store/modules/topics'
 import usePositionStore from '@/store/modules/position'
 
@@ -89,7 +89,10 @@ const canBeAddedToTheMap = computed(() => {
     return item && !isGroupOfLayers(item)
 })
 const isPresentInActiveLayers = computed(() => {
-    const layers = layersStore.getActiveLayersById(item.id, item.isExternal, item.baseUrl)
+    const layers = layersStore.getActiveLayersById(item.id, {
+        isExternal: item.isExternal,
+        baseUrl: item.baseUrl,
+    })
     return layers.length > 0
 })
 
@@ -130,28 +133,27 @@ function stopLayerPreview() {
 
 function addRemoveLayer() {
     // if this is a group of a layer then simply add it to the map
-    const layers = layersStore.getActiveLayersById(item.id, item.isExternal, item.baseUrl)
+    const layers = layersStore.getActiveLayersById(item.id, {
+        isExternal: item.isExternal,
+        baseUrl: item.baseUrl,
+    })
 
     if (layers.length > 0) {
         layersStore.removeLayer(
+            item.id,
             {
-                layerId: item.id,
                 isExternal: item.isExternal,
                 baseUrl: item.baseUrl,
             },
             dispatcher
         )
     } else if (item.isExternal) {
-        layersStore.addLayer(
-            {
-                layer: item,
-            },
-            dispatcher
-        )
+        layersStore.addLayer(item, dispatcher)
     } else {
         layersStore.addLayer(
+            item,
             {
-                layerConfig: { id: item.id, isVisible: true },
+                initialValues: { isVisible: true },
             },
             dispatcher
         )

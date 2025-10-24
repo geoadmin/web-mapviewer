@@ -8,7 +8,7 @@ import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPop
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 import useSearchStore from '@/store/modules/search'
 import useUIStore from '@/store/modules/ui'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 
 const dispatcher = { name: 'SearchResultListEntry.vue' }
 

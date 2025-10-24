@@ -3,7 +3,7 @@
  * it here
  */
 
-import type { KMLLayer } from '@swissgeo/layers'
+import type { KMLLayer, Layer } from '@swissgeo/layers'
 import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 
 import { LayerType } from '@swissgeo/layers'
@@ -15,10 +15,8 @@ import { checkOnlineFileCompliance, getFileContentFromUrl, loadKmlMetadata } fro
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
-import { LayerStoreActions } from '@/store/actions'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
-import { isEnumValue } from '@/utils/utils'
 
 const dispatcher = { name: 'load-kml-kmz-data.plugin' }
 
@@ -36,11 +34,9 @@ async function loadMetadata(kmlLayer: KMLLayer): Promise<void> {
     try {
         const metadata = await loadKmlMetadata(kmlLayer)
         layersStore.updateLayer<KMLLayer>(
+            kmlLayer.id,
             {
-                layerId: kmlLayer.id,
-                values: {
-                    kmlMetadata: metadata,
-                },
+                kmlMetadata: metadata,
             },
             dispatcher
         )
@@ -56,16 +52,14 @@ function sendLayerToStore(layer: KMLLayer): void {
     const layersStore = useLayersStore()
 
     layersStore.updateLayer<KMLLayer>(
+        layer.id,
         {
-            layerId: layer.id,
-            values: {
-                name: layer.name,
-                kmlData: layer.kmlData,
-                extent: layer.extent,
-                extentProjection: layer.extentProjection,
-                linkFiles: layer.linkFiles,
-                isLoading: false,
-            },
+            name: layer.name,
+            kmlData: layer.kmlData,
+            extent: layer.extent,
+            extentProjection: layer.extentProjection,
+            linkFiles: layer.linkFiles,
+            isLoading: false,
         },
         dispatcher
     )
@@ -115,16 +109,14 @@ async function loadData(kmlLayer: KMLLayer): Promise<void> {
             messages: ['[load-kml-kmz-data] could not get content for KML', kmlLayer.kmlFileUrl],
         })
         layersStore.addLayerError(
+            kmlLayer.id,
             {
-                layerId: kmlLayer.id,
                 isExternal: kmlLayer.isExternal,
                 baseUrl: kmlLayer.baseUrl,
-                error: new ErrorMessage(
-                    kmlLayer.isExternal
-                        ? 'loading_error_network_failure'
-                        : 'loading_error_file_deleted'
-                ),
             },
+            new ErrorMessage(
+                kmlLayer.isExternal ? 'loading_error_network_failure' : 'loading_error_file_deleted'
+            ),
             dispatcher
         )
         // stopping there, there won't be anything to do with this file
@@ -171,12 +163,12 @@ async function loadData(kmlLayer: KMLLayer): Promise<void> {
         })
         if (error instanceof Error) {
             layersStore.addLayerError(
+                kmlLayer.id,
                 {
-                    layerId: kmlLayer.id,
                     isExternal: kmlLayer.isExternal,
                     baseUrl: kmlLayer.baseUrl,
-                    error: generateErrorMessageFromErrorType(error),
                 },
+                generateErrorMessageFromErrorType(error),
                 dispatcher
             )
         }
@@ -212,16 +204,23 @@ const loadKmlDataAndMetadata: PiniaPlugin = (context: PiniaPluginContext) => {
     const { store } = context
 
     // it is used to get the type of the action arguments
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
     const layersStore = useLayersStore()
 
     store.$onAction(({ name, args }) => {
-        if (isEnumValue<LayerStoreActions>(LayerStoreActions.AddLayer, name)) {
-            const [payload] = args as Parameters<typeof layersStore.addLayer>
-            if (payload.layer?.type === LayerType.KML) {
-                addLayerSubscriber(payload.layer as KMLLayer)
+        if (name === 'addLayer') {
+            const [input] = args as Parameters<typeof layersStore.addLayer>
+
+            let layer: Layer | undefined
+            if (typeof input === 'string') {
+                layer = layersStore.getLayerConfigById(input)
+            } else {
+                layer = input as Layer
             }
-        } else if (isEnumValue<LayerStoreActions>(LayerStoreActions.SetLayers, name)) {
+            if (layer && layer.type === LayerType.KML) {
+                addLayerSubscriber(layer as KMLLayer)
+            }
+        } else if (name === 'setLayers') {
             const [layers] = args as Parameters<typeof layersStore.setLayers>
             for (const layer of layers) {
                 if (layer.type === LayerType.KML) {

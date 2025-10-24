@@ -2,7 +2,7 @@ import type { GeoAdminLayer } from '@swissgeo/layers'
 import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 
 import { LayerStoreActions } from '@/store/actions'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import useSearchStore from '@/store/modules/search'
 import { isEnumValue } from '@/utils/utils'
 

@@ -7,7 +7,7 @@ import { LayerType } from '@swissgeo/layers'
 import Map from 'ol/Map'
 
 import useUIStore from '@/store/modules/ui'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import type RenderEvent from 'ol/render/Event'
 import type { ActionDispatcher } from '@/store/types'
 

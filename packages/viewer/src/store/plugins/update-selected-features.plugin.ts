@@ -1,12 +1,11 @@
+import type { Layer } from '@swissgeo/layers'
 import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { LayerStoreActions } from '@/store/actions'
 import useFeaturesStore from '@/store/modules/features'
-import useLayersStore from '@/store/modules/layers.store'
+import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
-import { isEnumValue } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'update-selected-features.plugin' }
 
@@ -19,10 +18,10 @@ const updateSelectedFeatures: PiniaPlugin = (context: PiniaPluginContext) => {
 
     store.$onAction(({ name, args }) => {
         if (
-            !isEnumValue<LayerStoreActions>(LayerStoreActions.ToggleLayerVisibility, name) &&
-            !isEnumValue<LayerStoreActions>(LayerStoreActions.AddLayer, name) &&
-            !isEnumValue<LayerStoreActions>(LayerStoreActions.RemoveLayer, name) &&
-            !isEnumValue<LayerStoreActions>(LayerStoreActions.ClearLayers, name)
+            'toggleLayerVisibility' !== name &&
+            'addLayer' !== name &&
+            'removeLayer' !== name &&
+            'clearLayers' !== name
         ) {
             return
         }
@@ -39,7 +38,7 @@ const updateSelectedFeatures: PiniaPlugin = (context: PiniaPluginContext) => {
         let layerId
 
         // if selected features do not have id of removed layer dont update features
-        if (isEnumValue<LayerStoreActions>(LayerStoreActions.ToggleLayerVisibility, name)) {
+        if (name === 'toggleLayerVisibility') {
             const [layerIndex] = args as Parameters<typeof layersStore.toggleLayerVisibility>
             const layer = layersStore.getActiveLayerByIndex(layerIndex)
 
@@ -52,13 +51,14 @@ const updateSelectedFeatures: PiniaPlugin = (context: PiniaPluginContext) => {
         }
 
         // if selected features do not have id of removed layer dont update features
-        if (isEnumValue<LayerStoreActions>(LayerStoreActions.RemoveLayer, name)) {
-            const [payload] = args as Parameters<typeof layersStore.removeLayer>
-            if (payload.layerId) {
-                layerId = payload.layerId
-            } else if (payload.index) {
+        if (name === 'removeLayer') {
+            const [input] = args as Parameters<typeof layersStore.removeLayer>
+
+            if (typeof input === 'string') {
+                layerId = input
+            } else if (typeof input === 'number') {
                 // removing a layer by index
-                const layerByIndex = layersStore.getActiveLayerByIndex(payload.index)
+                const layerByIndex = layersStore.getActiveLayerByIndex(input)
                 if (layerByIndex) {
                     layerId = layerByIndex.id
                 }
@@ -73,7 +73,7 @@ const updateSelectedFeatures: PiniaPlugin = (context: PiniaPluginContext) => {
 
         if (updateFeatures && clickInfo.features) {
             featuresStore.identifyFeatureAt(
-                layersStore.visibleLayers.filter((layer) => layer.hasTooltip),
+                layersStore.visibleLayers.filter((layer: Layer) => layer.hasTooltip),
                 clickInfo.coordinate,
                 clickInfo.features,
                 dispatcher
