@@ -1,7 +1,6 @@
 import { createPinia } from 'pinia'
 
 import legacyPermalinkPlugin from '@/store/plugins/legacy-permalink.plugin'
-import loadGpxDataAndMetadata from '@/store/plugins/load-gpx-data.plugin'
 import loadKmlDataAndMetadata from '@/store/plugins/load-kml-kmz-data.plugin'
 import reprojectPlugin from '@/store/plugins/reproject.plugin'
 import screenSizeManagement from '@/store/plugins/screen-size-management.plugin'
@@ -12,7 +11,6 @@ import updateSelectedFeatures from '@/store/plugins/update-selected-features.plu
 
 const pinia = createPinia()
 pinia.use(legacyPermalinkPlugin)
-pinia.use(loadGpxDataAndMetadata)
 pinia.use(loadKmlDataAndMetadata)
 pinia.use(reprojectPlugin)
 pinia.use(screenSizeManagement)
