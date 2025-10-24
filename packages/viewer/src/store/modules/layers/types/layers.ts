@@ -106,8 +106,4 @@ export interface LayersStoreGetters {
     youngestYear(): number
 }
 
-export type LayersStoreComputedGetters = {
-    [Getter in keyof LayersStoreGetters]: ReturnType<LayersStoreGetters[Getter]>
-}
-
 export type LayersStore = ReturnType<typeof import('@/store/modules/layers').default>
