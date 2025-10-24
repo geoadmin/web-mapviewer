@@ -24,8 +24,8 @@ function showProfile() {
         simplifyGeometry = (feature as LayerFeature).layer.type === LayerType.GPX
     }
     profileStore.setProfileFeature(
+        feature,
         {
-            feature,
             simplifyGeometry,
         },
         dispatcher

@@ -79,7 +79,7 @@ watch(currentlySelectedFeature, (newFeature, oldFeature) => {
             // only showing profile if the edit feature is done while floating
             !showFeatureInfoInBottomPanel.value
         ) {
-            profileStore.setProfileFeature({ feature: editableFeature }, dispatcher)
+            profileStore.setProfileFeature(editableFeature, dispatcher)
         }
     } else {
         featuresStore.clearAllSelectedFeatures(dispatcher)

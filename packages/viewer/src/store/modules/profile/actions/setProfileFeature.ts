@@ -10,17 +10,31 @@ import type { ActionDispatcher } from '@/store/types'
 import { canFeatureShowProfile } from '@/store/modules/profile/utils/canFeatureShowProfile'
 import { stitchMultiLine } from '@/store/modules/profile/utils/stitchMultiLine'
 
-interface SetProfileFeaturePayload {
-    feature?: SelectableFeature<boolean>
+interface SetProfileFeatureOptions {
     simplifyGeometry?: boolean
 }
 
 export default function setProfileFeature(
     this: ProfileStore,
-    options: SetProfileFeaturePayload,
+    feature: SelectableFeature<boolean> | undefined,
+    options: SetProfileFeatureOptions,
     dispatcher: ActionDispatcher
+): void
+export default function setProfileFeature(
+    this: ProfileStore,
+    feature: SelectableFeature<boolean> | undefined,
+    dispatcher: ActionDispatcher
+): void
+export default function setProfileFeature(
+    this: ProfileStore,
+    feature: SelectableFeature<boolean> | undefined,
+    optionsOrDispatcher: SetProfileFeatureOptions | ActionDispatcher,
+    dispatcherOrNothing?: ActionDispatcher
 ): void {
-    const { feature, simplifyGeometry = false } = options
+    const dispatcher = dispatcherOrNothing ?? (optionsOrDispatcher as ActionDispatcher)
+    const options = dispatcherOrNothing ? (optionsOrDispatcher as SetProfileFeatureOptions) : {}
+
+    const { simplifyGeometry = false } = options
     if (!feature) {
         this.feature = undefined
     } else if (canFeatureShowProfile(feature)) {
