@@ -1,19 +1,20 @@
 <script setup lang="ts">
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import log from '@swissgeo/log'
 import DOMPurify from 'dompurify'
+import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { storeToRefs } from 'pinia'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+import type { LayerFeature, SelectableFeature } from '@/api/features.api'
+import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 
 import { BLOCKED_EXTENSIONS, WHITELISTED_HOSTNAMES } from '@/config/security.config'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import FeatureDetailDisclaimer from '@/modules/infobox/components/FeatureDetailDisclaimer.vue'
-import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
-import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
-import { allFormats } from '@/utils/coordinates/coordinateFormat'
-import type { LayerFeature, SelectableFeature } from '@/api/features.api'
 import usePositionStore from '@/store/modules/position'
+import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
+import { allFormats } from '@/utils/coordinates/coordinateFormat'
 
 const { feature } = defineProps<{
     feature: SelectableFeature<boolean>

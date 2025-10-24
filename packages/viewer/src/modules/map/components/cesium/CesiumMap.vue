@@ -19,10 +19,8 @@ import {
     useTemplateRef,
     watch,
 } from 'vue'
-import useAppStore from '@/store/modules/app'
-import useCesiumStore from '@/store/modules/cesium'
-import useUIStore from '@/store/modules/ui'
-import usePositionStore from '@/store/modules/position'
+
+import type { ActionDispatcher } from '@/store/types'
 
 import { TERRAIN_URL } from '@/config/cesium.config'
 import { CESIUM_STATIC_PATH } from '@/config/map.config'
@@ -33,8 +31,10 @@ import CesiumGeolocationFeedback from '@/modules/map/components/cesium/CesiumGeo
 import CesiumHighlightedFeatures from '@/modules/map/components/cesium/CesiumHighlightedFeatures.vue'
 import CesiumInteractions from '@/modules/map/components/cesium/CesiumInteractions.vue'
 import CesiumVisibleLayers from '@/modules/map/components/cesium/CesiumVisibleLayers.vue'
-
-import type { ActionDispatcher } from '@/store/types'
+import useAppStore from '@/store/modules/app'
+import useCesiumStore from '@/store/modules/cesium'
+import usePositionStore from '@/store/modules/position'
+import useUIStore from '@/store/modules/ui'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumMap.vue' }
 

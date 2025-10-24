@@ -3,9 +3,9 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { reactive, watch, ref, onMounted } from 'vue'
 import { useTemplateRef } from 'vue'
 
+import { NodeType } from '@/modules/menu/components/advancedTools/ImportCatalogue/NodeType.enum'
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 import { getLongestCommonPrefix } from '@/utils/utils'
-import { NodeType } from '@/modules/menu/components/advancedTools/ImportCatalogue/NodeType.enum'
 
 interface Provider {
     url: string

@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import log from '@swissgeo/log'
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { MAP_VIEWS } from '@/router/viewNames.js'
-import log from '@swissgeo/log'
 
 const router = useRouter()
 

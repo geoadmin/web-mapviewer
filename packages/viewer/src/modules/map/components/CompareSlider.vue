@@ -1,15 +1,17 @@
 <script setup lang="ts">
+import type RenderEvent from 'ol/render/Event'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { LayerType } from '@swissgeo/layers'
 import { round } from '@swissgeo/numbers'
+import Map from 'ol/Map'
 import { getRenderPixel } from 'ol/render'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { LayerType } from '@swissgeo/layers'
-import Map from 'ol/Map'
 
-import useUIStore from '@/store/modules/ui'
-import useLayersStore from '@/store/modules/layers'
-import type RenderEvent from 'ol/render/Event'
 import type { ActionDispatcher } from '@/store/types'
+
+import useLayersStore from '@/store/modules/layers'
+import useUIStore from '@/store/modules/ui'
 
 const dispatcher: ActionDispatcher = { name: 'CompareSlider.vue' }
 

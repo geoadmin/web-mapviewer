@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import useUIStore from '@/store/modules/ui'
-import type { ActionDispatcher } from '@/store/types'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+
+import type { ActionDispatcher } from '@/store/types'
+
+import useUIStore from '@/store/modules/ui'
 
 const dispatcher: ActionDispatcher = { name: 'FullScreenButton.vue' }
 

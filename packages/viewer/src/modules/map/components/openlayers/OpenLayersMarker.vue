@@ -1,15 +1,15 @@
 <script setup lang="ts">
 /** Renders a marker on the map (different styling are available) */
 
-import type { Map } from 'ol'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type { Map } from 'ol'
 import type { MaybeRef } from 'vue'
-import { computed, inject, watch } from 'vue'
 
 import log from '@swissgeo/log'
 import { randomIntBetween } from '@swissgeo/numbers'
 import Feature from 'ol/Feature'
 import { Point } from 'ol/geom'
+import { computed, inject, watch } from 'vue'
 
 import {
     getMarkerStyle,

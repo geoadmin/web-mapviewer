@@ -11,10 +11,10 @@ import MapFooterAttributionList from '@/modules/map/components/footer/MapFooterA
 import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale.vue'
 import MapToolbox from '@/modules/map/components/toolbox/MapToolbox.vue'
 import MapModule from '@/modules/map/MapModule.vue'
+import useCesiumStore from '@/store/modules/cesium'
+import useUIStore from '@/store/modules/ui'
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 import OpenFullAppLink from '@/utils/components/OpenFullAppLink.vue'
-import useUIStore from '@/store/modules/ui'
-import useCesiumStore from '@/store/modules/cesium'
 
 const dispatcher = { name: 'EmbedView.vue' }
 

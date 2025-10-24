@@ -4,19 +4,20 @@
  * the geolocation
  */
 
-import Feature from 'ol/Feature'
 import type { Map } from 'ol'
+import type { Coordinate } from 'ol/coordinate'
+
+import log from '@swissgeo/log'
+import Feature from 'ol/Feature'
 import { Circle } from 'ol/geom'
 import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
-import type { Coordinate } from 'ol/coordinate'
 import { v4 as uuidv4 } from 'uuid'
 import { computed, inject, toRef, watch } from 'vue'
-import log from '@swissgeo/log'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import { geolocationAccuracyCircleStyle } from '@/utils/styleUtils'
 import useGeolocationStore from '@/store/modules/geolocation'
+import { geolocationAccuracyCircleStyle } from '@/utils/styleUtils'
 
 const { zIndex = -1 } = defineProps<{
     zIndex?: number

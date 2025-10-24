@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import type { ExternalLayer } from '@swissgeo/layers'
+
 import log from '@swissgeo/log'
 import { ref } from 'vue'
 
 import ProviderUrl from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderUrl.vue'
 import LayerCatalogue from '@/modules/menu/components/LayerCatalogue.vue'
 import useUIStore from '@/store/modules/ui'
-import type { ExternalLayer } from '@swissgeo/layers'
 
 const { compact } = defineProps<{
     compact: boolean

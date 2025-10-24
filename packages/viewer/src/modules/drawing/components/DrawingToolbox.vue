@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type VectorLayer from 'ol/layer/Vector'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import log from '@swissgeo/log'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import DOMPurify from 'dompurify'
 import { computed, inject, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+
+import type { ActionDispatcher } from '@/store/types'
 
 import { type EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
@@ -16,14 +21,11 @@ import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import useDrawingStore from '@/store/modules/drawing'
 import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
+import useFeaturesStore from '@/store/modules/features'
+import useLayersStore from '@/store/modules/layers'
+import useUIStore from '@/store/modules/ui'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import debounce from '@/utils/debounce'
-import useUIStore from '@/store/modules/ui'
-import useLayersStore from '@/store/modules/layers'
-import useFeaturesStore from '@/store/modules/features'
-import type { ActionDispatcher } from '@/store/types'
-import type VectorLayer from 'ol/layer/Vector'
-import log from '@swissgeo/log'
 
 const dispatcher: ActionDispatcher = { name: 'DrawingToolbox.vue' }
 

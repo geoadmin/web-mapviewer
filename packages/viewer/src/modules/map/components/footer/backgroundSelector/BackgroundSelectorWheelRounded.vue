@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Layer } from '@swissgeo/layers'
+
 import useBackgroundSelector from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelector'
 
 const { backgroundLayers, currentBackgroundLayer } = defineProps<{

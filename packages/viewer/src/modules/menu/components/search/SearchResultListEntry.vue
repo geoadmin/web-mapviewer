@@ -5,10 +5,10 @@ import { computed, onUnmounted, ref, useTemplateRef } from 'vue'
 
 import { SearchResultTypes, type SearchResult } from '@/api/search.api'
 import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPopup.vue'
-import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
+import useLayersStore from '@/store/modules/layers'
 import useSearchStore from '@/store/modules/search'
 import useUIStore from '@/store/modules/ui'
-import useLayersStore from '@/store/modules/layers'
+import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 
 const dispatcher = { name: 'SearchResultListEntry.vue' }
 

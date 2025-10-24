@@ -1,19 +1,19 @@
 <script setup lang="ts">
 /** Renders a WMTS layer on the map by configuring it through a getCapabilities XML file */
 
-import type { Map } from 'ol'
 import type { ExternalWMTSLayer } from '@swissgeo/layers'
+import type { Map } from 'ol'
+import type { Options as WMTSOptions } from 'ol/source/WMTS'
 
+import { timeConfigUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
 import { cloneDeep } from 'lodash'
 import { Tile as TileLayer } from 'ol/layer'
-import type { Options as WMTSOptions } from 'ol/source/WMTS'
 import WMTS from 'ol/source/WMTS'
 import { computed, inject, onMounted, watch } from 'vue'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import usePositionStore from '@/store/modules/position'
-import { timeConfigUtils } from '@swissgeo/layers/utils'
 
 const {
     externalWmtsLayerConfig,

@@ -1,12 +1,15 @@
 <script setup lang="ts">
 /** Tools necessary to edit a feature from the drawing module. */
 
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import type { IconProp } from '@fortawesome/fontawesome-svg-core'
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import GeoadminTooltip from '@swissgeo/tooltip'
+import { storeToRefs } from 'pinia'
 import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { storeToRefs } from 'pinia'
+
+import type { DrawingIcon } from '@/api/icon.api'
 
 import { type EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
@@ -19,6 +22,9 @@ import DrawingStylePopoverButton from '@/modules/infobox/components/styling/Draw
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
 import { MediaType } from '@/modules/infobox/DrawingStyleMediaTypes.enum'
+import useDrawingStore from '@/store/modules/drawing'
+import useFeatureStore from '@/store/modules/features'
+import useI18nStore from '@/store/modules/i18n'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import { allFormats, type CoordinateFormat, LV95Format } from '@/utils/coordinates/coordinateFormat'
 import debounce from '@/utils/debounce'
@@ -28,11 +34,6 @@ import {
     type FeatureStyleSize,
     TextPlacement,
 } from '@/utils/featureStyleUtils'
-
-import useDrawingStore from '@/store/modules/drawing'
-import useFeatureStore from '@/store/modules/features'
-import useI18nStore from '@/store/modules/i18n'
-import type { DrawingIcon } from '@/api/icon.api'
 
 const dispatcher = { name: 'FeatureStyleEdit.vue' }
 

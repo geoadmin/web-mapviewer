@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
 import { computed, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { storeToRefs } from 'pinia'
 
-import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 import useUiStore from '@/store/modules/ui'
+import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 
 const dispatcher = { name: 'FeatureDetail.vue' }
 

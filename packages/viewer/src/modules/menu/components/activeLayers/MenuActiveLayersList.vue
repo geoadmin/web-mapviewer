@@ -8,13 +8,13 @@ import type { Layer } from '@swissgeo/layers'
 
 import log from '@swissgeo/log'
 import Sortable from 'sortablejs'
-
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
+
+import type { ActionDispatcher } from '@/store/types'
 
 import MenuActiveLayersListItem from '@/modules/menu/components/activeLayers/MenuActiveLayersListItem.vue'
 import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPopup.vue'
 import useLayersStore from '@/store/modules/layers'
-import type { ActionDispatcher } from '@/store/types'
 
 const dispatcher: ActionDispatcher = { name: 'MenuActiveLayersList.vue' }
 

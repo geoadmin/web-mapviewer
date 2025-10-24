@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { nextTick, useTemplateRef } from 'vue'
 
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
-import log, { LogPreDefinedColor } from '@swissgeo/log'
 
 const { showList = false, entries = [] } = defineProps<{
     showList?: boolean

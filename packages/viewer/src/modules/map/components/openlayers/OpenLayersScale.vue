@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { Map } from 'ol'
 
-import log from '@swissgeo/log'
 import { LV95 } from '@swissgeo/coordinates'
+import log from '@swissgeo/log'
 import ScaleLine from 'ol/control/ScaleLine'
 import { computed, inject, onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
 

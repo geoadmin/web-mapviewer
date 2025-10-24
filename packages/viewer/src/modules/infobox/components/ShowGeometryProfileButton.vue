@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { LayerType } from '@swissgeo/layers'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { LayerType } from '@swissgeo/layers'
 import { useI18n } from 'vue-i18n'
 
 import type { LayerFeature, SelectableFeature } from '@/api/features.api'
-import useProfileStore from '@/store/modules/profile'
 import type { ActionDispatcher } from '@/store/types'
+
+import useProfileStore from '@/store/modules/profile'
 
 const dispatcher: ActionDispatcher = { name: 'ShowGeometryProfileButton.vue' }
 

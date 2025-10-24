@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { ExternalLayer } from '@swissgeo/layers'
 
+import { CapabilitiesError } from '@swissgeo/layers/validation'
 import { type ComponentPublicInstance, computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -9,9 +10,8 @@ import ProviderList, {
 } from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderList.vue'
 import { useCapabilities } from '@/modules/menu/components/advancedTools/ImportCatalogue/useCapabilities'
 import { useProviders } from '@/modules/menu/components/advancedTools/ImportCatalogue/useProviders'
-import { isValidUrl } from '@/utils/utils'
 import useI18nStore from '@/store/modules/i18n'
-import { CapabilitiesError } from '@swissgeo/layers/validation'
+import { isValidUrl } from '@/utils/utils'
 
 const emit = defineEmits<{
     capabilitiesParsed: [layers: ExternalLayer[]]

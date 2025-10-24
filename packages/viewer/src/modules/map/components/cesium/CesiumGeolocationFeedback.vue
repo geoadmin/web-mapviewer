@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { WGS84 } from '@swissgeo/coordinates'
+import log from '@swissgeo/log'
 import {
     Cartesian3,
     Color,
@@ -9,12 +10,11 @@ import {
     HeightReference,
     type Viewer,
 } from 'cesium'
-import log from '@swissgeo/log'
 import proj4 from 'proj4'
 import { computed, inject, onMounted, watch } from 'vue'
+
 import useGeolocationStore from '@/store/modules/geolocation'
 import usePositionStore from '@/store/modules/position'
-
 import {
     geolocationAccuracyCircleFillColor,
     geolocationPointBorderColor,

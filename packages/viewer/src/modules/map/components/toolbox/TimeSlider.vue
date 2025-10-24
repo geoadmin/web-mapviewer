@@ -1,19 +1,21 @@
 <script setup lang="ts">
+import type { LayerTimeConfig } from '@swissgeo/layers'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { timeConfigUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { isNumber, round } from '@swissgeo/numbers'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import TimeSliderDropdown from '@/modules/map/components/toolbox/TimeSliderDropdown.vue'
-import debounce from '@/utils/debounce'
-import useUIStore from '@/store/modules/ui'
-import useLayersStore from '@/store/modules/layers'
-import { timeConfigUtils } from '@swissgeo/layers/utils'
-import type { LayerTimeConfig } from '@swissgeo/layers'
 import type { ActionDispatcher } from '@/store/types'
+
 import { DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
+import TimeSliderDropdown from '@/modules/map/components/toolbox/TimeSliderDropdown.vue'
+import useLayersStore from '@/store/modules/layers'
+import useUIStore from '@/store/modules/ui'
+import debounce from '@/utils/debounce'
 
 type LayerTimeConfigWithYears = LayerTimeConfig & { years: number[] }
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+
 import swissFlagIcon from '@/assets/svg/swiss-flag.svg'
 import useUIStore from '@/store/modules/ui'
 

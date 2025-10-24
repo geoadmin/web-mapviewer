@@ -1,8 +1,7 @@
 <script setup lang="ts">
+import CesiumInternalLayer from '@/modules/map/components/cesium/CesiumInternalLayer.vue'
 import useCesiumStore from '@/store/modules/cesium'
 import usePositionStore from '@/store/modules/position'
-
-import CesiumInternalLayer from '@/modules/map/components/cesium/CesiumInternalLayer.vue'
 
 const cesiumStore = useCesiumStore()
 const positionStore = usePositionStore()

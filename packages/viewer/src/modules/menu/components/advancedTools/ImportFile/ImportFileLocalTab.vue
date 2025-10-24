@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import log from '@swissgeo/log'
 import type { ErrorMessage } from '@swissgeo/log/Message'
+
+import log from '@swissgeo/log'
 import { computed, ref } from 'vue'
 
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'

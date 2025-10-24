@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { EditableFeature, LayerFeature } from '@/api/features.api'
+
 import FeatureListCategoryItem from '@/modules/infobox/components/FeatureListCategoryItem.vue'
 
 const { name, children, canLoadMore } = defineProps<{

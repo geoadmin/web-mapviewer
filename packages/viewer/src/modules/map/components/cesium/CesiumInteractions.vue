@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
+import type { GeoAdminGeoJSONLayer, KMLLayer as KMLLayerType, Layer } from '@swissgeo/layers'
+
 import { extentUtils, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
+import { LayerType } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { bbox, centroid } from '@turf/turf'
 import {
@@ -18,8 +21,9 @@ import { LineString, Point, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
 import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 
-import type { GeoAdminGeoJSONLayer, KMLLayer as KMLLayerType, Layer } from '@swissgeo/layers'
-import { LayerType } from '@swissgeo/layers'
+import type { LayerFeature, SelectableFeature } from '@/api/features.api'
+import type { LayerTooltipConfig } from '@/config/cesium.config'
+import type { ActionDispatcher } from '@/store/types'
 
 import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
 import {
@@ -28,15 +32,12 @@ import {
     unhighlightGroup,
 } from '@/modules/map/components/cesium/utils/highlightUtils'
 import useDragFileOverlay from '@/modules/map/components/common/useDragFileOverlay.composable'
-import useMapStore, { ClickType } from '@/store/modules/map'
-import type { LayerFeature, SelectableFeature } from '@/api/features.api'
 import useCesiumStore from '@/store/modules/cesium'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
+import useMapStore, { ClickType } from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
-import type { ActionDispatcher } from '@/store/types'
-import type { LayerTooltipConfig } from '@/config/cesium.config'
 import { getSafe } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumInteractions.vue' }

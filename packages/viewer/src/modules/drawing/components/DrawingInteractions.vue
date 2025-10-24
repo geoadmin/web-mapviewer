@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import log from '@swissgeo/log'
-import { computed, ref, useTemplateRef } from 'vue'
 import type Feature from 'ol/Feature'
 import type { ComponentPublicInstance } from 'vue'
+
+import log from '@swissgeo/log'
+import { computed, ref, useTemplateRef } from 'vue'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import DrawingLineInteraction from '@/modules/drawing/components/DrawingLineInteraction.vue'

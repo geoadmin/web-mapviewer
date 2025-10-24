@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import type { Map as OlMapType } from 'ol'
+
 import { allCoordinateSystems, WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import OlMap from 'ol/Map'
-import type { Map as OlMapType } from 'ol'
 import { get as getProjection } from 'ol/proj'
 import { onMounted, provide, useTemplateRef } from 'vue'
+
+import type { ActionDispatcher } from '@/store/types'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
@@ -21,12 +24,11 @@ import OpenLayersVisibleLayers from '@/modules/map/components/openlayers/OpenLay
 import useMapInteractions from '@/modules/map/components/openlayers/utils/useMapInteractions.composable'
 import usePrintAreaRenderer from '@/modules/map/components/openlayers/utils/usePrintAreaRenderer.composable'
 import useViewBasedOnProjection from '@/modules/map/components/openlayers/utils/useViewBasedOnProjection.composable'
-import type { ActionDispatcher } from '@/store/types'
-import useDebugStore from '@/store/modules/debug'
-import useMapStore from '@/store/modules/map'
 import useAppStore from '@/store/modules/app'
+import useDebugStore from '@/store/modules/debug'
 import useGeolocationStore from '@/store/modules/geolocation'
 import useLayersStore from '@/store/modules/layers'
+import useMapStore from '@/store/modules/map'
 
 const dispatcher: ActionDispatcher = { name: 'OpenLayersMap.vue' }
 

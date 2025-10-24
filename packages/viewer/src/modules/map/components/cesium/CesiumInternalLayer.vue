@@ -2,7 +2,7 @@
 /** Transforms a layer config into the correct Cesium counterpart depending on the layer type. */
 
 import type { CoordinateSystem } from '@swissgeo/coordinates'
-import { computed } from 'vue'
+
 import {
     type ExternalWMSLayer,
     type ExternalWMTSLayer,
@@ -17,13 +17,15 @@ import {
     type Layer,
     LayerType,
 } from '@swissgeo/layers'
-import usePositionStore from '@/store/modules/position'
+import { computed } from 'vue'
+
 import CesiumGeoJSONLayer from '@/modules/map/components/cesium/CesiumGeoJSONLayer.vue'
 import CesiumGPXLayer from '@/modules/map/components/cesium/CesiumGPXLayer.vue'
 import CesiumKMLLayer from '@/modules/map/components/cesium/CesiumKMLLayer.vue'
 import CesiumVectorLayer from '@/modules/map/components/cesium/CesiumVectorLayer.vue'
 import CesiumWMSLayer from '@/modules/map/components/cesium/CesiumWMSLayer.vue'
 import CesiumWMTSLayer from '@/modules/map/components/cesium/CesiumWMTSLayer.vue'
+import usePositionStore from '@/store/modules/position'
 
 const { layerConfig, zIndex, projection, isTimeSliderActive, parentLayerOpacity } = defineProps<{
     layerConfig: Layer

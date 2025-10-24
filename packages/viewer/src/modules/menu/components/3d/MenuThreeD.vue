@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+import type { ActionDispatcher } from '@/store/types'
+
 import MenuItemCheckBox from '@/modules/menu/components/common/MenuItemCheckBox.vue'
 import useCesiumStore from '@/store/modules/cesium'
-import type { ActionDispatcher } from '@/store/types'
 
 const dispatcher: ActionDispatcher = { name: 'MenuThreeD.vue' }
 

@@ -1,10 +1,11 @@
 <script setup lang="ts">
 /** Renders a WMS layer on the map */
 import type { ExternalWMSLayer, GeoAdminWMSLayer, LayerCustomAttributes } from '@swissgeo/layers'
+import type { Map } from 'ol'
+
+import { extentUtils, LV95 } from '@swissgeo/coordinates'
 import { ALL_YEARS_TIMESTAMP } from '@swissgeo/layers'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
-import type { Map } from 'ol'
-import { extentUtils, LV95 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import { cloneDeep } from 'lodash'
 import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
@@ -15,8 +16,8 @@ import { computed, inject, toRef, watch, watchEffect } from 'vue'
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
 import { WMS_TILE_SIZE } from '@/config/map.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import usePositionStore from '@/store/modules/position'
 import useI18nStore from '@/store/modules/i18n'
+import usePositionStore from '@/store/modules/position'
 
 const {
     wmsLayerConfig,

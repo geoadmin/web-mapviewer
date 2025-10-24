@@ -5,27 +5,26 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
+import type { ActionDispatcher } from '@/store/types'
+
 import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
 import { createShortLink } from '@/api/shortlink.api'
-
 import {
     PRINT_DEFAULT_DPI,
     PRINT_DIMENSIONS,
     PRINT_MARGIN_IN_MILLIMETERS,
 } from '@/config/print.config'
-
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
 import OpenLayersPrintResolutionEnforcer from '@/modules/map/components/openlayers/OpenLayersPrintResolutionEnforcer.vue'
 import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale.vue'
 import MapModule from '@/modules/map/MapModule.vue'
 import ConfederationFullLogo from '@/modules/menu/components/header/ConfederationFullLogo.vue'
-import { stringifyQuery } from '@/utils/url-router'
-import usePositionStore from '@/store/modules/position'
 import useI18nStore from '@/store/modules/i18n'
-import usePrintStore from '@/store/modules/print'
 import useMapStore from '@/store/modules/map'
-import type { ActionDispatcher } from '@/store/types'
+import usePositionStore from '@/store/modules/position'
+import usePrintStore from '@/store/modules/print'
+import { stringifyQuery } from '@/utils/url-router'
 
 const dispatcher: ActionDispatcher = { name: 'PrintView.vue' }
 

@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { type Layer, LayerType } from '@swissgeo/layers'
+import { timeConfigUtils } from '@swissgeo/layers/utils'
 import { computed, ref } from 'vue'
 
 import DebugLayerFinderFilter from '@/modules/menu/components/debug/DebugLayerFinderFilter.vue'
-import SimpleWindow from '@/utils/components/SimpleWindow.vue'
-import { type Layer, LayerType } from '@swissgeo/layers'
 import useLayersStore from '@/store/modules/layers'
-import { timeConfigUtils } from '@swissgeo/layers/utils'
+import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 
 const layersStore = useLayersStore()
 

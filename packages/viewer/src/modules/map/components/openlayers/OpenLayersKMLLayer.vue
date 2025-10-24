@@ -1,21 +1,22 @@
 <script setup lang="ts">
 /** Renders a KML file on the map */
 
-import type { Map } from 'ol'
-import VectorLayer from 'ol/layer/Vector'
 import type { KMLLayer } from '@swissgeo/layers'
+import type { Map } from 'ol'
 
 import log from '@swissgeo/log'
 import { WarningMessage } from '@swissgeo/log/Message'
+import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 
+import type { ActionDispatcher } from '@/store/types'
+
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
-import type { ActionDispatcher } from '@/store/types'
 import useDrawingStore from '@/store/modules/drawing'
-import useUiStore from '@/store/modules/ui'
 import usePositionStore from '@/store/modules/position'
+import useUiStore from '@/store/modules/ui'
 import { iconUrlProxyFy, parseKml } from '@/utils/kmlUtils'
 
 const dispatcher: ActionDispatcher = { name: 'OpenLayersKMLLayer.vue' }
