@@ -8,6 +8,9 @@ import type { ActionDispatcher } from '@/store/types'
 import { CloudOptimizedGeoTIFFParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/CloudOptimizedGeoTIFFParser.class'
 import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
+import useUIStore from '@/store/modules/ui'
+
+const LOADING_BAR_REQUEST_NAME = 'load-cog-metadata'
 
 const cogParser = new CloudOptimizedGeoTIFFParser()
 
@@ -17,6 +20,7 @@ export default async function loadCOGMetadataAndUpdateLayer(
 ): Promise<void> {
     const layersStore = useLayersStore()
     const positionStore = usePositionStore()
+    const uiStore = useUIStore()
 
     if (!layer.fileSource) {
         log.error({
@@ -27,15 +31,26 @@ export default async function loadCOGMetadataAndUpdateLayer(
         throw new Error('Layer file source is required')
     }
 
-    const layerWithExtent = await cogParser.parse({
-        fileSource: layer.fileSource,
-        currentProjection: toValue(positionStore.projection),
-    })
-    layersStore.updateLayer(
-        layer.id,
-        {
-            extent: layerWithExtent.extent,
-        },
-        dispatcher
-    )
+    uiStore.setLoadingBarRequester(LOADING_BAR_REQUEST_NAME, dispatcher)
+    try {
+        const layerWithExtent = await cogParser.parse({
+            fileSource: layer.fileSource,
+            currentProjection: toValue(positionStore.projection),
+        })
+        layersStore.updateLayer(
+            layer.id,
+            {
+                extent: layerWithExtent.extent,
+            },
+            dispatcher
+        )
+    } catch (error) {
+        log.error({
+            title: 'Load COG metadata plugin',
+            titleColor: LogPreDefinedColor.Green,
+            messages: ['Error while loading COG metadata', layer, error],
+        })
+    } finally {
+        uiStore.clearLoadingBarRequester(LOADING_BAR_REQUEST_NAME, dispatcher)
+    }
 }
