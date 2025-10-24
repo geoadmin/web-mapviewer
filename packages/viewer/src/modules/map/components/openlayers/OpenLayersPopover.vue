@@ -4,10 +4,11 @@
  * of the popover
  */
 
-import type { Map } from 'ol'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
-import { inject, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
+import type { Map } from 'ol'
+
 import log from '@swissgeo/log'
+import { inject, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 
 import MapPopover from '@/modules/map/components/MapPopover.vue'
 import { MapPopoverMode } from '@/modules/map/components/MapPopoverMode.enum'

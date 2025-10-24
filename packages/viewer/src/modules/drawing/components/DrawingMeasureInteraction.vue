@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import Feature from 'ol/Feature'
 import type { SimpleGeometry } from 'ol/geom'
 import type { StyleFunction } from 'ol/style/Style'
+
+import Feature from 'ol/Feature'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import useDrawingLineInteraction from '@/modules/drawing/components/useDrawingLineInteraction.composable'

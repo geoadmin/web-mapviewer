@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ExternalLayer } from '@swissgeo/layers'
+
 import { getFirstErrorMessage, getFirstWarningMessage } from '@swissgeo/layers/validation'
 import { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 import GeoadminTooltip from '@swissgeo/tooltip'

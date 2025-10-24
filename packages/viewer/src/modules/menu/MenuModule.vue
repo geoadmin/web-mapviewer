@@ -5,8 +5,8 @@ import { useI18n } from 'vue-i18n'
 
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
 import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
-import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 import useUIStore from '@/store/modules/ui'
+import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 
 const dispatcher = { name: 'MenuModule.vue' }
 

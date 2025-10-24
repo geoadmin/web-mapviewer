@@ -4,6 +4,7 @@
  * correct OpenLayers counterpart depending on the layer type.
  */
 
+import { WEBMERCATOR } from '@swissgeo/coordinates'
 import {
     type CloudOptimizedGeoTIFFLayer,
     type ExternalWMSLayer,
@@ -19,9 +20,8 @@ import {
     type Layer,
     LayerType,
 } from '@swissgeo/layers'
-
-import { WEBMERCATOR } from '@swissgeo/coordinates'
 import { computed } from 'vue'
+
 import OpenLayersCOGTiffLayer from '@/modules/map/components/openlayers/OpenLayersCOGTiffLayer.vue'
 import OpenLayersExternalWMTSLayer from '@/modules/map/components/openlayers/OpenLayersExternalWMTSLayer.vue'
 import OpenLayersGeoJSONLayer from '@/modules/map/components/openlayers/OpenLayersGeoJSONLayer.vue'

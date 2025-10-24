@@ -1,11 +1,11 @@
 <script setup lang="ts">
 /** Renders a GPX file on the map */
 
-import type { Map } from 'ol'
-import VectorLayer from 'ol/layer/Vector'
 import type { GPXLayer } from '@swissgeo/layers'
+import type { Map } from 'ol'
 
 import log from '@swissgeo/log'
+import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 

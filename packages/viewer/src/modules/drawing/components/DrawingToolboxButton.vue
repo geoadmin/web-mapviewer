@@ -3,11 +3,12 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import type { ActionDispatcher } from '@/store/types'
+
 import { EditableFeatureTypes } from '@/api/features.api'
-import useUIStore from '@/store/modules/ui'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
-import type { ActionDispatcher } from '@/store/types'
+import useUIStore from '@/store/modules/ui'
 
 const dispatcher: ActionDispatcher = { name: 'DrawingToolboxButton.vue' }
 

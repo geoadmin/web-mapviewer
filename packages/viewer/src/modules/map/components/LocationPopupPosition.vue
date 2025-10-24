@@ -1,11 +1,14 @@
 <script setup lang="ts">
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
-import { coordinatesUtils, LV03, LV95, WGS84 } from '@swissgeo/coordinates'
 import type { SingleCoordinate, CoordinateSystem } from '@swissgeo/coordinates'
+
+import { coordinatesUtils, LV03, LV95, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+
+import type { ClickInfo } from '@/store/modules/map'
 
 import { requestHeight } from '@/api/height.api'
 import reframe from '@/api/lv03Reframe.api'
@@ -18,7 +21,6 @@ import {
     UTMFormat,
     WGS84Format,
 } from '@/utils/coordinates/coordinateFormat'
-import type { ClickInfo } from '@/store/modules/map'
 
 const { coordinate, clickInfo, projection, currentLang } = defineProps<{
     coordinate: SingleCoordinate

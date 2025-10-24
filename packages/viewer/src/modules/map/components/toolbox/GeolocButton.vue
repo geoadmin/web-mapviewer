@@ -3,11 +3,12 @@ import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
-import useGeolocationStore from '@/store/modules/geolocation'
-import useCesiumStore from '@/store/modules/cesium'
-import usePositionStore from '@/store/modules/position'
 import type { ActionDispatcher } from '@/store/types'
+
+import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
+import useCesiumStore from '@/store/modules/cesium'
+import useGeolocationStore from '@/store/modules/geolocation'
+import usePositionStore from '@/store/modules/position'
 
 const dispatcher: ActionDispatcher = { name: 'GeolocButton.vue' }
 

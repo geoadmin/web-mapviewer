@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import type { Map } from 'ol'
-import Feature from 'ol/Feature'
 
 import { LV95 } from '@swissgeo/coordinates'
+import log from '@swissgeo/log'
+import Feature from 'ol/Feature'
 import { Polygon } from 'ol/geom'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { Fill, Stroke, Style, Text } from 'ol/style'
 import { computed, inject, toRef, watch } from 'vue'
-import log from '@swissgeo/log'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import useLayersStore from '@/store/modules/layers'

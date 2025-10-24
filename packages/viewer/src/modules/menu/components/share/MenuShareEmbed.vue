@@ -15,13 +15,13 @@ import { useRoute } from 'vue-router'
 
 import { IFrameEvents } from '@/api/iframePostMessageEvent.api'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
+import useLayersStore from '@/store/modules/layers'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import {
     insertParameterIntoUrl,
     removeParamaterFromUrl,
     transformUrlMapToEmbed,
 } from '@/utils/utils'
-import useLayersStore from '@/store/modules/layers'
 
 /**
  * Different pre-defined sizes that an iFrame can take

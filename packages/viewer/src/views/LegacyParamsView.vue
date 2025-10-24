@@ -2,8 +2,8 @@
 import { computed } from 'vue'
 
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
-import LoadingBar from '@/utils/components/LoadingBar.vue'
 import useUIStore from '@/store/modules/ui'
+import LoadingBar from '@/utils/components/LoadingBar.vue'
 
 const uiStore = useUIStore()
 

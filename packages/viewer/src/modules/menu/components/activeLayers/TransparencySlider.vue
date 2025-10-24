@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import type { Layer } from '@swissgeo/layers'
+
 import { onMounted, ref, watch } from 'vue'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
-import debounce from '@/utils/debounce'
-import type { Layer } from '@swissgeo/layers'
-import useLayersStore from '@/store/modules/layers'
 import type { ActionDispatcher } from '@/store/types'
+
+import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import useLayersStore from '@/store/modules/layers'
+import debounce from '@/utils/debounce'
 
 const dispatcher: ActionDispatcher = { name: 'MenuActiveLayersListItem.vue' }
 

@@ -5,6 +5,7 @@
  */
 
 import type { SingleCoordinate } from '@swissgeo/coordinates'
+
 import { CoordinateSystem, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { Cartesian3, Cartographic, defined, Ellipsoid, SceneTransforms, type Viewer } from 'cesium'

@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import type { ExternalWMTSLayer, GeoAdminWMTSLayer } from '@swissgeo/layers'
+
 import { WGS84 } from '@swissgeo/coordinates'
+import { WMTSEncodingType } from '@swissgeo/layers'
+import { layerUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
 import { ErrorMessage } from '@swissgeo/log/Message'
 import {
@@ -10,14 +14,12 @@ import {
 } from 'cesium'
 import { computed, inject, onBeforeUnmount, ref, toRef, watch } from 'vue'
 
-import type { ExternalWMTSLayer, GeoAdminWMTSLayer } from '@swissgeo/layers'
-import { WMTSEncodingType } from '@swissgeo/layers'
-import { layerUtils } from '@swissgeo/layers/utils'
+import type { ActionDispatcher } from '@/store/types'
+
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useAddImageryLayer from '@/modules/map/components/cesium/utils/useAddImageryLayer.composable'
-import usePositionStore from '@/store/modules/position'
 import useLayersStore from '@/store/modules/layers'
-import type { ActionDispatcher } from '@/store/types'
+import usePositionStore from '@/store/modules/position'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumWMTSLayer.vue' }
 

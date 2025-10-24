@@ -7,6 +7,7 @@ import { computed, inject, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { ActionDispatcher } from '@/store/types'
+
 import usePositionStore from '@/store/modules/position'
 
 const dispatcher: ActionDispatcher = { name: 'OpenLayersCompassButton.vue' }

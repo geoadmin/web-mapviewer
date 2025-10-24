@@ -5,11 +5,11 @@ import { useI18n } from 'vue-i18n'
 
 import { SearchResultTypes, type LocationSearchResult, type SearchResult } from '@/api/search.api'
 import SearchResultCategory from '@/modules/menu/components/search/SearchResultCategory.vue'
-import debounce from '@/utils/debounce'
-import useSearchStore from '@/store/modules/search'
-import useUIStore from '@/store/modules/ui'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
+import useSearchStore from '@/store/modules/search'
+import useUIStore from '@/store/modules/ui'
+import debounce from '@/utils/debounce'
 
 const dispatcher = { name: 'SearchResultList.vue' }
 

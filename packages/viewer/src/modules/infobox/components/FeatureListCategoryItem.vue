@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed, nextTick, ref, useTemplateRef } from 'vue'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
+import { computed, nextTick, ref, useTemplateRef } from 'vue'
 
 import type { EditableFeature, LayerFeature } from '@/api/features.api'
+import type { ActionDispatcher } from '@/store/types'
+
 import FeatureDetail from '@/modules/infobox/components/FeatureDetail.vue'
 import ShowGeometryProfileButton from '@/modules/infobox/components/ShowGeometryProfileButton.vue'
+import useFeaturesStore from '@/store/modules/features'
 import { canFeatureShowProfile } from '@/store/modules/profile'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
-import useFeaturesStore from '@/store/modules/features'
-import type { ActionDispatcher } from '@/store/types'
 
 const dispatcher: ActionDispatcher = { name: 'FeatureListCategoryItem.vue' }
 

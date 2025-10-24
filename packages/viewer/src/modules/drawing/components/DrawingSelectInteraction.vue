@@ -5,24 +5,26 @@
  * (style, color, etc...) whenever it is edited through the popover.
  */
 
-import SelectInteraction, { SelectEvent } from 'ol/interaction/Select'
-import { computed, inject, onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue'
 import type Feature from 'ol/Feature'
 import type VectorLayer from 'ol/layer/Vector'
+import type Map from 'ol/Map'
+import type { StyleFunction } from 'ol/style/Style'
 
 import log from '@swissgeo/log'
+import SelectInteraction, { SelectEvent } from 'ol/interaction/Select'
+import { computed, inject, onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue'
+
+import type { ActionDispatcher } from '@/store/types'
+
 import { EditableFeatureTypes, type EditableFeature, type StoreFeature } from '@/api/features.api'
+import { extractOlFeatureCoordinates } from '@/api/features.api'
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import useModifyInteraction from '@/modules/drawing/components/useModifyInteraction.composable'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
-import { extractOlFeatureCoordinates } from '@/api/features.api'
 import useFeaturesStore from '@/store/modules/features'
 import useProfileStore from '@/store/modules/profile'
 import useUIStore from '@/store/modules/ui'
-import type { ActionDispatcher } from '@/store/types'
-import type Map from 'ol/Map'
-import type { StyleFunction } from 'ol/style/Style'
 
 type EmitType = {
     (_e: 'feature-selected', _feature: Feature | undefined): void

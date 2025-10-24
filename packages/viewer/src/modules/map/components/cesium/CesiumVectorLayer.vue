@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { GeoAdmin3DLayer } from '@swissgeo/layers'
+
 import log from '@swissgeo/log'
 import { Cesium3DTileset, type Viewer } from 'cesium'
 import { computed, inject, toRef } from 'vue'

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import Feature from 'ol/Feature'
 import type { SimpleGeometry } from 'ol/geom'
+
+import Feature from 'ol/Feature'
 
 import useExtendLineInteraction from '@/modules/drawing/components/useExtendLineInteraction.composable'
 

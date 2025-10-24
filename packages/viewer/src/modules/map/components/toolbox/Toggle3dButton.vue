@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import useCesiumStore from '@/store/modules/cesium'
-import useDrawingStore from '@/store/modules/drawing'
-import usePrintStore from '@/store/modules/print'
-import type { ActionDispatcher } from '@/store/types'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+
+import type { ActionDispatcher } from '@/store/types'
+
+import useCesiumStore from '@/store/modules/cesium'
+import useDrawingStore from '@/store/modules/drawing'
+import usePrintStore from '@/store/modules/print'
 
 const dispatcher: ActionDispatcher = { name: 'Toggle3dButton.vue' }
 

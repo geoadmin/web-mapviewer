@@ -1,9 +1,10 @@
 <script setup lang="ts">
 /** Component managing the rendering of a vision cone, in the direction the device is pointing at */
 
-import type { Map } from 'ol'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type { Map } from 'ol'
 
+import log from '@swissgeo/log'
 import Feature from 'ol/Feature'
 import { Point } from 'ol/geom'
 import { DEVICE_PIXEL_RATIO } from 'ol/has'
@@ -11,7 +12,6 @@ import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import Style from 'ol/style/Style'
 import { computed, inject, watch } from 'vue'
-import log from '@swissgeo/log'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import useGeolocationStore from '@/store/modules/geolocation'

@@ -9,13 +9,14 @@
  * Most of the specific code found bellow, plus import of layer ID should be removed then.
  */
 
+import type { GeoAdminVectorLayer } from '@swissgeo/layers'
 import type { Map } from 'ol'
-import log from '@swissgeo/log'
+
 import { MapLibreLayer } from '@geoblocks/ol-maplibre-layer'
+import log from '@swissgeo/log'
 import axios from 'axios'
 import { computed, inject, watch } from 'vue'
 
-import type { GeoAdminVectorLayer } from '@swissgeo/layers'
 import { VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config/vectortiles.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 

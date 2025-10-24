@@ -7,11 +7,11 @@ import sendFeedbackApi from '@/api/feedback.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/help/common/SendActionButtons.vue'
 import FeedbackRating from '@/modules/menu/components/help/feedback/FeedbackRating.vue'
+import useLayersStore from '@/store/modules/layers'
+import useUIStore from '@/store/modules/ui'
 import EmailInput from '@/utils/components/EmailInput.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 import TextAreaInput from '@/utils/components/TextAreaInput.vue'
-import useLayersStore from '@/store/modules/layers'
-import useUIStore from '@/store/modules/ui'
 
 const dispatcher = { name: 'FeedbackButton.vue' }
 

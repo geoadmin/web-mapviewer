@@ -8,8 +8,8 @@ import {
     hasBaseUrlOverrides,
     setBaseUrlOverrides,
 } from '@/config/baseUrl.config'
-import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import useDebugStore from '@/store/modules/debug'
+import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 
 const debugStore = useDebugStore()
 

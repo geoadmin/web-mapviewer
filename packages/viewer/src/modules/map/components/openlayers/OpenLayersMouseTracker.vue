@@ -1,15 +1,16 @@
 <script setup lang="ts">
+import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { Map } from 'ol'
 
 import log from '@swissgeo/log'
 import MousePosition from 'ol/control/MousePosition'
 import { computed, inject, nextTick, onMounted, onUnmounted, ref, useTemplateRef } from 'vue'
 
-import getHumanReadableCoordinate from '@/modules/map/components/common/mouseTrackerUtils'
 import type { ActionDispatcher } from '@/store/types'
+
+import getHumanReadableCoordinate from '@/modules/map/components/common/mouseTrackerUtils'
 import usePositionStore from '@/store/modules/position'
 import { allFormats, LV95Format } from '@/utils/coordinates/coordinateFormat'
-import type { SingleCoordinate } from '@swissgeo/coordinates'
 
 const dispatcher: ActionDispatcher = { name: 'OpenLayersMouseTracker.vue' }
 

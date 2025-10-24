@@ -1,14 +1,15 @@
 <script setup lang="ts">
+import type { Geometry, Polygon } from 'geojson'
+
 import { WGS84 } from '@swissgeo/coordinates'
 import GeoadminTooltip from '@swissgeo/tooltip'
+import { storeToRefs } from 'pinia'
 import { computed, type ComputedRef, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { storeToRefs } from 'pinia'
 
+import usePositionStore from '@/store/modules/position'
 import { computePolygonPerimeterArea } from '@/utils/geodesicManager'
 import { reprojectGeoJsonGeometry } from '@/utils/geoJsonUtils'
-import usePositionStore from '@/store/modules/position'
-import type { Geometry, Polygon } from 'geojson'
 
 const { geometry } = defineProps({
     geometry: {

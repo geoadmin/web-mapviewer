@@ -1,13 +1,17 @@
 <script setup lang="ts">
+import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type { Viewer } from 'cesium'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { LayerType } from '@swissgeo/layers'
+import log from '@swissgeo/log'
 import { LineString, Point, Polygon } from 'ol/geom'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import useFeaturesStore from '@/store/modules/features'
-import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui'
 
-import { LayerType } from '@swissgeo/layers'
-import log from '@swissgeo/log'
+import type { EditableFeature, LayerFeature } from '@/api/features.api'
+import type { ActionDispatcher } from '@/store/types'
+
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
@@ -16,12 +20,10 @@ import {
     highlightGroup,
     unhighlightGroup,
 } from '@/modules/map/components/cesium/utils/highlightUtils'
-import usePositionStore from '@/store/modules/position'
-import type { EditableFeature, LayerFeature } from '@/api/features.api'
+import useFeaturesStore from '@/store/modules/features'
 import useMapStore from '@/store/modules/map'
-import type { ActionDispatcher } from '@/store/types'
-import type { SingleCoordinate } from '@swissgeo/coordinates'
-import type { Viewer } from 'cesium'
+import usePositionStore from '@/store/modules/position'
+import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumHighlightedFeatures.vue' }
 
