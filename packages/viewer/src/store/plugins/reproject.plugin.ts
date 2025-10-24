@@ -14,7 +14,6 @@ import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position'
-import { isEnumValue } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'reproject-layers-on-projection-change.plugin' }
 
@@ -102,11 +101,11 @@ const reprojectPlugin: PiniaPlugin = (context: PiniaPluginContext): void => {
     const { store } = context
 
     store.$onAction(({ after, name }) => {
-        if (isEnumValue<string>('setProjection', name)) {
+        if (name === 'setProjection') {
             oldProjection = positionStore.projection
         }
         after(() => {
-            if (isEnumValue<string>('setProjection', name)) {
+            if (name === 'setProjection') {
                 const newProjection = positionStore.projection
                 log.debug({
                     title: 'Reproject pinia plugin',

@@ -325,8 +325,8 @@ async function getAndDispatchFeatures(
             const query = to.query
             if (!query.z) {
                 positionStore.zoomToExtent(
+                    extent,
                     {
-                        extent: extent,
                         maxZoom: positionStore.projection.get1_25000ZoomLevel(),
                     },
                     STORE_DISPATCHER_ROUTER_PLUGIN

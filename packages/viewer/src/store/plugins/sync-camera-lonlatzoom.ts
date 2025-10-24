@@ -15,7 +15,6 @@ import useCesiumStore from '@/store/modules/cesium'
 import useUIStore from '@/store/modules/ui'
 import usePositionStore from '@/store/modules/position'
 import { normalizeAngle } from '@/store/modules/position'
-import { isEnumValue } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'sync-camera-lonlatzoom.plugin' }
 
@@ -29,7 +28,7 @@ const registerSyncCameraLonLatZoom: PiniaPlugin = (context: PiniaPluginContext):
 
     store.$onAction(({ name, args }) => {
         if (
-            isEnumValue<string>('setCameraPosition', name) &&
+            name === 'setCameraPosition' &&
             positionStore.camera
         ) {
             const lon = store.camera.x
@@ -55,7 +54,7 @@ const registerSyncCameraLonLatZoom: PiniaPlugin = (context: PiniaPluginContext):
             store.setZoom(zoom, dispatcher)
             store.setRotation(normalizeAngle((rotation * Math.PI) / 180), self)
         } else if (
-            isEnumValue<string>('setCenter', name) &&
+            name === 'setCenter' &&
             cesiumStore.active &&
             positionStore.camera
         ) {
@@ -79,7 +78,7 @@ const registerSyncCameraLonLatZoom: PiniaPlugin = (context: PiniaPluginContext):
                 dispatcher
             )
         } else if (
-            isEnumValue<string>('setZoom', name) &&
+            name === 'setZoom' &&
             cesiumStore.active &&
             positionStore.camera
         ) {
@@ -98,7 +97,7 @@ const registerSyncCameraLonLatZoom: PiniaPlugin = (context: PiniaPluginContext):
                 dispatcher
             )
         } else if (
-            (isEnumValue<string>('zoomToExtent', name) ||
+            (name === 'zoomToExtent' ||
                 name === 'selectResultEntry') &&
             positionStore.camera
         ) {

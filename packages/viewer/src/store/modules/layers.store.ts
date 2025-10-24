@@ -591,9 +591,7 @@ const useLayersStore = defineStore('layers', {
                 ) {
                     const layerExtent = initialLayer.extent
                     usePositionStore().zoomToExtent(
-                        {
-                            extent: layerExtent,
-                        },
+                        layerExtent,
                         dispatcher
                     )
                 }

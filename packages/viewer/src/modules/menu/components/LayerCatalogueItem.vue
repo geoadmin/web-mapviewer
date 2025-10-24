@@ -207,9 +207,9 @@ function zoomToLayer() {
             transformExtentIntoPolygon(item.extent.flat() as FlatExtent)
         )
     ) {
-        positionStore.zoomToExtent({ extent: item.extent }, dispatcher)
+        positionStore.zoomToExtent(item.extent, dispatcher)
     } else {
-        positionStore.zoomToExtent({ extent: lv95Extent }, dispatcher)
+        positionStore.zoomToExtent(lv95Extent, dispatcher)
     }
     if (isPhoneMode.value) {
         // On mobile phone we close the menu so that the user can see the zoom to extent
