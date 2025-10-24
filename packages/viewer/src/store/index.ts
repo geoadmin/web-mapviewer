@@ -4,7 +4,6 @@ import loadExternalLayerAttributes from '@/store/plugins/external-layers.plugin'
 import legacyPermalinkPlugin from '@/store/plugins/legacy-permalink.plugin'
 import loadGpxDataAndMetadata from '@/store/plugins/load-gpx-data.plugin'
 import loadKmlDataAndMetadata from '@/store/plugins/load-kml-kmz-data.plugin'
-import redoSearchWhenNeeded from '@/store/plugins/redo-search-when-needed.plugin'
 import reprojectPlugin from '@/store/plugins/reproject.plugin'
 import screenSizeManagement from '@/store/plugins/screen-size-management.plugin'
 import storeActionLogPlugin from '@/store/plugins/store-action-log.plugin'
@@ -17,7 +16,6 @@ pinia.use(legacyPermalinkPlugin)
 pinia.use(loadExternalLayerAttributes)
 pinia.use(loadGpxDataAndMetadata)
 pinia.use(loadKmlDataAndMetadata)
-pinia.use(redoSearchWhenNeeded)
 pinia.use(reprojectPlugin)
 pinia.use(screenSizeManagement)
 pinia.use(topicChangeManagement)
