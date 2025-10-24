@@ -1,14 +1,12 @@
-import type { CloudOptimizedGeoTIFFLayer, GeoAdminGeoJSONLayer, Layer } from '@swissgeo/layers'
+import type { Layer } from '@swissgeo/layers'
 
-import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
 import type { LayersStore } from '@/store/modules/layers/types/layers'
 import type { ActionDispatcher } from '@/store/types'
 
-import loadCOGMetadataAndUpdateLayer from '@/store/modules/layers/utils/loadCOGMetadataAndUpdateLayer'
-import loadGeoJsonDataAndStyle from '@/store/modules/layers/utils/loadGeoJSONDataAndStyle'
+import afterAddOperations from '@/store/modules/layers/utils/afterAddOperations'
 import usePositionStore from '@/store/modules/position'
 
 interface AddLayerOptions {
@@ -120,31 +118,7 @@ export default function addLayer(
             const layerExtent = layer.extent
             usePositionStore().zoomToExtent(layerExtent, dispatcher)
         }
-
-        if (clone.type === LayerType.COG) {
-            loadCOGMetadataAndUpdateLayer(clone as CloudOptimizedGeoTIFFLayer, dispatcher).catch(
-                (error) => {
-                    log.error({
-                        title: 'Layers store / addLayer',
-                        titleColor: LogPreDefinedColor.Green,
-                        messages: ['Error while loading metadata for a COG layer', clone, error],
-                    })
-                }
-            )
-        } else if (clone.type === LayerType.GEOJSON) {
-            const { promise } = loadGeoJsonDataAndStyle(clone as GeoAdminGeoJSONLayer, dispatcher)
-            promise.catch((error) => {
-                log.error({
-                    title: 'Layers store / addLayer',
-                    titleColor: LogPreDefinedColor.Green,
-                    messages: [
-                        'Error while loading data and style for a GeoJSON layer',
-                        clone,
-                        error,
-                    ],
-                })
-            })
-        }
+        afterAddOperations(clone, dispatcher)
     } else {
         log.error({
             title: 'Layers store / addLayer',
