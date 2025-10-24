@@ -2,6 +2,7 @@ import type {
     CloudOptimizedGeoTIFFLayer,
     GeoAdminGeoJSONLayer,
     GPXLayer,
+    KMLLayer,
     Layer,
 } from '@swissgeo/layers'
 
@@ -13,6 +14,7 @@ import type { ActionDispatcher } from '@/store/types'
 import loadCOGMetadataAndUpdateLayer from '@/store/modules/layers/utils/loadCOGMetadataAndUpdateLayer'
 import loadGeoJsonDataAndStyle from '@/store/modules/layers/utils/loadGeoJSONDataAndStyle'
 import loadGpxData from '@/store/modules/layers/utils/loadGpxData'
+import loadKmlKmzData from '@/store/modules/layers/utils/loadKmlKmzData'
 import loadLayerFromCapabilities, {
     isAnExternalLayerRequiringCapabilitesLoading,
 } from '@/store/modules/layers/utils/loadLayerFromCapabilities'
@@ -47,6 +49,14 @@ export default function afterAddOperations(layer: Layer, dispatcher: ActionDispa
                 title: 'Layers store / afterAddOperations',
                 titleColor: LogPreDefinedColor.Green,
                 messages: ['Error while loading data for a GPX layer', layer, error],
+            })
+        })
+    } else if (layer.type === LayerType.KML) {
+        loadKmlKmzData(layer as KMLLayer, dispatcher).catch((error) => {
+            log.error({
+                title: 'Layers store / afterAddOperations',
+                titleColor: LogPreDefinedColor.Green,
+                messages: ['Error while loading data for a KML/KMZ layer', layer, error],
             })
         })
     } else if (isAnExternalLayerRequiringCapabilitesLoading(layer)) {

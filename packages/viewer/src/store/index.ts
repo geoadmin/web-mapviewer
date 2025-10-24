@@ -1,7 +1,6 @@
 import { createPinia } from 'pinia'
 
 import legacyPermalinkPlugin from '@/store/plugins/legacy-permalink.plugin'
-import loadKmlDataAndMetadata from '@/store/plugins/load-kml-kmz-data.plugin'
 import reprojectPlugin from '@/store/plugins/reproject.plugin'
 import storeActionLogPlugin from '@/store/plugins/store-action-log.plugin'
 import registerSyncCameraLonLatZoom from '@/store/plugins/sync-camera-lonlatzoom'
@@ -10,7 +9,6 @@ import updateSelectedFeatures from '@/store/plugins/update-selected-features.plu
 
 const pinia = createPinia()
 pinia.use(legacyPermalinkPlugin)
-pinia.use(loadKmlDataAndMetadata)
 pinia.use(reprojectPlugin)
 pinia.use(topicChangeManagement)
 pinia.use(updateSelectedFeatures)
