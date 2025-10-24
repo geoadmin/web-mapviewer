@@ -9,7 +9,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
 import { ENVIRONMENT } from '@/config/staging.config'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 import {
     getBackgroundLayerFromLegacyUrlParams,
     getLayersFromLegacyUrlParams,

@@ -6,16 +6,16 @@ import { storeToRefs } from 'pinia'
 
 import { MAX_WIDTH_SHOW_FLOATING_TOOLTIP } from '@/config/responsive.config'
 import InfoboxContent from '@/modules/infobox/components/InfoboxContent.vue'
-import { FeatureInfoPositions } from '@/store/modules/ui.store'
+import { FeatureInfoPositions } from '@/store/modules/ui'
 import PrintButton from '@/utils/components/PrintButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 
 import useFeaturesStore from '@/store/modules/features'
 import useDrawingStore from '@/store/modules/drawing'
-import useUiStore from '@/store/modules/ui.store'
 import useMapStore from '@/store/modules/map'
 import useProfileStore from '@/store/modules/profile'
+import useUiStore from '@/store/modules/ui'
 
 const dispatcher = { name: 'InfoboxModule.vue' }
 const showContent = ref(true)
@@ -70,7 +70,7 @@ function onToggleContent(): void {
     showContent.value = !showContent.value
 }
 function setTooltipInfoPosition(): void {
-    uiStore.setFeatureInfoPosition(FeatureInfoPositions.TOOLTIP, dispatcher)
+    uiStore.setFeatureInfoPosition(FeatureInfoPositions.ToolTip, dispatcher)
 }
 function onClose(): void {
     if (showFeatureInfoInBottomPanel.value) {

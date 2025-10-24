@@ -19,7 +19,7 @@ import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composabl
 import { extractOlFeatureCoordinates } from '@/api/features.api'
 import useFeaturesStore from '@/store/modules/features'
 import useProfileStore from '@/store/modules/profile'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 import type { ActionDispatcher } from '@/store/types'
 import type Map from 'ol/Map'
 import type { StyleFunction } from 'ol/style/Style'

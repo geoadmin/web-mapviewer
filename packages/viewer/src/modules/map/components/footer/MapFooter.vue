@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { onUpdated, ref, useSlots } from 'vue'
 

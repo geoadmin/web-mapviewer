@@ -13,7 +13,7 @@ import {
 } from '@/router/storeSync/validation.ts'
 import { LayerStoreActions, UIStoreActions } from '@/store/actions'
 import useLayersStore from '@/store/modules/layers.store'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 
 function isValidYear(year?: number): boolean {
     const layersStore = useLayersStore()

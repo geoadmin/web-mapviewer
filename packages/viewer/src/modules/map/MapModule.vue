@@ -6,7 +6,7 @@ import LocationPopup from '@/modules/map/components/LocationPopup.vue'
 import WarningRibbon from '@/modules/map/components/WarningRibbon.vue'
 import useCesiumStore from '@/store/modules/cesium'
 import useMapStore from '@/store/modules/map'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 import useLayersStore from '@/store/modules/layers.store'
 
 const CesiumMap = defineAsyncComponent(() => import('./components/cesium/CesiumMap.vue'))

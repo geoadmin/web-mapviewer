@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 import type { ActionDispatcher } from '@/store/types'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import GeoadminTooltip from '@swissgeo/tooltip'

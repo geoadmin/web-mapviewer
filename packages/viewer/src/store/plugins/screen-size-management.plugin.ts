@@ -4,7 +4,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { BREAKPOINT_PHONE_HEIGHT, BREAKPOINT_PHONE_WIDTH } from '@/config/responsive.config'
 import { UIStoreActions } from '@/store/actions'
-import useUIStore, { UIModes } from '@/store/modules/ui.store'
+import useUIStore, { UIModes } from '@/store/modules/ui'
 import { isEnumValue } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'screen-size-management.plugin' }
@@ -23,10 +23,10 @@ const screenSizeManagement: PiniaPlugin = (context: PiniaPluginContext) => {
                 uiStore.width < BREAKPOINT_PHONE_WIDTH ||
                 uiStore.height < BREAKPOINT_PHONE_HEIGHT
             ) {
-                wantedUiMode = UIModes.PHONE
+                wantedUiMode = UIModes.Phone
             } else {
-                // so the UI mode DESKTOP also includes the tablet mode.
-                wantedUiMode = UIModes.DESKTOP
+                // so the UI mode Desktop also includes the tablet mode.
+                wantedUiMode = UIModes.Desktop
             }
             if (wantedUiMode !== uiStore.mode) {
                 uiStore.setUiMode(wantedUiMode, dispatcher)

@@ -33,7 +33,7 @@ import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers.store'
 import usePositionStore from '@/store/modules/position.store'
-import useUiStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
+import useUiStore, { FeatureInfoPositions } from '@/store/modules/ui'
 import type { ActionDispatcher } from '@/store/types'
 import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
 import { layerUtils } from '@swissgeo/layers/utils'
@@ -212,7 +212,7 @@ watch(
 onMounted(() => {
     if (noFeatureInfo.value) {
         // Force feature info to be visible in drawing mode
-        uiStore.setFeatureInfoPosition(FeatureInfoPositions.DEFAULT, dispatcher)
+        uiStore.setFeatureInfoPosition(FeatureInfoPositions.Default, dispatcher)
     }
     if (availableIconSets.value.length === 0) {
         // if icons have not yet been loaded, load them

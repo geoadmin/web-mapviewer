@@ -11,7 +11,7 @@ import TextInput, {
     type TextInputValidateResult,
 } from '@/utils/components/TextInput.vue'
 import { isValidUrl } from '@/utils/utils'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 
 const { active } = defineProps<{
     active: boolean

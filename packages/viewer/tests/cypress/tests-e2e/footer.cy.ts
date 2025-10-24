@@ -4,7 +4,7 @@ import type { LayerConfigResponse } from '@swissgeo/layers/api'
 
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 
-import { UIModes } from '@/store/modules/ui.store'
+import { UIModes } from '@/store/modules/ui'
 
 describe('Testing the footer content / tools', () => {
     it('shows/hide the scale line depending on the map resolution, while in Mercator', () => {

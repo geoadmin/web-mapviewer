@@ -4,7 +4,7 @@ import { LineString, Point, Polygon } from 'ol/geom'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import useFeaturesStore from '@/store/modules/features'
-import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
+import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui'
 
 import { LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
@@ -134,7 +134,7 @@ function onPopupClose() {
     mapStore.clearClick(dispatcher)
 }
 function setBottomPanelFeatureInfoPosition() {
-    uiStore.setFeatureInfoPosition(FeatureInfoPositions.BOTTOMPANEL, dispatcher)
+    uiStore.setFeatureInfoPosition(FeatureInfoPositions.BottomPanel, dispatcher)
 }
 </script>
 

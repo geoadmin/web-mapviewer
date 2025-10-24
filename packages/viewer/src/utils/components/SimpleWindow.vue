@@ -2,7 +2,7 @@
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import useUiStore from '@/store/modules/ui.store'
+import useUiStore from '@/store/modules/ui'
 import PrintButton from '@/utils/components/PrintButton.vue'
 import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
 

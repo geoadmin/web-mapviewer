@@ -7,7 +7,7 @@ import { SearchResultTypes, type LocationSearchResult, type SearchResult } from 
 import SearchResultCategory from '@/modules/menu/components/search/SearchResultCategory.vue'
 import debounce from '@/utils/debounce'
 import useSearchStore from '@/store/modules/search'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 import useLayersStore from '@/store/modules/layers.store'
 import useMapStore from '@/store/modules/map'
 

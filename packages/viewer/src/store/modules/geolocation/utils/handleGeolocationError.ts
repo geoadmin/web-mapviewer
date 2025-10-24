@@ -5,7 +5,7 @@ import type { GeolocationStore } from '@/store/modules/geolocation/types/geoloca
 import type { ActionDispatcher } from '@/store/types'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 
 interface HandleGeolocationErrorOptions {
     /** Re-activate initial geolocation in case of unknown failure. Default is `false` */

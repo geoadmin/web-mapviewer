@@ -32,7 +32,7 @@ import useFeaturesStore from '@/store/modules/features'
 import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position.store'
 import useProfileStore from '@/store/modules/profile'
-import useUiStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
+import useUiStore, { FeatureInfoPositions } from '@/store/modules/ui'
 import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 
 const dispatcher: ActionDispatcher = {
@@ -190,7 +190,7 @@ function clearAllSelectedFeatures(): void {
     mapStore.clearClick(dispatcher)
 }
 function setBottomPanelFeatureInfoPosition(): void {
-    uiStore.setFeatureInfoPosition(FeatureInfoPositions.BOTTOMPANEL, dispatcher)
+    uiStore.setFeatureInfoPosition(FeatureInfoPositions.BottomPanel, dispatcher)
 }
 </script>
 

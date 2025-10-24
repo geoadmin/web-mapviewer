@@ -6,7 +6,7 @@ import ImportCatalogue from '@/modules/menu/components/advancedTools/ImportCatal
 import ImportFile from '@/modules/menu/components/advancedTools/ImportFile/ImportFile.vue'
 import MenuAdvancedToolsListItem from '@/modules/menu/components/advancedTools/MenuAdvancedToolsListItem.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 import useCesiumStore from '@/store/modules/cesium'
 import useLayersStore from '@/store/modules/layers.store'
 

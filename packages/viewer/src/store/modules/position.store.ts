@@ -23,7 +23,7 @@ import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { PositionStoreActions } from '@/store/actions'
 import useGeolocationStore from '@/store/modules/geolocation'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 import { LV95Format } from '@/utils/coordinates/coordinateFormat'
 
 /**
@@ -386,14 +386,14 @@ const usePositionStore = defineStore('position', {
             // position can be null (in 2d mode), we do not wrap it in this case
             this.camera = position
                 ? {
-                      x: position.x,
-                      y: position.y,
-                      z: position.z,
-                      // wrapping all angle-based values so that they do not exceed a full-circle value
-                      roll: wrapDegrees(position.roll),
-                      pitch: wrapDegrees(position.pitch),
-                      heading: wrapDegrees(position.heading),
-                  }
+                    x: position.x,
+                    y: position.y,
+                    z: position.z,
+                    // wrapping all angle-based values so that they do not exceed a full-circle value
+                    roll: wrapDegrees(position.roll),
+                    pitch: wrapDegrees(position.pitch),
+                    heading: wrapDegrees(position.heading),
+                }
                 : undefined
         },
 

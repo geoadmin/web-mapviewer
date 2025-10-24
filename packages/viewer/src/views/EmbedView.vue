@@ -13,7 +13,7 @@ import MapToolbox from '@/modules/map/components/toolbox/MapToolbox.vue'
 import MapModule from '@/modules/map/MapModule.vue'
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 import OpenFullAppLink from '@/utils/components/OpenFullAppLink.vue'
-import useUIStore from '@/store/modules/ui.store'
+import useUIStore from '@/store/modules/ui'
 import useCesiumStore from '@/store/modules/cesium'
 
 const dispatcher = { name: 'EmbedView.vue' }
