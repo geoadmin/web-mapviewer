@@ -17,6 +17,6 @@ export default function changeFeatureGeometry(
     if (selectedFeature && selectedFeature.isEditable && geometry) {
         selectedFeature.geometry = geometry
         const profileStore = useProfileStore()
-        profileStore.setProfileFeature({ feature: selectedFeature }, dispatcher)
+        profileStore.setProfileFeature(selectedFeature, dispatcher)
     }
 }

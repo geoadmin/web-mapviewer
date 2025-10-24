@@ -81,7 +81,7 @@ function onClose(): void {
     }
 }
 function onHideProfile(): void {
-    profileStore.setProfileFeature({ feature: undefined }, dispatcher)
+    profileStore.setProfileFeature(undefined, dispatcher)
 }
 </script>
 

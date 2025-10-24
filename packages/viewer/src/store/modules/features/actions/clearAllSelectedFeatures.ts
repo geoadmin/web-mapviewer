@@ -15,6 +15,6 @@ export default function clearAllSelectedFeatures(
     }
     const profileStore = useProfileStore()
     if (profileStore.feature) {
-        profileStore.setProfileFeature({ feature: undefined }, dispatcher)
+        profileStore.setProfileFeature(undefined, dispatcher)
     }
 }
