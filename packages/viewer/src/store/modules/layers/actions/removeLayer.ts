@@ -15,6 +15,7 @@ export default function removeLayer(
 ): void
 export default function removeLayer(
     this: LayersStore,
+    // no index (number) type here, as it is not possible to remove a layer by index whilst giving a filtering option
     layer: string | Layer,
     options: LayerActionFilter,
     dispatcher: ActionDispatcher
@@ -22,7 +23,7 @@ export default function removeLayer(
 
 export default function removeLayer(
     this: LayersStore,
-    input: number | string | Layer,
+    layerOrIndex: number | string | Layer,
     optionsOrDispatcher: LayerActionFilter | ActionDispatcher,
     dispatcherOrNothing?: ActionDispatcher
 ) {
@@ -31,14 +32,14 @@ export default function removeLayer(
 
     const removedLayers: Layer[] = []
 
-    if (typeof input === 'number') {
-        removedLayers.push(...this.activeLayers.splice(input, 1))
+    if (typeof layerOrIndex === 'number') {
+        removedLayers.push(...this.activeLayers.splice(layerOrIndex, 1))
     } else {
         let layerId: string | undefined
-        if (typeof input === 'string') {
-            layerId = input
+        if (typeof layerOrIndex === 'string') {
+            layerId = layerOrIndex
         } else {
-            layerId = input.id
+            layerId = layerOrIndex.id
         }
 
         removedLayers.push(
