@@ -4,7 +4,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { sendFeatureInformationToIFrameParent } from '@/api/iframePostMessageEvent.api'
 import { DEFAULT_FEATURE_COUNT_SINGLE_POINT } from '@/config/map.config'
-import useProfileStore from '@/store/modules/profile.store'
+import useProfileStore from '@/store/modules/profile'
 
 interface SetSelectedFeaturesOptions {
     /**
@@ -47,7 +47,7 @@ export default function setSelectedFeatures(
     }
     const profileStore = useProfileStore()
     if (profileStore.feature) {
-        profileStore.setProfileFeature({ feature: undefined }, dispatcher)
+        profileStore.setProfileFeature(undefined, dispatcher)
     }
     const layerFeaturesByLayerId: FeaturesForLayer[] = []
     let drawingFeatures: EditableFeature[] = []

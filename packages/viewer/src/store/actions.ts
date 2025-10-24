@@ -41,11 +41,6 @@ export enum PositionStoreActions {
     SetProjection = 'setProjection',
 }
 
-export enum ProfileStoreActions {
-    SetCurrentFeatureSegmentIndex = 'setCurrentFeatureSegmentIndex',
-    SetProfileFeature = 'setProfileFeature',
-}
-
 export enum UIStoreActions {
     SetSize = 'setSize',
     ToggleMenu = 'toggleMenu',

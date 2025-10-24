@@ -1,7 +1,7 @@
 import type { FeaturesStore } from '@/store/modules/features/types/features'
 import type { ActionDispatcher } from '@/store/types'
 
-import useProfileStore from '@/store/modules/profile.store'
+import useProfileStore from '@/store/modules/profile'
 
 /** Removes all selected features from the map */
 export default function clearAllSelectedFeatures(
@@ -15,6 +15,6 @@ export default function clearAllSelectedFeatures(
     }
     const profileStore = useProfileStore()
     if (profileStore.feature) {
-        profileStore.setProfileFeature({ feature: undefined }, dispatcher)
+        profileStore.setProfileFeature(undefined, dispatcher)
     }
 }

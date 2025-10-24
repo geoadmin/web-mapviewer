@@ -14,8 +14,8 @@ import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 import useFeaturesStore from '@/store/modules/features'
 import useDrawingStore from '@/store/modules/drawing'
 import useUiStore from '@/store/modules/ui.store'
-import useProfileStore from '@/store/modules/profile.store'
 import useMapStore from '@/store/modules/map'
+import useProfileStore from '@/store/modules/profile'
 
 const dispatcher = { name: 'InfoboxModule.vue' }
 const showContent = ref(true)
@@ -81,7 +81,7 @@ function onClose(): void {
     }
 }
 function onHideProfile(): void {
-    profileStore.setProfileFeature({ feature: undefined }, dispatcher)
+    profileStore.setProfileFeature(undefined, dispatcher)
 }
 </script>
 
