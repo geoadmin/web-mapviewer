@@ -12,9 +12,9 @@ import {
     calculateResolution,
 } from '@/modules/map/components/cesium/utils/cameraUtils'
 import useCesiumStore from '@/store/modules/cesium'
-import useUIStore from '@/store/modules/ui'
 import usePositionStore from '@/store/modules/position'
 import { normalizeAngle } from '@/store/modules/position'
+import useUIStore from '@/store/modules/ui'
 
 const dispatcher: ActionDispatcher = { name: 'sync-camera-lonlatzoom.plugin' }
 
