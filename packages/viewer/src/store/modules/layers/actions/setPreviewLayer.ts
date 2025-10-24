@@ -23,7 +23,7 @@ export default function setPreviewLayer(
         previewLayerAbortController = undefined
     }
 
-    if (layer === undefined) {
+    if (!layer) {
         this.previewLayer = undefined
         return
     }
