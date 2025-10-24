@@ -5,7 +5,7 @@ import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import { IdentifyMode } from '@/store/modules/features/types/IdentifyMode.enum'
 import useLayersStore from '@/store/modules/layers.store'
-import { ClickType } from '@/store/modules/map/types/map'
+import { ClickType } from '@/store/modules/map/types/clickType.enum'
 import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui.store'
 
 export default function click(
