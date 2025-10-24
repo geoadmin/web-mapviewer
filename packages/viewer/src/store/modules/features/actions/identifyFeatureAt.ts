@@ -12,7 +12,7 @@ import { IdentifyMode } from '@/store/modules/features/types/IdentifyMode.enum'
 import getFeatureCountForCoordinate from '@/store/modules/features/utils/getFeatureCountForCoordinate'
 import identifyOnAllLayers from '@/store/modules/features/utils/identifyOnAllLayers'
 import useI18nStore from '@/store/modules/i18n'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import useUIStore from '@/store/modules/ui'
 
 /**

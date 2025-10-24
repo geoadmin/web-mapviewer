@@ -9,12 +9,11 @@ import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
 import { getDefaultValidationResponse } from '@/router/storeSync/validation'
-import { PositionStoreActions } from '@/store/actions'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 
 const projectionParamConfig = new UrlParamConfig<number>({
     urlParamName: 'sr',
-    actionsToWatch: [PositionStoreActions.SetProjection],
+    actionsToWatch: ['setProjection'],
     setValuesInStore: (_: RouteLocationNormalizedGeneric, queryValue?: number) => {
         if (typeof queryValue === 'number') {
             const matchingProjection = allCoordinateSystems.find(
@@ -44,9 +43,9 @@ const projectionParamConfig = new UrlParamConfig<number>({
         getDefaultValidationResponse(
             queryValue,
             !!queryValue &&
-                allCoordinateSystems
-                    .map((cs: CoordinateSystem) => cs.epsgNumber)
-                    .includes(queryValue),
+            allCoordinateSystems
+                .map((cs: CoordinateSystem) => cs.epsgNumber)
+                .includes(queryValue),
             'sr'
         ),
 })

@@ -4,9 +4,8 @@ import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
 import { getDefaultValidationResponse } from '@/router/storeSync/validation'
-import { PositionStoreActions } from '@/store/actions'
 import useCesiumStore from '@/store/modules/cesium'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 
 function dispatchZoomFromUrlIntoStore(_: RouteLocationNormalizedGeneric, urlParamValue?: number) {
     if (urlParamValue) {
@@ -24,7 +23,7 @@ function generateZoomUrlParamFromStoreValues(): number | undefined {
 /** Describe the zoom level of the map in the URL. */
 const zoomParamConfig = new UrlParamConfig<number>({
     urlParamName: 'z',
-    actionsToWatch: [PositionStoreActions.SetZoom],
+    actionsToWatch: ['setZoom'],
     setValuesInStore: dispatchZoomFromUrlIntoStore,
     extractValueFromStore: generateZoomUrlParamFromStoreValues,
     keepInUrlWhenDefault: true,

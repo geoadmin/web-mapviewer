@@ -18,7 +18,7 @@ import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers.store'
 import useMapStore from '@/store/modules/map'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import getResultForAutoselect from '@/store/modules/search/utils/getResultForAutoselect'
 import coordinateFromString from '@/utils/coordinates/coordinateExtractors'
 

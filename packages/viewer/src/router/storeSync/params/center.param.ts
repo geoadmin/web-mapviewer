@@ -5,9 +5,8 @@ import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/router/storeSync/UrlParamConfig.class'
 import { getDefaultValidationResponse } from '@/router/storeSync/validation'
-import { PositionStoreActions } from '@/store/actions'
 import useCesiumStore from '@/store/modules/cesium'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 
 export function readCenterFromUrlParam(urlParamValue?: string): SingleCoordinate | undefined {
     if (urlParamValue) {
@@ -55,7 +54,7 @@ function validateUrlInput(queryValue?: string) {
 
 const centerParamConfig = new UrlParamConfig<string>({
     urlParamName: 'center',
-    actionsToWatch: [PositionStoreActions.SetCenter],
+    actionsToWatch: ['setCenter'],
     setValuesInStore,
     extractValueFromStore,
     keepInUrlWhenDefault: false,

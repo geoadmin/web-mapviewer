@@ -26,21 +26,6 @@ export enum LayerStoreActions {
     LoadLayersConfig = 'loadLayersConfig',
 }
 
-export enum PositionStoreActions {
-    SetDisplayedFormat = 'setDisplayedFormat',
-    SetZoom = 'setZoom',
-    IncreaseZoom = 'increaseZoom',
-    DecreaseZoom = 'decreaseZoom',
-    ZoomToExtent = 'zoomToExtent',
-    SetRotation = 'setRotation',
-    SetAutoRotation = 'setAutoRotation',
-    SetHasOrientation = 'setHasOrientation',
-    SetCenter = 'setCenter',
-    SetCrossHair = 'setCrossHair',
-    SetCameraPosition = 'setCameraPosition',
-    SetProjection = 'setProjection',
-}
-
 export enum UIStoreActions {
     SetSize = 'setSize',
     ToggleMenu = 'toggleMenu',

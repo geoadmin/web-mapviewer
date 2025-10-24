@@ -5,7 +5,7 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import type { GeolocationStore } from '@/store/modules/geolocation/types/geolocation'
 import type { ActionDispatcher } from '@/store/types'
 
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 
 export default function setGeolocationPosition(
     this: GeolocationStore,

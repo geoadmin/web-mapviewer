@@ -10,7 +10,7 @@ import type { GeolocationStore } from '@/store/modules/geolocation/types/geoloca
 import type { ActionDispatcher } from '@/store/types'
 
 import useCesiumStore from '@/store/modules/cesium'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import useUIStore from '@/store/modules/ui'
 
 /**

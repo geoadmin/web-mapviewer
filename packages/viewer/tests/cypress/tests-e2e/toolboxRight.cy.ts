@@ -1,6 +1,6 @@
 import type Map from 'ol/Map'
 
-import { normalizeAngle } from '@/store/modules/position.store'
+import { normalizeAngle } from '@/store/modules/position'
 
 const compassButtonSelector: string = '[data-cy="compass-button"]'
 const facingWest: number = 0.5 * Math.PI

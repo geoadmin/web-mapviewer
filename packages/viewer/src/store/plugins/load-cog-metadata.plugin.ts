@@ -10,7 +10,7 @@ import type { ActionDispatcher } from '@/store/types'
 import { CloudOptimizedGeoTIFFParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/CloudOptimizedGeoTIFFParser.class'
 import { LayerStoreActions } from '@/store/actions'
 import useLayersStore from '@/store/modules/layers.store'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import { isEnumValue } from '@/utils/utils'
 
 const cogParser = new CloudOptimizedGeoTIFFParser()

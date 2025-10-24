@@ -7,7 +7,7 @@ import { computed, inject, onBeforeMount, onBeforeUnmount, ref, watch } from 'vu
 
 import type { ActionDispatcher } from '@/store/types'
 
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 
 const dispatcher: ActionDispatcher = { name: 'useDeviceOrientation.composable' }
 

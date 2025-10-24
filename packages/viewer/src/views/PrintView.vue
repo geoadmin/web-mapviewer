@@ -21,7 +21,7 @@ import OpenLayersScale from '@/modules/map/components/openlayers/OpenLayersScale
 import MapModule from '@/modules/map/MapModule.vue'
 import ConfederationFullLogo from '@/modules/menu/components/header/ConfederationFullLogo.vue'
 import { stringifyQuery } from '@/utils/url-router'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import useI18nStore from '@/store/modules/i18n'
 import usePrintStore from '@/store/modules/print'
 import useMapStore from '@/store/modules/map'

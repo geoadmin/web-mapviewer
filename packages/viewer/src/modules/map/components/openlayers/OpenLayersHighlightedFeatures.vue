@@ -30,9 +30,9 @@ import type { ActionDispatcher } from '@/store/types'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import useMapStore from '@/store/modules/map'
-import usePositionStore from '@/store/modules/position.store'
 import useProfileStore from '@/store/modules/profile'
 import useUiStore, { FeatureInfoPositions } from '@/store/modules/ui'
+import usePositionStore from '@/store/modules/position'
 import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 
 const dispatcher: ActionDispatcher = {

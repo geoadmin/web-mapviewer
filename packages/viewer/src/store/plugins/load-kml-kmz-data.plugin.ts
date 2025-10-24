@@ -17,7 +17,7 @@ import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/pa
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
 import { LayerStoreActions } from '@/store/actions'
 import useLayersStore from '@/store/modules/layers.store'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import { isEnumValue } from '@/utils/utils'
 
 const dispatcher = { name: 'load-kml-kmz-data.plugin' }

@@ -38,7 +38,7 @@ import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers.store'
-import usePositionStore from '@/store/modules/position.store'
+import usePositionStore from '@/store/modules/position'
 import useUIStore from '@/store/modules/ui'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 
@@ -325,8 +325,8 @@ async function getAndDispatchFeatures(
             const query = to.query
             if (!query.z) {
                 positionStore.zoomToExtent(
+                    extent,
                     {
-                        extent: extent,
                         maxZoom: positionStore.projection.get1_25000ZoomLevel(),
                     },
                     STORE_DISPATCHER_ROUTER_PLUGIN
