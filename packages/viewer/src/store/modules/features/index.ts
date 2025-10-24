@@ -1,6 +1,5 @@
 import { defineStore } from 'pinia'
 
-import type { LayerFeature } from '@/api/features.api'
 import type {
     FeaturesStoreGetters,
     FeaturesStoreState,

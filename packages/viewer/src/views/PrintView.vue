@@ -23,7 +23,7 @@ import ConfederationFullLogo from '@/modules/menu/components/header/Confederatio
 import { stringifyQuery } from '@/utils/url-router'
 import usePositionStore from '@/store/modules/position.store'
 import useI18nStore from '@/store/modules/i18n'
-import usePrintStore from '@/store/modules/print.store'
+import usePrintStore from '@/store/modules/print'
 import useMapStore from '@/store/modules/map.store'
 import type { ActionDispatcher } from '@/store/types'
 

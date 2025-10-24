@@ -14,7 +14,7 @@ import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
 import ProgressBar from '@/utils/components/ProgressBar.vue'
 import { downloadFile, generateFilename } from '@/utils/utils'
-import usePrintStore from '@/store/modules/print.store'
+import usePrintStore from '@/store/modules/print'
 import useLayersStore from '@/store/modules/layers.store'
 import type { ActionDispatcher } from '@/store/types'
 
@@ -107,12 +107,15 @@ watch(availablePrintLayouts, () => {
 function togglePrintMenu() {
     // load print layouts from the backend if they were not yet loaded
     if (availablePrintLayouts.value.length === 0) {
-        printStore
-            .loadPrintLayouts(dispatcher)
-            .then(() => {
+        printStore.loadPrintLayouts(dispatcher)
+        // wait for the layouts to be loaded before showing the section
+        watch(
+            printStore.layouts,
+            () => {
                 isSectionShown.value = !isSectionShown.value
-            })
-            .catch((_) => {})
+            },
+            { once: true }
+        )
     } else {
         // if layouts are already present, we select the first one as default value
         selectedLayout.value = availablePrintLayouts.value[0]?.value
