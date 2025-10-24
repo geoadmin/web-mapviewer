@@ -1,12 +1,13 @@
 <script setup lang="ts">
+import type Map from 'ol/Map'
+
+import log from '@swissgeo/log'
 import Overlay from 'ol/Overlay'
 import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
-import type Map from 'ol/Map'
-import log from '@swissgeo/log'
 
+import { EditableFeatureTypes } from '@/api/features.api'
 import AddVertexButton from '@/modules/drawing/components/AddVertexButton.vue'
 import useFeaturesStore from '@/store/modules/features'
-import { EditableFeatureTypes } from '@/api/features.api'
 
 const BASE_OFFSET_DISTANCE = 35
 const MEASURE_ADDITIONAL_OFFSET = 40 // additional offset for not covering the measure line label

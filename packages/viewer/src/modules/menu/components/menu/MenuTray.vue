@@ -10,10 +10,10 @@ import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuPrintSection from '@/modules/menu/components/print/MenuPrintSection.vue'
 import MenuShareSection from '@/modules/menu/components/share/MenuShareSection.vue'
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
-import useCesiumStore from '@/store/modules/cesium'
-import useUIStore from '@/store/modules/ui'
-import useDrawingStore from '@/store/modules/drawing'
 import useAppStore from '@/store/modules/app'
+import useCesiumStore from '@/store/modules/cesium'
+import useDrawingStore from '@/store/modules/drawing'
+import useUIStore from '@/store/modules/ui'
 
 const dispatcher = { name: 'MenuTray.vue' }
 

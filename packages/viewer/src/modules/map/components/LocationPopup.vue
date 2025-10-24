@@ -7,18 +7,19 @@ import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
+import type { ActionDispatcher } from '@/store/types'
+
 import { createShortLink } from '@/api/shortlink.api'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
 import LocationPopupPosition from '@/modules/map/components/LocationPopupPosition.vue'
 import LocationPopupShare from '@/modules/map/components/LocationPopupShare.vue'
 import { MapPopoverMode } from '@/modules/map/components/MapPopoverMode.enum'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
-import { stringifyQuery } from '@/utils/url-router'
-import useMapStore from '@/store/modules/map'
-import usePositionStore from '@/store/modules/position'
 import useCesiumStore from '@/store/modules/cesium'
 import useI18nStore from '@/store/modules/i18n'
-import type { ActionDispatcher } from '@/store/types'
+import useMapStore from '@/store/modules/map'
+import usePositionStore from '@/store/modules/position'
+import { stringifyQuery } from '@/utils/url-router'
 
 const dispatcher: ActionDispatcher = { name: 'LocationPopup.vue' }
 

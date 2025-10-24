@@ -13,6 +13,9 @@ import {
 import proj4 from 'proj4'
 import { computed, inject, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+
+import type { ActionDispatcher } from '@/store/types'
+
 import useCesiumStore from '@/store/modules/cesium'
 import usePositionStore from '@/store/modules/position'
 import coordinateFormat, {
@@ -20,7 +23,6 @@ import coordinateFormat, {
     type CoordinateFormat,
     LV95Format,
 } from '@/utils/coordinates/coordinateFormat'
-import type { ActionDispatcher } from '@/store/types'
 
 const mousePosition = useTemplateRef<HTMLDivElement>('mousePosition')
 const displayedFormatId = ref(LV95Format.id)

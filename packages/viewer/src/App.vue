@@ -12,11 +12,11 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
+import useAppStore from '@/store/modules/app'
+import useLayersStore from '@/store/modules/layers'
 import useUIStore, { MAP_LOADING_BAR_REQUESTER } from '@/store/modules/ui'
 import FeedbackPopup from '@/utils/components/FeedbackPopup.vue'
 import debounce from '@/utils/debounce'
-import useLayersStore from '@/store/modules/layers'
-import useAppStore from '@/store/modules/app'
 
 const dispatcher: ActionDispatcher = { name: 'App.vue' }
 

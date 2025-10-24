@@ -3,8 +3,10 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { onMounted, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-import useDrawingStore from '@/store/modules/drawing'
+
 import type { ActionDispatcher } from '@/store/types'
+
+import useDrawingStore from '@/store/modules/drawing'
 import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 
 const { t } = useI18n()

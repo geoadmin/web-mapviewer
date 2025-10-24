@@ -1,21 +1,20 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { storeToRefs } from 'pinia'
 
 import { MAX_WIDTH_SHOW_FLOATING_TOOLTIP } from '@/config/responsive.config'
 import InfoboxContent from '@/modules/infobox/components/InfoboxContent.vue'
+import useDrawingStore from '@/store/modules/drawing'
+import useFeaturesStore from '@/store/modules/features'
+import useMapStore from '@/store/modules/map'
+import useProfileStore from '@/store/modules/profile'
 import { FeatureInfoPositions } from '@/store/modules/ui'
+import useUiStore from '@/store/modules/ui'
 import PrintButton from '@/utils/components/PrintButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
-
-import useFeaturesStore from '@/store/modules/features'
-import useDrawingStore from '@/store/modules/drawing'
-import useMapStore from '@/store/modules/map'
-import useProfileStore from '@/store/modules/profile'
-import useUiStore from '@/store/modules/ui'
 
 const dispatcher = { name: 'InfoboxModule.vue' }
 const showContent = ref(true)

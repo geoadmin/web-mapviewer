@@ -1,18 +1,19 @@
 <script setup lang="ts">
-import GeoadminTooltip from '@swissgeo/tooltip'
-import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import TextTruncate from '@/utils/components/TextTruncate.vue'
 import {
     ALL_YEARS_TIMESTAMP,
     CURRENT_YEAR_TIMESTAMP,
     type LayerTimeConfig,
     type LayerTimeConfigEntry,
 } from '@swissgeo/layers'
-import useUIStore from '@/store/modules/ui'
-import useLayersStore from '@/store/modules/layers'
+import GeoadminTooltip from '@swissgeo/tooltip'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
 import type { ActionDispatcher } from '@/store/types'
+
+import useLayersStore from '@/store/modules/layers'
+import useUIStore from '@/store/modules/ui'
+import TextTruncate from '@/utils/components/TextTruncate.vue'
 
 const dispatcher: ActionDispatcher = { name: 'MenuActiveLayersListItemTimeSelector.vue' }
 

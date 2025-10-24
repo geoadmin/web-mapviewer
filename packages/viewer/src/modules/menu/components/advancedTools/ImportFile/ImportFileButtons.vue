@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import useUIStore from '@/store/modules/ui'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+
 import type { ActionDispatcher } from '@/store/types'
+
+import useUIStore from '@/store/modules/ui'
 
 const dispatcher: ActionDispatcher = { name: 'ImportFileButtons.vue' }
 

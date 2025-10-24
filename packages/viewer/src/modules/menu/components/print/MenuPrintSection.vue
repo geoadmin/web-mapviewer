@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import log from '@swissgeo/log'
 import { formatThousand } from '@swissgeo/numbers'
+import Map from 'ol/Map'
 import { computed, inject, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import Map from 'ol/Map'
+
+import type { ActionDispatcher } from '@/store/types'
 
 import { PrintError, PrintLayout } from '@/api/print.api'
 import {
@@ -11,12 +13,11 @@ import {
     usePrint,
 } from '@/modules/map/components/openlayers/utils/usePrint.composable'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
+import useLayersStore from '@/store/modules/layers'
+import usePrintStore from '@/store/modules/print'
 import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
 import ProgressBar from '@/utils/components/ProgressBar.vue'
 import { downloadFile, generateFilename } from '@/utils/utils'
-import usePrintStore from '@/store/modules/print'
-import useLayersStore from '@/store/modules/layers'
-import type { ActionDispatcher } from '@/store/types'
 
 const dispatcher: ActionDispatcher = { name: 'MapPrintSection.vue' }
 

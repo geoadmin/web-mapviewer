@@ -1,18 +1,19 @@
 <script setup lang="ts">
+import type { GeoAdminGroupOfLayers, GeoAdminLayer, Layer } from '@swissgeo/layers'
+
+import { storeToRefs } from 'pinia'
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { storeToRefs } from 'pinia'
+
+import type { FeaturesForLayer } from '@/store/modules/features/types/features'
 
 import FeatureListCategory from '@/modules/infobox/components/FeatureListCategory.vue'
-
-import useLayersStore from '@/store/modules/layers'
-import useI18nStore from '@/store/modules/i18n'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
+import useI18nStore from '@/store/modules/i18n'
+import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
 import useUiStore from '@/store/modules/ui'
-import type { GeoAdminGroupOfLayers, GeoAdminLayer, Layer } from '@swissgeo/layers'
-import type { FeaturesForLayer } from '@/store/modules/features/types/features'
 
 const dispatcher = { name: 'FeatureList.vue' }
 

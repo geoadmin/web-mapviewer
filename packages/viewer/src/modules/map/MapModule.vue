@@ -5,9 +5,9 @@ import CompareSlider from '@/modules/map/components/CompareSlider.vue'
 import LocationPopup from '@/modules/map/components/LocationPopup.vue'
 import WarningRibbon from '@/modules/map/components/WarningRibbon.vue'
 import useCesiumStore from '@/store/modules/cesium'
+import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
 import useUIStore from '@/store/modules/ui'
-import useLayersStore from '@/store/modules/layers'
 
 const CesiumMap = defineAsyncComponent(() => import('./components/cesium/CesiumMap.vue'))
 const OpenLayersMap = defineAsyncComponent(

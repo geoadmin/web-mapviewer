@@ -3,8 +3,8 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import MapFooterAttributionItem from '@/modules/map/components/footer/MapFooterAttributionItem.vue'
-import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 import useLayersStore from '@/store/modules/layers'
+import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 
 const layersStore = useLayersStore()
 const { t } = useI18n()

@@ -1,15 +1,15 @@
 <script setup lang="ts">
+import type { CoordinateSystem } from '@swissgeo/coordinates'
+import type { GeoAdminWMTSLayer } from '@swissgeo/layers'
 import type { Map } from 'ol'
 
+import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
 import { Tile as TileLayer } from 'ol/layer'
 import { WMTS as WMTSSource } from 'ol/source'
 import WMTSTileGrid from 'ol/tilegrid/WMTS'
 import { computed, inject, watch } from 'vue'
 
-import type { GeoAdminWMTSLayer } from '@swissgeo/layers'
-import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
-import type { CoordinateSystem } from '@swissgeo/coordinates'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'

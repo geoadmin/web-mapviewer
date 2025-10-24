@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import type { ActionDispatcher } from '@/store/types'
+
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import OpenLayersMarker from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
 import { OpenLayersMarkerStyles } from '@/modules/map/components/openlayers/utils/markerStyle'
 import useMapStore from '@/store/modules/map'
-import type { ActionDispatcher } from '@/store/types'
 
 const mapStore = useMapStore()
 

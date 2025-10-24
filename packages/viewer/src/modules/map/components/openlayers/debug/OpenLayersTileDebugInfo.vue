@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import type { Map } from 'ol'
 
+import log from '@swissgeo/log'
 import TileLayer from 'ol/layer/Tile'
 import { TileDebug } from 'ol/source'
 import TileGrid from 'ol/tilegrid/TileGrid'
 import { computed, inject, toRef, watch } from 'vue'
-import log from '@swissgeo/log'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import usePositionStore from '@/store/modules/position'

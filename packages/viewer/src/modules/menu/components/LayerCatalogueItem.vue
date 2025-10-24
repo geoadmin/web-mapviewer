@@ -6,18 +6,18 @@
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { type FlatExtent, LV95, type NormalizedExtent } from '@swissgeo/coordinates'
+import { type GeoAdminGroupOfLayers, type Layer, LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { booleanContains, polygon } from '@turf/turf'
 import { computed, onMounted, ref, watch } from 'vue'
 
 import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPopup.vue'
+import useLayersStore from '@/store/modules/layers'
+import usePositionStore from '@/store/modules/position'
+import useTopicsStore from '@/store/modules/topics'
+import useUIStore from '@/store/modules/ui'
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
-import { type GeoAdminGroupOfLayers, type Layer, LayerType } from '@swissgeo/layers'
-import useUIStore from '@/store/modules/ui'
-import useLayersStore from '@/store/modules/layers'
-import useTopicsStore from '@/store/modules/topics'
-import usePositionStore from '@/store/modules/position'
 
 const dispatcher = { name: 'LayerCatalogueItem.vue' }
 

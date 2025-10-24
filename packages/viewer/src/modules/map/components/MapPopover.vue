@@ -4,6 +4,7 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
 
+import { MapPopoverMode } from '@/modules/map/components/MapPopoverMode.enum'
 import {
     cssDevDisclaimerHeight,
     cssDrawingMobileToolbarHeight,
@@ -12,10 +13,9 @@ import {
     cssTimeSliderBarHeight,
     cssTimeSliderDropdownHeight,
 } from '@/scss/exports'
-import PrintButton from '@/utils/components/PrintButton.vue'
-import useUIStore from '@/store/modules/ui'
 import useDrawingStore from '@/store/modules/drawing'
-import { MapPopoverMode } from '@/modules/map/components/MapPopoverMode.enum'
+import useUIStore from '@/store/modules/ui'
+import PrintButton from '@/utils/components/PrintButton.vue'
 import { useMovableElement } from '@/utils/composables/useMovableElement.composable'
 
 interface AnchorPosition {

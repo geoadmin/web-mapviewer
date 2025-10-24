@@ -1,29 +1,30 @@
 <script setup lang="ts">
+import type { Viewer } from 'cesium'
+import type { Map } from 'ol'
+
 import GeoadminElevationProfile, {
     GeoadminElevationProfileCesiumBridge,
     GeoadminElevationProfileOpenLayersBridge,
 } from '@swissgeo/elevation-profile'
+import log from '@swissgeo/log'
+import { MultiPolygon, type MultiLineString } from 'ol/geom'
+import { storeToRefs } from 'pinia'
 import { computed, inject, nextTick, onUnmounted, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { storeToRefs } from 'pinia'
+
+import type { EditableFeature } from '@/api/features.api'
 
 import { ENVIRONMENT } from '@/config/staging.config'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
-import { generateFilename } from '@/utils/utils'
-
-import useFeaturesStore from '@/store/modules/features'
-import useDrawingStore from '@/store/modules/drawing'
-import usePositionStore from '@/store/modules/position'
-import useI18nStore from '@/store/modules/i18n'
 import useCesiumStore from '@/store/modules/cesium'
+import useDrawingStore from '@/store/modules/drawing'
+import useFeaturesStore from '@/store/modules/features'
+import useI18nStore from '@/store/modules/i18n'
+import usePositionStore from '@/store/modules/position'
 import useProfileStore from '@/store/modules/profile'
 import useUiStore from '@/store/modules/ui'
-import type { Viewer } from 'cesium'
-import type { Map } from 'ol'
-import { MultiPolygon, type MultiLineString } from 'ol/geom'
-import log from '@swissgeo/log'
-import type { EditableFeature } from '@/api/features.api'
+import { generateFilename } from '@/utils/utils'
 
 const dispatcher = { name: 'InfoboxContent.vue' }
 

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { CloudOptimizedGeoTIFFLayer } from '@swissgeo/layers'
-import log from '@swissgeo/log'
-
 import type Map from 'ol/Map'
+
+import log from '@swissgeo/log'
 import TileLayer from 'ol/layer/Tile'
 import WebGLTileLayer from 'ol/layer/WebGLTile'
 import GeoTIFFSource, { type SourceInfo } from 'ol/source/GeoTIFF'

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Map } from 'ol'
 import type { FlatExtent } from '@swissgeo/coordinates'
+import type { Map } from 'ol'
 
 import log from '@swissgeo/log'
 import Feature from 'ol/Feature'

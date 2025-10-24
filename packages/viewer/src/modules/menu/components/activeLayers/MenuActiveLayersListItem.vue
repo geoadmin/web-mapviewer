@@ -5,17 +5,6 @@
  */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import GeoadminTooltip from '@swissgeo/tooltip'
-import { computed, onMounted, ref, useTemplateRef } from 'vue'
-import { useI18n } from 'vue-i18n'
-
-import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
-import TransparencySlider from '@/modules/menu/components/activeLayers/TransparencySlider.vue'
-import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
-import ExtLayerInfoButton from '@/utils/components/ExtLayerInfoButton.vue'
-import TextTruncate from '@/utils/components/TextTruncate.vue'
-import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
-import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 import {
     type ExternalLayer,
     type KMLLayer,
@@ -23,11 +12,23 @@ import {
     type Layer,
     LayerType,
 } from '@swissgeo/layers'
-import useLayersStore from '@/store/modules/layers'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
-import useUIStore from '@/store/modules/ui'
-import useCesiumStore from '@/store/modules/cesium'
+import GeoadminTooltip from '@swissgeo/tooltip'
+import { computed, onMounted, ref, useTemplateRef } from 'vue'
+import { useI18n } from 'vue-i18n'
+
 import type { ActionDispatcher } from '@/store/types'
+
+import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
+import TransparencySlider from '@/modules/menu/components/activeLayers/TransparencySlider.vue'
+import useCesiumStore from '@/store/modules/cesium'
+import useLayersStore from '@/store/modules/layers'
+import useUIStore from '@/store/modules/ui'
+import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
+import ExtLayerInfoButton from '@/utils/components/ExtLayerInfoButton.vue'
+import TextTruncate from '@/utils/components/TextTruncate.vue'
+import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
+import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 
 const dispatcher: ActionDispatcher = { name: 'MenuActiveLayersListItem.vue' }
 

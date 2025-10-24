@@ -14,13 +14,13 @@ import MapToolbox from '@/modules/map/components/toolbox/MapToolbox.vue'
 import TimeSliderButton from '@/modules/map/components/toolbox/TimeSliderButton.vue'
 import MapModule from '@/modules/map/MapModule.vue'
 import MenuModule from '@/modules/menu/MenuModule.vue'
+import useCesiumStore from '@/store/modules/cesium'
+import useDrawingStore from '@/store/modules/drawing'
 import useUIStore, { UIModes } from '@/store/modules/ui'
 import AppVersion from '@/utils/components/AppVersion.vue'
 import DragDropOverlay from '@/utils/components/DragDropOverlay.vue'
 import LoadingBar from '@/utils/components/LoadingBar.vue'
 import OfflineReadinessStatus from '@/utils/offline/OfflineReadinessStatus.vue'
-import useCesiumStore from '@/store/modules/cesium'
-import useDrawingStore from '@/store/modules/drawing'
 
 const DrawingModule = defineAsyncComponent(() => import('@/modules/drawing/DrawingModule.vue'))
 

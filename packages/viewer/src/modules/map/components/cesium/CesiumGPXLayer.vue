@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import log from '@swissgeo/log'
+import type { GPXLayer } from '@swissgeo/layers'
 import type { Entity, Viewer } from 'cesium'
+
+import log from '@swissgeo/log'
 import {
     BillboardGraphics,
     Cartesian3,
@@ -13,7 +15,6 @@ import {
 } from 'cesium'
 import { computed, inject, toRef, watch } from 'vue'
 
-import type { GPXLayer } from '@swissgeo/layers'
 import { GPX_BILLBOARD_RADIUS } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
 

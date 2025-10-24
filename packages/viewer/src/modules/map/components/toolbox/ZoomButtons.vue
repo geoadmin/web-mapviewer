@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import useCesiumStore from '@/store/modules/cesium'
-import usePositionStore from '@/store/modules/position'
-import type { ActionDispatcher } from '@/store/types'
+import log from '@swissgeo/log'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { Ray, type Viewer } from 'cesium'
 import { computed, inject } from 'vue'
 import { useI18n } from 'vue-i18n'
-import log from '@swissgeo/log'
+
+import type { ActionDispatcher } from '@/store/types'
+
+import useCesiumStore from '@/store/modules/cesium'
+import usePositionStore from '@/store/modules/position'
 
 const dispatcher: ActionDispatcher = { name: 'ZoomButtons.vue' }
 

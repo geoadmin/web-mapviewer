@@ -1,12 +1,12 @@
 <script setup lang="ts">
 /** Adds a GeoJSON layer to the OpenLayers map */
 
-import type { Map } from 'ol'
-import { Feature } from 'ol'
-import type { FeatureLike } from 'ol/Feature'
 import type { GeoAdminGeoJSONLayer } from '@swissgeo/layers'
+import type { Map } from 'ol'
+import type { FeatureLike } from 'ol/Feature'
 
 import log from '@swissgeo/log'
+import { Feature } from 'ol'
 import GeoJSON from 'ol/format/GeoJSON'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'

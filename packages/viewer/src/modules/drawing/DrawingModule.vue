@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import type Feature from 'ol/Feature'
+import type { Geometry } from 'ol/geom'
+import type Map from 'ol/Map'
+
+import { layerUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
 import { WarningMessage } from '@swissgeo/log/Message'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import type Map from 'ol/Map'
-import type { Geometry } from 'ol/geom'
-import type Feature from 'ol/Feature'
 import {
     type ComponentPublicInstance,
     computed,
@@ -19,6 +21,8 @@ import {
 } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import type { ActionDispatcher } from '@/store/types'
+
 import { EditableFeatureTypes } from '@/api/features.api'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import AddVertexButtonOverlay from '@/modules/drawing/components/AddVertexButtonOverlay.vue'
@@ -28,16 +32,14 @@ import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
 import { DrawingState } from '@/modules/drawing/lib/export-utils'
 import useKmlDataManagement from '@/modules/drawing/useKmlDataManagement.composable'
-import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 import useDrawingStore from '@/store/modules/drawing'
+import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
-import useUiStore, { FeatureInfoPositions } from '@/store/modules/ui'
 import usePositionStore from '@/store/modules/position'
-import type { ActionDispatcher } from '@/store/types'
-import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
-import { layerUtils } from '@swissgeo/layers/utils'
+import useUiStore, { FeatureInfoPositions } from '@/store/modules/ui'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
+import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
 
 const dispatcher: ActionDispatcher = { name: 'DrawingModule.vue' }
 

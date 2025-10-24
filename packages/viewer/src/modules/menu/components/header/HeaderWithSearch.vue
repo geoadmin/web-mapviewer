@@ -10,11 +10,11 @@ import FeedbackButton from '@/modules/menu/components/help/feedback/FeedbackButt
 import HelpLink from '@/modules/menu/components/help/HelpLink.vue'
 import ReportProblemButton from '@/modules/menu/components/help/ReportProblemButton.vue'
 import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
-import TextTruncate from '@/utils/components/TextTruncate.vue'
-import useUIStore from '@/store/modules/ui'
-import useLayersStore from '@/store/modules/layers'
 import useI18nStore from '@/store/modules/i18n'
+import useLayersStore from '@/store/modules/layers'
 import useTopicsStore from '@/store/modules/topics'
+import useUIStore from '@/store/modules/ui'
+import TextTruncate from '@/utils/components/TextTruncate.vue'
 
 const dispatcher = { name: 'HeaderWithSearch.vue' }
 
