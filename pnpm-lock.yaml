@@ -94,7 +94,7 @@ catalogs:
       specifier: ^7946.0.16
       version: 7946.0.16
     '@types/jsdom':
-      specifier: ^27.0.0
+      specifier: 27.0.0
       version: 27.0.0
     '@types/lodash':
       specifier: ^4.17.20
@@ -430,6 +430,12 @@ importers:
 
   .:
     devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.7.2
+      tsx:
+        specifier: 'catalog:'
+        version: 4.20.6
       yaml:
         specifier: 'catalog:'
         version: 2.8.1
@@ -1324,6 +1330,9 @@ importers:
       '@types/geojson':
         specifier: 'catalog:'
         version: 7946.0.16
+      '@types/jsdom':
+        specifier: 'catalog:'
+        version: 27.0.0
       '@types/lodash':
         specifier: 'catalog:'
         version: 4.17.20
@@ -1339,6 +1348,9 @@ importers:
       '@types/sortablejs':
         specifier: ^1.15.8
         version: 1.15.8
+      '@types/yargs':
+        specifier: ^17.0.34
+        version: 17.0.34
       '@vite-pwa/assets-generator':
         specifier: 'catalog:'
         version: 1.0.2
@@ -3702,6 +3714,12 @@ packages:
 
   '@types/web-bluetooth@0.0.21':
     resolution: {integrity: sha512-oIQLCGWtcFZy2JW77j9k8nHzAOpqMHLQejDA48XXMWH6tjCQHz5RCFz1bzsmROyL6PUm+LLnUiI4BCn221inxA==}
+
+  '@types/yargs-parser@21.0.3':
+    resolution: {integrity: sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ==}
+
+  '@types/yargs@17.0.34':
+    resolution: {integrity: sha512-KExbHVa92aJpw9WDQvzBaGVE2/Pz+pLZQloT2hjL8IqsZnV62rlPOYvNnLmf/L2dyllfVUOVBj64M0z/46eR2A==}
 
   '@types/yauzl@2.10.3':
     resolution: {integrity: sha512-oJoftv0LSuaDZE3Le4DbKX+KS9G36NzOeSap90UIK0yMA/NhKJhqlSGtNDORNRaIbQfzjXDrQa0ytJ6mNRGz/Q==}
@@ -11252,6 +11270,12 @@ snapshots:
   '@types/unist@3.0.3': {}
 
   '@types/web-bluetooth@0.0.21': {}
+
+  '@types/yargs-parser@21.0.3': {}
+
+  '@types/yargs@17.0.34':
+    dependencies:
+      '@types/yargs-parser': 21.0.3
 
   '@types/yauzl@2.10.3':
     dependencies:

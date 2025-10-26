@@ -34,7 +34,7 @@ catalog:
   '@types/bootstrap': ^5.2.10
   '@types/chai': ^5.2.2
   '@types/geojson': ^7946.0.16
-  '@types/jsdom': ^27.0.0
+  '@types/jsdom': 27.0.0
   '@types/lodash': ^4.17.20
   '@types/luxon': ^3.7.1
   '@types/node': ^24.8.1
