@@ -1,24 +1,17 @@
-import type { Layer } from '@swissgeo/layers'
-
 import {
     allCoordinateSystems,
     CoordinateSystem,
     CustomCoordinateSystem,
     StandardCoordinateSystem,
 } from '@swissgeo/coordinates'
-import { coordinatesUtils, extentUtils } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { isNumber } from '@swissgeo/numbers'
-import { cloneDeep } from 'lodash'
 import proj4 from 'proj4'
-import { reproject } from 'reproject'
 
-import type { EditableFeature, LayerFeature, SelectableFeature } from '@/api/features.api'
 import type { PositionStore } from '@/store/modules/position/types/position'
 import type { ActionDispatcher } from '@/store/types'
 
-import useFeaturesStore from '@/store/modules/features'
-import useLayersStore from '@/store/modules/layers'
+import { reprojectLayersFeatures } from '@/store/modules/position/utils/reproject'
 
 export default function setProjection(
     this: PositionStore,
@@ -95,100 +88,5 @@ export default function setProjection(
             messages: ['Unsupported projection', projection, dispatcher],
         })
     }
-    reprojectLayersFeatures.call(this, oldProjection, dispatcher)
-}
-
-function reprojectLayersFeatures(this: PositionStore, oldProjection: CoordinateSystem, dispatcher: ActionDispatcher): void {
-    const newProjection = this.projection
-    log.debug({
-        title: 'Reproject pinia plugin',
-        titleColor: LogPreDefinedColor.Yellow,
-        messages: [
-            `starting to reproject the app from ${oldProjection.epsg} to ${newProjection.epsg}`,
-        ],
-    })
-    if (oldProjection.epsg === newProjection.epsg) {
-        log.info({
-            title: 'Reproject pinia plugin',
-            titleColor: LogPreDefinedColor.Yellow,
-            messages: [
-                `The old projection ${oldProjection.epsg} and new projection ${newProjection.epsg} are the same, no need to reproject the layer extent`,
-            ],
-        })
-        return
-    }
-    reprojectSelectedFeatures(oldProjection, newProjection, dispatcher)
-    reprojectActiveLayersExtent(oldProjection, newProjection, dispatcher)
-}
-
-function reprojectActiveLayersExtent(
-    oldProjection: CoordinateSystem,
-    newProjection: CoordinateSystem, dispatcher: ActionDispatcher
-): void {
-    const layersStore = useLayersStore()
-    const updatedLayers: Layer[] = layersStore.activeLayers
-        .filter((layer) => layer.extent)
-        .map((layer: Layer) => {
-            const updatedLayer = cloneDeep(layer)
-            updatedLayer.extent = extentUtils.projExtent(
-                oldProjection,
-                newProjection,
-                updatedLayer.extent!
-            )
-            return updatedLayer
-        })
-    if (updatedLayers.length > 0) {
-        layersStore.updateLayers(updatedLayers, dispatcher)
-    }
-}
-
-function reprojectSelectedFeatures(
-    oldProjection: CoordinateSystem,
-    newProjection: CoordinateSystem, dispatcher: ActionDispatcher
-): void {
-    const featureStore = useFeaturesStore()
-
-    const reprojectedSelectedFeatures: SelectableFeature<boolean>[] = []
-    featureStore.selectedFeatures.forEach((selectedFeature: SelectableFeature<boolean>) => {
-        if (!selectedFeature.isEditable) {
-            const layerFeature = cloneDeep(selectedFeature) as LayerFeature
-            layerFeature.coordinates = coordinatesUtils.reprojectAndRound(
-                oldProjection,
-                newProjection,
-                selectedFeature.coordinates
-            )
-            if (layerFeature.extent) {
-                layerFeature.extent = extentUtils.projExtent(
-                    oldProjection,
-                    newProjection,
-                    layerFeature.extent
-                )
-            }
-            if (layerFeature.geometry) {
-                layerFeature.geometry = reproject(
-                    layerFeature.geometry,
-                    oldProjection.epsg,
-                    newProjection.epsg
-                )
-            }
-            reprojectedSelectedFeatures.push(layerFeature)
-        } else if (selectedFeature.isEditable) {
-            const editableFeature = cloneDeep(selectedFeature) as EditableFeature
-            editableFeature.coordinates = coordinatesUtils.reprojectAndRound(
-                oldProjection,
-                newProjection,
-                selectedFeature.coordinates
-            )
-            reprojectedSelectedFeatures.push(editableFeature)
-        } else {
-            log.debug({
-                title: 'Reproject pinia plugin',
-                titleColor: LogPreDefinedColor.Yellow,
-                messages: ['do not know what to do with this feature', selectedFeature],
-            })
-        }
-    })
-    if (reprojectedSelectedFeatures.length > 0) {
-        featureStore.setSelectedFeatures(reprojectedSelectedFeatures, dispatcher)
-    }
+    reprojectLayersFeatures(this.projection, oldProjection, dispatcher)
 }
