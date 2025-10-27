@@ -30,7 +30,7 @@ export default function setCenterIfInBounds(
 
     const lv95BoundsInCurrentProjection = LV95.getBoundsAs(positionStore.projection)
 
-    if (lv95BoundsInCurrentProjection?.isInBounds(center[0], center[1])) {
+    if (lv95BoundsInCurrentProjection?.isInBounds(center)) {
         if (!isEqual(positionStore.center, center)) {
             positionStore.setCenter(center, dispatcher)
 

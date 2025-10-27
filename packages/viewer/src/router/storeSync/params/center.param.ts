@@ -45,7 +45,8 @@ function validateUrlInput(queryValue?: string) {
         const center = queryValue.split(',').map((value) => parseFloat(value))
         return getDefaultValidationResponse(
             queryValue,
-            center.length === 2 && usePositionStore().projection.isInBounds(center[0]!, center[1]!),
+            center.length === 2 &&
+                usePositionStore().projection.isInBounds(center as SingleCoordinate),
             'center'
         )
     }

@@ -191,13 +191,22 @@ export default abstract class CoordinateSystem {
         return
     }
 
+    isInBounds(x: number, y: number): boolean
+    isInBounds(coordinate: SingleCoordinate): boolean
+
     /**
-     * Tells if a coordinate (described by X and Y) is in bound of this coordinate system.
+     * Tells if a coordinate is in bound of this coordinate system.
      *
      * Will return false if no bounds are defined for this coordinate system
      */
-    isInBounds(x: number, y: number): boolean {
-        return !!this.bounds?.isInBounds(x, y)
+    isInBounds(xOrCoordinate: number | SingleCoordinate, y?: number): boolean {
+        if (!this.bounds) {
+            return false
+        }
+        if (typeof xOrCoordinate === 'number') {
+            return this.bounds.isInBounds(xOrCoordinate, y!)
+        }
+        return this.bounds.isInBounds(xOrCoordinate[0], xOrCoordinate[1])
     }
 
     /**
