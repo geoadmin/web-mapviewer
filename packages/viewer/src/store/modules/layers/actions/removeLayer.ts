@@ -5,7 +5,9 @@ import { LayerType } from '@swissgeo/layers'
 import type { LayerActionFilter, LayersStore } from '@/store/modules/layers/types/layers'
 import type { ActionDispatcher } from '@/store/types'
 
+import useFeaturesStore from '@/store/modules/features'
 import { clearAutoReload } from '@/store/modules/layers/utils/autoReloadGeoJson'
+import { identifyFeatures, type GetLayerIdOptions, type GetLayerIdResult } from '@/store/modules/layers/utils/identifyFeatures'
 import matchTwoLayers from '@/store/modules/layers/utils/matchTwoLayers'
 
 export default function removeLayer(
@@ -28,6 +30,7 @@ export default function removeLayer(
     dispatcherOrNothing?: ActionDispatcher
 ) {
     const options = dispatcherOrNothing ? (optionsOrDispatcher as LayerActionFilter) : {}
+    const dispatcher = dispatcherOrNothing ?? (optionsOrDispatcher as ActionDispatcher)
     const { baseUrl, isExternal } = options
 
     const removedLayers: Layer[] = []
@@ -60,4 +63,32 @@ export default function removeLayer(
             }
         }
     })
+
+    identifyFeatures.call(this, setLayerIdUpdateFeatures.bind(this), { this: this, layerOrIndex }, dispatcher)
+}
+
+
+function setLayerIdUpdateFeatures(options: GetLayerIdOptions): GetLayerIdResult {
+    const featuresStore = useFeaturesStore()
+
+    const selectedFeatures = featuresStore.selectedFeatures
+    let layerId
+    let updateFeatures = true
+    if (typeof options.layerOrIndex === 'string') {
+        layerId = options.layerOrIndex
+    } else if (typeof options.layerOrIndex === 'number') {
+        // removing a layer by index
+        const layerByIndex = options.this.getActiveLayerByIndex(options.layerOrIndex)
+        if (layerByIndex) {
+            layerId = layerByIndex.id
+        }
+    }
+
+    if (layerId) {
+        updateFeatures = selectedFeatures.some(
+            (feature) => 'layer' in feature && feature.layer.id === layerId
+        )
+    }
+
+    return { layerId, updateFeatures }
 }

@@ -7,6 +7,7 @@ import type { LayersStore } from '@/store/modules/layers/types/layers'
 import type { ActionDispatcher } from '@/store/types'
 
 import afterAddOperations from '@/store/modules/layers/utils/afterAddOperations'
+import { identifyFeatures } from '@/store/modules/layers/utils/identifyFeatures'
 import usePositionStore from '@/store/modules/position'
 
 interface AddLayerOptions {
@@ -126,4 +127,5 @@ export default function addLayer(
             messages: ['no layer found for payload:', layer, options, dispatcher],
         })
     }
+    identifyFeatures.call(this, undefined, { this: this }, dispatcher)
 }
