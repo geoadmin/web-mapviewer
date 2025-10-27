@@ -1,16 +1,15 @@
 import type { CoordinateSystem, SingleCoordinate } from '@swissgeo/coordinates'
 import type { GeoAdminLayer } from '@swissgeo/layers'
-import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
 
 import { LV03, LV95, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import proj4 from 'proj4'
 import { type LocationQueryRaw, type RouteLocationRaw, START_LOCATION } from 'vue-router'
 
+import type { RouterPlugin } from '@/router/types'
 import type { CameraPosition } from '@/store/modules/position/types/position'
 
 import reframe from '@/api/lv03Reframe.api'
-import router from '@/router'
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 import {
     EMBED_VIEW,
@@ -20,6 +19,7 @@ import {
     MAP_VIEW,
     MAP_VIEWS,
 } from '@/router/viewNames'
+import useAppStore from '@/store/modules/app'
 import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
 import { FeatureInfoPositions } from '@/store/modules/ui'
@@ -29,6 +29,10 @@ import {
     handleLegacyFeaturePreSelectionParam,
     isLegacyParams,
 } from '@/utils/legacyLayerParamUtils'
+
+function toNumber(input: string | number): number {
+    return typeof input === 'number' ? input : parseFloat(input)
+}
 
 async function handleLegacyKmlAdminIdParam(
     legacyParams: URLSearchParams,
@@ -60,24 +64,24 @@ async function handleLegacyKmlAdminIdParam(
 
 export function handleLegacyParam(
     params: URLSearchParams,
-    param: string,
-    legacyValue: string,
+    legacyParamName: string,
+    legacyParamValue: string | number,
     newQuery: LocationQueryRaw,
-    latLongCoordinates: number[],
-    legacyCoordinates: number[],
+    latLongCoordinates: SingleCoordinate,
+    legacyCoordinates: SingleCoordinate,
     cameraPosition: CameraPosition,
     storeInputs: StoreInputForLegacyParsing
 ): void {
     const { projection, config } = storeInputs
     let newValue: string | number | undefined
-    let key: string = param
-    switch (param) {
+    let key: string = legacyParamName
+    switch (legacyParamName) {
         case 'zoom':
             // the legacy viewer always expresses its zoom level in the LV95 context (so in SwissCoordinateSystem)
             if (projection.usesMercatorPyramid) {
-                newValue = LV95.transformCustomZoomLevelToStandard(parseFloat(legacyValue))
+                newValue = LV95.transformCustomZoomLevelToStandard(toNumber(legacyParamValue))
             } else {
-                newValue = legacyValue
+                newValue = legacyParamValue
             }
             key = 'z'
             break
@@ -87,20 +91,20 @@ export function handleLegacyParam(
         // conversion to be correct using proj4.
         case 'N':
         case 'X':
-            legacyCoordinates[1] = Number(legacyValue)
+            legacyCoordinates[1] = toNumber(legacyParamValue)
             break
         case 'E':
         case 'Y':
-            legacyCoordinates[0] = Number(legacyValue)
+            legacyCoordinates[0] = toNumber(legacyParamValue)
             break
 
         case 'lon':
-            latLongCoordinates[0] = Number(legacyValue)
-            cameraPosition.x = Number(legacyValue)
+            latLongCoordinates[0] = toNumber(legacyParamValue)
+            cameraPosition.x = toNumber(legacyParamValue)
             break
         case 'lat':
-            latLongCoordinates[1] = Number(legacyValue)
-            cameraPosition.y = Number(legacyValue)
+            latLongCoordinates[1] = toNumber(legacyParamValue)
+            cameraPosition.y = toNumber(legacyParamValue)
             break
 
         case 'layers':
@@ -108,10 +112,10 @@ export function handleLegacyParam(
             // without using the hash slash approach, but we still shouldn't be parsing as legacy
             if (
                 ['@feature', '@year', ';'].some(
-                    (newSeparator) => legacyValue.indexOf(newSeparator) !== -1
+                    (newSeparator) => `${legacyParamValue}`.indexOf(newSeparator) !== -1
                 )
             ) {
-                newValue = legacyValue
+                newValue = legacyParamValue
                 break
             }
             // for legacy layers param, we need to give the layers visibility, opacity and timestamps,
@@ -119,7 +123,7 @@ export function handleLegacyParam(
             // implementation
             newValue = getLayersFromLegacyUrlParams(
                 config,
-                legacyValue,
+                `${legacyParamValue}`,
                 params.get('layers_visibility') ?? undefined,
                 params.get('layers_opacity') ?? undefined,
                 params.get('layers_timestamp') ?? undefined
@@ -140,12 +144,12 @@ export function handleLegacyParam(
             break
         // Setting the position of the compare slider
         case 'swipe_ratio':
-            newValue = legacyValue
+            newValue = legacyParamValue
             key = 'compareRatio'
             break
         case 'time':
             key = 'timeSlider'
-            newValue = legacyValue
+            newValue = legacyParamValue
             break
         case 'layers_opacity':
         case 'layers_visibility':
@@ -155,29 +159,31 @@ export function handleLegacyParam(
             break
 
         case 'elevation':
-            cameraPosition.y = Number(legacyValue)
+            cameraPosition.z = toNumber(legacyParamValue)
             break
 
         case 'pitch':
-            cameraPosition.pitch = Number(legacyValue)
+            cameraPosition.pitch = toNumber(legacyParamValue)
             break
 
         case 'heading':
-            cameraPosition.heading = Number(legacyValue)
+            cameraPosition.heading = toNumber(legacyParamValue)
             break
         case 'showTooltip':
             key = 'featureInfo'
             newValue =
-                legacyValue === 'true' ? FeatureInfoPositions.Default : FeatureInfoPositions.None
+                legacyParamValue === 'true'
+                    ? FeatureInfoPositions.Default
+                    : FeatureInfoPositions.None
             break
         case 'bgLayer':
-            newValue = legacyValue === 'voidLayer' ? 'void' : legacyValue
+            newValue = legacyParamValue === 'voidLayer' ? 'void' : legacyParamValue
             break
         // if no special work to do, we just copy past legacy params to the new viewer
         default:
             // NOTE: legacyValue is parsed using URLSearchParams which don't make any difference
             // between &foo and &foo=
-            newValue = legacyValue
+            newValue = legacyParamValue
             break
     }
 
@@ -186,24 +192,26 @@ export function handleLegacyParam(
         // We decode those so that the new query won't encode encoded character
         // for example, we avoid having " " becoming %2520 in the URI
         // But we don't decode the value if it's a layer, as it's already encoded in transformLayerIntoUrlString function
-        newQuery[key] = param === 'layers' ? newValue : decodeURIComponent(`${newValue}`)
+        newQuery[key] = legacyParamName === 'layers' ? newValue : decodeURIComponent(`${newValue}`)
         log.info({
             title: 'Legacy URL',
             titleColor: LogPreDefinedColor.Amber,
-            messages: [`${param}=${legacyValue} parameter changed to ${key}=${newValue}`, newQuery],
+            messages: [
+                `${legacyParamName}=${legacyParamValue} parameter changed to ${key}=${newValue}`,
+                newQuery,
+            ],
         })
     } else {
         log.error({
             title: 'Legacy URL',
             titleColor: LogPreDefinedColor.Amber,
-            messages: [`${param}=${legacyValue} parameter not processed`],
+            messages: [`${legacyParamName}=${legacyParamValue} parameter not processed`],
         })
     }
 }
 
-interface StoreInputForLegacyParsing {
+export interface StoreInputForLegacyParsing {
     config: GeoAdminLayer[]
-    position: SingleCoordinate
     projection: CoordinateSystem
 }
 
@@ -216,8 +224,11 @@ async function handleLegacyParams(
     // we will also transform legacy zoom level here (see comment below)
     const newQuery: LocationQueryRaw = {}
     const { projection } = storeInputs
-    const legacyCoordinates: number[] = []
-    const latLongCoordinates: number[] = []
+    const legacyCoordinates: SingleCoordinate = [Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY]
+    const latLongCoordinates: SingleCoordinate = [
+        Number.NEGATIVE_INFINITY,
+        Number.NEGATIVE_INFINITY,
+    ]
     let newCoordinates = []
     const cameraPosition: CameraPosition = {
         x: Number.NEGATIVE_INFINITY,
@@ -254,7 +265,10 @@ async function handleLegacyParams(
     }
 
     // Convert legacy coordinates if needed (only if the 3D camera isn't set too)
-    if (latLongCoordinates.length === 2 && !newQuery['camera']) {
+    if (
+        !latLongCoordinates.some((value) => value === Number.NEGATIVE_INFINITY) &&
+        !newQuery['camera']
+    ) {
         newCoordinates = proj4(WGS84.epsg, projection.epsg, latLongCoordinates)
         newQuery['center'] = newCoordinates.join(',')
         log.info({
@@ -264,11 +278,14 @@ async function handleLegacyParams(
                 `lat/lon=${JSON.stringify(latLongCoordinates)} parameter changed to center=${newQuery['center']}`,
             ],
         })
-    } else if (legacyCoordinates.length === 2 && !newQuery['camera']) {
+    } else if (
+        !legacyCoordinates.some((value) => value === Number.NEGATIVE_INFINITY) &&
+        !newQuery['camera']
+    ) {
         // The legacy viewer supports coordinate in LV03 and LV95 in X/Y and E/N parameter
         newCoordinates = legacyCoordinates
         if (
-            LV95.isInBounds(legacyCoordinates[0]!, legacyCoordinates[1]!) &&
+            LV95.isInBounds(legacyCoordinates[0], legacyCoordinates[1]) &&
             projection.epsg !== LV95.epsg
         ) {
             // if the current projection is not LV95, we also need to re-project x/y or N/E
@@ -281,12 +298,12 @@ async function handleLegacyParams(
                 ],
             })
         } else if (
-            LV03.isInBounds(legacyCoordinates[0]!, legacyCoordinates[1]!) &&
+            LV03.isInBounds(legacyCoordinates[0], legacyCoordinates[1]) &&
             projection.epsg !== LV03.epsg
         ) {
             // if the current projection is not LV03, we also need to re-project x/y or N/E
             newCoordinates = await reframe({
-                inputCoordinates: legacyCoordinates as SingleCoordinate,
+                inputCoordinates: legacyCoordinates,
                 inputProjection: LV03,
                 outputProjection: projection,
             })
@@ -363,12 +380,7 @@ async function handleLegacyParams(
  *   EPSG:4326 to the user, during the import of X and Y type coordinates we reproject them to
  *   EPSG:4326 and relabel them lat and lon accordingly
  */
-export const legacyPermalinkManagementRouterPlugin: PiniaPlugin = (
-    context: PiniaPluginContext
-): void => {
-    const layersStore = useLayersStore()
-    const positionStore = usePositionStore()
-
+export const legacyPermalinkManagementRouterPlugin: RouterPlugin = (router): void => {
     // We need to take the legacy params from the window.location.search, because the Vue Router
     // to.query only parse the query after the /#? and legacy params are at the root /?
     const legacyParams: URLSearchParams | undefined = isLegacyParams(window?.location?.search)
@@ -391,6 +403,10 @@ export const legacyPermalinkManagementRouterPlugin: PiniaPlugin = (
         })
         let unSubscribeStoreAction: () => void | undefined
         const unsubscribeRouter = router.beforeEach((to, from) => {
+            const appStore = useAppStore()
+            const layersStore = useLayersStore()
+            const positionStore = usePositionStore()
+
             log.debug({
                 title: 'Legacy URL',
                 titleColor: LogPreDefinedColor.Amber,
@@ -418,7 +434,7 @@ export const legacyPermalinkManagementRouterPlugin: PiniaPlugin = (
                     ],
                 })
 
-                unSubscribeStoreAction = context.store.$onAction(({ name }) => {
+                unSubscribeStoreAction = appStore.$onAction(({ name }) => {
                     // Wait until the app is ready before dealing with legacy params. To handle
                     // legacy params some data are required (e.g. the layer config)
                     if (name === 'setAppIsReady') {
@@ -432,7 +448,6 @@ export const legacyPermalinkManagementRouterPlugin: PiniaPlugin = (
                         })
                         handleLegacyParams(legacyParams, legacyEmbed ? EMBED_VIEW : MAP_VIEW, {
                             config: layersStore.config,
-                            position: positionStore.center,
                             projection: positionStore.projection,
                         })
                             .then((newRoute) => {

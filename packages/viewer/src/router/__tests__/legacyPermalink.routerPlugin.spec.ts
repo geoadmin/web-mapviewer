@@ -1,96 +1,113 @@
+import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type { GeoAdminLayer } from '@swissgeo/layers'
+import type { LocationQueryRaw } from 'vue-router'
+
 import { allCoordinateSystems } from '@swissgeo/coordinates'
+import { layerUtils } from '@swissgeo/layers/utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
-import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
-import { handleLegacyParam } from '@/router/legacy-permalink.plugin'
+import type { CameraPosition } from '@/store/modules/position/types/position'
+
+import {
+    handleLegacyParam,
+    type StoreInputForLegacyParsing,
+} from '@/router/legacyPermalink.routerPlugin'
 import * as utils from '@/utils/legacyLayerParamUtils'
 
-describe('Testing legacyPermalinkManagement', () => {
-    let fakeStore
-    let newQuery
-    let latlongCoordinates
-    let legacyCoordinates
-    let cameraPosition
+const UNSET_NUMBER_VALUE: number = Number.NEGATIVE_INFINITY
 
-    beforeEach(() => {
-        newQuery = {}
-        latlongCoordinates = []
-        legacyCoordinates = []
-        cameraPosition = [null, null, null, null, null, null]
-        fakeStore = {
-            state: {
-                position: {
-                    projection: allCoordinateSystems[0],
-                },
-                layers: {
-                    config: [layerConfig],
-                },
-            },
-            getters: {
-                getLayerConfigById: (_) => layerConfig,
-            },
-        }
-    })
+describe('Testing legacyPermalink router plugin', () => {
+    let fakeStoreInput: StoreInputForLegacyParsing
+    let newQuery: LocationQueryRaw
+    let latlongCoordinates: SingleCoordinate
+    let legacyCoordinates: SingleCoordinate
+    let cameraPosition: CameraPosition
+    let exisitingParams: URLSearchParams
 
-    function testHandleLegacyParam(param, legacyValue, params = new Map()) {
-        handleLegacyParam(
-            params,
-            param,
-            legacyValue,
-            fakeStore,
-            newQuery,
-            latlongCoordinates,
-            legacyCoordinates,
-            cameraPosition
-        )
-    }
-
-    const layerConfig = new GeoAdminLayer({
+    const layerConfig: GeoAdminLayer = layerUtils.makeGeoAdminWMTSLayer({
         attributions: [{ name: 'OFEN', url: 'https://www.bfe.admin.ch/bfe/fr/home.html' }],
         baseUrl: 'https://sys-wmts.dev.bgdi.ch/',
-        customAttributes: null,
         errorMessages: [],
         format: 'png',
         hasDescription: true,
         hasError: false,
         hasLegend: true,
-        hasMultipleTimestamps: false,
         hasTooltip: true,
         id: 'ch.bfe.ladebedarfswelt-heimladeverfuegbarkeit_bequem',
-        idIn3d: null,
         isBackground: false,
         isExternal: false,
         isHighlightable: true,
         isLoading: false,
-        isSpecificFor3D: false,
         maxResolution: 2,
         name: 'Besoin en charge: Disponibilité de la charge à domicile - Confortable',
         opacity: 0.75,
         searchable: true,
         technicalName: 'ch.bfe.ladebedarfswelt-heimladeverfuegbarkeit_bequem',
-        timeConfig: new LayerTimeConfig(),
         topics: ['api', 'ech', 'energie'],
-        type: 'WMTS',
-        visible: false,
+        isVisible: false,
     })
+
+    beforeEach(() => {
+        newQuery = {}
+        latlongCoordinates = [UNSET_NUMBER_VALUE, UNSET_NUMBER_VALUE]
+        legacyCoordinates = [UNSET_NUMBER_VALUE, UNSET_NUMBER_VALUE]
+        cameraPosition = {
+            x: UNSET_NUMBER_VALUE,
+            y: UNSET_NUMBER_VALUE,
+            z: UNSET_NUMBER_VALUE,
+            heading: UNSET_NUMBER_VALUE,
+            pitch: UNSET_NUMBER_VALUE,
+            roll: UNSET_NUMBER_VALUE,
+        }
+        fakeStoreInput = {
+            config: [layerConfig],
+            projection: allCoordinateSystems[0]!,
+        }
+        exisitingParams = new URLSearchParams()
+    })
+
+    function testHandleLegacyParam(param: string, legacyValue: string | number) {
+        handleLegacyParam(
+            exisitingParams,
+            param,
+            legacyValue,
+            newQuery,
+            latlongCoordinates,
+            legacyCoordinates,
+            cameraPosition,
+            fakeStoreInput
+        )
+    }
+
+    function testCameraValues(values: Partial<CameraPosition>) {
+        const {
+            x = UNSET_NUMBER_VALUE,
+            y = UNSET_NUMBER_VALUE,
+            z = UNSET_NUMBER_VALUE,
+            heading = UNSET_NUMBER_VALUE,
+            pitch = UNSET_NUMBER_VALUE,
+            roll = UNSET_NUMBER_VALUE,
+        } = values
+
+        expect(cameraPosition.x).to.eql(x)
+        expect(cameraPosition.y).to.eql(y)
+        expect(cameraPosition.z).to.eql(z)
+        expect(cameraPosition.heading).to.eql(heading)
+        expect(cameraPosition.pitch).to.eql(pitch)
+        expect(cameraPosition.roll).to.eql(roll)
+    }
 
     describe('handleLegacyParam with following parameters', () => {
         it('zoom with allCoordinateSystems', () => {
             const newValues = [10, 10, 16.7, 16.7]
             allCoordinateSystems.forEach((coordinateSystem, index) => {
-                fakeStore = {
-                    state: {
-                        position: {
-                            projection: coordinateSystem,
-                        },
-                    },
-                }
+                fakeStoreInput.projection = coordinateSystem
                 const param = 'zoom'
                 const legacyValue = 10
                 testHandleLegacyParam(param, legacyValue)
                 const { z } = newQuery
-                expect(parseFloat(z)).to.approximately(newValues[index], 0.01)
+                expect(z).to.be.a('string')
+                expect(parseFloat(z as string)).to.approximately(newValues[index]!, 0.01)
             })
         })
         it('N', () => {
@@ -103,64 +120,64 @@ describe('Testing legacyPermalinkManagement', () => {
         })
         it('N with empty legacyCoordinates', () => {
             const param = 'N'
-            legacyCoordinates = []
+            legacyCoordinates = [UNSET_NUMBER_VALUE, UNSET_NUMBER_VALUE]
             const legacyValue = 10
 
             testHandleLegacyParam(param, legacyValue)
-            expect(legacyCoordinates).to.eql([undefined, legacyValue])
+            expect(legacyCoordinates).to.eql([UNSET_NUMBER_VALUE, legacyValue])
         })
         it('X', () => {
             const param = 'X'
-            legacyCoordinates = [0, 0]
+            legacyCoordinates = [UNSET_NUMBER_VALUE, UNSET_NUMBER_VALUE]
             const legacyValue = 10
 
             testHandleLegacyParam(param, legacyValue)
 
-            expect(legacyCoordinates).to.eql([0, legacyValue])
+            expect(legacyCoordinates).to.eql([UNSET_NUMBER_VALUE, legacyValue])
         })
         it('E', () => {
             const param = 'E'
-            legacyCoordinates = [0, 0]
+            legacyCoordinates = [UNSET_NUMBER_VALUE, UNSET_NUMBER_VALUE]
             const legacyValue = 10
 
             testHandleLegacyParam(param, legacyValue)
 
-            expect(legacyCoordinates).to.eql([legacyValue, 0])
+            expect(legacyCoordinates).to.eql([legacyValue, UNSET_NUMBER_VALUE])
         })
         it('Y', () => {
             const param = 'Y'
-            legacyCoordinates = [0, 0]
+            legacyCoordinates = [UNSET_NUMBER_VALUE, UNSET_NUMBER_VALUE]
             const legacyValue = 10
 
             testHandleLegacyParam(param, legacyValue)
 
-            expect(legacyCoordinates).to.eql([legacyValue, 0])
+            expect(legacyCoordinates).to.eql([legacyValue, UNSET_NUMBER_VALUE])
         })
         it('lon', () => {
             const param = 'lon'
             const legacyValue = '10'
-            latlongCoordinates = [0, 0]
+            latlongCoordinates = [UNSET_NUMBER_VALUE, UNSET_NUMBER_VALUE]
 
             testHandleLegacyParam(param, legacyValue)
 
-            expect(latlongCoordinates).to.eql([Number(legacyValue), 0])
-            expect(cameraPosition).to.eql([Number(legacyValue), null, null, null, null, null])
+            expect(latlongCoordinates).to.eql([Number(legacyValue), UNSET_NUMBER_VALUE])
+            testCameraValues({ x: Number(legacyValue) })
         })
         it('lat', () => {
             const param = 'lat'
             const legacyValue = '10'
-            latlongCoordinates = [0, 0]
+            latlongCoordinates = [UNSET_NUMBER_VALUE, UNSET_NUMBER_VALUE]
 
             testHandleLegacyParam(param, legacyValue)
 
-            expect(latlongCoordinates).to.eql([0, Number(legacyValue)])
-            expect(cameraPosition).to.eql([null, Number(legacyValue), null, null, null, null])
+            expect(latlongCoordinates).to.eql([UNSET_NUMBER_VALUE, Number(legacyValue)])
+            testCameraValues({ y: Number(legacyValue) })
         })
         // for some reason this breaks with the new TS/ESLint config
         // TODO PB-1383: reactivate this test as soon as the store is moved to TS (and this test file too)
         it.skip('layers with new separators', () => {
             const param = 'layers'
-            const legacyValue = ['@feature']
+            const legacyValue = '@feature'
             vi.spyOn(utils, 'getLayersFromLegacyUrlParams')
 
             testHandleLegacyParam(param, legacyValue)
@@ -172,16 +189,14 @@ describe('Testing legacyPermalinkManagement', () => {
             const layerVisibility = 'layers_visibility'
             const layerOpacity = '0.75'
             const layerTimestamp = 'layers_timestamp'
-            const params = new Map([
-                ['layers_visibility', layerVisibility],
-                ['layers_opacity', layerOpacity],
-                ['layers_timestamp', layerTimestamp],
-            ])
+            exisitingParams.set('layers_visibility', layerVisibility)
+            exisitingParams.set('layers_opacity', layerOpacity)
+            exisitingParams.set('layers_timestamp', layerTimestamp)
             const param = 'layers'
             const legacyValue = 'ch.bfe.ladebedarfswelt-heimladeverfuegbarkeit_bequem'
             vi.spyOn(utils, 'getLayersFromLegacyUrlParams')
 
-            testHandleLegacyParam(param, legacyValue, params)
+            testHandleLegacyParam(param, legacyValue)
 
             expect(newQuery).to.eql({ layers: `${legacyValue},f` })
             expect(utils.getLayersFromLegacyUrlParams).toHaveBeenCalledWith(
@@ -238,7 +253,7 @@ describe('Testing legacyPermalinkManagement', () => {
 
             testHandleLegacyParam(param, legacyValue)
 
-            expect(cameraPosition).to.eql([null, null, Number(legacyValue), null, null, null])
+            testCameraValues({ z: Number(legacyValue) })
         })
         it('pitch', () => {
             const param = 'pitch'
@@ -246,7 +261,7 @@ describe('Testing legacyPermalinkManagement', () => {
 
             testHandleLegacyParam(param, legacyValue)
 
-            expect(cameraPosition).to.eql([null, null, null, Number(legacyValue), null, null])
+            testCameraValues({ pitch: Number(legacyValue) })
         })
         it('heading', () => {
             const param = 'heading'
@@ -254,7 +269,7 @@ describe('Testing legacyPermalinkManagement', () => {
 
             testHandleLegacyParam(param, legacyValue)
 
-            expect(cameraPosition).to.eql([null, null, null, null, Number(legacyValue), null])
+            testCameraValues({ heading: Number(legacyValue) })
         })
         it('showTooltip with legacyValue true', () => {
             const param = 'showTooltip'
