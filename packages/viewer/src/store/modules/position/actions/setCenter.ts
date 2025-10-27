@@ -1,10 +1,13 @@
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 
+import { WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
+import proj4 from 'proj4'
 
 import type { PositionStore } from '@/store/modules/position/types/position'
 import type { ActionDispatcher } from '@/store/types'
 
+import useCesiumStore from '@/store/modules/cesium'
 import useGeolocationStore from '@/store/modules/geolocation'
 
 export default function setCenter(
@@ -42,5 +45,25 @@ export default function setCenter(
         // if we moved the map we disabled the geolocation tracking (unless the tracking moved the map)
         geolocationStore.setGeolocationTracking(false, dispatcher)
         this.setAutoRotation(false, dispatcher)
+    }
+
+    const cesiumStore = useCesiumStore()
+    if (cesiumStore.active && this.camera) {
+        // updating the 3D position with the new center values (from a search result selection, for example)
+        const centerWgs84 = proj4<SingleCoordinate>(this.projection.epsg, WGS84.epsg, [
+            this.center[0],
+            this.center[1],
+        ])
+        this.setCameraPosition(
+            {
+                x: centerWgs84[0],
+                y: centerWgs84[1],
+                z: this.camera.z,
+                roll: this.camera.roll,
+                pitch: this.camera.pitch,
+                heading: this.camera.heading,
+            },
+            dispatcher
+        )
     }
 }

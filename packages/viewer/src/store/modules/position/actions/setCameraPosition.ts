@@ -1,7 +1,15 @@
+import type { SingleCoordinate } from '@swissgeo/coordinates'
+
+import { WGS84 } from '@swissgeo/coordinates'
 import { wrapDegrees } from '@swissgeo/numbers'
+import proj4 from 'proj4'
 
 import type { CameraPosition, PositionStore } from '@/store/modules/position/types/position'
 import type { ActionDispatcher } from '@/store/types'
+
+import { calculateResolution } from '@/modules/map/components/cesium/utils/cameraUtils'
+import { normalizeAngle } from '@/store/modules/position'
+import useUIStore from '@/store/modules/ui'
 
 export default function setCameraPosition(
     this: PositionStore,
@@ -20,4 +28,26 @@ export default function setCameraPosition(
               heading: wrapDegrees(position.heading),
           }
         : undefined
+    if (this.camera) {
+        // updating the 2D position with the new camera values
+        const uiStore = useUIStore()
+
+        const centerWGS84: SingleCoordinate = [this.camera.x, this.camera.y]
+
+        const centerExpressedInWantedProjection = proj4<SingleCoordinate>(
+            WGS84.epsg,
+            this.projection.epsg,
+            centerWGS84
+        )
+
+        const resolution = calculateResolution(this.camera.z, uiStore.width)
+        const zoom = this.projection.getZoomForResolutionAndCenter(
+            resolution,
+            centerExpressedInWantedProjection
+        )
+
+        this.setCenter(centerExpressedInWantedProjection, dispatcher)
+        this.setZoom(zoom, dispatcher)
+        this.setRotation(normalizeAngle((this.camera.heading * Math.PI) / 180), dispatcher)
+    }
 }
