@@ -3,6 +3,7 @@ import { createRouter, createWebHashHistory, type Router } from 'vue-router'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import appReadinessRouterPlugin from '@/router/appReadiness.routerPlugin'
+import legacyPermalinkRouterPlugin from '@/router/legacyPermalink.routerPlugin'
 import {
     EMBED_VIEW,
     LEGACY_EMBED_PARAM_VIEW,
@@ -87,6 +88,7 @@ if (IS_TESTING_WITH_CYPRESS) {
 }
 
 appReadinessRouterPlugin(router)
+legacyPermalinkRouterPlugin(router)
 // WIP on it to make it work again, disabling it in the meantime
 // storeSyncRouterPlugin(router)
 

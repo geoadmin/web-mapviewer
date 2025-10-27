@@ -1,6 +1,7 @@
 import log, { LogPreDefinedColor } from '@swissgeo/log'
-import { type Router, START_LOCATION } from 'vue-router'
+import { START_LOCATION } from 'vue-router'
 
+import type { RouterPlugin } from '@/router/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { isSupportedLang } from '@/modules/i18n'
@@ -26,7 +27,7 @@ const dispatcher: ActionDispatcher = { name: 'appReadiness.routerPlugin' }
  * - Have loaded the layers config
  * - Have loaded the topics config
  */
-export const appReadinessRouterPlugin = (router: Router): void => {
+export const appReadinessRouterPlugin: RouterPlugin = (router): void => {
     const unsubscribes: (() => void)[] = []
 
     const unRegisterRouterHook = router.beforeEach((to, from) => {
