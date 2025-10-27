@@ -57,5 +57,5 @@ export interface LayerTimeConfigEntry {
     timestamp: string
     nonTimeBasedValue?: string
     interval?: Interval
-    year?: string
+    year?: number
 }
