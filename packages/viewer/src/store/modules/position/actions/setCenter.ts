@@ -23,7 +23,7 @@ export default function setCenter(
         })
         return
     }
-    if (!this.projection.isInBounds(center[0], center[1])) {
+    if (!this.projection.isInBounds(center)) {
         this.center = center
     } else {
         log.warn({

@@ -45,12 +45,12 @@ export default function useImportFile() {
 
             // checking that the same layer is not already present before adding it
             if (layersStore.getActiveLayersById(layer.id).length === 0 && layer.extent) {
-                const extent = extentUtils.flattenExtent(layer.extent)
+                const [topLeft, bottomRight] = extentUtils.normalizeExtent(layer.extent)
 
                 if (projection.value.bounds) {
                     const isLayerFullyInBound =
-                        projection.value.bounds.isInBounds(extent[0], extent[1]) &&
-                        projection.value.bounds.isInBounds(extent[2], extent[3])
+                        projection.value.bounds.isInBounds(topLeft) &&
+                        projection.value.bounds.isInBounds(bottomRight)
                     if (!isLayerFullyInBound) {
                         layer.warningMessages = (layer.warningMessages ?? []).concat([
                             new WarningMessage('file_imported_partially_out_of_bounds', {

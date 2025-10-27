@@ -284,10 +284,7 @@ async function handleLegacyParams(
     ) {
         // The legacy viewer supports coordinate in LV03 and LV95 in X/Y and E/N parameter
         newCoordinates = legacyCoordinates
-        if (
-            LV95.isInBounds(legacyCoordinates[0], legacyCoordinates[1]) &&
-            projection.epsg !== LV95.epsg
-        ) {
+        if (LV95.isInBounds(legacyCoordinates) && projection.epsg !== LV95.epsg) {
             // if the current projection is not LV95, we also need to re-project x/y or N/E
             newCoordinates = proj4(LV95.epsg, projection.epsg, legacyCoordinates)
             log.info({
@@ -297,10 +294,7 @@ async function handleLegacyParams(
                     `converting LV95 X/Y|E/N=${JSON.stringify(legacyCoordinates)} to ${projection.epsg} => ${JSON.stringify(newCoordinates)}`,
                 ],
             })
-        } else if (
-            LV03.isInBounds(legacyCoordinates[0], legacyCoordinates[1]) &&
-            projection.epsg !== LV03.epsg
-        ) {
+        } else if (LV03.isInBounds(legacyCoordinates) && projection.epsg !== LV03.epsg) {
             // if the current projection is not LV03, we also need to re-project x/y or N/E
             newCoordinates = await reframe({
                 inputCoordinates: legacyCoordinates,
