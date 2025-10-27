@@ -1,10 +1,10 @@
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
+import type { GetLayerIdOptions, GetLayerIdResult } from '@/store/modules/layers/actions/identifyFeatures'
 import type { LayersStore } from '@/store/modules/layers/types/layers'
 import type { ActionDispatcher } from '@/store/types'
 
 import useFeaturesStore from '@/store/modules/features'
-import { identifyFeatures, type GetLayerIdOptions, type GetLayerIdResult } from '@/store/modules/layers/utils/identifyFeatures'
 
 /**
  * Toggle the layer visibility of the layer corresponding to this index, in the active layer
@@ -25,22 +25,19 @@ export default function toggleLayerVisibility(
             messages: ['Failed to toggleLayerVisibility: invalid index', index, dispatcher],
         })
     }
-
-    identifyFeatures.call(this, setLayerIdUpdateFeatures.bind(this), { this: this, index }, dispatcher)
+    this.identifyFeatures(setLayerIdUpdateFeatures, { activeLayer: layer, index }, dispatcher)
 }
 
 function setLayerIdUpdateFeatures(options: GetLayerIdOptions): GetLayerIdResult {
     const featuresStore = useFeaturesStore()
 
     const selectedFeatures = featuresStore.selectedFeatures
-    const layer = options.this.getActiveLayerByIndex(options.index!)
     let layerId
+    // for toggleLayerVisibility we always update if layer has gone from invisible to visible
+    // if the layer went from visible to invisible we need to check if there are selected features from this layer
     let updateFeatures = true
-    if (layer?.isVisible) {
-        updateFeatures = true // for toggleLayerVisibility we always update if layer has gone from invisible to visible
-        // if the layer went from visible to invisible we need to check if there are selected features from this layer
-    } else {
-        layerId = layer?.id
+    if (!options.activeLayer?.isVisible) {
+        layerId = options.activeLayer?.id
     }
 
     if (layerId) {
