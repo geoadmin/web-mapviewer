@@ -4,6 +4,10 @@ import { isNumber } from '@swissgeo/numbers'
 import type { PositionStore } from '@/store/modules/position/types/position'
 import type { ActionDispatcher } from '@/store/types'
 
+import { calculateHeight } from '@/modules/map/components/cesium/utils/cameraUtils'
+import useCesiumStore from '@/store/modules/cesium'
+import useUIStore from '@/store/modules/ui'
+
 export default function setZoom(
     this: PositionStore,
     zoom: number,
@@ -18,4 +22,23 @@ export default function setZoom(
         return
     }
     this.zoom = this.projection.roundZoomLevel(zoom)
+
+    const cesiumStore = useCesiumStore()
+    const uiStore = useUIStore()
+    if (cesiumStore.active && this.camera) {
+        // Notes(IS): It should be cesium viewer clientWidth, but we do not have access to it here.
+        // We are using the store width instead.
+        const newHeight = calculateHeight(this.resolution, uiStore.width)
+        this.setCameraPosition(
+            {
+                x: this.camera.x,
+                y: this.camera.y,
+                z: newHeight,
+                roll: this.camera.roll,
+                pitch: this.camera.pitch,
+                heading: this.camera.heading,
+            },
+            dispatcher
+        )
+    }
 }

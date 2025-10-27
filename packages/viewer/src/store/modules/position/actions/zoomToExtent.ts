@@ -3,11 +3,14 @@ import type { Position } from 'geojson'
 
 import { CoordinateSystem, extentUtils, WGS84 } from '@swissgeo/coordinates'
 import { center, points } from '@turf/turf'
+import { Math as CesiumMath } from 'cesium'
 import proj4 from 'proj4'
 
 import type { PositionStore } from '@/store/modules/position/types/position'
 import type { ActionDispatcher } from '@/store/types'
 
+import { calculateHeight } from '@/modules/map/components/cesium/utils/cameraUtils'
+import useCesiumStore from '@/store/modules/cesium'
 import useUIStore from '@/store/modules/ui'
 
 interface ZoomToExtentOptions {
@@ -33,6 +36,7 @@ export default function zoomToExtent(
     dispatcherOrNothing?: ActionDispatcher
 ): void {
     const options = dispatcherOrNothing ? (optionsOrDispatcher as ZoomToExtentOptions) : {}
+    const dispatcher = dispatcherOrNothing ?? (optionsOrDispatcher as ActionDispatcher)
 
     const { extentProjection, maxZoom } = options
 
@@ -52,18 +56,11 @@ export default function zoomToExtent(
             WGS84.epsg,
             this.projection.epsg,
             center(
-                points([
-                    normalizedWGS84Extent[0] as Position,
-                    normalizedWGS84Extent[1] as Position,
-                ])
+                points([normalizedWGS84Extent[0] as Position, normalizedWGS84Extent[1] as Position])
             ).geometry.coordinates
         ) as SingleCoordinate
 
-        if (
-            centerOfExtent &&
-            Array.isArray(centerOfExtent) &&
-            centerOfExtent.length === 2
-        ) {
+        if (centerOfExtent && Array.isArray(centerOfExtent) && centerOfExtent.length === 2) {
             this.center = centerOfExtent
         }
         const extentSize = {
@@ -93,5 +90,21 @@ export default function zoomToExtent(
         // We then set the zoom level to the one calculated minus one (expect when the calculated zoom is 0...).
         // We also cannot zoom further than the maxZoom specified if it is specified
         this.zoom = Math.min(Math.max(zoomForResolution - 1, 0), computedMaxZoom)
+
+        const cesiumStore = useCesiumStore()
+        if (cesiumStore.active && this.camera) {
+            const newHeight = calculateHeight(this.resolution, uiStore.width)
+            this.setCameraPosition(
+                {
+                    x: this.centerEpsg4326[0],
+                    y: this.centerEpsg4326[1],
+                    z: newHeight,
+                    heading: 0,
+                    pitch: CesiumMath.toDegrees(-CesiumMath.PI_OVER_TWO),
+                    roll: 0,
+                },
+                dispatcher
+            )
+        }
     }
 }
