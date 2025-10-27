@@ -34,10 +34,10 @@ const actions = {
     setViewerReady,
 }
 
-const cesiumStore = defineStore('cesium', {
+const useCesiumStore = defineStore('cesium', {
     state,
     getters: { ...getters },
     actions,
 })
 
-export default cesiumStore
+export default useCesiumStore
