@@ -3,6 +3,7 @@ import type { LocationQuery, RouteLocationNormalizedGeneric, Router } from 'vue-
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import axios from 'axios'
 
+import type { RouterPlugin } from '@/router/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
@@ -264,7 +265,7 @@ function initialUrlQueryWatcher(to: RouteLocationNormalizedGeneric, router: Rout
  * change the url when the app is not on the MapView. The store is also only updated with the query
  * parameter when on the MapView.
  */
-const storeSyncRouterPlugin = (router: Router) => {
+const storeSyncRouterPlugin: RouterPlugin = (router): void => {
     let unsubscribeStoreMutation: () => void
     router.beforeEach(
         (to: RouteLocationNormalizedGeneric, from: RouteLocationNormalizedGeneric) => {
