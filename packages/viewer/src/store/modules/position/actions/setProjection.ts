@@ -11,11 +11,14 @@ import proj4 from 'proj4'
 import type { PositionStore } from '@/store/modules/position/types/position'
 import type { ActionDispatcher } from '@/store/types'
 
+import { reprojectLayersFeatures } from '@/store/modules/position/utils/reproject'
+
 export default function setProjection(
     this: PositionStore,
     projection: CoordinateSystem | number | string,
     dispatcher: ActionDispatcher
 ): void {
+    const oldProjection: CoordinateSystem = this.projection
     let matchingProjection: CoordinateSystem | undefined
     if (projection instanceof CoordinateSystem) {
         matchingProjection = projection
@@ -44,7 +47,6 @@ export default function setProjection(
             })
             return
         }
-        const oldProjection: CoordinateSystem = this.projection
         // reprojecting the center of the map
         this.center = proj4(oldProjection.epsg, matchingProjection.epsg, this.center)
         // adapting the zoom level (if needed)
@@ -86,4 +88,5 @@ export default function setProjection(
             messages: ['Unsupported projection', projection, dispatcher],
         })
     }
+    reprojectLayersFeatures(this.projection, oldProjection, dispatcher)
 }
