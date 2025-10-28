@@ -56,11 +56,20 @@ export function generateGpxString(projection, features = [], asTrack = false) {
             const coordinates = geom.getLinearRing().getCoordinates()
             clone.setGeometry(new LineString(coordinates))
         }
-        // If track mode requested, convert LineString to MultiLineString
+        // Convert between LineString and MultiLineString based on export mode
         // OpenLayers outputs LineString as <rte> and MultiLineString as <trk>
-        if (asTrack && clone.getGeometry() instanceof LineString) {
-            const coords = clone.getGeometry().getCoordinates()
-            clone.setGeometry(new MultiLineString([coords]))
+        if (asTrack) {
+            // Track mode: convert LineString to MultiLineString
+            if (clone.getGeometry() instanceof LineString) {
+                const coords = clone.getGeometry().getCoordinates()
+                clone.setGeometry(new MultiLineString([coords]))
+            }
+        } else {
+            // Route mode: convert MultiLineString to LineString (take first line segment)
+            if (clone.getGeometry() instanceof MultiLineString) {
+                const coords = clone.getGeometry().getCoordinates()[0]
+                clone.setGeometry(new LineString(coords))
+            }
         }
         // Set the desc attribute from description property so that it is exported to GPX in desc tag
         if (clone.getProperties().description) {
