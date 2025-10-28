@@ -1,9 +1,9 @@
 import type { RouteLocationNormalizedGeneric } from 'vue-router'
 
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
 
 import type { CesiumStore } from '@/store/modules/cesium/types/cesium'
-import type { PositionStore } from '@/store/modules/position/types/position'
+import type { CameraPosition, PositionStore } from '@/store/modules/position/types/position'
 
 import cameraParam, {
     readCameraFromUrlParam,
@@ -53,7 +53,7 @@ describe('CameraParamConfig class test', () => {
     })
 
     describe('reading the query (readCameraFromUrlParam)', () => {
-        const expectedCamera = {
+        const expectedCamera: CameraPosition = {
             x: 123,
             y: 456,
             z: 99,
@@ -72,23 +72,10 @@ describe('CameraParamConfig class test', () => {
             return `${x},${y},${z},${pitch},${heading},${roll}`
         }
         const testCameraValues = (
-            camera: ReturnType<typeof readCameraFromUrlParam>,
-            expectedCamera: {
-                x: number
-                y: number
-                z: number
-                pitch: number
-                heading: number
-                roll: number
-            }
+            camera: CameraPosition | undefined,
+            expectedCamera: CameraPosition
         ) => {
-            expect(camera).to.be.an('Object')
-            expect(camera).to.haveOwnProperty('x')
-            expect(camera).to.haveOwnProperty('y')
-            expect(camera).to.haveOwnProperty('z')
-            expect(camera).to.haveOwnProperty('pitch')
-            expect(camera).to.haveOwnProperty('heading')
-            expect(camera).to.haveOwnProperty('roll')
+            expectTypeOf(camera).toEqualTypeOf<CameraPosition | undefined>()
             expect(camera?.x).to.eq(expectedCamera.x)
             expect(camera?.y).to.eq(expectedCamera.y)
             expect(camera?.z).to.eq(expectedCamera.z)
@@ -107,14 +94,14 @@ describe('CameraParamConfig class test', () => {
                     expectedCamera.roll
                 )
             )
-            expect(result).to.be.an('Object')
+            expect(result).to.not.be.undefined
             testCameraValues(result, expectedCamera)
         })
         it('fills any empty camera value with 0s', () => {
             const result = readCameraFromUrlParam(
                 generateCameraString(expectedCamera.x, '', expectedCamera.z, '', '', '')
             )
-            expect(result).to.be.an('Object')
+            expect(result).to.not.be.undefined
             testCameraValues(result, {
                 x: expectedCamera.x,
                 y: 0,
@@ -126,7 +113,7 @@ describe('CameraParamConfig class test', () => {
         })
     })
     describe('writing the query', () => {
-        const camera = {
+        const camera: CameraPosition = {
             x: 12,
             y: 34,
             z: 56,
@@ -143,14 +130,7 @@ describe('CameraParamConfig class test', () => {
             testInstance.populateQueryWithStoreValue(query)
             expect(query).to.haveOwnProperty('camera')
             expect((query as {
-                camera: {
-                    x: number
-                    y: number
-                    z: number
-                    pitch: number
-                    heading: number
-                    roll: number
-                }
+                camera: CameraPosition
             }).camera).to.eq(
                 `${camera.x},${camera.y},${camera.z},${camera.pitch},${camera.heading},${camera.roll}`
             )
@@ -162,14 +142,7 @@ describe('CameraParamConfig class test', () => {
             testInstance.populateQueryWithStoreValue(query)
             expect(query).to.haveOwnProperty('camera')
             expect((query as {
-                camera: {
-                    x: number
-                    y: number
-                    z: number
-                    pitch: number
-                    heading: number
-                    roll: number
-                }
+                camera: CameraPosition
             }).camera).to.eq(
                 `${camera.x},,${camera.z},,${camera.heading},${camera.roll}`
             )
