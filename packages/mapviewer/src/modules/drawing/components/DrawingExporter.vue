@@ -9,12 +9,13 @@ import { downloadFile, generateFilename } from '@/utils/utils'
 /** @type {DropdownItem[]} */
 const exportOptions = [
     { id: 'KML', title: 'KML', value: 'KML' },
-    { id: 'GPX', title: 'GPX', value: 'GPX' },
+    { id: 'GPX-Track', title: 'gpx_track', value: 'GPX_TRACK' },
+    { id: 'GPX-Route', title: 'gpx_route', value: 'GPX_ROUTE' },
 ]
 
 const drawingLayer = inject('drawingLayer')
 
-const exportSelection = ref(exportOptions[0].title)
+const exportSelection = ref(exportOptions[0].value)
 
 const store = useStore()
 
@@ -23,7 +24,7 @@ const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
 const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
 
 function onExportOptionSelected(dropdownItem) {
-    exportSelection.value = dropdownItem.title
+    exportSelection.value = dropdownItem.value
     exportDrawing()
 }
 function exportDrawing() {
@@ -33,9 +34,12 @@ function exportDrawing() {
     }
     const features = drawingLayer.getSource().getFeatures()
     let content, fileName
-    if (exportSelection.value === 'GPX') {
+    if (exportSelection.value === 'GPX_TRACK') {
         fileName = generateFilename('.gpx')
-        content = generateGpxString(projection.value, features)
+        content = generateGpxString(projection.value, features, true)
+    } else if (exportSelection.value === 'GPX_ROUTE') {
+        fileName = generateFilename('.gpx')
+        content = generateGpxString(projection.value, features, false)
     } else {
         fileName = generateFilename('.kml')
         content = generateKmlString(projection.value, features, activeKmlLayer.value?.name)
