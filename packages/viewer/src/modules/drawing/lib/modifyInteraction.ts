@@ -321,7 +321,9 @@ export default class Modify extends PointerInteraction {
         const rBush = this.rBush_
         const nodesToRemove: SegmentData[] = []
         rBush.forEach((node) => {
-            if (feature === node.feature) nodesToRemove.push(node)
+            if (feature === node.feature) {
+                nodesToRemove.push(node)
+            }
         })
         for (let i = nodesToRemove.length - 1; i >= 0; --i) {
             const nodeToRemove = nodesToRemove[i]
@@ -1202,7 +1204,9 @@ export default class Modify extends PointerInteraction {
             let index = segmentsByFeature[uid]!.index ?? 0
             let newIndex = index - 1
             const segmentData: SegmentData = left ?? right!
-            if (newIndex < 0) newIndex = 0
+            if (newIndex < 0) {
+                newIndex = 0
+            }
 
             const geometry = segmentData.geometry
             const coordinates: Coordinate[] | Coordinate[][] = geometry.getCoordinates() as Coordinate[] | Coordinate[][]
@@ -1228,7 +1232,9 @@ export default class Modify extends PointerInteraction {
                 case 'Polygon':
                     component = component[segmentData.depth![0]!] as Coordinate[]
                     if (component.length > 4) {
-                        if (index === component.length - 1) index = 0
+                        if (index === component.length - 1) {
+                            index = 0
+                        }
                         component.splice(index, 1)
                         deleted = true
                         if (index === 0) {
@@ -1325,7 +1331,9 @@ export default class Modify extends PointerInteraction {
         const segments =
             this.subsegmentsFunction?.(segmentData.feature, index, viewExtent) ??
             [segmentData.segment]
-        if (!segments.length) { return Infinity }
+        if (!segments.length) {
+            return Infinity
+        }
         return segments
             .map((segment) => {
                 const tempSegment: Segment = [
@@ -1348,7 +1356,9 @@ export default class Modify extends PointerInteraction {
         const segments =
             this.subsegmentsFunction?.(segmentData.feature, index, viewExtent!) ??
             [segmentData.segment]
-        if (!segments.length) { return undefined }
+        if (!segments.length) {
+            return undefined
+        }
         const closestIndex = segments
             .map((segment, i) => {
                 const tempSegment: Segment = [
