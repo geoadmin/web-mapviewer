@@ -138,7 +138,7 @@ export class GeodesicGeometries {
         ) {
             throw new Error(
                 'This class only accepts Polygons (and Linestrings ' +
-                    'after initial drawing is finished)'
+                'after initial drawing is finished)'
             )
         }
         this._calculateEverything()
@@ -452,7 +452,7 @@ interface CoordObject {
 }
 
 function coordNormalize(coord: number[] | CoordObject): number[] {
-    if (Array.isArray(coord) && coord.length === 2) {
+    if (Array.isArray(coord) && (coord.length === 2 || coord.length === 3)) {
         coord = { lon: coord[0]!, lat: coord[1]! }
         return [geographicMath.AngNormalize(coord.lon), coord.lat]
     } else {
@@ -598,10 +598,10 @@ class MeasureStyles {
         return ratio <= 1
             ? this.styles
             : ratio <= 10
-              ? this.top100Styles
-              : ratio <= 100
-                ? this.top10Styles
-                : []
+                ? this.top100Styles
+                : ratio <= 100
+                    ? this.top10Styles
+                    : []
     }
 }
 
