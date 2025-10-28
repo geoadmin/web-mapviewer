@@ -10,8 +10,8 @@ import { recurse } from 'cypress-recurse'
 import proj4 from 'proj4'
 
 import { EditableFeatureTypes } from '@/api/features.api'
-import { DEFAULT_ICON_URL_PARAMS } from '@/api/icon.api'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
+import { DEFAULT_ICON_URL_PARAMS } from '@/config/icons.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { allStylingColors, allStylingSizes, BLACK, generateRGBFillString, GREEN, LARGE, RED, SMALL } from '@/utils/featureStyleUtils'
 import { EMPTY_KML_DATA, LEGACY_ICON_XML_SCALE_FACTOR } from '@/utils/kmlUtils'
@@ -48,7 +48,7 @@ describe('Drawing module tests', () => {
             cy.wait('@update-kml')
                 .its('request')
                 .should((request) =>
-                        void checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [new RegExp(`<name>${title}</name>`)])
+                    void checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [new RegExp(`<name>${title}</name>`)])
                 )
             cy.readStoreValue('getters.selectedFeatures[0].title').should('eq', title)
         }
@@ -1090,7 +1090,7 @@ describe('Drawing module tests', () => {
             cy.log(
                 'opening up the app and centering it directly on the single marker feature from the fixture'
             )
-            cy.goToDrawing({layers: kmlUrlParam, center: center.join(',')}, true)
+            cy.goToDrawing({ layers: kmlUrlParam, center: center.join(',') }, true)
             cy.wait(['@get-kml-metadata', '@get-kml'])
 
             cy.log(
@@ -1180,7 +1180,7 @@ describe('Drawing module tests', () => {
                 'opening up the app and centering it directly on the single marker feature from the fixture'
             )
             cy.goToMapView({
-                queryParams:{adminId: kmlFileAdminId, E: center[0] as number, N: center[1] as number },
+                queryParams: { adminId: kmlFileAdminId, E: center[0] as number, N: center[1] as number },
                 withHash: false,
             })
             cy.wait([

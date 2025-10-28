@@ -53,8 +53,12 @@ function validateResults(geodesic: GeodesicGeometries, exp: ExpectedResults): vo
 
     // Validate geodesicPolygonGeom
     const polygonGeom = geodesic.getGeodesicPolygonGeom()
+    // If geodesicPolygonGeom is explicitly set (even to undefined), use it as-is
+    // Otherwise, default to geodesicGeom for backwards compatibility
     const expPolygonGeom =
-        exp.geodesicPolygonGeom === undefined ? exp.geodesicGeom : exp.geodesicPolygonGeom
+        'geodesicPolygonGeom' in exp
+            ? exp.geodesicPolygonGeom
+            : exp.geodesicGeom
     if (expPolygonGeom) {
         expect(polygonGeom).to.be.instanceOf(MultiPolygon)
         expect(polygonGeom!.getCoordinates()).to.have.length(expPolygonGeom.length) // nb polygons

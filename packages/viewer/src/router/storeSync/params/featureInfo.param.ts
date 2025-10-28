@@ -5,7 +5,8 @@ import UrlParamConfig, {
 } from '@/router/storeSync/UrlParamConfig.class'
 import { getDefaultValidationResponse } from '@/router/storeSync/validation'
 import { UIStoreActions } from '@/store/actions'
-import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui'
+import useUIStore from '@/store/modules/ui'
+import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 import { isEnumValue } from '@/utils/utils'
 
 function parseFeatureInfoPosition(urlParamValue?: string): FeatureInfoPositions | undefined {

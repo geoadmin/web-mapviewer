@@ -293,13 +293,13 @@ function generateIconFromStyle(iconStyle: IconStyle, iconArgs: IconArgs): Drawin
 
     return anchor
         ? {
-              name: iconArgs.name,
-              imageURL: url,
-              imageTemplateURL: url,
-              iconSetName: iconArgs.set,
-              anchor: anchor as [number, number],
-              size: size as [number, number],
-          }
+            name: iconArgs.name,
+            imageURL: url,
+            imageTemplateURL: url,
+            iconSetName: iconArgs.set,
+            anchor: anchor as [number, number],
+            size: size as [number, number],
+        }
         : undefined
 }
 
@@ -426,7 +426,7 @@ export function getEditableFeatureFromKmlFeature(
         return
     }
     const featureType = getFeatureType(kmlFeature)
-    if (!featureType || !(featureType in EditableFeatureTypes)) {
+    if (!featureType || !Object.values(EditableFeatureTypes).includes(featureType as EditableFeatureTypes)) {
         log.debug('External KML detected, cannot modify it to an EditableFeature')
         return
     }
