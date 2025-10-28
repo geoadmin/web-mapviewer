@@ -12,12 +12,7 @@ class DummyUrlParamConfig<T extends string | number | boolean> extends UrlParamC
         valueType = String as NumberConstructor | StringConstructor | BooleanConstructor,
         extractValueFromStore = undefined,
         defaultValue = undefined as T | undefined,
-    }: {
-        keepInUrlWhenDefault?: boolean
-        valueType?: NumberConstructor | StringConstructor | BooleanConstructor
-        extractValueFromStore?: () => T | undefined
-        defaultValue?: T
-    } = {}) {
+    }: Partial<AbstractParamConfigInput<T>> = {}) {
         const config: AbstractParamConfigInput<T> = {
             urlParamName: 'test',
             actionsToWatch: ['test'],
@@ -33,9 +28,8 @@ class DummyUrlParamConfig<T extends string | number | boolean> extends UrlParamC
 
 describe('Test all AbstractParamConfig class functionalities', () => {
     describe('readValueFromQuery', () => {
-        it('returns undefined when the query given in param is null or undefined', () => {
+        it('returns undefined when the query given in param is undefined', () => {
             const testInstance = new DummyUrlParamConfig()
-            expect(testInstance.readValueFromQuery(undefined)).to.be.undefined
             expect(testInstance.readValueFromQuery(undefined)).to.be.undefined
         })
         describe('keepInUrlWhenDefault=true', () => {
@@ -89,9 +83,6 @@ describe('Test all AbstractParamConfig class functionalities', () => {
                 })
                 expect(testInstance.readValueFromQuery({ test: 'true' })).to.be.true
                 expect(testInstance.readValueFromQuery({ test: 'false' })).to.be.false
-                expect(testInstance.readValueFromQuery({ test: '' })).to.be.true
-                // null value in Vue Router LocationQuery means param exists without value (like ?test&other=1)
-                // The implementation treats this as '' (empty string), which evaluates to true for booleans
                 expect(testInstance.readValueFromQuery({ test: '' })).to.be.true
                 expect(testInstance.readValueFromQuery({})).to.be.undefined
             })
@@ -155,24 +146,13 @@ describe('Test all AbstractParamConfig class functionalities', () => {
         it('does not raise error or exception if the given query or store is undefined or null', () => {
             const testInstance = new DummyUrlParamConfig()
             testInstance.populateQueryWithStoreValue(undefined)
-            testInstance.populateQueryWithStoreValue(undefined)
-            testInstance.populateQueryWithStoreValue(undefined)
-            testInstance.populateQueryWithStoreValue({})
-            testInstance.populateQueryWithStoreValue({})
             testInstance.populateQueryWithStoreValue({})
             expect(true).to.be.true
         })
         describe('keepInUrlWhenDefault=true', () => {
-            const checkNullAndUndefinedHandling = <T extends string | number | boolean>(
+            const checkUndefinedHandling = <T extends string | number | boolean>(
                 testInstance: DummyUrlParamConfig<T>
             ) => {
-                it('handles null store value correctly', () => {
-                    const query: LocationQuery = {}
-                    testInstance.populateQueryWithStoreValue(query)
-                    expect(query).to.haveOwnProperty('test')
-                    // When store value is undefined, it gets converted to string 'undefined'
-                    expect(query.test).to.eq('undefined')
-                })
                 it('handles undefined store value correctly', () => {
                     const query: LocationQuery = {}
                     testInstance.populateQueryWithStoreValue(query)
@@ -219,7 +199,7 @@ describe('Test all AbstractParamConfig class functionalities', () => {
                     expect(query).to.haveOwnProperty('test')
                     expect(query.test).to.eq(defaultValue)
                 })
-                checkNullAndUndefinedHandling(
+                checkUndefinedHandling(
                     new DummyUrlParamConfig<string>({
                         keepInUrlWhenDefault: true,
                         valueType: String,
@@ -266,7 +246,7 @@ describe('Test all AbstractParamConfig class functionalities', () => {
                     expect(query).to.haveOwnProperty('test')
                     expect(query.test).to.eq('789')
                 })
-                checkNullAndUndefinedHandling(
+                checkUndefinedHandling(
                     new DummyUrlParamConfig<number>({
                         keepInUrlWhenDefault: true,
                         valueType: Number,

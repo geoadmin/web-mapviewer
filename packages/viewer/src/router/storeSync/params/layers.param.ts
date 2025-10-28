@@ -136,9 +136,8 @@ export function createLayerObject(parsedLayer: Partial<Layer>, currentLayer: Lay
             // If the url does not start with http, then it is a local file and we don't add it
             // to the layer list upon start as we cannot load it anymore.
         }
-    }
-    // format is GPX|FILE_URL
-    else if (parsedLayer.type === LayerType.GPX) {
+        // format is GPX|FILE_URL
+    } else if (parsedLayer.type === LayerType.GPX) {
         if (parsedLayer.baseUrl?.startsWith('http')) {
             layer = createGPGXLayer(parsedLayer)
         } else {
@@ -149,13 +148,11 @@ export function createLayerObject(parsedLayer: Partial<Layer>, currentLayer: Lay
         if (parsedLayer.baseUrl?.startsWith('http')) {
             layer = createCloudOptimizedGeoTIFFLayer(parsedLayer)
         }
-    }
-    // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
-    else if (parsedLayer.type === LayerType.WMTS) {
+        // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
+    } else if (parsedLayer.type === LayerType.WMTS) {
         layer = createWMTSLayerObject(parsedLayer)
-    }
-    // format is : WMS|BASE_URL|LAYER_ID
-    else if (parsedLayer.type === LayerType.WMS) {
+        // format is : WMS|BASE_URL|LAYER_ID
+    } else if (parsedLayer.type === LayerType.WMS) {
         layer = createWMSLayerObject(parsedLayer)
     } else if (parsedLayer.id) {
         const matchingLayer = layersStore.getLayerConfigById(parsedLayer.id)
