@@ -228,6 +228,8 @@
     "export": "Exportieren",
     "export_kml": "Exportieren",
     "export_kml_notsupported": "Ihr Browser unterstützt die Speicherfunktion nicht. Benutzen Sie IE10, Firefox oder Chrome.",
+    "gpx_route": "GPX (Route)",
+    "gpx_track": "GPX (Track)",
     "external_data_tooltip": "Daten und/oder Stil eines Drittanbieters ",
     "external_data_warning": "Warnung: Diese Daten und/oder Stil kommen von einem Drittanbieter (--URL--). Verfügbarkeit wird durch Drittanbieter gewährleistet. Es gelten zusätzlich die Bedingungen der entsprechenden Datenherren.",
     "extra_large_size": "Extra Gross",
