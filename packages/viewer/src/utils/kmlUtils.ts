@@ -51,7 +51,7 @@ import {
 import { GeodesicGeometries } from '@/utils/geodesicManager'
 // FIXME: as soon as https://github.com/openlayers/openlayers/pull/15964 is merged and released, go back to using OL files
 import KML, { getDefaultStyle } from '@/utils/ol/format/KML'
-import { parseRGBColor } from '@/utils/utils'
+import { isAnyEnumValue, parseRGBColor } from '@/utils/utils'
 
 export const EMPTY_KML_DATA: string = '<kml></kml>'
 
@@ -139,8 +139,7 @@ export function getFeatureType(kmlFeature: Feature): string | undefined {
         )
         featureType = /(?<type>\w+)_\d+/.exec(`${featureId}`)?.groups?.type?.toUpperCase()
     }
-
-    if (!Object.values(EditableFeatureTypes).includes(featureType)) {
+    if (!featureType || !isAnyEnumValue(EditableFeatureTypes, featureType)) {
         log.info(
             `Type ${featureType} of feature in kml not recognized, not a geoadmin feature ignoring it`,
             kmlFeature
@@ -426,7 +425,7 @@ export function getEditableFeatureFromKmlFeature(
         return
     }
     const featureType = getFeatureType(kmlFeature)
-    if (!featureType || !Object.values(EditableFeatureTypes).includes(featureType as EditableFeatureTypes)) {
+    if (!featureType || !isAnyEnumValue(EditableFeatureTypes, featureType)) {
         log.debug('External KML detected, cannot modify it to an EditableFeature')
         return
     }
