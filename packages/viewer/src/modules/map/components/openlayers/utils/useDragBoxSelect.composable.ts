@@ -29,7 +29,7 @@ import GeoJSON from 'ol/format/GeoJSON'
 import Circle from 'ol/geom/Circle'
 import { DragBox } from 'ol/interaction'
 
-import type { LayerFeature, SelectableFeature } from '@/api/features.api'
+import type { LayerFeature } from '@/api/features.api'
 import type { ActionDispatcher } from '@/store/types'
 
 import { DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@/config/map.config'
