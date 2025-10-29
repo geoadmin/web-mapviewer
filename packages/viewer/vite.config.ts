@@ -43,10 +43,11 @@ const stagings: Record<ViteModes, string> = {
 
 /**
  * We use manual chunks to reduce the size of the final index.js file to improve startup
- * performance. Split utils into logical chunks to keep individual chunk sizes manageable.
+ * performance. Vendor libraries are separated for better caching, and utils are split
+ * into a few logical chunks to keep sizes manageable without being overly aggressive.
  */
 function manualChunks(id: string): string | undefined {
-    // Separate large vendor dependencies into their own chunks
+    // Separate large vendor dependencies into their own chunks for better caching
     if (id.includes('node_modules')) {
         // OpenLayers is very large, keep it separate
         if (id.includes('/ol/')) {
@@ -68,47 +69,19 @@ function manualChunks(id: string): string | undefined {
         return 'vendor'
     }
 
-    // Split utils into smaller chunks based on their functionality and dependencies
+    // Split utils into a few logical chunks
     if (id.includes('/src/utils/')) {
-        // Geospatial calculations and geodesic utilities (heavy OpenLayers geom/style imports)
-        if (
-            id.includes('geodesicManager') ||
-            id.includes('militaryGridProjection') ||
-            id.includes('identifyOnVectorLayer')
-        ) {
+        // Heavy geospatial calculations with lots of OpenLayers geometry/style dependencies
+        if (id.includes('geodesicManager') || id.includes('militaryGridProjection')) {
             return 'utils-geospatial'
         }
 
-        // File format parsing utilities (KML, GPX, GeoJSON parsers)
-        if (
-            id.includes('kmlUtils') ||
-            id.includes('gpxUtils') ||
-            id.includes('geoJsonUtils') ||
-            id.includes('/ol/format/')
-        ) {
+        // File format parsing utilities with parser libraries (KML, GPX, GeoJSON)
+        if (id.includes('kmlUtils') || id.includes('gpxUtils') || id.includes('geoJsonUtils')) {
             return 'utils-formats'
         }
 
-        // Feature and layer styling utilities
-        if (id.includes('featureStyleUtils') || id.includes('styleUtils')) {
-            return 'utils-styles'
-        }
-
-        // Layer management utilities
-        if (
-            id.includes('layerUtils') ||
-            id.includes('searchParamUtils') ||
-            id.includes('legacyLayerParamUtils')
-        ) {
-            return 'utils-layers'
-        }
-
-        // Coordinate utilities
-        if (id.includes('/utils/coordinates/')) {
-            return 'utils-coordinates'
-        }
-
-        // Everything else (lightweight utilities)
+        // Everything else - core utilities, styles, layers, coordinates, etc.
         return 'utils-core'
     }
 }
