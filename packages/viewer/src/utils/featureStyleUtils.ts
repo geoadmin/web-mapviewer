@@ -414,15 +414,15 @@ export function geoadminStyleFunction(
                 editableFeature?.featureType === EditableFeatureTypes.Measure
                     ? dashedRedStroke
                     : new Stroke({
-                          color: styleConfig.fillColor.fill,
-                          width: 3,
-                      }),
+                        color: styleConfig.fillColor.fill,
+                        width: 3,
+                    }),
             // filling a polygon with white if first time being drawn (otherwise fallback to user set color)
             fill: isDrawing
                 ? whiteSketchFill
                 : new Fill({
-                      color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
-                  }),
+                    color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
+                }),
             zIndex: StyleZIndex.MainStyle,
         }),
     ]
@@ -453,8 +453,8 @@ export function geoadminStyleFunction(
                 fill: isDrawing
                     ? whiteSketchFill
                     : new Fill({
-                          color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
-                      }),
+                        color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
+                    }),
                 zIndex: StyleZIndex.AzimuthCircle,
                 stroke: new Stroke({
                     color: styleConfig.strokeColor.fill,
