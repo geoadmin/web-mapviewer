@@ -1,6 +1,8 @@
 import type { GeoAdminLayer, KMLLayer, Layer } from '@swissgeo/layers'
 import type { Interval } from 'luxon'
 
+import type { ClickInfo } from '@/store/modules/map'
+
 export interface LayerActionFilter {
     /** Base URL of the layer(s) to retrieve. If undefined, accepts all */
     baseUrl?: string
@@ -104,6 +106,7 @@ export interface LayersStoreGetters {
     /** Get visibleLayers with time config. (Preview layers and system layers are filtered) */
     visibleLayersWithTimeConfig(): Layer[]
     youngestYear(): number
+    isFeatureSelected(): (clickInfo?: ClickInfo) => boolean
 }
 
 export type LayersStore = ReturnType<typeof import('@/store/modules/layers').default>

@@ -7,6 +7,7 @@ import addLayerError from '@/store/modules/layers/actions/addLayerError'
 import addSystemLayer from '@/store/modules/layers/actions/addSystemLayer'
 import clearLayers from '@/store/modules/layers/actions/clearLayers'
 import clearPreviewLayer from '@/store/modules/layers/actions/clearPreviewLayer'
+import { identifyFeatures } from '@/store/modules/layers/actions/identifyFeatures'
 import loadLayersConfig from '@/store/modules/layers/actions/loadLayersConfig'
 import moveActiveLayerToIndex from '@/store/modules/layers/actions/moveActiveLayerToIndex'
 import removeLayer from '@/store/modules/layers/actions/removeLayer'
@@ -36,6 +37,7 @@ import getLayerConfigById from '@/store/modules/layers/getters/getLayerConfigByI
 import getLayersById from '@/store/modules/layers/getters/getLayersById'
 import hasAnyLocalFile from '@/store/modules/layers/getters/hasAnyLocalFile'
 import hasDataDisclaimer from '@/store/modules/layers/getters/hasDataDisclaimer'
+import { isFeatureSelected } from '@/store/modules/layers/getters/isFeatureSelected'
 import isLocalFile from '@/store/modules/layers/getters/isLocalFile'
 import oldestYear from '@/store/modules/layers/getters/oldestYear'
 import visibleLayerOnTop from '@/store/modules/layers/getters/visibleLayerOnTop'
@@ -69,6 +71,7 @@ const getters: LayersStoreGetters = {
     visibleLayers,
     visibleLayersWithTimeConfig,
     youngestYear,
+    isFeatureSelected,
 }
 
 const actions = {
@@ -96,6 +99,7 @@ const actions = {
     addSystemLayer,
     updateSystemLayer,
     removeSystemLayer,
+    identifyFeatures,
 }
 
 const useLayersStore = defineStore('layers', {

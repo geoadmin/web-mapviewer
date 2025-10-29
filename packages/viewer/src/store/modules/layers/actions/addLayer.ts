@@ -126,4 +126,5 @@ export default function addLayer(
             messages: ['no layer found for payload:', layer, options, dispatcher],
         })
     }
+    this.identifyFeatures(dispatcher)
 }
