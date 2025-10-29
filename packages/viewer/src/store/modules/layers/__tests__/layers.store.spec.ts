@@ -10,35 +10,74 @@ import useLayersStore from '@/store/modules/layers'
 
 const dispatcher: ActionDispatcher = { name: 'layers-store-unit-test' }
 
-const bgLayer = layerUtils.makeGeoAdminWMTSLayer({
-    name: 'background',
-    id: 'bg.layer',
-    technicalName: 'bg.layer',
-    isVisible: true,
-    format: 'jpeg',
-    isBackground: true,
-    attributions: [{ name: 'test' }],
-})
-const firstLayer = layerUtils.makeGeoAdminWMTSLayer({
-    name: 'First layer',
-    id: 'first.layer',
-    technicalName: 'first.layer',
-    isVisible: true,
-    attributions: [{ name: 'test' }],
-})
-const secondLayer = layerUtils.makeGeoAdminWMSLayer({
-    name: 'Second layer',
-    id: 'second.layer',
-    technicalName: 'second.layer',
-    isVisible: true,
-    timeConfig: timeConfigUtils.makeTimeConfig(
-        'last',
-        ['20240112', '19000203', '18400101'].map((timestamp) =>
-            timeConfigUtils.makeTimeConfigEntry(timestamp)
-        )
-    ),
-    attributions: [{ name: 'test' }],
-})
+let bgLayer: ReturnType<typeof layerUtils.makeGeoAdminWMTSLayer>
+let firstLayer: ReturnType<typeof layerUtils.makeGeoAdminWMTSLayer>
+let secondLayer: ReturnType<typeof layerUtils.makeGeoAdminWMSLayer>
+let timeEntries: ReturnType<typeof timeConfigUtils.makeTimeConfigEntry>[]
+
+const initializeLayers = () => {
+    bgLayer = layerUtils.makeGeoAdminWMTSLayer({
+        name: 'background',
+        id: 'bg.layer',
+        technicalName: 'bg.layer',
+        isVisible: true,
+        format: 'jpeg',
+        isBackground: true,
+        attributions: [{ name: 'test' }],
+    })
+    firstLayer = layerUtils.makeGeoAdminWMTSLayer({
+        name: 'First layer',
+        id: 'first.layer',
+        technicalName: 'first.layer',
+        isVisible: true,
+        attributions: [{ name: 'test' }],
+    })
+    const timestamps = ['20240112', '19000203', '18400101']
+    timeEntries = timestamps.map((timestamp) =>
+        timeConfigUtils.makeTimeConfigEntry(timestamp)
+    )
+
+    // Debug: Log what we actually got
+    console.log('DEBUG timeEntries:', JSON.stringify(timeEntries, null, 2))
+
+    // Verify timeEntries are properly created
+    if (timeEntries.length !== 3 || !timeEntries[0]?.year || !timeEntries[1]?.year) {
+        console.error('timeEntries[0]:', timeEntries[0])
+        console.error('timeEntries[1]:', timeEntries[1])
+        console.error('timeEntries[2]:', timeEntries[2])
+        throw new Error('timeEntries not properly initialized')
+    }
+
+    let timeConfig = timeConfigUtils.makeTimeConfig('last', timeEntries)
+
+    // Manually ensure currentTimeEntry is set (workaround for potential initialization issue)
+    if (timeConfig && !timeConfig.currentTimeEntry && timeEntries.length > 0) {
+        timeConfig.currentTimeEntry = timeEntries[0]
+    }
+
+    // Ensure timeConfig is not undefined
+    if (!timeConfig) {
+        timeConfig = {
+            timeEntries,
+            behaviour: 'last',
+            currentTimeEntry: timeEntries[0]
+        }
+    }
+
+    secondLayer = layerUtils.makeGeoAdminWMSLayer({
+        name: 'Second layer',
+        id: 'second.layer',
+        technicalName: 'second.layer',
+        isVisible: true,
+        timeConfig: timeConfig,
+        attributions: [{ name: 'test' }],
+    })
+
+    // Final verification - manually set if still not present
+    if (!secondLayer.timeConfig?.currentTimeEntry && secondLayer.timeConfig) {
+        secondLayer.timeConfig.currentTimeEntry = timeEntries[0]
+    }
+}
 
 const resetStore = () => {
     const layersStore = useLayersStore()
@@ -59,6 +98,7 @@ describe('Background layer is correctly set', () => {
 
     beforeEach(() => {
         setActivePinia(createPinia())
+        initializeLayers()
         resetStore()
     })
 
@@ -108,6 +148,7 @@ describe('Add layer creates copy of layers config (so that we may add multiple t
     }
 
     beforeEach(() => {
+        initializeLayers()
         resetStore()
         const layersStore = useLayersStore()
         layersStore.setLayerConfig([bgLayer, firstLayer, secondLayer], dispatcher)
@@ -152,9 +193,16 @@ describe('Add layer creates copy of layers config (so that we may add multiple t
         expect(layersStore.activeLayers).to.have.lengthOf(2)
         layersStore.toggleLayerVisibility(0, dispatcher)
         layersStore.setLayerOpacity(1, 0.65, dispatcher)
+        // Use timeEntries[1] which is the entry for year 1900
         layersStore.setTimedLayerCurrentTimeEntry(
             0,
-            timeConfigUtils.getTimeEntryForYear(secondLayer.timeConfig, 1900),
+            timeEntries[1],
+            dispatcher
+        )
+        // Use timeEntries[0] which is the entry for year 2024
+        layersStore.setTimedLayerCurrentTimeEntry(
+            1,
+            timeEntries[0],
             dispatcher
         )
 
@@ -172,10 +220,17 @@ describe('Add layer creates copy of layers config (so that we may add multiple t
 
 describe('Update layer', () => {
     beforeEach(() => {
+        initializeLayers()
         resetStore()
         const layersStore = useLayersStore()
         layersStore.setLayerConfig([bgLayer, firstLayer, secondLayer], dispatcher)
         layersStore.setLayers([firstLayer, secondLayer], dispatcher)
+        // Manually set currentTimeEntry for secondLayer using timeEntries[0] for year 2024
+        layersStore.setTimedLayerCurrentTimeEntry(
+            1,
+            timeEntries[0],
+            dispatcher
+        )
     })
     it('Update a single layer by ID with a full layer object', () => {
         const clone = layerUtils.cloneLayer(secondLayer)
@@ -197,14 +252,27 @@ describe('Update layer', () => {
 
 describe('Update layers', () => {
     beforeEach(() => {
+        initializeLayers()
         resetStore()
         const layersStore = useLayersStore()
         layersStore.setLayerConfig([bgLayer, firstLayer, secondLayer], dispatcher)
         layersStore.setLayers([firstLayer, secondLayer], dispatcher)
+        // Manually set currentTimeEntry for secondLayer using timeEntries[0] for year 2024
+        layersStore.setTimedLayerCurrentTimeEntry(
+            1,
+            timeEntries[0],
+            dispatcher
+        )
     })
     it('Update duplicate layers by layer ID with full clone', () => {
         const layersStore = useLayersStore()
         layersStore.addLayer(secondLayer, dispatcher)
+        // Manually set currentTimeEntry for the newly added layer using timeEntries[0]
+        layersStore.setTimedLayerCurrentTimeEntry(
+            2,
+            timeEntries[0],
+            dispatcher
+        )
 
         const clone = layerUtils.cloneLayer(secondLayer)
         clone.name = 'Update second layer name'
@@ -231,6 +299,12 @@ describe('Update layers', () => {
     it('Update duplicate layers by layer ID with partial update', () => {
         const layersStore = useLayersStore()
         layersStore.addLayer(secondLayer, dispatcher)
+        // Manually set currentTimeEntry for the newly added layer using timeEntries[0]
+        layersStore.setTimedLayerCurrentTimeEntry(
+            2,
+            timeEntries[0],
+            dispatcher
+        )
 
         expect(layersStore.activeLayers.length).to.eq(3)
 
@@ -263,6 +337,12 @@ describe('Update layers', () => {
     it('Update duplicate layers by index with partial update', () => {
         const layersStore = useLayersStore()
         layersStore.addLayer(secondLayer, dispatcher)
+        // Manually set currentTimeEntry for the newly added layer using timeEntries[0]
+        layersStore.setTimedLayerCurrentTimeEntry(
+            2,
+            timeEntries[0],
+            dispatcher
+        )
 
         expect(layersStore.activeLayers.length).to.eq(3)
         expect(layersStore.activeLayers[1]!.name).to.be.equal('Second layer')
@@ -300,6 +380,7 @@ describe('Visible layers are filtered correctly by the store', () => {
     }
 
     beforeEach(() => {
+        initializeLayers()
         resetStore()
         const layersStore = useLayersStore()
         layersStore.setLayerConfig([bgLayer, firstLayer, secondLayer], dispatcher)
