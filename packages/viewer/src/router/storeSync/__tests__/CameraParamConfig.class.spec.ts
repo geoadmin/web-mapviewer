@@ -1,6 +1,8 @@
 import type { RouteLocationNormalizedGeneric } from 'vue-router'
 
-import { beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
+import { createTestingPinia } from '@pinia/testing'
+import { mount } from '@vue/test-utils'
+import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
 
 import type { CesiumStore } from '@/store/modules/cesium/types/cesium'
 import type { CameraPosition, PositionStore } from '@/store/modules/position/types/position'
@@ -8,48 +10,36 @@ import type { CameraPosition, PositionStore } from '@/store/modules/position/typ
 import cameraParam, {
     readCameraFromUrlParam,
 } from '@/router/storeSync/params/camera.param'
-
-// Mock the stores
-vi.mock('@/store/modules/cesium', () => ({
-    default: vi.fn(() => ({
-        active: false,
-    })),
-}))
-
-vi.mock('@/store/modules/position', () => ({
-    default: vi.fn(() => ({
-        camera: undefined,
-        setCameraPosition: vi.fn(),
-    })),
-}))
+import useCesiumStore from '@/store/modules/cesium'
+import usePositionStore from '@/store/modules/position'
 
 describe('CameraParamConfig class test', () => {
     const testInstance = cameraParam
-    let fakeCesiumStore: { active: boolean }
-    let fakePositionStore: {
-        camera: { x: number; y: number; z: number; pitch: number; heading: number; roll: number } | undefined
-        setCameraPosition: ReturnType<typeof vi.fn>
-    }
     let fakeTo: RouteLocationNormalizedGeneric
+    let wrapper: ReturnType<typeof mount>
+    let cesiumStore: CesiumStore
+    let positionStore: PositionStore
+    beforeEach(() => {
+        // Create a fresh pinia instance for each test
+        wrapper = mount(testInstance, {
+            global: {
+                plugins: [createTestingPinia({
+                    createSpy: vi.fn
+                })],
+            },
+        })
 
-    beforeEach(async () => {
-        // Reset mocks
-        vi.clearAllMocks()
+        // Reset the stores to their initial state
+        cesiumStore = useCesiumStore()
+        positionStore = usePositionStore()
 
-        // Create fake stores
-        fakeCesiumStore = { active: false }
-        fakePositionStore = {
-            camera: undefined,
-            setCameraPosition: vi.fn(),
-        }
-
-        // Mock the store modules to return our fake stores
-        const { default: useCesiumStore } = await import('@/store/modules/cesium')
-        const { default: usePositionStore } = await import('@/store/modules/position')
-        vi.mocked(useCesiumStore).mockReturnValue(fakeCesiumStore as CesiumStore)
-        vi.mocked(usePositionStore).mockReturnValue(fakePositionStore as unknown as PositionStore)
+        cesiumStore.$reset()
+        positionStore.$reset()
 
         fakeTo = { query: {} } as RouteLocationNormalizedGeneric
+    })
+    afterEach(() => {
+        wrapper.unmount()
     })
 
     describe('reading the query (readCameraFromUrlParam)', () => {
@@ -122,27 +112,31 @@ describe('CameraParamConfig class test', () => {
             roll: 49,
         }
         beforeEach(() => {
-            fakeCesiumStore.active = true
-            fakePositionStore.camera = camera
+            cesiumStore.active = true
+            positionStore.camera = camera
         })
         it('writes all 3D parameters correctly', () => {
             const query = {}
             testInstance.populateQueryWithStoreValue(query)
             expect(query).to.haveOwnProperty('camera')
             expect((query as {
-                camera: CameraPosition
+                camera: string
             }).camera).to.eq(
                 `${camera.x},${camera.y},${camera.z},${camera.pitch},${camera.heading},${camera.roll}`
             )
         })
         it('writes nothing if the value of a param is equal to zero', () => {
-            camera.y = 0
-            camera.pitch = 0
+            positionStore.camera = {
+                ...camera,
+                y: 0,
+                pitch: 0,
+            }
+
             const query = {}
             testInstance.populateQueryWithStoreValue(query)
             expect(query).to.haveOwnProperty('camera')
             expect((query as {
-                camera: CameraPosition
+                camera: string
             }).camera).to.eq(
                 `${camera.x},,${camera.z},,${camera.heading},${camera.roll}`
             )
@@ -150,13 +144,15 @@ describe('CameraParamConfig class test', () => {
     })
     describe('setting/dispatching the store', () => {
         beforeEach(() => {
-            fakeCesiumStore.active = true
+            cesiumStore.active = true
         })
         it('dispatches 3D param correctly to the store', () => {
-            testInstance.populateStoreWithQueryValue(fakeTo, '1,2,3,4,5,6')
 
+            // Mock the action to prevent infinite recursion
+            // positionStore.setCameraPosition = vi.fn()
+            testInstance.populateStoreWithQueryValue(fakeTo, '1,2,3,4,5,6')
             // Verify the action was called with the correct camera position
-            expect(fakePositionStore.setCameraPosition).toHaveBeenCalledWith(
+            expect(positionStore.setCameraPosition).toHaveBeenCalledWith(
                 {
                     x: 1,
                     y: 2,
@@ -171,8 +167,8 @@ describe('CameraParamConfig class test', () => {
     })
     describe('valuesAreDifferentBetweenQueryAndStore', () => {
         beforeEach(() => {
-            fakeCesiumStore.active = true
-            fakePositionStore.camera = {
+            cesiumStore.active = true
+            positionStore.camera = {
                 x: 1,
                 y: 1,
                 z: 1,

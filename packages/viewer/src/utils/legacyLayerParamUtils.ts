@@ -9,9 +9,6 @@ import { getKmlMetadataByAdminId } from '@/api/files.api'
 import storeSyncConfig from '@/router/storeSync/storeSync.config'
 import useLayersStore from '@/store/modules/layers'
 
-const standardURLParams = storeSyncConfig.map((param) => {
-    return param.urlParamName
-})
 const legacyOnlyURLParams = [
     'E',
     'X',
@@ -248,7 +245,9 @@ export function handleLegacyFeaturePreSelectionParam(
     newQuery: LocationQueryRaw
 ): void {
     const layersStore = useLayersStore()
-
+    const standardURLParams = storeSyncConfig.map((param) => {
+        return param.urlParamName
+    })
     // we begin by removing all params that are either a standard URL param, or a
     // legacy specific param
     const relevantParams = Object.entries(Object.fromEntries(params)).filter(
