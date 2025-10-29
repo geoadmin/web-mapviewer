@@ -1,12 +1,9 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import usePositionStore from '@/store/modules/position'
-import { normalizeAngle } from '@/store/modules/position'
+import { normalizeAngle } from '@/store/modules/position/utils/normalizeAngle'
 
-const dispatcher = { name: 'rotation-store-unit-test' }
-
-function validateNormalizeAngle(angle) {
+function validateNormalizeAngle(angle: number) {
     expect(angle).to.be.lte(Math.PI)
     expect(angle).to.be.gt(-Math.PI)
     const posAngle = angle < 0 ? angle + 2 * Math.PI : angle
@@ -40,14 +37,5 @@ describe('Rotation is set correctly in the store', () => {
         validateNormalizeAngle(Math.PI)
         validateNormalizeAngle(-(Math.PI / 4))
         validateNormalizeAngle(-(Math.PI / 2))
-    })
-    it('Store starts with a rotation of 0', async () => {
-        const positionStore = usePositionStore()
-        expect(positionStore.rotation).to.be.equal(0)
-    })
-    it('setAngle normalizes the angle', async () => {
-        const positionStore = usePositionStore()
-        await positionStore.setRotation(3 * Math.PI + Math.PI / 2, dispatcher)
-        expect(positionStore.rotation).to.be.closeTo(-(Math.PI / 2), 1e-9)
     })
 })

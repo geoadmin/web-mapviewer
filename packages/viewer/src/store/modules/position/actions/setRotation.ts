@@ -4,8 +4,7 @@ import { isNumber } from '@swissgeo/numbers'
 import type { PositionStore } from '@/store/modules/position/types/position'
 import type { ActionDispatcher } from '@/store/types'
 
-import { normalizeAngle } from '@/store/modules/position'
-
+import { normalizeAngle } from '@/store/modules/position/utils/normalizeAngle'
 
 export default function setRotation(
     this: PositionStore,

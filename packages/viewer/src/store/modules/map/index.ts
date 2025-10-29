@@ -42,5 +42,3 @@ const useMapStore = defineStore('map', {
 })
 
 export default useMapStore
-export type { ClickInfo } from '@/store/modules/map/types/map'
-export { ClickType } from '@/store/modules/map/types/clickType.enum'

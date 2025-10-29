@@ -8,7 +8,8 @@ import useFeaturesStore from '@/store/modules/features'
 import { IdentifyMode } from '@/store/modules/features/types/IdentifyMode.enum'
 import useLayersStore from '@/store/modules/layers'
 import { ClickType } from '@/store/modules/map/types/clickType.enum'
-import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui'
+import useUIStore from '@/store/modules/ui'
+import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 
 export default function click(
     this: MapStore,

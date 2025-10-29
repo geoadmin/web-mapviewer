@@ -8,7 +8,7 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { ClickInfo } from '@/store/modules/map'
+import type { ClickInfo } from '@/store/modules/map/types/map'
 
 import { requestHeight } from '@/api/height.api'
 import reframe from '@/api/lv03Reframe.api'
