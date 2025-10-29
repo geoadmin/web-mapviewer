@@ -1,12 +1,10 @@
-import { describe, expect, it } from 'vitest'
+import { createPinia, setActivePinia } from 'pinia'
+import { beforeEach, describe, expect, it } from 'vitest'
 
-// We need to import the router here to avoid error when initializing router plugins, this is
-// needed since some store plugins might require access to router to get the query parameters
-// (e.g. topic management plugin)
-// eslint-disable-next-line
-import router from '@/router'  
-import store from '@/store'
+import usePositionStore from '@/store/modules/position'
 import { normalizeAngle } from '@/store/modules/position'
+
+const dispatcher = { name: 'rotation-store-unit-test' }
 
 function validateNormalizeAngle(angle) {
     expect(angle).to.be.lte(Math.PI)
@@ -31,6 +29,10 @@ function validateNormalizeAngle(angle) {
 }
 
 describe('Rotation is set correctly in the store', () => {
+    beforeEach(() => {
+        setActivePinia(createPinia())
+    })
+
     it('Check normalizeAngle()', () => {
         validateNormalizeAngle(0)
         validateNormalizeAngle(Math.PI / 4)
@@ -40,13 +42,12 @@ describe('Rotation is set correctly in the store', () => {
         validateNormalizeAngle(-(Math.PI / 2))
     })
     it('Store starts with a rotation of 0', async () => {
-        expect(store.state.position.rotation).to.be.equal(0)
+        const positionStore = usePositionStore()
+        expect(positionStore.rotation).to.be.equal(0)
     })
     it('setAngle normalizes the angle', async () => {
-        await store.dispatch('setRotation', {
-            rotation: 3 * Math.PI + Math.PI / 2,
-            dispatcher: 'unit-test',
-        })
-        expect(store.state.position.rotation).to.be.closeTo(-(Math.PI / 2), 1e-9)
+        const positionStore = usePositionStore()
+        await positionStore.setRotation(3 * Math.PI + Math.PI / 2, dispatcher)
+        expect(positionStore.rotation).to.be.closeTo(-(Math.PI / 2), 1e-9)
     })
 })

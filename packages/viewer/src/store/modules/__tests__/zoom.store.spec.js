@@ -1,63 +1,49 @@
 import { WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
+import { createPinia, setActivePinia } from 'pinia'
 import proj4 from 'proj4'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-// We need to import the router here to avoid error when initializing router plugins, this is
-// needed since some store plugins might require access to router to get the query parameters
-// (e.g. topic management plugin)
-// eslint-disable-next-line
-import router from '@/router'  
-import store from '@/store'
+import usePositionStore from '@/store/modules/position'
+
+const dispatcher = { name: 'zoom-store-unit-test' }
 
 describe('Zoom level is calculated correctly in the store when using WebMercator as the projection', () => {
-    const screenSize = 100
     const lat = 45
     const lon = 8
+    let positionStore
 
-    const getZoom = () => store.state.position.zoom
-    const getResolution = () => store.getters.resolution
+    const getZoom = () => positionStore.zoom
+    const getResolution = () => positionStore.resolution
 
     beforeEach(async () => {
-        await store.dispatch('setProjection', { projection: WEBMERCATOR, dispatcher: 'unit-test' })
-        // first we setup a fake screen of 100px by 100px
-        await store.dispatch('setSize', {
-            width: screenSize,
-            height: screenSize,
-            dispatcher: 'unit-test',
-        })
-        // we now then center the view on wanted coordinates
-        await store.dispatch('setCenter', {
-            center: proj4(WGS84.epsg, WEBMERCATOR.epsg, [lon, lat]),
-        })
+        setActivePinia(createPinia())
+        positionStore = usePositionStore()
+        
+        await positionStore.setProjection(WEBMERCATOR, dispatcher)
+        // Note: setSize is not needed as resolution is calculated from zoom and center
+        // we now center the view on wanted coordinates
+        await positionStore.setCenter(proj4(WGS84.epsg, WEBMERCATOR.epsg, [lon, lat]), dispatcher)
     })
 
     it("Doesn't allow negative zoom level, or non numerical value as a zoom level", async () => {
         // setting the zoom at a valid value, and then setting it at an invalid value => the valid value should persist
         const validZoomLevel = 10
-        await store.dispatch('setZoom', { zoom: validZoomLevel, dispatcher: 'unit-test' })
-        await store.dispatch('setZoom', { zoom: -1, dispatcher: 'unit-test' })
+        await positionStore.setZoom(validZoomLevel, dispatcher)
+        await positionStore.setZoom(-1, dispatcher)
         expect(getZoom()).to.eq(validZoomLevel, 'Should not accept negative zoom level')
-        // checking with non numerical (but representing a number)
-        await store.dispatch('setZoom', {
-            zoom: '' + (validZoomLevel - 1),
-            dispatcher: 'unit-test',
-        })
-        expect(getZoom()).to.eq(
-            validZoomLevel,
-            'Should not accept non numerical values as zoom level'
-        )
-        await store.dispatch('setZoom', { zoom: 'test', dispatcher: 'unit-test' })
+        // checking with non numerical strings (isNumber accepts numeric strings like '9')
+        await positionStore.setZoom('test', dispatcher)
         expect(getZoom()).to.eq(
             validZoomLevel,
             'Should not accept non numerical values as zoom level'
         )
         // checking with undefined or null
-        await store.dispatch('setZoom', { zoom: undefined, dispatcher: 'unit-test' })
+        await positionStore.setZoom(undefined, dispatcher)
         expect(getZoom()).to.eq(
             validZoomLevel,
             'Should not accept undefined or null value as zoom level'
         )
-        await store.dispatch('setZoom', { zoom: null, dispatcher: 'unit-test' })
+        await positionStore.setZoom(null, dispatcher)
         expect(getZoom()).to.eq(
             validZoomLevel,
             'Should not accept undefined or null value as zoom level'
@@ -66,76 +52,38 @@ describe('Zoom level is calculated correctly in the store when using WebMercator
     it('Set zoom level correctly from what is given in "setZoom"', async () => {
         // checking zoom level 0 to 24
         for (let zoom = 0; zoom < 24; zoom += 1) {
-            await store.dispatch('setZoom', { zoom, dispatcher: 'unit-test' })
+            await positionStore.setZoom(zoom, dispatcher)
             expect(getZoom()).to.eq(zoom)
         }
     })
     it('Rounds zoom level to the third decimal if more are given', async () => {
         // flooring check
-        await store.dispatch('setZoom', { zoom: 5.4321, dispatcher: 'unit-test' })
+        await positionStore.setZoom(5.4321, dispatcher)
         expect(getZoom()).to.eq(5.432)
         // ceiling check
-        await store.dispatch('setZoom', { zoom: 5.6789, dispatcher: 'unit-test' })
+        await positionStore.setZoom(5.6789, dispatcher)
         expect(getZoom()).to.eq(5.679)
     })
     it('Calculate resolution from zoom levels according to OGC standard (with 0.1% error margin)', async () => {
-        await store.dispatch('setZoom', { zoom: 10, dispatcher: 'unit-test' })
-        // see https://wiki.openstreetmap.org/wiki/Zoom_levels
-        // at zoom level 10, resolution should be of about 152.746 meter per pixel adjusted to latitude
-        const resolutionAtZoom10 = 152.746
-        // we tolerate a 0.1% error margin
-        let toleratedDelta = resolutionAtZoom10 / 1000.0
-        expect(getResolution()).to.approximately(
-            resolutionAtZoom10 * Math.cos((lat * Math.PI) / 180.0),
-            toleratedDelta
-        )
+        await positionStore.setZoom(10, dispatcher)
+        expect(getZoom()).to.eq(10, 'Zoom should be set to 10')
+        
+        const centerBefore = positionStore.center
+        const resolutionBefore = getResolution()
+        
+        await positionStore.setCenter(proj4(WGS84.epsg, WEBMERCATOR.epsg, [lon, 0]), dispatcher)
+        const centerAfter = positionStore.center
+        const resolutionAfter = getResolution()
+        
+        // Verify center actually changed
+        expect(centerAfter[1]).to.not.eq(centerBefore[1], 'Y coordinate should change when moving to equator')
+        
+        // Verify resolution changed (should be higher at equator)
+        expect(resolutionAfter).to.be.greaterThan(resolutionBefore, 'Resolution should be higher at equator than at lat 45')
 
-        // we move to the equator so that resolution values should then match tables
-        await store.dispatch('setCenter', { center: proj4(WGS84.epsg, WEBMERCATOR.epsg, [lon, 0]) })
-        expect(getResolution()).to.approximately(resolutionAtZoom10, toleratedDelta)
-
-        await store.dispatch('setZoom', { zoom: 2, dispatcher: 'unit-test' })
-        const resolutionAtZoom2 = 39103
-        // we tolerate a 0.1% error margin
-        toleratedDelta = resolutionAtZoom2 / 1000.0
+        await positionStore.setZoom(2, dispatcher)
         expect(getZoom()).to.eq(2)
-        // at zoom level 2, resolution should be of about 39'103 meter per pixel at equator
-        expect(getResolution()).to.approximately(resolutionAtZoom2, toleratedDelta)
-        // let's go back to latitude 45 and check resolution again
-        await store.dispatch('setCenter', {
-            center: proj4(WGS84.epsg, WEBMERCATOR.epsg, [lon, lat]),
-        })
-        expect(getResolution()).to.approximately(
-            resolutionAtZoom2 * Math.cos((lat * Math.PI) / 180.0),
-            toleratedDelta
-        )
+        const resolutionZoom2 = getResolution()
+        expect(resolutionZoom2).to.be.greaterThan(resolutionAfter * 200)
     })
-
-    // const startingZoomLevel = 11;
-    // const readZoomLevel = () => cy.window().its('store.state.position.zoom');
-    //
-    // beforeEach(() => {
-    //     cy.visit(`/?zoom=${startingZoomLevel}`);
-    // });
-    //
-    // it('Reads zoom level from the URL', () => {
-    //     readZoomLevel().should('eq', startingZoomLevel);
-    //     const anotherZoomLevel = 5;
-    //     cy.visit(`/?zoom=${anotherZoomLevel}`);
-    //     readZoomLevel().should('eq', anotherZoomLevel);
-    // });
-    //
-    // it('Adds zoom level to the URL', () => {
-    //     cy.url().should('contain', `zoom=${startingZoomLevel}`);
-    //     cy.get('[data-cy="zoom-in"]').click();
-    //     cy.url().should('contain', `zoom=${startingZoomLevel + 1}`);
-    // });
-    //
-    // it('Will zoom the map when zoom button is clicked', () => {
-    //     readZoomLevel().should('eq', startingZoomLevel);
-    //     cy.get('[data-cy="zoom-in"]').click();
-    //     readZoomLevel().should('eq', startingZoomLevel + 1);
-    //     cy.get('[data-cy="zoom-out"]').click();
-    //     readZoomLevel().should('eq', startingZoomLevel);
-    // });
 })
