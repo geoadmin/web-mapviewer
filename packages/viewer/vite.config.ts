@@ -43,12 +43,46 @@ const stagings: Record<ViteModes, string> = {
 
 /**
  * We use manual chunks to reduce the size of the final index.js file to improve startup
- * performance.
+ * performance. Vendor libraries are separated for better caching, and utils are split
+ * into a few logical chunks to keep sizes manageable without being overly aggressive.
  */
 function manualChunks(id: string): string | undefined {
-    // Put all files from the src/utils into the chunk named utils.js
+    // Separate large vendor dependencies into their own chunks for better caching
+    if (id.includes('node_modules')) {
+        // OpenLayers is very large, keep it separate
+        if (id.includes('/ol/')) {
+            return 'vendor-openlayers'
+        }
+        // Cesium is also very large
+        if (id.includes('cesium')) {
+            return 'vendor-cesium'
+        }
+        // Other heavy geospatial libraries
+        if (id.includes('turf') || id.includes('proj4') || id.includes('geographiclib')) {
+            return 'vendor-geo'
+        }
+        // Vue and related libraries
+        if (id.includes('vue') || id.includes('vuex') || id.includes('pinia')) {
+            return 'vendor-vue'
+        }
+        // All other vendors
+        return 'vendor'
+    }
+
+    // Split utils into a few logical chunks
     if (id.includes('/src/utils/')) {
-        return 'utils'
+        // Heavy geospatial calculations with lots of OpenLayers geometry/style dependencies
+        if (id.includes('geodesicManager') || id.includes('militaryGridProjection')) {
+            return 'utils-geospatial'
+        }
+
+        // File format parsing utilities with parser libraries (KML, GPX, GeoJSON)
+        if (id.includes('kmlUtils') || id.includes('gpxUtils') || id.includes('geoJsonUtils')) {
+            return 'utils-formats'
+        }
+
+        // Everything else - core utilities, styles, layers, coordinates, etc.
+        return 'utils-core'
     }
 }
 
