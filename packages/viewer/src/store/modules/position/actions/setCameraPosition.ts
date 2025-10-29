@@ -8,7 +8,7 @@ import type { CameraPosition, PositionStore } from '@/store/modules/position/typ
 import type { ActionDispatcher } from '@/store/types'
 
 import { calculateResolution } from '@/modules/map/components/cesium/utils/cameraUtils'
-import { normalizeAngle } from '@/store/modules/position'
+import { normalizeAngle } from '@/store/modules/position/utils/normalizeAngle'
 import useUIStore from '@/store/modules/ui'
 
 export default function setCameraPosition(

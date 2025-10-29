@@ -29,12 +29,14 @@ import GeoJSON from 'ol/format/GeoJSON'
 import Circle from 'ol/geom/Circle'
 import { DragBox } from 'ol/interaction'
 
+import type { LayerFeature } from '@/api/features.api'
 import type { ActionDispatcher } from '@/store/types'
 
 import { DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@/config/map.config'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
-import useMapStore, { type ClickInfo, ClickType } from '@/store/modules/map'
+import useMapStore from '@/store/modules/map'
+import { ClickType } from '@/store/modules/map/types/clickType.enum'
 import usePositionStore from '@/store/modules/position'
 import { parseGpx } from '@/utils/gpxUtils'
 import { parseKml } from '@/utils/kmlUtils'
@@ -100,7 +102,7 @@ export function useDragBoxSelect(): {
         const visibleLayers = layersStore.visibleLayers.filter((layer) =>
             [LayerType.GEOJSON, LayerType.GPX, LayerType.KML].includes(layer.type)
         )
-        const vectorFeatures = visibleLayers
+        const vectorFeatures: LayerFeature[] = visibleLayers
             .flatMap((layer) => {
                 if (layer.type === LayerType.KML) {
                     const kmlFeatures = parseKml(
@@ -140,13 +142,14 @@ export function useDragBoxSelect(): {
                 return geometry && dragBox && booleanIntersects(dragBox, geometry)
             })
             .map(({ feature, layer }) => createLayerFeature(feature, layer))
+            .filter((feature) => !!feature)
 
         mapStore.click(
             {
                 coordinate: selectExtentCenter,
                 features: vectorFeatures,
                 clickType: ClickType.DrawBox,
-            } as ClickInfo,
+            },
             dispatcher
         )
     })

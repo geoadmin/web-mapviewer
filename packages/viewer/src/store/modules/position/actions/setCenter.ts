@@ -23,7 +23,7 @@ export default function setCenter(
         })
         return
     }
-    if (!this.projection.isInBounds(center)) {
+    if (this.projection.isInBounds(center)) {
         this.center = center
     } else {
         log.warn({
@@ -32,7 +32,7 @@ export default function setCenter(
             messages: [
                 'Center received is out of projection bounds, ignoring',
                 this.projection,
-                this.center,
+                center,
                 dispatcher,
             ],
         })

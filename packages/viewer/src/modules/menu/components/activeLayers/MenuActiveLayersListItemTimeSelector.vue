@@ -68,7 +68,7 @@ function renderHumanReadableTimestamp(timeEntry: LayerTimeConfigEntry & { year: 
     if (timeEntry.year === ALL_YEARS_TIMESTAMP) {
         return t('time_all')
     }
-    return `${timeEntry.year}`
+    return timeEntry.year
 }
 
 function handleClickOnTimestamp(entry: LayerTimeConfigEntry): void {

@@ -23,7 +23,8 @@ import {
 import useFeaturesStore from '@/store/modules/features'
 import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'
-import useUIStore, { FeatureInfoPositions } from '@/store/modules/ui'
+import useUIStore from '@/store/modules/ui'
+import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumHighlightedFeatures.vue' }
 

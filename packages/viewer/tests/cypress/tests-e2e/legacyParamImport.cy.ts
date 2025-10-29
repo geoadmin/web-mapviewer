@@ -10,7 +10,7 @@ import { assertDefined } from 'support/utils'
 import type { EditableFeature } from '@/api/features.api'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
-import { FeatureInfoPositions } from '@/store/modules/ui'
+import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 
 registerProj4(proj4)
 
