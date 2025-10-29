@@ -23,6 +23,7 @@ catalog:
   '@mapbox/togeojson': ^0.16.2
   '@microsoft/api-extractor': ^7.57.3
   '@nuintun/qrcode': ^5.0.3
+  '@pinia/testing': ^1.0.2
   '@popperjs/core': ^2.11.8
   '@prettier/plugin-xml': ^3.4.2
   '@rushstack/eslint-patch': ^1.16.1
@@ -47,6 +48,7 @@ catalog:
   '@vue/eslint-config-prettier': ^10.2.0
   '@vue/eslint-config-typescript': ^14.7.0
   '@vue/language-core': ^3.2.5
+  '@vue/test-utils': ^2.4.6
   '@vue/tsconfig': ^0.8.1
   '@vueuse/core': ^14.2.1
   '@xmldom/xmldom': ^0.8.11
