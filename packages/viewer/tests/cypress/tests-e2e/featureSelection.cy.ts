@@ -1,15 +1,14 @@
 import type Map from 'ol/Map'
 import type { MockFeature } from 'support/intercepts'
 
-/// <reference types="cypress" />
 import { registerProj4 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 
-import type LayerFeature from '@/api/features/LayerFeature.class'
+import type { LayerFeature } from '@/api/features.api'
 
 import { DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION } from '@/config/map.config'
-import { FeatureInfoPositions } from '@/store/modules/ui'
+import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 
 import { addFeatureIdentificationIntercepts } from '../support/intercepts'
 
@@ -56,17 +55,19 @@ describe('Testing the feature selection', () => {
                 expect(features.length).to.eq(10)
 
                 features.forEach((feature: LayerFeature) => {
-                    expect(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']).to.include(feature.id)
+                    expect(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']).to.include(
+                        feature.id
+                    )
                 })
             })
         }
 
         function checkFeatureInfoPosition(expectedPosition: FeatureInfoPosition): void {
             cy.readStoreValue('state.ui.featureInfoPosition').should('be.equal', expectedPosition)
-            if (FeatureInfoPositions.NONE === expectedPosition) {
+            if (FeatureInfoPositions.None === expectedPosition) {
                 cy.get('[data-cy="popover"]').should('not.exist')
                 cy.get('[data-cy="infobox"]').should('not.exist')
-            } else if (FeatureInfoPositions.TOOLTIP === expectedPosition) {
+            } else if (FeatureInfoPositions.ToolTip === expectedPosition) {
                 cy.get('[data-cy="popover"]').should('exist')
                 cy.get('[data-cy="infobox"]').should('not.exist')
             } else {
@@ -75,7 +76,9 @@ describe('Testing the feature selection', () => {
             }
         }
 
-        function goToMapViewWithFeatureSelection(featureInfoPosition: FeatureInfoPosition | null = null): void {
+        function goToMapViewWithFeatureSelection(
+            featureInfoPosition?: FeatureInfoPosition | string
+        ): void {
             const queryParams: Record<string, string> = {
                 layers: `${standardLayer}@features=1:2:3:4:5:6:7:8:9:10`,
             }
@@ -90,18 +93,18 @@ describe('Testing the feature selection', () => {
             cy.log('When featureInfo is not specified, we should have no tooltip visible')
             goToMapViewWithFeatureSelection()
             checkFeatures()
-            checkFeatureInfoPosition(FeatureInfoPositions.NONE)
+            checkFeatureInfoPosition(FeatureInfoPositions.None)
             cy.log(
                 'When using a viewport with width inferior to 400 pixels, we should always go to infobox when featureInfo is not None.'
             )
             cy.log('When featureInfo is specified, we should see the infobox')
-            goToMapViewWithFeatureSelection(FeatureInfoPositions.DEFAULT)
+            goToMapViewWithFeatureSelection(FeatureInfoPositions.Default)
             checkFeatures()
-            checkFeatureInfoPosition(FeatureInfoPositions.BOTTOMPANEL)
+            checkFeatureInfoPosition(FeatureInfoPositions.BottomPanel)
             cy.log('parameter is case insensitive, but we should see an infobox here')
             goToMapViewWithFeatureSelection('TOoLtIp')
             checkFeatures()
-            checkFeatureInfoPosition(FeatureInfoPositions.BOTTOMPANEL)
+            checkFeatureInfoPosition(FeatureInfoPositions.BottomPanel)
         })
         it('Centers correctly the map when pre-selected features are present', () => {
             cy.log('We ensure that when no center is defined, we are on the center of the extent')
@@ -147,13 +150,13 @@ describe('Testing the feature selection', () => {
             cy.log(
                 'When featureInfo is specified, as the viewport is mobile-sized, we should see the infobox'
             )
-            goToMapViewWithFeatureSelection(FeatureInfoPositions.DEFAULT)
+            goToMapViewWithFeatureSelection(FeatureInfoPositions.Default)
             checkFeatures()
-            checkFeatureInfoPosition(FeatureInfoPositions.DEFAULT)
+            checkFeatureInfoPosition(FeatureInfoPositions.Default)
             cy.log('parameter is case insensitive, and we should see a popover here')
             goToMapViewWithFeatureSelection('TOoLtIp')
             checkFeatures()
-            checkFeatureInfoPosition(FeatureInfoPositions.TOOLTIP)
+            checkFeatureInfoPosition(FeatureInfoPositions.ToolTip)
         })
 
         it('Synchronise URL and feature selection', () => {
@@ -177,7 +180,9 @@ describe('Testing the feature selection', () => {
             cy.wait(`@htmlPopup`)
 
             cy.url().should((url) => {
-                expect(new URLSearchParams(url.split('map')[1]).get('featureInfo')).to.eq('bottomPanel')
+                expect(new URLSearchParams(url.split('map')[1]).get('featureInfo')).to.eq(
+                    'bottomPanel'
+                )
             })
             cy.url().should((url) => {
                 new URLSearchParams(url.split('map')[1])
@@ -272,7 +277,9 @@ describe('Testing the feature selection', () => {
                         if (splittedParam[0] === timeLayer) {
                             expect(splittedParam.length).to.eq(3)
                             expect(splittedParam.includes('year=2018')).to.eq(true)
-                            expect(splittedParam.includes(`features=${expectedFeatureIds[0]}`)).to.eq(true)
+                            expect(
+                                splittedParam.includes(`features=${expectedFeatureIds[0]}`)
+                            ).to.eq(true)
                         } else {
                             expect(splittedParam.length).to.eq(1)
                         }
@@ -284,7 +291,9 @@ describe('Testing the feature selection', () => {
             cy.get('[data-cy="highlighted-features"]').should('not.exist')
 
             cy.url().should((url) => {
-                const layer = new URLSearchParams(url.split('map')[1]).get('layers')!.split('@features')
+                const layer = new URLSearchParams(url.split('map')[1])
+                    .get('layers')!
+                    .split('@features')
                 expect(layer.length).to.eq(1)
             })
 
@@ -295,16 +304,18 @@ describe('Testing the feature selection', () => {
             cy.get('[data-cy="highlighted-features"]').should('not.exist')
 
             cy.url().should((url) => {
-                const layer = new URLSearchParams(url.split('map')[1]).get('layers')!.split('@features')
+                const layer = new URLSearchParams(url.split('map')[1])
+                    .get('layers')!
+                    .split('@features')
                 expect(layer.length).to.eq(1)
             })
         })
 
         it('Adds pre-selected features and verifys the translation of the feature text after changing the language', () => {
             cy.log('Open the map with a feature preselected in english')
-            goToMapViewWithFeatureSelection(FeatureInfoPositions.DEFAULT)
+            goToMapViewWithFeatureSelection(FeatureInfoPositions.Default)
             checkFeatures()
-            checkFeatureInfoPosition(FeatureInfoPositions.BOTTOMPANEL)
+            checkFeatureInfoPosition(FeatureInfoPositions.BottomPanel)
 
             cy.wait(`@htmlPopup`)
 
@@ -320,7 +331,11 @@ describe('Testing the feature selection', () => {
                 .should('contain', 'More info')
 
             cy.log('verifying that the left table cell is not too close to the right table cell')
-            cy.get(`[data-cy="htmlpopup-container_cell-left"]`).should('have.css', 'padding-right', '10px')
+            cy.get(`[data-cy="htmlpopup-container_cell-left"]`).should(
+                'have.css',
+                'padding-right',
+                '10px'
+            )
 
             cy.intercept('**/rest/services/all/MapServer/layersConfig?lang=de**', {
                 fixture: 'layers-german.fixture',
@@ -337,7 +352,9 @@ describe('Testing the feature selection', () => {
 
             cy.log('checking that the feature was translated to german')
 
-            cy.get('[data-cy="highlighted-features"]').as('highlightedFeatures').should('be.visible')
+            cy.get('[data-cy="highlighted-features"]')
+                .as('highlightedFeatures')
+                .should('be.visible')
 
             cy.get('[data-cy="feature-list-category-title"]').contains('Kultur Gueter DE')
             cy.get('[data-cy="feature-detail-htmlpopup-container"]')
@@ -351,7 +368,11 @@ describe('Testing the feature selection', () => {
                 .should('contain', 'Mehr Information')
 
             cy.log('verifying that the left table cell is not too close to the right table cell')
-            cy.get(`[data-cy="htmlpopup-container_cell-left"]`).should('have.css', 'padding-right', '10px')
+            cy.get(`[data-cy="htmlpopup-container_cell-left"]`).should(
+                'have.css',
+                'padding-right',
+                '10px'
+            )
         })
     })
 
@@ -370,10 +391,14 @@ describe('Testing the feature selection', () => {
                     position: 'center',
                     ctrlKey: true,
                 })
-                cy.get('@olMap').realMouseMove(pixelsAroundCenter.x / 2.0, pixelsAroundCenter.y / 2.0, {
-                    position: 'center',
-                    ctrlKey: true,
-                })
+                cy.get('@olMap').realMouseMove(
+                    pixelsAroundCenter.x / 2.0,
+                    pixelsAroundCenter.y / 2.0,
+                    {
+                        position: 'center',
+                        ctrlKey: true,
+                    }
+                )
                 cy.get('@olMap').realMouseUp({
                     x: elementSize.width / 2.0 + pixelsAroundCenter.x / 2.0,
                     y: elementSize.height / 2.0 + pixelsAroundCenter.y / 2.0,
@@ -434,13 +459,21 @@ describe('Testing the feature selection', () => {
             })
 
             cy.log('making sure 51 items are requested when selecting a dragbox on the map')
-            cy.wait('@identify').its('request.query.limit').should('eq', `${DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION}`)
-            for (let featureCount = 0; featureCount < DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION; featureCount++) {
+            cy.wait('@identify')
+                .its('request.query.limit')
+                .should('eq', `${DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION}`)
+            for (
+                let featureCount = 0;
+                featureCount < DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION;
+                featureCount++
+            ) {
                 cy.wait(`@htmlPopup`)
             }
 
             cy.log('scrolling down at the bottom of the list')
-            cy.get('[data-cy="highlighted-features"]').as('highlightedFeatures').should('be.visible')
+            cy.get('[data-cy="highlighted-features"]')
+                .as('highlightedFeatures')
+                .should('be.visible')
             cy.log('checking that each feature has been rendered in the list')
             cy.get('@highlightedFeatures')
                 .find('[data-cy="feature-item"]')
@@ -452,12 +485,16 @@ describe('Testing the feature selection', () => {
             cy.wait('@routeChange')
             cy.wait('@identify')
                 .its('request.query')
-                .should((query: { limit: number, offset: number }) => {
+                .should((query: { limit: number; offset: number }) => {
                     expect(query.limit).to.eq(`${DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION}`)
                     expect(query.offset).to.eq(`${DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION}`)
                 })
 
-            for (let featureCount = 0; featureCount < DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION; featureCount++) {
+            for (
+                let featureCount = 0;
+                featureCount < DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION;
+                featureCount++
+            ) {
                 cy.wait(`@htmlPopup`)
             }
             cy.get('@highlightedFeatures')
@@ -475,15 +512,21 @@ describe('Testing the feature selection', () => {
 
             cy.get('@loadMore').should('not.exist')
 
-            cy.log('verify that the feature selection is cleared for the layer when the layer is toggled off')
+            cy.log(
+                'verify that the feature selection is cleared for the layer when the layer is toggled off'
+            )
             cy.openMenuIfMobile()
             cy.get(`[data-cy^="button-toggle-visibility-layer-${'test.wms.layer'}-0"]`).click()
             cy.closeMenuIfMobile()
-            cy.get('[data-cy="highlighted-features"]').as('highlightedFeatures').should('be.visible')
+            cy.get('[data-cy="highlighted-features"]')
+                .as('highlightedFeatures')
+                .should('be.visible')
             cy.get('@highlightedFeatures').find('[data-cy="feature-item"]').should('have.length', 1)
             cy.wait('@routeChange')
 
-            cy.log('sending a single feature as response, checking that the "Load more" button is not added')
+            cy.log(
+                'sending a single feature as response, checking that the "Load more" button is not added'
+            )
             cy.goToMapView({ queryParams: { layers: 'test.wms.layer' } })
             cy.wait('@routeChange')
 
@@ -566,8 +609,12 @@ describe('Testing the feature selection', () => {
                     const point1: [number, number] = [7.5176682524165095, 47.10172318866241]
                     const point3: [number, number] = [7.674246396589141, 46.759691186931235]
 
-                    const pixel1 = olMap.getPixelFromCoordinate(proj4('EPSG:4326', mapProjection, point1))
-                    const pixel3 = olMap.getPixelFromCoordinate(proj4('EPSG:4326', mapProjection, point3))
+                    const pixel1 = olMap.getPixelFromCoordinate(
+                        proj4('EPSG:4326', mapProjection, point1)
+                    )
+                    const pixel3 = olMap.getPixelFromCoordinate(
+                        proj4('EPSG:4326', mapProjection, point3)
+                    )
 
                     clickOnMap(pixel3, false)
                     cy.readStoreValue('getters.selectedFeatures.length').should('eq', 1)
@@ -622,8 +669,14 @@ describe('Testing the feature selection', () => {
             })
 
             cy.log('making sure 51 items are requested when selecting a dragbox on the map')
-            cy.wait('@identify').its('request.query.limit').should('eq', `${DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION}`)
-            for (let featureCount = 0; featureCount < DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION; featureCount++) {
+            cy.wait('@identify')
+                .its('request.query.limit')
+                .should('eq', `${DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION}`)
+            for (
+                let featureCount = 0;
+                featureCount < DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION;
+                featureCount++
+            ) {
                 cy.wait(`@htmlPopup`)
             }
             cy.window().then((win) => {

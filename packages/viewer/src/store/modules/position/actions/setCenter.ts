@@ -32,7 +32,7 @@ export default function setCenter(
             messages: [
                 'Center received is out of projection bounds, ignoring',
                 this.projection,
-                this.center,
+                center,
                 dispatcher,
             ],
         })

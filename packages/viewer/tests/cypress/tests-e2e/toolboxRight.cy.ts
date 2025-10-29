@@ -1,6 +1,6 @@
 import type Map from 'ol/Map'
 
-import { normalizeAngle } from '@/store/modules/position'
+import { normalizeAngle } from '@/store/modules/position/utils/normalizeAngle'
 
 const compassButtonSelector: string = '[data-cy="compass-button"]'
 const facingWest: number = 0.5 * Math.PI
@@ -8,9 +8,11 @@ const tolerance: number = 1e-9
 
 function checkMapRotationAndButton(angle: number) {
     cy.readStoreValue('state.position.rotation').should('be.closeTo', angle, tolerance)
-    cy.window().its('map').should((map: Map) => {
-        expect(normalizeAngle(map.getView().getRotation())).to.be.closeTo(angle, tolerance)
-    })
+    cy.window()
+        .its('map')
+        .should((map: Map) => {
+            expect(normalizeAngle(map.getView().getRotation())).to.be.closeTo(angle, tolerance)
+        })
     if (angle) {
         cy.get(compassButtonSelector).should('be.visible')
     } else {

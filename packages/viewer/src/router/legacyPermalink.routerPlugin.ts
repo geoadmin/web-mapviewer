@@ -22,7 +22,7 @@ import {
 import useAppStore from '@/store/modules/app'
 import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
-import { FeatureInfoPositions } from '@/store/modules/ui'
+import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 import {
     getKmlLayerFromLegacyAdminIdParam,
     getLayersFromLegacyUrlParams,
@@ -322,7 +322,7 @@ async function handleLegacyParams(
         window.location.href.indexOf('?')
     )
     window.history.replaceState(window.history.state, document.title, urlWithoutQueryParam)
-    const adminId : string | null = legacyParams.get('adminId')
+    const adminId: string | null = legacyParams.get('adminId')
     if (adminId) {
         // adminId legacy param cannot be handle above in the loop because it needs to add a layer
         // to the layers param, thats why we do handle after.

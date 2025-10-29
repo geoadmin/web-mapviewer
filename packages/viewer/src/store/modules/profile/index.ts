@@ -34,4 +34,3 @@ const useProfileStore = defineStore('profile', {
 })
 
 export default useProfileStore
-export { canFeatureShowProfile } from '@/store/modules/profile/utils/canFeatureShowProfile'

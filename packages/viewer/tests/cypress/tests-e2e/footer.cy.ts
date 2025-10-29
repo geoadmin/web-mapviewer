@@ -4,7 +4,7 @@ import type { LayerConfigResponse } from '@swissgeo/layers/api'
 
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 
-import { UIModes } from '@/store/modules/ui'
+import { UIModes } from '@/store/modules/ui/types/uiModes.enum'
 
 describe('Testing the footer content / tools', () => {
     it('shows/hide the scale line depending on the map resolution, while in Mercator', () => {
@@ -30,7 +30,9 @@ describe('Testing the footer content / tools', () => {
 
     it('has a functional background wheel', () => {
         function testBackgroundWheel(desktop: boolean = false): void {
-            const wheelButton = desktop ? 'background-selector-open-wheel-button-squared' : 'background-selector-open-wheel-button'
+            const wheelButton = desktop
+                ? 'background-selector-open-wheel-button-squared'
+                : 'background-selector-open-wheel-button'
             // first, checking that the current bgLayer is the void layer
             cy.readStoreValue('getters.currentBackgroundLayer').should('be.null')
 

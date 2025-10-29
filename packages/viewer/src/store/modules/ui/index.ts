@@ -136,4 +136,3 @@ const useUIStore = defineStore('ui', {
 })
 
 export default useUIStore
-export { FeatureInfoPositions, UIModes }
