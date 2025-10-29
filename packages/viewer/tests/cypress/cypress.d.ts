@@ -74,22 +74,51 @@ declare global {
             waitUntilState(predicate: (state: any, getters: any) => boolean, options?: { timeout?: number, customMessage?: string, errorMsg?: string }): void
 
             /**
-             * Reads a value from the Vuex store
+             * Get a Pinia store by its ID
              *
-             * for state module value, the key should look like "state.{moduleName}.{valueName}" (e.g. "state.position.center")
-             *
-             * for getters, the key should look like "getters.{getterName}" (e.g. "getters.centerEpsg4326")
-             *
-             * @param key
+             * @param storeId - The store ID (e.g., 'position', 'ui', 'app', 'layers')
+             * @returns The Pinia store instance
+             * @example
+             * cy.getPiniaStore('position').its('rotation').should('eq', 0)
+             * cy.getPiniaStore('ui').invoke('setFullscreenMode', true)
              */
-            readStoreValue(key: string): Cypress.Chainable
+            getPiniaStore(storeId: string): Cypress.Chainable<any>
+
             /**
+             * Call a Pinia store action
+             *
+             * @param key - Path to action: 'storeName.actionName'
+             * @param args - Arguments to pass to the action
+             * @example
+             * cy.callStoreAction('position.setRotation', [1.57, 'e2e-test'])
+             * cy.callStoreAction('ui.setFullscreenMode', [true, 'e2e-test'])
+             */
+            callStoreAction(key: string, args?: any[]): Cypress.Chainable<any>
+
+            /**
+             * Read a value from the Pinia store state or getter
+             *
+             * For NEW syntax (recommended): 'storeName.property' (e.g. 'position.rotation', 'ui.fullscreenMode')
+             * For LEGACY syntax (deprecated): 'state.storeName.property' or 'getters.getterName'
+             *
+             * @param key - Path to the value
+             * @example
+             * // New syntax (recommended)
+             * cy.readStoreValue('position.rotation').should('eq', 0)
+             * cy.readStoreValue('ui.fullscreenMode').should('be.false')
+             * // Legacy syntax (still supported)
+             * cy.readStoreValue('state.position.rotation').should('eq', 0)
+             */
+            readStoreValue(key: string): Cypress.Chainable<any>
+
+            /**
+             * @deprecated Use cy.callStoreAction('storeName.actionName', [args]) instead
              * Dispatches a store action to update some values of the store.
              *
              * @param action The store action to dispatch
              * @param payload The value that is passed as a parameter to the action
              */
-            writeStoreValue(action: string, payload: Record<string, unknown>): Cypress.Chainable
+            writeStoreValue(action: string, payload?: Record<string, unknown>): Cypress.Chainable<any>
 
             /**
              * Click on language command
