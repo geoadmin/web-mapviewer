@@ -6,11 +6,11 @@ import { isMobile } from '../support/utils'
 
 function checkLanguage(lang: string): void {
     // Check language in store
-    cy.readStoreValue('state.i18n.lang').should('eq', lang)
+    cy.readStoreValue('i18n.lang').should('eq', lang)
 
     // Check UI
     if (isMobile()) {
-        cy.readStoreValue('state.ui.showMenu').then((isMenuCurrentlyOpen: boolean) => {
+        cy.readStoreValue('ui.showMenu').then((isMenuCurrentlyOpen: boolean) => {
             if (!isMenuCurrentlyOpen) {
                 cy.get('[data-cy="menu-button"]').click()
             }
