@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Viewer } from 'cesium'
-import type { MultiLineString, MultiPolygon } from 'geojson'
 import type { Map } from 'ol'
 
 import GeoadminElevationProfile, {
@@ -24,6 +23,7 @@ import useI18nStore from '@/store/modules/i18n'
 import usePositionStore from '@/store/modules/position'
 import useProfileStore from '@/store/modules/profile'
 import useUiStore from '@/store/modules/ui'
+import { extractGeoJsonGeometryCoordinates } from '@/utils/geoJsonUtils'
 import { generateFilename } from '@/utils/utils'
 
 const dispatcher = { name: 'InfoboxContent.vue' }
@@ -70,8 +70,7 @@ function isArrayOfArrays(coords: unknown): coords is number[][] | number[][][] {
     return Array.isArray(coords) && coords.length > 0 && Array.isArray(coords[0])
 }
 const currentGeometryElements = computed(() => {
-    const coords = (feature?.value?.geometry as unknown as MultiLineString | MultiPolygon)
-        .coordinates
+    const coords = extractGeoJsonGeometryCoordinates(feature?.value?.geometry)
     return isArrayOfArrays(coords) ? coords : []
 })
 

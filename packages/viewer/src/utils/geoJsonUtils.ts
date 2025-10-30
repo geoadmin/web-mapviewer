@@ -16,7 +16,6 @@ import {
 } from '@turf/turf'
 import proj4 from 'proj4'
 import { reproject } from 'reproject'
-
 /**
  * Re-projecting the GeoJSON data (FeatureCollection) if not in the wanted projection
  *
@@ -172,4 +171,46 @@ export function getExtentOfGeometries(geometries: Geometry[]): NormalizedExtent 
         return extentUtils.normalizeExtent(geometriesExtent)
     }
     return undefined
+}
+
+/**
+ * Extracts coordinates from a GeoJSON Geometry object.
+ *
+ * @param olGeometry The GeoJSON Geometry object to extract coordinates from
+ * @returns The coordinates as a 2D or 3D array depending on the geometry type, or undefined if the
+ *   geometry is undefined or of an unsupported type
+ */
+export function extractGeoJsonGeometryCoordinates(
+    olGeometry: Geometry | undefined
+): Position | Position[] | Position[][] | Position[][][] | undefined {
+    if (!olGeometry) {
+        return undefined
+    }
+
+    switch (olGeometry.type) {
+        case 'LineString':
+            return [olGeometry.coordinates]
+        case 'MultiLineString':
+            return olGeometry.coordinates
+        case 'Polygon':
+            return olGeometry.coordinates
+        case 'MultiPolygon':
+            return olGeometry.coordinates
+        case 'Point':
+            return olGeometry.coordinates
+        case 'MultiPoint':
+            return olGeometry.coordinates
+        case 'GeometryCollection':
+            // For GeometryCollection, extract coordinates from the first geometry
+            if (olGeometry.geometries.length > 0) {
+                return extractGeoJsonGeometryCoordinates(olGeometry.geometries[0])
+            }
+            return undefined
+        default:
+            log.error({
+                title: 'extractGeoJsonGeometryCoordinates',
+                messages: ['Unknown geometry type', olGeometry],
+            })
+            return undefined
+    }
 }
