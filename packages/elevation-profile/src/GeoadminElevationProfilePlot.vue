@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type { ComplexFillTarget } from 'chart.js'
 import type { ZoomPluginOptions } from 'chartjs-plugin-zoom/types/options'
+import type { ChartComponentRef } from 'vue-chartjs'
 
 import { round } from '@swissgeo/numbers'
-import type { ComplexFillTarget } from 'chart.js'
 import {
     type Chart,
     type ChartData,
@@ -19,7 +20,6 @@ import {
 } from 'chart.js'
 import { resetZoom } from 'chartjs-plugin-zoom'
 import { computed, type ComputedRef, onMounted, onUnmounted, provide, ref, useTemplateRef } from 'vue'
-import type { ChartComponentRef } from 'vue-chartjs'
 import { Line as LineChart } from 'vue-chartjs'
 import { useI18n } from 'vue-i18n'
 

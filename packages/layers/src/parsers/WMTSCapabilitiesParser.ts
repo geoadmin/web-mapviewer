@@ -89,9 +89,8 @@ function getLayerExtent(
     if (layer.WGS84BoundingBox?.length) {
         layerExtent = layer.WGS84BoundingBox
         extentProjection = WGS84
-    }
-    // Some providers don't use the WGS84BoundingBox but use the BoundingBox instead
-    else if (layer.BoundingBox) {
+    } else if (layer.BoundingBox) {
+        // Some providers don't use the WGS84BoundingBox but use the BoundingBox instead
         // search for a matching proj bounding box
         const matching = layer.BoundingBox.find((bbox) => parseCrs(bbox.crs ?? '') === projection)
 
