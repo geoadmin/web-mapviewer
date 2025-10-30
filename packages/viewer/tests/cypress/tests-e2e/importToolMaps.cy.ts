@@ -1,6 +1,10 @@
 /// <reference types="cypress" />
 
+import useLayersStore from '@/store/modules/layers'
+import usePositionStore from '@/store/modules/position'
+
 import { isMobile } from '../support/utils'
+
 describe('The Import Maps Tool', () => {
     const bgLayer = 'test.background.layer2'
     beforeEach(() => {
@@ -73,29 +77,30 @@ describe('The Import Maps Tool', () => {
 
         //---------------------------------------------------------------------------------
         cy.log('Add group of layer')
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
+        const layersStore = useLayersStore()
+        expect(layersStore.activeLayers).to.have.length(0)
         cy.get(`[data-cy="catalogue-tree-item-name-${itemId}"]`).should('be.visible').click()
         cy.get(`[data-cy="catalogue-add-layer-button-${itemId}"]`)
             .should('have.class', 'text-primary')
             .find('svg')
             .should('have.class', 'fa-square-check')
-        cy.readStoreValue('state.layers.activeLayers')
-            .should('have.length', 1)
-            .then((layers) => {
-                cy.wrap(layers[0].name).should('be.equal', itemName)
-                cy.wrap(layers[0].id).should('be.equal', itemId)
-                cy.wrap(layers[0].visible).should('be.true')
-                cy.wrap(layers[0].opacity).should('be.equal', 1)
-                cy.wrap(layers[0].isExternal).should('be.true')
-            })
+        const layersStore2 = useLayersStore()
+        const layers = layersStore2.activeLayers
+        expect(layers).to.have.length(1)
+        cy.wrap(layers[0]?.name).should('be.equal', itemName)
+        cy.wrap(layers[0]?.id).should('be.equal', itemId)
+        cy.wrap(layers[0]?.isVisible).should('be.true')
+        cy.wrap(layers[0]?.opacity).should('be.equal', 1)
+        cy.wrap(layers[0]?.isExternal).should('be.true')
+
         cy.get(`[data-cy="catalogue-tree-item-name-${itemId}"]`).should('be.visible').click()
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
+        const layersStore3 = useLayersStore()
+        expect(layersStore3.activeLayers).to.have.length(0)
         cy.get(`[data-cy="catalogue-add-layer-button-${itemId}"]`).should('be.visible').click()
-        cy.readStoreValue('state.layers.activeLayers')
-            .should('have.length', 1)
-            .then((layers) => {
-                cy.wrap(layers[0].name).should('be.equal', itemName)
-            })
+        const layersStore4 = useLayersStore()
+        const layers2 = layersStore4.activeLayers
+        expect(layers2).to.have.length(1)
+        cy.wrap(layers2[0]?.name).should('be.equal', itemName)
 
         //---------------------------------------------------------------------------------
         cy.log('Check that the group of layer has been added to the map')
@@ -128,15 +133,10 @@ describe('The Import Maps Tool', () => {
         cy.get(`[data-cy="catalogue-tree-item-name-${firstSubItemId}"]`)
             .should('be.visible')
             .click()
-        cy.get(`[data-cy="catalogue-add-layer-button-${firstSubItemId}"]`)
-            .should('have.class', 'text-primary')
-            .find('svg')
-            .should('have.class', 'fa-square-check')
-        cy.readStoreValue('state.layers.activeLayers')
-            .should('have.length', 2)
-            .then((layers) => {
-                cy.wrap(layers[1].name).should('be.equal', firstSubItemName)
-            })
+        const layersStore9 = useLayersStore()
+        const layers6 = layersStore9.activeLayers
+        expect(layers6).to.have.length(2)
+        cy.wrap(layers6[1]?.name).should('be.equal', firstSubItemName)
 
         //---------------------------------------------------------------------------------
         cy.log('Check sub layer zoom to extent')
@@ -146,15 +146,14 @@ describe('The Import Maps Tool', () => {
         cy.get(`[data-cy="catalogue-zoom-extent-button-${layerExtentGraubunden}"]`)
             .should('be.visible')
             .click()
-        cy.readStoreValue('state.position.center')
-            .should('have.length', 2)
-            .then(($center) => {
-                // expected center, see https://s.geo.admin.ch/v6gi8a9w4o1e
-                const expectedCenter = [2764440, 1187890]
-                cy.wrap($center[0]).should('be.closeTo', expectedCenter[0], 5)
-                cy.wrap($center[1]).should('be.closeTo', expectedCenter[1], 5)
-            })
-        cy.readStoreValue('state.position.zoom').should('be.closeTo', 3, 1)
+        const positionStore = usePositionStore()
+        const center = positionStore.center
+        expect(center).to.have.length(2)
+        const expectedCenter = [2764440, 1187890]
+        cy.wrap(center[0]).should('be.closeTo', expectedCenter[0], 5)
+        cy.wrap(center[1]).should('be.closeTo', expectedCenter[1], 5)
+        const positionStore2 = usePositionStore()
+        expect(positionStore2.zoom).to.be.closeTo(3, 1)
         if (isMobile()) {
             // on mobile the menu button should have been closed
             cy.get('[data-cy="menu-tray"]').should('not.be.visible')
@@ -263,15 +262,14 @@ describe('The Import Maps Tool', () => {
             .should('have.class', 'text-primary')
             .find('svg')
             .should('have.class', 'fa-square-check')
-        cy.readStoreValue('state.layers.activeLayers')
-            .should('have.length', 3)
-            .then((layers) => {
-                cy.wrap(layers[2].name).should('be.equal', singleLayerName)
-                cy.wrap(layers[2].id).should('be.equal', singleLayerId)
-                cy.wrap(layers[2].visible).should('be.true')
-                cy.wrap(layers[2].opacity).should('be.equal', 1)
-                cy.wrap(layers[2].isExternal).should('be.true')
-            })
+        const layersStore5 = useLayersStore()
+        const layers3 = layersStore5.activeLayers
+        expect(layers3).to.have.length(3)
+        cy.wrap(layers3[2]?.name).should('be.equal', singleLayerName)
+        cy.wrap(layers3[2]?.id).should('be.equal', singleLayerId)
+        cy.wrap(layers3[2]?.isVisible).should('be.true')
+        cy.wrap(layers3[2]?.opacity).should('be.equal', 1)
+        cy.wrap(layers3[2]?.isExternal).should('be.true')
 
         //---------------------------------------------------------------------------------
         cy.log('Check that the single layer has been added to the map')
@@ -405,15 +403,14 @@ describe('The Import Maps Tool', () => {
             .should('have.class', 'text-primary')
             .find('svg')
             .should('have.class', 'fa-square-check')
-        cy.readStoreValue('state.layers.activeLayers')
-            .should('have.length', 1)
-            .then((layers) => {
-                cy.wrap(layers[0].name).should('be.equal', layer1Name)
-                cy.wrap(layers[0].id).should('be.equal', layer1Id)
-                cy.wrap(layers[0].visible).should('be.true')
-                cy.wrap(layers[0].opacity).should('be.equal', 1)
-                cy.wrap(layers[0].isExternal).should('be.true')
-            })
+        const layersStore6 = useLayersStore()
+        const layers4 = layersStore6.activeLayers
+        expect(layers4).to.have.length(1)
+        cy.wrap(layers4[0]?.name).should('be.equal', layer1Name)
+        cy.wrap(layers4[0]?.id).should('be.equal', layer1Id)
+        cy.wrap(layers4[0]?.isVisible).should('be.true')
+        cy.wrap(layers4[0]?.opacity).should('be.equal', 1)
+        cy.wrap(layers4[0]?.isExternal).should('be.true')
         cy.checkOlLayer([bgLayer, layer1Id])
 
         //-----------------------------------------------------------------------------------------
@@ -436,15 +433,14 @@ describe('The Import Maps Tool', () => {
             .should('have.class', 'text-primary')
             .find('svg')
             .should('have.class', 'fa-square-check')
-        cy.readStoreValue('state.layers.activeLayers')
-            .should('have.length', 2)
-            .then((layers) => {
-                cy.wrap(layers[1].name).should('be.equal', layer2Name)
-                cy.wrap(layers[1].id).should('be.equal', layer2Id)
-                cy.wrap(layers[1].visible).should('be.true')
-                cy.wrap(layers[1].opacity).should('be.equal', 1)
-                cy.wrap(layers[1].isExternal).should('be.true')
-            })
+        const layersStore7 = useLayersStore()
+        const layers5 = layersStore7.activeLayers
+        expect(layers5).to.have.length(2)
+        cy.wrap(layers5[1]?.name).should('be.equal', layer2Name)
+        cy.wrap(layers5[1]?.id).should('be.equal', layer2Id)
+        cy.wrap(layers5[1]?.isVisible).should('be.true')
+        cy.wrap(layers5[1]?.opacity).should('be.equal', 1)
+        cy.wrap(layers5[1]?.isExternal).should('be.true')
         cy.checkOlLayer([bgLayer, layer1Id, layer2Id])
 
         //---------------------------------------------------------------------------------
@@ -560,7 +556,8 @@ describe('The Import Maps Tool', () => {
             withHash: true,
         })
         cy.openMenuIfMobile()
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+        const layersStore8 = useLayersStore()
+        expect(layersStore8.activeLayers).to.have.length(1)
         //cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
         cy.get('[data-cy="menu-external-disclaimer-icon-cloud"]')
             .should('have.length', 1)

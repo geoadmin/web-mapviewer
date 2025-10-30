@@ -9,6 +9,8 @@ import {
     checkStorePosition,
 } from '@/../tests/cypress/tests-e2e/utils'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
+import useGeolocationStore from '@/store/modules/geolocation'
+import usePositionStore from '@/store/modules/position'
 
 registerProj4(proj4)
 
@@ -71,7 +73,8 @@ describe('Geolocation cypress', () => {
                     cy.on('window:alert', () => {
                         throw new Error('Should not prompt for geolocation API permission again')
                     })
-                    cy.readStoreValue('state.geolocation.active').should('be.true')
+                    const geolocationStore = useGeolocationStore()
+                    expect(geolocationStore.active).to.be.true
                 })
             })
 
@@ -107,38 +110,33 @@ describe('Geolocation cypress', () => {
 
                 // check initial center and zoom
                 checkStorePosition('state.position.center', x0, y0)
-                cy.readStoreValue('state.position.zoom').then((zoom: number) => {
-                    expect(zoom).to.eq(startingZoom)
-                })
+                const positionStore = usePositionStore()
+                expect(positionStore.zoom).to.eq(startingZoom)
 
                 getGeolocationButtonAndClickIt()
                 checkStorePosition('state.geolocation.position', geoX, geoY)
 
                 // check that the map has been centered on the geolocation and zoom is updated
                 checkStorePosition('state.position.center', geoX, geoY)
-                cy.readStoreValue('state.position.zoom').then((zoom: number) => {
-                    expect(zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP)
-                })
+                const positionStore2 = usePositionStore()
+                expect(positionStore2.zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP)
 
                 // Check if the zoom is changed
                 cy.get('[data-cy="zoom-in"]').click()
-                cy.readStoreValue('state.position.zoom').then((zoom: number) => {
-                    expect(zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP + 1)
-                })
+                const positionStore3 = usePositionStore()
+                expect(positionStore3.zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP + 1)
                 checkStorePosition('state.position.center', geoX, geoY)
 
                 cy.get('[data-cy="zoom-in"]').click()
                 cy.get('[data-cy="zoom-in"]').click()
-                cy.readStoreValue('state.position.zoom').then((zoom: number) => {
-                    expect(zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP + 3)
-                })
+                const positionStore4 = usePositionStore()
+                expect(positionStore4.zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP + 3)
 
                 cy.get('[data-cy="zoom-out"]').click()
                 cy.get('[data-cy="zoom-out"]').click()
                 cy.get('[data-cy="zoom-out"]').click()
-                cy.readStoreValue('state.position.zoom').then((zoom: number) => {
-                    expect(zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP)
-                })
+                const positionStore5 = usePositionStore()
+                expect(positionStore5.zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP)
                 checkStorePosition('state.position.center', geoX, geoY)
             })
             it('access from outside Switzerland shows an error message', () => {
@@ -169,6 +167,8 @@ describe('Geolocation cypress', () => {
                     withHash: true,
                     geolocationMockupOptions: {
                         errorCode: GeolocationPositionError.PERMISSION_DENIED,
+                        latitude: 0,
+                        longitude: 0,
                     },
                 })
                 getGeolocationButtonAndClickIt()
@@ -181,6 +181,8 @@ describe('Geolocation cypress', () => {
                     withHash: true,
                     geolocationMockupOptions: {
                         errorCode: GeolocationPositionError.TIMEOUT,
+                        latitude: 0,
+                        longitude: 0,
                     },
                 })
                 getGeolocationButtonAndClickIt()
@@ -192,6 +194,8 @@ describe('Geolocation cypress', () => {
                     withHash: true,
                     geolocationMockupOptions: {
                         errorCode: GeolocationPositionError.POSITION_UNAVAILABLE,
+                        latitude: 0,
+                        longitude: 0,
                     },
                 })
                 getGeolocationButtonAndClickIt()

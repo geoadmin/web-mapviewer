@@ -1,14 +1,16 @@
 import type Map from 'ol/Map'
 
+import usePositionStore from '@/store/modules/position'
 import { normalizeAngle } from '@/store/modules/position/utils/normalizeAngle'
+import useUIStore from '@/store/modules/ui'
 
 const compassButtonSelector: string = '[data-cy="compass-button"]'
 const facingWest: number = 0.5 * Math.PI
 const tolerance: number = 1e-9
 
 function checkMapRotationAndButton(angle: number) {
-    cy.getPiniaStore('position')
-        .its('rotation').should('be.closeTo', angle, tolerance)
+    const positionStore = usePositionStore()
+    cy.wrap(positionStore.rotation).should('be.closeTo', angle, tolerance)
     cy.window()
         .its('map')
         .should((map: Map) => {
@@ -27,10 +29,11 @@ describe('Testing the buttons of the right toolbox', () => {
     })
     it('can go fullscreen with a button', () => {
         // Should not start the app in full screen
-        cy.getPiniaStore('ui').its('fullscreenMode').should('be.false')
+        const uiStore = useUIStore()
+        cy.wrap(uiStore.fullscreenMode).should('be.false')
 
         cy.get('[data-cy="toolbox-fullscreen-button"]').click()
-        cy.getPiniaStore('ui').its('fullscreenMode').should('be.true')
+        cy.wrap(uiStore.fullscreenMode).should('be.true')
 
         // only the map and the fullscreen button should be visible
         cy.get('[data-cy="toolbox-right"]').within(($toolboxRight) => {
@@ -42,16 +45,16 @@ describe('Testing the buttons of the right toolbox', () => {
 
         // exit the fullscreen mode by pressing escape
         cy.realPress('Escape')
-        cy.getPiniaStore('ui').its('fullscreenMode').should('be.false')
+        cy.wrap(uiStore.fullscreenMode).should('be.false')
         cy.get('[data-cy="app-header"]').should('be.visible')
     })
     it('shows a compass in the toolbox when map orientation is not pure north', () => {
         // Should not be visible on standard startup, as the map is facing north
-        cy.getPiniaStore('position')
-            .its('rotation').should('be.equal', 0)
+        const positionStore = usePositionStore()
+        cy.wrap(positionStore.rotation).should('be.equal', 0)
         cy.get(compassButtonSelector).should('not.exist')
 
-        cy.getPiniaStore('position').invoke('setRotation',
+        positionStore.setRotation(
             facingWest + 2 * Math.PI,
             'e2e-test',
         )

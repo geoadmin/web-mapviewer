@@ -12,6 +12,7 @@ import type ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
+import useLayersStore from '@/store/modules/layers'
 
 interface LaunchPrintOptions {
     layout?: string
@@ -330,7 +331,8 @@ describe('Testing print', () => {
                 withHash: true,
             })
             cy.wait(['@kmlHeadRequest', '@kmlGetAdminRequest'])
-            cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+            const layersStore = useLayersStore()
+            expect(layersStore.activeLayers).to.have.length(1)
 
             cy.openMenuIfMobile()
 
@@ -431,7 +433,8 @@ describe('Testing print', () => {
 
         it('should send a print request correctly to mapfishprint with GPX layer', () => {
             cy.goToMapView()
-            cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+            const layersStore2 = useLayersStore()
+            expect(layersStore2.activeLayers).to.be.empty
             cy.openMenuIfMobile()
             cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
             cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
@@ -460,7 +463,8 @@ describe('Testing print', () => {
                 .contains('File successfully imported')
             cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
             cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
-            cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+            const layersStore3 = useLayersStore()
+            expect(layersStore3.activeLayers).to.have.length(1)
 
             cy.get('[data-cy="import-file-close-button"]:visible').click()
             cy.get('[data-cy="import-file-content"]').should('not.exist')

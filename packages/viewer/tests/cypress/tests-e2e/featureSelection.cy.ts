@@ -8,6 +8,9 @@ import { assertDefined } from 'support/utils'
 import type { LayerFeature } from '@/api/features.api'
 
 import { DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION } from '@/config/map.config'
+import useFeaturesStore from '@/store/modules/features'
+import useLayersStore from '@/store/modules/layers'
+import useUIStore from '@/store/modules/ui'
 import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 
 import { addFeatureIdentificationIntercepts } from '../support/intercepts'
@@ -51,19 +54,20 @@ describe('Testing the feature selection', () => {
         function checkFeatures(): void {
             cy.log(`Ensuring there are 10 selected features, and they're all different`)
 
-            cy.readStoreValue('getters.selectedFeatures').should((features: LayerFeature[]) => {
-                expect(features.length).to.eq(10)
+            const featuresStore = useFeaturesStore()
+            const features = featuresStore.selectedFeatures
+            expect(features.length).to.eq(10)
 
-                features.forEach((feature: LayerFeature) => {
-                    expect(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']).to.include(
-                        feature.id
-                    )
-                })
+            features.forEach((feature) => {
+                expect(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']).to.include(
+                    feature.id
+                )
             })
         }
 
-        function checkFeatureInfoPosition(expectedPosition: FeatureInfoPosition): void {
-            cy.readStoreValue('state.ui.featureInfoPosition').should('be.equal', expectedPosition)
+        function checkFeatureInfoPosition(expectedPosition: FeatureInfoPositions): void {
+            const uiStore = useUIStore()
+            expect(uiStore.featureInfoPosition).to.equal(expectedPosition)
             if (FeatureInfoPositions.None === expectedPosition) {
                 cy.get('[data-cy="popover"]').should('not.exist')
                 cy.get('[data-cy="infobox"]').should('not.exist')
@@ -438,8 +442,9 @@ describe('Testing the feature selection', () => {
 
             cy.get('[data-cy="file-input-text"]').should('contain.value', fileName)
             cy.get('[data-cy="import-file-close-button"]:visible').click()
-            cy.readStoreValue('state.layers.activeLayers.length').should('eq', 2)
-            cy.readStoreValue('getters.visibleLayers.length').should('eq', 2)
+            const layersStore = useLayersStore()
+            expect(layersStore.activeLayers.length).to.eq(2)
+            expect(layersStore.visibleLayers.length).to.eq(2)
 
             cy.closeMenuIfMobile()
 
@@ -591,15 +596,17 @@ describe('Testing the feature selection', () => {
 
             cy.get('[data-cy="file-input-text"]').should('contain.value', fileName)
             cy.get('[data-cy="import-file-close-button"]:visible').click()
-            cy.readStoreValue('state.layers.activeLayers.length').should('eq', 1)
-            cy.readStoreValue('getters.visibleLayers.length').should('eq', 1)
+            const layersStore2 = useLayersStore()
+            expect(layersStore2.activeLayers.length).to.eq(1)
+            expect(layersStore2.visibleLayers.length).to.eq(1)
 
             cy.closeMenuIfMobile()
 
             cy.checkOlLayer(['test.background.layer2', fileName])
 
             cy.get('[data-cy="ol-map"]').as('olMap').should('be.visible')
-            cy.readStoreValue('getters.selectedFeatures.length').should('eq', 0)
+            const featuresStore2 = useFeaturesStore()
+            expect(featuresStore2.selectedFeatures.length).to.eq(0)
 
             cy.window()
                 .its('map')
@@ -617,11 +624,14 @@ describe('Testing the feature selection', () => {
                     )
 
                     clickOnMap(pixel3, false)
-                    cy.readStoreValue('getters.selectedFeatures.length').should('eq', 1)
+                    const featuresStore3 = useFeaturesStore()
+                    expect(featuresStore3.selectedFeatures.length).to.eq(1)
                     clickOnMap(pixel1, true)
-                    cy.readStoreValue('getters.selectedFeatures.length').should('eq', 2)
+                    const featuresStore4 = useFeaturesStore()
+                    expect(featuresStore4.selectedFeatures.length).to.eq(2)
                     clickOnMap(pixel1, true)
-                    cy.readStoreValue('getters.selectedFeatures.length').should('eq', 1)
+                    const featuresStore5 = useFeaturesStore()
+                    expect(featuresStore5.selectedFeatures.length).to.eq(1)
                 })
         })
 
@@ -648,8 +658,9 @@ describe('Testing the feature selection', () => {
             cy.wait(['@icon-sets', '@icon-set-babs', '@icon-set-default'])
 
             cy.get('[data-cy="import-file-close-button"]:visible').click()
-            cy.readStoreValue('state.layers.activeLayers.length').should('eq', 2)
-            cy.readStoreValue('getters.visibleLayers.length').should('eq', 2)
+            const layersStore3 = useLayersStore()
+            expect(layersStore3.activeLayers.length).to.eq(2)
+            expect(layersStore3.visibleLayers.length).to.eq(2)
 
             cy.closeMenuIfMobile()
 

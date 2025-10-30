@@ -4,6 +4,7 @@ import type { LayerConfigResponse } from '@swissgeo/layers/api'
 
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 
+import useLayersStore from '@/store/modules/layers'
 import { UIModes } from '@/store/modules/ui/types/uiModes.enum'
 
 describe('Testing the footer content / tools', () => {
@@ -34,7 +35,8 @@ describe('Testing the footer content / tools', () => {
                 ? 'background-selector-open-wheel-button-squared'
                 : 'background-selector-open-wheel-button'
             // first, checking that the current bgLayer is the void layer
-            cy.readStoreValue('getters.currentBackgroundLayer').should('be.null')
+            const layersStore = useLayersStore()
+            cy.wrap(layersStore.currentBackgroundLayer).should('be.null')
 
             // opening the background wheel
             cy.get(`[data-cy="${wheelButton}"]`).click()
@@ -57,7 +59,7 @@ describe('Testing the footer content / tools', () => {
 
             // reverting to void layer
             cy.get('[data-cy="background-selector-void"]').click()
-            cy.readStoreValue('getters.currentBackgroundLayer').should('be.null')
+            cy.wrap(layersStore.currentBackgroundLayer).should('be.null')
         }
 
         cy.goToMapView({ queryParams: { bgLayer: 'void' } })
@@ -66,7 +68,7 @@ describe('Testing the footer content / tools', () => {
         testBackgroundWheel()
         // checking that the squared background wheel (desktop) has the same functionalities
         cy.viewport('macbook-11')
-        cy.waitUntilState((state) => state.ui.mode === UIModes.DESKTOP)
+        cy.waitUntilState((state) => state.ui.mode === UIModes.Desktop)
         testBackgroundWheel(true)
     })
 })

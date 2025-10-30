@@ -9,6 +9,7 @@ import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 import { getServiceShortLinkBaseUrl } from '@/config/baseUrl.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { BREAKPOINT_TABLET } from '@/config/responsive.config'
+import useDrawingStore from '@/store/modules/drawing'
 import {
     LV03Format,
     LV95Format,
@@ -177,7 +178,8 @@ describe('Test mouse position and interactions', () => {
             cy.log('the LocationPopUp is visible')
 
             cy.openDrawingMode()
-            cy.readStoreValue('state.drawing.drawingOverlay.show').should('be.true')
+            const drawingStore = useDrawingStore()
+            cy.wrap(drawingStore.drawingOverlay.show).should('be.true')
             cy.get('[data-cy="location-popup"]').should('not.exist')
             cy.log('the location popup has been hidden when entering drawing mode')
 

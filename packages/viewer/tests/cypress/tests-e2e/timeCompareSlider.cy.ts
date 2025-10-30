@@ -1,6 +1,7 @@
 /// <reference types="cypress" />
 
 import { moveTimeSlider } from '@/../tests/cypress/tests-e2e/utils'
+import useUIStore from '@/store/modules/ui'
 
 type CompareConfig = {
     ratio?: number | null
@@ -18,7 +19,8 @@ describe('Open Time and Compare Slider together', () => {
 
         function checkTimeSlider(active: boolean, selectedYear: number | null = null) {
             // Check the store
-            cy.readStoreValue('state.ui.isTimeSliderActive').should('be.equal', active)
+            const uiStore = useUIStore()
+            cy.wrap(uiStore.isTimeSliderActive).should('be.equal', active)
 
             // Checking the UI
             if (active) {
@@ -37,14 +39,15 @@ describe('Open Time and Compare Slider together', () => {
         function checkCompareSlider(active: boolean, config: CompareConfig = {}) {
             const { ratio = null, hasVisibleLayers = true, visibleLayerName = null } = config
             // Check the store
-            cy.readStoreValue('state.ui.isCompareSliderActive').should('be.equal', active)
+            const uiStore = useUIStore()
+            cy.wrap(uiStore.isCompareSliderActive).should('be.equal', active)
 
             // Checking the UI
             if (active && hasVisibleLayers) {
                 if (!ratio) {
-                    cy.readStoreValue('state.ui.compareRatio').should('be.null')
+                    cy.wrap(uiStore.compareRatio).should('be.null')
                 } else {
-                    cy.readStoreValue('state.ui.compareRatio').should('be.equal', ratio)
+                    cy.wrap(uiStore.compareRatio).should('be.equal', ratio)
                 }
             } else {
                 cy.get('[data-cy="compareSlider"]').should('not.exist')

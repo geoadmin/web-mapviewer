@@ -8,6 +8,7 @@ import {
     testErrorMessage,
     checkStorePosition,
 } from '@/../tests/cypress/tests-e2e/utils'
+import usePositionStore from '@/store/modules/position'
 
 registerProj4(proj4)
 
@@ -42,24 +43,23 @@ describe('Geolocation on 3D cypress', () => {
                 cy.waitUntilCesiumTilesLoaded()
 
                 // check that before the geolocation button is clicked, the map is not centered on the geolocation
-                cy.readStoreValue('state.position.center').then((center) => {
-                    expect(center).to.be.an('Array')
-                    expect(center.length).to.eq(2)
-                    expect(center[0]).to.not.approximately(geoX, 0.1)
-                    expect(center[1]).to.not.approximately(geoY, 0.1)
-                })
+                const positionStore = usePositionStore()
+                const center = positionStore.center
+                expect(center).to.be.an('Array')
+                expect(center.length).to.eq(2)
+                expect(center[0]).to.not.approximately(geoX, 0.1)
+                expect(center[1]).to.not.approximately(geoY, 0.1)
 
                 // Camera position before geolocation
-                cy.readStoreValue('state.position.camera').then((camera) => {
-                    expect(camera).to.be.an('Object')
-                    expect(camera.x).to.not.eq(geoLongitude)
-                    expect(camera.y).to.not.eq(geoLatitude)
-                    expect(Number(camera.z)).not.to.approximately(631.85, 0.1)
+                const camera = positionStore.camera
+                expect(camera).to.be.an('Object')
+                expect(camera?.x).to.not.eq(geoLongitude)
+                expect(camera?.y).to.not.eq(geoLatitude)
+                expect(Number(camera?.z)).not.to.approximately(631.85, 0.1)
 
-                    expect(camera.heading).to.eq(0)
-                    expect(camera.pitch).to.eq(-90)
-                    expect(camera.roll).to.eq(0)
-                })
+                expect(camera?.heading).to.eq(0)
+                expect(camera?.pitch).to.eq(-90)
+                expect(camera?.roll).to.eq(0)
 
                 getGeolocationButtonAndClickIt()
                 // check that the geolocation has been set in the store
@@ -67,16 +67,16 @@ describe('Geolocation on 3D cypress', () => {
                 // check that the map has been centered on the geolocation
                 checkStorePosition('state.position.center', geoX, geoY)
                 // Camera position after geolocation
-                cy.readStoreValue('state.position.camera').then((camera) => {
-                    expect(camera).to.be.an('Object')
-                    expect(camera.x).to.eq(geoLongitude)
-                    expect(camera.y).to.eq(geoLatitude)
-                    expect(Number(camera.z)).to.approximately(631.85, 0.1)
+                const positionStore2 = usePositionStore()
+                const camera2 = positionStore2.camera
+                expect(camera2).to.be.an('Object')
+                expect(camera2?.x).to.eq(geoLongitude)
+                expect(camera2?.y).to.eq(geoLatitude)
+                expect(Number(camera2?.z)).to.approximately(631.85, 0.1)
 
-                    expect(camera.heading).to.eq(0)
-                    expect(camera.pitch).to.eq(-90)
-                    expect(camera.roll).to.eq(0)
-                })
+                expect(camera2?.heading).to.eq(0)
+                expect(camera2?.pitch).to.eq(-90)
+                expect(camera2?.roll).to.eq(0)
             })
             // The test is too fragile in CI (sometimes pass, sometimes not) due to rendered crassh
             it.skip('access from outside Switzerland shows an error message', () => {

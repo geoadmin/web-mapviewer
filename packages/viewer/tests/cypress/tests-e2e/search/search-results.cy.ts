@@ -2,12 +2,17 @@
 
 import type { Layer } from '@swissgeo/layers'
 
-import { registerProj4, WGS84 } from '@swissgeo/coordinates'
+import { registerProj4, WGS84, type SingleCoordinate } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
+import { assertDefined } from 'support/utils'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { BREAKPOINT_TABLET } from '@/config/responsive.config'
+import useLayersStore from '@/store/modules/layers'
+import useMapStore from '@/store/modules/map'
+import usePositionStore from '@/store/modules/position'
 import { CrossHairs } from '@/store/modules/position/types/crossHairs.enum'
+import useSearchStore from '@/store/modules/search'
 
 registerProj4(proj4)
 
@@ -59,8 +64,8 @@ interface TestQueryParams {
     searchQuery: string
     expectedCenter: number[]
     expectedPinnedLocation: number[]
-    expectedCrosshair: string | null
-    expectedCrosshairPosition: number[] | null
+    expectedCrosshair: string | undefined
+    expectedCrosshairPosition: number[] | undefined
 }
 
 function testQueryPositionCrosshairStore({
@@ -71,25 +76,24 @@ function testQueryPositionCrosshairStore({
     expectedCrosshairPosition,
 }: TestQueryParams): void {
     // check the query
-    cy.readStoreValue('state.search.query').should('eq', searchQuery)
+    const searchStore = useSearchStore()
+    expect(searchStore.query).to.eq(searchQuery)
     // check the center of the map
-    cy.readStoreValue('state.position.center').should((positionCenter) =>
-        checkLocation(expectedCenter, positionCenter)
-    )
+    const positionStore = usePositionStore()
+    checkLocation(expectedCenter, positionStore.center)
     // check the location of pinnedLocation
-    cy.readStoreValue('state.map.pinnedLocation').should((pinnedLocation) =>
-        checkLocation(expectedPinnedLocation, pinnedLocation)
-    )
+    const mapStore = useMapStore()
+    assertDefined(mapStore.pinnedLocation)
+    checkLocation(expectedPinnedLocation, mapStore.pinnedLocation)
     // check the crosshair
-    cy.readStoreValue('state.position.crossHair').should('eq', expectedCrosshair)
+    expect(positionStore.crossHair).to.eq(expectedCrosshair)
 
     // check the crosshair position
-    if (expectedCrosshairPosition !== null) {
-        cy.readStoreValue('state.position.crossHairPosition').should((crossHairPosition) =>
-            checkLocation(expectedCrosshairPosition, crossHairPosition)
-        )
+    if (expectedCrosshairPosition !== undefined) {
+        assertDefined(positionStore.crossHairPosition)
+        checkLocation(expectedCrosshairPosition, positionStore.crossHairPosition)
     } else {
-        cy.readStoreValue('state.position.crossHairPosition').should('be.null')
+        expect(positionStore.crossHairPosition).to.be.undefined
     }
 }
 
@@ -172,7 +176,9 @@ describe('Test the search bar result handling', () => {
         return (
             DEFAULT_PROJECTION.getZoomForResolutionAndCenter(
                 resolution,
-                proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, expectedCenterEpsg4326)
+                proj4(WGS84.epsg,
+                    DEFAULT_PROJECTION.epsg,
+                    expectedCenterEpsg4326 as SingleCoordinate)
             ) - 1
         )
     }
@@ -216,7 +222,8 @@ describe('Test the search bar result handling', () => {
             'Checking that it reads the swisssearch URL param at startup and launch a search with its content'
         )
 
-        cy.readStoreValue('state.search.query').should('eq', 'test')
+        const searchStore2 = useSearchStore()
+        expect(searchStore2.query).to.eq('test')
         cy.get('@locationSearchResults').should('be.visible')
 
         cy.log('Checking that it displays layer results with info-buttons')
@@ -323,12 +330,13 @@ describe('Test the search bar result handling', () => {
         cy.focused().trigger('keydown', { key: 'ArrowDown' })
         cy.focused().trigger('keyup', { key: 'Enter' })
 
-        cy.readStoreValue('state.map.pinnedLocation').should((pinnedLocation) =>
-            checkLocation(expectedCenterDefaultProjection, pinnedLocation)
-        )
+        const mapStore2 = useMapStore()
+        assertDefined(mapStore2.pinnedLocation)
+
+        checkLocation(expectedCenterDefaultProjection, mapStore2.pinnedLocation)
         // clearing selected entry by clearing the search bar and re-entering a search text
         cy.get('[data-cy="searchbar-clear"]').click()
-        cy.readStoreValue('state.map.pinnedLocation').should('be.null')
+        expect(mapStore2.pinnedLocation).to.be.undefined
 
         cy.log('Testing previewing the location or layer on hover')
 
@@ -337,30 +345,27 @@ describe('Test the search bar result handling', () => {
 
         // Location - Enter
         cy.get('@locationSearchResults').first().trigger('mouseenter')
-        cy.readStoreValue('state.map.previewedPinnedLocation').should((pinnedLocation) => {
-            checkLocation(expectedCenterDefaultProjection, pinnedLocation)
-        })
+        assertDefined(mapStore2.previewedPinnedLocation)
+        checkLocation(expectedCenterDefaultProjection, mapStore2.previewedPinnedLocation)
         // Location - Leave
         cy.get('@locationSearchResults').first().trigger('mouseleave')
-        cy.readStoreValue('state.map.previewedPinnedLocation').should('be.null')
+        expect(mapStore2.previewedPinnedLocation).to.be.undefined
 
         // Layer - Enter
         cy.get('@layerSearchResults').first().trigger('mouseenter')
-        cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
-            const visibleIds = visibleLayers.map((layer: Layer) => layer.id)
-            expect(visibleIds).to.contain(expectedLayerId)
-        })
+        const layersStore = useLayersStore()
+        const visibleIds = layersStore.visibleLayers.map((layer: Layer) => layer.id)
+        expect(visibleIds).to.contain(expectedLayerId)
         // Layer - Leave
         cy.get('@layerSearchResults').first().trigger('mouseleave')
-        cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
-            const visibleIds = visibleLayers.map((layer: Layer) => layer.id)
-            expect(visibleIds).not.to.contain(expectedLayerId)
-        })
+        const layersStore2 = useLayersStore()
+        const visibleIds2 = layersStore2.visibleLayers.map((layer: Layer) => layer.id)
+        expect(visibleIds2).not.to.contain(expectedLayerId)
 
         // Location - Leave via unmount
         cy.get('@locationSearchResults').first().trigger('mouseenter')
         cy.get('[data-cy="searchbar-clear"]').click()
-        cy.readStoreValue('state.map.previewedPinnedLocation').should('be.null')
+        expect(mapStore2.previewedPinnedLocation).to.be.undefined
 
         cy.log('Clicking on the first entry to test handling of zoom/extent/position')
         cy.get(searchbarSelector).paste('test')
@@ -377,26 +382,24 @@ describe('Test the search bar result handling', () => {
         // Even in develop branch, the test failed when I run locally
 
         // checking that the view has centered on the feature
-        cy.readStoreValue('state.position.center').should((center) =>
-            checkLocation(expectedCenterDefaultProjection, center)
-        )
+        const positionStore2 = usePositionStore()
+        checkLocation(expectedCenterDefaultProjection, positionStore2.center)
 
         // checking that the zoom level corresponds to the extent of the feature
         // TODO: this somehow fail on the desktop viewport, see https://jira.swisstopo.ch/browse/BGDIINF_SB-2156
         const width = Cypress.config('viewportWidth')
         const height = Cypress.config('viewportHeight')
         if (width < BREAKPOINT_TABLET) {
-            cy.readStoreValue('state.position.zoom').should(
-                'be.closeTo',
+            const positionStore3 = usePositionStore()
+            expect(positionStore3.zoom).to.be.closeTo(
                 calculateExpectedZoom(width, height),
                 0.2
             )
         }
 
         // checking that a dropped pin has been placed at the feature's location
-        cy.readStoreValue('state.map.pinnedLocation').should((pinnedLocation) =>
-            checkLocation(expectedCenterDefaultProjection, pinnedLocation)
-        )
+        assertDefined(mapStore2.pinnedLocation)
+        checkLocation(expectedCenterDefaultProjection, mapStore2.pinnedLocation)
 
         cy.log('Search bar dropdown should be hidden after centering on the feature')
         cy.get('@locationSearchResults').should('not.be.visible')
@@ -472,7 +475,8 @@ describe('Test the search bar result handling', () => {
         cy.wait(['@layerConfig', '@topics', '@topic-ech'])
 
         cy.url().should('not.contain', 'swisssearch')
-        cy.readStoreValue('state.search.query').should('equal', '')
+        const searchStore3 = useSearchStore()
+        expect(searchStore3.query).to.equal('')
         cy.get('@locationSearchResults').should('not.exist')
     })
     it('autoselects the first swisssearch result when swisssearch_autoselect is true', () => {
@@ -526,17 +530,19 @@ describe('Test the search bar result handling', () => {
         cy.wait('@search-locations')
         cy.wait('@routeChange')
         // Wait for search query to be set in store (this happens after URL params are processed)
-        cy.readStoreValue('state.search.query').should('eq', '1530 Payerne')
+        const searchStore4 = useSearchStore()
+        expect(searchStore4.query).to.eq('1530 Payerne')
         cy.url().should('not.contain', 'swisssearch')
         cy.url().should('not.contain', 'swisssearch_autoselect')
         const acceptableDelta = 0.25
 
-        cy.readStoreValue('state.map.pinnedLocation').should((feature) => {
-            expect(feature).to.not.be.null
-            expect(feature).to.be.a('array').that.is.not.empty
-            expect(feature[0]).to.be.approximately(coordinates[0]!, acceptableDelta)
-            expect(feature[1]).to.be.approximately(coordinates[1]!, acceptableDelta)
-        })
+        const mapStore8 = useMapStore()
+        const feature = mapStore8.pinnedLocation
+        assertDefined(feature)
+        expect(feature).to.be.a('array').that.is.not.empty
+        expect(feature.length).to.greaterThan(1)
+        expect(feature[0]).to.be.approximately(coordinates[0]!, acceptableDelta)
+        expect(feature[1]).to.be.approximately(coordinates[1]!, acceptableDelta)
 
         // ----------------------------------------------------------------------
         cy.log('Ensuring the search dialog closes once you have selected an item')
@@ -584,8 +590,8 @@ describe('Test the search bar result handling', () => {
             searchQuery: swissSearchString,
             expectedCenter: swissSearchXYCoordinates,
             expectedPinnedLocation: swissSearchXYCoordinates,
-            expectedCrosshair: null,
-            expectedCrosshairPosition: null,
+            expectedCrosshair: undefined,
+            expectedCrosshairPosition: undefined,
         })
 
         // --------------------------------------------------------------------------- //
@@ -624,8 +630,8 @@ describe('Test the search bar result handling', () => {
             searchQuery: swissSearchString,
             expectedCenter: swissSearchXYCoordinates,
             expectedPinnedLocation: swissSearchXYCoordinates,
-            expectedCrosshair: null,
-            expectedCrosshairPosition: null,
+            expectedCrosshair: undefined,
+            expectedCrosshairPosition: undefined,
         })
 
         // --------------------------------------------------------------------------- //
