@@ -178,8 +178,10 @@ describe('Test mouse position and interactions', () => {
             cy.log('the LocationPopUp is visible')
 
             cy.openDrawingMode()
-            const drawingStore = useDrawingStore()
-            cy.wrap(drawingStore.drawingOverlay.show).should('be.true')
+            cy.getPinia().then((pinia) => {
+                const drawingStore = useDrawingStore(pinia)
+                cy.wrap(drawingStore.drawingOverlay.show).should('be.true')
+            })
             cy.get('[data-cy="location-popup"]').should('not.exist')
             cy.log('the location popup has been hidden when entering drawing mode')
 

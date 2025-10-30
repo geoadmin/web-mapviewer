@@ -333,8 +333,10 @@ describe('Test of layer handling in 3D', () => {
 
         cy.log('Select features and check that they are visible in 3D and then also back in 2D')
         cy.get('[data-cy="ol-map"]').click(100, 250)
-        const featuresStore = useFeaturesStore()
-        expect(featuresStore.selectedFeatures).to.have.length(10)
+        cy.getPinia().then((pinia) => {
+            const featuresStore = useFeaturesStore(pinia)
+            expect(featuresStore.selectedFeatures).to.have.length(10)
+        })
 
         cy.get('[data-cy="highlighted-features"]')
             .as('highlightedFeatures')
@@ -376,8 +378,10 @@ describe('Test of layer handling in 3D', () => {
         cy.get(`[data-cy^="button-toggle-visibility-layer-${expectedWmsLayerId}-"]`).click()
 
         cy.closeMenuIfMobile()
-        const featuresStore2 = useFeaturesStore()
-        expect(featuresStore2.selectedFeatures).to.have.length(0)
+        cy.getPinia().then((pinia) => {
+            const featuresStore2 = useFeaturesStore(pinia)
+            expect(featuresStore2.selectedFeatures).to.have.length(0)
+        })
         cy.get('@highlightedFeatures').should('not.exist')
         cy.window()
             .its('cesiumViewer')

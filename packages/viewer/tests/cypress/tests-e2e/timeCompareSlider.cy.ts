@@ -19,8 +19,10 @@ describe('Open Time and Compare Slider together', () => {
 
         function checkTimeSlider(active: boolean, selectedYear: number | undefined = undefined) {
             // Check the store
-            const uiStore = useUIStore()
-            cy.wrap(uiStore.isTimeSliderActive).should('be.equal', active)
+            cy.getPinia().then(pinia => {
+                const uiStore = useUIStore(pinia)
+                expect(uiStore.isTimeSliderActive).to.equal(active)
+            })
 
             // Checking the UI
             if (active) {
@@ -39,17 +41,21 @@ describe('Open Time and Compare Slider together', () => {
         function checkCompareSlider(active: boolean, config: CompareConfig = {}) {
             const { ratio = undefined, hasVisibleLayers = true, visibleLayerName = undefined } = config
             // Check the store
-            const uiStore = useUIStore()
-            cy.wrap(uiStore.isCompareSliderActive).should('be.equal', active)
+            cy.getPinia().then(pinia => {
+                const uiStore = useUIStore(pinia)
+                expect(uiStore.isCompareSliderActive).to.equal(active)
 
-            // Checking the UI
-            if (active && hasVisibleLayers) {
-                if (!ratio) {
-                    cy.wrap(uiStore.compareRatio).should('be.undefined')
-                } else {
-                    cy.wrap(uiStore.compareRatio).should('be.equal', ratio)
+                // Checking the UI
+                if (active && hasVisibleLayers) {
+                    if (!ratio) {
+                        expect(uiStore.compareRatio).to.be.undefined
+                    } else {
+                        expect(uiStore.compareRatio).to.equal(ratio)
+                    }
                 }
-            } else {
+            })
+
+            if (!active || !hasVisibleLayers) {
                 cy.get('[data-cy="compareSlider"]').should('not.exist')
             }
 

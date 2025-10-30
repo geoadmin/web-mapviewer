@@ -149,17 +149,19 @@ function init(nbLayers: number, nbSelectedLayers: number) {
         withHash: false,
         fixturesAndIntercepts: getFixturesAndIntercepts(nbLayers, nbSelectedLayers),
     })
-    const uiStore = useUIStore()
-    cy.wrap(uiStore).as('storeGetters')
-    if (uiStore.isPhoneMode) {
-        cy.get('[data-cy="menu-button"]').click()
-        cy.wrap(height).as('expectedMenuTrayBottom')
-    } else if (uiStore.isTabletSize) {
-        cy.get('[data-cy="menu-button"]').click()
-        cy.wrap(height - 70).as('expectedMenuTrayBottom')
-    } else {
-        cy.wrap(height - 70).as('expectedMenuTrayBottom')
-    }
+    cy.getPinia().then(pinia => {
+        const uiStore = useUIStore(pinia)
+        cy.wrap(uiStore).as('storeGetters')
+        if (uiStore.isPhoneMode) {
+            cy.get('[data-cy="menu-button"]').click()
+            cy.wrap(height).as('expectedMenuTrayBottom')
+        } else if (uiStore.isTabletSize) {
+            cy.get('[data-cy="menu-button"]').click()
+            cy.wrap(height - 70).as('expectedMenuTrayBottom')
+        } else {
+            cy.wrap(height - 70).as('expectedMenuTrayBottom')
+        }
+    })
     cy.get(menuTopicHeaderSelector).click()
     waitForAnimationsToFinish()
 }

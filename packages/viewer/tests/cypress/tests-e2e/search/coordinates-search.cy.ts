@@ -43,10 +43,12 @@ describe('Testing coordinates typing in search bar', () => {
 
     const checkCenterInStore = (acceptableDelta = 0.0) => {
         cy.log(`Check that center is at ${JSON.stringify(expectedCenter)}`)
-        const positionStore = usePositionStore()
-        const center = positionStore.center
-        expect(center[0]).to.be.approximately(expectedCenter[0], acceptableDelta)
-        expect(center[1]).to.be.approximately(expectedCenter[1], acceptableDelta)
+        cy.getPinia().then((pinia) => {
+            const positionStore = usePositionStore(pinia)
+            const center = positionStore.center
+            expect(center[0]).to.be.approximately(expectedCenter[0], acceptableDelta)
+            expect(center[1]).to.be.approximately(expectedCenter[1], acceptableDelta)
+        })
     }
     const checkZoomLevelInStore = () => {
         // checking that the zoom level is at the 1:25'000 map level after a coordinate input in the search bar
@@ -56,17 +58,21 @@ describe('Testing coordinates typing in search bar', () => {
                 DEFAULT_PROJECTION as CustomCoordinateSystem
             ).transformStandardZoomLevelToCustom(constants.STANDARD_ZOOM_LEVEL_1_25000_MAP)
         }
-        const positionStore2 = usePositionStore()
-        expect(positionStore2.zoom).to.be.eq(expectedZoomLevel)
+        cy.getPinia().then((pinia) => {
+            const positionStore2 = usePositionStore(pinia)
+            expect(positionStore2.zoom).to.be.eq(expectedZoomLevel)
+        })
     }
     const checkThatCoordinateAreHighlighted = (acceptableDelta = 0.0) => {
         // checking that a balloon marker has been put on the coordinate location (that it is a highlighted location in the store)
-        const mapStore = useMapStore()
-        const feature = mapStore.pinnedLocation
-        expect(feature).to.not.be.undefined
-        expect(feature).to.be.a('array').that.is.not.empty
-        expect(feature?.[0]).to.be.approximately(expectedCenter[0], acceptableDelta)
-        expect(feature?.[1]).to.be.approximately(expectedCenter[1], acceptableDelta)
+        cy.getPinia().then((pinia) => {
+            const mapStore = useMapStore(pinia)
+            const feature = mapStore.pinnedLocation
+            expect(feature).to.not.be.undefined
+            expect(feature).to.be.a('array').that.is.not.empty
+            expect(feature?.[0]).to.be.approximately(expectedCenter[0], acceptableDelta)
+            expect(feature?.[1]).to.be.approximately(expectedCenter[1], acceptableDelta)
+        })
     }
     const standardCheck = (
         x: number | string,
@@ -92,11 +98,15 @@ describe('Testing coordinates typing in search bar', () => {
         standardCheck(expectedCenterLV95[0], expectedCenterLV95[1], { withInversion: true })
         cy.get('[data-cy="searchbar-clear"]').click()
         // checking that search bar has been emptied
-        const searchStore = useSearchStore()
-        expect(searchStore.query).to.be.empty
+        cy.getPinia().then((pinia) => {
+            const searchStore = useSearchStore(pinia)
+            expect(searchStore.query).to.be.empty
+        })
         // checking that the dropped pin has been removed
-        const mapStore2 = useMapStore()
-        expect(mapStore2.pinnedLocation).to.be.undefined
+        cy.getPinia().then((pinia) => {
+            const mapStore2 = useMapStore(pinia)
+            expect(mapStore2.pinnedLocation).to.be.undefined
+        })
     })
 
     it('Paste EPSG:4326 (WGS84) coordinate', () => {
@@ -113,8 +123,10 @@ describe('Testing coordinates typing in search bar', () => {
         // clear the bar
         cy.get('[data-cy="searchbar-clear"]').click()
         // checking that search bar has been emptied
-        const searchStore2 = useSearchStore()
-        expect(searchStore2.query).to.be.empty
+        cy.getPinia().then((pinia) => {
+            const searchStore2 = useSearchStore(pinia)
+            expect(searchStore2.query).to.be.empty
+        })
         expect(expectedCenterWGS84_DD).to.have.length(2)
         assertDefined(expectedCenterWGS84_DD[0])
         assertDefined(expectedCenterWGS84_DD[1])

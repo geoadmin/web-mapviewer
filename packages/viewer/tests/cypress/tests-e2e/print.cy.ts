@@ -331,8 +331,10 @@ describe('Testing print', () => {
                 withHash: true,
             })
             cy.wait(['@kmlHeadRequest', '@kmlGetAdminRequest'])
-            const layersStore = useLayersStore()
-            expect(layersStore.activeLayers).to.have.length(1)
+            cy.getPinia().then(pinia => {
+                const layersStore = useLayersStore(pinia)
+                expect(layersStore.activeLayers).to.have.length(1)
+            })
 
             cy.openMenuIfMobile()
 
@@ -433,8 +435,10 @@ describe('Testing print', () => {
 
         it('should send a print request correctly to mapfishprint with GPX layer', () => {
             cy.goToMapView()
-            const layersStore2 = useLayersStore()
-            expect(layersStore2.activeLayers).to.be.empty
+            cy.getPinia().then(pinia => {
+                const layersStore2 = useLayersStore(pinia)
+                expect(layersStore2.activeLayers).to.be.empty
+            })
             cy.openMenuIfMobile()
             cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
             cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
@@ -463,8 +467,10 @@ describe('Testing print', () => {
                 .contains('File successfully imported')
             cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
             cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
-            const layersStore3 = useLayersStore()
-            expect(layersStore3.activeLayers).to.have.length(1)
+            cy.getPinia().then(pinia => {
+                const layersStore3 = useLayersStore(pinia)
+                expect(layersStore3.activeLayers).to.have.length(1)
+            })
 
             cy.get('[data-cy="import-file-close-button"]:visible').click()
             cy.get('[data-cy="import-file-content"]').should('not.exist')

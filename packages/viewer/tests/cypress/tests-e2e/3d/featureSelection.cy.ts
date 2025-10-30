@@ -44,9 +44,11 @@ describe('Testing the feature selection in 3D', () => {
 
             cy.get('[data-cy="file-input-text"]').should('contain.value', fileName)
             cy.get('[data-cy="import-file-close-button"]:visible').click()
-            const layersStore = useLayersStore()
-            expect(layersStore.activeLayers.length).to.eq(2)
-            expect(layersStore.visibleLayers.length).to.eq(2)
+            cy.getPinia().then((pinia) => {
+                const layersStore = useLayersStore(pinia)
+                expect(layersStore.activeLayers.length).to.eq(2)
+                expect(layersStore.visibleLayers.length).to.eq(2)
+            })
 
             cy.closeMenuIfMobile()
 

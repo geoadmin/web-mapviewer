@@ -30,15 +30,19 @@ describe('Testing the share menu', () => {
     })
     context('Short link generation', () => {
         it('Does not generate a short link at startup', () => {
-            const shareStore = useShareStore()
-            expect(shareStore.shortLink).to.eq(undefined)
+            cy.getPinia().then(pinia => {
+                const shareStore = useShareStore(pinia)
+                expect(shareStore.shortLink).to.eq(undefined)
+            })
         })
         it('Creates a short linked version of the URL the first time the menu section is opened', () => {
             cy.get('[data-cy="menu-share-section"]').click()
             // a short link should be generated as it is our first time opening this section
             cy.wait('@shortLink')
-            const shareStore2 = useShareStore()
-            expect(shareStore2.shortLink).to.eq(dummyShortLink)
+            cy.getPinia().then(pinia => {
+                const shareStore = useShareStore(pinia)
+                expect(shareStore.shortLink).to.eq(dummyShortLink)
+            })
         })
         it('deletes the short link and close the menu as soon as the state of the map (the URL) has changed', () => {
             cy.get('[data-cy="menu-share-section"]').click()
@@ -47,8 +51,10 @@ describe('Testing the share menu', () => {
             // change the language in order to change the URL
             cy.clickOnLanguage('fr')
             // checking that the shortLink value doesn't exist anymore
-            const shareStore3 = useShareStore()
-            expect(shareStore3.shortLink).to.eq(undefined)
+            cy.getPinia().then(pinia => {
+                const shareStore = useShareStore(pinia)
+                expect(shareStore.shortLink).to.eq(undefined)
+            })
             // opening the general menu again
             cy.get('[data-cy="menu-button"]').click()
             // checking that the share menu has been closed
@@ -78,8 +84,10 @@ describe('Testing the share menu', () => {
             cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
             cy.get('[data-cy="menu-share-section"]').click()
             cy.wait('@shortLink')
-            const shareStore4 = useShareStore()
-            expect(shareStore4.shortLink).to.eq(dummyShortLink)
+            cy.getPinia().then(pinia => {
+                const shareStore = useShareStore(pinia)
+                expect(shareStore.shortLink).to.eq(dummyShortLink)
+            })
 
             // Check if there is a warning class in the share link
             cy.get('[data-cy="menu-share-input-copy-button"]').should('have.class', 'btn-warning')
@@ -129,8 +137,10 @@ describe('Testing the share menu', () => {
                     // closing the menu
                     cy.get('[data-cy="menu-button"]').click()
                     // faking a move of the app, so that the GPS is still active, but the tracking is off
-                    const geolocationStore = useGeolocationStore()
-                    geolocationStore.setGeolocationTracking(false, { name: 'e2e-test' })
+                    cy.getPinia().then(pinia => {
+                        const geolocationStore = useGeolocationStore(pinia)
+                        geolocationStore.setGeolocationTracking(false, { name: 'e2e-test' })
+                    })
                     // opening the menu once again
                     cy.get('[data-cy="menu-button"]').click()
                     // opening the share menu, and checking that the link generated does not have a crosshair URL param
@@ -320,8 +330,10 @@ describe('Testing the share menu', () => {
 
                 // Test local import
                 cy.goToMapView({ withHash: true })
-                const layersStore = useLayersStore()
-                expect(layersStore.activeLayers).to.be.empty
+                cy.getPinia().then(pinia => {
+                    const layersStore = useLayersStore(pinia)
+                    expect(layersStore.activeLayers).to.be.empty
+                })
                 cy.openMenuIfMobile()
                 cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
                 cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
@@ -350,8 +362,10 @@ describe('Testing the share menu', () => {
                     .should('be.visible')
                     .contains('Import')
                 cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
-                const layersStore2 = useLayersStore()
-                expect(layersStore2.activeLayers).to.have.length(1)
+                cy.getPinia().then(pinia => {
+                    const layersStore = useLayersStore(pinia)
+                    expect(layersStore.activeLayers).to.have.length(1)
+                })
                 cy.get('[data-cy="import-file-close-button"]:visible').click()
 
                 // beforeEach for the whole test is clicking on the menu button once, we must click it another time

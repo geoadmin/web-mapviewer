@@ -283,8 +283,10 @@ describe('Testing the report problem form', () => {
 
         cy.get('[data-cy="menu-tray-drawing-section"] > [data-cy="menu-section-header"]').click()
         cy.get('[data-cy="drawing-toolbox-close-button"]').should('be.visible').click()
-        const layersStore = useLayersStore()
-        expect(layersStore.activeLayers).to.have.length(0)
+        cy.getPinia().then((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.have.length(0)
+        })
         cy.get('[data-cy="menu-help-section"]:visible').click()
         cy.get('[data-cy="report-problem-button"]').should('be.visible').click()
         cy.get('@reportForm').should('exist')
