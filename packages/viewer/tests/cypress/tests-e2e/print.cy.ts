@@ -8,11 +8,11 @@ import { formatThousand } from '@swissgeo/numbers'
 import { kmlMetadataTemplate } from 'support/drawing'
 import { assertDefined } from 'support/utils'
 
-import type ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
 
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 import useLayersStore from '@/store/modules/layers'
+import type { ExternalWMTSLayer } from '@swissgeo/layers';
 
 interface LaunchPrintOptions {
     layout?: string
@@ -37,7 +37,7 @@ interface PrintRequestBody {
     format: string
     layout: string
     lang: string
-    outputFilename: string | null
+    outputFilename: string | undefined
 }
 
 interface ExpectedValues {
@@ -449,7 +449,7 @@ describe('Testing print', () => {
             cy.get('[data-cy="import-file-local-content"]').should('be.visible')
 
             cy.log('Test add a local GPX file')
-            cy.fixture(localGpxlFile, null).as('gpxFixture')
+            cy.fixture(localGpxlFile, undefined).as('gpxFixture')
             cy.get('[data-cy="file-input"]').selectFile('@gpxFixture', {
                 force: true,
             })
@@ -695,7 +695,7 @@ describe('Testing print', () => {
                 cy.goToMapView({
                     queryParams: {
                         layers: layerObjects
-                            .map((object: ExternalWMTSLayer) => transformLayerIntoUrlString(object, undefined, null))
+                            .map((object: ExternalWMTSLayer) => transformLayerIntoUrlString(object, undefined, undefined))
                             .join(';'),
                     },
                     withHash: true,
@@ -755,6 +755,9 @@ describe('Testing print', () => {
                     ]
 
                     for (let i = 0; i < layers.length; i++) {
+                        assertDefined(expectedLayers)
+                        assertDefined(expectedLayers[i])
+                        assertDefined(expectedLayers[i])
                         expect(layers[i]['layers']).to.deep.equal(expectedLayers[i]['layers'])
                         expect(layers[i]['type']).to.equals(expectedLayers[i]['type'])
                         expect(layers[i]['baseURL']).to.equals(expectedLayers[i]['baseURL'])
@@ -774,12 +777,12 @@ describe('Testing print', () => {
         it.only('prints external WMTS correctly', () => {
             cy.getExternalWmtsMockConfig().then((layerObjects: ExternalWMTSLayer[]) => {
                 layerObjects.forEach((layer: ExternalWMTSLayer) => {
-                    layer.visible = true
+                    layer.isVisible = true
                 })
                 cy.goToMapView({
                     queryParams: {
                         layers: layerObjects
-                            .map((object: ExternalWMTSLayer) => transformLayerIntoUrlString(object, undefined, null))
+                            .map((object: ExternalWMTSLayer) => transformLayerIntoUrlString(object, undefined, undefined))
                             .join(';'),
                     },
                     withHash: true,

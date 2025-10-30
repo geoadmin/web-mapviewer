@@ -4,9 +4,9 @@ import { moveTimeSlider } from '@/../tests/cypress/tests-e2e/utils'
 import useUIStore from '@/store/modules/ui'
 
 type CompareConfig = {
-    ratio?: number | null
+    ratio?: number | undefined
     hasVisibleLayers?: boolean
-    visibleLayerName?: string | null
+    visibleLayerName?: string | undefined
 }
 
 describe('Open Time and Compare Slider together', () => {
@@ -17,7 +17,7 @@ describe('Open Time and Compare Slider together', () => {
         const testLayer2 = 'test-2.wms.layer'
         const initialRatio = 0.5
 
-        function checkTimeSlider(active: boolean, selectedYear: number | null = null) {
+        function checkTimeSlider(active: boolean, selectedYear: number | undefined = undefined) {
             // Check the store
             const uiStore = useUIStore()
             cy.wrap(uiStore.isTimeSliderActive).should('be.equal', active)
@@ -37,7 +37,7 @@ describe('Open Time and Compare Slider together', () => {
         }
 
         function checkCompareSlider(active: boolean, config: CompareConfig = {}) {
-            const { ratio = null, hasVisibleLayers = true, visibleLayerName = null } = config
+            const { ratio = undefined, hasVisibleLayers = true, visibleLayerName = undefined } = config
             // Check the store
             const uiStore = useUIStore()
             cy.wrap(uiStore.isCompareSliderActive).should('be.equal', active)
@@ -45,7 +45,7 @@ describe('Open Time and Compare Slider together', () => {
             // Checking the UI
             if (active && hasVisibleLayers) {
                 if (!ratio) {
-                    cy.wrap(uiStore.compareRatio).should('be.null')
+                    cy.wrap(uiStore.compareRatio).should('be.undefined')
                 } else {
                     cy.wrap(uiStore.compareRatio).should('be.equal', ratio)
                 }

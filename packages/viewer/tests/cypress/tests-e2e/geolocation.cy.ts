@@ -140,7 +140,7 @@ describe('Geolocation cypress', () => {
                 checkStorePosition('state.position.center', geoX, geoY)
             })
             it('access from outside Switzerland shows an error message', () => {
-                // null island
+                // undefined island
                 cy.goToMapView({
                     withHash: true,
                     geolocationMockupOptions: { latitude: 0, longitude: 0 },

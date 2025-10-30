@@ -2,8 +2,6 @@
 
 import { assertDefined } from "support/utils"
 
-import type AbstractLayer from "@/api/layers/AbstractLayer.class"
-
 import useLayersStore from '@/store/modules/layers'
 import useTopicsStore from '@/store/modules/topics'
 
@@ -70,7 +68,7 @@ describe('Topics', () => {
         defaultBackground: string
         groupId: number
         id: string
-        plConfig: string | null
+        plConfig: string | undefined
         selectedLayers: string[]
     }
 
@@ -153,7 +151,7 @@ describe('Topics', () => {
 
             // we expect background layer to have switched to the one of the topic
             const bgLayer = layersStore3.currentBackgroundLayer
-            expect(bgLayer).to.not.be.null
+            expect(bgLayer).to.not.be.undefined
             expect(bgLayer?.id).to.eq(topicStandard.defaultBackground)
 
             // it must show the topic tree in the menu when a topic is selected (that is not the default topic)
@@ -222,7 +220,7 @@ describe('Topics', () => {
             })
 
             const bgLayer2 = layersStore6.currentBackgroundLayer
-            expect(bgLayer2).to.be.null // void layer
+            expect(bgLayer2).to.be.undefined // void layer
         })
 
         //---------------------------------------------------------------------
@@ -293,7 +291,7 @@ describe('Topics', () => {
         cy.get('[data-cy="catalogue-tree-item-name-test.wms.layer"]').scrollIntoView()
         cy.get('[data-cy="catalogue-tree-item-name-test.wms.layer"]').should('be.visible')
         const layersStore10 = useLayersStore()
-        expect(layersStore10.previewLayer).to.be.null
+        expect(layersStore10.previewLayer).to.be.undefined
         cy.get('[data-cy="catalogue-tree-item-name-test.wms.layer"]').trigger('mouseenter')
         const layersStore11 = useLayersStore()
         const previewLayer = layersStore11.previewLayer

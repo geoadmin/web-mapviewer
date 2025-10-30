@@ -120,7 +120,7 @@ function getFixturesAndIntercepts(nbLayers: number, nbSelectedLayers: number) {
                             defaultBackground: 'test.background.layer2',
                             groupId: 1,
                             id: topicId,
-                            plConfig: null,
+                            plConfig: undefined,
                             selectedLayers: [],
                         },
                     ],

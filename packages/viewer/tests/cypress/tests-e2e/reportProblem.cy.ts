@@ -6,6 +6,7 @@ import useLayersStore from '@/store/modules/layers'
 
 import { assertDefined, isMobile } from '../support/utils'
 import { interceptFeedback, parseFormData } from './feedbackTestUtils'
+import type { Interception } from 'cypress/types/net-stubbing'
 
 const text =
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
@@ -156,7 +157,7 @@ describe('Testing the report problem form', () => {
             'it shows the user the feedback was well received with a checkmark in the submit button'
         )
         cy.get('[data-cy="submit-button"] [data-cy="submit-pending-icon"]').should('be.visible')
-        cy.wait('@longAnswer').then((interception) => {
+        cy.wait('@longAnswer').then((interception: Interception) => {
             const params = [
                 { name: 'subject', contains: `[Problem Report]` },
                 { name: 'feedback', contains: text },
@@ -191,7 +192,7 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="dropdown-item-other"]').should('be.visible').click()
         cy.get('@textArea').type(text)
         const localKmlFile = 'import-tool/external-kml-file.kml'
-        cy.fixture(localKmlFile, null).as('kmlFixture')
+        cy.fixture(localKmlFile, undefined).as('kmlFixture')
         cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
             force: true,
         })

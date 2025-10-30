@@ -16,9 +16,9 @@ interface PositionStore {
     hasOrientation: boolean
     center: number[] | undefined
     projection: CoordinateSystem
-    crossHair: typeof CrossHairs | null
-    crossHairPosition: number[] | null
-    camera: CameraPosition | null
+    crossHair: typeof CrossHairs | undefined
+    crossHairPosition: number[] | undefined
+    camera: CameraPosition | undefined
 }
 interface CameraPosition {
     x: number
@@ -44,7 +44,7 @@ describe('Testing the crosshair URL param', () => {
      *   is going to trigger. This function will then wait for this amount of dispatch in the store
      *   before letting the test go further
      */
-    function changeUrlParam(urlParamName: string, urlParamValue: string | null, amountOfExpectedStoreDispatches = 1): void {
+    function changeUrlParam(urlParamName: string, urlParamValue: string | undefined, amountOfExpectedStoreDispatches = 1): void {
         cy.window()
             .its('vueRouterHistory')
             .then((vueRouterHistory: RouterHistory) => {
@@ -92,8 +92,8 @@ describe('Testing the crosshair URL param', () => {
         it('does not add the crosshair by default', () => {
             cy.goToMapView()
             const positionStore = usePositionStore()
-            expect(positionStore.crossHair).to.be.null
-            expect(positionStore.crossHairPosition).to.be.null
+            expect(positionStore.crossHair).to.be.undefined
+            expect(positionStore.crossHairPosition).to.be.undefined
         })
         it('adds the crosshair at the center of the map if only the crosshair param is given', () => {
             cy.goToMapView({ queryParams: { crosshair: CrossHairs.Point } })
@@ -137,14 +137,14 @@ describe('Testing the crosshair URL param', () => {
             expect(positionStore.crossHair).to.eq(CrossHairs.Cross)
             expect(positionStore.crossHairPosition).to.eql(newCrossHairPosition)
         })
-        it('removes the crosshair if the URL param is removed (or set to null)', () => {
+        it('removes the crosshair if the URL param is removed (or set to undefined)', () => {
             cy.goToMapView({ queryParams: { crosshair: CrossHairs.Circle } })
             const positionStore = usePositionStore()
             expect(positionStore.crossHair).to.eq(CrossHairs.Circle)
             expect(positionStore.crossHairPosition).to.eql(positionStore.center)
-            changeUrlParam('crosshair', null, 2)
-            expect(positionStore.crossHair).to.be.null
-            expect(positionStore.crossHairPosition).to.be.null
+            changeUrlParam('crosshair', undefined, 2)
+            expect(positionStore.crossHair).to.be.undefined
+            expect(positionStore.crossHairPosition).to.be.undefined
         })
     })
 })

@@ -56,7 +56,7 @@ describe('Testing the buttons of the right toolbox', () => {
 
         positionStore.setRotation(
             facingWest + 2 * Math.PI,
-            'e2e-test',
+            { name: 'e2e-test' },
         )
         checkMapRotationAndButton(facingWest)
 

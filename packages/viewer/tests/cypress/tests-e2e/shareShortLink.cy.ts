@@ -31,7 +31,7 @@ describe('Testing the share menu', () => {
     context('Short link generation', () => {
         it('Does not generate a short link at startup', () => {
             const shareStore = useShareStore()
-            expect(shareStore.shortLink).to.eq(null)
+            expect(shareStore.shortLink).to.eq(undefined)
         })
         it('Creates a short linked version of the URL the first time the menu section is opened', () => {
             cy.get('[data-cy="menu-share-section"]').click()
@@ -48,7 +48,7 @@ describe('Testing the share menu', () => {
             cy.clickOnLanguage('fr')
             // checking that the shortLink value doesn't exist anymore
             const shareStore3 = useShareStore()
-            expect(shareStore3.shortLink).to.eq(null)
+            expect(shareStore3.shortLink).to.eq(undefined)
             // opening the general menu again
             cy.get('[data-cy="menu-button"]').click()
             // checking that the share menu has been closed
@@ -64,7 +64,7 @@ describe('Testing the share menu', () => {
             cy.get('[data-cy="import-file-local-btn"]:visible').click()
             cy.get('[data-cy="import-file-local-content"]').should('be.visible')
             // Load the local KML file
-            cy.fixture(localKmlFile, null).as('localKmlFileFixture')
+            cy.fixture(localKmlFile, undefined).as('localKmlFileFixture')
             cy.get('[data-cy="file-input"]').selectFile('@localKmlFileFixture', {
                 force: true,
             })
@@ -333,7 +333,7 @@ describe('Testing the share menu', () => {
                 //----------------------------------------------------------------------
                 // Attach a local KML file
                 cy.log('Test add a local KML file')
-                cy.fixture(localKmlFile, null).as('kmlFixture')
+                cy.fixture(localKmlFile, undefined).as('kmlFixture')
                 cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
                     force: true,
                 })

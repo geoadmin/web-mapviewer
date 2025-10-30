@@ -95,7 +95,7 @@ describe('The Import File Tool', () => {
         expect(layersStore2.activeLayers).to.be.empty
         cy.openMenuIfMobile()
 
-        cy.fixture(bigKmlFileFixture, null).as('kmlFixture')
+        cy.fixture(bigKmlFileFixture, undefined).as('kmlFixture')
         cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
             force: true,
         })
@@ -149,7 +149,7 @@ describe('The Import File Tool', () => {
         expect(layersStore3.activeLayers).to.be.empty
         cy.openMenuIfMobile()
 
-        cy.fixture(iframeTestFileFixture, null).as('kmlFixture')
+        cy.fixture(iframeTestFileFixture, undefined).as('kmlFixture')
         cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
             force: true,
         })
@@ -250,7 +250,7 @@ describe('The Import File Tool', () => {
         //----------------------------------------------------------------------
         // Attach a local KML file
         cy.log('Test add a local KML file')
-        cy.fixture(localKmlFile, null).as('kmlFixture')
+        cy.fixture(localKmlFile, undefined).as('kmlFixture')
         cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
             force: true,
         })
@@ -280,7 +280,7 @@ describe('The Import File Tool', () => {
         cy.log('Test add another local KML file - feature being in bound and outbound')
         const lineAccrossEuFileName = 'line-accross-eu.kml'
         const lineAccrossEuFile = `import-tool/${lineAccrossEuFileName}`
-        cy.fixture(lineAccrossEuFile, null).as('lineAccrossEuFixture')
+        cy.fixture(lineAccrossEuFile, undefined).as('lineAccrossEuFixture')
         cy.get('[data-cy="file-input"]').selectFile('@lineAccrossEuFixture', {
             force: true,
         })
@@ -290,7 +290,7 @@ describe('The Import File Tool', () => {
         // Attach a local KML file with a broken feature inside
         cy.log('Test add another local KML file - feature being in bound and outbound')
         const kmlFeatureError = 'import-tool/kml_feature_error.kml'
-        cy.fixture(kmlFeatureError, null).as('kmlFeatureError')
+        cy.fixture(kmlFeatureError, undefined).as('kmlFeatureError')
         cy.get('[data-cy="file-input"]').selectFile('@kmlFeatureError', {
             force: true,
         })
@@ -940,7 +940,7 @@ describe('The Import File Tool', () => {
         //----------------------------------------------------------------------
         // Attach a local KML file that is out of bounds
         cy.log('Test add a local KML file that is out of bounds')
-        cy.fixture(outOfBoundKMLFile, null).as('outOfBoundKMLFileFixture')
+        cy.fixture(outOfBoundKMLFile, undefined).as('outOfBoundKMLFileFixture')
         cy.get('[data-cy="file-input"]').selectFile('@outOfBoundKMLFileFixture', {
             force: true,
         })
@@ -956,7 +956,7 @@ describe('The Import File Tool', () => {
         //----------------------------------------------------------------------
         // Attach a local empty KML file
         cy.log('Test add a local invalid KML file')
-        cy.fixture(emptyKMLFile, null).as('emptyKMLFileFixture')
+        cy.fixture(emptyKMLFile, undefined).as('emptyKMLFileFixture')
         cy.get('[data-cy="file-input"]').selectFile('@emptyKMLFileFixture', {
             force: true,
         })

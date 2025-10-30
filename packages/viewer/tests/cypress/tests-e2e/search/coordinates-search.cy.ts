@@ -63,7 +63,7 @@ describe('Testing coordinates typing in search bar', () => {
         // checking that a balloon marker has been put on the coordinate location (that it is a highlighted location in the store)
         const mapStore = useMapStore()
         const feature = mapStore.pinnedLocation
-        expect(feature).to.not.be.null
+        expect(feature).to.not.be.undefined
         expect(feature).to.be.a('array').that.is.not.empty
         expect(feature?.[0]).to.be.approximately(expectedCenter[0], acceptableDelta)
         expect(feature?.[1]).to.be.approximately(expectedCenter[1], acceptableDelta)
@@ -96,7 +96,7 @@ describe('Testing coordinates typing in search bar', () => {
         expect(searchStore.query).to.be.empty
         // checking that the dropped pin has been removed
         const mapStore2 = useMapStore()
-        expect(mapStore2.pinnedLocation).to.be.null
+        expect(mapStore2.pinnedLocation).to.be.undefined
     })
 
     it('Paste EPSG:4326 (WGS84) coordinate', () => {
