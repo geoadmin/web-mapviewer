@@ -13,6 +13,9 @@ import { EditableFeatureTypes } from '@/api/features.api'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { DEFAULT_ICON_URL_PARAMS } from '@/config/icons.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
+import useDrawingStore from '@/store/modules/drawing'
+import useFeaturesStore from '@/store/modules/features'
+import useLayersStore from '@/store/modules/layers'
 import { allStylingColors, allStylingSizes, BLACK, generateRGBFillString, GREEN, LARGE, RED, SMALL } from '@/utils/featureStyleUtils'
 import { EMPTY_KML_DATA, LEGACY_ICON_XML_SCALE_FACTOR } from '@/utils/kmlUtils'
 
@@ -50,7 +53,8 @@ describe('Drawing module tests', () => {
                 .should((request) =>
                     void checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [new RegExp(`<name>${title}</name>`)])
                 )
-            cy.readStoreValue('getters.selectedFeatures[0].title').should('eq', title)
+            const featuresStore = useFeaturesStore()
+            cy.wrap(featuresStore.selectedFeatures[0]?.title).should('eq', title)
         }
         function readCoordinateClipboard(name: string, coordinate: string): void {
             cy.log(name)
@@ -77,7 +81,8 @@ describe('Drawing module tests', () => {
                 description
             )
             cy.wait('@update-kml').then(() => {
-                cy.readStoreValue('getters.selectedFeatures[0].description').should(
+                const featuresStore = useFeaturesStore()
+                cy.wrap(featuresStore.selectedFeatures[0]?.description).should(
                     'eq',
                     description
                 )
@@ -226,14 +231,16 @@ describe('Drawing module tests', () => {
                 cy.log('Test text placement and offset')
                 cy.get('[data-cy="drawing-style-text-button"]').click()
                 cy.get('[data-cy="drawing-style-placement-selector-top-left"]').click()
-                cy.readStoreValue('getters.selectedFeatures[0].textPlacement').should(
+                const featuresStore = useFeaturesStore()
+                cy.wrap(featuresStore.selectedFeatures[0]?.textPlacement).should(
                     'eq',
                     'top-left'
                 )
-                cy.readStoreValue('getters.selectedFeatures[0].textOffset').then((offset) => {
+                const offset = featuresStore.selectedFeatures[0]?.textOffset
+                if (offset) {
                     cy.wrap(offset[0]).should('be.lessThan', 0)
                     cy.wrap(offset[1]).should('be.lessThan', 0)
-                })
+                }
                 cy.log('Test if both values are floats')
                 waitForKmlUpdate(
                     `<Data name="textOffset"><value>(-?\\d+\\.\\d+),(-?\\d+\\.\\d+)</value></Data>`
@@ -254,7 +261,8 @@ describe('Drawing module tests', () => {
                     description
                 )
                 waitForKmlUpdate(`<description>${description}</description>`)
-                cy.readStoreValue('getters.selectedFeatures[0].description').should(
+                const featuresStore2 = useFeaturesStore()
+                cy.wrap(featuresStore2.selectedFeatures[0]?.description).should(
                     'eq',
                     description
                 )
@@ -954,18 +962,17 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-share-admin-link"]').click()
             cy.get('[data-cy="drawing-share-admin-close"]').click()
 
-            cy.readStoreValue('state.layers.activeLayers').should((layers) => {
-                expect(layers).to.be.an('Array').lengthOf(1)
-                const [drawingLayer] = layers
-                expect(drawingLayer.type).to.eq(LayerType.KML)
-                expect(drawingLayer.visible).to.be.true
-            })
+            const layersStore = useLayersStore()
+            const layers1 = layersStore.activeLayers
+            expect(layers1).to.be.an('Array').lengthOf(1)
+            const [drawingLayer] = layers1
+            expect(drawingLayer.type).to.eq(LayerType.KML)
+            expect(drawingLayer.visible).to.be.true
 
             cy.get(`[data-cy^="button-remove-layer-"]`).click()
 
-            cy.readStoreValue('state.layers.activeLayers').should((layers) => {
-                expect(layers).to.be.an('Array').and.to.have.length(0)
-            })
+            const layers2 = layersStore.activeLayers
+            expect(layers2).to.be.an('Array').and.to.have.length(0)
 
             cy.get(`[data-cy^="button-remove-layer-"]`).should('not.exist')
 
@@ -1024,10 +1031,10 @@ describe('Drawing module tests', () => {
                 )
                     .should('be.visible')
                     .contains('Drawing')
-                cy.readStoreValue('getters.activeKmlLayer').should((activeKmlLayer) => {
-                    expect(activeKmlLayer).to.haveOwnProperty('fileId')
-                    expect(activeKmlLayer.fileId).to.eq(kmlId)
-                })
+                const layersStore2 = useLayersStore()
+                const activeKmlLayer = layersStore2.activeKmlLayer
+                expect(activeKmlLayer).to.haveOwnProperty('fileId')
+                expect(activeKmlLayer?.fileId).to.eq(kmlId)
 
                 cy.log('Open again the drawing mode and edit the kml')
                 // re-opening the drawing module
@@ -1096,10 +1103,12 @@ describe('Drawing module tests', () => {
             cy.log(
                 'the app must open the drawing module at startup whenever an adminId is found in the URL'
             )
-            cy.readStoreValue('state.drawing.drawingOverlay.show').should('be.true')
+            const drawingStore = useDrawingStore()
+            cy.wrap(drawingStore.drawingOverlay.show).should('be.true')
 
             cy.log('checking that the KML was correctly loaded')
-            cy.readStoreValue('getters.selectedFeatures').should('have.length', 0)
+            const featuresStore3 = useFeaturesStore()
+            cy.wrap(featuresStore3.selectedFeatures.length).should('eq', 0)
             cy.waitUntil(() =>
                 cy
                     .window()
@@ -1108,7 +1117,7 @@ describe('Drawing module tests', () => {
             )
             cy.log('clicking on the single feature of the fixture')
             cy.get('[data-cy="ol-map"]').click('center')
-            cy.readStoreValue('getters.selectedFeatures').should('have.length', 1)
+            cy.wrap(featuresStore3.selectedFeatures.length).should('eq', 1)
             cy.window()
                 .its('drawingLayer')
                 .then((layer) => layer.getSource().getFeatures())
@@ -1196,10 +1205,12 @@ describe('Drawing module tests', () => {
             cy.log(
                 'the app must open the drawing module at startup whenever an adminId is found in the URL'
             )
-            cy.readStoreValue('state.drawing.drawingOverlay.show').should('be.true')
+            const drawingStore2 = useDrawingStore()
+            cy.wrap(drawingStore2.drawingOverlay.show).should('be.true')
 
             cy.log('checking that the KML was correctly loaded')
-            cy.readStoreValue('getters.selectedFeatures').should('have.length', 0)
+            const featuresStore4 = useFeaturesStore()
+            cy.wrap(featuresStore4.selectedFeatures.length).should('eq', 0)
             cy.window()
                 .its('drawingLayer')
                 .then((layer) => layer.getSource().getFeatures())
@@ -1208,7 +1219,7 @@ describe('Drawing module tests', () => {
             cy.log('clicking on the single feature of the fixture')
             cy.log('Test clicking on the square feature in center should select it')
             cy.get('[data-cy="ol-map"]').click('center')
-            cy.readStoreValue('getters.selectedFeatures').should('have.length', 1)
+            cy.wrap(featuresStore4.selectedFeatures.length).should('eq', 1)
             cy.window()
                 .its('drawingLayer')
                 .then((layer) => layer.getSource().getFeatures())

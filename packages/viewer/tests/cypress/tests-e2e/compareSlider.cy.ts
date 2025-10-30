@@ -1,20 +1,25 @@
+import type { Layer } from '@swissgeo/layers'
+
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 import { assertDefined } from 'support/utils'
 
+import useLayersStore from '@/store/modules/layers'
 /// <reference types="cypress" />
-import type AbstractLayer from '@/api/layers/AbstractLayer.class'
+import useUIStore from '@/store/modules/ui'
 
 describe('Testing of the compare slider', () => {
-    function expectCompareRatioToBe(value: number | null) {
+    function expectCompareRatioToBe(value: number | undefined) {
+        const uiStore = useUIStore()
         if (!value) {
-            cy.readStoreValue('state.ui.compareRatio').should('be.null')
+            cy.wrap(uiStore.compareRatio).should('be.undefined')
         } else {
-            cy.readStoreValue('state.ui.compareRatio').should('be.equal', value)
+            cy.wrap(uiStore.compareRatio).should('be.equal', value)
         }
     }
     //active is the boolean
     function expectCompareSliderToBeActive(active: boolean) {
-        cy.readStoreValue('state.ui.isCompareSliderActive').should('be.equal', active)
+        const uiStore = useUIStore()
+        cy.wrap(uiStore.isCompareSliderActive).should('be.equal', active)
     }
     context('Comportment of compare slider at startup', () => {
         context('Starting the app with different parameters', () => {
@@ -27,7 +32,7 @@ describe('Testing of the compare slider', () => {
                     withHash: true,
                 })
 
-                expectCompareRatioToBe(null)
+                expectCompareRatioToBe(undefined)
                 expectCompareSliderToBeActive(false)
                 cy.get('[data-cy="compareSlider"]').should('not.exist')
             })
@@ -40,7 +45,7 @@ describe('Testing of the compare slider', () => {
                     },
                     withHash: true,
                 })
-                expectCompareRatioToBe(null)
+                expectCompareRatioToBe(undefined)
                 expectCompareSliderToBeActive(false)
 
                 cy.get('[data-cy="compareSlider"]').should('not.exist')
@@ -52,7 +57,7 @@ describe('Testing of the compare slider', () => {
                     },
                     withHash: true,
                 })
-                expectCompareRatioToBe(null)
+                expectCompareRatioToBe(undefined)
                 expectCompareSliderToBeActive(false)
 
                 cy.get('[data-cy="compareSlider"]').should('not.exist')
@@ -64,7 +69,7 @@ describe('Testing of the compare slider', () => {
                     },
                     withHash: true,
                 })
-                expectCompareRatioToBe(null)
+                expectCompareRatioToBe(undefined)
                 expectCompareSliderToBeActive(false)
 
                 cy.get('[data-cy="compareSlider"]').should('not.exist')
@@ -97,9 +102,9 @@ describe('Testing of the compare slider', () => {
                 })
                 // initial slider position is width * 0.3 -20
                 cy.get('[data-cy="compareSlider"]').then((slider) => {
-                    cy.readStoreValue('state.ui.width').then((width) => {
-                        cy.wrap(slider.position()['left']).should('eq', width * 0.3 - 20)
-                    })
+                    const uiStore = useUIStore()
+                    const width = uiStore.width
+                    cy.wrap(slider.position()['left']).should('eq', width * 0.3 - 20)
                 })
                 expectCompareRatioToBe(0.3)
                 expectCompareSliderToBeActive(true)
@@ -118,15 +123,13 @@ describe('Testing of the compare slider', () => {
                     cy.wrap(slider.position()['left']).should('be.gte', -6.0)
                 })
 
-                cy.readStoreValue('state.ui.width').then((width) => {
-                    moveSlider(width - 1)
-                })
+                const uiStore = useUIStore()
+                moveSlider(uiStore.width - 1)
 
                 cy.get('[data-cy="compareSlider"]').then((slider) => {
-                    cy.readStoreValue('state.ui.width').then((width) => {
-                        cy.wrap(slider.position()['left']).should('be.lte', width - 34.0)
-                        cy.wrap(slider.position()['left']).should('be.closeTo', width - 34.0, 0.2)
-                    })
+                    const width = uiStore.width
+                    cy.wrap(slider.position()['left']).should('be.lte', width - 34.0)
+                    cy.wrap(slider.position()['left']).should('be.closeTo', width - 34.0, 0.2)
                 })
             })
         })
@@ -215,9 +218,8 @@ describe('Testing of the compare slider', () => {
                 checkIfFeaturesAreAt(feature_1_coordinates[0], feature_1_coordinates[1], false)
                 checkIfFeaturesAreAt(feature_2_coordinates[0], feature_2_coordinates[1], true)
 
-                cy.readStoreValue('state.ui.width').then((width: number) => {
-                    moveSlider(width - 10)
-                })
+                const uiStore2 = useUIStore()
+                moveSlider(uiStore2.width - 10)
 
                 checkIfFeaturesAreAt(feature_1_coordinates[0], feature_1_coordinates[1], true)
                 checkIfFeaturesAreAt(feature_2_coordinates[0], feature_2_coordinates[1], true)
@@ -261,15 +263,12 @@ describe('Testing of the compare slider', () => {
                     cy.openMenuIfMobile()
                     cy.get('[data-cy="menu-tray-tool-section"]').click()
                     cy.get('[data-cy="menu-advanced-tools-compare"]').click()
-                    cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                        expect(compareRatio).to.eq(0.5)
-                    })
+                    const uiStore3 = useUIStore()
+                    expect(uiStore3.compareRatio).to.eq(0.5)
 
                     // PB-419 : A new user feedback is displayed, and the slider is only active
                     // if there is at least one visible layer
-                    cy.readStoreValue('state.ui.isCompareSliderActive').then((isSliderActive) => {
-                        expect(isSliderActive).to.eq(false)
-                    })
+                    expect(uiStore3.isCompareSliderActive).to.eq(false)
                     cy.get('[data-cy="compareSlider"]').should('not.exist')
                 })
                 it('stays "active" when we remove the last layer', () => {
@@ -282,9 +281,11 @@ describe('Testing of the compare slider', () => {
                         withHash: true,
                     })
 
-                    cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
-                    cy.readStoreValue('state.ui.compareRatio').should('eq', compareRatioValue)
-                    cy.readStoreValue('state.ui.isCompareSliderActive').should('be.true')
+                    const layersStore = useLayersStore()
+                    const uiStore4 = useUIStore()
+                    expect(layersStore.activeLayers).to.have.length(1)
+                    cy.wrap(uiStore4.compareRatio).should('eq', compareRatioValue)
+                    cy.wrap(uiStore4.isCompareSliderActive).should('be.true')
 
                     cy.get('[data-cy="compareSlider"]').should('be.visible')
 
@@ -294,9 +295,11 @@ describe('Testing of the compare slider', () => {
                         .click()
                     cy.closeMenuIfMobile()
 
-                    cy.readStoreValue('state.layers.activeLayers').should('be.empty')
-                    cy.readStoreValue('state.ui.compareRatio').should('eq', compareRatioValue)
-                    cy.readStoreValue('state.ui.isCompareSliderActive').should('be.true')
+                    const layersStore2 = useLayersStore()
+                    const uiStore5 = useUIStore()
+                    cy.wrap(layersStore2.activeLayers).should('be.empty')
+                    cy.wrap(uiStore5.compareRatio).should('eq', compareRatioValue)
+                    cy.wrap(uiStore5.isCompareSliderActive).should('be.true')
 
                     cy.get('[data-cy="compareSlider"]').should('not.exist')
                 })
@@ -313,28 +316,19 @@ describe('Testing of the compare slider', () => {
                     cy.openMenuIfMobile()
                     cy.get('[data-cy="menu-tray-tool-section"]').click()
                     cy.get('[data-cy="menu-advanced-tools-compare"]').should('be.visible')
-                    cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                        expect(compareRatio).to.eq(0.3)
-                    })
+                    const uiStore6 = useUIStore()
+                    expect(uiStore6.compareRatio).to.eq(0.3)
 
-                    cy.readStoreValue('state.ui.isCompareSliderActive').then((isSliderActive) => {
-                        expect(isSliderActive).to.eq(true)
-                    })
+                    expect(uiStore6.isCompareSliderActive).to.eq(true)
 
                     cy.get('[data-cy="menu-advanced-tools-compare"]').click()
-                    cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                        expect(compareRatio).to.eq(0.3)
-                    })
+                    expect(uiStore6.compareRatio).to.eq(0.3)
 
-                    cy.readStoreValue('state.ui.isCompareSliderActive').then((isSliderActive) => {
-                        expect(isSliderActive).to.eq(false)
-                    })
+                    expect(uiStore6.isCompareSliderActive).to.eq(false)
                     cy.get('[data-cy="compareSlider"]').should('not.exist')
 
                     cy.get('[data-cy="menu-advanced-tools-compare"]').click()
-                    cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                        expect(compareRatio).to.eq(0.3)
-                    })
+                    expect(uiStore6.compareRatio).to.eq(0.3)
                     cy.get('[data-cy="compareSlider"]').should('be.visible')
                 })
             }
@@ -353,16 +347,17 @@ describe('Testing of the compare slider', () => {
                 },
                 withHash: true,
             })
-            cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
-                expect(visibleLayers).to.be.an('Array')
-                expect(visibleLayers.length).to.deep.equal(2)
-                visibleLayers.forEach((_: AbstractLayer, index: number) => {
-                    expect(visibleLayers[index]).to.be.an('Object')
-                    expect(visibleLayers[index].uuid).to.not.be.undefined
-                })
-                const [uuid1, uuid2] = visibleLayers.map((layer: AbstractLayer) => layer.uuid)
-                expect(uuid1).to.not.equal(uuid2)
+            const layersStore3 = useLayersStore()
+            const visibleLayers = layersStore3.visibleLayers
+            expect(visibleLayers).to.be.an('Array')
+            expect(visibleLayers.length).to.deep.equal(2)
+            visibleLayers.forEach((_: Layer, index: number) => {
+                expect(visibleLayers[index]).to.be.an('Object')
+                assertDefined(visibleLayers[index])
+                expect(visibleLayers[index].uuid).to.not.be.undefined
             })
+            const [uuid1, uuid2] = visibleLayers.map((layer: Layer) => layer.uuid)
+            expect(uuid1).to.not.equal(uuid2)
         })
     })
 })
@@ -381,9 +376,8 @@ describe('The compare Slider and the menu elements should not be available in 3d
             })
             cy.get('[data-cy="compareSlider"]').should('not.exist')
 
-            cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                expect(compareRatio).to.eq(0.4)
-            })
+            const uiStore7 = useUIStore()
+            expect(uiStore7.compareRatio).to.eq(0.4)
         })
     })
     context('Compare menu component with 3d', () => {

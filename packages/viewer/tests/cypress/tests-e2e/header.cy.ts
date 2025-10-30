@@ -1,6 +1,10 @@
 /// <reference types="cypress" />
 
 import { BREAKPOINT_PHONE_WIDTH, BREAKPOINT_TABLET } from '@/config/responsive.config'
+import useI18nStore from '@/store/modules/i18n'
+import useLayersStore from '@/store/modules/layers'
+import useTopicsStore from '@/store/modules/topics'
+import useUIStore from '@/store/modules/ui'
 
 const backdropSelector = '[data-cy="black-backdrop"]'
 const menuButtonSelector = '[data-cy="menu-button"]'
@@ -12,7 +16,8 @@ describe('Test functions for the header / search bar', () => {
         cy.goToMapView()
     })
     const checkMenuValue = (value: boolean) => {
-        cy.readStoreValue('getters.isMenuShown').should('eq', value)
+        const uiStore = useUIStore()
+        expect(uiStore.isMenuShown).to.eq(value)
     }
 
     const width = Cypress.config('viewportWidth')
@@ -78,17 +83,14 @@ describe('Test functions for the header / search bar', () => {
             cy.waitMapIsReady()
         }
         const checkLangAndTopic = (expectedLang: string = 'en', expectedTopicId: string = 'ech') => {
-            cy.readStoreValue('state.i18n.lang').should('eq', expectedLang)
-            cy.readStoreValue('state.topics.current').then((currentTopic) => {
-                expect(currentTopic).to.eq(expectedTopicId)
-            })
+            const i18nStore = useI18nStore()
+            expect(i18nStore.lang).to.eq(expectedLang)
+            const topicsStore = useTopicsStore()
+            expect(topicsStore.current).to.eq(expectedTopicId)
         }
         const checkCurrentBackgroundLayer = (expectedLayerId: string) => {
-            cy.readStoreValue('state.layers.currentBackgroundLayerId').then(
-                (currentBackgroundLayerId) => {
-                    expect(currentBackgroundLayerId).to.eq(expectedLayerId)
-                }
-            )
+            const layersStore = useLayersStore()
+            expect(layersStore.currentBackgroundLayerId).to.eq(expectedLayerId)
         }
         const selectTopicStandardAndAddLayerFromTopicTree = () => {
             if (width < BREAKPOINT_TABLET) {
@@ -100,7 +102,8 @@ describe('Test functions for the header / search bar', () => {
             cy.get('[data-cy="catalogue-tree-item-title-2"]').click()
             cy.get('[data-cy="catalogue-tree-item-title-5"]').click()
             cy.get('[data-cy="catalogue-tree-item-title-test.wms.layer"]').click()
-            cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+            const layersStore2 = useLayersStore()
+            expect(layersStore2.activeLayers).to.have.length(1)
         }
 
         it('Reload the app with current topic/lang when clicking on the swiss flag', () => {
@@ -134,7 +137,8 @@ describe('Test functions for the header / search bar', () => {
             // we just selected (so only the topic and lang must be carried over)
             clickOnLogo()
             checkLangAndTopic('en', 'test-topic-standard')
-            cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
+            const layersStore3 = useLayersStore()
+            expect(layersStore3.activeLayers).to.have.length(0)
 
             // Check if the background layer is changed, when reset the app, the default background layer should be used
             // We go to different topic and change the background layer (that is different from the default one)
@@ -161,7 +165,8 @@ describe('Test functions for the header / search bar', () => {
                 selectTopicStandardAndAddLayerFromTopicTree()
                 clickOnConfederationText()
                 checkLangAndTopic('en', 'test-topic-standard')
-                cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
+                const layersStore4 = useLayersStore()
+                expect(layersStore4.activeLayers).to.have.length(0)
             })
             // This test is not working because clicking the news button crashes cypress
             // see https://github.com/cypress-io/cypress/issues/24084 for more information

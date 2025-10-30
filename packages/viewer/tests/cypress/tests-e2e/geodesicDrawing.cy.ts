@@ -1,6 +1,8 @@
 import { extentUtils, WEBMERCATOR } from '@swissgeo/coordinates'
 
 import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@/api/features.api'
+import useDrawingStore from '@/store/modules/drawing'
+import useUIStore from '@/store/modules/ui'
 import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 import { HALFSIZE_WEBMERCATOR } from '@/utils/geodesicManager'
 
@@ -8,8 +10,8 @@ const olSelector = '.ol-viewport'
 
 const acceptableDelta = 0.01
 
-function moveMapPos(newCenter) {
-    cy.writeStoreValue('setCenter', { center: newCenter, dispatcher: 'e2e-test' })
+function moveMapPos(newCenter: number[]): void {
+    cy.callStoreAction('position.setCenter', [newCenter, 'e2e-test'])
     /* In headed mode, the tests work perfectly fine even without these waits. In headless mode
     hovewer, they are needed, as else, the mouse click event following may not be registered
     correctly by the Draw and Modify interactions. The reasons for that are still unclear. */
@@ -18,7 +20,7 @@ function moveMapPos(newCenter) {
 
     cy.waitUntil(
         () =>
-            cy.window().then((win) => {
+            cy.window().then((win: any) => {
                 const mapCenter = win.map.getView().getCenter()
                 return mapCenter[0] === newCenter[0] && mapCenter[1] === newCenter[1]
             }),
@@ -32,14 +34,14 @@ function moveMapPos(newCenter) {
     )
 }
 
-function drawFeature(coords, type = EditableFeatureTypes.Measure) {
+function drawFeature(coords: number[][], type: EditableFeatureTypes = EditableFeatureTypes.Measure): void {
     cy.window()
         .its('drawingLayer')
-        .then((layer) => layer.getSource().getFeatures())
+        .then((layer: any) => layer.getSource().getFeatures())
         .should('have.length', 0)
     //Draw a feature
     cy.clickDrawingTool(type)
-    for (let coord of coords.slice(0, -1)) {
+    for (const coord of coords.slice(0, -1)) {
         moveMapPos(coord)
         cy.get(olSelector).click('center')
     }
@@ -47,20 +49,20 @@ function drawFeature(coords, type = EditableFeatureTypes.Measure) {
     cy.get(olSelector).dblclick('center')
 }
 
-function offsetX(coords, offset) {
+function offsetX(coords: number[] | number[][], offset: number): number[] | number[][] {
     if (Array.isArray(coords[0])) {
-        return coords.map((coord) => offsetX(coord, offset))
+        return (coords as number[][]).map((coord) => offsetX(coord, offset) as number[])
     }
-    return [coords[0] + offset, coords[1]]
+    return [(coords as number[])[0] + offset, (coords as number[])[1]]
 }
 
-function checkCoordsEqual(coords1, coords2) {
+function checkCoordsEqual(coords1: number[][], coords2: number[][]): void {
     expect(
         coords1,
         'Expected the feature to be made of ' + coords2.length + ' points.'
     ).to.have.length(coords2.length)
     const log = coords1.toString() + ' and ' + coords2.toString() + ' should be equal.'
-    coords1.forEach((coord, i) => {
+    coords1.forEach((coord: number[], i: number) => {
         expect(coord, 'A coord should contain exactly two values (x and y coord)').to.have.length(2)
         expect(coords2[i], 'A coord should contain exactly two values').to.have.length(2)
         expect(coord[0], 'X coords differ. ' + log).to.be.closeTo(coords2[i][0], acceptableDelta)
@@ -68,13 +70,13 @@ function checkCoordsEqual(coords1, coords2) {
     })
 }
 
-function checkFeatureSelected(featureCoords) {
-    cy.waitUntilState((_, getters) => getters.selectedFeatures.length === 1)
+function checkFeatureSelected(featureCoords: number[][]): void {
+    cy.waitUntilState((_, getters: any) => getters.selectedFeatures.length === 1)
     // May need to be reactivated if the headless tests still fail
     // cy.wait(500)
     cy.window()
         .its('drawingLayer')
-        .should((layer) => {
+        .should((layer: any) => {
             const features = layer.getSource().getFeatures()
             expect(
                 features,
@@ -83,17 +85,17 @@ function checkFeatureSelected(featureCoords) {
             const coords = extractOlFeatureCoordinates(features[0])
             checkCoordsEqual(coords, featureCoords)
         })
-    cy.readStoreValue('getters.selectedFeatures').then((features) => {
-        expect(features, 'Expected exactly one feature to be selected').to.have.length(1)
-        checkCoordsEqual(features[0].coordinates, featureCoords)
-    })
+    const drawingStore = useDrawingStore()
+    const features = drawingStore.selectedFeatures
+    expect(features, 'Expected exactly one feature to be selected').to.have.length(1)
+    checkCoordsEqual(features[0].coordinates, featureCoords)
 }
 
-function checkFeatureUnselected() {
-    cy.waitUntilState((_, getters) => getters.selectedFeatures.length === 0)
+function checkFeatureUnselected(): void {
+    cy.waitUntilState((_, getters: any) => getters.selectedFeatures.length === 0)
 }
 
-const generateTest = (drawOffset, selectOffset, x, locDesc, test) => {
+const generateTest = (drawOffset: number, selectOffset: number, x: number, locDesc: string, test: (drawOffset: number, selectOffset: number, x: number, type?: EditableFeatureTypes) => void): void => {
     let desc = `draw in [${-180 + drawOffset * 360}, ${180 + drawOffset * 360}], `
     desc += `select in [${-180 + selectOffset * 360}, ${180 + selectOffset * 360}] `
     desc += 'at ca. 47° '
@@ -102,7 +104,8 @@ const generateTest = (drawOffset, selectOffset, x, locDesc, test) => {
         test(drawOffset * 2 * HALFSIZE_WEBMERCATOR, selectOffset * 2 * HALFSIZE_WEBMERCATOR, x)
     })
 }
-const generateTestsInPacific = (testFunc) => {
+
+const generateTestsInPacific = (testFunc: (drawOffset: number, selectOffset: number, x: number, type?: EditableFeatureTypes) => void): void => {
     const atDateTimeLimit = HALFSIZE_WEBMERCATOR
     const pacificDesc7525 = '75% on the west, 25% on the east of the datetime limit'
     const pacificDesc2575 = '25% on the west, 75% on the east of the datetime limit'
@@ -125,13 +128,13 @@ describe.skip('Correct handling of geodesic geometries', () => {
     context(
         'Check that the modify and select interactions are aware that the linestring geometry is geodesic',
         () => {
-            const testFunc = (drawOffset, selectOffset, x, type = EditableFeatureTypes.Measure) => {
+            const testFunc = (drawOffset: number, selectOffset: number, x: number, type: EditableFeatureTypes = EditableFeatureTypes.Measure): void => {
                 const y = 5976445
                 const lineToDraw = [
                     [x, y],
                     [x + 1000000, y],
                 ]
-                drawFeature(offsetX(lineToDraw, drawOffset), type)
+                drawFeature(offsetX(lineToDraw, drawOffset) as number[][], type)
                 /* If x + 1'000'000 crossed the 180° meridian, we want to normalize this coordinate
                 now, as we store the coordinates in their normalized form (We didn't normalize it
                 before drawing as we want to simulate a normal user that draws across the datetime
@@ -139,9 +142,9 @@ describe.skip('Correct handling of geodesic geometries', () => {
                 const lineDrawn = extentUtils.wrapXCoordinates(lineToDraw, WEBMERCATOR)
                 checkFeatureSelected(lineDrawn)
 
-                const centerOfLinearLine = offsetX([x + 500000, y], selectOffset)
+                const centerOfLinearLine = offsetX([x + 500000, y], selectOffset) as number[]
                 // Result calculated with geographiclib-geodesic
-                const centerOfGeodesicLine = offsetX([x + 500000, 5990896.895875603], selectOffset)
+                const centerOfGeodesicLine = offsetX([x + 500000, 5990896.895875603], selectOffset) as number[]
                 const drawnLineWithCenterPoint = [
                     lineDrawn[0],
                     extentUtils.wrapXCoordinates(centerOfGeodesicLine, WEBMERCATOR),
@@ -168,14 +171,14 @@ describe.skip('Correct handling of geodesic geometries', () => {
                 cy.get(olSelector).click('center')
                 // opening the infobox again
                 cy.get('[data-cy="infobox-minimize-maximize"]').click()
-                /* As explained in geodesicManager.js, the maximal discrepancy should be about 2.1cm for
+                /* As explained in geodesicManager.ts, the maximal discrepancy should be about 2.1cm for
             a line at 47° less than 1000km long. But as 1 equatorial meter < 1 meter at 47°, we are a
             bit more tolerant and allow 0.04 equatorial meters */
-                checkFeatureSelected(drawnLineWithCenterPoint)
+                checkFeatureSelected(drawnLineWithCenterPoint as number[][])
 
                 // As the line is not linear, clicking where the linear line passes should not create a new
                 // point when the line is already selected (tests the modify interaction)
-                moveMapPos(offsetX(centerOfLinearLine, selectOffset))
+                moveMapPos(offsetX(centerOfLinearLine, selectOffset) as number[])
                 // hiding/minimizing the infobox, otherwise a click to the center of the map is blocked
                 // by the very long attribution string (with VT multiple attributions)
                 cy.get('[data-cy="infobox-minimize-maximize"]').click()
@@ -200,14 +203,13 @@ describe.skip('Correct handling of geodesic geometries', () => {
             sure that the geodesic drawing is also enabled for them. */
             it('Check that the line feature is also geodesic', () => {
                 // To avoid repositioning of the map when selecting the line
-                cy.readStoreValue('getters.tooltipFeatureInfo').then(
-                    (floatingFeatureInfo) =>
-                        floatingFeatureInfo &&
-                        cy.writeStoreValue('setFeatureInfoPosition', {
-                            position: FeatureInfoPositions.BOTTOMPANEL,
-                            dispatcher: 'e2e-test',
-                        })
-                )
+                const uiStore = useUIStore()
+                if (uiStore.tooltipFeatureInfo) {
+                    cy.callStoreAction('ui.setFeatureInfoPosition', [
+                        FeatureInfoPositions.BOTTOMPANEL,
+                        'e2e-test',
+                    ])
+                }
                 testFunc(0, 0, 773900, EditableFeatureTypes.LinePolygon)
             })
         }
@@ -216,7 +218,7 @@ describe.skip('Correct handling of geodesic geometries', () => {
     context(
         'Check that the modify and select interactions are aware that the polygon geometry is geodesic',
         () => {
-            const testFunc = (drawOffset, selectOffset, x, type = EditableFeatureTypes.Measure) => {
+            const testFunc = (drawOffset: number, selectOffset: number, x: number, type: EditableFeatureTypes = EditableFeatureTypes.Measure): void => {
                 /* To understand what this function does, please check the comments in the other
                 test function (I didn't want to duplicate these comments) */
                 const y = 5976445
@@ -228,7 +230,7 @@ describe.skip('Correct handling of geodesic geometries', () => {
                     [x + 100000, y + 100000],
                     [x, y],
                 ]
-                drawFeature(offsetX(lineToDraw, drawOffset), type)
+                drawFeature(offsetX(lineToDraw, drawOffset) as number[][], type)
                 const lineDrawn = extentUtils.wrapXCoordinates(lineToDraw, WEBMERCATOR)
                 checkFeatureSelected(lineDrawn)
 
@@ -272,14 +274,13 @@ describe.skip('Correct handling of geodesic geometries', () => {
                 generateTestsInPacific(testFunc)
             })
             it('Check that the line feature is also geodesic', () => {
-                cy.readStoreValue('state.ui.tooltipFeatureInfo').then(
-                    (floatingFeatureInfo) =>
-                        floatingFeatureInfo &&
-                        cy.writeStoreValue('setFeatureInfoPosition', {
-                            position: FeatureInfoPositions.BOTTOMPANEL,
-                            dispatcher: 'e2e-test',
-                        })
-                )
+                const uiStore = useUIStore()
+                if (uiStore.tooltipFeatureInfo) {
+                    cy.callStoreAction('ui.setFeatureInfoPosition', [
+                        FeatureInfoPositions.BOTTOMPANEL,
+                        'e2e-test',
+                    ])
+                }
                 testFunc(0, 0, 773900, EditableFeatureTypes.LinePolygon)
             })
         }

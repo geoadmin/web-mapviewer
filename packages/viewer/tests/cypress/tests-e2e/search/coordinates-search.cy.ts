@@ -6,6 +6,9 @@ import { constants, coordinatesUtils, LV03, LV95, WEBMERCATOR, WGS84 } from '@sw
 import { assertDefined } from 'support/utils'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
+import useMapStore from '@/store/modules/map'
+import usePositionStore from '@/store/modules/position'
+import useSearchStore from '@/store/modules/search'
 import { latLonToMGRS } from '@/utils/militaryGridProjection'
 
 const searchbarSelector = '[data-cy="searchbar"]'
@@ -40,10 +43,10 @@ describe('Testing coordinates typing in search bar', () => {
 
     const checkCenterInStore = (acceptableDelta = 0.0) => {
         cy.log(`Check that center is at ${JSON.stringify(expectedCenter)}`)
-        cy.readStoreValue('state.position.center').should((center) => {
-            expect(center[0]).to.be.approximately(expectedCenter[0], acceptableDelta)
-            expect(center[1]).to.be.approximately(expectedCenter[1], acceptableDelta)
-        })
+        const positionStore = usePositionStore()
+        const center = positionStore.center
+        expect(center[0]).to.be.approximately(expectedCenter[0], acceptableDelta)
+        expect(center[1]).to.be.approximately(expectedCenter[1], acceptableDelta)
     }
     const checkZoomLevelInStore = () => {
         // checking that the zoom level is at the 1:25'000 map level after a coordinate input in the search bar
@@ -53,16 +56,17 @@ describe('Testing coordinates typing in search bar', () => {
                 DEFAULT_PROJECTION as CustomCoordinateSystem
             ).transformStandardZoomLevelToCustom(constants.STANDARD_ZOOM_LEVEL_1_25000_MAP)
         }
-        cy.readStoreValue('state.position.zoom').should('be.eq', expectedZoomLevel)
+        const positionStore2 = usePositionStore()
+        expect(positionStore2.zoom).to.be.eq(expectedZoomLevel)
     }
     const checkThatCoordinateAreHighlighted = (acceptableDelta = 0.0) => {
         // checking that a balloon marker has been put on the coordinate location (that it is a highlighted location in the store)
-        cy.readStoreValue('state.map.pinnedLocation').should((feature) => {
-            expect(feature).to.not.be.null
-            expect(feature).to.be.a('array').that.is.not.empty
-            expect(feature[0]).to.be.approximately(expectedCenter[0], acceptableDelta)
-            expect(feature[1]).to.be.approximately(expectedCenter[1], acceptableDelta)
-        })
+        const mapStore = useMapStore()
+        const feature = mapStore.pinnedLocation
+        expect(feature).to.not.be.null
+        expect(feature).to.be.a('array').that.is.not.empty
+        expect(feature?.[0]).to.be.approximately(expectedCenter[0], acceptableDelta)
+        expect(feature?.[1]).to.be.approximately(expectedCenter[1], acceptableDelta)
     }
     const standardCheck = (
         x: number | string,
@@ -88,9 +92,11 @@ describe('Testing coordinates typing in search bar', () => {
         standardCheck(expectedCenterLV95[0], expectedCenterLV95[1], { withInversion: true })
         cy.get('[data-cy="searchbar-clear"]').click()
         // checking that search bar has been emptied
-        cy.readStoreValue('state.search.query').should('be.empty')
+        const searchStore = useSearchStore()
+        expect(searchStore.query).to.be.empty
         // checking that the dropped pin has been removed
-        cy.readStoreValue('state.map.pinnedLocation').should('be.null')
+        const mapStore2 = useMapStore()
+        expect(mapStore2.pinnedLocation).to.be.null
     })
 
     it('Paste EPSG:4326 (WGS84) coordinate', () => {
@@ -107,7 +113,8 @@ describe('Testing coordinates typing in search bar', () => {
         // clear the bar
         cy.get('[data-cy="searchbar-clear"]').click()
         // checking that search bar has been emptied
-        cy.readStoreValue('state.search.query').should('be.empty')
+        const searchStore2 = useSearchStore()
+        expect(searchStore2.query).to.be.empty
         expect(expectedCenterWGS84_DD).to.have.length(2)
         assertDefined(expectedCenterWGS84_DD[0])
         assertDefined(expectedCenterWGS84_DD[1])

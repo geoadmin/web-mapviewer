@@ -8,10 +8,11 @@ import { registerProj4, WGS84 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 
-import type AbstractLayer from '@/api/layers/AbstractLayer.class'
-
 import { proxifyUrl } from '@/api/file-proxy.api.js'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
+import useLayersStore from '@/store/modules/layers'
+import usePositionStore from '@/store/modules/position'
+import useProfileStore from '@/store/modules/profile'
 
 registerProj4(proj4)
 
@@ -70,7 +71,8 @@ describe('The Import File Tool', () => {
 
     it('Import KML file', () => {
         cy.goToMapView({ withHash: true })
-        cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+        const layersStore = useLayersStore()
+        expect(layersStore.activeLayers).to.be.empty
         cy.openMenuIfMobile()
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
@@ -89,7 +91,8 @@ describe('The Import File Tool', () => {
         const bigKmlFileName = 'big-external-kml-file.kml'
         const bigKmlFileFixture = `import-tool/${bigKmlFileName}`
 
-        cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+        const layersStore2 = useLayersStore()
+        expect(layersStore2.activeLayers).to.be.empty
         cy.openMenuIfMobile()
 
         cy.fixture(bigKmlFileFixture, null).as('kmlFixture')
@@ -142,7 +145,8 @@ describe('The Import File Tool', () => {
         const iframeTestFile = 'iframe-test.kml'
         const iframeTestFileFixture = `import-tool/${iframeTestFile}`
 
-        cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+        const layersStore3 = useLayersStore()
+        expect(layersStore3.activeLayers).to.be.empty
         cy.openMenuIfMobile()
 
         cy.fixture(iframeTestFileFixture, null).as('kmlFixture')
@@ -195,19 +199,21 @@ describe('The Import File Tool', () => {
             .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-local-content"]').should('not.be.visible')
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+        const layersStore4 = useLayersStore()
+        expect(layersStore4.activeLayers).to.have.length(1)
         cy.log('Test that the single kml feature is in center of the view (zoom to extent check)')
-        cy.readStoreValue('state.position.center').then((center: number[]) => {
-            cy.wrap(center[0]).should('be.closeTo', 2776665.92, 1)
-            cy.wrap(center[1]).should('be.closeTo', 1175560.21, 1)
-        })
+        const positionStore = usePositionStore()
+        const center = positionStore.center
+        cy.wrap(center[0]).should('be.closeTo', 2776665.92, 1)
+        cy.wrap(center[1]).should('be.closeTo', 1175560.21, 1)
 
         //---------------------------------------------------------------------
         // RE-click on the import button should not add the layer a second time
         cy.log('Test re-adding the layer, should not have effect')
         cy.get('[data-cy="import-file-load-button"]:visible').click()
         cy.wait(['@headValidKmlFile', '@getValidKmlFile'])
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+        const layersStore5 = useLayersStore()
+        expect(layersStore5.activeLayers).to.have.length(1)
 
         //----------------------------------------------------------------------
         cy.log('Test adding another external online KML layer')
@@ -232,7 +238,8 @@ describe('The Import File Tool', () => {
             .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-local-content"]').should('not.be.visible')
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 2)
+        const layersStore6 = useLayersStore()
+        expect(layersStore6.activeLayers).to.have.length(2)
 
         //----------------------------------------------------------------------
         // Test local import
@@ -258,13 +265,15 @@ describe('The Import File Tool', () => {
             .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 3)
+        const layersStore7 = useLayersStore()
+        expect(layersStore7.activeLayers).to.have.length(3)
 
         //----------------------------------------------------------------------
         // RE-add the layer should have no effect (no duplicate layer)
         cy.log('Test re-adding the layer, should not have effect')
         cy.get('[data-cy="import-file-load-button"]:visible').click()
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 3)
+        const layersStore8 = useLayersStore()
+        expect(layersStore8.activeLayers).to.have.length(3)
 
         //----------------------------------------------------------------------
         // Attach a another local KML file
@@ -297,7 +306,8 @@ describe('The Import File Tool', () => {
             .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 5)
+        const layersStore9 = useLayersStore()
+        expect(layersStore9.activeLayers).to.have.length(5)
 
         //----------------------------------------------------------------------
         cy.log('Switching back to online tab, should keep previous entry')
@@ -421,15 +431,15 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="search-result-entry"]').as('layerSearchResults').should('have.length', 3)
         cy.get('@layerSearchResults').invoke('text').should('contain', 'Sample Placemark')
         cy.get('@layerSearchResults').first().trigger('mouseenter')
-        cy.readStoreValue('getters.visibleLayers').should((visibleLayers: AbstractLayer[]) => {
-            const visibleIds = visibleLayers.map((layer) => layer.id)
-            expect(visibleIds).to.contain(expectedLayerId)
-        })
+        const layersStore10 = useLayersStore()
+        const visibleLayers = layersStore10.visibleLayers
+        const visibleIds = visibleLayers.map((layer) => layer.id)
+        expect(visibleIds).to.contain(expectedLayerId)
         cy.get('@layerSearchResults').first().realClick()
         // checking that the view has centered on the feature
-        cy.readStoreValue('state.position.center').should((center: number[]) =>
-            checkLocation(expectedCenterDefaultProjection, center)
-        )
+        const positionStore2 = usePositionStore()
+        const center2 = positionStore2.center
+        checkLocation(expectedCenterDefaultProjection, center2)
 
         cy.log('Test search for a feature in the online KML file')
         cy.get('[data-cy="searchbar-clear"]').click()
@@ -439,15 +449,15 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="search-result-entry"]').as('layerSearchResults').should('have.length', 1)
         cy.get('@layerSearchResults').invoke('text').should('contain', 'Another Sample Placemark')
         cy.get('@layerSearchResults').first().trigger('mouseenter')
-        cy.readStoreValue('getters.visibleLayers').should((visibleLayers: AbstractLayer[]) => {
-            const visibleIds = visibleLayers.map((layer) => layer.id)
-            expect(visibleIds).to.contain(expectedOnlineLayerId)
-        })
+        const layersStore11 = useLayersStore()
+        const visibleLayers2 = layersStore11.visibleLayers
+        const visibleIds2 = visibleLayers2.map((layer) => layer.id)
+        expect(visibleIds2).to.contain(expectedOnlineLayerId)
         cy.get('@layerSearchResults').first().realClick()
         // checking that the view has centered on the feature
-        cy.readStoreValue('state.position.center').should((center: number[]) =>
-            checkLocation(expectedSecondCenterDefaultProjection, center)
-        )
+        const positionStore3 = usePositionStore()
+        const center3 = positionStore3.center
+        checkLocation(expectedSecondCenterDefaultProjection, center3)
 
         //---------------------------------------------------------------------
         // Test the disclaimer
@@ -468,7 +478,8 @@ describe('The Import File Tool', () => {
         // Test removing a layer
         cy.log('Test removing an external layer')
         cy.get(`[data-cy^="button-remove-layer-${validOnlineUrl}"]:visible`).click()
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 4)
+        const layersStore12 = useLayersStore()
+        expect(layersStore12.activeLayers).to.have.length(4)
         cy.get('[data-cy="menu-section-active-layers"]').children().should('have.length', 4)
 
         //---------------------------------------------------------------------
@@ -525,7 +536,8 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="text-input"]:visible').type(validOnlineNonCORSUrl)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
         cy.wait(['@headKmlNoCORS', '@proxyfiedKmlNoCORS'])
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 2)
+        const layersStore13 = useLayersStore()
+        expect(layersStore13.activeLayers).to.have.length(2)
 
         cy.log('switching to 3D and checking that online file is correctly loaded on 3D viewer')
         cy.get('[data-cy="import-window"] [data-cy="window-close"]').click()
@@ -560,14 +572,14 @@ describe('The Import File Tool', () => {
             force: true,
         })
         cy.get('[data-cy="import-file-load-button"]:visible').click()
-        cy.readStoreValue('state.layers.activeLayers').then((activeLayers: AbstractLayer[]) => {
-            const kmlLayerCount = activeLayers.filter((layer) => layer.type === 'KML').length
-            cy.window().its('cesiumViewer').should((viewer: Viewer) => {
-                expect(viewer.dataSources.length).to.eq(
-                    kmlLayerCount,
-                    `should have ${kmlLayerCount} date source (KML files)`
-                )
-            })
+        const layersStore14 = useLayersStore()
+        const activeLayers = layersStore14.activeLayers
+        const kmlLayerCount = activeLayers.filter((layer) => layer.type === 'KML').length
+        cy.window().its('cesiumViewer').should((viewer: Viewer) => {
+            expect(viewer.dataSources.length).to.eq(
+                kmlLayerCount,
+                `should have ${kmlLayerCount} date source (KML files)`
+            )
         })
 
         cy.log('testing the import and profile viewer with a KML MultiPolygon file')
@@ -610,7 +622,8 @@ describe('The Import File Tool', () => {
         const lastSegmentIndex: number = checkVectorLayerHighlightingSegment()
 
         cy.get('[data-cy="profile-segment-button-1"]').click()
-        cy.readStoreValue('state.profile.currentFeatureSegmentIndex').should('be.equal', 1)
+        const profileStore = useProfileStore()
+        expect(profileStore.currentFeatureGeometryIndex).to.be.equal(1)
         checkVectorLayerHighlightingSegment(lastSegmentIndex)
     })
 
@@ -712,7 +725,8 @@ describe('The Import File Tool', () => {
         }
 
         // Validate store and visible layers
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 4)
+        const layersStore15 = useLayersStore()
+        expect(layersStore15.activeLayers).to.have.length(4)
         cy.get('[data-cy="menu-section-active-layers"]')
             .should('be.visible')
             .children()
@@ -765,7 +779,8 @@ describe('The Import File Tool', () => {
         cy.get(`[data-cy^="button-remove-layer-${outOfBoundKMLUrl}"]:visible`).click({
             force: true,
         })
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 0)
+        const layersStore16 = useLayersStore()
+        expect(layersStore16.activeLayers).to.have.length(0)
         cy.get('[data-cy="menu-section-active-layers"]').children().should('have.length', 0)
         //---------------------------------------------------------------------
 
@@ -970,7 +985,8 @@ describe('The Import File Tool', () => {
         const gpxFileFixture = `import-tool/${gpxFileName}`
 
         cy.goToMapView({ withHash: true })
-        cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+        const layersStore17 = useLayersStore()
+        expect(layersStore17.activeLayers).to.be.empty
         cy.openMenuIfMobile()
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
@@ -1010,13 +1026,15 @@ describe('The Import File Tool', () => {
             .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-local-content"]').should('not.be.visible')
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+        const layersStore18 = useLayersStore()
+        expect(layersStore18.activeLayers).to.have.length(1)
         cy.log('Test that the single gpx feature is in center of the view (zoom to extent check)')
-        cy.readStoreValue('state.position.center').then((center: number[]) => {
-            cy.wrap(center[0]).should('be.closeTo', 2604663.19, 1)
-            cy.wrap(center[1]).should('be.closeTo', 1210998.57, 1)
-        })
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+        const positionStore4 = usePositionStore()
+        const center4 = positionStore4.center
+        cy.wrap(center4[0]).should('be.closeTo', 2604663.19, 1)
+        cy.wrap(center4[1]).should('be.closeTo', 2010998.57, 1)
+        const layersStore19 = useLayersStore()
+        expect(layersStore19.activeLayers).to.have.length(1)
 
         cy.get('[data-cy="import-file-local-btn"]:visible').click()
         cy.get('[data-cy="import-file-local-content"]').should('be.visible')
@@ -1039,7 +1057,8 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
 
         cy.log('Check that the GPX layer has been added to the map')
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 2)
+        const layersStore20 = useLayersStore()
+        expect(layersStore20.activeLayers).to.have.length(2)
 
         cy.get('[data-cy="import-file-close-button"]:visible').click()
         cy.get('[data-cy="import-file-content"]').should('not.exist')
@@ -1055,7 +1074,8 @@ describe('The Import File Tool', () => {
         cy.log('Test removing an external GPX layer')
         cy.openMenuIfMobile()
         cy.get(`[data-cy^="button-remove-layer-${gpxOnlineLayerId}"]:visible`).click()
-        cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+        const layersStore21 = useLayersStore()
+        expect(layersStore21.activeLayers).to.be.empty
 
         // Test the import of an online GPX file that don't support CORS
         cy.log('Test online import - Non CORS server')
@@ -1081,7 +1101,8 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="text-input"]:visible').type(validOnlineNonCORSUrl)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
         cy.wait(['@headGpxNoCORS', '@proxyfiedGpxNoCORS'])
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+        const layersStore22 = useLayersStore()
+        expect(layersStore22.activeLayers).to.have.length(1)
         cy.get(
             '[data-cy="import-file-online-content"] [data-cy="import-file-close-button"]'
         ).click()
@@ -1093,7 +1114,8 @@ describe('The Import File Tool', () => {
 
         cy.openMenuIfMobile()
         cy.get(`[data-cy^="button-remove-layer-GPX|${validOnlineNonCORSUrl}"]:visible`).click()
-        cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+        const layersStore23 = useLayersStore()
+        expect(layersStore23.activeLayers).to.be.empty
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
@@ -1160,7 +1182,8 @@ describe('The Import File Tool', () => {
         cy.get(
             `[data-cy^="button-remove-layer-GPX|${validMultiSegmentOnlineUrl}"]:visible`
         ).click()
-        cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+        const layersStore24 = useLayersStore()
+        expect(layersStore24.activeLayers).to.be.empty
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
@@ -1197,11 +1220,13 @@ describe('The Import File Tool', () => {
         let lastSegmentIndex: number = checkVectorLayerHighlightingSegment()
 
         cy.get('[data-cy="profile-segment-button-1"]').click()
-        cy.readStoreValue('state.profile.currentFeatureSegmentIndex').should('be.equal', 1)
+        const profileStore2 = useProfileStore()
+        expect(profileStore2.currentFeatureGeometryIndex).to.be.equal(1)
         lastSegmentIndex = checkVectorLayerHighlightingSegment(lastSegmentIndex)
 
         cy.get('[data-cy="profile-segment-button-2"]').click()
-        cy.readStoreValue('state.profile.currentFeatureSegmentIndex').should('be.equal', 2)
+        const profileStore3 = useProfileStore()
+        expect(profileStore3.currentFeatureGeometryIndex).to.be.equal(2)
         checkVectorLayerHighlightingSegment(lastSegmentIndex)
 
         // Import file partially out of bounds
@@ -1213,7 +1238,8 @@ describe('The Import File Tool', () => {
         cy.get(
             `[data-cy^="button-remove-layer-GPX|${validMultiSeparatedSegmentOnlineUrl}"]:visible`
         ).click()
-        cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+        const layersStore25 = useLayersStore()
+        expect(layersStore25.activeLayers).to.be.empty
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
