@@ -42,17 +42,19 @@ const stagings: Record<ViteModes, string> = {
 }
 
 /**
- * Use Vite's default automatic chunking with slight vendor separation.
- * Only split node_modules as a whole from app code to avoid circular dependencies
- * within libraries while still getting some caching benefits.
+ * We use manual chunks to reduce the size of the final index.js file to improve startup
+ * performance. Only separate Cesium (large, rarely changes) from the rest.
  */
 function manualChunks(id: string): string | undefined {
-    // Separate ALL node_modules into vendor chunk(s) but let Vite decide the splits
-    // This avoids breaking circular dependencies within vendor libraries
-    if (id.includes('node_modules')) {
-        return 'vendor'
+    // Separate Cesium - it's a large (~3.5MB), standalone library that rarely changes
+    if (id.includes('node_modules') && id.includes('cesium')) {
+        return 'vendor-cesium'
     }
-    // Let Vite handle app code chunking automatically
+    // Put all files from the src/utils into the chunk named utils.js
+    if (id.includes('/src/utils/')) {
+        return 'utils'
+    }
+    // Everything else goes into default chunks
 }
 
 function generatePlugins(mode: ViteModes, isTesting: boolean = false): PluginOption[] {
@@ -128,9 +130,9 @@ function generatePlugins(mode: ViteModes, isTesting: boolean = false): PluginOpt
                 includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg'],
                 injectRegister: false,
                 injectManifest: {
-                    // 8MB max (default is 2MB, some automatically generated chunks are larger than that)
+                    // 5MB max (default is 2MB, some automatically generated chunks are larger than that)
                     // Increased to accommodate Vite's automatic chunking without manual intervention
-                    maximumFileSizeToCacheInBytes: 8 * 1000 * 1000,
+                    maximumFileSizeToCacheInBytes: 5 * 1000 * 1000,
                 },
 
                 pwaAssets: {
