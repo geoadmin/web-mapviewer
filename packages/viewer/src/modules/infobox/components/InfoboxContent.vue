@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Viewer } from 'cesium'
+import type { MultiLineString, MultiPolygon } from 'geojson'
 import type { Map } from 'ol'
 
 import GeoadminElevationProfile, {
@@ -7,7 +8,6 @@ import GeoadminElevationProfile, {
     GeoadminElevationProfileOpenLayersBridge,
 } from '@swissgeo/elevation-profile'
 import log from '@swissgeo/log'
-import { MultiPolygon, type MultiLineString } from 'ol/geom'
 import { storeToRefs } from 'pinia'
 import { computed, inject, nextTick, onUnmounted, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -70,9 +70,11 @@ function isArrayOfArrays(coords: unknown): coords is number[][] | number[][][] {
     return Array.isArray(coords) && coords.length > 0 && Array.isArray(coords[0])
 }
 const currentGeometryElements = computed(() => {
-    const coords = (
-        feature?.value?.geometry as unknown as MultiLineString | MultiPolygon
-    ).getCoordinates()
+    if (!isMultiFeature.value) {
+        return []
+    }
+    const coords = (feature?.value?.geometry as unknown as MultiLineString | MultiPolygon)
+        .coordinates
     return isArrayOfArrays(coords) ? coords : []
 })
 

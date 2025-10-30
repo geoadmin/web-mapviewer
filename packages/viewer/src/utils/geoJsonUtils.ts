@@ -16,7 +16,6 @@ import {
 } from '@turf/turf'
 import proj4 from 'proj4'
 import { reproject } from 'reproject'
-
 /**
  * Re-projecting the GeoJSON data (FeatureCollection) if not in the wanted projection
  *
