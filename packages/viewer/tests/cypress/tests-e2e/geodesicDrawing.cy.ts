@@ -85,10 +85,12 @@ function checkFeatureSelected(featureCoords: number[][]): void {
             const coords = extractOlFeatureCoordinates(features[0])
             checkCoordsEqual(coords, featureCoords)
         })
-    const drawingStore = useDrawingStore()
-    const features = drawingStore.selectedFeatures
-    expect(features, 'Expected exactly one feature to be selected').to.have.length(1)
-    checkCoordsEqual(features[0].coordinates, featureCoords)
+    cy.getPinia().then(pinia => {
+        const drawingStore = useDrawingStore(pinia)
+        const features = drawingStore.selectedFeatures
+        expect(features, 'Expected exactly one feature to be selected').to.have.length(1)
+        checkCoordsEqual(features[0].coordinates, featureCoords)
+    })
 }
 
 function checkFeatureUnselected(): void {
@@ -203,13 +205,15 @@ describe.skip('Correct handling of geodesic geometries', () => {
             sure that the geodesic drawing is also enabled for them. */
             it('Check that the line feature is also geodesic', () => {
                 // To avoid repositioning of the map when selecting the line
-                const uiStore = useUIStore()
-                if (uiStore.tooltipFeatureInfo) {
-                    cy.callStoreAction('ui.setFeatureInfoPosition', [
-                        FeatureInfoPositions.BOTTOMPANEL,
-                        'e2e-test',
-                    ])
-                }
+                cy.getPinia().then((pinia) => {
+                    const uiStore = useUIStore(pinia)
+                    if (uiStore.tooltipFeatureInfo) {
+                        cy.callStoreAction('ui.setFeatureInfoPosition', [
+                            FeatureInfoPositions.BOTTOMPANEL,
+                            'e2e-test',
+                        ])
+                    }
+                })
                 testFunc(0, 0, 773900, EditableFeatureTypes.LinePolygon)
             })
         }
@@ -274,13 +278,15 @@ describe.skip('Correct handling of geodesic geometries', () => {
                 generateTestsInPacific(testFunc)
             })
             it('Check that the line feature is also geodesic', () => {
-                const uiStore = useUIStore()
-                if (uiStore.tooltipFeatureInfo) {
-                    cy.callStoreAction('ui.setFeatureInfoPosition', [
-                        FeatureInfoPositions.BOTTOMPANEL,
-                        'e2e-test',
-                    ])
-                }
+                cy.getPinia().then((pinia) => {
+                    const uiStore = useUIStore(pinia)
+                    if (uiStore.tooltipFeatureInfo) {
+                        cy.callStoreAction('ui.setFeatureInfoPosition', [
+                            FeatureInfoPositions.BOTTOMPANEL,
+                            'e2e-test',
+                        ])
+                    }
+                })
                 testFunc(0, 0, 773900, EditableFeatureTypes.LinePolygon)
             })
         }

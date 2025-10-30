@@ -83,6 +83,7 @@ declare global {
              * cy.getPiniaStore('ui').invoke('setFullscreenMode', true)
              */
             getPiniaStore(storeId: string): Cypress.Chainable<any>
+            getPinia(): Cypress.Chainable<Pinia>
 
             /**
              * Call a Pinia store action

@@ -29,43 +29,45 @@ describe('The infobox', () => {
             cy.waitUntilState((_, getters) => {
                 return getters.selectedFeatures.length > 0
             })
-            const uiStore = useUIStore()
-            const isPhoneMode = uiStore.isPhoneMode
-            if (isPhoneMode) {
-                cy.get('[data-cy="popover"]').should('not.exist')
-                cy.get('[data-cy="infobox"]').should('be.visible')
+            cy.getPinia().then(pinia => {
+                const uiStore = useUIStore(pinia)
+                const isPhoneMode = uiStore.isPhoneMode
+                if (isPhoneMode) {
+                    cy.get('[data-cy="popover"]').should('not.exist')
+                    cy.get('[data-cy="infobox"]').should('be.visible')
 
-                cy.get('[data-cy="infobox-minimize-maximize"]').click()
-                cy.get('[data-cy="infobox-content"]').should('not.exist')
+                    cy.get('[data-cy="infobox-minimize-maximize"]').click()
+                    cy.get('[data-cy="infobox-content"]').should('not.exist')
 
-                cy.get('[data-cy="infobox-minimize-maximize"]').click()
-                cy.get('[data-cy="infobox-content"]').should('be.visible')
+                    cy.get('[data-cy="infobox-minimize-maximize"]').click()
+                    cy.get('[data-cy="infobox-content"]').should('be.visible')
 
-                cy.get('[data-cy="infobox-toggle-floating"]').click()
-                cy.get('[data-cy="popover"]').should('be.visible')
-                cy.get('[data-cy="infobox"]').should('not.exist')
+                    cy.get('[data-cy="infobox-toggle-floating"]').click()
+                    cy.get('[data-cy="popover"]').should('be.visible')
+                    cy.get('[data-cy="infobox"]').should('not.exist')
 
-                // we have to force the click, as in the mobile viewport the button can sometimes be under the header
-                cy.get('[data-cy="toggle-floating-off"]').click({ force: true })
-                cy.get('[data-cy="popover"]').should('not.exist')
-                cy.get('[data-cy="infobox"]').should('be.visible')
-            } else {
-                cy.get('[data-cy="popover"]').should('be.visible')
-                cy.get('[data-cy="infobox"]').should('not.exist')
+                    // we have to force the click, as in the mobile viewport the button can sometimes be under the header
+                    cy.get('[data-cy="toggle-floating-off"]').click({ force: true })
+                    cy.get('[data-cy="popover"]').should('not.exist')
+                    cy.get('[data-cy="infobox"]').should('be.visible')
+                } else {
+                    cy.get('[data-cy="popover"]').should('be.visible')
+                    cy.get('[data-cy="infobox"]').should('not.exist')
 
-                cy.get('[data-cy="toggle-floating-off"]').click()
-                cy.get('[data-cy="popover"]').should('not.exist')
-                cy.get('[data-cy="infobox"]').should('be.visible')
-                cy.get('[data-cy="infobox-minimize-maximize"]').click()
-                cy.get('[data-cy="infobox-content"]').should('not.exist')
+                    cy.get('[data-cy="toggle-floating-off"]').click()
+                    cy.get('[data-cy="popover"]').should('not.exist')
+                    cy.get('[data-cy="infobox"]').should('be.visible')
+                    cy.get('[data-cy="infobox-minimize-maximize"]').click()
+                    cy.get('[data-cy="infobox-content"]').should('not.exist')
 
-                cy.get('[data-cy="infobox-minimize-maximize"]').click()
-                cy.get('[data-cy="infobox-content"]').should('be.visible')
+                    cy.get('[data-cy="infobox-minimize-maximize"]').click()
+                    cy.get('[data-cy="infobox-content"]').should('be.visible')
 
-                cy.get('[data-cy="infobox-toggle-floating"]').click()
-                cy.get('[data-cy="popover"]').should('be.visible')
-                cy.get('[data-cy="infobox"]').should('not.exist')
-            }
+                    cy.get('[data-cy="infobox-toggle-floating"]').click()
+                    cy.get('[data-cy="popover"]').should('be.visible')
+                    cy.get('[data-cy="infobox"]').should('not.exist')
+                }
+            })
         })
     }
 

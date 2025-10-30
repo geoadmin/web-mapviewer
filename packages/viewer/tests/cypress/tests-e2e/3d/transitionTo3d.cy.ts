@@ -17,19 +17,27 @@ describe('Testing transitioning between 2D and 3D', () => {
             cy.goToMapView()
         })
         it('activates 3D when we click on the 3D toggle button', () => {
-            const cesiumStore = useCesiumStore()
-            expect(cesiumStore.active).to.be.false
+            cy.getPinia().then((pinia) => {
+                const cesiumStore = useCesiumStore(pinia)
+                expect(cesiumStore.active).to.be.false
+            })
             cy.get('[data-cy="3d-button"]').should('be.visible').click()
-            const cesiumStore2 = useCesiumStore()
-            expect(cesiumStore2.active).to.be.true
+            cy.getPinia().then((pinia) => {
+                const cesiumStore2 = useCesiumStore(pinia)
+                expect(cesiumStore2.active).to.be.true
+            })
         })
         it('deactivate 3D when clicking twice on the button', () => {
-            const cesiumStore3 = useCesiumStore()
-            expect(cesiumStore3.active).to.be.false
+            cy.getPinia().then((pinia) => {
+                const cesiumStore3 = useCesiumStore(pinia)
+                expect(cesiumStore3.active).to.be.false
+            })
             cy.get('[data-cy="3d-button"]').should('be.visible').click()
             cy.get('[data-cy="3d-button"]').should('be.visible').click()
-            const cesiumStore4 = useCesiumStore()
-            expect(cesiumStore4.active).to.be.false
+            cy.getPinia().then((pinia) => {
+                const cesiumStore4 = useCesiumStore(pinia)
+                expect(cesiumStore4.active).to.be.false
+            })
         })
         it('shows the users that 3D is active by changing its color', () => {
             cy.get('[data-cy="3d-button"]').should('not.have.class', 'active')
@@ -56,8 +64,10 @@ describe('Testing transitioning between 2D and 3D', () => {
                 cy.goToMapView({
                     queryParams: { '3d': true }
                 })
-                const cesiumStore5 = useCesiumStore()
-                expect(cesiumStore5.active).to.be.true
+                cy.getPinia().then((pinia) => {
+                    const cesiumStore5 = useCesiumStore(pinia)
+                    expect(cesiumStore5.active).to.be.true
+                })
             })
         })
         context('camera position in URL', () => {
@@ -83,21 +93,25 @@ describe('Testing transitioning between 2D and 3D', () => {
                         ].join(','),
                     },
                 })
-                const positionStore = usePositionStore()
-                const camera = positionStore.camera
-                expect(camera).to.be.an('Object')
-                expect(camera).to.haveOwnProperty('x')
-                expect(camera).to.haveOwnProperty('y')
-                expect(camera).to.haveOwnProperty('z')
-                expect(camera).to.haveOwnProperty('pitch')
-                expect(camera).to.haveOwnProperty('heading')
-                expect(camera).to.haveOwnProperty('roll')
-                expect(camera?.x).to.eq(expectedCameraPosition.x)
-                expect(camera?.y).to.eq(expectedCameraPosition.y)
-                expect(camera?.z).to.eq(expectedCameraPosition.z)
-                expect(camera?.pitch).to.eq(expectedCameraPosition.pitch)
-                expect(camera?.heading).to.eq(expectedCameraPosition.heading)
-                expect(camera?.roll).to.eq(expectedCameraPosition.roll)
+                cy.getPinia().then((pinia) => {
+                    const positionStore = usePositionStore(pinia)
+                    const camera = positionStore.camera
+                    expect(camera).to.be.an('Object')
+                    expect(camera).to.haveOwnProperty('x')
+                    expect(camera).to.haveOwnProperty('y')
+                    expect(camera).to.haveOwnProperty('z')
+                    expect(camera).to.haveOwnProperty('pitch')
+                    expect(camera).to.haveOwnProperty('heading')
+                    expect(camera).to.haveOwnProperty('roll')
+                    expect(camera?.x).to.eq(expectedCameraPosition.x)
+                    expect(camera?.y).to.eq(expectedCameraPosition.y)
+                    expect(camera?.z).to.eq(expectedCameraPosition.z)
+                    expect(camera?.pitch).to.eq(expectedCameraPosition.pitch)
+                    expect(camera?.heading).to.eq(expectedCameraPosition.heading)
+                    expect(camera?.roll).to.eq(expectedCameraPosition.roll)
+                })
+            })
+            it('adds the camera URL param when changing the camera position', () => {
             })
         })
     })

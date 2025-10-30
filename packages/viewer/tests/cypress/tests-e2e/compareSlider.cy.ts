@@ -9,17 +9,21 @@ import useUIStore from '@/store/modules/ui'
 
 describe('Testing of the compare slider', () => {
     function expectCompareRatioToBe(value: number | undefined) {
-        const uiStore = useUIStore()
-        if (!value) {
-            cy.wrap(uiStore.compareRatio).should('be.undefined')
-        } else {
-            cy.wrap(uiStore.compareRatio).should('be.equal', value)
-        }
+        cy.getPinia().then(pinia => {
+            const uiStore = useUIStore(pinia)
+            if (!value) {
+                expect(uiStore.compareRatio).to.be.undefined
+            } else {
+                expect(uiStore.compareRatio).to.equal(value)
+            }
+        })
     }
     //active is the boolean
     function expectCompareSliderToBeActive(active: boolean) {
-        const uiStore = useUIStore()
-        cy.wrap(uiStore.isCompareSliderActive).should('be.equal', active)
+        cy.getPinia().then(pinia => {
+            const uiStore = useUIStore(pinia)
+            expect(uiStore.isCompareSliderActive).to.equal(active)
+        })
     }
     context('Comportment of compare slider at startup', () => {
         context('Starting the app with different parameters', () => {
@@ -102,9 +106,11 @@ describe('Testing of the compare slider', () => {
                 })
                 // initial slider position is width * 0.3 -20
                 cy.get('[data-cy="compareSlider"]').then((slider) => {
-                    const uiStore = useUIStore()
-                    const width = uiStore.width
-                    cy.wrap(slider.position()['left']).should('eq', width * 0.3 - 20)
+                    cy.getPinia().then(pinia => {
+                        const uiStore = useUIStore(pinia)
+                        const width = uiStore.width
+                        expect(slider.position()['left']).to.eq(width * 0.3 - 20)
+                    })
                 })
                 expectCompareRatioToBe(0.3)
                 expectCompareSliderToBeActive(true)
@@ -123,13 +129,15 @@ describe('Testing of the compare slider', () => {
                     cy.wrap(slider.position()['left']).should('be.gte', -6.0)
                 })
 
-                const uiStore = useUIStore()
-                moveSlider(uiStore.width - 1)
+                cy.getPinia().then(pinia => {
+                    const uiStore = useUIStore(pinia)
+                    moveSlider(uiStore.width - 1)
 
-                cy.get('[data-cy="compareSlider"]').then((slider) => {
-                    const width = uiStore.width
-                    cy.wrap(slider.position()['left']).should('be.lte', width - 34.0)
-                    cy.wrap(slider.position()['left']).should('be.closeTo', width - 34.0, 0.2)
+                    cy.get('[data-cy="compareSlider"]').then((slider) => {
+                        const width = uiStore.width
+                        cy.wrap(slider.position()['left']).should('be.lte', width - 34.0)
+                        cy.wrap(slider.position()['left']).should('be.closeTo', width - 34.0, 0.2)
+                    })
                 })
             })
         })
@@ -218,8 +226,10 @@ describe('Testing of the compare slider', () => {
                 checkIfFeaturesAreAt(feature_1_coordinates[0], feature_1_coordinates[1], false)
                 checkIfFeaturesAreAt(feature_2_coordinates[0], feature_2_coordinates[1], true)
 
-                const uiStore2 = useUIStore()
-                moveSlider(uiStore2.width - 10)
+                cy.getPinia().then((pinia) => {
+                    const uiStore2 = useUIStore(pinia)
+                    moveSlider(uiStore2.width - 10)
+                })
 
                 checkIfFeaturesAreAt(feature_1_coordinates[0], feature_1_coordinates[1], true)
                 checkIfFeaturesAreAt(feature_2_coordinates[0], feature_2_coordinates[1], true)
@@ -263,12 +273,14 @@ describe('Testing of the compare slider', () => {
                     cy.openMenuIfMobile()
                     cy.get('[data-cy="menu-tray-tool-section"]').click()
                     cy.get('[data-cy="menu-advanced-tools-compare"]').click()
-                    const uiStore3 = useUIStore()
-                    expect(uiStore3.compareRatio).to.eq(0.5)
+                    cy.getPinia().then((pinia) => {
+                        const uiStore3 = useUIStore(pinia)
+                        expect(uiStore3.compareRatio).to.eq(0.5)
 
-                    // PB-419 : A new user feedback is displayed, and the slider is only active
-                    // if there is at least one visible layer
-                    expect(uiStore3.isCompareSliderActive).to.eq(false)
+                        // PB-419 : A new user feedback is displayed, and the slider is only active
+                        // if there is at least one visible layer
+                        expect(uiStore3.isCompareSliderActive).to.eq(false)
+                    })
                     cy.get('[data-cy="compareSlider"]').should('not.exist')
                 })
                 it('stays "active" when we remove the last layer', () => {
@@ -281,11 +293,13 @@ describe('Testing of the compare slider', () => {
                         withHash: true,
                     })
 
-                    const layersStore = useLayersStore()
-                    const uiStore4 = useUIStore()
-                    expect(layersStore.activeLayers).to.have.length(1)
-                    cy.wrap(uiStore4.compareRatio).should('eq', compareRatioValue)
-                    cy.wrap(uiStore4.isCompareSliderActive).should('be.true')
+                    cy.getPinia().then(pinia => {
+                        const layersStore = useLayersStore(pinia)
+                        const uiStore = useUIStore(pinia)
+                        expect(layersStore.activeLayers).to.have.length(1)
+                        expect(uiStore.compareRatio).to.eq(compareRatioValue)
+                        expect(uiStore.isCompareSliderActive).to.be.true
+                    })
 
                     cy.get('[data-cy="compareSlider"]').should('be.visible')
 
@@ -295,11 +309,13 @@ describe('Testing of the compare slider', () => {
                         .click()
                     cy.closeMenuIfMobile()
 
-                    const layersStore2 = useLayersStore()
-                    const uiStore5 = useUIStore()
-                    cy.wrap(layersStore2.activeLayers).should('be.empty')
-                    cy.wrap(uiStore5.compareRatio).should('eq', compareRatioValue)
-                    cy.wrap(uiStore5.isCompareSliderActive).should('be.true')
+                    cy.getPinia().then((pinia) => {
+                        const layersStore2 = useLayersStore(pinia)
+                        const uiStore5 = useUIStore(pinia)
+                        cy.wrap(layersStore2.activeLayers).should('be.empty')
+                        cy.wrap(uiStore5.compareRatio).should('eq', compareRatioValue)
+                        cy.wrap(uiStore5.isCompareSliderActive).should('be.true')
+                    })
 
                     cy.get('[data-cy="compareSlider"]').should('not.exist')
                 })
@@ -316,19 +332,26 @@ describe('Testing of the compare slider', () => {
                     cy.openMenuIfMobile()
                     cy.get('[data-cy="menu-tray-tool-section"]').click()
                     cy.get('[data-cy="menu-advanced-tools-compare"]').should('be.visible')
-                    const uiStore6 = useUIStore()
-                    expect(uiStore6.compareRatio).to.eq(0.3)
+                    cy.getPinia().then((pinia) => {
+                        const uiStore6 = useUIStore(pinia)
+                        expect(uiStore6.compareRatio).to.eq(0.3)
 
-                    expect(uiStore6.isCompareSliderActive).to.eq(true)
+                        expect(uiStore6.isCompareSliderActive).to.eq(true)
+                    })
 
                     cy.get('[data-cy="menu-advanced-tools-compare"]').click()
-                    expect(uiStore6.compareRatio).to.eq(0.3)
-
-                    expect(uiStore6.isCompareSliderActive).to.eq(false)
+                    cy.getPinia().then((pinia) => {
+                        const uiStore6 = useUIStore(pinia)
+                        expect(uiStore6.compareRatio).to.eq(0.3)
+                        expect(uiStore6.isCompareSliderActive).to.eq(false)
+                    })
                     cy.get('[data-cy="compareSlider"]').should('not.exist')
 
                     cy.get('[data-cy="menu-advanced-tools-compare"]').click()
-                    expect(uiStore6.compareRatio).to.eq(0.3)
+                    cy.getPinia().then((pinia) => {
+                        const uiStore6 = useUIStore(pinia)
+                        expect(uiStore6.compareRatio).to.eq(0.3)
+                    })
                     cy.get('[data-cy="compareSlider"]').should('be.visible')
                 })
             }
@@ -347,17 +370,23 @@ describe('Testing of the compare slider', () => {
                 },
                 withHash: true,
             })
-            const layersStore3 = useLayersStore()
-            const visibleLayers = layersStore3.visibleLayers
-            expect(visibleLayers).to.be.an('Array')
-            expect(visibleLayers.length).to.deep.equal(2)
-            visibleLayers.forEach((_: Layer, index: number) => {
-                expect(visibleLayers[index]).to.be.an('Object')
-                assertDefined(visibleLayers[index])
-                expect(visibleLayers[index].uuid).to.not.be.undefined
+            cy.getPinia().then((pinia) => {
+                const layersStore3 = useLayersStore(pinia)
+                const visibleLayers = layersStore3.visibleLayers
+                expect(visibleLayers).to.be.an('Array')
+                expect(visibleLayers.length).to.deep.equal(2)
             })
-            const [uuid1, uuid2] = visibleLayers.map((layer: Layer) => layer.uuid)
-            expect(uuid1).to.not.equal(uuid2)
+            cy.getPinia().then((pinia) => {
+                const layersStore3 = useLayersStore(pinia)
+                const visibleLayers = layersStore3.visibleLayers
+                visibleLayers.forEach((_: Layer, index: number) => {
+                    expect(visibleLayers[index]).to.be.an('Object')
+                    assertDefined(visibleLayers[index])
+                    expect(visibleLayers[index].uuid).to.not.be.undefined
+                })
+                const [uuid1, uuid2] = visibleLayers.map((layer: Layer) => layer.uuid)
+                expect(uuid1).to.not.equal(uuid2)
+            })
         })
     })
 })
@@ -376,8 +405,10 @@ describe('The compare Slider and the menu elements should not be available in 3d
             })
             cy.get('[data-cy="compareSlider"]').should('not.exist')
 
-            const uiStore7 = useUIStore()
-            expect(uiStore7.compareRatio).to.eq(0.4)
+            cy.getPinia().then((pinia) => {
+                const uiStore7 = useUIStore(pinia)
+                expect(uiStore7.compareRatio).to.eq(0.4)
+            })
         })
     })
     context('Compare menu component with 3d', () => {

@@ -350,6 +350,11 @@ Cypress.Commands.add('getPiniaStore', (storeId: string) => {
         return store
     })
 })
+Cypress.Commands.add('getPinia', () => {
+    return cy.window().then((win) => {
+        return win.store
+    })
+})
 
 /**
  * Read a value from Pinia store state or getter

@@ -20,22 +20,24 @@ describe('Topics', () => {
         if (!rawTopic) {
             return
         }
-        const layersStore = useLayersStore()
-        const activeLayers = layersStore.activeLayers
-        expect(activeLayers).to.be.an('Array')
-        expect(activeLayers.length).to.eq(rawTopic.activatedLayers.length)
+        cy.getPinia().then(pinia => {
+            const layersStore = useLayersStore(pinia)
+            const activeLayers = layersStore.activeLayers
+            expect(activeLayers).to.be.an('Array')
+            expect(activeLayers.length).to.eq(rawTopic.activatedLayers.length)
 
-        // topics layer are in the reverse order as the store layer (topic: top->bottom, layer: bottom->top)
-        // so we have to revert the list of layers from the topic before checking their position in the store
-        rawTopic.activatedLayers
-            .slice()
-            .reverse()
-            .forEach((layerIdThatMustBeActive: string, index: number) => {
-                const activeLayer = activeLayers[index]
-                expect(activeLayer).to.be.an('Object')
-                assertDefined(activeLayer)
-                expect(activeLayer.id).to.eq(layerIdThatMustBeActive)
-            })
+            // topics layer are in the reverse order as the store layer (topic: top->bottom, layer: bottom->top)
+            // so we have to revert the list of layers from the topic before checking their position in the store
+            rawTopic.activatedLayers
+                .slice()
+                .reverse()
+                .forEach((layerIdThatMustBeActive: string, index: number) => {
+                    const activeLayer = activeLayers[index]
+                    expect(activeLayer).to.be.an('Object')
+                    assertDefined(activeLayer)
+                    expect(activeLayer.id).to.eq(layerIdThatMustBeActive)
+                })
+        })
     }
 
     type MouseButton = 'left' | 'middle' | 'right'
@@ -111,15 +113,19 @@ describe('Topics', () => {
         })
         // checking that all topics have been loaded
         cy.fixture('topics.fixture').then((mockupTopics: MockupTopics) => {
-            const topicsStore = useTopicsStore()
-            const topicConfig = topicsStore.config
-            expect(topicConfig).to.be.an('Array')
-            expect(topicConfig.length).to.eq(mockupTopics.topics.length)
+            cy.getPinia().then(pinia => {
+                const topicsStore = useTopicsStore(pinia)
+                const topicConfig = topicsStore.config
+                expect(topicConfig).to.be.an('Array')
+                expect(topicConfig.length).to.eq(mockupTopics.topics.length)
+            })
         })
 
         // checking the default topic at app startup (must be ech)
-        const topicsStore2 = useTopicsStore()
-        expect(topicsStore2.current).to.eq('ech')
+        cy.getPinia().then(pinia => {
+            const topicsStore2 = useTopicsStore(pinia)
+            expect(topicsStore2.current).to.eq('ech')
+        })
         cy.url().should('contain', 'topic=ech')
         cy.openMenuIfMobile()
         // checking that it keeps the topic tree closed at app startup (with default topic)
@@ -128,13 +134,15 @@ describe('Topics', () => {
 
         //---------------------------------------------------------------------
         cy.log('can switch topics')
-        const layersStore2 = useLayersStore()
-        const layers = layersStore2.visibleLayers
-        expect(layers).to.be.an('Array')
-        expect(layers.length).to.eq(1)
-        assertDefined(layers[0])
-        expect(layers[0]).to.be.an('Object')
-        expect(layers[0].id).to.eq('test.wmts.layer')
+        cy.getPinia().then(pinia => {
+            const layersStore2 = useLayersStore(pinia)
+            const layers = layersStore2.visibleLayers
+            expect(layers).to.be.an('Array')
+            expect(layers.length).to.eq(1)
+            assertDefined(layers[0])
+            expect(layers[0]).to.be.an('Object')
+            expect(layers[0].id).to.eq('test.wmts.layer')
+        })
 
         // it must clear all activated layers and change background layer on topic selection
         cy.fixture('topics.fixture').then((mockupTopics: MockupTopics) => {
@@ -144,15 +152,17 @@ describe('Topics', () => {
 
             selectTopicWithId(topicStandard.id)
             // we expect visible layers to be empty
-            const layersStore3 = useLayersStore()
-            const layers2 = layersStore3.visibleLayers
-            expect(layers2).to.be.an('Array')
-            expect(layers2.length).to.eq(0)
+            cy.getPinia().then(pinia => {
+                const layersStore3 = useLayersStore(pinia)
+                const layers2 = layersStore3.visibleLayers
+                expect(layers2).to.be.an('Array')
+                expect(layers2.length).to.eq(0)
 
-            // we expect background layer to have switched to the one of the topic
-            const bgLayer = layersStore3.currentBackgroundLayer
-            expect(bgLayer).to.not.be.undefined
-            expect(bgLayer?.id).to.eq(topicStandard.defaultBackground)
+                // we expect background layer to have switched to the one of the topic
+                const bgLayer = layersStore3.currentBackgroundLayer
+                expect(bgLayer).to.not.be.undefined
+                expect(bgLayer?.id).to.eq(topicStandard.defaultBackground)
+            })
 
             // it must show the topic tree in the menu when a topic is selected (that is not the default topic)
             cy.get('[data-cy="menu-topic-tree"]').should('be.visible')
@@ -165,8 +175,10 @@ describe('Topics', () => {
             assertDefined(topicWithActiveLayers)
             selectTopicWithId(topicWithActiveLayers.id)
             // we expect the layer to be activated but not visible
-            const layersStore4 = useLayersStore()
-            expect(layersStore4.visibleLayers).to.be.empty
+            cy.getPinia().then(pinia => {
+                const layersStore4 = useLayersStore(pinia)
+                expect(layersStore4.visibleLayers).to.be.empty
+            })
             checkThatActiveLayerFromTopicAreActive(topicWithActiveLayers)
             // now that there are some active layer, the "Displayed map" menu section must be visible
             cy.get('[data-cy="menu-section-active-layers"]').should('be.visible')
@@ -176,14 +188,16 @@ describe('Topics', () => {
             assertDefined(topicWithVisibleLayers)
             selectTopicWithId(topicWithVisibleLayers.id)
             // there should be visible layers
-            const layersStore5 = useLayersStore()
-            const visibleLayers = layersStore5.visibleLayers
-            expect(visibleLayers).to.be.an('Array')
-            expect(visibleLayers.length).to.eq(topicWithVisibleLayers.selectedLayers.length)
-            topicWithVisibleLayers.selectedLayers.forEach((layerIdThatMustBeVisible: string, index: number) => {
-                expect(visibleLayers[index]).to.be.an('Object')
-                assertDefined(visibleLayers[index])
-                expect(visibleLayers[index].id).to.eq(layerIdThatMustBeVisible)
+            cy.getPinia().then(pinia => {
+                const layersStore5 = useLayersStore(pinia)
+                const visibleLayers = layersStore5.visibleLayers
+                expect(visibleLayers).to.be.an('Array')
+                expect(visibleLayers.length).to.eq(topicWithVisibleLayers.selectedLayers.length)
+                topicWithVisibleLayers.selectedLayers.forEach((layerIdThatMustBeVisible: string, index: number) => {
+                    expect(visibleLayers[index]).to.be.an('Object')
+                    assertDefined(visibleLayers[index])
+                    expect(visibleLayers[index].id).to.eq(layerIdThatMustBeVisible)
+                })
             })
             checkThatActiveLayerFromTopicAreActive(topicWithVisibleLayers)
 
@@ -198,29 +212,31 @@ describe('Topics', () => {
                 'test.wmts.layer': 0.6,
                 'test.wms.layer': 0.8,
             }
-            const layersStore6 = useLayersStore()
-            const visibleLayers2 = layersStore6.visibleLayers
-            expect(visibleLayers2).to.be.an('Array')
-            expect(visibleLayers2.length).to.eq(expectedVisibleLayers.length)
-            expectedVisibleLayers.forEach((layerIdThatMustBeVisible, index) => {
-                expect(visibleLayers2[index]).to.be.an('Object')
-                assertDefined(visibleLayers2[index])
-                expect(visibleLayers2[index].id).to.eq(layerIdThatMustBeVisible)
-            })
+            cy.getPinia().then(pinia => {
+                const layersStore6 = useLayersStore(pinia)
+                const visibleLayers2 = layersStore6.visibleLayers
+                expect(visibleLayers2).to.be.an('Array')
+                expect(visibleLayers2.length).to.eq(expectedVisibleLayers.length)
+                expectedVisibleLayers.forEach((layerIdThatMustBeVisible, index) => {
+                    expect(visibleLayers2[index]).to.be.an('Object')
+                    assertDefined(visibleLayers2[index])
+                    expect(visibleLayers2[index].id).to.eq(layerIdThatMustBeVisible)
+                })
 
-            const activeLayers2 = layersStore6.activeLayers
-            expect(activeLayers2).to.be.an('Array')
-            expect(activeLayers2.length).to.eq(expectedActiveLayers.length)
-            expectedActiveLayers.forEach((layerIdThatMustBeActive, index) => {
-                const activeLayer = activeLayers2[index]
-                assertDefined(activeLayer)
-                expect(activeLayer).to.be.an('Object')
-                expect(activeLayer.id).to.eq(layerIdThatMustBeActive)
-                expect(activeLayer.opacity).to.eq(expectedOpacity[layerIdThatMustBeActive])
-            })
+                const activeLayers2 = layersStore6.activeLayers
+                expect(activeLayers2).to.be.an('Array')
+                expect(activeLayers2.length).to.eq(expectedActiveLayers.length)
+                expectedActiveLayers.forEach((layerIdThatMustBeActive, index) => {
+                    const activeLayer = activeLayers2[index]
+                    assertDefined(activeLayer)
+                    expect(activeLayer).to.be.an('Object')
+                    expect(activeLayer.id).to.eq(layerIdThatMustBeActive)
+                    expect(activeLayer.opacity).to.eq(expectedOpacity[layerIdThatMustBeActive])
+                })
 
-            const bgLayer2 = layersStore6.currentBackgroundLayer
-            expect(bgLayer2).to.be.undefined // void layer
+                const bgLayer2 = layersStore6.currentBackgroundLayer
+                expect(bgLayer2).to.be.undefined // void layer
+            })
         })
 
         //---------------------------------------------------------------------
@@ -239,9 +255,11 @@ describe('Topics', () => {
 
         // it adds a layer to the map when we click on its name in the topic tree
         cy.get('[data-cy="catalogue-tree-item-title-3"]').should('be.visible').click()
-        const layersStore7 = useLayersStore()
-        expect(layersStore7.activeLayers).to.have.length(2)
-        expect(layersStore7.visibleLayers).to.have.length(1)
+        cy.getPinia().then(pinia => {
+            const layersStore7 = useLayersStore(pinia)
+            expect(layersStore7.activeLayers).to.have.length(2)
+            expect(layersStore7.visibleLayers).to.have.length(1)
+        })
         cy.get('[data-cy="catalogue-add-layer-button-test.wmts.layer"] svg').should(
             'have.class',
             'fa-square-check'
@@ -251,26 +269,30 @@ describe('Topics', () => {
             'have.class',
             'fa-square'
         )
-        const layersStore8 = useLayersStore()
-        const activeLayers3 = layersStore8.activeLayers
-        expect(activeLayers3).to.be.an('Array').lengthOf(1)
-        const [firstLayer] = activeLayers3
-        assertDefined(firstLayer)
-        expect(firstLayer.id).to.eq('test.wms.layer')
+        cy.getPinia().then(pinia => {
+            const layersStore8 = useLayersStore(pinia)
+            const activeLayers3 = layersStore8.activeLayers
+            expect(activeLayers3).to.be.an('Array').lengthOf(1)
+            const [firstLayer] = activeLayers3
+            assertDefined(firstLayer)
+            expect(firstLayer.id).to.eq('test.wms.layer')
+        })
 
         cy.get('[data-cy="catalogue-tree-item-title-test.wmts.layer"]').should('be.visible').click()
         cy.get('[data-cy="catalogue-add-layer-button-test.wmts.layer"] svg').should(
             'have.class',
             'fa-square-check'
         )
-        const layersStore9 = useLayersStore()
-        const activeLayers4 = layersStore9.activeLayers
-        expect(activeLayers4).to.be.an('Array').lengthOf(2)
-        const [firstLayer2, secondLayer] = activeLayers4
-        assertDefined(firstLayer2)
-        assertDefined(secondLayer)
-        expect(firstLayer2.id).to.eq('test.wms.layer')
-        expect(secondLayer.id).to.eq('test.wmts.layer')
+        cy.getPinia().then(pinia => {
+            const layersStore9 = useLayersStore(pinia)
+            const activeLayers4 = layersStore9.activeLayers
+            expect(activeLayers4).to.be.an('Array').lengthOf(2)
+            const [firstLayer2, secondLayer] = activeLayers4
+            assertDefined(firstLayer2)
+            assertDefined(secondLayer)
+            expect(firstLayer2.id).to.eq('test.wms.layer')
+            expect(secondLayer.id).to.eq('test.wmts.layer')
+        })
 
         //---------------------------------------------------------------------
         cy.log('it opens the layer legend popup when clicking the info button')
@@ -290,12 +312,16 @@ describe('Topics', () => {
         cy.get('[data-cy="catalogue-tree-item-5"]').should('be.visible').click()
         cy.get('[data-cy="catalogue-tree-item-name-test.wms.layer"]').scrollIntoView()
         cy.get('[data-cy="catalogue-tree-item-name-test.wms.layer"]').should('be.visible')
-        const layersStore10 = useLayersStore()
-        expect(layersStore10.previewLayer).to.be.undefined
+        cy.getPinia().then(pinia => {
+            const layersStore10 = useLayersStore(pinia)
+            expect(layersStore10.previewLayer).to.be.undefined
+        })
         cy.get('[data-cy="catalogue-tree-item-name-test.wms.layer"]').trigger('mouseenter')
-        const layersStore11 = useLayersStore()
-        const previewLayer = layersStore11.previewLayer
-        expect(previewLayer?.id).to.equal('test.wms.layer')
+        cy.getPinia().then(pinia => {
+            const layersStore11 = useLayersStore(pinia)
+            const previewLayer = layersStore11.previewLayer
+            expect(previewLayer?.id).to.equal('test.wms.layer')
+        })
 
         //----------------------------------------------------------------------
         cy.log('Sets the url parameter catalogNodes when opening/closing catalog themes')
@@ -332,14 +358,16 @@ describe('Topics', () => {
         cy.get('[data-cy="catalogue-tree-item-5"]').should('be.visible')
         cy.get('[data-cy="catalogue-tree-item-test.wmts.layer"]').should('not.exist')
         cy.get('[data-cy="catalogue-tree-item-test.wms.layer"]').should('be.visible')
-        const topicsStore3 = useTopicsStore()
-        const currentlyOpenedThemesId = topicsStore3.openedTreeThemesIds
-        expect(currentlyOpenedThemesId).to.be.an('Array')
-        expect(currentlyOpenedThemesId).to.deep.equal([
-            'test-topic-with-active-layers',
-            '2',
-            '5',
-        ])
+        cy.getPinia().then(pinia => {
+            const topicsStore3 = useTopicsStore(pinia)
+            const currentlyOpenedThemesId = topicsStore3.openedTreeThemesIds
+            expect(currentlyOpenedThemesId).to.be.an('Array')
+            expect(currentlyOpenedThemesId).to.deep.equal([
+                'test-topic-with-active-layers',
+                '2',
+                '5',
+            ])
+        })
     })
 
     // This test is very flaky, the legend is only sometimes resized and I have not found a solution yet to make it more stable therefore it is skiped for now

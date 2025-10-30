@@ -73,8 +73,10 @@ describe('Geolocation cypress', () => {
                     cy.on('window:alert', () => {
                         throw new Error('Should not prompt for geolocation API permission again')
                     })
-                    const geolocationStore = useGeolocationStore()
-                    expect(geolocationStore.active).to.be.true
+                    cy.getPinia().then(pinia => {
+                        const geolocationStore = useGeolocationStore(pinia)
+                        expect(geolocationStore.active).to.be.true
+                    })
                 })
             })
 
@@ -110,33 +112,43 @@ describe('Geolocation cypress', () => {
 
                 // check initial center and zoom
                 checkStorePosition('state.position.center', x0, y0)
-                const positionStore = usePositionStore()
-                expect(positionStore.zoom).to.eq(startingZoom)
+                cy.getPinia().then(pinia => {
+                    const positionStore = usePositionStore(pinia)
+                    expect(positionStore.zoom).to.eq(startingZoom)
+                })
 
                 getGeolocationButtonAndClickIt()
                 checkStorePosition('state.geolocation.position', geoX, geoY)
 
                 // check that the map has been centered on the geolocation and zoom is updated
                 checkStorePosition('state.position.center', geoX, geoY)
-                const positionStore2 = usePositionStore()
-                expect(positionStore2.zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP)
+                cy.getPinia().then(pinia => {
+                    const positionStore2 = usePositionStore(pinia)
+                    expect(positionStore2.zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP)
+                })
 
                 // Check if the zoom is changed
                 cy.get('[data-cy="zoom-in"]').click()
-                const positionStore3 = usePositionStore()
-                expect(positionStore3.zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP + 1)
+                cy.getPinia().then(pinia => {
+                    const positionStore3 = usePositionStore(pinia)
+                    expect(positionStore3.zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP + 1)
+                })
                 checkStorePosition('state.position.center', geoX, geoY)
 
                 cy.get('[data-cy="zoom-in"]').click()
                 cy.get('[data-cy="zoom-in"]').click()
-                const positionStore4 = usePositionStore()
-                expect(positionStore4.zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP + 3)
+                cy.getPinia().then(pinia => {
+                    const positionStore4 = usePositionStore(pinia)
+                    expect(positionStore4.zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP + 3)
+                })
 
                 cy.get('[data-cy="zoom-out"]').click()
                 cy.get('[data-cy="zoom-out"]').click()
                 cy.get('[data-cy="zoom-out"]').click()
-                const positionStore5 = usePositionStore()
-                expect(positionStore5.zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP)
+                cy.getPinia().then(pinia => {
+                    const positionStore5 = usePositionStore(pinia)
+                    expect(positionStore5.zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP)
+                })
                 checkStorePosition('state.position.center', geoX, geoY)
             })
             it('access from outside Switzerland shows an error message', () => {

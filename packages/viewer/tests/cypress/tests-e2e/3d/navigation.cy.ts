@@ -70,24 +70,26 @@ describe('Testing 3D navigation', () => {
                     duration: 0.0,
                 })
                 cy.window().its('cesiumViewer').then(() => {
-                    const positionStore = usePositionStore()
-                    const center = positionStore.centerEpsg4326
-                    expect(center?.[0]).to.eq(lon)
-                    expect(center?.[1]).to.eq(lat)
+                    cy.getPinia().then((pinia) => {
+                        const positionStore = usePositionStore(pinia)
+                        const center = positionStore.centerEpsg4326
+                        expect(center?.[0]).to.eq(lon)
+                        expect(center?.[1]).to.eq(lat)
 
-                    const { zoom, projection } = positionStore
-                    const height = viewer.camera.positionCartographic.height
-                    const resolution = calculateResolution(height, viewer.canvas.clientWidth)
-                    expect(zoom).to.approximately(
-                        projection?.getZoomForResolutionAndCenter(
-                            resolution,
-                            proj4(WGS84.epsg, projection.epsg, [lon, lat])
-                        ),
-                        0.001
-                    )
+                        const { zoom, projection } = positionStore
+                        const height = viewer.camera.positionCartographic.height
+                        const resolution = calculateResolution(height, viewer.canvas.clientWidth)
+                        expect(zoom).to.approximately(
+                            projection?.getZoomForResolutionAndCenter(
+                                resolution,
+                                proj4(WGS84.epsg, projection.epsg, [lon, lat])
+                            ),
+                            0.001
+                        )
 
-                    const rotation = positionStore.rotation
-                    expect(rotation).to.eq(Math.PI)
+                        const rotation = positionStore.rotation
+                        expect(rotation).to.eq(Math.PI)
+                    })
                 })
             })
         })
@@ -98,8 +100,10 @@ describe('Testing 3D navigation', () => {
             queryParams: { center: '0,0' }
         })
         cy.log('check if center is moved to out of bounds location')
-        const positionStore2 = usePositionStore()
-        expect(positionStore2.center).to.deep.equal([2660000, 1190000])
+        cy.getPinia().then((pinia) => {
+            const positionStore2 = usePositionStore(pinia)
+            expect(positionStore2.center).to.deep.equal([2660000, 1190000])
+        })
     })
     it('3d camera does not go out of bounds if url parameter is out of bounds', () => {
         cy.goToMapView({
@@ -110,8 +114,10 @@ describe('Testing 3D navigation', () => {
         })
         cy.waitUntilCesiumTilesLoaded()
         cy.log('check if camera is moved to out of bounds location')
-        const positionStore3 = usePositionStore()
-        expect(positionStore3.camera?.x).to.deep.equal(8.225457)
-        expect(positionStore3.camera?.y).to.deep.equal(46.858429)
+        cy.getPinia().then((pinia) => {
+            const positionStore3 = usePositionStore(pinia)
+            expect(positionStore3.camera?.x).to.deep.equal(8.225457)
+            expect(positionStore3.camera?.y).to.deep.equal(46.858429)
+        })
     })
 })

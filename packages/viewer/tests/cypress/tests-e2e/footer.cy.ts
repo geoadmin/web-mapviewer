@@ -35,8 +35,10 @@ describe('Testing the footer content / tools', () => {
                 ? 'background-selector-open-wheel-button-squared'
                 : 'background-selector-open-wheel-button'
             // first, checking that the current bgLayer is the void layer
-            const layersStore = useLayersStore()
-            cy.wrap(layersStore.currentBackgroundLayer).should('be.undefined')
+            cy.getPinia().then((pinia) => {
+                const layersStore = useLayersStore(pinia)
+                cy.wrap(layersStore.currentBackgroundLayer).should('be.undefined')
+            })
 
             // opening the background wheel
             cy.get(`[data-cy="${wheelButton}"]`).click()
@@ -59,7 +61,10 @@ describe('Testing the footer content / tools', () => {
 
             // reverting to void layer
             cy.get('[data-cy="background-selector-void"]').click()
-            cy.wrap(layersStore.currentBackgroundLayer).should('be.undefined')
+            cy.getPinia().then((pinia) => {
+                const layersStore = useLayersStore(pinia)
+                cy.wrap(layersStore.currentBackgroundLayer).should('be.undefined')
+            })
         }
 
         cy.goToMapView({ queryParams: { bgLayer: 'void' } })
