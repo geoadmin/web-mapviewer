@@ -19,8 +19,8 @@ import useLayersStore from '@/store/modules/layers'
  *
 */
 // @ts-expect-error the replacer function expects any as a value, but typescript doesn't like it
-const stringifyWithoutLangOrNull = (key: string, value) =>
-    key === 'lang' || key === 'uuid' || value === null ? undefined : value
+const stringifyWithoutLangOrundefined = (key: string, value) =>
+    key === 'lang' || key === 'uuid' || value === undefined ? undefined : value
 
 describe('Test of layer handling', () => {
     const bgLayer = {
@@ -162,7 +162,7 @@ describe('Test of layer handling', () => {
                     )
 
                     layerObjects[1]!.baseUrl = layerObjects[0]!.baseUrl + 'item=22_06_86t13214'
-                    const layers = layerObjects.map((object) => transformLayerIntoUrlString(object, null, null)).join(';')
+                    const layers = layerObjects.map((object) => transformLayerIntoUrlString(object, undefined, undefined)).join(';')
                     cy.goToMapView({ queryParams: { layers } })
 
                     cy.log(`Verify that the Get capabilities of both server are called`)
@@ -324,7 +324,7 @@ describe('Test of layer handling', () => {
                     cy.goToMapView({
                         queryParams: {
                             layers: layerObjects
-                                .map((object) => transformLayerIntoUrlString(object, null, null))
+                                .map((object) => transformLayerIntoUrlString(object, undefined, undefined))
                                 .join(';'),
                         },
                     })
@@ -393,7 +393,7 @@ describe('Test of layer handling', () => {
                     cy.goToMapView({
                         queryParams: {
                             layers: layerObjects2
-                                .map((object) => transformLayerIntoUrlString(object, null, null))
+                                .map((object) => transformLayerIntoUrlString(object, undefined, undefined))
                                 .join(';'),
                         },
                     })
@@ -603,7 +603,7 @@ describe('Test of layer handling', () => {
         it('sets the background to the void layer if we set the bgLayer parameter to "void"', () => {
             cy.goToMapView({ queryParams: { bgLayer: 'void' } })
             const layersStore12 = useLayersStore()
-            expect(layersStore12.currentBackgroundLayer).to.be.null
+            expect(layersStore12.currentBackgroundLayer).to.be.undefined
         })
         it('sets the background to the topic default if none is defined in the URL', () => {
             cy.fixture('topics.fixture').then((topicFixtures) => {
@@ -611,7 +611,7 @@ describe('Test of layer handling', () => {
                 cy.goToMapView()
                 const layersStore13 = useLayersStore()
                 const bgLayer = layersStore13.currentBackgroundLayer
-                expect(bgLayer).to.not.be.null
+                expect(bgLayer).to.not.be.undefined
                 expect(bgLayer?.id).to.eq(defaultTopic.defaultBackground)
             })
         })
@@ -621,7 +621,7 @@ describe('Test of layer handling', () => {
                 cy.goToMapView({ queryParams: { layers: 'test.timeenabled.wmts.layer' } })
                 const layersStore14 = useLayersStore()
                 const bgLayer2 = layersStore14.currentBackgroundLayer
-                expect(bgLayer2).to.not.be.null
+                expect(bgLayer2).to.not.be.undefined
                 expect(bgLayer2?.id).to.eq(defaultTopic.defaultBackground)
 
                 const visibleLayers7 = layersStore14.visibleLayers
@@ -635,7 +635,7 @@ describe('Test of layer handling', () => {
             cy.goToMapView({ queryParams: { bgLayer: 'test.background.layer2' } })
             const layersStore15 = useLayersStore()
             const bgLayer3 = layersStore15.currentBackgroundLayer
-            expect(bgLayer3).to.not.be.null
+            expect(bgLayer3).to.not.be.undefined
             expect(bgLayer3?.id).to.eq('test.background.layer2')
         })
     })
@@ -1265,7 +1265,7 @@ describe('Test of layer handling', () => {
             // Save the layer configuration before the switch.
             activeLayersConfigBefore = JSON.stringify(
                 layersStore31.activeLayers,
-                stringifyWithoutLangOrNull
+                stringifyWithoutLangOrundefined
             )
 
             // Open the menu and change the language.
@@ -1288,7 +1288,7 @@ describe('Test of layer handling', () => {
             // Compare the layer configuration (except the language)
             const activeLayersConfigAfter = JSON.stringify(
                 layersStore32.activeLayers,
-                stringifyWithoutLangOrNull
+                stringifyWithoutLangOrundefined
             )
             expect(activeLayersConfigAfter).to.eq(activeLayersConfigBefore)
         })

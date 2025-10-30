@@ -135,7 +135,7 @@ describe('Testing the feature selection', () => {
                 },
             })
             cy.url().should((url) => {
-                expect(new URLSearchParams(url.split('map')[1]).get('featureInfo')).to.eq(null)
+                expect(new URLSearchParams(url.split('map')[1]).get('featureInfo')).to.eq(undefined)
             })
 
             cy.log('Check that the features appear in the URL')

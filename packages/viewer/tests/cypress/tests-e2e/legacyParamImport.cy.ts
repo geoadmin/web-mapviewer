@@ -7,7 +7,7 @@ import { KMLStyle } from '@swissgeo/layers'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 
-import type { EditableFeature } from '@/api/features.api'
+import type { EditableFeature, LayerFeature } from '@/api/features.api'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useCesiumStore from '@/store/modules/cesium'
@@ -175,9 +175,11 @@ describe('Test on legacy param import', () => {
             const activeLayers = layersStore.activeLayers
             expect(activeLayers).to.be.an('Array').length(2)
             const [wmsLayer, wmtsLayer] = activeLayers
+            assertDefined(wmsLayer)
             expect(wmsLayer.id).to.eq('test.wms.layer')
             expect(wmsLayer.opacity).to.eq(0.6)
             expect(wmsLayer.isVisible).to.be.true
+            assertDefined(wmtsLayer)
             expect(wmtsLayer.id).to.eq('test.wmts.layer')
             expect(wmtsLayer.opacity).to.eq(0.5)
             expect(wmtsLayer.isVisible).to.be.false
@@ -195,6 +197,7 @@ describe('Test on legacy param import', () => {
             const activeLayers2 = layersStore2.activeLayers
             expect(activeLayers2).to.be.an('Array').length(1)
             const [kmlLayer] = activeLayers2
+            assertDefined(kmlLayer)
             expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
             expect(kmlLayer.opacity).to.eq(0.6)
             expect(kmlLayer.isVisible).to.be.true
@@ -213,6 +216,7 @@ describe('Test on legacy param import', () => {
             const activeLayers3 = layersStore3.activeLayers
             expect(activeLayers3).to.be.an('Array').length(1)
             const [kmlLayer2] = activeLayers3
+            assertDefined(kmlLayer2)
             expect(kmlLayer2.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
             expect(kmlLayer2.opacity).to.eq(1)
             expect(kmlLayer2.isVisible).to.be.true
@@ -231,6 +235,7 @@ describe('Test on legacy param import', () => {
             const activeLayers4 = layersStore4.activeLayers
             expect(activeLayers4).to.be.an('Array').length(1)
             const [kmlLayer3] = activeLayers4
+            assertDefined(kmlLayer3)
             expect(kmlLayer3.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
             expect(kmlLayer3.opacity).to.eq(1)
             expect(kmlLayer3.isVisible).to.be.true
@@ -253,12 +258,15 @@ describe('Test on legacy param import', () => {
             const activeLayers5 = layersStore5.activeLayers
             expect(activeLayers5).to.be.an('Array').length(3)
             const [wmsLayer2, wmtsLayer2, kmlLayer4] = activeLayers5
+            assertDefined(wmsLayer2)
             expect(wmsLayer2.id).to.eq('test.wms.layer')
             expect(wmsLayer2.opacity).to.eq(0.6)
             expect(wmsLayer2.isVisible).to.be.true
+            assertDefined(wmtsLayer2)
             expect(wmtsLayer2.id).to.eq('test.wmts.layer')
             expect(wmtsLayer2.opacity).to.eq(0.5)
             expect(wmtsLayer2.isVisible).to.be.false
+            assertDefined(kmlLayer4)
             expect(kmlLayer4.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
             expect(kmlLayer4.opacity).to.eq(1)
             expect(kmlLayer4.isVisible).to.be.true
@@ -302,6 +310,7 @@ describe('Test on legacy param import', () => {
             expect(feature).to.be.a('array').that.is.not.empty
             assertDefined(coordinates[0])
             assertDefined(coordinates[1])
+            assertDefined(feature)
             expect(feature[0]).to.be.approximately(coordinates[0], acceptableDelta)
             expect(feature[1]).to.be.approximately(coordinates[1], acceptableDelta)
             cy.get('[data-cy="search-results-locations"]').should('not.be.visible')
@@ -326,6 +335,7 @@ describe('Test on legacy param import', () => {
                 const activeLayers6 = layersStore6.activeLayers
                 expect(activeLayers6).to.be.an('Array').length(2)
                 const externalLayer = activeLayers6[1]
+                assertDefined(externalLayer)
                 expect(externalLayer.isExternal).to.be.true
                 expect(externalLayer.isVisible).to.be.true
                 expect(externalLayer.baseUrl).to.eq(mockExternalWms1.baseUrl)
@@ -358,6 +368,7 @@ describe('Test on legacy param import', () => {
                 const activeLayers7 = layersStore7.activeLayers
                 expect(activeLayers7).to.be.an('Array').length(2)
                 const externalLayer2 = activeLayers7[1]
+                assertDefined(externalLayer2)
                 expect(externalLayer2.isExternal).to.be.true
                 expect(externalLayer2.isVisible).to.be.true
                 expect(externalLayer2.baseUrl).to.eq(mockExternalWmts1.baseUrl)
@@ -405,6 +416,7 @@ describe('Test on legacy param import', () => {
 
             // Checking camera position
             const positionStore6 = usePositionStore()
+            assertDefined(positionStore6.camera)
             expect(positionStore6.camera.x).to.eq(lon)
             expect(positionStore6.camera.y).to.eq(lat)
             // For some reason, the z value is not exactly the same as the elevation
@@ -434,6 +446,7 @@ describe('Test on legacy param import', () => {
 
             // Checking camera position
             const positionStore7 = usePositionStore()
+            assertDefined(positionStore7.camera)
             expect(positionStore7.camera.x).to.eq(lon)
             expect(positionStore7.camera.y).to.eq(lat)
             expect(positionStore7.camera.z).to.eq(0)
@@ -461,11 +474,12 @@ describe('Test on legacy param import', () => {
             expect(cesiumStore3.active).to.eq(true) // cesium should be active
 
             // Checking camera position
-            // x, y, and z seems recalculated when there is only elevation, so I just check that they are not null
+            // x, y, and z seems recalculated when there is only elevation, so I just check that they are not undefined
             const positionStore8 = usePositionStore()
-            expect(positionStore8.camera.x).to.not.be.null
-            expect(positionStore8.camera.y).to.not.be.null
-            expect(positionStore8.camera.z).to.not.be.null
+            assertDefined(positionStore8.camera)
+            expect(positionStore8.camera.x).to.not.be.undefined
+            expect(positionStore8.camera.y).to.not.be.undefined
+            expect(positionStore8.camera.z).to.not.be.undefined
             expect(positionStore8.camera.heading).to.eq(0)
             expect(positionStore8.camera.pitch).to.eq(-90)
             expect(positionStore8.camera.roll).to.eq(0)
@@ -514,7 +528,7 @@ describe('Test on legacy param import', () => {
             const features = featuresStore.selectedFeatures
             expect(features.length).to.eq(featuresIds.length)
 
-            features.forEach((feature: EditableFeature) => {
+            features.forEach((feature: LayerFeature | EditableFeature) => {
                 expect(featuresIds).to.include(feature.id)
             })
         }

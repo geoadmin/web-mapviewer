@@ -80,7 +80,7 @@ describe('Geolocation on 3D cypress', () => {
             })
             // The test is too fragile in CI (sometimes pass, sometimes not) due to rendered crassh
             it.skip('access from outside Switzerland shows an error message', () => {
-                // null island
+                // undefined island
                 cy.goToMapView({
                     queryParams: { '3d': true },
                     withHash: true,

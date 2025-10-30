@@ -9,13 +9,13 @@ interface CyRequest {
     body: string
 }
 
-function getFormDataBoundary(request: CyRequest): string | undefined {
+function getFormDataBoundary(request: CyRequest | CyHttpMessages.IncomingRequest): string | undefined {
     const contentType = request.headers['content-type']
-    const boundaryMatch = contentType?.match(/boundary=([\w-]+)/)
+    const boundaryMatch = typeof contentType === 'string' ? contentType.match(/boundary=([\w-]+)/) : undefined
     return (boundaryMatch && boundaryMatch[1]) || undefined
 }
 
-export function parseFormData(request: CyRequest): FormDataPart {
+export function parseFormData(request: CyRequest | CyHttpMessages.IncomingRequest): FormDataPart {
     const boundary = getFormDataBoundary(request)
     if (!boundary) {
         throw new Error('No boundary found in form data')
