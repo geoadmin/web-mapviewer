@@ -1,7 +1,7 @@
 import { extentUtils, WEBMERCATOR } from '@swissgeo/coordinates'
 
 import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@/api/features.api'
-import { FeatureInfoPositions } from '@/store/modules/ui.store'
+import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 import { HALFSIZE_WEBMERCATOR } from '@/utils/geodesicManager'
 
 const olSelector = '.ol-viewport'
