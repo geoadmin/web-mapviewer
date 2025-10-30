@@ -7,7 +7,7 @@ import proj4 from 'proj4'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { BREAKPOINT_TABLET } from '@/config/responsive.config'
-import { CrossHairs } from '@/store/modules/position'
+import { CrossHairs } from '@/store/modules/position/types/crossHairs.enum'
 
 registerProj4(proj4)
 
@@ -596,7 +596,7 @@ describe('Test the search bar result handling', () => {
             queryParams:
             {
                 swisssearch: swissSearchString,
-                crosshair: CrossHairs.cross,
+                crosshair: CrossHairs.Cross,
             },
             withHash: false,
         })
@@ -604,7 +604,7 @@ describe('Test the search bar result handling', () => {
             searchQuery: swissSearchString,
             expectedCenter: swissSearchXYCoordinates,
             expectedPinnedLocation: swissSearchXYCoordinates,
-            expectedCrosshair: CrossHairs.cross,
+            expectedCrosshair: CrossHairs.Cross,
             expectedCrosshairPosition: swissSearchXYCoordinates,
         })
 
@@ -636,7 +636,7 @@ describe('Test the search bar result handling', () => {
             queryParams:
             {
                 swisssearch: swissSearchString,
-                crosshair: CrossHairs.cross,
+                crosshair: CrossHairs.Cross,
             },
             withHash: true,
         })
@@ -644,7 +644,7 @@ describe('Test the search bar result handling', () => {
             searchQuery: swissSearchString,
             expectedCenter: swissSearchXYCoordinates,
             expectedPinnedLocation: swissSearchXYCoordinates,
-            expectedCrosshair: CrossHairs.cross,
+            expectedCrosshair: CrossHairs.Cross,
             expectedCrosshairPosition: swissSearchXYCoordinates,
         })
 
@@ -656,7 +656,7 @@ describe('Test the search bar result handling', () => {
             queryParams:
             {
                 swisssearch: swissSearchString,
-                crosshair: `${CrossHairs.cross},${crossHairX},${crossHairY}`,
+                crosshair: `${CrossHairs.Cross},${crossHairX},${crossHairY}`,
             },
             withHash: true,
         })
@@ -664,7 +664,7 @@ describe('Test the search bar result handling', () => {
             searchQuery: swissSearchString,
             expectedCenter: swissSearchXYCoordinates,
             expectedPinnedLocation: swissSearchXYCoordinates,
-            expectedCrosshair: CrossHairs.cross,
+            expectedCrosshair: CrossHairs.Cross,
             expectedCrosshairPosition: crossHairXYCoordinates,
         })
     })
