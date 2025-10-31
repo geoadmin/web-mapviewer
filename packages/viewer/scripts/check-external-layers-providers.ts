@@ -48,7 +48,7 @@ const SIZE_OF_CONTENT_DISPLAY = 150
 interface ProviderObject {
     provider: string
     url: string
-    status?: number | undefined
+    status?: number
     error?: string
     headers?: Record<string, string>
     content?: string
@@ -68,10 +68,6 @@ type InvalidMap = {
 
 interface Result extends InvalidMap {
     valid_providers: string[]
-}
-
-interface HasProvider {
-    provider: string
 }
 
 interface Options {
@@ -118,7 +114,7 @@ function setupAxiosRetry(): void {
     })
 }
 
-function compareResultByProvider(a: HasProvider, b: HasProvider): number {
+function compareResultByProvider(a: ProviderObject, b: ProviderObject): number {
     return compareCaseInsensitive(a.provider, b.provider)
 }
 
