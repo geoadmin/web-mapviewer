@@ -362,13 +362,23 @@ export interface ExternalLayerTimeDimension {
     current?: boolean
 }
 
+export interface TileMatrix {
+    id: string
+    scaleDenominator: number
+    topLeftCorner: SingleCoordinate
+    tileWidth: number
+    tileHeight: number
+    matrixWidth: number
+    matrixHeight: number
+}
+
 export interface TileMatrixSet {
     /* Identifier of the tile matrix set (see WMTS OGC spec) */
     readonly id: string
     /* Coordinate system supported by the Tile Matrix Set */
     projection: CoordinateSystem
     /* TileMatrix from GetCapabilities (see WMTS OGC spec) */
-    tileMatrix: unknown // TODO type this properly
+    tileMatrix: TileMatrix[]
 }
 
 export interface BoundingBox {

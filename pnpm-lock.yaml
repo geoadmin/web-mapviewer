@@ -94,7 +94,7 @@ catalogs:
       specifier: ^7946.0.16
       version: 7946.0.16
     '@types/jsdom':
-      specifier: 27.0.0
+      specifier: ^27.0.0
       version: 27.0.0
     '@types/lodash':
       specifier: ^4.17.20
@@ -111,6 +111,12 @@ catalogs:
     '@types/pako':
       specifier: ^2.0.4
       version: 2.0.4
+    '@types/sortablejs':
+      specifier: ^1.15.9
+      version: 1.15.9
+    '@types/yargs':
+      specifier: ^17.0.34
+      version: 17.0.34
     '@typescript-eslint/utils':
       specifier: ^8.46.1
       version: 8.46.1
@@ -1346,10 +1352,10 @@ importers:
         specifier: 'catalog:'
         version: 2.0.4
       '@types/sortablejs':
-        specifier: ^1.15.8
-        version: 1.15.8
+        specifier: 'catalog:'
+        version: 1.15.9
       '@types/yargs':
-        specifier: ^17.0.34
+        specifier: 'catalog:'
         version: 17.0.34
       '@vite-pwa/assets-generator':
         specifier: 'catalog:'
@@ -3694,8 +3700,8 @@ packages:
   '@types/sizzle@2.3.9':
     resolution: {integrity: sha512-xzLEyKB50yqCUPUJkIsrVvoWNfFUbIZI+RspLWt8u+tIW/BetMBZtgV2LY/2o+tYH8dRvQ+eoPf3NdhQCcLE2w==}
 
-  '@types/sortablejs@1.15.8':
-    resolution: {integrity: sha512-b79830lW+RZfwaztgs1aVPgbasJ8e7AXtZYHTELNXZPsERt4ymJdjV4OccDbHQAvHrCcFpbF78jkm0R6h/pZVg==}
+  '@types/sortablejs@1.15.9':
+    resolution: {integrity: sha512-7HP+rZGE2p886PKV9c9OJzLBI6BBJu1O7lJGYnPyG3fS4/duUCcngkNCjsLwIMV+WMqANe3tt4irrXHSIe68OQ==}
 
   '@types/supercluster@7.1.3':
     resolution: {integrity: sha512-Z0pOY34GDFl3Q6hUFYf3HkTwKEE02e7QgtJppBt+beEAxnyOpJua+voGFvxINBHa06GwLFFym7gRPY2SiKIfIA==}
@@ -11255,7 +11261,7 @@ snapshots:
 
   '@types/sizzle@2.3.9': {}
 
-  '@types/sortablejs@1.15.8': {}
+  '@types/sortablejs@1.15.9': {}
 
   '@types/supercluster@7.1.3':
     dependencies:

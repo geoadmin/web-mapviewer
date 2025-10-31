@@ -1,22 +1,29 @@
 #!./node_modules/.bin/vite-node --script
 
-
-import { JSDOM } from 'jsdom'
-
-// faking browser support, so that OpenLayers has what it requires to parse XMLs
-const dom = new JSDOM()
-global.DOMParser = dom.window.DOMParser
-global.Node = dom.window.Node
+import type {
+    ExternalLayer,
+    ExternalWMSLayer,
+    ExternalWMTSLayer,
+    WMSCapabilitiesResponse,
+    WMTSCapabilitiesResponse,
+} from '@swissgeo/layers'
+import type { WMSCapabilitiesParser, WMTSCapabilitiesParser } from '@swissgeo/layers/parsers'
 
 import { LV95 } from '@swissgeo/coordinates'
-import {
-    EXTERNAL_SERVER_TIMEOUT,
-    setWmsGetMapParams,
-} from '@swissgeo/layers/api'
-import { wmsCapabilitiesParser, wmtsCapabilitiesParser, type WMSCapabilitiesResponse, type WMTSCapabilitiesResponse } from '@swissgeo/layers/parsers'
-import axios, { AxiosError, type AxiosResponse } from 'axios'
+import { LayerType } from '@swissgeo/layers'
+import { EXTERNAL_SERVER_TIMEOUT, setWmsGetMapParams } from '@swissgeo/layers/api'
+import { wmsCapabilitiesParser, wmtsCapabilitiesParser } from '@swissgeo/layers/parsers'
+import axios, {
+    AxiosError,
+    type AxiosHeaderValue,
+    type AxiosResponse,
+    type AxiosResponseHeaders,
+    type RawAxiosResponseHeaders,
+} from 'axios'
 import axiosRetry from 'axios-retry'
 import { promises as fs } from 'fs'
+import { JSDOM } from 'jsdom'
+import path from 'path'
 import { exit } from 'process'
 import sharp from 'sharp'
 import writeYamlFile from 'write-yaml-file'
@@ -30,31 +37,37 @@ import {
     isWmtsGetCap,
     isWmtsUrl,
 } from '@/modules/menu/components/advancedTools/ImportCatalogue/utils'
-import path from 'path'
 
-// constants
+// faking browser support, so that OpenLayers has what it requires to parse XMLs
+const dom = new JSDOM()
+global.DOMParser = dom.window.DOMParser
+global.Node = dom.window.Node
 
 const SIZE_OF_CONTENT_DISPLAY = 150
 
-// types and interfaces
-
 interface ProviderObject {
-                provider: string,
-                url: string,
-                status?: number | undefined,
-                error?: string,
-                headers?: Record<string, string>[]
-                content? : string
+    provider: string
+    url: string
+    status?: number | undefined
+    error?: string
+    headers?: Record<string, string>
+    content?: string
 }
 
-type InvalidProviderArrayKeys = 'invalid_providers' | 'invalid_cors' | 'invalid_wms' | 'invalid_wmts' | 'invalid_content'
-interface Result {
-    valid_providers: string[],
-    invalid_providers: ProviderObject[],
-    invalid_cors: ProviderObject[],
-    invalid_wms: ProviderObject[],
-    invalid_wmts: ProviderObject[],
-    invalid_content: ProviderObject[],
+type InvalidProviderArrayKeys =
+    | 'invalid_providers'
+    | 'invalid_cors'
+    | 'invalid_wms'
+    | 'invalid_wmts'
+    | 'invalid_content'
+
+type InvalidMap = {
+    // eslint-disable-next-line no-unused-vars
+    [key in InvalidProviderArrayKeys]: ProviderObject[]
+}
+
+interface Result extends InvalidMap {
+    valid_providers: string[]
 }
 
 interface HasProvider {
@@ -62,12 +75,10 @@ interface HasProvider {
 }
 
 interface Options {
-    input?: string,
-    url?: string,
-    inplace?: boolean,
-    datetime?: boolean,
-    _: (string | number)[],
-    $0: string,
+    input?: string
+    url?: string
+    inplace?: boolean
+    datetime?: boolean
 }
 
 const options = yargs(hideBin(process.argv))
@@ -125,7 +136,11 @@ const requestHeaders = {
     'Sec-Fetch-Site': 'cross-site',
 }
 
-async function checkProviderGetMapTile(provider: string, capabilitiesResponse: AxiosResponse, result: Result): Promise<boolean> {
+async function checkProviderGetMapTile(
+    provider: string,
+    capabilitiesResponse: AxiosResponse<string>,
+    result: Result
+): Promise<boolean> {
     const content = capabilitiesResponse.data
     let isProviderMapTileValid = true
     if (isWmsGetCap(content)) {
@@ -139,13 +154,19 @@ async function checkProviderGetMapTile(provider: string, capabilitiesResponse: A
 
 async function handleWms(provider: string, content: string, result: Result): Promise<boolean> {
     let isProviderMapValid = true
-    const capabilities: WMSCapabilitiesResponse = wmsCapabilitiesParser.parse(content, new URL(provider))
+    const capabilities: WMSCapabilitiesResponse = wmsCapabilitiesParser.parse(
+        content,
+        new URL(provider)
+    )
     const layers = wmsCapabilitiesParser.getAllExternalLayers(capabilities, {
         outputProjection: LV95,
         initialValues: { opacity: 1, isVisible: true },
     })
 
     const firstLeaf = findFirstLeaf(layers)
+    if (!firstLeaf) {
+        return false
+    }
     const capabilitiesLayer = wmsCapabilitiesParser.getCapabilitiesLayer(capabilities, firstLeaf.id)
     const crs = capabilities?.Capability?.Layer?.CRS[0]
     const style = capabilitiesLayer?.Style ? capabilitiesLayer.Style[0]?.Identifier : 'default'
@@ -164,7 +185,12 @@ async function handleWms(provider: string, content: string, result: Result): Pro
         return isProviderMapValid
     }
     for (const getMapUrl of getMapUrls) {
-        const url = setWmsGetMapParams(new URL(`${getMapUrl}`), firstLeaf.id, crs, style!).toString()
+        const url = setWmsGetMapParams(
+            new URL(`${getMapUrl}`),
+            firstLeaf.id,
+            crs,
+            style!
+        ).toString()
 
         try {
             const { response, redirectHeaders } = await fetchMapTile(url, provider)
@@ -180,7 +206,12 @@ async function handleWms(provider: string, content: string, result: Result): Pro
                 ))
         } catch (error) {
             isProviderMapValid = false
-            result.invalid_wms.push(createErrorEntry(provider, url, error as Error, content))
+            result.invalid_wms.push({
+                provider,
+                url,
+                error: error instanceof Error ? error.message : undefined,
+                content: content,
+            })
         }
     }
 
@@ -189,41 +220,41 @@ async function handleWms(provider: string, content: string, result: Result): Pro
 
 async function handleWmts(provider: string, content: string, result: Result): Promise<boolean> {
     let isProviderGetTileValid = true
-    const capabilities: WMTSCapabilitiesResponse = wmtsCapabilitiesParser.parse(content, new URL(provider))
+    const capabilities: WMTSCapabilitiesResponse = wmtsCapabilitiesParser.parse(
+        content,
+        new URL(provider)
+    )
     const layers = wmtsCapabilitiesParser.getAllExternalLayers(capabilities, {
         outputProjection: LV95,
         initialValues: { opacity: 1, isVisible: true },
     })
 
-    const exampleLayer = findFirstLeaf(layers)
-    const getTileUrlWithPlaceholders = exampleLayer.urlTemplate
-    const params = {
-        tileMatrixSet: exampleLayer.tileMatrixSets[0].id,
-        tileMatrix: exampleLayer.tileMatrixSets[0].tileMatrix[0].Identifier,
-        tileRow: 0,
-        tileCol: 0,
-        style: exampleLayer.style,
+    const firstLayer = findFirstLeaf(layers)
+    if (!firstLayer || firstLayer.type !== LayerType.WMTS) {
+        return false
+    }
+    const firstWmtsLayer = firstLayer as ExternalWMTSLayer
+    const getTileUrlWithPlaceholders = firstWmtsLayer.urlTemplate
+    const params: Record<string, string> = {
+        tileRow: '0',
+        tileCol: '0',
+    }
+    if (firstWmtsLayer.tileMatrixSets && firstWmtsLayer.tileMatrixSets.length > 0) {
+        const firstTileMatrixSet = firstWmtsLayer.tileMatrixSets[0]!
+        params.tileMatrixSet = firstTileMatrixSet.id
+        if (firstTileMatrixSet.tileMatrix && firstTileMatrixSet.tileMatrix.length > 0) {
+            params.tileMatrix = firstTileMatrixSet.tileMatrix[0]!.id
+        }
+    }
+    if (firstWmtsLayer.style) {
+        params.style = firstWmtsLayer.style
     }
 
-    // The key for the dimensions is not always the same
-    const dimensionKey = Object.keys(exampleLayer).find(
-        (key) => key.toLowerCase() === 'dimensions' || key.toLowerCase() === 'dimension'
-    )
-
     // Find the default value for each dimension
-    const placeHolderParams =
-        dimensionKey && exampleLayer[dimensionKey]?.reduce((acc: any, curr: any) => {
-            // Find the key for the default value
-            const defaultKey = Object.keys(curr).find((key) => key.toLowerCase() === 'default')
-            // Find the key for the identifier
-            const identifierKey = Object.keys(curr).find(
-                (key) => key.toLowerCase() === 'identifier' || key.toLowerCase() === 'id'
-            )
-            if (defaultKey && identifierKey && curr[defaultKey]) {
-                acc[curr[identifierKey]] = curr[defaultKey]
-            }
-            return acc
-        }, params) || params
+    const placeHolderParams = firstWmtsLayer.dimensions.reduce((acc, currentDimension) => {
+        acc[currentDimension.id] = currentDimension.defaultValue
+        return acc
+    }, params)
 
     let getTileUrl: string | undefined
     try {
@@ -241,19 +272,29 @@ async function handleWmts(provider: string, content: string, result: Result): Pr
         }
     } catch (error) {
         isProviderGetTileValid = false
-        result.invalid_wmts.push(createErrorEntry(provider, getTileUrl || '', error as Error, content))
+        result.invalid_wmts.push({
+            provider,
+            url: getTileUrl ?? '',
+            error: error instanceof Error ? error.message : undefined,
+            content: content,
+        })
     }
 
     return isProviderGetTileValid
 }
 
-async function fetchMapTile(url: string, provider: string): Promise<any> {
-    const redirectHeaders: any[] = []
-    const response = await axios.get(url, {
+interface FetchMapTileResponse {
+    response: AxiosResponse<string> | AxiosResponse<ArrayBuffer>
+    redirectHeaders: Record<string, string>[]
+}
+
+async function fetchMapTile(url: string, provider: string): Promise<FetchMapTileResponse> {
+    const redirectHeaders: Record<string, string>[] = []
+    const response = await axios.get<ArrayBuffer>(url, {
         headers: requestHeaders,
         timeout: EXTERNAL_SERVER_TIMEOUT,
         responseType: 'arraybuffer',
-        beforeRedirect: (options_: any, response: any) => {
+        beforeRedirect: (_, response) => {
             redirectHeaders.push(response.headers)
         },
     })
@@ -267,61 +308,55 @@ async function fetchMapTile(url: string, provider: string): Promise<any> {
     return { response, redirectHeaders }
 }
 
-function createErrorEntry(provider: string, url: string, error: Error, content: string): any {
-    return {
-        provider,
-        url,
-        error: `${error}`,
-        content: content.slice(0, SIZE_OF_CONTENT_DISPLAY),
-    }
-}
-
-/**
- * Replace placeholders in a URL template with values from a params object
- */
-function replaceUrlPlaceholders(urlTemplate: string, params: any): string {
-    const normalizedParams = Object.entries(params).reduce((acc: any, [key, _]) => {
-        acc[key.toLowerCase()] = params[key]
-        return acc
-    }, {})
-    return urlTemplate.replace(/{(\w+)}/g, (_: any, key: string) => {
+/** Replace placeholders in a URL template with values from a params object */
+function replaceUrlPlaceholders(urlTemplate: string, params: Record<string, string>): string {
+    const normalizedParams = Object.entries(params).reduce(
+        (acc: Record<string, string>, [key, _]) => {
+            acc[key.toLowerCase()] = params[key] ?? ''
+            return acc
+        },
+        {}
+    )
+    return urlTemplate.replace(/{(\w+)}/g, (_match: string, key: string): string => {
         const lowerKey = key.toLowerCase()
 
         if (normalizedParams.hasOwnProperty(lowerKey)) {
-            return normalizedParams[lowerKey]
+            return normalizedParams[lowerKey]!
         } else {
             throw new Error(`Missing value for placeholder: ${key}`)
         }
     })
 }
 
-/**
- * Find the first leaf layer in a layer tree
- */
-function findFirstLeaf(layers: any[]): any {
+/** Find the first leaf layer in a layer tree */
+function findFirstLeaf(layers: ExternalLayer[]): ExternalLayer | undefined {
     if (!layers || layers.length === 0) {
-        return null
+        return
     }
 
     for (const layer of layers) {
-        if (!layer.layers || layer.layers.length === 0) {
+        if (layer.type !== LayerType.WMS) {
             return layer
         }
-        const leaf = findFirstLeaf(layer.layers)
+
+        const wmsLayer = layer as ExternalWMSLayer
+        if (!wmsLayer.layers || wmsLayer.layers.length === 0) {
+            return wmsLayer
+        }
+        const leaf = findFirstLeaf(wmsLayer.layers)
         if (leaf) {
             return leaf
         }
     }
-
-    return null
 }
 
 async function checkProvider(provider: string, result: Result): Promise<void> {
     const url = guessExternalLayerUrl(provider, 'en').toString()
-    let capabilitiesResponse : AxiosResponse
+    let capabilitiesResponse: AxiosResponse
     const redirectHeaders: Record<string, string>[] = []
     try {
-        capabilitiesResponse = await axios.get(url, { //
+        capabilitiesResponse = await axios.get<string>(url, {
+            //
             headers: requestHeaders,
             beforeRedirect: (options_, response) => {
                 redirectHeaders.push(response.headers)
@@ -362,31 +397,54 @@ async function checkProvider(provider: string, result: Result): Promise<void> {
     }
 }
 
+function transformHeaders(
+    headers: RawAxiosResponseHeaders | AxiosResponseHeaders
+): Record<string, string> {
+    return Object.entries(headers).reduce(
+        (acc: Record<string, string>, [key, value]: [string, AxiosHeaderValue]) => {
+            if (typeof value === 'string') {
+                acc[key] = value
+            } else if (Array.isArray(value)) {
+                acc[key] = value.join(',')
+            } else if (typeof value === 'object') {
+                acc[key] = JSON.stringify(value)
+            } else if (value) {
+                acc[key] = `${value}`
+            }
+            return acc
+        },
+        {}
+    )
+}
+
 async function checkProviderResponse(
     provider: string,
     url: string,
-    response: any,
+    response: AxiosResponse<string> | AxiosResponse<ArrayBuffer>,
     result: Result,
-    redirectHeaders: any[],
-    checkContentFnc: any
+    redirectHeaders: Record<string, string>[],
+    checkContentFnc?: CheckProviderCallback
 ): Promise<boolean> {
     if (![200, 201].includes(response.status)) {
         console.error(`Provider ${provider} is not valid: status=${response.status}`)
         result.invalid_providers.push({
-            provider: provider,
-            url: url,
+            provider,
+            url,
             status: response.status,
         })
-    } else if (!response.headers.has('access-control-allow-origin')) {
+    } else if (
+        typeof response.headers.has === 'function' &&
+        !response.headers.has('access-control-allow-origin')
+    ) {
         console.error(
             `Provider ${provider} does not support CORS: status=${response.status}, ` +
                 `missing access-control-allow-origin header`
         )
         result.invalid_cors.push({
-            provider: provider,
-            url: url,
+            provider,
+            url,
             status: response.status,
-            headers: response.headers.toJSON(),
+            headers: transformHeaders(response.headers),
         })
     } else if (redirectHeaders.some((header) => !header['access-control-allow-origin'])) {
         console.error(
@@ -402,75 +460,113 @@ async function checkProviderResponse(
         })
     } else if (
         !['*', 'https://map.geo.admin.ch'].includes(
-            response.headers.get('access-control-allow-origin').toString()?.trim()
+            response.headers['access-control-allow-origin'].toString()?.trim()
         )
     ) {
         console.error(
             `Provider ${provider} does not have geoadmin in its CORS: status=${
                 response.status
-            }, Access-Control-Allow-Origin=${response.headers.get('access-control-allow-origin')}`
+            }, Access-Control-Allow-Origin=${response.headers['access-control-allow-origin']}`
         )
         result.invalid_cors.push({
             provider: provider,
             url: url,
             status: response.status,
-            headers: response.headers.toJSON(),
+            headers: transformHeaders(response.headers),
         })
-    } else if (await checkContentFnc(provider, url, response, result)) {
+    } else if (checkContentFnc && (await checkContentFnc(provider, url, response, result))) {
         console.log(`Provider ${provider} is OK`)
         return true
     }
     return false
 }
 
-function checkProviderResponseContent(provider: string, url: string, response: any, result: Result): boolean {
-    const content = response.data
-    // TODO HERE: Specify it's a function that takes one string and return a boolean
-    const parseCapabilities = (isCapFn: Function, parser: any, type: string, result: Result, resultArrayKey: InvalidProviderArrayKeys): boolean => {
-        if (!isCapFn(content)) {
-            return false
+type CheckProviderCallback = (
+    _provider: string,
+    _url: string,
+    _response: AxiosResponse<string> | AxiosResponse<ArrayBuffer>,
+    _result: Result
+) => Promise<boolean>
+
+const checkProviderResponseContent: CheckProviderCallback = (
+    provider,
+    url,
+    response,
+    result
+): Promise<boolean> => {
+    return new Promise<boolean>((resolve) => {
+        const content = response.data
+        if (typeof content !== 'string') {
+            resolve(false)
+            return
         }
 
-        try {
-            const capabilities: WMTSCapabilitiesResponse | WMSCapabilitiesResponse = parser.parse(content, new URL(url))
-            const layers = parser.getAllExternalLayers(capabilities, {
-                outputProjection: LV95,
-                initialValues: { opacity: 1, isVisible: true },
-            })
-
-            if (layers.length === 0) {
-                throw new Error(`No valid ${type} layers found`)
+        const parseCapabilities = (
+            isCapFn: (_input: string) => boolean,
+            parser: WMSCapabilitiesParser | WMTSCapabilitiesParser,
+            type: string,
+            result: Result,
+            resultArrayKey: InvalidProviderArrayKeys
+        ): boolean => {
+            if (!isCapFn(content)) {
+                return false
             }
-        } catch (error) {
-            console.error(`Invalid provider ${provider}, ${type} get Cap parsing failed: ${String(error)}`)
-            result[resultArrayKey].push({
-                provider,
-                url,
-                error: `${String(error)}`,
-                content: content.slice(0, SIZE_OF_CONTENT_DISPLAY),
-            })
-            return false
-        }
-        return true
-    }
-    if (
-        parseCapabilities(isWmsGetCap, wmsCapabilitiesParser, 'WMS', result, 'invalid_wms') ||
-        parseCapabilities(isWmtsGetCap, wmtsCapabilitiesParser, 'WMTS', result, 'invalid_wmts')
-    ) {
-        return true
-    }
 
-    console.error(`Invalid provider ${url}; file type not recognized`)
-    result.invalid_content.push({
-        provider,
-        url,
-        content: content.slice(0, SIZE_OF_CONTENT_DISPLAY),
+            try {
+                const capabilities: WMTSCapabilitiesResponse | WMSCapabilitiesResponse =
+                    parser.parse(content, new URL(url))
+                // @ts-expect-error Generic type inference doesn't work here, but capabilities will have the correct type
+                const layers = parser.getAllExternalLayers(capabilities, {
+                    outputProjection: LV95,
+                    initialValues: { opacity: 1, isVisible: true },
+                })
+
+                if (layers.length === 0) {
+                    throw new Error(`No valid ${type} layers found`)
+                }
+            } catch (error) {
+                console.error(
+                    `Invalid provider ${provider}, ${type} get Cap parsing failed: ${String(error)}`
+                )
+                result[resultArrayKey].push({
+                    provider,
+                    url,
+                    error: `${String(error)}`,
+                    content: content.slice(0, SIZE_OF_CONTENT_DISPLAY),
+                })
+                return false
+            }
+            return true
+        }
+        if (
+            parseCapabilities(isWmsGetCap, wmsCapabilitiesParser, 'WMS', result, 'invalid_wms') ||
+            parseCapabilities(isWmtsGetCap, wmtsCapabilitiesParser, 'WMTS', result, 'invalid_wmts')
+        ) {
+            resolve(true)
+        }
+
+        console.error(`Invalid provider ${url}; file type not recognized`)
+        result.invalid_content.push({
+            provider,
+            url,
+            content: content.slice(0, SIZE_OF_CONTENT_DISPLAY),
+        })
+        resolve(false)
     })
-    return false
 }
 
-async function checkProviderResponseContentGetMap(provider: string, url: string, response: any, result: Result): Promise<boolean> {
-    const content = Buffer.from(response.data)
+const checkProviderResponseContentGetMap: CheckProviderCallback = async (
+    provider,
+    url,
+    response,
+    result
+): Promise<boolean> => {
+    const data = response.data
+    if (typeof data === 'string') {
+        return false
+    }
+
+    const content = Buffer.from(data)
     let isValid = false
     try {
         // Check if the content is a valid image
@@ -557,12 +653,13 @@ async function main(): Promise<void> {
     let providers: string[] = []
     const options_url = options.url
     const options_input = options.input
-        if (options_url) {
+    if (options_url) {
         providers = [options_url]
-    } else if (options_input){
-        providers = JSON.parse(await fs.readFile(path.resolve(options_input), { encoding: 'utf-8' }))
-    }
-    else {
+    } else if (options_input) {
+        providers = JSON.parse(
+            await fs.readFile(path.resolve(options_input), { encoding: 'utf-8' })
+        )
+    } else {
         console.error(`No sources given for providers`)
     }
 
