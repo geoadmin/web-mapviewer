@@ -39,7 +39,6 @@ export default function useVectorLayer(
     const { onFeatureSelectCallback = () => {}, deselectAfterSelect = false } = toValue(
         options ?? {}
     )
-    const initialFeatures = toValue(features)
     // Use unref instead of toValue for styleFunction to avoid unwrapping getter functions.
     // toValue() would call the styleFunction if it's wrapped in a computed ref (getter), but not if it's a regular function value in a ref.
     const unwrappedStyleFunction = unref(styleFunction)
@@ -49,7 +48,7 @@ export default function useVectorLayer(
             id: `vector-layer-${randomIntBetween(0, 100000)}`,
         },
         source: new VectorSource({
-            features: initialFeatures,
+            features: toValue(features),
         }),
         style: unwrappedStyleFunction,
     })
@@ -77,9 +76,8 @@ export default function useVectorLayer(
     watchEffect(() => {
         const source = layer.getSource()
         if (source) {
-            const newFeatures = toValue(features)
             source.clear()
-            source.addFeatures(newFeatures)
+            source.addFeatures(toValue(features))
         }
     })
 
