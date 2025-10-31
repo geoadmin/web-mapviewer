@@ -1,4 +1,9 @@
-import type { ExternalWMSLayer, ExternalWMTSLayer, Layer, WMSCapabilitiesResponse } from '@swissgeo/layers'
+import type {
+    ExternalWMSLayer,
+    ExternalWMTSLayer,
+    Layer,
+    WMSCapabilitiesResponse,
+} from '@swissgeo/layers'
 
 import { CapabilitiesError, LayerType } from '@swissgeo/layers'
 import { readWmsCapabilities, readWmtsCapabilities } from '@swissgeo/layers/api'
@@ -47,14 +52,18 @@ export default async function loadLayerFromCapabilities(
     try {
         if (layer.type === LayerType.WMS) {
             const capabilities = await readWmsCapabilities(layer.baseUrl, i18nStore.lang)
-            parsedLayer = wmsCapabilitiesParser.getExternalLayer(capabilities as unknown as WMSCapabilitiesResponse, layer.id, {
-                outputProjection: positionStore.projection,
-                initialValues: {
-                    opacity: layer.opacity,
-                    isVisible: layer.isVisible,
-                    customAttributes: layer.customAttributes,
-                },
-            })
+            parsedLayer = wmsCapabilitiesParser.getExternalLayer(
+                capabilities as unknown as WMSCapabilitiesResponse,
+                layer.id,
+                {
+                    outputProjection: positionStore.projection,
+                    initialValues: {
+                        opacity: layer.opacity,
+                        isVisible: layer.isVisible,
+                        customAttributes: layer.customAttributes,
+                    },
+                }
+            )
         } else {
             const capabilities = await readWmtsCapabilities(layer.baseUrl, i18nStore.lang)
             parsedLayer = wmtsCapabilitiesParser.getExternalLayer(capabilities, layer.id, {
@@ -81,7 +90,11 @@ export default async function loadLayerFromCapabilities(
                 parsedLayer.baseUrl = layer.baseUrl
             }
             parsedLayer.isLoading = false
-            layersStore.updateLayer(parsedLayer.id, parsedLayer, dispatcher)
+            layersStore.updateLayer<ExternalWMSLayer | ExternalWMTSLayer>(
+                parsedLayer.id,
+                parsedLayer,
+                dispatcher
+            )
         } else {
             throw new Error('Failed to parse/find capabilities for a WMS/WMTS layer')
         }
