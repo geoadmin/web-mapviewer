@@ -3,10 +3,16 @@ import 'cypress-wait-until'
 import '@4tw/cypress-drag-drop'
 import type { GeoAdminLayer } from '@swissgeo/layers'
 import type { Layer as OLLayer } from 'ol/layer'
+import type { Pinia } from 'pinia'
 
 import { registerProj4, WEBMERCATOR } from '@swissgeo/coordinates'
 import { randomIntBetween } from '@swissgeo/numbers'
 import proj4 from 'proj4'
+
+import useAppStore from '@/store/modules/app'
+import useLayersStore from '@/store/modules/layers'
+import useTopicsStore from '@/store/modules/topics'
+import useUIStore from '@/store/modules/ui'
 
 import { getDefaultFixturesAndIntercepts, type InterceptCallback } from './intercepts'
 import { isMobile } from './utils'
@@ -77,25 +83,27 @@ function mockGeolocation(win: Cypress.AUTWindow, options?: GeolocationMockupOpti
 function waitAllLayersLoaded(options?: { queryParams?: Record<string, unknown>, legacy?: boolean }) {
     const { queryParams = {}, legacy = false } = options ?? {}
     cy.waitUntilState(
-        (state, getters) => {
-            const active = state.layers.activeLayers.length
+        (pinia: Pinia) => {
+            const layersStore = useLayersStore(pinia)
+            const topicsStore = useTopicsStore(pinia)
+            const active = layersStore.activeLayers.length
             // The required layers can be set via topic or manually.
-            const targetTopic = getters.currentTopic?.layersToActivate.length
+            const targetTopic = topicsStore.currentTopic?.layersToActivate.length
             let target = targetTopic
             if ('layers' in queryParams) {
                 const layers: string = queryParams.layers as string
                 target = layers.split(legacy ? ',' : ';').length
             }
-            if (legacy && 'adminId' in queryParams) {
+            if (target && legacy && 'adminId' in queryParams) {
                 // In legacy drawing with adminId the layer is not added to the layers parameter
                 target += 1
             }
             // When handling a legacy parameter, the {bod Layer Id} parameter,
             // which has been reworked into the 'features' layer attribute might add extra
             // layers, thus the need to check if those extra layers have been added
-            if (legacy && 'layers' in queryParams) {
+            if (target && legacy && 'layers' in queryParams) {
                 const layers: string = queryParams.layers as string
-                const layersConfig = state.layers.config
+                const layersConfig = layersStore.config
                 target += Object.keys(queryParams)
                     .filter((key) => layersConfig.find((layer: GeoAdminLayer) => layer.id === key)) // this removes all parameters that are not layers ids
                     .filter((key) => !layers.split(',').includes(key)).length // we removes all layers that are in the query params
@@ -246,7 +254,10 @@ Cypress.Commands.add('goToEmbedView', (options) => {
 })
 
 Cypress.Commands.add('waitMapIsReady', ({ timeout = 20000, olMap = true } = {}) => {
-    cy.waitUntilState((state) => state.app.isMapReady, { timeout: timeout })
+    cy.waitUntilState((pinia: Pinia) => {
+        const appStore = useAppStore(pinia)
+        return appStore.isMapReady
+    }, { timeout: timeout })
     // We also need to wait for the pointer event to be set
     if (olMap) {
         cy.window().its('mapPointerEventReady', { timeout: timeout }).should('be.true')
@@ -256,8 +267,9 @@ Cypress.Commands.add('waitMapIsReady', ({ timeout = 20000, olMap = true } = {}) 
 
 Cypress.Commands.add('clickOnLanguage', (lang) => {
     if (isMobile()) {
-        cy.readStoreValue('state.ui.showMenu').then((isMenuCurrentlyOpen) => {
-            if (!isMenuCurrentlyOpen) {
+        cy.getPinia().then((pinia) => {
+            const uiStore = useUIStore(pinia)
+            if (!uiStore.showMenu) {
                 cy.get('[data-cy="menu-button"]').click()
             }
         })
@@ -269,12 +281,12 @@ Cypress.Commands.add('clickOnLanguage', (lang) => {
     cy.log('cmd: clickOnLanguage successful')
 })
 
-Cypress.Commands.add('waitUntilState', (predicate, options) => {
+Cypress.Commands.add('waitUntilState', (predicate: (_pinia: Pinia) => boolean, options) => {
     cy.waitUntil(
         () =>
             cy
                 .window({ log: false })
-                .should((win: Cypress.AUTWindow) => win.store && predicate(win.store.state, win.store.getters)),
+                .should((win: Cypress.AUTWindow) => win.store && predicate(win.store)),
         Object.assign(
             {
                 errorMsg:
@@ -289,17 +301,10 @@ Cypress.Commands.add('waitUntilState', (predicate, options) => {
     // no cy.index command as the waitUntil will already print a message
 })
 
-Cypress.Commands.add('readStoreValue', (key: string) => {
-    return cy.window().its(`store.${key}`)
-})
-
-Cypress.Commands.add('writeStoreValue', (action, payload) => {
-    return cy
-        .window()
-        .its('store')
-        .then((store) => {
-            store.dispatch(action, payload)
-        })
+Cypress.Commands.add('getPinia', () => {
+    return cy.window().then((win) => {
+        return win.store
+    })
 })
 
 // from https://github.com/cypress-io/cypress/issues/1123#issuecomment-672640129
@@ -352,12 +357,12 @@ Cypress.Commands.add('waitUntilCesiumTilesLoaded', () => {
 
 Cypress.Commands.add('openMenuIfMobile', () => {
     if (isMobile()) {
-        cy.readStoreValue('state.ui.showMenu').then((isMenuCurrentlyOpen) => {
-            if (!isMenuCurrentlyOpen) {
+        cy.getPinia().then((pinia) => {
+            const uiStore = useUIStore(pinia)
+            if (!uiStore.showMenu) {
                 cy.get('[data-cy="menu-button"]').click()
             }
-            // waiting on the animation to finish by grabbing the content of the menu and assessing its visibility
-            cy.get('[data-cy="menu-tray-inner"]').should('be.visible')
+            cy.get('[data-cy="menu-tray"]').should('not.be.visible')
         })
     }
     cy.log('cmd: openMenuIfMobile successful')
@@ -365,11 +370,11 @@ Cypress.Commands.add('openMenuIfMobile', () => {
 
 Cypress.Commands.add('closeMenuIfMobile', () => {
     if (isMobile()) {
-        cy.readStoreValue('state.ui.showMenu').then((isMenuCurrentlyOpen) => {
-            if (isMenuCurrentlyOpen) {
+        cy.getPinia().then((pinia) => {
+            const uiStore = useUIStore(pinia)
+            if (!uiStore.showMenu) {
                 cy.get('[data-cy="menu-button"]').click()
             }
-            // waiting on the animation to finish by grabbing the content of the menu and assessing its (in)visibility
             cy.get('[data-cy="menu-tray"]').should('not.be.visible')
         })
     }
@@ -467,7 +472,7 @@ Cypress.Commands.add('checkOlLayer', (args) => {
                     index,
                 }),
             })
-            const olLayer = olLayers.find((l) =>  l.get('id') === layer.id && l.get('zIndex') === index)
+            const olLayer = olLayers.find((l) => l.get('id') === layer.id && l.get('zIndex') === index)
             expect(olLayer, `[${layer.id}] layer at index ${index} not found`).not.to.be.null
             expect(olLayer, `[${layer.id}] layer at index ${index} not found`).not.to.be.undefined
             expect(olLayer!.getVisible(), `[${layer.id}] layer.isVisible`).to.be.equal(layer.visible)

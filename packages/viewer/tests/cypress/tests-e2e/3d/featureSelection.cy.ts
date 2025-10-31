@@ -2,6 +2,8 @@
 
 import type { Viewer } from "cesium"
 
+import useLayersStore from '@/store/modules/layers'
+
 function expectLayerCountToBe(viewer: Viewer, layerCount: number) {
     const layers = viewer.scene.imageryLayers
     expect(layers.length).to.eq(
@@ -18,11 +20,11 @@ describe('Testing the feature selection in 3D', () => {
             const fileName = 'external-kml-file.kml'
             const localKmlFile = `import-tool/${fileName}`
             cy.goToMapView({
-                queryParams:{
-                        '3d': true,
-                        layers: 'test.wms.layer',
-                    }
-                },
+                queryParams: {
+                    '3d': true,
+                    layers: 'test.wms.layer',
+                }
+            },
             )
             cy.waitUntilCesiumTilesLoaded()
 
@@ -42,8 +44,11 @@ describe('Testing the feature selection in 3D', () => {
 
             cy.get('[data-cy="file-input-text"]').should('contain.value', fileName)
             cy.get('[data-cy="import-file-close-button"]:visible').click()
-            cy.readStoreValue('state.layers.activeLayers.length').should('eq', 2)
-            cy.readStoreValue('getters.visibleLayers.length').should('eq', 2)
+            cy.getPinia().then((pinia) => {
+                const layersStore = useLayersStore(pinia)
+                expect(layersStore.activeLayers.length).to.eq(2)
+                expect(layersStore.visibleLayers.length).to.eq(2)
+            })
 
             cy.closeMenuIfMobile()
 

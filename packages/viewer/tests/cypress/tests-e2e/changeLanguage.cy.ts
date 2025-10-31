@@ -1,20 +1,28 @@
 /// <reference types="cypress" />
 
 import { SUPPORTED_LANG } from '@/modules/i18n'
+import useI18nStore from '@/store/modules/i18n'
+import useUIStore from '@/store/modules/ui'
 
 import { isMobile } from '../support/utils'
 
 function checkLanguage(lang: string): void {
     // Check language in store
-    cy.readStoreValue('state.i18n.lang').should('eq', lang)
+    cy.getPinia().then((pinia) => {
+        const i18nStore = useI18nStore(pinia)
+        cy.wrap(i18nStore.lang).should('eq', lang)
+    })
 
     // Check UI
-    if (isMobile()) {
-        cy.readStoreValue('state.ui.showMenu').then((isMenuCurrentlyOpen: boolean) => {
-            if (!isMenuCurrentlyOpen) {
+    cy.getPinia().then((pinia) => {
+        const uiStore = useUIStore(pinia)
+        if (isMobile()) {
+            if (!uiStore.showMenu) {
                 cy.get('[data-cy="menu-button"]').click()
             }
-        })
+        }
+    })
+    if (isMobile()) {
         cy.get('[data-cy="mobile-lang-selector"]').should('exist')
         cy.get('[data-cy="mobile-lang-selector"]')
             .find('option:selected') // it's a select element

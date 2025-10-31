@@ -71,25 +71,30 @@ declare global {
              * @param predicate
              * @param options
              */
-            waitUntilState(predicate: (state: any, getters: any) => boolean, options?: { timeout?: number, customMessage?: string, errorMsg?: string }): void
+            waitUntilState(predicate: (pinia: Pinia) => boolean, options?: { timeout?: number, customMessage?: string, errorMsg?: string }): void
 
             /**
-             * Reads a value from the Vuex store
+             * Get a Pinia store by its ID
              *
-             * for state module value, the key should look like "state.{moduleName}.{valueName}" (e.g. "state.position.center")
-             *
-             * for getters, the key should look like "getters.{getterName}" (e.g. "getters.centerEpsg4326")
-             *
-             * @param key
+             * @param storeId - The store ID (e.g., 'position', 'ui', 'app', 'layers')
+             * @returns The Pinia store instance
+             * @example
+             * cy.getPiniaStore('position').its('rotation').should('eq', 0)
+             * cy.getPiniaStore('ui').invoke('setFullscreenMode', true)
              */
-            readStoreValue(key: string): Cypress.Chainable
+            getPiniaStore(storeId: string): Cypress.Chainable<any>
+            getPinia(): Cypress.Chainable<Pinia>
+
             /**
-             * Dispatches a store action to update some values of the store.
+             * Call a Pinia store action
              *
-             * @param action The store action to dispatch
-             * @param payload The value that is passed as a parameter to the action
+             * @param key - Path to action: 'storeName.actionName'
+             * @param args - Arguments to pass to the action
+             * @example
+             * cy.callStoreAction('position.setRotation', [1.57, 'e2e-test'])
+             * cy.callStoreAction('ui.setFullscreenMode', [true, 'e2e-test'])
              */
-            writeStoreValue(action: string, payload: Record<string, unknown>): Cypress.Chainable
+            callStoreAction(key: string, args?: any[]): Cypress.Chainable<any>
 
             /**
              * Click on language command

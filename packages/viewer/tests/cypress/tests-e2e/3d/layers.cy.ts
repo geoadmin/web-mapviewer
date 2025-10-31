@@ -4,6 +4,7 @@ import { LV95, WEBMERCATOR } from '@swissgeo/coordinates'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
+import useFeaturesStore from '@/store/modules/features'
 
 function expectLayerCountToBe(viewer: Viewer, layerCount: number) {
     const layers = viewer.scene.imageryLayers
@@ -151,13 +152,12 @@ describe('Test of layer handling in 3D', () => {
         const timeEnabledLayerId = 'test.timeenabled.wmts.layer'
         cy.fixture('layers.fixture.json').then((layersMetadata) => {
             const timedLayerMetadata = layersMetadata[timeEnabledLayerId]
-            // TODO: refactor cypress.d.ts so it gives correct types
-            // @ts-expect-error this is chainable, but cypress type definition says it's a string, so it's causing issues here.
             cy.getRandomTimestampFromSeries(timedLayerMetadata).then((randomTimestampFromLayer) => {
+                expect(randomTimestampFromLayer).to.be.a('string')
                 cy.goToMapView({
                     queryParams: {
                         '3d': true,
-                        layers: `${timeEnabledLayerId}@year=${randomTimestampFromLayer.substring(
+                        layers: `${timeEnabledLayerId}@year=${randomTimestampFromLayer!.substring(
                             0,
                             4
                         )}`,
@@ -324,15 +324,19 @@ describe('Test of layer handling in 3D', () => {
             .its('map')
             .then((map) => {
                 const layers = map.getLayers().getArray()
-                expect(layers[1].getProperties().id).to.deep.equal(expectedWmsLayerId)
+                expect(layers.length).to.greaterThan(1)
+                expect(layers[1]!.getProperties().id).to.deep.equal(expectedWmsLayerId)
 
                 // If the layer is not visible, it is usually because the extent is not correct
-                expect(layers[1].getExtent()).to.deep.equal(LV95.bounds.flatten)
+                expect(layers[1]!.getExtent()).to.deep.equal(LV95.bounds.flatten)
             })
 
         cy.log('Select features and check that they are visible in 3D and then also back in 2D')
         cy.get('[data-cy="ol-map"]').click(100, 250)
-        cy.readStoreValue('getters.selectedFeatures').should('have.length', 10)
+        cy.getPinia().then((pinia) => {
+            const featuresStore = useFeaturesStore(pinia)
+            expect(featuresStore.selectedFeatures).to.have.length(10)
+        })
 
         cy.get('[data-cy="highlighted-features"]')
             .as('highlightedFeatures')
@@ -374,7 +378,10 @@ describe('Test of layer handling in 3D', () => {
         cy.get(`[data-cy^="button-toggle-visibility-layer-${expectedWmsLayerId}-"]`).click()
 
         cy.closeMenuIfMobile()
-        cy.readStoreValue('getters.selectedFeatures').should('have.length', 0)
+        cy.getPinia().then((pinia) => {
+            const featuresStore2 = useFeaturesStore(pinia)
+            expect(featuresStore2.selectedFeatures).to.have.length(0)
+        })
         cy.get('@highlightedFeatures').should('not.exist')
         cy.window()
             .its('cesiumViewer')
@@ -394,7 +401,7 @@ describe('Test of layer handling in 3D', () => {
                 expect(mockExternalWms2).not.to.be.undefined
                 // @ts-expect-error: external wms has the visible attribute from abstract layer, but typescript can't see it explicitly
                 mockExternalWms2.visible = true
-                const layers = [mockExternalWms2].map((object) => transformLayerIntoUrlString(object, null, null)).join(';')
+                const layers = [mockExternalWms2].map((object) => transformLayerIntoUrlString(object, undefined, undefined)).join(';')
                 cy.goToMapView({
                     queryParams: { '3d': true, layers },
                 })
@@ -414,9 +421,10 @@ describe('Test of layer handling in 3D', () => {
                 cy.get('[data-cy="3d-button"]').should('be.visible').click()
                 cy.window().its('map').then((map) => {
                     const layers = map.getLayers().getArray()
-                    expect(layers[1].getProperties().id).to.deep.equal(mockExternalWms2.id)
+                    expect(layers.length).to.greaterThan(1)
+                    expect(layers[1]!.getProperties().id).to.deep.equal(mockExternalWms2.id)
                     // If the layer is not visible, it is usually because the extent is not correct
-                    expect(layers[1].getExtent()).to.deep.equal(layerExtentInLV95)
+                    expect(layers[1]!.getExtent()).to.deep.equal(layerExtentInLV95)
                 })
 
                 // activate 3D
@@ -426,9 +434,10 @@ describe('Test of layer handling in 3D', () => {
                 cy.get('[data-cy="3d-button"]').should('be.visible').click()
                 cy.window().its('map').then((map) => {
                     const layers = map.getLayers().getArray()
-                    expect(layers[1].getProperties().id).to.deep.equal(mockExternalWms2.id)
+                    expect(layers.length).to.greaterThan(1)
+                    expect(layers[1]!.getProperties().id).to.deep.equal(mockExternalWms2.id)
                     // If the layer is not visible, it is usually because the extent is not correct
-                    expect(layers[1].getExtent()).to.deep.equal(layerExtentInLV95)
+                    expect(layers[1]!.getExtent()).to.deep.equal(layerExtentInLV95)
                 })
             })
         })

@@ -5,9 +5,10 @@ import { registerProj4 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 
-import type { LayerFeature } from '@/api/features.api'
-
 import { DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION } from '@/config/map.config'
+import useFeaturesStore from '@/store/modules/features'
+import useLayersStore from '@/store/modules/layers'
+import useUIStore from '@/store/modules/ui'
 import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 
 registerProj4(proj4)
@@ -49,10 +50,12 @@ describe('Testing the feature selection', () => {
         function checkFeatures(): void {
             cy.log(`Ensuring there are 10 selected features, and they're all different`)
 
-            cy.readStoreValue('getters.selectedFeatures').should((features: LayerFeature[]) => {
+            cy.getPinia().then(pinia => {
+                const featuresStore = useFeaturesStore(pinia)
+                const features = featuresStore.selectedFeatures
                 expect(features.length).to.eq(10)
 
-                features.forEach((feature: LayerFeature) => {
+                features.forEach((feature) => {
                     expect(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']).to.include(
                         feature.id
                     )
@@ -60,18 +63,21 @@ describe('Testing the feature selection', () => {
             })
         }
 
-        function checkFeatureInfoPosition(expectedPosition: FeatureInfoPosition): void {
-            cy.readStoreValue('state.ui.featureInfoPosition').should('be.equal', expectedPosition)
-            if (FeatureInfoPositions.None === expectedPosition) {
-                cy.get('[data-cy="popover"]').should('not.exist')
-                cy.get('[data-cy="infobox"]').should('not.exist')
-            } else if (FeatureInfoPositions.ToolTip === expectedPosition) {
-                cy.get('[data-cy="popover"]').should('exist')
-                cy.get('[data-cy="infobox"]').should('not.exist')
-            } else {
-                cy.get('[data-cy="popover"]').should('not.exist')
-                cy.get('[data-cy="infobox"]').should('be.visible')
-            }
+        function checkFeatureInfoPosition(expectedPosition: FeatureInfoPositions): void {
+            cy.getPinia().then(pinia => {
+                const uiStore = useUIStore(pinia)
+                expect(uiStore.featureInfoPosition).to.equal(expectedPosition)
+                if (FeatureInfoPositions.None === expectedPosition) {
+                    cy.get('[data-cy="popover"]').should('not.exist')
+                    cy.get('[data-cy="infobox"]').should('not.exist')
+                } else if (FeatureInfoPositions.ToolTip === expectedPosition) {
+                    cy.get('[data-cy="popover"]').should('exist')
+                    cy.get('[data-cy="infobox"]').should('not.exist')
+                } else {
+                    cy.get('[data-cy="popover"]').should('not.exist')
+                    cy.get('[data-cy="infobox"]').should('be.visible')
+                }
+            })
         }
 
         function goToMapViewWithFeatureSelection(
@@ -131,7 +137,7 @@ describe('Testing the feature selection', () => {
                 },
             })
             cy.url().should((url) => {
-                expect(new URLSearchParams(url.split('map')[1]).get('featureInfo')).to.eq(null)
+                expect(new URLSearchParams(url.split('map')[1]).get('featureInfo')).to.eq(undefined)
             })
 
             cy.log('Check that the features appear in the URL')
@@ -388,8 +394,11 @@ describe('Testing the feature selection', () => {
 
             cy.get('[data-cy="file-input-text"]').should('contain.value', fileName)
             cy.get('[data-cy="import-file-close-button"]:visible').click()
-            cy.readStoreValue('state.layers.activeLayers.length').should('eq', 2)
-            cy.readStoreValue('getters.visibleLayers.length').should('eq', 2)
+            cy.getPinia().then(pinia => {
+                const layersStore = useLayersStore(pinia)
+                expect(layersStore.activeLayers.length).to.eq(2)
+                expect(layersStore.visibleLayers.length).to.eq(2)
+            })
 
             cy.closeMenuIfMobile()
 
@@ -541,15 +550,21 @@ describe('Testing the feature selection', () => {
 
             cy.get('[data-cy="file-input-text"]').should('contain.value', fileName)
             cy.get('[data-cy="import-file-close-button"]:visible').click()
-            cy.readStoreValue('state.layers.activeLayers.length').should('eq', 1)
-            cy.readStoreValue('getters.visibleLayers.length').should('eq', 1)
+            cy.getPinia().then(pinia => {
+                const layersStore2 = useLayersStore(pinia)
+                expect(layersStore2.activeLayers.length).to.eq(1)
+                expect(layersStore2.visibleLayers.length).to.eq(1)
+            })
 
             cy.closeMenuIfMobile()
 
             cy.checkOlLayer(['test.background.layer2', fileName])
 
             cy.get('[data-cy="ol-map"]').as('olMap').should('be.visible')
-            cy.readStoreValue('getters.selectedFeatures.length').should('eq', 0)
+            cy.getPinia().then(pinia => {
+                const featuresStore2 = useFeaturesStore(pinia)
+                expect(featuresStore2.selectedFeatures.length).to.eq(0)
+            })
 
             cy.window()
                 .its('map')
@@ -567,11 +582,20 @@ describe('Testing the feature selection', () => {
                     )
 
                     clickOnMap(pixel3, false)
-                    cy.readStoreValue('getters.selectedFeatures.length').should('eq', 1)
+                    cy.getPinia().then(pinia => {
+                        const featuresStore3 = useFeaturesStore(pinia)
+                        expect(featuresStore3.selectedFeatures.length).to.eq(1)
+                    })
                     clickOnMap(pixel1, true)
-                    cy.readStoreValue('getters.selectedFeatures.length').should('eq', 2)
+                    cy.getPinia().then(pinia => {
+                        const featuresStore4 = useFeaturesStore(pinia)
+                        expect(featuresStore4.selectedFeatures.length).to.eq(2)
+                    })
                     clickOnMap(pixel1, true)
-                    cy.readStoreValue('getters.selectedFeatures.length').should('eq', 1)
+                    cy.getPinia().then(pinia => {
+                        const featuresStore5 = useFeaturesStore(pinia)
+                        expect(featuresStore5.selectedFeatures.length).to.eq(1)
+                    })
                 })
         })
 
@@ -598,8 +622,11 @@ describe('Testing the feature selection', () => {
             cy.wait(['@icon-sets', '@icon-set-babs', '@icon-set-default'])
 
             cy.get('[data-cy="import-file-close-button"]:visible').click()
-            cy.readStoreValue('state.layers.activeLayers.length').should('eq', 2)
-            cy.readStoreValue('getters.visibleLayers.length').should('eq', 2)
+            cy.getPinia().then(pinia => {
+                const layersStore3 = useLayersStore(pinia)
+                expect(layersStore3.activeLayers.length).to.eq(2)
+                expect(layersStore3.visibleLayers.length).to.eq(2)
+            })
 
             cy.closeMenuIfMobile()
 

@@ -1,6 +1,8 @@
 /// <reference types="cypress" />
 
-import { LV03, LV95, registerProj4, WGS84 } from '@swissgeo/coordinates'
+import type { Pinia } from 'pinia'
+
+import { LV03, LV95, registerProj4, WGS84, type SingleCoordinate } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 
@@ -9,6 +11,8 @@ import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 import { getServiceShortLinkBaseUrl } from '@/config/baseUrl.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { BREAKPOINT_TABLET } from '@/config/responsive.config'
+import useDrawingStore from '@/store/modules/drawing'
+import useMapStore from '@/store/modules/map'
 import {
     LV03Format,
     LV95Format,
@@ -56,8 +60,9 @@ function checkXY(expectedX: number, expectedY: number) {
 
 function checkMousePositionStringValue(coordStr: string) {
     cy.get('[data-cy="map"]').click()
-    cy.waitUntilState((state) => {
-        return state.map.clickInfo !== null
+    cy.waitUntilState((pinia: Pinia) => {
+        const mapStore = useMapStore(pinia)
+        return mapStore.clickInfo !== undefined
     })
     cy.get('[data-cy="mouse-position"]').should('contain.text', coordStr)
 }
@@ -68,8 +73,9 @@ function checkMousePositionNumberValue(
     parser: (_text: string) => number[]
 ) {
     cy.get('[data-cy="map"]').click()
-    cy.waitUntilState((state) => {
-        return state.map.clickInfo !== null
+    cy.waitUntilState((pinia: Pinia) => {
+        const mapStore = useMapStore(pinia)
+        return mapStore.clickInfo !== undefined
     })
     cy.get('[data-cy="mouse-position"]')
         .invoke('text')
@@ -98,11 +104,11 @@ function skipTestsIf(condition: boolean, message?: string) {
 }
 
 describe('Test mouse position and interactions', () => {
-    const center = DEFAULT_PROJECTION.bounds.center.map((val: number) => val + 1000)
+    const center = DEFAULT_PROJECTION.bounds!.center.map((val: number) => val + 1000)
     const centerLV95 = proj4(DEFAULT_PROJECTION.epsg, LV95.epsg, center) as [number, number]
     const centerLV03 = proj4(DEFAULT_PROJECTION.epsg, LV03.epsg, center) as [number, number]
     const centerWGS84 = proj4(DEFAULT_PROJECTION.epsg, WGS84.epsg, center) as [number, number]
-    const centerMGRS = MGRSFormat.format(center, DEFAULT_PROJECTION)
+    const centerMGRS = MGRSFormat.formatCallback(center as SingleCoordinate, false)
 
     context('Tablet/desktop tests', () => {
         before(() => {
@@ -130,7 +136,7 @@ describe('Test mouse position and interactions', () => {
             checkMousePositionStringValue(centerMGRS)
 
             getMousePositionAndSelect(WGS84Format)
-            checkMousePositionStringValue(WGS84Format.format(center, DEFAULT_PROJECTION, true))
+            checkMousePositionStringValue(WGS84Format.formatCallback(center as SingleCoordinate, true))
 
             // Change display projection without moving the mouse
             getMousePositionAndSelect(MGRSFormat)
@@ -177,7 +183,10 @@ describe('Test mouse position and interactions', () => {
             cy.log('the LocationPopUp is visible')
 
             cy.openDrawingMode()
-            cy.readStoreValue('state.drawing.drawingOverlay.show').should('be.true')
+            cy.getPinia().then((pinia) => {
+                const drawingStore = useDrawingStore(pinia)
+                cy.wrap(drawingStore.drawingOverlay.show).should('be.true')
+            })
             cy.get('[data-cy="location-popup"]').should('not.exist')
             cy.log('the location popup has been hidden when entering drawing mode')
 
@@ -220,19 +229,19 @@ describe('Test mouse position and interactions', () => {
             cy.log('it shows correct plain WGS coordinates in the popup')
 
             cy.get('[data-cy="location-popup-wgs84-extra-value"]').contains(
-                WGS84Format.format(center, DEFAULT_PROJECTION)
+                WGS84Format.formatCallback(center as SingleCoordinate, false)
             )
             cy.log(
                 'it uses the correct format to show a second line with WGS84 coordinates in the popup'
             )
 
             cy.get('[data-cy="location-popup-utm"]').contains(
-                UTMFormat.format(center, DEFAULT_PROJECTION)
+                UTMFormat.formatCallback(center as SingleCoordinate, false)
             )
             cy.log('it shows correct UTM coordinates in the popup')
 
             cy.get('[data-cy="location-popup-mgrs"]').contains(
-                MGRSFormat.format(center, DEFAULT_PROJECTION)
+                MGRSFormat.formatCallback(center as SingleCoordinate, false)
             )
             cy.log('it shows correct MGRS coordinates in the popup')
 

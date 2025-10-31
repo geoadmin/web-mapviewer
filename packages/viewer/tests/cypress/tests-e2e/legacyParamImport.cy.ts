@@ -7,9 +7,16 @@ import { KMLStyle } from '@swissgeo/layers'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 
-import type { EditableFeature } from '@/api/features.api'
+import type { EditableFeature, LayerFeature } from '@/api/features.api'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
+import useCesiumStore from '@/store/modules/cesium'
+import useFeaturesStore from '@/store/modules/features'
+import useLayersStore from '@/store/modules/layers'
+import useMapStore from '@/store/modules/map'
+import usePositionStore from '@/store/modules/position'
+import useSearchStore from '@/store/modules/search'
+import useUIStore from '@/store/modules/ui'
 import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 
 registerProj4(proj4)
@@ -30,10 +37,12 @@ describe('Test on legacy param import', () => {
             })
 
             // checking in the store that the position has not changed from what was in the URL
-            cy.readStoreValue('state.position.zoom').should('eq', zoom)
-            cy.readStoreValue('getters.centerEpsg4326').should((center) => {
-                expect(center[0]).to.eq(lon)
-                expect(center[1]).to.eq(lat)
+            cy.getPinia().then((pinia) => {
+                const positionStore = usePositionStore(pinia)
+                expect(positionStore.zoom).to.eq(zoom)
+                const centerEpsg4326 = positionStore.centerEpsg4326
+                expect(centerEpsg4326[0]).to.eq(lon)
+                expect(centerEpsg4326[1]).to.eq(lat)
             })
         })
 
@@ -50,10 +59,12 @@ describe('Test on legacy param import', () => {
             })
 
             // checking in the store that the position has not changed from what was in the URL
-            cy.readStoreValue('state.position.zoom').should('eq', zoom)
-            cy.readStoreValue('getters.centerEpsg4326').should((center) => {
-                expect(center[0]).to.eq(lon)
-                expect(center[1]).to.eq(lat)
+            cy.getPinia().then((pinia) => {
+                const positionStore2 = usePositionStore(pinia)
+                expect(positionStore2.zoom).to.eq(zoom)
+                const centerEpsg43262 = positionStore2.centerEpsg4326
+                expect(centerEpsg43262[0]).to.eq(lon)
+                expect(centerEpsg43262[1]).to.eq(lat)
             })
         })
 
@@ -70,14 +81,16 @@ describe('Test on legacy param import', () => {
                 withHash: false,
             })
 
-            cy.readStoreValue('state.position.zoom').should('eq', lv95zoom)
+            cy.getPinia().then((pinia) => {
+                const positionStore3 = usePositionStore(pinia)
+                expect(positionStore3.zoom).to.eq(lv95zoom)
 
-            // checking that we are reprojected to lon: 8.2267733° lat: 46.9483767°
-            // (according to https://epsg.io/transform#s_srs=2056&t_srs=4326&x=2660000.0000000&y=1200000.0000000)
-            cy.readStoreValue('getters.centerEpsg4326').should((center) => {
+                // checking that we are reprojected to lon: 8.2267733° lat: 46.9483767°
+                // (according to https://epsg.io/transform#s_srs=2056&t_srs=4326&x=2660000.0000000&y=1200000.0000000)
+                const centerEpsg43263 = positionStore3.centerEpsg4326
                 // the app applies a rounding to the 6th decimal for lon/lat
-                expect(center[0]).to.eq(WGS84.roundCoordinateValue(8.2267733))
-                expect(center[1]).to.eq(WGS84.roundCoordinateValue(46.9483767))
+                expect(centerEpsg43263[0]).to.eq(WGS84.roundCoordinateValue(8.2267733))
+                expect(centerEpsg43263[1]).to.eq(WGS84.roundCoordinateValue(46.9483767))
             })
         })
         it('center where expected when given a X, Y coordinate in LV95', () => {
@@ -92,10 +105,12 @@ describe('Test on legacy param import', () => {
             })
             // checking that we are reprojected to lon: 8.2267733° lat: 46.9483767°
             // (according to https://epsg.io/transform#s_srs=2056&t_srs=4326&x=2660000.0000000&y=1200000.0000000)
-            cy.readStoreValue('getters.centerEpsg4326').should((center) => {
+            cy.getPinia().then((pinia) => {
+                const positionStore4 = usePositionStore(pinia)
+                const centerEpsg43264 = positionStore4.centerEpsg4326
                 // the app applies a rounding to the 6th decimal for lon/lat
-                expect(center[0]).to.eq(WGS84.roundCoordinateValue(8.2267733))
-                expect(center[1]).to.eq(WGS84.roundCoordinateValue(46.9483767))
+                expect(centerEpsg43264[0]).to.eq(WGS84.roundCoordinateValue(8.2267733))
+                expect(centerEpsg43264[1]).to.eq(WGS84.roundCoordinateValue(46.9483767))
             })
         })
         it('center where expected when given a X, Y coordinate in LV03', () => {
@@ -110,10 +125,12 @@ describe('Test on legacy param import', () => {
             })
             // checking that we are reprojected to lon: 7.438632° lat: 46.9510828°
             // (according to https://epsg.io/transform#s_srs=21781&t_srs=4326&x=600000.0000000&y=200000.0000000)
-            cy.readStoreValue('getters.centerEpsg4326').should((center) => {
+            cy.getPinia().then((pinia) => {
+                const positionStore5 = usePositionStore(pinia)
+                const centerEpsg43265 = positionStore5.centerEpsg4326
                 // the app applies a rounding to the 6th decimal for lon/lat
-                expect(center[0]).to.eq(WGS84.roundCoordinateValue(7.438632))
-                expect(center[1]).to.eq(WGS84.roundCoordinateValue(46.9510828))
+                expect(centerEpsg43265[0]).to.eq(WGS84.roundCoordinateValue(7.438632))
+                expect(centerEpsg43265[1]).to.eq(WGS84.roundCoordinateValue(46.9510828))
             })
         })
     })
@@ -164,15 +181,19 @@ describe('Test on legacy param import', () => {
                 },
                 withHash: false,
             })
-            cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
+            cy.getPinia().then((pinia) => {
+                const layersStore = useLayersStore(pinia)
+                const activeLayers = layersStore.activeLayers
                 expect(activeLayers).to.be.an('Array').length(2)
                 const [wmsLayer, wmtsLayer] = activeLayers
+                assertDefined(wmsLayer)
                 expect(wmsLayer.id).to.eq('test.wms.layer')
                 expect(wmsLayer.opacity).to.eq(0.6)
-                expect(wmsLayer.visible).to.be.true
+                expect(wmsLayer.isVisible).to.be.true
+                assertDefined(wmtsLayer)
                 expect(wmtsLayer.id).to.eq('test.wmts.layer')
                 expect(wmtsLayer.opacity).to.eq(0.5)
-                expect(wmtsLayer.visible).to.be.false
+                expect(wmtsLayer.isVisible).to.be.false
             })
         })
         it('is able to import an external KML from a legacy param', () => {
@@ -184,12 +205,15 @@ describe('Test on legacy param import', () => {
                 },
                 withHash: false,
             })
-            cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
-                expect(activeLayers).to.be.an('Array').length(1)
-                const [kmlLayer] = activeLayers
+            cy.getPinia().then((pinia) => {
+                const layersStore2 = useLayersStore(pinia)
+                const activeLayers2 = layersStore2.activeLayers
+                expect(activeLayers2).to.be.an('Array').length(1)
+                const [kmlLayer] = activeLayers2
+                assertDefined(kmlLayer)
                 expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer.opacity).to.eq(0.6)
-                expect(kmlLayer.visible).to.be.true
+                expect(kmlLayer.isVisible).to.be.true
                 expect(kmlLayer.style).to.eq(KMLStyle.GEOADMIN)
             })
         })
@@ -202,13 +226,16 @@ describe('Test on legacy param import', () => {
             })
             cy.wait('@get-kml-metada-by-admin-id')
             cy.wait('@get-kml')
-            cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
-                expect(activeLayers).to.be.an('Array').length(1)
-                const [kmlLayer] = activeLayers
-                expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
-                expect(kmlLayer.opacity).to.eq(1)
-                expect(kmlLayer.visible).to.be.true
-                expect(kmlLayer.adminId).to.equal(adminId)
+            cy.getPinia().then((pinia) => {
+                const layersStore3 = useLayersStore(pinia)
+                const activeLayers3 = layersStore3.activeLayers
+                expect(activeLayers3).to.be.an('Array').length(1)
+                const [kmlLayer2] = activeLayers3
+                assertDefined(kmlLayer2)
+                expect(kmlLayer2.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
+                expect(kmlLayer2.opacity).to.eq(1)
+                expect(kmlLayer2.isVisible).to.be.true
+                expect(kmlLayer2.adminId).to.equal(adminId)
             })
         })
         it("don't keep KML adminId in URL after import", () => {
@@ -220,13 +247,16 @@ describe('Test on legacy param import', () => {
             })
             cy.wait('@get-kml-metada-by-admin-id')
             cy.wait('@get-kml')
-            cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
-                expect(activeLayers).to.be.an('Array').length(1)
-                const [kmlLayer] = activeLayers
-                expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
-                expect(kmlLayer.opacity).to.eq(1)
-                expect(kmlLayer.visible).to.be.true
-                expect(kmlLayer.adminId).to.be.equal(adminId)
+            cy.getPinia().then((pinia) => {
+                const layersStore4 = useLayersStore(pinia)
+                const activeLayers4 = layersStore4.activeLayers
+                expect(activeLayers4).to.be.an('Array').length(1)
+                const [kmlLayer3] = activeLayers4
+                assertDefined(kmlLayer3)
+                expect(kmlLayer3.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
+                expect(kmlLayer3.opacity).to.eq(1)
+                expect(kmlLayer3.isVisible).to.be.true
+                expect(kmlLayer3.adminId).to.be.equal(adminId)
             })
             cy.url().should('not.contain', adminId)
         })
@@ -242,18 +272,23 @@ describe('Test on legacy param import', () => {
             })
             cy.wait('@get-kml-metada-by-admin-id')
             cy.wait('@get-kml')
-            cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
-                expect(activeLayers).to.be.an('Array').length(3)
-                const [wmsLayer, wmtsLayer, kmlLayer] = activeLayers
-                expect(wmsLayer.id).to.eq('test.wms.layer')
-                expect(wmsLayer.opacity).to.eq(0.6)
-                expect(wmsLayer.visible).to.be.true
-                expect(wmtsLayer.id).to.eq('test.wmts.layer')
-                expect(wmtsLayer.opacity).to.eq(0.5)
-                expect(wmtsLayer.visible).to.be.false
-                expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
-                expect(kmlLayer.opacity).to.eq(1)
-                expect(kmlLayer.visible).to.be.true
+            cy.getPinia().then((pinia) => {
+                const layersStore5 = useLayersStore(pinia)
+                const activeLayers5 = layersStore5.activeLayers
+                expect(activeLayers5).to.be.an('Array').length(3)
+                const [wmsLayer2, wmtsLayer2, kmlLayer4] = activeLayers5
+                assertDefined(wmsLayer2)
+                expect(wmsLayer2.id).to.eq('test.wms.layer')
+                expect(wmsLayer2.opacity).to.eq(0.6)
+                expect(wmsLayer2.isVisible).to.be.true
+                assertDefined(wmtsLayer2)
+                expect(wmtsLayer2.id).to.eq('test.wmts.layer')
+                expect(wmtsLayer2.opacity).to.eq(0.5)
+                expect(wmtsLayer2.isVisible).to.be.false
+                assertDefined(kmlLayer4)
+                expect(kmlLayer4.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
+                expect(kmlLayer4.opacity).to.eq(1)
+                expect(kmlLayer4.isVisible).to.be.true
             })
         })
         it("doesn't show encoding in the search bar when serving a swisssearch legacy url", () => {
@@ -283,16 +318,22 @@ describe('Test on legacy param import', () => {
                 },
                 withHash: false,
             })
-            cy.readStoreValue('state.search.query').should('eq', '1530 Payerne')
+            cy.getPinia().then((pinia) => {
+                const searchStore = useSearchStore(pinia)
+                expect(searchStore.query).to.eq('1530 Payerne')
+            })
             cy.url().should('not.contain', 'swisssearch')
             cy.get('[data-cy="searchbar"]').click()
             const acceptableDelta = 0.25
 
             // selects the result if it is only one
-            cy.readStoreValue('state.map.pinnedLocation').then((feature: number[]) => {
+            cy.getPinia().then((pinia) => {
+                const mapStore = useMapStore(pinia)
+                const feature = mapStore.pinnedLocation
                 expect(feature).to.be.a('array').that.is.not.empty
                 assertDefined(coordinates[0])
                 assertDefined(coordinates[1])
+                assertDefined(feature)
                 expect(feature[0]).to.be.approximately(coordinates[0], acceptableDelta)
                 expect(feature[1]).to.be.approximately(coordinates[1], acceptableDelta)
             })
@@ -314,11 +355,14 @@ describe('Test on legacy param import', () => {
                     withHash: false,
                 })
                 cy.wait(`@externalWMS-GetCap-${mockExternalWms1.baseUrl}`)
-                cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
-                    expect(activeLayers).to.be.an('Array').length(2)
-                    const externalLayer = activeLayers[1]
+                cy.getPinia().then((pinia) => {
+                    const layersStore6 = useLayersStore(pinia)
+                    const activeLayers6 = layersStore6.activeLayers
+                    expect(activeLayers6).to.be.an('Array').length(2)
+                    const externalLayer = activeLayers6[1]
+                    assertDefined(externalLayer)
                     expect(externalLayer.isExternal).to.be.true
-                    expect(externalLayer.visible).to.be.true
+                    expect(externalLayer.isVisible).to.be.true
                     expect(externalLayer.baseUrl).to.eq(mockExternalWms1.baseUrl)
                     expect(externalLayer.id).to.eq(mockExternalWms1.id)
                     expect(externalLayer.name).to.eq(mockExternalWms1.name)
@@ -346,15 +390,18 @@ describe('Test on legacy param import', () => {
                     withHash: false,
                 })
                 cy.wait(`@externalWMTS-GetCap-${mockExternalWmts1.baseUrl}`)
-                cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
-                    expect(activeLayers).to.be.an('Array').length(2)
-                    const externalLayer = activeLayers[1]
-                    expect(externalLayer.isExternal).to.be.true
-                    expect(externalLayer.visible).to.be.true
-                    expect(externalLayer.baseUrl).to.eq(mockExternalWmts1.baseUrl)
-                    expect(externalLayer.id).to.eq(mockExternalWmts1.id)
-                    expect(externalLayer.name).to.eq(mockExternalWmts1.name)
-                    expect(externalLayer.isLoading).to.be.false
+                cy.getPinia().then((pinia) => {
+                    const layersStore7 = useLayersStore(pinia)
+                    const activeLayers7 = layersStore7.activeLayers
+                    expect(activeLayers7).to.be.an('Array').length(2)
+                    const externalLayer2 = activeLayers7[1]
+                    assertDefined(externalLayer2)
+                    expect(externalLayer2.isExternal).to.be.true
+                    expect(externalLayer2.isVisible).to.be.true
+                    expect(externalLayer2.baseUrl).to.eq(mockExternalWmts1.baseUrl)
+                    expect(externalLayer2.id).to.eq(mockExternalWmts1.id)
+                    expect(externalLayer2.name).to.eq(mockExternalWmts1.name)
+                    expect(externalLayer2.isLoading).to.be.false
                 })
                 const expectedQuery = new URLSearchParams(
                     `lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech&layers=test.wmts.layer,f;WMTS%7C${mockExternalWmts1.baseUrl}%7C${mockExternalWmts1.id}`
@@ -392,22 +439,25 @@ describe('Test on legacy param import', () => {
             })
 
             // checking in the store that the parameters have been converted into the new 3D parameters
-            cy.readStoreValue('state.cesium.active').should('eq', true) // cesium should be active
+            cy.getPinia().then((pinia) => {
+                const cesiumStore = useCesiumStore(pinia)
+                expect(cesiumStore.active).to.eq(true) // cesium should be active
 
-            // Checking camera position
-            cy.readStoreValue('state.position.camera.x').should('eq', lon)
-            cy.readStoreValue('state.position.camera.y').should('eq', lat)
-            // For some reason, the z value is not exactly the same as the elevation
-            // There might be a recalculating of the elevation
-            cy.readStoreValue('state.position.camera.z').then((cameraZ) => {
-                expect(Number(cameraZ)).to.approximately(elevation, 100)
+                // Checking camera position
+                const positionStore6 = usePositionStore(pinia)
+                assertDefined(positionStore6.camera)
+                expect(positionStore6.camera.x).to.eq(lon)
+                expect(positionStore6.camera.y).to.eq(lat)
+                // For some reason, the z value is not exactly the same as the elevation
+                // There might be a recalculating of the elevation
+                expect(Number(positionStore6.camera.z)).to.approximately(elevation, 100)
+                expect(positionStore6.camera.heading).to.eq(heading)
+                expect(positionStore6.camera.pitch).to.eq(pitch)
+                expect(positionStore6.camera.roll).to.eq(0)
+
+                // EPSG is set to 3857
+                expect(positionStore6.projection.epsgNumber).to.eq(3857)
             })
-            cy.readStoreValue('state.position.camera.heading').should('eq', heading)
-            cy.readStoreValue('state.position.camera.pitch').should('eq', pitch)
-            cy.readStoreValue('state.position.camera.roll').should('eq', 0)
-
-            // EPSG is set to 3857
-            cy.readStoreValue('state.position.projection.epsgNumber').should('eq', 3857)
         })
 
         it('transfers camera parameter from legacy URL to the new URL only heading', () => {
@@ -421,18 +471,23 @@ describe('Test on legacy param import', () => {
             })
 
             // checking in the store that the parameters have been converted into the new 3D parameters
-            cy.readStoreValue('state.cesium.active').should('eq', true) // cesium should be active
+            cy.getPinia().then((pinia) => {
+                const cesiumStore2 = useCesiumStore(pinia)
+                expect(cesiumStore2.active).to.eq(true) // cesium should be active
 
-            // Checking camera position
-            cy.readStoreValue('state.position.camera.x').should('eq', lon)
-            cy.readStoreValue('state.position.camera.y').should('eq', lat)
-            cy.readStoreValue('state.position.camera.z').should('eq', 0)
-            cy.readStoreValue('state.position.camera.heading').should('eq', heading)
-            cy.readStoreValue('state.position.camera.pitch').should('eq', -90)
-            cy.readStoreValue('state.position.camera.roll').should('eq', 0)
+                // Checking camera position
+                const positionStore7 = usePositionStore(pinia)
+                assertDefined(positionStore7.camera)
+                expect(positionStore7.camera.x).to.eq(lon)
+                expect(positionStore7.camera.y).to.eq(lat)
+                expect(positionStore7.camera.z).to.eq(0)
+                expect(positionStore7.camera.heading).to.eq(heading)
+                expect(positionStore7.camera.pitch).to.eq(-90)
+                expect(positionStore7.camera.roll).to.eq(0)
 
-            // EPSG is set to 3857
-            cy.readStoreValue('state.position.projection.epsgNumber').should('eq', 3857)
+                // EPSG is set to 3857
+                expect(positionStore7.projection.epsgNumber).to.eq(3857)
+            })
         })
         // camera=7.038834,46.766017,193985.5,-47,319,
         // camera=8.225457,46.858429,738575.8,-90,,
@@ -447,19 +502,24 @@ describe('Test on legacy param import', () => {
             })
 
             // checking in the store that the parameters have been converted into the new 3D parameters
-            cy.readStoreValue('state.cesium.active').should('eq', true) // cesium should be active
+            cy.getPinia().then((pinia) => {
+                const cesiumStore3 = useCesiumStore(pinia)
+                expect(cesiumStore3.active).to.eq(true) // cesium should be active
 
-            // Checking camera position
-            // x, y, and z seems recalculated when there is only elevation, so I just check that they are not null
-            cy.readStoreValue('state.position.camera.x').should('not.be.null')
-            cy.readStoreValue('state.position.camera.y').should('not.be.null')
-            cy.readStoreValue('state.position.camera.z').should('not.be.null')
-            cy.readStoreValue('state.position.camera.heading').should('eq', 0)
-            cy.readStoreValue('state.position.camera.pitch').should('eq', -90)
-            cy.readStoreValue('state.position.camera.roll').should('eq', 0)
+                // Checking camera position
+                // x, y, and z seems recalculated when there is only elevation, so I just check that they are not undefined
+                const positionStore8 = usePositionStore(pinia)
+                assertDefined(positionStore8.camera)
+                expect(positionStore8.camera.x).to.not.be.undefined
+                expect(positionStore8.camera.y).to.not.be.undefined
+                expect(positionStore8.camera.z).to.not.be.undefined
+                expect(positionStore8.camera.heading).to.eq(0)
+                expect(positionStore8.camera.pitch).to.eq(-90)
+                expect(positionStore8.camera.roll).to.eq(0)
 
-            // EPSG is set to 3857
-            cy.readStoreValue('state.position.projection.epsgNumber').should('eq', 3857)
+                // EPSG is set to 3857
+                expect(positionStore8.projection.epsgNumber).to.eq(3857)
+            })
         })
     })
 
@@ -474,14 +534,17 @@ describe('Test on legacy param import', () => {
                 withHash: false,
             })
             // initial slider position is width * 0.3 -20
-            cy.get('[data-cy="compareSlider"]').then((slider: JQuery<HTMLElement>) => {
-                cy.readStoreValue('state.ui.width').should((width) => {
-                    expect(slider.position()['left']).to.eq(width * 0.3 - 20)
+            cy.getPinia().then((pinia) => {
+                const uiStore = useUIStore(pinia)
+                cy.get('[data-cy="compareSlider"]').then((slider: JQuery<HTMLElement>) => {
+                    expect(slider.position()['left']).to.eq(uiStore.width * 0.3 - 20)
                 })
             })
-            cy.readStoreValue('state.ui.compareRatio').should('be.equal', 0.3)
-
-            cy.readStoreValue('state.ui.isCompareSliderActive').should('be.equal', true)
+            cy.getPinia().then((pinia) => {
+                const uiStore2 = useUIStore(pinia)
+                expect(uiStore2.compareRatio).to.be.equal(0.3)
+                expect(uiStore2.isCompareSliderActive).to.be.equal(true)
+            })
             cy.get('[data-cy="compareSlider"]').should('be.visible')
         })
     })
@@ -498,10 +561,12 @@ describe('Test on legacy param import', () => {
     })
     context('Feature Pre Selection Import', () => {
         function checkFeatures(featuresIds: string[]) {
-            cy.readStoreValue('getters.selectedFeatures').should((features: EditableFeature[]) => {
+            cy.getPinia().then((pinia) => {
+                const featuresStore = useFeaturesStore(pinia)
+                const features = featuresStore.selectedFeatures
                 expect(features.length).to.eq(featuresIds.length)
 
-                features.forEach((feature: EditableFeature) => {
+                features.forEach((feature: LayerFeature | EditableFeature) => {
                     expect(featuresIds).to.include(feature.id)
                 })
             })
@@ -520,10 +585,12 @@ describe('Test on legacy param import', () => {
                     withHash: false,
                 })
                 checkFeatures(featuresIds)
-                cy.readStoreValue('state.ui.featureInfoPosition').should(
-                    'be.equal',
-                    FeatureInfoPositions.NONE
-                )
+                cy.getPinia().then((pinia) => {
+                    const uiStore3 = useUIStore(pinia)
+                    expect(uiStore3.featureInfoPosition).to.be.equal(
+                        FeatureInfoPositions.None
+                    )
+                })
                 cy.get('[data-cy="popover"]').should('not.exist')
                 cy.get('[data-cy="infobox"]').should('not.exist')
                 // ---------------------------------------------------------------------------------
@@ -539,10 +606,12 @@ describe('Test on legacy param import', () => {
                     withHash: false,
                 })
                 checkFeatures(featuresIds)
-                cy.readStoreValue('state.ui.featureInfoPosition').should(
-                    'be.equal',
-                    FeatureInfoPositions.BOTTOMPANEL
-                )
+                cy.getPinia().then((pinia) => {
+                    const uiStore4 = useUIStore(pinia)
+                    expect(uiStore4.featureInfoPosition).to.be.equal(
+                        FeatureInfoPositions.BottomPanel
+                    )
+                })
                 cy.get('[data-cy="popover"]').should('not.exist')
                 cy.get('[data-cy="infobox"]').should('be.visible')
                 // ---------------------------------------------------------------------------------
@@ -558,10 +627,12 @@ describe('Test on legacy param import', () => {
                     withHash: false,
                 })
                 checkFeatures(featuresIds)
-                cy.readStoreValue('state.ui.featureInfoPosition').should(
-                    'be.equal',
-                    FeatureInfoPositions.DEFAULT
-                )
+                cy.getPinia().then((pinia) => {
+                    const uiStore5 = useUIStore(pinia)
+                    expect(uiStore5.featureInfoPosition).to.be.equal(
+                        FeatureInfoPositions.Default
+                    )
+                })
                 cy.get('[data-cy="popover"]').should('not.exist')
                 cy.get('[data-cy="infobox"]').should('be.visible')
                 // ---------------------------------------------------------------------------------
@@ -575,10 +646,12 @@ describe('Test on legacy param import', () => {
                     withHash: false,
                 })
                 checkFeatures(featuresIds)
-                cy.readStoreValue('state.ui.featureInfoPosition').should(
-                    'be.equal',
-                    FeatureInfoPositions.NONE
-                )
+                cy.getPinia().then((pinia) => {
+                    const uiStore6 = useUIStore(pinia)
+                    expect(uiStore6.featureInfoPosition).to.be.equal(
+                        FeatureInfoPositions.None
+                    )
+                })
                 cy.get('[data-cy="popover"]').should('not.exist')
                 cy.get('[data-cy="infobox"]').should('not.exist')
             })

@@ -1,11 +1,12 @@
 /// <reference types="cypress" />
 
 import { moveTimeSlider } from '@/../tests/cypress/tests-e2e/utils'
+import useUIStore from '@/store/modules/ui'
 
 type CompareConfig = {
-    ratio?: number | null
+    ratio?: number | undefined
     hasVisibleLayers?: boolean
-    visibleLayerName?: string | null
+    visibleLayerName?: string | undefined
 }
 
 describe('Open Time and Compare Slider together', () => {
@@ -16,9 +17,12 @@ describe('Open Time and Compare Slider together', () => {
         const testLayer2 = 'test-2.wms.layer'
         const initialRatio = 0.5
 
-        function checkTimeSlider(active: boolean, selectedYear: number | null = null) {
+        function checkTimeSlider(active: boolean, selectedYear: number | undefined = undefined) {
             // Check the store
-            cy.readStoreValue('state.ui.isTimeSliderActive').should('be.equal', active)
+            cy.getPinia().then(pinia => {
+                const uiStore = useUIStore(pinia)
+                expect(uiStore.isTimeSliderActive).to.equal(active)
+            })
 
             // Checking the UI
             if (active) {
@@ -35,18 +39,23 @@ describe('Open Time and Compare Slider together', () => {
         }
 
         function checkCompareSlider(active: boolean, config: CompareConfig = {}) {
-            const { ratio = null, hasVisibleLayers = true, visibleLayerName = null } = config
+            const { ratio = undefined, hasVisibleLayers = true, visibleLayerName = undefined } = config
             // Check the store
-            cy.readStoreValue('state.ui.isCompareSliderActive').should('be.equal', active)
+            cy.getPinia().then(pinia => {
+                const uiStore = useUIStore(pinia)
+                expect(uiStore.isCompareSliderActive).to.equal(active)
 
-            // Checking the UI
-            if (active && hasVisibleLayers) {
-                if (!ratio) {
-                    cy.readStoreValue('state.ui.compareRatio').should('be.null')
-                } else {
-                    cy.readStoreValue('state.ui.compareRatio').should('be.equal', ratio)
+                // Checking the UI
+                if (active && hasVisibleLayers) {
+                    if (!ratio) {
+                        expect(uiStore.compareRatio).to.be.undefined
+                    } else {
+                        expect(uiStore.compareRatio).to.equal(ratio)
+                    }
                 }
-            } else {
+            })
+
+            if (!active || !hasVisibleLayers) {
                 cy.get('[data-cy="compareSlider"]').should('not.exist')
             }
 

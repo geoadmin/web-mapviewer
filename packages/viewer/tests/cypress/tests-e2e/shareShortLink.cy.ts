@@ -1,5 +1,9 @@
 /// <reference types="cypress" />
 
+import useGeolocationStore from '@/store/modules/geolocation'
+import useLayersStore from '@/store/modules/layers'
+import useShareStore from '@/store/modules/share'
+
 describe('Testing the share menu', () => {
     const dummyShortLink = 'https://dummy.short.link'
     const dummyEmbeddedShortLink = 'https://dummy.embedded.short.link'
@@ -26,13 +30,19 @@ describe('Testing the share menu', () => {
     })
     context('Short link generation', () => {
         it('Does not generate a short link at startup', () => {
-            cy.readStoreValue('state.share.shortLink').should('eq', null)
+            cy.getPinia().then(pinia => {
+                const shareStore = useShareStore(pinia)
+                expect(shareStore.shortLink).to.eq(undefined)
+            })
         })
         it('Creates a short linked version of the URL the first time the menu section is opened', () => {
             cy.get('[data-cy="menu-share-section"]').click()
             // a short link should be generated as it is our first time opening this section
             cy.wait('@shortLink')
-            cy.readStoreValue('state.share.shortLink').should('eq', dummyShortLink)
+            cy.getPinia().then(pinia => {
+                const shareStore = useShareStore(pinia)
+                expect(shareStore.shortLink).to.eq(dummyShortLink)
+            })
         })
         it('deletes the short link and close the menu as soon as the state of the map (the URL) has changed', () => {
             cy.get('[data-cy="menu-share-section"]').click()
@@ -41,7 +51,10 @@ describe('Testing the share menu', () => {
             // change the language in order to change the URL
             cy.clickOnLanguage('fr')
             // checking that the shortLink value doesn't exist anymore
-            cy.readStoreValue('state.share.shortLink').should('eq', null)
+            cy.getPinia().then(pinia => {
+                const shareStore = useShareStore(pinia)
+                expect(shareStore.shortLink).to.eq(undefined)
+            })
             // opening the general menu again
             cy.get('[data-cy="menu-button"]').click()
             // checking that the share menu has been closed
@@ -57,7 +70,7 @@ describe('Testing the share menu', () => {
             cy.get('[data-cy="import-file-local-btn"]:visible').click()
             cy.get('[data-cy="import-file-local-content"]').should('be.visible')
             // Load the local KML file
-            cy.fixture(localKmlFile, null).as('localKmlFileFixture')
+            cy.fixture(localKmlFile, undefined).as('localKmlFileFixture')
             cy.get('[data-cy="file-input"]').selectFile('@localKmlFileFixture', {
                 force: true,
             })
@@ -71,7 +84,10 @@ describe('Testing the share menu', () => {
             cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
             cy.get('[data-cy="menu-share-section"]').click()
             cy.wait('@shortLink')
-            cy.readStoreValue('state.share.shortLink').should('eq', dummyShortLink)
+            cy.getPinia().then(pinia => {
+                const shareStore = useShareStore(pinia)
+                expect(shareStore.shortLink).to.eq(dummyShortLink)
+            })
 
             // Check if there is a warning class in the share link
             cy.get('[data-cy="menu-share-input-copy-button"]').should('have.class', 'btn-warning')
@@ -121,9 +137,9 @@ describe('Testing the share menu', () => {
                     // closing the menu
                     cy.get('[data-cy="menu-button"]').click()
                     // faking a move of the app, so that the GPS is still active, but the tracking is off
-                    cy.writeStoreValue('setGeolocationTracking', {
-                        tracking: false,
-                        dispatcher: 'e2e-test',
+                    cy.getPinia().then(pinia => {
+                        const geolocationStore = useGeolocationStore(pinia)
+                        geolocationStore.setGeolocationTracking(false, { name: 'e2e-test' })
                     })
                     // opening the menu once again
                     cy.get('[data-cy="menu-button"]').click()
@@ -314,7 +330,10 @@ describe('Testing the share menu', () => {
 
                 // Test local import
                 cy.goToMapView({ withHash: true })
-                cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+                cy.getPinia().then(pinia => {
+                    const layersStore = useLayersStore(pinia)
+                    expect(layersStore.activeLayers).to.be.empty
+                })
                 cy.openMenuIfMobile()
                 cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
                 cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
@@ -326,7 +345,7 @@ describe('Testing the share menu', () => {
                 //----------------------------------------------------------------------
                 // Attach a local KML file
                 cy.log('Test add a local KML file')
-                cy.fixture(localKmlFile, null).as('kmlFixture')
+                cy.fixture(localKmlFile, undefined).as('kmlFixture')
                 cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
                     force: true,
                 })
@@ -343,7 +362,10 @@ describe('Testing the share menu', () => {
                     .should('be.visible')
                     .contains('Import')
                 cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
-                cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+                cy.getPinia().then(pinia => {
+                    const layersStore = useLayersStore(pinia)
+                    expect(layersStore.activeLayers).to.have.length(1)
+                })
                 cy.get('[data-cy="import-file-close-button"]:visible').click()
 
                 // beforeEach for the whole test is clicking on the menu button once, we must click it another time

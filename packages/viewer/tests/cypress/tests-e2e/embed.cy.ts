@@ -2,6 +2,8 @@
 
 import { assertDefined } from "support/utils"
 
+import useLayersStore from '@/store/modules/layers'
+
 describe('Testing the embed view', () => {
     function checkUrlParams(urlToCheck: string, validationUrl: string): void {
         const href = new URLSearchParams(urlToCheck.replace('#map', ''))
@@ -75,13 +77,15 @@ describe('Testing the embed view', () => {
 
         cy.get('[data-cy="scaleline"]').should('be.visible')
 
-        cy.readStoreValue('getters.visibleLayers').should((layers) => {
+        cy.getPinia().then((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            const layers = layersStore.visibleLayers
             expect(layers).to.be.an('Array').length(3)
-            expect(layers[0].id).to.eq('test-1.wms.layer')
-            expect(layers[0].opacity).to.eq(0.75)
-            expect(layers[1].id).to.eq('test.wmts.layer')
-            expect(layers[1].opacity).to.eq(0.5)
-            expect(layers[2].id).to.eq('test.timeenabled.wmts.layer')
+            expect(layers[0]?.id).to.eq('test-1.wms.layer')
+            expect(layers[0]?.opacity).to.eq(0.75)
+            expect(layers[1]?.id).to.eq('test.wmts.layer')
+            expect(layers[1]?.opacity).to.eq(0.5)
+            expect(layers[2]?.id).to.eq('test.timeenabled.wmts.layer')
         })
 
         cy.log(`Check attributions of visible layers`)
@@ -187,15 +191,17 @@ describe('Testing the embed view', () => {
 
         cy.get('[data-cy="scaleline"]').should('be.visible')
 
-        cy.readStoreValue('getters.visibleLayers').should((layers) => {
-            expect(layers).to.be.an('Array').length(3)
-            expect(layers[0].id).to.eq('test-1.wms.layer')
-            expect(layers[0].opacity).to.eq(0.75)
-            expect(layers[1].id).to.eq('test.wmts.layer')
-            expect(layers[1].opacity).to.eq(0.5)
-            expect(layers[2].id).to.eq('test.timeenabled.wmts.layer')
-            expect(layers[2].opacity).to.eq(1.0)
-            expect(layers[2].timeConfig.currentTimeEntry.timestamp).to.eq('20160101')
+        cy.getPinia().then((pinia) => {
+            const layersStore2 = useLayersStore(pinia)
+            const layers2 = layersStore2.visibleLayers
+            expect(layers2).to.be.an('Array').length(3)
+            expect(layers2[0]?.id).to.eq('test-1.wms.layer')
+            expect(layers2[0]?.opacity).to.eq(0.75)
+            expect(layers2[1]?.id).to.eq('test.wmts.layer')
+            expect(layers2[1]?.opacity).to.eq(0.5)
+            expect(layers2[2]?.id).to.eq('test.timeenabled.wmts.layer')
+            expect(layers2[2]?.opacity).to.eq(1.0)
+            expect(layers2[2]?.timeConfig?.currentTimeEntry?.timestamp).to.eq('20160101')
         })
 
         cy.log(`Check attributions of visible layers`)

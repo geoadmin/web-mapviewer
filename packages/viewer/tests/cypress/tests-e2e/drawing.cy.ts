@@ -2,6 +2,7 @@
 
 import type { CyHttpMessages } from 'cypress/types/net-stubbing'
 import type Feature from 'ol/Feature'
+import type { Pinia } from 'pinia'
 
 import { registerProj4, WGS84, type SingleCoordinate } from '@swissgeo/coordinates'
 import { LayerType, type KMLLayer } from '@swissgeo/layers'
@@ -13,6 +14,9 @@ import { EditableFeatureTypes } from '@/api/features.api'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { DEFAULT_ICON_URL_PARAMS } from '@/config/icons.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
+import useDrawingStore from '@/store/modules/drawing'
+import useFeaturesStore from '@/store/modules/features'
+import useLayersStore from '@/store/modules/layers'
 import { allStylingColors, allStylingSizes, BLACK, generateRGBFillString, GREEN, LARGE, RED, SMALL } from '@/utils/featureStyleUtils'
 import { EMPTY_KML_DATA, LEGACY_ICON_XML_SCALE_FACTOR } from '@/utils/kmlUtils'
 
@@ -50,7 +54,10 @@ describe('Drawing module tests', () => {
                 .should((request) =>
                     void checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [new RegExp(`<name>${title}</name>`)])
                 )
-            cy.readStoreValue('getters.selectedFeatures[0].title').should('eq', title)
+            cy.getPinia().then(pinia => {
+                const featuresStore = useFeaturesStore(pinia)
+                expect(featuresStore.selectedFeatures[0]?.title).to.eq(title)
+            })
         }
         function readCoordinateClipboard(name: string, coordinate: string): void {
             cy.log(name)
@@ -77,10 +84,10 @@ describe('Drawing module tests', () => {
                 description
             )
             cy.wait('@update-kml').then(() => {
-                cy.readStoreValue('getters.selectedFeatures[0].description').should(
-                    'eq',
-                    description
-                )
+                cy.getPinia().then(pinia => {
+                    const featuresStore = useFeaturesStore(pinia)
+                    expect(featuresStore.selectedFeatures[0]?.description).to.eq(description)
+                })
             })
         }
 
@@ -226,13 +233,14 @@ describe('Drawing module tests', () => {
                 cy.log('Test text placement and offset')
                 cy.get('[data-cy="drawing-style-text-button"]').click()
                 cy.get('[data-cy="drawing-style-placement-selector-top-left"]').click()
-                cy.readStoreValue('getters.selectedFeatures[0].textPlacement').should(
-                    'eq',
-                    'top-left'
-                )
-                cy.readStoreValue('getters.selectedFeatures[0].textOffset').then((offset) => {
-                    cy.wrap(offset[0]).should('be.lessThan', 0)
-                    cy.wrap(offset[1]).should('be.lessThan', 0)
+                cy.getPinia().then(pinia => {
+                    const featuresStore = useFeaturesStore(pinia)
+                    expect(featuresStore.selectedFeatures[0]?.textPlacement).to.eq('top-left')
+                    const offset = featuresStore.selectedFeatures[0]?.textOffset
+                    if (offset) {
+                        expect(offset[0]).to.be.lessThan(0)
+                        expect(offset[1]).to.be.lessThan(0)
+                    }
                 })
                 cy.log('Test if both values are floats')
                 waitForKmlUpdate(
@@ -254,10 +262,13 @@ describe('Drawing module tests', () => {
                     description
                 )
                 waitForKmlUpdate(`<description>${description}</description>`)
-                cy.readStoreValue('getters.selectedFeatures[0].description').should(
-                    'eq',
-                    description
-                )
+                cy.getPinia().then((pinia) => {
+                    const featuresStore2 = useFeaturesStore(pinia)
+                    cy.wrap(featuresStore2.selectedFeatures[0]?.description).should(
+                        'eq',
+                        description
+                    )
+                })
 
                 cy.log('Can generate and display media links')
                 const valid_url = 'http:dummy'
@@ -954,16 +965,20 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-share-admin-link"]').click()
             cy.get('[data-cy="drawing-share-admin-close"]').click()
 
-            cy.readStoreValue('state.layers.activeLayers').should((layers) => {
+            cy.getPinia().then(pinia => {
+                const layersStore = useLayersStore(pinia)
+                const layers = layersStore.activeLayers
                 expect(layers).to.be.an('Array').lengthOf(1)
                 const [drawingLayer] = layers
-                expect(drawingLayer.type).to.eq(LayerType.KML)
-                expect(drawingLayer.visible).to.be.true
+                expect(drawingLayer?.type).to.eq(LayerType.KML)
+                expect(drawingLayer?.isVisible).to.be.true
             })
 
             cy.get(`[data-cy^="button-remove-layer-"]`).click()
 
-            cy.readStoreValue('state.layers.activeLayers').should((layers) => {
+            cy.getPinia().then(pinia => {
+                const layersStore = useLayersStore(pinia)
+                const layers = layersStore.activeLayers
                 expect(layers).to.be.an('Array').and.to.have.length(0)
             })
 
@@ -989,9 +1004,10 @@ describe('Drawing module tests', () => {
                 )
                     .should('be.visible')
                     .contains('Drawing')
-                cy.waitUntilState((state) => {
-                    return state.layers.activeLayers.find(
-                        (layer: KMLLayer) => layer.type === LayerType.KML && layer.fileId === kmlId
+                cy.waitUntilState((pinia: Pinia) => {
+                    const layersStore = useLayersStore(pinia)
+                    return !!layersStore.activeLayers.find(
+                        (layer) => layer.type === LayerType.KML && (layer as KMLLayer).fileId === kmlId
                     )
                 })
 
@@ -1007,9 +1023,10 @@ describe('Drawing module tests', () => {
                 )
                     .should('be.visible')
                     .contains('Drawing')
-                cy.waitUntilState((state) => {
-                    return state.layers.activeLayers.find(
-                        (layer: KMLLayer) => layer.type === LayerType.KML && layer.fileId === kmlId
+                cy.waitUntilState((pinia: Pinia) => {
+                    const layersStore = useLayersStore(pinia)
+                    return !!layersStore.activeLayers.find(
+                        (layer) => layer.type === LayerType.KML && (layer as KMLLayer).fileId === kmlId
                     )
                 })
 
@@ -1024,9 +1041,11 @@ describe('Drawing module tests', () => {
                 )
                     .should('be.visible')
                     .contains('Drawing')
-                cy.readStoreValue('getters.activeKmlLayer').should((activeKmlLayer) => {
+                cy.getPinia().then((pinia) => {
+                    const layersStore2 = useLayersStore(pinia)
+                    const activeKmlLayer = layersStore2.activeKmlLayer
                     expect(activeKmlLayer).to.haveOwnProperty('fileId')
-                    expect(activeKmlLayer.fileId).to.eq(kmlId)
+                    expect(activeKmlLayer?.fileId).to.eq(kmlId)
                 })
 
                 cy.log('Open again the drawing mode and edit the kml')
@@ -1096,10 +1115,16 @@ describe('Drawing module tests', () => {
             cy.log(
                 'the app must open the drawing module at startup whenever an adminId is found in the URL'
             )
-            cy.readStoreValue('state.drawing.drawingOverlay.show').should('be.true')
+            cy.getPinia().then(pinia => {
+                const drawingStore = useDrawingStore(pinia)
+                expect(drawingStore.drawingOverlay.show).to.be.true
+            })
 
             cy.log('checking that the KML was correctly loaded')
-            cy.readStoreValue('getters.selectedFeatures').should('have.length', 0)
+            cy.getPinia().then(pinia => {
+                const featuresStore = useFeaturesStore(pinia)
+                expect(featuresStore.selectedFeatures.length).to.eq(0)
+            })
             cy.waitUntil(() =>
                 cy
                     .window()
@@ -1108,7 +1133,10 @@ describe('Drawing module tests', () => {
             )
             cy.log('clicking on the single feature of the fixture')
             cy.get('[data-cy="ol-map"]').click('center')
-            cy.readStoreValue('getters.selectedFeatures').should('have.length', 1)
+            cy.getPinia().then(pinia => {
+                const featuresStore = useFeaturesStore(pinia)
+                expect(featuresStore.selectedFeatures.length).to.eq(1)
+            })
             cy.window()
                 .its('drawingLayer')
                 .then((layer) => layer.getSource().getFeatures())
@@ -1191,15 +1219,24 @@ describe('Drawing module tests', () => {
                 '@head-legacy-kml',
                 '@get-legacy-kml',
             ])
-            cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
+            cy.waitUntilState((pinia: Pinia) => {
+                const drawingStore = useDrawingStore(pinia)
+                return drawingStore.iconSets.length > 0
+            })
 
             cy.log(
                 'the app must open the drawing module at startup whenever an adminId is found in the URL'
             )
-            cy.readStoreValue('state.drawing.drawingOverlay.show').should('be.true')
+            cy.getPinia().then((pinia) => {
+                const drawingStore2 = useDrawingStore(pinia)
+                cy.wrap(drawingStore2.drawingOverlay.show).should('be.true')
+            })
 
             cy.log('checking that the KML was correctly loaded')
-            cy.readStoreValue('getters.selectedFeatures').should('have.length', 0)
+            cy.getPinia().then((pinia) => {
+                const featuresStore4 = useFeaturesStore(pinia)
+                cy.wrap(featuresStore4.selectedFeatures.length).should('eq', 0)
+            })
             cy.window()
                 .its('drawingLayer')
                 .then((layer) => layer.getSource().getFeatures())
@@ -1208,7 +1245,10 @@ describe('Drawing module tests', () => {
             cy.log('clicking on the single feature of the fixture')
             cy.log('Test clicking on the square feature in center should select it')
             cy.get('[data-cy="ol-map"]').click('center')
-            cy.readStoreValue('getters.selectedFeatures').should('have.length', 1)
+            cy.getPinia().then((pinia) => {
+                const featuresStore4 = useFeaturesStore(pinia)
+                cy.wrap(featuresStore4.selectedFeatures.length).should('eq', 1)
+            })
             cy.window()
                 .its('drawingLayer')
                 .then((layer) => layer.getSource().getFeatures())

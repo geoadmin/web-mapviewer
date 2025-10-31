@@ -1,7 +1,10 @@
 /// <reference types="cypress" />
 
+import type { Interception } from 'cypress/types/net-stubbing'
+
 import { EditableFeatureTypes } from '@/api/features.api'
 import { APP_VERSION } from '@/config/staging.config'
+import useLayersStore from '@/store/modules/layers'
 
 import { assertDefined, isMobile } from '../support/utils'
 import { interceptFeedback, parseFormData } from './feedbackTestUtils'
@@ -155,7 +158,7 @@ describe('Testing the report problem form', () => {
             'it shows the user the feedback was well received with a checkmark in the submit button'
         )
         cy.get('[data-cy="submit-button"] [data-cy="submit-pending-icon"]').should('be.visible')
-        cy.wait('@longAnswer').then((interception) => {
+        cy.wait('@longAnswer').then((interception: Interception) => {
             const params = [
                 { name: 'subject', contains: `[Problem Report]` },
                 { name: 'feedback', contains: text },
@@ -190,7 +193,7 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="dropdown-item-other"]').should('be.visible').click()
         cy.get('@textArea').type(text)
         const localKmlFile = 'import-tool/external-kml-file.kml'
-        cy.fixture(localKmlFile, null).as('kmlFixture')
+        cy.fixture(localKmlFile, undefined).as('kmlFixture')
         cy.get('[data-cy="file-input"]').selectFile('@kmlFixture', {
             force: true,
         })
@@ -281,8 +284,9 @@ describe('Testing the report problem form', () => {
 
         cy.get('[data-cy="menu-tray-drawing-section"] > [data-cy="menu-section-header"]').click()
         cy.get('[data-cy="drawing-toolbox-close-button"]').should('be.visible').click()
-        cy.readStoreValue('state.layers.activeLayers').should((layers) => {
-            expect(layers).to.have.length(0)
+        cy.getPinia().then((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.have.length(0)
         })
         cy.get('[data-cy="menu-help-section"]:visible').click()
         cy.get('[data-cy="report-problem-button"]').should('be.visible').click()
@@ -407,19 +411,19 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="submit-button"]').click()
         cy.wait('@feedback').then((interception) => {
             const formData = parseFormData(interception.request)
-            ;[
-                { name: 'subject', contains: `[Problem Report]` },
-                { name: 'feedback', contains: text },
-                { name: 'version', contains: APP_VERSION.replace('.dirty', '') },
-                { name: 'ua', contains: navigator.userAgent },
-                { name: 'kml', contains: '<Data name="type"><value>marker</value></Data>' },
-                { name: 'kml', contains: '<Data name="type"><value>annotation</value></Data>' },
-                { name: 'kml', contains: '<Data name="type"><value>linepolygon</value></Data>' },
-            ].forEach((param) => {
-                expect(interception.request.body).to.be.a('String')
-                expect(formData).to.haveOwnProperty(param.name)
-                expect(formData[param.name]).to.contain(param.contains)
-            })
+                ;[
+                    { name: 'subject', contains: `[Problem Report]` },
+                    { name: 'feedback', contains: text },
+                    { name: 'version', contains: APP_VERSION.replace('.dirty', '') },
+                    { name: 'ua', contains: navigator.userAgent },
+                    { name: 'kml', contains: '<Data name="type"><value>marker</value></Data>' },
+                    { name: 'kml', contains: '<Data name="type"><value>annotation</value></Data>' },
+                    { name: 'kml', contains: '<Data name="type"><value>linepolygon</value></Data>' },
+                ].forEach((param) => {
+                    expect(interception.request.body).to.be.a('String')
+                    expect(formData).to.haveOwnProperty(param.name)
+                    expect(formData[param.name]).to.contain(param.contains)
+                })
         })
     })
 })

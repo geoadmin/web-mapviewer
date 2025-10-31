@@ -1,6 +1,7 @@
 /// <reference types="cypress" />
 
 import type { MFPLayer, MFPMap, MFPSymbolizer, MFPSymbolizerLine, MFPSymbolizers, MFPVectorLayer, MFPWmsLayer, MFPWmtsLayer } from '@geoblocks/mapfishprint'
+import type { ExternalWMTSLayer } from '@swissgeo/layers';
 import type { Interception } from 'cypress/types/net-stubbing'
 import type { Feature, FeatureCollection } from 'geojson';
 
@@ -8,10 +9,9 @@ import { formatThousand } from '@swissgeo/numbers'
 import { kmlMetadataTemplate } from 'support/drawing'
 import { assertDefined } from 'support/utils'
 
-import type ExternalWMTSLayer from '@/api/layers/ExternalWMTSLayer.class'
-
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
+import useLayersStore from '@/store/modules/layers'
 
 interface LaunchPrintOptions {
     layout?: string
@@ -36,7 +36,7 @@ interface PrintRequestBody {
     format: string
     layout: string
     lang: string
-    outputFilename: string | null
+    outputFilename: string | undefined
 }
 
 interface ExpectedValues {
@@ -330,7 +330,10 @@ describe('Testing print', () => {
                 withHash: true,
             })
             cy.wait(['@kmlHeadRequest', '@kmlGetAdminRequest'])
-            cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+            cy.getPinia().then(pinia => {
+                const layersStore = useLayersStore(pinia)
+                expect(layersStore.activeLayers).to.have.length(1)
+            })
 
             cy.openMenuIfMobile()
 
@@ -431,7 +434,10 @@ describe('Testing print', () => {
 
         it('should send a print request correctly to mapfishprint with GPX layer', () => {
             cy.goToMapView()
-            cy.readStoreValue('state.layers.activeLayers').should('be.empty')
+            cy.getPinia().then(pinia => {
+                const layersStore2 = useLayersStore(pinia)
+                expect(layersStore2.activeLayers).to.be.empty
+            })
             cy.openMenuIfMobile()
             cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
             cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
@@ -446,7 +452,7 @@ describe('Testing print', () => {
             cy.get('[data-cy="import-file-local-content"]').should('be.visible')
 
             cy.log('Test add a local GPX file')
-            cy.fixture(localGpxlFile, null).as('gpxFixture')
+            cy.fixture(localGpxlFile, undefined).as('gpxFixture')
             cy.get('[data-cy="file-input"]').selectFile('@gpxFixture', {
                 force: true,
             })
@@ -460,7 +466,10 @@ describe('Testing print', () => {
                 .contains('File successfully imported')
             cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
             cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
-            cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
+            cy.getPinia().then(pinia => {
+                const layersStore3 = useLayersStore(pinia)
+                expect(layersStore3.activeLayers).to.have.length(1)
+            })
 
             cy.get('[data-cy="import-file-close-button"]:visible').click()
             cy.get('[data-cy="import-file-content"]').should('not.exist')
@@ -691,7 +700,7 @@ describe('Testing print', () => {
                 cy.goToMapView({
                     queryParams: {
                         layers: layerObjects
-                            .map((object: ExternalWMTSLayer) => transformLayerIntoUrlString(object, undefined, null))
+                            .map((object: ExternalWMTSLayer) => transformLayerIntoUrlString(object, undefined, undefined))
                             .join(';'),
                     },
                     withHash: true,
@@ -751,6 +760,9 @@ describe('Testing print', () => {
                     ]
 
                     for (let i = 0; i < layers.length; i++) {
+                        assertDefined(expectedLayers)
+                        assertDefined(expectedLayers[i])
+                        assertDefined(expectedLayers[i])
                         expect(layers[i]['layers']).to.deep.equal(expectedLayers[i]['layers'])
                         expect(layers[i]['type']).to.equals(expectedLayers[i]['type'])
                         expect(layers[i]['baseURL']).to.equals(expectedLayers[i]['baseURL'])
@@ -770,12 +782,12 @@ describe('Testing print', () => {
         it.only('prints external WMTS correctly', () => {
             cy.getExternalWmtsMockConfig().then((layerObjects: ExternalWMTSLayer[]) => {
                 layerObjects.forEach((layer: ExternalWMTSLayer) => {
-                    layer.visible = true
+                    layer.isVisible = true
                 })
                 cy.goToMapView({
                     queryParams: {
                         layers: layerObjects
-                            .map((object: ExternalWMTSLayer) => transformLayerIntoUrlString(object, undefined, null))
+                            .map((object: ExternalWMTSLayer) => transformLayerIntoUrlString(object, undefined, undefined))
                             .join(';'),
                     },
                     withHash: true,
