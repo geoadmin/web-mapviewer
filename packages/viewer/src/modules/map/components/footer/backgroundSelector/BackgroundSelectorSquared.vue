@@ -32,36 +32,59 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
             :class="{ show, animate }"
         >
             <button
-                v-for="backgroundLayer in backgroundLayers"
-                :key="backgroundLayer?.id"
+                v-for="(backgroundLayer, index) in backgroundLayers"
+                :key="index"
+                class="bg-selector-squared-wheel-button"
+                :class="[
+                    { active: backgroundLayer?.id === currentBackgroundLayer?.id },
+                    `bg-selector-squared-wheel-button-${index}`,
+                ]"
+                type="button"
+                :data-cy="`background-selector-${backgroundLayer?.id || 'void'}`"
                 @click="onSelectBackground(backgroundLayer?.id || undefined)"
             >
-                <img
-                    v-if="backgroundLayer"
-                    :src="getImageForBackgroundLayer(backgroundLayer)"
-                    alt="background image"
-                />
+                <span class="bg-selector-squared-wheel-button-image-cropper">
+                    <img
+                        v-if="backgroundLayer"
+                        :src="getImageForBackgroundLayer(backgroundLayer)"
+                        alt="background image"
+                    />
+                </span>
+                <span
+                    class="bg-selector-squared-wheel-button-label text-bg-dark bg-opacity-75 show"
+                >
+                    {{ t(backgroundLayer?.id || 'void_layer') }}
+                </span>
             </button>
         </div>
         <button
             class="bg-selector-squared-wheel-button position-relative"
             :class="{ opened: show, 'text-bg-secondary': show, animate }"
             type="button"
-            data-cy="background-selector-open-wheel-button-squared"
+            data-cy="background-selector-open-wheel-button"
             @click="toggleShowSelector"
         >
             <FontAwesomeIcon
-                :icon="['fas', 'circle']"
+                icon="circle-chevron-right"
+                class="bg-selector-squared-wheel-button-close"
                 :class="{ show, animate }"
             />
             <span class="bg-selector-squared-wheel-button-image-cropper">
                 <img
                     :src="getImageForBackgroundLayer(currentBackgroundLayer)"
-                    alt="current background image"
+                    alt="background image"
                 />
             </span>
-            <span class="bg-selector-squared-wheel-button-label text-bg-dark bg-opacity-75">
-                {{ t('backgroundSelector.label') }}
+            <span
+                :class="{ spread: show, animate }"
+                class="bg-selector-squared-wheel-button-label text-bg-dark bg-opacity-75"
+            >
+                <span
+                    class="text-nowrap bg-selector-squared-wheel-button-label-inner"
+                    :class="{ show: !show, animate }"
+                >
+                    {{ t('bg_chooser_label') }}
+                </span>
             </span>
         </button>
     </div>
