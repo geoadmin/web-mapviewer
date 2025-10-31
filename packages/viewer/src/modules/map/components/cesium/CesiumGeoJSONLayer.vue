@@ -7,7 +7,7 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { GeoJsonDataSource, type Viewer } from 'cesium'
 import { cloneDeep } from 'lodash'
 import { reproject } from 'reproject'
-import { computed, inject, toRef } from 'vue'
+import { computed, inject, type Ref, toRef } from 'vue'
 
 import { setEntityStyle } from '@/modules/map/components/cesium/utils/geoJsonStyleConverter'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
@@ -15,7 +15,7 @@ import { getSafe } from '@/utils/utils'
 
 const { geoJsonConfig } = defineProps<{ geoJsonConfig: GeoAdminGeoJSONLayer }>()
 
-const viewer = inject<Viewer | undefined>('viewer')
+const viewer = inject<Ref<Viewer | undefined>>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumGeoJSONLayer.vue',

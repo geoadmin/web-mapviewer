@@ -5,7 +5,7 @@ import { wrapDegrees } from '@swissgeo/numbers'
 import { Cartesian2, Cartesian3, defined, Ellipsoid, Math as CesiumMath, type Viewer } from 'cesium'
 import { isEqual } from 'lodash'
 import proj4 from 'proj4'
-import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, type Ref, watch } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 
@@ -24,7 +24,7 @@ import usePositionStore from '@/store/modules/position'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumCamera.vue' }
 
-const viewer = inject<Viewer | undefined>('viewer')
+const viewer = inject<Ref<Viewer | undefined>>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumCamera.vue',
@@ -54,10 +54,14 @@ watch(cameraPosition, flyToPosition, {
     flush: 'post',
     deep: true,
 })
-
+watch(viewer, (newViewer) => {
+    if (newViewer) {
+        flyToPosition()
+    }
+})
 function flyToPosition(): void {
     try {
-        if (viewer && cameraPosition.value) {
+        if (viewer && viewer.value && cameraPosition.value) {
             log.debug({
                 title: 'CesiumCamera.vue',
                 titleColor: LogPreDefinedColor.Blue,
@@ -78,7 +82,7 @@ function flyToPosition(): void {
                     cameraPosition.value.roll,
                 ],
             })
-            viewer.camera.flyTo({
+            viewer.value.camera.flyTo({
                 destination: Cartesian3.fromDegrees(
                     cameraPosition.value.x,
                     cameraPosition.value.y,
@@ -102,13 +106,15 @@ function flyToPosition(): void {
 }
 
 function setCenterToCameraTarget(): void {
-    const ray = viewer!.camera.getPickRay(
+    if (!viewer || !viewer.value) return
+    const viewerInstance = viewer.value
+    const ray = viewerInstance.camera.getPickRay(
         new Cartesian2(
-            Math.round(viewer!.scene.canvas.clientWidth / 2),
-            Math.round(viewer!.scene.canvas.clientHeight / 2)
+            Math.round(viewerInstance.scene.canvas.clientWidth / 2),
+            Math.round(viewerInstance.scene.canvas.clientHeight / 2)
         )
     )
-    const cameraTarget = viewer!.scene.globe.pick(ray!, viewer!.scene)
+    const cameraTarget = viewerInstance.scene.globe.pick(ray!, viewerInstance.scene)
     if (defined(cameraTarget)) {
         const cameraTargetCartographic = Ellipsoid.WGS84.cartesianToCartographic(cameraTarget)
         const lat = CesiumMath.toDegrees(cameraTargetCartographic.latitude)
@@ -121,7 +127,8 @@ function setCenterToCameraTarget(): void {
 }
 
 function onCameraMoveEnd(): void {
-    const camera = viewer!.camera
+    if (!viewer || !viewer.value) return
+    const camera = viewer.value.camera
     const position = camera.positionCartographic
     const newCameraPosition = {
         x: parseFloat(CesiumMath.toDegrees(position.longitude).toFixed(6)),
@@ -138,6 +145,8 @@ function onCameraMoveEnd(): void {
 }
 
 function initCamera(): void {
+    if (!viewer || !viewer.value) return
+    const viewerInstance = viewer.value
     let destination
     let orientation
     if (cameraPosition.value) {
@@ -167,7 +176,7 @@ function initCamera(): void {
         destination = Cartesian3.fromDegrees(
             positionStore.centerEpsg4326[0],
             positionStore.centerEpsg4326[1],
-            calculateHeight(positionStore.resolution, viewer!.canvas.clientWidth ?? 1024)
+            calculateHeight(positionStore.resolution, viewerInstance.canvas.clientWidth ?? 1024)
         )
         orientation = {
             heading: -CesiumMath.toRadians(positionStore.rotation),
@@ -176,22 +185,24 @@ function initCamera(): void {
         }
     }
 
-    const sscController = viewer!.scene.screenSpaceCameraController
+    const sscController = viewerInstance.scene.screenSpaceCameraController
     sscController.minimumZoomDistance = CAMERA_MIN_ZOOM_DISTANCE
     sscController.maximumZoomDistance = CAMERA_MAX_ZOOM_DISTANCE
 
-    viewer!.scene.postRender.addEventListener(limitCameraCenter(LV95.getBoundsAs(WGS84)!.flatten))
-    viewer!.scene.postRender.addEventListener(
+    viewerInstance.scene.postRender.addEventListener(
+        limitCameraCenter(LV95.getBoundsAs(WGS84)!.flatten)
+    )
+    viewerInstance.scene.postRender.addEventListener(
         limitCameraPitchRoll(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH, 0.0, 0.0)
     )
 
-    viewer!.camera.flyTo({
+    viewerInstance.camera.flyTo({
         destination,
         orientation,
         duration: 0,
     })
 
-    viewer!.camera.moveEnd.addEventListener(onCameraMoveEnd)
+    viewerInstance.camera.moveEnd.addEventListener(onCameraMoveEnd)
 }
 </script>
 

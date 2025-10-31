@@ -11,7 +11,7 @@ import {
     type Viewer,
 } from 'cesium'
 import proj4 from 'proj4'
-import { computed, inject, onMounted, watch } from 'vue'
+import { computed, inject, onMounted, type Ref, watch } from 'vue'
 
 import useGeolocationStore from '@/store/modules/geolocation'
 import usePositionStore from '@/store/modules/position'
@@ -23,7 +23,7 @@ import {
     geolocationPointWidth,
 } from '@/utils/styleUtils'
 
-const viewer = inject<Viewer | undefined>('viewer')
+const viewer = inject<Ref<Viewer | undefined>>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumGeolocationFeedback.vue',
@@ -105,8 +105,9 @@ function transformArrayColorIntoCesiumColor(arrayColor: number[]): Color {
 }
 
 function activateTracking(): void {
-    if (viewer && geolocationPositionCartesian3.value) {
-        accuracyCircleEntity = viewer.entities.add({
+    if (viewer && viewer.value && geolocationPositionCartesian3.value) {
+        const viewerInstance = viewer.value
+        accuracyCircleEntity = viewerInstance.entities.add({
             id: 'geolocation-accuracy-circle',
             position: geolocationPositionCartesian3.value,
             ellipse: {
@@ -116,7 +117,7 @@ function activateTracking(): void {
                 heightReference: HeightReference.CLAMP_TO_TERRAIN,
             },
         })
-        geolocationPositionEntity = viewer.entities.add({
+        geolocationPositionEntity = viewerInstance.entities.add({
             id: 'geolocation-position',
             position: geolocationPositionCartesian3.value,
             point: {
@@ -133,13 +134,14 @@ function activateTracking(): void {
 }
 
 function removeTracking(): void {
-    if (viewer) {
+    if (viewer && viewer.value) {
+        const viewerInstance = viewer.value
         if (accuracyCircleEntity) {
-            viewer.entities.removeById(accuracyCircleEntity.id)
+            viewerInstance.entities.removeById(accuracyCircleEntity.id)
             accuracyCircleEntity = undefined
         }
         if (geolocationPositionEntity) {
-            viewer.entities.removeById(geolocationPositionEntity.id)
+            viewerInstance.entities.removeById(geolocationPositionEntity.id)
             geolocationPositionEntity = undefined
         }
     }

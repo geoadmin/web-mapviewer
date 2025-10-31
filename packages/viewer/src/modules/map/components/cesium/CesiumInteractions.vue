@@ -19,7 +19,7 @@ import {
 import GeoJSON from 'ol/format/GeoJSON'
 import { LineString, Point, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
-import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
+import { computed, inject, onMounted, onUnmounted, type Ref, watch } from 'vue'
 
 import type { LayerFeature, SelectableFeature } from '@/api/features.api'
 import type { LayerTooltipConfig } from '@/config/cesium.config'
@@ -60,7 +60,7 @@ const visiblePrimitiveLayers = computed(() =>
     )
 )
 
-const viewer = inject<Viewer | undefined>('viewer')
+const viewer = inject<Ref<Viewer | undefined>>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumInteractions.vue',
@@ -71,24 +71,58 @@ if (!viewer) {
 }
 
 onMounted(() => {
+    if (!viewer || !viewer.value) return
+    const viewerInstance = viewer.value
     initialize3dHighlights()
-    viewer.scene.postProcessStages.add(
+    viewerInstance.scene.postProcessStages.add(
         PostProcessStageLibrary.createSilhouetteStage([
             hoveredHighlightPostProcessor,
             clickedHighlightPostProcessor,
         ])
     )
-    viewer.screenSpaceEventHandler.setInputAction(onClick, ScreenSpaceEventType.LEFT_CLICK)
-    viewer.screenSpaceEventHandler.setInputAction(onContextMenu, ScreenSpaceEventType.RIGHT_CLICK)
-    viewer.screenSpaceEventHandler.setInputAction(onMouseMove, ScreenSpaceEventType.MOUSE_MOVE)
+    viewerInstance.screenSpaceEventHandler.setInputAction(onClick, ScreenSpaceEventType.LEFT_CLICK)
+    viewerInstance.screenSpaceEventHandler.setInputAction(
+        onContextMenu,
+        ScreenSpaceEventType.RIGHT_CLICK
+    )
+    viewerInstance.screenSpaceEventHandler.setInputAction(
+        onMouseMove,
+        ScreenSpaceEventType.MOUSE_MOVE
+    )
+})
+watch(viewer, (newViewer) => {
+    if (newViewer) {
+        const viewerInstance = newViewer
+        initialize3dHighlights()
+        viewerInstance.scene.postProcessStages.add(
+            PostProcessStageLibrary.createSilhouetteStage([
+                hoveredHighlightPostProcessor,
+                clickedHighlightPostProcessor,
+            ])
+        )
+        viewerInstance.screenSpaceEventHandler.setInputAction(
+            onClick,
+            ScreenSpaceEventType.LEFT_CLICK
+        )
+        viewerInstance.screenSpaceEventHandler.setInputAction(
+            onContextMenu,
+            ScreenSpaceEventType.RIGHT_CLICK
+        )
+        viewerInstance.screenSpaceEventHandler.setInputAction(
+            onMouseMove,
+            ScreenSpaceEventType.MOUSE_MOVE
+        )
+    }
 })
 
 onUnmounted(() => {
-    viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.LEFT_CLICK)
-    viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.RIGHT_CLICK)
-    viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.MOUSE_MOVE)
-    viewer.scene.postProcessStages.remove(hoveredHighlightPostProcessor)
-    viewer.scene.postProcessStages.remove(clickedHighlightPostProcessor)
+    if (!viewer || !viewer.value) return
+    const viewerInstance = viewer.value
+    viewerInstance.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.LEFT_CLICK)
+    viewerInstance.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.RIGHT_CLICK)
+    viewerInstance.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.MOUSE_MOVE)
+    viewerInstance.scene.postProcessStages.remove(hoveredHighlightPostProcessor)
+    viewerInstance.scene.postProcessStages.remove(clickedHighlightPostProcessor)
 })
 
 // this is to remove the highlight when we close the tooltip
@@ -105,7 +139,9 @@ watch(selectedFeatures, () => {
         clickedHighlightPostProcessor.selected.length > 0
     ) {
         clickedHighlightPostProcessor.selected = []
-        viewer.scene.requestRender()
+        if (viewer && viewer.value) {
+            viewer.value.scene.requestRender()
+        }
     }
 })
 
@@ -119,7 +155,7 @@ function initialize3dHighlights(): void {
     clickedHighlightPostProcessor.selected = []
 }
 function getCoordinateAtScreenCoordinate(x: number, y: number): SingleCoordinate | undefined {
-    const cartesian = viewer?.scene.pickPosition(new Cartesian2(x, y))
+    const cartesian = viewer?.value?.scene.pickPosition(new Cartesian2(x, y))
     let coordinates: SingleCoordinate | undefined
     if (cartesian) {
         const cartCoords = Cartographic.fromCartesian(cartesian)
@@ -225,11 +261,13 @@ function handleClickHighlight(
 }
 
 function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
-    unhighlightGroup(viewer!)
+    if (viewer && viewer.value) {
+        unhighlightGroup(viewer.value)
+    }
     const features: SelectableFeature<false | true>[] = []
     let coordinates = getCoordinateAtScreenCoordinate(event.position.x, event.position.y)
 
-    const objects = viewer!.scene.drillPick(event.position) ?? []
+    const objects = viewer?.value?.scene.drillPick(event.position) ?? []
 
     log.debug({
         title: 'CesiumInteractions.vue',
@@ -263,8 +301,8 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
         .filter((layer: Layer) => layer.type === LayerType.KML)
         .forEach((kmlLayer: Layer) => {
             objects
-                .filter((obj) => obj.id?.layerId === kmlLayer.id)
-                .forEach((kmlFeature) => {
+                .filter((obj: any) => obj.id?.layerId === kmlLayer.id)
+                .forEach((kmlFeature: any) => {
                     log.debug({
                         title: 'CesiumInteractions.vue',
                         titleColor: LogPreDefinedColor.Blue,
@@ -275,13 +313,15 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
                             kmlLayer,
                         ],
                     })
-                    const kmlLayerFeature = create3dKmlFeature(
-                        viewer!,
-                        kmlFeature,
-                        kmlLayer as KMLLayerType
-                    )
-                    if (kmlLayerFeature) {
-                        features.push(kmlLayerFeature)
+                    if (viewer && viewer.value) {
+                        const kmlLayerFeature = create3dKmlFeature(
+                            viewer.value,
+                            kmlFeature,
+                            kmlLayer as KMLLayerType
+                        )
+                        if (kmlLayerFeature) {
+                            features.push(kmlLayerFeature)
+                        }
                     }
                 })
         })
@@ -311,7 +351,9 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
     } else {
         mapStore.click(undefined, dispatcher)
     }
-    viewer?.scene.requestRender()
+    if (viewer && viewer.value) {
+        viewer.value.scene.requestRender()
+    }
 }
 
 function create3dKmlFeature(
@@ -401,7 +443,7 @@ function onMouseMove(event: ScreenSpaceEventHandler.MotionEvent): void {
     const aFeatureIsHighlighted = hoveredHighlightPostProcessor.selected.length === 1
 
     // we pick the first 3d feature if it's in the config
-    const object = viewer?.scene.pick(event.endPosition)
+    const object = viewer?.value?.scene.pick(event.endPosition)
     if (
         object &&
         cesiumStore.layersTooltipConfig
@@ -409,16 +451,20 @@ function onMouseMove(event: ScreenSpaceEventHandler.MotionEvent): void {
             .includes(getLayerIdFrom3dFeature(object)!)
     ) {
         hoveredHighlightPostProcessor.selected = [object]
-        viewer?.scene.requestRender()
+        if (viewer && viewer.value) {
+            viewer.value.scene.requestRender()
+        }
     } else {
         hoveredHighlightPostProcessor.selected = []
-        if (aFeatureIsHighlighted) {
-            viewer?.scene.requestRender()
+        if (aFeatureIsHighlighted && viewer && viewer.value) {
+            viewer.value.scene.requestRender()
         }
     }
 }
 
-useDragFileOverlay(viewer.container as HTMLElement)
+if (viewer && viewer.value) {
+    useDragFileOverlay(viewer.value.container as HTMLElement)
+}
 </script>
 
 <template>

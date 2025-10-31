@@ -13,7 +13,7 @@ import {
     GpxDataSource,
     HeightReference,
 } from 'cesium'
-import { computed, inject, toRef, watch } from 'vue'
+import { computed, inject, type Ref, toRef, watch } from 'vue'
 
 import { GPX_BILLBOARD_RADIUS } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
@@ -23,7 +23,7 @@ const { gpxLayerConfig } = defineProps<{ gpxLayerConfig: GPXLayer }>()
 const gpxData = computed(() => gpxLayerConfig.gpxData)
 const layerOpacity = computed(() => gpxLayerConfig.opacity)
 
-const viewer = inject<Viewer | undefined>('viewer')
+const viewer = inject<Ref<Viewer | undefined>>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumGPXLayer.vue',

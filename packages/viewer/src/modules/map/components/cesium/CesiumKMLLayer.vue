@@ -14,7 +14,7 @@ import {
     LabelStyle,
     VerticalOrigin,
 } from 'cesium'
-import { computed, inject, toRef, watch } from 'vue'
+import { computed, inject, type Ref, toRef, watch } from 'vue'
 
 import { DEFAULT_MARKER_HORIZONTAL_OFFSET } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
@@ -26,7 +26,7 @@ const kmlData = computed(() => kmlLayerConfig.kmlData)
 const kmlStyle = computed(() => kmlLayerConfig.style)
 const isClampedToGround = computed(() => kmlLayerConfig.clampToGround)
 
-const viewer = inject<Viewer | undefined>('viewer')
+const viewer = inject<Ref<Viewer | undefined>>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumKMLLayer.vue',

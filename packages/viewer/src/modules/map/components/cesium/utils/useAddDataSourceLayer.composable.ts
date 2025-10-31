@@ -26,7 +26,7 @@ type StyleEntityCallback = (entity: Entity, opacity: number) => void
  *   style/data, GPX or KML data)
  */
 export default function useAddDataSourceLayer(
-    viewer: MaybeRef<Viewer>,
+    viewer: MaybeRef<Viewer | undefined>,
     loadDataSource: MaybeRef<
         Promise<GeoJsonDataSource> | Promise<KmlDataSource> | Promise<GpxDataSource>
     >,
@@ -42,14 +42,17 @@ export default function useAddDataSourceLayer(
             | Promise<KmlDataSource>
             | Promise<GpxDataSource>
     ): Promise<void> {
+        const viewerInstance = toValue(viewer)
+        if (!viewerInstance) return
+
         log.debug({
             title: 'useAddDataSourceLayer.composable',
             titleColor: LogPreDefinedColor.Blue,
             message: ['refreshing data source layer', toValue(layerId)],
         })
         if (dataSource) {
-            toValue(viewer).dataSources.remove(dataSource)
-            toValue(viewer).scene.requestRender()
+            viewerInstance.dataSources.remove(dataSource)
+            viewerInstance.scene.requestRender()
         }
         try {
             dataSource = await loadingDataSource
@@ -67,34 +70,40 @@ export default function useAddDataSourceLayer(
             })
 
             // need to wait for terrain loaded otherwise primitives will be placed wrong (under the terrain)
-            if (toValue(viewer).scene.globe.tilesLoaded || IS_TESTING_WITH_CYPRESS) {
-                dataSource = await toValue(viewer).dataSources.add(dataSource)
-                toValue(viewer).scene.requestRender()
+            if (viewerInstance.scene.globe.tilesLoaded || IS_TESTING_WITH_CYPRESS) {
+                dataSource = await viewerInstance.dataSources.add(dataSource)
+                viewerInstance.scene.requestRender()
             } else {
-                const removeTileLoadProgressEventListener = toValue(
-                    viewer
-                ).scene.globe.tileLoadProgressEvent.addEventListener((queueLength: number) => {
-                    if (
-                        dataSource &&
-                        toValue(viewer).scene.globe.tilesLoaded &&
-                        queueLength === 0
-                    ) {
-                        toValue(viewer)
-                            .dataSources.add(dataSource)
-                            .then((loadedDataSource) => {
-                                dataSource = loadedDataSource
-                            })
-                            .catch((error) => {
-                                log.error({
-                                    title: 'useAddDataSourceLayer.composable',
-                                    titleColor: LogPreDefinedColor.Red,
-                                    message: ['Error while adding data source to viewer', error],
-                                })
-                            })
-                        toValue(viewer).scene.requestRender()
-                        removeTileLoadProgressEventListener()
-                    }
-                })
+                const removeTileLoadProgressEventListener =
+                    viewerInstance.scene.globe.tileLoadProgressEvent.addEventListener(
+                        (queueLength: number) => {
+                            const currentViewer = toValue(viewer)
+                            if (
+                                dataSource &&
+                                currentViewer &&
+                                currentViewer.scene.globe.tilesLoaded &&
+                                queueLength === 0
+                            ) {
+                                currentViewer
+                                    .dataSources.add(dataSource)
+                                    .then((loadedDataSource) => {
+                                        dataSource = loadedDataSource
+                                    })
+                                    .catch((error) => {
+                                        log.error({
+                                            title: 'useAddDataSourceLayer.composable',
+                                            titleColor: LogPreDefinedColor.Red,
+                                            message: [
+                                                'Error while adding data source to viewer',
+                                                error,
+                                            ],
+                                        })
+                                    })
+                                currentViewer.scene.requestRender()
+                                removeTileLoadProgressEventListener()
+                            }
+                        }
+                    )
             }
         } catch (error) {
             log.error({
@@ -114,17 +123,21 @@ export default function useAddDataSourceLayer(
     })
 
     onBeforeUnmount(() => {
-        if (dataSource) {
-            toValue(viewer).dataSources.remove(dataSource)
-            toValue(viewer).scene.requestRender()
+        const viewerInstance = toValue(viewer)
+        if (dataSource && viewerInstance) {
+            viewerInstance.dataSources.remove(dataSource)
+            viewerInstance.scene.requestRender()
         }
     })
 
     watch(toRef(opacity), () => {
+        const viewerInstance = toValue(viewer)
         dataSource?.entities.values.forEach((entity: Entity) =>
             toValue(styleEntity)(entity, toValue(opacity) ?? 1.0)
         )
-        toValue(viewer).scene.requestRender()
+        if (viewerInstance) {
+            viewerInstance.scene.requestRender()
+        }
     })
 
     return {

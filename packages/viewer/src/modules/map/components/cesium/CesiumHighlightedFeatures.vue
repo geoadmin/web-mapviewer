@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { LineString, Point, Polygon } from 'ol/geom'
-import { computed, inject, onMounted, ref, watch } from 'vue'
+import { computed, inject, onMounted, ref, type Ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { EditableFeature, LayerFeature } from '@/api/features.api'
@@ -28,7 +28,7 @@ import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositi
 
 const dispatcher: ActionDispatcher = { name: 'CesiumHighlightedFeatures.vue' }
 
-const viewer = inject<Viewer | undefined>('viewer')
+const viewer = inject<Ref<Viewer | undefined>>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumHighlightedFeatures.vue',
@@ -63,7 +63,9 @@ watch(
             highlightSelectedFeatures()
         } else {
             // To un highlight the features when the layer is removed or the visibility is set to false
-            unhighlightGroup(viewer)
+            if (viewer && viewer.value) {
+                unhighlightGroup(viewer.value)
+            }
         }
     },
     {
@@ -123,7 +125,9 @@ function highlightSelectedFeatures(): void {
             return f.geometry as HighlightGeometry
         })
         .filter((value: HighlightGeometry | undefined) => value !== undefined)
-    highlightGroup(viewer!, geometries)
+    if (viewer && viewer.value) {
+        highlightGroup(viewer.value, geometries)
+    }
     if (firstFeature && Array.isArray(firstFeature.coordinates)) {
         const coords = firstFeature.coordinates
         popoverCoordinates.value = Array.isArray(coords[0])
@@ -132,7 +136,9 @@ function highlightSelectedFeatures(): void {
     }
 }
 function onPopupClose() {
-    unhighlightGroup(viewer!)
+    if (viewer && viewer.value) {
+        unhighlightGroup(viewer.value)
+    }
     featuresStore.clearAllSelectedFeatures(dispatcher)
     mapStore.clearClick(dispatcher)
 }

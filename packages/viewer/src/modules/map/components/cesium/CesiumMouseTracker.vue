@@ -11,7 +11,16 @@ import {
     type Viewer,
 } from 'cesium'
 import proj4 from 'proj4'
-import { computed, inject, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import {
+    computed,
+    inject,
+    onBeforeUnmount,
+    onMounted,
+    ref,
+    useTemplateRef,
+    watch,
+    type Ref,
+} from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { ActionDispatcher } from '@/store/types'
@@ -36,7 +45,7 @@ const dispatcher: ActionDispatcher = { name: 'CesiumMouseTracker.vue' }
 
 let handler: ScreenSpaceEventHandler | undefined
 
-const viewer = inject<Viewer | undefined>('viewer')
+const viewer = inject<Ref<Viewer | undefined>>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumMouseTracker.vue',
@@ -46,17 +55,25 @@ if (!viewer) {
     throw new Error('CesiumMouseTracker.vue: viewer is not defined')
 }
 
+watch(viewer, (newViewer) => {
+    if (newViewer) {
+        setupHandler()
+    }
+})
+
 watch(
     is3DReady,
     (newValue) => {
-        if (newValue) {
+        if (newValue && viewer.value) {
             setupHandler()
         }
     },
     { immediate: true }
 )
 onMounted(() => {
-    setupHandler()
+    if (viewer.value) {
+        setupHandler()
+    }
 })
 onBeforeUnmount(() => {
     if (handler) {
@@ -67,16 +84,17 @@ onBeforeUnmount(() => {
 
 function setupHandler(): void {
     // If the handler already exists for some reason, there is no need to create it again
-    if (handler || !viewer) {
+    if (handler || !viewer || !viewer.value) {
         return
     }
-    handler = new ScreenSpaceEventHandler(viewer.scene.canvas)
+    const viewerInstance = viewer.value
+    handler = new ScreenSpaceEventHandler(viewerInstance.scene.canvas)
     handler.setInputAction((movement: { endPosition: Cartesian2 }) => {
-        const ray = viewer.camera.getPickRay(movement.endPosition)
+        const ray = viewerInstance.camera.getPickRay(movement.endPosition)
         if (!ray) {
             return
         }
-        const cartesian = viewer.scene.globe.pick(ray, viewer.scene)
+        const cartesian = viewerInstance.scene.globe.pick(ray, viewerInstance.scene)
         if (cartesian) {
             const cartographic = Cartographic.fromCartesian(cartesian)
             const longitude = Math.toDegrees(cartographic.longitude)

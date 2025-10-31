@@ -23,6 +23,16 @@ export default function setCenter(
         })
         return
     }
+
+    // Prevent recursion: if we're being called from setCameraPosition, don't sync back
+    if (dispatcher.name === 'setCameraPosition') {
+        // if (dispatcher.name === 'setCameraPosition' || dispatcher.name === 'CesiumCamera.vue') {
+        if (this.projection.isInBounds(center)) {
+            this.center = center
+        }
+        return
+    }
+
     if (this.projection.isInBounds(center)) {
         this.center = center
     } else {
@@ -54,6 +64,8 @@ export default function setCenter(
             this.center[0],
             this.center[1],
         ])
+        // Use a special dispatcher to indicate this is a sync operation from setCenter
+        // This prevents infinite recursion with setCameraPosition
         this.setCameraPosition(
             {
                 x: centerWgs84[0],
@@ -63,7 +75,7 @@ export default function setCenter(
                 pitch: this.camera.pitch,
                 heading: this.camera.heading,
             },
-            dispatcher
+            { name: 'setCenter' } // Special dispatcher to prevent recursion
         )
     }
 }
