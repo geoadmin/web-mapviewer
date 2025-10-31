@@ -8,6 +8,7 @@ import type { CameraPosition, PositionStore } from '@/store/modules/position/typ
 import type { ActionDispatcher } from '@/store/types'
 
 import { calculateResolution } from '@/modules/map/components/cesium/utils/cameraUtils'
+import useCesiumStore from '@/store/modules/cesium'
 import { normalizeAngle } from '@/store/modules/position/utils/normalizeAngle'
 import useUIStore from '@/store/modules/ui'
 
@@ -30,13 +31,6 @@ export default function setCameraPosition(
         : undefined
     if (this.camera) {
         // updating the 2D position with the new camera values
-        // BUT: do not sync back if we're being called FROM setCenter (to prevent infinite recursion)
-        if (dispatcher.name === 'setCenter' || dispatcher.name === 'setZoom') {
-            // if (dispatcher.name === 'setCenter' || dispatcher.name === 'CesiumCamera.vue') {
-            // Skip the 2D sync when being called from setCenter to avoid recursion
-            return
-        }
-
         const uiStore = useUIStore()
 
         const centerWGS84: SingleCoordinate = [this.camera.x, this.camera.y]
@@ -53,9 +47,13 @@ export default function setCameraPosition(
             centerExpressedInWantedProjection
         )
 
-        // Pass 'setCameraPosition' as dispatcher name to prevent setCenter from syncing back
-        this.setCenter(centerExpressedInWantedProjection, { name: 'setCameraPosition' })
-        this.setZoom(zoom, { name: 'setCameraPosition' })
-        this.setRotation(normalizeAngle((this.camera.heading * Math.PI) / 180), { name: 'setCameraPosition' })
+        // Prevent recursion: don't call setCenter and setZoom which would call back setCameraPosition
+        const cesiumStore = useCesiumStore()
+        if (cesiumStore.active) {
+            return
+        }
+        this.setCenter(centerExpressedInWantedProjection, dispatcher)
+        this.setZoom(zoom, dispatcher)
+        this.setRotation(normalizeAngle((this.camera.heading * Math.PI) / 180), dispatcher)
     }
 }

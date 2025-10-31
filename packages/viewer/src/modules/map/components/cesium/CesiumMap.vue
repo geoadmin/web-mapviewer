@@ -11,7 +11,6 @@ import {
 } from 'cesium'
 import {
     computed,
-    nextTick,
     onBeforeMount,
     onMounted,
     onUnmounted,
@@ -19,6 +18,7 @@ import {
     ref,
     useTemplateRef,
     watch,
+    type Ref,
 } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
@@ -53,13 +53,10 @@ const positionStore = usePositionStore()
 const uiStore = useUIStore()
 
 const isProjectionWebMercator = computed(() => positionStore.projection.epsg === WEBMERCATOR.epsg)
-console.log('CesiumMap')
 watch(
     isProjectionWebMercator,
     () => {
-        console.log('CesiumMap: projection changed', isProjectionWebMercator.value, viewer.value)
         if (!viewer.value && isProjectionWebMercator.value) {
-            // nextTick(() => {
             createViewer().catch((e) => {
                 log.error({
                     title: 'CesiumMap.vue',
@@ -67,7 +64,6 @@ watch(
                     message: ['Error while creating the viewer:', e.message],
                 })
             })
-            // })
         } else if (!isProjectionWebMercator.value) {
             log.error({
                 title: 'CesiumMap.vue',
@@ -84,21 +80,17 @@ watch(
     }
 )
 onBeforeMount(() => {
-    console.log('CesiumMap before mount')
     // Global variable required for Cesium and point to the URL where four static directories (see vite.config) are served
     // https://cesium.com/learn/cesiumjs-learn/cesiumjs-quickstart/#install-with-npm
     window.CESIUM_BASE_URL = CESIUM_STATIC_PATH
 })
 onMounted(() => {
-    console.log('CesiumMap mounted, checking projection', isProjectionWebMercator.value)
     if (isProjectionWebMercator.value) {
         log.debug({
             title: 'CesiumMap.vue',
             titleColor: LogPreDefinedColor.Blue,
             message: ['Cesium', 'Projection is now WebMercator, Cesium will start loading'],
         })
-        // Use nextTick to ensure the template (including viewerElement ref) is fully rendered
-        // nextTick(() => {
         createViewer().catch((e) => {
             log.error({
                 title: 'CesiumMap.vue',
@@ -106,7 +98,6 @@ onMounted(() => {
                 message: ['Cesium', 'Error while creating the viewer', e.message],
             })
         })
-        // })
     } else {
         log.warn({
             title: 'CesiumMap.vue',
@@ -193,7 +184,7 @@ async function createViewer(): Promise<void> {
     }
     log.info('[Cesium] CesiumMap component mounted and ready')
 }
-provide('viewer', viewer)
+provide<Ref<Viewer | undefined>>('viewer', viewer)
 </script>
 
 <template>

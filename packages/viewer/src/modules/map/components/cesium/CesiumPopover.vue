@@ -52,7 +52,9 @@ const coordinatesHeight = ref<number | undefined>()
 const wgs84Coordinates = computed(() => proj4(projection.epsg, WGS84.epsg, coordinates))
 
 onMounted(() => {
-    if (!viewer || !viewer.value) return
+    if (!viewer || !viewer.value) {
+        return
+    }
     const viewerInstance = viewer.value
     // By default, the `camera.changed` event will trigger when the camera has changed by 50%
     // To make it more sensitive (and improve tooltip "tracking" on the map), we set down sensitivity to 0.1%
@@ -88,7 +90,9 @@ watch(viewer, (newViewer) => {
     }
 })
 onUnmounted(() => {
-    if (!viewer || !viewer.value) return
+    if (!viewer || !viewer.value) {
+        return
+    }
     const viewerInstance = viewer.value
     viewerInstance.camera.changed.removeEventListener(updatePosition)
     viewerInstance.scene.globe.tileLoadProgressEvent.removeEventListener(onTileLoadProgress)

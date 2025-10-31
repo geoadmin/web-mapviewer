@@ -106,7 +106,9 @@ function flyToPosition(): void {
 }
 
 function setCenterToCameraTarget(): void {
-    if (!viewer || !viewer.value) return
+    if (!viewer || !viewer.value) {
+        return
+    }
     const viewerInstance = viewer.value
     const ray = viewerInstance.camera.getPickRay(
         new Cartesian2(
@@ -127,7 +129,9 @@ function setCenterToCameraTarget(): void {
 }
 
 function onCameraMoveEnd(): void {
-    if (!viewer || !viewer.value) return
+    if (!viewer || !viewer.value) {
+        return
+    }
     const camera = viewer.value.camera
     const position = camera.positionCartographic
     const newCameraPosition = {
@@ -145,7 +149,9 @@ function onCameraMoveEnd(): void {
 }
 
 function initCamera(): void {
-    if (!viewer || !viewer.value) return
+    if (!viewer || !viewer.value) {
+        return
+    }
     const viewerInstance = viewer.value
     let destination
     let orientation

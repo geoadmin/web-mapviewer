@@ -9,17 +9,11 @@ import {
 } from '@/utils/composables/useFieldValidation'
 
 interface Props {
-    /**
-     * Label to add above the field
-     */
+    /** Label to add above the field */
     label?: string
-    /**
-     * Description to add below the input
-     */
+    /** Description to add below the input */
     description?: string
-    /**
-     * Mark the field as disable
-     */
+    /** Mark the field as disable */
     disabled?: boolean
     /**
      * Placeholder
@@ -27,15 +21,13 @@ interface Props {
      * NOTE: this should be a translation key
      */
     placeholder?: string
-    /**
-     * Field is required and will be marked as invalid if empty
-     */
+    /** Field is required and will be marked as invalid if empty */
     required?: boolean
     /**
      * Mark the field as valid
      *
-     * This can be used if the field requires some external validation. When not set or set to undefined
-     * this props is ignored.
+     * This can be used if the field requires some external validation. When not set or set to
+     * undefined this props is ignored.
      *
      * NOTE: this props is ignored when activate-validation is false
      */
@@ -48,8 +40,8 @@ interface Props {
     /**
      * Mark the field as invalid
      *
-     * This can be used if the field requires some external validation. When not set or set to undefined
-     * this props is ignored.
+     * This can be used if the field requires some external validation. When not set or set to
+     * undefined this props is ignored.
      *
      * NOTE: this props is ignored when activate-validation is false
      */
@@ -104,12 +96,18 @@ const { t } = useI18n()
 // Create a computed ref wrapper for the model to match the expected type
 const modelRef = computed({
     get: () => model.value,
-    set: (value: string) => { model.value = value }
+    set: (value: string) => {
+        model.value = value
+    },
 })
 const textAreaElement = useTemplateRef('textAreaElement')
 
 const { value, validMarker, invalidMarker, validMessage, invalidMessage, onFocus, required } =
-    useFieldValidation(props as unknown as FieldValidationProps, modelRef, emits as (_event: string, ..._args: unknown[]) => void)
+    useFieldValidation(
+        props as unknown as FieldValidationProps,
+        modelRef,
+        emits as (_event: string, ..._args: unknown[]) => void
+    )
 
 function focus(): void {
     textAreaElement.value?.focus()

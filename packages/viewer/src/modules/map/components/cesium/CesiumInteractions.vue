@@ -71,7 +71,14 @@ if (!viewer) {
 }
 
 onMounted(() => {
-    if (!viewer || !viewer.value) return
+    initializeInteractions()
+})
+watch(viewer, () => initializeInteractions())
+
+function initializeInteractions(): void {
+    if (!viewer || !viewer.value) {
+        return
+    }
     const viewerInstance = viewer.value
     initialize3dHighlights()
     viewerInstance.scene.postProcessStages.add(
@@ -89,34 +96,13 @@ onMounted(() => {
         onMouseMove,
         ScreenSpaceEventType.MOUSE_MOVE
     )
-})
-watch(viewer, (newViewer) => {
-    if (newViewer) {
-        const viewerInstance = newViewer
-        initialize3dHighlights()
-        viewerInstance.scene.postProcessStages.add(
-            PostProcessStageLibrary.createSilhouetteStage([
-                hoveredHighlightPostProcessor,
-                clickedHighlightPostProcessor,
-            ])
-        )
-        viewerInstance.screenSpaceEventHandler.setInputAction(
-            onClick,
-            ScreenSpaceEventType.LEFT_CLICK
-        )
-        viewerInstance.screenSpaceEventHandler.setInputAction(
-            onContextMenu,
-            ScreenSpaceEventType.RIGHT_CLICK
-        )
-        viewerInstance.screenSpaceEventHandler.setInputAction(
-            onMouseMove,
-            ScreenSpaceEventType.MOUSE_MOVE
-        )
-    }
-})
+    useDragFileOverlay(viewer.value.container as HTMLElement)
+}
 
 onUnmounted(() => {
-    if (!viewer || !viewer.value) return
+    if (!viewer || !viewer.value) {
+        return
+    }
     const viewerInstance = viewer.value
     viewerInstance.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.LEFT_CLICK)
     viewerInstance.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.RIGHT_CLICK)
@@ -254,7 +240,9 @@ function handleClickHighlight(
     hoveredHighlightPostProcessor.selected.forEach((feature) => {
         if (Array.isArray(coordinates) && coordinates.length === 2) {
             const lf = create3dFeature(feature, coordinates)
-            if (lf) features.push(lf)
+            if (lf) {
+                features.push(lf)
+            }
         }
     })
     hoveredHighlightPostProcessor.selected = []
@@ -301,8 +289,8 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
         .filter((layer: Layer) => layer.type === LayerType.KML)
         .forEach((kmlLayer: Layer) => {
             objects
-                .filter((obj: any) => obj.id?.layerId === kmlLayer.id)
-                .forEach((kmlFeature: any) => {
+                .filter((obj) => obj.id?.layerId === kmlLayer.id)
+                .forEach((kmlFeature) => {
                     log.debug({
                         title: 'CesiumInteractions.vue',
                         titleColor: LogPreDefinedColor.Blue,
@@ -460,10 +448,6 @@ function onMouseMove(event: ScreenSpaceEventHandler.MotionEvent): void {
             viewer.value.scene.requestRender()
         }
     }
-}
-
-if (viewer && viewer.value) {
-    useDragFileOverlay(viewer.value.container as HTMLElement)
 }
 </script>
 

@@ -26,11 +26,6 @@ export default function setZoom(
     const cesiumStore = useCesiumStore()
     const uiStore = useUIStore()
     if (cesiumStore.active && this.camera) {
-        if (dispatcher.name === 'setCenter' || dispatcher.name === 'setCameraPosition') {
-            // if (dispatcher.name === 'setCenter' || dispatcher.name === 'CesiumCamera.vue') {
-            // Skip the 2D sync when being called from setCenter to avoid recursion
-            return
-        }
         // Notes(IS): It should be cesium viewer clientWidth, but we do not have access to it here.
         // We are using the store width instead.
         const newHeight = calculateHeight(this.resolution, uiStore.width)
