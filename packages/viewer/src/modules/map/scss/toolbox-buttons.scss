@@ -22,8 +22,7 @@
     }
     &-inner-circle,
     .svg-inline--fa {
-        width: $map-button-inner-icon-diameter;
-        height: $map-button-inner-icon-diameter;
+        font-size: $map-button-inner-icon-diameter;
         color: $white;
     }
     &.active {
@@ -62,6 +61,6 @@
 
     &-inner-circle,
     .svg-inline--fa {
-        height: $map-button-inner-icon-diameter * 0.75;
+        font-size: $map-button-inner-icon-diameter * 0.75;
     }
 }
