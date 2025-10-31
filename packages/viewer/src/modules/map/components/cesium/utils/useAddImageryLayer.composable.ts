@@ -23,7 +23,7 @@ interface UseAddImageryLayerExports {
  */
 export default function useAddImageryLayer(
     cesiumViewer: MaybeRef<Viewer | undefined>,
-    createProvider: MaybeRef<ProviderFactoryFunction>,
+    createProvider: ProviderFactoryFunction,
     zIndex: MaybeRef<number>,
     opacity: MaybeRef<number> = 1.0
 ): UseAddImageryLayerExports {
@@ -36,10 +36,8 @@ export default function useAddImageryLayer(
         if (layer) {
             viewerInstance.scene.imageryLayers.remove(layer)
         }
-        // Get the factory function - if createProvider is a ref, unwrap it; if it's already a function, use it
-        const providerFactory = toValue(createProvider)
-        if (providerFactory && typeof providerFactory === 'function') {
-            const provider = providerFactory()
+        if (createProvider) {
+            const provider = createProvider()
             if (provider) {
                 layer = viewerInstance.scene.imageryLayers.addImageryProvider(
                     provider,
