@@ -31,7 +31,9 @@ export default function useAddImageryLayer(
 
     function refreshLayer() {
         const viewerInstance = toValue(cesiumViewer)
-        if (!viewerInstance) return
+        if (!viewerInstance) {
+            return
+        }
 
         if (layer) {
             viewerInstance.scene.imageryLayers.remove(layer)

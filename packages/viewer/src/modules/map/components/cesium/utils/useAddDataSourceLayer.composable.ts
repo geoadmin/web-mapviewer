@@ -43,7 +43,9 @@ export default function useAddDataSourceLayer(
             | Promise<GpxDataSource>
     ): Promise<void> {
         const viewerInstance = toValue(viewer)
-        if (!viewerInstance) return
+        if (!viewerInstance) {
+            return
+        }
 
         log.debug({
             title: 'useAddDataSourceLayer.composable',

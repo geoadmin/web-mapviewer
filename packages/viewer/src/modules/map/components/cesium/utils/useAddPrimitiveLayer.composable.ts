@@ -121,7 +121,9 @@ export default function useAddPrimitiveLayer(
 
     onMounted(async () => {
         const viewerInstance = toValue(cesiumViewer)
-        if (!viewerInstance) return
+        if (!viewerInstance) {
+            return
+        }
 
         try {
             const loadedTileSet = await toValue(tileSet)
