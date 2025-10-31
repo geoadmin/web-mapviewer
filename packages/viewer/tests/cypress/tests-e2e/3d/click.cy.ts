@@ -2,8 +2,8 @@
 import { registerProj4, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
 
-import { ClickType } from '@/store/modules/map/types/clickType.enum'
 import useMapStore from '@/store/modules/map'
+import { ClickType } from '@/store/modules/map/types/clickType.enum'
 
 registerProj4(proj4)
 

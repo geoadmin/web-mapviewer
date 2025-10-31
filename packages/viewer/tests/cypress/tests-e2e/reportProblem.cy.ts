@@ -1,12 +1,13 @@
 /// <reference types="cypress" />
 
+import type { Interception } from 'cypress/types/net-stubbing'
+
 import { EditableFeatureTypes } from '@/api/features.api'
 import { APP_VERSION } from '@/config/staging.config'
 import useLayersStore from '@/store/modules/layers'
 
 import { assertDefined, isMobile } from '../support/utils'
 import { interceptFeedback, parseFormData } from './feedbackTestUtils'
-import type { Interception } from 'cypress/types/net-stubbing'
 
 const text =
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'

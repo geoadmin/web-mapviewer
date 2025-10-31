@@ -1,33 +1,10 @@
 /// <reference types="cypress" />
 
-import type { CoordinateSystem } from '@swissgeo/coordinates'
 import type { Router, RouterHistory } from 'vue-router'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import usePositionStore from '@/store/modules/position'
 import { CrossHairs } from '@/store/modules/position/types/crossHairs.enum'
-
-// Temporary until the store is migrated to pinia and typescript
-interface PositionStore {
-    displayedFormatId: string
-    zoom: number | undefined
-    rotation: number
-    autoRotation: boolean
-    hasOrientation: boolean
-    center: number[] | undefined
-    projection: CoordinateSystem
-    crossHair: typeof CrossHairs | undefined
-    crossHairPosition: number[] | undefined
-    camera: CameraPosition | undefined
-}
-interface CameraPosition {
-    x: number
-    y: number
-    z: number
-    heading: number
-    pitch: number
-    roll: number
-}
 
 describe('Testing the crosshair URL param', () => {
 

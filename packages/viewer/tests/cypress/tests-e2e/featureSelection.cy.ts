@@ -5,8 +5,6 @@ import { registerProj4 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 
-import type { LayerFeature } from '@/api/features.api'
-
 import { DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION } from '@/config/map.config'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'

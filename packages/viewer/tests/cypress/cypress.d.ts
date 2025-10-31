@@ -71,7 +71,7 @@ declare global {
              * @param predicate
              * @param options
              */
-            waitUntilState(predicate: (state: any, getters: any) => boolean, options?: { timeout?: number, customMessage?: string, errorMsg?: string }): void
+            waitUntilState(predicate: (pinia: Pinia) => boolean, options?: { timeout?: number, customMessage?: string, errorMsg?: string }): void
 
             /**
              * Get a Pinia store by its ID
@@ -95,31 +95,6 @@ declare global {
              * cy.callStoreAction('ui.setFullscreenMode', [true, 'e2e-test'])
              */
             callStoreAction(key: string, args?: any[]): Cypress.Chainable<any>
-
-            /**
-             * Read a value from the Pinia store state or getter
-             *
-             * For NEW syntax (recommended): 'storeName.property' (e.g. 'position.rotation', 'ui.fullscreenMode')
-             * For LEGACY syntax (deprecated): 'state.storeName.property' or 'getters.getterName'
-             *
-             * @param key - Path to the value
-             * @example
-             * // New syntax (recommended)
-             * cy.readStoreValue('position.rotation').should('eq', 0)
-             * cy.readStoreValue('ui.fullscreenMode').should('be.false')
-             * // Legacy syntax (still supported)
-             * cy.readStoreValue('state.position.rotation').should('eq', 0)
-             */
-            readStoreValue(key: string): Cypress.Chainable<any>
-
-            /**
-             * @deprecated Use cy.callStoreAction('storeName.actionName', [args]) instead
-             * Dispatches a store action to update some values of the store.
-             *
-             * @param action The store action to dispatch
-             * @param payload The value that is passed as a parameter to the action
-             */
-            writeStoreValue(action: string, payload?: Record<string, unknown>): Cypress.Chainable<any>
 
             /**
              * Click on language command

@@ -3,10 +3,16 @@ import 'cypress-wait-until'
 import '@4tw/cypress-drag-drop'
 import type { GeoAdminLayer } from '@swissgeo/layers'
 import type { Layer as OLLayer } from 'ol/layer'
+import type { Pinia } from 'pinia'
 
 import { registerProj4, WEBMERCATOR } from '@swissgeo/coordinates'
 import { randomIntBetween } from '@swissgeo/numbers'
 import proj4 from 'proj4'
+
+import useAppStore from '@/store/modules/app'
+import useLayersStore from '@/store/modules/layers'
+import useTopicsStore from '@/store/modules/topics'
+import useUIStore from '@/store/modules/ui'
 
 import { getDefaultFixturesAndIntercepts, type InterceptCallback } from './intercepts'
 import { isMobile } from './utils'
@@ -77,25 +83,27 @@ function mockGeolocation(win: Cypress.AUTWindow, options?: GeolocationMockupOpti
 function waitAllLayersLoaded(options?: { queryParams?: Record<string, unknown>, legacy?: boolean }) {
     const { queryParams = {}, legacy = false } = options ?? {}
     cy.waitUntilState(
-        (state, getters) => {
-            const active = state.layers.activeLayers.length
+        (pinia: Pinia) => {
+            const layersStore = useLayersStore(pinia)
+            const topicsStore = useTopicsStore(pinia)
+            const active = layersStore.activeLayers.length
             // The required layers can be set via topic or manually.
-            const targetTopic = getters.currentTopic?.layersToActivate.length
+            const targetTopic = topicsStore.currentTopic?.layersToActivate.length
             let target = targetTopic
             if ('layers' in queryParams) {
                 const layers: string = queryParams.layers as string
                 target = layers.split(legacy ? ',' : ';').length
             }
-            if (legacy && 'adminId' in queryParams) {
+            if (target && legacy && 'adminId' in queryParams) {
                 // In legacy drawing with adminId the layer is not added to the layers parameter
                 target += 1
             }
             // When handling a legacy parameter, the {bod Layer Id} parameter,
             // which has been reworked into the 'features' layer attribute might add extra
             // layers, thus the need to check if those extra layers have been added
-            if (legacy && 'layers' in queryParams) {
+            if (target && legacy && 'layers' in queryParams) {
                 const layers: string = queryParams.layers as string
-                const layersConfig = state.layers.config
+                const layersConfig = layersStore.config
                 target += Object.keys(queryParams)
                     .filter((key) => layersConfig.find((layer: GeoAdminLayer) => layer.id === key)) // this removes all parameters that are not layers ids
                     .filter((key) => !layers.split(',').includes(key)).length // we removes all layers that are in the query params
@@ -246,7 +254,10 @@ Cypress.Commands.add('goToEmbedView', (options) => {
 })
 
 Cypress.Commands.add('waitMapIsReady', ({ timeout = 20000, olMap = true } = {}) => {
-    cy.waitUntilState((state) => state.app.isMapReady, { timeout: timeout })
+    cy.waitUntilState((pinia: Pinia) => {
+        const appStore = useAppStore(pinia)
+        return appStore.isMapReady
+    }, { timeout: timeout })
     // We also need to wait for the pointer event to be set
     if (olMap) {
         cy.window().its('mapPointerEventReady', { timeout: timeout }).should('be.true')
@@ -256,8 +267,9 @@ Cypress.Commands.add('waitMapIsReady', ({ timeout = 20000, olMap = true } = {}) 
 
 Cypress.Commands.add('clickOnLanguage', (lang) => {
     if (isMobile()) {
-        cy.readStoreValue('state.ui.showMenu').then((isMenuCurrentlyOpen) => {
-            if (!isMenuCurrentlyOpen) {
+        cy.getPinia().then((pinia) => {
+            const uiStore = useUIStore(pinia)
+            if (!uiStore.showMenu) {
                 cy.get('[data-cy="menu-button"]').click()
             }
         })
@@ -269,43 +281,12 @@ Cypress.Commands.add('clickOnLanguage', (lang) => {
     cy.log('cmd: clickOnLanguage successful')
 })
 
-Cypress.Commands.add('waitUntilState', (predicate, options) => {
+Cypress.Commands.add('waitUntilState', (predicate: (_pinia: Pinia) => boolean, options) => {
     cy.waitUntil(
         () =>
             cy
                 .window({ log: false })
-                .should((win: Cypress.AUTWindow) => {
-                    if (!win.store) {
-                        return false
-                    }
-                    // For Pinia, we need to create a state-like object and getters-like object
-                    // by accessing all stores from the Pinia instance
-                    const pinia = win.store
-                    const state = pinia.state?.value || {}
-
-                    // Build a getters object by accessing store instances
-                    // Pinia stores are accessed via their IDs from pinia._s (stores map)
-                    const getters: any = {}
-                    const piniaInternal = pinia as any
-                    if (piniaInternal._s) {
-                        piniaInternal._s.forEach((store: any, storeId: string) => {
-                            // For each store, copy getters (computed properties) to the getters object
-                            // In Pinia, getters are just computed properties on the store instance
-                            const storeGetters = store.$state ? Object.keys(store).filter(key => {
-                                // Filter out actions, state properties, and internal properties
-                                return !key.startsWith('$') && !key.startsWith('_') &&
-                                    typeof store[key] !== 'function' &&
-                                    !(key in store.$state)
-                            }) : []
-
-                            storeGetters.forEach((getterName: string) => {
-                                getters[getterName] = store[getterName]
-                            })
-                        })
-                    }
-
-                    return predicate(state, getters)
-                }),
+                .should((win: Cypress.AUTWindow) => win.store && predicate(win.store)),
         Object.assign(
             {
                 errorMsg:
@@ -320,167 +301,11 @@ Cypress.Commands.add('waitUntilState', (predicate, options) => {
     // no cy.index command as the waitUntil will already print a message
 })
 
-// ============================================================================
-// PINIA STORE ACCESS COMMANDS
-// ============================================================================
-
-/**
- * Get a Pinia store by its ID
- * @param storeId - The store ID (e.g., 'position', 'ui', 'app', 'layers')
- * @returns The Pinia store instance
- * @example
- * cy.getPiniaStore('position').its('rotation').should('eq', 0)
- * cy.getPiniaStore('ui').invoke('setFullscreenMode', true)
- */
-Cypress.Commands.add('getPiniaStore', (storeId: string) => {
-    return cy.window().then((win) => {
-        const pinia = win.store
-        if (!pinia) {
-            throw new Error('Pinia store not found on window')
-        }
-        const piniaInternal = pinia as any
-        if (!piniaInternal._s) {
-            throw new Error('Pinia stores not initialized')
-        }
-        const store = piniaInternal._s.get(storeId)
-        if (!store) {
-            const availableStores = Array.from(piniaInternal._s.keys()).join(', ')
-            throw new Error(`Store '${storeId}' not found. Available stores: ${availableStores}`)
-        }
-        return store
-    })
-})
 Cypress.Commands.add('getPinia', () => {
     return cy.window().then((win) => {
         return win.store
     })
 })
-
-/**
- * Read a value from Pinia store state or getter
- * @param key - Path to the value: 'storeName.property' or 'storeName.getter'
- * @example
- * cy.readStoreValue('position.rotation').should('eq', 0)
- * cy.readStoreValue('ui.fullscreenMode').should('be.false')
- * cy.readStoreValue('layers.activeLayers').should('have.length', 2)
- */
-Cypress.Commands.add('readStoreValue', (key: string) => {
-    const parts = key.split('.')
-    if (parts.length < 2) {
-        throw new Error(`Invalid key format: '${key}'. Expected format: 'storeName.property'`)
-    }
-
-    const storeId = parts[0]!
-    const propertyPath = parts.slice(1)
-
-    return cy.getPiniaStore(storeId).then((store: any) => {
-        let value = store
-        for (const prop of propertyPath) {
-            value = value?.[prop]
-        }
-        return value
-    })
-})
-
-/**
- * Call a Pinia store action
- * @param key - Path to action: 'storeName.actionName'
- * @param args - Arguments to pass to the action
- * @example
- * cy.callStoreAction('position.setRotation', [1.57, 'e2e-test'])
- * cy.callStoreAction('ui.setFullscreenMode', [true, 'e2e-test'])
- */
-Cypress.Commands.add('callStoreAction', (key: string, args?: any[]) => {
-    const parts = key.split('.')
-    if (parts.length !== 2) {
-        throw new Error(`Invalid key format: '${key}'. Expected format: 'storeName.actionName'`)
-    }
-
-    const storeId = parts[0]!
-    const actionName = parts[1]!
-
-    return cy.getPiniaStore(storeId).then((store: any) => {
-        if (!(actionName in store) || typeof store[actionName] !== 'function') {
-            throw new Error(`Action '${actionName}' not found in store '${storeId}'`)
-        }
-
-        if (args && args.length > 0) {
-            return store[actionName](...args)
-        } else {
-            return store[actionName]()
-        }
-    })
-})
-
-// ============================================================================
-// LEGACY COMPATIBILITY COMMANDS (for backward compatibility with existing tests)
-// ============================================================================
-
-/**
- * @deprecated Use cy.callStoreAction('storeName.actionName', [args]) instead
- * Legacy command for backward compatibility with Vuex-style tests
- */
-Cypress.Commands.add('writeStoreValue', (action: string, payload?: any) => {
-    // For Pinia, we need to find the right store and call the action on it
-    return cy.window().then((win) => {
-        const pinia = win.store
-        if (!pinia) {
-            throw new Error('Pinia store not found on window')
-        }
-
-        const piniaInternal = pinia as any
-        if (!piniaInternal._s) {
-            throw new Error('Pinia stores not initialized')
-        }
-
-        // Try to find which store has this action
-        let actionFound = false
-        for (const [storeId, store] of piniaInternal._s.entries()) {
-            if (store && action in store && typeof store[action] === 'function') {
-                // Found the action, call it
-                // For Vuex compatibility: if payload is an object with properties that match
-                // the action's parameters, spread them as separate arguments
-                if (payload !== undefined && typeof payload === 'object' && !Array.isArray(payload)) {
-                    // Try to detect parameter names from the function signature
-                    const actionFn = store[action]
-                    const paramNames = getFunctionParamNames(actionFn)
-
-                    // If we detected params and they all exist in payload, call with spread args
-                    if (paramNames.length > 0 && paramNames.every((param: string) => param in payload)) {
-                        const args = paramNames.map((param: string) => payload[param])
-                        store[action](...args)
-                    } else {
-                        // Otherwise just pass the payload as-is
-                        store[action](payload)
-                    }
-                } else if (payload !== undefined) {
-                    store[action](payload)
-                } else {
-                    store[action]()
-                }
-                actionFound = true
-                break
-            }
-        }
-
-        if (!actionFound) {
-            throw new Error(`Action '${action}' not found in any Pinia store. Available stores: ${Array.from(piniaInternal._s.keys()).join(', ')}`)
-        }
-    })
-})
-
-// Helper function to extract parameter names from a function
-function getFunctionParamNames(func: Function): string[] {
-    const funcStr = func.toString()
-    const match = funcStr.match(/\(([^)]*)\)/)
-    if (!match || !match[1]) {
-        return []
-    }
-    return match[1]
-        .split(',')
-        .map(param => param.trim().split(/[=:]/)[0]?.trim() || '')
-        .filter(param => param && param !== 'this')
-}
 
 // from https://github.com/cypress-io/cypress/issues/1123#issuecomment-672640129
 Cypress.Commands.add(
@@ -532,12 +357,12 @@ Cypress.Commands.add('waitUntilCesiumTilesLoaded', () => {
 
 Cypress.Commands.add('openMenuIfMobile', () => {
     if (isMobile()) {
-        cy.readStoreValue('state.ui.showMenu').then((isMenuCurrentlyOpen) => {
-            if (!isMenuCurrentlyOpen) {
+        cy.getPinia().then((pinia) => {
+            const uiStore = useUIStore(pinia)
+            if (!uiStore.showMenu) {
                 cy.get('[data-cy="menu-button"]').click()
             }
-            // waiting on the animation to finish by grabbing the content of the menu and assessing its visibility
-            cy.get('[data-cy="menu-tray-inner"]').should('be.visible')
+            cy.get('[data-cy="menu-tray"]').should('not.be.visible')
         })
     }
     cy.log('cmd: openMenuIfMobile successful')
@@ -545,11 +370,11 @@ Cypress.Commands.add('openMenuIfMobile', () => {
 
 Cypress.Commands.add('closeMenuIfMobile', () => {
     if (isMobile()) {
-        cy.readStoreValue('state.ui.showMenu').then((isMenuCurrentlyOpen) => {
-            if (isMenuCurrentlyOpen) {
+        cy.getPinia().then((pinia) => {
+            const uiStore = useUIStore(pinia)
+            if (!uiStore.showMenu) {
                 cy.get('[data-cy="menu-button"]').click()
             }
-            // waiting on the animation to finish by grabbing the content of the menu and assessing its (in)visibility
             cy.get('[data-cy="menu-tray"]').should('not.be.visible')
         })
     }
