@@ -83,12 +83,6 @@ export interface Layer {
      * to construct the URL of this layer later on
      */
     baseUrl: string
-    /**
-     * Flag telling if the base URL must always have a trailing slash. It might be sometime the case
-     * that this is unwanted (i.e. for an external WMS URL already built past the point of URL
-     * params, a trailing slash would render this URL invalid). Default is `false`
-     */
-    // readonly ensureTrailingSlashInBaseUrl: boolean
     /** Value from 0.0 to 1.0 telling with which opacity this layer should be shown on the map. */
     opacity: number
     /** If the layer should be visible on the map or hidden. */
@@ -153,12 +147,16 @@ export interface GeoAdminLayer extends Layer {
      * because we force the layer SWISSIMAGE to be treated as a background layer in 3D.
      */
     idIn3d?: string
+    /**
+     * Flag telling if this layer is specific for 3D. Some layers have a dedicated 3D layer, because
+     * of some technical reasons. A good exemple is the aerial obstacle layer,
+     */
     readonly isSpecificFor3d: boolean
-    /* oh OK this is determined by the _3d suffix. Why then isn't it made a 3d layer? */
 }
 
 /** Represent a WMS Layer from geo.admin.ch */
 export interface GeoAdminWMSLayer extends GeoAdminLayer {
+    readonly type: LayerType.WMS
     /**
      * How much of a gutter (extra pixels around the image) we want. This is specific for tiled WMS,
      * if unset this layer will be a considered a single tile WMS.
@@ -173,60 +171,61 @@ export interface GeoAdminWMSLayer extends GeoAdminLayer {
     readonly lang: string
     /** In which image format the backend must be requested. */
     readonly format: 'png' | 'jpeg'
-    readonly type: LayerType.WMS
 }
 
 /** Represent a WMTS layer from geo.admin.ch */
 export interface GeoAdminWMTSLayer extends GeoAdminLayer {
+    readonly type: LayerType.WMTS
     /** Define the maximum resolution the layer can reach */
     readonly maxResolution: number
     /** In which image format the backend must be requested. */
     readonly format: 'png' | 'jpeg'
-    readonly type: LayerType.WMTS
 }
 
 export interface GeoAdmin3DLayer extends GeoAdminLayer {
     readonly type: LayerType.VECTOR
-    readonly technicalName: string
     /* If the JSON file stored in the /3d-tiles/ sub-folder on the S3 bucket */
     readonly use3dTileSubFolder: boolean
-    /* If this layers' JSON is stored in a
-       dedicated timed folder, it can be described with this property. This will be added at the
-       end of the URL, before the /tileset.json (or /style.json, depending on the layer type) */
+    /**
+     * If this layers' JSON is stored in a dedicated timed folder, it can be described with this
+     * property. This will be added at the end of the URL, before the /tileset.json (or /style.json,
+     * depending on the layer type)
+     */
     readonly urlTimestampToUse?: string
 }
 
 export interface GeoAdminGeoJSONLayer extends GeoAdminLayer {
     readonly type: LayerType.GEOJSON
-    /* Delay after which the data of this layer
-        should be re-requested (if null is given, no further data reload will be triggered). A good
-        example would be layer 'ch.bfe.ladestellen-elektromobilitaet'. Default is `null` */
+    /**
+     * Delay after which the data of this layer should be re-requested (if null is given, no further
+     * data reload will be triggered). A good example would be layer
+     * 'ch.bfe.ladestellen-elektromobilitaet'. Default is `null`
+     */
     updateDelay?: number
-    /* The URL to use to request the styling to apply to the data */
+    /** The URL to use to request the styling to apply to the data */
     readonly styleUrl: string
-    /* The URL to use when requesting the GeoJSON data (the true GeoJSON per se...) */
+    /** The URL to use when requesting the GeoJSON data (the true GeoJSON per se...) */
     readonly geoJsonUrl: string
     geoJsonStyle?: GeoAdminGeoJSONStyleDefinition
     geoJsonData?: string
-    readonly technicalName: string
-    readonly isExternal: false
 }
 
 export interface GeoAdminVectorLayer extends GeoAdminLayer {
     readonly type: LayerType.VECTOR
-    readonly technicalName: string
-    readonly attributions: LayerAttribution[]
-    readonly isBackground: boolean
 }
 
 // #endregion
 
 // #region: File Type Layers
-export interface CloudOptimizedGeoTIFFLayer extends Layer {
-    readonly type: LayerType.COG
+
+export interface FileLayer extends Layer {
     readonly isLocalFile: boolean
+}
+
+export interface CloudOptimizedGeoTIFFLayer extends FileLayer {
+    readonly type: LayerType.COG
     readonly fileSource?: string
-    /* Data/content of the COG file, as a string. */
+    /** Data/content of the COG file, as a string. */
     data?: string | Blob
 }
 
@@ -282,28 +281,34 @@ export enum KMLStyle {
     GEOADMIN = 'GEOADMIN',
 }
 
-export interface KMLLayer extends Layer {
-    /* The URL to access the KML data. */
+export interface KMLLayer extends FileLayer {
+    readonly type: LayerType.KML
+    /** The URL to access the KML data. */
     kmlFileUrl: string
+    /**
+     * Only defined for internal/service-kml files. May be undefined, even if in this case, when the
+     * KML has not yet been saved on the backend (e.g., when drawing/creating a new KML)
+     */
     fileId?: string
-    /* The admin id to allow editing. If not set, the user is not allowed to edit the file. */
+    /**
+     * Only defined for internal/service-kml files. The admin id to allow editing. If not set, the
+     * user is not allowed to edit the file.
+     */
     adminId?: string
-    /* Data/content of the KML file, as a string. */
+    /** Data/content of the KML file, as a string. */
     kmlData?: string
-    /* Metadata of the KML drawing. This object contains all the metadata returned by the backend. */
+    /** Metadata of the KML drawing. This object contains all the metadata returned by the backend. */
     kmlMetadata?: KMLMetadata
 
-    /* Flag defining if the KML should be clamped to
-       the 3D terrain (only for 3D viewer). If not set, the clamp to ground flag will be set to
-       true if the KML is coming from geoadmin (drawing). Some users wanted to have 3D KMLs (fly
-       tracks) that were not clamped to the ground (they are providing height values), and others
-       wanted to have their flat surface visible on the ground, so that is the way to please both
-       crowds. */
+    /**
+     * Flag defining if the KML should be clamped to the 3D terrain (only for 3D viewer). If not
+     * set, the clamp to ground flag will be set to true if the KML is coming from geoadmin
+     * (drawing). Some users wanted to have 3D KMLs (fly tracks) that were not clamped to the ground
+     * (they are providing height values), and others wanted to have their flat surface visible on
+     * the ground, so that is the way to please both crowds.
+     */
     clampToGround: boolean
     style?: KMLStyle
-    isExternal: boolean
-    isLocalFile: boolean
-    attributions: LayerAttribution[]
     /**
      * KMZ icons subfiles. Those files are usually sent with the KML inside a KMZ archive and can be
      * referenced inside the KML (e.g., icon, image, ...), so that they are available "offline"
@@ -311,10 +316,10 @@ export interface KMLLayer extends Layer {
     internalFiles: Record<string, ArrayBuffer>
     extentProjection?: CoordinateSystem
     /**
-     * Map of KML link files. Those files are usually sent with the kml inside a KMZ archive and can
-     * be referenced inside the KML (e.g. icon, image, ...). Default is `Map()`
+     * List of KML link files. Those files are usually sent with the kml inside a KMZ archive and
+     * can be referenced inside the KML (e.g., icon, image, ...). Keys are file URLs, values are the
+     * file content.
      */
-    // actually a Map, but I'm getting a compilation error here
     linkFiles?: Record<string, ArrayBuffer>
     /**
      * KMZ content as ArrayBuffer. This is used to load the KMZ in the 3D viewer (Cesium), so that it
@@ -345,25 +350,29 @@ export interface GPXMetadata {
     extensions?: unknown
 }
 
-export interface GPXLayer extends Layer {
-    /* URL to the GPX file (can also be a local file URI) */
+export interface GPXLayer extends FileLayer {
+    readonly type: LayerType.GPX
+    /** URL to the GPX file (can also be a local file URI) */
     readonly gpxFileUrl?: string
-    /* Data/content of the GPX file, as a string. */
+    /** Data/content of the GPX file, as a string. */
     gpxData?: string
-    /* Metadata of the GPX file. This object contains all the metadata found in the file itself within the <metadata> tag. */
+    /**
+     * Metadata of the GPX file. This object contains all the metadata found in the file itself
+     * within the <metadata> tag.
+     */
     gpxMetadata?: GPXMetadata
 }
 // #endregion
 
 // #region: external layers
 export interface ExternalLayerTimeDimension {
-    /* Dimension identifier */
+    /** Dimension identifier */
     readonly id: string
-    /* Dimension default value */
+    /** Dimension default value */
     readonly defaultValue: string
-    /* All dimension values */
+    /** All dimension values */
     readonly values: string[]
-    /* Boolean flag if the dimension support current (see WMTS/WMS OGC spec) */
+    /** Boolean flag if the dimension support current (see WMTS/WMS OGC spec) */
     current?: boolean
 }
 
@@ -378,11 +387,11 @@ export interface TileMatrix {
 }
 
 export interface TileMatrixSet {
-    /* Identifier of the tile matrix set (see WMTS OGC spec) */
+    /** Identifier of the tile matrix set (see WMTS OGC spec) */
     readonly id: string
-    /* Coordinate system supported by the Tile Matrix Set */
+    /** Coordinate system supported by the Tile Matrix Set */
     projection: CoordinateSystem
-    /* TileMatrix from GetCapabilities (see WMTS OGC spec) */
+    /** TileMatrix from GetCapabilities (see WMTS OGC spec) */
     tileMatrix: TileMatrix[]
 }
 
@@ -399,7 +408,7 @@ export enum WMTSEncodingType {
     REST = 'REST',
 }
 
-/* Configuration describing how to request this layer's server to get feature information. */
+/** Configuration describing how to request this layer's server to get feature information. */
 export interface ExternalLayerGetFeatureInfoCapability {
     readonly baseUrl: string
     readonly method: 'GET' | 'POST'
@@ -411,33 +420,41 @@ export interface ExternalLayer extends Layer {
     readonly availableProjections?: CoordinateSystem[]
     readonly getFeatureInfoCapability?: ExternalLayerGetFeatureInfoCapability
     readonly dimensions: ExternalLayerTimeDimension[]
-    /* Current year of the time series config to use. This parameter is needed as it is set in the
-       URL while the timeConfig parameter is not yet available and parse later on from the
-       GetCapabilities. */
+    /**
+     * Current year of the time series config to use. This parameter is needed as it is set in the
+     * URL while the timeConfig parameter is not yet available and parse later on from the
+     * GetCapabilities.
+     */
     currentYear?: number
-    /* Layer legends. */
+    /** Layer legends. */
     readonly legends?: LayerLegend[]
 }
 
 export interface ExternalWMTSLayer extends ExternalLayer {
-    /* WMTS Get Capabilities options */
-    readonly options?: Partial<Options>
-    /* WMTS Get Tile encoding (KVP or REST). */
-    readonly getTileEncoding: WMTSEncodingType
-    /* WMTS Get Tile url template for REST encoding. */
-    readonly urlTemplate: string
-    /* WMTS layer style. If no style is given here, and no style is found in the options, the 'default' style will be used. */
-    readonly style?: string
-    /* WMTS tile matrix sets */
-    readonly tileMatrixSets?: TileMatrixSet[]
     readonly type: LayerType.WMTS
+    /** WMTS Get Capabilities options */
+    readonly options?: Partial<Options>
+    /** WMTS Get Tile encoding (KVP or REST). */
+    readonly getTileEncoding: WMTSEncodingType
+    /** WMTS Get Tile url template for REST encoding. */
+    readonly urlTemplate: string
+    /**
+     * WMTS layer style. If no style is given here, and no style is found in the options, the
+     * 'default' style will be used.
+     */
+    readonly style?: string
+    /** WMTS tile matrix sets */
+    readonly tileMatrixSets?: TileMatrixSet[]
 }
 
 export interface ExternalWMSLayer extends ExternalLayer {
-    /* Description of the layers being part of this WMS layer (they will all be displayed at the
-       same time, in contrast to an aggregate layer) */
+    readonly type: LayerType.WMS
+    /**
+     * Description of the layers being part of this WMS layer (they will all be displayed at the
+     * same time, in contrast to an aggregate layer)
+     */
     readonly layers?: ExternalWMSLayer[]
-    /* WMS protocol version to be used when querying this server.  */
+    /** WMS protocol version to be used when querying this server. */
     readonly wmsVersion: string
     readonly wmsOperations: WMSRequestCapabilities
     readonly format: 'png' | 'jpeg'
@@ -450,28 +467,25 @@ export interface ExternalWMSLayer extends ExternalLayer {
 // #region Combined layers
 
 export interface AggregateSubLayer {
-    /* The ID used in the GeoAdmin's backend to describe this sub-layer */
+    /** The ID used in the GeoAdmin's backend to describe this sublayer */
     readonly subLayerId?: string
-    /* The sub-layer config (can be a {@link GeoAdminGeoJsonLayer}, a  {@link GeoAdminWMTSLayer} or a {@link GeoAdminWMTSLayer}) */
-    readonly layer: GeoAdminLayer
-    /* In meter/px, at which resolution this sub-layer should start to  be visible */
+    /** The sublayer config (can be a {@link GeoAdminWMSLayer} or a {@link GeoAdminWMTSLayer}) */
+    readonly layer: GeoAdminWMSLayer | GeoAdminWMTSLayer
+    /** In meter/px, at which resolution this sublayer should start to be visible */
     readonly minResolution: number
-    /* In meter/px, from which resolution the layer should be hidden */
+    /** In meter/px, from which resolution the layer should be hidden */
     readonly maxResolution: number
 }
 
 export interface GeoAdminAggregateLayer extends GeoAdminLayer {
     readonly type: LayerType.AGGREGATE
-    readonly baseUrl: ''
     readonly subLayers: AggregateSubLayer[]
 }
 
 export interface GeoAdminGroupOfLayers extends GeoAdminLayer {
-    /* Description of the layers being part of this group */
-    readonly layers: GeoAdminLayer[]
     readonly type: LayerType.GROUP
+    /** Description of the layers being part of this group */
+    readonly layers: GeoAdminLayer[]
 }
 
 // #endregion
-
-export type FileLayer = KMLLayer | GPXLayer | CloudOptimizedGeoTIFFLayer
