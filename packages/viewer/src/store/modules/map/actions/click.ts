@@ -1,5 +1,7 @@
 import type { Layer } from '@swissgeo/layers'
 
+import log from '@swissgeo/log'
+
 import type { ClickInfo, MapStore } from '@/store/modules/map/types/map'
 import type { ActionDispatcher } from '@/store/types'
 
@@ -37,18 +39,30 @@ export default function click(
             const identifyMode = isCtrlLeftSingleClick ? IdentifyMode.Toggle : IdentifyMode.New
 
             if (clickInfo.features) {
-                featuresStore.identifyFeatureAt(
-                    layersStore.visibleLayers.filter((layer: Layer) => layer.hasTooltip),
-                    clickInfo.coordinate,
-                    clickInfo.features,
-                    identifyMode,
-                    dispatcher
-                )
-                if (uiStore.noFeatureInfo && featuresStore.selectedFeaturesByLayerId.length > 0) {
-                    // we only change the feature Info position when it's set to 'NONE', as
-                    // we want to keep the user's choice of position between clicks.
-                    uiStore.setFeatureInfoPosition(FeatureInfoPositions.Default, dispatcher)
-                }
+                featuresStore
+                    .identifyFeatureAt(
+                        layersStore.visibleLayers.filter((layer: Layer) => layer.hasTooltip),
+                        clickInfo.coordinate,
+                        clickInfo.features,
+                        identifyMode,
+                        dispatcher
+                    )
+                    .then(() => {
+                        if (
+                            uiStore.noFeatureInfo &&
+                            featuresStore.selectedFeaturesByLayerId.length > 0
+                        ) {
+                            // we only change the feature Info position when it's set to 'NONE', as
+                            // we want to keep the user's choice of position between clicks.
+                            uiStore.setFeatureInfoPosition(FeatureInfoPositions.Default, dispatcher)
+                        }
+                    })
+                    .catch((error) => {
+                        log.error({
+                            title: 'Map store / click',
+                            messages: ['Error during feature identification', error],
+                        })
+                    })
             }
         }
 

@@ -27,14 +27,14 @@ import useUIStore from '@/store/modules/ui'
  * @param identifyMode The mode in which the identify should be run.
  * @param dispatcher
  */
-export default function identifyFeatureAt(
+export default async function identifyFeatureAt(
     this: FeaturesStore,
     layers: Layer[],
     coordinate: SingleCoordinate | FlatExtent,
     vectorFeatures: SelectableFeature<false>[],
     identifyMode: IdentifyMode,
     dispatcher: ActionDispatcher
-): void
+): Promise<void>
 
 /**
  * Identify features in layers at the given coordinate.
@@ -47,22 +47,22 @@ export default function identifyFeatureAt(
  *   maxY]). 10 features will be requested for a point, 50 for a rectangle.
  * @param dispatcher
  */
-export default function identifyFeatureAt(
+export default async function identifyFeatureAt(
     this: FeaturesStore,
     layers: Layer[],
     coordinate: SingleCoordinate | FlatExtent,
     vectorFeatures: SelectableFeature<false>[],
     dispatcher: ActionDispatcher
-): void
+): Promise<void>
 
-export default function identifyFeatureAt(
+export default async function identifyFeatureAt(
     this: FeaturesStore,
     layers: Layer[],
     coordinate: SingleCoordinate | FlatExtent,
     vectorFeatures: SelectableFeature<false>[],
     identifyModeOrDispatcher: IdentifyMode | ActionDispatcher,
     dispatcherOrNothing?: ActionDispatcher
-) {
+): Promise<void> {
     const dispatcher = dispatcherOrNothing ?? (identifyModeOrDispatcher as ActionDispatcher)
     const identifyMode = dispatcherOrNothing
         ? (identifyModeOrDispatcher as IdentifyMode)
@@ -74,68 +74,72 @@ export default function identifyFeatureAt(
     const positionStore = usePositionStore()
     const uiStore = useUIStore()
 
-    identifyOnAllLayers({
-        layers,
-        coordinate,
-        resolution: positionStore.resolution,
-        mapExtent: extentUtils.flattenExtent(positionStore.extent),
-        screenWidth: uiStore.width,
-        screenHeight: uiStore.height,
-        lang: i18nStore.lang,
-        projection: positionStore.projection,
-        featureCount,
-    })
-        .then((backendFeatures) => {
-            const features = [...vectorFeatures, ...backendFeatures]
-            if (features.length > 0) {
-                if (identifyMode === IdentifyMode.New) {
-                    this.setSelectedFeatures(features, { paginationSize: featureCount }, dispatcher)
-                } else if (identifyMode === IdentifyMode.Toggle) {
-                    // Toggle features: remove if already selected, add if not
-                    const oldFeatures = this.selectedLayerFeatures
-                    const newFeatures = features
-                    // Use feature.id for comparison
-                    const oldFeatureIds = new Set(oldFeatures.map((f) => f.id))
-                    const newFeatureIds = new Set(newFeatures.map((f) => f.id))
-                    // features that are present on the map AND in the identify-request result are meant to be toggled
-                    const deselectedFeatures = oldFeatures.filter((f) => newFeatureIds.has(f.id))
-                    const newlyAddedFeatures = newFeatures.filter((f) => !oldFeatureIds.has(f.id))
-                    if (
-                        // Do not add new features if one existing feature was toggled off. Doing so would confuse
-                        // the user, as it would look like the CTRL+Click had no effect (a new feature was added at
-                        // the same spot as the one that was just toggled off)
-                        deselectedFeatures.length > 0
-                    ) {
-                        // Set features to all existing features minus those that were toggled off
-                        this.setSelectedFeatures(
-                            oldFeatures.filter((f) => !deselectedFeatures.includes(f)),
-                            {
-                                paginationSize: featureCount,
-                            },
-                            dispatcher
-                        )
-                    } else if (newlyAddedFeatures.length > 0) {
-                        // no feature was "deactivated" we can add the newly selected features
-                        this.setSelectedFeatures(
-                            newlyAddedFeatures.concat(oldFeatures),
-                            {
-                                paginationSize: featureCount,
-                            },
-                            dispatcher
-                        )
-                    } else {
-                        this.clearAllSelectedFeatures(dispatcher)
-                    }
+    try {
+        const backendFeatures = await identifyOnAllLayers({
+            layers,
+            coordinate,
+            resolution: positionStore.resolution,
+            mapExtent: extentUtils.flattenExtent(positionStore.extent),
+            screenWidth: uiStore.width,
+            screenHeight: uiStore.height,
+            lang: i18nStore.lang,
+            projection: positionStore.projection,
+            featureCount,
+        })
+        const features = [...vectorFeatures, ...backendFeatures]
+        if (features.length > 0) {
+            if (identifyMode === IdentifyMode.New) {
+                this.setSelectedFeatures(features, { paginationSize: featureCount }, dispatcher)
+            } else if (identifyMode === IdentifyMode.Toggle) {
+                // Toggle features: remove if already selected, add if not
+                const oldFeatures = this.selectedLayerFeatures
+                const newFeatures = features
+                // Use feature.id for comparison
+                const oldFeatureIds = new Set(oldFeatures.map((f) => f.id))
+                const newFeatureIds = new Set(newFeatures.map((f) => f.id))
+                // features that are present on the map AND in the identify-request result are meant to be toggled
+                const deselectedFeatures = oldFeatures.filter((f) => newFeatureIds.has(f.id))
+                const newlyAddedFeatures = newFeatures.filter((f) => !oldFeatureIds.has(f.id))
+                if (
+                    // Do not add new features if one existing feature was toggled off. Doing so would confuse
+                    // the user, as it would look like the CTRL+Click had no effect (a new feature was added at
+                    // the same spot as the one that was just toggled off)
+                    deselectedFeatures.length > 0
+                ) {
+                    // Set features to all existing features minus those that were toggled off
+                    this.setSelectedFeatures(
+                        oldFeatures.filter((f) => !deselectedFeatures.includes(f)),
+                        {
+                            paginationSize: featureCount,
+                        },
+                        dispatcher
+                    )
+                } else if (newlyAddedFeatures.length > 0) {
+                    // no feature was "deactivated" we can add the newly selected features
+                    this.setSelectedFeatures(
+                        newlyAddedFeatures.concat(oldFeatures),
+                        {
+                            paginationSize: featureCount,
+                        },
+                        dispatcher
+                    )
+                } else {
+                    this.clearAllSelectedFeatures(dispatcher)
                 }
-            } else {
-                this.clearAllSelectedFeatures(dispatcher)
             }
+        } else {
+            this.clearAllSelectedFeatures(dispatcher)
+        }
+    } catch (error) {
+        log.error({
+            title: 'Features store / identifyFeatureAt',
+            titleColor: LogPreDefinedColor.Purple,
+            messages: ['Error while identifying features', error],
         })
-        .catch((error) => {
-            log.error({
-                title: 'Features store / identifyFeatureAt',
-                titleColor: LogPreDefinedColor.Purple,
-                messages: ['Error while identifying features', error],
-            })
-        })
+        if (error instanceof Error) {
+            throw error
+        } else {
+            throw new Error('Unknown error while identifying features', { cause: error })
+        }
+    }
 }

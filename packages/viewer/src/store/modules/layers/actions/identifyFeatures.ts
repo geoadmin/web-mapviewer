@@ -1,5 +1,7 @@
 import type { Layer } from '@swissgeo/layers'
 
+import log from '@swissgeo/log'
+
 import type { LayersStore } from '@/store/modules/layers/types/layers'
 import type { ActionDispatcher } from '@/store/types'
 
@@ -17,10 +19,7 @@ export interface GetLayerIdResult {
     updateFeatures?: boolean
 }
 
-export function identifyFeatures(
-    this: LayersStore,
-    dispatcher: ActionDispatcher
-): void
+export function identifyFeatures(this: LayersStore, dispatcher: ActionDispatcher): void
 export function identifyFeatures(
     this: LayersStore,
     getLayerContext: GetLayerContextFunction,
@@ -60,7 +59,8 @@ export function identifyFeatures(
     }
 
     // for 'setLayerYear', 'addLayer', 'clearLayers', 'removeLayerByIndex' we always update
-    const { layerId, updateFeatures: shouldUpdateFeatures = true } = getLayerContext?.(options) ?? {}
+    const { layerId, updateFeatures: shouldUpdateFeatures = true } =
+        getLayerContext?.(options) ?? {}
     let updateFeatures = shouldUpdateFeatures
 
     if (layerId) {
@@ -70,11 +70,18 @@ export function identifyFeatures(
     }
 
     if (updateFeatures) {
-        featuresStore.identifyFeatureAt(
-            this.visibleLayers.filter((layer: Layer) => layer.hasTooltip),
-            clickInfo.coordinate,
-            clickInfo.features,
-            dispatcher
-        )
+        featuresStore
+            .identifyFeatureAt(
+                this.visibleLayers.filter((layer: Layer) => layer.hasTooltip),
+                clickInfo.coordinate,
+                clickInfo.features,
+                dispatcher
+            )
+            .catch((error) => {
+                log.error({
+                    title: 'Layers store / identifyFeatures',
+                    messages: ['Error during feature identification', error],
+                })
+            })
     }
 }

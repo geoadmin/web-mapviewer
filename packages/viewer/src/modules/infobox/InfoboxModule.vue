@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+
+import type { ActionDispatcher } from '@/store/types'
 
 import { MAX_WIDTH_SHOW_FLOATING_TOOLTIP } from '@/config/responsive.config'
 import InfoboxContent from '@/modules/infobox/components/InfoboxContent.vue'
@@ -16,8 +17,9 @@ import PrintButton from '@/utils/components/PrintButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 
-const dispatcher = { name: 'InfoboxModule.vue' }
-const showContent = ref(true)
+const dispatcher: ActionDispatcher = { name: 'InfoboxModule.vue' }
+
+const showContent = ref<boolean>(true)
 
 const { t } = useI18n()
 
@@ -27,43 +29,40 @@ const uiStore = useUiStore()
 const profileStore = useProfileStore()
 const mapStore = useMapStore()
 
-const { selectedFeatures } = storeToRefs(featuresStore)
-const { drawingOverlay } = storeToRefs(drawingStore)
-const { showFeatureInfoInBottomPanel, showFeatureInfoInTooltip, width } = storeToRefs(uiStore)
-const { feature, currentProfileExtent } = storeToRefs(profileStore)
-
-const showElevationProfile = computed(() => !!feature)
-
-const showContainer = computed(() => {
+const showElevationProfile = computed<boolean>(() => !!profileStore.feature)
+const showContainer = computed<boolean>(() => {
     return (
-        (selectedFeatures.value?.length ?? 0) > 0 &&
-        (showFeatureInfoInBottomPanel.value ||
-            (showElevationProfile.value && showFeatureInfoInTooltip.value))
+        (featuresStore.selectedFeatures?.length ?? 0) > 0 &&
+        (uiStore.showFeatureInfoInBottomPanel ||
+            (showElevationProfile.value && uiStore.showFeatureInfoInTooltip))
     )
 })
-const showTooltipToggle = computed(
-    () => showFeatureInfoInBottomPanel.value && width.value >= MAX_WIDTH_SHOW_FLOATING_TOOLTIP
+const showTooltipToggle = computed<boolean>(
+    () => uiStore.showFeatureInfoInBottomPanel && uiStore.width >= MAX_WIDTH_SHOW_FLOATING_TOOLTIP
 )
-const showDrawingOverlay = computed(() => Boolean(drawingOverlay.value?.show))
+const showDrawingOverlay = computed<boolean>(() => !!drawingStore.drawingOverlay?.show)
 
 const title = computed(() => {
     if (showDrawingOverlay.value) {
-        if (showElevationProfile.value && !showFeatureInfoInBottomPanel.value) {
+        if (showElevationProfile.value && !uiStore.showFeatureInfoInBottomPanel) {
             return t('profile_title')
         }
         return t('draw_modify_description')
     } else if (showElevationProfile.value) {
-        return `${t('profile_title')}: ${feature?.value?.title ?? ''}`
+        return `${t('profile_title')}: ${profileStore.feature?.title ?? ''}`
     }
     return t('object_information')
 })
 
-watch(selectedFeatures, (features) => {
-    if (!features || features.length === 0) {
-        return
+watch(
+    () => featuresStore.selectedFeatures,
+    (features) => {
+        if (!features || features.length === 0) {
+            return
+        }
+        showContent.value = true
     }
-    showContent.value = true
-})
+)
 
 function onToggleContent(): void {
     showContent.value = !showContent.value
@@ -72,7 +71,7 @@ function setTooltipInfoPosition(): void {
     uiStore.setFeatureInfoPosition(FeatureInfoPositions.ToolTip, dispatcher)
 }
 function onClose(): void {
-    if (showFeatureInfoInBottomPanel.value) {
+    if (uiStore.showFeatureInfoInBottomPanel) {
         featuresStore.clearAllSelectedFeatures(dispatcher)
         mapStore.clearClick(dispatcher)
     } else if (showElevationProfile.value) {
@@ -96,7 +95,7 @@ function onHideProfile(): void {
             data-cy="infobox-header"
         >
             <button
-                v-if="showElevationProfile && showFeatureInfoInBottomPanel"
+                v-if="showElevationProfile && uiStore.showFeatureInfoInBottomPanel"
                 class="btn btn-light btn-xs justify-content-left align-middle text-nowrap"
                 data-cy="infobox-hide-profile-button"
                 @click.stop="onHideProfile"
@@ -122,8 +121,8 @@ function onHideProfile(): void {
                 </label>
             </div>
             <ZoomToExtentButton
-                v-if="showElevationProfile && currentProfileExtent"
-                :extent="currentProfileExtent"
+                v-if="showElevationProfile && profileStore.currentProfileExtent"
+                :extent="profileStore.currentProfileExtent"
                 class="zoom-to-extent-button btn-light"
             />
             <PrintButton>
