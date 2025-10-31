@@ -5,7 +5,7 @@ import { randomIntBetween } from '@swissgeo/numbers'
 import { Select } from 'ol/interaction'
 import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
-import { type MaybeRef, onUnmounted, toValue, watchEffect } from 'vue'
+import { type MaybeRef, onUnmounted, toValue, unref, watchEffect } from 'vue'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 
@@ -39,6 +39,10 @@ export default function useVectorLayer(
     const { onFeatureSelectCallback = () => {}, deselectAfterSelect = false } = toValue(
         options ?? {}
     )
+    // Use unref instead of toValue for styleFunction to avoid unwrapping getter functions.
+    // toValue() would call the styleFunction if it's wrapped in a computed ref (getter), but not if it's a regular function value in a ref.
+    const unwrappedStyleFunction = unref(styleFunction)
+
     const layer = new VectorLayer({
         properties: {
             id: `vector-layer-${randomIntBetween(0, 100000)}`,
@@ -46,7 +50,7 @@ export default function useVectorLayer(
         source: new VectorSource({
             features: toValue(features),
         }),
-        style: toValue(styleFunction),
+        style: unwrappedStyleFunction,
     })
     useAddLayerToMap(layer, map, zIndex)
 
