@@ -61,7 +61,6 @@ function toggle3d() {
         >
             <FontAwesomeIcon
                 :icon="['fas', 'cube']"
-                flip="horizontal"
             />
         </button>
     </GeoadminTooltip>
