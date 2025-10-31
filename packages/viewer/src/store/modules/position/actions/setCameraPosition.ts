@@ -19,17 +19,24 @@ export default function setCameraPosition(
     // position can be null (in 2d mode), we do not wrap it in this case
     this.camera = position
         ? {
-              x: position.x,
-              y: position.y,
-              z: position.z,
-              // wrapping all angle-based values so that they do not exceed a full-circle value
-              roll: wrapDegrees(position.roll),
-              pitch: wrapDegrees(position.pitch),
-              heading: wrapDegrees(position.heading),
-          }
+            x: position.x,
+            y: position.y,
+            z: position.z,
+            // wrapping all angle-based values so that they do not exceed a full-circle value
+            roll: wrapDegrees(position.roll),
+            pitch: wrapDegrees(position.pitch),
+            heading: wrapDegrees(position.heading),
+        }
         : undefined
     if (this.camera) {
         // updating the 2D position with the new camera values
+        // BUT: do not sync back if we're being called FROM setCenter (to prevent infinite recursion)
+        if (dispatcher.name === 'setCenter' || dispatcher.name === 'setZoom') {
+            // if (dispatcher.name === 'setCenter' || dispatcher.name === 'CesiumCamera.vue') {
+            // Skip the 2D sync when being called from setCenter to avoid recursion
+            return
+        }
+
         const uiStore = useUIStore()
 
         const centerWGS84: SingleCoordinate = [this.camera.x, this.camera.y]
@@ -46,8 +53,9 @@ export default function setCameraPosition(
             centerExpressedInWantedProjection
         )
 
-        this.setCenter(centerExpressedInWantedProjection, dispatcher)
-        this.setZoom(zoom, dispatcher)
-        this.setRotation(normalizeAngle((this.camera.heading * Math.PI) / 180), dispatcher)
+        // Pass 'setCameraPosition' as dispatcher name to prevent setCenter from syncing back
+        this.setCenter(centerExpressedInWantedProjection, { name: 'setCameraPosition' })
+        this.setZoom(zoom, { name: 'setCameraPosition' })
+        this.setRotation(normalizeAngle((this.camera.heading * Math.PI) / 180), { name: 'setCameraPosition' })
     }
 }

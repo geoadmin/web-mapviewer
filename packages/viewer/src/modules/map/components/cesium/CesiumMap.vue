@@ -11,6 +11,7 @@ import {
 } from 'cesium'
 import {
     computed,
+    nextTick,
     onBeforeMount,
     onMounted,
     onUnmounted,
@@ -38,7 +39,7 @@ import useUIStore from '@/store/modules/ui'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumMap.vue' }
 
-let viewer: Viewer | undefined
+const viewer = ref<Viewer | undefined>(undefined)
 
 const viewerElement = useTemplateRef<HTMLDivElement>('viewerElement')
 // CesiumCompass is not typed yet
@@ -52,11 +53,13 @@ const positionStore = usePositionStore()
 const uiStore = useUIStore()
 
 const isProjectionWebMercator = computed(() => positionStore.projection.epsg === WEBMERCATOR.epsg)
-
+console.log('CesiumMap')
 watch(
     isProjectionWebMercator,
     () => {
-        if (!viewer && isProjectionWebMercator.value) {
+        console.log('CesiumMap: projection changed', isProjectionWebMercator.value, viewer.value)
+        if (!viewer.value && isProjectionWebMercator.value) {
+            // nextTick(() => {
             createViewer().catch((e) => {
                 log.error({
                     title: 'CesiumMap.vue',
@@ -64,7 +67,8 @@ watch(
                     message: ['Error while creating the viewer:', e.message],
                 })
             })
-        } else {
+            // })
+        } else if (!isProjectionWebMercator.value) {
             log.error({
                 title: 'CesiumMap.vue',
                 titleColor: LogPreDefinedColor.Red,
@@ -79,19 +83,22 @@ watch(
         flush: 'post',
     }
 )
-
 onBeforeMount(() => {
+    console.log('CesiumMap before mount')
     // Global variable required for Cesium and point to the URL where four static directories (see vite.config) are served
     // https://cesium.com/learn/cesiumjs-learn/cesiumjs-quickstart/#install-with-npm
     window.CESIUM_BASE_URL = CESIUM_STATIC_PATH
 })
 onMounted(() => {
+    console.log('CesiumMap mounted, checking projection', isProjectionWebMercator.value)
     if (isProjectionWebMercator.value) {
         log.debug({
             title: 'CesiumMap.vue',
             titleColor: LogPreDefinedColor.Blue,
             message: ['Cesium', 'Projection is now WebMercator, Cesium will start loading'],
         })
+        // Use nextTick to ensure the template (including viewerElement ref) is fully rendered
+        // nextTick(() => {
         createViewer().catch((e) => {
             log.error({
                 title: 'CesiumMap.vue',
@@ -99,6 +106,7 @@ onMounted(() => {
                 message: ['Cesium', 'Error while creating the viewer', e.message],
             })
         })
+        // })
     } else {
         log.warn({
             title: 'CesiumMap.vue',
@@ -108,10 +116,10 @@ onMounted(() => {
     }
 })
 onUnmounted(() => {
-    if (viewer) {
+    if (viewer.value) {
         positionStore.setCameraPosition(undefined, dispatcher)
         cesiumStore.setViewerReady(false, dispatcher)
-        viewer.destroy()
+        viewer.value.destroy()
     }
 })
 
@@ -119,7 +127,7 @@ async function createViewer(): Promise<void> {
     if (!viewerElement.value) {
         return
     }
-    viewer = new Viewer(viewerElement.value, {
+    viewer.value = new Viewer(viewerElement.value, {
         showRenderLoopErrors: uiStore.hasDevSiteWarning,
         // de-activating default Cesium UI elements
         animation: false,
@@ -147,10 +155,10 @@ async function createViewer(): Promise<void> {
     })
 
     if (uiStore.hasDevSiteWarning) {
-        viewer.scene.debugShowFramesPerSecond = true
+        viewer.value.scene.debugShowFramesPerSecond = true
     }
 
-    const scene = viewer.scene
+    const scene = viewer.value.scene
     scene.useDepthPicking = true
     scene.pickTranslucentDepth = true
     scene.backgroundColor = Color.TRANSPARENT
@@ -172,7 +180,7 @@ async function createViewer(): Promise<void> {
     if (IS_TESTING_WITH_CYPRESS) {
         // expose for e2e tests
 
-        window.cesiumViewer = viewer
+        window.cesiumViewer = viewer.value
         // reduce screen space error to downgrade visual quality but speed up tests
         globe.maximumScreenSpaceError = 30
     }
@@ -180,13 +188,12 @@ async function createViewer(): Promise<void> {
     cesiumStore.setViewerReady(true, dispatcher)
 
     if (compassElement.value) {
-        compassElement.value.scene = viewer.scene
-        compassElement.value.clock = viewer.clock
+        compassElement.value.scene = viewer.value.scene
+        compassElement.value.clock = viewer.value.clock
     }
     log.info('[Cesium] CesiumMap component mounted and ready')
 }
-
-provide<Viewer | undefined>('viewer', viewer)
+provide('viewer', viewer)
 </script>
 
 <template>
