@@ -24,6 +24,7 @@ import type {
     WMTSOnlineResource,
     WMTSTileMatrixSetLink,
 } from '@/types'
+import type { TileMatrix } from '@/types/layers'
 
 import { LayerType, WMTSEncodingType } from '@/types'
 import layerUtils from '@/utils/layerUtils'
@@ -246,10 +247,22 @@ function getTileMatrixSets(
                 })
                 return
             }
+            const tileMatrix: TileMatrix[] = []
+            for (const matrix of set.TileMatrix) {
+                tileMatrix.push({
+                    id: matrix.Identifier,
+                    scaleDenominator: matrix.ScaleDenominator,
+                    topLeftCorner: matrix.TopLeftCorner,
+                    tileWidth: matrix.TileWidth,
+                    tileHeight: matrix.TileHeight,
+                    matrixWidth: matrix.MatrixWidth,
+                    matrixHeight: matrix.MatrixHeight,
+                })
+            }
             return {
                 id: set.Identifier,
                 projection: projection,
-                tileMatrix: set.TileMatrix,
+                tileMatrix,
             }
         })
         .filter((set) => !!set)

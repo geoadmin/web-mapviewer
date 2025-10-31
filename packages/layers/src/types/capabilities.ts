@@ -176,11 +176,28 @@ export interface WMTSTileMatrixSetLink {
     }>
 }
 
+/**
+ * See chapter "Table 14 — Parts of TileMatrix data structure" of
+ * https://portal.ogc.org/files/?artifact_id=35326
+ */
+export interface WMTSCapabilitiesTileMatrix {
+    Identifier: string
+    Title?: string
+    Abstract?: string
+    Keywords?: string[]
+    ScaleDenominator: number
+    TopLeftCorner: SingleCoordinate
+    TileWidth: number
+    TileHeight: number
+    MatrixWidth: number
+    MatrixHeight: number
+}
+
 export interface WMTSCapabilitiesTileMatrixSet {
     BoundingBox: BoundingBox[]
     Identifier: string
     SupportedCRS?: string
-    TileMatrix: object[]
+    TileMatrix: WMTSCapabilitiesTileMatrix[]
 }
 
 export interface WMTSOnlineResourceConstraint {

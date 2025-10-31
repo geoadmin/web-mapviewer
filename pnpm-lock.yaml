@@ -111,6 +111,12 @@ catalogs:
     '@types/pako':
       specifier: ^2.0.4
       version: 2.0.4
+    '@types/sortablejs':
+      specifier: ^1.15.9
+      version: 1.15.9
+    '@types/yargs':
+      specifier: ^17.0.34
+      version: 17.0.34
     '@typescript-eslint/utils':
       specifier: ^8.46.1
       version: 8.46.1
@@ -430,6 +436,12 @@ importers:
 
   .:
     devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 24.7.2
+      tsx:
+        specifier: 'catalog:'
+        version: 4.20.6
       yaml:
         specifier: 'catalog:'
         version: 2.8.1
@@ -1324,6 +1336,9 @@ importers:
       '@types/geojson':
         specifier: 'catalog:'
         version: 7946.0.16
+      '@types/jsdom':
+        specifier: 'catalog:'
+        version: 27.0.0
       '@types/lodash':
         specifier: 'catalog:'
         version: 4.17.20
@@ -1337,8 +1352,11 @@ importers:
         specifier: 'catalog:'
         version: 2.0.4
       '@types/sortablejs':
-        specifier: ^1.15.8
-        version: 1.15.8
+        specifier: 'catalog:'
+        version: 1.15.9
+      '@types/yargs':
+        specifier: 'catalog:'
+        version: 17.0.34
       '@vite-pwa/assets-generator':
         specifier: 'catalog:'
         version: 1.0.2
@@ -3682,8 +3700,8 @@ packages:
   '@types/sizzle@2.3.9':
     resolution: {integrity: sha512-xzLEyKB50yqCUPUJkIsrVvoWNfFUbIZI+RspLWt8u+tIW/BetMBZtgV2LY/2o+tYH8dRvQ+eoPf3NdhQCcLE2w==}
 
-  '@types/sortablejs@1.15.8':
-    resolution: {integrity: sha512-b79830lW+RZfwaztgs1aVPgbasJ8e7AXtZYHTELNXZPsERt4ymJdjV4OccDbHQAvHrCcFpbF78jkm0R6h/pZVg==}
+  '@types/sortablejs@1.15.9':
+    resolution: {integrity: sha512-7HP+rZGE2p886PKV9c9OJzLBI6BBJu1O7lJGYnPyG3fS4/duUCcngkNCjsLwIMV+WMqANe3tt4irrXHSIe68OQ==}
 
   '@types/supercluster@7.1.3':
     resolution: {integrity: sha512-Z0pOY34GDFl3Q6hUFYf3HkTwKEE02e7QgtJppBt+beEAxnyOpJua+voGFvxINBHa06GwLFFym7gRPY2SiKIfIA==}
@@ -3702,6 +3720,12 @@ packages:
 
   '@types/web-bluetooth@0.0.21':
     resolution: {integrity: sha512-oIQLCGWtcFZy2JW77j9k8nHzAOpqMHLQejDA48XXMWH6tjCQHz5RCFz1bzsmROyL6PUm+LLnUiI4BCn221inxA==}
+
+  '@types/yargs-parser@21.0.3':
+    resolution: {integrity: sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ==}
+
+  '@types/yargs@17.0.34':
+    resolution: {integrity: sha512-KExbHVa92aJpw9WDQvzBaGVE2/Pz+pLZQloT2hjL8IqsZnV62rlPOYvNnLmf/L2dyllfVUOVBj64M0z/46eR2A==}
 
   '@types/yauzl@2.10.3':
     resolution: {integrity: sha512-oJoftv0LSuaDZE3Le4DbKX+KS9G36NzOeSap90UIK0yMA/NhKJhqlSGtNDORNRaIbQfzjXDrQa0ytJ6mNRGz/Q==}
@@ -11237,7 +11261,7 @@ snapshots:
 
   '@types/sizzle@2.3.9': {}
 
-  '@types/sortablejs@1.15.8': {}
+  '@types/sortablejs@1.15.9': {}
 
   '@types/supercluster@7.1.3':
     dependencies:
@@ -11252,6 +11276,12 @@ snapshots:
   '@types/unist@3.0.3': {}
 
   '@types/web-bluetooth@0.0.21': {}
+
+  '@types/yargs-parser@21.0.3': {}
+
+  '@types/yargs@17.0.34':
+    dependencies:
+      '@types/yargs-parser': 21.0.3
 
   '@types/yauzl@2.10.3':
     dependencies:
