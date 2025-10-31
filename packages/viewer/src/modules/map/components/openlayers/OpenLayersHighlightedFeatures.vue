@@ -74,12 +74,13 @@ const featureTransformedAsOlFeatures = computed(() => {
         return []
     }
     return selectedLayerFeatures.value.map((feature) => {
-        return new Feature({
+        const olFeature = new Feature({
             id: `geom-${randomIntBetween(0, 100000)}`,
-            geometry: new GeoJSON().readGeometry(feature.geometry),
             // flag that will be processed by the style function to change the color when the feature is hovered
             isHovered: highlightedFeatureId.value === feature.id,
         })
+        olFeature.setGeometry(new GeoJSON().readGeometry(feature.geometry))
+        return olFeature
     })
 })
 
@@ -96,14 +97,13 @@ const segmentTransformedAsOlFeatures = computed((): Feature[] => {
     return (currentGeometryElements.value as number[][][]).reduce(
         (features: Feature[], geometry: number[][], index: number) => {
             if (currentFeatureSegmentIndex.value === index) {
-                features.push(
-                    new Feature({
-                        id: `geom-segment-${randomIntBetween(0, 100000)}`,
-                        geometry: new LineString(geometry),
-                        // flag that will be processed by the style function to change the color when the segment is selected
-                        isCurrentSegment: currentFeatureSegmentIndex.value === index,
-                    })
-                )
+                const segmentFeature = new Feature({
+                    id: `geom-segment-${randomIntBetween(0, 100000)}`,
+                    // flag that will be processed by the style function to change the color when the segment is selected
+                    isCurrentSegment: currentFeatureSegmentIndex.value === index,
+                })
+                segmentFeature.setGeometry(new LineString(geometry))
+                features.push(segmentFeature)
             }
             return features
         },
