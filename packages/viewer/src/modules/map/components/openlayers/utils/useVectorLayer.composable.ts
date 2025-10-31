@@ -40,8 +40,8 @@ export default function useVectorLayer(
         options ?? {}
     )
     const initialFeatures = toValue(features)
-    // Use unref instead of toValue for styleFunction because it's a function value,
-    // not a getter function. toValue() would try to call it.
+    // Use unref instead of toValue for styleFunction to avoid unwrapping getter functions.
+    // toValue() would call the styleFunction if it's wrapped in a computed ref (getter), but not if it's a regular function value in a ref.
     const unwrappedStyleFunction = unref(styleFunction)
 
     const layer = new VectorLayer({
