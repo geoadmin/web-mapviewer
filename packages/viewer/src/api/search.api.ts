@@ -408,7 +408,8 @@ function searchLayerFeaturesKMLGPX(
             )
         }
         if (currentLayer.type === LayerType.GPX) {
-            const gpxData = (currentLayer as GPXLayer).gpxData
+            const gpxLayer = currentLayer as GPXLayer
+            const gpxData = gpxLayer.gpxData
             if (!gpxData) {
                 return returnLayers
             }
@@ -417,7 +418,7 @@ function searchLayerFeaturesKMLGPX(
                 return returnLayers
             }
             return returnLayers.concat(
-                ...searchFeatures(gpxFeatures, outputProjection, queryString, currentLayer)
+                ...searchFeatures(gpxFeatures, outputProjection, queryString, gpxLayer)
             )
         }
         return returnLayers

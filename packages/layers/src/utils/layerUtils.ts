@@ -359,6 +359,7 @@ function makeGPXLayer(values: Partial<GPXLayer>): GPXLayer {
         hasDescription: false,
         hasLegend: false,
         isExternal: true,
+        isLocalFile,
         hasError: false,
         hasWarning: false,
         isLoading: !values.gpxData,

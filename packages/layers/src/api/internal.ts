@@ -6,6 +6,8 @@ import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config'
 import {
     type AggregateSubLayer,
     type GeoAdminLayer,
+    type GeoAdminWMSLayer,
+    type GeoAdminWMTSLayer,
     type LayerAttribution,
     type LayerTimeConfigEntry,
     LayerType,
@@ -245,11 +247,14 @@ export function generateLayerObject(
                     lang,
                     staging
                 )
-                if (subLayer) {
+                if (
+                    subLayer &&
+                    (subLayer.type === LayerType.WMS || subLayer.type === LayerType.WMTS)
+                ) {
                     subLayers.push(
                         layerUtils.makeAggregateSubLayer({
                             subLayerId,
-                            layer: subLayer,
+                            layer: subLayer as GeoAdminWMSLayer | GeoAdminWMTSLayer,
                             minResolution: subLayerRawConfig.minResolution,
                             maxResolution: subLayerRawConfig.maxResolution,
                         })

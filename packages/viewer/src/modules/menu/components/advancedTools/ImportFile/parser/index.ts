@@ -1,11 +1,9 @@
 import type { CoordinateSystem } from '@swissgeo/coordinates'
-import type { Layer } from '@swissgeo/layers'
+import type { FileLayer } from '@swissgeo/layers'
 
 import log from '@swissgeo/log'
 
-import type {
-    ParseOptions,
-} from '@/modules/menu/components/advancedTools/ImportFile/parser/types'
+import type { ParseOptions } from '@/modules/menu/components/advancedTools/ImportFile/parser/types'
 
 import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api'
 import { checkOnlineFileCompliance, getFileContentFromUrl } from '@/api/files.api'
@@ -26,36 +24,34 @@ interface ParseAllConfig {
     currentProjection: CoordinateSystem
 }
 
-async function parseAll(config: ParseAllConfig, options?: ParseOptions): Promise<Layer> {
+async function parseAll(config: ParseAllConfig, options?: ParseOptions): Promise<FileLayer> {
     const allSettled = await Promise.allSettled(
         allParsers.map((parser) => parser.parse(config, options))
     )
     const firstFulfilled = allSettled.find(
-        (response): response is PromiseFulfilledResult<Layer> =>
-            response.status === 'fulfilled' && response.value !== undefined
+        (response) => response.status === 'fulfilled' && response.value !== undefined
     )
     if (firstFulfilled) {
-        return firstFulfilled.value
+        return (firstFulfilled as PromiseFulfilledResult<FileLayer>).value
     }
     const anyErrorRaised = allSettled.find(
-        (response): response is PromiseRejectedResult =>
-            response.status === 'rejected' && response.reason
+        (response) => response.status === 'rejected' && response.reason
     )
     if (anyErrorRaised) {
-        throw anyErrorRaised.reason
+        throw (anyErrorRaised as PromiseRejectedResult).reason
     }
     throw new Error('Could not parse file')
 }
 
 /**
  * @param fileSource
- * @param currentProjection Can be used to check bounds of parsed file against
- *   the current projection (and raise OutOfBoundError in case no mutual data is available)
+ * @param currentProjection Can be used to check bounds of parsed file against the current
+ *   projection (and raise OutOfBoundError in case no mutual data is available)
  */
 export async function parseLayerFromFile(
     fileSource: File | string,
     currentProjection: CoordinateSystem
-): Promise<Layer> {
+): Promise<FileLayer> {
     // if local file, just parse it
     if (fileSource instanceof File) {
         return await parseAll({

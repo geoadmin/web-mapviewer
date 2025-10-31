@@ -1,5 +1,5 @@
 import type { CoordinateSystem } from '@swissgeo/coordinates'
-import type { Layer } from '@swissgeo/layers'
+import type { FileLayer } from '@swissgeo/layers'
 
 import log from '@swissgeo/log'
 
@@ -28,7 +28,7 @@ interface FileParserConfig {
  *
  * @abstract
  */
-export default abstract class FileParser<T extends Layer> {
+export default abstract class FileParser<T extends FileLayer> {
     fileTypeLittleEndianSignature: number[][]
     fileExtensions: string[]
     fileContentTypes: string[]
@@ -160,22 +160,14 @@ export default abstract class FileParser<T extends Layer> {
                 } catch (error) {
                     log.error({
                         title: `[FileParser][${this.constructor.name}]`,
-                        message: [
-                            'Could not load file content for',
-                            fileUrl,
-                            error,
-                        ],
+                        message: ['Could not load file content for', fileUrl, error],
                     })
                 }
             }
         } catch (error) {
             log.warn({
                 title: `[FileParser][${this.constructor.name}]`,
-                message: [
-                    'HEAD request failed, could not parse',
-                    fileUrl,
-                    error,
-                ],
+                message: ['HEAD request failed, could not parse', fileUrl, error],
             })
         }
         return false
