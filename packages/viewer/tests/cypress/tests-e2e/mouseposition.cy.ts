@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import type { Pinia } from 'pinia'
+
 import { LV03, LV95, registerProj4, WGS84, type SingleCoordinate } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
@@ -10,6 +12,7 @@ import { getServiceShortLinkBaseUrl } from '@/config/baseUrl.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import { BREAKPOINT_TABLET } from '@/config/responsive.config'
 import useDrawingStore from '@/store/modules/drawing'
+import useMapStore from '@/store/modules/map'
 import {
     LV03Format,
     LV95Format,
@@ -57,8 +60,9 @@ function checkXY(expectedX: number, expectedY: number) {
 
 function checkMousePositionStringValue(coordStr: string) {
     cy.get('[data-cy="map"]').click()
-    cy.waitUntilState((state) => {
-        return state.map.clickInfo !== undefined
+    cy.waitUntilState((pinia: Pinia) => {
+        const mapStore = useMapStore(pinia)
+        return mapStore.clickInfo !== undefined
     })
     cy.get('[data-cy="mouse-position"]').should('contain.text', coordStr)
 }
@@ -69,8 +73,9 @@ function checkMousePositionNumberValue(
     parser: (_text: string) => number[]
 ) {
     cy.get('[data-cy="map"]').click()
-    cy.waitUntilState((state) => {
-        return state.map.clickInfo !== undefined
+    cy.waitUntilState((pinia: Pinia) => {
+        const mapStore = useMapStore(pinia)
+        return mapStore.clickInfo !== undefined
     })
     cy.get('[data-cy="mouse-position"]')
         .invoke('text')

@@ -2,6 +2,7 @@
 
 import type { CyHttpMessages } from 'cypress/types/net-stubbing'
 import type Feature from 'ol/Feature'
+import type { Pinia } from 'pinia'
 
 import { registerProj4, WGS84, type SingleCoordinate } from '@swissgeo/coordinates'
 import { LayerType, type KMLLayer } from '@swissgeo/layers'
@@ -1003,9 +1004,10 @@ describe('Drawing module tests', () => {
                 )
                     .should('be.visible')
                     .contains('Drawing')
-                cy.waitUntilState((state) => {
-                    return state.layers.activeLayers.find(
-                        (layer: KMLLayer) => layer.type === LayerType.KML && layer.fileId === kmlId
+                cy.waitUntilState((pinia: Pinia) => {
+                    const layersStore = useLayersStore(pinia)
+                    return !!layersStore.activeLayers.find(
+                        (layer) => layer.type === LayerType.KML && (layer as KMLLayer).fileId === kmlId
                     )
                 })
 
@@ -1021,9 +1023,10 @@ describe('Drawing module tests', () => {
                 )
                     .should('be.visible')
                     .contains('Drawing')
-                cy.waitUntilState((state) => {
-                    return state.layers.activeLayers.find(
-                        (layer: KMLLayer) => layer.type === LayerType.KML && layer.fileId === kmlId
+                cy.waitUntilState((pinia: Pinia) => {
+                    const layersStore = useLayersStore(pinia)
+                    return !!layersStore.activeLayers.find(
+                        (layer) => layer.type === LayerType.KML && (layer as KMLLayer).fileId === kmlId
                     )
                 })
 
@@ -1216,7 +1219,10 @@ describe('Drawing module tests', () => {
                 '@head-legacy-kml',
                 '@get-legacy-kml',
             ])
-            cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
+            cy.waitUntilState((pinia: Pinia) => {
+                const drawingStore = useDrawingStore(pinia)
+                return drawingStore.iconSets.length > 0
+            })
 
             cy.log(
                 'the app must open the drawing module at startup whenever an adminId is found in the URL'

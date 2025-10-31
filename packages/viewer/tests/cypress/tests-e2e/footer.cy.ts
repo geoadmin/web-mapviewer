@@ -1,10 +1,12 @@
 /// <reference types="cypress" />
 
 import type { LayerConfigResponse } from '@swissgeo/layers/api'
+import type { Pinia } from 'pinia'
 
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 
 import useLayersStore from '@/store/modules/layers'
+import useUIStore from '@/store/modules/ui'
 import { UIModes } from '@/store/modules/ui/types/uiModes.enum'
 
 describe('Testing the footer content / tools', () => {
@@ -51,8 +53,10 @@ describe('Testing the footer content / tools', () => {
                         cy.get(`[data-cy="background-selector-${bgLayer.serverLayerName}"]`).click()
                         // checking that clicking on the wheel buttons changes the bgLayer of the app accordingly
                         cy.waitUntilState(
-                            (state) =>
-                                state.layers.currentBackgroundLayerId === bgLayer.serverLayerName
+                            (pinia: Pinia) => {
+                                const layersStore = useLayersStore(pinia)
+                                return layersStore.currentBackgroundLayerId === bgLayer.serverLayerName
+                            }
                         )
                         // reopening the BG wheel
                         cy.get(`[data-cy="${wheelButton}"]`).click()
@@ -73,7 +77,10 @@ describe('Testing the footer content / tools', () => {
         testBackgroundWheel()
         // checking that the squared background wheel (desktop) has the same functionalities
         cy.viewport('macbook-11')
-        cy.waitUntilState((state) => state.ui.mode === UIModes.Desktop)
+        cy.waitUntilState((pinia: Pinia) => {
+            const uiStore = useUIStore(pinia)
+            return uiStore.mode === UIModes.Desktop
+        })
         testBackgroundWheel(true)
     })
 })

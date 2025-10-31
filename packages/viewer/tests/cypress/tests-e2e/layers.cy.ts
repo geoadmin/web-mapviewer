@@ -1,8 +1,10 @@
 /// <reference types="cypress" />
 
-import type { ExternalWMSLayer, ExternalWMTSLayer, GeoAdminWMTSLayer, Layer } from '@swissgeo/layers'
+import type { ExternalWMSLayer, ExternalWMTSLayer, Layer } from '@swissgeo/layers'
+import type { Pinia } from 'pinia'
 
 import { WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
+import { assertDefined } from 'support/utils'
 
 import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 import useI18nStore from '@/store/modules/i18n'
@@ -1070,13 +1072,14 @@ describe('Test of layer handling', () => {
                         .to.be.an('Array')
                         .length(visibleLayerIds.length + 1)
 
-                    expect(activeLayers7[3]).not.to.be.undefined
-                    expect((activeLayers7[3] as any).timeConfig.currentTimestamp).to.eq(newTimestamp)
+                    assertDefined(activeLayers7[3])
+                    expect((activeLayers7[3]).timeConfig.currentTimestamp).to.eq(newTimestamp)
                     expect(activeLayers7[3]?.isVisible).to.be.false
                     expect(activeLayers7[3]?.opacity).to.eq(0.5)
 
+                    assertDefined(activeLayers7[2])
                     expect(activeLayers7[2]).not.to.be.undefined
-                    expect((activeLayers7[2] as any).timeConfig.currentTimestamp).to.eq(timestamp)
+                    expect((activeLayers7[2]).timeConfig.currentTimestamp).to.eq(timestamp)
                     expect(activeLayers7[2]?.isVisible).to.be.true
                     expect(activeLayers7[2]?.opacity).to.eq(0)
                 })
@@ -1222,13 +1225,13 @@ describe('Test of layer handling', () => {
                     const activeLayers8 = layersStore30.activeLayers
                     expect(activeLayers8).to.be.an('Array').length(4)
 
-                    expect(activeLayers8[3]).not.to.be.undefined
-                    expect((activeLayers8[3] as any).timeConfig.currentTimestamp).to.eq('20180101')
+                    assertDefined(activeLayers8[3])
+                    expect((activeLayers8[3]).timeConfig.currentTimestamp).to.eq('20180101')
                     expect(activeLayers8[3]?.isVisible).to.be.true
                     expect(activeLayers8[3]?.opacity).to.eq(0.7)
 
-                    expect(activeLayers8[0]).not.to.be.undefined
-                    expect((activeLayers8[0] as any).timeConfig.currentTimestamp).to.eq(newTimestamp)
+                    assertDefined(activeLayers8[0])
+                    expect((activeLayers8[0]).timeConfig.currentTimestamp).to.eq(newTimestamp)
                     expect(activeLayers8[0]?.isVisible).to.be.true
                     expect(activeLayers8[0]?.opacity).to.eq(0)
                 })
@@ -1310,8 +1313,9 @@ describe('Test of layer handling', () => {
             }
 
             // Wait until the active layers are ready.
-            cy.waitUntilState((state) => {
-                return state.layers.activeLayers.some((layer: Layer) => layer.lang === langBefore)
+            cy.waitUntilState((pinia: Pinia) => {
+                const layersStore = useLayersStore(pinia)
+                return layersStore.activeLayers.some((layer: Layer) => layer.lang === langBefore)
             })
 
             // CHECK before
@@ -1322,7 +1326,7 @@ describe('Test of layer handling', () => {
                 expect(i18nStore.lang).to.eq(langBefore)
                 layersStore31.activeLayers
                     .filter((layer) => 'lang' in layer)
-                    .forEach((layer) => expect((layer as any).lang).to.eq(langBefore))
+                    .forEach((layer) => expect((layer).lang).to.eq(langBefore))
                 // Save the layer configuration before the switch.
                 activeLayersConfigBefore = JSON.stringify(
                     layersStore31.activeLayers,
@@ -1335,8 +1339,9 @@ describe('Test of layer handling', () => {
             cy.clickOnLanguage(langAfter)
 
             // Wait until the active layers are updated.
-            cy.waitUntilState((state) => {
-                return state.layers.activeLayers.some((layer: Layer) => layer.lang === langAfter)
+            cy.waitUntilState((pinia: Pinia) => {
+                const layersStore = useLayersStore(pinia)
+                return layersStore.activeLayers.some((layer: Layer) => layer.lang === langAfter)
             })
 
             // CHECK after
@@ -1347,7 +1352,7 @@ describe('Test of layer handling', () => {
                 expect(i18nStore2.lang).to.eq(langAfter)
                 layersStore32.activeLayers
                     .filter((layer) => 'lang' in layer)
-                    .forEach((layer) => expect((layer as any).lang).to.eq(langAfter))
+                    .forEach((layer) => expect((layer).lang).to.eq(langAfter))
                 // Compare the layer configuration (except the language)
                 const activeLayersConfigAfter = JSON.stringify(
                     layersStore32.activeLayers,

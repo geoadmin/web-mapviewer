@@ -1,9 +1,11 @@
 /// <reference types="cypress" />
 
+import type { Pinia } from 'pinia'
 import type { MockFeature } from 'support/intercepts'
 
 import { LV95, WEBMERCATOR } from '@swissgeo/coordinates'
 
+import useFeaturesStore from '@/store/modules/features'
 import useUIStore from '@/store/modules/ui'
 
 describe('The infobox', () => {
@@ -13,8 +15,9 @@ describe('The infobox', () => {
 
             cy.get(mapSelector).click()
             cy.waitUntilState(
-                (_, getters) => {
-                    return getters.selectedFeatures.length > 0
+                (pinia: Pinia) => {
+                    const featuresStore = useFeaturesStore(pinia)
+                    return featuresStore.selectedFeatures.length > 0
                 },
                 { timeout: 10000 }
             )
@@ -26,8 +29,9 @@ describe('The infobox', () => {
             // at least 400 pixels.
             cy.viewport(400, 800)
             cy.get(mapSelector).click()
-            cy.waitUntilState((_, getters) => {
-                return getters.selectedFeatures.length > 0
+            cy.waitUntilState((pinia: Pinia) => {
+                const featuresStore = useFeaturesStore(pinia)
+                return featuresStore.selectedFeatures.length > 0
             })
             cy.getPinia().then(pinia => {
                 const uiStore = useUIStore(pinia)
@@ -123,8 +127,9 @@ describe('The infobox', () => {
         })
         it('changes the language of the infobox', () => {
             cy.get('[data-cy="ol-map"]').click()
-            cy.waitUntilState((_, getters) => {
-                return getters.selectedFeatures.length > 0
+            cy.waitUntilState((pinia: Pinia) => {
+                const featuresStore = useFeaturesStore(pinia)
+                return featuresStore.selectedFeatures.length > 0
             })
             const htmlPopupCalls: number = 10
             cy.get('@htmlPopup.all').should('have.length', htmlPopupCalls)
@@ -167,8 +172,9 @@ describe('The infobox', () => {
             cy.goToMapView({ queryParams: { layers: layer } })
 
             cy.get('[data-cy="ol-map"]').click()
-            cy.waitUntilState((_, getters) => {
-                return getters.selectedFeatures.length > 0
+            cy.waitUntilState((pinia: Pinia) => {
+                const featuresStore = useFeaturesStore(pinia)
+                return featuresStore.selectedFeatures.length > 0
             })
             cy.get('[data-cy="highlighted-features"]').should('be.visible')
         })

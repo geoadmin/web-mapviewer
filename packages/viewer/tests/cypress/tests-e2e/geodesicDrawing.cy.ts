@@ -1,7 +1,11 @@
+import type { Pinia } from 'pinia'
+
 import { extentUtils, WEBMERCATOR } from '@swissgeo/coordinates'
+import { assertDefined } from 'support/utils'
 
 import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@/api/features.api'
 import useDrawingStore from '@/store/modules/drawing'
+import useFeaturesStore from '@/store/modules/features'
 import useUIStore from '@/store/modules/ui'
 import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 import { HALFSIZE_WEBMERCATOR } from '@/utils/geodesicManager'
@@ -20,16 +24,14 @@ function moveMapPos(newCenter: number[]): void {
 
     cy.waitUntil(
         () =>
-            cy.window().then((win: any) => {
+            cy.window().then((win) => {
                 const mapCenter = win.map.getView().getCenter()
+                assertDefined(mapCenter)
                 return mapCenter[0] === newCenter[0] && mapCenter[1] === newCenter[1]
             }),
         {
             errorMsg: () =>
-                'The maps position is: ' +
-                cy.state('window').map.getView().getCenter() +
-                ' but the requested position was: ' +
-                newCenter,
+                `The maps position is: ${cy.state('window').map.getView().getCenter()} but the requested position was: ${newCenter.toString()}`
         }
     )
 }
@@ -37,7 +39,7 @@ function moveMapPos(newCenter: number[]): void {
 function drawFeature(coords: number[][], type: EditableFeatureTypes = EditableFeatureTypes.Measure): void {
     cy.window()
         .its('drawingLayer')
-        .then((layer: any) => layer.getSource().getFeatures())
+        .then((layer) => layer.getSource().getFeatures())
         .should('have.length', 0)
     //Draw a feature
     cy.clickDrawingTool(type)
@@ -71,12 +73,15 @@ function checkCoordsEqual(coords1: number[][], coords2: number[][]): void {
 }
 
 function checkFeatureSelected(featureCoords: number[][]): void {
-    cy.waitUntilState((_, getters: any) => getters.selectedFeatures.length === 1)
+    cy.waitUntilState((pinia: Pinia) => {
+        const featuresStore = useFeaturesStore(pinia)
+        return featuresStore.selectedFeatures.length === 1
+    })
     // May need to be reactivated if the headless tests still fail
     // cy.wait(500)
     cy.window()
         .its('drawingLayer')
-        .should((layer: any) => {
+        .should((layer) => {
             const features = layer.getSource().getFeatures()
             expect(
                 features,
@@ -94,10 +99,13 @@ function checkFeatureSelected(featureCoords: number[][]): void {
 }
 
 function checkFeatureUnselected(): void {
-    cy.waitUntilState((_, getters: any) => getters.selectedFeatures.length === 0)
+    cy.waitUntilState((pinia: Pinia) => {
+        const featuresStore = useFeaturesStore(pinia)
+        return featuresStore.selectedFeatures.length === 0
+    })
 }
 
-const generateTest = (drawOffset: number, selectOffset: number, x: number, locDesc: string, test: (drawOffset: number, selectOffset: number, x: number, type?: EditableFeatureTypes) => void): void => {
+const generateTest = (drawOffset: number, selectOffset: number, x: number, locDesc: string, test: (_drawOffset: number, _selectOffset: number, _x: number, _type?: EditableFeatureTypes) => void): void => {
     let desc = `draw in [${-180 + drawOffset * 360}, ${180 + drawOffset * 360}], `
     desc += `select in [${-180 + selectOffset * 360}, ${180 + selectOffset * 360}] `
     desc += 'at ca. 47° '
@@ -107,7 +115,7 @@ const generateTest = (drawOffset: number, selectOffset: number, x: number, locDe
     })
 }
 
-const generateTestsInPacific = (testFunc: (drawOffset: number, selectOffset: number, x: number, type?: EditableFeatureTypes) => void): void => {
+const generateTestsInPacific = (testFunc: (_drawOffset: number, _selectOffset: number, _x: number, _type?: EditableFeatureTypes) => void): void => {
     const atDateTimeLimit = HALFSIZE_WEBMERCATOR
     const pacificDesc7525 = '75% on the west, 25% on the east of the datetime limit'
     const pacificDesc2575 = '25% on the west, 75% on the east of the datetime limit'

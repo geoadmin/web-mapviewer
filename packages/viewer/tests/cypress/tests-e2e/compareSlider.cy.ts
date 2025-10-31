@@ -1,8 +1,10 @@
 import type { Layer } from '@swissgeo/layers'
+import type { Pinia } from 'pinia'
 
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 import { assertDefined } from 'support/utils'
 
+import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 /// <reference types="cypress" />
 import useUIStore from '@/store/modules/ui'
@@ -153,8 +155,9 @@ describe('Testing of the compare slider', () => {
                 cy.get('ol-map').click(x, y)
 
                 expect(
-                    cy.waitUntilState((_, getters) => {
-                        const numberOfFeatures = getters.selectedFeatures.length
+                    cy.waitUntilState((pinia: Pinia) => {
+                        const featuresStore = useFeaturesStore(pinia)
+                        const numberOfFeatures = featuresStore.selectedFeatures.length
                         return expectedFeatures ? numberOfFeatures > 0 : numberOfFeatures === 0
                     })
                 ).to.be.true
