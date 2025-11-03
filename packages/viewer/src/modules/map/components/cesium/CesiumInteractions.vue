@@ -10,6 +10,7 @@ import {
     Cartesian2,
     Cartesian3,
     Cartographic,
+    Cesium3DTilePointFeature,
     Math as CesiumMath,
     PostProcessStageLibrary,
     ScreenSpaceEventHandler,
@@ -167,8 +168,23 @@ function getCoordinateAtScreenCoordinate(x: number, y: number): SingleCoordinate
     return coordinates
 }
 
-function getLayerIdFrom3dFeature(featureTileSetResourceUrl: string): string | undefined {
-    return featureTileSetResourceUrl.replace(get3dTilesBaseUrl(), '').split('/')[0]
+function getLayerIdFrom3dFeature(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    feature: Cesium3DTilePointFeature | { primitive: any; id: { _id: string } }
+): string | undefined {
+    let url = ''
+    if (
+        'tileset' in feature &&
+        feature.tileset &&
+        feature.tileset.resource &&
+        feature.tileset.resource.url
+    ) {
+        url = feature.tileset.resource.url
+    } else if ('id' in feature && feature.id && feature.id) {
+        url = feature.id._id
+    }
+
+    return url.replace(get3dTilesBaseUrl(), '').split('/')[0]
 }
 
 function getFeatureProperty(
@@ -200,7 +216,7 @@ function create3dFeature(
     feature: LayerFeature,
     coordinates: SingleCoordinate
 ): LayerFeature | undefined {
-    const layerId = getLayerIdFrom3dFeature(feature.id.toString())
+    const layerId = getLayerIdFrom3dFeature(feature as unknown as Cesium3DTilePointFeature)
 
     const layer = cesiumStore.layersWithTooltips.find((layer: Layer) => layer.id === layerId)
     const layerConfig = cesiumStore.layersTooltipConfig.find(
