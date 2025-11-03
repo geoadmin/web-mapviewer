@@ -128,7 +128,7 @@ function hikingTime(points: ElevationProfilePoint[]): number {
         points
             .toSorted((p1, p2) => (p1.dist ?? 0) - (p2.dist ?? 0))
             .map((currentPoint, index, points) => {
-                if (index < points.length - 2) {
+                if (index < points.length - 1) {
                     const nextPoint = points[index + 1]
 
                     const distanceDelta = (nextPoint?.dist ?? 0) - (currentPoint.dist ?? 0)
