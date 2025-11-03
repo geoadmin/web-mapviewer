@@ -58,21 +58,21 @@ onMounted(() => {
             log.error({
                 title: 'LocationPopup.vue',
                 titleColor: LogPreDefinedColor.Red,
-                message: ['Failed to retrieve LV03 coordinate', error],
+                messages: ['Failed to retrieve LV03 coordinate', error],
             })
         })
         updateWhat3Word().catch((error) => {
             log.error({
                 title: 'LocationPopup.vue',
                 titleColor: LogPreDefinedColor.Red,
-                message: ['Failed to update What3Words', error],
+                messages: ['Failed to update What3Words', error],
             })
         })
         updateHeight().catch((error) => {
             log.error({
                 title: 'LocationPopup.vue',
                 titleColor: LogPreDefinedColor.Red,
-                message: ['Failed to update height', error],
+                messages: ['Failed to update height', error],
             })
         })
     }
@@ -86,21 +86,21 @@ watch(
                 log.error({
                     title: 'LocationPopup.vue',
                     titleColor: LogPreDefinedColor.Red,
-                    message: ['Failed to retrieve LV03 coordinate', error],
+                    messages: ['Failed to retrieve LV03 coordinate', error],
                 })
             })
             updateWhat3Word().catch((error) => {
                 log.error({
                     title: 'LocationPopup.vue',
                     titleColor: LogPreDefinedColor.Red,
-                    message: ['Failed to update What3Words', error],
+                    messages: ['Failed to update What3Words', error],
                 })
             })
             updateHeight().catch((error) => {
                 log.error({
                     title: 'LocationPopup.vue',
                     titleColor: LogPreDefinedColor.Red,
-                    message: ['Failed to update height', error],
+                    messages: ['Failed to update height', error],
                 })
             })
         }
@@ -120,7 +120,7 @@ async function updateLV03Coordinate() {
         log.error({
             title: 'LocationPopup.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: ['Failed to retrieve LV03 coordinate', error],
+            messages: ['Failed to retrieve LV03 coordinate', error],
         })
         lv03Coordinate.value = undefined
     }
@@ -133,7 +133,7 @@ async function updateWhat3Word() {
         log.error({
             title: 'LocationPopup.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: ['Failed to retrieve What3Words Location', error],
+            messages: ['Failed to retrieve What3Words Location', error],
         })
         what3Words.value = undefined
     }
@@ -145,7 +145,7 @@ async function updateHeight() {
         log.error({
             title: 'LocationPopup.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: ['Failed to get position height', error],
+            messages: ['Failed to get position height', error],
         })
         height.value = undefined
     }

@@ -65,7 +65,7 @@ watch(shareLinkUrlShorten, () => {
             log.error({
                 title: 'LocationPopup.vue',
                 titleColor: LogPreDefinedColor.Red,
-                message: ['Failed to copy share link', error],
+                messages: ['Failed to copy share link', error],
             })
         })
         requestClipboard.value = false
@@ -109,7 +109,7 @@ function updateShareLink() {
         log.error({
             title: 'LocationPopup.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: ['Failed to create shortlink', error],
+            messages: ['Failed to create shortlink', error],
         })
     })
 }
@@ -121,7 +121,7 @@ async function shortenShareLink(url: string) {
         log.error({
             title: 'LocationPopup.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: ['Failed to create shortlink', error],
+            messages: ['Failed to create shortlink', error],
         })
         shareLinkUrlShorten.value = undefined
     }
@@ -140,7 +140,7 @@ function onShareTabClick() {
             log.error({
                 title: 'LocationPopup.vue',
                 titleColor: LogPreDefinedColor.Red,
-                message: ['Failed to copy share link', error],
+                messages: ['Failed to copy share link', error],
             })
         })
     }
@@ -163,7 +163,7 @@ async function copyShareLink() {
         log.error({
             title: 'LocationPopup.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: ['Failed to copy to clipboard', error],
+            messages: ['Failed to copy to clipboard', error],
         })
     }
 }

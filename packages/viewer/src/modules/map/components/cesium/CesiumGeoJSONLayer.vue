@@ -7,7 +7,7 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { GeoJsonDataSource, type Viewer } from 'cesium'
 import { cloneDeep } from 'lodash'
 import { reproject } from 'reproject'
-import { computed, inject, toRef } from 'vue'
+import { computed, inject, type ShallowRef, toRef } from 'vue'
 
 import { setEntityStyle } from '@/modules/map/components/cesium/utils/geoJsonStyleConverter'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
@@ -15,12 +15,12 @@ import { getSafe } from '@/utils/utils'
 
 const { geoJsonConfig } = defineProps<{ geoJsonConfig: GeoAdminGeoJSONLayer }>()
 
-const viewer = inject<{ instance: Viewer | undefined }>('viewer')
-if (!viewer) {
+const viewer = inject<ShallowRef<Viewer | undefined>>('viewer')
+if (!viewer?.value) {
     log.error({
         title: 'CesiumGeoJSONLayer.vue',
         titleColor: LogPreDefinedColor.Blue,
-        message: ['Viewer not initialized, cannot create GeoJSON layer'],
+        messages: ['Viewer not initialized, cannot create GeoJSON layer'],
     })
     throw new Error('Viewer not initialized, cannot create GeoJSON layer')
 }
@@ -53,7 +53,7 @@ async function createSource(): Promise<GeoJsonDataSource> {
         log.debug({
             title: 'CesiumGeoJSONLayer.vue',
             titleColor: LogPreDefinedColor.Blue,
-            message: [`GeoJSON ${layerId.value} is not expressed in WGS84, reprojecting it`],
+            messages: [`GeoJSON ${layerId.value} is not expressed in WGS84, reprojecting it`],
         })
         const reprojectedData = reproject(geoJsonObject.value as Geometry, crsName, WGS84.epsg)
         if (reprojectedData && typeof reprojectedData === 'object') {
@@ -73,14 +73,14 @@ async function createSource(): Promise<GeoJsonDataSource> {
         log.error({
             title: 'CesiumGeoJSONLayer.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: ['Error while parsing GeoJSON data for layer', layerId.value, error],
+            messages: ['Error while parsing GeoJSON data for layer', layerId.value, error],
         })
         throw error
     }
 }
 
 useAddDataSourceLayer(
-    viewer.instance,
+    viewer,
     createSource(),
     (entity, opacity) => setEntityStyle(entity, geoJsonStyle.value!, opacity),
     toRef(opacity),

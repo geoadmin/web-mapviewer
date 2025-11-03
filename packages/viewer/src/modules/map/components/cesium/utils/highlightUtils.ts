@@ -43,7 +43,7 @@ export function highlightSelectedArea(viewer: Viewer, geometry?: HighlightGeomet
             log.error({
                 title: 'highlightUtils',
                 titleColor: LogPreDefinedColor.Red,
-                message: [`Geometry "${geometry.type}" not handled`],
+                messages: [`Geometry "${geometry.type}" not handled`],
             })
     }
     viewer.scene.requestRender()

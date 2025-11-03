@@ -11,7 +11,7 @@ import {
     type Viewer,
 } from 'cesium'
 import proj4 from 'proj4'
-import { computed, inject, onMounted, watch } from 'vue'
+import { computed, inject, onMounted, type ShallowRef, watch } from 'vue'
 
 import useGeolocationStore from '@/store/modules/geolocation'
 import usePositionStore from '@/store/modules/position'
@@ -23,11 +23,11 @@ import {
     geolocationPointWidth,
 } from '@/utils/styleUtils'
 
-const viewer = inject<{ instance: Viewer | undefined }>('viewer')
-if (!viewer) {
+const viewer = inject<ShallowRef<Viewer | undefined>>('viewer')
+if (!viewer?.value) {
     log.error({
         title: 'CesiumGeolocationFeedback.vue',
-        message: ['Viewer not initialized, cannot create geolocation feedback'],
+        messages: ['Viewer not initialized, cannot create geolocation feedback'],
     })
     throw new Error('Viewer not initialized, cannot create geolocation feedback')
 }
@@ -105,9 +105,8 @@ function transformArrayColorIntoCesiumColor(arrayColor: number[]): Color {
 }
 
 function activateTracking(): void {
-    if (viewer && viewer.instance && geolocationPositionCartesian3.value) {
-        const viewerInstance = viewer.instance
-        accuracyCircleEntity = viewerInstance.entities.add({
+    if (viewer?.value && geolocationPositionCartesian3.value) {
+        accuracyCircleEntity = viewer.value.entities.add({
             id: 'geolocation-accuracy-circle',
             position: geolocationPositionCartesian3.value,
             ellipse: {
@@ -117,7 +116,7 @@ function activateTracking(): void {
                 heightReference: HeightReference.CLAMP_TO_TERRAIN,
             },
         })
-        geolocationPositionEntity = viewerInstance.entities.add({
+        geolocationPositionEntity = viewer.value.entities.add({
             id: 'geolocation-position',
             position: geolocationPositionCartesian3.value,
             point: {
@@ -134,14 +133,13 @@ function activateTracking(): void {
 }
 
 function removeTracking(): void {
-    if (viewer && viewer.instance) {
-        const viewerInstance = viewer.instance
+    if (viewer?.value) {
         if (accuracyCircleEntity) {
-            viewerInstance.entities.removeById(accuracyCircleEntity.id)
+            viewer.value.entities.removeById(accuracyCircleEntity.id)
             accuracyCircleEntity = undefined
         }
         if (geolocationPositionEntity) {
-            viewerInstance.entities.removeById(geolocationPositionEntity.id)
+            viewer.value.entities.removeById(geolocationPositionEntity.id)
             geolocationPositionEntity = undefined
         }
     }

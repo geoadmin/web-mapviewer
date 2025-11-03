@@ -44,7 +44,7 @@ async function loadFile() {
             )
             log.error({
                 title: 'ImportFileLocalTab.vue',
-                message: ['Failed to load file', error],
+                messages: ['Failed to load file', error],
             })
         }
     }

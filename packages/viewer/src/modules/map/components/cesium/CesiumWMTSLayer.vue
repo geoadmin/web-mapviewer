@@ -12,7 +12,7 @@ import {
     type Viewer,
     WebMapTileServiceImageryProvider,
 } from 'cesium'
-import { computed, inject, onBeforeUnmount, ref, toRef, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, ref, type ShallowRef, toRef, watch } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 
@@ -35,11 +35,11 @@ const {
     zIndex?: number
     parentLayerOpacity?: number
 }>()
-const viewer = inject<{ instance: Viewer | undefined }>('viewer')
+const viewer = inject<ShallowRef<Viewer | undefined>>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumWMTSLayer.vue',
-        message: ['Viewer not initialized, cannot create WMTS layer'],
+        messages: ['Viewer not initialized, cannot create WMTS layer'],
     })
     throw new Error('Viewer not initialized, cannot create WMTS layer')
 }
@@ -148,7 +148,7 @@ function createProvider(): WebMapTileServiceImageryProvider | UrlTemplateImagery
 }
 
 const { refreshLayer } = useAddImageryLayer(
-    viewer.instance,
+    viewer,
     createProvider,
     toRef(() => zIndex),
     toRef(opacity)

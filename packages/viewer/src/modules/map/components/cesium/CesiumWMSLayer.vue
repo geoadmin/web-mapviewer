@@ -7,7 +7,7 @@ import { timeConfigUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
 import { Rectangle, type Viewer, WebMapServiceImageryProvider } from 'cesium'
 import { cloneDeep } from 'lodash'
-import { computed, inject, toRef, watch } from 'vue'
+import { computed, inject, type ShallowRef, toRef, watch } from 'vue'
 
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
@@ -25,11 +25,11 @@ const {
     zIndex?: number
     parentLayerOpacity?: number
 }>()
-const viewer = inject<{ instance: Viewer | undefined }>('viewer')
+const viewer = inject<ShallowRef<Viewer | undefined>>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumWMSLayer.vue',
-        message: ['Viewer not initialized, cannot create WMS layer'],
+        messages: ['Viewer not initialized, cannot create WMS layer'],
     })
     throw new Error('Viewer not initialized, cannot create WMS layer')
 }
@@ -90,7 +90,7 @@ function createProvider() {
     })
 }
 const { refreshLayer } = useAddImageryLayer(
-    viewer.instance,
+    viewer,
     createProvider,
     toRef(() => zIndex),
     toRef(opacity)

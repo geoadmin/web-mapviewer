@@ -14,7 +14,7 @@ import {
     LabelStyle,
     VerticalOrigin,
 } from 'cesium'
-import { computed, inject, toRef, watch } from 'vue'
+import { computed, inject, type ShallowRef, toRef, watch } from 'vue'
 
 import { DEFAULT_MARKER_HORIZONTAL_OFFSET } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
@@ -26,11 +26,11 @@ const kmlData = computed(() => kmlLayerConfig.kmlData)
 const kmlStyle = computed(() => kmlLayerConfig.style)
 const isClampedToGround = computed(() => kmlLayerConfig.clampToGround)
 
-const viewer = inject<{ instance: Viewer | undefined }>('viewer')
-if (!viewer) {
+const viewer = inject<ShallowRef<Viewer | undefined>>('viewer')
+if (!viewer?.value) {
     log.error({
         title: 'CesiumKMLLayer.vue',
-        message: ['Viewer not initialized, cannot create KML layer'],
+        messages: ['Viewer not initialized, cannot create KML layer'],
     })
     throw new Error('Viewer not initialized, cannot create KML layer')
 }
@@ -45,7 +45,7 @@ async function createSource(): Promise<KmlDataSourceType> {
     } catch (error: unknown) {
         log.error({
             title: 'Cesium',
-            message: [`Error while parsing KML data for layer ${kmlLayerConfig.id}`, error],
+            messages: [`Error while parsing KML data for layer ${kmlLayerConfig.id}`, error],
         })
         throw error
     }
@@ -125,7 +125,7 @@ function applyStyleToKmlEntity(entity: Entity, opacity: number) {
 }
 
 const { refreshDataSource } = useAddDataSourceLayer(
-    viewer.instance,
+    viewer,
     createSource(),
     applyStyleToKmlEntity,
     toRef(kmlLayerConfig.opacity),

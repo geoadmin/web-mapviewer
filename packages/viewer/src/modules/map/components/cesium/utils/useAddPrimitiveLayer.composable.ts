@@ -125,7 +125,7 @@ export default function useAddPrimitiveLayer(
             log.error({
                 title: 'useAddPrimitiveLayer.composable',
                 titleColor: LogPreDefinedColor.Red,
-                message: ['Cesium viewer is undefined', viewerInstance],
+                messages: ['Cesium viewer is undefined', viewerInstance],
             })
             return
         }
@@ -146,7 +146,7 @@ export default function useAddPrimitiveLayer(
             log.error({
                 title: 'useAddPrimitiveLayer.composable',
                 titleColor: LogPreDefinedColor.Red,
-                message: ['Error while loading tileset for', toValue(tileSet), error],
+                messages: ['Error while loading tileset for', toValue(tileSet), error],
             })
         }
     })

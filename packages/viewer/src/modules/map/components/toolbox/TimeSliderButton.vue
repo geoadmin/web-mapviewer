@@ -30,7 +30,7 @@ watch(visibleLayersWithTimeConfig, () => {
         log.error({
             title: 'TimeSliderButton.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: ['Error in TimeSliderButton.vue watcher:', error],
+            messages: ['Error in TimeSliderButton.vue watcher:', error],
         })
     })
 })

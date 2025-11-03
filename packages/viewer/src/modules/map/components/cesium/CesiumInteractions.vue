@@ -20,7 +20,7 @@ import {
 import GeoJSON from 'ol/format/GeoJSON'
 import { LineString, Point, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
-import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
+import { computed, inject, onMounted, onUnmounted, type ShallowRef, watch } from 'vue'
 
 import type { LayerFeature, SelectableFeature } from '@/api/features.api'
 import type { LayerTooltipConfig } from '@/config/cesium.config'
@@ -61,12 +61,12 @@ const visiblePrimitiveLayers = computed(() =>
     )
 )
 
-const viewer = inject<{ instance: Viewer | undefined }>('viewer')
-if (!viewer) {
+const viewer = inject<ShallowRef<Viewer | undefined>>('viewer')
+if (!viewer?.value) {
     log.error({
         title: 'CesiumInteractions.vue',
         titleColor: LogPreDefinedColor.Blue,
-        message: ['Viewer not initialized, cannot initialize Cesium interactions'],
+        messages: ['Viewer not initialized, cannot initialize Cesium interactions'],
     })
     throw new Error('Viewer not initialized, cannot initialize Cesium interactions')
 }
@@ -76,11 +76,12 @@ onMounted(() => {
 })
 
 function initializeInteractions(): void {
-    if (!viewer || !viewer.instance) {
+    const viewerInstance = viewer?.value
+    if (!viewerInstance) {
         log.error({
             title: 'CesiumInteractions.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: [
+            messages: [
                 'Viewer is not defined',
                 'CesiumInteractions.vue: viewer cannot be initialized',
                 viewer,
@@ -88,7 +89,6 @@ function initializeInteractions(): void {
         })
         return
     }
-    const viewerInstance = viewer.instance
     initialize3dHighlights()
     viewerInstance.scene.postProcessStages.add(
         PostProcessStageLibrary.createSilhouetteStage([
@@ -105,14 +105,14 @@ function initializeInteractions(): void {
         onMouseMove,
         ScreenSpaceEventType.MOUSE_MOVE
     )
-    useDragFileOverlay(viewer.instance.container as HTMLElement)
+    useDragFileOverlay(viewerInstance.container as HTMLElement)
 }
 
 onUnmounted(() => {
-    if (!viewer || !viewer.instance) {
+    const viewerInstance = viewer?.value
+    if (!viewerInstance) {
         return
     }
-    const viewerInstance = viewer.instance
     viewerInstance.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.LEFT_CLICK)
     viewerInstance.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.RIGHT_CLICK)
     viewerInstance.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.MOUSE_MOVE)
@@ -134,8 +134,8 @@ watch(selectedFeatures, () => {
         clickedHighlightPostProcessor.selected.length > 0
     ) {
         clickedHighlightPostProcessor.selected = []
-        if (viewer && viewer.instance) {
-            viewer.instance.scene.requestRender()
+        if (viewer?.value) {
+            viewer.value.scene.requestRender()
         }
     }
 })
@@ -150,7 +150,7 @@ function initialize3dHighlights(): void {
     clickedHighlightPostProcessor.selected = []
 }
 function getCoordinateAtScreenCoordinate(x: number, y: number): SingleCoordinate | undefined {
-    const cartesian = viewer?.instance?.scene.pickPosition(new Cartesian2(x, y))
+    const cartesian = viewer?.value?.scene.pickPosition(new Cartesian2(x, y))
     let coordinates: SingleCoordinate | undefined
     if (cartesian) {
         const cartCoords = Cartographic.fromCartesian(cartesian)
@@ -162,7 +162,7 @@ function getCoordinateAtScreenCoordinate(x: number, y: number): SingleCoordinate
         log.error({
             title: 'CesiumInteractions.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: ['no coordinate found at this screen coordinates', [x, y]],
+            messages: ['no coordinate found at this screen coordinates', [x, y]],
         })
     }
     return coordinates
@@ -273,18 +273,19 @@ function handleClickHighlight(
 }
 
 function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
-    if (viewer && viewer.instance) {
-        unhighlightGroup(viewer.instance)
+    const viewerInstance = viewer?.value
+    if (viewerInstance) {
+        unhighlightGroup(viewerInstance)
     }
     const features: SelectableFeature<false | true>[] = []
     let coordinates = getCoordinateAtScreenCoordinate(event.position.x, event.position.y)
 
-    const objects = viewer?.instance?.scene.drillPick(event.position) ?? []
+    const objects = viewerInstance?.scene.drillPick(event.position) ?? []
 
     log.debug({
         title: 'CesiumInteractions.vue',
         titleColor: LogPreDefinedColor.Blue,
-        message: [
+        messages: [
             'click caught at',
             { pixel: event.position, coordinates },
             'with objects',
@@ -318,16 +319,16 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
                     log.debug({
                         title: 'CesiumInteractions.vue',
                         titleColor: LogPreDefinedColor.Blue,
-                        message: [
+                        messages: [
                             'KML feature click detection',
                             kmlFeature,
                             'for KML layer',
                             kmlLayer,
                         ],
                     })
-                    if (viewer && viewer.instance) {
+                    if (viewerInstance) {
                         const kmlLayerFeature = create3dKmlFeature(
-                            viewer.instance,
+                            viewerInstance,
                             kmlFeature,
                             kmlLayer as KMLLayerType
                         )
@@ -363,8 +364,8 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
     } else {
         mapStore.click(undefined, dispatcher)
     }
-    if (viewer && viewer.instance) {
-        viewer.instance.scene.requestRender()
+    if (viewerInstance) {
+        viewerInstance.scene.requestRender()
     }
 }
 
@@ -455,7 +456,7 @@ function onMouseMove(event: ScreenSpaceEventHandler.MotionEvent): void {
     const aFeatureIsHighlighted = hoveredHighlightPostProcessor.selected.length === 1
 
     // we pick the first 3d feature if it's in the config
-    const object = viewer?.instance?.scene.pick(event.endPosition)
+    const object = viewer?.value?.scene.pick(event.endPosition)
     if (
         object &&
         cesiumStore.layersTooltipConfig
@@ -463,13 +464,11 @@ function onMouseMove(event: ScreenSpaceEventHandler.MotionEvent): void {
             .includes(getLayerIdFrom3dFeature(object)!)
     ) {
         hoveredHighlightPostProcessor.selected = [object]
-        if (viewer && viewer.instance) {
-            viewer.instance.scene.requestRender()
-        }
+        viewer?.value?.scene.requestRender()
     } else {
         hoveredHighlightPostProcessor.selected = []
-        if (aFeatureIsHighlighted && viewer && viewer.instance) {
-            viewer.instance.scene.requestRender()
+        if (aFeatureIsHighlighted && viewer?.value) {
+            viewer.value.scene.requestRender()
         }
     }
 }
