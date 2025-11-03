@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import useUiStore from '@/store/modules/ui'
@@ -12,26 +12,22 @@ const { title = '', hide = false } = defineProps<{
      */
     hide?: boolean
 }>()
+const emit = defineEmits<{
+    close: [void]
+}>()
 
 const uiStore = useUiStore()
 
-const showBody = ref(true)
-const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
-
-const warningCount = computed(() => uiStore.warnings.size)
+const showBody = ref<boolean>(true)
 
 const { t } = useI18n()
-
-const emit = defineEmits<{
-    close: []
-}>()
 </script>
 
 <template>
     <div
         v-show="!hide"
         class="simple-window card bg-warning fw-bold"
-        :class="{ 'dev-disclaimer-present': hasDevSiteWarning }"
+        :class="{ 'dev-disclaimer-present': uiStore.hasDevSiteWarning }"
         data-cy="warning-window"
     >
         <div
@@ -40,10 +36,11 @@ const emit = defineEmits<{
         >
             <span
                 v-if="title"
-                class="text-truncate me-auto"
+                class="text-truncate"
+                :class="{ 'me-auto': showBody, 'me-2': !showBody }"
             >
                 {{ t(title) }}
-                <span v-if="warningCount > 1">({{ warningCount }})</span>
+                <span v-if="uiStore.warnings.size > 1">({{ uiStore.warnings.size }})</span>
             </span>
 
             <span
@@ -66,7 +63,7 @@ const emit = defineEmits<{
         </div>
         <div
             class="card-body"
-            :class="{ hide: !showBody }"
+            :class="{ 'd-none': !showBody }"
             data-cy="warning-window-body"
         >
             <slot />
