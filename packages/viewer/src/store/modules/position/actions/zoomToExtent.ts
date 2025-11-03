@@ -1,8 +1,6 @@
-import type { FlatExtent, NormalizedExtent, SingleCoordinate } from '@swissgeo/coordinates'
-import type { Position } from 'geojson'
+import type { FlatExtent, NormalizedExtent } from '@swissgeo/coordinates'
 
 import { CoordinateSystem, extentUtils, WGS84 } from '@swissgeo/coordinates'
-import { center, points } from '@turf/turf'
 import { Math as CesiumMath } from 'cesium'
 import proj4 from 'proj4'
 
@@ -51,14 +49,7 @@ export default function zoomToExtent(
         Array.isArray(normalizedWGS84Extent) &&
         normalizedWGS84Extent.length === 2
     ) {
-        // Calculate the center of the extent and convert it back to the wanted projection
-        const centerOfExtent: SingleCoordinate = proj4(
-            WGS84.epsg,
-            this.projection.epsg,
-            center(
-                points([normalizedWGS84Extent[0] as Position, normalizedWGS84Extent[1] as Position])
-            ).geometry.coordinates
-        ) as SingleCoordinate
+        const centerOfExtent = proj4(WGS84.epsg, this.projection.epsg, extentUtils.getExtentCenter(normalizedWGS84Extent))
 
         if (centerOfExtent && Array.isArray(centerOfExtent) && centerOfExtent.length === 2) {
             this.center = centerOfExtent
