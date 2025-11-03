@@ -18,7 +18,6 @@ import {
     ref,
     useTemplateRef,
     watch,
-    type Ref,
 } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
@@ -39,7 +38,8 @@ import useUIStore from '@/store/modules/ui'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumMap.vue' }
 
-const viewer = ref<Viewer | undefined>(undefined)
+// Use a plain object container to hold the viewer instance which will be provided to child components
+const viewerContainer: { instance: Viewer | undefined } = { instance: undefined }
 
 const viewerElement = useTemplateRef<HTMLDivElement>('viewerElement')
 // CesiumCompass is not typed yet
@@ -56,7 +56,7 @@ const isProjectionWebMercator = computed(() => positionStore.projection.epsg ===
 watch(
     isProjectionWebMercator,
     () => {
-        if (!viewer.value && isProjectionWebMercator.value) {
+        if (!viewerContainer.instance && isProjectionWebMercator.value) {
             createViewer().catch((e) => {
                 log.error({
                     title: 'CesiumMap.vue',
@@ -107,10 +107,10 @@ onMounted(() => {
     }
 })
 onUnmounted(() => {
-    if (viewer.value) {
+    if (viewerContainer.instance) {
         positionStore.setCameraPosition(undefined, dispatcher)
         cesiumStore.setViewerReady(false, dispatcher)
-        viewer.value.destroy()
+        viewerContainer.instance.destroy()
     }
 })
 
@@ -118,7 +118,7 @@ async function createViewer(): Promise<void> {
     if (!viewerElement.value) {
         return
     }
-    viewer.value = new Viewer(viewerElement.value, {
+    viewerContainer.instance = new Viewer(viewerElement.value, {
         showRenderLoopErrors: uiStore.hasDevSiteWarning,
         // de-activating default Cesium UI elements
         animation: false,
@@ -146,10 +146,10 @@ async function createViewer(): Promise<void> {
     })
 
     if (uiStore.hasDevSiteWarning) {
-        viewer.value.scene.debugShowFramesPerSecond = true
+        viewerContainer.instance.scene.debugShowFramesPerSecond = true
     }
 
-    const scene = viewer.value.scene
+    const scene = viewerContainer.instance.scene
     scene.useDepthPicking = true
     scene.pickTranslucentDepth = true
     scene.backgroundColor = Color.TRANSPARENT
@@ -171,7 +171,7 @@ async function createViewer(): Promise<void> {
     if (IS_TESTING_WITH_CYPRESS) {
         // expose for e2e tests
 
-        window.cesiumViewer = viewer.value
+        window.cesiumViewer = viewerContainer.instance
         // reduce screen space error to downgrade visual quality but speed up tests
         globe.maximumScreenSpaceError = 30
     }
@@ -179,12 +179,13 @@ async function createViewer(): Promise<void> {
     cesiumStore.setViewerReady(true, dispatcher)
 
     if (compassElement.value) {
-        compassElement.value.scene = viewer.value.scene
-        compassElement.value.clock = viewer.value.clock
+        compassElement.value.scene = viewerContainer.instance.scene
+        compassElement.value.clock = viewerContainer.instance.clock
     }
     log.info('[Cesium] CesiumMap component mounted and ready')
 }
-provide<Ref<Viewer | undefined>>('viewer', viewer)
+
+provide('viewer', viewerContainer)
 </script>
 
 <template>

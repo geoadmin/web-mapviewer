@@ -44,6 +44,11 @@ export default function useAddDataSourceLayer(
     ): Promise<void> {
         const viewerInstance = toValue(viewer)
         if (!viewerInstance) {
+            log.error({
+                title: 'useAddDataSourceLayer.composable',
+                titleColor: LogPreDefinedColor.Blue,
+                message: ['Cesium viewer is undefined', viewerInstance],
+            })
             return
         }
 

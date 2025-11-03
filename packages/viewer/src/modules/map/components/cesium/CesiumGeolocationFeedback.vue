@@ -11,7 +11,7 @@ import {
     type Viewer,
 } from 'cesium'
 import proj4 from 'proj4'
-import { computed, inject, onMounted, type Ref, watch } from 'vue'
+import { computed, inject, onMounted, watch } from 'vue'
 
 import useGeolocationStore from '@/store/modules/geolocation'
 import usePositionStore from '@/store/modules/position'
@@ -23,7 +23,7 @@ import {
     geolocationPointWidth,
 } from '@/utils/styleUtils'
 
-const viewer = inject<Ref<Viewer | undefined>>('viewer')
+const viewer = inject<{ instance: Viewer | undefined }>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumGeolocationFeedback.vue',
@@ -105,8 +105,8 @@ function transformArrayColorIntoCesiumColor(arrayColor: number[]): Color {
 }
 
 function activateTracking(): void {
-    if (viewer && viewer.value && geolocationPositionCartesian3.value) {
-        const viewerInstance = viewer.value
+    if (viewer && viewer.instance && geolocationPositionCartesian3.value) {
+        const viewerInstance = viewer.instance
         accuracyCircleEntity = viewerInstance.entities.add({
             id: 'geolocation-accuracy-circle',
             position: geolocationPositionCartesian3.value,
@@ -134,8 +134,8 @@ function activateTracking(): void {
 }
 
 function removeTracking(): void {
-    if (viewer && viewer.value) {
-        const viewerInstance = viewer.value
+    if (viewer && viewer.instance) {
+        const viewerInstance = viewer.instance
         if (accuracyCircleEntity) {
             viewerInstance.entities.removeById(accuracyCircleEntity.id)
             accuracyCircleEntity = undefined
