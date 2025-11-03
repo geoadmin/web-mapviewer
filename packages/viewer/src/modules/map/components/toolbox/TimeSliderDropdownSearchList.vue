@@ -24,7 +24,7 @@ function goToSpecific(value: number) {
             log.error({
                 title: 'TimeSliderDropdownSearchList.vue',
                 titleColor: LogPreDefinedColor.Red,
-                message: ['Error in TimeSliderDropdownSearchList.vue goToSpecific:', error],
+                messages: ['Error in TimeSliderDropdownSearchList.vue goToSpecific:', error],
             })
         })
     }

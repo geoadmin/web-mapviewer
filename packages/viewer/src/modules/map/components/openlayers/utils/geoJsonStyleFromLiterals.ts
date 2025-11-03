@@ -73,7 +73,7 @@ export function getOlImageStyleForShape(
             log.error({
                 title: 'getOlImageStyleForShape',
                 titleColor: LogPreDefinedColor.Orange,
-                message: ['Unsupported shape type', vectorOptions],
+                messages: ['Unsupported shape type', vectorOptions],
             })
             regularShapeOptions.points = 0
             regularShapeOptions.angle = 0
@@ -212,13 +212,13 @@ class OlStyleForPropertyValue {
 
     singleStyle:
         | {
-            type: GeoAdminGeoJSONStyleType
-            property: string
-            olStyle?: Style
-            labelProperty?: string | undefined
-            labelTemplate?: string | undefined
-            imageRotationProperty?: string
-        }
+              type: GeoAdminGeoJSONStyleType
+              property: string
+              olStyle?: Style
+              labelProperty?: string | undefined
+              labelTemplate?: string | undefined
+              imageRotationProperty?: string
+          }
         | undefined
     defaultVal: string
     defaultStyle: Style

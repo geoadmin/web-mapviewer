@@ -24,7 +24,7 @@ function handleSlotChange() {
     log.debug({
         title: 'MapFooter.vue',
         titleColor: LogPreDefinedColor.Blue,
-        message: ['Slot content updated'],
+        messages: ['Slot content updated'],
     })
 }
 </script>

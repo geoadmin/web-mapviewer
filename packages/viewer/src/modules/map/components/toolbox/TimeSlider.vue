@@ -156,7 +156,7 @@ onMounted(() => {
     log.debug({
         title: 'TimeSlider.vue',
         titleColor: LogPreDefinedColor.Blue,
-        message: [`Activating time slider, previewYear=${previewYear.value}`],
+        messages: [`Activating time slider, previewYear=${previewYear.value}`],
     })
     setSliderWidth()
 
@@ -184,7 +184,7 @@ onMounted(() => {
     log.debug({
         title: 'TimeSlider.vue',
         titleColor: LogPreDefinedColor.Blue,
-        message: [`Time slider activated, currentYear=${currentYear.value}`],
+        messages: [`Time slider activated, currentYear=${currentYear.value}`],
     })
     window.addEventListener('keydown', handleKeyDownEvent)
 
@@ -231,7 +231,7 @@ function setSliderWidth() {
         log.error({
             title: 'TimeSlider.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: ['sliderContainer clientWidth is undefined'],
+            messages: ['sliderContainer clientWidth is undefined'],
         })
         return
     }

@@ -5,7 +5,7 @@ import { wrapDegrees } from '@swissgeo/numbers'
 import { Cartesian2, Cartesian3, defined, Ellipsoid, Math as CesiumMath, type Viewer } from 'cesium'
 import { isEqual } from 'lodash'
 import proj4 from 'proj4'
-import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, type ShallowRef, watch } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 
@@ -24,12 +24,12 @@ import usePositionStore from '@/store/modules/position'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumCamera.vue' }
 
-const viewer = inject<{ instance: Viewer | undefined }>('viewer')
-if (!viewer) {
+const viewer = inject<ShallowRef<Viewer | undefined>>('viewer')
+if (!viewer?.value) {
     log.error({
         title: 'CesiumCamera.vue',
         titleColor: LogPreDefinedColor.Red,
-        message: ['Viewer is not defined', 'CesiumCamera.vue: viewer cannot be initialized'],
+        messages: ['Viewer is not defined', 'CesiumCamera.vue: viewer cannot be initialized'],
     })
     throw new Error('CesiumCamera.vue: viewer is not defined')
 }
@@ -61,11 +61,11 @@ onMounted(() => {
 
 function flyToPosition(): void {
     try {
-        if (viewer && viewer.instance && cameraPosition.value) {
+        if (viewer?.value && cameraPosition.value) {
             log.debug({
                 title: 'CesiumCamera.vue',
                 titleColor: LogPreDefinedColor.Blue,
-                message: [
+                messages: [
                     'Fly to camera position',
                     cameraPosition.value.x,
                     cameraPosition.value.y,
@@ -75,14 +75,14 @@ function flyToPosition(): void {
             log.debug({
                 title: 'CesiumCamera.vue',
                 titleColor: LogPreDefinedColor.Blue,
-                message: [
+                messages: [
                     'With heading, pitch, roll',
                     cameraPosition.value.heading,
                     cameraPosition.value.pitch,
                     cameraPosition.value.roll,
                 ],
             })
-            viewer.instance.camera.flyTo({
+            viewer.value.camera.flyTo({
                 destination: Cartesian3.fromDegrees(
                     cameraPosition.value.x,
                     cameraPosition.value.y,
@@ -100,23 +100,25 @@ function flyToPosition(): void {
         log.error({
             title: 'CesiumCamera.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: ['Error while moving the camera', error, cameraPosition.value],
+            messages: ['Error while moving the camera', error, cameraPosition.value],
         })
     }
 }
 
 function setCenterToCameraTarget(): void {
-    if (!viewer || !viewer.instance) {
+    if (!viewer?.value) {
         return
     }
-    const viewerInstance = viewer.instance
-    const ray = viewerInstance.camera.getPickRay(
+    const ray = viewer.value.camera.getPickRay(
         new Cartesian2(
-            Math.round(viewerInstance.scene.canvas.clientWidth / 2),
-            Math.round(viewerInstance.scene.canvas.clientHeight / 2)
+            Math.round(viewer.value.scene.canvas.clientWidth / 2),
+            Math.round(viewer.value.scene.canvas.clientHeight / 2)
         )
     )
-    const cameraTarget = viewerInstance.scene.globe.pick(ray!, viewerInstance.scene)
+    if (!ray) {
+        return
+    }
+    const cameraTarget = viewer.value.scene.globe.pick(ray, viewer.value.scene)
     if (defined(cameraTarget)) {
         const cameraTargetCartographic = Ellipsoid.WGS84.cartesianToCartographic(cameraTarget)
         const lat = CesiumMath.toDegrees(cameraTargetCartographic.latitude)
@@ -129,10 +131,10 @@ function setCenterToCameraTarget(): void {
 }
 
 function onCameraMoveEnd(): void {
-    if (!viewer || !viewer.instance) {
+    if (!viewer?.value) {
         return
     }
-    const camera = viewer.instance.camera
+    const camera = viewer.value.camera
     const position = camera.positionCartographic
     const newCameraPosition = {
         x: parseFloat(CesiumMath.toDegrees(position.longitude).toFixed(6)),
@@ -149,10 +151,10 @@ function onCameraMoveEnd(): void {
 }
 
 function initCamera(): void {
-    if (!viewer || !viewer.instance) {
+    const viewerInstance = viewer?.value
+    if (!viewerInstance) {
         return
     }
-    const viewerInstance = viewer.instance
     let destination
     let orientation
     if (cameraPosition.value) {
@@ -160,7 +162,7 @@ function initCamera(): void {
         log.debug({
             title: 'CesiumCamera.vue',
             titleColor: LogPreDefinedColor.Blue,
-            message: ['Existing camera position found at startup, using', cameraPosition.value],
+            messages: ['Existing camera position found at startup, using', cameraPosition.value],
         })
         destination = Cartesian3.fromDegrees(
             cameraPosition.value.x,
@@ -177,7 +179,7 @@ function initCamera(): void {
         log.debug({
             title: 'CesiumCamera.vue',
             titleColor: LogPreDefinedColor.Blue,
-            message: ['No camera initial position defined, creating one using 2D coordinates'],
+            messages: ['No camera initial position defined, creating one using 2D coordinates'],
         })
         destination = Cartesian3.fromDegrees(
             positionStore.centerEpsg4326[0],

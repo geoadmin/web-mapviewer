@@ -174,7 +174,7 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
         debounceSaveDrawing().catch((error) => {
             log.error({
                 title: 'useModifyInteraction.composable',
-                message: [
+                messages: [
                     `Error while saving drawing after modification of feature ${storeFeature?.id}:`,
                     error,
                 ],

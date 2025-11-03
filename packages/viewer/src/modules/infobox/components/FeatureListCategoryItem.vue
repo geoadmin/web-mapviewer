@@ -57,7 +57,10 @@ function showContentAndScrollIntoView(event?: MouseEvent): void {
         log.error({
             title: 'FeatureListCategoryItem.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: ['Error while waiting for the next tick to scroll the content into view', err],
+            messages: [
+                'Error while waiting for the next tick to scroll the content into view',
+                err,
+            ],
         })
     })
     // if coming from the profile or zoom-to-extent button, we want to stop the event

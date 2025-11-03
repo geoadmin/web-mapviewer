@@ -47,7 +47,7 @@ export default function useAddDataSourceLayer(
             log.error({
                 title: 'useAddDataSourceLayer.composable',
                 titleColor: LogPreDefinedColor.Blue,
-                message: ['Cesium viewer is undefined', viewerInstance],
+                messages: ['Cesium viewer is undefined', viewerInstance],
             })
             return
         }
@@ -55,7 +55,7 @@ export default function useAddDataSourceLayer(
         log.debug({
             title: 'useAddDataSourceLayer.composable',
             titleColor: LogPreDefinedColor.Blue,
-            message: ['refreshing data source layer', toValue(layerId)],
+            messages: ['refreshing data source layer', toValue(layerId)],
         })
         if (dataSource) {
             viewerInstance.dataSources.remove(dataSource)
@@ -91,8 +91,8 @@ export default function useAddDataSourceLayer(
                                 currentViewer.scene.globe.tilesLoaded &&
                                 queueLength === 0
                             ) {
-                                currentViewer
-                                    .dataSources.add(dataSource)
+                                currentViewer.dataSources
+                                    .add(dataSource)
                                     .then((loadedDataSource) => {
                                         dataSource = loadedDataSource
                                     })
@@ -100,7 +100,7 @@ export default function useAddDataSourceLayer(
                                         log.error({
                                             title: 'useAddDataSourceLayer.composable',
                                             titleColor: LogPreDefinedColor.Red,
-                                            message: [
+                                            messages: [
                                                 'Error while adding data source to viewer',
                                                 error,
                                             ],
@@ -116,7 +116,7 @@ export default function useAddDataSourceLayer(
             log.error({
                 title: 'useAddDataSourceLayer.composable',
                 titleColor: LogPreDefinedColor.Red,
-                message: ['Error while parsing data source in Cesium', error],
+                messages: ['Error while parsing data source in Cesium', error],
             })
         }
     }
@@ -125,7 +125,7 @@ export default function useAddDataSourceLayer(
         log.error({
             title: 'useAddDataSourceLayer.composable',
             titleColor: LogPreDefinedColor.Red,
-            message: ['Error while loading data source', error],
+            messages: ['Error while loading data source', error],
         })
     })
 
