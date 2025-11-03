@@ -9,6 +9,7 @@ import type { ActionDispatcher } from '@/store/types'
 import FeatureDetail from '@/modules/infobox/components/FeatureDetail.vue'
 import ShowGeometryProfileButton from '@/modules/infobox/components/ShowGeometryProfileButton.vue'
 import useFeaturesStore from '@/store/modules/features'
+import usePositionStore from '@/store/modules/position'
 import { canFeatureShowProfile } from '@/store/modules/profile/utils/canFeatureShowProfile'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
@@ -31,6 +32,8 @@ const showContent = ref<boolean>(showContentByDefault)
 const canDisplayProfile = computed<boolean>(() => canFeatureShowProfile(item))
 
 const featuresStore = useFeaturesStore()
+const positionStore = usePositionStore()
+
 const isHighlightedFeature = computed<boolean>(() => featuresStore.highlightedFeatureId === item.id)
 
 function highlightFeature(feature: EditableFeature | LayerFeature): void {
@@ -101,6 +104,7 @@ function showContentAndScrollIntoView(event?: MouseEvent): void {
         <ZoomToExtentButton
             v-if="item.extent"
             :extent="item.extent"
+            :extent-projection="positionStore.projection"
             @click="showContentAndScrollIntoView"
         />
     </div>
