@@ -11,16 +11,7 @@ import {
     type Viewer,
 } from 'cesium'
 import proj4 from 'proj4'
-import {
-    computed,
-    inject,
-    onBeforeUnmount,
-    onMounted,
-    ref,
-    useTemplateRef,
-    watch,
-    type Ref,
-} from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { ActionDispatcher } from '@/store/types'
@@ -45,7 +36,7 @@ const dispatcher: ActionDispatcher = { name: 'CesiumMouseTracker.vue' }
 
 let handler: ScreenSpaceEventHandler | undefined
 
-const viewer = inject<Ref<Viewer | undefined>>('viewer')
+const viewer = inject<{ instance: Viewer | undefined }>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumMouseTracker.vue',
@@ -55,26 +46,18 @@ if (!viewer) {
     throw new Error('CesiumMouseTracker.vue: viewer is not defined')
 }
 
-watch(viewer, (newViewer) => {
-    if (newViewer) {
+watch(is3DReady, (newValue) => {
+    if (newValue && viewer.instance) {
         setupHandler()
     }
 })
 
-watch(
-    is3DReady,
-    (newValue) => {
-        if (newValue && viewer.value) {
-            setupHandler()
-        }
-    },
-    { immediate: true }
-)
 onMounted(() => {
-    if (viewer.value) {
+    if (is3DReady.value && viewer.instance) {
         setupHandler()
     }
 })
+
 onBeforeUnmount(() => {
     if (handler) {
         handler.removeInputAction(ScreenSpaceEventType.MOUSE_MOVE)
@@ -84,10 +67,20 @@ onBeforeUnmount(() => {
 
 function setupHandler(): void {
     // If the handler already exists for some reason, there is no need to create it again
-    if (handler || !viewer || !viewer.value) {
+    if (handler || !viewer || !viewer.instance) {
+        log.error({
+            title: 'CesiumMouseTracker.vue',
+            titleColor: LogPreDefinedColor.Red,
+            message: [
+                'Viewer is not defined or handler already exists',
+                'CesiumMouseTracker.vue: cannot setup mouse position handler',
+                viewer,
+                handler,
+            ],
+        })
         return
     }
-    const viewerInstance = viewer.value
+    const viewerInstance = viewer.instance
     handler = new ScreenSpaceEventHandler(viewerInstance.scene.canvas)
     handler.setInputAction((movement: { endPosition: Cartesian2 }) => {
         const ray = viewerInstance.camera.getPickRay(movement.endPosition)

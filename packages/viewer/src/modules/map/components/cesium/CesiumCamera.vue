@@ -5,7 +5,7 @@ import { wrapDegrees } from '@swissgeo/numbers'
 import { Cartesian2, Cartesian3, defined, Ellipsoid, Math as CesiumMath, type Viewer } from 'cesium'
 import { isEqual } from 'lodash'
 import proj4 from 'proj4'
-import { computed, inject, onBeforeUnmount, onMounted, type Ref, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 
@@ -24,7 +24,7 @@ import usePositionStore from '@/store/modules/position'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumCamera.vue' }
 
-const viewer = inject<Ref<Viewer | undefined>>('viewer')
+const viewer = inject<{ instance: Viewer | undefined }>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumCamera.vue',
@@ -54,14 +54,14 @@ watch(cameraPosition, flyToPosition, {
     flush: 'post',
     deep: true,
 })
-watch(viewer, (newViewer) => {
-    if (newViewer) {
-        flyToPosition()
-    }
+
+onMounted(() => {
+    flyToPosition()
 })
+
 function flyToPosition(): void {
     try {
-        if (viewer && viewer.value && cameraPosition.value) {
+        if (viewer && viewer.instance && cameraPosition.value) {
             log.debug({
                 title: 'CesiumCamera.vue',
                 titleColor: LogPreDefinedColor.Blue,
@@ -82,7 +82,7 @@ function flyToPosition(): void {
                     cameraPosition.value.roll,
                 ],
             })
-            viewer.value.camera.flyTo({
+            viewer.instance.camera.flyTo({
                 destination: Cartesian3.fromDegrees(
                     cameraPosition.value.x,
                     cameraPosition.value.y,
@@ -106,10 +106,10 @@ function flyToPosition(): void {
 }
 
 function setCenterToCameraTarget(): void {
-    if (!viewer || !viewer.value) {
+    if (!viewer || !viewer.instance) {
         return
     }
-    const viewerInstance = viewer.value
+    const viewerInstance = viewer.instance
     const ray = viewerInstance.camera.getPickRay(
         new Cartesian2(
             Math.round(viewerInstance.scene.canvas.clientWidth / 2),
@@ -129,10 +129,10 @@ function setCenterToCameraTarget(): void {
 }
 
 function onCameraMoveEnd(): void {
-    if (!viewer || !viewer.value) {
+    if (!viewer || !viewer.instance) {
         return
     }
-    const camera = viewer.value.camera
+    const camera = viewer.instance.camera
     const position = camera.positionCartographic
     const newCameraPosition = {
         x: parseFloat(CesiumMath.toDegrees(position.longitude).toFixed(6)),
@@ -149,10 +149,10 @@ function onCameraMoveEnd(): void {
 }
 
 function initCamera(): void {
-    if (!viewer || !viewer.value) {
+    if (!viewer || !viewer.instance) {
         return
     }
-    const viewerInstance = viewer.value
+    const viewerInstance = viewer.instance
     let destination
     let orientation
     if (cameraPosition.value) {

@@ -7,7 +7,7 @@ import { timeConfigUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
 import { Rectangle, type Viewer, WebMapServiceImageryProvider } from 'cesium'
 import { cloneDeep } from 'lodash'
-import { computed, inject, type Ref, toRef, watch } from 'vue'
+import { computed, inject, toRef, watch } from 'vue'
 
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
@@ -25,8 +25,7 @@ const {
     zIndex?: number
     parentLayerOpacity?: number
 }>()
-
-const viewer = inject<Ref<Viewer | undefined>>('viewer')
+const viewer = inject<{ instance: Viewer | undefined }>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumWMSLayer.vue',
@@ -91,7 +90,7 @@ function createProvider() {
     })
 }
 const { refreshLayer } = useAddImageryLayer(
-    viewer,
+    viewer.instance,
     createProvider,
     toRef(() => zIndex),
     toRef(opacity)

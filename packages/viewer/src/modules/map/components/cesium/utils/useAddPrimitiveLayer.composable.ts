@@ -122,6 +122,11 @@ export default function useAddPrimitiveLayer(
     onMounted(async () => {
         const viewerInstance = toValue(cesiumViewer)
         if (!viewerInstance) {
+            log.error({
+                title: 'useAddPrimitiveLayer.composable',
+                titleColor: LogPreDefinedColor.Red,
+                message: ['Cesium viewer is undefined', viewerInstance],
+            })
             return
         }
 
