@@ -5,6 +5,7 @@
  */
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { WGS84 } from '@swissgeo/coordinates'
 import {
     type ExternalLayer,
     type KMLLayer,
@@ -183,7 +184,7 @@ function changeStyle(newStyle: { value: KMLStyle }) {
             <ZoomToExtentButton
                 v-if="layer.extent && layer.type == LayerType.KML"
                 :extent="layer.extent"
-                :extent-projection="(layer as KMLLayer).extentProjection"
+                :extent-projection="(layer as KMLLayer).extentProjection ?? WGS84"
             />
             <ExtLayerInfoButton
                 :show-spinner="showSpinner"
