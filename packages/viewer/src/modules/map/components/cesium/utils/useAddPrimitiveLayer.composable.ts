@@ -110,7 +110,7 @@ interface UseAddPrimitiveLayerOptions {
 }
 
 export default function useAddPrimitiveLayer(
-    cesiumViewer: MaybeRef<Viewer>,
+    cesiumViewer: MaybeRef<Viewer | undefined>,
     tileSet: MaybeRef<Promise<Cesium3DTileset> | Cesium3DTileset>,
     opacity: MaybeRef<number>,
     options: MaybeRef<UseAddPrimitiveLayerOptions> = {}
@@ -120,12 +120,22 @@ export default function useAddPrimitiveLayer(
     const { withEnhancedLabelStyle = false } = toValue(options)
 
     onMounted(async () => {
+        const viewerInstance = toValue(cesiumViewer)
+        if (!viewerInstance) {
+            log.error({
+                title: 'useAddPrimitiveLayer.composable',
+                titleColor: LogPreDefinedColor.Red,
+                messages: ['Cesium viewer is undefined', viewerInstance],
+            })
+            return
+        }
+
         try {
             const loadedTileSet = await toValue(tileSet)
             if (withEnhancedLabelStyle) {
                 loadedTileSet.style = CESIUM_SWISSNAMES3D_STYLE
             }
-            layer = toValue(cesiumViewer).scene.primitives.add(loadedTileSet)
+            layer = viewerInstance.scene.primitives.add(loadedTileSet)
             if (layer) {
                 updateCollectionProperties(layer, {
                     opacity: toValue(opacity),
@@ -136,16 +146,17 @@ export default function useAddPrimitiveLayer(
             log.error({
                 title: 'useAddPrimitiveLayer.composable',
                 titleColor: LogPreDefinedColor.Red,
-                message: ['Error while loading tileset for', toValue(tileSet), error],
+                messages: ['Error while loading tileset for', toValue(tileSet), error],
             })
         }
     })
 
     onBeforeUnmount(() => {
-        if (layer) {
+        const viewerInstance = toValue(cesiumViewer)
+        if (layer && viewerInstance) {
             layer.show = false
-            toValue(cesiumViewer).scene.primitives.remove(layer)
-            toValue(cesiumViewer).scene.requestRender()
+            viewerInstance.scene.primitives.remove(layer)
+            viewerInstance.scene.requestRender()
         }
     })
 

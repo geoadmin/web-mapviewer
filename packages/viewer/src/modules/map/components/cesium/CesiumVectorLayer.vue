@@ -3,17 +3,16 @@ import type { GeoAdmin3DLayer } from '@swissgeo/layers'
 
 import log from '@swissgeo/log'
 import { Cesium3DTileset, type Viewer } from 'cesium'
-import { computed, inject, toRef } from 'vue'
+import { computed, inject, type ShallowRef, toRef } from 'vue'
 
 import useAddPrimitiveLayer from '@/modules/map/components/cesium/utils/useAddPrimitiveLayer.composable'
 
 const { layerConfig } = defineProps<{ layerConfig: GeoAdmin3DLayer }>()
-
-const viewer = inject<Viewer | undefined>('viewer')
+const viewer = inject<ShallowRef<Viewer | undefined>>('viewer')
 if (!viewer) {
     log.error({
         title: 'CesiumVectorLayer.vue',
-        message: ['Viewer not initialized, cannot create vector layer'],
+        messages: ['Viewer not initialized, cannot create vector layer'],
     })
     throw new Error('Viewer not initialized, cannot create vector layer')
 }

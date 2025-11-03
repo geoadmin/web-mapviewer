@@ -30,7 +30,7 @@ export default function useDragFileOverlay(mapHtmlElementRef: MaybeRef<HTMLEleme
                         log.error({
                             title: 'useDragFileOverlay.composable',
                             titleColor: LogPreDefinedColor.Red,
-                            message: ['Error while handling dropped file', error, dispatcher],
+                            messages: ['Error while handling dropped file', error, dispatcher],
                         })
                     })
                 }
@@ -41,7 +41,7 @@ export default function useDragFileOverlay(mapHtmlElementRef: MaybeRef<HTMLEleme
                     log.error({
                         title: 'useDragFileOverlay.composable',
                         titleColor: LogPreDefinedColor.Red,
-                        message: ['Error while handling dropped file', error, dispatcher],
+                        messages: ['Error while handling dropped file', error, dispatcher],
                     })
                 })
             }
@@ -58,7 +58,7 @@ export default function useDragFileOverlay(mapHtmlElementRef: MaybeRef<HTMLEleme
         if (!mapHtmlElement) {
             log.error({
                 title: 'useDragFileOverlay.composable',
-                message: ['Cannot register drag and drop events: mapHtmlElement is undefined'],
+                messages: ['Cannot register drag and drop events: mapHtmlElement is undefined'],
             })
             return
         }
@@ -66,7 +66,7 @@ export default function useDragFileOverlay(mapHtmlElementRef: MaybeRef<HTMLEleme
         log.debug({
             title: 'useDragFileOverlay.composable',
             titleColor: LogPreDefinedColor.Blue,
-            message: ['Register drag and drop events'],
+            messages: ['Register drag and drop events'],
         })
         mapHtmlElement.addEventListener('dragover', onDragOver)
         mapHtmlElement.addEventListener('drop', onDrop)
@@ -83,7 +83,7 @@ export default function useDragFileOverlay(mapHtmlElementRef: MaybeRef<HTMLEleme
         log.debug({
             title: 'useDragFileOverlay.composable',
             titleColor: LogPreDefinedColor.Blue,
-            message: ['Unregister drag and drop events'],
+            messages: ['Unregister drag and drop events'],
         })
         mapHtmlElement.removeEventListener('dragover', onDragOver)
         mapHtmlElement.removeEventListener('drop', onDrop)

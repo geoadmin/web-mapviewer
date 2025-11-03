@@ -10,7 +10,16 @@ import { CoordinateSystem, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { Cartesian3, Cartographic, defined, Ellipsoid, SceneTransforms, type Viewer } from 'cesium'
 import proj4 from 'proj4'
-import { computed, inject, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
+import {
+    computed,
+    inject,
+    onMounted,
+    onUnmounted,
+    ref,
+    type ShallowRef,
+    useTemplateRef,
+    watch,
+} from 'vue'
 
 import MapPopover from '@/modules/map/components/MapPopover.vue'
 
@@ -26,12 +35,12 @@ const emits = defineEmits<{
     close: [void]
 }>()
 
-const viewer = inject<Viewer | undefined>('viewer')
-if (!viewer) {
+const viewer = inject<ShallowRef<Viewer | undefined>>('viewer')
+if (!viewer?.value) {
     log.error({
         title: 'CesiumPopover.vue',
         titleColor: LogPreDefinedColor.Red,
-        message: ['Cesium viewer unavailable, could not hook up popover to Cesium'],
+        messages: ['Cesium viewer unavailable, could not hook up popover to Cesium'],
     })
     throw new Error('CesiumPopover.vue: viewer is not defined')
 }
@@ -52,27 +61,33 @@ const coordinatesHeight = ref<number | undefined>()
 const wgs84Coordinates = computed(() => proj4(projection.epsg, WGS84.epsg, coordinates))
 
 onMounted(() => {
-    // By default, the `camera.changed` event will trigger when the camera has changed by 50%
-    // To make it more sensitive (and improve tooltip "tracking" on the map), we set down sensitivity to 0.1%
-    // meaning that a change of 0.1% in any direction/rotation axis of the camera will trigger a change event
-    viewer.camera.percentageChanged = 0.001
-    viewer.camera.changed.addEventListener(updatePosition)
+    if (viewer?.value) {
+        // By default, the `camera.changed` event will trigger when the camera has changed by 50%
+        // To make it more sensitive (and improve tooltip "tracking" on the map), we set down sensitivity to 0.1%
+        // meaning that a change of 0.1% in any direction/rotation axis of the camera will trigger a change event
+        viewer.value.camera.percentageChanged = 0.001
+        viewer.value.camera.changed.addEventListener(updatePosition)
 
-    // if the user zooms in (or out) we want to be sure that the new loaded terrain
-    // is taken into account for the tooltip positioning
-    viewer.scene.globe.tileLoadProgressEvent.addEventListener(onTileLoadProgress)
-    // implementing something similar to the sandcastle found on https://github.com/CesiumGS/cesium/issues/3247#issuecomment-1533505387
-    // but taking into account height using globe.getHeight for the given coordinate
-    // without taking height into account, the anchor for the tooltip will be the virtual bottom of the map (at sea level), rendering poorly as
-    // there will be a gap between the tooltip and the selected feature
-    updateCoordinateHeight()
-    updatePosition()
+        // if the user zooms in (or out) we want to be sure that the new loaded terrain
+        // is taken into account for the tooltip positioning
+        viewer.value.scene.globe.tileLoadProgressEvent.addEventListener(onTileLoadProgress)
+        // implementing something similar to the sandcastle found on https://github.com/CesiumGS/cesium/issues/3247#issuecomment-1533505387
+        // but taking into account height using globe.getHeight for the given coordinate
+        // without taking height into account, the anchor for the tooltip will be the virtual bottom of the map (at sea level), rendering poorly as
+        // there will be a gap between the tooltip and the selected feature
+        updateCoordinateHeight()
+        updatePosition()
+    }
 })
+
 onUnmounted(() => {
-    viewer.camera.changed.removeEventListener(updatePosition)
-    viewer.scene.globe.tileLoadProgressEvent.removeEventListener(onTileLoadProgress)
+    if (!viewer?.value) {
+        return
+    }
+    viewer.value.camera.changed.removeEventListener(updatePosition)
+    viewer.value.scene.globe.tileLoadProgressEvent.removeEventListener(onTileLoadProgress)
     // Set back the camera change sensitivity to default value (see mounted())
-    viewer.camera.percentageChanged = 0.5
+    viewer.value.camera.percentageChanged = 0.5
 })
 
 watch(
@@ -89,7 +104,7 @@ watch(
  */
 function updateCoordinateHeight(): void {
     coordinatesHeight.value =
-        viewer?.scene.globe.getHeight(
+        viewer?.value?.scene.globe.getHeight(
             Cartographic.fromDegrees(
                 wgs84Coordinates.value[0],
                 wgs84Coordinates.value[1],
@@ -104,11 +119,11 @@ function updatePosition(): void {
         emits('close')
         return
     }
-    if (!viewer) {
+    if (!viewer?.value) {
         return
     }
     const cartesianCoords = SceneTransforms.worldToWindowCoordinates(
-        viewer.scene,
+        viewer.value.scene,
         Cartesian3.fromDegrees(
             wgs84Coordinates.value[0],
             wgs84Coordinates.value[1],
@@ -127,7 +142,7 @@ function updatePosition(): void {
 
 function onTileLoadProgress(): void {
     // recalculating height and position as soon as all new terrain tiles are loaded (after camera movement, or at init)
-    if (viewer && viewer.scene.globe.tilesLoaded) {
+    if (viewer?.value && viewer.value.scene.globe.tilesLoaded) {
         updateCoordinateHeight()
         updatePosition()
     }

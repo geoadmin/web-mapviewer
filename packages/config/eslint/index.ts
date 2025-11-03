@@ -116,6 +116,10 @@ export const vueConfig: FlatConfig.ConfigArray = defineConfigWithVueTs(
                 'error',
                 { type: 'alphabetical', internalPattern: ['^@/.*'] },
             ],
+            // Enforce consistent brace style for all control statements
+            'curly': ['error', 'all'],
+            // Enforce opening brace on same line and closing brace on new line
+            'brace-style': ['error', '1tbs', { allowSingleLine: false }],
             ...noUnusedVarsRules,
         },
     }

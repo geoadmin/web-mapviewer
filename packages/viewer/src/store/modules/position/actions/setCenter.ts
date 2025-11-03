@@ -23,6 +23,7 @@ export default function setCenter(
         })
         return
     }
+
     if (this.projection.isInBounds(center)) {
         this.center = center
     } else {
@@ -54,6 +55,8 @@ export default function setCenter(
             this.center[0],
             this.center[1],
         ])
+        // Use a special dispatcher to indicate this is a sync operation from setCenter
+        // This prevents infinite recursion with setCameraPosition
         this.setCameraPosition(
             {
                 x: centerWgs84[0],
@@ -63,7 +66,7 @@ export default function setCenter(
                 pitch: this.camera.pitch,
                 heading: this.camera.heading,
             },
-            dispatcher
+            { name: 'setCenter' } // Special dispatcher to prevent recursion
         )
     }
 }

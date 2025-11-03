@@ -8,6 +8,7 @@ import type { CameraPosition, PositionStore } from '@/store/modules/position/typ
 import type { ActionDispatcher } from '@/store/types'
 
 import { calculateResolution } from '@/modules/map/components/cesium/utils/cameraUtils'
+import useCesiumStore from '@/store/modules/cesium'
 import { normalizeAngle } from '@/store/modules/position/utils/normalizeAngle'
 import useUIStore from '@/store/modules/ui'
 
@@ -19,14 +20,14 @@ export default function setCameraPosition(
     // position can be null (in 2d mode), we do not wrap it in this case
     this.camera = position
         ? {
-              x: position.x,
-              y: position.y,
-              z: position.z,
-              // wrapping all angle-based values so that they do not exceed a full-circle value
-              roll: wrapDegrees(position.roll),
-              pitch: wrapDegrees(position.pitch),
-              heading: wrapDegrees(position.heading),
-          }
+            x: position.x,
+            y: position.y,
+            z: position.z,
+            // wrapping all angle-based values so that they do not exceed a full-circle value
+            roll: wrapDegrees(position.roll),
+            pitch: wrapDegrees(position.pitch),
+            heading: wrapDegrees(position.heading),
+        }
         : undefined
     if (this.camera) {
         // updating the 2D position with the new camera values
@@ -46,6 +47,11 @@ export default function setCameraPosition(
             centerExpressedInWantedProjection
         )
 
+        // Prevent recursion: don't call setCenter and setZoom which would call back setCameraPosition
+        const cesiumStore = useCesiumStore()
+        if (cesiumStore.active) {
+            return
+        }
         this.setCenter(centerExpressedInWantedProjection, dispatcher)
         this.setZoom(zoom, dispatcher)
         this.setRotation(normalizeAngle((this.camera.heading * Math.PI) / 180), dispatcher)

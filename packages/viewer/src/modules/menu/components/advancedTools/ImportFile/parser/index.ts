@@ -113,7 +113,7 @@ export async function parseLayerFromFile(
     } catch (error) {
         log.error({
             title: '[FileParser][parseLayerFromFile]',
-            message: [
+            messages: [
                 `could not get content for file ${fileSource}`,
                 error instanceof Error ? error.message : String(error),
             ],

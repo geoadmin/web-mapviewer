@@ -22,22 +22,26 @@ interface UseAddImageryLayerExports {
  * that the layer will be removed and re-added with a new call to `createProvider` function.
  */
 export default function useAddImageryLayer(
-    cesiumViewer: MaybeRef<Viewer>,
-    createProvider: MaybeRef<ProviderFactoryFunction>,
+    cesiumViewer: MaybeRef<Viewer | undefined>,
+    createProvider: ProviderFactoryFunction,
     zIndex: MaybeRef<number>,
     opacity: MaybeRef<number> = 1.0
 ): UseAddImageryLayerExports {
     let layer: ImageryLayer | undefined
 
     function refreshLayer() {
-        if (layer) {
-            toValue(cesiumViewer).scene.imageryLayers.remove(layer)
+        const viewerInstance = toValue(cesiumViewer)
+        if (!viewerInstance) {
+            return
         }
-        const providerFactory = toValue(createProvider)
-        if (providerFactory) {
-            const provider = providerFactory()
+
+        if (layer) {
+            viewerInstance.scene.imageryLayers.remove(layer)
+        }
+        if (createProvider) {
+            const provider = createProvider()
             if (provider) {
-                layer = toValue(cesiumViewer).scene.imageryLayers.addImageryProvider(
+                layer = viewerInstance.scene.imageryLayers.addImageryProvider(
                     provider,
                     toValue(zIndex)
                 )
@@ -53,28 +57,31 @@ export default function useAddImageryLayer(
     })
 
     onBeforeUnmount(() => {
-        if (layer) {
+        const viewerInstance = toValue(cesiumViewer)
+        if (layer && viewerInstance) {
             layer.show = false
-            toValue(cesiumViewer).scene.imageryLayers.remove(layer)
-            toValue(cesiumViewer).scene.requestRender()
+            viewerInstance.scene.imageryLayers.remove(layer)
+            viewerInstance.scene.requestRender()
         }
     })
 
     watch(toRef(opacity), () => {
-        if (layer) {
+        const viewerInstance = toValue(cesiumViewer)
+        if (layer && viewerInstance) {
             layer.alpha = toValue(opacity)
-            toValue(cesiumViewer).scene.requestRender()
+            viewerInstance.scene.requestRender()
         }
     })
     watch(toRef(zIndex), () => {
-        if (layer) {
-            const index = toValue(cesiumViewer).scene.imageryLayers.indexOf(layer)
+        const viewerInstance = toValue(cesiumViewer)
+        if (layer && viewerInstance) {
+            const index = viewerInstance.scene.imageryLayers.indexOf(layer)
             const indexDiff = Math.abs(toValue(zIndex) - index)
             for (let i = indexDiff; i !== 0; i--) {
                 if (index > toValue(zIndex)) {
-                    toValue(cesiumViewer).scene.imageryLayers.lower(layer)
+                    viewerInstance.scene.imageryLayers.lower(layer)
                 } else {
-                    toValue(cesiumViewer).scene.imageryLayers.raise(layer)
+                    viewerInstance.scene.imageryLayers.raise(layer)
                 }
             }
         }

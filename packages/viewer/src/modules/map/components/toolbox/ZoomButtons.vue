@@ -23,7 +23,7 @@ function moveCamera(distance: number) {
     if (!viewer) {
         log.error({
             title: 'ZoomButton.vue',
-            message: ['3D viewer not initialized, cannot hook zoom buttons to it'],
+            messages: ['3D viewer not initialized, cannot hook zoom buttons to it'],
         })
         throw new Error('3D viewer not initialized, cannot hook zoom buttons to it')
     }

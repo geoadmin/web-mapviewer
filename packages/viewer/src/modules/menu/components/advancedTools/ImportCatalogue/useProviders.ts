@@ -23,7 +23,7 @@ class Provider {
         } catch (e) {
             log.error({
                 title: 'Invalid URL',
-                message: [this.url, e],
+                messages: [this.url, e],
             })
             return undefined
         }

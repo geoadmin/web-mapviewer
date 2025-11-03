@@ -43,7 +43,7 @@ const copyInputToClipboard = () => {
         navigator.clipboard.writeText(inputText).catch((error) => {
             log.error({
                 title: 'MenuShareInputCopyButton.vue',
-                message: ['Failed to copy text to clipboard', error],
+                messages: ['Failed to copy text to clipboard', error],
             })
         })
         copiedInClipboard.value = true

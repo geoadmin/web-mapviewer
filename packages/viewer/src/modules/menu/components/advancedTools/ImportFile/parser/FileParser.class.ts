@@ -160,14 +160,14 @@ export default abstract class FileParser<T extends FileLayer> {
                 } catch (error) {
                     log.error({
                         title: `[FileParser][${this.constructor.name}]`,
-                        message: ['Could not load file content for', fileUrl, error],
+                        messages: ['Could not load file content for', fileUrl, error],
                     })
                 }
             }
         } catch (error) {
             log.warn({
                 title: `[FileParser][${this.constructor.name}]`,
-                message: ['HEAD request failed, could not parse', fileUrl, error],
+                messages: ['HEAD request failed, could not parse', fileUrl, error],
             })
         }
         return false

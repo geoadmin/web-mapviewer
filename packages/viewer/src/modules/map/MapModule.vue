@@ -26,12 +26,12 @@ const isCompareSliderActive = computed<boolean>(
     () => uiStore.isCompareSliderActive && !!layersStore.visibleLayerOnTop
 )
 </script>
-
 <template>
     <div
         class="full-screen-map"
         data-cy="map"
     >
+        <!-- <CesiumMap v-if="true"> -->
         <CesiumMap v-if="cesiumStore.active">
             <!-- So that external modules can have access to the viewer instance through the provided 'getViewer' -->
             <slot />

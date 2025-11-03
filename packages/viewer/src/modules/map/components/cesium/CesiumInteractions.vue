@@ -10,6 +10,7 @@ import {
     Cartesian2,
     Cartesian3,
     Cartographic,
+    Cesium3DTilePointFeature,
     Math as CesiumMath,
     PostProcessStageLibrary,
     ScreenSpaceEventHandler,
@@ -19,7 +20,7 @@ import {
 import GeoJSON from 'ol/format/GeoJSON'
 import { LineString, Point, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
-import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
+import { computed, inject, onMounted, onUnmounted, type ShallowRef, watch } from 'vue'
 
 import type { LayerFeature, SelectableFeature } from '@/api/features.api'
 import type { LayerTooltipConfig } from '@/config/cesium.config'
@@ -60,35 +61,63 @@ const visiblePrimitiveLayers = computed(() =>
     )
 )
 
-const viewer = inject<Viewer | undefined>('viewer')
-if (!viewer) {
+const viewer = inject<ShallowRef<Viewer | undefined>>('viewer')
+if (!viewer?.value) {
     log.error({
         title: 'CesiumInteractions.vue',
         titleColor: LogPreDefinedColor.Blue,
-        message: ['Viewer not initialized, cannot initialize Cesium interactions'],
+        messages: ['Viewer not initialized, cannot initialize Cesium interactions'],
     })
     throw new Error('Viewer not initialized, cannot initialize Cesium interactions')
 }
 
 onMounted(() => {
+    initializeInteractions()
+})
+
+function initializeInteractions(): void {
+    const viewerInstance = viewer?.value
+    if (!viewerInstance) {
+        log.error({
+            title: 'CesiumInteractions.vue',
+            titleColor: LogPreDefinedColor.Red,
+            messages: [
+                'Viewer is not defined',
+                'CesiumInteractions.vue: viewer cannot be initialized',
+                viewer,
+            ],
+        })
+        return
+    }
     initialize3dHighlights()
-    viewer.scene.postProcessStages.add(
+    viewerInstance.scene.postProcessStages.add(
         PostProcessStageLibrary.createSilhouetteStage([
             hoveredHighlightPostProcessor,
             clickedHighlightPostProcessor,
         ])
     )
-    viewer.screenSpaceEventHandler.setInputAction(onClick, ScreenSpaceEventType.LEFT_CLICK)
-    viewer.screenSpaceEventHandler.setInputAction(onContextMenu, ScreenSpaceEventType.RIGHT_CLICK)
-    viewer.screenSpaceEventHandler.setInputAction(onMouseMove, ScreenSpaceEventType.MOUSE_MOVE)
-})
+    viewerInstance.screenSpaceEventHandler.setInputAction(onClick, ScreenSpaceEventType.LEFT_CLICK)
+    viewerInstance.screenSpaceEventHandler.setInputAction(
+        onContextMenu,
+        ScreenSpaceEventType.RIGHT_CLICK
+    )
+    viewerInstance.screenSpaceEventHandler.setInputAction(
+        onMouseMove,
+        ScreenSpaceEventType.MOUSE_MOVE
+    )
+    useDragFileOverlay(viewerInstance.container as HTMLElement)
+}
 
 onUnmounted(() => {
-    viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.LEFT_CLICK)
-    viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.RIGHT_CLICK)
-    viewer.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.MOUSE_MOVE)
-    viewer.scene.postProcessStages.remove(hoveredHighlightPostProcessor)
-    viewer.scene.postProcessStages.remove(clickedHighlightPostProcessor)
+    const viewerInstance = viewer?.value
+    if (!viewerInstance) {
+        return
+    }
+    viewerInstance.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.LEFT_CLICK)
+    viewerInstance.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.RIGHT_CLICK)
+    viewerInstance.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.MOUSE_MOVE)
+    viewerInstance.scene.postProcessStages.remove(hoveredHighlightPostProcessor)
+    viewerInstance.scene.postProcessStages.remove(clickedHighlightPostProcessor)
 })
 
 // this is to remove the highlight when we close the tooltip
@@ -105,7 +134,9 @@ watch(selectedFeatures, () => {
         clickedHighlightPostProcessor.selected.length > 0
     ) {
         clickedHighlightPostProcessor.selected = []
-        viewer.scene.requestRender()
+        if (viewer?.value) {
+            viewer.value.scene.requestRender()
+        }
     }
 })
 
@@ -119,7 +150,7 @@ function initialize3dHighlights(): void {
     clickedHighlightPostProcessor.selected = []
 }
 function getCoordinateAtScreenCoordinate(x: number, y: number): SingleCoordinate | undefined {
-    const cartesian = viewer?.scene.pickPosition(new Cartesian2(x, y))
+    const cartesian = viewer?.value?.scene.pickPosition(new Cartesian2(x, y))
     let coordinates: SingleCoordinate | undefined
     if (cartesian) {
         const cartCoords = Cartographic.fromCartesian(cartesian)
@@ -131,14 +162,29 @@ function getCoordinateAtScreenCoordinate(x: number, y: number): SingleCoordinate
         log.error({
             title: 'CesiumInteractions.vue',
             titleColor: LogPreDefinedColor.Red,
-            message: ['no coordinate found at this screen coordinates', [x, y]],
+            messages: ['no coordinate found at this screen coordinates', [x, y]],
         })
     }
     return coordinates
 }
 
-function getLayerIdFrom3dFeature(featureTileSetResourceUrl: string): string | undefined {
-    return featureTileSetResourceUrl.replace(get3dTilesBaseUrl(), '').split('/')[0]
+function getLayerIdFrom3dFeature(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    feature: Cesium3DTilePointFeature | { primitive: any; id: { _id: string } }
+): string | undefined {
+    let url = ''
+    if (
+        'tileset' in feature &&
+        feature.tileset &&
+        feature.tileset.resource &&
+        feature.tileset.resource.url
+    ) {
+        url = feature.tileset.resource.url
+    } else if ('id' in feature && feature.id && feature.id) {
+        url = feature.id._id
+    }
+
+    return url.replace(get3dTilesBaseUrl(), '').split('/')[0]
 }
 
 function getFeatureProperty(
@@ -170,7 +216,7 @@ function create3dFeature(
     feature: LayerFeature,
     coordinates: SingleCoordinate
 ): LayerFeature | undefined {
-    const layerId = getLayerIdFrom3dFeature(feature.id.toString())
+    const layerId = getLayerIdFrom3dFeature(feature as unknown as Cesium3DTilePointFeature)
 
     const layer = cesiumStore.layersWithTooltips.find((layer: Layer) => layer.id === layerId)
     const layerConfig = cesiumStore.layersTooltipConfig.find(
@@ -218,23 +264,28 @@ function handleClickHighlight(
     hoveredHighlightPostProcessor.selected.forEach((feature) => {
         if (Array.isArray(coordinates) && coordinates.length === 2) {
             const lf = create3dFeature(feature, coordinates)
-            if (lf) features.push(lf)
+            if (lf) {
+                features.push(lf)
+            }
         }
     })
     hoveredHighlightPostProcessor.selected = []
 }
 
 function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
-    unhighlightGroup(viewer!)
+    const viewerInstance = viewer?.value
+    if (viewerInstance) {
+        unhighlightGroup(viewerInstance)
+    }
     const features: SelectableFeature<false | true>[] = []
     let coordinates = getCoordinateAtScreenCoordinate(event.position.x, event.position.y)
 
-    const objects = viewer!.scene.drillPick(event.position) ?? []
+    const objects = viewerInstance?.scene.drillPick(event.position) ?? []
 
     log.debug({
         title: 'CesiumInteractions.vue',
         titleColor: LogPreDefinedColor.Blue,
-        message: [
+        messages: [
             'click caught at',
             { pixel: event.position, coordinates },
             'with objects',
@@ -268,20 +319,22 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
                     log.debug({
                         title: 'CesiumInteractions.vue',
                         titleColor: LogPreDefinedColor.Blue,
-                        message: [
+                        messages: [
                             'KML feature click detection',
                             kmlFeature,
                             'for KML layer',
                             kmlLayer,
                         ],
                     })
-                    const kmlLayerFeature = create3dKmlFeature(
-                        viewer!,
-                        kmlFeature,
-                        kmlLayer as KMLLayerType
-                    )
-                    if (kmlLayerFeature) {
-                        features.push(kmlLayerFeature)
+                    if (viewerInstance) {
+                        const kmlLayerFeature = create3dKmlFeature(
+                            viewerInstance,
+                            kmlFeature,
+                            kmlLayer as KMLLayerType
+                        )
+                        if (kmlLayerFeature) {
+                            features.push(kmlLayerFeature)
+                        }
                     }
                 })
         })
@@ -311,7 +364,9 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
     } else {
         mapStore.click(undefined, dispatcher)
     }
-    viewer?.scene.requestRender()
+    if (viewerInstance) {
+        viewerInstance.scene.requestRender()
+    }
 }
 
 function create3dKmlFeature(
@@ -401,7 +456,7 @@ function onMouseMove(event: ScreenSpaceEventHandler.MotionEvent): void {
     const aFeatureIsHighlighted = hoveredHighlightPostProcessor.selected.length === 1
 
     // we pick the first 3d feature if it's in the config
-    const object = viewer?.scene.pick(event.endPosition)
+    const object = viewer?.value?.scene.pick(event.endPosition)
     if (
         object &&
         cesiumStore.layersTooltipConfig
@@ -409,16 +464,14 @@ function onMouseMove(event: ScreenSpaceEventHandler.MotionEvent): void {
             .includes(getLayerIdFrom3dFeature(object)!)
     ) {
         hoveredHighlightPostProcessor.selected = [object]
-        viewer?.scene.requestRender()
+        viewer?.value?.scene.requestRender()
     } else {
         hoveredHighlightPostProcessor.selected = []
-        if (aFeatureIsHighlighted) {
-            viewer?.scene.requestRender()
+        if (aFeatureIsHighlighted && viewer?.value) {
+            viewer.value.scene.requestRender()
         }
     }
 }
-
-useDragFileOverlay(viewer.container as HTMLElement)
 </script>
 
 <template>
