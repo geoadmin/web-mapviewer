@@ -100,7 +100,6 @@ watch(isSectionShown, () => {
 watch(availablePrintLayouts, () => {
     // whenever layouts are loaded form the backend, we select the first one as default value
     if (availablePrintLayouts.value.length > 0) {
-        // selectLayout()
         selectedLayout.value = availablePrintLayouts.value[0]?.value
     }
 })
@@ -109,19 +108,9 @@ function togglePrintMenu() {
     // load print layouts from the backend if they were not yet loaded
     if (availablePrintLayouts.value.length === 0) {
         printStore.loadPrintLayouts(dispatcher)
-        // wait for the layouts to be loaded before showing the section
-        watch(
-            printStore.layouts,
-            () => {
-                isSectionShown.value = !isSectionShown.value
-            },
-            { once: true }
-        )
-    } else {
-        // if layouts are already present, we select the first one as default value
-        selectedLayout.value = availablePrintLayouts.value[0]?.value
-        isSectionShown.value = !isSectionShown.value
     }
+    isSectionShown.value = !isSectionShown.value
+    selectedLayout.value = availablePrintLayouts.value[0]?.value
 }
 
 function selectPrintLayout(layout: DropdownItem<PrintLayout>): void {
