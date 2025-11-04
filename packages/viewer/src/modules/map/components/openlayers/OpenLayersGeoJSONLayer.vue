@@ -10,7 +10,7 @@ import { Feature } from 'ol'
 import GeoJSON from 'ol/format/GeoJSON'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { computed, inject, watch } from 'vue'
+import { computed, inject, toRef, watch } from 'vue'
 
 import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/geoJsonStyleFromLiterals'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
@@ -89,7 +89,7 @@ if (!olMap) {
     throw new Error('OpenLayersMap is not available')
 }
 
-useAddLayerToMap(layer, olMap, zIndex)
+useAddLayerToMap(layer, olMap, toRef(() => zIndex))
 createSourceForProjection()
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))

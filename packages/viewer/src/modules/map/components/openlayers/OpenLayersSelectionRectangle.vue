@@ -8,7 +8,7 @@ import { fromExtent } from 'ol/geom/Polygon'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { Stroke, Style } from 'ol/style'
-import { inject, watch } from 'vue'
+import { inject, toRef, watch } from 'vue'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import useMapStore from '@/store/modules/map'
@@ -36,7 +36,7 @@ if (!olMap) {
     log.error('OpenLayersMap is not available')
     throw new Error('OpenLayersMap is not available')
 }
-useAddLayerToMap(layer, olMap, zIndex)
+useAddLayerToMap(layer, olMap, toRef(() => zIndex))
 
 watch(
     () => positionStore.projection,
