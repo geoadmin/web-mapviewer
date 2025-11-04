@@ -294,6 +294,7 @@ function releaseSlider() {
         top: 50%;
         z-index: inherit;
         padding: 2px 6px;
+        width: 8px; // FontAwesome v7 use 20px as the default width for carets. We override it to have a smaller caret.
     }
     &-caret-right {
         translate: 20px;
