@@ -8,7 +8,7 @@ import log from '@swissgeo/log'
 import { WarningMessage } from '@swissgeo/log/Message'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { computed, inject, onMounted, onUnmounted, toRef, watch } from 'vue'
+import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 
@@ -74,7 +74,7 @@ if (!olMap) {
     throw new Error('OpenLayersMap is not available')
 }
 
-useAddLayerToMap(layer, olMap, toRef(() => zIndex))
+useAddLayerToMap(layer, olMap, () => zIndex)
 
 onMounted(() => {
     if (!iconsArePresent.value) {

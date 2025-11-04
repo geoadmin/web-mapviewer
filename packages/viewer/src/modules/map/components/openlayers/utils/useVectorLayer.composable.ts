@@ -52,7 +52,7 @@ export default function useVectorLayer(
         }),
         style: unwrappedStyleFunction,
     })
-    useAddLayerToMap(layer, map, zIndex)
+    useAddLayerToMap(layer, map, () => toValue(zIndex))
 
     // Create and add the Select interaction to the map
     const selectInteraction = new Select({

@@ -13,7 +13,7 @@ import { Circle } from 'ol/geom'
 import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
 import { v4 as uuidv4 } from 'uuid'
-import { computed, inject, toRef, watch } from 'vue'
+import { computed, inject, watch } from 'vue'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import useGeolocationStore from '@/store/modules/geolocation'
@@ -52,11 +52,7 @@ if (position.value) {
         log.error('OpenLayersMap is not available')
         throw new Error('OpenLayersMap is not available')
     }
-    useAddLayerToMap(
-        layer,
-        olMap,
-        toRef(() => zIndex)
-    )
+    useAddLayerToMap(layer, olMap, () => zIndex)
 
     // reacting to changes accordingly
     watch(position, (newPosition) => {
