@@ -15,7 +15,7 @@ import type { Map } from 'ol'
 import { MapLibreLayer } from '@geoblocks/ol-maplibre-layer'
 import log from '@swissgeo/log'
 import axios from 'axios'
-import { computed, inject, toRef, watch } from 'vue'
+import { computed, inject, watch } from 'vue'
 
 import { VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config/vectortiles.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
@@ -53,7 +53,7 @@ if (!olMap) {
     log.error('OpenLayersMap is not available')
     throw new Error('OpenLayersMap is not available')
 }
-useAddLayerToMap(layer, olMap, toRef(() => zIndex))
+useAddLayerToMap(layer, olMap, () => zIndex)
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(styleUrl, (newStyleUrl) => setMapLibreStyle(newStyleUrl))

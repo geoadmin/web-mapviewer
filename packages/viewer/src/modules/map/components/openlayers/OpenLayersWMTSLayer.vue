@@ -8,7 +8,7 @@ import log from '@swissgeo/log'
 import { Tile as TileLayer } from 'ol/layer'
 import { WMTS as WMTSSource } from 'ol/source'
 import WMTSTileGrid from 'ol/tilegrid/WMTS'
-import { computed, inject, toRef, watch } from 'vue'
+import { computed, inject, watch } from 'vue'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import useMapStore from '@/store/modules/map'
@@ -69,7 +69,7 @@ if (!olMap) {
     throw new Error('OpenLayersMap is not available')
 }
 
-useAddLayerToMap(layer, olMap, toRef(() => zIndex))
+useAddLayerToMap(layer, olMap, () => zIndex)
 
 // reacting to changes accordingly
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))

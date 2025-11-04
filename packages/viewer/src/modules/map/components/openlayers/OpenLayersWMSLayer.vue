@@ -11,7 +11,7 @@ import { cloneDeep } from 'lodash'
 import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
 import { ImageWMS, TileWMS } from 'ol/source'
 import TileGrid from 'ol/tilegrid/TileGrid'
-import { computed, inject, toRef, watch, watchEffect } from 'vue'
+import { computed, inject, watch, watchEffect } from 'vue'
 
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
 import { WMS_TILE_SIZE } from '@/config/map.config'
@@ -115,11 +115,7 @@ if (!olMap) {
     log.error('OpenLayersMap component not found')
     throw new Error('OpenLayersMap component not found')
 }
-useAddLayerToMap(
-    layer,
-    olMap,
-    toRef(() => zIndex)
-)
+useAddLayerToMap(layer, olMap, () => zIndex)
 
 // reacting to changes accordingly
 watch(url, (newUrl) => {

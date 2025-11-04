@@ -10,7 +10,7 @@ import log from '@swissgeo/log'
 import { cloneDeep } from 'lodash'
 import { Tile as TileLayer } from 'ol/layer'
 import WMTS from 'ol/source/WMTS'
-import { computed, inject, onMounted, toRef, watch } from 'vue'
+import { computed, inject, onMounted, watch } from 'vue'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import usePositionStore from '@/store/modules/position'
@@ -74,7 +74,7 @@ if (!olMap) {
     throw new Error('OpenLayersMap is not available')
 }
 
-useAddLayerToMap(layer, olMap, toRef(() => zIndex))
+useAddLayerToMap(layer, olMap, () => zIndex)
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))
 watch(() => positionStore.projection, setSourceForProjection)

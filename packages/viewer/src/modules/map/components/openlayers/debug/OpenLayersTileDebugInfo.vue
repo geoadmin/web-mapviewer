@@ -5,7 +5,7 @@ import log from '@swissgeo/log'
 import TileLayer from 'ol/layer/Tile'
 import { TileDebug } from 'ol/source'
 import TileGrid from 'ol/tilegrid/TileGrid'
-import { computed, inject, toRef, watch } from 'vue'
+import { computed, inject, watch } from 'vue'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import usePositionStore from '@/store/modules/position'
@@ -26,11 +26,7 @@ if (!olMap) {
     log.error('OpenLayersMap is not available')
     throw new Error('OpenLayersMap is not available')
 }
-useAddLayerToMap(
-    layer,
-    olMap,
-    toRef(() => zIndex)
-)
+useAddLayerToMap(layer, olMap, () => zIndex)
 
 watch(currentProjection, () => layer.setSource(createDebugSourceForProjection()))
 

@@ -7,7 +7,7 @@ import type { Map } from 'ol'
 import log from '@swissgeo/log'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
-import { computed, inject, onMounted, onUnmounted, toRef, watch } from 'vue'
+import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
@@ -56,7 +56,7 @@ if (!olMap) {
     throw new Error('OpenLayersMap is not available')
 }
 
-useAddLayerToMap(layer, olMap, toRef(() => zIndex))
+useAddLayerToMap(layer, olMap, () => zIndex)
 
 onMounted(() => {
     // exposing things for Cypress testing
