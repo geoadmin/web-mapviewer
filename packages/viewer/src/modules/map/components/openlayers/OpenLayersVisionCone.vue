@@ -11,7 +11,7 @@ import { DEVICE_PIXEL_RATIO } from 'ol/has'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import Style from 'ol/style/Style'
-import { computed, inject, watch } from 'vue'
+import { computed, inject, toRef, watch } from 'vue'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import useGeolocationStore from '@/store/modules/geolocation'
@@ -74,7 +74,7 @@ if (!olMap) {
     throw new Error('OpenLayersMap component not found')
 }
 
-useAddLayerToMap(layer, olMap, zIndex)
+useAddLayerToMap(layer, olMap, toRef(() => zIndex))
 
 watch(geolocationPosition, () => {
     if (geolocationPosition.value) {

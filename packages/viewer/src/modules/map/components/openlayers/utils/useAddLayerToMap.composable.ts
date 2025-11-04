@@ -1,8 +1,9 @@
 import type { default as Layer } from 'ol/layer/Layer'
 import type Map from 'ol/Map'
+import type { Ref } from 'vue'
 
 import VectorSource from 'ol/source/Vector'
-import { type MaybeRef, onBeforeUnmount, onMounted, ref, toRef, toValue, watch } from 'vue'
+import { type MaybeRef, onBeforeUnmount, onMounted, ref, toValue, watch } from 'vue'
 
 /**
  * Vue composable that will handle the addition or removal of an OpenLayers layer. This is a
@@ -16,15 +17,19 @@ import { type MaybeRef, onBeforeUnmount, onMounted, ref, toRef, toValue, watch }
  *
  * It is also possible to set a prop called zIndex, which will be used (if defined) to place the
  * layer accordingly in the layer stack of OpenLayers.
+ *
+ * @param layer - The OpenLayers layer to add to the map
+ * @param map - The OpenLayers map instance
+ * @param zIndex - A Ref containing the z-index value. Must be a Ref to ensure reactivity.
  */
 export default function useAddLayerToMap(
     layer: MaybeRef<Layer>,
     map: MaybeRef<Map>,
-    zIndex: MaybeRef<number> = -1
+    zIndex: Ref<number> = ref(-1)
 ) {
     const internalZIndex = ref(toValue(zIndex))
 
-    watch(toRef(zIndex), (newValue) => {
+    watch(zIndex, (newValue) => {
         internalZIndex.value = newValue
         if (newValue >= 0) {
             toValue(layer).setZIndex(newValue)
