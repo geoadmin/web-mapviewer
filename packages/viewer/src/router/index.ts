@@ -16,6 +16,7 @@ import EmbedView from '@/views/EmbedView.vue'
 import LegacyParamsView from '@/views/LegacyParamsView.vue'
 import MapView from '@/views/MapView.vue'
 import PrintView from '@/views/PrintView.vue'
+import storeSyncRouterPlugin from '@/router/storeSync'
 
 const history = createWebHashHistory()
 
@@ -90,6 +91,6 @@ if (IS_TESTING_WITH_CYPRESS) {
 appReadinessRouterPlugin(router)
 legacyPermalinkRouterPlugin(router)
 // WIP on it to make it work again, disabling it in the meantime
-// storeSyncRouterPlugin(router)
+storeSyncRouterPlugin(router)
 
 export default router
