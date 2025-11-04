@@ -10,6 +10,7 @@ import InfoboxContent from '@/modules/infobox/components/InfoboxContent.vue'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import useMapStore from '@/store/modules/map'
+import usePositionStore from '@/store/modules/position'
 import useProfileStore from '@/store/modules/profile'
 import useUiStore from '@/store/modules/ui'
 import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
@@ -27,6 +28,7 @@ const featuresStore = useFeaturesStore()
 const drawingStore = useDrawingStore()
 const uiStore = useUiStore()
 const profileStore = useProfileStore()
+const positionStore = usePositionStore()
 const mapStore = useMapStore()
 
 const showElevationProfile = computed<boolean>(() => !!profileStore.feature)
@@ -123,6 +125,7 @@ function onHideProfile(): void {
             <ZoomToExtentButton
                 v-if="showElevationProfile && profileStore.currentProfileExtent"
                 :extent="profileStore.currentProfileExtent"
+                :extent-projection="positionStore.projection"
                 class="zoom-to-extent-button btn-light"
             />
             <PrintButton>

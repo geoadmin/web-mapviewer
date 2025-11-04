@@ -2,7 +2,7 @@
 import type { CoordinateSystem, FlatExtent, NormalizedExtent } from '@swissgeo/coordinates'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { extentUtils, WGS84 } from '@swissgeo/coordinates'
+import { extentUtils } from '@swissgeo/coordinates'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { useI18n } from 'vue-i18n'
 
@@ -14,9 +14,9 @@ const { t } = useI18n()
 
 const dispatcher: ActionDispatcher = { name: 'ZoomToExtentButton.vue' }
 
-const { extent, extentProjection = WGS84 } = defineProps<{
+const { extent, extentProjection } = defineProps<{
     extent: FlatExtent | NormalizedExtent
-    extentProjection?: CoordinateSystem
+    extentProjection: CoordinateSystem
 }>()
 
 const positionStore = usePositionStore()
