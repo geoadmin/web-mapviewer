@@ -73,9 +73,9 @@ const initSortable = () => {
                     }
 
                     // PB-1456: fixing an issue with drag&drop left-over by removing any element still tagged by SortableJS
-                    // (having a custom attribute draggable=false)
+                    // (having a custom attribute draggable=false and drag-in-progress class)
                     const nonDraggableChildren =
-                        activeLayersList.value.querySelectorAll('[draggable="false"]')
+                        activeLayersList.value.querySelectorAll('.menu-layer-item.drag-in-progress[draggable="false"]')
 
                     if (nonDraggableChildren.length > 0) {
                         if (activeLayers.value.length < activeLayersList.value.children.length) {
