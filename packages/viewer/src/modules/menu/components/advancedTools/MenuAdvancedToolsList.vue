@@ -37,7 +37,7 @@ function onToggleImportCatalogue() {
 }
 
 function onToggleCompareSlider() {
-    if (storeCompareRatio.value === null) {
+    if (storeCompareRatio.value === undefined) {
         // this allows us to set a value to the compare ratio, in case there was none
         uiStore.setCompareRatio(0.5, dispatcher)
     }
