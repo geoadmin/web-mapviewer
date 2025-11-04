@@ -1,10 +1,7 @@
 import type { FlatExtent, NormalizedExtent, SingleCoordinate } from '@swissgeo/coordinates'
-import type { Position } from 'geojson'
 
-import { CoordinateSystem, extentUtils, WGS84 } from '@swissgeo/coordinates'
-import { center, points } from '@turf/turf'
+import { CoordinateSystem, extentUtils } from '@swissgeo/coordinates'
 import { Math as CesiumMath } from 'cesium'
-import proj4 from 'proj4'
 
 import type { PositionStore } from '@/store/modules/position/types/position'
 import type { ActionDispatcher } from '@/store/types'
@@ -40,32 +37,23 @@ export default function zoomToExtent(
 
     const { extentProjection, maxZoom } = options
 
-    // Convert extent points to WGS84 as TurfJS needs them in this format
-    const normalizedWGS84Extent: NormalizedExtent = extentUtils.projExtent(
+    // Convert extent to the current projection for calculations
+    const normalizedExtent: NormalizedExtent = extentUtils.projExtent(
         extentProjection ?? this.projection,
-        WGS84,
+        this.projection,
         extentUtils.normalizeExtent(extent)
     )
-    if (
-        normalizedWGS84Extent &&
-        Array.isArray(normalizedWGS84Extent) &&
-        normalizedWGS84Extent.length === 2
-    ) {
-        // Calculate the center of the extent and convert it back to the wanted projection
-        const centerOfExtent: SingleCoordinate = proj4(
-            WGS84.epsg,
-            this.projection.epsg,
-            center(
-                points([normalizedWGS84Extent[0] as Position, normalizedWGS84Extent[1] as Position])
-            ).geometry.coordinates
-        ) as SingleCoordinate
+    if (normalizedExtent) {
+        // Calculate center directly from the extent in current projection
+        const centerOfExtent: SingleCoordinate = extentUtils.getExtentCenter(normalizedExtent)
 
-        if (centerOfExtent && Array.isArray(centerOfExtent) && centerOfExtent.length === 2) {
+        if (centerOfExtent) {
             this.center = centerOfExtent
         }
+        // Calculate extent size in the current projection
         const extentSize = {
-            width: normalizedWGS84Extent[1][0] - normalizedWGS84Extent[0][0],
-            height: normalizedWGS84Extent[1][1] - normalizedWGS84Extent[0][1],
+            width: normalizedExtent[1][0] - normalizedExtent[0][0],
+            height: normalizedExtent[1][1] - normalizedExtent[0][1],
         }
 
         const uiStore = useUIStore()
