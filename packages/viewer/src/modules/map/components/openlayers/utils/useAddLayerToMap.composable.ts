@@ -2,7 +2,7 @@ import type { default as Layer } from 'ol/layer/Layer'
 import type Map from 'ol/Map'
 
 import VectorSource from 'ol/source/Vector'
-import { type MaybeRef, onBeforeUnmount, onMounted, toRef, toValue, watch } from 'vue'
+import { type MaybeRef, onBeforeUnmount, onMounted, toValue, watch } from 'vue'
 
 /**
  * Vue composable that will handle the addition or removal of an OpenLayers layer. This is a
@@ -19,16 +19,14 @@ import { type MaybeRef, onBeforeUnmount, onMounted, toRef, toValue, watch } from
  *
  * @param layer - The OpenLayers layer to add to the map
  * @param map - The OpenLayers map instance
- * @param zIndex - A getter function that returns the z-index value. Defaults to () => -1 (no z-index set).
+ * @param getZIndex - A getter function that returns the z-index value. Defaults to () => -1 (no z-index set).
  */
 export default function useAddLayerToMap(
     layer: MaybeRef<Layer>,
     map: MaybeRef<Map>,
-    zIndex: () => number = () => -1
+    getZIndex: () => number = () => -1
 ) {
-    const zIndexRef = toRef(zIndex)
-
-    watch(zIndexRef, (newValue) => {
+    watch(getZIndex, (newValue) => {
         if (newValue >= 0) {
             toValue(layer).setZIndex(newValue)
         }
@@ -49,8 +47,9 @@ export default function useAddLayerToMap(
     })
 
     function addLayerToMap(): void {
-        if (zIndexRef.value !== -1) {
-            toValue(layer).setZIndex(zIndexRef.value)
+        const currentZIndex = getZIndex()
+        if (currentZIndex !== -1) {
+            toValue(layer).setZIndex(currentZIndex)
         }
         toValue(map).addLayer(toValue(layer))
     }
