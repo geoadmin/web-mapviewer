@@ -34,8 +34,8 @@ export default function handleNewGeolocationPosition(
         coords.longitude,
         coords.latitude,
     ])
-    // Accuracy in in meter, so we don't need the decimal part and avoid dispatching event
-    // if the accuracy did not change more than one metter
+    // Accuracy in meter, so we don't need the decimal part and avoid dispatching event
+    // if the accuracy did not change more than one meter
     const accuracy = round(position.coords.accuracy, 0)
 
     // if tracking is active, we center the view of the map on the position received and change
@@ -44,13 +44,7 @@ export default function handleNewGeolocationPosition(
     if (this.tracking) {
         setCenterIfInBounds.call(this, positionProjected, dispatcher)
     } else {
-        log.debug({
-            title: 'Geolocation store / handleNewPosition',
-            titleColor: LogPreDefinedColor.Amber,
-            messages: [
-                `[handleNewGeolocationPosition] Skipping setCenterIfInBounds - tracking is false`,
-            ],
-        })
+        // No action needed when tracking is false; centering is skipped by default.
     }
 
     // Update position and accuracy after centering
