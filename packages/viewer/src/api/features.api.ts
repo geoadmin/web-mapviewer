@@ -757,7 +757,7 @@ function parseGeomAdminFeature(
         center = getGeoJsonFeatureCenter(featureGeoJSONGeometry, LV95, outputProjection)
     } else {
         if (coordinate && coordinate.length === 4) {
-            center = extentUtils.getExtentCenter(coordinate as FlatExtent)
+            center = extentUtils.getExtentCenter(coordinate)
         } else {
             center = coordinate
         }

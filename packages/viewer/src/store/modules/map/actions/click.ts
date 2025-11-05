@@ -1,3 +1,4 @@
+import type { FlatExtent } from '@swissgeo/coordinates'
 import type { Layer } from '@swissgeo/layers'
 
 import log from '@swissgeo/log'
@@ -19,13 +20,29 @@ export default function click(
     dispatcher: ActionDispatcher
 ): void {
     this.clickInfo = clickInfo
-
+    if (!clickInfo) {
+        log.debug({
+            title: 'Map store / click',
+            messages: ['Click info is undefined, nothing to process.'],
+        })
+        return
+    }
     const drawingStore = useDrawingStore()
     const featuresStore = useFeaturesStore()
     const layersStore = useLayersStore()
     const uiStore = useUIStore()
+    if (clickInfo.clickType === ClickType.DrawBox) {
+        // If the click is a box selection, we set the rectangle selection extent to the
+        // coordinates of the click.
+        this.setRectangleSelectionExtent(clickInfo.coordinate as FlatExtent, dispatcher)
+    } else if (clickInfo.clickType === ClickType.CtrlLeftSingleClick || clickInfo.clickType === ClickType.ContextMenu) {
+        // If the click is a ctrl left single click or a right click, we keep the rectangle selection extent
+    } else {
+        // For any other click type, we clear the rectangle selection extent
+        this.setRectangleSelectionExtent(undefined, dispatcher)
+    }
 
-    if (clickInfo && !drawingStore.drawingOverlay.show) {
+    if (!drawingStore.drawingOverlay.show) {
         // if a click occurs, we only take it into account (for identify and fullscreen toggle)
         // when the user is not currently drawing something on the map.
         const isCtrlLeftSingleClick = clickInfo.clickType === ClickType.CtrlLeftSingleClick
