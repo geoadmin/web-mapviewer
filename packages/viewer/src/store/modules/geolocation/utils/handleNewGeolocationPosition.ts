@@ -37,13 +37,25 @@ export default function handleNewGeolocationPosition(
     // Accuracy in in meter, so we don't need the decimal part and avoid dispatching event
     // if the accuracy did not change more than one metter
     const accuracy = round(position.coords.accuracy, 0)
+
+    // if tracking is active, we center the view of the map on the position received and change
+    // to the proper zoom
+    // IMPORTANT: Call setCenterIfInBounds BEFORE updating position to avoid setCenter disabling tracking
+    if (this.tracking) {
+        setCenterIfInBounds.call(this, positionProjected, dispatcher)
+    } else {
+        log.debug({
+            title: 'Geolocation store / handleNewPosition',
+            titleColor: LogPreDefinedColor.Amber,
+            messages: [
+                `[handleNewGeolocationPosition] Skipping setCenterIfInBounds - tracking is false`,
+            ],
+        })
+    }
+
+    // Update position and accuracy after centering
     if (!isEqual(this.position, positionProjected) || this.accuracy !== accuracy) {
         this.setGeolocationPosition(positionProjected, dispatcher)
         this.setGeolocationAccuracy(accuracy, dispatcher)
-    }
-    // if tracking is active, we center the view of the map on the position received and change
-    // to the proper zoom
-    if (this.tracking) {
-        setCenterIfInBounds.call(this, positionProjected, dispatcher)
     }
 }
