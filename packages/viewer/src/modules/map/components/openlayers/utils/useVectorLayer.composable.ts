@@ -1,11 +1,12 @@
 import type { Feature, Map } from 'ol'
 import type { StyleFunction } from 'ol/style/Style'
+import type { MaybeRef, WatchSource } from 'vue'
 
 import { randomIntBetween } from '@swissgeo/numbers'
 import { Select } from 'ol/interaction'
 import { Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
-import { type MaybeRef, onUnmounted, toValue, unref, watchEffect } from 'vue'
+import { onUnmounted, toValue, unref, watchEffect } from 'vue'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 
@@ -30,7 +31,7 @@ interface UseVectorLayerOptions {
 export default function useVectorLayer(
     map: MaybeRef<Map>,
     features: MaybeRef<Feature[]>,
-    zIndex: MaybeRef<number>,
+    zIndex: WatchSource<number>,
     styleFunction: MaybeRef<StyleFunction>,
     options?: MaybeRef<UseVectorLayerOptions>
 ): {
@@ -52,7 +53,7 @@ export default function useVectorLayer(
         }),
         style: unwrappedStyleFunction,
     })
-    useAddLayerToMap(layer, map, () => toValue(zIndex))
+    useAddLayerToMap(layer, map, zIndex)
 
     // Create and add the Select interaction to the map
     const selectInteraction = new Select({
