@@ -89,7 +89,7 @@ if (!olMap) {
     throw new Error('OpenLayersMap is not available')
 }
 
-useAddLayerToMap(layer, olMap, zIndex)
+useAddLayerToMap(layer, olMap, () => zIndex)
 createSourceForProjection()
 
 watch(opacity, (newOpacity) => layer.setOpacity(newOpacity))

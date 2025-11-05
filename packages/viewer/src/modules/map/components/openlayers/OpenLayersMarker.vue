@@ -3,7 +3,6 @@
 
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { Map } from 'ol'
-import type { MaybeRef } from 'vue'
 
 import log from '@swissgeo/log'
 import { randomIntBetween } from '@swissgeo/numbers'
@@ -27,7 +26,7 @@ const {
 } = defineProps<{
     position: SingleCoordinate | SingleCoordinate[]
     markerStyle?: OpenLayersMarkerStyles
-    zIndex?: MaybeRef<number>
+    zIndex?: number
     selectFeatureCallback?: (_feature: Feature) => void
     deselectAfterSelect?: boolean
 }>()
@@ -52,7 +51,7 @@ if (!olMap) {
     throw new Error('OpenLayersMap is not available')
 }
 
-useVectorLayer(olMap, features, zIndex, highlightFeatureStyle, {
+useVectorLayer(olMap, features, () => zIndex, highlightFeatureStyle, {
     onFeatureSelectCallback: selectFeatureCallback,
     deselectAfterSelect: deselectAfterSelect,
 })

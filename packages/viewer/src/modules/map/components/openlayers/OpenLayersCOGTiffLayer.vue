@@ -7,7 +7,7 @@ import TileLayer from 'ol/layer/Tile'
 import WebGLTileLayer from 'ol/layer/WebGLTile'
 import GeoTIFFSource, { type SourceInfo } from 'ol/source/GeoTIFF'
 import TileDebug from 'ol/source/TileDebug'
-import { computed, inject, onMounted, toRef, watch } from 'vue'
+import { computed, inject, onMounted, watch } from 'vue'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import useDebugStore from '@/store/modules/debug'
@@ -64,15 +64,11 @@ const debugLayer = new TileLayer({
     source: createTileDebugSource(cogSource),
 })
 
-useAddLayerToMap(
-    layer,
-    olMap,
-    toRef(() => zIndex)
-)
+useAddLayerToMap(layer, olMap, () => zIndex)
 const { removeLayerFromMap: removeDebugLayer, addLayerToMap: addDebugLayer } = useAddLayerToMap(
     debugLayer,
     olMap,
-    toRef(() => zIndex + 1)
+    () => zIndex + 1
 )
 onMounted(() => {
     if (!showTileDebugInfo.value) {

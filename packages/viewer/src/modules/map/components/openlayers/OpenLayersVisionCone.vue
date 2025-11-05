@@ -74,7 +74,7 @@ if (!olMap) {
     throw new Error('OpenLayersMap component not found')
 }
 
-useAddLayerToMap(layer, olMap, zIndex)
+useAddLayerToMap(layer, olMap, () => zIndex)
 
 watch(geolocationPosition, () => {
     if (geolocationPosition.value) {
