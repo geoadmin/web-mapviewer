@@ -7,7 +7,7 @@ import { ClickType } from '@/store/modules/map/types/clickType.enum'
 
 
 export interface ClickInfo {
-    coordinate: SingleCoordinate
+    coordinate: SingleCoordinate | FlatExtent
     pixelCoordinate?: SingleCoordinate
     features?: SelectableFeature<false>[] // LayerFeatures are not editable
     clickType?: ClickType

@@ -756,7 +756,11 @@ function parseGeomAdminFeature(
     if (featureGeoJSONGeometry) {
         center = getGeoJsonFeatureCenter(featureGeoJSONGeometry, LV95, outputProjection)
     } else {
-        center = coordinate
+        if (coordinate && coordinate.length === 4) {
+            center = extentUtils.getExtentCenter(coordinate as FlatExtent)
+        } else {
+            center = coordinate
+        }
     }
     if (!center) {
         log.error('Unable to get center for feature', featureMetadata, options)
@@ -786,7 +790,7 @@ interface GetFeatureOptions {
     screenHeight?: number
     /** Current extent of the map, described in LV95. */
     mapExtent?: FlatExtent
-    coordinate?: SingleCoordinate
+    coordinate?: SingleCoordinate | FlatExtent
 }
 
 /**
