@@ -1,4 +1,4 @@
-import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import type { GeoAdminGeoJSONLayer, GPXLayer, KMLLayer } from '@swissgeo/layers'
 import type { Geometry as TurfGeometry } from 'geojson'
 import type {
@@ -67,7 +67,6 @@ export function useDragBoxSelect(): {
         const resolution = positionStore.resolution
         const minDragDistance = DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE * resolution
         const [minX, minY, maxX, maxY] = selectExtent
-        const selectExtentCenter: SingleCoordinate = [(minX! + maxX!) / 2, (minY! + maxY!) / 2]
         if (
             Math.abs(minX! - maxX!) < minDragDistance ||
             Math.abs(minY! - maxY!) < minDragDistance
@@ -143,10 +142,9 @@ export function useDragBoxSelect(): {
             })
             .map(({ feature, layer }) => createLayerFeature(feature, layer))
             .filter((feature) => !!feature)
-
         mapStore.click(
             {
-                coordinate: selectExtentCenter,
+                coordinate: selectExtent as FlatExtent,
                 features: vectorFeatures,
                 clickType: ClickType.DrawBox,
             },
