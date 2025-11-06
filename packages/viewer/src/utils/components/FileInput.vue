@@ -13,7 +13,23 @@ import { useI18n } from 'vue-i18n'
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
 import { humanFileSize } from '@/utils/utils'
 
-interface Props {
+const {
+    label = '',
+    description = '',
+    disabled = false,
+    acceptedFileTypes = [],
+    maxFileSize = 250 * 1024 * 1024, // 250 MB
+    placeholder = '',
+    required = false,
+    validMarker = undefined,
+    validMessage = '',
+    invalidMarker = undefined,
+    invalidMessage = '',
+    invalidMessageExtraParams = {},
+    activateValidation = false,
+    validate = undefined,
+    dataCy = '',
+} = defineProps<{
     /** Label to add above the field */
     label?: string
     /** Description to add below the input */
@@ -90,25 +106,7 @@ interface Props {
      */
     validate?: ((_value?: File) => { valid: boolean; invalidMessage: string }) | undefined
     dataCy?: string
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    label: '',
-    description: '',
-    disabled: false,
-    acceptedFileTypes: () => [],
-    maxFileSize: 250 * 1024 * 1024, // 250 MB
-    placeholder: '',
-    required: false,
-    validMarker: undefined,
-    validMessage: '',
-    invalidMarker: undefined,
-    invalidMessage: '',
-    invalidMessageExtraParams: () => ({}),
-    activateValidation: false,
-    validate: undefined,
-    dataCy: '',
-})
+}>()
 
 // On each component creation set the current component unique ID
 const inputFileId = useComponentUniqueId('file-input')
@@ -127,21 +125,21 @@ const inputLocalFile = useTemplateRef<HTMLInputElement>('inputLocalFile')
 const filePathInfo = computed(() =>
     model.value ? `${model.value.name}, ${model.value.size / 1000} kb` : ''
 )
-const maxFileSizeHuman = computed(() => humanFileSize(props.maxFileSize))
+const maxFileSizeHuman = computed(() => humanFileSize(maxFileSize))
 
 // Validation logic
 function validateFile(): { valid: boolean; invalidMessage: string } {
     const file = model.value
     if (
         file &&
-        props.acceptedFileTypes?.length > 0 &&
-        !props.acceptedFileTypes.some((type: string) =>
+        acceptedFileTypes?.length > 0 &&
+        !acceptedFileTypes.some((type: string) =>
             file.name.toLowerCase().endsWith(type.toLowerCase())
         )
     ) {
         return { valid: false, invalidMessage: 'file_unsupported_format' }
     }
-    if (file && file.size > props.maxFileSize) {
+    if (file && file.size > maxFileSize) {
         return { valid: false, invalidMessage: 'file_too_large' }
     }
     return {
@@ -152,12 +150,12 @@ function validateFile(): { valid: boolean; invalidMessage: string } {
 
 const isValid = computed(() => {
     // Check required field
-    if (props.required && !model.value) {
+    if (required && !model.value) {
         return false
     }
     // Check custom validation
-    if (props.validate) {
-        const result = props.validate(model.value)
+    if (validate) {
+        const result = validate(model.value)
         return result.valid
     }
     // Check internal validation
@@ -166,12 +164,12 @@ const isValid = computed(() => {
 })
 
 const computedInvalidMarker = computed(() => {
-    if (!props.activateValidation) {
+    if (!activateValidation) {
         return false
     }
     let _invalidMarker = !isValid.value
-    if (props.invalidMarker !== undefined) {
-        _invalidMarker = _invalidMarker || !!props.invalidMarker
+    if (invalidMarker !== undefined) {
+        _invalidMarker = _invalidMarker || !!invalidMarker
     }
     return _invalidMarker
 })
@@ -179,27 +177,27 @@ const computedInvalidMarker = computed(() => {
 const computedValidMarker = computed(() => {
     // Do not add a valid marker when validation is not activated or when the field is empty
     // or when it is already marked as invalid
-    if (!props.activateValidation || !model.value || computedInvalidMarker.value) {
+    if (!activateValidation || !model.value || computedInvalidMarker.value) {
         return false
     }
     let _validMarker = isValid.value
-    if (props.validMarker !== undefined) {
-        _validMarker = _validMarker && (props.validMarker ?? false)
+    if (validMarker !== undefined) {
+        _validMarker = _validMarker && (validMarker ?? false)
     }
     return _validMarker
 })
 
 const computedInvalidMessage = computed(() => {
-    if (props.invalidMessage) {
-        return props.invalidMessage
+    if (invalidMessage) {
+        return invalidMessage
     }
     // Check required field
-    if (props.required && !model.value) {
+    if (required && !model.value) {
         return 'no_file'
     }
     // Check custom validation
-    if (props.validate) {
-        const result = props.validate(model.value)
+    if (validate) {
+        const result = validate(model.value)
         return result.valid ? '' : result.invalidMessage
     }
     // Check internal validation
@@ -208,7 +206,7 @@ const computedInvalidMessage = computed(() => {
 })
 
 const computedValidMessage = computed(() => {
-    return props.validMessage
+    return validMessage
 })
 
 // Methods
@@ -217,7 +215,7 @@ function onFileSelected(evt: Event): void {
     const file = target?.files?.[0] ?? undefined
     model.value = file
 
-    if (props.activateValidation) {
+    if (activateValidation) {
         emits('validate', isValid.value)
     }
     emits('change')
@@ -227,16 +225,16 @@ function onFileSelected(evt: Event): void {
 <template>
     <div
         class="form-group has-validation"
-        :data-cy="`${props.dataCy}`"
+        :data-cy="`${dataCy}`"
     >
         <label
-            v-if="props.label"
+            v-if="label"
             class="mb-2"
-            :class="{ 'fw-bolder': props.required }"
+            :class="{ 'fw-bolder': required }"
             :for="inputFileId"
             data-cy="file-input-label"
         >
-            {{ t(props.label) }}
+            {{ t(label) }}
         </label>
         <div
             :id="inputFileId"
@@ -245,7 +243,7 @@ function onFileSelected(evt: Event): void {
             <button
                 class="btn btn-outline-group"
                 type="button"
-                :disabled="props.disabled"
+                :disabled="disabled"
                 data-cy="file-input-browse-button"
                 @click="inputLocalFile?.click()"
             >
@@ -254,8 +252,8 @@ function onFileSelected(evt: Event): void {
             <input
                 ref="inputLocalFile"
                 type="file"
-                :disabled="props.disabled"
-                :accept="props.acceptedFileTypes.join(',')"
+                :disabled="disabled"
+                :accept="acceptedFileTypes.join(',')"
                 hidden
                 data-cy="file-input"
                 @change="onFileSelected"
@@ -264,13 +262,13 @@ function onFileSelected(evt: Event): void {
                 type="text"
                 class="form-control import-input rounded-end local-file-input"
                 :class="{ 'is-valid': computedValidMarker, 'is-invalid': computedInvalidMarker }"
-                :placeholder="props.placeholder ? t(props.placeholder) : ''"
+                :placeholder="placeholder ? t(placeholder) : ''"
                 :value="filePathInfo"
                 readonly
                 required
                 tabindex="-1"
                 data-cy="file-input-text"
-                :disabled="props.disabled"
+                :disabled="disabled"
                 @click="inputLocalFile?.click()"
             />
             <div
@@ -281,8 +279,8 @@ function onFileSelected(evt: Event): void {
                 {{
                     t(computedInvalidMessage, {
                         maxFileSize: maxFileSizeHuman,
-                        allowedFormats: props.acceptedFileTypes.join(', '),
-                        ...props.invalidMessageExtraParams,
+                        allowedFormats: acceptedFileTypes.join(', '),
+                        ...invalidMessageExtraParams,
                     })
                 }}
             </div>
@@ -295,11 +293,11 @@ function onFileSelected(evt: Event): void {
             </div>
         </div>
         <div
-            v-if="props.description"
+            v-if="description"
             class="form-text"
             data-cy="file-input-description"
         >
-            {{ t(props.description) }}
+            {{ t(description) }}
         </div>
     </div>
 </template>
