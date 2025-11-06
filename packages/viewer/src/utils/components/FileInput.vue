@@ -7,29 +7,13 @@
  * NOTE: the validation only happens when the prop activate-validation is set to true, this allow to
  * validate all fields of a form at once.
  */
-import { computed, ref, useTemplateRef, watch } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
 import { humanFileSize } from '@/utils/utils'
 
-const {
-    label = '',
-    description = '',
-    disabled = false,
-    acceptedFileTypes = [],
-    maxFileSize = 250 * 1024 * 1024, // 250 MB
-    placeholder = '',
-    required = false,
-    validMarker = undefined,
-    validMessage = '',
-    invalidMarker = undefined,
-    invalidMessage = '',
-    invalidMessageExtraParams = {},
-    activateValidation = false,
-    validate = undefined,
-    dataCy = '',
-} = defineProps<{
+interface Props {
     /** Label to add above the field */
     label?: string
     /** Description to add below the input */
@@ -106,7 +90,25 @@ const {
      */
     validate?: ((_value?: File) => { valid: boolean; invalidMessage: string }) | undefined
     dataCy?: string
-}>()
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    label: '',
+    description: '',
+    disabled: false,
+    acceptedFileTypes: () => [],
+    maxFileSize: 250 * 1024 * 1024, // 250 MB
+    placeholder: '',
+    required: false,
+    validMarker: undefined,
+    validMessage: '',
+    invalidMarker: undefined,
+    invalidMessage: '',
+    invalidMessageExtraParams: () => ({}),
+    activateValidation: false,
+    validate: undefined,
+    dataCy: '',
+})
 
 // On each component creation set the current component unique ID
 const inputFileId = useComponentUniqueId('file-input')
@@ -120,31 +122,27 @@ const emits = defineEmits<{
 
 // Reactive data
 const inputLocalFile = useTemplateRef<HTMLInputElement>('inputLocalFile')
-const internalInvalidMessage = ref<string>('')
 
 // Computed properties
 const filePathInfo = computed(() =>
     model.value ? `${model.value.name}, ${model.value.size / 1000} kb` : ''
 )
-const maxFileSizeHuman = computed(() => humanFileSize(maxFileSize))
+const maxFileSizeHuman = computed(() => humanFileSize(props.maxFileSize))
 
-// Methods
+// Validation logic
 function validateFile(): { valid: boolean; invalidMessage: string } {
     const file = model.value
     if (
         file &&
-        acceptedFileTypes?.length > 0 &&
-        !acceptedFileTypes.some((type: string) =>
+        props.acceptedFileTypes?.length > 0 &&
+        !props.acceptedFileTypes.some((type: string) =>
             file.name.toLowerCase().endsWith(type.toLowerCase())
         )
     ) {
         return { valid: false, invalidMessage: 'file_unsupported_format' }
     }
-    if (file && file.size > maxFileSize) {
+    if (file && file.size > props.maxFileSize) {
         return { valid: false, invalidMessage: 'file_too_large' }
-    }
-    if (required && !model.value) {
-        return { valid: false, invalidMessage: 'no_file' }
     }
     return {
         valid: true,
@@ -152,66 +150,102 @@ function validateFile(): { valid: boolean; invalidMessage: string } {
     }
 }
 
+const isValid = computed(() => {
+    // Check required field
+    if (props.required && !model.value) {
+        return false
+    }
+    // Check custom validation
+    if (props.validate) {
+        const result = props.validate(model.value)
+        return result.valid
+    }
+    // Check internal validation
+    const result = validateFile()
+    return result.valid
+})
+
+const computedInvalidMarker = computed(() => {
+    if (!props.activateValidation) {
+        return false
+    }
+    let _invalidMarker = !isValid.value
+    if (props.invalidMarker !== undefined) {
+        _invalidMarker = _invalidMarker || !!props.invalidMarker
+    }
+    return _invalidMarker
+})
+
+const computedValidMarker = computed(() => {
+    // Do not add a valid marker when validation is not activated or when the field is empty
+    // or when it is already marked as invalid
+    if (!props.activateValidation || !model.value || computedInvalidMarker.value) {
+        return false
+    }
+    let _validMarker = isValid.value
+    if (props.validMarker !== undefined) {
+        _validMarker = _validMarker && (props.validMarker ?? false)
+    }
+    return _validMarker
+})
+
+const computedInvalidMessage = computed(() => {
+    if (props.invalidMessage) {
+        return props.invalidMessage
+    }
+    // Check required field
+    if (props.required && !model.value) {
+        return 'no_file'
+    }
+    // Check custom validation
+    if (props.validate) {
+        const result = props.validate(model.value)
+        return result.valid ? '' : result.invalidMessage
+    }
+    // Check internal validation
+    const result = validateFile()
+    return result.invalidMessage
+})
+
+const computedValidMessage = computed(() => {
+    return props.validMessage
+})
+
+// Methods
 function onFileSelected(evt: Event): void {
     const target = evt.target as HTMLInputElement
     const file = target?.files?.[0] ?? undefined
     model.value = file
 
-    // Validate if custom validation is provided
-    if (validate) {
-        const result = validate(file)
-        if (!result.valid) {
-            internalInvalidMessage.value = result.invalidMessage
-        } else {
-            internalInvalidMessage.value = ''
-        }
-    } else {
-        const result = validateFile()
-        if (!result.valid) {
-            internalInvalidMessage.value = result.invalidMessage
-        } else {
-            internalInvalidMessage.value = ''
-        }
+    if (props.activateValidation) {
+        emits('validate', isValid.value)
     }
-
     emits('change')
 }
-
-// Watch for validation changes
-watch(
-    () => [model.value, activateValidation],
-    () => {
-        if (activateValidation) {
-            const result = validate ? validate(model.value) : validateFile()
-            internalInvalidMessage.value = result.valid ? '' : result.invalidMessage
-            emits('validate', result.valid)
-        }
-    }
-)
 </script>
 
 <template>
     <div
         class="form-group has-validation"
-        :data-cy="`${dataCy}`"
+        :data-cy="`${props.dataCy}`"
     >
         <label
-            v-if="label"
+            v-if="props.label"
             class="mb-2"
-            :class="{ 'fw-bolder': required }"
+            :class="{ 'fw-bolder': props.required }"
             :for="inputFileId"
             data-cy="file-input-label"
         >
-            {{ t(label) }}
+            {{ t(props.label) }}
         </label>
         <div
             :id="inputFileId"
-            class="input-group has-validation mb-2 rounded"
+            class="input-group rounded has-validation mb-2"
         >
             <button
                 class="btn btn-outline-group"
                 type="button"
-                :disabled="disabled"
+                :disabled="props.disabled"
                 data-cy="file-input-browse-button"
                 @click="inputLocalFile?.click()"
             >
@@ -220,8 +254,8 @@ watch(
             <input
                 ref="inputLocalFile"
                 type="file"
-                :disabled="disabled"
-                :accept="acceptedFileTypes.join(',')"
+                :disabled="props.disabled"
+                :accept="props.acceptedFileTypes.join(',')"
                 hidden
                 data-cy="file-input"
                 @change="onFileSelected"
@@ -229,43 +263,43 @@ watch(
             <input
                 type="text"
                 class="form-control import-input rounded-end local-file-input"
-                :class="{ 'is-valid': validMarker, 'is-invalid': invalidMarker }"
-                :placeholder="placeholder ? t(placeholder) : ''"
+                :class="{ 'is-valid': computedValidMarker, 'is-invalid': computedInvalidMarker }"
+                :placeholder="props.placeholder ? t(props.placeholder) : ''"
                 :value="filePathInfo"
                 readonly
                 required
                 tabindex="-1"
                 data-cy="file-input-text"
-                :disabled="disabled"
+                :disabled="props.disabled"
                 @click="inputLocalFile?.click()"
             />
             <div
-                v-if="invalidMessage"
+                v-if="computedInvalidMessage"
                 class="invalid-feedback"
                 data-cy="file-input-invalid-feedback"
             >
                 {{
-                    t(invalidMessage, {
+                    t(computedInvalidMessage, {
                         maxFileSize: maxFileSizeHuman,
-                        allowedFormats: acceptedFileTypes.join(', '),
-                        ...invalidMessageExtraParams,
+                        allowedFormats: props.acceptedFileTypes.join(', '),
+                        ...props.invalidMessageExtraParams,
                     })
                 }}
             </div>
             <div
-                v-if="validMessage"
+                v-if="computedValidMessage"
                 class="valid-feedback"
                 data-cy="file-input-valid-feedback"
             >
-                {{ t(validMessage) }}
+                {{ t(computedValidMessage) }}
             </div>
         </div>
         <div
-            v-if="description"
+            v-if="props.description"
             class="form-text"
             data-cy="file-input-description"
         >
-            {{ t(description) }}
+            {{ t(props.description) }}
         </div>
     </div>
 </template>
