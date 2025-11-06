@@ -1,3 +1,4 @@
+import type { Store } from 'pinia'
 import type { LocationQuery, RouteLocationNormalizedGeneric, Router } from 'vue-router'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
@@ -14,7 +15,17 @@ import UrlParamConfig, {
 } from '@/router/storeSync/UrlParamConfig.class'
 import { MAP_VIEWS } from '@/router/viewNames'
 import useAppStore from '@/store/modules/app'
+import useCesiumStore from '@/store/modules/cesium'
+import useDebugStore from '@/store/modules/debug'
+import useGeolocationStore from '@/store/modules/geolocation'
+import useI18nStore from '@/store/modules/i18n'
+import useLayersStore from '@/store/modules/layers'
+import usePositionStore from '@/store/modules/position'
+import usePrintStore from '@/store/modules/print'
+import useSearchStore from '@/store/modules/search'
 import useShareStore from '@/store/modules/share'
+import useTopicsStore from '@/store/modules/topics'
+import useUIStore from '@/store/modules/ui'
 
 export const FAKE_URL_CALLED_AFTER_ROUTE_CHANGE: string = '/tell-cypress-route-has-changed'
 const watchedActions: string[] = [
@@ -229,7 +240,6 @@ function urlQueryWatcher(
             })
         })
     }
-
     if (requireQueryUpdate) {
         log.debug({
             title: 'Router store plugin / urlQueryWatcher',
@@ -266,7 +276,19 @@ function initialUrlQueryWatcher(to: RouteLocationNormalizedGeneric, router: Rout
  * parameter when on the MapView.
  */
 const storeSyncRouterPlugin: RouterPlugin = (router): void => {
-    let unsubscribeStoreMutation: () => void
+
+    let unsubscribeAppReadyMutation: () => void
+    let unsubscribeCesiumMutation: () => void
+    let unsubscribeDebugMutation: () => void
+    let unsubscribeGeolocationMutation: () => void
+    let unsubscribeI18nMutation: () => void
+    let unsubscribeLayerMutation: () => void
+    let unsubscribePositionMutation: () => void
+    let unsubscribePrintMutation: () => void
+    let unsubscribeSearchMutation: () => void
+    let unsubscribeTopicMutation: () => void
+    let unsubscribeUIMutation: () => void
+
     router.beforeEach(
         (to: RouteLocationNormalizedGeneric, from: RouteLocationNormalizedGeneric) => {
             log.debug({
@@ -291,13 +313,36 @@ const storeSyncRouterPlugin: RouterPlugin = (router): void => {
                     messages: [`leaving the map view`, from, to],
                 })
                 // leaving MapView make sure to unsubscribe the store mutation
-                if (unsubscribeStoreMutation) {
+                if (unsubscribeAppReadyMutation) {
                     log.info({
                         title: 'Router store plugin/beforeEach',
                         titleColor: LogPreDefinedColor.Rose,
                         messages: [`Leaving ${to.name}, unregister store mutation watcher`],
                     })
-                    unsubscribeStoreMutation()
+                    unsubscribeAppReadyMutation()
+                    if (
+                        unsubscribePositionMutation &&
+                        unsubscribeDebugMutation &&
+                        unsubscribeTopicMutation &&
+                        unsubscribeLayerMutation &&
+                        unsubscribeSearchMutation &&
+                        unsubscribeUIMutation &&
+                        unsubscribeI18nMutation &&
+                        unsubscribeCesiumMutation &&
+                        unsubscribeGeolocationMutation &&
+                        unsubscribePrintMutation
+                    ) {
+                            unsubscribePositionMutation()
+                            unsubscribeDebugMutation()
+                            unsubscribeTopicMutation()
+                            unsubscribeLayerMutation()
+                            unsubscribeSearchMutation()
+                            unsubscribeUIMutation()
+                            unsubscribeI18nMutation()
+                            unsubscribeCesiumMutation()
+                            unsubscribeGeolocationMutation()
+                            unsubscribePrintMutation()
+                        }
                     retVal = undefined
                 }
             } else if (appStore.isReady) {
@@ -342,10 +387,11 @@ const storeSyncRouterPlugin: RouterPlugin = (router): void => {
     // which was LEGACY. By moving this subscription to the after Each loop, we ensure the 'currentRoute'
     // is always set to MAPVIEW, avoiding a lock of the viewer.
     router.afterEach((to: RouteLocationNormalizedGeneric) => {
+
         if (
             typeof to.name === 'string' &&
             MAP_VIEWS.includes(to.name) &&
-            !unsubscribeStoreMutation
+            !unsubscribeAppReadyMutation
         ) {
             log.info({
                 title: 'Router store plugin/afterEach',
@@ -354,9 +400,36 @@ const storeSyncRouterPlugin: RouterPlugin = (router): void => {
             })
             const appStore = useAppStore()
 
-            // listening to store mutation to update URL
-            unsubscribeStoreMutation = appStore.$onAction(({ name, args }) => {
-                if (name === 'setAppIsReady') {
+            /**
+             * We subscribe to every store we need to in order to sync the URL and the
+             * state of the application.
+             *
+             */
+            function applyAllPersistentSubscriptions(): void {
+
+                function setSubscription(store: Store): () => void {
+                    return store.$onAction(({after, name, args}) => {
+                        after(() => storeMutationWatcher(name, args, router))
+                    })
+                }
+
+                unsubscribeCesiumMutation = setSubscription(useCesiumStore())
+                unsubscribeDebugMutation = setSubscription(useDebugStore())
+                unsubscribeGeolocationMutation = setSubscription(useGeolocationStore())
+                unsubscribeI18nMutation = setSubscription(useI18nStore())
+                unsubscribeLayerMutation = setSubscription(useLayersStore())
+                unsubscribePositionMutation = setSubscription(usePositionStore())
+                unsubscribePrintMutation = setSubscription(usePrintStore())
+                unsubscribeSearchMutation = setSubscription(useSearchStore())
+                unsubscribeTopicMutation = setSubscription(useTopicsStore())
+                unsubscribeUIMutation = setSubscription(useUIStore())
+            }
+
+            // we are waiting for the app to be ready to start listening on the store changes for the URL sync
+            unsubscribeAppReadyMutation = appStore.$onAction(({ after, name, args }) => {
+
+                after(() => {
+                    if (name === 'setAppIsReady') {
                     // If the app was not yet ready after entering the map view, we need to
                     // trigger the initial urlQuery watcher otherwise we have a blank application.
                     log.info({
@@ -364,10 +437,17 @@ const storeSyncRouterPlugin: RouterPlugin = (router): void => {
                         titleColor: LogPreDefinedColor.Rose,
                         messages: [`App is ready, trigger initial URL query watcher`],
                     })
+                    applyAllPersistentSubscriptions()
                     initialUrlQueryWatcher(to, router)
                 } else if (appStore.isReady) {
+                    // here, we need to set up the store mutation watcher for all stores.
+
+                    applyAllPersistentSubscriptions()
                     storeMutationWatcher(name, args, router)
+
                 }
+                })
+
             })
 
             if (appStore.isReady) {
@@ -382,6 +462,7 @@ const storeSyncRouterPlugin: RouterPlugin = (router): void => {
                         `MapView entered, while app was already ready ! Trigger initial URL query watcher`,
                     ],
                 })
+                applyAllPersistentSubscriptions()
                 initialUrlQueryWatcher(to, router)
             }
         }
