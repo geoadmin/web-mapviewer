@@ -7,9 +7,9 @@ export interface ValidationResult {
     invalidMessage: string
 }
 
-export type ValidateFunction = (value: string) => ValidationResult
+export type ValidateFunction<T = string> = (value: T) => ValidationResult
 
-export interface FieldValidationProps {
+export interface FieldValidationProps<T = string> {
     label?: string
     description?: string
     disabled?: boolean
@@ -20,7 +20,7 @@ export interface FieldValidationProps {
     invalidMarker?: boolean | undefined
     invalidMessage?: string
     activateValidation?: boolean
-    validate?: ValidateFunction | undefined
+    validate?: ValidateFunction<T> | undefined
 }
 
 export interface FieldValidationOptions {
@@ -28,8 +28,8 @@ export interface FieldValidationOptions {
     requiredInvalidMessage?: string
 }
 
-export interface FieldValidationReturn {
-    value: Ref<string>
+export interface FieldValidationReturn<T = string> {
+    value: Ref<T>
     isValid: ComputedRef<boolean>
     validMarker: ComputedRef<boolean>
     invalidMarker: ComputedRef<boolean>
@@ -74,9 +74,9 @@ export function propsValidator4ValidateFunc(value: unknown, _props: unknown): bo
  * @param emits Vue event emitter definition of the input component
  * @param options Options object for custom validation and messages
  */
-export function useFieldValidation(
-    props: FieldValidationProps,
-    model: WritableComputedRef<string>,
+export function useFieldValidation<T = string>(
+    props: FieldValidationProps<T>,
+    model: WritableComputedRef<T>,
     emits: (event: string, ...args: unknown[]) => void,
     {
         customValidate = (): ValidationResult => {
@@ -84,15 +84,26 @@ export function useFieldValidation(
         },
         requiredInvalidMessage = 'field_required',
     }: FieldValidationOptions = {}
-): FieldValidationReturn {
+): FieldValidationReturn<T> {
     // Reactive data
-    const value = ref<string>(model.value)
+    const value = ref(model.value) as Ref<T>
 
     const userIsTyping = ref<boolean>(false)
     const activateValidation = toRef(props, 'activateValidation')
     const required = toRef(props, 'required')
     const validMessage = toRef(props, 'validMessage')
     const validation = ref<ValidationResult>({ valid: true, invalidMessage: '' })
+
+    // Helper function to check if value is empty
+    const isEmpty = (val: T): boolean => {
+        if (val === null || val === undefined) {
+            return true
+        }
+        if (typeof val === 'string') {
+            return !val
+        }
+        return false
+    }
 
     // Computed properties
     const isValid = computed(() => {
@@ -102,7 +113,7 @@ export function useFieldValidation(
     const validMarker = computed(() => {
         // Do not add a valid marker when the marker are not activated or when the field is empty
         // or when it is already marked as invalid
-        if (!activateValidationMarkers.value || !value.value || invalidMarker.value) {
+        if (!activateValidationMarkers.value || isEmpty(value.value) || invalidMarker.value) {
             return false
         }
         let _validMarker = isValid.value
@@ -144,7 +155,7 @@ export function useFieldValidation(
 
     function validate(): void {
         validation.value = customValidate()
-        if (required.value && !value.value) {
+        if (required.value && isEmpty(value.value)) {
             validation.value = {
                 valid: false,
                 invalidMessage: requiredInvalidMessage,
