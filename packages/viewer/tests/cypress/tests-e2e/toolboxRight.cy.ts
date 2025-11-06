@@ -60,7 +60,6 @@ describe('Testing the buttons of the right toolbox', () => {
 
     it('shows a compass in the toolbox when map orientation is not pure north', () => {
         cy.getPinia().then(pinia => {
-            console.log('got pinia', pinia)
             const positionStore = usePositionStore(pinia)
             expect(positionStore.rotation).to.equal(0)
         })

@@ -2,6 +2,8 @@
 import type { Map } from 'ol'
 import type MapEvent from 'ol/MapEvent'
 
+const RESET_ANIMATION_DURATION_MS = 300
+
 import log from '@swissgeo/log'
 import { computed, inject, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -26,7 +28,7 @@ const positionStore = usePositionStore()
 const { t } = useI18n()
 
 const rotation = ref(0)
-
+const isResetting = ref(false)
 const showCompass = computed(() => Math.abs(rotation.value) >= 1e-9 || !hideIfNorth)
 
 onMounted(() => {
@@ -38,11 +40,21 @@ onUnmounted(() => {
 })
 
 function resetRotation(): void {
+    isResetting.value = true
     positionStore.setAutoRotation(false, dispatcher)
     positionStore.setRotation(0, dispatcher)
+    rotation.value = 0
+    // Allow rotation updates again after animation completes
+    setTimeout(() => {
+        isResetting.value = false
+    }, RESET_ANIMATION_DURATION_MS)
 }
 
 function onRotate(mapEvent: MapEvent): void {
+    // Ignore rotation updates during reset animation to prevent button from reappearing
+    if (isResetting.value) {
+        return
+    }
     const newRotation = mapEvent.frameState?.viewState.rotation
     if (newRotation && newRotation !== rotation.value) {
         rotation.value = newRotation
