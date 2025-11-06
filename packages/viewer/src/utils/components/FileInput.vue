@@ -14,7 +14,23 @@ import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
 import { useFieldValidation } from '@/utils/composables/useFieldValidation'
 import { humanFileSize } from '@/utils/utils'
 
-const props = defineProps<{
+const {
+    label = '',
+    description = '',
+    disabled = false,
+    acceptedFileTypes = [],
+    maxFileSize = 250 * 1024 * 1024, // 250 MB
+    placeholder = '',
+    required = false,
+    validMarker = undefined,
+    validMessage = '',
+    invalidMarker = undefined,
+    invalidMessage = '',
+    invalidMessageExtraParams = {},
+    activateValidation = false,
+    validate = undefined,
+    dataCy = '',
+} = defineProps<{
     /** Label to add above the field */
     label?: string
     /** Description to add below the input */
@@ -93,17 +109,6 @@ const props = defineProps<{
     dataCy?: string
 }>()
 
-const {
-    label = '',
-    description = '',
-    disabled = false,
-    acceptedFileTypes = [],
-    maxFileSize = 250 * 1024 * 1024, // 250 MB
-    placeholder = '',
-    dataCy = '',
-    invalidMessageExtraParams = {},
-} = props
-
 // On each component creation set the current component unique ID
 const inputFileId = useComponentUniqueId('file-input')
 
@@ -151,13 +156,13 @@ function validateFile(): { valid: boolean; invalidMessage: string } {
 
 // Use the field validation composable with properly typed props
 const validationProps = {
-    required: props.required,
-    validMarker: props.validMarker,
-    validMessage: props.validMessage,
-    invalidMarker: props.invalidMarker,
-    invalidMessage: props.invalidMessage,
-    activateValidation: props.activateValidation,
-    validate: props.validate,
+    required,
+    validMarker,
+    validMessage,
+    invalidMarker,
+    invalidMessage,
+    activateValidation,
+    validate,
 }
 
 const { value, validMarker: computedValidMarker, invalidMarker: computedInvalidMarker, validMessage: computedValidMessage, invalidMessage: computedInvalidMessage } =
@@ -197,7 +202,7 @@ function onFileSelected(evt: Event): void {
         <label
             v-if="label"
             class="mb-2"
-            :class="{ 'fw-bolder': props.required }"
+            :class="{ 'fw-bolder': required }"
             :for="inputFileId"
             data-cy="file-input-label"
         >
