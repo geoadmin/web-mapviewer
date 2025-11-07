@@ -7,13 +7,9 @@ import CoordinateSystem from '@/proj/CoordinateSystem'
 export type SingleCoordinate = [number, number]
 export type Single3DCoordinate = [number, number, number]
 
-function isValidCoordinate<T extends SingleCoordinate | SingleCoordinate[]>(input: T): boolean {
+function isValidCoordinate(input: unknown): boolean {
     if (!Array.isArray(input) || input.length === 0) {
         return false
-    }
-    const depthOne = input[0]
-    if (Array.isArray(depthOne)) {
-        return (input as SingleCoordinate[]).every((coordinate) => isValidCoordinate(coordinate))
     }
     return typeof input[0] === 'number' && typeof input[1] === 'number'
 }
@@ -103,15 +99,19 @@ function wrapXCoordinates<T extends SingleCoordinate | SingleCoordinate[]>(
  * it, or return the array as is if it is not required
  */
 function unwrapGeometryCoordinates(
-    geometryCoordinates: SingleCoordinate[] | SingleCoordinate[][]
+    geometryCoordinates?: SingleCoordinate[] | SingleCoordinate[][] | SingleCoordinate[][][]
 ): SingleCoordinate[] {
-    if (Array.isArray(geometryCoordinates)) {
-        const [firstEntry] = geometryCoordinates
-        if (Array.isArray(firstEntry) && !(typeof firstEntry[0] === 'number')) {
-            return firstEntry as SingleCoordinate[]
-        }
+    if (!geometryCoordinates) {
+        return []
     }
-    return geometryCoordinates as SingleCoordinate[]
+
+    if (geometryCoordinates.every((value) => isValidCoordinate(value))) {
+        return geometryCoordinates as SingleCoordinate[]
+    } else {
+        return unwrapGeometryCoordinates(
+            (geometryCoordinates as SingleCoordinate[][] | SingleCoordinate[][][])[0]
+        )
+    }
 }
 
 /**

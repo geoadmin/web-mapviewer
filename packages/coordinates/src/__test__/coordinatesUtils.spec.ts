@@ -128,6 +128,17 @@ describe('Unit test for coordinatesUtils', () => {
                 expectedOutcome
             )
         })
+        it('can deal with multiple wrapping array around coordinates', () => {
+            const expectedOutcome: SingleCoordinate[] = [
+                [1, 2],
+                [3, 4],
+                [5, 6],
+            ]
+            const wrappedCoordinates = [[expectedOutcome]]
+            expect(coordinatesUtils.unwrapGeometryCoordinates(wrappedCoordinates)).to.eql(
+                expectedOutcome
+            )
+        })
     })
 
     describe('removeZValues', () => {
