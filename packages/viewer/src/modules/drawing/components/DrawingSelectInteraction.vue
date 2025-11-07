@@ -25,8 +25,6 @@ import useModifyInteraction from '@/modules/drawing/components/useModifyInteract
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
-import useProfileStore from '@/store/modules/profile'
-import useUIStore from '@/store/modules/ui'
 
 const dispatcher: ActionDispatcher = { name: 'DrawingSelectInteraction.vue' }
 
@@ -38,8 +36,6 @@ const olMap = inject<Map>('olMap')
 
 const drawingStore = useDrawingStore()
 const featuresStore = useFeaturesStore()
-const profileStore = useProfileStore()
-const uiStore = useUIStore()
 
 const selectInteraction = new SelectInteraction({
     style: editingFeatureStyleFunction as StyleFunction,

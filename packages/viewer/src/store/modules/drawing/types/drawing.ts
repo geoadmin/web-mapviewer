@@ -18,11 +18,11 @@ export interface DrawingStoreState {
         ol?: Raw<VectorLayer<VectorSource<Feature<Geometry>>>>
         config?: KMLLayer
         /** KML ID to use for temporary local KML (only used when online === false) */
-        temporaryKmlId: string | undefined
+        temporaryKmlId?: string
     }
     edit: {
         /** Current drawing type (or `undefined` if there is none). */
-        featureType: EditableFeatureTypes | undefined
+        featureType?: EditableFeatureTypes
         /** Current editing mode. */
         mode: EditMode
         /**
@@ -31,13 +31,13 @@ export interface DrawingStoreState {
          */
         reverseLineStringExtension: boolean
         preferred: {
-            iconSize: FeatureStyleSize | undefined
-            iconColor: FeatureStyleColor | undefined
-            textPlacement: TextPlacement | undefined
+            iconSize?: FeatureStyleSize
+            iconColor?: FeatureStyleColor
+            textPlacement?: TextPlacement
         }
     }
     feature: {
-        current: EditableFeature | undefined
+        current?: EditableFeature
         /** All features that have been drawn (or loaded from the KML). */
         all: EditableFeature[]
     }
@@ -57,7 +57,7 @@ export interface DrawingStoreState {
     /** KML is saved online using the KML backend service */
     online: boolean
     /** The name of the drawing, or undefined if no drawing is currently edited. */
-    name: string | undefined
+    name?: string
     /** Flag to indicate if the drawing is new (not yet saved/existing on the backend) */
     isDrawingNew: boolean
     /** Flag to indicate if the drawing is shared with an admin id */
