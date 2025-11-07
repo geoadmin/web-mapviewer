@@ -147,7 +147,6 @@ function applyCoordinates(
     } else {
         positionStore.setZoom(constants.STANDARD_ZOOM_LEVEL_1_25000_MAP, dispatcher)
     }
-    console.log('Setting pinned location to', coordinates)
     mapStore.setPinnedLocation(coordinates, dispatcher)
 }
 
