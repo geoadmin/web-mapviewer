@@ -6,7 +6,20 @@ import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
 import { useFieldValidation } from '@/utils/composables/useFieldValidation'
 import { isValidEmail } from '@/utils/utils'
 
-interface Props {
+const {
+    label = '',
+    description = '',
+    disabled = false,
+    placeholder = '',
+    required = false,
+    validMarker = undefined,
+    validMessage = '',
+    invalidMarker = undefined,
+    invalidMessage = '',
+    activateValidation = false,
+    validate = undefined,
+    dataCy = '',
+} = defineProps<{
     /** Label to add above the field */
     label?: string
     /** Description to add below the input */
@@ -68,22 +81,7 @@ interface Props {
      */
     validate?: ((_value?: string) => { valid: boolean; invalidMessage: string }) | undefined
     dataCy?: string
-}
-
-const props = withDefaults(defineProps<Props>(), {
-    label: '',
-    description: '',
-    disabled: false,
-    placeholder: '',
-    required: false,
-    validMarker: undefined,
-    validMessage: '',
-    invalidMarker: undefined,
-    invalidMessage: '',
-    activateValidation: false,
-    validate: undefined,
-    dataCy: '',
-})
+}>()
 
 const inputEmailId = useComponentUniqueId('email-input')
 
@@ -91,11 +89,33 @@ const model = defineModel<string>({ default: '' })
 const emits = defineEmits(['change', 'validate', 'focusin', 'focusout', 'keydown.enter'])
 const { t } = useI18n()
 
-const { value, validMarker, invalidMarker, validMessage, invalidMessage, required, onFocus } =
-    useFieldValidation(props, model, emits as (_event: string, ..._args: unknown[]) => void, {
+const validationProps = {
+    required,
+    validMarker,
+    validMessage,
+    invalidMarker,
+    invalidMessage,
+    activateValidation,
+    validate,
+}
+
+const {
+    value,
+    validMarker: computedValidMarker,
+    invalidMarker: computedInvalidMarker,
+    validMessage: computedValidMessage,
+    invalidMessage: computedInvalidMessage,
+    required: computedRequired,
+    onFocus,
+} = useFieldValidation(
+    validationProps,
+    model,
+    emits as (_event: string, ..._args: unknown[]) => void,
+    {
         customValidate: validateEmail,
         requiredInvalidMessage: 'no_email',
-    })
+    }
+)
 
 const emailInputElement = useTemplateRef<HTMLInputElement>('emailInputElement')
 
@@ -121,7 +141,7 @@ defineExpose({ focus })
         <label
             v-if="label"
             class="mb-2"
-            :class="{ 'fw-bolder': required }"
+            :class="{ 'fw-bolder': computedRequired }"
             :for="inputEmailId"
             data-cy="email-input-label"
         >
@@ -133,12 +153,12 @@ defineExpose({ focus })
             v-model="value"
             :disabled="disabled"
             :class="{
-                'is-invalid': invalidMarker,
-                'is-valid': validMarker,
+                'is-invalid': computedInvalidMarker,
+                'is-valid': computedValidMarker,
             }"
             type="email"
             class="form-control"
-            :required="required"
+            :required="computedRequired"
             :placeholder="placeholder ? t(placeholder) : ''"
             data-cy="email-input"
             @focusin="onFocus($event, true)"
@@ -146,18 +166,18 @@ defineExpose({ focus })
             @keydown.enter="emits('keydown.enter')"
         />
         <div
-            v-if="invalidMessage"
+            v-if="computedInvalidMessage"
             class="invalid-feedback"
             data-cy="email-input-invalid-feedback"
         >
-            {{ t(invalidMessage) }}
+            {{ t(computedInvalidMessage) }}
         </div>
         <div
-            v-if="validMessage"
+            v-if="computedValidMessage"
             class="valid-feedback"
             data-cy="email-input-valid-feedback"
         >
-            {{ t(validMessage) }}
+            {{ t(computedValidMessage) }}
         </div>
         <div
             v-if="description"
