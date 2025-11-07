@@ -67,13 +67,13 @@ export interface EditableFeature extends SelectableFeature<true> {
     textColor?: FeatureStyleColor
     textSize?: FeatureStyleSize
     fillColor?: FeatureStyleColor
+    strokeColor?: FeatureStyleColor
     icon?: DrawingIcon
     /** Size of the icon (if defined) that will be covering this feature */
     iconSize?: FeatureStyleSize
     /** Anchor of the text around the feature. Only useful for markers */
     textPlacement: TextPlacement
     showDescriptionOnMap: boolean
-    isDragged: boolean
 }
 
 export interface LayerFeature extends SelectableFeature<false> {

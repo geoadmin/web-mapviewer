@@ -61,7 +61,7 @@ const cssPositionOnScreen = computed(() => {
 
 const popoverLimits = computed(() => {
     let top = uiStore.headerHeight
-    if (drawingStore.drawingOverlay.show) {
+    if (drawingStore.overlay.show) {
         if (uiStore.isPhoneMode) {
             top = cssDrawingMobileToolbarHeight
         } else {
@@ -125,7 +125,7 @@ defineExpose({
                 uiStore.hasDevSiteWarning &&
                 !uiStore.isTraditionalDesktopSize,
             'phone-mode': uiStore.isPhoneMode,
-            'is-drawing': drawingStore.drawingOverlay.show,
+            'is-drawing': drawingStore.overlay.show,
         }"
     >
         <!--

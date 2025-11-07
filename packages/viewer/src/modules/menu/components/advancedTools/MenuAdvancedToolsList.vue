@@ -47,7 +47,7 @@ function onToggleCompareSlider() {
     )
 
     if (hasNoVisibleLayer.value) {
-        uiStore.addWarnings([new WarningMessage('no_layers_info_compare')], dispatcher)
+        uiStore.addWarnings(new WarningMessage('no_layers_info_compare'), dispatcher)
     }
 }
 function onToggleImportFile() {

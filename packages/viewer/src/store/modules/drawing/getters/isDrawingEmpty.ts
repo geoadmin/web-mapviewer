@@ -1,5 +1,5 @@
 import type { DrawingStore } from '@/store/modules/drawing/types/drawing'
 
 export function isDrawingEmpty(this: DrawingStore): boolean {
-    return this.featureIds.length === 0
+    return this.feature.all.length === 0
 }

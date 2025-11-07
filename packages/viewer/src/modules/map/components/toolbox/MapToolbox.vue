@@ -40,7 +40,7 @@ const drawingStore = useDrawingStore()
         :class="{
             'dev-disclaimer-present': uiStore.hasDevSiteWarning,
             'fullscreen-mode': uiStore.fullscreenMode || !hasHeader,
-            'drawing-mode': drawingStore.drawingOverlay.show,
+            'drawing-mode': drawingStore.overlay.show,
         }"
         data-cy="toolbox-right"
     >

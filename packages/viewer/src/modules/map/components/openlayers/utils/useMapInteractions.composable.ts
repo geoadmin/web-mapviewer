@@ -43,7 +43,7 @@ export default function useMapInteractions(map: MaybeRef<Map>): void {
     const layersStore = useLayersStore()
     const mapStore = useMapStore()
 
-    const isCurrentlyDrawing = computed(() => drawingStore.drawingOverlay.show)
+    const isCurrentlyDrawing = computed(() => drawingStore.overlay.show)
     const activeVectorLayers = computed(() =>
         layersStore.activeLayers.filter((layer: Layer) =>
             [LayerType.KML, LayerType.GPX, LayerType.GEOJSON].includes(layer.type)

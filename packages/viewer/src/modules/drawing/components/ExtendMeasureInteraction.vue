@@ -4,6 +4,8 @@ import type { StyleFunction } from 'ol/style/Style'
 
 import Feature from 'ol/Feature'
 
+import type { DrawingInteractionExposed } from '@/modules/drawing/types/interaction'
+
 import { EditableFeatureTypes } from '@/api/features.api'
 import useExtendLineInteraction from '@/modules/drawing/components/useExtendLineInteraction.composable'
 import { drawMeasureStyle } from '@/modules/drawing/lib/style'
@@ -24,7 +26,7 @@ const { removeLastPoint } = useExtendLineInteraction({
     startingFeature: () => startingFeature,
 })
 
-defineExpose({
+defineExpose<DrawingInteractionExposed>({
     removeLastPoint,
 })
 </script>

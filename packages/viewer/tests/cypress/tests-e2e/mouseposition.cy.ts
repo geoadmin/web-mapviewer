@@ -136,7 +136,9 @@ describe('Test mouse position and interactions', () => {
             checkMousePositionStringValue(centerMGRS)
 
             getMousePositionAndSelect(WGS84Format)
-            checkMousePositionStringValue(WGS84Format.formatCallback(center as SingleCoordinate, true))
+            checkMousePositionStringValue(
+                WGS84Format.formatCallback(center as SingleCoordinate, true)
+            )
 
             // Change display projection without moving the mouse
             getMousePositionAndSelect(MGRSFormat)
@@ -185,7 +187,7 @@ describe('Test mouse position and interactions', () => {
             cy.openDrawingMode()
             cy.getPinia().then((pinia) => {
                 const drawingStore = useDrawingStore(pinia)
-                cy.wrap(drawingStore.drawingOverlay.show).should('be.true')
+                cy.wrap(drawingStore.overlay.show).should('be.true')
             })
             cy.get('[data-cy="location-popup"]').should('not.exist')
             cy.log('the location popup has been hidden when entering drawing mode')

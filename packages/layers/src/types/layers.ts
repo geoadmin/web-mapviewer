@@ -326,6 +326,12 @@ export interface KMLLayer extends FileLayer {
      * is able to link all the files inside the KMZ archive.
      */
     kmzContent?: ArrayBuffer
+    /**
+     * Flag telling if the KML is currently edited by the drawing module/tool. It shouldn't be added
+     * to the map if it is the case, as the drawing module will already have been rendering it on
+     * top of the map.
+     */
+    isEdited: boolean
 }
 
 export interface GPXLink {

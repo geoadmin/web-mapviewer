@@ -8,5 +8,5 @@ export default function setDrawingMode(
     mode: EditableFeatureTypes | undefined,
     dispatcher: ActionDispatcher
 ) {
-    this.mode = mode
+    this.edit.featureType = mode
 }

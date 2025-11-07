@@ -36,7 +36,7 @@ function checkWebGlSupport(): boolean {
 }
 
 function toggle3d() {
-    if (webGlIsSupported.value && !drawingStore.drawingOverlay.show) {
+    if (webGlIsSupported.value && !drawingStore.overlay.show) {
         cesiumStore.set3dActive(!cesiumStore.active, dispatcher)
         printStore.setPrintSectionShown(false, dispatcher)
     }
@@ -54,14 +54,12 @@ function toggle3d() {
             type="button"
             :class="{
                 active: cesiumStore.active,
-                disabled: !webGlIsSupported || drawingStore.drawingOverlay.show,
+                disabled: !webGlIsSupported || drawingStore.overlay.show,
             }"
             data-cy="3d-button"
             @click="toggle3d"
         >
-            <FontAwesomeIcon
-                :icon="['fas', 'cube']"
-            />
+            <FontAwesomeIcon :icon="['fas', 'cube']" />
         </button>
     </GeoadminTooltip>
 </template>

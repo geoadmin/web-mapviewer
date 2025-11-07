@@ -123,7 +123,12 @@ const projection = computed(() => positionStore.projection)
             />
         </div>
         <OpenLayersKMLLayer
-            v-if="layerConfig?.type === LayerType.KML && (layerConfig as KMLLayer)?.kmlData"
+            v-if="
+                layerConfig &&
+                layerConfig.type === LayerType.KML &&
+                (layerConfig as KMLLayer).kmlData &&
+                !(layerConfig as KMLLayer).isEdited
+            "
             :kml-layer-config="layerConfig as KMLLayer"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"

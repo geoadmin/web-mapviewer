@@ -42,7 +42,7 @@ export default function click(
         this.setRectangleSelectionExtent(undefined, dispatcher)
     }
 
-    if (!drawingStore.drawingOverlay.show) {
+    if (!drawingStore.overlay.show) {
         // if a click occurs, we only take it into account (for identify and fullscreen toggle)
         // when the user is not currently drawing something on the map.
         const isCtrlLeftSingleClick = clickInfo.clickType === ClickType.CtrlLeftSingleClick

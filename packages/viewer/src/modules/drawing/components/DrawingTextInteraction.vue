@@ -2,13 +2,14 @@
 import Feature from 'ol/Feature'
 import { useI18n } from 'vue-i18n'
 
+import type { DrawingInteractionExposed } from '@/modules/drawing/types/interaction'
+
 import { EditableFeatureTypes } from '@/api/features.api'
 import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable'
 
-type EmitType = {
-    (_e: 'drawEnd', _feature: Feature): void
-}
-const emits = defineEmits<EmitType>()
+const emits = defineEmits<{
+    drawEnd: [feature: Feature]
+}>()
 
 const { t } = useI18n()
 
@@ -21,6 +22,10 @@ useDrawingModeInteraction({
     drawEndCallback: (feature) => {
         emits('drawEnd', feature)
     },
+})
+
+defineExpose<DrawingInteractionExposed>({
+    removeLastPoint: () => {},
 })
 </script>
 
