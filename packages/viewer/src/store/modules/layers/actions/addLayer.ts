@@ -102,10 +102,7 @@ export default function addLayer(
     // Creating a clone of the config, so that we do not modify the initial config of the app.
     // It is possible to add one layer many times, so we want to always have the correct
     // default values when we add it, not the settings from the layer already added.
-    const clone = layerUtils.cloneLayer(layer)
-    if (initialValues) {
-        Object.assign(clone, initialValues)
-    }
+    const clone = layerUtils.cloneLayer(layer, initialValues)
 
     if (clone) {
         this.activeLayers.push(clone)

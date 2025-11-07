@@ -20,7 +20,7 @@ const drawingStore = useDrawingStore()
 
 const isClosing = ref(false)
 const isClosingWithWarning = computed(() => isClosing.value && isClosingInToolbox)
-const drawingTitle = computed(() => drawingStore.drawingOverlay.title)
+const drawingTitle = computed(() => drawingStore.overlay.title)
 
 const { t } = useI18n()
 

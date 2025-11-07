@@ -3,13 +3,15 @@ import log from '@swissgeo/log'
 import { WarningMessage } from '@swissgeo/log/Message'
 import { computed } from 'vue'
 
+import type { ActionDispatcher } from '@/store/types'
+
 import { parseLayerFromFile } from '@/modules/menu/components/advancedTools/ImportFile/parser'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
 import useUIStore from '@/store/modules/ui'
 
-const dispatcher = {
+const dispatcher: ActionDispatcher = {
     name: 'useImportFile.composable',
 }
 
@@ -22,12 +24,11 @@ export default function useImportFile() {
     const projection = computed(() => positionStore.projection)
 
     /**
-     * @param {File | String} source
-     * @param {Boolean} [sendErrorToStore=true] If true, will dispatch any error to the store, if
-     *   false will throw any error at you. Default is `true`
-     * @param {Boolean} [sendWarningToStore=true] If true, will dispatch any warning to the store,
-     *   if false, it will ignore it. Default is `true`
-     * @returns {Promise<void>}
+     * @param source
+     * @param [sendErrorToStore] If true, will dispatch any error to the store, if false will throw
+     *   any error at you. Default is `true`
+     * @param [sendWarningToStore] If true, will dispatch any warning to the store, if false, it
+     *   will ignore it. Default is `true`
      */
     async function handleFileSource(
         source: string | File,
@@ -72,6 +73,9 @@ export default function useImportFile() {
                 if (sendWarningToStore && layer.hasWarning) {
                     uiStore.addWarnings(Array.from(layer.warningMessages ?? []), dispatcher)
                 }
+                if (sendErrorToStore && layer.hasError) {
+                    uiStore.addErrors(Array.from(layer.errorMessages ?? []), dispatcher)
+                }
             }
         } catch (error: unknown) {
             if (!sendErrorToStore) {
@@ -82,7 +86,7 @@ export default function useImportFile() {
                 messages: [`Error loading file`, (source as File).name ?? source, error],
             })
             if (error instanceof Error) {
-                uiStore.addErrors([generateErrorMessageFromErrorType(error)], dispatcher)
+                uiStore.addErrors(generateErrorMessageFromErrorType(error), dispatcher)
             }
         } finally {
             uiStore.clearLoadingBarRequester((source as File).name ?? source, dispatcher)

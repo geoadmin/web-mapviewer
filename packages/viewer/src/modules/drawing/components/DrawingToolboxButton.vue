@@ -12,16 +12,16 @@ import useUIStore from '@/store/modules/ui'
 
 const dispatcher: ActionDispatcher = { name: 'DrawingToolboxButton.vue' }
 
-const { drawingMode } = defineProps<{ drawingMode: EditableFeatureTypes }>()
+const { featureType } = defineProps<{ featureType: EditableFeatureTypes }>()
 
 const { t } = useI18n()
 const uiStore = useUIStore()
 const drawingStore = useDrawingStore()
 const featuresStore = useFeaturesStore()
 
-const isActive = computed<boolean>(() => drawingMode === drawingStore.mode)
+const isActive = computed<boolean>(() => featureType === drawingStore.edit.featureType)
 const buttonIcon = computed<string[]>(() => {
-    switch (drawingMode) {
+    switch (featureType) {
         case EditableFeatureTypes.LinePolygon:
             return ['fa', 'draw-polygon']
         case EditableFeatureTypes.Marker:
@@ -40,7 +40,7 @@ function setDrawingMode() {
         drawingStore.setDrawingMode(undefined, dispatcher)
     } else {
         featuresStore.clearAllSelectedFeatures(dispatcher)
-        drawingStore.setDrawingMode(drawingMode, dispatcher)
+        drawingStore.setDrawingMode(featureType, dispatcher)
     }
 }
 </script>
@@ -60,7 +60,7 @@ function setDrawingMode() {
             v-if="!uiStore.isPhoneMode"
             class="d-sm-block"
         >
-            {{ t(`draw_${drawingMode.toLowerCase()}`) }}
+            {{ t(`draw_${featureType.toLowerCase()}`) }}
         </small>
     </button>
 </template>

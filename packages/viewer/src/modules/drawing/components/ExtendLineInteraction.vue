@@ -3,14 +3,16 @@ import type { SimpleGeometry } from 'ol/geom'
 
 import Feature from 'ol/Feature'
 
+import type { DrawingInteractionExposed } from '@/modules/drawing/types/interaction'
+
 import useExtendLineInteraction from '@/modules/drawing/components/useExtendLineInteraction.composable'
 
 const { startingFeature } = defineProps<{ startingFeature: Feature<SimpleGeometry> }>()
 
-type EmitType = {
-    (_e: 'drawEnd', _feature: Feature<SimpleGeometry>): void
-}
-const emits = defineEmits<EmitType>()
+const emits = defineEmits<{
+    drawEnd: [feature: Feature<SimpleGeometry>]
+}>()
+
 const { removeLastPoint } = useExtendLineInteraction({
     drawEndCallback: (feature) => {
         emits('drawEnd', feature)
@@ -18,7 +20,7 @@ const { removeLastPoint } = useExtendLineInteraction({
     startingFeature: () => startingFeature,
 })
 
-defineExpose({
+defineExpose<DrawingInteractionExposed>({
     removeLastPoint,
 })
 </script>

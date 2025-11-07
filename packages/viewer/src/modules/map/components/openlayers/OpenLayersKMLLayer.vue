@@ -101,23 +101,19 @@ function iconUrlProxy(url: string): string {
         url,
         (url: string) => {
             uiStore.addWarnings(
-                [
-                    new WarningMessage('kml_icon_url_cors_issue', {
-                        layerName: layerName.value,
-                        url: url,
-                    }),
-                ],
+                new WarningMessage('kml_icon_url_cors_issue', {
+                    layerName: layerName.value,
+                    url: url,
+                }),
                 dispatcher
             )
         },
         (url: string) => {
             uiStore.addWarnings(
-                [
-                    new WarningMessage('kml_icon_url_scheme_http', {
-                        layerName: layerName.value,
-                        url: url,
-                    }),
-                ],
+                new WarningMessage('kml_icon_url_scheme_http', {
+                    layerName: layerName.value,
+                    url: url,
+                }),
                 dispatcher
             )
         }

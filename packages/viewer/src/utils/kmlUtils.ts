@@ -129,7 +129,10 @@ export function getFeatureDescriptionMap(content: string): Map<string, string> {
  * @returns KML feature type or undefined if this is not a geoadmin kml feature
  */
 export function getFeatureType(kmlFeature: Feature): string | undefined {
-    let featureType = kmlFeature.get('type')?.toUpperCase() // only set by geoadmin's kml
+    let featureType = kmlFeature.get('type')?.toUpperCase() // only set on mf-geoadmin3's KML (legacy)
+    if (!featureType) {
+        featureType = kmlFeature.get('editableFeature')?.featureType
+    }
     const featureId = kmlFeature.getId()
     if (!featureType && featureId) {
         // Very old geoadmin KML don't have the type property but the type can be taken from the
@@ -292,13 +295,13 @@ function generateIconFromStyle(iconStyle: IconStyle, iconArgs: IconArgs): Drawin
 
     return anchor
         ? {
-            name: iconArgs.name,
-            imageURL: url,
-            imageTemplateURL: url,
-            iconSetName: iconArgs.set,
-            anchor: anchor as [number, number],
-            size: size as [number, number],
-        }
+              name: iconArgs.name,
+              imageURL: url,
+              imageTemplateURL: url,
+              iconSetName: iconArgs.set,
+              anchor: anchor as [number, number],
+              size: size as [number, number],
+          }
         : undefined
 }
 
@@ -674,14 +677,6 @@ export function parseKml(
                 // Set the EditableFeature coordinates from the olFeature geometry
                 editableFeature.coordinates = extractOlFeatureCoordinates(olFeature)
                 olFeature.set('editableFeature', editableFeature)
-
-                if (isLineOrMeasure(editableFeature)) {
-                    /* The featureStyleFunction uses the geometries calculated in the geodesic object
-                    if present. The lines connecting the vertices of the geometry will appear
-                    geodesic (follow the shortest path) in this case instead of linear (be straight on
-                    the screen)  */
-                    olFeature.set('geodesic', new GeodesicGeometries(olFeature, projection))
-                }
             }
             olFeature.setStyle(geoadminStyleFunction)
         })

@@ -6,12 +6,12 @@ import type { IconProp } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { storeToRefs } from 'pinia'
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { DrawingIcon } from '@/api/icon.api'
 
-import { type EditableFeature, EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features.api'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import ShowGeometryProfileButton from '@/modules/infobox/components/ShowGeometryProfileButton.vue'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
@@ -23,7 +23,6 @@ import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/Drawi
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
 import { MediaType } from '@/modules/infobox/DrawingStyleMediaTypes.enum'
 import useDrawingStore from '@/store/modules/drawing'
-import useFeatureStore from '@/store/modules/features'
 import useI18nStore from '@/store/modules/i18n'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import { allFormats, type CoordinateFormat, LV95Format } from '@/utils/coordinates/coordinateFormat'
@@ -37,25 +36,34 @@ import {
 
 const dispatcher = { name: 'FeatureStyleEdit.vue' }
 
-const { feature, readOnly = false } = defineProps<{
-    feature: EditableFeature
+const { readOnly = false } = defineProps<{
     readOnly?: boolean
 }>()
 const { t } = useI18n()
 
 const drawingStore = useDrawingStore()
-const featureStore = useFeatureStore()
 const i18nStore = useI18nStore()
 
 const displayedFormatId = ref(LV95Format.id)
 const { lang } = storeToRefs(i18nStore)
 
-const title = ref<string>(feature.title)
-const description = ref<string>(feature.description!)
+const title = computed<string>({
+    get: () => drawingStore.feature.current?.title ?? '',
+    set: (value: string) => debounceFeatureTitleUpdate(value),
+})
+const description = computed<string>({
+    get: () => drawingStore.feature.current?.description ?? '',
+    set: (value: string) => debounceDescriptionUpdate(value),
+})
 const showDescriptionOnMap = computed<boolean>({
-    get: () => !!('showDescriptionOnMap' in feature && feature.showDescriptionOnMap),
+    get: () => !!drawingStore.feature.current?.showDescriptionOnMap,
     set: (value: boolean) => {
-        featureStore.changeFeatureShownDescriptionOnMap(feature, value, dispatcher)
+        drawingStore.updateCurrentDrawingFeature(
+            {
+                showDescriptionOnMap: value,
+            },
+            dispatcher
+        )
     },
 })
 
@@ -68,31 +76,6 @@ const isEditingText = computed<boolean>(() => {
     return document.activeElement === titleElement || document.activeElement === descriptionElement
 })
 
-// Update the UI when the feature changes
-watch(
-    () => feature.title,
-    (newTitle: string) => {
-        title.value = newTitle
-    }
-)
-
-watch(
-    () => feature.description,
-    (newDescription: string | undefined) => {
-        description.value = newDescription!
-    }
-)
-
-// The idea is watching the title and the description.
-// Put a debounce on the update of the feature so that we can compare with the current UI state
-// If the value is the same as in the UI, we can update the feature
-watch(title, () => {
-    debounceTitleUpdate()
-})
-watch(description, () => {
-    debounceDescriptionUpdate()
-})
-
 onMounted(() => {
     window.addEventListener('keydown', handleKeydown)
 })
@@ -101,23 +84,30 @@ onBeforeUnmount(() => {
     window.removeEventListener('keydown', handleKeydown)
 })
 
-// Here we need to declare the debounce method globally otherwise it does not work (it is based
-// on closure which will not work if the debounce method is defined in a watcher)
-// The title debounce needs to be quick in order to be displayed on the map
-function updateFeatureTitle(): void {
-    featureStore.changeFeatureTitle(feature, title.value.trim(), dispatcher)
+function updateFeatureTitle(title: string): void {
+    drawingStore.updateCurrentDrawingFeature(
+        {
+            title: title.trim(),
+        },
+        dispatcher
+    )
     // Update the text offset if the feature is a marker
-    if (feature.featureType === EditableFeatureTypes.Marker) {
+    if (drawingStore.feature.current?.featureType === EditableFeatureTypes.Marker) {
         updateTextOffset()
     }
 }
 
 // The description don't need a quick debounce as it is not displayed on the map
-function updateFeatureDescription(): void {
-    featureStore.changeFeatureDescription(feature, description.value, dispatcher)
+function updateFeatureDescription(description: string): void {
+    drawingStore.updateCurrentDrawingFeature(
+        {
+            description: description.trim(),
+        },
+        dispatcher
+    )
 }
 
-const debounceTitleUpdate = debounce(updateFeatureTitle, 100)
+const debounceFeatureTitleUpdate = debounce(updateFeatureTitle, 100)
 const debounceDescriptionUpdate = debounce(updateFeatureDescription, 300)
 
 function handleKeydown(event: KeyboardEvent): void {
@@ -139,50 +129,86 @@ const coordinateFormat = computed(() => {
  * be length 3. We do not consider the case where there are more than 3 points, but all in a single
  * line.
  */
-const isFeatureMarker = computed<boolean>(() => feature.featureType === EditableFeatureTypes.Marker)
+const isFeatureMarker = computed<boolean>(
+    () => drawingStore.feature.current?.featureType === EditableFeatureTypes.Marker
+)
 const isFeatureText = computed<boolean>(
-    () => feature.featureType === EditableFeatureTypes.Annotation
+    () => drawingStore.feature.current?.featureType === EditableFeatureTypes.Annotation
 )
 const isFeatureLinePolygon = computed<boolean>(
-    () => feature.featureType === EditableFeatureTypes.LinePolygon
+    () => drawingStore.feature.current?.featureType === EditableFeatureTypes.LinePolygon
 )
 const isFeatureMeasure = computed<boolean>(
-    () => feature.featureType === EditableFeatureTypes.Measure
+    () => drawingStore.feature.current?.featureType === EditableFeatureTypes.Measure
 )
-const isLine = computed<boolean>(() => feature.geometry!.type === 'LineString')
+const isLine = computed<boolean>(
+    () => drawingStore.feature.current?.geometry?.type === 'LineString'
+)
 
 const availableIconSets = computed(() => drawingStore.iconSets)
 const currentLang = computed(() => lang.value)
 
 function onTextSizeChange(textSize: FeatureStyleSize): void {
-    featureStore.changeFeatureTextSize(feature, textSize, dispatcher)
+    drawingStore.updateCurrentDrawingFeature(
+        {
+            textSize,
+        },
+        dispatcher
+    )
     updateTextOffset()
 }
 function onPlacementChange(textPlacement: TextPlacement): void {
-    featureStore.changeFeatureTextPlacement(feature, textPlacement, dispatcher)
+    drawingStore.updateCurrentDrawingFeature(
+        {
+            textPlacement,
+        },
+        dispatcher
+    )
     updateTextOffset()
 }
 function onTextColorChange(textColor: FeatureStyleColor): void {
-    featureStore.changeFeatureTextColor(feature, textColor, dispatcher)
+    drawingStore.updateCurrentDrawingFeature(
+        {
+            textColor,
+        },
+        dispatcher
+    )
 }
 function onColorChange(color: FeatureStyleColor): void {
-    featureStore.changeFeatureColor(feature, color, dispatcher)
+    drawingStore.updateCurrentDrawingFeature(
+        {
+            fillColor: color,
+        },
+        dispatcher
+    )
 }
 function onIconChange(icon: DrawingIcon): void {
-    featureStore.changeFeatureIcon(feature, icon, dispatcher)
+    drawingStore.updateCurrentDrawingFeature(
+        {
+            icon,
+        },
+        dispatcher
+    )
     updateTextOffset()
 }
 function onIconSizeChange(iconSize: FeatureStyleSize): void {
-    featureStore.changeFeatureIconSize(feature, iconSize, dispatcher)
+    drawingStore.updateCurrentDrawingFeature(
+        {
+            iconSize,
+        },
+        dispatcher
+    )
     updateTextOffset()
 }
 function onDelete(): void {
-    drawingStore.deleteDrawingFeature(feature.id.toString(), dispatcher)
+    if (drawingStore.feature.current?.id) {
+        drawingStore.deleteDrawingFeature(drawingStore.feature.current, dispatcher)
+    }
 }
 function onAddMediaLink(mediaPopoverIndex: number, descriptionMediaLink?: string): void {
     mediaPopovers.value?.[mediaPopoverIndex]?.hidePopover()
     // Prevent 'undefined' to be added to the description
-    if (descriptionMediaLink && typeof descriptionMediaLink === 'string') {
+    if (descriptionMediaLink) {
         if (description.value) {
             description.value += descriptionMediaLink
         } else {
@@ -192,17 +218,26 @@ function onAddMediaLink(mediaPopoverIndex: number, descriptionMediaLink?: string
 }
 
 function updateTextOffset(): void {
-    if (isFeatureMarker.value) {
-        const offset = calculateTextOffset(
-            feature.textSize!.textScale,
-            feature.iconSize!.iconScale,
-            feature.icon!.anchor,
-            feature.icon!.size,
-            feature.textPlacement,
-            title.value
+    if (
+        drawingStore.feature.current &&
+        isFeatureMarker.value &&
+        drawingStore.feature.current.textSize &&
+        drawingStore.feature.current.iconSize &&
+        drawingStore.feature.current.icon
+    ) {
+        drawingStore.updateCurrentDrawingFeature(
+            {
+                textOffset: calculateTextOffset(
+                    drawingStore.feature.current.textSize.textScale,
+                    drawingStore.feature.current.iconSize.iconScale,
+                    drawingStore.feature.current.icon.anchor,
+                    drawingStore.feature.current.icon.size,
+                    drawingStore.feature.current.textPlacement,
+                    title.value
+                ),
+            },
+            dispatcher
         )
-
-        featureStore.changeFeatureTextOffset(feature, offset, dispatcher)
     }
 }
 
@@ -235,7 +270,10 @@ function mediaTypes(): MediaButton[] {
 </script>
 
 <template>
-    <div data-cy="drawing-style-popup">
+    <div
+        v-if="drawingStore.feature.current"
+        data-cy="drawing-style-popup"
+    >
         <div
             v-if="isFeatureMarker || isFeatureText"
             class="form-group mb-3"
@@ -333,7 +371,7 @@ function mediaTypes(): MediaButton[] {
             <CoordinateCopySlot
                 v-if="isFeatureMarker || isFeatureText"
                 identifier="feature-style-edit-coordinate-copy"
-                :value="(feature.coordinates[0] as number[]).slice(0, 2)"
+                :value="(drawingStore.feature.current.coordinates[0] as number[]).slice(0, 2)"
                 :coordinate-format="coordinateFormat"
             >
                 <FontAwesomeIcon
@@ -342,8 +380,8 @@ function mediaTypes(): MediaButton[] {
                 />
             </CoordinateCopySlot>
             <FeatureAreaInfo
-                v-if="feature.geometry?.type === 'Polygon'"
-                :geometry="feature.geometry"
+                v-if="drawingStore.feature.current.geometry?.type === 'Polygon'"
+                :geometry="drawingStore.feature.current.geometry"
             />
         </div>
         <div class="d-flex justify-content-end align-items-center">
@@ -353,7 +391,7 @@ function mediaTypes(): MediaButton[] {
             >
                 <ShowGeometryProfileButton
                     v-if="isFeatureLinePolygon || isFeatureMeasure"
-                    :feature="feature"
+                    :feature="drawingStore.feature.current"
                 />
                 <GeoadminTooltip
                     v-if="isFeatureMarker || isFeatureText"
@@ -366,17 +404,17 @@ function mediaTypes(): MediaButton[] {
                         <div data-cy="drawing-style-text-popup">
                             <DrawingStyleSizeSelector
                                 class="mb-3"
-                                :current-size="feature.textSize"
+                                :current-size="drawingStore.feature.current.textSize"
                                 @change="onTextSizeChange"
                             />
                             <DrawingStylePositionSelector
                                 v-if="isFeatureMarker"
                                 class="mb-3"
-                                :current-placement="feature.textPlacement"
+                                :current-placement="drawingStore.feature.current.textPlacement"
                                 @change="onPlacementChange"
                             />
                             <DrawingStyleTextColorSelector
-                                :current-color="feature.textColor"
+                                :current-color="drawingStore.feature.current.textColor"
                                 @change="onTextColorChange"
                             />
                         </div>
@@ -393,7 +431,7 @@ function mediaTypes(): MediaButton[] {
                     >
                         <DrawingStyleIconSelector
                             data-cy="drawing-style-marker-popup"
-                            :feature="feature"
+                            :feature="drawingStore.feature.current"
                             :icon-sets="availableIconSets"
                             :current-lang="currentLang"
                             @change-icon="onIconChange"
@@ -414,7 +452,7 @@ function mediaTypes(): MediaButton[] {
                     >
                         <DrawingStyleColorSelector
                             data-cy="drawing-style-line-popup"
-                            :current-color="feature.fillColor"
+                            :current-color="drawingStore.feature.current.fillColor"
                             @change="onColorChange"
                         />
                     </DrawingStylePopoverButton>

@@ -4,14 +4,16 @@ import type { StyleFunction } from 'ol/style/Style'
 
 import Feature from 'ol/Feature'
 
+import type { DrawingInteractionExposed } from '@/modules/drawing/types/interaction'
+
 import { EditableFeatureTypes } from '@/api/features.api'
 import useDrawingLineInteraction from '@/modules/drawing/components/useDrawingLineInteraction.composable'
 import { drawMeasureStyle } from '@/modules/drawing/lib/style'
 
-type EmitType = {
-    (_e: 'drawEnd', _feature: Feature<SimpleGeometry>): void
-}
-const emits = defineEmits<EmitType>()
+const emits = defineEmits<{
+    drawEnd: [feature: Feature<SimpleGeometry>]
+}>()
+
 const { removeLastPoint } = useDrawingLineInteraction({
     styleFunction: drawMeasureStyle as StyleFunction,
     featureType: EditableFeatureTypes.Measure,
@@ -20,7 +22,7 @@ const { removeLastPoint } = useDrawingLineInteraction({
     },
 })
 
-defineExpose({
+defineExpose<DrawingInteractionExposed>({
     removeLastPoint,
 })
 </script>

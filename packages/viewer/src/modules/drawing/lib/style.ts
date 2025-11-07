@@ -2,19 +2,25 @@ import type { Coordinate } from 'ol/coordinate'
 import type { FeatureLike } from 'ol/Feature'
 import type { GeometryFunction } from 'ol/style/Style'
 
+import { LV95, WGS84 } from '@swissgeo/coordinates'
+import { bearing, length, lineString } from '@turf/turf'
 import { type Geometry, LineString, MultiPoint, Point, Polygon } from 'ol/geom'
 import RenderFeature from 'ol/render/Feature'
-import { Circle, Fill, Style } from 'ol/style'
+import { Circle, Fill, Stroke, Style, Text } from 'ol/style'
+import proj4 from 'proj4'
 
+import { type EditableFeature, isLineOrMeasure } from '@/api/features.api'
 import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
 import {
     dashedRedStroke,
     redStroke,
     sketchPointStyle,
     StyleZIndex,
+    tooltipArrow,
     whiteCircleStyle,
     whiteSketchFill,
 } from '@/utils/styleUtils'
+import { formatAngle, formatMeters } from '@/utils/utils'
 
 /**
  * Style function as used by the Modify Interaction. Used to display a translucent point on a line
@@ -25,7 +31,8 @@ export function editingVertexStyleFunction(
     _resolution: number
 ): Style | Style[] | null {
     const associatedFeature = vertex.get('features')[0]
-    if (!associatedFeature || !associatedFeature.get('editableFeature')?.isLineOrMeasure()) {
+    const editableFeature = associatedFeature?.get('editableFeature') as EditableFeature | undefined
+    if (!associatedFeature || (editableFeature && isLineOrMeasure(editableFeature))) {
         return null
     }
     return new Style({
@@ -143,6 +150,7 @@ export function drawLineOrMeasureStyle(
         case 'Point':
             return getSketchPointStyle((sketchGeometry as Point).getCoordinates())
         case 'Polygon': {
+            // lines are drawn as polygon, so both types are covered by this case
             const styles = [
                 new Style({
                     stroke: displayMeasures ? dashedRedStroke : redStroke,

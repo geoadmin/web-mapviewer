@@ -13,16 +13,18 @@ const drawingStore = useDrawingStore()
 // it out in this case
 const filteredVisibleLayers = computed(() => {
     // In normal drawing mode show only the drawing layer
-    if (drawingStore.drawingOverlay.show && drawingStore.online && layersStore.activeKmlLayer) {
+    if (drawingStore.overlay.show && drawingStore.online && layersStore.activeKmlLayer) {
         return layersStore.visibleLayers.filter(
             (layer) =>
                 layer.id !== layersStore.activeKmlLayer!.id &&
-                layer.id !== drawingStore.temporaryKmlId
+                layer.id !== drawingStore.layer.temporaryKmlId
         )
     }
     // In report problem drawing mode show the drawing layer and the temporary layer
-    if (drawingStore.drawingOverlay.show && !drawingStore.online && drawingStore.temporaryKmlId) {
-        return layersStore.visibleLayers.filter((layer) => layer.id !== drawingStore.temporaryKmlId)
+    if (drawingStore.overlay.show && !drawingStore.online && drawingStore.layer.temporaryKmlId) {
+        return layersStore.visibleLayers.filter(
+            (layer) => layer.id !== drawingStore.layer.temporaryKmlId
+        )
     }
     return layersStore.visibleLayers
 })

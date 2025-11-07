@@ -30,11 +30,11 @@ export default function handleGeolocationError(
     switch (error.code) {
         case GeolocationPositionError.PERMISSION_DENIED:
             this.setGeolocationDenied(true, dispatcher)
-            uiStore.addErrors([new ErrorMessage('geoloc_permission_denied')], dispatcher)
+            uiStore.addErrors(new ErrorMessage('geoloc_permission_denied'), dispatcher)
             break
         case GeolocationPositionError.TIMEOUT:
             this.setGeolocationActive(false, dispatcher)
-            uiStore.addErrors([new ErrorMessage('geoloc_time_out')], dispatcher)
+            uiStore.addErrors(new ErrorMessage('geoloc_time_out'), dispatcher)
             break
         default:
             // It can happen that the position is not yet available so we retry the api call silently for the first
@@ -45,7 +45,7 @@ export default function handleGeolocationError(
                     this.setGeolocationActive(true, { usePreviousPosition: false }, dispatcher)
                 }
             } else {
-                uiStore.addErrors([new ErrorMessage('geoloc_unknown')], dispatcher)
+                uiStore.addErrors(new ErrorMessage('geoloc_unknown'), dispatcher)
                 if (reactivate) {
                     // If after 3 retries we failed to re-activate, set the geolocation to false
                     // so that the user can manually retry the geolocation later on. This can

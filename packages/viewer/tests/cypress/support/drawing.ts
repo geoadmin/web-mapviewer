@@ -4,6 +4,7 @@ import { randomIntBetween } from '@swissgeo/numbers'
 import pako from 'pako'
 
 import { EditableFeatureTypes } from '@/api/features.api'
+import useDrawingStore from '@/store/modules/drawing'
 import { generateRGBFillString, GREEN, RED } from '@/utils/featureStyleUtils'
 
 function transformHeaders(headers: { [key: string]: string | string[] }): HeadersInit {
@@ -186,7 +187,10 @@ Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = true) => {
     if (!queryParams.layers || queryParams.layers.indexOf('@adminId=') === -1) {
         cy.openDrawingMode()
     }
-    cy.readStoreValue('state.drawing.drawingOverlay.show').should('be.true')
+    cy.getPinia().should((pinia) => {
+        const drawingStore = useDrawingStore(pinia)
+        expect(drawingStore.overlay.show).to.be.true
+    })
     cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
 })
 
@@ -208,7 +212,7 @@ Cypress.Commands.add('closeDrawingMode', (closeDrawingNotSharedAdmin = true) => 
                 cy.get('[data-cy="drawing-share-admin-close"]').click()
             }
         })
-        cy.window().its('store.state.drawing.drawingOverlay.show').should('be.false')
+        cy.window().its('store.state.drawing.overlay.show').should('be.false')
         // In drawing mode the click event on the map are removed therefore we need to wait that
         // they are added again begore continuing testing
         cy.waitMapIsReady()
@@ -218,11 +222,10 @@ Cypress.Commands.add('closeDrawingMode', (closeDrawingNotSharedAdmin = true) => 
 Cypress.Commands.add('clickDrawingTool', (name, unselect = false) => {
     expect(Object.values(EditableFeatureTypes)).to.include(name)
     cy.get(`[data-cy="drawing-toolbox-mode-button-${name}"]:visible`).click()
-    if (unselect) {
-        cy.readStoreValue('state.drawing.mode').should('eq', null)
-    } else {
-        cy.readStoreValue('state.drawing.mode').should('eq', name)
-    }
+    cy.getPinia().should((pinia) => {
+        const drawingStore = useDrawingStore(pinia)
+        expect(drawingStore.edit.featureType).to.eq(unselect ? undefined : name)
+    })
 })
 
 export async function getKmlAdminIdFromRequest(
@@ -255,7 +258,6 @@ function isZlib(u8: Uint8Array): boolean {
     // Common zlib CMF values start with 0x78 (not perfect but good heuristic)
     return u8.length > 2 && u8[0] === 0x78
 }
-
 
 export async function getKmlFromRequest(req: CyHttpMessages.IncomingHttpRequest) {
     let paramBlob: ArrayBuffer | string | null = null

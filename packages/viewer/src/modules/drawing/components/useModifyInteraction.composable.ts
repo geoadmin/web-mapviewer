@@ -4,22 +4,19 @@ import type Map from 'ol/Map'
 import type MapBrowserEvent from 'ol/MapBrowserEvent'
 import type { StyleFunction } from 'ol/style/Style'
 
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { noModifierKeys, primaryAction } from 'ol/events/condition'
 import { type Geometry, LineString, type SimpleGeometry } from 'ol/geom'
 import ModifyInteraction, { type ModifyEvent } from 'ol/interaction/Modify'
-import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
+import { inject, onBeforeUnmount, onMounted, watch } from 'vue'
 
-import type { EditableFeature } from '@/api/features.api'
 import type { ActionDispatcher } from '@/store/types'
 
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
 import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
-import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import useDrawingStore from '@/store/modules/drawing'
 import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
-import useFeaturesStore from '@/store/modules/features'
 
 const dispatcher: ActionDispatcher = { name: 'useModifyInteraction.composable' }
 const cursorGrabbingClass = 'cursor-grabbing'
@@ -33,16 +30,19 @@ export interface UseModifyInteractionOptions {
  * is the same collection used by the select interaction.
  */
 export default function useModifyInteraction(features: Collection<Feature<Geometry>>) {
-    const featuresStore = useFeaturesStore()
     const drawingStore = useDrawingStore()
 
-    const editMode = computed(() => drawingStore.editingMode)
-    const reverseLineStringExtension = computed(() => drawingStore.reverseLineStringExtension)
-
     // Inject OL Map instance (provided by map module)
-    const olMap = inject<Map>('olMap')!
+    const olMap = inject<Map>('olMap')
 
-    const { willModify, debounceSaveDrawing } = useSaveKmlOnChange()
+    if (!olMap) {
+        log.error({
+            title: 'useModifyInteraction',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: ['olMap is undefined'],
+        })
+        throw new Error('olMap is undefined')
+    }
 
     const modifyInteraction = new ModifyInteraction({
         features,
@@ -61,21 +61,14 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
             event.type === 'contextmenu' && noModifierKeys(event),
         // Hit tolerance tweak (Modify uses a slightly different computation)
         pixelTolerance: DRAWING_HIT_TOLERANCE + 2,
-        // Provide proper geodesic segment math
-        // TODO: see if those functions are still needed
-        // segmentExtentFunction: segmentExtent as any,
-        // subsegmentsFunction: subsegments as any,
-        // Handle world wrapping properly
-        // pointerWrapX: true,
-        wrapX: true,
     })
 
     watch(
-        editMode,
+        () => drawingStore.edit.mode,
         (newValue) => {
             if (newValue === EditMode.Extend && features.getLength() > 0) {
                 const selectedFeature = features.item(0)
-                if (selectedFeature && reverseLineStringExtension.value) {
+                if (selectedFeature && drawingStore.edit.reverseLineStringExtension) {
                     const geom = selectedFeature.getGeometry()
                     // Only reverse for LineString geometries
                     if (geom && geom instanceof LineString) {
@@ -101,7 +94,11 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
     })
 
     onBeforeUnmount(() => {
-        drawingStore.setEditingMode(EditMode.Off, reverseLineStringExtension.value, dispatcher)
+        drawingStore.setEditingMode(
+            EditMode.Off,
+            drawingStore.edit.reverseLineStringExtension,
+            dispatcher
+        )
 
         olMap.removeInteraction(modifyInteraction)
 
@@ -110,7 +107,7 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
     })
 
     function removeLastPoint() {
-        if (editMode.value === EditMode.Off) {
+        if (drawingStore.edit.mode === EditMode.Off) {
             return
         }
 
@@ -140,15 +137,8 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
             return
         }
 
-        const editableFeature: EditableFeature | undefined = feature.get('editableFeature')
-
-        if (editableFeature) {
-            featuresStore.changeFeatureIsDragged(editableFeature, true, dispatcher)
-        }
-        const targetEl = olMap.getTargetElement?.() ?? (olMap.getTarget() as HTMLElement | null)
+        const targetEl = olMap!.getTargetElement?.() ?? (olMap!.getTarget() as HTMLElement | null)
         targetEl?.classList.add(cursorGrabbingClass)
-
-        willModify()
     }
 
     function onModifyEnd(evt: ModifyEvent) {
@@ -161,25 +151,10 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
             return
         }
 
-        const storeFeature: EditableFeature | undefined = feature.get('editableFeature')
-
-        if (storeFeature) {
-            featuresStore.changeFeatureIsDragged(storeFeature, false, dispatcher)
-        }
         updateStoreFeatureCoordinatesGeometry(feature as Feature<SimpleGeometry>, dispatcher)
 
-        const targetEl = olMap.getTargetElement?.() ?? (olMap.getTarget() as HTMLElement | null)
+        const targetEl = olMap!.getTargetElement?.() ?? (olMap!.getTarget() as HTMLElement | null)
         targetEl?.classList.remove(cursorGrabbingClass)
-
-        debounceSaveDrawing().catch((error) => {
-            log.error({
-                title: 'useModifyInteraction.composable',
-                messages: [
-                    `Error while saving drawing after modification of feature ${storeFeature?.id}:`,
-                    error,
-                ],
-            })
-        })
     }
 
     return {

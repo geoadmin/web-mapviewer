@@ -315,6 +315,7 @@ function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
         hasDescription: false,
         hasLegend: false,
         isLoading: true,
+        isEdited: false,
         adminId: undefined,
         internalFiles: {},
         timeConfig: {
@@ -665,10 +666,13 @@ function getTopicForIdentifyAndTooltipRequests(layer: Layer): string {
 }
 
 /** Clone a layer but give it a new uuid */
-function cloneLayer<T extends Layer>(layer: T): T {
+function cloneLayer<T extends Layer>(layer: T, overrides?: Partial<T>): T {
     validateBaseData(layer)
     const clone = cloneDeep(layer)
     clone.uuid = uuidv4()
+    if (overrides) {
+        Object.assign(clone, overrides)
+    }
     return clone
 }
 
