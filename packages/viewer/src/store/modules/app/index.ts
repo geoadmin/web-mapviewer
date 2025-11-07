@@ -1,19 +1,23 @@
 import { defineStore } from 'pinia'
 
-import type { AppStoreGetters, AppStoreState } from '@/store/modules/app/types/app'
-
 import setAppIsReady from '@/store/modules/app/actions/setAppIsReady'
+import setAppState from '@/store/modules/app/actions/setAppState'
 import setMapModuleReady from '@/store/modules/app/actions/setMapModuleReady'
+import isReady from '@/store/modules/app/getters/isReady'
+import { AppStates, type AppStoreGetters, type AppStoreState } from '@/store/modules/app/types/app'
 
 const state = (): AppStoreState => ({
-    isReady: false,
+    appState: AppStates.INITIALIZING,
     isMapReady: false,
 })
 
-const getters: AppStoreGetters = {}
+const getters: AppStoreGetters = {
+    isReady
+}
 
 const actions = {
     setAppIsReady,
+    setAppState,
     setMapModuleReady,
 }
 
