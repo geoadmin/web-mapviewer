@@ -766,6 +766,9 @@ importers:
       '@swissgeo/config-eslint':
         specifier: workspace:*
         version: link:../config/eslint
+      '@swissgeo/config-prettier':
+        specifier: workspace:*
+        version: link:../config/prettier
       '@swissgeo/config-stylelint':
         specifier: workspace:*
         version: link:../config/stylelint
