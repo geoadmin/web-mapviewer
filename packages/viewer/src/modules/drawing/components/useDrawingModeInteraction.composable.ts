@@ -227,7 +227,7 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
             log.debug({
                 title: 'useDrawingModeInteraction',
                 titleColor: LogPreDefinedColor.Lime,
-                messages: [`onAddFeature: feature ${feature.getId()} added`],
+                messages: ['onAddFeature: feature added', feature],
             })
         }
     }
@@ -277,7 +277,7 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
         log.debug({
             title: 'useDrawingModeInteraction',
             titleColor: LogPreDefinedColor.Lime,
-            messages: [`onDrawStart feature ${feature.getId()}`, feature],
+            messages: ['onDrawStart feature', feature],
         })
         if (useGeodesicDrawing) {
             feature.set('geodesic', new GeodesicGeometries(feature, positionStore.projection))
@@ -351,10 +351,6 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
             drawnFeature.setStyle(geoadminStyleFunction)
             // see https://openlayers.org/en/latest/apidoc/module-ol_interaction_Draw-Draw.html#finishDrawing
             interaction.finishDrawing()
-            // we do not need to share the drawing when the drawing is from the report problem tool
-            if (drawingStore.online) {
-                // drawingStore.setIsDrawingModified(true, dispatcher)
-            }
             drawingStore.setCurrentlyDrawnFeature(editableFeature, dispatcher)
             drawingStore.setDrawingMode(undefined, dispatcher)
             if (drawEndCallback) {

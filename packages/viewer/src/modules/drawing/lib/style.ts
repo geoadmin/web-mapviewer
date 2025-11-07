@@ -2,12 +2,9 @@ import type { Coordinate } from 'ol/coordinate'
 import type { FeatureLike } from 'ol/Feature'
 import type { GeometryFunction } from 'ol/style/Style'
 
-import { LV95, WGS84 } from '@swissgeo/coordinates'
-import { bearing, length, lineString } from '@turf/turf'
 import { type Geometry, LineString, MultiPoint, Point, Polygon } from 'ol/geom'
 import RenderFeature from 'ol/render/Feature'
-import { Circle, Fill, Stroke, Style, Text } from 'ol/style'
-import proj4 from 'proj4'
+import { Circle, Fill, Style } from 'ol/style'
 
 import { type EditableFeature, isLineOrMeasure } from '@/api/features.api'
 import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
@@ -16,11 +13,9 @@ import {
     redStroke,
     sketchPointStyle,
     StyleZIndex,
-    tooltipArrow,
     whiteCircleStyle,
     whiteSketchFill,
 } from '@/utils/styleUtils'
-import { formatAngle, formatMeters } from '@/utils/utils'
 
 /**
  * Style function as used by the Modify Interaction. Used to display a translucent point on a line

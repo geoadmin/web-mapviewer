@@ -3,7 +3,7 @@ import type { LineString } from 'geojson'
 import type Map from 'ol/Map'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { WarningMessage } from '@swissgeo/log/Message'
 import {
     type ComponentPublicInstance,
@@ -41,6 +41,7 @@ const olMap = inject<Map>('olMap')
 if (!olMap) {
     log.error({
         title: 'DrawingModule',
+        titleColor: LogPreDefinedColor.Lime,
         messages: [
             'DrawingModule requires the olMap to be provided',
             'Please make sure the map module is loaded before the drawing module',
@@ -98,6 +99,7 @@ watch(availableIconSets, () => {
     }
     log.debug({
         title: 'DrawingModule',
+        titleColor: LogPreDefinedColor.Lime,
         messages: ['New icon sets available, updating all drawing features', source.getFeatures()],
     })
 
@@ -130,11 +132,19 @@ onMounted(() => {
             if (drawingStore.layer.ol) {
                 olMap.addLayer(drawingStore.layer.ol)
             } else {
-                log.error('Drawing layer not found/not created')
+                log.error({
+                    title: 'DrawingModule',
+                    titleColor: LogPreDefinedColor.Lime,
+                    messages: ['Drawing layer not found/not created'],
+                })
             }
         })
         .catch((error) => {
-            log.error('Error while initializing drawing', error)
+            log.error({
+                title: 'DrawingModule',
+                titleColor: LogPreDefinedColor.Lime,
+                messages: ['Error while initializing drawing', error],
+            })
         })
 
     // If a KML was previously created with the drawing module, add it back for further editing
@@ -195,6 +205,7 @@ function closeDrawing() {
         .catch((error) => {
             log.error({
                 title: 'DrawingModule',
+                titleColor: LogPreDefinedColor.Lime,
                 messages: ['Error while closing drawing', error],
             })
         })

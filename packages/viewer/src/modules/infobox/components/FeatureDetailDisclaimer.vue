@@ -18,7 +18,7 @@ onMounted(() => {
     if (externalIframeHosts.length === 0) {
         log.error({
             title: 'FeatureDetailDisclaimer.vue',
-            message: 'externalIframeHosts is empty',
+            messages: ['externalIframeHosts is empty'],
         })
         throw new Error('externalIframeHosts is empty')
     }
@@ -29,7 +29,7 @@ onMounted(() => {
         } catch {
             log.error({
                 title: 'FeatureDetailDisclaimer.vue',
-                message: `externalIframeHosts contains an invalid hostname: ${element}`,
+                messages: ['externalIframeHosts contains an invalid hostname', element],
             })
             throw new Error(`externalIframeHosts contains an invalid hostname: ${element}`)
         }

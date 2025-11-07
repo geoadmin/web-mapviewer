@@ -120,7 +120,7 @@ function onCloseClearConfirmation(confirmed: boolean) {
         drawingStore.closeDrawing(dispatcher).catch((error) => {
             log.error({
                 title: 'DrawingToolbox.vue',
-                messages: [`Error while closing drawing: ${error}`],
+                messages: ['Error while closing drawing', error],
             })
         })
     }

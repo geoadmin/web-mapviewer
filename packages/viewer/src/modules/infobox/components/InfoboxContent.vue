@@ -84,8 +84,11 @@ watch(
         if (!features || features.length === 0) {
             return
         }
-        nextTick(() => content.value?.scrollTo(0, 0)).catch((e: unknown) => {
-            log.error('Error while scrolling to top of infobox content', e as string)
+        nextTick(() => content.value?.scrollTo(0, 0)).catch((e) => {
+            log.error({
+                title: 'InfoboxContent.vue',
+                messages: ['Error while scrolling to top of infobox content', e],
+            })
         })
     }
 )
