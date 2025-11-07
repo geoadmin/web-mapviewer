@@ -1,4 +1,4 @@
-import type { ComputedRef, Ref, WritableComputedRef } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 
 import { computed, onMounted, ref, toRef, watch } from 'vue'
 
@@ -70,13 +70,13 @@ export function propsValidator4ValidateFunc(value: unknown, _props: unknown): bo
  * Input field validation logic
  *
  * @param props Vue properties of the component to add the field validation
- * @param model Vue model definition of the input component
+ * @param model Vue model definition of the input component (Ref or ModelRef from defineModel)
  * @param emits Vue event emitter definition of the input component
  * @param options Options object for custom validation and messages
  */
 export function useFieldValidation<T = string>(
     props: FieldValidationProps<T>,
-    model: WritableComputedRef<T>,
+    model: Ref<T>,
     emits: (event: string, ...args: unknown[]) => void,
     {
         customValidate = (): ValidationResult => {

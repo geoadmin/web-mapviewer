@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, computed } from 'vue'
+import { useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
@@ -91,16 +91,8 @@ const model = defineModel<string>({ default: '' })
 const emits = defineEmits(['change', 'validate', 'focusin', 'focusout', 'keydown.enter'])
 const { t } = useI18n()
 
-// Create a computed ref wrapper for the model to match the expected type
-const modelRef = computed({
-    get: () => model.value,
-    set: (value: string) => {
-        model.value = value
-    },
-})
-
 const { value, validMarker, invalidMarker, validMessage, invalidMessage, required, onFocus } =
-    useFieldValidation(props, modelRef, emits as (_event: string, ..._args: unknown[]) => void, {
+    useFieldValidation(props, model, emits as (_event: string, ..._args: unknown[]) => void, {
         customValidate: validateEmail,
         requiredInvalidMessage: 'no_email',
     })
