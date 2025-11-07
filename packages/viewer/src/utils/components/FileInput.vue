@@ -157,22 +157,27 @@ const validationProps = {
     validate,
 }
 
-const { value, validMarker: computedValidMarker, invalidMarker: computedInvalidMarker, validMessage: computedValidMessage, invalidMessage: computedInvalidMessage } =
-    useFieldValidation<File | undefined>(
-        validationProps,
-        model,
-        (event: string, ...args: unknown[]) => {
-            if (event === 'change') {
-                emits('change')
-            } else if (event === 'validate') {
-                emits('validate', args[0] as boolean)
-            }
-        },
-        {
-            customValidate: validateFile,
-            requiredInvalidMessage: 'no_file',
+const {
+    value,
+    validMarker: computedValidMarker,
+    invalidMarker: computedInvalidMarker,
+    validMessage: computedValidMessage,
+    invalidMessage: computedInvalidMessage,
+} = useFieldValidation<File | undefined>(
+    validationProps,
+    model,
+    (event: string, ...args: unknown[]) => {
+        if (event === 'change') {
+            emits('change')
+        } else if (event === 'validate') {
+            emits('validate', args[0] as boolean)
         }
-    )
+    },
+    {
+        customValidate: validateFile,
+        requiredInvalidMessage: 'no_file',
+    }
+)
 
 const filePathInfo = computed(() =>
     value.value ? `${value.value.name}, ${value.value.size / 1000} kb` : ''
@@ -202,7 +207,7 @@ function onFileSelected(evt: Event): void {
         </label>
         <div
             :id="inputFileId"
-            class="input-group rounded has-validation mb-2"
+            class="input-group has-validation mb-2 rounded"
         >
             <button
                 class="btn btn-outline-group"
