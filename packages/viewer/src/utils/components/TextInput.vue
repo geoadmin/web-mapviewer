@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** Input with clear button component */
-import { computed, nextTick, ref, useSlots, useTemplateRef } from 'vue'
+import { nextTick, ref, useSlots, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
@@ -119,18 +119,10 @@ const emits = defineEmits<{
     'keydown.enter': []
 }>()
 
-// Create a computed ref wrapper for the model to match the expected type
-const modelRef = computed({
-    get: () => model.value,
-    set: (value: string) => {
-        model.value = value
-    },
-})
-
 const { value, validMarker, invalidMarker, validMessage, invalidMessage, onFocus, required } =
     useFieldValidation(
         props as unknown as FieldValidationProps,
-        modelRef,
+        model,
         emits as (_event: string, ..._args: unknown[]) => void
     )
 

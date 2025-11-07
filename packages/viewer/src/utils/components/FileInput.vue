@@ -125,17 +125,9 @@ const inputLocalFile = useTemplateRef<HTMLInputElement>('inputLocalFile')
 // Computed properties
 const maxFileSizeHuman = computed(() => humanFileSize(maxFileSize))
 
-// Create a writable computed ref for the model to match the expected type
-const modelRef = computed({
-    get: () => model.value,
-    set: (value: File | undefined) => {
-        model.value = value
-    },
-})
-
 // Validation logic for file-specific checks
 function validateFile(): { valid: boolean; invalidMessage: string } {
-    const file = modelRef.value
+    const file = model.value
     if (
         file &&
         acceptedFileTypes?.length > 0 &&
@@ -168,7 +160,7 @@ const validationProps = {
 const { value, validMarker: computedValidMarker, invalidMarker: computedInvalidMarker, validMessage: computedValidMessage, invalidMessage: computedInvalidMessage } =
     useFieldValidation<File | undefined>(
         validationProps,
-        modelRef,
+        model,
         (event: string, ...args: unknown[]) => {
             if (event === 'change') {
                 emits('change')
