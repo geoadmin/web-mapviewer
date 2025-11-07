@@ -41,12 +41,10 @@ describe('Testing coordinates typing in search bar', () => {
     )
 
     const checkCenterInStore = (acceptableDelta = 0.0) => {
-        console.log('Expected center', expectedCenter)
         cy.log(`Check that center is at ${JSON.stringify(expectedCenter)}`)
         cy.getPinia().then((pinia) => {
             const positionStore = usePositionStore(pinia)
             const center = positionStore.center
-            console.log('center in store', center)
             expect(center[0]).to.be.approximately(expectedCenter[0], acceptableDelta)
             expect(center[1]).to.be.approximately(expectedCenter[1], acceptableDelta)
         })
@@ -65,12 +63,11 @@ describe('Testing coordinates typing in search bar', () => {
         })
     }
     const checkThatCoordinateAreHighlighted = (acceptableDelta = 0.0) => {
-        console.log('Expected center for highlighted coordinate', expectedCenter)
         // checking that a balloon marker has been put on the coordinate location (that it is a highlighted location in the store)
         cy.getPinia().then((pinia) => {
             const mapStore = useMapStore(pinia)
             const feature = mapStore.pinnedLocation
-            console.log('Highlighted feature in store', feature)
+            console.log('feature', feature)
             expect(feature).to.not.be.undefined
             expect(feature).to.be.a('array').that.is.not.empty
             expect(feature?.[0]).to.be.approximately(expectedCenter[0], acceptableDelta)
@@ -187,13 +184,16 @@ describe('Testing coordinates typing in search bar', () => {
         })
     })
 
-    it.skip('Paste MGRS input', () => {
-        // TODO: latLonToMGRS seems to be broken, with these coords we get "32TMS4409595189723" but it should be "32TMS4095989723"
+    it('Paste MGRS input', () => {
         // as MGRS is a 1m based grid, the point could be anywhere in the square of 1m x 1m, we then accept a 1m delta
         const acceptableDeltaForMGRS = 1
         const mgrsCoordinates = latLonToMGRS(expectedCenterWGS84[1], expectedCenterWGS84[0])
         cy.log(`Enter MGRS ${mgrsCoordinates} in search bar`)
         cy.get(searchbarSelector).paste(mgrsCoordinates)
+        cy.waitUntilState((pinia: Pinia) => {
+            const mapStore = useMapStore(pinia)
+            return !!mapStore.pinnedLocation
+        })
         checkCenterInStore(acceptableDeltaForMGRS)
         checkZoomLevelInStore()
         checkThatCoordinateAreHighlighted(acceptableDeltaForMGRS)

@@ -158,7 +158,6 @@ const REGEX_MILITARY_GRID = /^3[123]\s*[a-z]{3}\s*\d{1,5}\s*\d{1,5}$/i
 
 function extractMgrsCoordinates(text: string): [number, number] | undefined {
     const coordinate = mgrsExtractor(REGEX_MILITARY_GRID.exec(text.trim()))
-    console.log('extracted MGRS coordinate:', coordinate, text)
     if (coordinate) {
         return coordinate
     }

@@ -10,7 +10,7 @@ export default defineConfig({
     video: false,
     defaultCommandTimeout: 15000,
     requestTimeout: 5000,
-    numTestsKeptInMemory: 0,
+    numTestsKeptInMemory: 1,
     watchForFileChanges: false, // Prevent auto run on file changes
 
     retries: {

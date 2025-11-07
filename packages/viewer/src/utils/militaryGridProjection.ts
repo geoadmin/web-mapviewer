@@ -392,10 +392,11 @@ export function getLetterDesignator(latitude: number): string {
  * @returns MGRS string for the given UTM location.
  */
 export function encodeUTM(utm: UTM, accuracy: number = 5): string {
-    // prepend with leading zeroes
-    const easting = `00000${utm.easting}`.substring(5 + `${utm.easting}`.length, accuracy)
-    const northing = `00000${utm.northing}`.substring(5 + `${utm.northing}`.length, accuracy)
+    const seasting = `00000${utm.easting}`
+    const snorthing = `00000${utm.northing}`
     const id100k = get100kID(utm.easting, utm.northing, utm.zoneNumber)
+    const easting = seasting.substring(seasting.length - 5, seasting.length - 5 + accuracy)
+    const northing = snorthing.substring(snorthing.length - 5, snorthing.length - 5 + accuracy)
 
     return `${utm.zoneNumber}${utm.zoneLetter}${id100k}${easting}${northing}`
 }
