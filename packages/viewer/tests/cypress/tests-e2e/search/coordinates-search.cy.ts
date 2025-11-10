@@ -67,7 +67,6 @@ describe('Testing coordinates typing in search bar', () => {
         cy.getPinia().then((pinia) => {
             const mapStore = useMapStore(pinia)
             const feature = mapStore.pinnedLocation
-            console.log('feature', feature)
             expect(feature).to.not.be.undefined
             expect(feature).to.be.a('array').that.is.not.empty
             expect(feature?.[0]).to.be.approximately(expectedCenter[0], acceptableDelta)
