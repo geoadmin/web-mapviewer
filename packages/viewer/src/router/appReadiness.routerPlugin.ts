@@ -7,6 +7,7 @@ import type { ActionDispatcher } from '@/store/types'
 import { isSupportedLang } from '@/modules/i18n'
 import { MAP_VIEW } from '@/router/viewNames'
 import useAppStore from '@/store/modules/app'
+import { AppStates } from '@/store/modules/app/types/app'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers'
 import useTopicsStore from '@/store/modules/topics'
@@ -50,7 +51,10 @@ export const appReadinessRouterPlugin: RouterPlugin = (router): void => {
         }
 
         function handleAppReady() {
-            if (isAppReady() && !appStore.isReady) {
+            if (isAppReady() && appStore.isLoadingConfig) {
+                // triggering actions which requires the initial config
+                appStore.setAppState( AppStates.ConfigLoaded, dispatcher)
+
                 log.info({
                     title: 'App loading management plugin',
                     titleColor: LogPreDefinedColor.Yellow,
@@ -58,18 +62,23 @@ export const appReadinessRouterPlugin: RouterPlugin = (router): void => {
                 })
                 unsubscribes.forEach((unsubscribe) => unsubscribe())
                 unRegisterRouterHook()
-                router
-                    .push({ name: MAP_VIEW, query: to.query })
-                    .then(() => appStore.setAppIsReady(dispatcher))
-                    .catch((error) => {
-                        log.error({
-                            title: 'App loading management plugin',
-                            titleColor: LogPreDefinedColor.Yellow,
-                            messages: [`Error while routing to map view`, error],
-                        })
+
+                // telling the application if they should now handle the legacy parsing
+                // or the store syncing.
+                if(isLegacyUrl) {
+                    appStore.setAppState(AppStates.LegacyParsing, dispatcher)
+                } else {
+                    appStore.setAppState(AppStates.SyncingStore, dispatcher)
+                }
+                router.push({ name: MAP_VIEW, query: to.query }).catch((error) => {
+                    log.error({
+                        title: 'App loading management plugin',
+                        titleColor: LogPreDefinedColor.Yellow,
+                        messages: [`Error while routing to map view`, error],
                     })
-            }
+            })
         }
+    }
 
         if (START_LOCATION && to.meta.requiresAppReady) {
             if (!isAppReady()) {
@@ -92,11 +101,12 @@ export const appReadinessRouterPlugin: RouterPlugin = (router): void => {
                 if (topic) {
                     startingTopic = topic
                     const appStore = useAppStore()
-                    if (appStore.isReady) {
+                    if (appStore.isConfigLoaded) {
                         topicsStore.changeTopic(topic, { changeLayers: true }, dispatcher)
                     } else {
-                        appStore.$onAction(({ name }) => {
-                            if (startingTopic && name === 'setAppIsReady' && appStore.isReady) {
+                        appStore.$onAction(({ after, name, args }) => {
+                            after(() => {
+                                if (startingTopic && name === 'setAppState' && args[0] === AppStates.ConfigLoaded && appStore.isConfigLoaded) {
                                 topicsStore.changeTopic(
                                     startingTopic,
                                     { changeLayers: true },
@@ -104,6 +114,8 @@ export const appReadinessRouterPlugin: RouterPlugin = (router): void => {
                                 )
                             }
                         })
+                            })
+
                     }
                 }
                 log.info({
