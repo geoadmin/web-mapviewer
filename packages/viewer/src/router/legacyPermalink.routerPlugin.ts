@@ -10,7 +10,6 @@ import type { RouterPlugin } from '@/router/types'
 import type { CameraPosition } from '@/store/modules/position/types/position'
 
 import reframe from '@/api/lv03Reframe.api'
-import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 import {
     EMBED_VIEW,
     LEGACY_EMBED_PARAM_VIEW,
@@ -23,6 +22,7 @@ import useAppStore from '@/store/modules/app'
 import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
 import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
+import { transformLayerIntoUrlString } from '@/store/plugins/storeSync/layersParamParser'
 import {
     getKmlLayerFromLegacyAdminIdParam,
     getLayersFromLegacyUrlParams,
@@ -488,7 +488,7 @@ export const legacyPermalinkManagementRouterPlugin: RouterPlugin = (router): voi
                 log.info({
                     title: 'Legacy URL',
                     titleColor: LogPreDefinedColor.Amber,
-                    messages: ['Work is done, unsuscribing from the mutations'],
+                    messages: ['Work is done, unsubscribing from the mutations'],
                 })
                 unsubscribeRouter()
                 if (unSubscribeStoreAction) {

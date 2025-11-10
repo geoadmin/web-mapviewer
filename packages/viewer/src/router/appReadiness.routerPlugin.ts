@@ -51,8 +51,6 @@ export const appReadinessRouterPlugin: RouterPlugin = (router): void => {
 
         function handleAppReady() {
             if (isAppReady() && !appStore.isReady) {
-                appStore.setAppIsReady(dispatcher)
-
                 log.info({
                     title: 'App loading management plugin',
                     titleColor: LogPreDefinedColor.Yellow,
@@ -60,13 +58,16 @@ export const appReadinessRouterPlugin: RouterPlugin = (router): void => {
                 })
                 unsubscribes.forEach((unsubscribe) => unsubscribe())
                 unRegisterRouterHook()
-                router.push({ name: MAP_VIEW, query: to.query }).catch((error) => {
-                    log.error({
-                        title: 'App loading management plugin',
-                        titleColor: LogPreDefinedColor.Yellow,
-                        messages: [`Error while routing to map view`, error],
+                router
+                    .push({ name: MAP_VIEW, query: to.query })
+                    .then(() => appStore.setAppIsReady(dispatcher))
+                    .catch((error) => {
+                        log.error({
+                            title: 'App loading management plugin',
+                            titleColor: LogPreDefinedColor.Yellow,
+                            messages: [`Error while routing to map view`, error],
+                        })
                     })
-                })
             }
         }
 

@@ -24,7 +24,7 @@ export default function loadTopic(
             } else {
                 layersStore.setBackground(undefined, dispatcher)
             }
-            if (!!options.changeLayers && this.currentTopic?.layersToActivate) {
+            if (options.changeLayers && this.currentTopic?.layersToActivate) {
                 layersStore.setLayers(this.currentTopic.layersToActivate, dispatcher)
             }
         })
