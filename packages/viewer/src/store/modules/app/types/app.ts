@@ -11,16 +11,18 @@ export interface AppStoreState {
      */
     isMapReady: boolean
 }
-export type AppStoreGetters = object
+export type AppStoreGetters = {
+    isReady(): boolean
+}
 
 export type AppStore = ReturnType<typeof import('../index.ts').default>
 
 export enum AppStates {
-    INITIALIZING = 'initializing',
-    CONFIG_LOADED = 'configLoaded',
-    LEGACY_PARSING = 'legacyParsing',
-    SYNCING_STORE = 'storeSyncing',
-    READY = 'ready'
+    Initializing = 'INITIALIZING',
+    ConfigLoaded = 'CONFIG_LOADED',
+    LegacyParsing = 'LEGACY_PARSING',
+    SyncingStore = 'SYNCING_STORE',
+    Ready = 'READY'
 }
 
 export type AppState = AppStates
