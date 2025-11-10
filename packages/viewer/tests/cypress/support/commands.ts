@@ -362,7 +362,7 @@ Cypress.Commands.add('openMenuIfMobile', () => {
             if (!uiStore.showMenu) {
                 cy.get('[data-cy="menu-button"]').click()
             }
-            cy.get('[data-cy="menu-tray"]').should('not.be.visible')
+            cy.get('[data-cy="menu-tray-inner"]').should('be.visible')
         })
     }
     cy.log('cmd: openMenuIfMobile successful')
