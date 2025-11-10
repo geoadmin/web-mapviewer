@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n'
 import type { ActionDispatcher } from '@/store/types'
 
 import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
+import RecenterButton from '@/modules/map/components/toolbox/RecenterButton.vue'
 import useCesiumStore from '@/store/modules/cesium'
 import useGeolocationStore from '@/store/modules/geolocation'
 import usePositionStore from '@/store/modules/position'
@@ -25,8 +26,6 @@ const tooltipContent = computed(() => {
     let key
     if (geolocationStore.denied) {
         key = 'geoloc_permission_denied'
-    } else if (hasTrackingFeedback.value) {
-        key = 're_center_map'
     } else if (hastAutoRotationFeedback.value) {
         key = 'orient_map_north'
     } else if (geolocationStore.active) {
@@ -37,20 +36,14 @@ const tooltipContent = computed(() => {
     return t(key)
 })
 
-const hasTrackingFeedback = computed(() => geolocationStore.active && !geolocationStore.tracking)
 const hastAutoRotationFeedback = computed(
     () => geolocationStore.active && positionStore.hasOrientation && !positionStore.autoRotation
 )
 function toggleGeolocation(): void {
     if (!geolocationStore.active) {
         geolocationStore.toggleGeolocation(dispatcher)
-        if (hasTrackingFeedback.value) {
-            geolocationStore.setGeolocationTracking(true, dispatcher)
-        }
     } else {
-        if (hasTrackingFeedback.value) {
-            geolocationStore.setGeolocationTracking(true, dispatcher)
-        } else if (hastAutoRotationFeedback.value) {
+        if (hastAutoRotationFeedback.value) {
             positionStore.setAutoRotation(true, dispatcher)
         } else {
             geolocationStore.toggleGeolocation(dispatcher)
@@ -80,11 +73,6 @@ function toggleGeolocation(): void {
             >
                 <span class="fa-layers fa-fw h-100 w-100">
                     <FontAwesomeIcon
-                        v-if="hasTrackingFeedback"
-                        :icon="['far', 'circle']"
-                        transform="grow-4"
-                    />
-                    <FontAwesomeIcon
                         v-if="positionStore.autoRotation"
                         icon="minus"
                         transform="shrink-10 up-7 rotate--90"
@@ -106,6 +94,7 @@ function toggleGeolocation(): void {
             v-if="!cesiumStore.active && compassButton"
             :hide-if-north="!positionStore.autoRotation"
         />
+        <RecenterButton />
     </div>
 </template>
 
