@@ -90,11 +90,13 @@ function toggleGeolocation(): void {
                 </span>
             </button>
         </GeoadminTooltip>
+        <!-- Recenter button: Shows only when geolocation is active and map center is >1m away from user's location -->
+        <RecenterButton />
+        <!-- Compass button: Shows when map is rotated, or when auto-rotation is enabled (for orientation feedback) -->
         <OpenLayersCompassButton
             v-if="!cesiumStore.active && compassButton"
-            :hide-if-north="!positionStore.autoRotation"
+            :hide-if-north="geolocationStore.active ? !positionStore.autoRotation : true"
         />
-        <RecenterButton />
     </div>
 </template>
 
