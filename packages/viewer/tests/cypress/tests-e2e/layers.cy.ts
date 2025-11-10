@@ -6,9 +6,9 @@ import type { Pinia } from 'pinia'
 import { WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import { assertDefined } from 'support/utils'
 
-import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers'
+import { transformLayerIntoUrlString } from '@/store/plugins/storeSync/layersParamParser'
 
 /**
  * This function is used as a parameter to `JSON.stringify` to remove all properties with the name
@@ -18,20 +18,19 @@ import useLayersStore from '@/store/modules/layers'
  * @param {any} value The current value to stringify.
  * @returns {String} The string representation of the object.
  * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#the_replacer_parameter
- *
-*/
+ */
 // @ts-expect-error the replacer function expects any as a value, but typescript doesn't like it
 const stringifyWithoutLangOrundefined = (key: string, value) =>
     key === 'lang' || key === 'uuid' || value === undefined ? undefined : value
 
 describe('Test of layer handling', () => {
     const bgLayer = {
-        id: 'test.background.layer2'
+        id: 'test.background.layer2',
     }
     context('Layer in URL at app startup', () => {
         it('starts without any visible layer added opening the app without layers URL param', () => {
             cy.goToMapView()
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const layersStore = useLayersStore(pinia)
                 expect(layersStore.visibleLayers).to.be.empty
             })
@@ -78,7 +77,7 @@ describe('Test of layer handling', () => {
 
             //-----------------------------------------------------------------
             cy.log(`Check layers in store`)
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const layersStore2 = useLayersStore(pinia)
                 const visibleLayers = layersStore2.visibleLayers
                 expect(visibleLayers).to.be.an('Array').length(3)
@@ -117,7 +116,7 @@ describe('Test of layer handling', () => {
         it('uses the default timestamp of a time enabled layer when not specified in the URL', () => {
             const timeEnabledLayerId = 'test.timeenabled.wmts.layer'
             cy.goToMapView({ queryParams: { layers: timeEnabledLayerId } })
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const layersStore3 = useLayersStore(pinia)
                 const layers = layersStore3.visibleLayers
                 const [timeEnabledLayer] = layers
@@ -143,7 +142,7 @@ describe('Test of layer handling', () => {
                                 )}`,
                             },
                         })
-                        cy.getPinia().then(pinia => {
+                        cy.getPinia().then((pinia) => {
                             const layersStore4 = useLayersStore(pinia)
                             const layers = layersStore4.visibleLayers
                             const [timeEnabledLayer] = layers
@@ -158,7 +157,7 @@ describe('Test of layer handling', () => {
         context('External layers', () => {
             it('reads and adds an external WMS correctly', () => {
                 cy.getExternalWmsMockConfig().then((layerObjects) => {
-                    layerObjects.forEach((layerObject) => layerObject.visible = true)
+                    layerObjects.forEach((layerObject) => (layerObject.visible = true))
                     const [mockExternalWms1, mockExternalWms2, mockExternalWms3, mockExternalWms4] =
                         layerObjects
                     /**
@@ -172,7 +171,9 @@ describe('Test of layer handling', () => {
                     )
 
                     layerObjects[1]!.baseUrl = layerObjects[0]!.baseUrl + 'item=22_06_86t13214'
-                    const layers = layerObjects.map((object) => transformLayerIntoUrlString(object, undefined, undefined)).join(';')
+                    const layers = layerObjects
+                        .map((object) => transformLayerIntoUrlString(object, undefined, undefined))
+                        .join(';')
                     cy.goToMapView({ queryParams: { layers } })
 
                     cy.log(`Verify that the Get capabilities of both server are called`)
@@ -187,7 +188,7 @@ describe('Test of layer handling', () => {
                         .should('have.property', 'item', 'MyItem')
 
                     cy.log(`Verify that the active layers store match the url input`)
-                    cy.getPinia().then(pinia => {
+                    cy.getPinia().then((pinia) => {
                         const layersStore5 = useLayersStore(pinia)
                         const activeLayers2 = layersStore5.activeLayers as ExternalWMSLayer[]
                         expect(activeLayers2).to.be.lengthOf(layerObjects.length)
@@ -330,13 +331,15 @@ describe('Test of layer handling', () => {
             it('reads and adds an external WMTS correctly', () => {
                 cy.getExternalWmtsMockConfig().then((layerObjects) => {
                     // @ts-expect-error : the layers have the 'visible' property set in AbstractLayers, but I can't see it in ExternalWMTS layers
-                    layerObjects.forEach((layerObject) => layerObject.visible = true)
+                    layerObjects.forEach((layerObject) => (layerObject.visible = true))
                     const [mockExternalWmts1, _, mockExternalWmts3] = layerObjects
 
                     cy.goToMapView({
                         queryParams: {
                             layers: layerObjects
-                                .map((object) => transformLayerIntoUrlString(object, undefined, undefined))
+                                .map((object) =>
+                                    transformLayerIntoUrlString(object, undefined, undefined)
+                                )
                                 .join(';'),
                         },
                     })
@@ -346,7 +349,7 @@ describe('Test of layer handling', () => {
                         `@externalWMTS-GetCap-${mockExternalWmts3?.baseUrl}`,
                     ])
 
-                    cy.getPinia().then(pinia => {
+                    cy.getPinia().then((pinia) => {
                         const layersStore6 = useLayersStore(pinia)
                         const visibleLayers2 = layersStore6.visibleLayers
                         expect(visibleLayers2).to.have.lengthOf(layerObjects.length)
@@ -407,11 +410,13 @@ describe('Test of layer handling', () => {
                     cy.goToMapView({
                         queryParams: {
                             layers: layerObjects2
-                                .map((object) => transformLayerIntoUrlString(object, undefined, undefined))
+                                .map((object) =>
+                                    transformLayerIntoUrlString(object, undefined, undefined)
+                                )
                                 .join(';'),
                         },
                     })
-                    cy.getPinia().then(pinia => {
+                    cy.getPinia().then((pinia) => {
                         const layersStore7 = useLayersStore(pinia)
                         expect(layersStore7.visibleLayers).to.have.length(1)
                         const activeLayers3 = layersStore7.activeLayers
@@ -428,11 +433,13 @@ describe('Test of layer handling', () => {
                         'have.length',
                         layerObjects2.length
                     )
-                    layerObjects2.toReversed().forEach((layer: ExternalWMTSLayer, index: number) => {
-                        cy.get('[data-cy^="menu-active-layer-"]')
-                            .eq(index)
-                            .should('contain', layer.name)
-                    })
+                    layerObjects2
+                        .toReversed()
+                        .forEach((layer: ExternalWMTSLayer, index: number) => {
+                            cy.get('[data-cy^="menu-active-layer-"]')
+                                .eq(index)
+                                .should('contain', layer.name)
+                        })
                     cy.get('[data-cy^="menu-active-layer-"]').each(($layer) => {
                         cy.wrap($layer)
                             .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
@@ -519,7 +526,7 @@ describe('Test of layer handling', () => {
 
                 //----------------------------------------------------------------------------------
                 cy.log('WMTS URL unreachable')
-                cy.getPinia().then(pinia => {
+                cy.getPinia().then((pinia) => {
                     const layersStore8 = useLayersStore(pinia)
                     const visibleLayers3 = layersStore8.visibleLayers
                     expect(visibleLayers3).to.have.lengthOf(4)
@@ -545,7 +552,7 @@ describe('Test of layer handling', () => {
 
                 //----------------------------------------------------------------------------------
                 cy.log('WMTS URL invalid content')
-                cy.getPinia().then(pinia => {
+                cy.getPinia().then((pinia) => {
                     const layersStore9 = useLayersStore(pinia)
                     const visibleLayers4 = layersStore9.visibleLayers
                     expect(visibleLayers4).to.have.lengthOf(4)
@@ -571,7 +578,7 @@ describe('Test of layer handling', () => {
 
                 //----------------------------------------------------------------------------------
                 cy.log('WMS URL unreachable')
-                cy.getPinia().then(pinia => {
+                cy.getPinia().then((pinia) => {
                     const layersStore10 = useLayersStore(pinia)
                     const visibleLayers5 = layersStore10.visibleLayers
                     expect(visibleLayers5).to.have.lengthOf(4)
@@ -597,7 +604,7 @@ describe('Test of layer handling', () => {
 
                 //----------------------------------------------------------------------------------
                 cy.log('WMS URL invalid content')
-                cy.getPinia().then(pinia => {
+                cy.getPinia().then((pinia) => {
                     const layersStore11 = useLayersStore(pinia)
                     const visibleLayers6 = layersStore11.visibleLayers
                     expect(visibleLayers6).to.have.lengthOf(4)
@@ -626,7 +633,7 @@ describe('Test of layer handling', () => {
     context('Background layer in URL at app startup', () => {
         it('sets the background to the void layer if we set the bgLayer parameter to "void"', () => {
             cy.goToMapView({ queryParams: { bgLayer: 'void' } })
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const layersStore12 = useLayersStore(pinia)
                 expect(layersStore12.currentBackgroundLayer).to.be.undefined
             })
@@ -635,7 +642,7 @@ describe('Test of layer handling', () => {
             cy.fixture('topics.fixture').then((topicFixtures) => {
                 const [defaultTopic] = topicFixtures.topics
                 cy.goToMapView()
-                cy.getPinia().then(pinia => {
+                cy.getPinia().then((pinia) => {
                     const layersStore13 = useLayersStore(pinia)
                     const bgLayer = layersStore13.currentBackgroundLayer
                     expect(bgLayer).to.not.be.undefined
@@ -647,7 +654,7 @@ describe('Test of layer handling', () => {
             cy.fixture('topics.fixture').then((topicFixtures) => {
                 const [defaultTopic] = topicFixtures.topics
                 cy.goToMapView({ queryParams: { layers: 'test.timeenabled.wmts.layer' } })
-                cy.getPinia().then(pinia => {
+                cy.getPinia().then((pinia) => {
                     const layersStore14 = useLayersStore(pinia)
                     const bgLayer2 = layersStore14.currentBackgroundLayer
                     expect(bgLayer2).to.not.be.undefined
@@ -663,7 +670,7 @@ describe('Test of layer handling', () => {
         })
         it('sets the background according to the URL param if present at startup', () => {
             cy.goToMapView({ queryParams: { bgLayer: 'test.background.layer2' } })
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const layersStore15 = useLayersStore(pinia)
                 const bgLayer3 = layersStore15.currentBackgroundLayer
                 expect(bgLayer3).to.not.be.undefined
@@ -704,7 +711,7 @@ describe('Test of layer handling', () => {
                 // using the first layer to test this out
                 const layerId = visibleLayerIds[0]
                 cy.get(`[data-cy^="button-remove-layer-${layerId}-"]`).should('be.visible').click()
-                cy.getPinia().then(pinia => {
+                cy.getPinia().then((pinia) => {
                     const layersStore17 = useLayersStore(pinia)
                     const visibleLayers8 = layersStore17.visibleLayers
                     expect(visibleLayers8).to.be.an('Array')
@@ -749,7 +756,7 @@ describe('Test of layer handling', () => {
                 // Add the test layer.
                 cy.get(testLayerSelector).should('be.visible').click()
                 cy.get(testLayerSelector).trigger('mouseleave')
-                cy.getPinia().then(pinia => {
+                cy.getPinia().then((pinia) => {
                     const layersStore18 = useLayersStore(pinia)
                     const visibleLayers9 = layersStore18.visibleLayers
                     expect(visibleLayers9).to.be.an('Array').length(1)
@@ -780,7 +787,7 @@ describe('Test of layer handling', () => {
                 }).as('search-locations')
                 cy.goToMapView()
                 cy.openMenuIfMobile()
-                cy.getPinia().then(pinia => {
+                cy.getPinia().then((pinia) => {
                     const layersStore16 = useLayersStore(pinia)
                     expect(layersStore16.visibleLayers).to.be.empty
                 })
@@ -790,7 +797,7 @@ describe('Test of layer handling', () => {
                     .first()
                     .click()
                 cy.get('[data-cy="menu-button"]').click()
-                cy.getPinia().then(pinia => {
+                cy.getPinia().then((pinia) => {
                     const layersStore19 = useLayersStore(pinia)
                     const visibleLayers10 = layersStore19.visibleLayers
                     expect(visibleLayers10).to.be.an('Array').length(1)
@@ -813,7 +820,7 @@ describe('Test of layer handling', () => {
                 // Toggle (hide) the test layer.
                 cy.get(testLayerSelector).should('be.visible').click()
                 cy.get(testLayerSelector).trigger('mouseleave')
-                cy.getPinia().then(pinia => {
+                cy.getPinia().then((pinia) => {
                     const layersStore20 = useLayersStore(pinia)
                     const visibleLayers11 = layersStore20.visibleLayers
                     const visibleIds = visibleLayers11.map((layer) => layer.id)
@@ -822,7 +829,7 @@ describe('Test of layer handling', () => {
                 // Toggle (show) the test layer.
                 cy.get(testLayerSelector).click()
                 cy.get(testLayerSelector).trigger('mouseleave')
-                cy.getPinia().then(pinia => {
+                cy.getPinia().then((pinia) => {
                     const layersStore21 = useLayersStore(pinia)
                     const visibleLayers12 = layersStore21.visibleLayers
                     const visibleIds2 = visibleLayers12.map((layer) => layer.id)
@@ -849,9 +856,10 @@ describe('Test of layer handling', () => {
                 const step = -0.01
                 const repetitions = 6
                 cy.get(`[data-cy^="slider-transparency-layer-${layerId}-"]`)
-                    .should('be.visible').focus()
+                    .should('be.visible')
+                    .focus()
                 for (let i = 0; i < repetitions; i++) {
-                    cy.press("ArrowRight")
+                    cy.press('ArrowRight')
                 }
                 // checking that the opacity has changed accordingly
                 cy.getPinia().then((pinia) => {
@@ -1073,13 +1081,13 @@ describe('Test of layer handling', () => {
                         .length(visibleLayerIds.length + 1)
 
                     assertDefined(activeLayers7[3])
-                    expect((activeLayers7[3]).timeConfig.currentTimestamp).to.eq(newTimestamp)
+                    expect(activeLayers7[3].timeConfig.currentTimestamp).to.eq(newTimestamp)
                     expect(activeLayers7[3]?.isVisible).to.be.false
                     expect(activeLayers7[3]?.opacity).to.eq(0.5)
 
                     assertDefined(activeLayers7[2])
                     expect(activeLayers7[2]).not.to.be.undefined
-                    expect((activeLayers7[2]).timeConfig.currentTimestamp).to.eq(timestamp)
+                    expect(activeLayers7[2].timeConfig.currentTimestamp).to.eq(timestamp)
                     expect(activeLayers7[2]?.isVisible).to.be.true
                     expect(activeLayers7[2]?.opacity).to.eq(0)
                 })
@@ -1226,12 +1234,12 @@ describe('Test of layer handling', () => {
                     expect(activeLayers8).to.be.an('Array').length(4)
 
                     assertDefined(activeLayers8[3])
-                    expect((activeLayers8[3]).timeConfig.currentTimestamp).to.eq('20180101')
+                    expect(activeLayers8[3].timeConfig.currentTimestamp).to.eq('20180101')
                     expect(activeLayers8[3]?.isVisible).to.be.true
                     expect(activeLayers8[3]?.opacity).to.eq(0.7)
 
                     assertDefined(activeLayers8[0])
-                    expect((activeLayers8[0]).timeConfig.currentTimestamp).to.eq(newTimestamp)
+                    expect(activeLayers8[0].timeConfig.currentTimestamp).to.eq(newTimestamp)
                     expect(activeLayers8[0]?.isVisible).to.be.true
                     expect(activeLayers8[0]?.opacity).to.eq(0)
                 })
@@ -1326,7 +1334,7 @@ describe('Test of layer handling', () => {
                 expect(i18nStore.lang).to.eq(langBefore)
                 layersStore31.activeLayers
                     .filter((layer) => 'lang' in layer)
-                    .forEach((layer) => expect((layer).lang).to.eq(langBefore))
+                    .forEach((layer) => expect(layer.lang).to.eq(langBefore))
                 // Save the layer configuration before the switch.
                 activeLayersConfigBefore = JSON.stringify(
                     layersStore31.activeLayers,
@@ -1352,7 +1360,7 @@ describe('Test of layer handling', () => {
                 expect(i18nStore2.lang).to.eq(langAfter)
                 layersStore32.activeLayers
                     .filter((layer) => 'lang' in layer)
-                    .forEach((layer) => expect((layer).lang).to.eq(langAfter))
+                    .forEach((layer) => expect(layer.lang).to.eq(langAfter))
                 // Compare the layer configuration (except the language)
                 const activeLayersConfigAfter = JSON.stringify(
                     layersStore32.activeLayers,
@@ -1398,7 +1406,7 @@ describe('Test of layer handling', () => {
             cy.fixture('layers.fixture').then((fakeLayers) => {
                 const layerWithMalformedAttributionUrl = fakeLayers['test.timeenabled.wmts.layer']
                 cy.goToMapView({
-                    queryParams: { layers: layerWithMalformedAttributionUrl.serverLayerName }
+                    queryParams: { layers: layerWithMalformedAttributionUrl.serverLayerName },
                 })
                 cy.get(
                     `span[data-cy="layer-copyright-${layerWithMalformedAttributionUrl.attribution}"]`
@@ -1412,7 +1420,7 @@ describe('Test of layer handling', () => {
                 queryParams: {
                     bgLayer: 'test.background.layer2',
                     layers: 'test.wmts.layer',
-                }
+                },
             })
             cy.get('[data-cy="layers-copyrights"]').should('have.length', 1)
         })

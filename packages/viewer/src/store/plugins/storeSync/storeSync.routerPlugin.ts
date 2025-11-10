@@ -12,7 +12,6 @@ import {
     type UrlParamConfigTypes,
 } from '@/store/plugins/storeSync/UrlParamConfig.class'
 
-export const FAKE_URL_CALLED_AFTER_ROUTE_CHANGE: string = '/tell-cypress-route-has-changed'
 const watchedActions: string[] = [
     ...storeSyncConfig.flatMap((paramConfig: UrlParamConfigTypes) => paramConfig.actionsToWatch),
 ].filter((actionName: string, index: number, self: string[]) => self.indexOf(actionName) === index)

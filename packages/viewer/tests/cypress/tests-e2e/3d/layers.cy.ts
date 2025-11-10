@@ -3,8 +3,8 @@ import type { Viewer } from 'cesium'
 import { LV95, WEBMERCATOR } from '@swissgeo/coordinates'
 
 import { EditableFeatureTypes } from '@/api/features.api'
-import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 import useFeaturesStore from '@/store/modules/features'
+import { transformLayerIntoUrlString } from '@/store/plugins/storeSync/layersParamParser'
 
 function expectLayerCountToBe(viewer: Viewer, layerCount: number) {
     const layers = viewer.scene.imageryLayers
@@ -391,7 +391,6 @@ describe('Test of layer handling in 3D', () => {
     })
     it('Verify a layer with EPSG:4326(WEBMERCATOR) bounding box in 2D and 3D', () => {
         cy.getExternalWmsMockConfig().then((layerObjects) => {
-
             expect(layerObjects[1]).to.not.be.undefined
             // we want to use only the second mock layer, but typescript can't know and be certain that
             // mockExternalWms2 = layerObjects[1] is not undefined. So we make a foreach on a slice, and
@@ -401,7 +400,9 @@ describe('Test of layer handling in 3D', () => {
                 expect(mockExternalWms2).not.to.be.undefined
                 // @ts-expect-error: external wms has the visible attribute from abstract layer, but typescript can't see it explicitly
                 mockExternalWms2.visible = true
-                const layers = [mockExternalWms2].map((object) => transformLayerIntoUrlString(object, undefined, undefined)).join(';')
+                const layers = [mockExternalWms2]
+                    .map((object) => transformLayerIntoUrlString(object, undefined, undefined))
+                    .join(';')
                 cy.goToMapView({
                     queryParams: { '3d': true, layers },
                 })
@@ -409,36 +410,42 @@ describe('Test of layer handling in 3D', () => {
                 // This layer extent got transformed from EPSG:4326 to EPSG:2056
                 const layerExtentInLV95 = [2485071.58, 1075346.31, 2828515.82, 1299941.79]
                 cy.waitUntilCesiumTilesLoaded()
-                cy.window().its('cesiumViewer').then((viewer) => {
-                    expectLayerCountToBe(viewer, 2)
-                    const wmsLayer = viewer.scene.imageryLayers.get(1)
-                    expect(wmsLayer.show).to.eq(true)
-                    expect(wmsLayer.imageryProvider.layers).to.have.string(mockExternalWms2.id)
-                })
+                cy.window()
+                    .its('cesiumViewer')
+                    .then((viewer) => {
+                        expectLayerCountToBe(viewer, 2)
+                        const wmsLayer = viewer.scene.imageryLayers.get(1)
+                        expect(wmsLayer.show).to.eq(true)
+                        expect(wmsLayer.imageryProvider.layers).to.have.string(mockExternalWms2.id)
+                    })
 
                 cy.log('Switching to 2D and checking that the layer is still visible')
                 // deactivate 3D
                 cy.get('[data-cy="3d-button"]').should('be.visible').click()
-                cy.window().its('map').then((map) => {
-                    const layers = map.getLayers().getArray()
-                    expect(layers.length).to.greaterThan(1)
-                    expect(layers[1]!.getProperties().id).to.deep.equal(mockExternalWms2.id)
-                    // If the layer is not visible, it is usually because the extent is not correct
-                    expect(layers[1]!.getExtent()).to.deep.equal(layerExtentInLV95)
-                })
+                cy.window()
+                    .its('map')
+                    .then((map) => {
+                        const layers = map.getLayers().getArray()
+                        expect(layers.length).to.greaterThan(1)
+                        expect(layers[1]!.getProperties().id).to.deep.equal(mockExternalWms2.id)
+                        // If the layer is not visible, it is usually because the extent is not correct
+                        expect(layers[1]!.getExtent()).to.deep.equal(layerExtentInLV95)
+                    })
 
                 // activate 3D
                 cy.get('[data-cy="3d-button"]').should('be.visible').click()
                 cy.waitUntilCesiumTilesLoaded()
 
                 cy.get('[data-cy="3d-button"]').should('be.visible').click()
-                cy.window().its('map').then((map) => {
-                    const layers = map.getLayers().getArray()
-                    expect(layers.length).to.greaterThan(1)
-                    expect(layers[1]!.getProperties().id).to.deep.equal(mockExternalWms2.id)
-                    // If the layer is not visible, it is usually because the extent is not correct
-                    expect(layers[1]!.getExtent()).to.deep.equal(layerExtentInLV95)
-                })
+                cy.window()
+                    .its('map')
+                    .then((map) => {
+                        const layers = map.getLayers().getArray()
+                        expect(layers.length).to.greaterThan(1)
+                        expect(layers[1]!.getProperties().id).to.deep.equal(mockExternalWms2.id)
+                        // If the layer is not visible, it is usually because the extent is not correct
+                        expect(layers[1]!.getExtent()).to.deep.equal(layerExtentInLV95)
+                    })
             })
         })
     })

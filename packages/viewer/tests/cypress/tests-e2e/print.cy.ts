@@ -1,17 +1,26 @@
 /// <reference types="cypress" />
 
-import type { MFPLayer, MFPMap, MFPSymbolizer, MFPSymbolizerLine, MFPSymbolizers, MFPVectorLayer, MFPWmsLayer, MFPWmtsLayer } from '@geoblocks/mapfishprint'
-import type { ExternalWMTSLayer } from '@swissgeo/layers';
+import type {
+    MFPLayer,
+    MFPMap,
+    MFPSymbolizer,
+    MFPSymbolizerLine,
+    MFPSymbolizers,
+    MFPVectorLayer,
+    MFPWmsLayer,
+    MFPWmtsLayer,
+} from '@geoblocks/mapfishprint'
+import type { ExternalWMTSLayer } from '@swissgeo/layers'
 import type { Interception } from 'cypress/types/net-stubbing'
-import type { Feature, FeatureCollection } from 'geojson';
+import type { Feature, FeatureCollection } from 'geojson'
 
 import { formatThousand } from '@swissgeo/numbers'
 import { kmlMetadataTemplate } from 'support/drawing'
 import { assertDefined } from 'support/utils'
 
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
-import { transformLayerIntoUrlString } from '@/router/storeSync/layersParamParser'
 import useLayersStore from '@/store/modules/layers'
+import { transformLayerIntoUrlString } from '@/store/plugins/storeSync/layersParamParser'
 
 interface LaunchPrintOptions {
     layout?: string
@@ -93,7 +102,6 @@ function launchPrint(config: LaunchPrintOptions = {}) {
     cy.get('[data-cy="print-map-button"]:visible').click()
     cy.get('[data-cy="abort-print-button"]').should('be.visible')
 }
-
 
 function checkPrintRequest(body: PrintRequestBody, expectedValues: ExpectedValues = {}) {
     expect(body).to.be.an('object')
@@ -181,16 +189,24 @@ function checkPrintRequest(body: PrintRequestBody, expectedValues: ExpectedValue
             const wmtsLayerInSpec = layerInSpec as MFPWmtsLayer
             expect(wmtsLayerInSpec.layer).to.deep.equals(wmtsLayer.layer)
             expect(wmtsLayerInSpec.matrices).to.be.an('array').not.empty
-            expect(wmtsLayerInSpec.matrices[0]?.matrixSize).to.deep.eq(wmtsLayer.matrixSize ?? [1, 1])
+            expect(wmtsLayerInSpec.matrices[0]?.matrixSize).to.deep.eq(
+                wmtsLayer.matrixSize ?? [1, 1]
+            )
             expect(wmtsLayerInSpec.matrixSet).to.eq(
                 wmtsLayer.matrixSet ?? projection,
                 `wrong matrix set in WMTS layer ${wmtsLayer.layer}`
             )
             if (wmtsLayer.opacity) {
-                expect(wmtsLayerInSpec.opacity).to.equals(wmtsLayer.opacity, 'Wrong opacity for layer')
+                expect(wmtsLayerInSpec.opacity).to.equals(
+                    wmtsLayer.opacity,
+                    'Wrong opacity for layer'
+                )
             }
             if (wmtsLayer.baseURL) {
-                expect(wmtsLayerInSpec.baseURL).to.equals(wmtsLayer.baseURL, 'Wrong base URL for layer')
+                expect(wmtsLayerInSpec.baseURL).to.equals(
+                    wmtsLayer.baseURL,
+                    'Wrong base URL for layer'
+                )
             }
         } else if (layer.type === 'wms') {
             const wmsLayer = layer as MFPWmsLayer
@@ -199,7 +215,9 @@ function checkPrintRequest(body: PrintRequestBody, expectedValues: ExpectedValue
         } else if (layer.type === 'geojson') {
             const vectorLayer = layer as MFPVectorLayer
             const vectorLayerInSpec = layerInSpec as MFPVectorLayer
-            expect((vectorLayerInSpec.geoJson as FeatureCollection).features).to.be.an('array').lengthOf(vectorLayer.featureCount)
+            expect((vectorLayerInSpec.geoJson as FeatureCollection).features)
+                .to.be.an('array')
+                .lengthOf(vectorLayer.featureCount)
             if (vectorLayer.featureCount > 0) {
                 vectorLayerInSpec.geoJson.features.forEach((feature: Feature, idx: number) => {
                     const styleId = `${vectorLayer.featureCount - idx}`
@@ -297,7 +315,7 @@ describe('Testing print', () => {
                             {
                                 layer: 'test.background.layer2',
                                 type: 'wmts',
-                            } as MFPWmtsLayer
+                            } as MFPWmtsLayer,
                         ],
                     })
                 })
@@ -310,7 +328,9 @@ describe('Testing print', () => {
                 headers: { 'Content-Type': 'application/vnd.google-earth.kml+xml' },
             }).as('kmlHeadRequest')
 
-            cy.intercept('GET', `**${getServiceKmlBaseUrl()}some-kml-file.kml`, { fixture: kmlFixture }).as('kmlGetRequest')
+            cy.intercept('GET', `**${getServiceKmlBaseUrl()}some-kml-file.kml`, {
+                fixture: kmlFixture,
+            }).as('kmlGetRequest')
             cy.intercept(
                 {
                     method: 'GET',
@@ -330,7 +350,7 @@ describe('Testing print', () => {
                 withHash: true,
             })
             cy.wait(['@kmlHeadRequest', '@kmlGetAdminRequest'])
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const layersStore = useLayersStore(pinia)
                 expect(layersStore.activeLayers).to.have.length(1)
             })
@@ -434,7 +454,7 @@ describe('Testing print', () => {
 
         it('should send a print request correctly to mapfishprint with GPX layer', () => {
             cy.goToMapView()
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const layersStore2 = useLayersStore(pinia)
                 expect(layersStore2.activeLayers).to.be.empty
             })
@@ -466,7 +486,7 @@ describe('Testing print', () => {
                 .contains('File successfully imported')
             cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
             cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const layersStore3 = useLayersStore(pinia)
                 expect(layersStore3.activeLayers).to.have.length(1)
             })
@@ -700,7 +720,9 @@ describe('Testing print', () => {
                 cy.goToMapView({
                     queryParams: {
                         layers: layerObjects
-                            .map((object: ExternalWMTSLayer) => transformLayerIntoUrlString(object, undefined, undefined))
+                            .map((object: ExternalWMTSLayer) =>
+                                transformLayerIntoUrlString(object, undefined, undefined)
+                            )
                             .join(';'),
                     },
                     withHash: true,
@@ -787,7 +809,9 @@ describe('Testing print', () => {
                 cy.goToMapView({
                     queryParams: {
                         layers: layerObjects
-                            .map((object: ExternalWMTSLayer) => transformLayerIntoUrlString(object, undefined, undefined))
+                            .map((object: ExternalWMTSLayer) =>
+                                transformLayerIntoUrlString(object, undefined, undefined)
+                            )
                             .join(';'),
                     },
                     withHash: true,
