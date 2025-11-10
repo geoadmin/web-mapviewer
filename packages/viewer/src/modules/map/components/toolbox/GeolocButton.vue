@@ -47,6 +47,10 @@ function toggleGeolocation(): void {
             positionStore.setAutoRotation(true, dispatcher)
         } else {
             geolocationStore.toggleGeolocation(dispatcher)
+            // Reset rotation if it was being controlled by auto-rotation
+            if (positionStore.autoRotation) {
+                positionStore.setRotation(0, dispatcher)
+            }
             positionStore.setAutoRotation(false, dispatcher)
             geolocationStore.setGeolocationTracking(false, dispatcher)
         }
