@@ -7,6 +7,7 @@
 
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 
 import type { ActionDispatcher } from '@/store/types'
 
@@ -28,6 +29,8 @@ const appStore = useAppStore()
 const uiStore = useUIStore()
 const layersStore = useLayersStore()
 
+const currentRoute = useRoute()
+
 let debouncedOnResize: () => void = () => {}
 const showFeedbackPopup = computed(() => {
     return uiStore.errors.size + uiStore.warnings.size > 0
@@ -40,7 +43,13 @@ onMounted(() => {
     debouncedOnResize = debounce(setScreenSizeFromWindowSize, 300)
 
     // initial load of layers config
-    layersStore.loadLayersConfig(dispatcher)
+    layersStore.loadLayersConfig(
+        {
+            changeLayersOnTopicChange:
+                currentRoute.query.layers === undefined || currentRoute.query.layers?.length === 0,
+        },
+        dispatcher
+    )
 
     window.addEventListener('resize', debouncedOnResize, { passive: true })
     refreshPageTitle()

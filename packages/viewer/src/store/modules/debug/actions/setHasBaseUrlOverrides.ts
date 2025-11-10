@@ -9,5 +9,5 @@ export default function setHasBaseUrlOverrides(
     dispatcher: ActionDispatcher
 ) {
     this.hasBaseUrlOverrides = hasOverrides
-    useLayersStore().loadLayersConfig(dispatcher)
+    useLayersStore().loadLayersConfig({ changeLayersOnTopicChange: false }, dispatcher)
 }
