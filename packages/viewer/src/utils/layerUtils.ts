@@ -8,7 +8,8 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { randomIntBetween } from '@swissgeo/numbers'
 import { centroid } from '@turf/turf'
 import GeoJSON, { type GeoJSONGeometry } from 'ol/format/GeoJSON'
-import { Geometry } from 'ol/geom'
+import { Geometry, Point } from 'ol/geom'
+import RenderFeature from 'ol/render/Feature'
 
 import type { LayerFeature } from '@/api/features.api'
 
@@ -28,7 +29,7 @@ export function createLayerFeature(
     geometry?: GeoJSONGeometry
 ): LayerFeature | undefined {
     const olFeatureGeometry = olFeature.getGeometry()
-    if (!(olFeatureGeometry instanceof Geometry) || !geometry) {
+    if (!olFeatureGeometry || olFeatureGeometry instanceof RenderFeature) {
         return
     }
     const geometryToReturn: GeoJSONGeometry =
@@ -43,6 +44,8 @@ export function createLayerFeature(
         ['LineString', 'MultiLineString', 'Polygon', 'MultiPolygon'].includes(geometryToReturn.type)
     ) {
         featureCoordinates = centroid(geometryToReturn).geometry.coordinates as SingleCoordinate
+    } else if (geometryToReturn.type === 'Point') {
+        featureCoordinates = geometryToReturn.coordinates as SingleCoordinate
     } else {
         featureCoordinates = coordinates
     }

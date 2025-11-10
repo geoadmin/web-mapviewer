@@ -91,6 +91,7 @@ export default async function initiateDrawing(
                     source: new VectorSource({
                         useSpatialIndex: false,
                         wrapX: true,
+                        // TODO PB-2027: load any pre-existing feature in the drawing layer source, setting the ID the same way we do when we draw new features
                     }),
                     zIndex: 9999,
                 })
@@ -98,6 +99,12 @@ export default async function initiateDrawing(
             config: kmlLayer,
             temporaryKmlId,
         }
+
+        log.debug({
+            title: 'Drawing store / initiateDrawing',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: ['Opening drawing mode with', this.layer],
+        })
 
         if (this.layer.config) {
             // checking if the layer is already in the active layers, if so hiding it (we will show it through the system layers)

@@ -57,6 +57,7 @@ export default async function closeDrawing(this: DrawingStore, dispatcher: Actio
                 },
                 dispatcher
             )
+            delete this.layer.config
         }
 
         this.edit.featureType = undefined
@@ -65,6 +66,8 @@ export default async function closeDrawing(this: DrawingStore, dispatcher: Actio
         if (IS_TESTING_WITH_CYPRESS) {
             delete window.drawingLayer
         }
+        this.layer.ol?.dispose()
+        delete this.layer.ol
     } catch (error) {
         log.error({
             title: 'Drawing store / closeDrawing',
