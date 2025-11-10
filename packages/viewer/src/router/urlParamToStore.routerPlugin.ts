@@ -66,8 +66,8 @@ function urlQueryWatcher(
             // when the query value is an empty string, queryValue is false.
             (queryValue || queryValue === '') &&
             queryValue !== storeValue &&
-            // if the query is undefined and the store is null, we also don't dispatch it, as we want
-            // to avoid changing the store value for no reason.
+            // if the query is undefined and the store is undefined, we also don't dispatch it,
+            // as we want to avoid changing the store value for no reason.
             !(queryValue === undefined && storeValue === undefined)
         ) {
             // dispatching URL value to the store
