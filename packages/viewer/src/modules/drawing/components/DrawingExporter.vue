@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import type VectorLayer from 'ol/layer/Vector'
-
-import { computed, inject, ref } from 'vue'
+import { computed, ref } from 'vue'
 
 import type { DropdownItem } from '@/utils/components/DropdownButton.vue'
 
@@ -16,8 +14,6 @@ const exportOptions: DropdownItem<string>[] = [
     { id: 'KML', title: 'KML', value: 'KML' },
     { id: 'GPX', title: 'GPX', value: 'GPX' },
 ]
-
-const drawingLayer = inject<VectorLayer>('drawingLayer')
 
 const exportSelection = ref<string>(exportOptions[0]!.title)
 
@@ -38,7 +34,7 @@ function exportDrawing() {
     if (isDrawingEmpty.value) {
         return
     }
-    const features = drawingLayer?.getSource?.()?.getFeatures?.() ?? []
+    const features = drawingStore.layer.ol?.getSource?.()?.getFeatures?.() ?? []
     let content: string, fileName: string
     if (exportSelection.value === 'GPX') {
         fileName = generateFilename('.gpx')

@@ -3,15 +3,16 @@ import type { SimpleGeometry } from 'ol/geom'
 
 import Feature from 'ol/Feature'
 
+import type { DrawingInteractionExposed } from '@/modules/drawing/types/interaction'
+
 import { EditableFeatureTypes } from '@/api/features.api'
 import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable'
 import useDrawingStore from '@/store/modules/drawing'
 import { DEFAULT_MARKER_TITLE_OFFSET } from '@/utils/featureStyleUtils'
 
-type EmitType = {
-    (_e: 'drawEnd', _feature: Feature<SimpleGeometry>): void
-}
-const emits = defineEmits<EmitType>()
+const emits = defineEmits<{
+    drawEnd: [feature: Feature<SimpleGeometry>]
+}>()
 
 const drawingStore = useDrawingStore()
 
@@ -24,6 +25,10 @@ useDrawingModeInteraction({
     drawEndCallback: (feature: Feature<SimpleGeometry>): void => {
         emits('drawEnd', feature)
     },
+})
+
+defineExpose<DrawingInteractionExposed>({
+    removeLastPoint: () => {},
 })
 </script>
 

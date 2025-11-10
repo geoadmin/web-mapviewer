@@ -6,15 +6,14 @@ import type { ActionDispatcher } from '@/store/types'
 
 export default function addErrors(
     this: UIStore,
-    errors: ErrorMessage[],
+    errors: ErrorMessage | ErrorMessage[],
     dispatcher: ActionDispatcher
 ): void {
-    if (Array.isArray(errors) && errors.every((error) => error)) {
-        errors
-            .filter(
-                (error) =>
-                    ![...this.errors].some((otherError) => error.isEqual(otherError))
-            )
+    const allErrors = Array.isArray(errors) ? errors : [errors]
+
+    if (Array.isArray(allErrors) && allErrors.every((error) => error)) {
+        allErrors
+            .filter((error) => ![...this.errors].some((otherError) => error.isEqual(otherError)))
             .forEach((error) => {
                 this.errors.add(error)
             })

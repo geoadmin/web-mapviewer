@@ -8,8 +8,8 @@ export default function clearAllSelectedFeatures(
     this: FeaturesStore,
     dispatcher: ActionDispatcher
 ) {
-    this.selectedFeaturesByLayerId = []
-    this.selectedEditableFeatures = []
+    this.selectedFeaturesByLayerId.splice(0)
+    this.selectedEditableFeatures.splice(0)
     if (this.highlightedFeatureId) {
         this.highlightedFeatureId = undefined
     }

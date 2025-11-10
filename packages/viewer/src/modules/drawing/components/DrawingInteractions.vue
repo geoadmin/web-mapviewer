@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import type Feature from 'ol/Feature'
-import type { ComponentPublicInstance } from 'vue'
+import type { Component, ComponentPublicInstance } from 'vue'
 
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { computed, ref, useTemplateRef } from 'vue'
+
+import type {
+    DrawingInteractionExposed,
+    SelectInteractionExposed,
+} from '@/modules/drawing/types/interaction'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import DrawingLineInteraction from '@/modules/drawing/components/DrawingLineInteraction.vue'
@@ -16,31 +21,17 @@ import ExtendMeasureInteraction from '@/modules/drawing/components/ExtendMeasure
 import useDrawingStore from '@/store/modules/drawing'
 import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 
-// Methods exposed by the select interaction component
-type SelectInteractionExposed = {
-    setActive: (_: boolean) => void
-    selectFeature: (_: Feature | undefined) => void
-    removeLastPoint: () => void
-}
-// Methods optionally exposed by specialized interactions
-type InteractionExposed = { removeLastPoint?: () => void }
-
-// DOM References
-const selectInteraction = useTemplateRef<
-    ComponentPublicInstance<SelectInteractionExposed> | undefined
->('selectInteraction')
-const currentInteraction = useTemplateRef<ComponentPublicInstance<InteractionExposed> | undefined>(
-    'currentInteraction'
-)
+const selectInteraction =
+    useTemplateRef<ComponentPublicInstance<SelectInteractionExposed>>('selectInteraction')
+const currentInteraction =
+    useTemplateRef<ComponentPublicInstance<DrawingInteractionExposed>>('currentInteraction')
 const drawingStore = useDrawingStore()
-const currentDrawingMode = computed(() => drawingStore.mode)
-const editMode = computed(() => drawingStore.editingMode)
 
 const selectedLineFeature = ref<Feature | undefined>()
 
-const specializedInteractionComponent = computed(() => {
+const specializedInteractionComponent = computed<Component | undefined>(() => {
     let selectedInteraction
-    switch (currentDrawingMode.value) {
+    switch (drawingStore.edit.featureType) {
         case EditableFeatureTypes.Annotation:
             selectedInteraction = DrawingTextInteraction
             break
@@ -54,7 +45,7 @@ const specializedInteractionComponent = computed(() => {
             selectedInteraction = DrawingMeasureInteraction
             break
     }
-    if (editMode.value === EditMode.Extend) {
+    if (drawingStore.edit.mode === EditMode.Extend) {
         const isMeasure =
             selectedLineFeature.value?.get('editableFeature')?.featureType ===
             EditableFeatureTypes.Measure
@@ -66,18 +57,22 @@ const specializedInteractionComponent = computed(() => {
         } else if (isLine) {
             selectedInteraction = ExtendLineInteraction
         } else {
-            log.error('Invalid feature type for extend mode')
+            log.error({
+                title: 'DrawingInteractions.vue',
+                titleColor: LogPreDefinedColor.Lime,
+                messages: ['Invalid feature type for extend mode'],
+            })
 
             selectedInteraction = undefined
         }
     }
-    // Make sure that the modify interaction is disabled when we are in draw / extend mode
+    // Make sure that the select interaction is disabled when we are in draw / extend mode
     selectInteraction.value?.setActive(!selectedInteraction)
     return selectedInteraction
 })
 
 const specializedProps = computed(() => {
-    if (editMode.value === EditMode.Extend) {
+    if (drawingStore.edit.mode === EditMode.Extend) {
         return {
             startingFeature: selectedLineFeature.value,
         }
@@ -90,8 +85,8 @@ function onDrawEnd(feature: Feature | undefined) {
 }
 
 function removeLastPoint() {
-    currentInteraction.value?.removeLastPoint?.()
-    if (editMode.value !== EditMode.Off) {
+    currentInteraction.value?.removeLastPoint()
+    if (drawingStore.edit.mode !== EditMode.Off) {
         selectInteraction.value?.removeLastPoint()
     }
 }
@@ -103,7 +98,7 @@ function featureSelected(feature: Feature | undefined) {
         selectedLineFeature.value = undefined
     }
 }
-defineExpose({
+defineExpose<DrawingInteractionExposed>({
     removeLastPoint,
 })
 </script>

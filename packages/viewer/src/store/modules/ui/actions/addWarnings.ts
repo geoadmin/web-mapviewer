@@ -6,11 +6,16 @@ import type { ActionDispatcher } from '@/store/types'
 
 export default function addWarnings(
     this: UIStore,
-    warnings: WarningMessage[],
+    warnings: WarningMessage | WarningMessage[],
     dispatcher: ActionDispatcher
 ): void {
-    if (Array.isArray(warnings) && warnings.every((warning) => warning instanceof WarningMessage)) {
-        warnings
+    const allWarnings = Array.isArray(warnings) ? warnings : [warnings]
+
+    if (
+        Array.isArray(allWarnings) &&
+        allWarnings.every((warning) => warning instanceof WarningMessage)
+    ) {
+        allWarnings
             .filter(
                 (warning) =>
                     ![...this.warnings].some((otherWarning) => warning.isEqual(otherWarning))

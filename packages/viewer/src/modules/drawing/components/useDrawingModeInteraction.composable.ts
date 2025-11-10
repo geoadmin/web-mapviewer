@@ -1,7 +1,6 @@
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type Feature from 'ol/Feature'
 import type { Type as GeometryType } from 'ol/geom/Geometry'
-import type VectorLayer from 'ol/layer/Vector'
 import type Map from 'ol/Map'
 import type { StyleFunction, StyleLike } from 'ol/style/Style'
 
@@ -15,7 +14,7 @@ import SnapInteraction from 'ol/interaction/Snap'
 import { Style } from 'ol/style'
 import { getUid } from 'ol/util'
 import { v4 as uuidv4 } from 'uuid'
-import { inject, nextTick, onBeforeUnmount, onMounted, ref, toValue } from 'vue'
+import { inject, onBeforeUnmount, onMounted, ref, toValue } from 'vue'
 
 import type { EditableFeature } from '@/api/features.api'
 import type { ActionDispatcher } from '@/store/types'
@@ -23,7 +22,6 @@ import type { ActionDispatcher } from '@/store/types'
 import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@/api/features.api'
 import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
-import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import useDrawingStore from '@/store/modules/drawing'
 import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 import usePositionStore from '@/store/modules/position'
@@ -63,20 +61,27 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
     const counterLinePolyPoints = ref<number>(0)
     const isSnappingOnFirstPoint = ref<boolean>(false)
 
-    const drawingLayer = inject<VectorLayer>('drawingLayer')
     const olMap = inject<Map>('olMap')
-
-    if (!drawingLayer || !olMap) {
-        throw new Error('Drawing layer or OL map not provided')
-    }
-
-    const { debounceSaveDrawing } = useSaveKmlOnChange()
 
     const positionStore = usePositionStore()
     const drawingStore = useDrawingStore()
 
-    const interactionSource = drawingLayer.getSource()
+    if (!drawingStore.layer.ol || !olMap) {
+        log.error({
+            title: 'useDrawingModeInteraction',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: ['Drawing layer or OL map not provided'],
+        })
+        throw new Error('Drawing layer or OL map not provided')
+    }
+
+    const interactionSource = drawingStore.layer.ol.getSource()
     if (!interactionSource) {
+        log.error({
+            title: 'useDrawingModeInteraction',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: ['Drawing layer source not found'],
+        })
         throw new Error('Drawing layer source not found')
     }
     const interaction = new DrawInteraction({
@@ -101,6 +106,11 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
 
         const overlaySource = interaction.getOverlay().getSource()
         if (!overlaySource) {
+            log.error({
+                title: 'useDrawingModeInteraction',
+                titleColor: LogPreDefinedColor.Lime,
+                messages: ['Drawing overlay source not found'],
+            })
             throw new Error('Drawing overlay source not found')
         }
 
@@ -154,31 +164,36 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
     }
 
     /**
-     * As OL believes it is drawing a polygon, it will always add the first point as the last, even
-     * if not finished, so we remove it before performing our checks
+     * We've configured OL to be drawing polygons when we draw line, so it will always add the first
+     * point as the last, even if not finished. We need to remove it before performing our checks.
      */
     function getFeatureCoordinatesWithoutExtraPoint(
         feature: Feature<SimpleGeometry>
     ): SingleCoordinate[] | undefined {
-        const geometryCoordinates: SingleCoordinate[] | undefined =
-            feature.getGeometry()?.getCoordinates() ?? undefined
-        if (
-            Array.isArray(geometryCoordinates) &&
-            geometryCoordinates.length > 0 &&
-            Array.isArray(geometryCoordinates[0])
-        ) {
-            return geometryCoordinates.slice(0, -1)
+        const featureGeometryCoordinates = feature.getGeometry()?.getCoordinates()
+
+        if (Array.isArray(featureGeometryCoordinates) && featureGeometryCoordinates.length > 0) {
+            // filtering out point (marker/text) features
+            if (
+                featureGeometryCoordinates.length === 2 &&
+                featureGeometryCoordinates.every((value) => typeof value === 'number')
+            ) {
+                return [featureGeometryCoordinates as SingleCoordinate]
+            }
+            return coordinatesUtils
+                .unwrapGeometryCoordinates(featureGeometryCoordinates)
+                .slice(0, -1)
         }
-        return geometryCoordinates
+        return undefined
     }
 
     function onAddFeature(event: DrawEvent) {
         const feature: Feature<SimpleGeometry> = event.feature as Feature<SimpleGeometry>
         if (!feature.getId()) {
-            /* setting a unique ID for each feature. getUid() is unique as long as the app
-            isn't reloaded. The first part is a time stamp to guarante uniqueness even after
-            reloading the app. Ps: We can not fully rely on the time stamp as some browsers may
-            make the timestamp less precise to increase privacy. */
+            // setting a unique ID for each feature.
+            // getUid() is unique as long as the app isn't reloaded.
+            // The first part is a timestamp to guarantee uniqueness even after reloading the app.
+            // note: We can't fully rely on the timestamp as some browsers may make the timestamp less precise to increase privacy.
             const uid =
                 'drawing_feature_' +
                 Math.trunc(Date.now() / 1000) +
@@ -186,37 +201,33 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
             feature.setId(uid)
             const editableFeature: EditableFeature = {
                 coordinates: feature.getGeometry()?.getCoordinates() ?? [],
-                featureType: drawingStore.mode!,
-                isDragged: false,
+                featureType: drawingStore.edit.featureType!,
                 isEditable: true,
                 showDescriptionOnMap: false,
-                textOffset: [0, 0],
+                textOffset: DEFAULT_MARKER_TITLE_OFFSET,
                 textPlacement: TextPlacement.Center,
                 title: '',
                 id: uid,
                 ...editableFeatureArgs,
             }
 
-            /* applying extra properties that should be stored with that feature. Openlayers will
-            automatically redraw the feature if these properties change, but not in a recursive
-            manner. This means that if e.g. a property inside of the editableFeature changes, an
-            update must be triggered manually.*/
+            // applying extra properties that should be stored with that feature.
+            // OpenLayers will automatically redraw the feature if these properties change, but not recursively.
+            // This means that if e.g., a property inside the editableFeature changes, an update must be manually triggered.
             feature.setProperties({
                 editableFeature,
-                // For backward compatibility with the legacy mf-geoadmin3 viewer we need to add the
-                // feature type as proprietary property
                 type: editableFeature.featureType.toLowerCase(),
             })
             if (editableFeature.featureType === EditableFeatureTypes.Marker) {
                 feature.setProperties({
-                    textOffset: DEFAULT_MARKER_TITLE_OFFSET.toString(),
-                    showDescriptionOnMap: false,
+                    textOffset: editableFeature.textOffset.toString(),
+                    showDescriptionOnMap: editableFeature.showDescriptionOnMap,
                 })
             }
             log.debug({
                 title: 'useDrawingModeInteraction',
-                titleColor: LogPreDefinedColor.Blue,
-                messages: [`onAddFeature: feature ${feature.getId()} added`],
+                titleColor: LogPreDefinedColor.Lime,
+                messages: ['onAddFeature: feature added', feature],
             })
         }
     }
@@ -244,20 +255,13 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
             updateStoreFeatureCoordinatesGeometry(
                 selectedFeature,
                 dispatcher,
-                drawingStore.reverseLineStringExtension
+                drawingStore.edit.reverseLineStringExtension
             )
             drawingStore.setEditingMode(
                 EditMode.Modify,
-                drawingStore.reverseLineStringExtension,
+                drawingStore.edit.reverseLineStringExtension,
                 dispatcher
             )
-            debounceSaveDrawing().catch((err) => {
-                log.error({
-                    title: 'useDrawingModeInteraction',
-                    titleColor: LogPreDefinedColor.Blue,
-                    messages: ['Error while saving drawing', err],
-                })
-            })
         }
 
         interaction.abortDrawing()
@@ -272,8 +276,8 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
         const feature = event.feature
         log.debug({
             title: 'useDrawingModeInteraction',
-            titleColor: LogPreDefinedColor.Blue,
-            messages: [`onDrawStart feature ${feature.getId()}`],
+            titleColor: LogPreDefinedColor.Lime,
+            messages: ['onDrawStart feature', feature],
         })
         if (useGeodesicDrawing) {
             feature.set('geodesic', new GeodesicGeometries(feature, positionStore.projection))
@@ -289,7 +293,7 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
 
         log.debug({
             title: 'useDrawingModeInteraction',
-            titleColor: LogPreDefinedColor.Blue,
+            titleColor: LogPreDefinedColor.Lime,
             messages: [`Drawing ended ${featureId}`, drawnFeature],
         })
 
@@ -330,10 +334,14 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
             // deactivate()
             // grabbing the drawn feature so that we send it through the event
 
-            const editableFeature = drawnFeature.get('editableFeature')
-            editableFeature.coordinates = extractOlFeatureCoordinates(drawnFeature)
-            // setting the geometry too so that the floating popup can be placed correctly on the map
-            editableFeature.geometry = new GeoJSON().writeGeometryObject(geometry)
+            const editableFeature = drawnFeature.get('editableFeature') as
+                | EditableFeature
+                | undefined
+            if (editableFeature) {
+                editableFeature.coordinates = extractOlFeatureCoordinates(drawnFeature)
+                // setting the geometry too so that the floating popup can be placed correctly on the map
+                editableFeature.geometry = new GeoJSON().writeGeometryObject(geometry)
+            }
 
             // removing the flag we've set above in onDrawStart (this feature is now drawn)
             drawnFeature.unset('isDrawing')
@@ -343,26 +351,11 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
             drawnFeature.setStyle(geoadminStyleFunction)
             // see https://openlayers.org/en/latest/apidoc/module-ol_interaction_Draw-Draw.html#finishDrawing
             interaction.finishDrawing()
-            // we do not need to share the drawing when the drawing is from the report problem tool
-            if (drawingStore.online) {
-                drawingStore.setIsDrawingModified(true, dispatcher)
-            }
-            drawingStore.addDrawingFeature(featureId, dispatcher)
+            drawingStore.setCurrentlyDrawnFeature(editableFeature, dispatcher)
             drawingStore.setDrawingMode(undefined, dispatcher)
             if (drawEndCallback) {
                 drawEndCallback(drawnFeature)
             }
-            // Here we need to save work in next tick to have the drawingLayer source updated.
-            // Otherwise, the source might not yet be updated with the new/updated/deleted feature
-            nextTick()
-                .then(() => debounceSaveDrawing())
-                .catch((err) => {
-                    log.error({
-                        title: 'useDrawingModeInteraction',
-                        titleColor: LogPreDefinedColor.Blue,
-                        messages: ['Error while saving drawing after next tick', err],
-                    })
-                })
         }
     }
     function checkIfSnapping(event: DrawEvent) {

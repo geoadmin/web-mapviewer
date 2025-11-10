@@ -2,49 +2,72 @@ import { defineStore } from 'pinia'
 
 import type { DrawingStoreGetters, DrawingStoreState } from '@/store/modules/drawing/types/drawing'
 
-import addDrawingFeature from '@/store/modules/drawing/actions/addDrawingFeature'
 import clearDrawingFeatures from '@/store/modules/drawing/actions/clearDrawingFeatures'
+import closeDrawing from '@/store/modules/drawing/actions/closeDrawing'
 import deleteDrawingFeature from '@/store/modules/drawing/actions/deleteDrawingFeature'
+import initiateDrawing from '@/store/modules/drawing/actions/initiateDrawing'
 import loadAvailableIconSets from '@/store/modules/drawing/actions/loadAvailableIconSets'
+import setCurrentlyDrawnFeature from '@/store/modules/drawing/actions/setCurrentlyDrawnFeature'
 import setDrawingFeatures from '@/store/modules/drawing/actions/setDrawingFeatures'
 import setDrawingMode from '@/store/modules/drawing/actions/setDrawingMode'
 import setDrawingName from '@/store/modules/drawing/actions/setDrawingName'
+import setDrawingSaveState from '@/store/modules/drawing/actions/setDrawingSaveState'
 import setEditingMode from '@/store/modules/drawing/actions/setEditingMode'
 import setIsDrawingEditShared from '@/store/modules/drawing/actions/setIsDrawingEditShared'
-import setIsDrawingModified from '@/store/modules/drawing/actions/setIsDrawingModified'
 import setIsVisitWithAdminId from '@/store/modules/drawing/actions/setIsVisitWithAdminId'
 import toggleDrawingOverlay from '@/store/modules/drawing/actions/toggleDrawingOverlay'
+import updateCurrentDrawingFeature from '@/store/modules/drawing/actions/updateCurrentDrawingFeature'
 import { isDrawingEmpty } from '@/store/modules/drawing/getters/isDrawingEmpty'
+import isDrawingModified from '@/store/modules/drawing/getters/isDrawingModified'
 import showNotSharedDrawingWarning from '@/store/modules/drawing/getters/showNotSharedDrawingWarning'
+import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
 import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 
 const defaultDrawingTitle = 'draw_mode_title'
 
 const state = (): DrawingStoreState => ({
-    mode: undefined,
+    layer: {
+        ol: undefined,
+        config: undefined,
+        temporaryKmlId: undefined,
+    },
+    edit: {
+        featureType: undefined,
+        mode: EditMode.Off,
+        reverseLineStringExtension: false,
+        preferred: {
+            iconSize: undefined,
+            iconColor: undefined,
+            textPlacement: undefined,
+        },
+    },
+    feature: {
+        current: undefined,
+        all: [],
+    },
     iconSets: [],
-    featureIds: [],
-    drawingOverlay: {
+    overlay: {
         show: false,
         title: defaultDrawingTitle,
     },
+    save: {
+        state: DrawingSaveState.Initial,
+        pending: undefined,
+    },
     online: true,
-    temporaryKmlId: undefined,
     name: undefined,
-    reverseLineStringExtension: false,
-    editingMode: EditMode.Off,
+    isDrawingNew: true,
     isDrawingEditShared: false,
-    isDrawingModified: false,
     isVisitWithAdminId: false,
 })
 
 const getters: DrawingStoreGetters = {
     isDrawingEmpty,
+    isDrawingModified,
     showNotSharedDrawingWarning,
 }
 
 const actions = {
-    addDrawingFeature,
     clearDrawingFeatures,
     deleteDrawingFeature,
     loadAvailableIconSets,
@@ -53,9 +76,13 @@ const actions = {
     setDrawingMode,
     setDrawingName,
     setIsDrawingEditShared,
-    setIsDrawingModified,
     setIsVisitWithAdminId,
     toggleDrawingOverlay,
+    updateCurrentDrawingFeature,
+    setDrawingSaveState,
+    setCurrentlyDrawnFeature,
+    initiateDrawing,
+    closeDrawing,
 }
 
 const useDrawingStore = defineStore('drawing', {

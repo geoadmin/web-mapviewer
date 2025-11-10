@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import type { SingleCoordinate } from '@swissgeo/coordinates'
-import type VectorLayer from 'ol/layer/Vector'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import log from '@swissgeo/log'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import DOMPurify from 'dompurify'
-import { computed, inject, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { ActionDispatcher } from '@/store/types'
@@ -17,9 +16,8 @@ import DrawingHeader from '@/modules/drawing/components/DrawingHeader.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
 import SharePopup from '@/modules/drawing/components/SharePopup.vue'
 import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
-import { DrawingState } from '@/modules/drawing/lib/export-utils'
-import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
 import useDrawingStore from '@/store/modules/drawing'
+import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
 import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
@@ -33,10 +31,6 @@ const emits = defineEmits<{
     removeLastPoint: [void]
     closeDrawing: [void]
 }>()
-
-const drawingLayer = inject<VectorLayer>('drawingLayer')
-
-const { saveState, deleteDrawing, debounceSaveDrawing } = useSaveKmlOnChange()
 
 const { t } = useI18n()
 const drawingStore = useDrawingStore()
@@ -56,8 +50,10 @@ const tooltipText = computed<string>(() =>
 )
 const isDrawingLineOrMeasure = computed<boolean>(() => {
     return (
-        !!drawingStore.mode &&
-        [EditableFeatureTypes.LinePolygon, EditableFeatureTypes.Measure].includes(drawingStore.mode)
+        !!drawingStore.edit.featureType &&
+        [EditableFeatureTypes.LinePolygon, EditableFeatureTypes.Measure].includes(
+            drawingStore.edit.featureType
+        )
     )
 })
 const selectedLineString = computed<EditableFeature | undefined>(() => {
@@ -87,7 +83,7 @@ const isAllowDeleteLastPoint = computed<boolean>(
         // Allow deleting the last point only if we are drawing line or measure
         // or when extending line
         isDrawingLineOrMeasure.value ||
-        (drawingStore.editingMode === EditMode.Extend &&
+        (drawingStore.edit.mode === EditMode.Extend &&
             selectedLineString.value !== undefined &&
             selectedLineCoordinates.value !== undefined &&
             selectedLineCoordinates.value.length > 2)
@@ -96,17 +92,21 @@ const drawingName = computed<string | undefined>({
     get: () => drawingStore.name,
     set: (value) => debounceSaveDrawingName(value),
 })
-const isDrawingStateError = computed(() => (saveState.value as number) < 0)
+const isDrawingStateError = computed(
+    () =>
+        drawingStore.save.state === DrawingSaveState.LoadError ||
+        drawingStore.save.state === DrawingSaveState.SaveError
+)
 /** Return a different translation key depending on the saving status */
 const drawingStateMessage = computed(() => {
-    switch (saveState.value as (typeof DrawingState)[keyof typeof DrawingState]) {
-        case DrawingState.SAVING:
+    switch (drawingStore.save.state) {
+        case DrawingSaveState.Saving:
             return t('draw_file_saving')
-        case DrawingState.SAVED:
+        case DrawingSaveState.Saved:
             return t('draw_file_saved')
-        case DrawingState.SAVE_ERROR:
+        case DrawingSaveState.SaveError:
             return t('draw_file_load_error')
-        case DrawingState.LOAD_ERROR:
+        case DrawingSaveState.LoadError:
             return t('draw_file_save_error')
         default:
             return undefined
@@ -117,23 +117,12 @@ const online = computed(() => drawingStore.online)
 function onCloseClearConfirmation(confirmed: boolean) {
     showClearConfirmationModal.value = false
     if (confirmed) {
-        drawingStore.clearDrawingFeatures(dispatcher)
-        featuresStore.clearAllSelectedFeatures(dispatcher)
-        drawingStore.setIsDrawingModified(false, dispatcher)
-        drawingStore.setIsDrawingEditShared(false, dispatcher)
-        drawingLayer?.getSource()?.clear()
-        deleteDrawing().catch((error: Error) => log.error(`Error while deleting drawing: ${error}`))
-        drawingStore.setDrawingMode(undefined, dispatcher)
-        if (layersStore.activeKmlLayer) {
-            layersStore.removeLayer(
-                layersStore.activeKmlLayer.id,
-                {
-                    isExternal: layersStore.activeKmlLayer.isExternal,
-                    baseUrl: layersStore.activeKmlLayer.baseUrl,
-                },
-                dispatcher
-            )
-        }
+        drawingStore.closeDrawing(dispatcher).catch((error) => {
+            log.error({
+                title: 'DrawingToolbox.vue',
+                messages: ['Error while closing drawing', error],
+            })
+        })
     }
 }
 
@@ -171,9 +160,6 @@ function saveDrawingName(newName?: string) {
         KEEP_CONTENT: false,
     }).trim()
     drawingStore.setDrawingName(sanitized, dispatcher)
-    debounceSaveDrawing().catch((error: Error) =>
-        log.error(`Error while saving drawing after name change: ${error}`)
-    )
 }
 
 const debounceSaveDrawingName = debounce(saveDrawingName, 200)
@@ -224,8 +210,8 @@ const debounceSaveDrawingName = debounce(saveDrawingName, 200)
                         :class="{ 'row-cols-2': uiStore.isDesktopMode }"
                     >
                         <div
-                            v-for="drawingMode in Object.values(EditableFeatureTypes)"
-                            :key="drawingMode"
+                            v-for="featureType in Object.values(EditableFeatureTypes)"
+                            :key="featureType"
                             class="col"
                             :class="{
                                 'd-grid': uiStore.isPhoneMode,
@@ -233,9 +219,9 @@ const debounceSaveDrawingName = debounce(saveDrawingName, 200)
                             }"
                         >
                             <DrawingToolboxButton
-                                :drawing-mode="drawingMode"
-                                :is-active="drawingStore.mode === drawingMode"
-                                :data-cy="`drawing-toolbox-mode-button-${drawingMode}`"
+                                :feature-type="featureType"
+                                :is-active="drawingStore.edit.featureType === featureType"
+                                :data-cy="`drawing-toolbox-mode-button-${featureType}`"
                                 @set-drawing-mode="selectDrawingMode"
                             />
                         </div>

@@ -1,0 +1,123 @@
+import type { KMLLayer } from '@swissgeo/layers'
+
+import { layerUtils } from '@swissgeo/layers/utils'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
+import VectorLayer from 'ol/layer/Vector'
+import VectorSource from 'ol/source/Vector'
+import { markRaw } from 'vue'
+
+import type { DrawingStore } from '@/store/modules/drawing/types/drawing'
+import type { ActionDispatcher } from '@/store/types'
+
+import { getKmlMetadataByAdminId, getKmlUrl } from '@/api/files.api'
+import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import useFeaturesStore from '@/store/modules/features'
+import useLayersStore from '@/store/modules/layers'
+import useUIStore from '@/store/modules/ui'
+import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
+
+interface InitiateDrawingOptions {
+    adminId?: string
+    preExistingDrawing?: KMLLayer
+    temporaryKmlId?: string
+}
+
+export default async function initiateDrawing(
+    this: DrawingStore,
+    dispatcher: ActionDispatcher
+): Promise<void>
+export default async function initiateDrawing(
+    this: DrawingStore,
+    options: InitiateDrawingOptions,
+    dispatcher: ActionDispatcher
+): Promise<void>
+
+export default async function initiateDrawing(
+    this: DrawingStore,
+    optionsOrDispatcher: InitiateDrawingOptions | ActionDispatcher,
+    dispatcherOrNothing?: ActionDispatcher
+) {
+    const dispatcher = dispatcherOrNothing ?? (optionsOrDispatcher as ActionDispatcher)
+    const options = dispatcherOrNothing ? (optionsOrDispatcher as InitiateDrawingOptions) : {}
+
+    if (this.layer.ol) {
+        log.error({
+            title: 'Drawing store / initiateDrawing',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: ['Drawing layer already exists', dispatcher],
+        })
+        return
+    }
+
+    const featuresStore = useFeaturesStore()
+    const layersStore = useLayersStore()
+    const uiStore = useUIStore()
+
+    // Force feature info to be visible in drawing mode
+    uiStore.setFeatureInfoPosition(FeatureInfoPositions.Default, dispatcher)
+
+    // Make sure no drawing features are selected when entering the drawing mode
+    featuresStore.clearAllSelectedFeatures(dispatcher)
+
+    const { adminId, preExistingDrawing, temporaryKmlId } = options
+
+    try {
+        if (this.iconSets.length === 0) {
+            // if icons have not yet been loaded, load them
+            await this.loadAvailableIconSets(dispatcher)
+        }
+
+        let kmlLayer: KMLLayer | undefined
+
+        if (preExistingDrawing) {
+            kmlLayer = preExistingDrawing
+            this.isDrawingNew = !!kmlLayer.adminId
+        } else if (adminId) {
+            const kmlMetadata = await getKmlMetadataByAdminId(adminId)
+            kmlLayer = layerUtils.makeKMLLayer({
+                name: this.name,
+                kmlFileUrl: getKmlUrl(kmlMetadata.id),
+                isVisible: true,
+                isEdited: true,
+                adminId: kmlMetadata.adminId,
+                kmlMetadata,
+            })
+            this.isDrawingNew = false
+        }
+
+        this.layer = {
+            ol: markRaw(
+                new VectorLayer({
+                    source: new VectorSource({
+                        useSpatialIndex: false,
+                        wrapX: true,
+                    }),
+                    zIndex: 9999,
+                })
+            ),
+            config: kmlLayer,
+            temporaryKmlId,
+        }
+
+        if (this.layer.config) {
+            // checking if the layer is already in the active layers, if so hiding it (we will show it through the system layers)
+            const index = layersStore.getIndexOfActiveLayerById(this.layer.config.id)
+            if (index === -1) {
+                layersStore.addLayer(this.layer.config, dispatcher)
+            } else {
+                layersStore.updateLayer<KMLLayer>(this.layer.config, { isEdited: true }, dispatcher)
+            }
+        }
+
+        if (IS_TESTING_WITH_CYPRESS) {
+            window.drawingLayer = this.layer.ol
+        }
+    } catch (error) {
+        log.error({
+            title: 'Drawing store / initiateDrawing',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: ['Error while initializing drawing layer', error],
+        })
+        throw new Error('Error while initializing drawing layer', { cause: error })
+    }
+}

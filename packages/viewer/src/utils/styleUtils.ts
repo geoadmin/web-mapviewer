@@ -1,6 +1,6 @@
 import type { StyleLike } from 'ol/style/Style'
 
-import { Circle, Fill, Stroke, Style } from 'ol/style'
+import { Circle, Fill, RegularShape, Stroke, Style } from 'ol/style'
 import CircleStyle from 'ol/style/Circle'
 
 import { MIN_PRINT_SCALE_SIZE, PRINT_DPI_COMPENSATION } from '@/config/print.config'
@@ -88,6 +88,15 @@ export const redCircleStyle = new Circle({
 export const sketchPointStyle = new Circle({
     ...pointStyle,
     fill: whiteSketchFill,
+})
+
+export const tooltipArrow = new RegularShape({
+    points: 4,
+    radius: 10,
+    fill: new Fill({
+        color: hexToRgba(red, 0.9),
+    }),
+    displacement: [0, 10],
 })
 
 export const gpxStyles: { [key: string]: StyleLike } = {

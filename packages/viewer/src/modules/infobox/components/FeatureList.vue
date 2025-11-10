@@ -38,12 +38,11 @@ const uiStore = useUiStore()
 // Refs from stores
 const { activeLayers } = storeToRefs(layersStore)
 const { lang } = storeToRefs(i18nStore)
-const { drawingOverlay } = storeToRefs(drawingStore)
 const { selectedEditableFeatures, selectedFeaturesByLayerId } = storeToRefs(featuresStore)
 const { clickInfo } = storeToRefs(mapStore)
 const { isPhoneMode } = storeToRefs(uiStore)
 
-const isCurrentlyDrawing = computed<boolean>(() => Boolean(drawingOverlay.value?.show))
+const isCurrentlyDrawing = computed<boolean>(() => drawingStore.overlay.show)
 
 // flag telling if more features could be loaded for a given layer ID
 const canLoadMore = computed<(_layerId: string) => boolean>(() => (layerId: string) => {

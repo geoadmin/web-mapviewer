@@ -17,7 +17,16 @@ import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
-import { allStylingColors, allStylingSizes, BLACK, generateRGBFillString, GREEN, LARGE, RED, SMALL } from '@/utils/featureStyleUtils'
+import {
+    allStylingColors,
+    allStylingSizes,
+    BLACK,
+    generateRGBFillString,
+    GREEN,
+    LARGE,
+    RED,
+    SMALL,
+} from '@/utils/featureStyleUtils'
 import { EMPTY_KML_DATA, LEGACY_ICON_XML_SCALE_FACTOR } from '@/utils/kmlUtils'
 
 import {
@@ -51,10 +60,13 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-style-feature-title"]').should('have.value', title)
             cy.wait('@update-kml')
                 .its('request')
-                .should((request) =>
-                    void checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [new RegExp(`<name>${title}</name>`)])
+                .should(
+                    (request) =>
+                        void checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [
+                            new RegExp(`<name>${title}</name>`),
+                        ])
                 )
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const featuresStore = useFeaturesStore(pinia)
                 expect(featuresStore.selectedFeatures[0]?.title).to.eq(title)
             })
@@ -69,11 +81,12 @@ describe('Drawing module tests', () => {
         function waitForKmlUpdate(...regexExpressions: string[]): void {
             cy.wait('@update-kml')
                 .its('request')
-                .should((request) =>
-                    void checkKMLRequest(
-                        request as CyHttpMessages.IncomingHttpRequest,
-                        regexExpressions.map((expression) => new RegExp(expression))
-                    )
+                .should(
+                    (request) =>
+                        void checkKMLRequest(
+                            request as CyHttpMessages.IncomingHttpRequest,
+                            regexExpressions.map((expression) => new RegExp(expression))
+                        )
                 )
         }
 
@@ -84,7 +97,7 @@ describe('Drawing module tests', () => {
                 description
             )
             cy.wait('@update-kml').then(() => {
-                cy.getPinia().then(pinia => {
+                cy.getPinia().then((pinia) => {
                     const featuresStore = useFeaturesStore(pinia)
                     expect(featuresStore.selectedFeatures[0]?.description).to.eq(description)
                 })
@@ -93,8 +106,14 @@ describe('Drawing module tests', () => {
 
         // we use the description to identify the feature and check its
         // geometry type, number of points and type (measure or linepolygon)
-        function checkDrawnFeature(description: string, numberOfPoints: number, featureType: string, type: EditableFeatureTypes): void {
-            cy.window().its('drawingLayer')
+        function checkDrawnFeature(
+            description: string,
+            numberOfPoints: number,
+            featureType: string,
+            type: EditableFeatureTypes
+        ): void {
+            cy.window()
+                .its('drawingLayer')
                 .then((drawingLayer) => drawingLayer.getSource().getFeatures())
                 .should((features) => {
                     const matchingFeature = features.find(
@@ -102,7 +121,9 @@ describe('Drawing module tests', () => {
                     )
                     expect(matchingFeature).to.not.be.undefined
                     expect(matchingFeature.getGeometry().getType()).to.eq(featureType)
-                    expect(matchingFeature.get('type')).to.eq(type.toLowerCase())
+                    expect(matchingFeature.get('editableFeature')?.featureType).to.eq(
+                        type.toLowerCase()
+                    )
                     if (featureType === 'LineString') {
                         const lineStringCoordinates = matchingFeature.getGeometry().getCoordinates()
                         expect(lineStringCoordinates).to.be.an('Array').lengthOf(numberOfPoints)
@@ -233,10 +254,10 @@ describe('Drawing module tests', () => {
                 cy.log('Test text placement and offset')
                 cy.get('[data-cy="drawing-style-text-button"]').click()
                 cy.get('[data-cy="drawing-style-placement-selector-top-left"]').click()
-                cy.getPinia().then(pinia => {
-                    const featuresStore = useFeaturesStore(pinia)
-                    expect(featuresStore.selectedFeatures[0]?.textPlacement).to.eq('top-left')
-                    const offset = featuresStore.selectedFeatures[0]?.textOffset
+                cy.getPinia().then((pinia) => {
+                    const drawingStore = useDrawingStore(pinia)
+                    expect(drawingStore.feature.current?.textPlacement).to.eq('top-left')
+                    const offset = drawingStore.feature.current?.textOffset
                     if (offset) {
                         expect(offset[0]).to.be.lessThan(0)
                         expect(offset[1]).to.be.lessThan(0)
@@ -686,7 +707,8 @@ describe('Drawing module tests', () => {
                 cy.get('[data-cy="ol-map"]').click(...coordinate)
             })
             cy.log('should create a line by re-clicking the last point')
-            const lastMeasurementCoordinate = measurementCoordinates[measurementCoordinates.length - 1]
+            const lastMeasurementCoordinate =
+                measurementCoordinates[measurementCoordinates.length - 1]
             if (lastMeasurementCoordinate) {
                 cy.get('[data-cy="ol-map"]').click(...lastMeasurementCoordinate)
             }
@@ -740,17 +762,18 @@ describe('Drawing module tests', () => {
             cy.wait('@post-kml').then((interception) => {
                 cy.wrap(interception)
                     .its('request')
-                    .should((request) =>
-                        void checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [
-                            new RegExp(
-                                `<Data name="type"><value>${EditableFeatureTypes.LinePolygon.toLowerCase()}</value></Data>`
-                            ),
-                            new RegExp(
-                                `<Style><LineStyle><color>${KML_STYLE_RED}</color><width>3</width></LineStyle><PolyStyle><color>66${KML_STYLE_RED.slice(
-                                    2
-                                )}</color></PolyStyle></Style>`
-                            ),
-                        ])
+                    .should(
+                        (request) =>
+                            void checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [
+                                new RegExp(
+                                    `<Data name="type"><value>${EditableFeatureTypes.LinePolygon.toLowerCase()}</value></Data>`
+                                ),
+                                new RegExp(
+                                    `<Style><LineStyle><color>${KML_STYLE_RED}</color><width>3</width></LineStyle><PolyStyle><color>66${KML_STYLE_RED.slice(
+                                        2
+                                    )}</color></PolyStyle></Style>`
+                                ),
+                            ])
                     )
                 kmlId = interception.response?.body.id
             })
@@ -779,18 +802,19 @@ describe('Drawing module tests', () => {
             })
             cy.wait('@update-kml')
                 .its('request')
-                .should((request) =>
-                    void checkKMLRequest(
-                        request as CyHttpMessages.IncomingHttpRequest,
-                        [
-                            new RegExp(
-                                `<Style><LineStyle><color>${KML_STYLE_BLACK}</color><width>3</width></LineStyle><PolyStyle><color>66${KML_STYLE_BLACK.slice(
-                                    2
-                                )}</color></PolyStyle></Style>`
-                            ),
-                        ],
-                        kmlId
-                    )
+                .should(
+                    (request) =>
+                        void checkKMLRequest(
+                            request as CyHttpMessages.IncomingHttpRequest,
+                            [
+                                new RegExp(
+                                    `<Style><LineStyle><color>${KML_STYLE_BLACK}</color><width>3</width></LineStyle><PolyStyle><color>66${KML_STYLE_BLACK.slice(
+                                        2
+                                    )}</color></PolyStyle></Style>`
+                                ),
+                            ],
+                            kmlId
+                        )
                 )
 
             cy.log(
@@ -965,7 +989,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-share-admin-link"]').click()
             cy.get('[data-cy="drawing-share-admin-close"]').click()
 
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const layersStore = useLayersStore(pinia)
                 const layers = layersStore.activeLayers
                 expect(layers).to.be.an('Array').lengthOf(1)
@@ -976,7 +1000,7 @@ describe('Drawing module tests', () => {
 
             cy.get(`[data-cy^="button-remove-layer-"]`).click()
 
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const layersStore = useLayersStore(pinia)
                 const layers = layersStore.activeLayers
                 expect(layers).to.be.an('Array').and.to.have.length(0)
@@ -1007,7 +1031,8 @@ describe('Drawing module tests', () => {
                 cy.waitUntilState((pinia: Pinia) => {
                     const layersStore = useLayersStore(pinia)
                     return !!layersStore.activeLayers.find(
-                        (layer) => layer.type === LayerType.KML && (layer as KMLLayer).fileId === kmlId
+                        (layer) =>
+                            layer.type === LayerType.KML && (layer as KMLLayer).fileId === kmlId
                     )
                 })
 
@@ -1026,7 +1051,8 @@ describe('Drawing module tests', () => {
                 cy.waitUntilState((pinia: Pinia) => {
                     const layersStore = useLayersStore(pinia)
                     return !!layersStore.activeLayers.find(
-                        (layer) => layer.type === LayerType.KML && (layer as KMLLayer).fileId === kmlId
+                        (layer) =>
+                            layer.type === LayerType.KML && (layer as KMLLayer).fileId === kmlId
                     )
                 })
 
@@ -1115,13 +1141,13 @@ describe('Drawing module tests', () => {
             cy.log(
                 'the app must open the drawing module at startup whenever an adminId is found in the URL'
             )
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const drawingStore = useDrawingStore(pinia)
-                expect(drawingStore.drawingOverlay.show).to.be.true
+                expect(drawingStore.overlay.show).to.be.true
             })
 
             cy.log('checking that the KML was correctly loaded')
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const featuresStore = useFeaturesStore(pinia)
                 expect(featuresStore.selectedFeatures.length).to.eq(0)
             })
@@ -1133,7 +1159,7 @@ describe('Drawing module tests', () => {
             )
             cy.log('clicking on the single feature of the fixture')
             cy.get('[data-cy="ol-map"]').click('center')
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const featuresStore = useFeaturesStore(pinia)
                 expect(featuresStore.selectedFeatures.length).to.eq(1)
             })
@@ -1191,7 +1217,9 @@ describe('Drawing module tests', () => {
             cy.intercept('PUT', kmlAdminUrl, async (req) => {
                 const adminId = await getKmlAdminIdFromRequest(req)
                 const id = req.url.split('/').pop()
-                req.reply(kmlMetadataTemplate({ id: id || kmlFileId, adminId: adminId || kmlFileAdminId }))
+                req.reply(
+                    kmlMetadataTemplate({ id: id || kmlFileId, adminId: adminId || kmlFileAdminId })
+                )
             }).as('update-kml')
             cy.intercept('HEAD', kmlFileUrl, {
                 statusCode: 200,
@@ -1208,7 +1236,11 @@ describe('Drawing module tests', () => {
                 'opening up the app and centering it directly on the single marker feature from the fixture'
             )
             cy.goToMapView({
-                queryParams: { adminId: kmlFileAdminId, E: center[0] as number, N: center[1] as number },
+                queryParams: {
+                    adminId: kmlFileAdminId,
+                    E: center[0] as number,
+                    N: center[1] as number,
+                },
                 withHash: false,
             })
             cy.wait([
@@ -1229,7 +1261,7 @@ describe('Drawing module tests', () => {
             )
             cy.getPinia().then((pinia) => {
                 const drawingStore2 = useDrawingStore(pinia)
-                cy.wrap(drawingStore2.drawingOverlay.show).should('be.true')
+                cy.wrap(drawingStore2.overlay.show).should('be.true')
             })
 
             cy.log('checking that the KML was correctly loaded')

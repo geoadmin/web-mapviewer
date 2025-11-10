@@ -5,7 +5,9 @@ import type { Size } from 'ol/size'
 
 import { fromString } from 'ol/color'
 import { Fill, Stroke, Text } from 'ol/style'
+import Icon from 'ol/style/Icon'
 import Style from 'ol/style/Style'
+import { toRaw } from 'vue'
 
 import type { EditableFeature } from '@/api/features.api'
 
@@ -378,7 +380,7 @@ export function geoadminStyleFunction(
     feature: FeatureLike,
     resolution?: number
 ): Style | Style[] | undefined {
-    const editableFeature = feature.get('editableFeature')
+    const editableFeature = toRaw<EditableFeature | undefined>(feature.get('editableFeature'))
 
     const styleConfig = {
         fillColor: editableFeature?.fillColor ?? RED,
@@ -392,10 +394,20 @@ export function geoadminStyleFunction(
 
     const { top: offsetTopElement, bottom: offsetBottomElement } =
         getElementOffsets(editableFeature)
+    let image: Icon | undefined
+    if (editableFeature?.icon) {
+        image = new Icon({
+            src: editableFeature.icon.imageURL,
+            crossOrigin: 'Anonymous',
+            anchor: editableFeature.icon.anchor,
+            scale: editableFeature.iconSize?.iconScale,
+            size: editableFeature.icon.size,
+        })
+    }
     const styles = [
         new Style({
             geometry: feature.get('geodesic')?.getGeodesicGeom() ?? feature.getGeometry(),
-            image: editableFeature?.generateOpenlayersIcon(),
+            image,
             text: new Text({
                 text: editableFeature?.title ?? feature.get('name'),
                 font: `normal ${FEATURE_FONT_SIZE}px ${FEATURE_FONT}`,
@@ -406,7 +418,7 @@ export function geoadminStyleFunction(
                     color: styleConfig.textColor.border,
                     width: 3,
                 }),
-                scale: editableFeature?.textSizeScale ?? 1,
+                scale: editableFeature?.iconSize?.textScale ?? 1,
                 offsetX: offsetTopElement[0],
                 offsetY: offsetTopElement[1],
             }),
@@ -414,15 +426,15 @@ export function geoadminStyleFunction(
                 editableFeature?.featureType === EditableFeatureTypes.Measure
                     ? dashedRedStroke
                     : new Stroke({
-                        color: styleConfig.fillColor.fill,
-                        width: 3,
-                    }),
+                          color: styleConfig.fillColor.fill,
+                          width: 3,
+                      }),
             // filling a polygon with white if first time being drawn (otherwise fallback to user set color)
             fill: isDrawing
                 ? whiteSketchFill
                 : new Fill({
-                    color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
-                }),
+                      color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
+                  }),
             zIndex: StyleZIndex.MainStyle,
         }),
     ]
@@ -453,8 +465,8 @@ export function geoadminStyleFunction(
                 fill: isDrawing
                     ? whiteSketchFill
                     : new Fill({
-                        color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
-                    }),
+                          color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
+                      }),
                 zIndex: StyleZIndex.AzimuthCircle,
                 stroke: new Stroke({
                     color: styleConfig.strokeColor.fill,

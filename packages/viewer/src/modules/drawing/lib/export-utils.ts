@@ -1,8 +1,8 @@
-import { WGS84, type CoordinateSystem } from '@swissgeo/coordinates'
+import { type CoordinateSystem, WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import Feature from 'ol/Feature'
 import GPX from 'ol/format/GPX'
-import { LineString as OLLineString, Polygon as OLPolygon, type Geometry } from 'ol/geom'
+import { type Geometry, LineString as OLLineString, Polygon as OLPolygon } from 'ol/geom'
 import { Circle as CircleStyle, Icon as IconStyle } from 'ol/style'
 import Style from 'ol/style/Style'
 
@@ -15,28 +15,6 @@ import KML from '@/utils/ol/format/KML'
 const kmlFormat = new KML()
 
 const gpxFormat = new GPX()
-
-/**
- * Enum that lists all possible saving statuses.
- */
-export enum DrawingState {
-    // First state when entering the drawing mode
-    INITIAL = 0,
-    // Drawing has been loaded
-    LOADED = 1,
-    // Pending changes -> drawing has been modified and is not saved
-    UNSAVED_CHANGES = 2,
-    // Drawing is being saved
-    SAVING = 3,
-    // Drawing has been saved and no pending changes are remaining
-    SAVED = 4,
-    // ------------------------------------------------------------------------
-    // ERROR states should always be negative !
-    // Could not save drawing
-    SAVE_ERROR = -1,
-    // Could not load drawing
-    LOAD_ERROR = -2,
-}
 
 /**
  * Returns a string representing the features given in param as a GPX
@@ -78,7 +56,7 @@ export function generateGpxString(
  *
  * @param projection Coordinate system of the features
  * @param features Features (OpenLayers) to be converted to KML format
- * @param fileName name of the file
+ * @param fileName Name of the file
  * @returns KML string
  */
 export function generateKmlString(
@@ -156,10 +134,7 @@ export function generateKmlString(
 
         // Remove no image hack. An empty icon tag is needed by OpenLayers to not show an icon
         // with the default style. "<scale>0</scale>" may also be needed by other implementations.
-        kmlString = kmlString.replace(
-            /<Icon>\s*<href>noimage<\/href>\s*<\/Icon>/g,
-            '<Icon></Icon>'
-        )
+        kmlString = kmlString.replace(/<Icon>\s*<href>noimage<\/href>\s*<\/Icon>/g, '<Icon></Icon>')
 
         // Remove empty placemark added to have <Document> tag
         kmlString = kmlString.replace(/<Placemark\/>/g, '')

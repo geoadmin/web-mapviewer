@@ -1,85 +1,66 @@
 <script setup lang="ts">
-import type Feature from 'ol/Feature'
-import type { Geometry } from 'ol/geom'
+import type { LineString } from 'geojson'
 import type Map from 'ol/Map'
 
-import { layerUtils } from '@swissgeo/layers/utils'
-import log from '@swissgeo/log'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { WarningMessage } from '@swissgeo/log/Message'
-import VectorLayer from 'ol/layer/Vector'
-import VectorSource from 'ol/source/Vector'
 import {
     type ComponentPublicInstance,
     computed,
     inject,
     onBeforeUnmount,
     onMounted,
-    provide,
     ref,
     useTemplateRef,
     watch,
 } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import type { DrawingInteractionExposed } from '@/modules/drawing/types/interaction'
 import type { ActionDispatcher } from '@/store/types'
 
-import { EditableFeatureTypes } from '@/api/features.api'
+import { type EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import AddVertexButtonOverlay from '@/modules/drawing/components/AddVertexButtonOverlay.vue'
 import DrawingInteractions from '@/modules/drawing/components/DrawingInteractions.vue'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
-import { DrawingState } from '@/modules/drawing/lib/export-utils'
-import useKmlDataManagement from '@/modules/drawing/useKmlDataManagement.composable'
 import useDrawingStore from '@/store/modules/drawing'
 import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
-import useFeaturesStore from '@/store/modules/features'
-import useLayersStore from '@/store/modules/layers'
-import usePositionStore from '@/store/modules/position'
-import useUiStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
+import addKmlFeaturesToDrawingLayer from '@/store/modules/drawing/utils/addKmlFeaturesToDrawingLayer'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
 
 const dispatcher: ActionDispatcher = { name: 'DrawingModule.vue' }
 
 // OL map instance provided by the map module
-const olMap = inject<Map>('olMap')!
+const olMap = inject<Map>('olMap')
 
-// Pinia stores
+if (!olMap) {
+    log.error({
+        title: 'DrawingModule',
+        titleColor: LogPreDefinedColor.Lime,
+        messages: [
+            'DrawingModule requires the olMap to be provided',
+            'Please make sure the map module is loaded before the drawing module',
+        ],
+    })
+    throw new Error('DrawingModule requires the olMap to be provided')
+}
+
 const drawingStore = useDrawingStore()
-const featuresStore = useFeaturesStore()
-const layersStore = useLayersStore()
-const positionStore = usePositionStore()
-const uiStore = useUiStore()
 
-// Refs
-type DrawingInteractionsExposed = { removeLastPoint: () => void }
 const drawingInteractions =
-    useTemplateRef<ComponentPublicInstance<DrawingInteractionsExposed> | null>(
-        'drawingInteractions'
-    )
-const isNewDrawing = ref(true)
-const showNotSharedDrawingWarningModal = ref(false)
+    useTemplateRef<ComponentPublicInstance<DrawingInteractionExposed>>('drawingInteractions')
+const showNotSharedDrawingWarningModal = ref<boolean>(false)
+const drawingHasBeenInitialized = ref<boolean>(false)
 
 const { t } = useI18n()
 
-// Minimal shape used from selected editable features
-type EditableFeatureLite = {
-    geometry: { type: string; coordinates: number[][] }
-    featureType: EditableFeatureTypes
-    icon?: { imageURL: string }
-}
-
 // Computed from stores
 const availableIconSets = computed(() => drawingStore.iconSets)
-const projection = computed(() => positionStore.projection)
-const activeKmlLayer = computed(() => layersStore.activeKmlLayer)
-const featureIds = computed(() => drawingStore.featureIds)
-const isDrawingEmpty = computed(() => featureIds.value.length === 0)
-const noFeatureInfo = computed(() => uiStore.noFeatureInfo)
-const online = computed(() => drawingStore.online)
 
 // Equivalent of old showNotSharedDrawingWarning getter
 const showNotSharedDrawingWarning = computed(
@@ -89,101 +70,42 @@ const showNotSharedDrawingWarning = computed(
         !drawingStore.isVisitWithAdminId
 )
 
-const selectedEditableFeatures = computed<EditableFeatureLite[]>(
-    () => (featuresStore.selectedEditableFeatures as unknown as EditableFeatureLite[]) ?? []
-)
-const selectedLineFeature = computed<EditableFeatureLite | null>(() => {
-    if (selectedEditableFeatures.value && selectedEditableFeatures.value.length > 0) {
-        const selectedFeature = selectedEditableFeatures.value[0]!
-        if (
-            selectedFeature.geometry?.type === 'LineString' &&
-            (selectedFeature.featureType === EditableFeatureTypes.LinePolygon ||
-                selectedFeature.featureType === EditableFeatureTypes.Measure)
-        ) {
-            return selectedFeature
-        }
+const selectedLineFeature = computed<EditableFeature | undefined>(() => {
+    if (
+        drawingStore.feature.current &&
+        drawingStore.feature.current.geometry?.type === 'LineString' &&
+        (drawingStore.feature.current.featureType === EditableFeatureTypes.LinePolygon ||
+            drawingStore.feature.current.featureType === EditableFeatureTypes.Measure)
+    ) {
+        return drawingStore.feature.current
     }
-    return null
+    return undefined
 })
-const showAddVertexButton = computed(
-    () => drawingStore.editingMode === EditMode.Modify && !!selectedLineFeature.value
-)
-const editMode = computed(() => drawingStore.editingMode)
-const currentDrawingMode = computed(() => drawingStore.mode)
-
-const hasLoaded = computed(() => {
-    return activeKmlLayer.value?.isLoading === false && !!activeKmlLayer.value?.kmlData
-})
-const hasKml = computed(() => {
-    if (online.value) {
-        return !!activeKmlLayer.value && !layerUtils.isKmlLayerEmpty(activeKmlLayer.value)
+const lineStringGeometry = computed<LineString | undefined>(() => {
+    if (selectedLineFeature.value) {
+        return selectedLineFeature.value.geometry as LineString
     }
-    const sysLayers = layersStore.systemLayers ?? []
-    return !!sysLayers.find((l) => l.id === drawingStore.temporaryKmlId)
+    return undefined
 })
-// The drawing vector layer
-const drawingLayer = new VectorLayer<VectorSource<Feature<Geometry>>>({
-    source: createSourceForProjection(),
-    zIndex: 9999,
-})
-// Provide for children that inject drawingLayer
-provide('drawingLayer', drawingLayer)
-
-const {
-    addKmlToDrawing,
-    debounceSaveDrawing,
-    clearPendingSaveDrawing,
-    saveState,
-    savesInProgress,
-} = useKmlDataManagement(drawingLayer)
-const isDrawingModified = computed(() => {
-    return ![DrawingState.INITIAL, DrawingState.LOADED, DrawingState.LOAD_ERROR].includes(
-        saveState.value
-    )
-})
-
-// React to projection changes
-watch(projection, () => {
-    drawingLayer.setSource(createSourceForProjection())
-})
-watch(hasLoaded, () => {
-    if (hasLoaded.value) {
-        addKmlToDrawing()
-    }
-})
-
-// Watching feature IDs so we can react whenever one is removed through the "trash button"
-watch(featureIds, (next: string[], last: string[]) => {
-    const removed = last.filter((id) => !next.includes(id))
-    if (removed.length > 0) {
-        log.debug(`${removed.length} feature(s) have been removed, removing them from source`)
-        const source = drawingLayer.getSource()
-        if (!source) {
-            return
-        }
-        source
-            .getFeatures()
-            .filter((feature) => removed.includes(String(feature.get('id'))))
-            .forEach((feature) => source.removeFeature(feature))
-        debounceSaveDrawing().catch((error) => {
-            log.error('Error while saving drawing after feature removal', error)
-        })
-    }
+const hasLoaded = computed<boolean>(() => {
+    return drawingStore.layer.config?.isLoading === false && !!drawingStore.layer.config?.kmlData
 })
 
 // Workaround for legacy drawings and icon set mapping
 watch(availableIconSets, () => {
-    const source = drawingLayer.getSource()
+    const source = drawingStore.layer.ol?.getSource()
     if (!source) {
         return
     }
-    log.debug('New iconsets available update all drawing features', source.getFeatures())
+    log.debug({
+        title: 'DrawingModule',
+        titleColor: LogPreDefinedColor.Lime,
+        messages: ['New icon sets available, updating all drawing features', source.getFeatures()],
+    })
 
-    featureIds.value.forEach((featureId) => {
-        const olFeature = source.getFeatureById(featureId)
-        const editableFeature = olFeature?.get('editableFeature') as EditableFeatureLite | undefined
-        if (editableFeature?.icon) {
-            const iconArgs = parseIconUrl(editableFeature.icon.imageURL)
+    drawingStore.feature.all.forEach((feature) => {
+        if (feature.icon) {
+            const iconArgs = parseIconUrl(feature.icon.imageURL)
             const icon = getIcon(iconArgs, undefined /*iconStyle*/, availableIconSets.value, () => {
                 // Fallback warning handler (Pinia app store could be used if available)
                 log.warn(
@@ -191,77 +113,59 @@ watch(availableIconSets, () => {
                 )
             })
             if (icon) {
-                editableFeature.icon = icon
+                feature.icon = icon
             }
         }
     })
 })
 
-// Toggle edit mode based on selected features
-watch(
-    selectedEditableFeatures,
-    (newValue) => {
-        if ((newValue?.length ?? 0) > 0) {
-            if (drawingStore.editingMode === EditMode.Off) {
-                drawingStore.setEditingMode(EditMode.Modify, false, dispatcher)
-            }
-        } else {
-            drawingStore.setEditingMode(EditMode.Off, false, dispatcher)
-        }
-    },
-    { deep: false }
-)
-
 onMounted(() => {
-    if (noFeatureInfo.value) {
-        // Force feature info to be visible in drawing mode
-        uiStore.setFeatureInfoPosition(FeatureInfoPositions.Default, dispatcher)
-    }
-    if (availableIconSets.value.length === 0) {
-        // if icons have not yet been loaded, load them
-        drawingStore.loadAvailableIconSets(dispatcher)
-    }
-
-    // Make sure no drawing features are selected when entering the drawing mode
-    featuresStore.clearAllSelectedFeatures(dispatcher)
-    isNewDrawing.value = true
+    drawingStore
+        .initiateDrawing(
+            {
+                adminId: undefined,
+            },
+            dispatcher
+        )
+        .then(() => {
+            drawingHasBeenInitialized.value = true
+            if (drawingStore.layer.ol) {
+                olMap.addLayer(drawingStore.layer.ol)
+            } else {
+                log.error({
+                    title: 'DrawingModule',
+                    titleColor: LogPreDefinedColor.Lime,
+                    messages: ['Drawing layer not found/not created'],
+                })
+            }
+        })
+        .catch((error) => {
+            log.error({
+                title: 'DrawingModule',
+                titleColor: LogPreDefinedColor.Lime,
+                messages: ['Error while initializing drawing', error],
+            })
+        })
 
     // If a KML was previously created with the drawing module, add it back for further editing
-    if (hasKml.value) {
-        isNewDrawing.value = false
+    if (drawingStore.layer.config) {
         if (hasLoaded.value) {
-            addKmlToDrawing()
+            addKmlFeaturesToDrawingLayer(drawingStore.layer.config, { retryOnError: true })
         }
     } else {
         drawingStore.setDrawingName(t('draw_layer_label'), dispatcher)
     }
 
-    olMap.addLayer(drawingLayer)
-
     // Listening for "Delete" keystroke and right-click to remove last point
     document.addEventListener('keyup', removeLastPointOnDeleteKeyUp, { passive: true })
     document.addEventListener('contextmenu', removeLastPointOnRightClick, { passive: true })
     window.addEventListener('beforeunload', beforeUnloadHandler)
-
-    if (IS_TESTING_WITH_CYPRESS) {
-        window.drawingLayer = drawingLayer
-    }
 })
 
 onBeforeUnmount(() => {
-    featuresStore.clearAllSelectedFeatures(dispatcher)
-    drawingStore.setDrawingMode(undefined, dispatcher)
-
-    drawingLayer.getSource()?.clear()
-    olMap.removeLayer(drawingLayer)
-
     document.removeEventListener('contextmenu', removeLastPointOnRightClick)
     document.removeEventListener('keyup', removeLastPointOnDeleteKeyUp)
     window.removeEventListener('beforeunload', beforeUnloadHandler)
-
-    if (IS_TESTING_WITH_CYPRESS) {
-        delete window.drawingLayer
-    }
 })
 
 const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
@@ -269,22 +173,12 @@ const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
     if (!IS_TESTING_WITH_CYPRESS && showNotSharedDrawingWarning.value) {
         showNotSharedDrawingWarningModal.value = true
         event.preventDefault()
-        event.returnValue = ''
     }
-}
-function createSourceForProjection() {
-    return new VectorSource<Feature<Geometry>>({
-        useSpatialIndex: false,
-        wrapX: true,
-        // NOTE: VectorSource doesn't type a "projection" option; keep for runtime behavior and
-        // @ts-expect-error to avoid TS error
-        projection: projection.value?.epsg,
-    })
 }
 
 function removeLastPoint() {
     // Only delete the last point when we are drawing a feature (or editing it)
-    if (currentDrawingMode.value != null || editMode.value === EditMode.Extend) {
+    if (!!drawingStore.edit.featureType || drawingStore.edit.mode === EditMode.Extend) {
         drawingInteractions.value?.removeLastPoint()
     }
 }
@@ -300,28 +194,26 @@ function removeLastPointOnDeleteKeyUp(event: KeyboardEvent) {
     }
 }
 
-async function closeDrawing() {
-    const requester = 'closing-drawing'
-    uiStore.setLoadingBarRequester(requester, dispatcher)
-    log.debug(
-        `Closing drawing menu: isModified=${isDrawingModified.value}, isNew=${isNewDrawing.value}, isEmpty=${isDrawingEmpty.value}`
-    )
-
-    // Clear any pending save not started, then wait for in-progress saves
-    clearPendingSaveDrawing()
-    await Promise.all(savesInProgress.value ?? [])
-
-    // Save on close when modified and (not new or not empty)
-    if (isDrawingModified.value && (!isNewDrawing.value || !isDrawingEmpty.value)) {
-        await debounceSaveDrawing({ debounceTime: 0, retryOnError: false })
-    }
-
-    drawingStore.toggleDrawingOverlay(dispatcher)
+function closeDrawing() {
+    drawingStore
+        .closeDrawing(dispatcher)
+        .then(() => {
+            if (drawingStore.layer.ol) {
+                olMap!.removeLayer(drawingStore.layer.ol)
+            }
+        })
+        .catch((error) => {
+            log.error({
+                title: 'DrawingModule',
+                titleColor: LogPreDefinedColor.Lime,
+                messages: ['Error while closing drawing', error],
+            })
+        })
 }
 </script>
 
 <template>
-    <div>
+    <div v-if="drawingHasBeenInitialized">
         <DrawingToolbox
             @remove-last-point="removeLastPoint"
             @close-drawing="closeDrawing"
@@ -329,8 +221,8 @@ async function closeDrawing() {
         <DrawingTooltip />
         <DrawingInteractions ref="drawingInteractions" />
         <AddVertexButtonOverlay
-            v-if="showAddVertexButton"
-            :coordinates="selectedLineFeature?.geometry?.coordinates!"
+            v-if="drawingStore.edit.mode === EditMode.Modify && lineStringGeometry"
+            :coordinates="lineStringGeometry.coordinates"
         />
         <ModalWithBackdrop
             v-if="showNotSharedDrawingWarningModal"
@@ -339,9 +231,15 @@ async function closeDrawing() {
             @close="showNotSharedDrawingWarningModal = false"
         >
             <ShareWarningPopup
-                :kml-layer="activeKmlLayer"
+                :kml-layer="drawingStore.layer.config"
                 @accept="showNotSharedDrawingWarningModal = false"
             />
         </ModalWithBackdrop>
+    </div>
+    <div v-else>
+        <FontAwesomeIcon
+            icon="spinner"
+            spin
+        />
     </div>
 </template>

@@ -33,9 +33,7 @@ const initializeLayers = () => {
         attributions: [{ name: 'test' }],
     })
     const timestamps = ['20240112', '19000203', '18400101']
-    timeEntries = timestamps.map((timestamp) =>
-        timeConfigUtils.makeTimeConfigEntry(timestamp)
-    )
+    timeEntries = timestamps.map((timestamp) => timeConfigUtils.makeTimeConfigEntry(timestamp))
 
     // Debug: Log what we actually got
     console.log('DEBUG timeEntries:', JSON.stringify(timeEntries, null, 2))
@@ -60,7 +58,7 @@ const initializeLayers = () => {
         timeConfig = {
             timeEntries,
             behaviour: 'last',
-            currentTimeEntry: timeEntries[0]
+            currentTimeEntry: timeEntries[0],
         }
     }
 
@@ -174,8 +172,9 @@ describe('Add layer creates copy of layers config (so that we may add multiple t
         )
     })
     it('does not force the visibility of the layer to true when adding it', () => {
-        const invisibleLayer = layerUtils.cloneLayer(firstLayer)
-        invisibleLayer.isVisible = false
+        const invisibleLayer = layerUtils.cloneLayer(firstLayer, {
+            isVisible: false,
+        })
         const layersStore = useLayersStore()
         layersStore.setLayerConfig([bgLayer, invisibleLayer, secondLayer], dispatcher)
         layersStore.addLayer(invisibleLayer, dispatcher)
@@ -194,17 +193,9 @@ describe('Add layer creates copy of layers config (so that we may add multiple t
         layersStore.toggleLayerVisibility(0, dispatcher)
         layersStore.setLayerOpacity(1, 0.65, dispatcher)
         // Use timeEntries[1] which is the entry for year 1900
-        layersStore.setTimedLayerCurrentTimeEntry(
-            0,
-            timeEntries[1],
-            dispatcher
-        )
+        layersStore.setTimedLayerCurrentTimeEntry(0, timeEntries[1], dispatcher)
         // Use timeEntries[0] which is the entry for year 2024
-        layersStore.setTimedLayerCurrentTimeEntry(
-            1,
-            timeEntries[0],
-            dispatcher
-        )
+        layersStore.setTimedLayerCurrentTimeEntry(1, timeEntries[0], dispatcher)
 
         const [firstActiveLayer, secondActiveLayer] = layersStore.activeLayers
 
@@ -226,16 +217,13 @@ describe('Update layer', () => {
         layersStore.setLayerConfig([bgLayer, firstLayer, secondLayer], dispatcher)
         layersStore.setLayers([firstLayer, secondLayer], dispatcher)
         // Manually set currentTimeEntry for secondLayer using timeEntries[0] for year 2024
-        layersStore.setTimedLayerCurrentTimeEntry(
-            1,
-            timeEntries[0],
-            dispatcher
-        )
+        layersStore.setTimedLayerCurrentTimeEntry(1, timeEntries[0], dispatcher)
     })
     it('Update a single layer by ID with a full layer object', () => {
-        const clone = layerUtils.cloneLayer(secondLayer)
-        clone.name = 'Update second layer name'
-        clone.isVisible = false
+        const clone = layerUtils.cloneLayer(secondLayer, {
+            name: 'Update second layer name',
+            isVisible: false,
+        })
         timeConfigUtils.updateCurrentTimeEntry(clone.timeConfig, '19000203')
 
         const layersStore = useLayersStore()
@@ -258,25 +246,18 @@ describe('Update layers', () => {
         layersStore.setLayerConfig([bgLayer, firstLayer, secondLayer], dispatcher)
         layersStore.setLayers([firstLayer, secondLayer], dispatcher)
         // Manually set currentTimeEntry for secondLayer using timeEntries[0] for year 2024
-        layersStore.setTimedLayerCurrentTimeEntry(
-            1,
-            timeEntries[0],
-            dispatcher
-        )
+        layersStore.setTimedLayerCurrentTimeEntry(1, timeEntries[0], dispatcher)
     })
     it('Update duplicate layers by layer ID with full clone', () => {
         const layersStore = useLayersStore()
         layersStore.addLayer(secondLayer, dispatcher)
         // Manually set currentTimeEntry for the newly added layer using timeEntries[0]
-        layersStore.setTimedLayerCurrentTimeEntry(
-            2,
-            timeEntries[0],
-            dispatcher
-        )
+        layersStore.setTimedLayerCurrentTimeEntry(2, timeEntries[0], dispatcher)
 
-        const clone = layerUtils.cloneLayer(secondLayer)
-        clone.name = 'Update second layer name'
-        clone.isVisible = false
+        const clone = layerUtils.cloneLayer(secondLayer, {
+            name: 'Update second layer name',
+            isVisible: false,
+        })
         timeConfigUtils.updateCurrentTimeEntry(clone.timeConfig, '19000203')
 
         expect(layersStore.activeLayers.length).to.eq(3)
@@ -300,11 +281,7 @@ describe('Update layers', () => {
         const layersStore = useLayersStore()
         layersStore.addLayer(secondLayer, dispatcher)
         // Manually set currentTimeEntry for the newly added layer using timeEntries[0]
-        layersStore.setTimedLayerCurrentTimeEntry(
-            2,
-            timeEntries[0],
-            dispatcher
-        )
+        layersStore.setTimedLayerCurrentTimeEntry(2, timeEntries[0], dispatcher)
 
         expect(layersStore.activeLayers.length).to.eq(3)
 
@@ -338,11 +315,7 @@ describe('Update layers', () => {
         const layersStore = useLayersStore()
         layersStore.addLayer(secondLayer, dispatcher)
         // Manually set currentTimeEntry for the newly added layer using timeEntries[0]
-        layersStore.setTimedLayerCurrentTimeEntry(
-            2,
-            timeEntries[0],
-            dispatcher
-        )
+        layersStore.setTimedLayerCurrentTimeEntry(2, timeEntries[0], dispatcher)
 
         expect(layersStore.activeLayers.length).to.eq(3)
         expect(layersStore.activeLayers[1]!.name).to.be.equal('Second layer')

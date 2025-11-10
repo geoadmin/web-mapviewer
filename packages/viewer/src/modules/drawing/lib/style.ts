@@ -6,6 +6,7 @@ import { type Geometry, LineString, MultiPoint, Point, Polygon } from 'ol/geom'
 import RenderFeature from 'ol/render/Feature'
 import { Circle, Fill, Style } from 'ol/style'
 
+import { type EditableFeature, isLineOrMeasure } from '@/api/features.api'
 import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
 import {
     dashedRedStroke,
@@ -25,7 +26,8 @@ export function editingVertexStyleFunction(
     _resolution: number
 ): Style | Style[] | null {
     const associatedFeature = vertex.get('features')[0]
-    if (!associatedFeature || !associatedFeature.get('editableFeature')?.isLineOrMeasure()) {
+    const editableFeature = associatedFeature?.get('editableFeature') as EditableFeature | undefined
+    if (!associatedFeature || (editableFeature && isLineOrMeasure(editableFeature))) {
         return null
     }
     return new Style({
@@ -143,6 +145,7 @@ export function drawLineOrMeasureStyle(
         case 'Point':
             return getSketchPointStyle((sketchGeometry as Point).getCoordinates())
         case 'Polygon': {
+            // lines are drawn as polygon, so both types are covered by this case
             const styles = [
                 new Style({
                     stroke: displayMeasures ? dashedRedStroke : redStroke,

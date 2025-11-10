@@ -59,6 +59,6 @@ export default function setCenterIfInBounds(
             titleColor: LogPreDefinedColor.Amber,
             messages: [`current geolocation is out of bounds: ${JSON.stringify(center)}`],
         })
-        uiStore.addErrors([new ErrorMessage('geoloc_out_of_bounds')], dispatcher)
+        uiStore.addErrors(new ErrorMessage('geoloc_out_of_bounds'), dispatcher)
     }
 }

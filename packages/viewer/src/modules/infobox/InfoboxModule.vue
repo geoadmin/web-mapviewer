@@ -42,10 +42,9 @@ const showContainer = computed<boolean>(() => {
 const showTooltipToggle = computed<boolean>(
     () => uiStore.showFeatureInfoInBottomPanel && uiStore.width >= MAX_WIDTH_SHOW_FLOATING_TOOLTIP
 )
-const showDrawingOverlay = computed<boolean>(() => !!drawingStore.drawingOverlay?.show)
 
 const title = computed(() => {
-    if (showDrawingOverlay.value) {
+    if (drawingStore.overlay.show) {
         if (showElevationProfile.value && !uiStore.showFeatureInfoInBottomPanel) {
             return t('profile_title')
         }
@@ -108,8 +107,8 @@ function onHideProfile(): void {
                 />
                 <span
                     :class="{
-                        'd-inline': showDrawingOverlay,
-                        'd-none d-md-inline': !showDrawingOverlay,
+                        'd-inline': drawingStore.overlay.show,
+                        'd-none d-md-inline': !drawingStore.overlay.show,
                     }"
                 >
                     {{ t('hide_profile') }}

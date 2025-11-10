@@ -1,14 +1,27 @@
+import log, { LogPreDefinedColor } from '@swissgeo/log'
+
+import type { EditableFeature } from '@/api/features.api'
 import type { DrawingStore } from '@/store/modules/drawing/types/drawing'
 import type { ActionDispatcher } from '@/store/types'
 
+import debounceSaveDrawing from '@/store/modules/drawing/utils/debounceSaveDrawing'
 import useFeaturesStore from '@/store/modules/features'
 
 export default function deleteDrawingFeature(
     this: DrawingStore,
-    featureId: string,
+    feature: EditableFeature,
     dispatcher: ActionDispatcher
 ) {
     const featuresStore = useFeaturesStore()
     featuresStore.clearAllSelectedFeatures(dispatcher)
-    this.featureIds = this.featureIds.filter((existingFeatureId) => existingFeatureId !== featureId)
+    this.feature.all = this.feature.all.filter(
+        (existingFeature) => existingFeature.id !== feature.id
+    )
+    debounceSaveDrawing().catch((error) => {
+        log.error({
+            title: 'Drawing store / deleteDrawingFeature',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: ['Error while deleting feature', error],
+        })
+    })
 }

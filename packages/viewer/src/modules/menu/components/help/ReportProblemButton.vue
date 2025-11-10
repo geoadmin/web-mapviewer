@@ -90,7 +90,7 @@ const isAttachmentValid = ref(true)
 const isEmailValid = ref(true)
 
 //  Computed properties
-const showDrawingOverlay = computed(() => drawingStore.drawingOverlay.show)
+const showDrawingOverlay = computed(() => drawingStore.overlay.show)
 
 const temporaryKml: ComputedRef<KMLLayer> = computed(
     () => layersStore.systemLayers.find((l) => l.id === temporaryKmlId) as KMLLayer

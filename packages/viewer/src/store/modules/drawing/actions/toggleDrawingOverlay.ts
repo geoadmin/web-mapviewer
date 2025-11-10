@@ -28,11 +28,11 @@ export default function toggleDrawingOverlay(
         : (optionsOrDispatcher as ActionDispatcher)
 
     const { show, online, kmlId, title = 'draw_mode_title' } = options
-    this.drawingOverlay.show = typeof show === 'boolean' ? show : !this.drawingOverlay.show
-    this.drawingOverlay.title = title
+    this.overlay.show = typeof show === 'boolean' ? show : !this.overlay.show
+    this.overlay.title = title
     this.online = typeof online === 'boolean' ? online : true
-    this.temporaryKmlId = kmlId
-    if (this.drawingOverlay.show) {
+    this.layer.temporaryKmlId = kmlId
+    if (this.overlay.show) {
         // when entering the drawing menu, we need to clear the location popup
         useMapStore().clearLocationPopupCoordinates(dispatcher)
     }

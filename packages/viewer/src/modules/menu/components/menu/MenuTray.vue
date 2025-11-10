@@ -51,7 +51,7 @@ const singleModeSections = ref([
 
 const is3dMode = computed(() => cesiumStore.active)
 const showImportFile = computed(() => uiStore.importFile)
-const showDrawingOverlay = computed(() => drawingStore.drawingOverlay.show)
+const showDrawingOverlay = computed(() => drawingStore.overlay.show)
 const mapModuleReady = computed(() => appStore.isMapReady)
 
 watch(showImportFile, (show) => {
