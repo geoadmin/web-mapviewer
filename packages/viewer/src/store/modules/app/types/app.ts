@@ -12,6 +12,10 @@ export interface AppStoreState {
     isMapReady: boolean
 }
 export type AppStoreGetters = {
+    isLoadingConfig(): boolean,
+    isConfigLoaded(): boolean,
+    isParsingLegacy(): boolean,
+    isSyncingStore(): boolean,
     isReady(): boolean
 }
 
