@@ -8,7 +8,15 @@ import { loadTopics, parseTopics } from '@/api/topics.api'
 import useI18nStore from '@/store/modules/i18n'
 import useTopicsStore from '@/store/modules/topics'
 
-export default function loadLayersConfig(this: LayersStore, dispatcher: ActionDispatcher): void {
+interface LoadLayersConfigOptions {
+    changeLayersOnTopicChange?: boolean
+}
+
+export default function loadLayersConfig(
+    this: LayersStore,
+    options: LoadLayersConfigOptions,
+    dispatcher: ActionDispatcher
+): void {
     const i18nStore = useI18nStore()
     const topicsStore = useTopicsStore()
 
@@ -40,7 +48,7 @@ export default function loadLayersConfig(this: LayersStore, dispatcher: ActionDi
             topicsStore.setTopics(
                 topics,
                 {
-                    changeLayers: this.activeLayers.length === 0,
+                    changeLayers: options.changeLayersOnTopicChange,
                 },
                 dispatcher
             )

@@ -9,8 +9,8 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { createShortLink } from '@/api/shortlink.api'
 import router from '@/router'
-import { encodeLayerId } from '@/router/storeSync/layersParamParser'
 import useDrawingStore from '@/store/modules/drawing'
+import { encodeLayerId } from '@/store/plugins/storeSync/layersParamParser'
 
 const dispatcher: ActionDispatcher = { name: 'SharePopup.vue' }
 

@@ -6,8 +6,8 @@ import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
 
 import { getKmlMetadataByAdminId } from '@/api/files.api'
-import storeSyncConfig from '@/router/storeSync/storeSync.config'
 import useLayersStore from '@/store/modules/layers'
+import storeSyncConfig from '@/store/plugins/storeSync/storeSync.config'
 
 const legacyOnlyURLParams = [
     'E',
