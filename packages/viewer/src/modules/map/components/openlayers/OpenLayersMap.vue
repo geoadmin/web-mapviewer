@@ -99,6 +99,9 @@ const { zIndexTileInfo, zIndexLayerExtents, zIndexSelectionRectangle } = useLaye
         <OpenLayersPinnedLocation />
         <OpenLayersCrossHair />
         <OpenLayersHighlightedFeature />
+        <!-- Note(IS): -->
+        <!-- The geolocation feedback needs more time before it get the position and orientation -->
+        <!-- This means, we can't quickly change the mode from geolocation to tracking initially, needs to wait a little bit -->
         <OpenLayersGeolocationFeedback
             v-if="geolocationStore.active && geolocationStore.position"
         />
