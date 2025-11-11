@@ -108,7 +108,7 @@ describe('Test mouse position and interactions', () => {
     const centerLV95 = proj4(DEFAULT_PROJECTION.epsg, LV95.epsg, center) as [number, number]
     const centerLV03 = proj4(DEFAULT_PROJECTION.epsg, LV03.epsg, center) as [number, number]
     const centerWGS84 = proj4(DEFAULT_PROJECTION.epsg, WGS84.epsg, center) as [number, number]
-    const centerMGRS = MGRSFormat.formatCallback(center as SingleCoordinate, false)
+    const centerMGRS = MGRSFormat.formatCallback(centerWGS84 as SingleCoordinate, false)
 
     context('Tablet/desktop tests', () => {
         before(() => {
@@ -137,7 +137,7 @@ describe('Test mouse position and interactions', () => {
 
             getMousePositionAndSelect(WGS84Format)
             checkMousePositionStringValue(
-                WGS84Format.formatCallback(center as SingleCoordinate, true)
+                WGS84Format.formatCallback(centerWGS84 as SingleCoordinate, true)
             )
 
             // Change display projection without moving the mouse
@@ -231,19 +231,19 @@ describe('Test mouse position and interactions', () => {
             cy.log('it shows correct plain WGS coordinates in the popup')
 
             cy.get('[data-cy="location-popup-wgs84-extra-value"]').contains(
-                WGS84Format.formatCallback(center as SingleCoordinate, false)
+                WGS84Format.formatCallback(centerWGS84 as SingleCoordinate, false)
             )
             cy.log(
                 'it uses the correct format to show a second line with WGS84 coordinates in the popup'
             )
 
             cy.get('[data-cy="location-popup-utm"]').contains(
-                UTMFormat.formatCallback(center as SingleCoordinate, false)
+                UTMFormat.formatCallback(centerWGS84 as SingleCoordinate, false)
             )
             cy.log('it shows correct UTM coordinates in the popup')
 
             cy.get('[data-cy="location-popup-mgrs"]').contains(
-                MGRSFormat.formatCallback(center as SingleCoordinate, false)
+                MGRSFormat.formatCallback(centerWGS84 as SingleCoordinate, false)
             )
             cy.log('it shows correct MGRS coordinates in the popup')
 

@@ -330,6 +330,14 @@ Cypress.Commands.add('readClipboardValue', () => {
         .then((permissions) => permissions.query({ name: 'clipboard-read' }))
         .its('state')
         .should('eq', 'granted')
+    // ensure the document is focused; clipboard.readText requires a focused document
+    // if not focused, click on the body to force focus (works in headless and headed runs)
+    cy.document().then((doc) => {
+        if (!doc.hasFocus()) {
+            // click at 0,0 to avoid moving the mouse location used by tests
+            cy.get('body').click(0, 0, { force: true })
+        }
+    })
     return cy
         .window()
         .its('navigator.clipboard')
@@ -372,7 +380,7 @@ Cypress.Commands.add('closeMenuIfMobile', () => {
     if (isMobile()) {
         cy.getPinia().then((pinia) => {
             const uiStore = useUIStore(pinia)
-            if (!uiStore.showMenu) {
+            if (uiStore.showMenu) {
                 cy.get('[data-cy="menu-button"]').click()
             }
             cy.get('[data-cy="menu-tray"]').should('not.be.visible')
