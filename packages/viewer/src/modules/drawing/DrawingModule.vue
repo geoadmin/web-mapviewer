@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import type { KMLLayer } from '@swissgeo/layers'
 import type { LineString } from 'geojson'
 import type Map from 'ol/Map'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { LayerType } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { WarningMessage } from '@swissgeo/log/Message'
 import {
@@ -30,6 +32,7 @@ import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vu
 import useDrawingStore from '@/store/modules/drawing'
 import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 import addKmlFeaturesToDrawingLayer from '@/store/modules/drawing/utils/addKmlFeaturesToDrawingLayer'
+import useLayersStore from '@/store/modules/layers'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
 
@@ -51,6 +54,7 @@ if (!olMap) {
 }
 
 const drawingStore = useDrawingStore()
+const layersStore = useLayersStore()
 
 const drawingInteractions =
     useTemplateRef<ComponentPublicInstance<DrawingInteractionExposed>>('drawingInteractions')
@@ -120,10 +124,16 @@ watch(availableIconSets, () => {
 })
 
 onMounted(() => {
+    const kmlLayerWithAdminId: KMLLayer | undefined = layersStore.activeLayers
+        .filter((layer) => layer.type === LayerType.KML)
+        .map((layer) => layer as KMLLayer)
+        .find((kmlLayer) => !!kmlLayer.adminId)
+
     drawingStore
         .initiateDrawing(
             {
-                adminId: undefined,
+                preExistingDrawing: kmlLayerWithAdminId,
+                // TODO PB-2027: pass the adminId present in the URL at app startup
             },
             dispatcher
         )
