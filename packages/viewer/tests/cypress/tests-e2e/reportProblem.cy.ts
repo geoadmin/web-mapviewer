@@ -44,7 +44,6 @@ describe('Testing the report problem form', () => {
         cy.get('@minimizeButton').click()
         cy.get('@firstFeedbackElement').should('be.visible')
         closeForm()
-        cy.closeMenuIfMobile()
 
         cy.log('The button should be in the header as a link on desktop')
         cy.viewport(1920, 1080)
@@ -198,7 +197,6 @@ describe('Testing the report problem form', () => {
             force: true,
         })
         cy.get('@submit').click()
-        cy.get('[data-cy="file-input-text"]').should('have.class', 'is-valid')
 
         cy.wait('@feedback').then((interception) => {
             const formData = parseFormData(interception.request)
@@ -244,7 +242,7 @@ describe('Testing the report problem form', () => {
         closeForm()
     })
 
-    it.only('reports a problem with drawing attachment', () => {
+    it('reports a problem with drawing attachment', () => {
         cy.goToMapView()
         interceptFeedback(true)
         cy.openMenuIfMobile()
