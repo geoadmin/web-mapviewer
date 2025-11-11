@@ -56,11 +56,9 @@ function toggleGeolocation(): void {
     // If the geolocation is not active, simply activate it
     if (!geolocationStore.active) {
         geolocationStore.toggleGeolocation(dispatcher)
-        // Check if tracking needs to be enabled after activation (old implementation behavior)
-        if (hasTrackingFeedback.value) {
-            console.log('[toggleGeolocation] Post-activation: enabling tracking')
-            geolocationStore.setGeolocationTracking(true, dispatcher)
-        }
+        // Always enable tracking after activation (matching old implementation)
+        console.log('[toggleGeolocation] Post-activation: enabling tracking')
+        geolocationStore.setGeolocationTracking(true, dispatcher)
     } else {
         // If the geolocation is active
         if (hasTrackingFeedback.value) {
