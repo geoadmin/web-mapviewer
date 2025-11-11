@@ -107,7 +107,7 @@ function createCloudOptimizedGeoTIFFLayer(parsedLayer: Partial<Layer>): CloudOpt
  *   one, returns null if this external layer can't be "reloaded" from URL (i.e. KML/GPX added
  *   through local file) or will return the untouched ActiveLayerConfig for other layer types
  */
-export function createLayerObject(parsedLayer: Partial<Layer>, currentLayer: Layer) {
+export function createLayerObject(parsedLayer: Partial<Layer>, currentLayer: Layer | undefined) {
     const { year, updateDelay, features, adminId, ...customAttributes } =
         parsedLayer.customAttributes ?? {}
 
@@ -242,9 +242,9 @@ function dispatchLayersFromUrlIntoStore(
         ],
     })
     const featuresRequests: Promise<LayerFeature>[] = []
-
     const layers = parsedLayers
         .map((parsedLayer, index) => {
+            // First check if we already have the layer in the active layers at the same position
             const layerAtIndex = layersStore.getActiveLayerByIndex(index)
             const matchingLayerInConfig = parsedLayer.id
                 ? layersStore.getLayerConfigById(parsedLayer.id)
@@ -252,9 +252,6 @@ function dispatchLayersFromUrlIntoStore(
             const currentLayer =
                 layerAtIndex?.id === parsedLayer.id ? layerAtIndex : matchingLayerInConfig
 
-            if (!currentLayer) {
-                return
-            }
 
             const { layer: layerObject, featuresRequests: layerFeatureRequests } =
                 createLayerObject(parsedLayer, currentLayer)
@@ -262,7 +259,6 @@ function dispatchLayersFromUrlIntoStore(
             if (layerFeatureRequests) {
                 featuresRequests.push(...layerFeatureRequests)
             }
-
             if (layerObject) {
                 if (layerObject.type === LayerType.KML && (layerObject as KMLLayer).adminId) {
                     drawingStore.toggleDrawingOverlay(
