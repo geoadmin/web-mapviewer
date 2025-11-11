@@ -33,7 +33,10 @@ const showRecenterButton = computed(() => {
 })
 
 function recenterMap(): void {
-    geolocationStore.setGeolocationTracking(true, dispatcher)
+    // Just recenter the map to user's position (one-time), don't enable tracking
+    if (geolocationStore.position) {
+        positionStore.setCenter(geolocationStore.position, dispatcher)
+    }
 }
 </script>
 
