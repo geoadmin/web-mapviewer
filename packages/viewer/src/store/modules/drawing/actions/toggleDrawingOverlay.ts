@@ -22,11 +22,8 @@ export default function toggleDrawingOverlay(
     optionsOrDispatcher: ToggleDrawingOverlayOptions | ActionDispatcher,
     dispatcherOrNothing?: ActionDispatcher
 ) {
-    const options = !dispatcherOrNothing ? (optionsOrDispatcher as ToggleDrawingOverlayOptions) : {}
-    const dispatcher = dispatcherOrNothing
-        ? dispatcherOrNothing
-        : (optionsOrDispatcher as ActionDispatcher)
-
+    const dispatcher = dispatcherOrNothing ?? (optionsOrDispatcher as ActionDispatcher)
+    const options = dispatcherOrNothing ? (optionsOrDispatcher as ToggleDrawingOverlayOptions) : {}
     const { show, online, kmlId, title = 'draw_mode_title' } = options
     this.overlay.show = typeof show === 'boolean' ? show : !this.overlay.show
     this.overlay.title = title
