@@ -1,65 +1,65 @@
 {
-  "name": "web-mapviewer-monorepo",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "build": "pnpm run --recursive --if-present build",
-    "build-libs": "pnpm --filter=!web-mapviewer run --recursive --if-present build",
-    "build:dev": "pnpm --recursive --if-present run build:dev",
-    "build:dev:watch": "pnpm --filter=!web-mapviewer --recursive --parallel --if-present run build:dev:watch",
-    "build:int": "pnpm --recursive --if-present run build:int",
-    "build:prod": "pnpm --recursive --if-present run build:prod",
-    "dev": "pnpm --filter=web-mapviewer run dev ",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "lint": "pnpm run --recursive --parallel --no-bail --if-present lint",
-    "lint:no-fix": "pnpm run --recursive --parallel --no-bail --if-present lint:no-fix ",
-    "preview": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview",
-    "preview:dev": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:dev ",
-    "preview:int": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:int",
-    "preview:prod": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:prod",
-    "preview:test": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:test",
-    "test:component": "pnpm --filter=web-mapviewer run test:component",
-    "test:component:ci": "pnpm --filter=web-mapviewer run test:component:ci",
-    "test:e2e": "pnpm --filter=web-mapviewer run test:e2e",
-    "test:e2e:ci": "pnpm --filter=web-mapviewer run test:e2e:ci",
-    "test:e2e:headless": "pnpm --filter=web-mapviewer run test:e2e:headless",
-    "test:unit": "pnpm run --recursive --parallel --no-bail --if-present test:unit",
-    "test:unit:watch": "pnpm run --recursive --if-present  test:unit:watch",
-    "update:workspace": "tsx ./scripts/update-pnpm-workspace.ts"
-  },
-  "engines": {
-    "node": ">=22.18",
-    "pnpm": ">=10.15"
-  },
-  "devDependencies": {
-    "@prettier/plugin-xml": "catalog:",
-    "@types/node": "catalog:",
-    "prettier": "catalog:",
-    "prettier-plugin-jsdoc": "catalog:",
-    "prettier-plugin-packagejson": "catalog:",
-    "prettier-plugin-tailwindcss": "catalog:",
-    "tsx": "catalog:",
-    "yaml": "catalog:"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@parcel/watcher",
-      "@tailwindcss/oxide",
-      "cypress",
-      "sharp",
-      "vue-demi"
-    ],
-    "ignoredBuiltDependencies": [
-      "core-js",
-      "cypress",
-      "es5-ext",
-      "esbuild",
-      "protobufjs",
-      "sharp"
-    ],
-    "patchedDependencies": {
-      "vite@7.1.11": "patches/vite@7.1.11.patch"
+    "name": "web-mapviewer-monorepo",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "pnpm run --recursive --if-present build",
+        "build-libs": "pnpm --filter=!web-mapviewer run --recursive --if-present build",
+        "build:dev": "pnpm --recursive --if-present run build:dev",
+        "build:dev:watch": "pnpm --filter=!web-mapviewer --recursive --parallel --if-present run build:dev:watch",
+        "build:int": "pnpm --recursive --if-present run build:int",
+        "build:prod": "pnpm --recursive --if-present run build:prod",
+        "dev": "pnpm --filter=web-mapviewer run dev ",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "lint": "pnpm run --recursive --parallel --no-bail --if-present lint",
+        "lint:no-fix": "pnpm run --recursive --parallel --no-bail --if-present lint:no-fix ",
+        "preview": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview",
+        "preview:dev": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:dev ",
+        "preview:int": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:int",
+        "preview:prod": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:prod",
+        "preview:test": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:test",
+        "test:component": "pnpm --filter=web-mapviewer run test:component",
+        "test:component:ci": "pnpm --filter=web-mapviewer run test:component:ci",
+        "test:e2e": "pnpm --filter=web-mapviewer run test:e2e",
+        "test:e2e:ci": "pnpm --filter=web-mapviewer run test:e2e:ci",
+        "test:e2e:headless": "pnpm --filter=web-mapviewer run test:e2e:headless",
+        "test:unit": "pnpm run --recursive --parallel --no-bail --if-present test:unit",
+        "test:unit:watch": "pnpm run --recursive --if-present  test:unit:watch",
+        "update:workspace": "tsx ./scripts/update-pnpm-workspace.ts"
+    },
+    "devDependencies": {
+        "@prettier/plugin-xml": "catalog:",
+        "@types/node": "catalog:",
+        "prettier": "catalog:",
+        "prettier-plugin-jsdoc": "catalog:",
+        "prettier-plugin-packagejson": "catalog:",
+        "prettier-plugin-tailwindcss": "catalog:",
+        "tsx": "catalog:",
+        "yaml": "catalog:"
+    },
+    "engines": {
+        "node": ">=22.18",
+        "pnpm": ">=10.15"
+    },
+    "pnpm": {
+        "onlyBuiltDependencies": [
+            "@parcel/watcher",
+            "@tailwindcss/oxide",
+            "cypress",
+            "sharp",
+            "vue-demi"
+        ],
+        "patchedDependencies": {
+            "vite@7.1.11": "patches/vite@7.1.11.patch"
+        },
+        "ignoredBuiltDependencies": [
+            "core-js",
+            "cypress",
+            "es5-ext",
+            "esbuild",
+            "protobufjs",
+            "sharp"
+        ]
     }
-  }
 }
