@@ -97,7 +97,7 @@ export default async function initiateDrawing(
                 })
             ),
             config: kmlLayer,
-            temporaryKmlId,
+            temporaryKmlId: temporaryKmlId ?? this.layer.temporaryKmlId,
         }
 
         log.debug({
