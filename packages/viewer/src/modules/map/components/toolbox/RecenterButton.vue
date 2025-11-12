@@ -56,7 +56,7 @@ function toggleTracking(): void {
             @click="toggleTracking"
         >
             <FontAwesomeIcon
-                icon="location-crosshairs"
+                icon="arrows-to-circle"
                 transform="shrink-2"
             />
         </button>
