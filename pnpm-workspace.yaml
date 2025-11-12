@@ -41,6 +41,8 @@ catalog:
   '@types/openlayers': ^4.6.23
   '@types/pako': ^2.0.4
   '@types/proj4': ^2.19.0
+  '@types/sortablejs': ^1.15.9
+  '@types/yargs': ^17.0.35
   '@typescript-eslint/utils': ^8.44.0
   '@vite-pwa/assets-generator': ^1.0.2
   '@vitejs/plugin-basic-ssl': ^2.1.4
