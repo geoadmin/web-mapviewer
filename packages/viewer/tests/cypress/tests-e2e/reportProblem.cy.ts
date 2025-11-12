@@ -309,7 +309,7 @@ describe('Testing the report problem form', () => {
             cy.get('[data-cy="ol-map"]').click(mapWidth / 2 + 50, mapHeight / 2)
         })
         // we need to increase the timeout here below because, upon opening the drawing mode for the
-        // first time in e2e tests, the loading of the library can take time
+        // first time in e2e tests, the loading of the library can take more time 
         cy.get('[data-cy="drawing-header-title"]', { timeout: 15000 })
             .should('be.visible')
             .contains('3. Indicate the appropriate location on the map :')
