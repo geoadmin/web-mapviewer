@@ -5,6 +5,7 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 
 import type { ActionDispatcher } from '@/store/types'
 
+import useAppStore from '@/store/modules/app'
 import useShareStore from '@/store/modules/share'
 import storeSyncConfig from '@/store/plugins/storeSync/storeSync.config'
 import {
@@ -17,9 +18,10 @@ const watchedActions: string[] = [
 ].filter((actionName: string, index: number, self: string[]) => self.indexOf(actionName) === index)
 
 const isActionNotTriggeredByModule = (args: unknown[]): boolean => {
+    const appStore = useAppStore()
     // the last argument is the dispatcher
     const dispatcher = args.slice(-1) as unknown as ActionDispatcher
-    return dispatcher.name !== STORE_DISPATCHER_ROUTER_PLUGIN.name
+    return !appStore.hasPendingUrlParsing && dispatcher.name !== STORE_DISPATCHER_ROUTER_PLUGIN.name
 }
 const isActionWatched = (actionName: string): boolean => watchedActions.includes(actionName)
 

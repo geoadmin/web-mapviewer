@@ -8,7 +8,6 @@ import { type LocationQueryRaw, type RouteLocationRaw, START_LOCATION } from 'vu
 
 import type { RouterPlugin } from '@/router/types'
 import type { CameraPosition } from '@/store/modules/position/types/position'
-import type { ActionDispatcher } from '@/store/types'
 
 import reframe from '@/api/lv03Reframe.api'
 import {
@@ -20,7 +19,6 @@ import {
     MAP_VIEWS,
 } from '@/router/viewNames'
 import useAppStore from '@/store/modules/app'
-import { AppStates } from '@/store/modules/app/types/app'
 import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
 import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
@@ -31,9 +29,6 @@ import {
     handleLegacyFeaturePreSelectionParam,
     isLegacyParams,
 } from '@/utils/legacyLayerParamUtils'
-
-
-const dispatcher: ActionDispatcher = { name: 'legacyPermalink.routerPlugin' }
 
 function toNumber(input: string | number): number {
     return typeof input === 'number' ? input : parseFloat(input)
@@ -431,47 +426,49 @@ export const legacyPermalinkManagementRouterPlugin: RouterPlugin = (router): voi
                     ],
                 })
 
-                unSubscribeStoreAction = appStore.$onAction(({ name, args }) => {
+                unSubscribeStoreAction = appStore.$onAction(({ name, after }) => {
                     // Wait until the app is ready before dealing with legacy params. To handle
                     // legacy params some data are required (e.g. the layer config)
-                    if (name === 'setAppState' && args[0] === AppStates.LegacyParsing) {
-                        log.debug({
-                            title: 'Legacy URL',
-                            titleColor: LogPreDefinedColor.Amber,
-                            messages: [
-                                `app is ready, handle legacy params=${legacyParams.toString()}`,
-                                legacyParams,
-                            ],
-                        })
-                        handleLegacyParams(legacyParams, legacyEmbed ? EMBED_VIEW : MAP_VIEW, {
-                            config: layersStore.config,
-                            projection: positionStore.projection,
-                        })
-                            .then((newRoute) => {
-                                log.info({
-                                    title: 'Legacy URL',
-                                    titleColor: LogPreDefinedColor.Amber,
-                                    messages: [`redirect to the converted params`, newRoute],
+                    after(() => {
+                        if (name === 'nextState' && appStore.isParsingLegacy) {
+                            log.debug({
+                                title: 'Legacy URL',
+                                titleColor: LogPreDefinedColor.Amber,
+                                messages: [
+                                    `app is ready, handle legacy params=${legacyParams.toString()}`,
+                                    legacyParams,
+                                ],
+                            })
+                            handleLegacyParams(legacyParams, legacyEmbed ? EMBED_VIEW : MAP_VIEW, {
+                                config: layersStore.config,
+                                projection: positionStore.projection,
+                            })
+                                .then((newRoute) => {
+                                    log.info({
+                                        title: 'Legacy URL',
+                                        titleColor: LogPreDefinedColor.Amber,
+                                        messages: [`redirect to the converted params`, newRoute],
+                                    })
+                                    router.replace(newRoute).catch((error) => {
+                                        log.error({
+                                            title: 'Legacy URL',
+                                            titleColor: LogPreDefinedColor.Amber,
+                                            messages: [
+                                                `failed to redirect to the converted params`,
+                                                error,
+                                            ],
+                                        })
+                                    })
                                 })
-                                router.replace(newRoute).catch((error) => {
+                                .catch((error) => {
                                     log.error({
                                         title: 'Legacy URL',
                                         titleColor: LogPreDefinedColor.Amber,
-                                        messages: [
-                                            `failed to redirect to the converted params`,
-                                            error,
-                                        ],
+                                        messages: [`failed to convert legacy params`, error],
                                     })
                                 })
-                            })
-                            .catch((error) => {
-                                log.error({
-                                    title: 'Legacy URL',
-                                    titleColor: LogPreDefinedColor.Amber,
-                                    messages: [`failed to convert legacy params`, error],
-                                })
-                            })
-                    }
+                        }
+                    })
                 })
                 log.debug({
                     title: 'Legacy URL',
@@ -499,8 +496,6 @@ export const legacyPermalinkManagementRouterPlugin: RouterPlugin = (router): voi
                 if (unSubscribeStoreAction) {
                     unSubscribeStoreAction()
                 }
-                appStore.setAppState(AppStates.SyncingStore, dispatcher)
-
             }
             log.debug({
                 title: 'Legacy URL',

@@ -6,9 +6,11 @@ import axios from 'axios'
 import type { RouterPlugin } from '@/router/types'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
-import { MAP_VIEW, MAP_VIEWS } from '@/router/viewNames'
+import { MAP_VIEW } from '@/router/viewNames'
+import useAppStore from '@/store/modules/app'
 import storeSyncConfig from '@/store/plugins/storeSync/storeSync.config'
 import UrlParamConfig, {
+    STORE_DISPATCHER_ROUTER_PLUGIN,
     type UrlParamConfigTypes,
 } from '@/store/plugins/storeSync/UrlParamConfig.class'
 
@@ -160,8 +162,26 @@ function urlQueryWatcher(
 }
 
 const urlParamToStore: RouterPlugin = (router) => {
+
+    const queryParamsStoredAtStartup: LocationQuery | undefined = {...router.currentRoute.value.query}
+
     router.beforeEach(
         (to: RouteLocationNormalizedGeneric, from: RouteLocationNormalizedGeneric) => {
+            const appStore = useAppStore()
+            if (!appStore.isSyncingStore) {
+                log.debug({
+                    title: 'URL param to store plugin / beforeEach',
+                    titleColor: LogPreDefinedColor.Orange,
+                    messages: [
+                        'App is not in a state where URL syncing is activated, no action on route change',
+                        to,
+                        from,
+                    ],
+                })
+                Object.assign(router.currentRoute.value.query, queryParamsStoredAtStartup)
+                return undefined
+            }
+
             log.debug({
                 title: 'URL param to store plugin / beforeEach',
                 titleColor: LogPreDefinedColor.Orange,
@@ -172,30 +192,36 @@ const urlParamToStore: RouterPlugin = (router) => {
                 ],
             })
 
-            // we define a return Value, so we can check across the function what its value is
-            let retVal = undefined
+            appStore.setHasPendingUrlParsing(true, STORE_DISPATCHER_ROUTER_PLUGIN)
 
-            if (typeof to.name === 'string' && !MAP_VIEWS.includes(to.name)) {
+            const newRoute = urlQueryWatcher(to, from)
+
+            if (queryParamsStoredAtStartup) {
                 log.debug({
                     title: 'URL param to store plugin / beforeEach',
                     titleColor: LogPreDefinedColor.Orange,
-                    messages: [`leaving the map view`, from, to],
+                    messages: [
+                        `Restoring URL query params stored at startup to the new route`,
+                        queryParamsStoredAtStartup,
+                    ]
                 })
-                retVal = undefined
-            } else {
-                log.debug({
-                    title: 'URL param to store plugin / beforeEach',
-                    titleColor: LogPreDefinedColor.Orange,
-                    messages: [`Starting URL query watcher`, from, to],
-                })
-                // Synchronize the store with the url query only on MapView and when the application is ready
-                retVal = urlQueryWatcher(to, from)
+                return {
+                    ...newRoute,
+                    query: {
+                        ...newRoute?.query,
+                        ...queryParamsStoredAtStartup,
+                    }
+                }
             }
-
-            // Note we return undefined to validate the route, see Vue Router documentation
-            return retVal
+            return newRoute
         }
     )
+    router.afterEach(() => {
+        const appStore = useAppStore()
+        if (appStore.hasPendingUrlParsing) {
+            appStore.setHasPendingUrlParsing(false, STORE_DISPATCHER_ROUTER_PLUGIN)
+        }
+    })
 }
 
 export default urlParamToStore
