@@ -35,13 +35,6 @@ const tooltipContent = computed(() => {
 })
 
 function toggleGeolocation(): void {
-    console.log(
-        '[toggleGeolocation] Before state, geolocationStore.active: ',
-        geolocationStore.active,
-        'geolocationStore.tracking: ',
-        geolocationStore.tracking
-    )
-
     // Simply toggle geolocation on/off
     geolocationStore.toggleGeolocation(dispatcher)
 
@@ -53,13 +46,6 @@ function toggleGeolocation(): void {
             positionStore.setAutoRotation(false, dispatcher)
         }
     }
-
-    console.log(
-        '[toggleGeolocation] After state, geolocationStore.active: ',
-        geolocationStore.active,
-        'geolocationStore.tracking: ',
-        geolocationStore.tracking
-    )
 }
 </script>
 
