@@ -40,15 +40,41 @@ function willModify() {
     }
 }
 
+async function saveLocalDrawing(kmlData: string) {
+    const drawingStore = useDrawingStore()
+    const layersStore = useLayersStore()
+    const kmlLayer = layerUtils.makeKMLLayer({
+        name: drawingStore.name,
+        kmlFileUrl: drawingStore.layer.temporaryKmlId,
+        isVisible: true,
+        opacity: 1,
+        kmlData: kmlData,
+    })
+    if (!layersStore.systemLayers.find((systemLayer) => systemLayer.id === kmlLayer.id)) {
+        layersStore.addSystemLayer(kmlLayer, dispatcher)
+    } else {
+        layersStore.updateSystemLayer(kmlLayer, dispatcher)
+    }
+}
+
 async function saveDrawing({ retryOnError = true }: { retryOnError?: boolean }) {
     const drawingStore = useDrawingStore()
 
-    if (!drawingStore.layer.ol || !drawingStore.online) {
+    if (!drawingStore.layer.ol) {
+        return
+    }
+    const positionStore = usePositionStore()
+    const kmlData = generateKmlString(
+        positionStore.projection,
+        drawingStore.layer.ol?.getSource()?.getFeatures() ?? [],
+        drawingStore.name
+    )
+    if (!drawingStore.online) {
+        saveLocalDrawing(kmlData)
         return
     }
 
     const layersStore = useLayersStore()
-    const positionStore = usePositionStore()
 
     try {
         log.debug({

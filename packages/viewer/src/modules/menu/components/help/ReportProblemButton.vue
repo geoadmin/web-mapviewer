@@ -96,7 +96,7 @@ const isEmailValid = ref(true)
 const showDrawingOverlay = computed(() => drawingStore.overlay.show)
 
 const temporaryKml: ComputedRef<KMLLayer> = computed(
-    () => layersStore.systemLayers.find((l) => l.id === temporaryKmlId) as KMLLayer
+    () => layersStore.systemLayers.find((l) => l.id === `KML|${temporaryKmlId}`) as KMLLayer
 )
 
 const isTemporaryKmlValid = computed(
@@ -180,7 +180,7 @@ function closeAndCleanForm() {
     request.value.failed = false
     request.value.completed = false
     if (temporaryKml.value) {
-        layersStore.removeSystemLayer(temporaryKmlId, dispatcher)
+        layersStore.removeSystemLayer(`KML|${temporaryKmlId}`, dispatcher)
         drawingStore.clearDrawingFeatures(dispatcher)
     }
 }
