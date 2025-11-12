@@ -7,9 +7,9 @@ export interface ValidationResult {
     invalidMessage: string
 }
 
-export type ValidateFunction<T = string> = (value: T) => ValidationResult
+export type ValidateFunction<T extends string | File | undefined> = (value: T) => ValidationResult
 
-export interface FieldValidationProps<T = string> {
+export interface FieldValidationProps<T extends string | File | undefined> {
     label?: string
     description?: string
     disabled?: boolean
@@ -28,7 +28,7 @@ export interface FieldValidationOptions {
     requiredInvalidMessage?: string
 }
 
-export interface FieldValidationReturn<T = string> {
+export interface FieldValidationReturn<T extends string | File | undefined> {
     value: Ref<T>
     isValid: ComputedRef<boolean>
     validMarker: ComputedRef<boolean>
@@ -74,7 +74,7 @@ export function propsValidator4ValidateFunc(value: unknown, _props: unknown): bo
  * @param emits Vue event emitter definition of the input component
  * @param options Options object for custom validation and messages
  */
-export function useFieldValidation<T = string>(
+export function useFieldValidation<T extends string | File | undefined>(
     props: FieldValidationProps<T>,
     model: Ref<T>,
     emits: (event: string, ...args: unknown[]) => void,
