@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -13,47 +14,53 @@ const geolocationStore = useGeolocationStore()
 const positionStore = usePositionStore()
 const { t } = useI18n()
 
-// Show recenter button only when: geolocation is active AND map center is >1m away from user's location
+// Show recenter button when geolocation is active
 const showRecenterButton = computed(() => {
-    if (!geolocationStore.active || !geolocationStore.position) {
-        return false
-    }
-
-    // Check if map center is different from user's location
-    const [userX, userY] = geolocationStore.position
-    const [centerX, centerY] = positionStore.center
-
-    // Use a small threshold to account for floating point precision
-    // and minor position changes that wouldn't be noticeable to the user
-    const threshold = 1 // 1 meter tolerance
-    const distanceX = Math.abs(userX - centerX)
-    const distanceY = Math.abs(userY - centerY)
-
-    return distanceX > threshold || distanceY > threshold
+    return geolocationStore.active && geolocationStore.position !== undefined
 })
 
-function recenterMap(): void {
-    // Just recenter the map to user's position (one-time), don't enable tracking
-    if (geolocationStore.position) {
-        positionStore.setCenter(geolocationStore.position, dispatcher)
+// Show tooltip based on tracking state
+const tooltipContent = computed(() => {
+    return geolocationStore.tracking ? 'geoloc_stop_tracking' : 're_center_map'
+})
+
+function toggleTracking(): void {
+    // Toggle tracking mode
+    const newTrackingState = !geolocationStore.tracking
+    geolocationStore.setGeolocationTracking(newTrackingState, dispatcher)
+
+    // If enabling tracking and device has orientation, enable auto-rotation
+    if (newTrackingState && positionStore.hasOrientation) {
+        positionStore.setAutoRotation(true, dispatcher)
+    } else if (!newTrackingState) {
+        // If disabling tracking, also disable auto-rotation and reset rotation
+        if (positionStore.autoRotation) {
+            positionStore.setRotation(0, dispatcher)
+            positionStore.setAutoRotation(false, dispatcher)
+        }
     }
 }
 </script>
 
 <template>
-    <button
+    <GeoadminTooltip
         v-if="showRecenterButton"
-        class="toolbox-button d-print-none"
-        data-cy="recenter-button"
-        type="button"
-        :title="t('re_center_map')"
-        @click="recenterMap"
+        placement="left"
+        :tooltip-content="t(tooltipContent)"
     >
-        <FontAwesomeIcon
-            icon="location-crosshairs"
-            transform="shrink-2"
-        />
-    </button>
+        <button
+            class="toolbox-button d-print-none"
+            data-cy="recenter-button"
+            type="button"
+            :class="{ active: geolocationStore.tracking }"
+            @click="toggleTracking"
+        >
+            <FontAwesomeIcon
+                icon="location-crosshairs"
+                transform="shrink-2"
+            />
+        </button>
+    </GeoadminTooltip>
 </template>
 
 <style lang="scss" scoped>
