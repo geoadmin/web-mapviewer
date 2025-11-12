@@ -1,3 +1,3 @@
-import defaultConfig from './index'
+import defaultConfig from './index.ts'
 
 export default defaultConfig
