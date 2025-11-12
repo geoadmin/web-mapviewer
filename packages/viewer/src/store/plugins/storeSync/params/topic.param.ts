@@ -16,7 +16,6 @@ const topicParamConfig = new UrlParamConfig<string>({
         if (queryValue) {
             useTopicsStore().changeTopic(
                 queryValue,
-                { changeLayers: true },
                 STORE_DISPATCHER_ROUTER_PLUGIN
             )
         }

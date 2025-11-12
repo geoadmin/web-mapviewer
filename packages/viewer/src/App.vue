@@ -29,7 +29,6 @@ const appStore = useAppStore()
 const uiStore = useUIStore()
 const layersStore = useLayersStore()
 
-const currentRoute = useRoute()
 
 let debouncedOnResize: () => void = () => {}
 const showFeedbackPopup = computed(() => {
@@ -46,7 +45,7 @@ onMounted(() => {
     layersStore.loadLayersConfig(
         {
             changeLayersOnTopicChange:
-                currentRoute.query.layers === undefined || currentRoute.query.layers?.length === 0,
+                !window.location.hash.includes('layers='),
         },
         dispatcher
     )

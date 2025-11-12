@@ -2,6 +2,7 @@ import { createPinia } from 'pinia'
 import { markRaw } from 'vue'
 
 import router from '@/router'
+import stateMachinePlugin from '@/store/plugins/stateMachine.plugin'
 import storeActionLogPlugin from '@/store/plugins/store-action-log.plugin'
 import storeSyncRouterPlugin from '@/store/plugins/storeSync'
 
@@ -11,5 +12,6 @@ pinia.use(({ store }) => {
 })
 pinia.use(storeActionLogPlugin)
 pinia.use(storeSyncRouterPlugin)
+pinia.use(stateMachinePlugin)
 
 export default pinia

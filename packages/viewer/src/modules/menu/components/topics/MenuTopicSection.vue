@@ -48,7 +48,7 @@ function setShowTopicSelectionPopup() {
 }
 
 function selectTopic(topic: Topic): void {
-    topicsStore.changeTopic(topic.id, { changeLayers: true }, dispatcher)
+    topicsStore.changeTopic(topic.id, dispatcher)
     showTopicSelectionPopup.value = false
 }
 

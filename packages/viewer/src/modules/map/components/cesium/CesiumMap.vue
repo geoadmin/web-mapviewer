@@ -176,7 +176,9 @@ async function createViewer(): Promise<void> {
         // reduce screen space error to downgrade visual quality but speed up tests
         globe.maximumScreenSpaceError = 30
     }
-    appStore.setMapModuleReady(dispatcher)
+    if (appStore.isCurrentStateFulfilled) {
+        appStore.nextState(dispatcher)
+    }
     cesiumStore.setViewerReady(true, dispatcher)
 
     if (compassElement.value) {

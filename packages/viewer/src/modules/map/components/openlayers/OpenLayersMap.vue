@@ -71,7 +71,7 @@ function triggerReadyFlagIfAllRendered(): void {
     } else {
         // This is needed for cypress to start the tests only
         // when OpenLayers is rendered, otherwise some tests will fail.
-        appStore.setMapModuleReady(dispatcher)
+        appStore.nextState(dispatcher)
         log.info('OpenLayers map rendered')
     }
 }

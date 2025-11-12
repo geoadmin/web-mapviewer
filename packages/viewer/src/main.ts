@@ -66,18 +66,19 @@ if (ENVIRONMENT === 'production') {
     // by default, index levels are ERROR and WARNING; that goes well for PROD staging (no changes)
 }
 
-app.use(router)
 app.use(i18n)
 app.use(store)
-
-app.directive('click-outside', clickOutside)
-app.component('FontAwesomeIcon', FontAwesomeIcon)
-app.component('GeoadminElevationProfile', GeoadminElevationProfile)
-
 // if we are testing with Cypress, we expose the store
 if (IS_TESTING_WITH_CYPRESS) {
     log.info('Testing env detected, sharing the store through window reference')
     window.store = store
 }
+
+// the router is using some stores, so it needs to be "used" after the store
+app.use(router)
+
+app.directive('click-outside', clickOutside)
+app.component('FontAwesomeIcon', FontAwesomeIcon)
+app.component('GeoadminElevationProfile', GeoadminElevationProfile)
 
 app.mount('#app')
