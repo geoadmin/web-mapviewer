@@ -19,7 +19,7 @@ describe('Open Time and Compare Slider together', () => {
 
         function checkTimeSlider(active: boolean, selectedYear: number | undefined = undefined) {
             // Check the store
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const uiStore = useUIStore(pinia)
                 expect(uiStore.isTimeSliderActive).to.equal(active)
             })
@@ -39,9 +39,13 @@ describe('Open Time and Compare Slider together', () => {
         }
 
         function checkCompareSlider(active: boolean, config: CompareConfig = {}) {
-            const { ratio = undefined, hasVisibleLayers = true, visibleLayerName = undefined } = config
+            const {
+                ratio = undefined,
+                hasVisibleLayers = true,
+                visibleLayerName = undefined,
+            } = config
             // Check the store
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const uiStore = useUIStore(pinia)
                 expect(uiStore.isCompareSliderActive).to.equal(active)
 
@@ -91,7 +95,11 @@ describe('Open Time and Compare Slider together', () => {
 
             cy.goToMapView({
                 queryParams: {
-                    layers: [`${timedLayerId}@year=${preSelectedYear}`, testLayer1, testLayer2].join(';'),
+                    layers: [
+                        `${timedLayerId}@year=${preSelectedYear}`,
+                        testLayer1,
+                        testLayer2,
+                    ].join(';'),
                 },
             })
 
@@ -183,7 +191,11 @@ describe('Open Time and Compare Slider together', () => {
 
             cy.goToMapView({
                 queryParams: {
-                    layers: [`${timedLayerId}@year=${preSelectedYear}`, testLayer1, testLayer2].join(';'),
+                    layers: [
+                        `${timedLayerId}@year=${preSelectedYear}`,
+                        testLayer1,
+                        testLayer2,
+                    ].join(';'),
                 },
             })
 

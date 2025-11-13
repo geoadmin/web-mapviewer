@@ -1,17 +1,18 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <kml xmlns="http://www.opengis.net/kml/2.2">
   <Document>
     <name><![CDATA[uetlibergwege_kml]]></name>
     <visibility>1</visibility>
     <open>1</open>
-    <Snippet><![CDATA[created using <a href="https://www.gpsvisualizer.com/?ref=ge&time=20230818080749">GPS Visualizer</a>]]></Snippet>
+    <Snippet
+        ><![CDATA[created using <a href="https://www.gpsvisualizer.com/?ref=ge&time=20230818080749">GPS Visualizer</a>]]></Snippet>
     <Folder id="Tracks">
       <name>Tracks</name>
       <visibility>1</visibility>
       <open>0</open>
       <Placemark>
         <name><![CDATA[Swiss Map Mobile data]]></name>
-        <Snippet></Snippet>
+        <Snippet />
         <description><![CDATA[&nbsp;]]></description>
         <Style>
             <LineStyle>

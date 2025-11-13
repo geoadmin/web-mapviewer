@@ -9,7 +9,7 @@ export default function removeError(
     error: ErrorMessage,
     dispatcher: ActionDispatcher
 ): void {
-    if (!(error)) {
+    if (!error) {
         log.error({
             title: 'UI store / removeError',
             titleColor: LogPreDefinedColor.Red,

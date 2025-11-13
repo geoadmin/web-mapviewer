@@ -35,7 +35,10 @@ export default function click(
         // If the click is a box selection, we set the rectangle selection extent to the
         // coordinates of the click.
         this.setRectangleSelectionExtent(clickInfo.coordinate as FlatExtent, dispatcher)
-    } else if (clickInfo.clickType === ClickType.CtrlLeftSingleClick || clickInfo.clickType === ClickType.ContextMenu) {
+    } else if (
+        clickInfo.clickType === ClickType.CtrlLeftSingleClick ||
+        clickInfo.clickType === ClickType.ContextMenu
+    ) {
         // If the click is a ctrl left single click or a right click, we keep the rectangle selection extent
     } else {
         // For any other click type, we clear the rectangle selection extent

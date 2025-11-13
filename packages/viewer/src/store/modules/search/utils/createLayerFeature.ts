@@ -5,7 +5,11 @@ import type { Geometry } from 'ol/geom'
 
 import GeoJSON from 'ol/format/GeoJSON'
 
-import { extractOlFeatureCoordinates, type LayerFeature, type SelectableFeature } from '@/api/features.api'
+import {
+    extractOlFeatureCoordinates,
+    type LayerFeature,
+    type SelectableFeature,
+} from '@/api/features.api'
 
 export default function createLayerFeature(
     olFeature: Feature<Geometry>,

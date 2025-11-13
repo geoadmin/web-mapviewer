@@ -16,14 +16,14 @@ describe('Testing the warning ribbon', () => {
 
         it("Ribbon shouldn't be visible on localhost", () => {
             cy.get(ribbonSelector).should('not.exist')
-        });
+        })
 
         it('If ribbon exists, it should be at the top on a phone, bottom on desktop', () => {
             // Conditional tests are bad on Cypress, but the banner may or may not be present,
             // depending on the hostname
             cy.get(ribbonSelector)
                 // Bypassing the built-in existence assertion
-                .should(() => { })
+                .should(() => {})
                 .then(($el) => {
                     if (!$el.length) {
                         return

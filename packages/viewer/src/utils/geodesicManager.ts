@@ -138,7 +138,7 @@ export class GeodesicGeometries {
         ) {
             throw new Error(
                 'This class only accepts Polygons (and Linestrings ' +
-                'after initial drawing is finished)'
+                    'after initial drawing is finished)'
             )
         }
         this._calculateEverything()
@@ -598,10 +598,10 @@ class MeasureStyles {
         return ratio <= 1
             ? this.styles
             : ratio <= 10
-                ? this.top100Styles
-                : ratio <= 100
-                    ? this.top10Styles
-                    : []
+              ? this.top100Styles
+              : ratio <= 100
+                ? this.top10Styles
+                : []
     }
 }
 

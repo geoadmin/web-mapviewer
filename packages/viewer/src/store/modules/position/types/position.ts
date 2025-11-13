@@ -67,10 +67,7 @@ export interface PositionStoreGetters {
     centerEpsg4326(): SingleCoordinate
     /** Resolution of the view expressed in meter per pixel */
     resolution(): number
-    /**
-     * The extent of the view, expressed with two coordinates numbers (`[ bottomLeft, topRight
-     * ]`)
-     */
+    /** The extent of the view, expressed with two coordinates numbers (`[ bottomLeft, topRight ]`) */
     extent(): NormalizedExtent
     /**
      * Flag telling if the current extent is contained into the LV95 bounds (meaning only things
@@ -79,6 +76,4 @@ export interface PositionStoreGetters {
     isExtentOnlyWithinLV95Bounds(): boolean
 }
 
-
 export type PositionStore = ReturnType<typeof import('@/store/modules/position').default>
-

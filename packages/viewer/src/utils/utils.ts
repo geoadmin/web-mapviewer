@@ -395,9 +395,7 @@ export function getSafe<T>(obj: unknown, prop: string): T | undefined {
     return isKeyOf(obj, prop) ? (dict[prop] as T) : undefined
 }
 
-/**
- * Check if a candidate string matches a specific enum value
- */
+/** Check if a candidate string matches a specific enum value */
 export function isEnumValue<E>(enumValue: E[keyof E], candidate: string): boolean {
     // For string enums, compare as string
     if (typeof enumValue === 'string') {
@@ -410,13 +408,8 @@ export function isEnumValue<E>(enumValue: E[keyof E], candidate: string): boolea
     return false
 }
 
-/**
- * Check if a candidate string matches any value in an enum
- */
-export function isAnyEnumValue<E>(
-    enumType: Record<string, E>,
-    candidate: string
-): boolean {
+/** Check if a candidate string matches any value in an enum */
+export function isAnyEnumValue<E>(enumType: Record<string, E>, candidate: string): boolean {
     return Object.values(enumType).some((enumValue) => {
         // For string enums, compare as string
         if (typeof enumValue === 'string') {

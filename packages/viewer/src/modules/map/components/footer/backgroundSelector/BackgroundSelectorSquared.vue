@@ -80,7 +80,7 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
                 class="bg-selector-squared-wheel-button-label text-bg-dark bg-opacity-75"
             >
                 <span
-                    class="text-nowrap bg-selector-squared-wheel-button-label-inner"
+                    class="bg-selector-squared-wheel-button-label-inner text-nowrap"
                     :class="{ show: !show, animate }"
                 >
                     {{ t('bg_chooser_label') }}

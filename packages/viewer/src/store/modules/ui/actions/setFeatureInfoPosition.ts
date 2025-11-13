@@ -9,10 +9,7 @@ export default function setFeatureInfoPosition(
     position: FeatureInfoPositions,
     dispatcher: ActionDispatcher
 ): void {
-    if (
-        position !== FeatureInfoPositions.None &&
-        this.width < MAX_WIDTH_SHOW_FLOATING_TOOLTIP
-    ) {
+    if (position !== FeatureInfoPositions.None && this.width < MAX_WIDTH_SHOW_FLOATING_TOOLTIP) {
         this.featureInfoPosition = FeatureInfoPositions.BottomPanel
     } else {
         this.featureInfoPosition = position

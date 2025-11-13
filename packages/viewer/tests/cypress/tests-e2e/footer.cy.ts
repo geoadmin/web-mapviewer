@@ -52,12 +52,10 @@ describe('Testing the footer content / tools', () => {
                     .forEach((bgLayer) => {
                         cy.get(`[data-cy="background-selector-${bgLayer.serverLayerName}"]`).click()
                         // checking that clicking on the wheel buttons changes the bgLayer of the app accordingly
-                        cy.waitUntilState(
-                            (pinia: Pinia) => {
-                                const layersStore = useLayersStore(pinia)
-                                return layersStore.currentBackgroundLayerId === bgLayer.serverLayerName
-                            }
-                        )
+                        cy.waitUntilState((pinia: Pinia) => {
+                            const layersStore = useLayersStore(pinia)
+                            return layersStore.currentBackgroundLayerId === bgLayer.serverLayerName
+                        })
                         // reopening the BG wheel
                         cy.get(`[data-cy="${wheelButton}"]`).click()
                     })

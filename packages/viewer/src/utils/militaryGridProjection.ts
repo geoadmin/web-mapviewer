@@ -186,35 +186,35 @@ export function latLonToUTM(lat: number, lon: number): UTM {
             ((3 * eccSquared) / 8 +
                 (3 * eccSquared * eccSquared) / 32 +
                 (45 * eccSquared * eccSquared * eccSquared) / 1024) *
-            Math.sin(2 * LatRad) +
+                Math.sin(2 * LatRad) +
             ((15 * eccSquared * eccSquared) / 256 +
                 (45 * eccSquared * eccSquared * eccSquared) / 1024) *
-            Math.sin(4 * LatRad) -
+                Math.sin(4 * LatRad) -
             ((35 * eccSquared * eccSquared * eccSquared) / 3072) * Math.sin(6 * LatRad))
 
     const easting =
         k0 *
-        N *
-        (A +
-            ((1 - T + C) * A * A * A) / 6 +
-            ((5 - 18 * T + T * T + 72 * C - 58 * eccPrimeSquared) * A * A * A * A * A) / 120) +
+            N *
+            (A +
+                ((1 - T + C) * A * A * A) / 6 +
+                ((5 - 18 * T + T * T + 72 * C - 58 * eccPrimeSquared) * A * A * A * A * A) / 120) +
         500000
 
     let northing =
         k0 *
         (M +
             N *
-            Math.tan(LatRad) *
-            ((A * A) / 2 +
-                ((5 - T + 9 * C + 4 * C * C) * A * A * A * A) / 24 +
-                ((61 - 58 * T + T * T + 600 * C - 330 * eccPrimeSquared) *
-                    A *
-                    A *
-                    A *
-                    A *
-                    A *
-                    A) /
-                720))
+                Math.tan(LatRad) *
+                ((A * A) / 2 +
+                    ((5 - T + 9 * C + 4 * C * C) * A * A * A * A) / 24 +
+                    ((61 - 58 * T + T * T + 600 * C - 330 * eccPrimeSquared) *
+                        A *
+                        A *
+                        A *
+                        A *
+                        A *
+                        A) /
+                        720))
     if (lat < 0) {
         northing += 10000000 // 10'000'000 meter offset for the Southern Hemisphere
     }
@@ -246,7 +246,7 @@ function UTMtoLatLon(utm: UTM): [LatLon | Bbox, 'bbox' | 'latlon'] {
 
     // check the ZoneNumber is valid
     if (zoneNumber < 0 || zoneNumber > 60) {
-        throw Error("UTMtoLatLon: zoneNumber is invalid")
+        throw Error('UTMtoLatLon: zoneNumber is invalid')
     }
 
     const k0 = 0.9996
@@ -301,16 +301,16 @@ function UTMtoLatLon(utm: UTM): [LatLon | Bbox, 'bbox' | 'latlon'] {
     let lat =
         phi1Rad -
         ((N1 * Math.tan(phi1Rad)) / R1) *
-        ((D * D) / 2 -
-            ((5 + 3 * T1 + 10 * C1 - 4 * C1 * C1 - 9 * eccPrimeSquared) * D * D * D * D) / 24 +
-            ((61 + 90 * T1 + 298 * C1 + 45 * T1 * T1 - 252 * eccPrimeSquared - 3 * C1 * C1) *
-                D *
-                D *
-                D *
-                D *
-                D *
-                D) /
-            720)
+            ((D * D) / 2 -
+                ((5 + 3 * T1 + 10 * C1 - 4 * C1 * C1 - 9 * eccPrimeSquared) * D * D * D * D) / 24 +
+                ((61 + 90 * T1 + 298 * C1 + 45 * T1 * T1 - 252 * eccPrimeSquared - 3 * C1 * C1) *
+                    D *
+                    D *
+                    D *
+                    D *
+                    D *
+                    D) /
+                    720)
     lat = radToDeg(lat)
 
     let lon =
@@ -322,10 +322,9 @@ function UTMtoLatLon(utm: UTM): [LatLon | Bbox, 'bbox' | 'latlon'] {
                 D *
                 D *
                 D) /
-            120) /
+                120) /
         Math.cos(phi1Rad)
     lon = LongOrigin + radToDeg(lon)
-
 
     if (typeof utm.accuracy === 'number') {
         const result = UTMtoLatLon({
