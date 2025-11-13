@@ -76,7 +76,7 @@ export function propsValidator4ValidateFunc(value: unknown, _props: unknown): bo
  */
 export function useFieldValidation<T extends string | File>(
     props: FieldValidationProps<T>,
-    model: Ref<T | undefined> | Ref<T>,
+    model: Ref<T | undefined>,
     emits: (event: string, ...args: unknown[]) => void,
     {
         customValidate = (): ValidationResult => {
@@ -95,12 +95,12 @@ export function useFieldValidation<T extends string | File>(
     const validation = ref<ValidationResult>({ valid: true, invalidMessage: '' })
 
     // Helper function to check if value is empty
-    const isEmpty = (val: T | undefined): boolean => {
-        if (val === null || val === undefined) {
+    const isEmpty = (value?: T): boolean => {
+        if (value === null || value === undefined) {
             return true
         }
-        if (typeof val === 'string') {
-            return !val
+        if (typeof value === 'string') {
+            return !value
         }
         return false
     }
