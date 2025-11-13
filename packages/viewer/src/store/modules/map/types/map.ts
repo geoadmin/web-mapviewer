@@ -4,8 +4,6 @@ import type { SelectableFeature } from '@/api/features.api'
 
 import { ClickType } from '@/store/modules/map/types/clickType.enum'
 
-
-
 export interface ClickInfo {
     coordinate: SingleCoordinate | FlatExtent
     pixelCoordinate?: SingleCoordinate
@@ -35,6 +33,7 @@ export interface MapState {
     /** Tells if the map is in print mode, meaning it will jump to a higher zoom level early. */
     printMode: boolean
     rectangleSelectionExtent: FlatExtent | undefined
+    hasBeenLoaded: boolean
 }
 
 export type MapStoreGetters = object

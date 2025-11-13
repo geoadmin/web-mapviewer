@@ -1,9 +1,12 @@
-import type { LocationQuery, RouteLocationNormalizedGeneric } from 'vue-router'
+import type { PiniaPlugin, PiniaPluginContext } from 'pinia'
+import type {
+    LocationQuery,
+    RouteLocationNamedRaw,
+    RouteLocationNormalizedGeneric,
+} from 'vue-router'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import axios from 'axios'
-
-import type { RouterPlugin } from '@/router/types'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { MAP_VIEW } from '@/router/viewNames'
@@ -30,7 +33,7 @@ let routeChangeIsTriggeredByThisModule = false
 function urlQueryWatcher(
     to: RouteLocationNormalizedGeneric,
     from?: RouteLocationNormalizedGeneric
-) {
+): RouteLocationNamedRaw | undefined {
     log.debug({
         title: 'URL param to store plugin   / urlQueryWatcher',
         titleColor: LogPreDefinedColor.Orange,
@@ -161,24 +164,23 @@ function urlQueryWatcher(
     return undefined
 }
 
-const urlParamToStore: RouterPlugin = (router) => {
+function registerRouterHooks(context: PiniaPluginContext) {
+    const { store } = context
 
-    const queryParamsStoredAtStartup: LocationQuery | undefined = {...router.currentRoute.value.query}
-
-    router.beforeEach(
+    store.router.beforeEach(
         (to: RouteLocationNormalizedGeneric, from: RouteLocationNormalizedGeneric) => {
             const appStore = useAppStore()
-            if (!appStore.isSyncingStore) {
+            if (!appStore.isParsingUrl) {
                 log.debug({
                     title: 'URL param to store plugin / beforeEach',
                     titleColor: LogPreDefinedColor.Orange,
                     messages: [
-                        'App is not in a state where URL syncing is activated, no action on route change',
+                        'App is not in a state where URL syncing is activated, waiting for it to be ready',
                         to,
                         from,
                     ],
                 })
-                Object.assign(router.currentRoute.value.query, queryParamsStoredAtStartup)
+                Object.assign(store.router.currentRoute.value.query, queryParamsStoredAtStartup)
                 return undefined
             }
 
@@ -196,27 +198,27 @@ const urlParamToStore: RouterPlugin = (router) => {
 
             const newRoute = urlQueryWatcher(to, from)
 
-            if (queryParamsStoredAtStartup) {
+            if (queryParamsStoredAtStartup && Object.keys(queryParamsStoredAtStartup).length > 0) {
                 log.debug({
                     title: 'URL param to store plugin / beforeEach',
                     titleColor: LogPreDefinedColor.Orange,
                     messages: [
                         `Restoring URL query params stored at startup to the new route`,
                         queryParamsStoredAtStartup,
-                    ]
+                    ],
                 })
                 return {
                     ...newRoute,
                     query: {
                         ...newRoute?.query,
                         ...queryParamsStoredAtStartup,
-                    }
+                    },
                 }
             }
             return newRoute
         }
     )
-    router.afterEach(() => {
+    store.router.afterEach(() => {
         const appStore = useAppStore()
         if (appStore.hasPendingUrlParsing) {
             appStore.setHasPendingUrlParsing(false, STORE_DISPATCHER_ROUTER_PLUGIN)
@@ -224,4 +226,31 @@ const urlParamToStore: RouterPlugin = (router) => {
     })
 }
 
-export default urlParamToStore
+let queryParamsStoredAtStartup: LocationQuery | undefined
+let hasBeenInitialized: boolean = false
+
+const urlToStorePlugin: PiniaPlugin = (context: PiniaPluginContext) => {
+    const { store } = context
+
+    store.$onAction(({ after }) => {
+        const appStore = useAppStore()
+        if (appStore.isParsingUrl && !hasBeenInitialized) {
+            hasBeenInitialized = true
+            after(() => {
+                const firstRoute = urlQueryWatcher(store.router.currentRoute.value)
+                if (firstRoute) {
+                    store.router.push(firstRoute).then(() => {
+                        registerRouterHooks(context)
+                    })
+                } else {
+                    registerRouterHooks(context)
+                }
+                if (!appStore.initialUrlParsingHasHappened) {
+                    appStore.setInitialUrlParsingHasHappened(STORE_DISPATCHER_ROUTER_PLUGIN)
+                }
+            })
+        }
+    })
+}
+
+export default urlToStorePlugin

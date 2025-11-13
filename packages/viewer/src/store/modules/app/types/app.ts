@@ -3,6 +3,7 @@ import type { AppState } from '@/store/modules/app/types/appState'
 /** Module that tells if the app has finished loading (is ready to show stuff) */
 export interface AppStoreState {
     appState: AppState
+    initialUrlParsingHasHappened: boolean
     hasPendingUrlParsing: boolean
 }
 export type AppStoreGetters = {
@@ -10,7 +11,7 @@ export type AppStoreGetters = {
     isLoadingConfig(): boolean
     isConfigLoaded(): boolean
     isParsingLegacy(): boolean
-    isSyncingStore(): boolean
+    isParsingUrl(): boolean
     isReady(): boolean
     isMapReady(): boolean
 }

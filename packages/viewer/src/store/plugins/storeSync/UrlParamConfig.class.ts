@@ -7,7 +7,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { getSafe } from '@/utils/utils'
 
-export const STORE_DISPATCHER_ROUTER_PLUGIN: ActionDispatcher = { name: 'storeSync.routerPlugin' }
+export const STORE_DISPATCHER_ROUTER_PLUGIN: ActionDispatcher = { name: 'storeSync' }
 
 /** @template T Type of the value in the URL */
 export interface AbstractParamConfigInput<T extends string | number | boolean> {

@@ -10,7 +10,6 @@ import {
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import appReadinessRouterPlugin from '@/router/appReadiness.routerPlugin'
 import legacyPermalinkRouterPlugin from '@/router/legacyPermalink.routerPlugin'
-import urlParamToStore from '@/router/urlParamToStore.routerPlugin'
 import {
     EMBED_VIEW,
     LEGACY_EMBED_PARAM_VIEW,
@@ -123,6 +122,5 @@ if (IS_TESTING_WITH_CYPRESS) {
 
 appReadinessRouterPlugin(router)
 legacyPermalinkRouterPlugin(router)
-urlParamToStore(router)
 
 export default router
