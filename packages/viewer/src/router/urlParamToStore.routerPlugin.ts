@@ -1,4 +1,4 @@
-import type { LocationQuery, RouteLocationNormalizedGeneric } from 'vue-router'
+import type { LocationQuery, RouteLocationNormalizedGeneric, Router } from 'vue-router'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import axios from 'axios'
@@ -160,7 +160,22 @@ function urlQueryWatcher(
     return undefined
 }
 
+function initialUrlQueryWatcher(to: RouteLocationNormalizedGeneric, router: Router) {
+    const newRoute = urlQueryWatcher(to)
+    if (newRoute) {
+        router.push(newRoute).catch((error) => {
+            log.error({
+                title: 'URL param to store plugin / initialUrlQueryWatcher',
+                titleColor: LogPreDefinedColor.Orange,
+                messages: ['Error while routing to', newRoute, error],
+            })
+        })
+    }
+}
+
 const urlParamToStore: RouterPlugin = (router) => {
+    let unsubscribeAppReady: (() => void) | undefined
+
     router.beforeEach(
         (to: RouteLocationNormalizedGeneric, from: RouteLocationNormalizedGeneric) => {
             log.debug({
@@ -209,6 +224,46 @@ const urlParamToStore: RouterPlugin = (router) => {
             return retVal
         }
     )
+
+    router.afterEach((to: RouteLocationNormalizedGeneric) => {
+        if (typeof to.name === 'string' && MAP_VIEWS.includes(to.name) && !unsubscribeAppReady) {
+            log.info({
+                title: 'URL param to store plugin / afterEach',
+                titleColor: LogPreDefinedColor.Orange,
+                messages: [`MapView entered, register app ready watcher`],
+            })
+            const appStore = useAppStore()
+
+            // Listen to setAppIsReady action to trigger initial URL query watcher
+            unsubscribeAppReady = appStore.$onAction(({ name }) => {
+                if (name === 'setAppIsReady') {
+                    // If the app was not yet ready after entering the map view, we need to
+                    // trigger the initial urlQuery watcher otherwise we have a blank application.
+                    log.info({
+                        title: 'URL param to store plugin / afterEach',
+                        titleColor: LogPreDefinedColor.Orange,
+                        messages: [`App is ready, trigger initial URL query watcher`],
+                    })
+                    initialUrlQueryWatcher(to, router)
+                }
+            })
+
+            if (appStore.isReady) {
+                // After entering for the first time the map view, if the app is already ready that
+                // mean that the initial URL query watcher was not run yet and we need to do it
+                // otherwise the query parameter will not have any effect on the application leaving
+                // it blank until a reload or a user action (e.g. adding a layer)
+                log.warn({
+                    title: 'URL param to store plugin / afterEach',
+                    titleColor: LogPreDefinedColor.Orange,
+                    messages: [
+                        `MapView entered, while app was already ready ! Trigger initial URL query watcher`,
+                    ],
+                })
+                initialUrlQueryWatcher(to, router)
+            }
+        }
+    })
 }
 
 export default urlParamToStore
