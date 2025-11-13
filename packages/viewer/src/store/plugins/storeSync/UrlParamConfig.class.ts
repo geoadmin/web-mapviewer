@@ -147,7 +147,8 @@ export default class UrlParamConfig<T extends string | number | boolean> {
             // as we also want to be able to activate a boolean just by having the param name in the URL query
             // (i.e. if '...&embed&...' is there, it means embed === true) we return true as soon as the param name
             // is present in the query (without a boolean value attached)
-            return (queryValue === 'true' ||
+            return (queryValue === null ||
+                queryValue === 'true' ||
                 queryValue === '' ||
                 (typeof queryValue === 'boolean' && !!queryValue)) as T
         }

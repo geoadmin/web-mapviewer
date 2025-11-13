@@ -393,12 +393,11 @@ describe('The compare Slider and the menu elements should not be available in 3d
         it('does not shows up with layers, a compare slider parameter set, but in 3d', () => {
             cy.goToMapView({
                 queryParams: {
-                    layers: ['test-1.wms.layer', 'test-2.wms.layer,,'].join(';'),
+                    layers: 'test-1.wms.layer;test-2.wms.layer,,',
                     compareRatio: '0.4',
                     '3d': true,
                     sr: WEBMERCATOR.epsgNumber,
                 },
-                withHash: true,
             })
             cy.get('[data-cy="compareSlider"]').should('not.exist')
 
@@ -414,7 +413,6 @@ describe('The compare Slider and the menu elements should not be available in 3d
                 queryParams: {
                     sr: WEBMERCATOR.epsgNumber,
                 },
-                withHash: true,
             })
             cy.openMenuIfMobile()
             cy.get('[data-cy="menu-tray-tool-section"]').click()
