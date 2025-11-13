@@ -67,15 +67,14 @@ if (ENVIRONMENT === 'production') {
 }
 
 app.use(i18n)
+app.use(router)
+
 app.use(store)
 // if we are testing with Cypress, we expose the store
 if (IS_TESTING_WITH_CYPRESS) {
     log.info('Testing env detected, sharing the store through window reference')
     window.store = store
 }
-
-// the router is using some stores, so it needs to be "used" after the store
-app.use(router)
 
 app.directive('click-outside', clickOutside)
 app.component('FontAwesomeIcon', FontAwesomeIcon)

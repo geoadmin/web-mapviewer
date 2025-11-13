@@ -33,7 +33,6 @@ import CesiumGeolocationFeedback from '@/modules/map/components/cesium/CesiumGeo
 import CesiumHighlightedFeatures from '@/modules/map/components/cesium/CesiumHighlightedFeatures.vue'
 import CesiumInteractions from '@/modules/map/components/cesium/CesiumInteractions.vue'
 import CesiumVisibleLayers from '@/modules/map/components/cesium/CesiumVisibleLayers.vue'
-import useAppStore from '@/store/modules/app'
 import useCesiumStore from '@/store/modules/cesium'
 import usePositionStore from '@/store/modules/position'
 import useUIStore from '@/store/modules/ui'
@@ -48,7 +47,6 @@ const viewerElement = useTemplateRef<HTMLDivElement>('viewerElement')
 const compassElement = useTemplateRef<any>('compassElement')
 const viewerCreated = ref<boolean>(false)
 
-const appStore = useAppStore()
 const cesiumStore = useCesiumStore()
 const positionStore = usePositionStore()
 const uiStore = useUIStore()
@@ -175,9 +173,6 @@ async function createViewer(): Promise<void> {
         window.cesiumViewer = viewer
         // reduce screen space error to downgrade visual quality but speed up tests
         globe.maximumScreenSpaceError = 30
-    }
-    if (appStore.isCurrentStateFulfilled) {
-        appStore.nextState(dispatcher)
     }
     cesiumStore.setViewerReady(true, dispatcher)
 

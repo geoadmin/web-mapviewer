@@ -62,7 +62,7 @@ function refreshPageTitle() {
 }
 
 watch(
-    () => appStore.isReady && appStore.isMapReady,
+    () => appStore.isMapReady,
     () => {
         if (uiStore.loadingBarRequesters[MAP_LOADING_BAR_REQUESTER]) {
             uiStore.clearLoadingBarRequester(MAP_LOADING_BAR_REQUESTER, dispatcher)
