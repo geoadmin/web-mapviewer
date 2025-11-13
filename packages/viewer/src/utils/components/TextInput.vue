@@ -15,7 +15,7 @@ export interface TextInputValidateResult {
     invalidMessage: string
 }
 
-export type TextInputValidateFunction = (_value: string) => TextInputValidateResult
+export type TextInputValidateFunction = (_value?: string) => TextInputValidateResult
 
 const {
     label = '',

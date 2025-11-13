@@ -7,9 +7,9 @@ export interface ValidationResult {
     invalidMessage: string
 }
 
-export type ValidateFunction<T extends string | File | undefined> = (value: T) => ValidationResult
+export type ValidateFunction<T extends string | File> = (value?: T) => ValidationResult
 
-export interface FieldValidationProps<T extends string | File | undefined> {
+export interface FieldValidationProps<T extends string | File> {
     label?: string
     description?: string
     disabled?: boolean
@@ -28,8 +28,8 @@ export interface FieldValidationOptions {
     requiredInvalidMessage?: string
 }
 
-export interface FieldValidationReturn<T extends string | File | undefined> {
-    value: Ref<T>
+export interface FieldValidationReturn<T extends string | File> {
+    value: Ref<T | undefined>
     isValid: ComputedRef<boolean>
     validMarker: ComputedRef<boolean>
     invalidMarker: ComputedRef<boolean>
@@ -74,9 +74,9 @@ export function propsValidator4ValidateFunc(value: unknown, _props: unknown): bo
  * @param emits Vue event emitter definition of the input component
  * @param options Options object for custom validation and messages
  */
-export function useFieldValidation<T extends string | File | undefined>(
+export function useFieldValidation<T extends string | File>(
     props: FieldValidationProps<T>,
-    model: Ref<T>,
+    model: Ref<T | undefined> | Ref<T>,
     emits: (event: string, ...args: unknown[]) => void,
     {
         customValidate = (): ValidationResult => {
@@ -86,7 +86,7 @@ export function useFieldValidation<T extends string | File | undefined>(
     }: FieldValidationOptions = {}
 ): FieldValidationReturn<T> {
     // Reactive data
-    const value = ref(model.value) as Ref<T>
+    const value = ref(model.value) as Ref<T | undefined>
 
     const userIsTyping = ref<boolean>(false)
     const activateValidation = toRef(props, 'activateValidation')
@@ -95,7 +95,7 @@ export function useFieldValidation<T extends string | File | undefined>(
     const validation = ref<ValidationResult>({ valid: true, invalidMessage: '' })
 
     // Helper function to check if value is empty
-    const isEmpty = (val: T): boolean => {
+    const isEmpty = (val: T | undefined): boolean => {
         if (val === null || val === undefined) {
             return true
         }

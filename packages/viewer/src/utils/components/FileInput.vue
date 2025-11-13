@@ -163,7 +163,7 @@ const {
     invalidMarker: computedInvalidMarker,
     validMessage: computedValidMessage,
     invalidMessage: computedInvalidMessage,
-} = useFieldValidation<File | undefined>(
+} = useFieldValidation<File>(
     validationProps,
     model,
     (event: string, ...args: unknown[]) => {
