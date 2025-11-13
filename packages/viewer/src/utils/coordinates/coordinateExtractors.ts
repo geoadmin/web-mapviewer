@@ -21,62 +21,62 @@ const RE_SEPARATOR = '\\s*?[ \\t,/]\\s*'
 // 47.5 7.5 or 47.5° 7.5°
 const REGEX_WGS_84 = new RegExp(
     `^(?<degree1>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER})?` +
-        `${RE_SEPARATOR}` +
-        `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER})?$`,
+    `${RE_SEPARATOR}` +
+    `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER})?$`,
     'i'
 )
 // 47.5N 7.5E or 47.5°N 7.5°E
 const REGEX_WGS_84_WITH_CARDINALS = new RegExp(
     `^(?<degree1>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER})?` +
-        `\\s*(?<card1>${RE_CARD})` +
-        `${RE_SEPARATOR}` +
-        `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER})?` +
-        `\\s*(?<card2>${RE_CARD})$`,
+    `\\s*(?<card1>${RE_CARD})` +
+    `${RE_SEPARATOR}` +
+    `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER})?` +
+    `\\s*(?<card2>${RE_CARD})$`,
     'i'
 )
 // N47.5 E7.5 or N47.5 E7.5
 const REGEX_WGS_84_WITH_PRE_FIXED_CARDINALS = new RegExp(
     `^(?<card1>${RE_CARD})\\s*` +
-        `(?<degree1>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER})?` +
-        `${RE_SEPARATOR}` +
-        `(?<card2>${RE_CARD})\\s*` +
-        `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER})?$`,
+    `(?<degree1>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER})?` +
+    `${RE_SEPARATOR}` +
+    `(?<card2>${RE_CARD})\\s*` +
+    `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER})?$`,
     'i'
 )
 // 47°31.8' 7°31.8' or 47°31.8' 7°31.8' or 47°31.8'30"N 7°31.8'30.4"E or 47°31.8'N 7°31.8'E or without °'" 47 31.8 30 N 7 31.8 30.4 E
 const REGEX_WGS_84_WITH_MIN = new RegExp(
     `^(?<degree1>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min1>${RE_MIN})(${RE_MIN_IDENTIFIER})?` +
-        `(\\s*(?<card1>${RE_CARD}))?` +
-        `${RE_SEPARATOR}` +
-        `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min2>${RE_MIN})(${RE_MIN_IDENTIFIER})?` +
-        `(\\s*(?<card2>${RE_CARD}))?$`,
+    `(\\s*(?<card1>${RE_CARD}))?` +
+    `${RE_SEPARATOR}` +
+    `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min2>${RE_MIN})(${RE_MIN_IDENTIFIER})?` +
+    `(\\s*(?<card2>${RE_CARD}))?$`,
     'i'
 )
 // N47°31.8' E7°31.8'or without °'" N 47 31.8 E 7 31.8
 const REGEX_WGS_84_WITH_MIN_PREFIXED = new RegExp(
     `^(?<card1>${RE_CARD})\\s*` +
-        `(?<degree1>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min1>${RE_MIN})(${RE_MIN_IDENTIFIER})?` +
-        `${RE_SEPARATOR}` +
-        `(?<card2>${RE_CARD})\\s*` +
-        `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min2>${RE_MIN})(${RE_MIN_IDENTIFIER})?$`,
+    `(?<degree1>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min1>${RE_MIN})(${RE_MIN_IDENTIFIER})?` +
+    `${RE_SEPARATOR}` +
+    `(?<card2>${RE_CARD})\\s*` +
+    `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min2>${RE_MIN})(${RE_MIN_IDENTIFIER})?$`,
     'i'
 )
 // 47°31.8'30" 7°31.8'30.4" or 47°31.8'30"N 7°31.8'30.4"E or without °'" 47 31.8 30 N 7 31.8 30.4 E
 const REGEX_WGS_84_WITH_SECONDS = new RegExp(
     `^(?<degree1>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min1>${RE_MIN})(${RE_MIN_IDENTIFIER}|\\s+)(?<sec1>${RE_SEC})(${RE_SEC_IDENTIFIER})?` +
-        `(\\s*(?<card1>${RE_CARD}))?` +
-        `${RE_SEPARATOR}` +
-        `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min2>${RE_MIN})(${RE_MIN_IDENTIFIER}|\\s+)(?<sec2>${RE_SEC})(${RE_SEC_IDENTIFIER})?` +
-        `(\\s*(?<card2>${RE_CARD}))?$`,
+    `(\\s*(?<card1>${RE_CARD}))?` +
+    `${RE_SEPARATOR}` +
+    `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min2>${RE_MIN})(${RE_MIN_IDENTIFIER}|\\s+)(?<sec2>${RE_SEC})(${RE_SEC_IDENTIFIER})?` +
+    `(\\s*(?<card2>${RE_CARD}))?$`,
     'i'
 )
 // same as REGEX_WGS_84_WITH_SECONDS but with prefixed cardinal: N 47°31.8'30" E 7°31.8'30.4"
 const REGEX_WGS_84_WITH_SECONDS_PREFIXED = new RegExp(
     `^(?<card1>${RE_CARD})\\s*` +
-        `(?<degree1>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min1>${RE_MIN})(${RE_MIN_IDENTIFIER}|\\s+)(?<sec1>${RE_SEC})(${RE_SEC_IDENTIFIER})?` +
-        `${RE_SEPARATOR}` +
-        `(?<card2>${RE_CARD})\\s*` +
-        `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min2>${RE_MIN})(${RE_MIN_IDENTIFIER}|\\s+)(?<sec2>${RE_SEC})(${RE_SEC_IDENTIFIER})?$`,
+    `(?<degree1>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min1>${RE_MIN})(${RE_MIN_IDENTIFIER}|\\s+)(?<sec1>${RE_SEC})(${RE_SEC_IDENTIFIER})?` +
+    `${RE_SEPARATOR}` +
+    `(?<card2>${RE_CARD})\\s*` +
+    `(?<degree2>${RE_DEGREE})(${RE_DEGREE_IDENTIFIER}|\\s+)(?<min2>${RE_MIN})(${RE_MIN_IDENTIFIER}|\\s+)(?<sec2>${RE_SEC})(${RE_SEC_IDENTIFIER})?$`,
     'i'
 )
 

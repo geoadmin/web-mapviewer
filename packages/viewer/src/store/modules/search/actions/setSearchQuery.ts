@@ -83,7 +83,6 @@ export default function setSearchQuery(
                 })
             return
         }
-
         if (extractedCoordinate) {
             let coordinates: SingleCoordinate = extractedCoordinate.coordinate
             if (extractedCoordinate.coordinateSystem !== currentProjection) {
@@ -125,7 +124,7 @@ export default function setSearchQuery(
             performSearch(this, query, currentProjection, originUrlParam, dispatcher)
         }
     } else if (query.length === 0) {
-        mapStore.clearPreviewPinnedLocation(dispatcher)
+        mapStore.clearPinnedLocation(dispatcher)
     }
     this.results = results
 }

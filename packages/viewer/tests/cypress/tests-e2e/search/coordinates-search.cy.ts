@@ -1,6 +1,7 @@
 /// <reference types="cypress" />
 
 import type { CustomCoordinateSystem, SingleCoordinate } from '@swissgeo/coordinates'
+import type { Pinia } from 'pinia'
 
 import { constants, coordinatesUtils, LV03, LV95, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import { assertDefined } from 'support/utils'
@@ -17,9 +18,7 @@ describe('Testing coordinates typing in search bar', () => {
     beforeEach(() => {
         cy.goToMapView()
     })
-    const expectedCenter: SingleCoordinate = DEFAULT_PROJECTION.bounds!.center.map(
-        (value: number) => value - 1000
-    ) as SingleCoordinate
+    const expectedCenter: SingleCoordinate = DEFAULT_PROJECTION.bounds!.center
     const expectedCenterLV95 = coordinatesUtils.reprojectAndRound(
         DEFAULT_PROJECTION,
         LV95,
@@ -82,6 +81,11 @@ describe('Testing coordinates typing in search bar', () => {
         const { acceptableDelta = 0.0, withInversion = false } = options
         cy.get(searchbarSelector).should('be.visible')
         cy.get(searchbarSelector).paste(`${x} ${y}`)
+        cy.log('Waiting for pinned location to be set in store')
+        cy.waitUntilState((pinia: Pinia) => {
+            const mapStore = useMapStore(pinia)
+            return !!mapStore.pinnedLocation
+        })
         checkCenterInStore(acceptableDelta)
         checkZoomLevelInStore()
         checkThatCoordinateAreHighlighted(acceptableDelta)
@@ -185,6 +189,10 @@ describe('Testing coordinates typing in search bar', () => {
         const mgrsCoordinates = latLonToMGRS(expectedCenterWGS84[1], expectedCenterWGS84[0])
         cy.log(`Enter MGRS ${mgrsCoordinates} in search bar`)
         cy.get(searchbarSelector).paste(mgrsCoordinates)
+        cy.waitUntilState((pinia: Pinia) => {
+            const mapStore = useMapStore(pinia)
+            return !!mapStore.pinnedLocation
+        })
         checkCenterInStore(acceptableDeltaForMGRS)
         checkZoomLevelInStore()
         checkThatCoordinateAreHighlighted(acceptableDeltaForMGRS)

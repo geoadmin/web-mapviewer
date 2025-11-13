@@ -284,9 +284,12 @@ Cypress.Commands.add('clickOnLanguage', (lang) => {
 Cypress.Commands.add('waitUntilState', (predicate: (_pinia: Pinia) => boolean, options) => {
     cy.waitUntil(
         () =>
-            cy
-                .window({ log: false })
-                .should((win: Cypress.AUTWindow) => win.store && predicate(win.store)),
+            cy.window({ log: false }).then((win: Cypress.AUTWindow) => {
+                if (!win.store) {
+                    return false
+                }
+                return predicate(win.store)
+            }),
         Object.assign(
             {
                 errorMsg:

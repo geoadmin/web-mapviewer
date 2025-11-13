@@ -13,6 +13,8 @@ import setPreviewedPinnedLocation from '@/store/modules/map/actions/setPreviewed
 import setPrintMode from '@/store/modules/map/actions/setPrintMode'
 import setRectangleSelectionExtent from '@/store/modules/map/actions/setRectangleSelectionExtent'
 
+import clearPinnedLocation from './actions/clearPinnedLocation'
+
 const state = (): MapState => ({
     clickInfo: undefined,
     pinnedLocation: undefined,
@@ -31,6 +33,7 @@ const actions = {
     setPinnedLocation,
     setPreviewedPinnedLocation,
     clearPreviewPinnedLocation,
+    clearPinnedLocation,
     clearLocationPopupCoordinates,
     setLocationPopupCoordinates,
     setPrintMode,
