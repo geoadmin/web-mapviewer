@@ -30,6 +30,7 @@
     },
     "devDependencies": {
         "@prettier/plugin-xml": "catalog:",
+        "@swissgeo/config-prettier": "workspace:*",
         "@types/node": "catalog:",
         "prettier": "catalog:",
         "prettier-plugin-jsdoc": "catalog:",
