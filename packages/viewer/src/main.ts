@@ -10,7 +10,7 @@ import GeoadminElevationProfile from '@swissgeo/elevation-profile'
 import log, { LogLevel } from '@swissgeo/log'
 import { register } from 'ol/proj/proj4'
 import proj4 from 'proj4'
-import { createApp } from 'vue'
+import { createApp, markRaw } from 'vue'
 
 import App from '@/App.vue'
 import {
@@ -69,6 +69,11 @@ if (ENVIRONMENT === 'production') {
 app.use(router)
 app.use(i18n)
 app.use(store)
+
+// Inject router into all Pinia stores after both router and store are initialized
+store.use(({ store }) => {
+    store.router = markRaw(router)
+})
 
 app.directive('click-outside', clickOutside)
 app.component('FontAwesomeIcon', FontAwesomeIcon)
