@@ -44,16 +44,13 @@ export interface GoToViewOptions {
     legacy?: boolean
 }
 
-
 /**
  * Geolocation mockup
  *
  * @param win - A reference to the window object.
- * @param options  Configuration object for the mock geolocation.
- * @param options.latitude The latitude to use for the mock position. Default is
- *   `47`
- * @param options.longitude The longitude to use for the mock position. Default is
- *   `7`
+ * @param options Configuration object for the mock geolocation.
+ * @param options.latitude The latitude to use for the mock position. Default is `47`
+ * @param options.longitude The longitude to use for the mock position. Default is `7`
  * @param options.errorCode The error code to simulate, if any.
  * @see https://github.com/cypress-io/cypress/issues/2671
  */
@@ -74,13 +71,17 @@ function mockGeolocation(win: Cypress.AUTWindow, options?: GeolocationMockupOpti
         // We set accuracy here to mimic a real geolocation API response
         const coords = { latitude, longitude, accuracy: 100 }
         // eslint-disable-next-line no-unused-vars
-        const handler: (callback: ((...args: unknown[]) => unknown)) => void = (callback) => callback({ coords })
+        const handler: (callback: (...args: unknown[]) => unknown) => void = (callback) =>
+            callback({ coords })
         cy.stub(win.navigator.geolocation, 'getCurrentPosition').callsFake(handler)
         cy.stub(win.navigator.geolocation, 'watchPosition').callsFake(handler)
     }
 }
 
-function waitAllLayersLoaded(options?: { queryParams?: Record<string, unknown>, legacy?: boolean }) {
+function waitAllLayersLoaded(options?: {
+    queryParams?: Record<string, unknown>
+    legacy?: boolean
+}) {
     const { queryParams = {}, legacy = false } = options ?? {}
     cy.waitUntilState(
         (pinia: Pinia) => {
@@ -120,17 +121,13 @@ function waitAllLayersLoaded(options?: { queryParams?: Record<string, unknown>, 
     // no explicit index as the waitUntilState will print an index message
 }
 
-
-function goToView(
-    view: 'embed' | 'map',
-    options?: GoToViewOptions,
-): void {
+function goToView(view: 'embed' | 'map', options?: GoToViewOptions): void {
     const {
         queryParams = {},
         withHash = true,
         geolocationMockupOptions = { latitude: 47, longitude: 7 },
         fixturesAndIntercepts = {},
-        legacy = !withHash
+        legacy = !withHash,
     } = options ?? {}
     // Intercepts passed as parameters to "fixturesAndIntercepts" will overwrite the correspondent
     // default intercept.
@@ -254,10 +251,13 @@ Cypress.Commands.add('goToEmbedView', (options) => {
 })
 
 Cypress.Commands.add('waitMapIsReady', ({ timeout = 20000, olMap = true } = {}) => {
-    cy.waitUntilState((pinia: Pinia) => {
-        const appStore = useAppStore(pinia)
-        return appStore.isMapReady
-    }, { timeout: timeout })
+    cy.waitUntilState(
+        (pinia: Pinia) => {
+            const appStore = useAppStore(pinia)
+            return appStore.isMapReady
+        },
+        { timeout: timeout }
+    )
     // We also need to wait for the pointer event to be set
     if (olMap) {
         cy.window().its('mapPointerEventReady', { timeout: timeout }).should('be.true')
@@ -367,10 +367,11 @@ Cypress.Commands.add('waitUntilCesiumTilesLoaded', () => {
 })
 
 Cypress.Commands.add('openMenuIfMobile', () => {
+    cy.log(`cmd: openMenuIfMobile entered, isMobile: ${isMobile()}`)
     if (isMobile()) {
         cy.getPinia().then((pinia) => {
             const uiStore = useUIStore(pinia)
-            if (!uiStore.showMenu) {
+            if (!uiStore.isMenuTrayShown) {
                 cy.get('[data-cy="menu-button"]').click()
             }
             cy.get('[data-cy="menu-tray-inner"]').should('be.visible')
@@ -380,16 +381,16 @@ Cypress.Commands.add('openMenuIfMobile', () => {
 })
 
 Cypress.Commands.add('closeMenuIfMobile', () => {
+    cy.log(`cmd: closeMenuIfMobile entered, isMobile: ${isMobile()}`)
     if (isMobile()) {
         cy.getPinia().then((pinia) => {
             const uiStore = useUIStore(pinia)
-            if (uiStore.showMenu) {
+            if (uiStore.isMenuTrayShown) {
                 cy.get('[data-cy="menu-button"]').click()
             }
-            cy.get('[data-cy="menu-tray"]').should('not.be.visible')
+            cy.get('[data-cy="menu-tray-inner"]').should('not.be.visible')
         })
     }
-
     cy.log('cmd: closeMenuIfMobile successful')
 })
 
@@ -410,7 +411,9 @@ Cypress.Commands.add('getRandomTimestampFromSeries', (layer) => {
 
 Cypress.Commands.add('openLayerSettings', (layerId) => {
     cy.get(`[data-cy^="div-layer-settings-${layerId}-"]`).should('not.exist')
-    cy.get(`[data-cy^="button-open-visible-layer-settings-${layerId}-"]:visible`).click({ force: true })
+    cy.get(`[data-cy^="button-open-visible-layer-settings-${layerId}-"]:visible`).click({
+        force: true,
+    })
 
     cy.get(`[data-cy^="button-open-visible-layer-settings-${layerId}-"]`)
         // move the mouse out of the way, otherwise the tooltip of the text-truncate
@@ -420,7 +423,6 @@ Cypress.Commands.add('openLayerSettings', (layerId) => {
 
     cy.log('cmd: openLayerSettings successful')
 })
-
 
 export interface PartialLayer {
     id: string
@@ -461,56 +463,65 @@ Cypress.Commands.add('checkOlLayer', (args) => {
     })
     const visibleLayers: PartialLayer[] = layers.filter((l) => l.visible)
     const invisibleLayers: PartialLayer[] = layers.filter((l) => !l.visible)
-    cy.window().its('map').invoke('getAllLayers').then((olLayers: OLLayer[]) => {
-        const layerIds = layers.map((l) => l.id).join(',')
-        const olLayerIds = olLayers
-            .toSorted((a: OLLayer, b: OLLayer) => a.get('zIndex') - b.get('zIndex'))
-            .map((l: OLLayer) => `[${l.get('zIndex')}]:${l.get('id')}`)
-            .join(',')
-        Cypress.log({
-            name: 'checkOlLayer',
-            message: `Check if layers [${layerIds}] are set correctly in OpenLayers [${olLayerIds}]`,
-            consoleProps: () => ({
-                layers,
-            }),
-        })
-        visibleLayers.forEach((layer: PartialLayer, index: number) => {
+    cy.window()
+        .its('map')
+        .invoke('getAllLayers')
+        .then((olLayers: OLLayer[]) => {
+            const layerIds = layers.map((l) => l.id).join(',')
+            const olLayerIds = olLayers
+                .toSorted((a: OLLayer, b: OLLayer) => a.get('zIndex') - b.get('zIndex'))
+                .map((l: OLLayer) => `[${l.get('zIndex')}]:${l.get('id')}`)
+                .join(',')
             Cypress.log({
                 name: 'checkOlLayer',
-                message: `Check that visible layer ${layer.id} at zIndex ${index} is set correctly in OpenLayers`,
+                message: `Check if layers [${layerIds}] are set correctly in OpenLayers [${olLayerIds}]`,
                 consoleProps: () => ({
-                    layer,
-                    index,
+                    layers,
                 }),
             })
-            const olLayer = olLayers.find((l) => l.get('id') === layer.id && l.get('zIndex') === index)
-            expect(olLayer, `[${layer.id}] layer at index ${index} not found`).not.to.be.null
-            expect(olLayer, `[${layer.id}] layer at index ${index} not found`).not.to.be.undefined
-            expect(olLayer!.getVisible(), `[${layer.id}] layer.isVisible`).to.be.equal(layer.visible)
-            expect(olLayer!.getOpacity(), `[${layer.id}] layer.opacity`).to.be.equal(layer.opacity)
-            // The rendered flag is set asynchronously; therefore, we need to do some retry here
-            // Also, the rendered flag is protected, so we're checking if it is set with a getRenderSource().getState()
-            // function, which returns false as long as either there is no renderer, or the rendered
-            // flag is false
-            cy.waitUntil(() => olLayer?.getRenderSource()?.getState() === 'ready', {
-                description: `[${layer.id}] waitUntil layer.rendered`,
-                errorMsg: `[${layer.id}] layer.rendered is not true`,
+            visibleLayers.forEach((layer: PartialLayer, index: number) => {
+                Cypress.log({
+                    name: 'checkOlLayer',
+                    message: `Check that visible layer ${layer.id} at zIndex ${index} is set correctly in OpenLayers`,
+                    consoleProps: () => ({
+                        layer,
+                        index,
+                    }),
+                })
+                const olLayer = olLayers.find(
+                    (l) => l.get('id') === layer.id && l.get('zIndex') === index
+                )
+                expect(olLayer, `[${layer.id}] layer at index ${index} not found`).not.to.be.null
+                expect(olLayer, `[${layer.id}] layer at index ${index} not found`).not.to.be
+                    .undefined
+                expect(olLayer!.getVisible(), `[${layer.id}] layer.isVisible`).to.be.equal(
+                    layer.visible
+                )
+                expect(olLayer!.getOpacity(), `[${layer.id}] layer.opacity`).to.be.equal(
+                    layer.opacity
+                )
+                // The rendered flag is set asynchronously; therefore, we need to do some retry here
+                // Also, the rendered flag is protected, so we're checking if it is set with a getRenderSource().getState()
+                // function, which returns false as long as either there is no renderer, or the rendered
+                // flag is false
+                cy.waitUntil(() => olLayer?.getRenderSource()?.getState() === 'ready', {
+                    description: `[${layer.id}] waitUntil layer.rendered`,
+                    errorMsg: `[${layer.id}] layer.rendered is not true`,
+                })
+            })
+            invisibleLayers.forEach((layer) => {
+                Cypress.log({
+                    name: 'checkOlLayer',
+                    message: `Check that invisible layer ${layer.id} is not set in openlayer`,
+                    consoleProps: () => ({
+                        layer,
+                    }),
+                })
+                expect(
+                    olLayers.find((l) => l.get('id') === layer.id),
+                    `[${layer.id}] layer found`
+                ).to.be.undefined
             })
         })
-        invisibleLayers.forEach((layer) => {
-            Cypress.log({
-                name: 'checkOlLayer',
-                message: `Check that invisible layer ${layer.id} is not set in openlayer`,
-                consoleProps: () => ({
-                    layer,
-                }),
-            })
-            expect(
-                olLayers.find((l) => l.get('id') === layer.id),
-                `[${layer.id}] layer found`
-            ).to.be.undefined
-        })
-
-    })
     cy.log('cmd: checkOlLayer successful')
 })

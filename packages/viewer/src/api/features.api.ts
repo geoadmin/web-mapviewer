@@ -162,17 +162,26 @@ export function extractOlFeatureCoordinates(feature?: Feature): SingleCoordinate
     return coordinates as SingleCoordinate[]
 }
 
-interface IdentifyResult {
+interface IdentifyResultProperties {
+    x: number
+    y: number
+    lat: number
+    lon: number
+    label: string
+    [key: string]: number | string | null
+}
+
+export interface IdentifyResult {
     featureId: string
     bbox: FlatExtent
     layerBodId: string
     layerName: string
     id: string
     geometry: Geometry
-    properties: Record<string, string>
+    properties: IdentifyResultProperties
 }
 
-interface IdentifyResponse {
+export interface IdentifyResponse {
     results: IdentifyResult[]
 }
 
@@ -731,11 +740,11 @@ function parseGeomAdminFeature(
         if (label) {
             featureName = label
         } else if (name) {
-            featureName = name
+            featureName = name as string
         } else if (title) {
-            featureName = title
+            featureName = title as string
         } else if (titleInCurrentLang) {
-            featureName = titleInCurrentLang
+            featureName = titleInCurrentLang as string
         }
     }
 
