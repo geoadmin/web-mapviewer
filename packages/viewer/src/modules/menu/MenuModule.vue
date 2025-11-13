@@ -1,26 +1,18 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+
+import type { ActionDispatcher } from '@/store/types'
 
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
 import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
 import useUIStore from '@/store/modules/ui'
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 
-const dispatcher = { name: 'MenuModule.vue' }
+const dispatcher: ActionDispatcher = { name: 'MenuModule.vue' }
 
 const { t } = useI18n()
 const uiStore = useUIStore()
-
-const showMenu = computed(() => uiStore.showMenu)
-
-const isHeaderShown = computed(() => uiStore.isHeaderShown)
-const isPhoneMode = computed(() => uiStore.isPhoneMode)
-const isDesktopMode = computed(() => uiStore.isDesktopMode)
-const isMenuShown = computed(() => uiStore.isMenuShown)
-const isMenuTrayShown = computed(() => uiStore.isMenuTrayShown)
-const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
 
 function toggleMenu() {
     uiStore.toggleMenu(dispatcher)
@@ -34,50 +26,52 @@ function toggleMenu() {
         <div class="drawing-toolbox-in-menu position-absolute w-100" />
         <transition name="fade-in-out">
             <BlackBackdrop
-                v-if="isPhoneMode && isMenuShown"
+                v-if="uiStore.isPhoneMode && uiStore.isMenuShown"
                 @click="toggleMenu"
             />
         </transition>
         <!-- NOTE: Below we need to use v-show and not v-if otherwise when the user toggle the full-screen while
          editing a Report a problem window he will loose his content -->
         <HeaderWithSearch
-            v-show="isHeaderShown"
+            v-show="uiStore.isHeaderShown"
             class="header"
         />
         <div
             class="menu-tray-container position-absolute h-100 w-100"
             :class="{
-                'desktop-mode': isDesktopMode,
-                'dev-disclaimer-present': hasDevSiteWarning,
+                'desktop-mode': uiStore.isDesktopMode,
+                'dev-disclaimer-present': uiStore.hasDevSiteWarning,
             }"
         >
             <transition name="slide-up">
                 <div
-                    v-show="isMenuTrayShown"
+                    v-show="uiStore.isMenuTrayShown"
                     class="menu-tray"
                     :class="{
-                        'desktop-mode': isDesktopMode,
-                        'desktop-menu-closed': isDesktopMode && !isMenuShown,
+                        'desktop-mode': uiStore.isDesktopMode,
+                        'desktop-menu-closed': uiStore.isDesktopMode && !uiStore.isMenuShown,
                     }"
                     data-cy="menu-tray"
                 >
                     <MenuTray
                         class="menu-tray-content"
                         :class="{
-                            'shadow-lg': isDesktopMode,
-                            'rounded-bottom': isDesktopMode,
-                            'rounded-start-0': isDesktopMode,
+                            'shadow-lg': uiStore.isDesktopMode,
+                            'rounded-bottom': uiStore.isDesktopMode,
+                            'rounded-start-0': uiStore.isDesktopMode,
                         }"
-                        :compact="isDesktopMode"
+                        :compact="uiStore.isDesktopMode"
                     />
                     <button
-                        v-if="isDesktopMode"
+                        v-if="uiStore.isDesktopMode"
                         class="button-open-close-desktop-menu btn btn-dark m-auto ps-4 pe-4 shadow-lg"
                         data-cy="menu-button"
                         @click="toggleMenu"
                     >
-                        <FontAwesomeIcon :icon="showMenu ? 'caret-up' : 'caret-down'" />
-                        <span class="ms-2">{{ t(showMenu ? 'close_menu' : 'open_menu') }}</span>
+                        <FontAwesomeIcon :icon="uiStore.showMenu ? 'caret-up' : 'caret-down'" />
+                        <span class="ms-2">{{
+                            t(uiStore.showMenu ? 'close_menu' : 'open_menu')
+                        }}</span>
                     </button>
                 </div>
             </transition>
