@@ -7,6 +7,7 @@ import type { RouterPlugin } from '@/router/types'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { MAP_VIEW, MAP_VIEWS } from '@/router/viewNames'
+import useAppStore from '@/store/modules/app'
 import storeSyncConfig from '@/store/plugins/storeSync/storeSync.config'
 import UrlParamConfig, {
     type UrlParamConfigTypes,
@@ -172,6 +173,8 @@ const urlParamToStore: RouterPlugin = (router) => {
                 ],
             })
 
+            const appStore = useAppStore()
+
             // we define a return Value, so we can check across the function what its value is
             let retVal = undefined
 
@@ -182,14 +185,24 @@ const urlParamToStore: RouterPlugin = (router) => {
                     messages: [`leaving the map view`, from, to],
                 })
                 retVal = undefined
-            } else {
+            } else if (appStore.isReady) {
                 log.debug({
                     title: 'URL param to store plugin / beforeEach',
                     titleColor: LogPreDefinedColor.Orange,
-                    messages: [`Starting URL query watcher`, from, to],
+                    messages: [`URL change while app is ready, process new url`, from, to],
                 })
                 // Synchronize the store with the url query only on MapView and when the application is ready
                 retVal = urlQueryWatcher(to, from)
+            } else {
+                log.info({
+                    title: 'URL param to store plugin / beforeEach',
+                    titleColor: LogPreDefinedColor.Orange,
+                    messages: [
+                        `URL change while app is not ready, do not process new url`,
+                        from,
+                        to,
+                    ],
+                })
             }
 
             // Note we return undefined to validate the route, see Vue Router documentation
