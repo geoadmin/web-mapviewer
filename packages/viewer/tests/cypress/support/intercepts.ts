@@ -8,7 +8,7 @@ import { randomIntBetween } from '@swissgeo/numbers'
 import { centroid } from '@turf/turf'
 import proj4 from 'proj4'
 
-import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/router/urlParamToStore.routerPlugin'
+import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/store/plugins/storeSync/urlToStore.plugin'
 
 registerProj4(proj4)
 
