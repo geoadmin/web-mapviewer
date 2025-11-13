@@ -1,3 +1,3 @@
-import defaultConfig from './packages/config/prettier/index.ts'
+import defaultConfig from '@swissgeo/config-prettier'
 
 export default defaultConfig

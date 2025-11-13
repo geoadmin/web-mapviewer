@@ -34,6 +34,8 @@
         "pnpm": ">=10.15"
     },
     "devDependencies": {
+        "@prettier/plugin-xml": "catalog:",
+        "@swissgeo/config-prettier": "workspace:*",
         "@types/node": "catalog:",
         "tsx": "catalog:",
         "yaml": "catalog:"
