@@ -212,7 +212,10 @@ Cypress.Commands.add('closeDrawingMode', (closeDrawingNotSharedAdmin = true) => 
                 cy.get('[data-cy="drawing-share-admin-close"]').click()
             }
         })
-        cy.window().its('store.state.drawing.overlay.show').should('be.false')
+        cy.getPinia().should((pinia) => {
+            const drawingStore = useDrawingStore(pinia)
+            expect(drawingStore.overlay.show).to.be.false
+        })
         // In drawing mode the click event on the map are removed therefore we need to wait that
         // they are added again begore continuing testing
         cy.waitMapIsReady()

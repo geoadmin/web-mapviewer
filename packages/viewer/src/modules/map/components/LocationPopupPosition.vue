@@ -191,7 +191,7 @@ async function updateHeight() {
                 identifier="location-popup-wgs84"
                 :value="coordinateWGS84Plain"
                 :coordinate-format="undefined"
-                :extra-value="WGS84Format.formatCallback(coordinate, false)"
+                :extra-value="WGS84Format.formatCallback(coordinateWGS84Metric, false)"
             >
                 <a
                     href="https://epsg.io/4326"
