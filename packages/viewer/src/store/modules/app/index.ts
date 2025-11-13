@@ -4,15 +4,18 @@ import type { AppStoreGetters, AppStoreState } from '@/store/modules/app/types/a
 
 import nextState from '@/store/modules/app/actions/nextState'
 import setHasPendingUrlParsing from '@/store/modules/app/actions/setHasPendingUrlParsing'
+import setInitialUrlParsingHasHappened from '@/store/modules/app/actions/setInitialUrlParsingHasHappened'
 import isConfigLoaded from '@/store/modules/app/getters/isConfigLoaded'
 import isCurrentStateFulfilled from '@/store/modules/app/getters/isCurrentStateFulfilled'
 import isLoadingConfig from '@/store/modules/app/getters/isLoadingConfig'
 import isMapReady from '@/store/modules/app/getters/isMapReady'
 import isParsingLegacy from '@/store/modules/app/getters/isParsingLegacy'
+import isParsingUrl from '@/store/modules/app/getters/isParsingUrl'
 import isReady from '@/store/modules/app/getters/isReady'
-import isSyncingStore from '@/store/modules/app/getters/isSyncingStore'
 import { type AppState, AppStateNames } from '@/store/modules/app/types/appState'
+import useCesiumStore from '@/store/modules/cesium'
 import useLayersStore from '@/store/modules/layers'
+import useMapStore from '@/store/modules/map'
 import useTopicsStore from '@/store/modules/topics'
 import useUIStore from '@/store/modules/ui'
 import { isLegacyParams } from '@/utils/legacyLayerParamUtils'
@@ -25,23 +28,32 @@ const mapShown: AppState = {
 
 const ready: AppState = {
     name: AppStateNames.Ready,
-    isFulfilled: () => true,
+    isFulfilled: () => {
+        const mapStore = useMapStore()
+        const cesiumStore = useCesiumStore()
+        if (cesiumStore.active) {
+            return cesiumStore.isViewerReady
+        }
+        return mapStore.hasBeenLoaded
+    },
     next: () => mapShown,
 }
 
-const syncingStore: AppState = {
-    name: AppStateNames.SyncingStore,
-    isFulfilled: () => true, // TODO: check that route query is in sync with store
+const initiateUrlParsing: AppState = {
+    name: AppStateNames.UrlParsing,
+    isFulfilled: () => {
+        return useAppStore().initialUrlParsingHasHappened
+    },
     next: () => {
         return ready
     },
 }
 
-const legacyParsing: AppState = {
+const parseLegacyUrlParams: AppState = {
     name: AppStateNames.LegacyParsing,
     isFulfilled: () => !isLegacyParams(window?.location?.search),
     next: () => {
-        return syncingStore
+        return initiateUrlParsing
     },
 }
 
@@ -50,9 +62,9 @@ const configLoaded: AppState = {
     isFulfilled: () => true, // there's always a topic set, so no need to check if topicStore.current is defined
     next: () => {
         if (isLegacyParams(window?.location?.search)) {
-            return legacyParsing
+            return parseLegacyUrlParams
         }
-        return syncingStore
+        return initiateUrlParsing
     },
 }
 
@@ -75,6 +87,7 @@ const initializing: AppState = {
 
 const state = (): AppStoreState => ({
     appState: initializing,
+    initialUrlParsingHasHappened: false,
     hasPendingUrlParsing: false,
 })
 
@@ -83,7 +96,7 @@ const getters: AppStoreGetters = {
     isLoadingConfig,
     isConfigLoaded,
     isParsingLegacy,
-    isSyncingStore,
+    isParsingUrl,
     isReady,
     isMapReady,
 }
@@ -91,6 +104,7 @@ const getters: AppStoreGetters = {
 const actions = {
     nextState,
     setHasPendingUrlParsing,
+    setInitialUrlParsingHasHappened,
 }
 
 const useAppStore = defineStore('app', {

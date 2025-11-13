@@ -24,7 +24,6 @@ import OpenLayersVisibleLayers from '@/modules/map/components/openlayers/OpenLay
 import useMapInteractions from '@/modules/map/components/openlayers/utils/useMapInteractions.composable'
 import usePrintAreaRenderer from '@/modules/map/components/openlayers/utils/usePrintAreaRenderer.composable'
 import useViewBasedOnProjection from '@/modules/map/components/openlayers/utils/useViewBasedOnProjection.composable'
-import useAppStore from '@/store/modules/app'
 import useDebugStore from '@/store/modules/debug'
 import useGeolocationStore from '@/store/modules/geolocation'
 import useLayersStore from '@/store/modules/layers'
@@ -45,7 +44,6 @@ allCoordinateSystems
 
 const mapElementRef = useTemplateRef<HTMLDivElement>('mapElement')
 
-const appStore = useAppStore()
 const debugStore = useDebugStore()
 const geolocationStore = useGeolocationStore()
 const layersStore = useLayersStore()
@@ -69,9 +67,7 @@ function triggerReadyFlagIfAllRendered(): void {
         // OL hasn't loaded all our layers yet, postponing the ready event
         map.once('loadend', triggerReadyFlagIfAllRendered)
     } else {
-        // This is needed for cypress to start the tests only
-        // when OpenLayers is rendered, otherwise some tests will fail.
-        appStore.nextState(dispatcher)
+        mapStore.setMapHasBeenLoaded(dispatcher)
         log.info('OpenLayers map rendered')
     }
 }

@@ -1,9 +1,8 @@
-
 export enum AppStateNames {
     Initializing = 'INITIALIZING',
     ConfigLoaded = 'CONFIG_LOADED',
     LegacyParsing = 'LEGACY_PARSING',
-    SyncingStore = 'SYNCING_STORE',
+    UrlParsing = 'URL_PARSING',
     Ready = 'READY',
     MapShown = 'MAP_SHOWN',
 }

@@ -106,12 +106,15 @@ function storeMutationWatcher(
  * change the url when the app is not on the MapView. The store is also only updated with the query
  * parameter when on the MapView.
  */
-const storeSyncRouterPlugin: PiniaPlugin = (context: PiniaPluginContext): void => {
+const storeToUrlPlugin: PiniaPlugin = (context: PiniaPluginContext): void => {
     const { store } = context
 
     store.$onAction(({ name, after, args }) => {
-        after(() => storeMutationWatcher(context, name, args))
+        const appStore = useAppStore()
+        if (appStore.isReady) {
+            after(() => storeMutationWatcher(context, name, args))
+        }
     })
 }
 
-export default storeSyncRouterPlugin
+export default storeToUrlPlugin
