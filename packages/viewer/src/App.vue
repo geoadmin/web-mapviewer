@@ -7,7 +7,6 @@
 
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute } from 'vue-router'
 
 import type { ActionDispatcher } from '@/store/types'
 
@@ -29,7 +28,6 @@ const appStore = useAppStore()
 const uiStore = useUIStore()
 const layersStore = useLayersStore()
 
-
 let debouncedOnResize: () => void = () => {}
 const showFeedbackPopup = computed(() => {
     return uiStore.errors.size + uiStore.warnings.size > 0
@@ -44,8 +42,7 @@ onMounted(() => {
     // initial load of layers config
     layersStore.loadLayersConfig(
         {
-            changeLayersOnTopicChange:
-                !window.location.hash.includes('layers='),
+            changeLayersOnTopicChange: !window.location.hash.includes('layers='),
         },
         dispatcher
     )

@@ -8,7 +8,6 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { randomIntBetween } from '@swissgeo/numbers'
 import { centroid } from '@turf/turf'
 import GeoJSON, { type GeoJSONGeometry } from 'ol/format/GeoJSON'
-import { Geometry, Point } from 'ol/geom'
 import RenderFeature from 'ol/render/Feature'
 
 import type { LayerFeature } from '@/api/features.api'
