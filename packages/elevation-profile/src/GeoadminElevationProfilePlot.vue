@@ -19,7 +19,15 @@ import {
     type TooltipModel,
 } from 'chart.js'
 import { resetZoom } from 'chartjs-plugin-zoom'
-import { computed, type ComputedRef, onMounted, onUnmounted, provide, ref, useTemplateRef } from 'vue'
+import {
+    computed,
+    type ComputedRef,
+    onMounted,
+    onUnmounted,
+    provide,
+    ref,
+    useTemplateRef,
+} from 'vue'
 import { Line as LineChart } from 'vue-chartjs'
 import { useI18n } from 'vue-i18n'
 
@@ -82,7 +90,7 @@ interface ElevationProfileMessages {
     profile_not_available: string
 }
 
-type ElevationProfileChartPoint = (ElevationProfilePoint & ChartPoint)
+type ElevationProfileChartPoint = ElevationProfilePoint & ChartPoint
 
 const { t }: { t: VueI18nTranslateFunction<ElevationProfileMessages> } = useI18n<
     ElevationProfileMessages,
@@ -161,7 +169,9 @@ const tooltipStyle: ComputedRef<TooltipStyleCSSDeclaration> = computed(() => {
  */
 
 /** Definition of the data ChartJS will show, with some styling configuration too */
-const chartJsData: ComputedRef<ChartData<'line', ElevationProfileChartPoint[]>> = computed<ChartData<'line', ElevationProfileChartPoint[]>>(() => {
+const chartJsData: ComputedRef<ChartData<'line', ElevationProfileChartPoint[]>> = computed<
+    ChartData<'line', ElevationProfileChartPoint[]>
+>(() => {
     const data: ElevationProfileChartPoint[] = profilePoints.value.map((point) => ({
         x: point.dist ?? 0,
         y: point.elevation ?? 0,
@@ -196,7 +206,7 @@ const chartJsData: ComputedRef<ChartData<'line', ElevationProfileChartPoint[]>> 
         ...pointHoverOptions,
     }
     return {
-        datasets: [ dataset ]
+        datasets: [dataset],
     }
 })
 /** Definition of axis for the profile chart */
@@ -259,8 +269,8 @@ const chartJsTooltipConfiguration = computed(() => {
             }
             if (tooltip.dataPoints.length > 0 && track.value) {
                 const point: TooltipItem<'line'> = tooltip.dataPoints[0]!
-                const elevationDataInPoint: (ElevationProfilePoint & ChartPoint) =
-                    point.raw as (ElevationProfilePoint & ChartPoint)
+                const elevationDataInPoint: ElevationProfilePoint & ChartPoint =
+                    point.raw as ElevationProfilePoint & ChartPoint
                 const chartPosition = chart.canvas.getBoundingClientRect()
                 pointBeingHovered.value = {
                     elevation: elevationDataInPoint.elevation ?? 0,

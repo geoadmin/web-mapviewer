@@ -8,5 +8,5 @@ export default [
                 tsconfigRootDir: import.meta.dirname,
             },
         },
-    }
+    },
 ]

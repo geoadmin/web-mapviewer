@@ -569,8 +569,7 @@ describe('The Import Maps Tool', () => {
             (request) => request.reply({ fixture: '256.png' })
         ).as('layer-1-getMap')
         cy.goToMapView({
-            queryParams:
-            {
+            queryParams: {
                 layers: 'WMS|https://fake.wms.base-1.url/?|ch.swisstopo-vd.official-survey',
             },
             withHash: true,

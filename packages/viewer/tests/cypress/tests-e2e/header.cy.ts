@@ -84,7 +84,10 @@ describe('Test functions for the header / search bar', () => {
             cy.wait(['@layerConfig', '@topics'])
             cy.waitMapIsReady()
         }
-        const checkLangAndTopic = (expectedLang: string = 'en', expectedTopicId: string = 'ech') => {
+        const checkLangAndTopic = (
+            expectedLang: string = 'en',
+            expectedTopicId: string = 'ech'
+        ) => {
             cy.getPinia().then((pinia) => {
                 const i18nStore = useI18nStore(pinia)
                 expect(i18nStore.lang).to.eq(expectedLang)

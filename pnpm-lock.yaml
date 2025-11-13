@@ -431,6 +431,12 @@ importers:
 
   .:
     devDependencies:
+      '@prettier/plugin-xml':
+        specifier: 'catalog:'
+        version: 3.4.2(prettier@3.8.1)
+      '@swissgeo/config-prettier':
+        specifier: workspace:*
+        version: link:packages/config/prettier
       '@types/node':
         specifier: 'catalog:'
         version: 25.3.0

@@ -20,14 +20,14 @@ export default function setCameraPosition(
     // position can be null (in 2d mode), we do not wrap it in this case
     this.camera = position
         ? {
-            x: position.x,
-            y: position.y,
-            z: position.z,
-            // wrapping all angle-based values so that they do not exceed a full-circle value
-            roll: wrapDegrees(position.roll),
-            pitch: wrapDegrees(position.pitch),
-            heading: wrapDegrees(position.heading),
-        }
+              x: position.x,
+              y: position.y,
+              z: position.z,
+              // wrapping all angle-based values so that they do not exceed a full-circle value
+              roll: wrapDegrees(position.roll),
+              pitch: wrapDegrees(position.pitch),
+              heading: wrapDegrees(position.heading),
+          }
         : undefined
     if (this.camera) {
         // updating the 2D position with the new camera values

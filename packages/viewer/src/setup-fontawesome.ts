@@ -193,5 +193,5 @@ library.add(
     faGithub,
     faLinkedin,
     faWhatsapp,
-    faXTwitter,
+    faXTwitter
 )

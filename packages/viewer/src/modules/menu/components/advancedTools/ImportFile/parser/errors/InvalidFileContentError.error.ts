@@ -1,1 +1,1 @@
-export default class InvalidFileContentError extends Error { }
+export default class InvalidFileContentError extends Error {}

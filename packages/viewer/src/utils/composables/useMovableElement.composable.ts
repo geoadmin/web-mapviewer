@@ -51,7 +51,7 @@ export interface MovableElementConfig {
  *
  * @param config Configuration object
  */
-function formatElementInfo(element: HTMLElement | undefined  ): string {
+function formatElementInfo(element: HTMLElement | undefined): string {
     if (!element) {
         return typeof element
     }
@@ -60,8 +60,8 @@ function formatElementInfo(element: HTMLElement | undefined  ): string {
     const id = element.id ? `#${element.id}` : ''
     const className = element.className ? `.${element.className.split(' ').join('.')}` : ''
     const attributes = Array.from(element.attributes || [])
-        .filter(attr => attr.name !== 'id' && attr.name !== 'class')
-        .map(attr => `${attr.name}="${attr.value}"`)
+        .filter((attr) => attr.name !== 'id' && attr.name !== 'class')
+        .map((attr) => `${attr.name}="${attr.value}"`)
         .slice(0, 3) // Limit to first 3 attributes to avoid too long strings
         .join(' ')
 
@@ -169,7 +169,11 @@ export function useMovableElement(config: MovableElementConfig): void {
         document.removeEventListener('pointerup', onPointerUp)
     }
 
-    function placeElementAt(top: number, left: number, movementSource: MovementSourceType = MovementSource.POINTER_DRAG): void {
+    function placeElementAt(
+        top: number,
+        left: number,
+        movementSource: MovementSourceType = MovementSource.POINTER_DRAG
+    ): void {
         const el = element!
         const style = el.style
 

@@ -1,1 +1,1 @@
-export default class EmptyFileContentError extends Error { }
+export default class EmptyFileContentError extends Error {}

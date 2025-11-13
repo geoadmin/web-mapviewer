@@ -2,7 +2,10 @@ import type { GeoAdminGeoJSONLayer, Layer } from '@swissgeo/layers'
 
 import { LayerType } from '@swissgeo/layers'
 
-import type { GetLayerIdOptions, GetLayerIdResult } from '@/store/modules/layers/actions/identifyFeatures'
+import type {
+    GetLayerIdOptions,
+    GetLayerIdResult,
+} from '@/store/modules/layers/actions/identifyFeatures'
 import type { LayerActionFilter, LayersStore } from '@/store/modules/layers/types/layers'
 import type { ActionDispatcher } from '@/store/types'
 
@@ -67,9 +70,12 @@ export default function removeLayer(
     if (typeof layerOrIndex === 'number') {
         layerByIndex = this.getActiveLayerByIndex(layerOrIndex)
     }
-    this.identifyFeatures(setLayerIdUpdateFeatures, { activeLayer: layerByIndex, layerOrIndex }, dispatcher)
+    this.identifyFeatures(
+        setLayerIdUpdateFeatures,
+        { activeLayer: layerByIndex, layerOrIndex },
+        dispatcher
+    )
 }
-
 
 function setLayerIdUpdateFeatures(options: GetLayerIdOptions): GetLayerIdResult {
     const featuresStore = useFeaturesStore()

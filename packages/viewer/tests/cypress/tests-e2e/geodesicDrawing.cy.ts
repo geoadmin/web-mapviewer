@@ -31,12 +31,15 @@ function moveMapPos(newCenter: number[]): void {
             }),
         {
             errorMsg: () =>
-                `The maps position is: ${cy.state('window').map.getView().getCenter()} but the requested position was: ${newCenter.toString()}`
+                `The maps position is: ${cy.state('window').map.getView().getCenter()} but the requested position was: ${newCenter.toString()}`,
         }
     )
 }
 
-function drawFeature(coords: number[][], type: EditableFeatureTypes = EditableFeatureTypes.Measure): void {
+function drawFeature(
+    coords: number[][],
+    type: EditableFeatureTypes = EditableFeatureTypes.Measure
+): void {
     cy.window()
         .its('drawingLayer')
         .then((layer) => layer.getSource().getFeatures())
@@ -90,7 +93,7 @@ function checkFeatureSelected(featureCoords: number[][]): void {
             const coords = extractOlFeatureCoordinates(features[0])
             checkCoordsEqual(coords, featureCoords)
         })
-    cy.getPinia().then(pinia => {
+    cy.getPinia().then((pinia) => {
         const drawingStore = useDrawingStore(pinia)
         const features = drawingStore.selectedFeatures
         expect(features, 'Expected exactly one feature to be selected').to.have.length(1)
@@ -105,7 +108,18 @@ function checkFeatureUnselected(): void {
     })
 }
 
-const generateTest = (drawOffset: number, selectOffset: number, x: number, locDesc: string, test: (_drawOffset: number, _selectOffset: number, _x: number, _type?: EditableFeatureTypes) => void): void => {
+const generateTest = (
+    drawOffset: number,
+    selectOffset: number,
+    x: number,
+    locDesc: string,
+    test: (
+        _drawOffset: number,
+        _selectOffset: number,
+        _x: number,
+        _type?: EditableFeatureTypes
+    ) => void
+): void => {
     let desc = `draw in [${-180 + drawOffset * 360}, ${180 + drawOffset * 360}], `
     desc += `select in [${-180 + selectOffset * 360}, ${180 + selectOffset * 360}] `
     desc += 'at ca. 47° '
@@ -115,7 +129,14 @@ const generateTest = (drawOffset: number, selectOffset: number, x: number, locDe
     })
 }
 
-const generateTestsInPacific = (testFunc: (_drawOffset: number, _selectOffset: number, _x: number, _type?: EditableFeatureTypes) => void): void => {
+const generateTestsInPacific = (
+    testFunc: (
+        _drawOffset: number,
+        _selectOffset: number,
+        _x: number,
+        _type?: EditableFeatureTypes
+    ) => void
+): void => {
     const atDateTimeLimit = HALFSIZE_WEBMERCATOR
     const pacificDesc7525 = '75% on the west, 25% on the east of the datetime limit'
     const pacificDesc2575 = '25% on the west, 75% on the east of the datetime limit'
@@ -138,7 +159,12 @@ describe.skip('Correct handling of geodesic geometries', () => {
     context(
         'Check that the modify and select interactions are aware that the linestring geometry is geodesic',
         () => {
-            const testFunc = (drawOffset: number, selectOffset: number, x: number, type: EditableFeatureTypes = EditableFeatureTypes.Measure): void => {
+            const testFunc = (
+                drawOffset: number,
+                selectOffset: number,
+                x: number,
+                type: EditableFeatureTypes = EditableFeatureTypes.Measure
+            ): void => {
                 const y = 5976445
                 const lineToDraw = [
                     [x, y],
@@ -154,7 +180,10 @@ describe.skip('Correct handling of geodesic geometries', () => {
 
                 const centerOfLinearLine = offsetX([x + 500000, y], selectOffset) as number[]
                 // Result calculated with geographiclib-geodesic
-                const centerOfGeodesicLine = offsetX([x + 500000, 5990896.895875603], selectOffset) as number[]
+                const centerOfGeodesicLine = offsetX(
+                    [x + 500000, 5990896.895875603],
+                    selectOffset
+                ) as number[]
                 const drawnLineWithCenterPoint = [
                     lineDrawn[0],
                     extentUtils.wrapXCoordinates(centerOfGeodesicLine, WEBMERCATOR),
@@ -230,7 +259,12 @@ describe.skip('Correct handling of geodesic geometries', () => {
     context(
         'Check that the modify and select interactions are aware that the polygon geometry is geodesic',
         () => {
-            const testFunc = (drawOffset: number, selectOffset: number, x: number, type: EditableFeatureTypes = EditableFeatureTypes.Measure): void => {
+            const testFunc = (
+                drawOffset: number,
+                selectOffset: number,
+                x: number,
+                type: EditableFeatureTypes = EditableFeatureTypes.Measure
+            ): void => {
                 /* To understand what this function does, please check the comments in the other
                 test function (I didn't want to duplicate these comments) */
                 const y = 5976445

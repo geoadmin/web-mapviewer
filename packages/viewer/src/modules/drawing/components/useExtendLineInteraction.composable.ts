@@ -11,7 +11,7 @@ import { drawLineStyle } from '@/modules/drawing/lib/style'
 export interface UseExtendLineInteractionOptions {
     style?: StyleFunction
     featureType?: EditableFeatureTypes
-    drawEndCallback?: ((feature: Feature<SimpleGeometry>) => void)
+    drawEndCallback?: (feature: Feature<SimpleGeometry>) => void
     startingFeature?: MaybeRefOrGetter<Feature<SimpleGeometry> | undefined>
 }
 

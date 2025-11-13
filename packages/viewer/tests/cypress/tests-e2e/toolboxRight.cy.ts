@@ -9,7 +9,7 @@ const facingWest: number = 0.5 * Math.PI
 const tolerance: number = 1e-9
 
 function checkMapRotationAndButton(angle: number) {
-    cy.getPinia().then(pinia => {
+    cy.getPinia().then((pinia) => {
         const positionStore = usePositionStore(pinia)
         expect(positionStore.rotation).to.be.closeTo(angle, tolerance)
     })
@@ -31,13 +31,13 @@ describe('Testing the buttons of the right toolbox', () => {
     })
 
     it('can go fullscreen with a button', () => {
-        cy.getPinia().then(pinia => {
+        cy.getPinia().then((pinia) => {
             const uiStore = useUiStore(pinia)
             expect(uiStore.fullscreenMode).to.eq(false)
         })
 
         cy.get('[data-cy="toolbox-fullscreen-button"]').click()
-        cy.getPinia().then(pinia => {
+        cy.getPinia().then((pinia) => {
             const uiStore = useUiStore(pinia)
             expect(uiStore.fullscreenMode).to.eq(true)
         })
@@ -51,7 +51,7 @@ describe('Testing the buttons of the right toolbox', () => {
         cy.get('[data-cy="app-footer"]').should('not.be.hidden')
         // exit the fullscreen mode by pressing escape
         cy.realPress('Escape')
-        cy.getPinia().then(pinia => {
+        cy.getPinia().then((pinia) => {
             const uiStore = useUiStore(pinia)
             expect(uiStore.fullscreenMode).to.eq(false)
         })
@@ -59,17 +59,14 @@ describe('Testing the buttons of the right toolbox', () => {
     })
 
     it('shows a compass in the toolbox when map orientation is not pure north', () => {
-        cy.getPinia().then(pinia => {
+        cy.getPinia().then((pinia) => {
             const positionStore = usePositionStore(pinia)
             expect(positionStore.rotation).to.equal(0)
         })
         cy.get(compassButtonSelector).should('not.exist')
-        cy.getPinia().then(pinia => {
+        cy.getPinia().then((pinia) => {
             const positionStore = usePositionStore(pinia)
-            positionStore.setRotation(
-                facingWest + 2 * Math.PI,
-                { name: 'e2e-test' }
-            )
+            positionStore.setRotation(facingWest + 2 * Math.PI, { name: 'e2e-test' })
         })
         checkMapRotationAndButton(facingWest)
 

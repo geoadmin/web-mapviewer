@@ -587,9 +587,7 @@ describe('Test on legacy param import', () => {
                 checkFeatures(featuresIds)
                 cy.getPinia().then((pinia) => {
                     const uiStore3 = useUIStore(pinia)
-                    expect(uiStore3.featureInfoPosition).to.be.equal(
-                        FeatureInfoPositions.None
-                    )
+                    expect(uiStore3.featureInfoPosition).to.be.equal(FeatureInfoPositions.None)
                 })
                 cy.get('[data-cy="popover"]').should('not.exist')
                 cy.get('[data-cy="infobox"]').should('not.exist')
@@ -629,9 +627,7 @@ describe('Test on legacy param import', () => {
                 checkFeatures(featuresIds)
                 cy.getPinia().then((pinia) => {
                     const uiStore5 = useUIStore(pinia)
-                    expect(uiStore5.featureInfoPosition).to.be.equal(
-                        FeatureInfoPositions.Default
-                    )
+                    expect(uiStore5.featureInfoPosition).to.be.equal(FeatureInfoPositions.Default)
                 })
                 cy.get('[data-cy="popover"]').should('not.exist')
                 cy.get('[data-cy="infobox"]').should('be.visible')
@@ -648,9 +644,7 @@ describe('Test on legacy param import', () => {
                 checkFeatures(featuresIds)
                 cy.getPinia().then((pinia) => {
                     const uiStore6 = useUIStore(pinia)
-                    expect(uiStore6.featureInfoPosition).to.be.equal(
-                        FeatureInfoPositions.None
-                    )
+                    expect(uiStore6.featureInfoPosition).to.be.equal(FeatureInfoPositions.None)
                 })
                 cy.get('[data-cy="popover"]').should('not.exist')
                 cy.get('[data-cy="infobox"]').should('not.exist')

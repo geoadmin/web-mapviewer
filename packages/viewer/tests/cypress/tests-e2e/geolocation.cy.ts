@@ -73,7 +73,7 @@ describe('Geolocation cypress', () => {
                     cy.on('window:alert', () => {
                         throw new Error('Should not prompt for geolocation API permission again')
                     })
-                    cy.getPinia().then(pinia => {
+                    cy.getPinia().then((pinia) => {
                         const geolocationStore = useGeolocationStore(pinia)
                         expect(geolocationStore.active).to.be.true
                     })
@@ -112,7 +112,7 @@ describe('Geolocation cypress', () => {
 
                 // check initial center and zoom
                 checkStorePosition('state.position.center', x0, y0)
-                cy.getPinia().then(pinia => {
+                cy.getPinia().then((pinia) => {
                     const positionStore = usePositionStore(pinia)
                     expect(positionStore.zoom).to.eq(startingZoom)
                 })
@@ -122,14 +122,14 @@ describe('Geolocation cypress', () => {
 
                 // check that the map has been centered on the geolocation and zoom is updated
                 checkStorePosition('state.position.center', geoX, geoY)
-                cy.getPinia().then(pinia => {
+                cy.getPinia().then((pinia) => {
                     const positionStore2 = usePositionStore(pinia)
                     expect(positionStore2.zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP)
                 })
 
                 // Check if the zoom is changed
                 cy.get('[data-cy="zoom-in"]').click()
-                cy.getPinia().then(pinia => {
+                cy.getPinia().then((pinia) => {
                     const positionStore3 = usePositionStore(pinia)
                     expect(positionStore3.zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP + 1)
                 })
@@ -137,7 +137,7 @@ describe('Geolocation cypress', () => {
 
                 cy.get('[data-cy="zoom-in"]').click()
                 cy.get('[data-cy="zoom-in"]').click()
-                cy.getPinia().then(pinia => {
+                cy.getPinia().then((pinia) => {
                     const positionStore4 = usePositionStore(pinia)
                     expect(positionStore4.zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP + 3)
                 })
@@ -145,7 +145,7 @@ describe('Geolocation cypress', () => {
                 cy.get('[data-cy="zoom-out"]').click()
                 cy.get('[data-cy="zoom-out"]').click()
                 cy.get('[data-cy="zoom-out"]').click()
-                cy.getPinia().then(pinia => {
+                cy.getPinia().then((pinia) => {
                     const positionStore5 = usePositionStore(pinia)
                     expect(positionStore5.zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP)
                 })

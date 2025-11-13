@@ -28,8 +28,8 @@ import { reproject } from 'reproject'
  *
  * @param geoJsonData GeoJSON data (FeatureCollection) to be reprojected
  * @param toProjection Wanted projection for these data
- * @param fromProjection Source projection, in which the data is being described (or `undefined` if none
- *   were set in the GeoJSON data, meaning it is described with WGS84)
+ * @param fromProjection Source projection, in which the data is being described (or `undefined` if
+ *   none were set in the GeoJSON data, meaning it is described with WGS84)
  */
 export function reprojectGeoJsonData(
     geoJsonData: FeatureCollection,
@@ -70,8 +70,8 @@ export function reprojectGeoJsonData(
  *
  * @param geometry Geometry to be reprojected
  * @param toProjection Wanted projection for these data
- * @param fromProjection Source projection, in which the data is being described (or `undefined` if none
- *   were set in the GeoJSON data, meaning it is described with WGS84)
+ * @param fromProjection Source projection, in which the data is being described (or `undefined` if
+ *   none were set in the GeoJSON data, meaning it is described with WGS84)
  */
 export function reprojectGeoJsonGeometry(
     geometry: Geometry,

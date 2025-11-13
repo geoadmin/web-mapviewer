@@ -33,7 +33,7 @@ describe('The infobox', () => {
                 const featuresStore = useFeaturesStore(pinia)
                 return featuresStore.selectedFeatures.length > 0
             })
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const uiStore = useUIStore(pinia)
                 const isPhoneMode = uiStore.isPhoneMode
                 if (isPhoneMode) {
@@ -181,16 +181,20 @@ describe('The infobox', () => {
         it('keeps the selected features when going 3D', () => {
             cy.get('[data-cy="3d-button"]').click()
             // waiting for 3D to be loaded
-            cy.window().its('cesiumViewer').then(() => {
-                cy.get('[data-cy="highlighted-features"]').should('be.visible')
-            })
+            cy.window()
+                .its('cesiumViewer')
+                .then(() => {
+                    cy.get('[data-cy="highlighted-features"]').should('be.visible')
+                })
         })
         it('keeps the selected features when going back to 2D', () => {
             cy.get('[data-cy="3d-button"]').click()
-            cy.window().its('cesiumViewer').then(() => {
-                cy.get('[data-cy="3d-button"]').click()
-                cy.get('[data-cy="highlighted-features"]').should('be.visible')
-            })
+            cy.window()
+                .its('cesiumViewer')
+                .then(() => {
+                    cy.get('[data-cy="3d-button"]').click()
+                    cy.get('[data-cy="highlighted-features"]').should('be.visible')
+                })
         })
         it('verifies the "More Information" button in the infobox and the information page that is shown', () => {
             const infoboxFixture: string = 'infobox.fixture.html'
