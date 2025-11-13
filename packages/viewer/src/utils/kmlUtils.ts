@@ -24,11 +24,7 @@ import Style from 'ol/style/Style'
 import type { EditableFeature } from '@/api/features.api'
 import type { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
 
-import {
-    EditableFeatureTypes,
-    extractOlFeatureCoordinates,
-    isLineOrMeasure,
-} from '@/api/features.api'
+import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@/api/features.api'
 import { proxifyUrl } from '@/api/file-proxy.api'
 import { DEFAULT_TITLE_OFFSET } from '@/config/icons.config'
 import { LOCAL_OR_INTERNAL_URL_REGEX } from '@/config/regex.config'
@@ -48,7 +44,6 @@ import {
     SMALL,
     TextPlacement,
 } from '@/utils/featureStyleUtils'
-import { GeodesicGeometries } from '@/utils/geodesicManager'
 // FIXME: as soon as https://github.com/openlayers/openlayers/pull/15964 is merged and released, go back to using OL files
 import KML, { getDefaultStyle } from '@/utils/ol/format/KML'
 import { isAnyEnumValue, parseRGBColor } from '@/utils/utils'
