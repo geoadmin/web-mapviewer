@@ -426,47 +426,49 @@ export const legacyPermalinkManagementRouterPlugin: RouterPlugin = (router): voi
                     ],
                 })
 
-                unSubscribeStoreAction = appStore.$onAction(({ name }) => {
+                unSubscribeStoreAction = appStore.$onAction(({ name, after }) => {
                     // Wait until the app is ready before dealing with legacy params. To handle
                     // legacy params some data are required (e.g. the layer config)
-                    if (name === 'setAppIsReady') {
-                        log.debug({
-                            title: 'Legacy URL',
-                            titleColor: LogPreDefinedColor.Amber,
-                            messages: [
-                                `app is ready, handle legacy params=${legacyParams.toString()}`,
-                                legacyParams,
-                            ],
-                        })
-                        handleLegacyParams(legacyParams, legacyEmbed ? EMBED_VIEW : MAP_VIEW, {
-                            config: layersStore.config,
-                            projection: positionStore.projection,
-                        })
-                            .then((newRoute) => {
-                                log.info({
-                                    title: 'Legacy URL',
-                                    titleColor: LogPreDefinedColor.Amber,
-                                    messages: [`redirect to the converted params`, newRoute],
+                    after(() => {
+                        if (name === 'nextState' && appStore.isParsingLegacy) {
+                            log.debug({
+                                title: 'Legacy URL',
+                                titleColor: LogPreDefinedColor.Amber,
+                                messages: [
+                                    `app is ready, handle legacy params=${legacyParams.toString()}`,
+                                    legacyParams,
+                                ],
+                            })
+                            handleLegacyParams(legacyParams, legacyEmbed ? EMBED_VIEW : MAP_VIEW, {
+                                config: layersStore.config,
+                                projection: positionStore.projection,
+                            })
+                                .then((newRoute) => {
+                                    log.info({
+                                        title: 'Legacy URL',
+                                        titleColor: LogPreDefinedColor.Amber,
+                                        messages: [`redirect to the converted params`, newRoute],
+                                    })
+                                    router.replace(newRoute).catch((error) => {
+                                        log.error({
+                                            title: 'Legacy URL',
+                                            titleColor: LogPreDefinedColor.Amber,
+                                            messages: [
+                                                `failed to redirect to the converted params`,
+                                                error,
+                                            ],
+                                        })
+                                    })
                                 })
-                                router.replace(newRoute).catch((error) => {
+                                .catch((error) => {
                                     log.error({
                                         title: 'Legacy URL',
                                         titleColor: LogPreDefinedColor.Amber,
-                                        messages: [
-                                            `failed to redirect to the converted params`,
-                                            error,
-                                        ],
+                                        messages: [`failed to convert legacy params`, error],
                                     })
                                 })
-                            })
-                            .catch((error) => {
-                                log.error({
-                                    title: 'Legacy URL',
-                                    titleColor: LogPreDefinedColor.Amber,
-                                    messages: [`failed to convert legacy params`, error],
-                                })
-                            })
-                    }
+                        }
+                    })
                 })
                 log.debug({
                     title: 'Legacy URL',

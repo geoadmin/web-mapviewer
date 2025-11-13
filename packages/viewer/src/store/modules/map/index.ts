@@ -7,6 +7,7 @@ import clearLocationPopupCoordinates from '@/store/modules/map/actions/clearLoca
 import clearPreviewPinnedLocation from '@/store/modules/map/actions/clearPreviewPinnedLocation'
 import click from '@/store/modules/map/actions/click'
 import setLocationPopupCoordinates from '@/store/modules/map/actions/setLocationPopupCoordinates'
+import setMapHasBeenLoaded from '@/store/modules/map/actions/setMapHasBeenLoaded'
 import setPinnedLocation from '@/store/modules/map/actions/setPinnedLocation'
 import setPreviewedPinnedLocation from '@/store/modules/map/actions/setPreviewedPinnedLocation'
 import setPrintMode from '@/store/modules/map/actions/setPrintMode'
@@ -19,6 +20,7 @@ const state = (): MapState => ({
     locationPopupCoordinates: undefined,
     printMode: false,
     rectangleSelectionExtent: undefined,
+    hasBeenLoaded: false,
 })
 
 const getters: MapStoreGetters = {}
@@ -33,6 +35,7 @@ const actions = {
     setLocationPopupCoordinates,
     setPrintMode,
     setRectangleSelectionExtent,
+    setMapHasBeenLoaded,
 }
 
 const useMapStore = defineStore('map', {

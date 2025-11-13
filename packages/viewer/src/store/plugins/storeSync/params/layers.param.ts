@@ -245,9 +245,12 @@ function dispatchLayersFromUrlIntoStore(
 
     const layers = parsedLayers
         .map((parsedLayer, index) => {
-            // First check if we already have the layer in the active layers
             const layerAtIndex = layersStore.getActiveLayerByIndex(index)
-            const currentLayer = layerAtIndex?.id === parsedLayer.id ? layerAtIndex : undefined
+            const matchingLayerInConfig = parsedLayer.id
+                ? layersStore.getLayerConfigById(parsedLayer.id)
+                : undefined
+            const currentLayer =
+                layerAtIndex?.id === parsedLayer.id ? layerAtIndex : matchingLayerInConfig
 
             if (!currentLayer) {
                 return

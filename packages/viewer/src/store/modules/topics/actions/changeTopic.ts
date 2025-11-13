@@ -1,16 +1,25 @@
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
 import type { Topic } from '@/api/topics.api'
-import type { LoadTopicOptions, TopicsStore } from '@/store/modules/topics/types/topics'
+import type { TopicsStore } from '@/store/modules/topics/types/topics'
 import type { ActionDispatcher } from '@/store/types'
 
-export default function changeTopic(this: TopicsStore, topicId: string, options: LoadTopicOptions, dispatcher: ActionDispatcher): void {
+export default function changeTopic(
+    this: TopicsStore,
+    topicId: string,
+    dispatcher: ActionDispatcher
+): void {
     if (
         this.config.some((topic: Topic) => topic.id === topicId) ||
         dispatcher.name === 'appLoadingManagement.routerPlugin'
     ) {
         this.current = topicId
-        this.loadTopic(options, dispatcher)
+        this.loadTopic(
+            {
+                changeLayers: this.router.currentRoute.value.query.layers === undefined,
+            },
+            dispatcher
+        )
     } else {
         log.error({
             title: 'Topics store',

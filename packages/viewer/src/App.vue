@@ -7,7 +7,6 @@
 
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute } from 'vue-router'
 
 import type { ActionDispatcher } from '@/store/types'
 
@@ -29,8 +28,6 @@ const appStore = useAppStore()
 const uiStore = useUIStore()
 const layersStore = useLayersStore()
 
-const currentRoute = useRoute()
-
 let debouncedOnResize: () => void = () => {}
 const showFeedbackPopup = computed(() => {
     return uiStore.errors.size + uiStore.warnings.size > 0
@@ -45,8 +42,7 @@ onMounted(() => {
     // initial load of layers config
     layersStore.loadLayersConfig(
         {
-            changeLayersOnTopicChange:
-                currentRoute.query.layers === undefined || currentRoute.query.layers?.length === 0,
+            changeLayersOnTopicChange: !window.location.hash.includes('layers='),
         },
         dispatcher
     )
@@ -66,7 +62,7 @@ function refreshPageTitle() {
 }
 
 watch(
-    () => appStore.isReady && appStore.isMapReady,
+    () => appStore.isMapReady,
     () => {
         if (uiStore.loadingBarRequesters[MAP_LOADING_BAR_REQUESTER]) {
             uiStore.clearLoadingBarRequester(MAP_LOADING_BAR_REQUESTER, dispatcher)

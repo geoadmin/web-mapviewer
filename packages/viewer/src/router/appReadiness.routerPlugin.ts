@@ -7,6 +7,7 @@ import type { ActionDispatcher } from '@/store/types'
 import { isSupportedLang } from '@/modules/i18n'
 import { MAP_VIEW } from '@/router/viewNames'
 import useAppStore from '@/store/modules/app'
+import { AppStateNames } from '@/store/modules/app/types/appState'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers'
 import useTopicsStore from '@/store/modules/topics'
@@ -40,17 +41,8 @@ export const appReadinessRouterPlugin: RouterPlugin = (router): void => {
         const topicsStore = useTopicsStore()
         const uiStore = useUIStore()
 
-        function isAppReady() {
-            return (
-                layersStore.config.length > 0 &&
-                topicsStore.config.length > 0 &&
-                uiStore.width > 0 &&
-                uiStore.height > 0
-            )
-        }
-
         function handleAppReady() {
-            if (isAppReady() && !appStore.isReady) {
+            if (appStore.isLoadingConfig && appStore.appState.isFulfilled()) {
                 log.info({
                     title: 'App loading management plugin',
                     titleColor: LogPreDefinedColor.Yellow,
@@ -58,9 +50,12 @@ export const appReadinessRouterPlugin: RouterPlugin = (router): void => {
                 })
                 unsubscribes.forEach((unsubscribe) => unsubscribe())
                 unRegisterRouterHook()
+
                 router
                     .push({ name: MAP_VIEW, query: to.query })
-                    .then(() => appStore.setAppIsReady(dispatcher))
+                    .then(() => {
+                        appStore.nextState(dispatcher)
+                    })
                     .catch((error) => {
                         log.error({
                             title: 'App loading management plugin',
@@ -72,7 +67,7 @@ export const appReadinessRouterPlugin: RouterPlugin = (router): void => {
         }
 
         if (START_LOCATION && to.meta.requiresAppReady) {
-            if (!isAppReady()) {
+            if (appStore.isLoadingConfig && appStore.appState.isFulfilled()) {
                 log.info({
                     title: 'App loading management plugin',
                     titleColor: LogPreDefinedColor.Yellow,
@@ -92,16 +87,20 @@ export const appReadinessRouterPlugin: RouterPlugin = (router): void => {
                 if (topic) {
                     startingTopic = topic
                     const appStore = useAppStore()
-                    if (appStore.isReady) {
-                        topicsStore.changeTopic(topic, { changeLayers: true }, dispatcher)
+                    if (appStore.isConfigLoaded) {
+                        topicsStore.changeTopic(topic, dispatcher)
                     } else {
-                        appStore.$onAction(({ name }) => {
-                            if (startingTopic && name === 'setAppIsReady' && appStore.isReady) {
-                                topicsStore.changeTopic(
-                                    startingTopic,
-                                    { changeLayers: true },
-                                    dispatcher
-                                )
+                        appStore.$onAction(({ after, name }) => {
+                            const nextState = appStore.appState.next()
+                            if (
+                                name === 'nextState' &&
+                                nextState.name === AppStateNames.ConfigLoaded
+                            ) {
+                                after(() => {
+                                    if (startingTopic) {
+                                        topicsStore.changeTopic(startingTopic, dispatcher)
+                                    }
+                                })
                             }
                         })
                     }

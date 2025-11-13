@@ -10,7 +10,6 @@ import {
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import appReadinessRouterPlugin from '@/router/appReadiness.routerPlugin'
 import legacyPermalinkRouterPlugin from '@/router/legacyPermalink.routerPlugin'
-import urlParamToStore from '@/router/urlParamToStore.routerPlugin'
 import {
     EMBED_VIEW,
     LEGACY_EMBED_PARAM_VIEW,
@@ -86,30 +85,32 @@ const router: Router = createRouter({
 router.afterEach((to, from, failure) => {
     if (isNavigationFailure(failure, NavigationFailureType.duplicated)) {
         log.warn({
-            title: 'Router',
+            title: 'Router / afterEach',
             titleColor: LogPreDefinedColor.Emerald,
             messages: ['Duplicated navigation from', from.query, '\nto', to.query],
         })
     } else if (isNavigationFailure(failure, NavigationFailureType.aborted)) {
         log.debug({
-            title: 'Router',
+            title: 'Router / afterEach',
             titleColor: LogPreDefinedColor.Emerald,
             messages: ['Navigation aborted from', from.query, '\nto', to.query],
         })
-    } else if (failure) {
+    } else if (failure && !isNavigationFailure(failure, NavigationFailureType.cancelled)) {
         log.error({
-            title: 'Router',
+            title: 'Router / afterEach',
             titleColor: LogPreDefinedColor.Emerald,
             messages: ['Navigation failed from', from.query, '\nto', to.query, '\n\n', failure],
         })
     }
 })
 router.onError((error) => {
-    log.error({
-        title: 'Router',
-        titleColor: LogPreDefinedColor.Emerald,
-        messages: ['Error while routing', error],
-    })
+    if (isNavigationFailure(error, NavigationFailureType.aborted)) {
+        log.error({
+            title: 'Router / onError',
+            titleColor: LogPreDefinedColor.Emerald,
+            messages: ['Error while routing', error],
+        })
+    }
 })
 
 // exposing the router to Cypress, so that we may change URL param on the fly (without app reload),
@@ -121,6 +122,5 @@ if (IS_TESTING_WITH_CYPRESS) {
 
 appReadinessRouterPlugin(router)
 legacyPermalinkRouterPlugin(router)
-urlParamToStore(router)
 
 export default router
