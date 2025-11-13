@@ -14,15 +14,13 @@ const geolocationStore = useGeolocationStore()
 const positionStore = usePositionStore()
 const { t } = useI18n()
 
-// Show recenter button when geolocation is active
+// Show recenter button when geolocation is active but not tracking
 const showRecenterButton = computed(() => {
-    return geolocationStore.active && geolocationStore.position !== undefined
+    return geolocationStore.active && geolocationStore.position !== undefined && !geolocationStore.tracking
 })
 
-// Show tooltip based on tracking state
-const tooltipContent = computed(() => {
-    return geolocationStore.tracking ? 'geoloc_stop_tracking' : 're_center_map'
-})
+// Tooltip always shows "re-center map" since button is hidden when tracking
+const tooltipContent = 're_center_map'
 
 function toggleTracking(): void {
     // Toggle tracking mode
@@ -52,7 +50,6 @@ function toggleTracking(): void {
             class="toolbox-button d-print-none"
             data-cy="recenter-button"
             type="button"
-            :class="{ active: geolocationStore.tracking }"
             @click="toggleTracking"
         >
             <FontAwesomeIcon
