@@ -1,4 +1,4 @@
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 
 import type { LayerFeature } from '@/api/features.api'
 
@@ -45,7 +45,11 @@ export function sendFeatureInformationToIFrameParent(features: LayerFeature[]): 
     if (!Array.isArray(features) || features.length === 0) {
         return
     }
-    log.debug('sending information about selected features to iframe parent')
+    log.debug({
+        title: 'IFrame postMessage API',
+        titleColor: LogPreDefinedColor.Violet,
+        messages: ['sending information about selected features to iframe parent'],
+    })
     // from what I can understand from the codepen, one event is fired per feature with a structured response
     features.forEach((feature) => {
         sendEventToParent(IFrameEvents.FeatureSelection, {
@@ -75,14 +79,23 @@ export function sendChangeEventToParent(): void {
 }
 
 export function sendMapReadyEventToParent(): void {
+    log.debug({
+        title: 'IFrame postMessage API',
+        titleColor: LogPreDefinedColor.Violet,
+        messages: ['sending map ready event to iframe parent'],
+    })
     sendEventToParent(IFrameEvents.MapReady)
 }
 
 function sendEventToParent(type: IFrameEvents, payload?: Record<string, unknown>): void {
     if (!targetWindow) {
-        log.debug(
-            'Embed view loaded as root document of a browser tab, cannot communicate with opener/parent'
-        )
+        log.debug({
+            title: 'IFrame postMessage API',
+            titleColor: LogPreDefinedColor.Violet,
+            messages: [
+                'Embed view loaded as root document of a browser tab, cannot communicate with opener/parent',
+            ],
+        })
         return
     }
     targetWindow.postMessage(
