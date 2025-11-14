@@ -16,7 +16,11 @@ const { t } = useI18n()
 
 // Show recenter button when geolocation is active but not tracking
 const showRecenterButton = computed(() => {
-    return geolocationStore.active && geolocationStore.position !== undefined && !geolocationStore.tracking
+    return (
+        geolocationStore.active &&
+        geolocationStore.position !== undefined &&
+        !geolocationStore.tracking
+    )
 })
 
 // Tooltip always shows "re-center map" since button is hidden when tracking
