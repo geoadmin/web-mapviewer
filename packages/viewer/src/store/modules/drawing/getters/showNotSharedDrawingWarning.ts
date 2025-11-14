@@ -5,6 +5,7 @@ export default function showNotSharedDrawingWarning(this: DrawingStore): boolean
         !this.isVisitWithAdminId &&
         !this.isDrawingEditShared &&
         this.isDrawingModified &&
-        this.online
+        this.online &&
+        !this.reportProblemDrawing
     )
 }
