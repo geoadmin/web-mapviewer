@@ -1,10 +1,10 @@
-import type { UserConfig } from 'vite'
+import type { ViteUserConfig } from 'vitest/config'
 
 import { resolve } from 'path'
 import dts from 'unplugin-dts/vite'
 import { fileURLToPath, URL } from 'url'
 
-const config: UserConfig = {
+const config: ViteUserConfig = {
     build: {
         lib: {
             entry: [resolve(__dirname, 'src/index.ts')],
