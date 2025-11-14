@@ -56,7 +56,7 @@ onMounted(() => {
 
 // Methods
 
-function validateUrl(url: string): TextInputValidateResult {
+function validateUrl(url?: string): TextInputValidateResult {
     if (!url) {
         return { valid: false, invalidMessage: 'no_url' }
     } else if (!isValidUrl(url)) {

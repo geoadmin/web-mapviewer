@@ -194,7 +194,7 @@ defineExpose<TextInputExposed>({ focus })
                 @keydown.enter="emits('keydown.enter')"
             />
             <button
-                v-if="value?.length > 0"
+                v-if="value && value.length > 0"
                 :id="clearButtonId"
                 class="btn btn-outline-group rounded-0"
                 :class="{ 'rounded-end': !slots?.default }"
