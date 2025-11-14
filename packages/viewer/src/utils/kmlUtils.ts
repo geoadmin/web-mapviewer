@@ -18,6 +18,7 @@ import {
 } from 'ol/extent'
 import Feature from 'ol/Feature'
 import GeoJSON, { type GeoJSONGeometry, type GeoJSONGeometryCollection } from 'ol/format/GeoJSON'
+import KML, { getDefaultStyle } from 'ol/format/KML'
 import IconStyle from 'ol/style/Icon'
 import Style from 'ol/style/Style'
 
@@ -44,8 +45,6 @@ import {
     SMALL,
     TextPlacement,
 } from '@/utils/featureStyleUtils'
-// FIXME: as soon as https://github.com/openlayers/openlayers/pull/15964 is merged and released, go back to using OL files
-import KML, { getDefaultStyle } from '@/utils/ol/format/KML'
 import { isAnyEnumValue, parseRGBColor } from '@/utils/utils'
 
 export const EMPTY_KML_DATA: string = '<kml></kml>'

@@ -52,7 +52,7 @@
             "vue-demi"
         ],
         "patchedDependencies": {
-            "vite@7.1.11": "patches/vite@7.1.11.patch"
+            "ol@10.7.0": "patches/ol@10.7.0.patch"
         },
         "ignoredBuiltDependencies": [
             "core-js",

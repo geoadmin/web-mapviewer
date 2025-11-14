@@ -2,6 +2,7 @@ import { type CoordinateSystem, WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import Feature from 'ol/Feature'
 import GPX from 'ol/format/GPX'
+import KML from 'ol/format/KML'
 import { type Geometry, LineString as OLLineString, Polygon as OLPolygon } from 'ol/geom'
 import { Circle as CircleStyle, Icon as IconStyle } from 'ol/style'
 import Style from 'ol/style/Style'
@@ -9,8 +10,6 @@ import Style from 'ol/style/Style'
 import i18n from '@/modules/i18n/index'
 import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
 import { EMPTY_KML_DATA } from '@/utils/kmlUtils'
-// FIXME: as soon as https://github.com/openlayers/openlayers/pull/15964 is merged and released, go back to using OL files
-import KML from '@/utils/ol/format/KML'
 
 const kmlFormat = new KML()
 

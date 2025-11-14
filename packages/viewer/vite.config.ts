@@ -1,16 +1,12 @@
+import type { ViteUserConfig } from 'vitest/config'
+
 import tailwindcss from '@tailwindcss/vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import vue from '@vitejs/plugin-vue'
 import gitDescribe from 'git-describe'
 import { dirname } from 'path'
 import { fileURLToPath, URL } from 'url'
-import {
-    type ConfigEnv,
-    defineConfig,
-    normalizePath,
-    type PluginOption,
-    type UserConfig,
-} from 'vite'
+import { type ConfigEnv, defineConfig, normalizePath, type PluginOption } from 'vite'
 import ConditionalCompile from 'vite-plugin-conditional-compiler'
 import { VitePWA } from 'vite-plugin-pwa'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
@@ -173,7 +169,7 @@ function generatePlugins(mode: ViteModes, isTesting: boolean = false): PluginOpt
 }
 
 // https://vitejs.dev/config/
-export default defineConfig((configEnv: ConfigEnv): UserConfig => {
+export default defineConfig((configEnv: ConfigEnv): ViteUserConfig => {
     const { mode } = configEnv
     // "test" mode is essentially the "development" mode, but with a different plugin composition.
     // In test mode, we don't want the PWA plugin or the dev tools.
