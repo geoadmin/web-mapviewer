@@ -56,7 +56,11 @@ export default function setProfileFeature(
         log.warn({
             title: 'Profile store / setProfileFeature',
             titleColor: LogPreDefinedColor.Red,
-            messages: ['Geometry type not supported to show a profile, ignoring', feature, dispatcher],
+            messages: [
+                'Geometry type not supported to show a profile, ignoring',
+                feature,
+                dispatcher,
+            ],
         })
     }
     this.simplifyGeometry = simplifyGeometry

@@ -1,4 +1,4 @@
-import { assertDefined } from "support/utils"
+import { assertDefined } from 'support/utils'
 
 import useUIStore from '@/store/modules/ui'
 
@@ -51,7 +51,10 @@ interface FakeWMTSLayer {
     serverLayerName: string
 }
 
-function addFakeWMTSLayer(layers: Record<string, FakeWMTSLayer>, id: number): Record<string, FakeWMTSLayer> {
+function addFakeWMTSLayer(
+    layers: Record<string, FakeWMTSLayer>,
+    id: number
+): Record<string, FakeWMTSLayer> {
     const layerName = 'test.wmts.layer.' + id
     layers[layerName] = {
         opacity: 1.0,
@@ -149,7 +152,7 @@ function init(nbLayers: number, nbSelectedLayers: number) {
         withHash: false,
         fixturesAndIntercepts: getFixturesAndIntercepts(nbLayers, nbSelectedLayers),
     })
-    cy.getPinia().then(pinia => {
+    cy.getPinia().then((pinia) => {
         const uiStore = useUIStore(pinia)
         cy.wrap(uiStore).as('storeGetters')
         if (uiStore.isPhoneMode) {

@@ -13,91 +13,110 @@ describe('Testing 3D navigation', () => {
     context('camera limits', () => {
         beforeEach(() => {
             cy.goToMapView({
-                queryParams: { '3d': true }
+                queryParams: { '3d': true },
             })
         })
         it('minimum distance from the terrain', () => {
             cy.waitUntilCesiumTilesLoaded()
-            cy.window().its('cesiumViewer').then((viewer) => {
-                // Move close to the ground and try to zoom closer with the mouse wheel
-                viewer.camera.flyTo({
-                    destination: Cartesian3.fromDegrees(
-                        7.451498,
-                        46.92805,
-                        CAMERA_MIN_ZOOM_DISTANCE + 500
-                    ),
-                    duration: 0.0,
-                })
-                cy.get('[data-cy="cesium-map"] .cesium-viewer').trigger('wheel', { deltaY: -5000 })
+            cy.window()
+                .its('cesiumViewer')
+                .then((viewer) => {
+                    // Move close to the ground and try to zoom closer with the mouse wheel
+                    viewer.camera.flyTo({
+                        destination: Cartesian3.fromDegrees(
+                            7.451498,
+                            46.92805,
+                            CAMERA_MIN_ZOOM_DISTANCE + 500
+                        ),
+                        duration: 0.0,
+                    })
+                    cy.get('[data-cy="cesium-map"] .cesium-viewer').trigger('wheel', {
+                        deltaY: -5000,
+                    })
 
-                cy.window().its('cesiumViewer').then(() => {
-                    expect(viewer.scene.camera.positionCartographic.height).gt(
-                        CAMERA_MIN_ZOOM_DISTANCE
-                    )
+                    cy.window()
+                        .its('cesiumViewer')
+                        .then(() => {
+                            expect(viewer.scene.camera.positionCartographic.height).gt(
+                                CAMERA_MIN_ZOOM_DISTANCE
+                            )
+                        })
                 })
-            })
         })
         it('maximum distance from the terrain', () => {
             cy.waitUntilCesiumTilesLoaded()
-            cy.window().its('cesiumViewer').then((viewer) => {
-                // Move far from the ground and try to zoom higher with the mouse wheel
-                viewer.camera.flyTo({
-                    destination: Cartesian3.fromDegrees(
-                        7.451498,
-                        46.92805,
-                        CAMERA_MAX_ZOOM_DISTANCE - 500
-                    ),
-                    duration: 0.0,
+            cy.window()
+                .its('cesiumViewer')
+                .then((viewer) => {
+                    // Move far from the ground and try to zoom higher with the mouse wheel
+                    viewer.camera.flyTo({
+                        destination: Cartesian3.fromDegrees(
+                            7.451498,
+                            46.92805,
+                            CAMERA_MAX_ZOOM_DISTANCE - 500
+                        ),
+                        duration: 0.0,
+                    })
+                    cy.get('[data-cy="cesium-map"] .cesium-viewer').trigger('wheel', {
+                        deltaY: 5000,
+                    })
+                    cy.window()
+                        .its('cesiumViewer')
+                        .then(() => {
+                            expect(viewer.scene.camera.positionCartographic.height).lt(
+                                CAMERA_MAX_ZOOM_DISTANCE
+                            )
+                        })
                 })
-                cy.get('[data-cy="cesium-map"] .cesium-viewer').trigger('wheel', { deltaY: 5000 })
-                cy.window().its('cesiumViewer').then(() => {
-                    expect(viewer.scene.camera.positionCartographic.height).lt(
-                        CAMERA_MAX_ZOOM_DISTANCE
-                    )
-                })
-            })
         })
         it('updates the position in store', () => {
             cy.waitUntilCesiumTilesLoaded()
-            cy.window().its('cesiumViewer').then((viewer) => {
-                const lon = 7.451498
-                const lat = 46.92805
-                viewer.camera.flyTo({
-                    destination: Cartesian3.fromDegrees(lon, lat, 1000),
-                    orientation: {
-                        heading: Math.PI,
-                    },
-                    duration: 0.0,
-                })
-                cy.window().its('cesiumViewer').then(() => {
-                    cy.getPinia().then((pinia) => {
-                        const positionStore = usePositionStore(pinia)
-                        const center = positionStore.centerEpsg4326
-                        expect(center?.[0]).to.eq(lon)
-                        expect(center?.[1]).to.eq(lat)
-
-                        const { zoom, projection } = positionStore
-                        const height = viewer.camera.positionCartographic.height
-                        const resolution = calculateResolution(height, viewer.canvas.clientWidth)
-                        expect(zoom).to.approximately(
-                            projection?.getZoomForResolutionAndCenter(
-                                resolution,
-                                proj4(WGS84.epsg, projection.epsg, [lon, lat])
-                            ),
-                            0.001
-                        )
-
-                        const rotation = positionStore.rotation
-                        expect(rotation).to.eq(Math.PI)
+            cy.window()
+                .its('cesiumViewer')
+                .then((viewer) => {
+                    const lon = 7.451498
+                    const lat = 46.92805
+                    viewer.camera.flyTo({
+                        destination: Cartesian3.fromDegrees(lon, lat, 1000),
+                        orientation: {
+                            heading: Math.PI,
+                        },
+                        duration: 0.0,
                     })
+                    cy.window()
+                        .its('cesiumViewer')
+                        .then(() => {
+                            cy.getPinia().then((pinia) => {
+                                const positionStore = usePositionStore(pinia)
+                                const center = positionStore.centerEpsg4326
+                                expect(center?.[0]).to.eq(lon)
+                                expect(center?.[1]).to.eq(lat)
+
+                                const { zoom, projection } = positionStore
+                                const height = viewer.camera.positionCartographic.height
+                                const resolution = calculateResolution(
+                                    height,
+                                    viewer.canvas.clientWidth
+                                )
+                                expect(zoom).to.approximately(
+                                    projection?.getZoomForResolutionAndCenter(
+                                        resolution,
+                                        proj4(WGS84.epsg, projection.epsg, [lon, lat])
+                                    ),
+                                    0.001
+                                )
+
+                                const rotation = positionStore.rotation
+                                expect(rotation).to.eq(Math.PI)
+                            })
+                        })
                 })
-            })
         })
     })
 
     it('2d camera does not go out of bounds if url parameter is out of bounds', () => {
         cy.goToMapView({
-            queryParams: { center: '0,0' }
+            queryParams: { center: '0,0' },
         })
         cy.log('check if center is moved to out of bounds location')
         cy.getPinia().then((pinia) => {

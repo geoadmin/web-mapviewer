@@ -100,12 +100,12 @@ export function usePrint(map: MaybeRef<Map>) {
                 shortLink,
                 layersWithLegends: printLegend
                     ? layerStore.visibleLayers
-                        .filter((layer) => layer.hasLegend)
-                        // remove duplicate layers for the legends to avoid duplicate legends
-                        .filter(
-                            (layer, index, self) =>
-                                self.findIndex((l) => l.id === layer.id) === index
-                        )
+                          .filter((layer) => layer.hasLegend)
+                          // remove duplicate layers for the legends to avoid duplicate legends
+                          .filter(
+                              (layer, index, self) =>
+                                  self.findIndex((l) => l.id === layer.id) === index
+                          )
                     : [],
                 lang: i18nStore.lang,
                 printGrid: printGrid,

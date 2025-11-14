@@ -3,12 +3,23 @@
  * modified to handle correctly the case where the geometries drawn are not linear but geodesic.
  *
  * Changes:
+ *
  * - Add subsegmentsFunction/segmentExtentFunction to support geodesic hit detection/extent.
  * - Add pointerWrapX to normalize pointer coordinates around world wrap.
  */
 
 import type { Map } from 'ol'
-import type { Circle, Geometry, GeometryCollection, LineString, MultiLineString, MultiPoint, MultiPolygon, Polygon, SimpleGeometry } from 'ol/geom'
+import type {
+    Circle,
+    Geometry,
+    GeometryCollection,
+    LineString,
+    MultiLineString,
+    MultiPoint,
+    MultiPolygon,
+    Polygon,
+    SimpleGeometry,
+} from 'ol/geom'
 import type { Layer } from 'ol/layer'
 import type { Pixel } from 'ol/pixel'
 import type { FlatStyleLike } from 'ol/style/flat'
@@ -25,13 +36,7 @@ import {
     squaredDistanceToSegment,
     type Coordinate,
 } from 'ol/coordinate'
-import {
-    altKeyOnly,
-    always,
-    primaryAction,
-    singleClick,
-    type Condition,
-} from 'ol/events/condition'
+import { altKeyOnly, always, primaryAction, singleClick, type Condition } from 'ol/events/condition'
 import BaseEvent from 'ol/events/Event'
 import EventType from 'ol/events/EventType'
 import {
@@ -58,19 +63,15 @@ import {
     toUserExtent,
     type ProjectionLike,
 } from 'ol/proj'
-import CanvasVectorLayerRenderer from 'ol/renderer/canvas/VectorLayer';
+import CanvasVectorLayerRenderer from 'ol/renderer/canvas/VectorLayer'
 import VectorSource, { type VectorSourceEvent } from 'ol/source/Vector'
 import RBush from 'ol/structs/RBush'
 import { createEditingStyle, type StyleFunction, type StyleLike } from 'ol/style/Style'
 import { getUid } from 'ol/util'
 
-/**
- * The segment index assigned to a circle's center when breaking up a circle.
- */
+/** The segment index assigned to a circle's center when breaking up a circle. */
 const CIRCLE_CENTER_INDEX = 0
-/**
- * The segment index assigned to a circle's circumference when breaking up a circle.
- */
+/** The segment index assigned to a circle's circumference when breaking up a circle. */
 const CIRCLE_CIRCUMFERENCE_INDEX = 1
 
 const tempExtent: Extent = [0, 0, 0, 0]
@@ -80,9 +81,7 @@ export enum ModifyEventType {
     MODIFYEND = 'modifyend',
 }
 
-/**
- * A line segment between two coordinates (2 coordinates, 2D).
- */
+/** A line segment between two coordinates (2 coordinates, 2D). */
 export type Segment = [Coordinate, Coordinate]
 
 export interface SegmentData {
@@ -94,18 +93,14 @@ export interface SegmentData {
     featureSegments?: SegmentData[]
 }
 
-/**
- * Split a segment into subsegments (e.g. geodesic pieces) within an optional view extent.
- */
+/** Split a segment into subsegments (e.g. geodesic pieces) within an optional view extent. */
 export type SubsegmentsFunction = (
     feature: FeatureLike,
     index: number,
     viewExtent: Extent
 ) => Segment[]
 
-/**
- * Compute the extent for a specific segment (matching the subsegments geometry).
- */
+/** Compute the extent for a specific segment (matching the subsegments geometry). */
 export type SegmentExtentFunction = (feature: FeatureLike, index: number) => Extent | undefined
 
 export interface Options extends PointerInteractionOptions {
@@ -115,7 +110,10 @@ export interface Options extends PointerInteractionOptions {
     pixelTolerance?: number
     style?: StyleLike | FlatStyleLike
     source?: VectorSource
-    hitDetection?: boolean | BaseVectorLayer<FeatureLike, VectorSource, CanvasVectorLayerRenderer> | null
+    hitDetection?:
+        | boolean
+        | BaseVectorLayer<FeatureLike, VectorSource, CanvasVectorLayerRenderer>
+        | null
     features?: Collection<Feature<SimpleGeometry>>
     wrapX?: boolean
     pointerWrapX?: boolean
@@ -124,9 +122,7 @@ export interface Options extends PointerInteractionOptions {
     subsegmentsFunction?: SubsegmentsFunction
 }
 
-/**
- * Events emitted by Modify instances.
- */
+/** Events emitted by Modify instances. */
 export class ModifyEvent extends BaseEvent {
     features: Collection<FeatureLike>
     mapBrowserEvent: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>
@@ -142,9 +138,7 @@ export class ModifyEvent extends BaseEvent {
     }
 }
 
-/**
- * Compare indices helper.
- */
+/** Compare indices helper. */
 function compareIndexes(a: SegmentData, b: SegmentData): number {
     return (a.index ?? 0) - (b.index ?? 0)
 }
@@ -157,9 +151,7 @@ function getDefaultStyleFunction(): StyleFunction {
     }
 }
 
-/**
- * Interaction for modifying feature geometries, extended for geodesic segments.
- */
+/** Interaction for modifying feature geometries, extended for geodesic segments. */
 export default class Modify extends PointerInteraction {
     private boundHandleFeatureChange_: (evt: BaseEvent | Event) => void
 
@@ -167,8 +159,9 @@ export default class Modify extends PointerInteraction {
     segmentExtentFunction?: SegmentExtentFunction
     subsegmentsFunction?: SubsegmentsFunction
 
-    private defaultDeleteCondition_ = (mapBrowserEvent: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>) =>
-        altKeyOnly(mapBrowserEvent) && singleClick(mapBrowserEvent)
+    private defaultDeleteCondition_ = (
+        mapBrowserEvent: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>
+    ) => altKeyOnly(mapBrowserEvent) && singleClick(mapBrowserEvent)
 
     private deleteCondition_: Condition
     private insertVertexCondition_: Condition
@@ -189,19 +182,21 @@ export default class Modify extends PointerInteraction {
     private snappedToVertex_ = false
     private changingFeature_ = false
 
-    /**
-     * Array of [segmentData, sideIndex] where sideIndex 0 = right, 1 = left of the vertex.
-     */
+    /** Array of [segmentData, sideIndex] where sideIndex 0 = right, 1 = left of the vertex. */
     private dragSegments_: Array<[SegmentData, 0 | 1]> = []
 
     private overlay_: VectorLayer<VectorSource>
 
     private source_: VectorSource | null = null
-    private hitDetection_: boolean | BaseVectorLayer<FeatureLike, VectorSource, CanvasVectorLayerRenderer> | null = null
+    private hitDetection_:
+        | boolean
+        | BaseVectorLayer<FeatureLike, VectorSource, CanvasVectorLayerRenderer>
+        | null = null
 
     private features_: Collection<Feature<SimpleGeometry>>
 
-    private lastPointerEvent_: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent> | null = null
+    private lastPointerEvent_: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent> | null =
+        null
 
     private delta_: [number, number] = [0, 0]
 
@@ -242,14 +237,8 @@ export default class Modify extends PointerInteraction {
         } else if (options.source) {
             this.source_ = options.source
             this.features_ = new Collection(this.source_.getFeatures() as Feature<SimpleGeometry>[])
-            this.source_.on(
-                'addfeature',
-                this.handleSourceAdd_.bind(this)
-            )
-            this.source_.on(
-                'removefeature',
-                this.handleSourceRemove_.bind(this)
-            )
+            this.source_.on('addfeature', this.handleSourceAdd_.bind(this))
+            this.source_.on('removefeature', this.handleSourceRemove_.bind(this))
         } else {
             throw new Error('The modify interaction requires features, a source or a layer')
         }
@@ -259,10 +248,7 @@ export default class Modify extends PointerInteraction {
         }
 
         this.features_.forEach(this.addFeature_.bind(this))
-        this.features_.addEventListener(
-            CollectionEventType.ADD,
-            this.handleFeatureAdd_.bind(this)
-        )
+        this.features_.addEventListener(CollectionEventType.ADD, this.handleFeatureAdd_.bind(this))
         this.features_.addEventListener(
             CollectionEventType.REMOVE,
             this.handleFeatureRemove_.bind(this)
@@ -296,7 +282,8 @@ export default class Modify extends PointerInteraction {
     private addFeature_(feature: Feature<SimpleGeometry>): void {
         const geometry = feature.getGeometry() as SimpleGeometry | null
         if (geometry) {
-            const writer = this.SEGMENT_WRITERS_[geometry.getType() as keyof typeof this.SEGMENT_WRITERS_]
+            const writer =
+                this.SEGMENT_WRITERS_[geometry.getType() as keyof typeof this.SEGMENT_WRITERS_]
             if (writer) {
                 writer(feature, geometry)
             }
@@ -382,10 +369,7 @@ export default class Modify extends PointerInteraction {
         this.rBush_.insert(geometry.getExtent(), segmentData)
     }
 
-    private writeMultiPointGeometry_(
-        feature: Feature<SimpleGeometry>,
-        geometry: MultiPoint
-    ): void {
+    private writeMultiPointGeometry_(feature: Feature<SimpleGeometry>, geometry: MultiPoint): void {
         const points: Coordinate[] = geometry.getCoordinates()
         for (let i = 0; i < points.length; i++) {
             if (!points[i]) {
@@ -403,10 +387,7 @@ export default class Modify extends PointerInteraction {
         }
     }
 
-    private writeLineStringGeometry_(
-        feature: Feature<SimpleGeometry>,
-        geometry: LineString
-    ): void {
+    private writeLineStringGeometry_(feature: Feature<SimpleGeometry>, geometry: LineString): void {
         const coordinates: Coordinate[] = geometry.getCoordinates()
         for (let i = 0; i < coordinates.length - 1; i++) {
             if (!coordinates[i] || !coordinates[i + 1]) {
@@ -450,10 +431,7 @@ export default class Modify extends PointerInteraction {
         }
     }
 
-    private writePolygonGeometry_(
-        feature: Feature<SimpleGeometry>,
-        geometry: Polygon
-    ): void {
+    private writePolygonGeometry_(feature: Feature<SimpleGeometry>, geometry: Polygon): void {
         const rings: Coordinate[][] = geometry.getCoordinates()
         for (let j = 0; j < rings.length; j++) {
             if (!rings[j]) {
@@ -566,20 +544,28 @@ export default class Modify extends PointerInteraction {
         string,
         (feature: Feature<SimpleGeometry>, geometry: Geometry) => void
     > = {
-            Point: (feature, geometry) => this.writePointGeometry_(feature, geometry as Point),
-            LineString: (feature, geometry) => this.writeLineStringGeometry_(feature, geometry as LineString),
-            LinearRing: (feature, geometry) => this.writeLineStringGeometry_(feature, geometry as unknown as LineString),
-            Polygon: (feature, geometry) => this.writePolygonGeometry_(feature, geometry as Polygon),
-            MultiPoint: (feature, geometry) => this.writeMultiPointGeometry_(feature, geometry as MultiPoint),
-            MultiLineString: (feature, geometry) => this.writeMultiLineStringGeometry_(feature, geometry as MultiLineString),
-            MultiPolygon: (feature, geometry) => this.writeMultiPolygonGeometry_(feature, geometry as MultiPolygon),
-            Circle: (feature, geometry) => this.writeCircleGeometry_(feature, geometry as Circle),
-            GeometryCollection: (feature, geometry) => this.writeGeometryCollectionGeometry_(feature, geometry as GeometryCollection),
-        }
+        Point: (feature, geometry) => this.writePointGeometry_(feature, geometry as Point),
+        LineString: (feature, geometry) =>
+            this.writeLineStringGeometry_(feature, geometry as LineString),
+        LinearRing: (feature, geometry) =>
+            this.writeLineStringGeometry_(feature, geometry as unknown as LineString),
+        Polygon: (feature, geometry) => this.writePolygonGeometry_(feature, geometry as Polygon),
+        MultiPoint: (feature, geometry) =>
+            this.writeMultiPointGeometry_(feature, geometry as MultiPoint),
+        MultiLineString: (feature, geometry) =>
+            this.writeMultiLineStringGeometry_(feature, geometry as MultiLineString),
+        MultiPolygon: (feature, geometry) =>
+            this.writeMultiPolygonGeometry_(feature, geometry as MultiPolygon),
+        Circle: (feature, geometry) => this.writeCircleGeometry_(feature, geometry as Circle),
+        GeometryCollection: (feature, geometry) =>
+            this.writeGeometryCollectionGeometry_(feature, geometry as GeometryCollection),
+    }
 
     // ---------------------- event handling ----------------------
 
-    handleEvent(mapBrowserEvent: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>): boolean {
+    handleEvent(
+        mapBrowserEvent: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>
+    ): boolean {
         if (!mapBrowserEvent.originalEvent) {
             return true
         }
@@ -644,12 +630,17 @@ export default class Modify extends PointerInteraction {
             }
             const depth = segmentData.depth
 
-            let coordinates: Coordinate | Coordinate[] | Coordinate[][] | Coordinate[][][] | undefined
+            let coordinates:
+                | Coordinate
+                | Coordinate[]
+                | Coordinate[][]
+                | Coordinate[][][]
+                | undefined
             const segment = segmentData.segment
             const index = dragSegment[1]
 
             while (vertex.length < geometry.getStride()) {
-                vertex.push((segment[index][vertex.length]!))
+                vertex.push(segment[index][vertex.length]!)
             }
 
             switch (geometry.getType()) {
@@ -720,7 +711,7 @@ export default class Modify extends PointerInteraction {
                     segment[1] = vertex
                     if (segmentData.index === CIRCLE_CENTER_INDEX) {
                         this.changingFeature_ = true
-                            ; (geometry as Circle).setCenter(vertex)
+                        ;(geometry as Circle).setCenter(vertex)
                         this.changingFeature_ = false
                     } else {
                         this.changingFeature_ = true
@@ -739,7 +730,7 @@ export default class Modify extends PointerInteraction {
                                 .transform(projection, userProjection)
                                 .getRadius()
                         }
-                        ; (geometry as Circle).setRadius(radius)
+                        ;(geometry as Circle).setRadius(radius)
                         this.changingFeature_ = false
                     }
                     break
@@ -769,8 +760,10 @@ export default class Modify extends PointerInteraction {
             const vertex = (vertexFeature.getGeometry() as Point).getCoordinates()
             const vertexExtent = boundingExtent([vertex])
             const segmentDataMatches = this.rBush_.getInExtent(vertexExtent)
-            const componentSegments: Record<string, [SegmentData | undefined, SegmentData | undefined]> =
-                {}
+            const componentSegments: Record<
+                string,
+                [SegmentData | undefined, SegmentData | undefined]
+            > = {}
             segmentDataMatches.sort(compareIndexes)
             for (let i = 0; i < segmentDataMatches.length; i++) {
                 const segmentDataMatch = segmentDataMatches[i]
@@ -796,7 +789,11 @@ export default class Modify extends PointerInteraction {
                         segmentDataMatch,
                         projection
                     )
-                    if (closestVertex && coordinatesEqual(closestVertex, vertex) && !componentSegments[uid]![0]) {
+                    if (
+                        closestVertex &&
+                        coordinatesEqual(closestVertex, vertex) &&
+                        !componentSegments[uid]![0]
+                    ) {
                         this.dragSegments_.push([segmentDataMatch, 0])
                         componentSegments[uid]![0] = segmentDataMatch
                     }
@@ -811,7 +808,10 @@ export default class Modify extends PointerInteraction {
 
                 if (coordinatesEqual(segment[1], vertex) && !componentSegments[uid]![1]) {
                     if (componentSegments[uid]![0] && componentSegments[uid]![0]!.index === 0) {
-                        let coordinates: Coordinate[] | Coordinate[][] = segmentDataMatch.geometry.getCoordinates() as Coordinate[] | Coordinate[][]
+                        let coordinates: Coordinate[] | Coordinate[][] =
+                            segmentDataMatch.geometry.getCoordinates() as
+                                | Coordinate[]
+                                | Coordinate[][]
                         switch (segmentDataMatch.geometry.getType()) {
                             case 'LineString':
                             case 'MultiLineString':
@@ -820,7 +820,10 @@ export default class Modify extends PointerInteraction {
                                 coordinates = coordinates[depth![1]!] as Coordinate[]
                             // falls through
                             case 'Polygon':
-                                if (segmentDataMatch.index !== coordinates[depth![0]!]!.length - 2) {
+                                if (
+                                    segmentDataMatch.index !==
+                                    coordinates[depth![0]!]!.length - 2
+                                ) {
                                     continue
                                 }
                                 break
@@ -855,9 +858,7 @@ export default class Modify extends PointerInteraction {
         return !!this.vertexFeature_
     }
 
-    /**
-     * Insert a vertex into the given segment.
-     */
+    /** Insert a vertex into the given segment. */
     private insertVertex_(segmentData: SegmentData, vertex: Coordinate): void {
         const segment = segmentData.segment
         const feature = segmentData.feature
@@ -928,7 +929,6 @@ export default class Modify extends PointerInteraction {
         this.ignoreNextSingleClick_ = true
     }
 
-
     handleUpEvent(evt: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>): boolean {
         for (let i = this.dragSegments_.length - 1; i >= 0; --i) {
             if (!this.dragSegments_[i]) {
@@ -953,7 +953,10 @@ export default class Modify extends PointerInteraction {
                 if (userProjection) {
                     const projection = evt.map.getView().getProjection()
                     circleGeometry = circleGeometry.clone().transform(userProjection, projection)
-                    circleGeometry = fromCircle(circleGeometry).transform(projection, userProjection)
+                    circleGeometry = fromCircle(circleGeometry).transform(
+                        projection,
+                        userProjection
+                    )
                 }
                 this.rBush_.update(circleGeometry.getExtent(), circumferenceSegmentData)
             } else {
@@ -969,18 +972,17 @@ export default class Modify extends PointerInteraction {
         return false
     }
 
-    private handlePointerMove_(evt: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>): void {
+    private handlePointerMove_(
+        evt: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>
+    ): void {
         this.lastPixel_ = evt.pixel
         this.handlePointerAtPixel_(evt.pixel, evt.map, evt.coordinate)
     }
 
-    private handlePointerAtPixel_(
-        pixel: Pixel,
-        map: Map,
-        coordinate?: Coordinate
-    ): void {
-        const pixelCoordinate: Coordinate =
-            (coordinate ? coordinate.slice() : map.getCoordinateFromPixel(pixel))
+    private handlePointerAtPixel_(pixel: Pixel, map: Map, coordinate?: Coordinate): void {
+        const pixelCoordinate: Coordinate = coordinate
+            ? coordinate.slice()
+            : map.getCoordinateFromPixel(pixel)
         const projection = map.getView().getProjection()
         if (this.pointerWrapX_) {
             wrapXCoordinate(pixelCoordinate, projection)
@@ -997,7 +999,9 @@ export default class Modify extends PointerInteraction {
             map.forEachFeatureAtPixel(
                 pixel,
                 (feature: FeatureLike, _layer: Layer, geometry?: SimpleGeometry) => {
-                    geometry = geometry || (feature as Feature<Geometry>).getGeometry()! as SimpleGeometry
+                    geometry =
+                        geometry ||
+                        ((feature as Feature<Geometry>).getGeometry()! as SimpleGeometry)
                     if (
                         geometry.getType() === 'Point' &&
                         this.features_.getArray().includes(feature as Feature<SimpleGeometry>)
@@ -1049,11 +1053,19 @@ export default class Modify extends PointerInteraction {
                 const vertexSegments: Record<string, boolean> = {}
                 vertexSegments[getUid(closestSegment)] = true
 
-                if (!this.snapToPointer_ && vertex.length >= 2 && pixelCoordinate && pixelCoordinate.length >= 2) {
+                if (
+                    !this.snapToPointer_ &&
+                    vertex.length >= 2 &&
+                    pixelCoordinate &&
+                    pixelCoordinate.length >= 2
+                ) {
                     this.delta_[0] = vertex[0]! - pixelCoordinate[0]!
                     this.delta_[1] = vertex[1]! - pixelCoordinate[1]!
                 }
-                if (node.geometry.getType() === 'Circle' && node.index === CIRCLE_CIRCUMFERENCE_INDEX) {
+                if (
+                    node.geometry.getType() === 'Circle' &&
+                    node.index === CIRCLE_CIRCUMFERENCE_INDEX
+                ) {
                     this.snappedToVertex_ = true
                     this.createOrUpdateVertexFeature_(vertex, [node.feature], [node.geometry])
                 } else {
@@ -1117,10 +1129,9 @@ export default class Modify extends PointerInteraction {
                 const segment = segments[i] as SegmentData[]
                 for (let s = 0; s < segment.length; ++s) {
                     const item = segment[s]
-                    const feature =
-                        Array.isArray(item)
-                            ? (item[0] as SegmentData).feature
-                            : (item as SegmentData).feature
+                    const feature = Array.isArray(item)
+                        ? (item[0] as SegmentData).feature
+                        : (item as SegmentData).feature
                     if (feature && !features.includes(feature)) {
                         this.featuresBeingModified_.push(feature)
                     }
@@ -1156,7 +1167,10 @@ export default class Modify extends PointerInteraction {
     }
 
     removePoint(): boolean {
-        if (this.lastPointerEvent_ && this.lastPointerEvent_.type !== MapBrowserEventType.POINTERDRAG) {
+        if (
+            this.lastPointerEvent_ &&
+            this.lastPointerEvent_.type !== MapBrowserEventType.POINTERDRAG
+        ) {
             const evt = this.lastPointerEvent_
             this.willModifyFeatures_(evt, this.dragSegments_)
             const removed = this.removeVertex_()
@@ -1209,7 +1223,9 @@ export default class Modify extends PointerInteraction {
             }
 
             const geometry = segmentData.geometry
-            const coordinates: Coordinate[] | Coordinate[][] = geometry.getCoordinates() as Coordinate[] | Coordinate[][]
+            const coordinates: Coordinate[] | Coordinate[][] = geometry.getCoordinates() as
+                | Coordinate[]
+                | Coordinate[][]
             let component = coordinates
 
             deleted = false
@@ -1280,7 +1296,10 @@ export default class Modify extends PointerInteraction {
         return deleted
     }
 
-    private setGeometryCoordinates_(geometry: SimpleGeometry, coordinates: Coordinate | Coordinate[] | Coordinate[][] | Coordinate[][][]): void {
+    private setGeometryCoordinates_(
+        geometry: SimpleGeometry,
+        coordinates: Coordinate | Coordinate[] | Coordinate[][] | Coordinate[][][]
+    ): void {
         this.changingFeature_ = true
         geometry.setCoordinates(coordinates)
         this.changingFeature_ = false
@@ -1312,7 +1331,9 @@ export default class Modify extends PointerInteraction {
         })
     }
 
-    private getCoordinateFromEvent_(evt: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>): Coordinate {
+    private getCoordinateFromEvent_(
+        evt: MapBrowserEvent<PointerEvent | KeyboardEvent | WheelEvent>
+    ): Coordinate {
         const evtCoordinate = evt.coordinate.slice() as Coordinate
         if (this.pointerWrapX_) {
             wrapXCoordinate(evtCoordinate, evt.map.getView().getProjection())
@@ -1328,9 +1349,9 @@ export default class Modify extends PointerInteraction {
     ): number {
         const coordinate = fromUserCoordinate(point, viewProjection)
         const index = segmentData.index ?? 0
-        const segments =
-            this.subsegmentsFunction?.(segmentData.feature, index, viewExtent) ??
-            [segmentData.segment]
+        const segments = this.subsegmentsFunction?.(segmentData.feature, index, viewExtent) ?? [
+            segmentData.segment,
+        ]
         if (!segments.length) {
             return Infinity
         }
@@ -1353,9 +1374,9 @@ export default class Modify extends PointerInteraction {
     ): Coordinate | undefined {
         const coordinate = fromUserCoordinate(point, viewProjection)
         const index = segmentData.index ?? 0
-        const segments =
-            this.subsegmentsFunction?.(segmentData.feature, index, viewExtent!) ??
-            [segmentData.segment]
+        const segments = this.subsegmentsFunction?.(segmentData.feature, index, viewExtent!) ?? [
+            segmentData.segment,
+        ]
         if (!segments.length) {
             return undefined
         }

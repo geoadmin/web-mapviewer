@@ -3,7 +3,6 @@ import type { GeoAdminLayer, Layer } from '@swissgeo/layers'
 import redoSearch from '@/store/modules/search/utils/redoSearch'
 
 export default function rerunSearchLayerSearchable(layers: Layer[]): void {
-
     const internalLayers = layers.filter(
         (layer) => typeof layer !== 'string' && !layer.isExternal
     ) as GeoAdminLayer[]

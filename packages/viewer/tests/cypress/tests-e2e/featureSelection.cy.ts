@@ -50,7 +50,7 @@ describe('Testing the feature selection', () => {
         function checkFeatures(): void {
             cy.log(`Ensuring there are 10 selected features, and they're all different`)
 
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const featuresStore = useFeaturesStore(pinia)
                 const features = featuresStore.selectedFeatures
                 expect(features.length).to.eq(10)
@@ -64,7 +64,7 @@ describe('Testing the feature selection', () => {
         }
 
         function checkFeatureInfoPosition(expectedPosition: FeatureInfoPositions): void {
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const uiStore = useUIStore(pinia)
                 expect(uiStore.featureInfoPosition).to.equal(expectedPosition)
                 if (FeatureInfoPositions.None === expectedPosition) {
@@ -394,7 +394,7 @@ describe('Testing the feature selection', () => {
 
             cy.get('[data-cy="file-input-text"]').should('contain.value', fileName)
             cy.get('[data-cy="import-file-close-button"]:visible').click()
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const layersStore = useLayersStore(pinia)
                 expect(layersStore.activeLayers.length).to.eq(2)
                 expect(layersStore.visibleLayers.length).to.eq(2)
@@ -550,7 +550,7 @@ describe('Testing the feature selection', () => {
 
             cy.get('[data-cy="file-input-text"]').should('contain.value', fileName)
             cy.get('[data-cy="import-file-close-button"]:visible').click()
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const layersStore2 = useLayersStore(pinia)
                 expect(layersStore2.activeLayers.length).to.eq(1)
                 expect(layersStore2.visibleLayers.length).to.eq(1)
@@ -561,7 +561,7 @@ describe('Testing the feature selection', () => {
             cy.checkOlLayer(['test.background.layer2', fileName])
 
             cy.get('[data-cy="ol-map"]').as('olMap').should('be.visible')
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const featuresStore2 = useFeaturesStore(pinia)
                 expect(featuresStore2.selectedFeatures.length).to.eq(0)
             })
@@ -582,17 +582,17 @@ describe('Testing the feature selection', () => {
                     )
 
                     clickOnMap(pixel3, false)
-                    cy.getPinia().then(pinia => {
+                    cy.getPinia().then((pinia) => {
                         const featuresStore3 = useFeaturesStore(pinia)
                         expect(featuresStore3.selectedFeatures.length).to.eq(1)
                     })
                     clickOnMap(pixel1, true)
-                    cy.getPinia().then(pinia => {
+                    cy.getPinia().then((pinia) => {
                         const featuresStore4 = useFeaturesStore(pinia)
                         expect(featuresStore4.selectedFeatures.length).to.eq(2)
                     })
                     clickOnMap(pixel1, true)
-                    cy.getPinia().then(pinia => {
+                    cy.getPinia().then((pinia) => {
                         const featuresStore5 = useFeaturesStore(pinia)
                         expect(featuresStore5.selectedFeatures.length).to.eq(1)
                     })
@@ -622,7 +622,7 @@ describe('Testing the feature selection', () => {
             cy.wait(['@icon-sets', '@icon-set-babs', '@icon-set-default'])
 
             cy.get('[data-cy="import-file-close-button"]:visible').click()
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const layersStore3 = useLayersStore(pinia)
                 expect(layersStore3.activeLayers.length).to.eq(2)
                 expect(layersStore3.visibleLayers.length).to.eq(2)

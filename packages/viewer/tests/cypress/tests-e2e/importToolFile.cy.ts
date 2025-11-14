@@ -19,23 +19,25 @@ registerProj4(proj4)
 
 function checkVectorLayerHighlightingSegment(lastIndex: number = -1): number {
     let currentIndex: number = -1
-    cy.window().its('map').should((map: Map) => {
-        const vectorLayers = map
-            .getLayers()
-            .getArray()
-            .filter((layer: BaseLayer) => layer.get('id').startsWith('vector-layer-'))
-        const geomHighlightFeature = vectorLayers.find((layer: BaseLayer) => {
-            return layer
-                .getSource()
-                .getFeatures()
-                .find((feature: BaseLayer) => feature.get('id').startsWith('geom-segment-'))
+    cy.window()
+        .its('map')
+        .should((map: Map) => {
+            const vectorLayers = map
+                .getLayers()
+                .getArray()
+                .filter((layer: BaseLayer) => layer.get('id').startsWith('vector-layer-'))
+            const geomHighlightFeature = vectorLayers.find((layer: BaseLayer) => {
+                return layer
+                    .getSource()
+                    .getFeatures()
+                    .find((feature: BaseLayer) => feature.get('id').startsWith('geom-segment-'))
+            })
+            assertDefined(geomHighlightFeature)
+            currentIndex = vectorLayers.indexOf(geomHighlightFeature)
+            if (lastIndex === -1) {
+                expect(lastIndex).not.to.equal(currentIndex)
+            }
         })
-        assertDefined(geomHighlightFeature)
-        currentIndex = vectorLayers.indexOf(geomHighlightFeature)
-        if (lastIndex === -1) {
-            expect(lastIndex).not.to.equal(currentIndex)
-        }
-    })
     return currentIndex
 }
 
@@ -44,7 +46,7 @@ describe('The Import File Tool', () => {
         url: string,
         aliasName: string,
         getResponse: {
-            fixture?: string,
+            fixture?: string
             body?: string
             statusCode?: number
             headers?: { [key: string]: string }
@@ -72,7 +74,7 @@ describe('The Import File Tool', () => {
 
     it('Import KML file', () => {
         cy.goToMapView({ withHash: true })
-        cy.getPinia().then(pinia => {
+        cy.getPinia().then((pinia) => {
             const layersStore = useLayersStore(pinia)
             expect(layersStore.activeLayers).to.be.empty
         })
@@ -94,7 +96,7 @@ describe('The Import File Tool', () => {
         const bigKmlFileName = 'big-external-kml-file.kml'
         const bigKmlFileFixture = `import-tool/${bigKmlFileName}`
 
-        cy.getPinia().then(pinia => {
+        cy.getPinia().then((pinia) => {
             const layersStore2 = useLayersStore(pinia)
             expect(layersStore2.activeLayers).to.be.empty
         })
@@ -150,7 +152,7 @@ describe('The Import File Tool', () => {
         const iframeTestFile = 'iframe-test.kml'
         const iframeTestFileFixture = `import-tool/${iframeTestFile}`
 
-        cy.getPinia().then(pinia => {
+        cy.getPinia().then((pinia) => {
             const layersStore3 = useLayersStore(pinia)
             expect(layersStore3.activeLayers).to.be.empty
         })
@@ -206,12 +208,12 @@ describe('The Import File Tool', () => {
             .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-local-content"]').should('not.be.visible')
-        cy.getPinia().then(pinia => {
+        cy.getPinia().then((pinia) => {
             const layersStore4 = useLayersStore(pinia)
             expect(layersStore4.activeLayers).to.have.length(1)
         })
         cy.log('Test that the single kml feature is in center of the view (zoom to extent check)')
-        cy.getPinia().then(pinia => {
+        cy.getPinia().then((pinia) => {
             const positionStore = usePositionStore(pinia)
             const center = positionStore.center
             cy.wrap(center[0]).should('be.closeTo', 2776665.92, 1)
@@ -223,7 +225,7 @@ describe('The Import File Tool', () => {
         cy.log('Test re-adding the layer, should not have effect')
         cy.get('[data-cy="import-file-load-button"]:visible').click()
         cy.wait(['@headValidKmlFile', '@getValidKmlFile'])
-        cy.getPinia().then(pinia => {
+        cy.getPinia().then((pinia) => {
             const layersStore5 = useLayersStore(pinia)
             expect(layersStore5.activeLayers).to.have.length(1)
         })
@@ -251,7 +253,7 @@ describe('The Import File Tool', () => {
             .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-local-content"]').should('not.be.visible')
-        cy.getPinia().then(pinia => {
+        cy.getPinia().then((pinia) => {
             const layersStore6 = useLayersStore(pinia)
             expect(layersStore6.activeLayers).to.have.length(2)
         })
@@ -280,7 +282,7 @@ describe('The Import File Tool', () => {
             .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
-        cy.getPinia().then(pinia => {
+        cy.getPinia().then((pinia) => {
             const layersStore7 = useLayersStore(pinia)
             expect(layersStore7.activeLayers).to.have.length(3)
         })
@@ -289,7 +291,7 @@ describe('The Import File Tool', () => {
         // RE-add the layer should have no effect (no duplicate layer)
         cy.log('Test re-adding the layer, should not have effect')
         cy.get('[data-cy="import-file-load-button"]:visible').click()
-        cy.getPinia().then(pinia => {
+        cy.getPinia().then((pinia) => {
             const layersStore8 = useLayersStore(pinia)
             expect(layersStore8.activeLayers).to.have.length(3)
         })
@@ -325,7 +327,7 @@ describe('The Import File Tool', () => {
             .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
-        cy.getPinia().then(pinia => {
+        cy.getPinia().then((pinia) => {
             const layersStore9 = useLayersStore(pinia)
             expect(layersStore9.activeLayers).to.have.length(5)
         })
@@ -589,12 +591,14 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="warning-window-close"]').click({ force: true })
         cy.get('[data-cy="3d-button"]:visible').click()
         cy.waitUntilCesiumTilesLoaded()
-        cy.window().its('cesiumViewer').should((viewer: Viewer) => {
-            expect(viewer.scene.primitives.length).to.eq(
-                4,
-                'should have 1 primitive (KML file) on top of labels and buildings primitives'
-            )
-        })
+        cy.window()
+            .its('cesiumViewer')
+            .should((viewer: Viewer) => {
+                expect(viewer.scene.primitives.length).to.eq(
+                    4,
+                    'should have 1 primitive (KML file) on top of labels and buildings primitives'
+                )
+            })
 
         cy.log('adding a local KML file while being in the 3D viewer')
         cy.openMenuIfMobile()
@@ -608,13 +612,17 @@ describe('The Import File Tool', () => {
         cy.getPinia().then((pinia) => {
             const layersStore14 = useLayersStore(pinia)
             const activeLayers = layersStore14.activeLayers
-            const kmlLayerCount = activeLayers.filter((layer) => layer.type === LayerType.KML).length
-            cy.window().its('cesiumViewer').should((viewer: Viewer) => {
-                expect(viewer.dataSources.length).to.eq(
-                    kmlLayerCount,
-                    `should have ${kmlLayerCount} date source (KML files)`
-                )
-            })
+            const kmlLayerCount = activeLayers.filter(
+                (layer) => layer.type === LayerType.KML
+            ).length
+            cy.window()
+                .its('cesiumViewer')
+                .should((viewer: Viewer) => {
+                    expect(viewer.dataSources.length).to.eq(
+                        kmlLayerCount,
+                        `should have ${kmlLayerCount} date source (KML files)`
+                    )
+                })
         })
 
         cy.log('testing the import and profile viewer with a KML MultiPolygon file')
@@ -740,10 +748,7 @@ describe('The Import File Tool', () => {
 
         // Expected values per index - this is to avoid having nested
         // if statements
-        const errorDataMap: Record<
-            string,
-            { shouldHaveError: boolean; errorMessage?: string }
-        > = {
+        const errorDataMap: Record<string, { shouldHaveError: boolean; errorMessage?: string }> = {
             [validOnlineUrlWithInvalidContentType]: {
                 shouldHaveError: false,
             },
@@ -1236,9 +1241,7 @@ describe('The Import File Tool', () => {
 
         cy.log('Loading separated multi segment GPX file to test segment buttons')
         cy.openMenuIfMobile()
-        cy.get(
-            `[data-cy^="button-remove-layer-GPX|${validMultiSegmentOnlineUrl}"]:visible`
-        ).click()
+        cy.get(`[data-cy^="button-remove-layer-GPX|${validMultiSegmentOnlineUrl}"]:visible`).click()
         cy.getPinia().then((pinia) => {
             const layersStore24 = useLayersStore(pinia)
             expect(layersStore24.activeLayers).to.be.empty

@@ -7,21 +7,23 @@ import usePositionStore from '@/store/modules/position'
 import { CrossHairs } from '@/store/modules/position/types/crossHairs.enum'
 
 describe('Testing the crosshair URL param', () => {
-
     /**
      * Changes a URL parameter without reloading the app.
      *
      * Help when you want to change a value in the URL but don't want the whole app be reloaded from
      * scratch in the process.
      *
-     * @param urlParamName URL param name (present or not in the URL, will be added or
-     *   overwritten)
+     * @param urlParamName URL param name (present or not in the URL, will be added or overwritten)
      * @param urlParamValue The new URL param value we want to have
-     * @param amountOfExpectedStoreDispatches The number of dispatches this change in the URL
-     *   is going to trigger. This function will then wait for this amount of dispatch in the store
+     * @param amountOfExpectedStoreDispatches The number of dispatches this change in the URL is
+     *   going to trigger. This function will then wait for this amount of dispatch in the store
      *   before letting the test go further
      */
-    function changeUrlParam(urlParamName: string, urlParamValue: string | undefined, amountOfExpectedStoreDispatches = 1): void {
+    function changeUrlParam(
+        urlParamName: string,
+        urlParamValue: string | undefined,
+        amountOfExpectedStoreDispatches = 1
+    ): void {
         cy.window()
             .its('vueRouterHistory')
             .then((vueRouterHistory: RouterHistory) => {
@@ -83,9 +85,11 @@ describe('Testing the crosshair URL param', () => {
             })
         })
         it('sets the crosshair at the given coordinate if provided in the URL (and not at map center)', () => {
-            const crossHairPosition = DEFAULT_PROJECTION.bounds!.center.map((value: number) => value + 1000)
+            const crossHairPosition = DEFAULT_PROJECTION.bounds!.center.map(
+                (value: number) => value + 1000
+            )
             cy.goToMapView({
-                queryParams: { crosshair: `${CrossHairs.Bowl},${crossHairPosition.join(',')}` }
+                queryParams: { crosshair: `${CrossHairs.Bowl},${crossHairPosition.join(',')}` },
             })
             cy.getPinia().then((pinia) => {
                 const positionStore = usePositionStore(pinia)

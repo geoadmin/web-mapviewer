@@ -513,7 +513,7 @@ class KML extends XMLFeature {
         if (id !== null) {
             feature.setId(id)
         }
-        const options = /** @type {import('./Feature.js').ReadOptions} */ (objectStack[0])
+        const options = /** @type {import('./Feature.js').ReadOptions} */ objectStack[0]
 
         const geometry = object['geometry']
         if (geometry) {
@@ -670,11 +670,11 @@ class KML extends XMLFeature {
             })
         }
         if (isDocument(source)) {
-            return DOMPurify.sanitize(this.readNameFromDocument(/** @type {Document} */(source)), {
+            return DOMPurify.sanitize(this.readNameFromDocument(/** @type {Document} */ source), {
                 USE_PROFILES: { xml: true },
             })
         }
-        return DOMPurify.sanitize(this.readNameFromNode(/** @type {Element} */(source)), {
+        return DOMPurify.sanitize(this.readNameFromNode(/** @type {Element} */ source), {
             USE_PROFILES: { xml: true },
         })
     }
@@ -684,9 +684,9 @@ class KML extends XMLFeature {
      * @returns {string | undefined} Name.
      */
     readNameFromDocument(doc) {
-        for (let n = /** @type {Node} */ (doc.firstChild); n; n = n.nextSibling) {
+        for (let n = /** @type {Node} */ doc.firstChild; n; n = n.nextSibling) {
             if (n.nodeType == Node.ELEMENT_NODE) {
-                const name = this.readNameFromNode(/** @type {Element} */(n))
+                const name = this.readNameFromNode(/** @type {Element} */ n)
                 if (name) {
                     return name
                 }
@@ -736,12 +736,9 @@ class KML extends XMLFeature {
             const doc = parse(source)
             extend(networkLinks, this.readNetworkLinksFromDocument(doc))
         } else if (isDocument(source)) {
-            extend(
-                networkLinks,
-                this.readNetworkLinksFromDocument(/** @type {Document} */(source))
-            )
+            extend(networkLinks, this.readNetworkLinksFromDocument(/** @type {Document} */ source))
         } else {
-            extend(networkLinks, this.readNetworkLinksFromNode(/** @type {Element} */(source)))
+            extend(networkLinks, this.readNetworkLinksFromNode(/** @type {Element} */ source))
         }
         return networkLinks
     }
@@ -752,9 +749,9 @@ class KML extends XMLFeature {
      */
     readNetworkLinksFromDocument(doc) {
         const networkLinks = []
-        for (let n = /** @type {Node} */ (doc.firstChild); n; n = n.nextSibling) {
+        for (let n = /** @type {Node} */ doc.firstChild; n; n = n.nextSibling) {
             if (n.nodeType == Node.ELEMENT_NODE) {
-                extend(networkLinks, this.readNetworkLinksFromNode(/** @type {Element} */(n)))
+                extend(networkLinks, this.readNetworkLinksFromNode(/** @type {Element} */ n))
             }
         }
         return networkLinks
@@ -797,9 +794,9 @@ class KML extends XMLFeature {
             const doc = parse(source)
             extend(regions, this.readRegionFromDocument(doc))
         } else if (isDocument(source)) {
-            extend(regions, this.readRegionFromDocument(/** @type {Document} */(source)))
+            extend(regions, this.readRegionFromDocument(/** @type {Document} */ source))
         } else {
-            extend(regions, this.readRegionFromNode(/** @type {Element} */(source)))
+            extend(regions, this.readRegionFromNode(/** @type {Element} */ source))
         }
         return regions
     }
@@ -810,9 +807,9 @@ class KML extends XMLFeature {
      */
     readRegionFromDocument(doc) {
         const regions = []
-        for (let n = /** @type {Node} */ (doc.firstChild); n; n = n.nextSibling) {
+        for (let n = /** @type {Node} */ doc.firstChild; n; n = n.nextSibling) {
             if (n.nodeType == Node.ELEMENT_NODE) {
-                extend(regions, this.readRegionFromNode(/** @type {Element} */(n)))
+                extend(regions, this.readRegionFromNode(/** @type {Element} */ n))
             }
         }
         return regions
@@ -868,9 +865,9 @@ class KML extends XMLFeature {
             const doc = parse(source)
             extend(cameras, this.readCameraFromDocument(doc))
         } else if (isDocument(source)) {
-            extend(cameras, this.readCameraFromDocument(/** @type {Document} */(source)))
+            extend(cameras, this.readCameraFromDocument(/** @type {Document} */ source))
         } else {
-            extend(cameras, this.readCameraFromNode(/** @type {Element} */(source)))
+            extend(cameras, this.readCameraFromNode(/** @type {Element} */ source))
         }
         return cameras
     }
@@ -881,9 +878,9 @@ class KML extends XMLFeature {
      */
     readCameraFromDocument(doc) {
         const cameras = []
-        for (let n = /** @type {Node} */ (doc.firstChild); n; n = n.nextSibling) {
+        for (let n = /** @type {Node} */ doc.firstChild; n; n = n.nextSibling) {
             if (n.nodeType === Node.ELEMENT_NODE) {
-                extend(cameras, this.readCameraFromNode(/** @type {Element} */(n)))
+                extend(cameras, this.readCameraFromNode(/** @type {Element} */ n))
             }
         }
         return cameras
@@ -935,8 +932,8 @@ class KML extends XMLFeature {
         kml.setAttributeNS(XML_SCHEMA_INSTANCE_URI, 'xsi:schemaLocation', SCHEMA_LOCATION)
 
         const /** @type {import('../xml.js').NodeStackItem} */ context = {
-            node: kml,
-        }
+                node: kml,
+            }
         /** @type {!Object<string, Feature[] | Feature | undefined>} */
         const properties = {}
         if (features.length > 1) {
@@ -1048,7 +1045,7 @@ function createFeatureStyleFunction(style, styleUrl, defaultStyle, sharedStyles,
             }
 
             if (drawName) {
-                name = /** @type {string} */ (feature.get('name'))
+                name = /** @type {string} */ feature.get('name')
                 drawName = drawName && !!name
                 // convert any html character codes
                 if (drawName && /&[^&]+;/.test(name)) {
@@ -1277,11 +1274,11 @@ function iconStyleParser(node, objectStack) {
     if (!object) {
         return
     }
-    const styleObject = /** @type {Object} */ (objectStack[objectStack.length - 1])
+    const styleObject = /** @type {Object} */ objectStack[objectStack.length - 1]
     const IconObject = 'Icon' in object ? object['Icon'] : {}
     const drawIcon = !('Icon' in object) || Object.keys(IconObject).length > 0
     let src
-    const href = /** @type {string | undefined} */ (IconObject['href'])
+    const href = /** @type {string | undefined} */ IconObject['href']
     if (href) {
         src = href
     } else if (drawIcon) {
@@ -1290,7 +1287,7 @@ function iconStyleParser(node, objectStack) {
     let anchor, anchorXUnits, anchorYUnits
     /** @type {import('../style/Icon.js').IconOrigin | undefined} */
     let anchorOrigin = 'bottom-left'
-    const hotSpot = /** @type {Vec2 | undefined} */ (object['hotSpot'])
+    const hotSpot = /** @type {Vec2 | undefined} */ object['hotSpot']
     if (hotSpot) {
         anchor = [hotSpot.x, hotSpot.y]
         anchorXUnits = hotSpot.xunits
@@ -1314,28 +1311,28 @@ function iconStyleParser(node, objectStack) {
     }
 
     let offset
-    const x = /** @type {number | undefined} */ (IconObject['x'])
-    const y = /** @type {number | undefined} */ (IconObject['y'])
+    const x = /** @type {number | undefined} */ IconObject['x']
+    const y = /** @type {number | undefined} */ IconObject['y']
     if (x !== undefined && y !== undefined) {
         offset = [x, y]
     }
 
     let size
-    const w = /** @type {number | undefined} */ (IconObject['w'])
-    const h = /** @type {number | undefined} */ (IconObject['h'])
+    const w = /** @type {number | undefined} */ IconObject['w']
+    const h = /** @type {number | undefined} */ IconObject['h']
     if (w !== undefined && h !== undefined) {
         size = [w, h]
     }
 
     let rotation
-    const heading = /** @type {number} */ (object['heading'])
+    const heading = /** @type {number} */ object['heading']
     if (heading !== undefined) {
         rotation = toRadians(heading)
     }
 
-    const scale = /** @type {number | undefined} */ (object['scale'])
+    const scale = /** @type {number | undefined} */ object['scale']
 
-    const color = /** @type {number[] | undefined} */ (object['color'])
+    const color = /** @type {number[] | undefined} */ object['color']
 
     if (drawIcon) {
         if (src == DEFAULT_IMAGE_STYLE_SRC) {
@@ -1414,9 +1411,9 @@ function labelStyleParser(node, objectStack) {
         fill: new Fill({
             color:
                 /** @type {import('../color.js').Color} */
-                ('color' in object ? object['color'] : DEFAULT_COLOR),
+                'color' in object ? object['color'] : DEFAULT_COLOR,
         }),
-        scale: /** @type {number | undefined} */ (object['scale']),
+        scale: /** @type {number | undefined} */ object['scale'],
     })
     styleObject['textStyle'] = textStyle
 }
@@ -1449,8 +1446,8 @@ function lineStyleParser(node, objectStack) {
     const strokeStyle = new Stroke({
         color:
             /** @type {import('../color.js').Color} */
-            ('color' in object ? object['color'] : DEFAULT_COLOR),
-        width: /** @type {number} */ ('width' in object ? object['width'] : 1),
+            'color' in object ? object['color'] : DEFAULT_COLOR,
+        width: /** @type {number} */ 'width' in object ? object['width'] : 1,
     })
     styleObject['strokeStyle'] = strokeStyle
 }
@@ -1480,14 +1477,14 @@ function polyStyleParser(node, objectStack) {
     const fillStyle = new Fill({
         color:
             /** @type {import('../color.js').Color} */
-            ('color' in object ? object['color'] : DEFAULT_COLOR),
+            'color' in object ? object['color'] : DEFAULT_COLOR,
     })
     styleObject['fillStyle'] = fillStyle
-    const fill = /** @type {boolean | undefined} */ (object['fill'])
+    const fill = /** @type {boolean | undefined} */ object['fill']
     if (fill !== undefined) {
         styleObject['fill'] = fill
     }
-    const outline = /** @type {boolean | undefined} */ (object['outline'])
+    const outline = /** @type {boolean | undefined} */ object['outline']
     if (outline !== undefined) {
         styleObject['outline'] = outline
     }
@@ -1518,7 +1515,7 @@ function readFlatLinearRing(node, objectStack) {
 function gxCoordParser(node, objectStack) {
     const gxTrackObject =
         /** @type {GxTrackObject} */
-        (objectStack[objectStack.length - 1])
+        objectStack[objectStack.length - 1]
     const coordinates = gxTrackObject.coordinates
     const s = getAllTextContent(node, false)
     const re =
@@ -1578,10 +1575,10 @@ const GX_TRACK_PARSERS = makeStructureNS(
  */
 function readGxTrack(node, objectStack) {
     const gxTrackObject = pushParseAndPop(
-        /** @type {GxTrackObject} */({
+        /** @type {GxTrackObject} */ {
             coordinates: [],
             whens: [],
-        }),
+        },
         GX_TRACK_PARSERS,
         node,
         objectStack
@@ -1756,7 +1753,7 @@ function readMultiGeometry(node, objectStack) {
     } else {
         multiGeometry = new GeometryCollection(geometries)
     }
-    return /** @type {import('../geom/Geometry.js').default} */ (multiGeometry)
+    return /** @type {import('../geom/Geometry.js').default} */ multiGeometry
 }
 
 /**
@@ -1792,7 +1789,7 @@ const FLAT_LINEAR_RINGS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  */
 function readPolygon(node, objectStack) {
     const properties = pushParseAndPop(
-        /** @type {Object<string, any>} */({}),
+        /** @type {Object<string, any>} */ {},
         EXTRUDE_AND_ALTITUDE_MODE_PARSERS,
         node,
         objectStack
@@ -1837,28 +1834,27 @@ function readStyle(node, objectStack) {
     }
     let fillStyle =
         /** @type {Fill} */
-        ('fillStyle' in styleObject ? styleObject['fillStyle'] : DEFAULT_FILL_STYLE)
-    const fill = /** @type {boolean | undefined} */ (styleObject['fill'])
+        'fillStyle' in styleObject ? styleObject['fillStyle'] : DEFAULT_FILL_STYLE
+    const fill = /** @type {boolean | undefined} */ styleObject['fill']
     if (fill !== undefined && !fill) {
         fillStyle = null
     }
     let imageStyle
     if ('imageStyle' in styleObject) {
         if (styleObject['imageStyle'] != DEFAULT_NO_IMAGE_STYLE) {
-            imageStyle = /** @type {import('../style/Image.js').default} */ (
-                styleObject['imageStyle']
-            )
+            imageStyle =
+                /** @type {import('../style/Image.js').default} */ styleObject['imageStyle']
         }
     } else {
         imageStyle = DEFAULT_IMAGE_STYLE
     }
     const textStyle =
         /** @type {Text} */
-        ('textStyle' in styleObject ? styleObject['textStyle'] : DEFAULT_TEXT_STYLE)
+        'textStyle' in styleObject ? styleObject['textStyle'] : DEFAULT_TEXT_STYLE
     const strokeStyle =
         /** @type {Stroke} */
-        ('strokeStyle' in styleObject ? styleObject['strokeStyle'] : DEFAULT_STROKE_STYLE)
-    const outline = /** @type {boolean | undefined} */ (styleObject['outline'])
+        'strokeStyle' in styleObject ? styleObject['strokeStyle'] : DEFAULT_STROKE_STYLE
+    const outline = /** @type {boolean | undefined} */ styleObject['outline']
     if (outline !== undefined && !outline) {
         // if the polystyle specifies no outline two styles are needed,
         // one for non-polygon geometries where linestrings require a stroke
@@ -1870,7 +1866,7 @@ function readStyle(node, objectStack) {
                     const type = geometry.getType()
                     if (type === 'GeometryCollection') {
                         const collection =
-                            /** @type {import('../geom/GeometryCollection').default} */ (geometry)
+                            /** @type {import('../geom/GeometryCollection').default} */ geometry
                         return new GeometryCollection(
                             collection.getGeometriesArrayRecursive().filter(function (geometry) {
                                 const type = geometry.getType()
@@ -1894,7 +1890,7 @@ function readStyle(node, objectStack) {
                     const type = geometry.getType()
                     if (type === 'GeometryCollection') {
                         const collection =
-                            /** @type {import('../geom/GeometryCollection').default} */ (geometry)
+                            /** @type {import('../geom/GeometryCollection').default} */ geometry
                         return new GeometryCollection(
                             collection.getGeometriesArrayRecursive().filter(function (geometry) {
                                 const type = geometry.getType()
@@ -1976,7 +1972,7 @@ const DATA_PARSERS = makeStructureNS(NAMESPACE_URIS, {
 function dataParser(node, objectStack) {
     const name = node.getAttribute('name')
     parseNode(DATA_PARSERS, node, objectStack)
-    const featureObject = /** @type {Object} */ (objectStack[objectStack.length - 1])
+    const featureObject = /** @type {Object} */ objectStack[objectStack.length - 1]
     if (name && featureObject.displayName) {
         featureObject[name] = {
             value: featureObject.value,
@@ -2039,13 +2035,13 @@ function pairDataParser(node, objectStack) {
     if (!pairObject) {
         return
     }
-    const key = /** @type {string | undefined} */ (pairObject['key'])
+    const key = /** @type {string | undefined} */ pairObject['key']
     if (key && key == 'normal') {
-        const styleUrl = /** @type {string | undefined} */ (pairObject['styleUrl'])
+        const styleUrl = /** @type {string | undefined} */ pairObject['styleUrl']
         if (styleUrl) {
             objectStack[objectStack.length - 1] = styleUrl
         }
-        const style = /** @type {Style} */ (pairObject['Style'])
+        const style = /** @type {Style} */ pairObject['Style']
         if (style) {
             objectStack[objectStack.length - 1] = style
         }
@@ -2097,7 +2093,7 @@ function simpleDataParser(node, objectStack) {
     const name = node.getAttribute('name')
     if (name !== null) {
         const data = readString(node)
-        const featureObject = /** @type {Object} */ (objectStack[objectStack.length - 1])
+        const featureObject = /** @type {Object} */ objectStack[objectStack.length - 1]
         featureObject[name] = data
     }
 }
@@ -2126,7 +2122,7 @@ function latLonAltBoxParser(node, objectStack) {
     if (!object) {
         return
     }
-    const regionObject = /** @type {Object} */ (objectStack[objectStack.length - 1])
+    const regionObject = /** @type {Object} */ objectStack[objectStack.length - 1]
     const extent = [
         parseFloat(object['west']),
         parseFloat(object['south']),
@@ -2160,7 +2156,7 @@ function lodParser(node, objectStack) {
     if (!object) {
         return
     }
-    const lodObject = /** @type {Object} */ (objectStack[objectStack.length - 1])
+    const lodObject = /** @type {Object} */ objectStack[objectStack.length - 1]
     lodObject['minLodPixels'] = parseFloat(object['minLodPixels'])
     lodObject['maxLodPixels'] = parseFloat(object['maxLodPixels'])
     lodObject['minFadeExtent'] = parseFloat(object['minFadeExtent'])
@@ -2184,7 +2180,7 @@ const INNER_BOUNDARY_IS_PARSERS = makeStructureNS(NAMESPACE_URIS, {
  */
 function innerBoundaryIsParser(node, objectStack) {
     const innerBoundaryFlatLinearRings = pushParseAndPop(
-        /** @type {number[][]} */([]),
+        /** @type {number[][]} */ [],
         INNER_BOUNDARY_IS_PARSERS,
         node,
         objectStack
@@ -2192,7 +2188,7 @@ function innerBoundaryIsParser(node, objectStack) {
     if (innerBoundaryFlatLinearRings.length > 0) {
         const flatLinearRings =
             /** @type {number[][]} */
-            (objectStack[objectStack.length - 1])
+            objectStack[objectStack.length - 1]
         flatLinearRings.push(...innerBoundaryFlatLinearRings)
     }
 }
@@ -2216,7 +2212,7 @@ function outerBoundaryIsParser(node, objectStack) {
     if (flatLinearRing) {
         const flatLinearRings =
             /** @type {number[][]} */
-            (objectStack[objectStack.length - 1])
+            objectStack[objectStack.length - 1]
         flatLinearRings[0] = flatLinearRing
     }
 }
@@ -2236,7 +2232,7 @@ function linkParser(node, objectStack) {
 function whenParser(node, objectStack) {
     const gxTrackObject =
         /** @type {GxTrackObject} */
-        (objectStack[objectStack.length - 1])
+        objectStack[objectStack.length - 1]
     const whens = gxTrackObject.whens
     const s = getAllTextContent(node, false)
     const when = Date.parse(s)
@@ -2253,7 +2249,7 @@ function writeColorTextNode(node, color) {
     /** @type {(string | number)[]} */
     const abgr = [opacity * 255, rgba[2], rgba[1], rgba[0]]
     for (let i = 0; i < 4; ++i) {
-        const hex = Math.floor(/** @type {number} */(abgr[i])).toString(16)
+        const hex = Math.floor(/** @type {number} */ abgr[i]).toString(16)
         abgr[i] = hex.length == 1 ? '0' + hex : hex
     }
     writeStringTextNode(node, abgr.join(''))
@@ -2561,11 +2557,11 @@ function writeIconStyle(node, style, objectStack) {
 
         if (anchor && (anchor[0] !== size[0] / 2 || anchor[1] !== size[1] / 2)) {
             const /** @type {Vec2} */ hotSpot = {
-                x: anchor[0],
-                xunits: 'pixels',
-                y: size[1] - anchor[1],
-                yunits: 'pixels',
-            }
+                    x: anchor[0],
+                    xunits: 'pixels',
+                    y: size[1] - anchor[1],
+                    yunits: 'pixels',
+                }
             properties['hotSpot'] = hotSpot
         }
     }
@@ -2723,7 +2719,7 @@ const GEOMETRY_NODE_FACTORY = function (value, objectStack, nodeName) {
         return createElementNS(
             parentNode.namespaceURI,
             GEOMETRY_TYPE_TO_NODENAME[
-                /** @type {import('../geom/Geometry.js').default} */ (value).getType()
+                /** @type {import('../geom/Geometry.js').default} */ value.getType()
             ]
         )
     }
@@ -2792,14 +2788,14 @@ function writeMultiGeometry(node, geometry, objectStack) {
             .forEach(function (geometry) {
                 const type = geometry.getType()
                 if (type === 'MultiPoint') {
-                    geometries = geometries.concat(/** @type {MultiPoint} */(geometry).getPoints())
+                    geometries = geometries.concat(/** @type {MultiPoint} */ geometry.getPoints())
                 } else if (type === 'MultiLineString') {
                     geometries = geometries.concat(
-                        /** @type {MultiLineString} */(geometry).getLineStrings()
+                        /** @type {MultiLineString} */ geometry.getLineStrings()
                     )
                 } else if (type === 'MultiPolygon') {
                     geometries = geometries.concat(
-                        /** @type {MultiPolygon} */(geometry).getPolygons()
+                        /** @type {MultiPolygon} */ geometry.getPolygons()
                     )
                 } else if (type === 'Point' || type === 'LineString' || type === 'Polygon') {
                     geometries.push(geometry)
@@ -2809,13 +2805,13 @@ function writeMultiGeometry(node, geometry, objectStack) {
             })
         factory = GEOMETRY_NODE_FACTORY
     } else if (type === 'MultiPoint') {
-        geometries = /** @type {MultiPoint} */ (geometry).getPoints()
+        geometries = /** @type {MultiPoint} */ geometry.getPoints()
         factory = POINT_NODE_FACTORY
     } else if (type === 'MultiLineString') {
-        geometries = /** @type {MultiLineString} */ (geometry).getLineStrings()
+        geometries = /** @type {MultiLineString} */ geometry.getLineStrings()
         factory = LINE_STRING_NODE_FACTORY
     } else if (type === 'MultiPolygon') {
-        geometries = /** @type {MultiPolygon} */ (geometry).getPolygons()
+        geometries = /** @type {MultiPolygon} */ geometry.getPolygons()
         factory = POLYGON_NODE_FACTORY
     } else {
         throw new Error('Unknown geometry type')
@@ -2907,7 +2903,7 @@ function writePlacemark(node, feature, objectStack) {
 
     // set id
     if (feature.getId()) {
-        node.setAttribute('id', /** @type {string} */(feature.getId()))
+        node.setAttribute('id', /** @type {string} */ feature.getId())
     }
 
     // serialize properties (properties unknown to KML are not serialized)
@@ -2944,7 +2940,7 @@ function writePlacemark(node, feature, objectStack) {
                     if (geometry) {
                         const type = geometry.getType()
                         if (type === 'GeometryCollection') {
-                            return /** @type {GeometryCollection} */ (geometry)
+                            return /** @type {GeometryCollection} */ geometry
                                 .getGeometriesArrayRecursive()
                                 .filter(function (geometry) {
                                     const type = geometry.getType()
@@ -2954,7 +2950,7 @@ function writePlacemark(node, feature, objectStack) {
                         return type === 'Point' || type === 'MultiPoint'
                     }
                 })
-                    ; ('Point')
+                ;('Point')
             }
             if (this.writeStyles_) {
                 let lineStyles = styleArray
@@ -2965,7 +2961,7 @@ function writePlacemark(node, feature, objectStack) {
                         if (geometry) {
                             const type = geometry.getType()
                             if (type === 'GeometryCollection') {
-                                return /** @type {GeometryCollection} */ (geometry)
+                                return /** @type {GeometryCollection} */ geometry
                                     .getGeometriesArrayRecursive()
                                     .filter(function (geometry) {
                                         const type = geometry.getType()
@@ -2980,7 +2976,7 @@ function writePlacemark(node, feature, objectStack) {
                         if (geometry) {
                             const type = geometry.getType()
                             if (type === 'GeometryCollection') {
-                                return /** @type {GeometryCollection} */ (geometry)
+                                return /** @type {GeometryCollection} */ geometry
                                     .getGeometriesArrayRecursive()
                                     .filter(function (geometry) {
                                         const type = geometry.getType()
@@ -3030,7 +3026,7 @@ function writePlacemark(node, feature, objectStack) {
     }
 
     // serialize geometry
-    const options = /** @type {import('./Feature.js').WriteOptions} */ (objectStack[0])
+    const options = /** @type {import('./Feature.js').WriteOptions} */ objectStack[0]
     let geometry = feature.getGeometry()
     if (geometry) {
         geometry = transformGeometryWithOptions(geometry, true, options)
@@ -3241,7 +3237,7 @@ function writeStyle(node, styles, objectStack) {
             properties['LabelStyle'] = textStyle
         }
         const imageStyle = styles.pointStyles[0].getImage()
-        if (imageStyle && typeof (/** @type {?} */ (imageStyle).getSrc) === 'function') {
+        if (imageStyle && typeof (/** @type {?} */ imageStyle.getSrc) === 'function') {
             properties['IconStyle'] = imageStyle
         }
     }

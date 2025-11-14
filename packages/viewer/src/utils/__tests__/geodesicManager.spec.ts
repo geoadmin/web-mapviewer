@@ -55,16 +55,15 @@ function validateResults(geodesic: GeodesicGeometries, exp: ExpectedResults): vo
     const polygonGeom = geodesic.getGeodesicPolygonGeom()
     // If geodesicPolygonGeom is explicitly set (even to undefined), use it as-is
     // Otherwise, default to geodesicGeom for backwards compatibility
-    const expPolygonGeom =
-        'geodesicPolygonGeom' in exp
-            ? exp.geodesicPolygonGeom
-            : exp.geodesicGeom
+    const expPolygonGeom = 'geodesicPolygonGeom' in exp ? exp.geodesicPolygonGeom : exp.geodesicGeom
     if (expPolygonGeom) {
         expect(polygonGeom).to.be.instanceOf(MultiPolygon)
         expect(polygonGeom!.getCoordinates()).to.have.length(expPolygonGeom.length) // nb polygons
         for (let i = 0; i < expPolygonGeom.length; i++) {
             expect(polygonGeom!.getCoordinates()[i]!).to.have.length(1) // 1 Subpolygon
-            expect(polygonGeom!.getCoordinates()[i]![0]!).to.have.length(expPolygonGeom[i]!.length + 1)
+            expect(polygonGeom!.getCoordinates()[i]![0]!).to.have.length(
+                expPolygonGeom[i]!.length + 1
+            )
             checkCoordsEqual(polygonGeom!.getCoordinates()[i]![0]!, [
                 ...expPolygonGeom[i]!,
                 expPolygonGeom[i]![0]!,
@@ -90,7 +89,9 @@ describe('Unit tests for Geodesic geometries', () => {
     it('test azimuth calculation', () => {
         expect(constructGeodLineString([0, 500], [0, 600]).rotation).to.equal(0)
         expect(constructGeodLineString([500, 10], [600, 10]).rotation!.toFixed(2)).to.equal('90.00')
-        expect(constructGeodLineString([600, 10], [500, 10]).rotation!.toFixed(2)).to.equal('270.00')
+        expect(constructGeodLineString([600, 10], [500, 10]).rotation!.toFixed(2)).to.equal(
+            '270.00'
+        )
         const line = constructGeodLineString([1064265.7618468616, 5882082.735211225])
         expect(line.rotation).to.equal(undefined)
     })

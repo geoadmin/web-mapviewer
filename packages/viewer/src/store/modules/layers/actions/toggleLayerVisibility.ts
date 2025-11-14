@@ -1,15 +1,15 @@
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { GetLayerIdOptions, GetLayerIdResult } from '@/store/modules/layers/actions/identifyFeatures'
+import type {
+    GetLayerIdOptions,
+    GetLayerIdResult,
+} from '@/store/modules/layers/actions/identifyFeatures'
 import type { LayersStore } from '@/store/modules/layers/types/layers'
 import type { ActionDispatcher } from '@/store/types'
 
 import useFeaturesStore from '@/store/modules/features'
 
-/**
- * Toggle the layer visibility of the layer corresponding to this index, in the active layer
- * list
- */
+/** Toggle the layer visibility of the layer corresponding to this index, in the active layer list */
 export default function toggleLayerVisibility(
     this: LayersStore,
     index: number,

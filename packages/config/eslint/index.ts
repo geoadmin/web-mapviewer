@@ -117,7 +117,7 @@ export const vueConfig: FlatConfig.ConfigArray = defineConfigWithVueTs(
                 { type: 'alphabetical', internalPattern: ['^@/.*'] },
             ],
             // Enforce consistent brace style for all control statements
-            'curly': ['error', 'all'],
+            curly: ['error', 'all'],
             // Enforce opening brace on same line and closing brace on new line
             'brace-style': ['error', '1tbs', { allowSingleLine: false }],
             ...noUnusedVarsRules,
@@ -187,7 +187,7 @@ export const jsConfig: FlatConfig.ConfigArray = [
                 { type: 'alphabetical', internalPattern: ['^@/.*'] },
             ],
             // Enforce consistent brace style for all control statements
-            'curly': ['error', 'all'],
+            curly: ['error', 'all'],
             // Enforce opening brace on same line and closing brace on new line
             'brace-style': ['error', '1tbs', { allowSingleLine: false }],
             ...noUnusedVarsRules,
@@ -228,7 +228,7 @@ const defaultConfig: FlatConfig.ConfigArray = tsESLint.config(
                 { type: 'alphabetical', internalPattern: ['^@/.*'] },
             ],
             // Enforce consistent brace style for all control statements
-            'curly': ['error', 'all'],
+            curly: ['error', 'all'],
             // Enforce opening brace on same line and closing brace on new line
             'brace-style': ['error', '1tbs', { allowSingleLine: false }],
         },

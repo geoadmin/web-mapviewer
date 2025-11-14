@@ -62,7 +62,7 @@ describe('Testing transitioning between 2D and 3D', () => {
             })
             it('correctly parses the 3D param at startup if present', () => {
                 cy.goToMapView({
-                    queryParams: { '3d': true }
+                    queryParams: { '3d': true },
                 })
                 cy.getPinia().then((pinia) => {
                     const cesiumStore5 = useCesiumStore(pinia)
@@ -111,8 +111,7 @@ describe('Testing transitioning between 2D and 3D', () => {
                     expect(camera?.roll).to.eq(expectedCameraPosition.roll)
                 })
             })
-            it('adds the camera URL param when changing the camera position', () => {
-            })
+            it('adds the camera URL param when changing the camera position', () => {})
         })
     })
 })
@@ -127,18 +126,20 @@ context('transition to 3D', () => {
             },
         })
         cy.get('[data-cy="3d-button"]').click()
-        cy.window().its('cesiumViewer').then((viewer) => {
-            const cameraPosition = viewer.camera.positionCartographic
-            const acceptableDelta = 0.000001
-            expect(cameraPosition.longitude).to.be.closeTo(
-                CesiumMath.toRadians(lon),
-                acceptableDelta
-            )
-            expect(cameraPosition.latitude).to.be.closeTo(
-                CesiumMath.toRadians(lat),
-                acceptableDelta
-            )
-            // TODO: test zoom to height as soon as the conversion is implemented
-        })
+        cy.window()
+            .its('cesiumViewer')
+            .then((viewer) => {
+                const cameraPosition = viewer.camera.positionCartographic
+                const acceptableDelta = 0.000001
+                expect(cameraPosition.longitude).to.be.closeTo(
+                    CesiumMath.toRadians(lon),
+                    acceptableDelta
+                )
+                expect(cameraPosition.latitude).to.be.closeTo(
+                    CesiumMath.toRadians(lat),
+                    acceptableDelta
+                )
+                // TODO: test zoom to height as soon as the conversion is implemented
+            })
     })
 })

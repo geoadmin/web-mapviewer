@@ -24,10 +24,7 @@ import Style from 'ol/style/Style'
 import type { EditableFeature } from '@/api/features.api'
 import type { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
 
-import {
-    EditableFeatureTypes,
-    extractOlFeatureCoordinates,
-} from '@/api/features.api'
+import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@/api/features.api'
 import { proxifyUrl } from '@/api/file-proxy.api'
 import { DEFAULT_TITLE_OFFSET } from '@/config/icons.config'
 import { LOCAL_OR_INTERNAL_URL_REGEX } from '@/config/regex.config'

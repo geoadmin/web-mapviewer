@@ -28,14 +28,20 @@
         "test:unit:watch": "pnpm run --recursive --if-present  test:unit:watch",
         "update:workspace": "tsx ./scripts/update-pnpm-workspace.ts"
     },
+    "devDependencies": {
+        "@prettier/plugin-xml": "catalog:",
+        "@swissgeo/config-prettier": "workspace:*",
+        "@types/node": "catalog:",
+        "prettier": "catalog:",
+        "prettier-plugin-jsdoc": "catalog:",
+        "prettier-plugin-packagejson": "catalog:",
+        "prettier-plugin-tailwindcss": "catalog:",
+        "tsx": "catalog:",
+        "yaml": "catalog:"
+    },
     "engines": {
         "node": ">=22.18",
         "pnpm": ">=10.15"
-    },
-    "devDependencies": {
-        "@types/node": "catalog:",
-        "tsx": "catalog:",
-        "yaml": "catalog:"
     },
     "pnpm": {
         "onlyBuiltDependencies": [
@@ -45,6 +51,9 @@
             "sharp",
             "vue-demi"
         ],
+        "patchedDependencies": {
+            "vite@7.1.11": "patches/vite@7.1.11.patch"
+        },
         "ignoredBuiltDependencies": [
             "core-js",
             "cypress",
@@ -52,9 +61,6 @@
             "esbuild",
             "protobufjs",
             "sharp"
-        ],
-        "patchedDependencies": {
-            "vite@7.1.11": "patches/vite@7.1.11.patch"
-        }
+        ]
     }
 }

@@ -30,7 +30,7 @@ describe('Testing the share menu', () => {
     })
     context('Short link generation', () => {
         it('Does not generate a short link at startup', () => {
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const shareStore = useShareStore(pinia)
                 expect(shareStore.shortLink).to.eq(undefined)
             })
@@ -39,7 +39,7 @@ describe('Testing the share menu', () => {
             cy.get('[data-cy="menu-share-section"]').click()
             // a short link should be generated as it is our first time opening this section
             cy.wait('@shortLink')
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const shareStore = useShareStore(pinia)
                 expect(shareStore.shortLink).to.eq(dummyShortLink)
             })
@@ -51,7 +51,7 @@ describe('Testing the share menu', () => {
             // change the language in order to change the URL
             cy.clickOnLanguage('fr')
             // checking that the shortLink value doesn't exist anymore
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const shareStore = useShareStore(pinia)
                 expect(shareStore.shortLink).to.eq(undefined)
             })
@@ -84,7 +84,7 @@ describe('Testing the share menu', () => {
             cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
             cy.get('[data-cy="menu-share-section"]').click()
             cy.wait('@shortLink')
-            cy.getPinia().then(pinia => {
+            cy.getPinia().then((pinia) => {
                 const shareStore = useShareStore(pinia)
                 expect(shareStore.shortLink).to.eq(dummyShortLink)
             })
@@ -137,7 +137,7 @@ describe('Testing the share menu', () => {
                     // closing the menu
                     cy.get('[data-cy="menu-button"]').click()
                     // faking a move of the app, so that the GPS is still active, but the tracking is off
-                    cy.getPinia().then(pinia => {
+                    cy.getPinia().then((pinia) => {
                         const geolocationStore = useGeolocationStore(pinia)
                         geolocationStore.setGeolocationTracking(false, { name: 'e2e-test' })
                     })
@@ -330,7 +330,7 @@ describe('Testing the share menu', () => {
 
                 // Test local import
                 cy.goToMapView({ withHash: true })
-                cy.getPinia().then(pinia => {
+                cy.getPinia().then((pinia) => {
                     const layersStore = useLayersStore(pinia)
                     expect(layersStore.activeLayers).to.be.empty
                 })
@@ -362,7 +362,7 @@ describe('Testing the share menu', () => {
                     .should('be.visible')
                     .contains('Import')
                 cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
-                cy.getPinia().then(pinia => {
+                cy.getPinia().then((pinia) => {
                     const layersStore = useLayersStore(pinia)
                     expect(layersStore.activeLayers).to.have.length(1)
                 })

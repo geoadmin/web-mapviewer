@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { assertDefined } from "support/utils"
+import { assertDefined } from 'support/utils'
 
 import useLayersStore from '@/store/modules/layers'
 
@@ -120,7 +120,7 @@ describe('Testing the embed view', () => {
             legacy: true,
             queryParams: {
                 zoom: 2,
-            }
+            },
         })
 
         cy.log(`Check that the menu and the header are not displayed`)

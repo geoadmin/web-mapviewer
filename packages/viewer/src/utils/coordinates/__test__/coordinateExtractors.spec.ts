@@ -35,7 +35,8 @@ describe('Unit test functions from coordinateExtractors.js', () => {
          * @param text The input to be given to coordinateFromString
          * @param expected What is expected of coordinateFromString as output
          * @param message Message to be shown if the test fails (in the unit test index)
-         * @param acceptableDelta If a delta with the expected result is acceptable (default is zero)
+         * @param acceptableDelta If a delta with the expected result is acceptable (default is
+         *   zero)
          * @param projection Which projection is the output of the parsing
          */
         const checkText = (
@@ -175,8 +176,8 @@ describe('Unit test functions from coordinateExtractors.js', () => {
         }
 
         const expectedCenterLV95 = LV95.bounds.center
-        const expectedCenterWGS84 = proj4(LV95.epsg, WGS84.epsg, expectedCenterLV95).map(
-            (value) => WGS84.roundCoordinateValue(value)
+        const expectedCenterWGS84 = proj4(LV95.epsg, WGS84.epsg, expectedCenterLV95).map((value) =>
+            WGS84.roundCoordinateValue(value)
         ) as [number, number]
 
         describe('Testing non valid inputs', () => {
@@ -270,7 +271,10 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 )
                 // removing space between degrees and minutes
                 checkXY(
-                    ...expectedCenterWGS84_DMS.map((val) => val.replace(/° /g, '°')) as [string, string],
+                    ...(expectedCenterWGS84_DMS.map((val) => val.replace(/° /g, '°')) as [
+                        string,
+                        string,
+                    ]),
                     expectedCenterWGS84[0],
                     expectedCenterWGS84[1],
                     WGS84,
@@ -278,7 +282,10 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 )
                 // removing space between minutes and seconds
                 checkXY(
-                    ...expectedCenterWGS84_DMS.map((val) => val.replace(/' /g, "'")) as [string, string],
+                    ...(expectedCenterWGS84_DMS.map((val) => val.replace(/' /g, "'")) as [
+                        string,
+                        string,
+                    ]),
                     expectedCenterWGS84[0],
                     expectedCenterWGS84[1],
                     WGS84,
@@ -286,9 +293,9 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 )
                 // removing space between degrees, minutes and seconds
                 checkXY(
-                    ...expectedCenterWGS84_DMS.map((val) =>
+                    ...(expectedCenterWGS84_DMS.map((val) =>
                         val.replace(/° /g, '°').replace(/' /g, "'")
-                    ) as [string, string],
+                    ) as [string, string]),
                     expectedCenterWGS84[0],
                     expectedCenterWGS84[1],
                     WGS84,

@@ -1,4 +1,4 @@
-import type { CyHttpMessages } from "cypress/types/net-stubbing"
+import type { CyHttpMessages } from 'cypress/types/net-stubbing'
 
 interface FormDataPart {
     [key: string]: string | undefined
@@ -9,9 +9,12 @@ interface CyRequest {
     body: string
 }
 
-function getFormDataBoundary(request: CyRequest | CyHttpMessages.IncomingRequest): string | undefined {
+function getFormDataBoundary(
+    request: CyRequest | CyHttpMessages.IncomingRequest
+): string | undefined {
     const contentType = request.headers['content-type']
-    const boundaryMatch = typeof contentType === 'string' ? contentType.match(/boundary=([\w-]+)/) : undefined
+    const boundaryMatch =
+        typeof contentType === 'string' ? contentType.match(/boundary=([\w-]+)/) : undefined
     return (boundaryMatch && boundaryMatch[1]) || undefined
 }
 
@@ -50,7 +53,9 @@ export function parseFormData(request: CyRequest | CyHttpMessages.IncomingReques
                 }
             })
             // flatten array of params into a single object (with param name as keys)
-            .reduce((accumulator: FormDataPart, param: FormDataPart) => Object.assign(accumulator, param))
+            .reduce((accumulator: FormDataPart, param: FormDataPart) =>
+                Object.assign(accumulator, param)
+            )
     )
 }
 

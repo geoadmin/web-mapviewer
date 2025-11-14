@@ -30,7 +30,10 @@ const viewportWidth = Cypress.config('viewportWidth')
  * @param message The error message in case of failure.
  * @returns Callback function for `.then`.
  */
-function checkSiblingIndex(expected: number, message?: string): (_element: JQuery<HTMLElement>) => JQuery<HTMLElement> {
+function checkSiblingIndex(
+    expected: number,
+    message?: string
+): (_element: JQuery<HTMLElement>) => JQuery<HTMLElement> {
     return function ($element) {
         const $siblings = $element.parent().children()
         expect($siblings.index($element), message).to.equal(expected)
@@ -45,7 +48,10 @@ function checkSiblingIndex(expected: number, message?: string): (_element: JQuer
  * @param message The error message in case of failure.
  * @returns {Function} Callback function for `.then`.
  */
-function checkDescendantOf(selector: string | JQuery | Element, message?: string): (_element: JQuery<HTMLElement>) => JQuery<HTMLElement> {
+function checkDescendantOf(
+    selector: string | JQuery | Element,
+    message?: string
+): (_element: JQuery<HTMLElement>) => JQuery<HTMLElement> {
     return function ($element) {
         const $ancestor = $element.closest(selector)
         expect($ancestor, message).to.have.length(1)
@@ -127,9 +133,11 @@ describe('Test the search bar result handling', () => {
                     lat: expectedCenterEpsg4326[1],
                     rank: 1,
                     // we create an extent of 1km around the center
-                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0]! - 500} ${expectedCenterDefaultProjection[1]! - 500
-                        },${expectedCenterDefaultProjection[0]! + 500} ${expectedCenterDefaultProjection[1]! + 500
-                        })`,
+                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0]! - 500} ${
+                        expectedCenterDefaultProjection[1]! - 500
+                    },${expectedCenterDefaultProjection[0]! + 500} ${
+                        expectedCenterDefaultProjection[1]! + 500
+                    })`,
                     label: expectedLocationLabel,
                     origin: 'kantone',
                 },
@@ -166,15 +174,20 @@ describe('Test the search bar result handling', () => {
                     lat: expectedCenterEpsg4326[1],
                     rank: 1,
                     // we create an extent of 1km around the center
-                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0]! - 500} ${expectedCenterDefaultProjection[1]! - 500
-                        },${expectedCenterDefaultProjection[0]! + 500} ${expectedCenterDefaultProjection[1]! + 500
-                        })`,
+                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0]! - 500} ${
+                        expectedCenterDefaultProjection[1]! - 500
+                    },${expectedCenterDefaultProjection[0]! + 500} ${
+                        expectedCenterDefaultProjection[1]! + 500
+                    })`,
                     label: expectedLocationLabel,
                 },
             },
         ],
     }
-    const calculateExpectedZoom = (currentViewportWidth: number, currentViewPortHeight: number): number => {
+    const calculateExpectedZoom = (
+        currentViewportWidth: number,
+        currentViewPortHeight: number
+    ): number => {
         // the extent of the feature is a 1km box, so the wanted resolution is 1000m spread
         // on the smaller value between width or height
         const resolution = 1000.0 / Math.min(currentViewportWidth, currentViewPortHeight)
@@ -182,9 +195,11 @@ describe('Test the search bar result handling', () => {
         return (
             DEFAULT_PROJECTION.getZoomForResolutionAndCenter(
                 resolution,
-                proj4(WGS84.epsg,
+                proj4(
+                    WGS84.epsg,
                     DEFAULT_PROJECTION.epsg,
-                    expectedCenterEpsg4326 as SingleCoordinate)
+                    expectedCenterEpsg4326 as SingleCoordinate
+                )
             ) - 1
         )
     }
@@ -420,10 +435,7 @@ describe('Test the search bar result handling', () => {
         if (width < BREAKPOINT_TABLET) {
             cy.getPinia().then((pinia) => {
                 const positionStore3 = usePositionStore(pinia)
-                expect(positionStore3.zoom).to.be.closeTo(
-                    calculateExpectedZoom(width, height),
-                    0.2
-                )
+                expect(positionStore3.zoom).to.be.closeTo(calculateExpectedZoom(width, height), 0.2)
             })
         }
 
@@ -554,8 +566,7 @@ describe('Test the search bar result handling', () => {
             },
         }).as('search-locations')
         cy.goToMapView({
-            queryParams:
-            {
+            queryParams: {
                 swisssearch: '1530 Payerne',
                 swisssearch_autoselect: 'true',
             },
@@ -619,8 +630,7 @@ describe('Test the search bar result handling', () => {
         // --------------------------------------------------------------------------- //
         cy.log('Swisssearch only -> center to swisssearch coordinates')
         cy.goToMapView({
-            queryParams:
-            {
+            queryParams: {
                 swisssearch: swissSearchString,
             },
             withHash: false,
@@ -638,8 +648,7 @@ describe('Test the search bar result handling', () => {
             'Swisssearch with crosshair -> center to swisssearch coordinates with crosshair in swisssearch coordinate'
         )
         cy.goToMapView({
-            queryParams:
-            {
+            queryParams: {
                 swisssearch: swissSearchString,
                 crosshair: CrossHairs.Cross,
             },
@@ -659,8 +668,7 @@ describe('Test the search bar result handling', () => {
         // --------------------------------------------------------------------------- //
         cy.log('Swisssearch only -> center to swisssearch coordinates')
         cy.goToMapView({
-            queryParams:
-            {
+            queryParams: {
                 swisssearch: swissSearchString,
             },
             withHash: true,
@@ -678,8 +686,7 @@ describe('Test the search bar result handling', () => {
             'Swisssearch with crosshair -> center to swisssearch coordinates with crosshair in swisssearch coordinate'
         )
         cy.goToMapView({
-            queryParams:
-            {
+            queryParams: {
                 swisssearch: swissSearchString,
                 crosshair: CrossHairs.Cross,
             },
@@ -698,8 +705,7 @@ describe('Test the search bar result handling', () => {
             'Swisssearch with crosshair and crosshair location -> center to swisssearch coordinates with crosshair in crosshair coordinate'
         )
         cy.goToMapView({
-            queryParams:
-            {
+            queryParams: {
                 swisssearch: swissSearchString,
                 crosshair: `${CrossHairs.Cross},${crossHairX},${crossHairY}`,
             },

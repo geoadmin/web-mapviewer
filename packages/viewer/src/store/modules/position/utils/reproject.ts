@@ -1,9 +1,6 @@
-
 import type { Layer } from '@swissgeo/layers'
 
-import {
-    CoordinateSystem,
-} from '@swissgeo/coordinates'
+import { CoordinateSystem } from '@swissgeo/coordinates'
 import { coordinatesUtils, extentUtils } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { cloneDeep } from 'lodash'
@@ -15,7 +12,11 @@ import type { ActionDispatcher } from '@/store/types'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 
-export function reprojectLayersFeatures(projection: CoordinateSystem, oldProjection: CoordinateSystem, dispatcher: ActionDispatcher): void {
+export function reprojectLayersFeatures(
+    projection: CoordinateSystem,
+    oldProjection: CoordinateSystem,
+    dispatcher: ActionDispatcher
+): void {
     log.debug({
         title: 'Position store / reproject',
         titleColor: LogPreDefinedColor.Yellow,

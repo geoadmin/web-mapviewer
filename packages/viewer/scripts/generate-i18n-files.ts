@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-
 import fs from 'fs'
 import { google } from 'googleapis'
 
@@ -12,7 +11,7 @@ if (!googleApiKey) {
     process.exit(1)
 }
 
-function stringToLowerCaseLang(lang: string) : Lang {
+function stringToLowerCaseLang(lang: string): Lang {
     return lang.toLowerCase() as Lang
 }
 
@@ -29,12 +28,12 @@ sheets.spreadsheets.values.get(
         }
         const rows = res?.data.values
         if (rows?.length) {
-            const translations: Record<Lang,Record<string, string | undefined>>  = {
-                'fr': {},
-                'de': {},
-                'it': {},
-                'en': {},
-                'rm': {}
+            const translations: Record<Lang, Record<string, string | undefined>> = {
+                fr: {},
+                de: {},
+                it: {},
+                en: {},
+                rm: {},
             }
             // contains the keys to translations
             const langByIndex: Lang[] = []

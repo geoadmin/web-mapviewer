@@ -1,29 +1,21 @@
 import { setWmsGetCapabilitiesParams, setWmtsGetCapParams } from '@swissgeo/layers/api'
 
-/**
- * Checks if file has WMS Capabilities XML content
- */
+/** Checks if file has WMS Capabilities XML content */
 export function isWmsGetCap(fileContent: string): boolean {
     return /<(WMT_MS_Capabilities|WMS_Capabilities)/.test(fileContent)
 }
 
-/**
- * Checks if file has WMTS Capabilities XML content
- */
+/** Checks if file has WMTS Capabilities XML content */
 export function isWmtsGetCap(fileContent: string): boolean {
     return /<Capabilities/.test(fileContent)
 }
 
-/**
- * Checks if the URL is a WMS url
- */
+/** Checks if the URL is a WMS url */
 export function isWmsUrl(url: string): boolean {
     return /(wms|map=|\.map)/i.test(url)
 }
 
-/**
- * Checks if the URL is a WMTS url
- */
+/** Checks if the URL is a WMTS url */
 export function isWmtsUrl(url: string): boolean {
     return /wmts/i.test(url)
 }

@@ -170,7 +170,7 @@ export default function usePrintAreaRenderer(map: MaybeRef<Map>): void {
     function handlePreRender(event: RenderEvent) {
         const context = event.context
         if (context?.canvas) {
-            ; (context as CanvasRenderingContext2D).save()
+            ;(context as CanvasRenderingContext2D).save()
         }
     }
     function handlePostRender(event: RenderEvent) {

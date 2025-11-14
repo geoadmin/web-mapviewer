@@ -17,7 +17,7 @@ interface HumanReadableCoordinateParams {
 
 /**
  * Transform the coordinate, expressed in the given projection, into the wanted display format.
- * 
+ *
  * There's a catch with LV03, where the precision of our transformation/reprojection with mouse
  * tracked coordinate isn't 100% precise (because transforming between LV95 and LV03 is much more
  * complex than a "simple" matrix reprojection, see the transformation vectors here:
