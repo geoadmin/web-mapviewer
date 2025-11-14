@@ -180,6 +180,7 @@ function closeAndCleanForm() {
         layersStore.removeSystemLayer(`KML|${temporaryKmlId}`, dispatcher)
         drawingStore.clearDrawingFeatures(dispatcher)
     }
+    drawingStore.setReportProblemDrawing(false, dispatcher)
 }
 
 function onTextValidate(valid: boolean) {
@@ -224,6 +225,7 @@ function toggleDrawingOverlay() {
         },
         dispatcher
     )
+    drawingStore.setReportProblemDrawing(true, dispatcher)
 }
 
 function selectItem(dropdownItem: DropdownItem<string>) {
