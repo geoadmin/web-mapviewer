@@ -7,10 +7,11 @@
  * NOTE: the validation only happens when the prop activate-validation is set to true, this allow to
  * validate all fields of a form at once.
  */
-import { computed, ref, useTemplateRef, watch } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
+import { useFieldValidation } from '@/utils/composables/useFieldValidation'
 import { humanFileSize } from '@/utils/utils'
 
 const {
@@ -120,15 +121,11 @@ const emits = defineEmits<{
 
 // Reactive data
 const inputLocalFile = useTemplateRef<HTMLInputElement>('inputLocalFile')
-const internalInvalidMessage = ref<string>('')
 
 // Computed properties
-const filePathInfo = computed(() =>
-    model.value ? `${model.value.name}, ${model.value.size / 1000} kb` : ''
-)
 const maxFileSizeHuman = computed(() => humanFileSize(maxFileSize))
 
-// Methods
+// Validation logic for file-specific checks
 function validateFile(): { valid: boolean; invalidMessage: string } {
     const file = model.value
     if (
@@ -143,51 +140,55 @@ function validateFile(): { valid: boolean; invalidMessage: string } {
     if (file && file.size > maxFileSize) {
         return { valid: false, invalidMessage: 'file_too_large' }
     }
-    if (required && !model.value) {
-        return { valid: false, invalidMessage: 'no_file' }
-    }
     return {
         valid: true,
         invalidMessage: '',
     }
 }
 
+// Use the field validation composable with properly typed props
+const validationProps = {
+    required,
+    validMarker,
+    validMessage,
+    invalidMarker,
+    invalidMessage,
+    activateValidation,
+    validate,
+}
+
+const {
+    value,
+    validMarker: computedValidMarker,
+    invalidMarker: computedInvalidMarker,
+    validMessage: computedValidMessage,
+    invalidMessage: computedInvalidMessage,
+} = useFieldValidation<File>(
+    validationProps,
+    model,
+    (event: string, ...args: unknown[]) => {
+        if (event === 'change') {
+            emits('change')
+        } else if (event === 'validate') {
+            emits('validate', args[0] as boolean)
+        }
+    },
+    {
+        customValidate: validateFile,
+        requiredInvalidMessage: 'no_file',
+    }
+)
+
+const filePathInfo = computed(() =>
+    value.value ? `${value.value.name}, ${value.value.size / 1000} kb` : ''
+)
+
+// Methods
 function onFileSelected(evt: Event): void {
     const target = evt.target as HTMLInputElement
     const file = target?.files?.[0] ?? undefined
-    model.value = file
-
-    // Validate if custom validation is provided
-    if (validate) {
-        const result = validate(file)
-        if (!result.valid) {
-            internalInvalidMessage.value = result.invalidMessage
-        } else {
-            internalInvalidMessage.value = ''
-        }
-    } else {
-        const result = validateFile()
-        if (!result.valid) {
-            internalInvalidMessage.value = result.invalidMessage
-        } else {
-            internalInvalidMessage.value = ''
-        }
-    }
-
-    emits('change')
+    value.value = file
 }
-
-// Watch for validation changes
-watch(
-    () => [model.value, activateValidation],
-    () => {
-        if (activateValidation) {
-            const result = validate ? validate(model.value) : validateFile()
-            internalInvalidMessage.value = result.valid ? '' : result.invalidMessage
-            emits('validate', result.valid)
-        }
-    }
-)
 </script>
 
 <template>
@@ -229,7 +230,7 @@ watch(
             <input
                 type="text"
                 class="form-control import-input rounded-end local-file-input"
-                :class="{ 'is-valid': validMarker, 'is-invalid': invalidMarker }"
+                :class="{ 'is-valid': computedValidMarker, 'is-invalid': computedInvalidMarker }"
                 :placeholder="placeholder ? t(placeholder) : ''"
                 :value="filePathInfo"
                 readonly
@@ -240,12 +241,12 @@ watch(
                 @click="inputLocalFile?.click()"
             />
             <div
-                v-if="invalidMessage"
+                v-if="computedInvalidMessage"
                 class="invalid-feedback"
                 data-cy="file-input-invalid-feedback"
             >
                 {{
-                    t(invalidMessage, {
+                    t(computedInvalidMessage, {
                         maxFileSize: maxFileSizeHuman,
                         allowedFormats: acceptedFileTypes.join(', '),
                         ...invalidMessageExtraParams,
@@ -253,11 +254,11 @@ watch(
                 }}
             </div>
             <div
-                v-if="validMessage"
+                v-if="computedValidMessage"
                 class="valid-feedback"
                 data-cy="file-input-valid-feedback"
             >
-                {{ t(validMessage) }}
+                {{ t(computedValidMessage) }}
             </div>
         </div>
         <div
