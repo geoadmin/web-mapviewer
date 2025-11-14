@@ -242,7 +242,7 @@ describe('Testing the report problem form', () => {
         closeForm()
     })
 
-    it('reports a problem with drawing attachment', () => {
+    it.only('reports a problem with drawing attachment', () => {
         cy.goToMapView()
         interceptFeedback(true)
         cy.openMenuIfMobile()

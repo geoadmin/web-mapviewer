@@ -40,7 +40,7 @@ function willModify() {
     }
 }
 
-async function saveLocalDrawing(kmlData: string) {
+function saveLocalDrawing(kmlData: string) {
     const drawingStore = useDrawingStore()
     const layersStore = useLayersStore()
     const kmlLayer = layerUtils.makeKMLLayer({
