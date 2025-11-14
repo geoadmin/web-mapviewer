@@ -108,7 +108,11 @@ const {
     invalidMessage: computedInvalidMessage,
     onFocus,
     required: computedRequired,
-} = useFieldValidation(validationProps, model, emits as (_event: string, ..._args: unknown[]) => void)
+} = useFieldValidation(
+    validationProps,
+    model,
+    emits as (_event: string, ..._args: unknown[]) => void
+)
 
 function focus(): void {
     textAreaElement.value?.focus()

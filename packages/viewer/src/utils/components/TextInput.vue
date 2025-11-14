@@ -132,7 +132,11 @@ const {
     invalidMessage: computedInvalidMessage,
     onFocus,
     required: computedRequired,
-} = useFieldValidation(validationProps, model, emits as (_event: string, ..._args: unknown[]) => void)
+} = useFieldValidation(
+    validationProps,
+    model,
+    emits as (_event: string, ..._args: unknown[]) => void
+)
 
 const { t } = useI18n()
 const slots = useSlots()
