@@ -242,7 +242,7 @@ describe('Testing the report problem form', () => {
         closeForm()
     })
 
-    it.only('reports a problem with drawing attachment', () => {
+    it('reports a problem with drawing attachment', () => {
         cy.goToMapView()
         interceptFeedback(true)
         cy.openMenuIfMobile()
@@ -409,19 +409,19 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="submit-button"]').click()
         cy.wait('@feedback').then((interception) => {
             const formData = parseFormData(interception.request)
-            ;[
-                { name: 'subject', contains: `[Problem Report]` },
-                { name: 'feedback', contains: text },
-                { name: 'version', contains: APP_VERSION.replace('.dirty', '') },
-                { name: 'ua', contains: navigator.userAgent },
-                { name: 'kml', contains: '<Data name="type"><value>marker</value></Data>' },
-                { name: 'kml', contains: '<Data name="type"><value>annotation</value></Data>' },
-                { name: 'kml', contains: '<Data name="type"><value>linepolygon</value></Data>' },
-            ].forEach((param) => {
-                expect(interception.request.body).to.be.a('String')
-                expect(formData).to.haveOwnProperty(param.name)
-                expect(formData[param.name]).to.contain(param.contains)
-            })
+                ;[
+                    { name: 'subject', contains: `[Problem Report]` },
+                    { name: 'feedback', contains: text },
+                    { name: 'version', contains: APP_VERSION.replace('.dirty', '') },
+                    { name: 'ua', contains: navigator.userAgent },
+                    { name: 'kml', contains: '<Data name="type"><value>marker</value></Data>' },
+                    { name: 'kml', contains: '<Data name="type"><value>annotation</value></Data>' },
+                    { name: 'kml', contains: '<Data name="type"><value>linepolygon</value></Data>' },
+                ].forEach((param) => {
+                    expect(interception.request.body).to.be.a('String')
+                    expect(formData).to.haveOwnProperty(param.name)
+                    expect(formData[param.name]).to.contain(param.contains)
+                })
         })
     })
 })
