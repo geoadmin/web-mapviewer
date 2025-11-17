@@ -548,6 +548,7 @@ function getExternalLayer(
     return layerUtils.makeExternalWMSLayer({
         ...getLayerAttributes(capabilities, layer, parents ?? [], outputProjection, ignoreErrors),
         format: 'png',
+        ...initialValues,
         isLoading: false,
         getFeatureInfoCapability: getFeatureInfoCapability(capabilities, ignoreErrors),
         currentYear,
