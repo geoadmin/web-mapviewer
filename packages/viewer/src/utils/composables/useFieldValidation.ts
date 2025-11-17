@@ -1,6 +1,6 @@
 import type { ComputedRef, Ref } from 'vue'
 
-import { computed, onMounted, ref, toRef, watch } from 'vue'
+import { computed, onMounted, reactive, ref, toRef, watch } from 'vue'
 
 export interface ValidationResult {
     valid: boolean
@@ -92,7 +92,7 @@ export function useFieldValidation<T extends string | File>(
     const activateValidation = toRef(props, 'activateValidation')
     const required = toRef(props, 'required')
     const validMessage = toRef(props, 'validMessage')
-    const validation = ref<ValidationResult>({ valid: true, invalidMessage: '' })
+    const validation = reactive<ValidationResult>({ valid: true, invalidMessage: '' })
 
     // Helper function to check if value is empty
     const isEmpty = (value?: T): boolean => {
@@ -107,36 +107,37 @@ export function useFieldValidation<T extends string | File>(
 
     // Computed properties
     const isValid = computed(() => {
-        return validation.value.valid
-    })
-    const activateValidationMarkers = computed(() => activateValidation.value)
-    const validMarker = computed(() => {
-        // Do not add a valid marker when the marker are not activated or when the field is empty
-        // or when it is already marked as invalid
-        if (!activateValidationMarkers.value || isEmpty(value.value) || invalidMarker.value) {
-            return false
-        }
-        let _validMarker = isValid.value
-        if (props.validMarker !== undefined) {
-            _validMarker = _validMarker && (props.validMarker ?? false)
-        }
-        return _validMarker
+        return validation.valid
     })
     const invalidMarker = computed(() => {
-        if (!activateValidationMarkers.value) {
+        if (!activateValidation.value) {
             return false
         }
         let _invalidMarker = !isValid.value
         if (props.invalidMarker !== undefined) {
             _invalidMarker = _invalidMarker || !!props.invalidMarker
         }
+        console.log('Computed invalid marker:', _invalidMarker)
         return _invalidMarker
+    })
+    const validMarker = computed(() => {
+        // Do not add a valid marker when the marker are not activated or when the field is empty
+        // or when it is already marked as invalid
+        if (!activateValidation.value || isEmpty(value.value) || !isValid.value) {
+            return false
+        }
+        // If validMarker prop is explicitly provided (not undefined), use it
+        if (props.validMarker !== undefined) {
+            return props.validMarker
+        }
+        // Default: show valid marker when field is valid
+        return true
     })
     const invalidMessage = computed(() => {
         if (props.invalidMessage) {
             return props.invalidMessage
         }
-        return validation.value.invalidMessage
+        return validation.invalidMessage
     })
 
     // Watches
@@ -154,18 +155,23 @@ export function useFieldValidation<T extends string | File>(
     })
 
     function validate(): void {
-        validation.value = customValidate()
+        const customResult = customValidate()
+
+        validation.valid = customResult.valid
+        validation.invalidMessage = customResult.invalidMessage
+
         if (required.value && isEmpty(value.value)) {
-            validation.value = {
-                valid: false,
-                invalidMessage: requiredInvalidMessage,
-            }
+            validation.valid = false
+            validation.invalidMessage = requiredInvalidMessage
         }
-        if (props.validate && validation.value.valid) {
+        if (props.validate && validation.valid) {
             // Run user custom validation
-            validation.value = props.validate(value.value)
+            const validateResult = props.validate(value.value)
+            validation.valid = validateResult.valid
+            validation.invalidMessage = validateResult.invalidMessage
         }
-        emits('validate', validation.value.valid)
+
+        emits('validate', validation.valid)
     }
 
     function onFocus(event: Event, inFocus: boolean): void {
