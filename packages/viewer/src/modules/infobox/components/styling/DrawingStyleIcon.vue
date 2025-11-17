@@ -2,31 +2,35 @@
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed } from 'vue'
 
-import type { EditableFeature } from '@/api/features.api'
-import type { FeatureStyleColor } from '@/utils/featureStyleUtils'
-
 import { type DrawingIcon, type DrawingIconSet, generateIconURL } from '@/api/icon.api'
+import useDrawingStore from '@/store/modules/drawing'
+import useI18nStore from '@/store/modules/i18n'
+import { type FeatureStyleColor, RED } from '@/utils/featureStyleUtils'
 
-const { icon, currentFeature, currentIconSet, tooltipDisabled, currentLang } = defineProps<{
+const { icon, currentIconSet, tooltipDisabled } = defineProps<{
     icon: DrawingIcon
-    currentFeature: EditableFeature
     currentIconSet: DrawingIconSet
     /** Tooltip will be disabled when the symbol selector is collapsed */
     tooltipDisabled?: boolean
-    currentLang: string
 }>()
 
 const emits = defineEmits<{
-    change: []
+    change: [void]
     changeIcon: [icon: DrawingIcon]
-    load: []
+    load: [void]
 }>()
 
-const isTooltipDisabled = computed(() => !icon.description || tooltipDisabled)
+const drawingStore = useDrawingStore()
+const i18nStore = useI18nStore()
 
-const isTextSameLanguage = (langKey: string) => langKey === currentLang
+const isTooltipDisabled = computed<boolean>(() => !icon.description || tooltipDisabled)
+const iconPreviewColor = computed<FeatureStyleColor>(
+    () => drawingStore.edit.preferred.color ?? drawingStore.feature.current?.fillColor ?? RED
+)
 
-function onCurrentIconChange(icon: DrawingIcon) {
+const isTextSameLanguage = (langKey: string): boolean => langKey === i18nStore.lang
+
+function onCurrentIconChange(icon: DrawingIcon): void {
     emits('changeIcon', icon)
     emits('change')
 }
@@ -36,7 +40,7 @@ function onCurrentIconChange(icon: DrawingIcon) {
  * when the user selects a different size for the icon the map)
  */
 function generateColorizedURL(icon: DrawingIcon): string {
-    return generateIconURL(icon, currentFeature.fillColor)
+    return generateIconURL(icon, iconPreviewColor.value)
 }
 
 function getImageStrokeStyle(isColorable: boolean, isSelected: boolean, color?: FeatureStyleColor) {
@@ -56,6 +60,7 @@ function onImageLoad() {
 
 <template>
     <GeoadminTooltip
+        v-if="drawingStore.feature.current"
         :disabled="isTooltipDisabled"
         use-default-padding
     >
@@ -63,8 +68,8 @@ function onImageLoad() {
             ref="iconButton"
             class="icon-description btn btn-sm"
             :class="{
-                'btn-light': currentFeature.icon?.name !== icon.name,
-                'btn-primary': currentFeature.icon?.name === icon.name,
+                'btn-light': drawingStore.feature.current.icon?.name !== icon.name,
+                'btn-primary': drawingStore.feature.current.icon?.name === icon.name,
             }"
             :data-cy="`drawing-style-icon-selector-${icon.name}`"
             @click="onCurrentIconChange(icon)"
@@ -76,8 +81,8 @@ function onImageLoad() {
                 :style="
                     getImageStrokeStyle(
                         currentIconSet.isColorable,
-                        currentFeature.icon?.name === icon.name,
-                        currentFeature.fillColor
+                        drawingStore.feature.current.icon?.name === icon.name,
+                        iconPreviewColor
                     )
                 "
                 crossorigin="anonymous"

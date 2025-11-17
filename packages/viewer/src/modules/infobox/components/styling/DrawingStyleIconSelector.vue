@@ -2,20 +2,14 @@
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { EditableFeature } from '@/api/features.api'
 import type { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
 import type { FeatureStyleColor, FeatureStyleSize } from '@/utils/featureStyleUtils'
 
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIcon from '@/modules/infobox/components/styling/DrawingStyleIcon.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
+import useDrawingStore from '@/store/modules/drawing'
 import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
-
-const { feature, iconSets, currentLang } = defineProps<{
-    feature: EditableFeature
-    iconSets: Array<DrawingIconSet>
-    currentLang: string
-}>()
 
 const emits = defineEmits<{
     change: [void]
@@ -25,6 +19,8 @@ const emits = defineEmits<{
 }>()
 
 const { t } = useI18n()
+
+const drawingStore = useDrawingStore()
 
 const showAllSymbols = ref<boolean>(false)
 const currentIconSet = ref<DrawingIconSet | undefined>()
@@ -39,8 +35,8 @@ const currentIconSetName = computed(() => {
     return ''
 })
 
-const iconSetDropdownItems = computed(() => {
-    return iconSets.map((iconSet) => {
+const iconSetDropdownItems = computed<DropdownItem<DrawingIconSet>[]>(() => {
+    return drawingStore.iconSets.map((iconSet) => {
         return {
             id: iconSet.name,
             title: t(`modify_icon_category_${iconSet.name}_label`, 1, {
@@ -53,10 +49,10 @@ const iconSetDropdownItems = computed(() => {
 })
 
 onMounted(() => {
-    const iconSetNameToLookup = feature?.icon?.iconSetName ?? 'default'
+    const iconSetNameToLookup = drawingStore.feature.current?.icon?.iconSetName ?? 'default'
     currentIconSet.value =
-        iconSets.find((iconSet) => iconSet.name === iconSetNameToLookup) ??
-        iconSets.find((iconSet) => iconSet.name === 'default')
+        drawingStore.iconSets.find((iconSet) => iconSet.name === iconSetNameToLookup) ??
+        drawingStore.iconSets.find((iconSet) => iconSet.name === 'default')
 })
 
 function toggleShowAllSymbols() {
@@ -97,11 +93,15 @@ function onCurrentIconChange(icon: DrawingIcon) {
 <template>
     <div class="d-block">
         <div
-            v-if="feature.iconSize && currentIconSet"
+            v-if="
+                currentIconSet &&
+                    drawingStore.feature.current &&
+                    drawingStore.feature.current.iconSize
+            "
             class="d-flex mb-3"
         >
             <DrawingStyleSizeSelector
-                :current-size="feature.iconSize"
+                :current-size="drawingStore.feature.current.iconSize"
                 @change="onCurrentIconSizeChange"
             />
             <div class="ms-2">
@@ -121,10 +121,15 @@ function onCurrentIconChange(icon: DrawingIcon) {
             </div>
         </div>
         <DrawingStyleColorSelector
-            v-if="currentIconSet && currentIconSet.isColorable && feature.fillColor"
+            v-if="
+                currentIconSet &&
+                    drawingStore.feature.current &&
+                    currentIconSet.isColorable &&
+                    drawingStore.feature.current.fillColor
+            "
             class="mb-3"
             inline
-            :current-color="feature.fillColor"
+            :current-color="drawingStore.feature.current.fillColor"
             @change="onCurrentIconColorChange"
         />
 
@@ -155,8 +160,6 @@ function onCurrentIconChange(icon: DrawingIcon) {
                     :tooltip-disabled="!showAllSymbols"
                     :icon="icon"
                     :current-icon-set="currentIconSet"
-                    :current-feature="feature"
-                    :current-lang="currentLang"
                     @change-icon="onCurrentIconChange"
                     @load="onImageLoad"
                 />

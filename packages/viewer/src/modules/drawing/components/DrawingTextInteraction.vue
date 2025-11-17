@@ -6,6 +6,7 @@ import type { DrawingInteractionExposed } from '@/modules/drawing/types/interact
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable'
+import useDrawingStore from '@/store/modules/drawing'
 
 const emits = defineEmits<{
     drawEnd: [feature: Feature]
@@ -13,10 +14,14 @@ const emits = defineEmits<{
 
 const { t } = useI18n()
 
+const drawingStore = useDrawingStore()
+
 useDrawingModeInteraction({
     geometryType: 'Point',
     editableFeatureArgs: {
         title: t('draw_new_text'),
+        textSize: drawingStore.edit.preferred.size,
+        textColor: drawingStore.edit.preferred.color,
         featureType: EditableFeatureTypes.Annotation,
     },
     drawEndCallback: (feature) => {

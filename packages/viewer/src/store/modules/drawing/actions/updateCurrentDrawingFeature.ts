@@ -4,9 +4,16 @@ import type { EditableFeature } from '@/api/features.api'
 import type { DrawingStore } from '@/store/modules/drawing/types/drawing'
 import type { ActionDispatcher } from '@/store/types'
 
+import { generateIconURL } from '@/api/icon.api'
 import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
 import debounceSaveDrawing from '@/store/modules/drawing/utils/debounceSaveDrawing'
 import useProfileStore from '@/store/modules/profile'
+import {
+    type FeatureStyleColor,
+    type FeatureStyleSize,
+    MEDIUM,
+    RED,
+} from '@/utils/featureStyleUtils'
 
 export default function updateCurrentDrawingFeature(
     this: DrawingStore,
@@ -16,17 +23,39 @@ export default function updateCurrentDrawingFeature(
     if (this.feature.current) {
         this.save.state = DrawingSaveState.UnsavedChanges
 
+        let needIconUrlRefresh = false
+
         Object.assign(this.feature.current, valuesToUpdate)
 
         // keeping values as preferred, if present, so that the next time the user draws, the values are used
         if (valuesToUpdate.iconSize) {
-            this.edit.preferred.iconSize = valuesToUpdate.iconSize
+            this.edit.preferred.size = valuesToUpdate.iconSize
+            needIconUrlRefresh = true
+        }
+        if (valuesToUpdate.textSize) {
+            this.edit.preferred.size = valuesToUpdate.textSize
         }
         if (valuesToUpdate.fillColor) {
-            this.edit.preferred.iconColor = valuesToUpdate.fillColor
+            this.edit.preferred.color = valuesToUpdate.fillColor
+            needIconUrlRefresh = true
+        }
+        if (valuesToUpdate.textColor) {
+            this.edit.preferred.color = valuesToUpdate.textColor
         }
         if (valuesToUpdate.textPlacement) {
             this.edit.preferred.textPlacement = valuesToUpdate.textPlacement
+        }
+
+        if (this.feature.current.icon && needIconUrlRefresh) {
+            const newIconSize: FeatureStyleSize =
+                valuesToUpdate.iconSize ?? this.feature.current.iconSize ?? MEDIUM
+            const newIconColor: FeatureStyleColor =
+                valuesToUpdate.fillColor ?? this.feature.current.fillColor ?? RED
+            this.feature.current.icon.imageURL = generateIconURL(
+                this.feature.current.icon,
+                newIconColor,
+                newIconSize
+            )
         }
 
         const profileStore = useProfileStore()
