@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { FeatureStyleSize } from '@/utils/featureStyleUtils'
@@ -17,11 +17,9 @@ const emits = defineEmits<{
 
 const { t } = useI18n()
 
-const sizes = ref<FeatureStyleSize[]>(allStylingSizes)
-
 const sizeLabel = computed<string | undefined>(() => currentSize?.label)
 const dropdownItems = computed<DropdownItem<FeatureStyleSize>[]>(() =>
-    sizes.value.map((size) => {
+    allStylingSizes.map((size) => {
         return { id: size.label, title: size.label, value: size }
     })
 )

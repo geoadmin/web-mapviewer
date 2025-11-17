@@ -4,15 +4,14 @@ import type { CyHttpMessages } from 'cypress/types/net-stubbing'
 import type Feature from 'ol/Feature'
 import type { Pinia } from 'pinia'
 
-import { registerProj4, WGS84, type SingleCoordinate } from '@swissgeo/coordinates'
-import { LayerType, type KMLLayer } from '@swissgeo/layers'
+import { registerProj4, type SingleCoordinate, WGS84 } from '@swissgeo/coordinates'
+import { type KMLLayer, LayerType } from '@swissgeo/layers'
 import { randomIntBetween } from '@swissgeo/numbers'
 import { recurse } from 'cypress-recurse'
 import proj4 from 'proj4'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
-import { DEFAULT_ICON_URL_PARAMS } from '@/config/icons.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
@@ -49,7 +48,7 @@ const isNonEmptyArray = (value: unknown): value is unknown[] => {
 const KML_STYLE_RED = 'ff0000ff'
 const KML_STYLE_BLACK = 'ff000000'
 
-const DEFAULT_ICON_URL_SCALE = `${DEFAULT_ICON_URL_PARAMS.scale}x`
+const DEFAULT_ICON_URL_SCALE = `${LARGE.iconScale}x`
 
 describe('Drawing module tests', () => {
     context('Drawing mode/tools', () => {

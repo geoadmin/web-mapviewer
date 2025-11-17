@@ -13,6 +13,12 @@ import type { FeatureStyleColor, FeatureStyleSize, TextPlacement } from '@/utils
 import { type EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
 
+export interface DrawingPreferences {
+    size: FeatureStyleSize
+    color: FeatureStyleColor
+    textPlacement: TextPlacement
+}
+
 export interface DrawingStoreState {
     layer: {
         ol?: Raw<VectorLayer<VectorSource<Feature<Geometry>>>>
@@ -30,11 +36,7 @@ export interface DrawingStoreState {
          * the last vertex
          */
         reverseLineStringExtension: boolean
-        preferred: {
-            iconSize?: FeatureStyleSize
-            iconColor?: FeatureStyleColor
-            textPlacement?: TextPlacement
-        }
+        preferred: DrawingPreferences
     }
     feature: {
         current?: EditableFeature

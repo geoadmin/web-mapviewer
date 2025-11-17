@@ -5,11 +5,11 @@ import type { IconProp } from '@fortawesome/fontawesome-svg-core'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import GeoadminTooltip from '@swissgeo/tooltip'
-import { storeToRefs } from 'pinia'
 import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { DrawingIcon } from '@/api/icon.api'
+import type { ActionDispatcher } from '@/store/types'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
@@ -23,7 +23,6 @@ import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/Drawi
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
 import { MediaType } from '@/modules/infobox/DrawingStyleMediaTypes.enum'
 import useDrawingStore from '@/store/modules/drawing'
-import useI18nStore from '@/store/modules/i18n'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import { allFormats, type CoordinateFormat, LV95Format } from '@/utils/coordinates/coordinateFormat'
 import debounce from '@/utils/debounce'
@@ -34,7 +33,7 @@ import {
     TextPlacement,
 } from '@/utils/featureStyleUtils'
 
-const dispatcher = { name: 'FeatureStyleEdit.vue' }
+const dispatcher: ActionDispatcher = { name: 'FeatureStyleEdit.vue' }
 
 const { readOnly = false } = defineProps<{
     readOnly?: boolean
@@ -42,10 +41,8 @@ const { readOnly = false } = defineProps<{
 const { t } = useI18n()
 
 const drawingStore = useDrawingStore()
-const i18nStore = useI18nStore()
 
-const displayedFormatId = ref(LV95Format.id)
-const { lang } = storeToRefs(i18nStore)
+const displayedFormatId = ref<string>(LV95Format.id)
 
 const title = computed<string>({
     get: () => drawingStore.feature.current?.title ?? '',
@@ -145,9 +142,6 @@ const isLine = computed<boolean>(
     () => drawingStore.feature.current?.geometry?.type === 'LineString'
 )
 
-const availableIconSets = computed(() => drawingStore.iconSets)
-const currentLang = computed(() => lang.value)
-
 function onTextSizeChange(textSize: FeatureStyleSize): void {
     drawingStore.updateCurrentDrawingFeature(
         {
@@ -165,6 +159,14 @@ function onPlacementChange(textPlacement: TextPlacement): void {
         dispatcher
     )
     updateTextOffset()
+    if (drawingStore.edit.preferred.textPlacement !== textPlacement) {
+        drawingStore.updateDrawingPreferences(
+            {
+                textPlacement,
+            },
+            dispatcher
+        )
+    }
 }
 function onTextColorChange(textColor: FeatureStyleColor): void {
     drawingStore.updateCurrentDrawingFeature(
@@ -181,6 +183,14 @@ function onColorChange(color: FeatureStyleColor): void {
         },
         dispatcher
     )
+    if (drawingStore.edit.preferred.color !== color) {
+        drawingStore.updateDrawingPreferences(
+            {
+                color: color,
+            },
+            dispatcher
+        )
+    }
 }
 function onIconChange(icon: DrawingIcon): void {
     drawingStore.updateCurrentDrawingFeature(
@@ -199,6 +209,14 @@ function onIconSizeChange(iconSize: FeatureStyleSize): void {
         dispatcher
     )
     updateTextOffset()
+    if (drawingStore.edit.preferred.size !== iconSize) {
+        drawingStore.updateDrawingPreferences(
+            {
+                size: iconSize,
+            },
+            dispatcher
+        )
+    }
 }
 function onDelete(): void {
     if (drawingStore.feature.current?.id) {
@@ -431,9 +449,6 @@ function mediaTypes(): MediaButton[] {
                     >
                         <DrawingStyleIconSelector
                             data-cy="drawing-style-marker-popup"
-                            :feature="drawingStore.feature.current"
-                            :icon-sets="availableIconSets"
-                            :current-lang="currentLang"
                             @change-icon="onIconChange"
                             @change-icon-color="onColorChange"
                             @change-icon-size="onIconSizeChange"

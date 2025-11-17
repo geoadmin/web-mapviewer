@@ -5,6 +5,7 @@ import type { StyleFunction } from 'ol/style/Style'
 import { EditableFeatureTypes } from '@/api/features.api'
 import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable'
 import { drawLineStyle } from '@/modules/drawing/lib/style'
+import useDrawingStore from '@/store/modules/drawing'
 
 interface UseDrawingLineInteractionConfig {
     styleFunction?: StyleFunction
@@ -18,11 +19,15 @@ export default function useDrawingLineInteraction(config: UseDrawingLineInteract
         featureType = EditableFeatureTypes.LinePolygon,
         drawEndCallback,
     } = config
+
+    const drawingStore = useDrawingStore()
+
     const { removeLastPoint } = useDrawingModeInteraction({
         geometryType: 'Polygon',
         editingStyle: styleFunction as StyleFunction,
         editableFeatureArgs: {
             featureType,
+            fillColor: drawingStore.edit.preferred.color,
         },
         useGeodesicDrawing: true,
         snapping: true,

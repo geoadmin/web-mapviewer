@@ -191,7 +191,10 @@ Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = true) => {
         const drawingStore = useDrawingStore(pinia)
         expect(drawingStore.overlay.show).to.be.true
     })
-    cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
+    cy.waitUntilState((pinia) => {
+        const drawingStore = useDrawingStore(pinia)
+        return drawingStore.iconSets.length > 0
+    })
 })
 
 Cypress.Commands.add('openDrawingMode', () => {
