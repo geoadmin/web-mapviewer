@@ -1,25 +1,12 @@
 <script setup lang="ts">
-import { useTemplateRef } from 'vue'
+import { toRefs, useTemplateRef, withDefaults } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
 import { useFieldValidation } from '@/utils/composables/useFieldValidation'
 import { isValidEmail } from '@/utils/utils'
 
-const {
-    label = '',
-    description = '',
-    disabled = false,
-    placeholder = '',
-    required = false,
-    validMarker = undefined,
-    validMessage = '',
-    invalidMarker = undefined,
-    invalidMessage = '',
-    activateValidation = false,
-    validate = undefined,
-    dataCy = '',
-} = defineProps<{
+const props = withDefaults(defineProps<{
     /** Label to add above the field */
     label?: string
     /** Description to add below the input */
@@ -81,23 +68,24 @@ const {
      */
     validate?: ((_value?: string) => { valid: boolean; invalidMessage: string }) | undefined
     dataCy?: string
-}>()
+}>(), {
+    validMarker: undefined,
+    invalidMarker: undefined,
+})
+
+const {
+    label,
+    description,
+    disabled,
+    placeholder,
+    dataCy,
+} = toRefs(props)
 
 const inputEmailId = useComponentUniqueId('email-input')
 
 const model = defineModel<string>({ default: '' })
 const emits = defineEmits(['change', 'validate', 'focusin', 'focusout', 'keydown.enter'])
 const { t } = useI18n()
-
-const validationProps = {
-    required,
-    validMarker,
-    validMessage,
-    invalidMarker,
-    invalidMessage,
-    activateValidation,
-    validate,
-}
 
 const {
     value,
@@ -108,7 +96,7 @@ const {
     required: computedRequired,
     onFocus,
 } = useFieldValidation(
-    validationProps,
+    props,
     model,
     emits as (_event: string, ..._args: unknown[]) => void,
     {
