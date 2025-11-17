@@ -4,6 +4,7 @@ import type { DrawingStoreGetters, DrawingStoreState } from '@/store/modules/dra
 
 import clearDrawingFeatures from '@/store/modules/drawing/actions/clearDrawingFeatures'
 import closeDrawing from '@/store/modules/drawing/actions/closeDrawing'
+import deleteCurrentDrawing from '@/store/modules/drawing/actions/deleteCurrentDrawing'
 import deleteDrawingFeature from '@/store/modules/drawing/actions/deleteDrawingFeature'
 import initiateDrawing from '@/store/modules/drawing/actions/initiateDrawing'
 import loadAvailableIconSets from '@/store/modules/drawing/actions/loadAvailableIconSets'
@@ -71,6 +72,7 @@ const getters: DrawingStoreGetters = {
 }
 
 const actions = {
+    deleteCurrentDrawing,
     setReportProblemDrawing,
     clearDrawingFeatures,
     deleteDrawingFeature,
