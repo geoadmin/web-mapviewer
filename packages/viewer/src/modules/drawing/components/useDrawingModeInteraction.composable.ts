@@ -208,8 +208,8 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
                 textPlacement: TextPlacement.Center,
                 title: '',
                 id: uid,
-                ...editableFeatureArgs,
             }
+            Object.assign(editableFeature, editableFeatureArgs)
 
             // applying extra properties that should be stored with that feature.
             // OpenLayers will automatically redraw the feature if these properties change, but not recursively.

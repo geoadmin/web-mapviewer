@@ -12,6 +12,7 @@ import { toRaw } from 'vue'
 import type { EditableFeature } from '@/api/features.api'
 
 import { EditableFeatureTypes } from '@/api/features.api'
+import { generateIconURL } from '@/api/icon.api'
 import { DEFAULT_ICON_SIZE, DEFAULT_TITLE_OFFSET } from '@/config/icons.config'
 import { dashedRedStroke, StyleZIndex, whiteSketchFill } from '@/utils/styleUtils'
 
@@ -397,11 +398,13 @@ export function geoadminStyleFunction(
     let image: Icon | undefined
     if (editableFeature?.icon) {
         image = new Icon({
-            src: editableFeature.icon.imageURL,
+            src: generateIconURL(
+                editableFeature.icon,
+                editableFeature.fillColor,
+                editableFeature.iconSize
+            ),
             crossOrigin: 'Anonymous',
             anchor: editableFeature.icon.anchor,
-            scale: editableFeature.iconSize?.iconScale,
-            size: editableFeature.icon.size,
         })
     }
     const styles = [
@@ -418,9 +421,10 @@ export function geoadminStyleFunction(
                     color: styleConfig.textColor.border,
                     width: 3,
                 }),
-                scale: editableFeature?.iconSize?.textScale ?? 1,
-                offsetX: offsetTopElement[0],
-                offsetY: offsetTopElement[1],
+                scale: editableFeature?.textSize?.textScale ?? 1,
+                // only applying the text offset if the feature is a marker (has an icon)
+                offsetX: editableFeature?.icon ? offsetTopElement[0] : undefined,
+                offsetY: editableFeature?.icon ? offsetTopElement[1] : undefined,
             }),
             stroke:
                 editableFeature?.featureType === EditableFeatureTypes.Measure

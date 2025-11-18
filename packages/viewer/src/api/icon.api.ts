@@ -3,29 +3,30 @@ import axios from 'axios'
 import { fromString } from 'ol/color'
 
 import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'
-import { DEFAULT_ICON_URL_PARAMS } from '@/config/icons.config'
-import { type FeatureStyleColor, RED } from '@/utils/featureStyleUtils'
+import {
+    type FeatureStyleColor,
+    type FeatureStyleSize,
+    LARGE,
+    RED,
+} from '@/utils/featureStyleUtils'
 
 /**
  * Generate an icon URL from its template. If no iconScale is given, the default scale 1 will be
  * applied. If no iconColor is given, red will be applied (if applicable, as non-colorable icons
  * will not have {r}, {g}, {b} part of their template URL)
  *
- * @param icon
- * @param iconColor The color to use for this icon's URL
- * @param iconScale The scale to use for this icon's URL
  * @returns A full URL to this icon on the service-icons backend
  */
 export function generateIconURL(
     icon: DrawingIcon,
     iconColor: FeatureStyleColor = RED,
-    iconScale: number = DEFAULT_ICON_URL_PARAMS.scale
+    iconSize: FeatureStyleSize = LARGE
 ) {
     const rgb = fromString(iconColor.fill)
     return icon.imageTemplateURL
         .replace('{icon_set_name}', icon.iconSetName)
         .replace('{icon_name}', icon.name)
-        .replace('{icon_scale}', iconScale + 'x')
+        .replace('{icon_scale}', iconSize.iconScale + 'x')
         .replace('{r}', `${rgb[0]}`)
         .replace('{g}', `${rgb[1]}`)
         .replace('{b}', `${rgb[2]}`)
@@ -91,7 +92,7 @@ export interface DrawingIcon {
     size: DrawingIconSize
 }
 
-interface IconAPIIconset {
+interface IconAPIIconSet {
     colorable: boolean
     has_description: boolean
     icons_url: string
@@ -100,8 +101,8 @@ interface IconAPIIconset {
     template_url: string
 }
 
-interface IconAPIIconsetsResponse {
-    items: IconAPIIconset[]
+interface IconAPIIconSetsResponse {
+    items: IconAPIIconSet[]
 }
 
 /**
@@ -114,7 +115,7 @@ export async function loadAllIconSetsFromBackend(): Promise<DrawingIconSet[]> {
     const sets: DrawingIconSet[] = []
     try {
         const rawSets = (
-            await axios.get<IconAPIIconsetsResponse>(
+            await axios.get<IconAPIIconSetsResponse>(
                 `${getViewerDedicatedServicesBaseUrl()}icons/sets`
             )
         ).data.items

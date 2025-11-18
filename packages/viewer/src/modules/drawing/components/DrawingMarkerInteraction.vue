@@ -18,8 +18,11 @@ const drawingStore = useDrawingStore()
 
 useDrawingModeInteraction({
     editableFeatureArgs: {
-        icon: drawingStore.iconSets.find((set) => set.name === 'default')?.icons[0],
         featureType: EditableFeatureTypes.Marker,
+        icon: drawingStore.iconSets.find((set) => set.name === 'default')?.icons[0],
+        iconSize: drawingStore.edit.preferred.size,
+        fillColor: drawingStore.edit.preferred.color,
+        textPlacement: drawingStore.edit.preferred.textPlacement,
         textOffset: DEFAULT_MARKER_TITLE_OFFSET,
     },
     drawEndCallback: (feature: Feature<SimpleGeometry>): void => {

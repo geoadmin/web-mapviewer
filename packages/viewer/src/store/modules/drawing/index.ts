@@ -17,11 +17,13 @@ import setIsDrawingEditShared from '@/store/modules/drawing/actions/setIsDrawing
 import setIsVisitWithAdminId from '@/store/modules/drawing/actions/setIsVisitWithAdminId'
 import toggleDrawingOverlay from '@/store/modules/drawing/actions/toggleDrawingOverlay'
 import updateCurrentDrawingFeature from '@/store/modules/drawing/actions/updateCurrentDrawingFeature'
+import updateDrawingPreferences from '@/store/modules/drawing/actions/updateDrawingPreferences'
 import { isDrawingEmpty } from '@/store/modules/drawing/getters/isDrawingEmpty'
 import isDrawingModified from '@/store/modules/drawing/getters/isDrawingModified'
 import showNotSharedDrawingWarning from '@/store/modules/drawing/getters/showNotSharedDrawingWarning'
 import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
 import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
+import { MEDIUM, RED, TextPlacement } from '@/utils/featureStyleUtils'
 
 const defaultDrawingTitle = 'draw_mode_title'
 
@@ -36,9 +38,9 @@ const state = (): DrawingStoreState => ({
         mode: EditMode.Off,
         reverseLineStringExtension: false,
         preferred: {
-            iconSize: undefined,
-            iconColor: undefined,
-            textPlacement: undefined,
+            size: MEDIUM,
+            color: RED,
+            textPlacement: TextPlacement.Top,
         },
     },
     feature: {
@@ -83,6 +85,7 @@ const actions = {
     setCurrentlyDrawnFeature,
     initiateDrawing,
     closeDrawing,
+    updateDrawingPreferences,
 }
 
 const useDrawingStore = defineStore('drawing', {
