@@ -15,7 +15,7 @@ import toggleGeolocation from '@/store/modules/geolocation/actions/toggleGeoloca
 const state = (): GeolocationStoreState => ({
     active: false,
     denied: false,
-    tracking: true,
+    tracking: false,
     position: undefined,
     accuracy: 0,
     errorCount: 0,

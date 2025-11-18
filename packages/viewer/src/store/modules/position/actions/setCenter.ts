@@ -41,8 +41,15 @@ export default function setCenter(
 
     const geolocationStore = useGeolocationStore()
 
-    // TODO: fix this, it stops the tracking when receiving the first geolocation position update
-    if (geolocationStore.tracking && geolocationStore.position !== center) {
+    // Only disable tracking if the center change is NOT from geolocation itself
+    // This prevents disabling tracking when geolocation updates the position
+    // Check if the dispatcher is from geolocation-related components
+    const isFromGeolocation =
+        dispatcher.name === 'GeolocButton.vue' ||
+        dispatcher.name === 'RecenterButton.vue' ||
+        dispatcher.name === 'OpenLayersGeolocationFeedback.vue'
+
+    if (geolocationStore.tracking && geolocationStore.position !== center && !isFromGeolocation) {
         // if we moved the map we disabled the geolocation tracking (unless the tracking moved the map)
         geolocationStore.setGeolocationTracking(false, dispatcher)
         this.setAutoRotation(false, dispatcher)
