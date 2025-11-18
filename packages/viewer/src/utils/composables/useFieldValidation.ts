@@ -1,6 +1,6 @@
 import type { ComputedRef, Ref } from 'vue'
 
-import { computed, onMounted, reactive, ref, toRef, watch } from 'vue'
+import { computed, onMounted, ref, toRef, watch } from 'vue'
 
 export interface ValidationResult {
     valid: boolean
@@ -92,7 +92,7 @@ export function useFieldValidation<T extends string | File>(
     const activateValidation = toRef(props, 'activateValidation')
     const required = toRef(props, 'required')
     const validMessage = toRef(props, 'validMessage')
-    const validation = reactive<ValidationResult>({ valid: true, invalidMessage: '' })
+    const validation = ref<ValidationResult>({ valid: true, invalidMessage: '' })
 
     // Helper function to check if value is empty
     const isEmpty = (value?: T): boolean => {
@@ -107,7 +107,7 @@ export function useFieldValidation<T extends string | File>(
 
     // Computed properties
     const isValid = computed(() => {
-        return validation.valid
+        return validation.value.valid
     })
     const invalidMarker = computed(() => {
         if (!activateValidation.value) {
@@ -117,7 +117,6 @@ export function useFieldValidation<T extends string | File>(
         if (props.invalidMarker !== undefined) {
             _invalidMarker = _invalidMarker || !!props.invalidMarker
         }
-        console.log('Computed invalid marker:', _invalidMarker)
         return _invalidMarker
     })
     const validMarker = computed(() => {
@@ -137,7 +136,7 @@ export function useFieldValidation<T extends string | File>(
         if (props.invalidMessage) {
             return props.invalidMessage
         }
-        return validation.invalidMessage
+        return validation.value.invalidMessage
     })
 
     // Watches
@@ -155,23 +154,18 @@ export function useFieldValidation<T extends string | File>(
     })
 
     function validate(): void {
-        const customResult = customValidate()
-
-        validation.valid = customResult.valid
-        validation.invalidMessage = customResult.invalidMessage
-
+        validation.value = customValidate()
         if (required.value && isEmpty(value.value)) {
-            validation.valid = false
-            validation.invalidMessage = requiredInvalidMessage
+            validation.value = {
+                valid: false,
+                invalidMessage: requiredInvalidMessage,
+            }
         }
-        if (props.validate && validation.valid) {
+        if (props.validate && validation.value.valid) {
             // Run user custom validation
-            const validateResult = props.validate(value.value)
-            validation.valid = validateResult.valid
-            validation.invalidMessage = validateResult.invalidMessage
+            validation.value = props.validate(value.value)
         }
-
-        emits('validate', validation.valid)
+        emits('validate', validation.value.valid)
     }
 
     function onFocus(event: Event, inFocus: boolean): void {
