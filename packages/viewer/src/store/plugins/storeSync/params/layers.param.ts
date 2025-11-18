@@ -107,7 +107,7 @@ function createCloudOptimizedGeoTIFFLayer(parsedLayer: Partial<Layer>): CloudOpt
  *   one, returns null if this external layer can't be "reloaded" from URL (i.e. KML/GPX added
  *   through local file) or will return the untouched ActiveLayerConfig for other layer types
  */
-export function createLayerObject(parsedLayer: Partial<Layer>, currentLayer: Layer) {
+export function createLayerObject(parsedLayer: Partial<Layer>, currentLayer?: Layer) {
     const { year, updateDelay, features, adminId, ...customAttributes } =
         parsedLayer.customAttributes ?? {}
 
@@ -252,10 +252,6 @@ function dispatchLayersFromUrlIntoStore(
             const currentLayer =
                 layerAtIndex?.id === parsedLayer.id ? layerAtIndex : matchingLayerInConfig
 
-            if (!currentLayer) {
-                return
-            }
-
             const { layer: layerObject, featuresRequests: layerFeatureRequests } =
                 createLayerObject(parsedLayer, currentLayer)
 
@@ -359,7 +355,7 @@ function generateLayerUrlParamFromStoreValues(): string {
         .map((layer: Layer) =>
             transformLayerIntoUrlString(
                 layer,
-                layersStore.config.find((config: Layer) => config.id === layer.id),
+                layersStore.config.find((layerConfig: GeoAdminLayer) => layerConfig.id === layer.id),
                 featuresIds[layer.id]
             )
         )
