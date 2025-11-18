@@ -6,6 +6,7 @@ import Feature from 'ol/Feature'
 import type { DrawingInteractionExposed } from '@/modules/drawing/types/interaction'
 
 import { EditableFeatureTypes } from '@/api/features.api'
+import { DEFAULT_ICON_SET_NAME } from '@/config/icons.config'
 import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable'
 import useDrawingStore from '@/store/modules/drawing'
 import { DEFAULT_MARKER_TITLE_OFFSET } from '@/utils/featureStyleUtils'
@@ -19,10 +20,11 @@ const drawingStore = useDrawingStore()
 useDrawingModeInteraction({
     editableFeatureArgs: {
         featureType: EditableFeatureTypes.Marker,
-        icon: drawingStore.iconSets.find((set) => set.name === 'default')?.icons[0],
+        icon: drawingStore.iconSets.find((set) => set.name === DEFAULT_ICON_SET_NAME)?.icons[0],
         iconSize: drawingStore.edit.preferred.size,
         fillColor: drawingStore.edit.preferred.color,
         textPlacement: drawingStore.edit.preferred.textPlacement,
+        textSize: drawingStore.edit.preferred.size,
         textOffset: DEFAULT_MARKER_TITLE_OFFSET,
     },
     drawEndCallback: (feature: Feature<SimpleGeometry>): void => {
