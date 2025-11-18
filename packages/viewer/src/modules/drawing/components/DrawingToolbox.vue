@@ -27,7 +27,7 @@ import debounce from '@/utils/debounce'
 const dispatcher: ActionDispatcher = { name: 'DrawingToolbox.vue' }
 
 const emits = defineEmits<{
-    removeLastPoint: [void];
+    removeLastPoint: [void]
     closeDrawing: [void]
 }>()
 
@@ -162,75 +162,137 @@ const debounceSaveDrawingName = debounce(saveDrawingName, 200)
 
 <template>
     <teleport to=".drawing-toolbox-in-menu">
-        <DrawingHeader v-if="uiStore.isDesktopMode" :is-closing-in-toolbox="isClosingDrawing" @close="closeDrawing" />
+        <DrawingHeader
+            v-if="uiStore.isDesktopMode"
+            :is-closing-in-toolbox="isClosingDrawing"
+            @close="closeDrawing"
+        />
         <div :class="[{ 'drawing-toolbox-closed': !drawMenuOpen }, 'drawing-toolbox']">
-            <div class="card drawing-toolbox-content rounded-bottom rounded-top-0 rounded-start-0 text-center shadow-lg"
-                 :class="{ 'rounded-bottom-0': uiStore.isPhoneMode }">
-                <GeoadminTooltip :tooltip-content="tooltipText" placement="bottom" :disabled="!showNoActiveKmlWarning">
-                    <div v-if="online" class="d-flex justify-content-center align-items-center mx-4 mt-3 gap-2">
-                        <label for="drawing-name" class="text-nowrap">
+            <div
+                class="card drawing-toolbox-content rounded-bottom rounded-top-0 rounded-start-0 text-center shadow-lg"
+                :class="{ 'rounded-bottom-0': uiStore.isPhoneMode }"
+            >
+                <GeoadminTooltip
+                    :tooltip-content="tooltipText"
+                    placement="bottom"
+                    :disabled="!showNoActiveKmlWarning"
+                >
+                    <div
+                        v-if="online"
+                        class="d-flex justify-content-center align-items-center mx-4 mt-3 gap-2"
+                    >
+                        <label
+                            for="drawing-name"
+                            class="text-nowrap"
+                        >
                             {{ t('file_name') }}
                         </label>
-                        <input id="drawing-name" v-model="drawingName" type="text" class="form-control"
-                               data-cy="drawing-toolbox-file-name-input" :placeholder="`${t('draw_layer_label')}`"
-                               :disabled="!layersStore.activeKmlLayer" />
+                        <input
+                            id="drawing-name"
+                            v-model="drawingName"
+                            type="text"
+                            class="form-control"
+                            data-cy="drawing-toolbox-file-name-input"
+                            :placeholder="`${t('draw_layer_label')}`"
+                            :disabled="!layersStore.activeKmlLayer"
+                        />
                     </div>
                 </GeoadminTooltip>
 
                 <div class="card-body position-relative container">
-                    <div class="row justify-content-start g-2" :class="{ 'row-cols-2': uiStore.isDesktopMode }">
-                        <div v-for="featureType in Object.values(EditableFeatureTypes)" :key="featureType" class="col"
-                             :class="{
-                                 'd-grid': uiStore.isPhoneMode,
-                                 'd-block': uiStore.isDesktopMode,
-                             }">
-                            <DrawingToolboxButton :feature-type="featureType"
-                                                  :is-active="drawingStore.edit.featureType === featureType"
-                                                  :data-cy="`drawing-toolbox-mode-button-${featureType}`"
-                                                  @set-drawing-mode="selectDrawingMode" />
+                    <div
+                        class="row justify-content-start g-2"
+                        :class="{ 'row-cols-2': uiStore.isDesktopMode }"
+                    >
+                        <div
+                            v-for="featureType in Object.values(EditableFeatureTypes)"
+                            :key="featureType"
+                            class="col"
+                            :class="{
+                                'd-grid': uiStore.isPhoneMode,
+                                'd-block': uiStore.isDesktopMode,
+                            }"
+                        >
+                            <DrawingToolboxButton
+                                :feature-type="featureType"
+                                :is-active="drawingStore.edit.featureType === featureType"
+                                :data-cy="`drawing-toolbox-mode-button-${featureType}`"
+                                @set-drawing-mode="selectDrawingMode"
+                            />
                         </div>
-                        <button v-if="uiStore.isPhoneMode"
-                                class="btn d-flex align-items-center justify-content-center col-2"
-                                data-cy="drawing-toolbox-close-button" @click="closeDrawing">
+                        <button
+                            v-if="uiStore.isPhoneMode"
+                            class="btn d-flex align-items-center justify-content-center col-2"
+                            data-cy="drawing-toolbox-close-button"
+                            @click="closeDrawing"
+                        >
                             <FontAwesomeIcon icon="times" />
                         </button>
                     </div>
                     <div class="row mt-1">
                         <div class="col">
-                            <div v-show="drawingStateMessage"
-                                 class="d-flex justify-content-center my-md-1 drawing-toolbox-drawing-state"
-                                 :class="{ 'text-danger': isDrawingStateError }">
+                            <div
+                                v-show="drawingStateMessage"
+                                class="d-flex justify-content-center my-md-1 drawing-toolbox-drawing-state"
+                                :class="{ 'text-danger': isDrawingStateError }"
+                            >
                                 {{ drawingStateMessage }}
                             </div>
                         </div>
                     </div>
                     <div class="row g-2">
                         <div class="col d-grid">
-                            <button :disabled="drawingStore.isDrawingEmpty" class="btn-light btn"
-                                    data-cy="drawing-toolbox-delete-button" @click="showClearConfirmationModal = true">
+                            <button
+                                :disabled="drawingStore.isDrawingEmpty"
+                                class="btn-light btn"
+                                data-cy="drawing-toolbox-delete-button"
+                                @click="showClearConfirmationModal = true"
+                            >
                                 {{ t('delete') }}
                             </button>
                         </div>
                         <div class="col d-grid">
                             <DrawingExporter :is-drawing-empty="drawingStore.isDrawingEmpty" />
                         </div>
-                        <div v-if="online" class="col d-grid">
-                            <button type="button" class="btn btn-light" :disabled="drawingStore.isDrawingEmpty || !layersStore.activeKmlLayer
-                            " data-cy="drawing-toolbox-share-button" @click="showShareModal = true">
+                        <div
+                            v-if="online"
+                            class="col d-grid"
+                        >
+                            <button
+                                type="button"
+                                class="btn btn-light"
+                                :disabled="
+                                    drawingStore.isDrawingEmpty || !layersStore.activeKmlLayer
+                                "
+                                data-cy="drawing-toolbox-share-button"
+                                @click="showShareModal = true"
+                            >
                                 {{ t('share') }}
                             </button>
                         </div>
                     </div>
-                    <div v-if="isDrawingLineOrMeasure || isAllowDeleteLastPoint" class="row mt-2">
+                    <div
+                        v-if="isDrawingLineOrMeasure || isAllowDeleteLastPoint"
+                        class="row mt-2"
+                    >
                         <div class="col d-grid">
-                            <button data-cy="drawing-delete-last-point-button" class="btn btn-outline-danger"
-                                    @click="onDeleteLastPoint">
+                            <button
+                                data-cy="drawing-delete-last-point-button"
+                                class="btn btn-outline-danger"
+                                @click="onDeleteLastPoint"
+                            >
                                 {{ t('draw_button_delete_last_point') }}
                             </button>
                         </div>
                     </div>
-                    <div v-if="uiStore.isDesktopMode && online" class="row mt-2">
-                        <div class="col text-muted text-center" data-cy="drawing-toolbox-disclaimer">
+                    <div
+                        v-if="uiStore.isDesktopMode && online"
+                        class="row mt-2"
+                    >
+                        <div
+                            class="col text-muted text-center"
+                            data-cy="drawing-toolbox-disclaimer"
+                        >
                             <!-- eslint-disable vue/no-v-html-->
                             <small v-html="t('share_file_disclaimer')" />
                             <!-- eslint-enable vue/no-v-html-->
@@ -238,30 +300,57 @@ const debounceSaveDrawingName = debounce(saveDrawingName, 200)
                     </div>
                 </div>
             </div>
-            <div v-if="uiStore.isDesktopMode" class="text-center">
-                <button class="button-open-close-draw-menu btn btn-dark rounded-0 rounded-bottom m-auto ps-4 pe-4"
-                        data-cy="menu-button" @click="drawMenuOpen = !drawMenuOpen">
+            <div
+                v-if="uiStore.isDesktopMode"
+                class="text-center"
+            >
+                <button
+                    class="button-open-close-draw-menu btn btn-dark rounded-0 rounded-bottom m-auto ps-4 pe-4"
+                    data-cy="menu-button"
+                    @click="drawMenuOpen = !drawMenuOpen"
+                >
                     <FontAwesomeIcon :icon="drawMenuOpen ? 'caret-up' : 'caret-down'" />
                     <span class="ms-2">{{ t(drawMenuOpen ? 'close_menu' : 'open_menu') }}</span>
                 </button>
             </div>
         </div>
-        <ModalWithBackdrop v-if="showClearConfirmationModal" show-confirmation-buttons fluid
-                           confirm-key="confirm_delete" confirm-icon="far fa-trash-alt" @close="onCloseClearConfirmation">
+        <ModalWithBackdrop
+            v-if="showClearConfirmationModal"
+            show-confirmation-buttons
+            fluid
+            confirm-key="confirm_delete"
+            confirm-icon="far fa-trash-alt"
+            @close="onCloseClearConfirmation"
+        >
             <div class="mb-2">
                 {{ t('confirm_remove_all_features') }}
             </div>
             <div class="alert alert-warning">
-                <FontAwesomeIcon class="me-1" icon="warning" />
+                <FontAwesomeIcon
+                    class="me-1"
+                    icon="warning"
+                />
                 {{ t('confirm_no_cancel') }}
             </div>
         </ModalWithBackdrop>
-        <ModalWithBackdrop v-if="showShareModal" fluid :title="t('share')" @close="showShareModal = false">;
+        <ModalWithBackdrop
+            v-if="showShareModal"
+            fluid
+            :title="t('share')"
+            @close="showShareModal = false"
+        >
             <SharePopup :kml-layer="layersStore.activeKmlLayer" />
         </ModalWithBackdrop>
-        <ModalWithBackdrop v-if="showNotSharedDrawingWarningModal" ; fluid :title="t('warning')"
-                           @close="onCloseWarningModal()">;
-            <ShareWarningPopup :kml-layer="layersStore.activeKmlLayer" @accept="onAcceptWarningModal()" />
+        <ModalWithBackdrop
+            v-if="showNotSharedDrawingWarningModal"
+            fluid
+            :title="t('warning')"
+            @close="onCloseWarningModal()"
+        >
+            <ShareWarningPopup
+                :kml-layer="layersStore.activeKmlLayer"
+                @accept="onAcceptWarningModal()"
+            />
         </ModalWithBackdrop>
     </teleport>
 </template>
@@ -283,18 +372,15 @@ $zindex-drawing-toolbox: -1;
     .button-open-close-draw-menu {
         height: $openCloseButtonHeight;
     }
-
     &-mode-selector {
         margin: 0.5rem 0;
         display: grid;
         grid-template: 1fr / 1fr 1fr 1fr 1fr;
         gap: 0.25rem;
     }
-
     &-disclaimer {
         display: none;
     }
-
     &-drawing-state {
         color: #d3d3d3;
         font-size: 12px;
@@ -311,15 +397,12 @@ $zindex-drawing-toolbox: -1;
         .drawing-toolbox-content {
             transition: opacity $animation-time;
         }
-
         &-closed {
             transform: translate(0px, calc(-100% + #{$openCloseButtonHeight}));
-
             .drawing-toolbox-content {
                 opacity: 0;
             }
         }
-
         &-disclaimer {
             display: block;
         }
