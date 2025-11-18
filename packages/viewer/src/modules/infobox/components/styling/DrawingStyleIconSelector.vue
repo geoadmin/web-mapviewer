@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import type { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
 import type { FeatureStyleColor, FeatureStyleSize } from '@/utils/featureStyleUtils'
 
+import { DEFAULT_ICON_SET_NAME } from '@/config/icons.config'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIcon from '@/modules/infobox/components/styling/DrawingStyleIcon.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
@@ -49,10 +50,11 @@ const iconSetDropdownItems = computed<DropdownItem<DrawingIconSet>[]>(() => {
 })
 
 onMounted(() => {
-    const iconSetNameToLookup = drawingStore.feature.current?.icon?.iconSetName ?? 'default'
+    const iconSetNameToLookup =
+        drawingStore.feature.current?.icon?.iconSetName ?? DEFAULT_ICON_SET_NAME
     currentIconSet.value =
         drawingStore.iconSets.find((iconSet) => iconSet.name === iconSetNameToLookup) ??
-        drawingStore.iconSets.find((iconSet) => iconSet.name === 'default')
+        drawingStore.iconSets.find((iconSet) => iconSet.name === DEFAULT_ICON_SET_NAME)
 })
 
 function toggleShowAllSymbols() {

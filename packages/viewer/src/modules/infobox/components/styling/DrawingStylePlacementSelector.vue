@@ -13,14 +13,14 @@ const emit = defineEmits<{
 }>()
 
 const allStylingTextPlacements = ref<TextPlacement[]>([
-    TextPlacement.Top,
     TextPlacement.TopLeft,
+    TextPlacement.Top,
     TextPlacement.TopRight,
-    TextPlacement.Center,
     TextPlacement.Left,
+    TextPlacement.Center,
     TextPlacement.Right,
-    TextPlacement.Bottom,
     TextPlacement.BottomLeft,
+    TextPlacement.Bottom,
     TextPlacement.BottomRight,
 ])
 

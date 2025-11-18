@@ -9,6 +9,7 @@ import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState
 import debounceSaveDrawing from '@/store/modules/drawing/utils/debounceSaveDrawing'
 import useProfileStore from '@/store/modules/profile'
 import {
+    calculateTextOffset,
     type FeatureStyleColor,
     type FeatureStyleSize,
     MEDIUM,
@@ -44,6 +45,21 @@ export default function updateCurrentDrawingFeature(
         }
         if (valuesToUpdate.textPlacement) {
             this.edit.preferred.textPlacement = valuesToUpdate.textPlacement
+
+            if (
+                this.feature.current.textSize &&
+                this.feature.current.iconSize &&
+                this.feature.current.icon
+            ) {
+                this.feature.current.textOffset = calculateTextOffset(
+                    this.feature.current.textSize.textScale,
+                    this.feature.current.iconSize.iconScale,
+                    this.feature.current.icon.anchor,
+                    this.feature.current.icon.size,
+                    this.edit.preferred.textPlacement,
+                    this.feature.current.title
+                )
+            }
         }
 
         if (this.feature.current.icon && needIconUrlRefresh) {
