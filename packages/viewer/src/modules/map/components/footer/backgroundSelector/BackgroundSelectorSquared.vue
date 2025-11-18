@@ -1,22 +1,28 @@
-<script setup lang="js">
+<script setup lang="ts">
+import type { Layer } from '@swissgeo/layers'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { useI18n } from 'vue-i18n'
 
 import useBackgroundSelector from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelector'
-import useBackgroundLayerProps from '@/modules/map/components/footer/backgroundSelector/useBackgroundSelectorProps'
 
-const { backgroundLayers, currentBackgroundLayer } = defineProps(useBackgroundLayerProps())
+const { backgroundLayers, currentBackgroundLayer } = defineProps<{
+    backgroundLayers: Array<Layer | undefined>
+    currentBackgroundLayer?: Layer
+}>()
 
-const emit = defineEmits({
-    selectBackground: (backgroundLayerId) => {
-        return backgroundLayerId === null || typeof backgroundLayerId === 'string'
-    },
-})
+const emit = defineEmits<{
+    selectBackground: [backgroundLayerId: string | undefined]
+}>()
+
+function selectBackgroundCallback(backgroundLayerId: string | undefined): void {
+    emit('selectBackground', backgroundLayerId)
+}
 
 const { t } = useI18n()
 
 const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectBackground } =
-    useBackgroundSelector(backgroundLayers, currentBackgroundLayer, emit)
+    useBackgroundSelector(selectBackgroundCallback)
 </script>
 
 <template>
@@ -35,7 +41,7 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
                 ]"
                 type="button"
                 :data-cy="`background-selector-${backgroundLayer?.id || 'void'}`"
-                @click="onSelectBackground(backgroundLayer?.id || null)"
+                @click="onSelectBackground(backgroundLayer?.id || undefined)"
             >
                 <span class="bg-selector-squared-wheel-button-image-cropper">
                     <img
@@ -55,7 +61,7 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
             class="bg-selector-squared-wheel-button position-relative"
             :class="{ opened: show, 'text-bg-secondary': show, animate }"
             type="button"
-            data-cy="background-selector-open-wheel-button-squared"
+            data-cy="background-selector-open-wheel-button"
             @click="toggleShowSelector"
         >
             <FontAwesomeIcon
@@ -74,7 +80,7 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
                 class="bg-selector-squared-wheel-button-label text-bg-dark bg-opacity-75"
             >
                 <span
-                    class="text-nowrap bg-selector-squared-wheel-button-label-inner"
+                    class="bg-selector-squared-wheel-button-label-inner text-nowrap"
                     :class="{ show: !show, animate }"
                 >
                     {{ t('bg_chooser_label') }}

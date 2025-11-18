@@ -1,51 +1,47 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { computed, nextTick, ref, useTemplateRef } from 'vue'
-import { useStore } from 'vuex'
 
-import EditableFeature from '@/api/features/EditableFeature.class'
-import LayerFeature from '@/api/features/LayerFeature.class'
+import type { EditableFeature, LayerFeature } from '@/api/features.api'
+import type { ActionDispatcher } from '@/store/types'
+
 import FeatureDetail from '@/modules/infobox/components/FeatureDetail.vue'
 import ShowGeometryProfileButton from '@/modules/infobox/components/ShowGeometryProfileButton.vue'
-import { canFeatureShowProfile } from '@/store/modules/profile.store'
+import useFeaturesStore from '@/store/modules/features'
+import usePositionStore from '@/store/modules/position'
+import { canFeatureShowProfile } from '@/store/modules/profile/utils/canFeatureShowProfile'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 
-const dispatcher = { dispatcher: 'FeatureListCategoryItem.vue' }
+const dispatcher: ActionDispatcher = { name: 'FeatureListCategoryItem.vue' }
 
-const { name, item, showContentByDefault } = defineProps({
-    name: {
-        type: [String, Number],
-        required: true,
-    },
-    item: {
-        type: [EditableFeature, LayerFeature],
-        required: true,
-    },
-    showContentByDefault: {
-        type: Boolean,
-        default: false,
-    },
-})
+const {
+    name,
+    item,
+    showContentByDefault = false,
+} = defineProps<{
+    name: string | number
+    item: EditableFeature | LayerFeature
+    showContentByDefault?: boolean
+}>()
 
-const content = useTemplateRef('content')
-const featureTitle = useTemplateRef('featureTitle')
-const showContent = ref(!!showContentByDefault)
-const canDisplayProfile = computed(() => canFeatureShowProfile(item))
+const contentRef = useTemplateRef<HTMLDivElement>('content')
+const featureTitleRef = useTemplateRef<HTMLDivElement>('featureTitle')
+const showContent = ref<boolean>(showContentByDefault)
+const canDisplayProfile = computed<boolean>(() => canFeatureShowProfile(item))
 
-const store = useStore()
-const isHighlightedFeature = computed(() => store.state.features.highlightedFeatureId === item.id)
-function highlightFeature(feature) {
-    store.dispatch('setHighlightedFeatureId', {
-        highlightedFeatureId: feature?.id,
-        ...dispatcher,
-    })
+const featuresStore = useFeaturesStore()
+const positionStore = usePositionStore()
+
+const isHighlightedFeature = computed<boolean>(() => featuresStore.highlightedFeatureId === item.id)
+
+function highlightFeature(feature: EditableFeature | LayerFeature): void {
+    featuresStore.setHighlightedFeatureId(feature?.id.toString(), dispatcher)
 }
-function clearHighlightedFeature() {
-    store.dispatch('setHighlightedFeatureId', {
-        highlightedFeatureId: null,
-        ...dispatcher,
-    })
+
+function clearHighlightedFeature(): void {
+    featuresStore.setHighlightedFeatureId(undefined, dispatcher)
 }
 
 function toggleShowContent() {
@@ -56,10 +52,19 @@ function toggleShowContent() {
     }
 }
 
-function showContentAndScrollIntoView(event) {
+function showContentAndScrollIntoView(event?: MouseEvent): void {
     showContent.value = true
     nextTick(() => {
-        content.value?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+        contentRef.value?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    }).catch((err) => {
+        log.error({
+            title: 'FeatureListCategoryItem.vue',
+            titleColor: LogPreDefinedColor.Red,
+            messages: [
+                'Error while waiting for the next tick to scroll the content into view',
+                err,
+            ],
+        })
     })
     // if coming from the profile or zoom-to-extent button, we want to stop the event
     // so that it doesn't bubble up to the parent div (which will trigger a toggleShowContent
@@ -67,14 +72,14 @@ function showContentAndScrollIntoView(event) {
     if (event) {
         event.preventDefault()
         event.stopPropagation()
-        return false
+        return
     }
 }
 </script>
 
 <template>
     <div
-        ref="featureTitle"
+        ref="featureTitleRef"
         class="feature-list-category-item-name d-flex align-items-center cursor-pointer p-1"
         :class="{
             highlighted: isHighlightedFeature,
@@ -99,12 +104,13 @@ function showContentAndScrollIntoView(event) {
         <ZoomToExtentButton
             v-if="item.extent"
             :extent="item.extent"
+            :extent-projection="positionStore.projection"
             @click="showContentAndScrollIntoView"
         />
     </div>
     <div
         v-if="showContent"
-        ref="content"
+        ref="contentRef"
         class="feature-list-category-item-content border-bottom h-100"
         :class="{ highlighted: isHighlightedFeature }"
         @mouseenter.passive="highlightFeature(item)"

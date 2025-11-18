@@ -1,84 +1,119 @@
-<script setup lang="js">
+<script setup lang="ts">
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import log from '@swissgeo/log'
 import DOMPurify from 'dompurify'
+import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-import SelectableFeature from '@/api/features/SelectableFeature.class.js'
+import type { LayerFeature, SelectableFeature } from '@/api/features.api'
+import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
+
 import { BLOCKED_EXTENSIONS, WHITELISTED_HOSTNAMES } from '@/config/security.config'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import FeatureDetailDisclaimer from '@/modules/infobox/components/FeatureDetailDisclaimer.vue'
+import usePositionStore from '@/store/modules/position'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
-import allFormats from '@/utils/coordinates/coordinateFormat'
+import { allFormats } from '@/utils/coordinates/coordinateFormat'
 
-const { feature } = defineProps({
-    feature: {
-        type: SelectableFeature,
-        required: true,
-    },
-})
+const { feature } = defineProps<{
+    feature: SelectableFeature<boolean>
+}>()
 
 const { t } = useI18n()
 
-const store = useStore()
-const hasFeatureStringData = computed(() => typeof feature?.data === 'string')
-const popupDataCanBeTrusted = computed(() => feature?.popupDataCanBeTrusted)
+const positionStore = usePositionStore()
+const { displayFormat } = storeToRefs(positionStore)
 
-const coordinateFormat = computed(() => {
-    return allFormats.find((format) => format.id === store.state.position.displayedFormatId) ?? null
+const featureData = computed<Record<string, string> | string | undefined>(() => {
+    if (feature.isEditable) {
+        return
+    }
+    const layerFeature = feature as LayerFeature
+    if (layerFeature.popupData) {
+        return layerFeature.popupData
+    }
+    return layerFeature.data
 })
-const sanitizedFeatureDataEntries = computed(() => {
-    if (hasFeatureStringData.value || !feature?.data) {
+
+const hasFeatureStringData = computed<boolean>(
+    () => !!featureData.value && typeof featureData.value === 'string'
+)
+
+const popupDataCanBeTrusted = computed<boolean>(
+    () => !feature.isEditable && Boolean((feature as LayerFeature).popupDataCanBeTrusted)
+)
+
+const coordinateFormat = computed<CoordinateFormat | undefined>(() => {
+    const id = displayFormat.value?.id
+    return allFormats.find((format) => format.id === id)
+})
+
+type SanitizedEntry = [key: string, value: string, externalIframeHosts: string[]]
+const sanitizedFeatureDataEntries = computed<SanitizedEntry[]>(() => {
+    if (hasFeatureStringData.value || feature.isEditable) {
         return []
     }
-    return Object.entries(feature?.data)
-        .filter(([_, value]) => value) // Filtering out null values
-        .map(([key, value]) => [
-            key,
-            sanitizeHtml(value, key === 'description'),
-            key === 'description' ? getIframeHosts(value) : [],
-        ])
+    if (!featureData.value) {
+        return []
+    }
+    return Object.entries(featureData.value as Record<string, string>)
+        .filter(([, value]) => Boolean(value))
+        .map(([key, value]) => {
+            const isDescription = key === 'description'
+            const valueStr = String(value)
+            return [
+                key,
+                sanitizeHtml(valueStr, isDescription),
+                isDescription ? getIframeHosts(valueStr) : [],
+            ] as SanitizedEntry
+        })
 })
-function sanitizeHtml(htmlText, withIframe = false) {
+
+function sanitizeHtml(htmlText: string, withIframe = false): string {
     const blockedExternalContentString = t('blocked_external_content')
 
-    // Replacing possibly malicious code with `blockedExternalContentString` instead of removing it
-    function handleNode(node, attribute) {
+    function handleNode(node: Element, attribute: string): void {
         try {
-            const url = new URL(node.getAttribute(attribute))
-            const ext = url.pathname.split('.').pop().toLowerCase()
-            if (BLOCKED_EXTENSIONS.includes(ext)) {
+            const attr = node.getAttribute(attribute)
+            if (!attr) {
+                return
+            }
+            const url = new URL(attr)
+            const ext = url.pathname.split('.').pop()?.toLowerCase()
+            if (ext && BLOCKED_EXTENSIONS.includes(ext)) {
                 node.outerHTML = blockedExternalContentString
             }
-        } catch (error) {
-            log.error(`Error while handling node for sanitizing HTML`, error)
+        } catch (error: unknown) {
+            log.error(`Error while handling node for sanitizing HTML`, error as string)
             node.outerHTML = blockedExternalContentString
         }
     }
 
-    DOMPurify.addHook('afterSanitizeAttributes', function (node) {
-        // Check the A tag and add target="_blank" and rel="noopener noreferrer" to prevent tabnabbing
+    // Hook typings are loose, use any for the node to avoid over-constraint
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    DOMPurify.addHook('afterSanitizeAttributes', function (node: any) {
         if (node.tagName === 'A') {
             node.setAttribute('target', '_blank')
             node.setAttribute('rel', 'noopener noreferrer')
-            handleNode(node, 'href')
+            handleNode(node as Element, 'href')
         }
-        // Check the IFRAME tag
         if (node.tagName === 'IFRAME') {
-            handleNode(node, 'src')
+            handleNode(node as Element, 'src')
         }
     })
+
     const config = {
         ADD_TAGS: withIframe ? ['iframe'] : [],
-        ALLOWED_URI_REGEXP: /^(https?|mailto|tel|sms):/i, // Blocks file://, javascript:
+        ALLOWED_URI_REGEXP: /^(https?|mailto|tel|sms):/i,
     }
+
     const response = DOMPurify.sanitize(htmlText, config)
     DOMPurify.removeHook('afterSanitizeAttributes')
     return response
 }
 
-function getIframeHosts(value) {
+function getIframeHosts(value: string): string[] {
     const parser = new DOMParser()
     const dom = parser.parseFromString(value, 'text/html')
 
@@ -94,7 +129,7 @@ function getIframeHosts(value) {
                 return iframe.src
             }
         })
-        .filter((host) => host && !WHITELISTED_HOSTNAMES.includes(host))
+        .filter((host): host is string => Boolean(host) && !WHITELISTED_HOSTNAMES.includes(host!))
 }
 </script>
 
@@ -102,11 +137,11 @@ function getIframeHosts(value) {
     <!-- eslint-disable vue/no-v-html-->
     <div
         v-if="hasFeatureStringData && popupDataCanBeTrusted"
-        v-html="feature.data"
+        v-html="featureData"
     />
     <div
         v-else-if="hasFeatureStringData"
-        v-html="sanitizeHtml(feature.data)"
+        v-html="sanitizeHtml(featureData as string)"
     />
     <!-- eslint-enable vue/no-v-html-->
     <div
@@ -151,7 +186,7 @@ function getIframeHosts(value) {
             <CoordinateCopySlot
                 v-if="feature.geometry?.type === 'Point'"
                 identifier="feature-detail-coordinate-copy"
-                :value="feature.geometry.coordinates.slice(0, 2)"
+                :value="(feature.geometry.coordinates as number[]).slice(0, 2)"
                 :coordinate-format="coordinateFormat"
             >
                 <FontAwesomeIcon

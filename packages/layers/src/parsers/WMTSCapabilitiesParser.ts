@@ -1,129 +1,35 @@
-import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
+import type { FlatExtent } from '@swissgeo/coordinates'
 
 import { allCoordinateSystems, CoordinateSystem, extentUtils, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { default as olWMTSCapabilities } from 'ol/format/WMTSCapabilities'
 import { optionsFromCapabilities } from 'ol/source/WMTS'
 
-import type { CapabilitiesParser, ExternalLayerParsingOptions } from '@/parsers/parser'
-import type { LayerTimeConfig } from '@/types/timeConfig'
-
-import {
-    type BoundingBox,
-    type ExternalLayerTimeDimension,
-    type ExternalWMTSLayer,
-    type LayerAttribution,
-    type LayerLegend,
-    LayerType,
-    type TileMatrixSet,
-    WMTSEncodingType,
+import type {
+    BoundingBox,
+    CapabilitiesParser,
+    ExternalLayerParsingOptions,
+    ExternalLayerTimeDimension,
+    ExternalWMTSLayer,
+    LayerAttribution,
+    LayerLegend,
+    LayerTimeConfig,
+    TileMatrixSet,
+    WMTSCapabilitiesResponse,
+    WMTSCapabilitiesTileMatrixSet,
+    WMTSCapabilityLayer,
+    WMTSCapabilityLayerDimension,
+    WMTSCapabilityLayerStyle,
+    WMTSLegendURL,
+    WMTSOnlineResource,
+    WMTSTileMatrixSetLink,
 } from '@/types'
+import type { TileMatrix } from '@/types/layers'
+
+import { LayerType, WMTSEncodingType } from '@/types'
 import layerUtils from '@/utils/layerUtils'
-import { makeTimeConfig, makeTimeConfigEntry } from '@/utils/timeConfigUtils'
+import timeConfigUtils from '@/utils/timeConfigUtils'
 import { CapabilitiesError } from '@/validation'
-
-interface WMTSBoundingBox {
-    lowerCorner?: SingleCoordinate
-    upperCorner?: SingleCoordinate
-    extent?: FlatExtent
-    crs?: string
-    dimensions?: number
-}
-
-interface WMTSLegendURL {
-    format: string
-    width: number
-    height: number
-    href: string
-}
-
-interface WMTSCapabilityLayerStyle {
-    LegendURL: WMTSLegendURL[]
-    Identifier: string
-    isDefault: boolean
-}
-
-interface WMTSCapabilityLayerDimension {
-    Identifier: string
-    Default: string
-    Value: string
-}
-
-interface WMTSCapabilityResourceURL {
-    format: string
-    template: string
-    resourceType: string
-}
-
-interface WMTSCapabilityLayer {
-    Dimension?: WMTSCapabilityLayerDimension[]
-    ResourceURL: WMTSCapabilityResourceURL[]
-    Identifier: string
-    Title: string
-    WGS84BoundingBox?: FlatExtent
-    BoundingBox?: WMTSBoundingBox[]
-    TileMatrixSetLink: WMTSTileMatrixSetLink[]
-    Style: WMTSCapabilityLayerStyle[]
-    Abstract: string
-}
-
-interface WMTSTileMatrixSetLink {
-    TileMatrixSet: string
-    TileMatrixSetLimits: Array<{
-        MaxTileCol: number
-        MaxTileRow: number
-        MinTileCol: number
-        MinTileRow: number
-        TileMatrix: string
-    }>
-}
-
-interface WMTSCapabilitiesTileMatrixSet {
-    BoundingBox: BoundingBox[]
-    Identifier: string
-    SupportedCRS?: string
-    TileMatrix: object[]
-}
-
-interface OnlineResourceConstraint {
-    AllowedValues: {
-        Value: string[]
-    }
-}
-
-interface OnlineResource {
-    href: string
-    Constraint?: OnlineResourceConstraint[]
-}
-
-interface OperationMetadata {
-    DCP: {
-        HTTP: {
-            Get?: OnlineResource[]
-            Post?: OnlineResource[]
-        }
-    }
-}
-
-export interface WMTSCapabilitiesResponse {
-    originUrl: URL
-    version: string
-    Contents?: {
-        Layer?: WMTSCapabilityLayer[]
-        TileMatrixSet: WMTSCapabilitiesTileMatrixSet[]
-    }
-    ServiceProvider?: {
-        ProviderName?: string
-        ProviderSite?: string
-    }
-    OperationsMetadata?: Record<string, OperationMetadata>
-    ServiceIdentification?: {
-        ServiceTypeVersion: string
-        ServiceType?: string
-        Title?: string
-        Abstract?: string
-    }
-}
 
 function parseCrs(crs?: string): CoordinateSystem | undefined {
     let epsgNumber = crs?.split(':').pop()
@@ -184,9 +90,8 @@ function getLayerExtent(
     if (layer.WGS84BoundingBox?.length) {
         layerExtent = layer.WGS84BoundingBox
         extentProjection = WGS84
-    }
-    // Some providers don't use the WGS84BoundingBox but use the BoundingBox instead
-    else if (layer.BoundingBox) {
+    } else if (layer.BoundingBox) {
+        // Some providers don't use the WGS84BoundingBox but use the BoundingBox instead
         // search for a matching proj bounding box
         const matching = layer.BoundingBox.find((bbox) => parseCrs(bbox.crs ?? '') === projection)
 
@@ -342,10 +247,22 @@ function getTileMatrixSets(
                 })
                 return
             }
+            const tileMatrix: TileMatrix[] = []
+            for (const matrix of set.TileMatrix) {
+                tileMatrix.push({
+                    id: matrix.Identifier,
+                    scaleDenominator: matrix.ScaleDenominator,
+                    topLeftCorner: matrix.TopLeftCorner,
+                    tileWidth: matrix.TileWidth,
+                    tileHeight: matrix.TileHeight,
+                    matrixWidth: matrix.MatrixWidth,
+                    matrixHeight: matrix.MatrixHeight,
+                })
+            }
             return {
                 id: set.Identifier,
                 projection: projection,
-                tileMatrix: set.TileMatrix,
+                tileMatrix,
             }
         })
         .filter((set) => !!set)
@@ -422,7 +339,7 @@ function getLayerAttributes(
         capabilities.OperationsMetadata.GetTile !== undefined
     ) {
         const httpOperations = capabilities.OperationsMetadata.GetTile.DCP.HTTP
-        let onlineResource: OnlineResource | undefined
+        let onlineResource: WMTSOnlineResource | undefined
         if (httpOperations.Get && httpOperations.Get.length > 0) {
             onlineResource = httpOperations.Get[0]!
         } else if (httpOperations.Post && httpOperations.Post.length > 0) {
@@ -486,8 +403,10 @@ function getTimeConfig(
         return
     }
 
-    const timeEntries = timeDimension.values?.map((value) => makeTimeConfigEntry(value))
-    return makeTimeConfig(timeDimension.defaultValue, timeEntries)
+    const timeEntries = timeDimension.values?.map((value) =>
+        timeConfigUtils.makeTimeConfigEntry(value)
+    )
+    return timeConfigUtils.makeTimeConfig(timeDimension.defaultValue, timeEntries)
 }
 
 function getExternalLayer(

@@ -1,123 +1,134 @@
-<script setup lang="js">
+<script setup lang="ts">
+import type { SingleCoordinate } from '@swissgeo/coordinates'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import log from '@swissgeo/log'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import DOMPurify from 'dompurify'
-import { computed, inject, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import type { ActionDispatcher } from '@/store/types'
+
+import { type EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
 import DrawingHeader from '@/modules/drawing/components/DrawingHeader.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
 import SharePopup from '@/modules/drawing/components/SharePopup.vue'
 import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
-import { DrawingState } from '@/modules/drawing/lib/export-utils'
-import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
-import { EditMode } from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
+import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
+import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
+import useFeaturesStore from '@/store/modules/features'
+import useLayersStore from '@/store/modules/layers'
+import useUIStore from '@/store/modules/ui'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 import debounce from '@/utils/debounce'
 
-const dispatcher = { dispatcher: 'DrawingToolbox.vue' }
+const dispatcher: ActionDispatcher = { name: 'DrawingToolbox.vue' }
 
-const drawingLayer = inject('drawingLayer')
-const { saveState, deleteDrawing, debounceSaveDrawing } = useSaveKmlOnChange()
+const emits = defineEmits<{
+    removeLastPoint: [void]
+    closeDrawing: [void]
+}>()
+
 const { t } = useI18n()
-const store = useStore()
+const drawingStore = useDrawingStore()
+const uiStore = useUIStore()
+const layersStore = useLayersStore()
+const featuresStore = useFeaturesStore()
 
-const emits = defineEmits(['removeLastPoint', 'closeDrawing'])
+const drawMenuOpen = ref<boolean>(true)
+const showClearConfirmationModal = ref<boolean>(false)
+const showShareModal = ref<boolean>(false)
+const showNotSharedDrawingWarningModal = ref<boolean>(false)
+const isClosingDrawing = ref<boolean>(false)
+const showNoActiveKmlWarning = computed<boolean>(() => layersStore.activeKmlLayer === undefined)
 
-const drawMenuOpen = ref(true)
-const showClearConfirmationModal = ref(false)
-const showShareModal = ref(false)
-const showNotSharedDrawingWarningModal = ref(false)
-const showNotSharedDrawingWarning = computed(() => store.getters.showNotSharedDrawingWarning)
-const isClosingDrawing = ref(false)
-const showNoActiveKmlWarning = computed(() => !activeKmlLayer.value)
-
-const tooltipText = computed(() => t(!activeKmlLayer.value ? 'drawing_empty_cannot_edit_name' : ''))
-const isDesktopMode = computed(() => store.getters.isDesktopMode)
-const isPhoneMode = computed(() => store.getters.isPhoneMode)
-const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
-const currentDrawingMode = computed(() => store.state.drawing.mode)
-const isDrawingLineOrMeasure = computed(() =>
-    [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE].includes(
-        currentDrawingMode.value
-    )
+const tooltipText = computed<string>(() =>
+    t(showNoActiveKmlWarning.value ? 'drawing_empty_cannot_edit_name' : '')
 )
-const selectedEditableFeatures = computed(() => store.state.features.selectedEditableFeatures)
-const selectedLineString = computed(() => {
-    return selectedEditableFeatures.value.find((feature) => {
+const isDrawingLineOrMeasure = computed<boolean>(() => {
+    return (
+        !!drawingStore.edit.featureType &&
+        [EditableFeatureTypes.LinePolygon, EditableFeatureTypes.Measure].includes(
+            drawingStore.edit.featureType
+        )
+    )
+})
+const selectedLineString = computed<EditableFeature | undefined>(() => {
+    return featuresStore.selectedEditableFeatures.find((feature) => {
+        const geomType = feature.geometry?.type
         return (
-            feature.geometry.type === 'LineString' &&
-            [EditableFeatureTypes.LINEPOLYGON, EditableFeatureTypes.MEASURE].includes(
+            geomType === 'LineString' &&
+            [EditableFeatureTypes.LinePolygon, EditableFeatureTypes.Measure].includes(
                 feature.featureType
             )
         )
     })
 })
 
-const selectedLineCoordinates = computed(() => {
-    if (selectedLineString.value) {
-        return selectedLineString.value.geometry.coordinates
+const selectedLineCoordinates = computed<SingleCoordinate[] | undefined>(() => {
+    const line = selectedLineString.value
+    // Guard geometry existence and type
+    if (line?.geometry?.type === 'LineString') {
+        // geometry.coordinates is number[][] for LineString in our domain model
+        // cast to be explicit (underlying geojson typing is a union)
+        return line.geometry.coordinates as SingleCoordinate[]
     }
-    return null
+    return undefined
 })
-const editMode = computed(() => store.state.drawing.editingMode)
-const isAllowDeleteLastPoint = computed(
+const isAllowDeleteLastPoint = computed<boolean>(
     () =>
         // Allow deleting the last point only if we are drawing line or measure
         // or when extending line
         isDrawingLineOrMeasure.value ||
-        (editMode.value === EditMode.EXTEND &&
-            selectedLineString.value &&
-            selectedLineCoordinates.value?.length > 2)
+        (drawingStore.edit.mode === EditMode.Extend &&
+            selectedLineString.value !== undefined &&
+            selectedLineCoordinates.value !== undefined &&
+            selectedLineCoordinates.value.length > 2)
 )
-const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
-const drawingName = computed({
-    get: () => store.state.drawing.name,
+const drawingName = computed<string | undefined>({
+    get: () => drawingStore.name,
     set: (value) => debounceSaveDrawingName(value),
 })
-const isDrawingStateError = computed(() => saveState.value < 0)
+const isDrawingStateError = computed(
+    () =>
+        drawingStore.save.state === DrawingSaveState.LoadError ||
+        drawingStore.save.state === DrawingSaveState.SaveError
+)
 /** Return a different translation key depending on the saving status */
 const drawingStateMessage = computed(() => {
-    switch (saveState.value) {
-        case DrawingState.SAVING:
+    switch (drawingStore.save.state) {
+        case DrawingSaveState.Saving:
             return t('draw_file_saving')
-        case DrawingState.SAVED:
+        case DrawingSaveState.Saved:
             return t('draw_file_saved')
-        case DrawingState.SAVE_ERROR:
+        case DrawingSaveState.SaveError:
             return t('draw_file_load_error')
-        case DrawingState.LOAD_ERROR:
+        case DrawingSaveState.LoadError:
             return t('draw_file_save_error')
         default:
-            return null
+            return undefined
     }
 })
-const online = computed(() => store.state.drawing.online)
+const online = computed(() => drawingStore.online)
 
-function onCloseClearConfirmation(confirmed) {
+function onCloseClearConfirmation(confirmed: boolean) {
     showClearConfirmationModal.value = false
     if (confirmed) {
-        store.dispatch('clearDrawingFeatures', dispatcher)
-        store.dispatch('clearAllSelectedFeatures', dispatcher)
-        store.dispatch('setIsDrawingModified', { value: false, ...dispatcher })
-        store.dispatch('setIsDrawingEditShared', { value: false, ...dispatcher })
-        drawingLayer.getSource().clear()
-        deleteDrawing()
-        store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
-        store.dispatch('removeLayer', {
-            layerId: activeKmlLayer.value.id,
-            isExternal: activeKmlLayer.value.isExternal,
-            baseUrl: activeKmlLayer.value.baseUrl,
-            ...dispatcher,
+        drawingStore.closeDrawing(dispatcher).catch((error) => {
+            log.error({
+                title: 'DrawingToolbox.vue',
+                messages: ['Error while closing drawing', error],
+            })
         })
     }
 }
 
 function closeDrawing() {
     isClosingDrawing.value = true
-    if (showNotSharedDrawingWarning.value) {
+    if (drawingStore.showNotSharedDrawingWarning) {
         showNotSharedDrawingWarningModal.value = true
     } else {
         emits('closeDrawing')
@@ -134,37 +145,37 @@ function onCloseWarningModal() {
     showNotSharedDrawingWarningModal.value = false
 }
 
-function selectDrawingMode(drawingMode) {
-    store.dispatch('setDrawingMode', { mode: drawingMode, ...dispatcher })
+function selectDrawingMode(drawingMode: EditableFeatureTypes) {
+    drawingStore.setDrawingMode(drawingMode, dispatcher)
 }
 
 function onDeleteLastPoint() {
     emits('removeLastPoint')
 }
 
-const debounceSaveDrawingName = debounce(async (newName) => {
-    await store.dispatch('setDrawingName', {
-        // sanitizing to avoid any XSS vector
-        name: DOMPurify.sanitize(newName, {
-            USE_PROFILES: { xml: true },
-        }).trim(),
-        ...dispatcher,
-    })
-    debounceSaveDrawing()
-}, 200)
+function saveDrawingName(newName?: string) {
+    const sanitized = DOMPurify.sanitize(newName ?? '', {
+        ALLOWED_TAGS: [],
+        ALLOWED_ATTR: [],
+        KEEP_CONTENT: false,
+    }).trim()
+    drawingStore.setDrawingName(sanitized, dispatcher)
+}
+
+const debounceSaveDrawingName = debounce(saveDrawingName, 200)
 </script>
 
 <template>
     <teleport to=".drawing-toolbox-in-menu">
         <DrawingHeader
-            v-if="isDesktopMode"
+            v-if="uiStore.isDesktopMode"
             :is-closing-in-toolbox="isClosingDrawing"
             @close="closeDrawing"
         />
         <div :class="[{ 'drawing-toolbox-closed': !drawMenuOpen }, 'drawing-toolbox']">
             <div
                 class="card drawing-toolbox-content rounded-bottom rounded-top-0 rounded-start-0 text-center shadow-lg"
-                :class="{ 'rounded-bottom-0': isPhoneMode }"
+                :class="{ 'rounded-bottom-0': uiStore.isPhoneMode }"
             >
                 <GeoadminTooltip
                     :tooltip-content="tooltipText"
@@ -188,7 +199,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                             class="form-control"
                             data-cy="drawing-toolbox-file-name-input"
                             :placeholder="`${t('draw_layer_label')}`"
-                            :disabled="!activeKmlLayer"
+                            :disabled="!layersStore.activeKmlLayer"
                         />
                     </div>
                 </GeoadminTooltip>
@@ -196,27 +207,27 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                 <div class="card-body position-relative container">
                     <div
                         class="row justify-content-start g-2"
-                        :class="{ 'row-cols-2': isDesktopMode }"
+                        :class="{ 'row-cols-2': uiStore.isDesktopMode }"
                     >
                         <div
-                            v-for="drawingMode in Object.values(EditableFeatureTypes)"
-                            :key="drawingMode"
+                            v-for="featureType in Object.values(EditableFeatureTypes)"
+                            :key="featureType"
                             class="col"
                             :class="{
-                                'd-grid': isPhoneMode,
-                                'd-block': isDesktopMode,
+                                'd-grid': uiStore.isPhoneMode,
+                                'd-block': uiStore.isDesktopMode,
                             }"
                         >
                             <DrawingToolboxButton
-                                :drawing-mode="drawingMode"
-                                :is-active="currentDrawingMode === drawingMode"
-                                :data-cy="`drawing-toolbox-mode-button-${drawingMode}`"
+                                :feature-type="featureType"
+                                :is-active="drawingStore.edit.featureType === featureType"
+                                :data-cy="`drawing-toolbox-mode-button-${featureType}`"
                                 @set-drawing-mode="selectDrawingMode"
                             />
                         </div>
                         <button
-                            v-if="isPhoneMode"
-                            class="btn col-2 d-flex align-items-center justify-content-center"
+                            v-if="uiStore.isPhoneMode"
+                            class="btn d-flex align-items-center justify-content-center col-2"
                             data-cy="drawing-toolbox-close-button"
                             @click="closeDrawing"
                         >
@@ -237,7 +248,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                     <div class="row g-2">
                         <div class="col d-grid">
                             <button
-                                :disabled="isDrawingEmpty"
+                                :disabled="drawingStore.isDrawingEmpty"
                                 class="btn-light btn"
                                 data-cy="drawing-toolbox-delete-button"
                                 @click="showClearConfirmationModal = true"
@@ -246,7 +257,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                             </button>
                         </div>
                         <div class="col d-grid">
-                            <DrawingExporter :is-drawing-empty="isDrawingEmpty" />
+                            <DrawingExporter :is-drawing-empty="drawingStore.isDrawingEmpty" />
                         </div>
                         <div
                             v-if="online"
@@ -255,7 +266,9 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                             <button
                                 type="button"
                                 class="btn btn-light"
-                                :disabled="isDrawingEmpty || !activeKmlLayer"
+                                :disabled="
+                                    drawingStore.isDrawingEmpty || !layersStore.activeKmlLayer
+                                "
                                 data-cy="drawing-toolbox-share-button"
                                 @click="showShareModal = true"
                             >
@@ -278,7 +291,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                         </div>
                     </div>
                     <div
-                        v-if="isDesktopMode && online"
+                        v-if="uiStore.isDesktopMode && online"
                         class="row mt-2"
                     >
                         <div
@@ -293,11 +306,11 @@ const debounceSaveDrawingName = debounce(async (newName) => {
                 </div>
             </div>
             <div
-                v-if="isDesktopMode"
+                v-if="uiStore.isDesktopMode"
                 class="text-center"
             >
                 <button
-                    class="button-open-close-draw-menu btn btn-dark rounded-0 rounded-bottom m-auto pe-4 ps-4"
+                    class="button-open-close-draw-menu btn btn-dark rounded-0 rounded-bottom m-auto ps-4 pe-4"
                     data-cy="menu-button"
                     @click="drawMenuOpen = !drawMenuOpen"
                 >
@@ -331,7 +344,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
             :title="t('share')"
             @close="showShareModal = false"
         >
-            <SharePopup :kml-layer="activeKmlLayer" />
+            <SharePopup :kml-layer="layersStore.activeKmlLayer" />
         </ModalWithBackdrop>
         <ModalWithBackdrop
             v-if="showNotSharedDrawingWarningModal"
@@ -340,7 +353,7 @@ const debounceSaveDrawingName = debounce(async (newName) => {
             @close="onCloseWarningModal()"
         >
             <ShareWarningPopup
-                :kml-layer="activeKmlLayer"
+                :kml-layer="layersStore.activeKmlLayer"
                 @accept="onAcceptWarningModal()"
             />
         </ModalWithBackdrop>

@@ -1,9 +1,16 @@
-<script setup lang="js">
-import log from '@swissgeo/log'
-import { computed, ref, useTemplateRef } from 'vue'
-import { useStore } from 'vuex'
+<script setup lang="ts">
+import type Feature from 'ol/Feature'
+import type { Component, ComponentPublicInstance } from 'vue'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
+import { computed, ref, useTemplateRef } from 'vue'
+
+import type {
+    DrawingInteractionExposed,
+    SelectInteractionExposed,
+} from '@/modules/drawing/types/interaction'
+
+import { EditableFeatureTypes } from '@/api/features.api'
 import DrawingLineInteraction from '@/modules/drawing/components/DrawingLineInteraction.vue'
 import DrawingMarkerInteraction from '@/modules/drawing/components/DrawingMarkerInteraction.vue'
 import DrawingMeasureInteraction from '@/modules/drawing/components/DrawingMeasureInteraction.vue'
@@ -11,57 +18,61 @@ import DrawingSelectInteraction from '@/modules/drawing/components/DrawingSelect
 import DrawingTextInteraction from '@/modules/drawing/components/DrawingTextInteraction.vue'
 import ExtendLineInteraction from '@/modules/drawing/components/ExtendLineInteraction.vue'
 import ExtendMeasureInteraction from '@/modules/drawing/components/ExtendMeasureInteraction.vue'
-import { EditMode } from '@/store/modules/drawing.store'
+import useDrawingStore from '@/store/modules/drawing'
+import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 
-// DOM References
-const selectInteraction = useTemplateRef('selectInteraction')
-const currentInteraction = useTemplateRef('currentInteraction')
-const store = useStore()
-const currentDrawingMode = computed(() => store.state.drawing.mode)
-const editMode = computed(() => store.state.drawing.editingMode)
+const selectInteraction =
+    useTemplateRef<ComponentPublicInstance<SelectInteractionExposed>>('selectInteraction')
+const currentInteraction =
+    useTemplateRef<ComponentPublicInstance<DrawingInteractionExposed>>('currentInteraction')
+const drawingStore = useDrawingStore()
 
-const selectedLineFeature = ref(null)
+const selectedLineFeature = ref<Feature | undefined>()
 
-const specializedInteractionComponent = computed(() => {
-    let selectedInteraction = null
-    switch (currentDrawingMode.value) {
-        case EditableFeatureTypes.ANNOTATION:
+const specializedInteractionComponent = computed<Component | undefined>(() => {
+    let selectedInteraction
+    switch (drawingStore.edit.featureType) {
+        case EditableFeatureTypes.Annotation:
             selectedInteraction = DrawingTextInteraction
             break
-        case EditableFeatureTypes.LINEPOLYGON:
+        case EditableFeatureTypes.LinePolygon:
             selectedInteraction = DrawingLineInteraction
             break
-        case EditableFeatureTypes.MARKER:
+        case EditableFeatureTypes.Marker:
             selectedInteraction = DrawingMarkerInteraction
             break
-        case EditableFeatureTypes.MEASURE:
+        case EditableFeatureTypes.Measure:
             selectedInteraction = DrawingMeasureInteraction
             break
     }
-    if (editMode.value === EditMode.EXTEND) {
+    if (drawingStore.edit.mode === EditMode.Extend) {
         const isMeasure =
             selectedLineFeature.value?.get('editableFeature')?.featureType ===
-            EditableFeatureTypes.MEASURE
+            EditableFeatureTypes.Measure
         const isLine =
             selectedLineFeature.value?.get('editableFeature')?.featureType ===
-            EditableFeatureTypes.LINEPOLYGON
+            EditableFeatureTypes.LinePolygon
         if (isMeasure) {
             selectedInteraction = ExtendMeasureInteraction
         } else if (isLine) {
             selectedInteraction = ExtendLineInteraction
         } else {
-            log.error('Invalid feature type for extend mode')
+            log.error({
+                title: 'DrawingInteractions.vue',
+                titleColor: LogPreDefinedColor.Lime,
+                messages: ['Invalid feature type for extend mode'],
+            })
 
-            selectedInteraction = null
+            selectedInteraction = undefined
         }
     }
-    // Make sure that the modify interaction is disabled when we are in draw / extend mode
+    // Make sure that the select interaction is disabled when we are in draw / extend mode
     selectInteraction.value?.setActive(!selectedInteraction)
     return selectedInteraction
 })
 
 const specializedProps = computed(() => {
-    if (editMode.value === EditMode.EXTEND) {
+    if (drawingStore.edit.mode === EditMode.Extend) {
         return {
             startingFeature: selectedLineFeature.value,
         }
@@ -69,27 +80,25 @@ const specializedProps = computed(() => {
     return {}
 })
 
-function onDrawEnd(feature) {
-    selectInteraction.value.selectFeature(feature)
+function onDrawEnd(feature: Feature | undefined) {
+    selectInteraction.value?.selectFeature(feature)
 }
 
 function removeLastPoint() {
-    if (currentInteraction.value?.removeLastPoint) {
-        currentInteraction.value.removeLastPoint()
-    }
-    if (editMode.value !== EditMode.OFF) {
-        selectInteraction.value.removeLastPoint()
+    currentInteraction.value?.removeLastPoint()
+    if (drawingStore.edit.mode !== EditMode.Off) {
+        selectInteraction.value?.removeLastPoint()
     }
 }
 
-function featureSelected(feature) {
+function featureSelected(feature: Feature | undefined) {
     if (feature?.getGeometry()?.getType() === 'LineString') {
         selectedLineFeature.value = feature
     } else {
-        selectedLineFeature.value = null
+        selectedLineFeature.value = undefined
     }
 }
-defineExpose({
+defineExpose<DrawingInteractionExposed>({
     removeLastPoint,
 })
 </script>

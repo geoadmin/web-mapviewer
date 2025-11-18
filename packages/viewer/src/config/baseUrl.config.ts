@@ -1,4 +1,5 @@
 import { type BackendServices, servicesBaseUrl } from '@swissgeo/staging-config'
+
 import { ENVIRONMENT } from '@/config/staging.config'
 
 /** Adds a slash at the end of the URL if there is none */

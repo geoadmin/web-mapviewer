@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
 import type { FeatureStyleSize } from '@/utils/featureStyleUtils'
+
+import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
 import { allStylingSizes } from '@/utils/featureStyleUtils'
 
 const { currentSize } = defineProps<{
-    currentSize: FeatureStyleSize;
+    currentSize?: FeatureStyleSize
 }>()
 
 const emits = defineEmits<{
@@ -16,17 +17,15 @@ const emits = defineEmits<{
 
 const { t } = useI18n()
 
-const sizes = ref<FeatureStyleSize[]>(allStylingSizes)
-
 const sizeLabel = computed<string | undefined>(() => currentSize?.label)
-const dropdownItems = computed<DropdownItem[]>(() =>
-    sizes.value.map((size) => {
+const dropdownItems = computed<DropdownItem<FeatureStyleSize>[]>(() =>
+    allStylingSizes.map((size) => {
         return { id: size.label, title: size.label, value: size }
     })
 )
 
-function onSizeSelect(dropdownItem: DropdownItem): void {
-    emits('change', dropdownItem.value as FeatureStyleSize)
+function onSizeSelect(dropdownItem: DropdownItem<FeatureStyleSize>): void {
+    emits('change', dropdownItem.value)
 }
 </script>
 
@@ -44,7 +43,7 @@ function onSizeSelect(dropdownItem: DropdownItem): void {
             data-cy="drawing-style-size-selector"
             :title="sizeLabel"
             :items="dropdownItems"
-            :current-value="currentSize"
+            :current-value="currentSize!.label"
             @select-item="onSizeSelect"
         />
     </div>

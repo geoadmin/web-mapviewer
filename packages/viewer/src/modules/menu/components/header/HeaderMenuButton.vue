@@ -1,18 +1,20 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-const dispatcher = { dispatcher: 'HeaderMenuButton.vue' }
+import useUIStore from '@/store/modules/ui'
 
-const store = useStore()
+const dispatcher = { name: 'HeaderMenuButton.vue' }
+
+const uiStore = useUIStore()
+
 const { t } = useI18n()
 
-const menuButtonText = computed(() => (store.state.ui.showMenu ? 'close' : 'menu'))
-const isOpen = computed(() => store.state.ui.showMenu)
+const menuButtonText = computed(() => (uiStore.showMenu ? 'close' : 'menu'))
+const isOpen = computed(() => uiStore.showMenu)
 
 function toggleMenu() {
-    store.dispatch('toggleMenu', dispatcher)
+    uiStore.toggleMenu(dispatcher)
 }
 </script>
 
@@ -22,7 +24,7 @@ function toggleMenu() {
         data-cy="menu-button"
         class="btn menu-button"
         :class="{ 'menu-button-active': isOpen }"
-        @click="toggleMenu(dispatcher)"
+        @click="toggleMenu"
     >
         {{ t(menuButtonText) }}
     </button>

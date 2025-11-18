@@ -1,83 +1,77 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
+
+import type { ActionDispatcher } from '@/store/types'
 
 import HeaderWithSearch from '@/modules/menu/components/header/HeaderWithSearch.vue'
 import MenuTray from '@/modules/menu/components/menu/MenuTray.vue'
+import useUIStore from '@/store/modules/ui'
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 
-const dispatcher = { dispatcher: 'MenuModule.vue' }
+const dispatcher: ActionDispatcher = { name: 'MenuModule.vue' }
 
 const { t } = useI18n()
-const store = useStore()
-
-const showMenu = computed(() => store.state.ui.showMenu)
-
-const isHeaderShown = computed(() => store.getters.isHeaderShown)
-const isPhoneMode = computed(() => store.getters.isPhoneMode)
-const isDesktopMode = computed(() => store.getters.isDesktopMode)
-const isMenuShown = computed(() => store.getters.isMenuShown)
-const isMenuTrayShown = computed(() => store.getters.isMenuTrayShown)
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
+const uiStore = useUIStore()
 
 function toggleMenu() {
-    store.dispatch('toggleMenu', dispatcher)
+    uiStore.toggleMenu(dispatcher)
 }
 </script>
 
 <template>
-    <div class="menu position-absolute w-100 h-100 pe-none start-0 top-0">
+    <div class="menu position-absolute pe-none start-0 top-0 h-100 w-100">
         <!-- In order to place the drawing toolbox correctly (so that zoom/geolocation button are under, etc...)
              we place here an empty div that will then receive the HTML from the drawing toolbox. -->
         <div class="drawing-toolbox-in-menu position-absolute w-100" />
         <transition name="fade-in-out">
             <BlackBackdrop
-                v-if="isPhoneMode && isMenuShown"
+                v-if="uiStore.isPhoneMode && uiStore.isMenuShown"
                 @click="toggleMenu"
             />
         </transition>
         <!-- NOTE: Below we need to use v-show and not v-if otherwise when the user toggle the full-screen while
          editing a Report a problem window he will loose his content -->
         <HeaderWithSearch
-            v-show="isHeaderShown"
+            v-show="uiStore.isHeaderShown"
             class="header"
         />
         <div
-            class="menu-tray-container position-absolute w-100 h-100"
+            class="menu-tray-container position-absolute h-100 w-100"
             :class="{
-                'desktop-mode': isDesktopMode,
-                'dev-disclaimer-present': hasDevSiteWarning,
+                'desktop-mode': uiStore.isDesktopMode,
+                'dev-disclaimer-present': uiStore.hasDevSiteWarning,
             }"
         >
             <transition name="slide-up">
                 <div
-                    v-show="isMenuTrayShown"
+                    v-show="uiStore.isMenuTrayShown"
                     class="menu-tray"
                     :class="{
-                        'desktop-mode': isDesktopMode,
-                        'desktop-menu-closed': isDesktopMode && !isMenuShown,
+                        'desktop-mode': uiStore.isDesktopMode,
+                        'desktop-menu-closed': uiStore.isDesktopMode && !uiStore.isMenuShown,
                     }"
                     data-cy="menu-tray"
                 >
                     <MenuTray
                         class="menu-tray-content"
                         :class="{
-                            'shadow-lg': isDesktopMode,
-                            'rounded-bottom': isDesktopMode,
-                            'rounded-start-0': isDesktopMode,
+                            'shadow-lg': uiStore.isDesktopMode,
+                            'rounded-bottom': uiStore.isDesktopMode,
+                            'rounded-start-0': uiStore.isDesktopMode,
                         }"
-                        :compact="isDesktopMode"
+                        :compact="uiStore.isDesktopMode"
                     />
                     <button
-                        v-if="isDesktopMode"
-                        class="button-open-close-desktop-menu btn btn-dark m-auto pe-4 ps-4 shadow-lg"
+                        v-if="uiStore.isDesktopMode"
+                        class="button-open-close-desktop-menu btn btn-dark m-auto ps-4 pe-4 shadow-lg"
                         data-cy="menu-button"
                         @click="toggleMenu"
                     >
-                        <FontAwesomeIcon :icon="showMenu ? 'caret-up' : 'caret-down'" />
-                        <span class="ms-2">{{ t(showMenu ? 'close_menu' : 'open_menu') }}</span>
+                        <FontAwesomeIcon :icon="uiStore.showMenu ? 'caret-up' : 'caret-down'" />
+                        <span class="ms-2">{{
+                            t(uiStore.showMenu ? 'close_menu' : 'open_menu')
+                        }}</span>
                     </button>
                 </div>
             </transition>

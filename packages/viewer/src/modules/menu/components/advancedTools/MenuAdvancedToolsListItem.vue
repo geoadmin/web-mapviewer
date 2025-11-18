@@ -1,27 +1,22 @@
-<script setup lang="js">
+<script setup lang="ts">
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { useI18n } from 'vue-i18n'
 
-const { isSelected, title, tooltip } = defineProps({
-    isSelected: {
-        type: Boolean,
-        default: false,
-    },
-    title: {
-        type: String,
-        required: true,
-    },
-    tooltip: {
-        type: String,
-        default: '',
-    },
-    dropdownMenu: {
-        type: Boolean,
-        default: false,
-    },
-})
+const {
+    isSelected = false,
+    title,
+    tooltip = '',
+    dropdownMenu = false,
+} = defineProps<{
+    isSelected?: boolean
+    title: string
+    tooltip?: string
+    dropdownMenu?: boolean
+}>()
 
-const emit = defineEmits(['toggleMenu'])
+const emit = defineEmits<{
+    toggleMenu: []
+}>()
 
 const { t } = useI18n()
 </script>
@@ -47,7 +42,7 @@ const { t } = useI18n()
                 {{ t(title) }}
                 <!-- we're inside the <a> tag, thus we need to override the font color -->
                 <template #content>
-                    <div class="text-black">{{ t(tooltip) }}</div>
+                    <div class="text-black">{{ tooltip ? t(tooltip) : '' }}</div>
                 </template>
             </GeoadminTooltip>
         </a>

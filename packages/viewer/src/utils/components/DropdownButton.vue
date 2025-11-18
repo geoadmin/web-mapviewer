@@ -1,4 +1,4 @@
-<script lang="ts" setup>
+<script lang="ts" setup generic="T">
 /**
  * Component to render a dropdown button.
  *
@@ -12,11 +12,20 @@ import { v4 as uuidv4 } from 'uuid'
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-export interface DropdownItem {
+export interface DropdownItem<T> {
     id: string | number
     title: string
-    value: string | number | object
+    value: T
     description?: string
+}
+
+interface DropdownButtonProps<T> {
+    title: string
+    items: DropdownItem<T>[]
+    currentValue: undefined | string | number | object
+    withToggleButton?: boolean
+    disabled?: boolean
+    small?: boolean
 }
 
 const {
@@ -26,18 +35,11 @@ const {
     withToggleButton = false,
     disabled = false,
     small = false,
-} = defineProps<{
-    title: string
-    items: DropdownItem[]
-    currentValue: null | string | number | object
-    withToggleButton?: boolean
-    disabled?: boolean
-    small?: boolean
-}>()
+} = defineProps<DropdownButtonProps<T>>()
 
 const emits = defineEmits<{
     click: []
-    selectItem: [item: DropdownItem]
+    selectItem: [item: DropdownItem<T>]
 }>()
 
 const isOpen = ref<boolean>(false)
@@ -48,11 +50,11 @@ const dropdownMenuRef = useTemplateRef<HTMLUListElement>('dropdownMenu')
 const dropdownToggleButtonRef = useTemplateRef<HTMLButtonElement>('dropdownToggleButton')
 const dropdownMainButtonRef = useTemplateRef<HTMLButtonElement>('dropdownMainButton')
 
-const anchorElement = computed<HTMLElement | null>(() => {
+const anchorElement = computed<HTMLElement | undefined>(() => {
     if (withToggleButton) {
-        return dropdownToggleButtonRef.value
+        return dropdownToggleButtonRef.value ?? undefined
     }
-    return dropdownMainButtonRef.value
+    return dropdownMainButtonRef.value ?? undefined
 })
 
 // generating a unique HTML ID for this dropdown
@@ -106,7 +108,7 @@ function onToggleButtonClick(): void {
     isOpen.value = !isOpen.value
 }
 
-function onItemClick(event: MouseEvent, item: DropdownItem): void {
+function onItemClick(event: MouseEvent, item: DropdownItem<T>): void {
     // Stopping the propagation (bubbling up) of the event here.
     // This is to keep any floating parent from receiving the click too, and closing because of that.
     // (Was happening in the context of feature edit, where icon style edit is in a floatingUI element with dropdowns)

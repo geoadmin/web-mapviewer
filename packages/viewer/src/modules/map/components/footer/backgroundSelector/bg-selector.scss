@@ -28,7 +28,6 @@ $nb-max-bg: 10;
             display: flex;
         }
         &-wheel {
-
             // as we are using this selector down in the for loop, we hit a limitation of SASS and can't use the
             // &- notation, but have to declare a full fledged selector (otherwise & is misinterpreted in the loop and
             // it fails)
@@ -62,7 +61,6 @@ $nb-max-bg: 10;
                 transition: all $bg-selector-transition-duration;
             }
 
-
             @for $i from 0 through $nb-max-bg {
                 // doubling the starting margin between the first child and the parent (hence $i + 2 when calculating margin)
                 $spread-amount: calc($i * $button-width + $bg-selector-button-gap * ($i + 2));
@@ -90,7 +88,9 @@ $nb-max-bg: 10;
     $background-button-width: $map-button-diameter,
     $background-button-height-ratio: 1
 ) {
-    $background-button-height: math.floor($background-button-width * $background-button-height-ratio);
+    $background-button-height: math.floor(
+        $background-button-width * $background-button-height-ratio
+    );
     #{$main-element} {
         &-wheel-button {
             padding: 0;

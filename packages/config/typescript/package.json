@@ -5,6 +5,9 @@
     "dependencies": {
         "@vue/tsconfig": "catalog:"
     },
+    "peerDependencies": {
+        "typescript": "catalog:"
+    },
     "optionalDependencies": {
         "@types/bootstrap": "catalog:",
         "@types/chai": "catalog:",
@@ -15,8 +18,5 @@
         "@types/node": "catalog:",
         "@types/openlayers": "catalog:",
         "@types/pako": "catalog:"
-    },
-    "peerDependencies": {
-        "typescript": "catalog:"
     }
 }

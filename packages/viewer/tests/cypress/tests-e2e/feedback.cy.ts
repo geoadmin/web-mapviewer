@@ -96,7 +96,7 @@ describe('Testing the feedback form', () => {
         )
         cy.get('[data-cy="submit-button"] [data-cy="submit-pending-icon"]').should('be.visible')
         cy.wait('@feedback').then((interception) => {
-            [
+            ;[
                 { name: 'subject', contains: `[rating: ${rating}/` },
                 { name: 'feedback', contains: text },
                 { name: 'version', contains: APP_VERSION },

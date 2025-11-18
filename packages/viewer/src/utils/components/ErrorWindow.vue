@@ -1,33 +1,30 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-const { title, hide } = defineProps({
-    title: {
-        type: String,
-        default: '',
-    },
+import useUiStore from '@/store/modules/ui'
+
+const { title = '', hide = false } = defineProps<{
+    title?: string
     /**
      * Hide the modal with backdrop, can be used to temporarily hide the modal without loosing its
      * content
      */
-    hide: {
-        type: Boolean,
-        default: false,
-    },
-})
+    hide?: boolean
+}>()
 
-const store = useStore()
+const uiStore = useUiStore()
 
 const showBody = ref(true)
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
+const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
 
-const errorCount = computed(() => store.state.ui.errors.size)
+const errorCount = computed(() => uiStore.errors.size)
 
 const { t } = useI18n()
 
-const emit = defineEmits(['close'])
+const emit = defineEmits<{
+    close: []
+}>()
 </script>
 
 <template>

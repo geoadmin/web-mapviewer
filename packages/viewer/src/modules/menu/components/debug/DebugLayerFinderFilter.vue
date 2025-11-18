@@ -1,11 +1,10 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { ref, watch } from 'vue'
 
 const emits = defineEmits(['change'])
 
-/** @type {Ref<Boolean | null>} */
-const currentValue = ref(null)
+const currentValue = ref<boolean | null>(null)
 
 watch(currentValue, (value) => {
     emits('change', value)
@@ -18,7 +17,7 @@ watch(currentValue, (value) => {
             type="button"
             class="btn"
             :class="{
-                'btn-danger text-white active': currentValue === false,
+                'btn-danger active text-white': currentValue === false,
                 'btn-outline-danger': currentValue !== false,
             }"
             @click="currentValue = false"

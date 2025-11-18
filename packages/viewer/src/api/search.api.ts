@@ -1,9 +1,9 @@
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
-import { CoordinateSystem, CustomCoordinateSystem, LV95, WGS84 } from '@swissgeo/coordinates'
 import type { GPXLayer, KMLLayer, Layer } from '@swissgeo/layers'
-import { LayerType } from '@swissgeo/layers'
 import type Feature from 'ol/Feature'
-import type OLFeature from 'ol/Feature'
+
+import { CoordinateSystem, CustomCoordinateSystem, LV95, WGS84 } from '@swissgeo/coordinates'
+import { LayerType } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { bbox, points } from '@turf/turf'
 import axios, { type AxiosResponse, type CancelToken, type CancelTokenSource } from 'axios'
@@ -11,7 +11,7 @@ import proj4 from 'proj4'
 
 import type { DrawingIconSet } from '@/api/icon.api'
 
-import { extractOlFeatureCoordinates } from '@/api/features/features.api'
+import { extractOlFeatureCoordinates } from '@/api/features.api'
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
 import { getGeoJsonFeatureCenter } from '@/utils/geoJsonUtils'
@@ -400,7 +400,7 @@ function searchLayerFeaturesKMLGPX(
             const kmlLayer = currentLayer as KMLLayer
             return returnLayers.concat(
                 searchFeatures(
-                    parseKml(kmlLayer, outputProjection, resolution, iconSets),
+                    parseKml(kmlLayer, outputProjection, iconSets, resolution),
                     outputProjection,
                     queryString,
                     kmlLayer
@@ -408,17 +408,17 @@ function searchLayerFeaturesKMLGPX(
             )
         }
         if (currentLayer.type === LayerType.GPX) {
-            const gpxData = (currentLayer as GPXLayer).gpxData
+            const gpxLayer = currentLayer as GPXLayer
+            const gpxData = gpxLayer.gpxData
             if (!gpxData) {
                 return returnLayers
             }
+            const gpxFeatures = parseGpx(gpxData, outputProjection)
+            if (!gpxFeatures) {
+                return returnLayers
+            }
             return returnLayers.concat(
-                ...searchFeatures(
-                    parseGpx(gpxData, outputProjection),
-                    outputProjection,
-                    queryString,
-                    currentLayer
-                )
+                ...searchFeatures(gpxFeatures, outputProjection, queryString, gpxLayer)
             )
         }
         return returnLayers
@@ -428,7 +428,7 @@ function searchLayerFeaturesKMLGPX(
 /** Creates the SearchResult for a layer */
 function createSearchResultFromLayer(
     layer: KMLLayer | GPXLayer,
-    feature: OLFeature,
+    feature: Feature,
     outputProjection: CoordinateSystem
 ): LayerFeatureSearchResult {
     const featureName: string = feature.get('name') || layer.name || '' // this needs || to avoid using empty string when feature.get("name") is an empty string
@@ -470,7 +470,7 @@ interface SearchConfig {
     layersToSearch?: Layer[]
     /** The maximum number of results to return */
     limit?: number
-    iconSets: DrawingIconSet[]
+    iconSets?: DrawingIconSet[]
 }
 
 let cancelTokenSource: CancelTokenSource | undefined
@@ -484,6 +484,7 @@ export default async function search(config: SearchConfig): Promise<SearchResult
         limit,
         iconSets = [],
     } = config
+
     if (!outputProjection) {
         const errorMessage = `A valid output projection is required to start a search request`
         log.error(errorMessage)

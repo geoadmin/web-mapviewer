@@ -1,46 +1,46 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import type { ActionDispatcher } from '@/store/types'
 
-const dispatcher = { dispatcher: 'DrawingToolboxButton.vue' }
+import { EditableFeatureTypes } from '@/api/features.api'
+import useDrawingStore from '@/store/modules/drawing'
+import useFeaturesStore from '@/store/modules/features'
+import useUIStore from '@/store/modules/ui'
+
+const dispatcher: ActionDispatcher = { name: 'DrawingToolboxButton.vue' }
+
+const { featureType } = defineProps<{ featureType: EditableFeatureTypes }>()
 
 const { t } = useI18n()
-const store = useStore()
+const uiStore = useUIStore()
+const drawingStore = useDrawingStore()
+const featuresStore = useFeaturesStore()
 
-const { drawingMode } = defineProps({
-    drawingMode: {
-        type: String,
-        default: EditableFeatureTypes.LINEPOLYGON,
-    },
-})
-
-const isPhoneMode = computed(() => store.getters.isPhoneMode)
-const currentDrawingMode = computed(() => store.state.drawing.mode)
-const isActive = computed(() => drawingMode === currentDrawingMode.value)
-const buttonIcon = computed(() => {
-    switch (drawingMode) {
-        case EditableFeatureTypes.LINEPOLYGON:
+const isActive = computed<boolean>(() => featureType === drawingStore.edit.featureType)
+const buttonIcon = computed<string[]>(() => {
+    switch (featureType) {
+        case EditableFeatureTypes.LinePolygon:
             return ['fa', 'draw-polygon']
-        case EditableFeatureTypes.MARKER:
+        case EditableFeatureTypes.Marker:
             return ['fa', 'map-marker-alt']
-        case EditableFeatureTypes.MEASURE:
+        case EditableFeatureTypes.Measure:
             return ['fa', 'ruler']
-        case EditableFeatureTypes.ANNOTATION:
+        case EditableFeatureTypes.Annotation:
             return ['fa', 't']
+        default:
+            return []
     }
-    return null
 })
 
 function setDrawingMode() {
     if (isActive.value) {
-        store.dispatch('setDrawingMode', { mode: null, ...dispatcher })
+        drawingStore.setDrawingMode(undefined, dispatcher)
     } else {
-        store.dispatch('clearAllSelectedFeatures', dispatcher)
-        store.dispatch('setDrawingMode', { mode: drawingMode, ...dispatcher })
+        featuresStore.clearAllSelectedFeatures(dispatcher)
+        drawingStore.setDrawingMode(featureType, dispatcher)
     }
 }
 </script>
@@ -51,16 +51,16 @@ function setDrawingMode() {
         :class="{
             'btn-primary': isActive,
             'btn-light': !isActive,
-            'btn-lg py-3': !isPhoneMode,
+            'btn-lg py-3': !uiStore.isPhoneMode,
         }"
         @click="setDrawingMode"
     >
         <FontAwesomeIcon :icon="buttonIcon" />
         <small
-            v-if="!isPhoneMode"
+            v-if="!uiStore.isPhoneMode"
             class="d-sm-block"
         >
-            {{ t(`draw_${drawingMode.toLowerCase()}`) }}
+            {{ t(`draw_${featureType.toLowerCase()}`) }}
         </small>
     </button>
 </template>

@@ -1,39 +1,43 @@
-<script setup lang="js">
+<script setup lang="ts">
 /** Renders a KML file on the map */
+
+import type { KMLLayer } from '@swissgeo/layers'
+import type { Map } from 'ol'
 
 import log from '@swissgeo/log'
 import { WarningMessage } from '@swissgeo/log/Message'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
-import { useStore } from 'vuex'
 
-import KMLLayer from '@/api/layers/KMLLayer.class'
+import type { ActionDispatcher } from '@/store/types'
+
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
+import useDrawingStore from '@/store/modules/drawing'
+import usePositionStore from '@/store/modules/position'
+import useUiStore from '@/store/modules/ui'
 import { iconUrlProxyFy, parseKml } from '@/utils/kmlUtils'
 
-const dispatcher = { dispatcher: 'OpenLayersKMLLayer.vue' }
+const dispatcher: ActionDispatcher = { name: 'OpenLayersKMLLayer.vue' }
 
-const { kmlLayerConfig, parentLayerOpacity, zIndex } = defineProps({
-    kmlLayerConfig: {
-        type: KMLLayer,
-        required: true,
-    },
-    parentLayerOpacity: {
-        type: Number,
-        default: null,
-    },
-    zIndex: {
-        type: Number,
-        default: -1,
-    },
-})
+const {
+    kmlLayerConfig,
+    parentLayerOpacity,
+    zIndex = -1,
+} = defineProps<{
+    kmlLayerConfig: KMLLayer
+    parentLayerOpacity?: number
+    zIndex?: number
+}>()
 
 // mapping relevant store values
-const store = useStore()
-const projection = computed(() => store.state.position.projection)
-const availableIconSets = computed(() => store.state.drawing.iconSets)
+const positionStore = usePositionStore()
+const drawingStore = useDrawingStore()
+const uiStore = useUiStore()
+const projection = computed(() => positionStore.projection)
+const resolution = computed(() => positionStore.resolution)
+const availableIconSets = computed(() => drawingStore.iconSets)
 
 const iconsArePresent = computed(() => availableIconSets.value.length > 0)
 
@@ -57,17 +61,24 @@ function on each feature before it is added to the vectorsource, as it may overw
 the getExtent() function and a wrong extent causes the features to sometimes disappear
 from the screen.  */
 const layer = new VectorLayer({
-    id: layerId.value,
-    uuid: kmlLayerConfig.uuid,
+    properties: {
+        id: layerId.value,
+        uuid: kmlLayerConfig.uuid,
+    },
     opacity: opacity.value,
 })
 
-const olMap = inject('olMap')
+const olMap = inject<Map>('olMap')
+if (!olMap) {
+    log.error('OpenLayersMap is not available')
+    throw new Error('OpenLayersMap is not available')
+}
+
 useAddLayerToMap(layer, olMap, () => zIndex)
 
 onMounted(() => {
     if (!iconsArePresent.value) {
-        store.dispatch('loadAvailableIconSets', dispatcher)
+        void drawingStore.loadAvailableIconSets(dispatcher)
     }
 
     // exposing things for Cypress testing
@@ -85,35 +96,31 @@ onUnmounted(() => {
     }
 })
 
-function iconUrlProxy(url) {
+function iconUrlProxy(url: string): string {
     return iconUrlProxyFy(
         url,
-        (url) => {
-            store.dispatch('addWarnings', {
-                warnings: [
-                    new WarningMessage('kml_icon_url_cors_issue', {
-                        layerName: layerName.value,
-                        url: url,
-                    }),
-                ],
-                ...dispatcher,
-            })
+        (url: string) => {
+            uiStore.addWarnings(
+                new WarningMessage('kml_icon_url_cors_issue', {
+                    layerName: layerName.value,
+                    url: url,
+                }),
+                dispatcher
+            )
         },
-        (url) => {
-            store.dispatch('addWarnings', {
-                warnings: [
-                    new WarningMessage('kml_icon_url_scheme_http', {
-                        layerName: layerName.value,
-                        url: url,
-                    }),
-                ],
-                ...dispatcher,
-            })
+        (url: string) => {
+            uiStore.addWarnings(
+                new WarningMessage('kml_icon_url_scheme_http', {
+                    layerName: layerName.value,
+                    url: url,
+                }),
+                dispatcher
+            )
         }
     )
 }
 
-function createSourceForProjection() {
+function createSourceForProjection(): void {
     if (!kmlData.value) {
         log.debug('no KML data loaded yet, could not create source')
         return
@@ -125,11 +132,11 @@ function createSourceForProjection() {
     layer.setSource(
         new VectorSource({
             wrapX: true,
-            projection: projection.value.epsg,
             features: parseKml(
                 kmlLayerConfig,
                 projection.value,
                 availableIconSets.value,
+                resolution.value,
                 iconUrlProxy
             ),
         })

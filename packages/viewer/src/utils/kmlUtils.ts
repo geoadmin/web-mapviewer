@@ -1,8 +1,12 @@
-import type { CoordinateSystem } from '@swissgeo/coordinates'
-import { WGS84 } from '@swissgeo/coordinates'
+import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
 import type { KMLLayer } from '@swissgeo/layers'
+import type { Geometry } from 'ol/geom'
+import type { Type as GeometryType } from 'ol/geom/Geometry'
+import type { Size } from 'ol/size'
+
+import { WGS84 } from '@swissgeo/coordinates'
 import { KMLStyle } from '@swissgeo/layers'
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { kml as kmlToGeoJSON } from '@tmcw/togeojson'
 import { booleanValid } from '@turf/turf'
 import axios from 'axios'
@@ -10,19 +14,20 @@ import JSZip from 'jszip'
 import {
     createEmpty as emptyExtent,
     extend as extendExtent,
-    type Extent,
     isEmpty as isExtentEmpty,
 } from 'ol/extent'
-import type { Feature as OLFeature } from 'ol'
-import type { Type as GeometryType } from 'ol/geom/Geometry'
+import Feature from 'ol/Feature'
 import GeoJSON, { type GeoJSONGeometry, type GeoJSONGeometryCollection } from 'ol/format/GeoJSON'
+import KML, { getDefaultStyle } from 'ol/format/KML'
 import IconStyle from 'ol/style/Icon'
 import Style from 'ol/style/Style'
 
-import EditableFeature, { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
-import { extractOlFeatureCoordinates } from '@/api/features/features.api'
+import type { EditableFeature } from '@/api/features.api'
+
+import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@/api/features.api'
 import { proxifyUrl } from '@/api/file-proxy.api'
-import { DEFAULT_TITLE_OFFSET, type DrawingIcon, type DrawingIconSet } from '@/api/icon.api'
+import { type DrawingIcon, type DrawingIconSet, generateIconURL } from '@/api/icon.api'
+import { DEFAULT_TITLE_OFFSET } from '@/config/icons.config'
 import { LOCAL_OR_INTERNAL_URL_REGEX } from '@/config/regex.config'
 import {
     allStylingSizes,
@@ -40,11 +45,7 @@ import {
     SMALL,
     TextPlacement,
 } from '@/utils/featureStyleUtils'
-import { GeodesicGeometries } from '@/utils/geodesicManager'
-// FIXME: as soon as https://github.com/openlayers/openlayers/pull/15964 is merged and released, go back to using OL files
-import KML, { getDefaultStyle } from '@/utils/ol/format/KML'
-import { parseRGBColor } from '@/utils/utils'
-import type { Size } from 'ol/size'
+import { isAnyEnumValue, parseRGBColor } from '@/utils/utils'
 
 export const EMPTY_KML_DATA: string = '<kml></kml>'
 
@@ -69,7 +70,7 @@ export function parseKmlName(content: string): string | undefined {
  * @param content KML content
  * @returns KML layer extent in WGS84 projection or null if the KML has no features
  */
-export function getKmlExtent(content: string): Extent | undefined {
+export function getKmlExtent(content: string): FlatExtent | undefined {
     const features = kmlReader.readFeatures(content, {
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: WGS84.epsg,
@@ -84,7 +85,7 @@ export function getKmlExtent(content: string): Extent | undefined {
     if (isExtentEmpty(extent)) {
         return
     }
-    return extent
+    return extent as FlatExtent
 }
 
 /**
@@ -121,23 +122,33 @@ export function getFeatureDescriptionMap(content: string): Map<string, string> {
  * @param kmlFeature Open layer kml feature
  * @returns KML feature type or undefined if this is not a geoadmin kml feature
  */
-export function getFeatureType(kmlFeature: OLFeature): string | undefined {
-    let featureType = kmlFeature.get('type')?.toUpperCase() // only set by geoadmin's kml
+export function getFeatureType(kmlFeature: Feature): string | undefined {
+    let featureType = kmlFeature.get('type')?.toUpperCase() // only set on mf-geoadmin3's KML (legacy)
+    if (!featureType) {
+        featureType = kmlFeature.get('editableFeature')?.featureType
+    }
     const featureId = kmlFeature.getId()
     if (!featureType && featureId) {
         // Very old geoadmin KML don't have the type property but the type can be taken from the
         // id
-        log.debug(
-            `Missing feature type property trying to guess it from the feature ID: ${featureId}`
-        )
+        log.debug({
+            title: 'kmlUtils / getFeatureType',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: [
+                `Missing feature type property trying to guess it from the feature ID: ${featureId}`,
+            ],
+        })
         featureType = /(?<type>\w+)_\d+/.exec(`${featureId}`)?.groups?.type?.toUpperCase()
     }
-
-    if (!Object.values(EditableFeatureTypes).includes(featureType)) {
-        log.info(
-            `Type ${featureType} of feature in kml not recognized, not a geoadmin feature ignoring it`,
-            kmlFeature
-        )
+    if (!featureType || !isAnyEnumValue(EditableFeatureTypes, featureType)) {
+        log.info({
+            title: 'kmlUtils / getFeatureType',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: [
+                `Type ${featureType} of feature in kml not recognized, not a geoadmin feature ignoring it`,
+                kmlFeature,
+            ],
+        })
         return
     }
     return featureType
@@ -241,7 +252,11 @@ export function parseIconUrl(url: string): IconArgs | undefined {
     const match = legacyDefaultMatch ?? legacyUrlDefaultMatch ?? legacySetMatch ?? setMatch
 
     if (!match) {
-        log.warn(`Could not retrieve icon infos from URL ${url}`)
+        log.warn({
+            title: 'kmlUtils / parseIconUrl',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: ['Could not retrieve icon infos from URL', url],
+        })
         return
     }
 
@@ -279,21 +294,30 @@ function generateIconFromStyle(iconStyle: IconStyle, iconArgs: IconArgs): Drawin
         anchor = anchor.map((value) => value / (size.at(0) ?? 1))
     } catch (error) {
         log.error({
-            messages: [`Failed to compute icon anchor`, anchor, size, error],
+            title: 'kmlUtils / generateIconFromStyle',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: ['Failed to compute icon anchor', anchor, size, error],
         })
         anchor = [0, 0]
     }
 
-    return anchor
-        ? {
-              name: iconArgs.name,
-              imageURL: url,
-              imageTemplateURL: url,
-              iconSetName: iconArgs.set,
-              anchor: anchor as [number, number],
-              size: size as [number, number],
-          }
-        : undefined
+    if (!anchor) {
+        log.warn({
+            title: 'kmlUtils / generateIconFromStyle',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: ['No icon anchor found for icon', url, iconArgs],
+        })
+        return undefined
+    }
+
+    return {
+        name: iconArgs.name,
+        imageURL: url,
+        imageTemplateURL: url,
+        iconSetName: iconArgs.set,
+        anchor: anchor as [number, number],
+        size: size as [number, number],
+    }
 }
 
 /**
@@ -309,7 +333,7 @@ function generateIconFromStyle(iconStyle: IconStyle, iconArgs: IconArgs): Drawin
  * @returns The drawing icon or undefined in case of non-geoadmin icon
  */
 export function getIcon(
-    iconArgs: IconArgs,
+    iconArgs?: IconArgs,
     iconStyle?: IconStyle,
     availableIconSets?: DrawingIconSet[],
     iconNotFoundCallback?: () => void
@@ -332,7 +356,11 @@ export function getIcon(
         if (!iconStyle) {
             return
         }
-        log.error(`Iconset not yet available fallback to default icon`)
+        log.error({
+            title: 'kmlUtils / getIcon',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: ['Icon sets not yet available, falling back to default icon'],
+        })
         return generateIconFromStyle(iconStyle, iconArgs)
     }
     const iconSet = availableIconSets.find((drawingIconSet) => drawingIconSet.name === iconArgs.set)
@@ -340,7 +368,11 @@ export function getIcon(
         if (iconNotFoundCallback) {
             iconNotFoundCallback()
         } else {
-            log.error(`Iconset ${iconArgs.set} not found, fallback to default icon`)
+            log.error({
+                title: 'kmlUtils / getIcon',
+                titleColor: LogPreDefinedColor.Lime,
+                messages: [`Icon set ${iconArgs.set} not found, falling back to default icon`],
+            })
         }
         if (!iconStyle) {
             return
@@ -356,9 +388,13 @@ export function getIcon(
 
     const icon = iconSet.icons.find((drawingIcon) => nameRegex.test(drawingIcon.name))
     if (!icon && iconStyle) {
-        log.error(
-            `Can not find icon ${iconArgs.name} in set ${iconArgs.set}, fallback to default icon`
-        )
+        log.error({
+            title: 'kmlUtils / getIcon',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: [
+                `Can not find icon ${iconArgs.name} in set ${iconArgs.set}, fallback to default icon`,
+            ],
+        })
         return generateIconFromStyle(iconStyle, iconArgs)
     }
     return icon
@@ -387,7 +423,7 @@ export function getFillColor(
     geometryType: GeometryType,
     iconArgs?: IconArgs
 ): FeatureStyleColor {
-    // Fillcolor can be either the color of the stroke or the fill color or the color of the icon.
+    // Fill color can be either the color of the stroke or the fill color or the color of the icon.
     if (geometryType === 'Point' && iconArgs?.color) {
         return getFeatureStyleColor([iconArgs.color.r, iconArgs.color.g, iconArgs.color.b])
     } else if (['LineString', 'Point'].includes(geometryType) && style.getStroke()) {
@@ -408,32 +444,49 @@ export function getFillColor(
  * @returns EditableFeature or undefined if this is not a geoadmin feature
  */
 export function getEditableFeatureFromKmlFeature(
-    kmlFeature: OLFeature | undefined,
+    kmlFeature: Feature | undefined,
     availableIconSets: DrawingIconSet[],
     resolution: number
 ): EditableFeature | undefined {
     if (!kmlFeature) {
         log.error({
+            title: 'kmlUtils / getEditableFeatureFromKmlFeature',
+            titleColor: LogPreDefinedColor.Lime,
             messages: [`Cannot generate EditableFeature from KML feature`, kmlFeature],
         })
         return
     }
     const featureType = getFeatureType(kmlFeature)
-    if (!featureType || !(featureType in EditableFeatureTypes)) {
-        log.debug('External KML detected, cannot modify it to an EditableFeature')
+    if (!featureType || !isAnyEnumValue(EditableFeatureTypes, featureType)) {
+        log.debug({
+            title: 'kmlUtils / getEditableFeatureFromKmlFeature',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: ['External KML detected, cannot modify it to an EditableFeature'],
+        })
         return
     }
-    // The kml parser automatically created a style based on the "<style>" part of the feature in the kml file.
-    // We will now analyse this style to retrieve all information we need to generate the editable feature.
+    // The KML parser automatically created a style based on the "<style>" part of the feature in the KML file.
+    // We will now analyze this style to retrieve all information we need to generate the editable feature.
     const style = getStyle(kmlFeature, resolution)
     if (!style) {
-        log.error('Parsing error: Could not get the style from the ol Feature', kmlFeature)
+        log.error({
+            title: 'kmlUtils / getEditableFeatureFromKmlFeature',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: ['Parsing error: Could not get the style from the ol Feature', kmlFeature],
+        })
         return
     }
     const featureId = kmlFeature.getId()
 
     if (!featureId) {
-        log.error('Parsing error: Could not get the feature id from the ol Feature', kmlFeature)
+        log.error({
+            title: 'kmlUtils / getEditableFeatureFromKmlFeature',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: [
+                'Parsing error: Could not get the feature id from the ol Feature',
+                kmlFeature,
+            ],
+        })
         return
     }
 
@@ -494,15 +547,18 @@ export function getEditableFeatureFromKmlFeature(
         // NOTE: we need to do this here and cannot use the iconUrlFunction of the ol/KML constructor
         // because for the url translation we need to have the available iconsets which we don't
         // always have when using iconUrlFunction
-        log.warn(`Legacy icons style detected overwritting the style with the new icon url`)
+        log.warn({
+            title: 'kmlUtils / getEditableFeatureFromKmlFeature',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: ['Legacy icons style detected overwriting the style with the new icon url'],
+        })
         const image = style.getImage()
         if (image instanceof IconStyle) {
-            // TODO: uncomment this line as soon as https://github.com/openlayers/openlayers/pull/16957 as been released (should be in the next version after 10.6.0)
-            // image.setSrc(generateIconURL(icon, fillColor))
+            image.setSrc(generateIconURL(icon, fillColor, iconSize))
         }
     }
 
-    return new EditableFeature({
+    return {
         id: featureId,
         featureType: featureType as EditableFeatureTypes,
         title,
@@ -517,7 +573,7 @@ export function getEditableFeatureFromKmlFeature(
         iconSize,
         textPlacement,
         showDescriptionOnMap,
-    })
+    } as EditableFeature
 }
 
 /**
@@ -540,7 +596,7 @@ function detectTextPlacement(
     currentTextOffset?: [number, number]
 ): TextPlacement {
     if (!text || !textScale || !iconScale || !anchor || !iconSize || !currentTextOffset) {
-        return TextPlacement.UNKNOWN
+        return TextPlacement.Unknown
     }
     const [textPlacementX, textPlacementY] = calculateTextXYOffset(
         textScale,
@@ -560,7 +616,7 @@ function detectTextPlacement(
             return placementOption as TextPlacement
         }
     }
-    return TextPlacement.UNKNOWN
+    return TextPlacement.Unknown
 }
 
 const nonGeoadminIconUrls = new Set<string>()
@@ -572,14 +628,22 @@ export function iconUrlProxyFy(
     // We only proxify URL that are not from our backend.
     if (!LOCAL_OR_INTERNAL_URL_REGEX.test(url)) {
         if (url.startsWith('http:') && httpIssueCallBack) {
-            log.warn(`KML Icon url ${url} has an http scheme`)
+            log.warn({
+                title: 'kmlUtils / iconUrlProxyFy',
+                titleColor: LogPreDefinedColor.Lime,
+                messages: [`KML Icon url ${url} has an http scheme`],
+            })
             httpIssueCallBack(url)
         }
         const proxyUrl = proxifyUrl(url)
         // Only perform the CORS check if we have a callback and it has not yet been done
         if (!nonGeoadminIconUrls.has(url) && corsIssueCallback) {
             nonGeoadminIconUrls.add(url)
-            log.warn(`Non geoadmin KML Icon url detected, checking CORS: ${url}`)
+            log.warn({
+                title: 'kmlUtils / iconUrlProxyFy',
+                titleColor: LogPreDefinedColor.Lime,
+                messages: [`Non geoadmin KML Icon url detected, checking CORS: ${url}`],
+            })
             // Detected non geoadmin URL, in this case always use the proxy to avoid CORS errors as
             // this method is synchrone.
             // but still check for CORS support asynchronously to set a user warning if needed.
@@ -588,17 +652,29 @@ export function iconUrlProxyFy(
                     timeout: 10 * 1000,
                 })
                 .then((response) => {
-                    log.debug(`KML Icon url ${url} support CORS:`, response)
+                    log.debug({
+                        title: 'kmlUtils / iconUrlProxyFy',
+                        titleColor: LogPreDefinedColor.Lime,
+                        messages: [`KML Icon url ${url} support CORS:`, response],
+                    })
                 })
                 .catch((error) => {
-                    log.warn(`KML Icon url ${url} do not support CORS`, error)
+                    log.warn({
+                        title: 'kmlUtils / iconUrlProxyFy',
+                        titleColor: LogPreDefinedColor.Lime,
+                        messages: [`KML Icon url ${url} do not support CORS`, error],
+                    })
                     if (corsIssueCallback) {
                         corsIssueCallback(url, error)
                     }
                 })
         }
 
-        log.debug(`KML icon change url from ${url} to ${proxyUrl}`)
+        log.debug({
+            title: 'kmlUtils / iconUrlProxyFy',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: [`KML icon change url from ${url} to ${proxyUrl}`],
+        })
         return proxyUrl
     }
     return url
@@ -643,14 +719,15 @@ function handleIconUrl(
 export function parseKml(
     kmlLayer: KMLLayer,
     projection: CoordinateSystem,
-    resolution: number,
     iconSets: DrawingIconSet[],
+    resolution: number,
     iconUrlProxy: (url: string) => string = iconUrlProxyFy
-): OLFeature[] {
+): Feature<Geometry>[] {
     const kmlData = kmlLayer.kmlData
     const files = kmlLayer.internalFiles
+
     const features = new KML({
-        iconUrlFunction: (url) => handleIconUrl(url, iconUrlProxy, files),
+        iconUrlFunction: (url: string) => handleIconUrl(url, iconUrlProxy, files),
     }).readFeatures(kmlData, {
         dataProjection: WGS84.epsg, // KML files should always be in WGS84
         featureProjection: projection.epsg,
@@ -667,14 +744,6 @@ export function parseKml(
                 // Set the EditableFeature coordinates from the olFeature geometry
                 editableFeature.coordinates = extractOlFeatureCoordinates(olFeature)
                 olFeature.set('editableFeature', editableFeature)
-
-                if (editableFeature.isLineOrMeasure()) {
-                    /* The featureStyleFunction uses the geometries calculated in the geodesic object
-                    if present. The lines connecting the vertices of the geometry will appear
-                    geodesic (follow the shortest path) in this case instead of linear (be straight on
-                    the screen)  */
-                    olFeature.set('geodesic', new GeodesicGeometries(olFeature, projection))
-                }
             }
             olFeature.setStyle(geoadminStyleFunction)
         })
@@ -697,14 +766,26 @@ export function isKmlFeaturesValid(kmlData: string): boolean {
         const invalidFeatures = kmlGeoJson.features.filter((feature) => !booleanValid(feature))
         const errorsCount = invalidFeatures.length
         if (errorsCount > 0) {
-            log.warn(`KML file contains ${errorsCount} invalid feature(s)`)
+            log.warn({
+                title: 'kmlUtils / isKmlFeaturesValid',
+                titleColor: LogPreDefinedColor.Lime,
+                messages: [
+                    `KML file contains ${errorsCount} invalid feature(s)`,
+                    '\ninvalid features:',
+                    invalidFeatures,
+                ],
+            })
             return false
         }
 
         return true
     } catch (error) {
         if (error instanceof Error) {
-            log.error(`Failed to parse or validate KML file: ${error.message || error}`)
+            log.error({
+                title: 'kmlUtils / isKmlFeaturesValid',
+                titleColor: LogPreDefinedColor.Lime,
+                messages: ['Failed to parse or validate KML file:', error],
+            })
         }
         return false
     }
@@ -736,7 +817,11 @@ export async function unzipKmz(kmzContent: ArrayBuffer, kmzFileName: string): Pr
         await zip.loadAsync(kmzContent)
     } catch (error) {
         if (error instanceof Error) {
-            log.error(`Failed to unzip KMZ file ${kmzFileName}: ${error.message}`, error)
+            log.error({
+                title: 'kmlUtils / unzipKmz',
+                titleColor: LogPreDefinedColor.Lime,
+                messages: [`Failed to unzip KMZ file ${kmzFileName}:`, error],
+            })
         }
         throw new Error(`Failed to unzip KMZ file ${kmzFileName}`, {
             cause: error,
@@ -751,10 +836,11 @@ export async function unzipKmz(kmzContent: ArrayBuffer, kmzFileName: string): Pr
         }
     } catch (error) {
         if (error instanceof Error) {
-            log.error(
-                `Failed to get KML file from KMZ archive ${kmzFileName}: ${error.message}`,
-                error
-            )
+            log.error({
+                title: 'kmlUtils / unzipKmz',
+                titleColor: LogPreDefinedColor.Lime,
+                messages: [`Failed to get KML file from KMZ archive ${kmzFileName}:`, error],
+            })
         }
         throw new Error(`Failed to get KML file from KMZ archive ${kmzFileName}`, {
             cause: error,
@@ -772,10 +858,14 @@ export async function unzipKmz(kmzContent: ArrayBuffer, kmzFileName: string): Pr
             kmz.files.set(file.name, await file.async('arraybuffer'))
         } catch (error) {
             if (error instanceof Error) {
-                log.error(
-                    `Failed to extract file ${file.name} from KMZ archive ${kmzFileName}: ${error.message}. File is ignored`,
-                    error
-                )
+                log.error({
+                    title: 'kmlUtils / unzipKmz',
+                    titleColor: LogPreDefinedColor.Lime,
+                    messages: [
+                        `Failed to extract file ${file.name} from KMZ archive ${kmzFileName}. File is ignored.`,
+                        error,
+                    ],
+                })
             }
         }
     }

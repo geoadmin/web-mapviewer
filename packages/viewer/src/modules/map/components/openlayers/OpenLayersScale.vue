@@ -1,31 +1,30 @@
-<script setup lang="js">
+<script setup lang="ts">
+import type { Map } from 'ol'
+
 import { LV95 } from '@swissgeo/coordinates'
+import log from '@swissgeo/log'
 import ScaleLine from 'ol/control/ScaleLine'
 import { computed, inject, onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
-import { useStore } from 'vuex'
 
-const { scaleType, minWidth, withRelativeSize } = defineProps({
-    scaleType: {
-        type: String,
-        default: 'line',
-    },
-    minWidth: {
-        type: Number,
-        default: 100,
-    },
-    withRelativeSize: {
-        type: Boolean,
-        default: false,
-    },
-})
+import usePositionStore from '@/store/modules/position'
 
-const scaleLineElement = useTemplateRef('scaleLineElement')
+const {
+    scaleType = 'line',
+    minWidth = 100,
+    withRelativeSize = false,
+} = defineProps<{
+    scaleType?: 'line' | 'bar'
+    minWidth?: number
+    withRelativeSize?: boolean
+}>()
 
-const store = useStore()
-const zoom = computed(() => store.state.position.zoom)
-const projection = computed(() => store.state.position.projection)
+const scaleLineElement = useTemplateRef<HTMLElement>('scaleLineElement')
 
-const showScaleLine = computed(() => projection.value.epsg === LV95.epsg || zoom.value >= 9)
+const positionStore = usePositionStore()
+
+const showScaleLine = computed<boolean>(
+    () => positionStore.projection.epsg === LV95.epsg || positionStore.zoom >= 9
+)
 
 const scaleLine = new ScaleLine({
     className: `scale-${scaleType}`,
@@ -33,9 +32,16 @@ const scaleLine = new ScaleLine({
     minWidth: minWidth,
 })
 
-const olMap = inject('olMap')
+const olMap = inject<Map>('olMap')
+if (!olMap) {
+    log.error('OpenLayersMap is not available')
+    throw new Error('OpenLayersMap is not available')
+}
+
 onMounted(() => {
-    scaleLine.setTarget(scaleLineElement.value)
+    if (scaleLineElement.value) {
+        scaleLine.setTarget(scaleLineElement.value)
+    }
     olMap.addControl(scaleLine)
 })
 onBeforeUnmount(() => olMap.removeControl(scaleLine))

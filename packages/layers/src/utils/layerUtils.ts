@@ -1,4 +1,5 @@
 import type { CoordinateSystem } from '@swissgeo/coordinates'
+
 import { servicesBaseUrl } from '@swissgeo/staging-config'
 import { cloneDeep, merge, omit } from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
@@ -314,6 +315,7 @@ function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
         hasDescription: false,
         hasLegend: false,
         isLoading: true,
+        isEdited: false,
         adminId: undefined,
         internalFiles: {},
         timeConfig: {
@@ -358,6 +360,7 @@ function makeGPXLayer(values: Partial<GPXLayer>): GPXLayer {
         hasDescription: false,
         hasLegend: false,
         isExternal: true,
+        isLocalFile,
         hasError: false,
         hasWarning: false,
         isLoading: !values.gpxData,
@@ -583,7 +586,6 @@ function makeGeoAdminGeoJSONLayer(values: Partial<GeoAdminGeoJSONLayer>): GeoAdm
     return layer as GeoAdminGeoJSONLayer
 }
 
-// TODO: this does not return a GeoAdminGroupOfLayers object because for instanceof to work it needs to be an instance of a class and not an object with the type of an interface
 /**
  * Construct a GeoAdminGroupOfLayers
  *
@@ -608,6 +610,11 @@ function makeGeoAdminGroupOfLayers(values: Partial<GeoAdminGroupOfLayers>): GeoA
         },
         hasError: false,
         hasWarning: false,
+        isBackground: false,
+        isHighlightable: false,
+        isSpecificFor3d: false,
+        searchable: false,
+        topics: [],
     }
 
     const layer = merge(defaults, values)
@@ -659,10 +666,13 @@ function getTopicForIdentifyAndTooltipRequests(layer: Layer): string {
 }
 
 /** Clone a layer but give it a new uuid */
-function cloneLayer<T extends Layer>(layer: T): T {
+function cloneLayer<T extends Layer>(layer: T, overrides?: Partial<T>): T {
     validateBaseData(layer)
     const clone = cloneDeep(layer)
     clone.uuid = uuidv4()
+    if (overrides) {
+        Object.assign(clone, overrides)
+    }
     return clone
 }
 
@@ -670,7 +680,7 @@ function cloneLayer<T extends Layer>(layer: T): T {
  * @param options.addTimestamp Add the timestamp from the time config to the URL. When false, the
  *   timestamp is set to `{Time}` and needs to be processed later (i.e., by the mapping framework).
  */
-export function getWmtsXyzUrl(
+function getWmtsXyzUrl(
     wmtsLayerConfig: GeoAdminWMTSLayer | ExternalWMTSLayer,
     projection: CoordinateSystem,
     options?: {

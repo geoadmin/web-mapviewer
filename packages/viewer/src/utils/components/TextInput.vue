@@ -1,163 +1,142 @@
-<script setup lang="js">
+<script setup lang="ts">
 /** Input with clear button component */
 import { nextTick, ref, useSlots, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
-import {
-    propsValidator4ValidateFunc,
-    useFieldValidation,
-} from '@/utils/composables/useFieldValidation'
+import { useFieldValidation } from '@/utils/composables/useFieldValidation'
 
-// On each component creation set the current component unique ID
-const clearButtonId = useComponentUniqueId('button-addon-clear')
-const textInputId = useComponentUniqueId('text-input')
+export interface TextInputExposed {
+    focus: () => void
+}
 
-const model = defineModel({ type: String })
-const emits = defineEmits(['change', 'validate', 'focusin', 'focusout', 'clear', 'keydown.enter'])
+export interface TextInputValidateResult {
+    valid: boolean
+    invalidMessage: string
+}
 
-const props = defineProps({
-    /**
-     * Label to add above the field
-     *
-     * @type {String}
-     */
-    label: {
-        type: String,
-        default: '',
-    },
-    /**
-     * Description to add below the input
-     *
-     * @type {String}
-     */
-    description: {
-        type: String,
-        default: '',
-    },
-    /**
-     * Mark the field as disable
-     *
-     * @type {Boolean}
-     */
-    disabled: {
-        type: Boolean,
-        default: false,
-    },
+export type TextInputValidateFunction = (_value?: string) => TextInputValidateResult
+
+const {
+    label = '',
+    description = '',
+    disabled = false,
+    placeholder = '',
+    required = false,
+    validMarker = undefined,
+    validMessage = '',
+    invalidMarker = undefined,
+    invalidMessage = '',
+    invalidMessageParams = undefined,
+    activateValidation = false,
+    validate = undefined,
+    dataCy = '',
+} = defineProps<{
+    /** Label to add above the field */
+    label?: string
+    /** Description to add below the input */
+    description?: string
+    /** Mark the field as disable */
+    disabled?: boolean
     /**
      * Placeholder
      *
      * NOTE: this should be a translation key
-     *
-     * @type {String}
      */
-    placeholder: {
-        type: String,
-        default: '',
-    },
-    /**
-     * Field is required and will be marked as invalid if empty
-     *
-     * @type {Boolean}
-     */
-    required: {
-        type: Boolean,
-        default: false,
-    },
+    placeholder?: string
+    /** Field is required and will be marked as invalid if empty */
+    required?: boolean
     /**
      * Mark the field as valid
      *
-     * This can be used if the field requires some external validation. When not set or set to null
-     * this props is ignored.
+     * This can be used if the field requires some external validation. When not set or set to
+     * undefined this props is ignored.
      *
      * NOTE: this props is ignored when activate-validation is false
-     *
-     * @type {Boolean}
      */
-    validMarker: {
-        type: [Boolean, null],
-        default: null,
-    },
+    validMarker?: boolean
     /**
      * Valid message that will be added in green below the field once the validation has been done
      * and the field is valid.
-     *
-     * @type {String}
      */
-    validMessage: {
-        type: String,
-        default: '',
-    },
+    validMessage?: string
     /**
      * Mark the field as invalid
      *
-     * This can be used if the field requires some external validation. When not set or set to null
-     * this props is ignored.
+     * This can be used if the field requires some external validation. When not set or set to
+     * undefined this props is ignored.
      *
      * NOTE: this props is ignored when activate-validation is false
-     *
-     * @type {Boolean}
      */
-    invalidMarker: {
-        type: [Boolean, null],
-        default: null,
-    },
+    invalidMarker?: boolean
     /**
      * Invalid message that will be added in red below the field once the validation has been done
      * and the field is invalid.
      *
      * NOTE: this message is overwritten if the internal validation failed (not allow file type or
      * file too big or required empty file)
-     *
-     * @type {String}
      */
-    invalidMessage: {
-        type: String,
-        default: '',
-    },
+    invalidMessage?: string
     /**
      * Parameters for replacing any placeholder within an invalid message translated text (will be
      * passed to Vue I18N when translating the invalid message).
-     *
-     * @type {Object | null}
      */
-    invalidMessageParams: {
-        type: [Object, null],
-        default: null,
-    },
+    invalidMessageParams?: Record<string, unknown>
     /**
      * Mark the field has validated.
      *
      * As long as the flag is false, no validation is run and no validation marks are set. Also the
      * props is-invalid and is-valid are ignored.
      */
-    activateValidation: {
-        type: Boolean,
-        default: false,
-    },
+    activateValidation?: boolean
     /**
      * Validate function to run when the input changes The function should return an object of type
-     * `{valid: Boolean, invalidMessage: Sting}`. The `invalidMessage` string should be a
+     * `{valid: Boolean, invalidMessage: String}`. The `invalidMessage` string should be a
      * translation key.
      *
      * NOTE: this function is called each time the field is modified
-     *
-     * @type {Function | null}
      */
-    validate: {
-        type: [Function, null],
-        default: null,
-        validator: propsValidator4ValidateFunc,
-    },
-    dataCy: {
-        type: String,
-        default: '',
-    },
-})
-const { placeholder, disabled, label, description, invalidMessageParams, dataCy } = props
+    validate?: TextInputValidateFunction
+    dataCy?: string
+}>()
 
-const { value, validMarker, invalidMarker, validMessage, invalidMessage, onFocus, required } =
-    useFieldValidation(props, model, emits)
+// On each component creation set the current component unique ID
+const clearButtonId = useComponentUniqueId('button-addon-clear')
+const textInputId = useComponentUniqueId('text-input')
+
+const model = defineModel<string>({ default: '' })
+const emits = defineEmits<{
+    change: [value: string]
+    validate: [result: TextInputValidateResult]
+    focusin: []
+    focusout: []
+    clear: []
+    'keydown.enter': []
+}>()
+
+const validationProps = {
+    required,
+    validMarker,
+    validMessage,
+    invalidMarker,
+    invalidMessage,
+    activateValidation,
+    validate,
+}
+
+const {
+    value,
+    validMarker: computedValidMarker,
+    invalidMarker: computedInvalidMarker,
+    validMessage: computedValidMessage,
+    invalidMessage: computedInvalidMessage,
+    onFocus,
+    required: computedRequired,
+} = useFieldValidation(
+    validationProps,
+    model,
+    emits as (_event: string, ..._args: unknown[]) => void
+)
 
 const { t } = useI18n()
 const slots = useSlots()
@@ -165,18 +144,18 @@ const slots = useSlots()
 const inputElement = useTemplateRef('inputElement')
 const error = ref('')
 
-function onClearInput() {
+function onClearInput(): void {
     value.value = ''
     error.value = ''
-    inputElement.value.focus()
+    inputElement.value?.focus()
     emits('clear')
 }
 
-function focus() {
-    nextTick(() => inputElement.value.focus())
+function focus(): void {
+    void nextTick(() => inputElement.value?.focus())
 }
 
-defineExpose({ focus })
+defineExpose<TextInputExposed>({ focus })
 </script>
 
 <template>
@@ -187,7 +166,7 @@ defineExpose({ focus })
         <label
             v-if="label"
             class="mb-2"
-            :class="{ 'fw-bolder': required }"
+            :class="{ 'fw-bolder': computedRequired }"
             :for="textInputId"
             data-cy="text-input-label"
         >
@@ -200,23 +179,22 @@ defineExpose({ focus })
                 v-model="value"
                 type="text"
                 :disabled="disabled"
-                :required="required"
+                :required="computedRequired"
                 class="form-control text-truncate"
                 :class="{
                     'rounded-end': !value?.length && !slots?.default,
-                    'is-invalid': invalidMarker,
-                    'is-valid': validMarker,
+                    'is-invalid': computedInvalidMarker,
+                    'is-valid': computedValidMarker,
                 }"
                 :aria-describedby="clearButtonId"
                 :placeholder="placeholder ? t(placeholder) : ''"
-                :value="value"
                 data-cy="text-input"
                 @focusin="onFocus($event, true)"
                 @focusout="onFocus($event, false)"
                 @keydown.enter="emits('keydown.enter')"
             />
             <button
-                v-if="value?.length > 0"
+                v-if="value && value.length > 0"
                 :id="clearButtonId"
                 class="btn btn-outline-group rounded-0"
                 :class="{ 'rounded-end': !slots?.default }"
@@ -228,18 +206,18 @@ defineExpose({ focus })
             </button>
             <slot />
             <div
-                v-if="invalidMessage"
+                v-if="computedInvalidMessage"
                 class="invalid-feedback"
                 data-cy="text-input-invalid-feedback"
             >
-                {{ t(invalidMessage, invalidMessageParams) }}
+                {{ t(computedInvalidMessage, invalidMessageParams ?? {}) }}
             </div>
             <div
-                v-if="validMessage"
+                v-if="computedValidMessage"
                 class="valid-feedback"
                 data-cy="text-input-valid-feedback"
             >
-                {{ t(validMessage) }}
+                {{ t(computedValidMessage) }}
             </div>
         </div>
         <div

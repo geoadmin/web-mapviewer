@@ -1,28 +1,31 @@
-<script setup lang="js">
-import { computed, inject, ref } from 'vue'
-import { useStore } from 'vuex'
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+
+import type { DropdownItem } from '@/utils/components/DropdownButton.vue'
 
 import { generateGpxString, generateKmlString } from '@/modules/drawing/lib/export-utils'
+import useDrawingStore from '@/store/modules/drawing'
+import useLayersStore from '@/store/modules/layers'
+import usePositionStore from '@/store/modules/position'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
 import { downloadFile, generateFilename } from '@/utils/utils'
 
-/** @type {DropdownItem[]} */
-const exportOptions = [
+const exportOptions: DropdownItem<string>[] = [
     { id: 'KML', title: 'KML', value: 'KML' },
     { id: 'GPX', title: 'GPX', value: 'GPX' },
 ]
 
-const drawingLayer = inject('drawingLayer')
+const exportSelection = ref<string>(exportOptions[0]!.title)
 
-const exportSelection = ref(exportOptions[0].title)
+const positionStore = usePositionStore()
+const drawingStore = useDrawingStore()
+const layersStore = useLayersStore()
 
-const store = useStore()
+const projection = computed(() => positionStore.projection)
+const isDrawingEmpty = computed(() => drawingStore.isDrawingEmpty)
+const activeKmlLayer = computed(() => layersStore.activeKmlLayer)
 
-const projection = computed(() => store.state.position.projection)
-const isDrawingEmpty = computed(() => store.getters.isDrawingEmpty)
-const activeKmlLayer = computed(() => store.getters.activeKmlLayer)
-
-function onExportOptionSelected(dropdownItem) {
+function onExportOptionSelected(dropdownItem: DropdownItem<unknown>) {
     exportSelection.value = dropdownItem.title
     exportDrawing()
 }
@@ -31,14 +34,14 @@ function exportDrawing() {
     if (isDrawingEmpty.value) {
         return
     }
-    const features = drawingLayer.getSource().getFeatures()
-    let content, fileName
+    const features = drawingStore.layer.ol?.getSource?.()?.getFeatures?.() ?? []
+    let content: string, fileName: string
     if (exportSelection.value === 'GPX') {
         fileName = generateFilename('.gpx')
         content = generateGpxString(projection.value, features)
     } else {
         fileName = generateFilename('.kml')
-        content = generateKmlString(projection.value, features, activeKmlLayer.value?.name)
+        content = generateKmlString(projection.value, features, activeKmlLayer.value?.name ?? '')
     }
     downloadFile(new Blob([content]), fileName)
 }

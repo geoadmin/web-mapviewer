@@ -1,10 +1,16 @@
 /// <reference types="cypress" />
 
+import type { CustomCoordinateSystem, SingleCoordinate } from '@swissgeo/coordinates'
+import type { Pinia } from 'pinia'
+
 import { constants, coordinatesUtils, LV03, LV95, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
+import { assertDefined } from 'support/utils'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
+import useMapStore from '@/store/modules/map'
+import usePositionStore from '@/store/modules/position'
+import useSearchStore from '@/store/modules/search'
 import { latLonToMGRS } from '@/utils/militaryGridProjection'
-import { assertDefined } from 'support/utils'
 
 const searchbarSelector = '[data-cy="searchbar"]'
 
@@ -12,7 +18,7 @@ describe('Testing coordinates typing in search bar', () => {
     beforeEach(() => {
         cy.goToMapView()
     })
-    const expectedCenter = DEFAULT_PROJECTION.bounds.center.map((value: number) => value - 1000)
+    const expectedCenter: SingleCoordinate = DEFAULT_PROJECTION.bounds!.center
     const expectedCenterLV95 = coordinatesUtils.reprojectAndRound(
         DEFAULT_PROJECTION,
         LV95,
@@ -36,7 +42,9 @@ describe('Testing coordinates typing in search bar', () => {
 
     const checkCenterInStore = (acceptableDelta = 0.0) => {
         cy.log(`Check that center is at ${JSON.stringify(expectedCenter)}`)
-        cy.readStoreValue('state.position.center').should((center) => {
+        cy.getPinia().then((pinia) => {
+            const positionStore = usePositionStore(pinia)
+            const center = positionStore.center
             expect(center[0]).to.be.approximately(expectedCenter[0], acceptableDelta)
             expect(center[1]).to.be.approximately(expectedCenter[1], acceptableDelta)
         })
@@ -45,25 +53,39 @@ describe('Testing coordinates typing in search bar', () => {
         // checking that the zoom level is at the 1:25'000 map level after a coordinate input in the search bar
         let expectedZoomLevel = constants.STANDARD_ZOOM_LEVEL_1_25000_MAP
         if (!DEFAULT_PROJECTION.usesMercatorPyramid) {
-            expectedZoomLevel = DEFAULT_PROJECTION.transformStandardZoomLevelToCustom(
-                constants.STANDARD_ZOOM_LEVEL_1_25000_MAP
-            )
+            expectedZoomLevel = (
+                DEFAULT_PROJECTION as CustomCoordinateSystem
+            ).transformStandardZoomLevelToCustom(constants.STANDARD_ZOOM_LEVEL_1_25000_MAP)
         }
-        cy.readStoreValue('state.position.zoom').should('be.eq', expectedZoomLevel)
+        cy.getPinia().then((pinia) => {
+            const positionStore2 = usePositionStore(pinia)
+            expect(positionStore2.zoom).to.be.eq(expectedZoomLevel)
+        })
     }
     const checkThatCoordinateAreHighlighted = (acceptableDelta = 0.0) => {
         // checking that a balloon marker has been put on the coordinate location (that it is a highlighted location in the store)
-        cy.readStoreValue('state.map.pinnedLocation').should((feature) => {
-            expect(feature).to.not.be.null
+        cy.getPinia().then((pinia) => {
+            const mapStore = useMapStore(pinia)
+            const feature = mapStore.pinnedLocation
+            expect(feature).to.not.be.undefined
             expect(feature).to.be.a('array').that.is.not.empty
-            expect(feature[0]).to.be.approximately(expectedCenter[0], acceptableDelta)
-            expect(feature[1]).to.be.approximately(expectedCenter[1], acceptableDelta)
+            expect(feature?.[0]).to.be.approximately(expectedCenter[0], acceptableDelta)
+            expect(feature?.[1]).to.be.approximately(expectedCenter[1], acceptableDelta)
         })
     }
-    const standardCheck = (x: number | string, y: number | string, options: { acceptableDelta?: number, withInversion?: boolean } = {}) => {
+    const standardCheck = (
+        x: number | string,
+        y: number | string,
+        options: { acceptableDelta?: number; withInversion?: boolean } = {}
+    ) => {
         const { acceptableDelta = 0.0, withInversion = false } = options
         cy.get(searchbarSelector).should('be.visible')
         cy.get(searchbarSelector).paste(`${x} ${y}`)
+        cy.log('Waiting for pinned location to be set in store')
+        cy.waitUntilState((pinia: Pinia) => {
+            const mapStore = useMapStore(pinia)
+            return !!mapStore.pinnedLocation
+        })
         checkCenterInStore(acceptableDelta)
         checkZoomLevelInStore()
         checkThatCoordinateAreHighlighted(acceptableDelta)
@@ -80,14 +102,20 @@ describe('Testing coordinates typing in search bar', () => {
         standardCheck(expectedCenterLV95[0], expectedCenterLV95[1], { withInversion: true })
         cy.get('[data-cy="searchbar-clear"]').click()
         // checking that search bar has been emptied
-        cy.readStoreValue('state.search.query').should('be.empty')
+        cy.getPinia().then((pinia) => {
+            const searchStore = useSearchStore(pinia)
+            expect(searchStore.query).to.be.empty
+        })
         // checking that the dropped pin has been removed
-        cy.readStoreValue('state.map.pinnedLocation').should('be.null')
+        cy.getPinia().then((pinia) => {
+            const mapStore2 = useMapStore(pinia)
+            expect(mapStore2.pinnedLocation).to.be.undefined
+        })
     })
 
     it('Paste EPSG:4326 (WGS84) coordinate', () => {
         const expectedCenterWGS84_DD: string[] = expectedCenterWGS84.map((val) => {
-            const [degree, minutesFraction] = `${val}`.split('.')
+            const [degree, minutesFraction] = `${val.toString()}`.split('.')
             const minutes = parseFloat(`0.${minutesFraction}`)
             return `${degree}° ${(minutes * 60.0).toFixed(4)}'`
         })
@@ -99,7 +127,10 @@ describe('Testing coordinates typing in search bar', () => {
         // clear the bar
         cy.get('[data-cy="searchbar-clear"]').click()
         // checking that search bar has been emptied
-        cy.readStoreValue('state.search.query').should('be.empty')
+        cy.getPinia().then((pinia) => {
+            const searchStore2 = useSearchStore(pinia)
+            expect(searchStore2.query).to.be.empty
+        })
         expect(expectedCenterWGS84_DD).to.have.length(2)
         assertDefined(expectedCenterWGS84_DD[0])
         assertDefined(expectedCenterWGS84_DD[1])
@@ -158,6 +189,10 @@ describe('Testing coordinates typing in search bar', () => {
         const mgrsCoordinates = latLonToMGRS(expectedCenterWGS84[1], expectedCenterWGS84[0])
         cy.log(`Enter MGRS ${mgrsCoordinates} in search bar`)
         cy.get(searchbarSelector).paste(mgrsCoordinates)
+        cy.waitUntilState((pinia: Pinia) => {
+            const mapStore = useMapStore(pinia)
+            return !!mapStore.pinnedLocation
+        })
         checkCenterInStore(acceptableDeltaForMGRS)
         checkZoomLevelInStore()
         checkThatCoordinateAreHighlighted(acceptableDeltaForMGRS)

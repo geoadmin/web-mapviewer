@@ -1,24 +1,25 @@
-<script setup lang="js">
+<script setup lang="ts">
+import type { FlatExtent } from '@swissgeo/coordinates'
+import type { Map } from 'ol'
+
+import log from '@swissgeo/log'
 import Feature from 'ol/Feature'
 import { fromExtent } from 'ol/geom/Polygon'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { Stroke, Style } from 'ol/style'
-import { computed, inject, watch } from 'vue'
-import { useStore } from 'vuex'
+import { inject, watch } from 'vue'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
+import useMapStore from '@/store/modules/map'
+import usePositionStore from '@/store/modules/position'
 
-const { zIndex } = defineProps({
-    zIndex: {
-        type: Number,
-        default: -1,
-    },
-})
+const { zIndex = -1 } = defineProps<{
+    zIndex?: number
+}>()
 
-const store = useStore()
-const currentProjection = computed(() => store.state.position.projection)
-const selectionExtent = computed(() => store.state.map.rectangleSelectionExtent || [])
+const positionStore = usePositionStore()
+const mapStore = useMapStore()
 
 const layer = new VectorLayer({
     source: createVectorSourceForProjection(),
@@ -30,23 +31,31 @@ const layer = new VectorLayer({
     }),
 })
 
-const olMap = inject('olMap', null)
+const olMap = inject<Map>('olMap')
+if (!olMap) {
+    log.error('OpenLayersMap is not available')
+    throw new Error('OpenLayersMap is not available')
+}
 useAddLayerToMap(layer, olMap, () => zIndex)
 
-watch(currentProjection, () => layer.setSource(createVectorSourceForProjection()))
-watch(selectionExtent, () => layer.setSource(createVectorSourceForProjection()))
+watch(
+    () => positionStore.projection,
+    () => layer.setSource(createVectorSourceForProjection())
+)
+watch(
+    () => mapStore.rectangleSelectionExtent,
+    () => layer.setSource(createVectorSourceForProjection())
+)
 
-function createVectorSourceForProjection() {
-    if (!selectionExtent.value) {
-        return new VectorSource({
-            projection: currentProjection.value.epsg,
-        })
+function createVectorSourceForProjection(): VectorSource {
+    const extent: FlatExtent | undefined = mapStore.rectangleSelectionExtent
+    if (!extent) {
+        return new VectorSource()
     } else {
         return new VectorSource({
-            projection: currentProjection.value.epsg,
             features: [
                 new Feature({
-                    geometry: fromExtent(selectionExtent.value),
+                    geometry: fromExtent(extent),
                     name: 'Rectangle Selection',
                 }),
             ],

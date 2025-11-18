@@ -1,35 +1,32 @@
-<script setup lang="js">
+<script setup lang="ts">
 /** Renders a GPX file on the map */
+
+import type { GPXLayer } from '@swissgeo/layers'
+import type { Map } from 'ol'
 
 import log from '@swissgeo/log'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
-import { useStore } from 'vuex'
 
-import GPXLayer from '@/api/layers/GPXLayer.class'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
+import usePositionStore from '@/store/modules/position'
 import { parseGpx } from '@/utils/gpxUtils'
 
-const { gpxLayerConfig, parentLayerOpacity, zIndex } = defineProps({
-    gpxLayerConfig: {
-        type: GPXLayer,
-        required: true,
-    },
-    parentLayerOpacity: {
-        type: Number,
-        default: null,
-    },
-    zIndex: {
-        type: Number,
-        default: -1,
-    },
-})
+const {
+    gpxLayerConfig,
+    parentLayerOpacity,
+    zIndex = -1,
+} = defineProps<{
+    gpxLayerConfig: GPXLayer
+    parentLayerOpacity?: number
+    zIndex?: number
+}>()
 
 // mapping relevant store values
-const store = useStore()
-const projection = computed(() => store.state.position.projection)
+const positionStore = usePositionStore()
+const projection = computed(() => positionStore.projection)
 
 // extracting useful info from what we've linked so far
 const layerId = computed(() => gpxLayerConfig.id)
@@ -46,12 +43,19 @@ function on each feature before it is added to the vectorsource, as it may overw
 the getExtent() function and a wrong extent causes the features to sometimes disappear
 from the screen.  */
 const layer = new VectorLayer({
-    id: layerId.value,
-    uuid: gpxLayerConfig.uuid,
+    properties: {
+        id: layerId.value,
+        uuid: gpxLayerConfig.uuid,
+    },
     opacity: opacity.value,
 })
 
-const olMap = inject('olMap')
+const olMap = inject<Map>('olMap')
+if (!olMap) {
+    log.error('OpenLayersMap is not available')
+    throw new Error('OpenLayersMap is not available')
+}
+
 useAddLayerToMap(layer, olMap, () => zIndex)
 
 onMounted(() => {
@@ -70,7 +74,7 @@ onUnmounted(() => {
     }
 })
 
-function createSourceForProjection() {
+function createSourceForProjection(): void {
     if (!gpxData.value) {
         log.debug('no GPX data loaded yet, could not create source')
         return
@@ -78,7 +82,6 @@ function createSourceForProjection() {
     layer.setSource(
         new VectorSource({
             wrapX: true,
-            projection: projection.value.epsg,
             features: parseGpx(gpxData.value, projection.value),
         })
     )

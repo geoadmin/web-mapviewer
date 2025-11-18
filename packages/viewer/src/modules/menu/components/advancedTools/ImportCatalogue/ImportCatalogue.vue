@@ -1,32 +1,30 @@
-<script setup lang="js">
+<script setup lang="ts">
+import type { ExternalLayer } from '@swissgeo/layers'
+
 import log from '@swissgeo/log'
-import { computed, ref } from 'vue'
-import { useStore } from 'vuex'
+import { ref } from 'vue'
 
 import ProviderUrl from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderUrl.vue'
 import LayerCatalogue from '@/modules/menu/components/LayerCatalogue.vue'
+import useUIStore from '@/store/modules/ui'
 
-const { compact } = defineProps({
-    compact: {
-        type: Boolean,
-        default: false,
-    },
-})
+const { compact } = defineProps<{
+    compact: boolean
+}>()
 
-const capabilities = ref([])
+const capabilities = ref<ExternalLayer[]>([])
 
-const store = useStore()
+const uiStore = useUIStore()
 
-const isDesktopMode = computed(() => store.getters.isDesktopMode)
-
-function onNewCapabilities(newCapabilities) {
+function onNewCapabilities(newCapabilities: ExternalLayer[]): void {
     log.debug(`New capabilities`, newCapabilities)
+
     capabilities.value = newCapabilities.sort((layerA, layerB) =>
         layerA.name.localeCompare(layerB.name, undefined, { sensitivity: 'base' })
     )
 }
 
-function onClear() {
+function onClear(): void {
     capabilities.value = []
 }
 </script>
@@ -34,12 +32,12 @@ function onClear() {
 <template>
     <div
         class="import-catalogue ps-2"
-        :class="{ 'desktop-mode': isDesktopMode, 'me-2': !isDesktopMode }"
+        :class="{ 'desktop-mode': uiStore.isDesktopMode, 'me-2': !uiStore.isDesktopMode }"
         data-cy="import-catalog-content"
     >
         <ProviderUrl
-            @capabilities:parsed="onNewCapabilities"
-            @capabilities:cleared="onClear"
+            @capabilities-parsed="onNewCapabilities"
+            @capabilities-cleared="onClear"
         />
         <LayerCatalogue
             class="mb-2"

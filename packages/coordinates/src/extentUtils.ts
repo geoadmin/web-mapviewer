@@ -129,6 +129,11 @@ export function getExtentIntersectionWithCurrentProjection(
     return flattenExtent(finalExtent as FlatExtent)
 }
 
+export function getExtentCenter(extent: FlatExtent | NormalizedExtent): SingleCoordinate {
+    const [topLeft, bottomRight] = normalizeExtent(extent)
+    return [(topLeft[0] + bottomRight[0]) / 2, (topLeft[1] + bottomRight[1]) / 2]
+}
+
 interface ConfigCreatePixelExtentAround {
     /**
      * Number of pixels the extent should be (if s100 is given, a box of 100x100 pixels with the
@@ -179,6 +184,7 @@ export interface GeoadminExtentUtils {
     flattenExtent: typeof flattenExtent
     getExtentIntersectionWithCurrentProjection: typeof getExtentIntersectionWithCurrentProjection
     createPixelExtentAround: typeof createPixelExtentAround
+    getExtentCenter: typeof getExtentCenter
 }
 
 const extentUtils: GeoadminExtentUtils = {
@@ -187,6 +193,7 @@ const extentUtils: GeoadminExtentUtils = {
     flattenExtent,
     getExtentIntersectionWithCurrentProjection,
     createPixelExtentAround,
+    getExtentCenter,
 }
 export { extentUtils }
 export default extentUtils

@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 /**
  * Confederation logo in accordance (to the best of my abilities) to the CD Bund document found on
  * bk.admin.ch
@@ -9,7 +9,9 @@
 
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
+
+import useUIStore from '@/store/modules/ui'
+const uiStore = useUIStore()
 
 const { renderForDpi = null } = defineProps({
     renderForDpi: {
@@ -20,8 +22,7 @@ const { renderForDpi = null } = defineProps({
 
 const { t } = useI18n()
 
-const store = useStore()
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
+const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
 </script>
 
 <template>
@@ -54,7 +55,7 @@ const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
             </div>
             <h2
                 v-if="hasDevSiteWarning"
-                class="dev-site-warning text-danger position-absolute h-100 z-3 d-flex justify-content-center align-items-center text-center opacity-50"
+                class="dev-site-warning text-danger position-absolute d-flex justify-content-center align-items-center z-3 h-100 text-center opacity-50"
             >
                 <strong>
                     TEST SITE<br />

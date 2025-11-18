@@ -1,69 +1,78 @@
-/// <reference types="cypress" />
-import type AbstractLayer from '@/api/layers/AbstractLayer.class'
+import type { Layer } from '@swissgeo/layers'
+import type { Pinia } from 'pinia'
+
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 import { assertDefined } from 'support/utils'
 
+import type { IdentifyResponse, IdentifyResult } from '@/api/features.api'
+
+import useFeaturesStore from '@/store/modules/features'
+import useLayersStore from '@/store/modules/layers'
+import useUIStore from '@/store/modules/ui'
+
 describe('Testing of the compare slider', () => {
-    function expectCompareRatioToBe(value: number | null) {
-        if (!value) {
-            cy.readStoreValue('state.ui.compareRatio').should('be.null')
-        } else {
-            cy.readStoreValue('state.ui.compareRatio').should('be.equal', value)
-        }
+    function expectCompareRatioToBe(value: number | undefined) {
+        cy.getPinia().then((pinia) => {
+            const uiStore = useUIStore(pinia)
+            if (!value) {
+                expect(uiStore.compareRatio).to.be.undefined
+            } else {
+                expect(uiStore.compareRatio).to.equal(value)
+            }
+        })
     }
     //active is the boolean
     function expectCompareSliderToBeActive(active: boolean) {
-        cy.readStoreValue('state.ui.isCompareSliderActive').should('be.equal', active)
+        cy.getPinia().then((pinia) => {
+            const uiStore = useUIStore(pinia)
+            expect(uiStore.isCompareSliderActive).to.equal(active)
+        })
     }
     context('Comportment of compare slider at startup', () => {
         context('Starting the app with different parameters', () => {
             it('does not shows up at startup with no compare slider parameter', () => {
                 cy.goToMapView({
-                    queryParams:
-                    {
+                    queryParams: {
                         layers: ['test-1.wms.layer', 'test-2.wms.layer,,'].join(';'),
                     },
                     withHash: true,
                 })
 
-                expectCompareRatioToBe(null)
+                expectCompareRatioToBe(undefined)
                 expectCompareSliderToBeActive(false)
                 cy.get('[data-cy="compareSlider"]').should('not.exist')
             })
             it('does not shows up with layers and the compare ratio parameter out of bounds or not a number', () => {
                 cy.goToMapView({
-                    queryParams:
-                    {
+                    queryParams: {
                         layers: ['test-1.wms.layer', 'test-2.wms.layer,,'].join(';'),
                         compareRatio: '1.4',
                     },
                     withHash: true,
                 })
-                expectCompareRatioToBe(null)
+                expectCompareRatioToBe(undefined)
                 expectCompareSliderToBeActive(false)
 
                 cy.get('[data-cy="compareSlider"]').should('not.exist')
                 cy.goToMapView({
-                    queryParams:
-                    {
+                    queryParams: {
                         layers: ['test-1.wms.layer', 'test-2.wms.layer,,'].join(';'),
                         compareRatio: '-0.3',
                     },
                     withHash: true,
                 })
-                expectCompareRatioToBe(null)
+                expectCompareRatioToBe(undefined)
                 expectCompareSliderToBeActive(false)
 
                 cy.get('[data-cy="compareSlider"]').should('not.exist')
                 cy.goToMapView({
-                    queryParams:
-                    {
+                    queryParams: {
                         layers: ['test-1.wms.layer', 'test-2.wms.layer,,'].join(';'),
                         compareRatio: 'aRandomText',
                     },
                     withHash: true,
                 })
-                expectCompareRatioToBe(null)
+                expectCompareRatioToBe(undefined)
                 expectCompareSliderToBeActive(false)
 
                 cy.get('[data-cy="compareSlider"]').should('not.exist')
@@ -87,8 +96,7 @@ describe('Testing of the compare slider', () => {
         context('Moving the compare slider', () => {
             it('moves when we click on it and drag the mouse', () => {
                 cy.goToMapView({
-                    queryParams:
-                    {
+                    queryParams: {
                         layers: 'test-1.wms.layer',
                         compareRatio: '0.3',
                     },
@@ -96,8 +104,10 @@ describe('Testing of the compare slider', () => {
                 })
                 // initial slider position is width * 0.3 -20
                 cy.get('[data-cy="compareSlider"]').then((slider) => {
-                    cy.readStoreValue('state.ui.width').then((width) => {
-                        cy.wrap(slider.position()['left']).should('eq', width * 0.3 - 20)
+                    cy.getPinia().then((pinia) => {
+                        const uiStore = useUIStore(pinia)
+                        const width = uiStore.width
+                        expect(slider.position()['left']).to.eq(width * 0.3 - 20)
                     })
                 })
                 expectCompareRatioToBe(0.3)
@@ -117,12 +127,12 @@ describe('Testing of the compare slider', () => {
                     cy.wrap(slider.position()['left']).should('be.gte', -6.0)
                 })
 
-                cy.readStoreValue('state.ui.width').then((width) => {
-                    moveSlider(width - 1)
-                })
+                cy.getPinia().then((pinia) => {
+                    const uiStore = useUIStore(pinia)
+                    moveSlider(uiStore.width - 1)
 
-                cy.get('[data-cy="compareSlider"]').then((slider) => {
-                    cy.readStoreValue('state.ui.width').then((width) => {
+                    cy.get('[data-cy="compareSlider"]').then((slider) => {
+                        const width = uiStore.width
                         cy.wrap(slider.position()['left']).should('be.lte', width - 34.0)
                         cy.wrap(slider.position()['left']).should('be.closeTo', width - 34.0, 0.2)
                     })
@@ -141,8 +151,9 @@ describe('Testing of the compare slider', () => {
                 cy.get('ol-map').click(x, y)
 
                 expect(
-                    cy.waitUntilState((_, getters) => {
-                        const numberOfFeatures = getters.selectedFeatures.length
+                    cy.waitUntilState((pinia: Pinia) => {
+                        const featuresStore = useFeaturesStore(pinia)
+                        const numberOfFeatures = featuresStore.selectedFeatures.length
                         return expectedFeatures ? numberOfFeatures > 0 : numberOfFeatures === 0
                     })
                 ).to.be.true
@@ -154,22 +165,22 @@ describe('Testing of the compare slider', () => {
             }
 
             it('cuts from the correct spot until the end of the map, and only from the top layer', () => {
-                let feature_layer_1
-                let feature_layer_2
-                cy.fixture('features.fixture.json').then((features) => {
-                    feature_layer_1 = features['results'][0]
-                    feature_layer_2 = features['results'][1]
+                let feature_layer_1: IdentifyResult | undefined
+                let feature_layer_2: IdentifyResult | undefined
+                cy.fixture('features.fixture.json').then((features: IdentifyResponse) => {
+                    feature_layer_1 = features.results[0]
+                    feature_layer_2 = features.results[1]
                 })
                 const layerIds = ['test1.wms.layer', 'test2.wms.layer']
-                const layer1 = layerIds[0]
-                const layer2 = layerIds[1]
+                const layer1 = layerIds[0]!
+                const layer2 = layerIds[1]!
                 assertDefined(feature_layer_1)
                 assertDefined(feature_layer_2)
-                const feature_1_coordinates = [
+                const feature_1_coordinates: [number, number] = [
                     feature_layer_1.properties.x,
                     feature_layer_1.properties.y,
                 ]
-                const feature_2_coordinates = [
+                const feature_2_coordinates: [number, number] = [
                     feature_layer_2.properties.x,
                     feature_layer_2.properties.y,
                 ]
@@ -180,8 +191,7 @@ describe('Testing of the compare slider', () => {
                     fixture: 'html-popup.fixture.html',
                 })
                 cy.goToMapView({
-                    queryParams:
-                    {
+                    queryParams: {
                         layers: layerIds.join(';'),
                         compareRatio: '0.5',
                     },
@@ -214,8 +224,9 @@ describe('Testing of the compare slider', () => {
                 checkIfFeaturesAreAt(feature_1_coordinates[0], feature_1_coordinates[1], false)
                 checkIfFeaturesAreAt(feature_2_coordinates[0], feature_2_coordinates[1], true)
 
-                cy.readStoreValue('state.ui.width').then((width: number) => {
-                    moveSlider(width - 10)
+                cy.getPinia().then((pinia) => {
+                    const uiStore2 = useUIStore(pinia)
+                    moveSlider(uiStore2.width - 10)
                 })
 
                 checkIfFeaturesAreAt(feature_1_coordinates[0], feature_1_coordinates[1], true)
@@ -260,14 +271,13 @@ describe('Testing of the compare slider', () => {
                     cy.openMenuIfMobile()
                     cy.get('[data-cy="menu-tray-tool-section"]').click()
                     cy.get('[data-cy="menu-advanced-tools-compare"]').click()
-                    cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                        expect(compareRatio).to.eq(0.5)
-                    })
+                    cy.getPinia().then((pinia) => {
+                        const uiStore3 = useUIStore(pinia)
+                        expect(uiStore3.compareRatio).to.eq(0.5)
 
-                    // PB-419 : A new user feedback is displayed, and the slider is only active
-                    // if there is at least one visible layer
-                    cy.readStoreValue('state.ui.isCompareSliderActive').then((isSliderActive) => {
-                        expect(isSliderActive).to.eq(false)
+                        // PB-419 : A new user feedback is displayed, and the slider is only active
+                        // if there is at least one visible layer
+                        expect(uiStore3.isCompareSliderActive).to.eq(false)
                     })
                     cy.get('[data-cy="compareSlider"]').should('not.exist')
                 })
@@ -281,9 +291,13 @@ describe('Testing of the compare slider', () => {
                         withHash: true,
                     })
 
-                    cy.readStoreValue('state.layers.activeLayers').should('have.length', 1)
-                    cy.readStoreValue('state.ui.compareRatio').should('eq', compareRatioValue)
-                    cy.readStoreValue('state.ui.isCompareSliderActive').should('be.true')
+                    cy.getPinia().then((pinia) => {
+                        const layersStore = useLayersStore(pinia)
+                        const uiStore = useUIStore(pinia)
+                        expect(layersStore.activeLayers).to.have.length(1)
+                        expect(uiStore.compareRatio).to.eq(compareRatioValue)
+                        expect(uiStore.isCompareSliderActive).to.be.true
+                    })
 
                     cy.get('[data-cy="compareSlider"]').should('be.visible')
 
@@ -293,16 +307,19 @@ describe('Testing of the compare slider', () => {
                         .click()
                     cy.closeMenuIfMobile()
 
-                    cy.readStoreValue('state.layers.activeLayers').should('be.empty')
-                    cy.readStoreValue('state.ui.compareRatio').should('eq', compareRatioValue)
-                    cy.readStoreValue('state.ui.isCompareSliderActive').should('be.true')
+                    cy.getPinia().then((pinia) => {
+                        const layersStore2 = useLayersStore(pinia)
+                        const uiStore5 = useUIStore(pinia)
+                        cy.wrap(layersStore2.activeLayers).should('be.empty')
+                        cy.wrap(uiStore5.compareRatio).should('eq', compareRatioValue)
+                        cy.wrap(uiStore5.isCompareSliderActive).should('be.true')
+                    })
 
                     cy.get('[data-cy="compareSlider"]').should('not.exist')
                 })
                 it('appears and is functional when layers are present in 2d', () => {
                     cy.goToMapView({
-                        queryParams:
-                        {
+                        queryParams: {
                             layers: ['test-1.wms.layer', 'test-2.wms.layer,,'].join(';'),
                             compareRatio: '0.3',
                         },
@@ -312,27 +329,25 @@ describe('Testing of the compare slider', () => {
                     cy.openMenuIfMobile()
                     cy.get('[data-cy="menu-tray-tool-section"]').click()
                     cy.get('[data-cy="menu-advanced-tools-compare"]').should('be.visible')
-                    cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                        expect(compareRatio).to.eq(0.3)
-                    })
+                    cy.getPinia().then((pinia) => {
+                        const uiStore6 = useUIStore(pinia)
+                        expect(uiStore6.compareRatio).to.eq(0.3)
 
-                    cy.readStoreValue('state.ui.isCompareSliderActive').then((isSliderActive) => {
-                        expect(isSliderActive).to.eq(true)
+                        expect(uiStore6.isCompareSliderActive).to.eq(true)
                     })
 
                     cy.get('[data-cy="menu-advanced-tools-compare"]').click()
-                    cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                        expect(compareRatio).to.eq(0.3)
-                    })
-
-                    cy.readStoreValue('state.ui.isCompareSliderActive').then((isSliderActive) => {
-                        expect(isSliderActive).to.eq(false)
+                    cy.getPinia().then((pinia) => {
+                        const uiStore6 = useUIStore(pinia)
+                        expect(uiStore6.compareRatio).to.eq(0.3)
+                        expect(uiStore6.isCompareSliderActive).to.eq(false)
                     })
                     cy.get('[data-cy="compareSlider"]').should('not.exist')
 
                     cy.get('[data-cy="menu-advanced-tools-compare"]').click()
-                    cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                        expect(compareRatio).to.eq(0.3)
+                    cy.getPinia().then((pinia) => {
+                        const uiStore6 = useUIStore(pinia)
+                        expect(uiStore6.compareRatio).to.eq(0.3)
                     })
                     cy.get('[data-cy="compareSlider"]').should('be.visible')
                 })
@@ -352,14 +367,21 @@ describe('Testing of the compare slider', () => {
                 },
                 withHash: true,
             })
-            cy.readStoreValue('getters.visibleLayers').should((visibleLayers) => {
+            cy.getPinia().then((pinia) => {
+                const layersStore3 = useLayersStore(pinia)
+                const visibleLayers = layersStore3.visibleLayers
                 expect(visibleLayers).to.be.an('Array')
                 expect(visibleLayers.length).to.deep.equal(2)
-                visibleLayers.forEach((_: AbstractLayer, index: number) => {
+            })
+            cy.getPinia().then((pinia) => {
+                const layersStore3 = useLayersStore(pinia)
+                const visibleLayers = layersStore3.visibleLayers
+                visibleLayers.forEach((_: Layer, index: number) => {
                     expect(visibleLayers[index]).to.be.an('Object')
+                    assertDefined(visibleLayers[index])
                     expect(visibleLayers[index].uuid).to.not.be.undefined
                 })
-                const [uuid1, uuid2] = visibleLayers.map((layer: AbstractLayer) => layer.uuid)
+                const [uuid1, uuid2] = visibleLayers.map((layer: Layer) => layer.uuid)
                 expect(uuid1).to.not.equal(uuid2)
             })
         })
@@ -371,17 +393,17 @@ describe('The compare Slider and the menu elements should not be available in 3d
         it('does not shows up with layers, a compare slider parameter set, but in 3d', () => {
             cy.goToMapView({
                 queryParams: {
-                    layers: ['test-1.wms.layer', 'test-2.wms.layer,,'].join(';'),
+                    layers: 'test-1.wms.layer;test-2.wms.layer,,',
                     compareRatio: '0.4',
                     '3d': true,
                     sr: WEBMERCATOR.epsgNumber,
                 },
-                withHash: true,
             })
             cy.get('[data-cy="compareSlider"]').should('not.exist')
 
-            cy.readStoreValue('state.ui.compareRatio').then((compareRatio) => {
-                expect(compareRatio).to.eq(0.4)
+            cy.getPinia().then((pinia) => {
+                const uiStore7 = useUIStore(pinia)
+                expect(uiStore7.compareRatio).to.eq(0.4)
             })
         })
     })
@@ -391,7 +413,6 @@ describe('The compare Slider and the menu elements should not be available in 3d
                 queryParams: {
                     sr: WEBMERCATOR.epsgNumber,
                 },
-                withHash: true,
             })
             cy.openMenuIfMobile()
             cy.get('[data-cy="menu-tray-tool-section"]').click()

@@ -1,15 +1,18 @@
+import type { Feature } from 'ol'
+
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 import { layerUtils } from '@swissgeo/layers/utils'
 import { readFileSync } from 'fs'
 import IconStyle from 'ol/style/Icon'
 import { resolve } from 'path'
 import { beforeEach, describe, expect, it } from 'vitest'
-import type { Feature as OLFeature } from 'ol'
+
+import type { EditableFeature } from '@/api/features.api'
 
 import { type DrawingIconSet, generateIconURL } from '@/api/icon.api'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { fakeIconSets } from '@/utils/__tests__/legacyKmlUtils.spec'
-import { BLUE } from '@/utils/featureStyleUtils'
+import { BLUE, EXTRA_LARGE } from '@/utils/featureStyleUtils'
 import {
     getIcon,
     getKmlExtent,
@@ -18,7 +21,6 @@ import {
     parseIconUrl,
     parseKml,
 } from '@/utils/kmlUtils'
-import type EditableFeature from '@/api/features/EditableFeature.class'
 
 describe('Test KML utils', () => {
     describe('get KML Extent', () => {
@@ -145,17 +147,16 @@ describe('Test KML utils', () => {
                 kmlData: kml,
             })
             const resolution = 1000
-            const olFeatures: OLFeature[] = parseKml(
-                kmlLayer,
-                WEBMERCATOR,
-                resolution,
-                fakeIconSets
-            )
-            features = olFeatures.map((f) => {
-                const ef = f.get('editableFeature')
-                ef.olFeature = f
-                return ef
-            })
+            const olFeatures: Feature[] = parseKml(kmlLayer, WEBMERCATOR, fakeIconSets, resolution)
+            features = olFeatures
+                .map((f) => {
+                    const ef = f.get('editableFeature')
+                    if (ef) {
+                        ef.olFeature = f
+                    }
+                    return ef
+                })
+                .filter((f) => f !== undefined) as EditableFeature[]
         })
         it('handles correctly text offset from extended data', () => {
             const icon = findFeatureWithId('drawing_feature_1714651153088')
@@ -362,8 +363,8 @@ describe('Test KML utils', () => {
             expect(icon).toBeDefined()
             expect(icon!.name).to.be.equal('001-marker')
             expect(icon!.iconSetName).to.be.equal('default')
-            expect(generateIconURL(icon!, BLUE, 1.5)).to.be.equal(
-                'https://fake.image.url/api/icons/sets/default/icons/001-marker@1.5x-0,0,255.png'
+            expect(generateIconURL(icon!, BLUE, EXTRA_LARGE)).to.be.equal(
+                'https://fake.image.url/api/icons/sets/default/icons/001-marker@1.25x-0,0,255.png'
             )
         })
         it('get icon with standard arguments from the babs set', () => {

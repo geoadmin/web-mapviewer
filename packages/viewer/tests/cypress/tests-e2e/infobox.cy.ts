@@ -1,7 +1,12 @@
 /// <reference types="cypress" />
 
-import { LV95, WEBMERCATOR } from '@swissgeo/coordinates'
+import type { Pinia } from 'pinia'
 import type { MockFeature } from 'support/intercepts'
+
+import { LV95, WEBMERCATOR } from '@swissgeo/coordinates'
+
+import useFeaturesStore from '@/store/modules/features'
+import useUIStore from '@/store/modules/ui'
 
 describe('The infobox', () => {
     const generateInfoboxTestsForMapSelector = (mapSelector: string): void => {
@@ -10,8 +15,9 @@ describe('The infobox', () => {
 
             cy.get(mapSelector).click()
             cy.waitUntilState(
-                (_, getters) => {
-                    return getters.selectedFeatures.length > 0
+                (pinia: Pinia) => {
+                    const featuresStore = useFeaturesStore(pinia)
+                    return featuresStore.selectedFeatures.length > 0
                 },
                 { timeout: 10000 }
             )
@@ -23,10 +29,13 @@ describe('The infobox', () => {
             // at least 400 pixels.
             cy.viewport(400, 800)
             cy.get(mapSelector).click()
-            cy.waitUntilState((_, getters) => {
-                return getters.selectedFeatures.length > 0
+            cy.waitUntilState((pinia: Pinia) => {
+                const featuresStore = useFeaturesStore(pinia)
+                return featuresStore.selectedFeatures.length > 0
             })
-            cy.readStoreValue('getters.isPhoneMode').then((isPhoneMode: boolean) => {
+            cy.getPinia().then((pinia) => {
+                const uiStore = useUIStore(pinia)
+                const isPhoneMode = uiStore.isPhoneMode
                 if (isPhoneMode) {
                     cy.get('[data-cy="popover"]').should('not.exist')
                     cy.get('[data-cy="infobox"]').should('be.visible')
@@ -83,10 +92,10 @@ describe('The infobox', () => {
         properties: {
             link_title: 'This is a test feature',
             link_uri: 'http://localhost:8080/',
-            link_2_title: null,
-            link_2_uri: null,
+            link_2_title: undefined,
+            link_2_uri: undefined,
             link_3_title: 'This is a test feature',
-            link_3_uri: null,
+            link_3_uri: undefined,
             label: 'This is a test feature',
             x: 1234.0,
             y: 1234.0,
@@ -118,8 +127,9 @@ describe('The infobox', () => {
         })
         it('changes the language of the infobox', () => {
             cy.get('[data-cy="ol-map"]').click()
-            cy.waitUntilState((_, getters) => {
-                return getters.selectedFeatures.length > 0
+            cy.waitUntilState((pinia: Pinia) => {
+                const featuresStore = useFeaturesStore(pinia)
+                return featuresStore.selectedFeatures.length > 0
             })
             const htmlPopupCalls: number = 10
             cy.get('@htmlPopup.all').should('have.length', htmlPopupCalls)
@@ -162,24 +172,29 @@ describe('The infobox', () => {
             cy.goToMapView({ queryParams: { layers: layer } })
 
             cy.get('[data-cy="ol-map"]').click()
-            cy.waitUntilState((_, getters) => {
-                return getters.selectedFeatures.length > 0
+            cy.waitUntilState((pinia: Pinia) => {
+                const featuresStore = useFeaturesStore(pinia)
+                return featuresStore.selectedFeatures.length > 0
             })
             cy.get('[data-cy="highlighted-features"]').should('be.visible')
         })
         it('keeps the selected features when going 3D', () => {
             cy.get('[data-cy="3d-button"]').click()
             // waiting for 3D to be loaded
-            cy.window().its('cesiumViewer').then(() => {
-                cy.get('[data-cy="highlighted-features"]').should('be.visible')
-            })
+            cy.window()
+                .its('cesiumViewer')
+                .then(() => {
+                    cy.get('[data-cy="highlighted-features"]').should('be.visible')
+                })
         })
         it('keeps the selected features when going back to 2D', () => {
             cy.get('[data-cy="3d-button"]').click()
-            cy.window().its('cesiumViewer').then(() => {
-                cy.get('[data-cy="3d-button"]').click()
-                cy.get('[data-cy="highlighted-features"]').should('be.visible')
-            })
+            cy.window()
+                .its('cesiumViewer')
+                .then(() => {
+                    cy.get('[data-cy="3d-button"]').click()
+                    cy.get('[data-cy="highlighted-features"]').should('be.visible')
+                })
         })
         it('verifies the "More Information" button in the infobox and the information page that is shown', () => {
             const infoboxFixture: string = 'infobox.fixture.html'

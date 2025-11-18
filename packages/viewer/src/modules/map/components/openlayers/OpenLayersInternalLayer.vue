@@ -1,15 +1,27 @@
-<script setup lang="js">
+<script setup lang="ts">
 /**
  * Transforms a layer config (metadata, structures can be found in api/layers/** files) into the
  * correct OpenLayers counterpart depending on the layer type.
  */
 
 import { WEBMERCATOR } from '@swissgeo/coordinates'
+import {
+    type CloudOptimizedGeoTIFFLayer,
+    type ExternalWMSLayer,
+    type ExternalWMTSLayer,
+    type GeoAdminAggregateLayer,
+    type GeoAdminGeoJSONLayer,
+    type GeoAdminGroupOfLayers,
+    type GeoAdminVectorLayer,
+    type GeoAdminWMSLayer,
+    type GeoAdminWMTSLayer,
+    type GPXLayer,
+    type KMLLayer,
+    type Layer,
+    LayerType,
+} from '@swissgeo/layers'
 import { computed } from 'vue'
-import { useStore } from 'vuex'
 
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
 import OpenLayersCOGTiffLayer from '@/modules/map/components/openlayers/OpenLayersCOGTiffLayer.vue'
 import OpenLayersExternalWMTSLayer from '@/modules/map/components/openlayers/OpenLayersExternalWMTSLayer.vue'
 import OpenLayersGeoJSONLayer from '@/modules/map/components/openlayers/OpenLayersGeoJSONLayer.vue'
@@ -18,31 +30,20 @@ import OpenLayersKMLLayer from '@/modules/map/components/openlayers/OpenLayersKM
 import OpenLayersVectorLayer from '@/modules/map/components/openlayers/OpenLayersVectorLayer.vue'
 import OpenLayersWMSLayer from '@/modules/map/components/openlayers/OpenLayersWMSLayer.vue'
 import OpenLayersWMTSLayer from '@/modules/map/components/openlayers/OpenLayersWMTSLayer.vue'
+import usePositionStore from '@/store/modules/position'
 
-const { layerConfig, parentLayerOpacity, zIndex } = defineProps({
-    layerConfig: {
-        type: AbstractLayer,
-        default: null,
-    },
-    parentLayerOpacity: {
-        type: Number,
-        default: null,
-    },
-    zIndex: {
-        type: Number,
-        default: -1,
-    },
-})
+const {
+    layerConfig,
+    parentLayerOpacity,
+    zIndex = -1,
+} = defineProps<{
+    layerConfig: Layer
+    parentLayerOpacity?: number
+    zIndex?: number
+}>()
 
-const store = useStore()
-const projection = computed(() => store.state.position.projection)
-const resolution = computed(() => store.getters.resolution)
-
-function shouldAggregateSubLayerBeVisible(subLayer) {
-    // min and max resolution are set in the API file to the lowest/highest possible value if undefined, so we don't
-    // have to worry about checking their validity
-    return resolution.value >= subLayer.minResolution && resolution.value <= subLayer.maxResolution
-}
+const positionStore = usePositionStore()
+const projection = computed(() => positionStore.projection)
 </script>
 
 <template>
@@ -56,40 +57,44 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
             (see OpenLayersMap main component)
         -->
         <OpenLayersVectorLayer
-            v-if="projection.epsg === WEBMERCATOR.epsg && layerConfig.type === LayerTypes.VECTOR"
-            :vector-layer-config="layerConfig"
+            v-if="projection.epsg === WEBMERCATOR.epsg && layerConfig?.type === LayerType.VECTOR"
+            :vector-layer-config="layerConfig as GeoAdminVectorLayer"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
         <OpenLayersWMTSLayer
-            v-if="layerConfig.type === LayerTypes.WMTS && !layerConfig.isExternal"
-            :wmts-layer-config="layerConfig"
+            v-if="layerConfig?.type === LayerType.WMTS && !layerConfig?.isExternal"
+            :wmts-layer-config="layerConfig as GeoAdminWMTSLayer"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
         <OpenLayersExternalWMTSLayer
-            v-if="layerConfig.type === LayerTypes.WMTS && layerConfig.isExternal"
-            :external-wmts-layer-config="layerConfig"
+            v-if="layerConfig?.type === LayerType.WMTS && layerConfig?.isExternal"
+            :external-wmts-layer-config="layerConfig as ExternalWMTSLayer"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
         <!-- as external and internal (geoadmin) WMS layers can be managed the same way,
              we do not have a specific component for external layers but we reuse the one for geoadmin's layers-->
         <OpenLayersWMSLayer
-            v-if="layerConfig.type === LayerTypes.WMS"
-            :wms-layer-config="layerConfig"
+            v-if="layerConfig?.type === LayerType.WMS"
+            :wms-layer-config="
+                layerConfig.isExternal
+                    ? (layerConfig as ExternalWMSLayer)
+                    : (layerConfig as GeoAdminWMSLayer)
+            "
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
         <OpenLayersGeoJSONLayer
-            v-if="layerConfig.type === LayerTypes.GEOJSON"
-            :geo-json-config="layerConfig"
+            v-if="layerConfig?.type === LayerType.GEOJSON"
+            :geo-json-config="layerConfig as GeoAdminGeoJSONLayer"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
-        <div v-if="layerConfig.type === LayerTypes.GROUP">
+        <div v-if="layerConfig?.type === LayerType.GROUP">
             <OpenLayersInternalLayer
-                v-for="(layer, index) in layerConfig.layers"
+                v-for="(layer, index) in (layerConfig as GeoAdminGroupOfLayers).layers"
                 :key="`${layer.id}-${index}`"
                 :layer-config="layer"
                 :parent-layer-opacity="layerConfig.opacity"
@@ -103,35 +108,40 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
         component in another child (that would be OpenLayersAggregateLayer.vue component, that doesn't work).
         See https://vuejs.org/v2/guide/components-edge-cases.html#Recursive-Components for more info
         -->
-        <div v-if="layerConfig.type === LayerTypes.AGGREGATE">
-            <!-- we can't v-for and v-if at the same time, so we need to wrap all sub-layers in a <div> -->
-            <div
-                v-for="aggregateSubLayer in layerConfig.subLayers"
-                :key="aggregateSubLayer.subLayerId"
-            >
-                <OpenLayersInternalLayer
-                    v-if="shouldAggregateSubLayerBeVisible(aggregateSubLayer)"
-                    :layer-config="aggregateSubLayer.layer"
-                    :parent-layer-opacity="layerConfig.opacity"
-                    :z-index="zIndex"
-                />
-            </div>
+        <div v-if="layerConfig?.type === LayerType.AGGREGATE">
+            <!-- Aggregate layers requires a different management.
+                 They are not OpenLayers layers per-se, but rather an ensemble of other layers.
+                 This component will loop through all the layer contained by this aggregate layer
+                 and draw them with this component (recursive-call)
+                 All layers metadata information (visible, opacity, etc...) should be inherited from the parent -->
+            <OpenLayersInternalLayer
+                v-for="(subLayer, index) in (layerConfig as GeoAdminAggregateLayer).subLayers"
+                :key="`child-layer-${layerConfig.id}-${index}`"
+                :layer-config="subLayer.layer"
+                :parent-layer-opacity="parentLayerOpacity"
+                :z-index="zIndex"
+            />
         </div>
         <OpenLayersKMLLayer
-            v-if="layerConfig.type === LayerTypes.KML && layerConfig.kmlData"
-            :kml-layer-config="layerConfig"
+            v-if="
+                layerConfig &&
+                    layerConfig.type === LayerType.KML &&
+                    (layerConfig as KMLLayer).kmlData &&
+                    !(layerConfig as KMLLayer).isEdited
+            "
+            :kml-layer-config="layerConfig as KMLLayer"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
         <OpenLayersGPXLayer
-            v-if="layerConfig.type === LayerTypes.GPX"
-            :gpx-layer-config="layerConfig"
+            v-if="layerConfig?.type === LayerType.GPX"
+            :gpx-layer-config="layerConfig as GPXLayer"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
         <OpenLayersCOGTiffLayer
-            v-if="layerConfig.type === LayerTypes.COG"
-            :geotiff-config="layerConfig"
+            v-if="layerConfig?.type === LayerType.COG"
+            :geotiff-config="layerConfig as CloudOptimizedGeoTIFFLayer"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />

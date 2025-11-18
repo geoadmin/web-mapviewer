@@ -29,8 +29,8 @@
         "typescript": "catalog:"
     },
     "peerDependencies": {
-        "eslint": "catalog:",
         "@swissgeo/config-prettier": "workspace:*",
-        "@swissgeo/config-stylelint": "workspace:*"
+        "@swissgeo/config-stylelint": "workspace:*",
+        "eslint": "catalog:"
     }
 }

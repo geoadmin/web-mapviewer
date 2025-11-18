@@ -1,44 +1,58 @@
-<script setup lang="js">
+<script setup lang="ts">
+import type RenderEvent from 'ol/render/Event'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { LayerType } from '@swissgeo/layers'
 import { round } from '@swissgeo/numbers'
+import Map from 'ol/Map'
 import { getRenderPixel } from 'ol/render'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useStore } from 'vuex'
 
-import LayerTypes from '@/api/layers/LayerTypes.enum'
+import type { ActionDispatcher } from '@/store/types'
 
-const dispatcher = { dispatcher: 'CompareSlider.vue' }
+import useLayersStore from '@/store/modules/layers'
+import useUIStore from '@/store/modules/ui'
 
-const olMap = inject('olMap')
+const dispatcher: ActionDispatcher = { name: 'CompareSlider.vue' }
+
+const olMap = inject<Map>('olMap')
 
 const compareSliderOffset = ref(0)
 const showLayerName = ref(false)
 const compareRatio = ref(-0.5)
-const store = useStore()
-const storeCompareRatio = computed(() => store.state.ui.compareRatio)
-const clientWidth = computed(() => store.state.ui.width)
+const uiStore = useUIStore()
+const layersStore = useLayersStore()
+
+const storeCompareRatio = computed(() => uiStore.compareRatio)
+const clientWidth = computed(() => uiStore.width)
 const compareSliderPosition = computed(() => {
     return {
         left: compareRatio.value * 100 + '%',
     }
 })
-const visibleLayerOnTop = computed(() => store.getters.visibleLayerOnTop)
-const shouldUseWebGlContext = computed(() => visibleLayerOnTop.value.type === LayerTypes.COG)
+const visibleLayerOnTop = computed(() => layersStore.visibleLayerOnTop)
+const shouldUseWebGlContext = computed(() => visibleLayerOnTop.value?.type === LayerType.COG)
 
 watch(storeCompareRatio, (newValue) => {
-    compareRatio.value = newValue
-    olMap.render()
+    if (newValue) {
+        compareRatio.value = newValue
+        olMap?.render()
+    }
 })
 
 watch(
     visibleLayerOnTop,
     (newLayerOnTop, oldLayerOnTop) => {
+        if (!newLayerOnTop) {
+            return
+        }
+
         if (oldLayerOnTop) {
             unRegisterRenderingEvents(oldLayerOnTop.id, oldLayerOnTop.uuid)
         }
         if (getLayerFromMapById(newLayerOnTop.id, newLayerOnTop.uuid)) {
             registerRenderingEvents(newLayerOnTop.id, newLayerOnTop.uuid)
-            olMap.render()
+            olMap?.render()
         } else {
             // There are cases where the layer config and layer store are
             // modified and updated before the map. This means we need to delay
@@ -64,107 +78,145 @@ watch(
 )
 
 onMounted(() => {
-    compareRatio.value = storeCompareRatio.value
-    olMap.render()
+    if (storeCompareRatio.value) {
+        compareRatio.value = storeCompareRatio.value
+        olMap?.render()
+    }
 })
 
 onBeforeUnmount(() => {
-    compareRatio.value = storeCompareRatio.value
-    if (visibleLayerOnTop.value) {
-        unRegisterRenderingEvents(visibleLayerOnTop.value.id, visibleLayerOnTop.value.uuid)
+    if (storeCompareRatio.value) {
+        compareRatio.value = storeCompareRatio.value
+        if (visibleLayerOnTop.value) {
+            unRegisterRenderingEvents(visibleLayerOnTop.value.id, visibleLayerOnTop.value.uuid)
+        }
+        olMap?.render()
     }
-    olMap.render()
 })
 
-function registerRenderingEvents(layerId, layerUuid) {
+function registerRenderingEvents(layerId: string, layerUuid: string) {
     const layer = getLayerFromMapById(layerId, layerUuid)
+
     // When loading a layer for the first time, we might need to clean the
     // context to ensure it is also cut correctly upon activating the compare slider
     // or loading a new COG layer on top.
     layer?.once('prerender', (event) => {
-        if (shouldUseWebGlContext.value) {
-            event.context.clear(event.context.COLOR_BUFFER_BIT)
+        if (event.context && useWebGLContext(event.context)) {
+            event.context.clear(
+                // sorry
+                event.context.COLOR_BUFFER_BIT
+            )
         }
     })
     layer?.on('prerender', onPreRender)
     layer?.on('postrender', onPostRender)
 }
 
-function unRegisterRenderingEvents(layerId, layerUuid) {
+function unRegisterRenderingEvents(layerId: string, layerUuid: string) {
     const layer = getLayerFromMapById(layerId, layerUuid)
     layer?.un('prerender', onPreRender)
     layer?.un('postrender', onPostRender)
 }
 
-function getLayerFromMapById(layerId, layerUuid) {
+function getLayerFromMapById(layerId: string, layerUuid: string) {
     return olMap
         ?.getAllLayers()
         .toSorted((a, b) => b.get('zIndex') - a.get('zIndex'))
         .find((layer) => layer.get('id') === layerId && layer.get('uuid') === layerUuid)
 }
 
-function onPreRender(event) {
+function onPreRenderWebGL(event: RenderEvent, context: WebGLRenderingContext) {
+    context.enable(context.SCISSOR_TEST)
+    const mapSize = olMap?.getSize()
+
+    if (!mapSize) {
+        return
+    }
+
+    // get render coordinates and dimensions given CSS coordinates
+    const bottomLeft = getRenderPixel(event, [0, mapSize[1]!])
+    const topRight = getRenderPixel(event, [mapSize[0]!, 0])
+
+    let width = topRight[0]! - bottomLeft[0]!
+    const height = topRight[1]! - bottomLeft[1]!
+
+    if (compareRatio.value < 1.0 && compareRatio.value > 0.0) {
+        width = Math.round(width * compareRatio.value)
+    }
+    // We need to clear the color of the context. If we don't, the slider
+    // will leave the right side of the slider drawn on startup or when
+    // moving the slider.
+    context.clear(context.COLOR_BUFFER_BIT)
+
+    context.scissor(bottomLeft[0]!, bottomLeft[1]!, width, height)
+}
+
+function onPreRender2d(
+    _event: RenderEvent,
+    context: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D
+) {
+    const width =
+        compareRatio.value > 0 && compareRatio.value < 1.0
+            ? compareRatio.value * context.canvas.width
+            : context.canvas.width
+    context.save()
+    context.beginPath()
+    context.rect(0, 0, width, context.canvas.height)
+    context.clip()
+}
+
+function useWebGLContext(
+    _context: WebGLRenderingContext | CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D
+): _context is WebGLRenderingContext {
+    return shouldUseWebGlContext.value
+}
+
+function onPreRender(event: RenderEvent) {
     const context = event.context
 
-    if (shouldUseWebGlContext.value) {
-        context.enable(context.SCISSOR_TEST)
-        const mapSize = olMap.getSize()
-        // get render coordinates and dimensions given CSS coordinates
-        const bottomLeft = getRenderPixel(event, [0, mapSize[1]])
-        const topRight = getRenderPixel(event, [mapSize[0], 0])
+    if (!context) {
+        return
+    }
 
-        let width = topRight[0] - bottomLeft[0]
-        const height = topRight[1] - bottomLeft[1]
-        if (compareRatio.value < 1.0 && compareRatio.value > 0.0) {
-            width = Math.round(width * compareRatio.value)
-        }
-        // We need to clear the color of the context. If we don't, the slider
-        // will leave the right side of the slider drawn on startup or when
-        // moving the slider.
-        context.clear(context.COLOR_BUFFER_BIT)
-
-        context.scissor(bottomLeft[0], bottomLeft[1], width, height)
+    if (useWebGLContext(context)) {
+        onPreRenderWebGL(event, context)
     } else {
-        const width =
-            compareRatio.value > 0 && compareRatio.value < 1.0
-                ? compareRatio.value * context.canvas.width
-                : context.canvas.width
-        context.save()
-        context.beginPath()
-        context.rect(0, 0, width, context.canvas.height)
-        context.clip()
+        onPreRender2d(event, context)
     }
 }
 
-function onPostRender(event) {
+function onPostRender(event: RenderEvent) {
     const context = event.context
-    if (shouldUseWebGlContext.value) {
+
+    if (!context) {
+        return
+    }
+
+    if (useWebGLContext(context)) {
         context.disable(context.SCISSOR_TEST)
     } else {
         context.restore()
     }
 }
 
-function grabSlider(event) {
+function grabSlider(event: TouchEvent | MouseEvent) {
     window.addEventListener('mousemove', listenToMouseMove, { passive: true })
-    window.addEventListener('touchmove', listenToMouseMove, { passive: true })
+    window.addEventListener('touchmove', listenToTouchEvent, { passive: true })
+
     window.addEventListener('mouseup', releaseSlider, { passive: true })
     window.addEventListener('touchend', releaseSlider, { passive: true })
+
     if (event.type === 'touchstart') {
+        const _event = event as TouchEvent
         compareSliderOffset.value =
-            event.touches[0].clientX - compareRatio.value * clientWidth.value
+            _event.touches[0]?.clientX || 0 - compareRatio.value * clientWidth.value
     } else {
-        compareSliderOffset.value = event.clientX - compareRatio.value * clientWidth.value
+        const _event = event as MouseEvent
+        compareSliderOffset.value = _event.clientX - compareRatio.value * clientWidth.value
     }
 }
 
-function listenToMouseMove(event) {
-    let currentPosition
-    if (event.type === 'touchmove') {
-        currentPosition = event.touches[0].clientX - compareSliderOffset.value
-    } else {
-        currentPosition = event.clientX - compareSliderOffset.value
-    }
+function updateSliderPosition(currentPosition: number) {
     // we ensure the slider can't get off the screen
     if (currentPosition < 14) {
         currentPosition = 14
@@ -175,25 +227,33 @@ function listenToMouseMove(event) {
     }
 
     compareRatio.value = round(currentPosition / clientWidth.value, 3)
-    olMap.render()
+    olMap?.render()
+}
+
+function listenToMouseMove(event: MouseEvent) {
+    const currentPosition = event.clientX - compareSliderOffset.value
+
+    updateSliderPosition(currentPosition)
+}
+
+function listenToTouchEvent(event: TouchEvent) {
+    const currentPosition = event.touches[0]?.clientX || 0 - compareSliderOffset.value
+    updateSliderPosition(currentPosition)
 }
 
 function releaseSlider() {
     window.removeEventListener('mousemove', listenToMouseMove)
-    window.removeEventListener('touchmove', listenToMouseMove)
+    window.removeEventListener('touchmove', listenToTouchEvent)
     window.removeEventListener('mouseup', releaseSlider)
     window.removeEventListener('touchend', releaseSlider)
     compareSliderOffset.value = 0
-    store.dispatch('setCompareRatio', {
-        compareRatio: compareRatio.value,
-        ...dispatcher,
-    })
+    uiStore.setCompareRatio(compareRatio.value, dispatcher)
 }
 </script>
 
 <template>
     <div
-        class="compare-slider position-absolute translate-middle-x h-100 d-inline-block top-0"
+        class="compare-slider position-absolute translate-middle-x d-inline-block top-0 h-100"
         data-cy="compareSlider"
         :style="compareSliderPosition"
         @touchstart.passive="grabSlider"
@@ -218,7 +278,7 @@ function releaseSlider() {
                 icon="arrow-left"
                 class="me-1"
             />
-            <strong data-cy="comparedLayerName">{{ visibleLayerOnTop.name }}</strong>
+            <strong data-cy="comparedLayerName">{{ visibleLayerOnTop?.name }}</strong>
         </div>
     </div>
 </template>
@@ -237,6 +297,7 @@ function releaseSlider() {
         top: 50%;
         z-index: inherit;
         padding: 2px 6px;
+        width: 8px; // FontAwesome v7 use 20px as the default width for carets. We override it to have a smaller caret.
     }
     &-caret-right {
         translate: 20px;

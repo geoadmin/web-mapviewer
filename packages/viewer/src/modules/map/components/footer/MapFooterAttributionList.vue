@@ -1,16 +1,16 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
 import MapFooterAttributionItem from '@/modules/map/components/footer/MapFooterAttributionItem.vue'
+import useLayersStore from '@/store/modules/layers'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 
-const store = useStore()
+const layersStore = useLayersStore()
 const { t } = useI18n()
 
-const visibleLayers = computed(() => store.getters.visibleLayers)
-const currentBackgroundLayer = computed(() => store.getters.currentBackgroundLayer)
+const visibleLayers = computed(() => layersStore.visibleLayers)
+const currentBackgroundLayer = computed(() => layersStore.currentBackgroundLayer)
 
 const layers = computed(() => {
     const layersWithAttributions = []
@@ -32,12 +32,11 @@ const sources = computed(() => {
                     id: attribution.name.replace(/[._]/g, '-'),
                     name: attribution.name,
                     url: attribution.url,
-                    hasDataDisclaimer: store.getters.hasDataDisclaimer(
-                        layer.id,
-                        layer.isExternal,
-                        layer.baseUrl
-                    ),
-                    isLocalFile: store.getters.isLocalFile(layer),
+                    hasDataDisclaimer: layersStore.hasDataDisclaimer(layer.id, {
+                        isExternal: layer.isExternal,
+                        baseUrl: layer.baseUrl,
+                    }),
+                    isLocalFile: layersStore.isLocalFile(layer),
                 }
             })
         })

@@ -2,7 +2,7 @@ import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
 import { type Layer, LayerType } from '@/types/layers'
-import { hasMultipleTimestamps, makeTimeConfigEntry } from '@/utils/timeConfigUtils'
+import timeConfigUtils from '@/utils/timeConfigUtils'
 
 describe('Test utility functions', () => {
     it('Determines correctly that a layer has multiple timestamps', () => {
@@ -27,7 +27,7 @@ describe('Test utility functions', () => {
             },
         }
 
-        expect(hasMultipleTimestamps(simpleLayer)).to.be.false
+        expect(timeConfigUtils.hasMultipleTimestamps(simpleLayer)).to.be.false
 
         simpleLayer.timeConfig = {
             timeEntries: [],
@@ -35,14 +35,14 @@ describe('Test utility functions', () => {
             currentTimeEntry: undefined,
         }
 
-        expect(hasMultipleTimestamps(simpleLayer)).to.be.false
+        expect(timeConfigUtils.hasMultipleTimestamps(simpleLayer)).to.be.false
 
-        simpleLayer.timeConfig.timeEntries.push(makeTimeConfigEntry('200223123'))
+        simpleLayer.timeConfig.timeEntries.push(timeConfigUtils.makeTimeConfigEntry('200223123'))
 
-        expect(hasMultipleTimestamps(simpleLayer)).to.be.false
+        expect(timeConfigUtils.hasMultipleTimestamps(simpleLayer)).to.be.false
 
-        simpleLayer.timeConfig.timeEntries.push(makeTimeConfigEntry('200523123'))
+        simpleLayer.timeConfig.timeEntries.push(timeConfigUtils.makeTimeConfigEntry('200523123'))
 
-        expect(hasMultipleTimestamps(simpleLayer)).to.be.true
+        expect(timeConfigUtils.hasMultipleTimestamps(simpleLayer)).to.be.true
     })
 })

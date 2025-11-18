@@ -11,7 +11,7 @@ import {
 } from '@/utils/featureStyleUtils'
 
 const { currentColor } = defineProps<{
-    currentColor: FeatureStyleColor
+    currentColor?: FeatureStyleColor
 }>()
 
 const emits = defineEmits<{
@@ -37,15 +37,15 @@ function onColorChange(color: FeatureStyleColor): void {
         </label>
         <div
             id="drawing-style-text-color-selector"
-            class="rounded bg-light"
+            class="bg-light rounded"
         >
             <button
                 v-for="color in colors"
                 :key="color.name"
                 class="btn btn-sm m-1"
                 :class="{
-                    'btn-light': currentColor.name !== color.name,
-                    'btn-primary': currentColor.name === color.name,
+                    'btn-light': currentColor?.name !== color.name,
+                    'btn-primary': currentColor?.name === color.name,
                 }"
                 :style="{
                     color: color.name,

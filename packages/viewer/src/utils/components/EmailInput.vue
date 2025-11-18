@@ -1,157 +1,123 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
-import {
-    propsValidator4ValidateFunc,
-    useFieldValidation,
-} from '@/utils/composables/useFieldValidation'
+import { useFieldValidation } from '@/utils/composables/useFieldValidation'
 import { isValidEmail } from '@/utils/utils'
 
-const inputEmailId = useComponentUniqueId('email-input')
-
-const model = defineModel({ type: String })
-const emits = defineEmits(['change', 'validate', 'focusin', 'focusout', 'keydown.enter'])
-const { t } = useI18n()
-
-const props = defineProps({
-    /**
-     * Label to add above the field
-     *
-     * @type {String}
-     */
-    label: {
-        type: String,
-        default: '',
-    },
-    /**
-     * Description to add below the input
-     *
-     * @type {String}
-     */
-    description: {
-        type: String,
-        default: '',
-    },
-    /**
-     * Mark the field as disable
-     *
-     * @type {Boolean}
-     */
-    disabled: {
-        type: Boolean,
-        default: false,
-    },
+const {
+    label = '',
+    description = '',
+    disabled = false,
+    placeholder = '',
+    required = false,
+    validMarker = undefined,
+    validMessage = '',
+    invalidMarker = undefined,
+    invalidMessage = '',
+    activateValidation = false,
+    validate = undefined,
+    dataCy = '',
+} = defineProps<{
+    /** Label to add above the field */
+    label?: string
+    /** Description to add below the input */
+    description?: string
+    /** Mark the field as disable */
+    disabled?: boolean
     /**
      * Placeholder text
      *
      * NOTE: this should be a translation key
-     *
-     * @type {string}
      */
-    placeholder: {
-        type: String,
-        default: '',
-    },
-    /**
-     * Field is required and will be marked as invalid if empty
-     *
-     * @type {Boolean}
-     */
-    required: {
-        type: Boolean,
-        default: false,
-    },
+    placeholder?: string
+    /** Field is required and will be marked as invalid if empty */
+    required?: boolean
     /**
      * Mark the field as valid
      *
-     * This can be used if the field requires some external validation. When not set or set to null
-     * this props is ignored.
+     * This can be used if the field requires some external validation. When not set or set to
+     * undefined this props is ignored.
      *
      * NOTE: this props is ignored when activate-validation is false
-     *
-     * @type {Boolean}
      */
-    validMarker: {
-        type: [Boolean, null],
-        default: null,
-    },
+    validMarker?: boolean | undefined
     /**
      * Valid message Message that will be added in green below the field once the validation has
      * been done and the field is valid.
-     *
-     * @type {Sting}
      */
-    validMessage: {
-        type: String,
-        default: '',
-    },
+    validMessage?: string
     /**
      * Mark the field as invalid
      *
-     * This can be used if the field requires some external validation. When not set or set to null
-     * this props is ignored.
+     * This can be used if the field requires some external validation. When not set or set to
+     * undefined this props is ignored.
      *
      * NOTE: this props is ignored when activate-validation is false
-     *
-     * @type {Boolean}
      */
-    invalidMarker: {
-        type: [Boolean, null],
-        default: null,
-    },
+    invalidMarker?: boolean | undefined
     /**
      * Invalid message Message that will be added in red below the field once the validation has
      * been done and the field is invalid.
      *
      * NOTE: this message is overwritten if the internal validation failed (not allow file type or
      * file too big or required empty file)
-     *
-     * @type {Sting}
      */
-    invalidMessage: {
-        type: String,
-        default: '',
-    },
+    invalidMessage?: string
     /**
      * Mark the field has validated.
      *
      * As long as the flag is false, no validation is run and no validation marks are set. Also the
      * props is-invalid and is-valid are ignored.
      */
-    activateValidation: {
-        type: Boolean,
-        default: false,
-    },
+    activateValidation?: boolean
     /**
      * Validate function to run when the input changes The function should return an object of type
-     * `{valid: Boolean, invalidMessage: Sting}`. The `invalidMessage` string should be a
+     * `{valid: Boolean, invalidMessage: String}`. The `invalidMessage` string should be a
      * translation key.
      *
      * NOTE: this function is called each time the field is modified
-     *
-     * @type {Function | null}
      */
-    validate: {
-        type: [Function, null],
-        default: null,
-        validator: propsValidator4ValidateFunc,
-    },
-    dataCy: {
-        type: String,
-        default: '',
-    },
-})
-const { placeholder, disabled, label, description, dataCy } = props
+    validate?: ((_value?: string) => { valid: boolean; invalidMessage: string }) | undefined
+    dataCy?: string
+}>()
 
-const { value, validMarker, invalidMarker, validMessage, invalidMessage, required, onFocus } =
-    useFieldValidation(props, model, emits, {
+const inputEmailId = useComponentUniqueId('email-input')
+
+const model = defineModel<string>({ default: '' })
+const emits = defineEmits(['change', 'validate', 'focusin', 'focusout', 'keydown.enter'])
+const { t } = useI18n()
+
+const validationProps = {
+    required,
+    validMarker,
+    validMessage,
+    invalidMarker,
+    invalidMessage,
+    activateValidation,
+    validate,
+}
+
+const {
+    value,
+    validMarker: computedValidMarker,
+    invalidMarker: computedInvalidMarker,
+    validMessage: computedValidMessage,
+    invalidMessage: computedInvalidMessage,
+    required: computedRequired,
+    onFocus,
+} = useFieldValidation(
+    validationProps,
+    model,
+    emits as (_event: string, ..._args: unknown[]) => void,
+    {
         customValidate: validateEmail,
         requiredInvalidMessage: 'no_email',
-    })
+    }
+)
 
-const emailInputElement = useTemplateRef('emailInputElement')
+const emailInputElement = useTemplateRef<HTMLInputElement>('emailInputElement')
 
 function validateEmail() {
     if (value.value && !isValidEmail(value.value)) {
@@ -160,8 +126,8 @@ function validateEmail() {
     return { valid: true, invalidMessage: '' }
 }
 
-function focus() {
-    emailInputElement.value.focus()
+function focus(): void {
+    emailInputElement.value?.focus()
 }
 
 defineExpose({ focus })
@@ -175,7 +141,7 @@ defineExpose({ focus })
         <label
             v-if="label"
             class="mb-2"
-            :class="{ 'fw-bolder': required }"
+            :class="{ 'fw-bolder': computedRequired }"
             :for="inputEmailId"
             data-cy="email-input-label"
         >
@@ -187,12 +153,12 @@ defineExpose({ focus })
             v-model="value"
             :disabled="disabled"
             :class="{
-                'is-invalid': invalidMarker,
-                'is-valid': validMarker,
+                'is-invalid': computedInvalidMarker,
+                'is-valid': computedValidMarker,
             }"
             type="email"
             class="form-control"
-            :required="required"
+            :required="computedRequired"
             :placeholder="placeholder ? t(placeholder) : ''"
             data-cy="email-input"
             @focusin="onFocus($event, true)"
@@ -200,18 +166,18 @@ defineExpose({ focus })
             @keydown.enter="emits('keydown.enter')"
         />
         <div
-            v-if="invalidMessage"
+            v-if="computedInvalidMessage"
             class="invalid-feedback"
             data-cy="email-input-invalid-feedback"
         >
-            {{ t(invalidMessage) }}
+            {{ t(computedInvalidMessage) }}
         </div>
         <div
-            v-if="validMessage"
+            v-if="computedValidMessage"
             class="valid-feedback"
             data-cy="email-input-valid-feedback"
         >
-            {{ t(validMessage) }}
+            {{ t(computedValidMessage) }}
         </div>
         <div
             v-if="description"

@@ -1,3 +1,5 @@
+import type { FlatConfig } from '@typescript-eslint/utils/ts-eslint'
+
 import jsESLint from '@eslint/js'
 import markdown from '@eslint/markdown'
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
@@ -9,7 +11,6 @@ import perfectionist from 'eslint-plugin-perfectionist'
 import pluginVue from 'eslint-plugin-vue'
 import globals from 'globals'
 import tsESLint, { plugin as tsESLintPlugin } from 'typescript-eslint'
-import type { FlatConfig } from '@typescript-eslint/utils/ts-eslint'
 
 type PartialRules = Partial<Record<string, FlatConfig.RuleEntry>>
 type PartialConfig = Partial<FlatConfig.Config>
@@ -105,11 +106,20 @@ export const vueConfig: FlatConfig.ConfigArray = defineConfigWithVueTs(
         files: ['**/*.vue'],
         plugins: {
             '@typescript-eslint': tsESLintPlugin,
+            perfectionist,
         },
         rules: {
             'vue/html-indent': ['error', 4],
             // TODO: switch to 'error' (or remove this line) after complete TS migration
             'vue/block-lang': 'off',
+            'perfectionist/sort-imports': [
+                'error',
+                { type: 'alphabetical', internalPattern: ['^@/.*'] },
+            ],
+            // Enforce consistent brace style for all control statements
+            curly: ['error', 'all'],
+            // Enforce opening brace on same line and closing brace on new line
+            'brace-style': ['error', '1tbs', { allowSingleLine: false }],
             ...noUnusedVarsRules,
         },
     }
@@ -176,6 +186,10 @@ export const jsConfig: FlatConfig.ConfigArray = [
                 'error',
                 { type: 'alphabetical', internalPattern: ['^@/.*'] },
             ],
+            // Enforce consistent brace style for all control statements
+            curly: ['error', 'all'],
+            // Enforce opening brace on same line and closing brace on new line
+            'brace-style': ['error', '1tbs', { allowSingleLine: false }],
             ...noUnusedVarsRules,
         },
     },
@@ -198,6 +212,7 @@ const defaultConfig: FlatConfig.ConfigArray = tsESLint.config(
         files: ['**/*.ts', '**/*.tsx'],
         // no need to check our snippets
         ignores: ['**/*.md'],
+        plugins: { perfectionist },
         languageOptions: {
             parserOptions: {
                 projectService: true,
@@ -206,7 +221,17 @@ const defaultConfig: FlatConfig.ConfigArray = tsESLint.config(
         },
         // switching to TypeScript unused var rule (instead of JS rule), so that no error is raised
         // on unused param from abstract function arguments
-        rules: standardTSRules,
+        rules: {
+            ...standardTSRules,
+            'perfectionist/sort-imports': [
+                'error',
+                { type: 'alphabetical', internalPattern: ['^@/.*'] },
+            ],
+            // Enforce consistent brace style for all control statements
+            curly: ['error', 'all'],
+            // Enforce opening brace on same line and closing brace on new line
+            'brace-style': ['error', '1tbs', { allowSingleLine: false }],
+        },
     },
     // we have to declare that AFTER the TS specifics, our unit test rules from the JS config are otherwise ignored (when the tests are written in TS)
     unitTestsConfig

@@ -1,55 +1,44 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-const dispatcher = { dispatcher: 'Toggle3dButton.vue' }
+import type { ActionDispatcher } from '@/store/types'
 
-const store = useStore()
+import useCesiumStore from '@/store/modules/cesium'
+import useDrawingStore from '@/store/modules/drawing'
+import usePrintStore from '@/store/modules/print'
+
+const dispatcher: ActionDispatcher = { name: 'Toggle3dButton.vue' }
+
 const { t } = useI18n()
-
+const cesiumStore = useCesiumStore()
+const drawingStore = useDrawingStore()
+const printStore = usePrintStore()
 const tooltipContent = computed(() => {
     if (webGlIsSupported.value) {
-        return t(`tilt3d_${isActive.value ? 'active' : 'inactive'}`)
+        return t(`tilt3d_${cesiumStore.active ? 'active' : 'inactive'}`)
     }
     return t('3d_render_error')
 })
 
 const webGlIsSupported = ref(false)
 
-const isActive = computed(() => store.state.cesium.active)
-const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.show)
-
 onMounted(() => {
     webGlIsSupported.value = checkWebGlSupport()
 })
 
-/**
- * Returns true if WebGL is supported by the browser / hardware.
- *
- * Copied from https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/By_example/Detect_WebGL
- *
- * @returns {boolean}
- */
-function checkWebGlSupport() {
-    // Create canvas element. The canvas is not added to the
-    // document itself, so it is never displayed in the
-    // browser window.
+function checkWebGlSupport(): boolean {
     const canvas = document.createElement('canvas')
-
-    // Get WebGLRenderingContext from canvas element.
     const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
-
     return gl instanceof WebGLRenderingContext
 }
 
 function toggle3d() {
-    if (webGlIsSupported.value && !showDrawingOverlay.value) {
-        store.dispatch('set3dActive', { active: !isActive.value, ...dispatcher })
-        // Hide print section when 3D is activated
-        store.dispatch('setPrintSectionShown', { show: false, ...dispatcher })
+    if (webGlIsSupported.value && !drawingStore.overlay.show) {
+        cesiumStore.set3dActive(!cesiumStore.active, dispatcher)
+        printStore.setPrintSectionShown(false, dispatcher)
     }
 }
 </script>
@@ -63,14 +52,14 @@ function toggle3d() {
             ref="toggle3DButton"
             class="toolbox-button"
             type="button"
-            :class="{ active: isActive, disabled: !webGlIsSupported || showDrawingOverlay }"
+            :class="{
+                active: cesiumStore.active,
+                disabled: !webGlIsSupported || drawingStore.overlay.show,
+            }"
             data-cy="3d-button"
             @click="toggle3d"
         >
-            <FontAwesomeIcon
-                :icon="['fas', 'cube']"
-                flip="horizontal"
-            />
+            <FontAwesomeIcon :icon="['fas', 'cube']" />
         </button>
     </GeoadminTooltip>
 </template>

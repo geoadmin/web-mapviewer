@@ -1,36 +1,36 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { LayerType } from '@swissgeo/layers'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-import LayerFeature from '@/api/features/LayerFeature.class'
-import SelectableFeature from '@/api/features/SelectableFeature.class'
-import LayerTypes from '@/api/layers/LayerTypes.enum'
+import type { LayerFeature, SelectableFeature } from '@/api/features.api'
+import type { ActionDispatcher } from '@/store/types'
 
-const dispatcher = { dispatcher: 'ShowGeometryProfileButton.vue' }
+import useProfileStore from '@/store/modules/profile'
 
-const { feature } = defineProps({
-    feature: {
-        type: SelectableFeature,
-        required: true,
-    },
-})
+const dispatcher: ActionDispatcher = { name: 'ShowGeometryProfileButton.vue' }
+
+const { feature } = defineProps<{
+    feature: SelectableFeature<boolean>
+}>()
 
 const { t } = useI18n()
-const store = useStore()
+const profileStore = useProfileStore()
 
 function showProfile() {
     let simplifyGeometry = false
-    if (feature instanceof LayerFeature) {
+    if (!feature.isEditable) {
         // PB-800 : to avoid a coastline paradox we simplify the geometry of GPXs
         // as they might be coming directly from a GPS device (meaning polluted with GPS uncertainty/error)
-        simplifyGeometry = feature.layer.type === LayerTypes.GPX
+        simplifyGeometry = (feature as LayerFeature).layer.type === LayerType.GPX
     }
-    store.dispatch('setProfileFeature', {
+    profileStore.setProfileFeature(
         feature,
-        simplifyGeometry,
-        ...dispatcher,
-    })
+        {
+            simplifyGeometry,
+        },
+        dispatcher
+    )
 }
 </script>
 

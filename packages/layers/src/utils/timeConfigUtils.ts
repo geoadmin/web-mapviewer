@@ -10,10 +10,10 @@ import {
     YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
 } from '@/types'
 
-export const hasTimestamp = (timeConfig: LayerTimeConfig, timestamp: string): boolean =>
+const hasTimestamp = (timeConfig: LayerTimeConfig, timestamp: string): boolean =>
     timeConfig.timeEntries.some((entry: LayerTimeConfigEntry) => entry.timestamp === timestamp)
 
-export const getTimeEntryForYear = (
+const getTimeEntryForYear = (
     timeConfig: LayerTimeConfig,
     year: number
 ): LayerTimeConfigEntry | undefined => {
@@ -29,7 +29,7 @@ export const getTimeEntryForYear = (
     })
 }
 
-export const updateCurrentTimeEntry = (
+const updateCurrentTimeEntry = (
     timeConfig: LayerTimeConfig,
     entryOrTimestamp: LayerTimeConfigEntry | string | undefined
 ) => {
@@ -44,9 +44,10 @@ export const updateCurrentTimeEntry = (
     timeConfig.currentTimeEntry = currentTimeEntry
 }
 
-export const makeTimeConfigEntry = (timestamp: string): LayerTimeConfigEntry => {
+const makeTimeConfigEntry = (timestamp: string): LayerTimeConfigEntry => {
     let interval: Interval | undefined
     let nonTimeBasedValue: string | undefined
+    let year: number | undefined
     if (timestamp.startsWith('9999')) {
         // TODO PB-680 clean up "all" hack
         // Currently the backends (mf-chsdi3 for layerConfig and WMTS) are using a hack to describe "all"
@@ -56,17 +57,17 @@ export const makeTimeConfigEntry = (timestamp: string): LayerTimeConfigEntry => 
         //  3. 99991231  (e.g. ch.swisstopo.lubis-luftbilder-dritte-firmen)
         nonTimeBasedValue = 'all'
     } else {
-        let year: string | undefined
+        let parsedYear: string | undefined
         let month: string | undefined
         let day: string | undefined
         if (isTimestampYYYYMMDD(timestamp)) {
-            year = timestamp.substring(0, 4)
+            parsedYear = timestamp.substring(0, 4)
             month = timestamp.substring(4, 6)
             day = timestamp.substring(6, 8)
         } else {
             const date = new Date(timestamp)
             if (!isNaN(date.getFullYear())) {
-                year = date.getFullYear().toString().padStart(4, '0')
+                parsedYear = date.getFullYear().toString().padStart(4, '0')
             }
             if (!isNaN(date.getMonth())) {
                 // getMonth returns value between 0 and 11
@@ -76,12 +77,15 @@ export const makeTimeConfigEntry = (timestamp: string): LayerTimeConfigEntry => 
                 day = date.getDate().toString().padStart(2, '0')
             }
         }
-        if (year !== undefined && month !== undefined && day !== undefined) {
-            interval = Interval.fromISO(`${year}-${month}-${day}/P1D`)
-        } else if (year !== undefined && month !== undefined) {
-            interval = Interval.fromISO(`${year}-${month}-01/P1M`)
-        } else if (year !== undefined) {
-            interval = Interval.fromISO(`${year}-01-01/P1Y`)
+        if (parsedYear !== undefined && month !== undefined && day !== undefined) {
+            interval = Interval.fromISO(`${parsedYear}-${month}-${day}/P1D`)
+        } else if (parsedYear !== undefined && month !== undefined) {
+            interval = Interval.fromISO(`${parsedYear}-${month}-01/P1M`)
+        } else if (parsedYear !== undefined) {
+            interval = Interval.fromISO(`${parsedYear}-01-01/P1Y`)
+        }
+        if (parsedYear) {
+            year = parseInt(parsedYear)
         }
     }
 
@@ -98,10 +102,11 @@ export const makeTimeConfigEntry = (timestamp: string): LayerTimeConfigEntry => 
         timestamp,
         interval,
         nonTimeBasedValue,
+        year,
     }
 }
 
-export const makeTimeConfig = (
+const makeTimeConfig = (
     behaviour?: string,
     timeEntries?: LayerTimeConfigEntry[]
 ): LayerTimeConfig | undefined => {
@@ -142,7 +147,7 @@ export const makeTimeConfig = (
     return timeConfig
 }
 
-export const hasMultipleTimestamps = (layer: Layer): boolean => {
+const hasMultipleTimestamps = (layer: Layer): boolean => {
     return (layer.timeConfig?.timeEntries?.length || 0) > 1
 }
 
@@ -156,7 +161,7 @@ export function getYearFromLayerTimeEntry(timeEntry: LayerTimeConfigEntry): numb
     return undefined
 }
 
-export const getTimeEntryForInterval = (
+const getTimeEntryForInterval = (
     layer: Layer,
     interval: Interval
 ): LayerTimeConfigEntry | undefined => {
@@ -172,7 +177,7 @@ export const getTimeEntryForInterval = (
 }
 
 /** Returns timestamp for WMS or WMTS layer from config data */
-export function getTimestampFromConfig(layer: Layer): string | undefined {
+function getTimestampFromConfig(layer: Layer): string | undefined {
     let timestamp = layer.timeConfig?.currentTimeEntry?.timestamp
     if (!timestamp && layer.type === LayerType.WMTS) {
         // for WMTS layer fallback to current
