@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { toRefs, useTemplateRef, withDefaults } from 'vue'
+import { toRefs, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
