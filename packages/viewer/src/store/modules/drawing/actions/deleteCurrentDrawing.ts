@@ -8,15 +8,22 @@ export default function deleteCurrentDrawing(
     this: DrawingStore,
     dispatcher: ActionDispatcher
 ) {
+    if (!this.layer.config && !this.layer.temporaryKmlId) {
+        return
+    }
     this.clearDrawingFeatures(dispatcher)
     this.setDrawingSaveState(DrawingSaveState.Initial, dispatcher)
     this.setDrawingMode(undefined, dispatcher)
     this.setIsDrawingEditShared(false, dispatcher)
-    if (this.layer) {
-        const layersStore = useLayersStore()
+
+    const layersStore = useLayersStore()
+
+    if (this.online && this.layer.config?.id) {
+        layersStore.removeLayer(this.layer.config.id, dispatcher)
+    } else if (this.layer.temporaryKmlId) {
         layersStore.removeSystemLayer(`KML|${this.layer.temporaryKmlId}`, dispatcher)
-        this.clearDrawingFeatures(dispatcher)
     }
-    this.edit.featureType = undefined
+
     this.layer.ol?.getSource()?.clear()
+    this.edit.featureType = undefined
 }

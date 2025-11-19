@@ -23,7 +23,7 @@ const filteredVisibleLayers = computed(() => {
     // In report problem drawing mode show the drawing layer and the temporary layer
     if (drawingStore.overlay.show && !drawingStore.online && drawingStore.layer.temporaryKmlId) {
         return layersStore.visibleLayers.filter(
-            (layer) => layer.id !== drawingStore.layer.temporaryKmlId
+            (layer) => layer.id !== `KML|${drawingStore.layer.temporaryKmlId}`
         )
     }
     return layersStore.visibleLayers

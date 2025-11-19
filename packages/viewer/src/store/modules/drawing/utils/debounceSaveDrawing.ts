@@ -40,16 +40,23 @@ function willModify() {
     }
 }
 
-function saveLocalDrawing(kmlData: string) {
+async function saveLocalDrawing(kmlData: string) {
     const drawingStore = useDrawingStore()
     const layersStore = useLayersStore()
+    const kmlMetadata = await createKml(kmlData)
+
     const kmlLayer = layerUtils.makeKMLLayer({
         name: drawingStore.name,
         kmlFileUrl: drawingStore.layer.temporaryKmlId,
         isVisible: true,
         opacity: 1,
         kmlData: kmlData,
+        kmlMetadata,
+        adminId: kmlMetadata.adminId,
+        isEdited: true,
     })
+    drawingStore.layer.config = kmlLayer
+
     if (!layersStore.systemLayers.find((systemLayer) => systemLayer.id === kmlLayer.id)) {
         layersStore.addSystemLayer(kmlLayer, dispatcher)
     } else {
@@ -70,10 +77,9 @@ async function saveDrawing({ retryOnError = true }: { retryOnError?: boolean }) 
         drawingStore.name
     )
     if (!drawingStore.online) {
-        saveLocalDrawing(kmlData)
+        await saveLocalDrawing(kmlData)
         return
     }
-
     const layersStore = useLayersStore()
 
     try {
