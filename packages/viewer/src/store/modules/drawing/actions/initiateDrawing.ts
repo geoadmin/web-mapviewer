@@ -68,8 +68,7 @@ export default async function initiateDrawing(
         }
 
         let kmlLayer: KMLLayer | undefined
-
-        if (preExistingDrawing) {
+        if (preExistingDrawing && this.online) {
             kmlLayer = preExistingDrawing
             this.isDrawingNew = !!kmlLayer.adminId
         } else if (adminId) {

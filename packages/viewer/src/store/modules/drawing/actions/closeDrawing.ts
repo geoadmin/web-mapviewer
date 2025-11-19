@@ -41,24 +41,33 @@ export default async function closeDrawing(this: DrawingStore, dispatcher: Actio
             await debounceSaveDrawing({ debounceTime: 0, retryOnError: false })
         }
 
+
+        if (this.layer.config) {
+            // flagging the layer as not edited anymore (not displayed on the map by the drawing module anymore)
+            if (!this.online) {
+                const updatedLayer = {
+                    ...this.layer.config,
+                    isEdited: false,
+                }
+                layersStore.updateSystemLayer(updatedLayer, dispatcher)
+            } else {
+                layersStore.updateLayer<KMLLayer>(
+                    this.layer.config,
+                    {
+                        isEdited: false,
+                    },
+                    dispatcher
+                )
+            }
+
+            delete this.layer.config
+        }
         this.toggleDrawingOverlay(
             {
                 show: false,
             },
             dispatcher
         )
-
-        if (this.layer.config) {
-            // flagging the layer as not edited anymore (not displayed on the map by the drawing module anymore)
-            layersStore.updateLayer<KMLLayer>(
-                this.layer.config,
-                {
-                    isEdited: false,
-                },
-                dispatcher
-            )
-            delete this.layer.config
-        }
 
         this.edit.featureType = undefined
         this.layer.ol?.getSource()?.clear()
