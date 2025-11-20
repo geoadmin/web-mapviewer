@@ -16,6 +16,8 @@ import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
 import { FeatureInfoPositions } from '@/store/modules/ui/types'
 
+import { isOnlineMode } from '../utils/isOnlineMode'
+
 interface InitiateDrawingOptions {
     adminId?: string
     preExistingDrawing?: KMLLayer
@@ -68,7 +70,7 @@ export default async function initiateDrawing(
         }
 
         let kmlLayer: KMLLayer | undefined
-        if (preExistingDrawing && this.online) {
+        if (preExistingDrawing && isOnlineMode(this.onlineMode)) {
             kmlLayer = preExistingDrawing
             this.isDrawingNew = !!kmlLayer.adminId
         } else if (adminId) {

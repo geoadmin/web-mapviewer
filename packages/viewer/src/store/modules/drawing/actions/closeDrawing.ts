@@ -6,7 +6,9 @@ import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import { OnlineMode } from '@/store/modules/drawing/types/OnlineMode.enum'
 import debounceSaveDrawing from '@/store/modules/drawing/utils/debounceSaveDrawing'
+import { isOnlineMode } from '@/store/modules/drawing/utils/isOnlineMode'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
@@ -44,13 +46,7 @@ export default async function closeDrawing(this: DrawingStore, dispatcher: Actio
 
         if (this.layer.config) {
             // flagging the layer as not edited anymore (not displayed on the map by the drawing module anymore)
-            if (!this.online) {
-                const updatedLayer = {
-                    ...this.layer.config,
-                    isEdited: false,
-                }
-                layersStore.updateSystemLayer(updatedLayer, dispatcher)
-            } else {
+            if (isOnlineMode(this.onlineMode)) {
                 layersStore.updateLayer<KMLLayer>(
                     this.layer.config,
                     {
@@ -58,17 +54,28 @@ export default async function closeDrawing(this: DrawingStore, dispatcher: Actio
                     },
                     dispatcher
                 )
+
+            } else {
+                const updatedLayer = {
+                    ...this.layer.config,
+                    isEdited: false,
+                }
+                layersStore.updateSystemLayer(updatedLayer, dispatcher)
             }
 
             delete this.layer.config
         }
-        this.toggleDrawingOverlay(
-            {
-                show: false,
-            },
-            dispatcher
-        )
 
+        if (this.onlineMode === OnlineMode.Offline) {
+            this.setOnlineMode(OnlineMode.None, dispatcher)
+        } else if (this.onlineMode === OnlineMode.OfflineWhileOnline) {
+            this.setOnlineMode(OnlineMode.Online, dispatcher)
+        } else if (this.onlineMode === OnlineMode.Online) {
+            this.setOnlineMode(OnlineMode.None, dispatcher)
+        } else if (this.onlineMode === OnlineMode.OnlineWhileOffline) {
+            this.setOnlineMode(OnlineMode.Offline, dispatcher)
+        }
+        this.overlay.show = false
         this.edit.featureType = undefined
         this.layer.ol?.getSource()?.clear()
 
