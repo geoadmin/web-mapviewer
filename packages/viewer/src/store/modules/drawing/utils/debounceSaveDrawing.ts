@@ -76,8 +76,11 @@ async function saveDrawing({ retryOnError = true }: { retryOnError?: boolean }) 
         drawingStore.layer.ol?.getSource()?.getFeatures() ?? [],
         drawingStore.name
     )
-    if (!drawingStore.online) {
+    if (!isOnlineMode(drawingStore.onlineMode)) {
         await saveLocalDrawing(kmlData)
+        // This has to be set so that the snot shared drawing warning is not shown after drawing an offline drawing
+        // and then opening the drawing overlay and leaving it without drawing something
+        drawingStore.setDrawingSaveState(DrawingSaveState.Initial, dispatcher)
         return
     }
     const layersStore = useLayersStore()

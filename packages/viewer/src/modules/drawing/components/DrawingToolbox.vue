@@ -17,7 +17,8 @@ import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxBut
 import SharePopup from '@/modules/drawing/components/SharePopup.vue'
 import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
 import useDrawingStore from '@/store/modules/drawing'
-import { DrawingSaveState, EditMode } from '@/store/modules/drawing/types'
+import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
+import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
@@ -112,7 +113,7 @@ const drawingStateMessage = computed(() => {
             return undefined
     }
 })
-const online = computed(() => drawingStore.online)
+const online = computed(() => isOnlineMode(drawingStore.onlineMode, true))
 
 function onCloseClearConfirmation(confirmed: boolean) {
     showClearConfirmationModal.value = false

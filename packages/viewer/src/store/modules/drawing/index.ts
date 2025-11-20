@@ -16,7 +16,7 @@ import setDrawingSaveState from '@/store/modules/drawing/actions/setDrawingSaveS
 import setEditingMode from '@/store/modules/drawing/actions/setEditingMode'
 import setIsDrawingEditShared from '@/store/modules/drawing/actions/setIsDrawingEditShared'
 import setIsVisitWithAdminId from '@/store/modules/drawing/actions/setIsVisitWithAdminId'
-import setReportProblemDrawing from '@/store/modules/drawing/actions/setReportProblemDrawing'
+import setOnlineMode from '@/store/modules/drawing/actions/setOnlineMode'
 import toggleDrawingOverlay from '@/store/modules/drawing/actions/toggleDrawingOverlay'
 import updateCurrentDrawingFeature from '@/store/modules/drawing/actions/updateCurrentDrawingFeature'
 import updateDrawingPreferences from '@/store/modules/drawing/actions/updateDrawingPreferences'
@@ -57,8 +57,8 @@ const state = (): DrawingStoreState => ({
         state: DrawingSaveState.Initial,
         pending: undefined,
     },
-    reportProblemDrawing: false,
-    online: true,
+    // online: true,
+    onlineMode: OnlineMode.Online,
     name: undefined,
     isDrawingNew: true,
     isDrawingEditShared: false,
@@ -72,8 +72,8 @@ const getters: DrawingStoreGetters = {
 }
 
 const actions = {
+    setOnlineMode,
     deleteCurrentDrawing,
-    setReportProblemDrawing,
     clearDrawingFeatures,
     deleteDrawingFeature,
     loadAvailableIconSets,
