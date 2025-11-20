@@ -12,7 +12,7 @@ import type { EditableFeature } from '@/api/features.api'
 import { type DrawingIconSet, generateIconURL } from '@/api/icon.api'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { fakeIconSets } from '@/utils/__tests__/legacyKmlUtils.spec'
-import { BLUE, EXTRA_LARGE } from '@/utils/featureStyleUtils'
+import { BLUE } from '@/utils/featureStyleUtils'
 import {
     getIcon,
     getKmlExtent,
@@ -350,7 +350,7 @@ describe('Test KML utils', () => {
                 'https://fake.image.url/api/icons/sets/default/icons/001-marker@1x-255,0,0.png'
             )
         })
-        it('get icon with standard arguments from the set with scale and color', () => {
+        it('get icon with standard arguments from the set with color', () => {
             const icon = getIcon(
                 {
                     set: 'default',
@@ -363,8 +363,8 @@ describe('Test KML utils', () => {
             expect(icon).toBeDefined()
             expect(icon!.name).to.be.equal('001-marker')
             expect(icon!.iconSetName).to.be.equal('default')
-            expect(generateIconURL(icon!, BLUE, EXTRA_LARGE)).to.be.equal(
-                'https://fake.image.url/api/icons/sets/default/icons/001-marker@1.25x-0,0,255.png'
+            expect(generateIconURL(icon!, BLUE)).to.be.equal(
+                'https://fake.image.url/api/icons/sets/default/icons/001-marker@1x-0,0,255.png'
             )
         })
         it('get icon with standard arguments from the babs set', () => {
