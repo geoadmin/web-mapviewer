@@ -56,7 +56,7 @@ onMounted(() => {
 
 // Methods
 
-function validateUrl(url?: string): TextInputValidateResult {
+function validateUrl(url?: string): ValidationResult {
     if (!url) {
         return { valid: false, invalidMessage: 'no_url' }
     } else if (!isValidUrl(url)) {
@@ -70,8 +70,8 @@ function validateForm() {
     return isFormValid.value
 }
 
-function onUrlValidate(result: TextInputValidateResult) {
-    isFormValid.value = result.valid
+function onUrlValidate(validation: ValidationResult) {
+    isFormValid.value = validation.valid
 }
 
 function onUrlChange() {
@@ -133,7 +133,7 @@ async function loadFile() {
                 class="mb-2"
                 placeholder="import_file_url_placeholder"
                 :activate-validation="activateValidation"
-                :invalid-marker="!!errorFileLoadingMessage"
+                :force-invalid="!!errorFileLoadingMessage"
                 :invalid-message="errorFileLoadingMessage?.msg"
                 :invalid-message-params="errorFileLoadingMessage?.params"
                 :valid-message="importSuccessMessage"

@@ -4,6 +4,8 @@ import type { ErrorMessage } from '@swissgeo/log/Message'
 import log from '@swissgeo/log'
 import { computed, ref } from 'vue'
 
+import type { ValidationResult } from '@/utils/composables/useFieldValidation'
+
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import useImportFile from '@/modules/menu/components/advancedTools/ImportFile/useImportFile.composable'
@@ -52,8 +54,8 @@ async function loadFile() {
     loadingFile.value = false
 }
 
-function validateForm(valid: boolean) {
-    isFormValid.value = valid
+function validateForm(validation: ValidationResult) {
+    isFormValid.value = validation.valid
 }
 </script>
 
@@ -75,7 +77,7 @@ function validateForm(valid: boolean) {
             :accepted-file-types="acceptedFileTypes"
             :placeholder="'no_file'"
             :activate-validation="activateValidation"
-            :invalid-marker="!!errorFileLoadingMessage"
+            :force-invalid="!!errorFileLoadingMessage"
             :invalid-message="errorFileLoadingMessage?.msg"
             :invalid-message-extra-params="errorFileLoadingMessage?.params"
             :valid-message="importSuccessMessage"

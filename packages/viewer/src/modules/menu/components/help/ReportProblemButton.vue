@@ -186,16 +186,16 @@ function closeAndCleanForm() {
     }
 }
 
-function onTextValidate(valid: boolean) {
-    isMessageValid.value = valid
+function onTextValidate(validation: ValidationResult) {
+    isMessageValid.value = validation.valid
 }
 
-function onAttachmentValidate(valid: boolean) {
-    isAttachmentValid.value = valid
+function onAttachmentValidate(validation: ValidationResult) {
+    isAttachmentValid.value = validation.valid
 }
 
-function onEmailValidate(valid: boolean) {
-    isEmailValid.value = valid
+function onEmailValidate(validation: ValidationResult) {
+    isEmailValid.value = validation.valid
 }
 
 async function generateShortLink() {
