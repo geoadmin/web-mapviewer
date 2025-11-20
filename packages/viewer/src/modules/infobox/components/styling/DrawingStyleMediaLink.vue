@@ -89,7 +89,7 @@ function validateForm(): boolean {
     return isFormValid.value
 }
 
-function onUrlValidate(result: TextInputValidateResult): void {
+function onUrlValidate(result: ValidationResult): void {
     isFormValid.value = result.valid
 }
 </script>
