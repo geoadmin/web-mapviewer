@@ -66,14 +66,6 @@ const { t } = useI18n()
 // Computed from stores
 const availableIconSets = computed(() => drawingStore.iconSets)
 
-// Equivalent of old showNotSharedDrawingWarning getter
-const showNotSharedDrawingWarning = computed(
-    () =>
-        drawingStore.isDrawingModified &&
-        !drawingStore.isDrawingEditShared &&
-        !drawingStore.isVisitWithAdminId
-)
-
 const selectedLineFeature = computed<EditableFeature | undefined>(() => {
     if (
         drawingStore.feature.current &&
@@ -180,7 +172,7 @@ onBeforeUnmount(() => {
 
 const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
     // Show alert when trying to close the tab, except during Cypress tests
-    if (!IS_TESTING_WITH_CYPRESS && showNotSharedDrawingWarning.value) {
+    if (!IS_TESTING_WITH_CYPRESS && drawingStore.showNotSharedDrawingWarning) {
         showNotSharedDrawingWarningModal.value = true
         event.preventDefault()
     }

@@ -109,21 +109,8 @@ export function useFieldValidation<T extends string | File>(
     const isValid = computed(() => {
         return validation.value.valid
     })
-    const activateValidationMarkers = computed(() => activateValidation.value)
-    const validMarker = computed(() => {
-        // Do not add a valid marker when the marker are not activated or when the field is empty
-        // or when it is already marked as invalid
-        if (!activateValidationMarkers.value || isEmpty(value.value) || invalidMarker.value) {
-            return false
-        }
-        let _validMarker = isValid.value
-        if (props.validMarker !== undefined) {
-            _validMarker = _validMarker && (props.validMarker ?? false)
-        }
-        return _validMarker
-    })
     const invalidMarker = computed(() => {
-        if (!activateValidationMarkers.value) {
+        if (!activateValidation.value) {
             return false
         }
         let _invalidMarker = !isValid.value
@@ -131,6 +118,19 @@ export function useFieldValidation<T extends string | File>(
             _invalidMarker = _invalidMarker || !!props.invalidMarker
         }
         return _invalidMarker
+    })
+    const validMarker = computed(() => {
+        // Do not add a valid marker when the marker are not activated or when the field is empty
+        // or when it is already marked as invalid
+        if (!activateValidation.value || isEmpty(value.value) || !isValid.value) {
+            return false
+        }
+        // If validMarker prop is explicitly provided (not undefined), use it
+        if (props.validMarker !== undefined) {
+            return props.validMarker
+        }
+        // Default: show valid marker when field is valid
+        return true
     })
     const invalidMessage = computed(() => {
         if (props.invalidMessage) {

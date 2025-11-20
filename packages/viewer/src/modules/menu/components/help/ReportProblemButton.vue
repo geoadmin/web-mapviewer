@@ -14,6 +14,7 @@ import { FEEDBACK_EMAIL_SUBJECT } from '@/config/feedback.config'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/help/common/SendActionButtons.vue'
 import useDrawingStore from '@/store/modules/drawing'
+import { OnlineMode } from '@/store/modules/drawing/types/OnlineMode.enum'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
 import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
@@ -93,7 +94,7 @@ const isEmailValid = ref(true)
 const showDrawingOverlay = computed(() => drawingStore.overlay.show)
 
 const temporaryKml: ComputedRef<KMLLayer> = computed(
-    () => layersStore.systemLayers.find((l) => l.id === temporaryKmlId) as KMLLayer
+    () => layersStore.systemLayers.find((l) => l.id === `KML|${temporaryKmlId}`) as KMLLayer
 )
 
 const isTemporaryKmlValid = computed(
@@ -177,7 +178,7 @@ function closeAndCleanForm() {
     request.value.failed = false
     request.value.completed = false
     if (temporaryKml.value) {
-        layersStore.removeSystemLayer(temporaryKmlId, dispatcher)
+        layersStore.removeSystemLayer(`KML|${temporaryKmlId}`, dispatcher)
         drawingStore.clearDrawingFeatures(dispatcher)
     }
 }
@@ -218,12 +219,16 @@ function openForm() {
 function toggleDrawingOverlay() {
     drawingStore.toggleDrawingOverlay(
         {
-            online: false,
             kmlId: temporaryKmlId,
             title: 'feedback_drawing',
         },
         dispatcher
     )
+    if (drawingStore.onlineMode === OnlineMode.Online) {
+        drawingStore.setOnlineMode(OnlineMode.OfflineWhileOnline, dispatcher)
+    } else if (drawingStore.onlineMode === OnlineMode.None) {
+        drawingStore.setOnlineMode(OnlineMode.Offline, dispatcher)
+    }
 }
 
 function selectItem(dropdownItem: DropdownItem<string>) {
