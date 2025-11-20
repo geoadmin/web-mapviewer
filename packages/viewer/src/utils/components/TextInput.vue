@@ -3,27 +3,35 @@
 
 import type { NamedValue } from 'vue-i18n'
 
-import { computed, nextTick, ref, toRef, useSlots, useTemplateRef } from 'vue'
+import { computed, nextTick, ref, useSlots, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
 import {
-    type FieldValidationProps,
     useFieldValidation,
+    type ValidateFunction,
+    type ValidationResult,
 } from '@/utils/composables/useFieldValidation'
 
 export interface TextInputExposed {
     focus: () => void
 }
 
-export interface TextInputValidateResult {
-    valid: boolean
-    invalidMessage: string
-}
-
-export type TextInputValidateFunction = (_value?: string) => TextInputValidateResult
-
-const props = defineProps<{
+const {
+    label = '',
+    description = '',
+    disabled = false,
+    placeholder = '',
+    required = undefined,
+    forceValid = undefined,
+    validMessage,
+    forceInvalid = undefined,
+    invalidMessage,
+    invalidMessageParams,
+    activateValidation = undefined,
+    validate,
+    dataCy = '',
+} = defineProps<{
     /** Label to add above the field */
     label?: string
     /** Description to add below the input */
@@ -46,21 +54,21 @@ const props = defineProps<{
      *
      * NOTE: this props is ignored when activate-validation is false
      */
-    validMarker?: boolean
+    forceValid?: boolean
     /**
      * Valid message that will be added in green below the field once the validation has been done
      * and the field is valid.
      */
     validMessage?: string
     /**
-     * Mark the field as invalid
+     * Force the field as valid
      *
      * This can be used if the field requires some external validation. When not set or set to
      * undefined this props is ignored.
      *
      * NOTE: this props is ignored when activate-validation is false
      */
-    invalidMarker?: boolean
+    forceInvalid?: boolean
     /**
      * Invalid message that will be added in red below the field once the validation has been done
      * and the field is invalid.
@@ -88,58 +96,40 @@ const props = defineProps<{
      *
      * NOTE: this function is called each time the field is modified
      */
-    validate?: TextInputValidateFunction
+    validate?: ValidateFunction<string>
     dataCy?: string
 }>()
-
-const {
-    label = '',
-    description = '',
-    disabled = false,
-    placeholder = '',
-    validMessage = '',
-    invalidMessageParams = undefined,
-    dataCy = '',
-} = props
-
-// to keep the reactivity going (with the useFieldValidation composable, and the parent that used this component)
-// we wrap some props to refs (those that are passed as FieldValidationProps)
-const required = toRef(props, 'required', false)
-const validMarker = toRef(props, 'validMarker')
-const invalidMarker = toRef(props, 'invalidMarker')
-const invalidMessage = toRef(props, 'invalidMessage')
-const activateValidation = toRef(props, 'activateValidation', false)
-const validate = toRef(props, 'validate', undefined)
 
 // On each component creation set the current component unique ID
 const clearButtonId = useComponentUniqueId('button-addon-clear')
 const textInputId = useComponentUniqueId('text-input')
 
-const inputValue = defineModel<string>({ default: '' })
+const model = defineModel<string>({ default: '' })
 const emits = defineEmits<{
     change: [value: string]
-    validate: [result: TextInputValidateResult]
+    validate: [result: ValidationResult]
     focusin: []
     focusout: []
     clear: []
     'keydown.enter': []
 }>()
 
-const validationProps: FieldValidationProps<string> = {
-    required,
-    validMarker,
-    invalidMarker,
-    invalidMessage,
-    activateValidation,
-    validate,
-}
+const { validation, onFocus } = useFieldValidation<string>({
+    model,
 
-const {
-    validMarker: computedValidMarker,
-    invalidMarker: computedInvalidMarker,
-    invalidMessage: computedInvalidMessage,
-    onFocus,
-} = useFieldValidation(validationProps, inputValue, emits)
+    required,
+
+    activateValidation,
+
+    forceValid,
+    validFieldMessage: validMessage,
+
+    forceInvalid,
+    invalidFieldMessage: invalidMessage,
+
+    emits,
+    validate,
+})
 
 const { t } = useI18n()
 const slots = useSlots()
@@ -148,17 +138,17 @@ const inputElement = useTemplateRef<HTMLInputElement>('inputElement')
 const error = ref<string>('')
 
 const translatedInvalidMessage = computed<string | undefined>(() => {
-    if (computedInvalidMessage.value) {
+    if (validation.value?.invalidMessage) {
         if (invalidMessageParams) {
-            return t(computedInvalidMessage.value, invalidMessageParams)
+            return t(validation.value.invalidMessage, invalidMessageParams)
         }
-        return t(computedInvalidMessage.value)
+        return t(validation.value.invalidMessage)
     }
     return undefined
 })
 
 function onClearInput(event: Event): void {
-    inputValue.value = ''
+    model.value = ''
     error.value = ''
     inputElement.value?.focus()
     // stopping the event here so that it won't close a modal window if used inside it.
@@ -191,15 +181,15 @@ defineExpose<TextInputExposed>({ focus })
             <input
                 :id="textInputId"
                 ref="inputElement"
-                v-model="inputValue"
+                v-model="model"
                 type="text"
                 :disabled="disabled"
                 :required="required"
                 class="form-control text-truncate"
                 :class="{
-                    'rounded-end': !inputValue?.length && !slots?.default,
-                    'is-invalid': computedInvalidMarker,
-                    'is-valid': computedValidMarker,
+                    'rounded-end': !model?.length && !slots?.default,
+                    'is-invalid': validation && !validation.valid,
+                    'is-valid': validation && validation.valid,
                 }"
                 :aria-describedby="clearButtonId"
                 :placeholder="placeholder ? t(placeholder) : ''"
@@ -209,7 +199,7 @@ defineExpose<TextInputExposed>({ focus })
                 @keydown.enter="emits('keydown.enter')"
             />
             <button
-                v-if="inputValue && inputValue.length > 0"
+                v-if="model.length > 0"
                 :id="clearButtonId"
                 class="btn btn-outline-group rounded-0"
                 :class="{ 'rounded-end': !slots?.default }"

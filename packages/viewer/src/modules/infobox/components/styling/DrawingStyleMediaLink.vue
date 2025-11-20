@@ -2,8 +2,10 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import type { ValidationResult } from '@/utils/composables/useFieldValidation'
+
 import { MediaType } from '@/modules/infobox/DrawingStyleMediaTypes.enum'
-import TextInput, { type TextInputValidateResult } from '@/utils/components/TextInput.vue'
+import TextInput from '@/utils/components/TextInput.vue'
 import { isValidUrl } from '@/utils/utils'
 
 const { mediaType, urlLabel, descriptionLabel } = defineProps<{
@@ -87,7 +89,7 @@ function validateForm(): boolean {
     return isFormValid.value
 }
 
-function onUrlValidate(result: TextInputValidateResult): void {
+function onUrlValidate(result: ValidationResult): void {
     isFormValid.value = result.valid
 }
 </script>

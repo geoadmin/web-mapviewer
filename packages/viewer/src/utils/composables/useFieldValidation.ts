@@ -1,39 +1,27 @@
 import {
     computed,
-    type ComputedRef,
     type MaybeRefOrGetter,
     onMounted,
     type Ref,
     ref,
     toValue,
+    unref,
     watch,
     watchEffect,
 } from 'vue'
+
+export type FieldValidationTypes = string | File
 
 export interface ValidationResult {
     valid: boolean
     invalidMessage: string
 }
 
-export type ValidateFunction<T extends string | File> = (value?: T) => ValidationResult
-
-export interface FieldValidationProps<T extends string | File> {
-    required?: MaybeRefOrGetter<boolean>
-    validMarker?: MaybeRefOrGetter<boolean>
-    invalidMarker?: MaybeRefOrGetter<boolean>
-    invalidMessage?: MaybeRefOrGetter<string | undefined>
-    activateValidation?: MaybeRefOrGetter<boolean>
-    validate?: MaybeRefOrGetter<ValidateFunction<T>>
-}
-
-export interface FieldValidationOptions {
-    customValidate?: () => ValidationResult
-    requiredInvalidMessage?: string
-}
+export type ValidateFunction<T extends FieldValidationTypes> = (value?: T) => ValidationResult
 
 type FieldValidationEvents = 'change' | 'validate' | 'focusin' | 'focusout'
 interface FieldValidationEventsPayloads {
-    change: [value?: string | File]
+    change: [value?: FieldValidationTypes]
     validate: [result: ValidationResult]
     focusin: [event: Event]
     focusout: [event: Event]
@@ -43,41 +31,80 @@ type FieldValidationEmits = <key extends FieldValidationEvents>(
     ...args: FieldValidationEventsPayloads[key]
 ) => void
 
-export interface FieldValidationReturn<T extends string | File> {
-    value: Ref<T | undefined>
-    isValid: ComputedRef<boolean>
-    validMarker: ComputedRef<boolean>
-    invalidMarker: ComputedRef<boolean>
-    invalidMessage: ComputedRef<string | undefined>
+export interface FieldValidationReturn {
+    /**
+     * Will return the result of the validation, or undefined in case has not yet been validated (or
+     * if activateValidation is false)
+     */
+    validation: Ref<ValidationResult | undefined>
     onFocus: (event: Event, inFocus: boolean) => void
 }
 
-/**
- * Input field validation logic
- *
- * @param props Vue properties of the component to add the field validation
- * @param model Vue model definition of the input component (Ref or ModelRef from defineModel)
- * @param emits Vue event emitter definition of the input component
- * @param options Options object for custom validation and messages
- */
-export function useFieldValidation<T extends string | File>(
-    props: FieldValidationProps<T>,
-    model: MaybeRefOrGetter<T | undefined>,
-    emits: FieldValidationEmits,
-    {
-        customValidate = (): ValidationResult => {
-            return { valid: true, invalidMessage: '' }
-        },
+interface FieldValidationConfig<T extends FieldValidationTypes> {
+    model?: MaybeRefOrGetter<T | undefined>
+
+    required?: MaybeRefOrGetter<boolean>
+    requiredInvalidMessage?: MaybeRefOrGetter<string>
+
+    /**
+     * If set to false, no validation (and event emitting) will be done when the value changes. This
+     * can be used to skip validation for a field that is not available to the user but must be
+     * edited programmatically. It can also be used if the validation of the field requires some
+     * pre-conditioning (a File must be loaded and not just selected before validating its size, for
+     * example).
+     */
+    activateValidation?: MaybeRefOrGetter<boolean>
+
+    /** NOTE: This prop is ignored when `activateValidation` is false. */
+    forceValid?: MaybeRefOrGetter<boolean>
+    validFieldMessage?: MaybeRefOrGetter<string>
+
+    /** NOTE: This prop is ignored when `activateValidation` is false. */
+    forceInvalid?: MaybeRefOrGetter<boolean>
+    invalidFieldMessage?: MaybeRefOrGetter<string>
+
+    validate?: ValidateFunction<T>
+    emits?: FieldValidationEmits
+}
+
+/** Input field validation logic */
+export function useFieldValidation<T extends FieldValidationTypes>(
+    config: FieldValidationConfig<T>
+): FieldValidationReturn {
+    const {
+        model,
+
+        required,
         requiredInvalidMessage = 'field_required',
-    }: FieldValidationOptions = {}
-): FieldValidationReturn<T> {
-    const { required, validMarker, invalidMarker, invalidMessage, activateValidation, validate } =
-        props
 
-    const internalModel = ref<T | undefined>(toValue(model))
+        activateValidation,
+
+        forceValid,
+        validFieldMessage,
+
+        forceInvalid,
+        invalidFieldMessage,
+
+        validate,
+        emits,
+    } = config
+
     const userIsTyping = ref<boolean>(false)
+    const validation = ref<ValidationResult | undefined>()
 
-    const validation = ref<ValidationResult>({ valid: true, invalidMessage: '' })
+    const validMessage = computed<string>(() => {
+        if (toValue(validFieldMessage)) {
+            return toValue(validFieldMessage)!
+        }
+        return ''
+    })
+    const invalidMessage = computed<string>(() => {
+        const propValue = toValue(invalidFieldMessage)
+        if (propValue) {
+            return propValue
+        }
+        return 'invalid_field'
+    })
 
     // Helper function to check if value is empty
     const isEmpty = (value?: T): boolean => {
@@ -90,81 +117,74 @@ export function useFieldValidation<T extends string | File>(
         return false
     }
 
-    // Computed properties
-    const isValid = computed<boolean>(() => {
-        return validation.value.valid
-    })
-    const internalInvalidMarker = computed<boolean>(() => {
-        if (!toValue(activateValidation)) {
-            return false
-        }
-        let _invalidMarker = !isValid.value
-        if (toValue(invalidMarker) !== undefined) {
-            _invalidMarker = _invalidMarker || !!toValue(invalidMarker)
-        }
-        return _invalidMarker
-    })
-    const internalValidMarker = computed<boolean>(() => {
-        // Do not add a valid marker when the marker are not activated or when the field is empty
-        // or when it is already marked as invalid
-        if (!toValue(activateValidation) || isEmpty(internalModel.value) || !isValid.value) {
-            return false
-        }
-        // If validMarker prop is explicitly provided (not undefined), use it
-        if (toValue(validMarker) !== undefined) {
-            return !!toValue(validMarker)
-        }
-        // Default: show valid marker when field is valid
-        return true
-    })
-    const internalInvalidMessage = computed<string>(
-        () => toValue(invalidMessage) ?? validation.value.invalidMessage ?? ''
-    )
-
     onMounted(() => {
         internalValidate()
     })
 
     watchEffect(() => {
-        if (toValue(model) !== internalModel.value) {
-            internalModel.value = toValue(model)
-        }
         internalValidate()
     })
-    watch(internalModel, () => {
-        emits('change', internalModel.value)
-    })
-
-    function internalValidate(): void {
-        validation.value = customValidate()
-        if (toValue(required) && isEmpty(internalModel.value)) {
-            validation.value = {
-                valid: false,
-                invalidMessage: requiredInvalidMessage,
+    watch(
+        () => toValue(model),
+        (newValue) => {
+            const unrefedEmits = unref(emits)
+            if (unrefedEmits) {
+                unrefedEmits('change', newValue)
             }
         }
-        if (typeof toValue(validate) === 'function' && validation.value.valid) {
-            // Run user custom validation
-            validation.value = toValue(validate)!(internalModel.value)
+    )
+
+    function internalValidate(): void {
+        if (toValue(activateValidation) === false) {
+            validation.value = undefined
+            return
         }
-        emits('validate', validation.value)
+
+        const unrefedEmits = unref(emits)
+
+        if (toValue(forceValid) === true) {
+            validation.value = {
+                valid: true,
+                invalidMessage: validMessage.value,
+            }
+        } else if (toValue(forceInvalid) === true) {
+            validation.value = {
+                valid: false,
+                invalidMessage: invalidMessage.value,
+            }
+        } else if (toValue(required) === true && isEmpty(toValue(model))) {
+            validation.value = {
+                valid: false,
+                invalidMessage: toValue(requiredInvalidMessage) ?? invalidMessage.value,
+            }
+        } else if (validate) {
+            validation.value = validate(toValue(model))
+        } else {
+            validation.value = {
+                valid: true,
+                invalidMessage: validMessage.value,
+            }
+        }
+        if (unrefedEmits) {
+            unrefedEmits('validate', validation.value)
+        }
     }
 
     function onFocus(event: Event, inFocus: boolean): void {
         userIsTyping.value = inFocus
+        const unrefedEmits = unref(emits)
+        if (!unrefedEmits) {
+            return
+        }
         if (inFocus) {
-            emits('focusin', event)
+            unrefedEmits('focusin', event)
         } else {
-            emits('focusout', event)
+            unrefedEmits('focusout', event)
         }
     }
 
     return {
-        value: internalModel as Ref<T | undefined>,
-        isValid,
-        validMarker: internalValidMarker,
-        invalidMarker: internalInvalidMarker,
-        invalidMessage: internalInvalidMessage,
+        validation,
         onFocus,
     }
 }

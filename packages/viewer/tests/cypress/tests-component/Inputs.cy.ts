@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import type { ValidationResult } from '@/utils/composables/useFieldValidation'
+
 import EmailInput from '@/utils/components/EmailInput.vue'
 import FileInput from '@/utils/components/FileInput.vue'
 import TextAreaInput from '@/utils/components/TextAreaInput.vue'
@@ -48,11 +50,22 @@ const generateTest = (element: Record<string, unknown>, dataCy: string) => {
         )
     })
     it('It has invalid marker when required and empty', () => {
+        cy.log('with activateValidation: false, no validation should occur')
+        cy.mount(element, {
+            props: { required: true, activateValidation: false },
+        })
+        cy.get(`[data-cy="${dataCy}"]`).should('be.enabled')
+        cy.get(`[data-cy="${dataCy}"]`).should('not.have.class', 'is-invalid')
+        cy.log('with activateValidation not defined, validation should occur')
         cy.mount(element, {
             props: { required: true },
         })
         cy.get(`[data-cy="${dataCy}"]`).should('be.enabled')
-        cy.get(`[data-cy="${dataCy}"]`).should('not.have.class', 'is-invalid')
+        cy.get(`[data-cy="${dataCy}${element === FileInput ? '-text' : ''}"]`).should(
+            'have.class',
+            'is-invalid'
+        )
+        cy.log('with activateValidation: true, validation should occur')
         cy.mount(element, {
             props: { required: true, activateValidation: true },
         })
@@ -62,17 +75,28 @@ const generateTest = (element: Record<string, unknown>, dataCy: string) => {
             'is-invalid'
         )
     })
-    it('It has invalid marker when invalidMarker is set', () => {
+    it('It has invalid marker when forceInvalid is set', () => {
+        cy.log('with activateValidation: false, no validation should occur')
         cy.mount(element, {
-            props: { invalidMarker: true },
+            props: { forceInvalid: true, activateValidation: false },
         })
         cy.get(`[data-cy="${dataCy}"]`).should('be.enabled')
         cy.get(`[data-cy="${dataCy}${element === FileInput ? '-text' : ''}"]`).should(
             'not.have.class',
             'is-invalid'
         )
+        cy.log('with activateValidation: undefined, validation should occur')
         cy.mount(element, {
-            props: { invalidMarker: true, activateValidation: true },
+            props: { forceInvalid: true },
+        })
+        cy.get(`[data-cy="${dataCy}"]`).should('be.enabled')
+        cy.get(`[data-cy="${dataCy}${element === FileInput ? '-text' : ''}"]`).should(
+            'have.class',
+            'is-invalid'
+        )
+        cy.log('with activateValidation: true, validation should occur')
+        cy.mount(element, {
+            props: { forceInvalid: true, activateValidation: true },
         })
         cy.get(`[data-cy="${dataCy}"]`).should('be.enabled')
         cy.get(`[data-cy="${dataCy}${element === FileInput ? '-text' : ''}"]`).should(
@@ -82,17 +106,21 @@ const generateTest = (element: Record<string, unknown>, dataCy: string) => {
     })
     it('It has invalid message when invalidMessage is set', () => {
         cy.mount(element, {
-            props: { invalidMarker: true, invalidMessage: 'Invalid message' },
+            props: {
+                forceInvalid: true,
+                invalidMessage: 'Invalid message',
+                activateValidation: false,
+            },
         })
         cy.get(`[data-cy="${dataCy}"]`).should('be.enabled')
         cy.get(`[data-cy="${dataCy}${element === FileInput ? '-text' : ''}"]`).should(
             'not.have.class',
             'is-invalid'
         )
-        cy.get(`[data-cy="${dataCy}-invalid-feedback"]`).should('not.be.visible')
+        cy.get(`[data-cy="${dataCy}-invalid-feedback"]`).should('not.exist')
         cy.mount(element, {
             props: {
-                invalidMarker: true,
+                forceInvalid: true,
                 invalidMessage: 'Invalid message',
                 activateValidation: true,
             },
@@ -105,9 +133,9 @@ const generateTest = (element: Record<string, unknown>, dataCy: string) => {
         cy.get(`[data-cy="${dataCy}-invalid-feedback"]`).should('be.visible')
         cy.get(`[data-cy="${dataCy}-invalid-feedback"]`).contains('Invalid message')
     })
-    it('It has valid marker when validMarker is set', () => {
+    it('It has valid marker when forceValid is set', () => {
         cy.mount(element, {
-            props: { validMarker: true },
+            props: { forceValid: true, activateValidation: false },
         })
         cy.get(`[data-cy="${dataCy}"]`).should('be.enabled')
         cy.get(`[data-cy="${dataCy}${element === FileInput ? '-text' : ''}"]`).should(
@@ -117,13 +145,13 @@ const generateTest = (element: Record<string, unknown>, dataCy: string) => {
         cy.get(`[data-cy="${dataCy}-valid-feedback"]`).should('not.exist')
         cy.mount(element, {
             props: {
-                validMarker: true,
+                forceValid: true,
                 activateValidation: true,
             },
         })
         cy.get(`[data-cy="${dataCy}"]`).should('be.enabled')
         cy.get(`[data-cy="${dataCy}${element === FileInput ? '-text' : ''}"]`).should(
-            'not.have.class',
+            'have.class',
             'is-valid'
         )
         if (element === FileInput) {
@@ -143,7 +171,7 @@ const generateTest = (element: Record<string, unknown>, dataCy: string) => {
     })
     it('It has valid message when validMessage is set on non empty field', () => {
         cy.mount(element, {
-            props: { validMarker: true, validMessage: 'Valid message' },
+            props: { forceValid: true, validMessage: 'Valid message', activateValidation: false },
         })
         cy.get(`[data-cy="${dataCy}"]`).should('be.enabled')
         cy.get(`[data-cy="${dataCy}${element === FileInput ? '-text' : ''}"]`).should(
@@ -153,17 +181,17 @@ const generateTest = (element: Record<string, unknown>, dataCy: string) => {
         cy.get(`[data-cy="${dataCy}-valid-feedback"]`).should('not.be.visible')
         cy.mount(element, {
             props: {
-                validMarker: true,
+                forceValid: true,
                 validMessage: 'Valid message',
                 activateValidation: true,
             },
         })
         cy.get(`[data-cy="${dataCy}"]`).should('be.enabled')
         cy.get(`[data-cy="${dataCy}${element === FileInput ? '-text' : ''}"]`).should(
-            'not.have.class',
+            'have.class',
             'is-valid'
         )
-        cy.get(`[data-cy="${dataCy}-valid-feedback"]`).should('not.be.visible')
+        cy.get(`[data-cy="${dataCy}-valid-feedback"]`).should('be.visible')
         if (element === FileInput) {
             cy.get(`[data-cy="${dataCy}"]`).selectFile(
                 { contents: Cypress.Buffer.from('file contents'), fileName: 'file.txt' },
@@ -182,13 +210,25 @@ const generateTest = (element: Record<string, unknown>, dataCy: string) => {
         cy.get(`[data-cy="${dataCy}-valid-feedback"]`).contains('Valid message')
     })
     it('It validate the field with external validation method', () => {
-        cy.mount(element, {
-            props: {
-                validate: () => {
-                    return { valid: false, invalidMessage: 'Invalid field' }
+        if (element === FileInput) {
+            cy.mount(element, {
+                props: {
+                    validate: (_: File): ValidationResult => {
+                        return { valid: false, invalidMessage: 'Invalid field' }
+                    },
+                    activateValidation: false,
                 },
-            },
-        })
+            })
+        } else {
+            cy.mount(element, {
+                props: {
+                    validate: (_: string): ValidationResult => {
+                        return { valid: false, invalidMessage: 'Invalid field' }
+                    },
+                    activateValidation: false,
+                },
+            })
+        }
         cy.get(`[data-cy="${dataCy}"]`).should('be.enabled')
         cy.get(`[data-cy="${dataCy}${element === FileInput ? '-text' : ''}"]`).should(
             'not.have.class',
@@ -198,15 +238,24 @@ const generateTest = (element: Record<string, unknown>, dataCy: string) => {
             'not.have.class',
             'is-invalid'
         )
-        cy.get(`[data-cy="${dataCy}-invalid-feedback"]`).should('not.be.visible')
-        cy.mount(element, {
-            props: {
-                validate: () => {
-                    return { valid: false, invalidMessage: 'Invalid field' }
+        cy.get(`[data-cy="${dataCy}-invalid-feedback"]`).should('not.exist')
+        if (element === FileInput) {
+            cy.mount(element, {
+                props: {
+                    validate: (_: File): ValidationResult => {
+                        return { valid: false, invalidMessage: 'Invalid field' }
+                    },
                 },
-                activateValidation: true,
-            },
-        })
+            })
+        } else {
+            cy.mount(element, {
+                props: {
+                    validate: (_: string): ValidationResult => {
+                        return { valid: false, invalidMessage: 'Invalid field' }
+                    },
+                },
+            })
+        }
         cy.get(`[data-cy="${dataCy}"]`).should('be.enabled')
         cy.get(`[data-cy="${dataCy}${element === FileInput ? '-text' : ''}"]`).should(
             'have.class',

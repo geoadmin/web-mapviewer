@@ -11,7 +11,11 @@ import { computed, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
-import { useFieldValidation } from '@/utils/composables/useFieldValidation'
+import {
+    useFieldValidation,
+    type ValidateFunction,
+    type ValidationResult,
+} from '@/utils/composables/useFieldValidation'
 import { humanFileSize } from '@/utils/utils'
 
 const {
@@ -21,14 +25,13 @@ const {
     acceptedFileTypes = [],
     maxFileSize = 250 * 1024 * 1024, // 250 MB
     placeholder = '',
-    required = false,
-    validMarker = undefined,
-    validMessage = '',
-    invalidMarker = undefined,
-    invalidMessage = '',
-    invalidMessageExtraParams = {},
-    activateValidation = false,
-    validate = undefined,
+    required = undefined,
+    forceValid = undefined,
+    validMessage,
+    forceInvalid = undefined,
+    invalidMessage,
+    activateValidation = undefined,
+    validate,
     dataCy = '',
 } = defineProps<{
     /** Label to add above the field */
@@ -40,7 +43,7 @@ const {
     /**
      * Accepted file types
      *
-     * List of file extension that are accepted. If the file doesn't match the type it will be
+     * List of file extensions that are accepted. If the file doesn't match the type, it will be
      * rejected with a proper message and the field will be marked as invalid.
      */
     acceptedFileTypes?: string[]
@@ -55,14 +58,14 @@ const {
     /** Field is required and will be marked as invalid if empty */
     required?: boolean
     /**
-     * Mark the field as valid
+     * Force the field as valid
      *
      * This can be used if the field requires some external validation. When not set or set to
      * undefined this props is ignored.
      *
      * NOTE: this props is ignored when activate-validation is false
      */
-    validMarker?: boolean | undefined
+    forceValid?: boolean
     /**
      * Valid message Message that will be added in green below the field once the validation has
      * been done and the field is valid.
@@ -76,7 +79,7 @@ const {
      *
      * NOTE: this props is ignored when activate-validation is false
      */
-    invalidMarker?: boolean | undefined
+    forceInvalid?: boolean
     /**
      * Invalid message Message that will be added in red below the field once the validation has
      * been done and the field is invalid.
@@ -105,7 +108,7 @@ const {
      *
      * NOTE: this function is called each time the field is modified
      */
-    validate?: ((_value?: File) => { valid: boolean; invalidMessage: string }) | undefined
+    validate?: ValidateFunction<File>
     dataCy?: string
 }>()
 
@@ -116,7 +119,7 @@ const { t } = useI18n()
 const model = defineModel<File | undefined>({ default: undefined })
 const emits = defineEmits<{
     change: [void]
-    validate: [isValid: boolean]
+    validate: [validation: ValidationResult]
 }>()
 
 // Reactive data
@@ -126,8 +129,7 @@ const inputLocalFile = useTemplateRef<HTMLInputElement>('inputLocalFile')
 const maxFileSizeHuman = computed(() => humanFileSize(maxFileSize))
 
 // Validation logic for file-specific checks
-function validateFile(): { valid: boolean; invalidMessage: string } {
-    const file = model.value
+function validateFile(file?: File): ValidationResult {
     if (
         file &&
         acceptedFileTypes?.length > 0 &&
@@ -140,42 +142,42 @@ function validateFile(): { valid: boolean; invalidMessage: string } {
     if (file && file.size > maxFileSize) {
         return { valid: false, invalidMessage: 'file_too_large' }
     }
+    if (validate) {
+        return validate(file)
+    }
     return {
         valid: true,
         invalidMessage: '',
     }
 }
 
-// Use the field validation composable with properly typed props
-const validationProps = {
-    required,
-    validMarker,
-    validMessage,
-    invalidMarker,
-    invalidMessage,
-    activateValidation,
-    validate,
-}
+const { validation } = useFieldValidation<File>({
+    model,
 
-const {
-    value,
-    validMarker: computedValidMarker,
-    invalidMarker: computedInvalidMarker,
-    invalidMessage: computedInvalidMessage,
-} = useFieldValidation<File>(validationProps, model, emits, {
-    customValidate: validateFile,
+    required,
     requiredInvalidMessage: 'no_file',
+
+    activateValidation,
+
+    forceValid,
+    validFieldMessage: validMessage,
+
+    forceInvalid,
+    invalidFieldMessage: invalidMessage,
+
+    emits,
+    validate: validateFile,
 })
 
 const filePathInfo = computed(() =>
-    value.value ? `${value.value.name}, ${value.value.size / 1000} kb` : ''
+    model.value ? `${model.value.name}, ${model.value.size / 1000} kb` : ''
 )
 
 // Methods
 function onFileSelected(evt: Event): void {
     const target = evt.target as HTMLInputElement
     const file = target?.files?.[0] ?? undefined
-    value.value = file
+    model.value = file
 }
 </script>
 
@@ -218,7 +220,10 @@ function onFileSelected(evt: Event): void {
             <input
                 type="text"
                 class="form-control import-input rounded-end local-file-input"
-                :class="{ 'is-valid': computedValidMarker, 'is-invalid': computedInvalidMarker }"
+                :class="{
+                    'is-valid': validation && validation.valid,
+                    'is-invalid': validation && !validation.valid,
+                }"
                 :placeholder="placeholder ? t(placeholder) : ''"
                 :value="filePathInfo"
                 readonly
@@ -229,12 +234,12 @@ function onFileSelected(evt: Event): void {
                 @click="inputLocalFile?.click()"
             />
             <div
-                v-if="computedInvalidMessage"
+                v-if="validation?.invalidMessage"
                 class="invalid-feedback"
                 data-cy="file-input-invalid-feedback"
             >
                 {{
-                    t(computedInvalidMessage, {
+                    t(validation.invalidMessage, {
                         maxFileSize: maxFileSizeHuman,
                         allowedFormats: acceptedFileTypes.join(', '),
                         ...invalidMessageExtraParams,

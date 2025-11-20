@@ -6,6 +6,7 @@ import { computed, type ComputedRef, nextTick, ref, useTemplateRef, watch } from
 import { useI18n } from 'vue-i18n'
 
 import type { ActionDispatcher } from '@/store/types'
+import type { ValidationResult } from '@/utils/composables/useFieldValidation'
 
 import sendFeedback, { ATTACHMENT_MAX_SIZE, KML_MAX_SIZE } from '@/api/feedback.api'
 import { getKmlUrl } from '@/api/files.api'
@@ -183,16 +184,16 @@ function closeAndCleanForm() {
     }
 }
 
-function onTextValidate(valid: boolean) {
-    isMessageValid.value = valid
+function onTextValidate(validation: ValidationResult) {
+    isMessageValid.value = validation.valid
 }
 
-function onAttachmentValidate(valid: boolean) {
-    isAttachmentValid.value = valid
+function onAttachmentValidate(validation: ValidationResult) {
+    isAttachmentValid.value = validation.valid
 }
 
-function onEmailValidate(valid: boolean) {
-    isEmailValid.value = valid
+function onEmailValidate(validation: ValidationResult) {
+    isEmailValid.value = validation.valid
 }
 
 async function generateShortLink() {
