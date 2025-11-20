@@ -398,13 +398,10 @@ export function geoadminStyleFunction(
     let image: Icon | undefined
     if (editableFeature?.icon) {
         image = new Icon({
-            src: generateIconURL(
-                editableFeature.icon,
-                editableFeature.fillColor,
-                editableFeature.iconSize
-            ),
+            src: generateIconURL(editableFeature.icon, editableFeature.fillColor),
             crossOrigin: 'Anonymous',
             anchor: editableFeature.icon.anchor,
+            scale: editableFeature.iconSize?.iconScale,
         })
     }
     const styles = [
