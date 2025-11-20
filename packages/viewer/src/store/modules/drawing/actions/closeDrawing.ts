@@ -43,7 +43,6 @@ export default async function closeDrawing(this: DrawingStore, dispatcher: Actio
             await debounceSaveDrawing({ debounceTime: 0, retryOnError: false })
         }
 
-
         if (this.layer.config) {
             // flagging the layer as not edited anymore (not displayed on the map by the drawing module anymore)
             if (isOnlineMode(this.onlineMode)) {

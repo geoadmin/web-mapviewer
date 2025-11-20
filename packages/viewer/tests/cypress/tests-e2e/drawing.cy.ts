@@ -80,12 +80,12 @@ describe('Drawing module tests', () => {
         function waitForKmlUpdate(...regexExpressions: string[]): void {
             cy.wait('@update-kml')
                 .its('request')
-                .should(
-                    (request) =>
-                        void checkKMLRequest(
-                            request as CyHttpMessages.IncomingHttpRequest,
-                            regexExpressions.map((expression) => new RegExp(expression))
-                        )
+                // we can't use .should here as checkKMLRequest is async (returns a Promise<void>)
+                .then((request) =>
+                    checkKMLRequest(
+                        request as CyHttpMessages.IncomingHttpRequest,
+                        regexExpressions.map((expression) => new RegExp(expression))
+                    )
                 )
         }
 
@@ -146,7 +146,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]:visible').click()
 
             cy.wait('@post-kml').then((interception) => {
-                const kmlId = `${getServiceKmlBaseUrl()}api/kml/files/${interception.response?.body.id}`
+                const kmlUrl = `${getServiceKmlBaseUrl()}api/kml/files/${interception.response?.body.id}`
                 const bgLayer = 'test.background.layer2'
 
                 cy.log(
@@ -371,7 +371,7 @@ describe('Drawing module tests', () => {
                 cy.get('[data-cy="drawing-style-media-url"] [data-cy="text-input"]').type(valid_url)
                 cy.get('[data-cy="drawing-style-media-generate-button"]').should('be.enabled')
 
-                cy.log('Generate video link')
+                cy.log('Generate video link (external URL)')
                 cy.get('[data-cy="drawing-style-media-generate-button"]').click()
                 cy.get('[data-cy="drawing-style-feature-description"]').should(
                     'have.value',
@@ -380,6 +380,7 @@ describe('Drawing module tests', () => {
                 waitForKmlUpdate(`iframe src="${valid_url}".*`)
                 cy.get('[data-cy="infobox-close"]').click()
 
+                cy.log('Adding a second marker with video link (external URL)')
                 cy.clickDrawingTool(EditableFeatureTypes.Marker)
                 cy.get('[data-cy="ol-map"]').click(160, 220)
                 cy.wait('@update-kml')
@@ -389,6 +390,9 @@ describe('Drawing module tests', () => {
                 waitForKmlUpdate(`(iframe src="${valid_url}".*){2}`)
                 cy.get('[data-cy="infobox-close"]').click()
 
+                cy.log(
+                    'Adding a third marker with image link (from geo.admin.ch, there should be no disclaimer)'
+                )
                 cy.clickDrawingTool(EditableFeatureTypes.Marker)
                 cy.get('[data-cy="ol-map"]').click(220, 260)
                 cy.wait('@update-kml')
@@ -400,10 +404,13 @@ describe('Drawing module tests', () => {
                 waitForKmlUpdate(`iframe src="${valid_whitelisted_url}"`)
                 cy.get('[data-cy="infobox-close"]').click()
 
+                cy.log(
+                    'Closing the drawing module, and checking that the drawing layer is added to the map'
+                )
                 cy.closeDrawingMode()
                 cy.closeMenuIfMobile()
                 waitForKmlUpdate(`(ExtendedData.*){14}`)
-                cy.checkOlLayer([bgLayer, kmlId])
+                cy.checkOlLayer([bgLayer, `KML|${kmlUrl}`])
 
                 cy.log('Hyperlink exists after sanitize')
                 cy.intercept('**http:dummy*', {

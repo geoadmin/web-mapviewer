@@ -1,10 +1,16 @@
 <script setup lang="ts">
 /** Input with clear button component */
-import { nextTick, ref, useSlots, useTemplateRef } from 'vue'
+
+import type { NamedValue } from 'vue-i18n'
+
+import { computed, nextTick, ref, toRef, useSlots, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
-import { useFieldValidation } from '@/utils/composables/useFieldValidation'
+import {
+    type FieldValidationProps,
+    useFieldValidation,
+} from '@/utils/composables/useFieldValidation'
 
 export interface TextInputExposed {
     focus: () => void
@@ -17,21 +23,7 @@ export interface TextInputValidateResult {
 
 export type TextInputValidateFunction = (_value?: string) => TextInputValidateResult
 
-const {
-    label = '',
-    description = '',
-    disabled = false,
-    placeholder = '',
-    required = false,
-    validMarker = undefined,
-    validMessage = '',
-    invalidMarker = undefined,
-    invalidMessage = '',
-    invalidMessageParams = undefined,
-    activateValidation = false,
-    validate = undefined,
-    dataCy = '',
-} = defineProps<{
+const props = defineProps<{
     /** Label to add above the field */
     label?: string
     /** Description to add below the input */
@@ -81,7 +73,7 @@ const {
      * Parameters for replacing any placeholder within an invalid message translated text (will be
      * passed to Vue I18N when translating the invalid message).
      */
-    invalidMessageParams?: Record<string, unknown>
+    invalidMessageParams?: NamedValue
     /**
      * Mark the field has validated.
      *
@@ -100,11 +92,30 @@ const {
     dataCy?: string
 }>()
 
+const {
+    label = '',
+    description = '',
+    disabled = false,
+    placeholder = '',
+    validMessage = '',
+    invalidMessageParams = undefined,
+    dataCy = '',
+} = props
+
+// to keep the reactivity going (with the useFieldValidation composable, and the parent that used this component)
+// we wrap some props to refs (those that are passed as FieldValidationProps)
+const required = toRef(props, 'required', false)
+const validMarker = toRef(props, 'validMarker')
+const invalidMarker = toRef(props, 'invalidMarker')
+const invalidMessage = toRef(props, 'invalidMessage')
+const activateValidation = toRef(props, 'activateValidation', false)
+const validate = toRef(props, 'validate', undefined)
+
 // On each component creation set the current component unique ID
 const clearButtonId = useComponentUniqueId('button-addon-clear')
 const textInputId = useComponentUniqueId('text-input')
 
-const model = defineModel<string>({ default: '' })
+const inputValue = defineModel<string>({ default: '' })
 const emits = defineEmits<{
     change: [value: string]
     validate: [result: TextInputValidateResult]
@@ -114,10 +125,9 @@ const emits = defineEmits<{
     'keydown.enter': []
 }>()
 
-const validationProps = {
+const validationProps: FieldValidationProps<string> = {
     required,
     validMarker,
-    validMessage,
     invalidMarker,
     invalidMessage,
     activateValidation,
@@ -125,29 +135,34 @@ const validationProps = {
 }
 
 const {
-    value,
     validMarker: computedValidMarker,
     invalidMarker: computedInvalidMarker,
-    validMessage: computedValidMessage,
     invalidMessage: computedInvalidMessage,
     onFocus,
-    required: computedRequired,
-} = useFieldValidation(
-    validationProps,
-    model,
-    emits as (_event: string, ..._args: unknown[]) => void
-)
+} = useFieldValidation(validationProps, inputValue, emits)
 
 const { t } = useI18n()
 const slots = useSlots()
 
-const inputElement = useTemplateRef('inputElement')
-const error = ref('')
+const inputElement = useTemplateRef<HTMLInputElement>('inputElement')
+const error = ref<string>('')
 
-function onClearInput(): void {
-    value.value = ''
+const translatedInvalidMessage = computed<string | undefined>(() => {
+    if (computedInvalidMessage.value) {
+        if (invalidMessageParams) {
+            return t(computedInvalidMessage.value, invalidMessageParams)
+        }
+        return t(computedInvalidMessage.value)
+    }
+    return undefined
+})
+
+function onClearInput(event: Event): void {
+    inputValue.value = ''
     error.value = ''
     inputElement.value?.focus()
+    // stopping the event here so that it won't close a modal window if used inside it.
+    event.stopPropagation()
     emits('clear')
 }
 
@@ -166,7 +181,7 @@ defineExpose<TextInputExposed>({ focus })
         <label
             v-if="label"
             class="mb-2"
-            :class="{ 'fw-bolder': computedRequired }"
+            :class="{ 'fw-bolder': required }"
             :for="textInputId"
             data-cy="text-input-label"
         >
@@ -176,13 +191,13 @@ defineExpose<TextInputExposed>({ focus })
             <input
                 :id="textInputId"
                 ref="inputElement"
-                v-model="value"
+                v-model="inputValue"
                 type="text"
                 :disabled="disabled"
-                :required="computedRequired"
+                :required="required"
                 class="form-control text-truncate"
                 :class="{
-                    'rounded-end': !value?.length && !slots?.default,
+                    'rounded-end': !inputValue?.length && !slots?.default,
                     'is-invalid': computedInvalidMarker,
                     'is-valid': computedValidMarker,
                 }"
@@ -194,7 +209,7 @@ defineExpose<TextInputExposed>({ focus })
                 @keydown.enter="emits('keydown.enter')"
             />
             <button
-                v-if="value && value.length > 0"
+                v-if="inputValue && inputValue.length > 0"
                 :id="clearButtonId"
                 class="btn btn-outline-group rounded-0"
                 :class="{ 'rounded-end': !slots?.default }"
@@ -206,18 +221,18 @@ defineExpose<TextInputExposed>({ focus })
             </button>
             <slot />
             <div
-                v-if="computedInvalidMessage"
+                v-if="translatedInvalidMessage"
                 class="invalid-feedback"
                 data-cy="text-input-invalid-feedback"
             >
-                {{ t(computedInvalidMessage, invalidMessageParams ?? {}) }}
+                {{ translatedInvalidMessage }}
             </div>
             <div
-                v-if="computedValidMessage"
+                v-if="validMessage"
                 class="valid-feedback"
                 data-cy="text-input-valid-feedback"
             >
-                {{ t(computedValidMessage) }}
+                {{ t(validMessage) }}
             </div>
         </div>
         <div
