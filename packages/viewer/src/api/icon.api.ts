@@ -3,12 +3,7 @@ import axios from 'axios'
 import { fromString } from 'ol/color'
 
 import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'
-import {
-    type FeatureStyleColor,
-    type FeatureStyleSize,
-    LARGE,
-    RED,
-} from '@/utils/featureStyleUtils'
+import { type FeatureStyleColor, LARGE, RED } from '@/utils/featureStyleUtils'
 
 /**
  * Generate an icon URL from its template. If no iconScale is given, the default scale 1 will be
@@ -17,19 +12,18 @@ import {
  *
  * @returns A full URL to this icon on the service-icons backend
  */
-export function generateIconURL(
-    icon: DrawingIcon,
-    iconColor: FeatureStyleColor = RED,
-    iconSize: FeatureStyleSize = LARGE
-) {
+export function generateIconURL(icon: DrawingIcon, iconColor: FeatureStyleColor = RED) {
     const rgb = fromString(iconColor.fill)
-    return icon.imageTemplateURL
-        .replace('{icon_set_name}', icon.iconSetName)
-        .replace('{icon_name}', icon.name)
-        .replace('{icon_scale}', iconSize.iconScale + 'x')
-        .replace('{r}', `${rgb[0]}`)
-        .replace('{g}', `${rgb[1]}`)
-        .replace('{b}', `${rgb[2]}`)
+    return (
+        icon.imageTemplateURL
+            .replace('{icon_set_name}', icon.iconSetName)
+            .replace('{icon_name}', icon.name)
+            // we always use the LARGE icon scale and resize the icon with the <IconStyle><scale> property in KMLs
+            .replace('{icon_scale}', LARGE.iconScale + 'x')
+            .replace('{r}', `${rgb[0]}`)
+            .replace('{g}', `${rgb[1]}`)
+            .replace('{b}', `${rgb[2]}`)
+    )
 }
 
 /**
