@@ -268,9 +268,6 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
     }
 
     function onDrawStart(event: DrawEvent) {
-        if (drawingStore.online && drawingStore.reportProblemDrawing) {
-            drawingStore.setReportProblemDrawing(false, dispatcher)
-        }
         if (isExtending && startingFeature) {
             // hide the starting feature and store its style to restore it later
             previousStyle = startingFeature.getStyle()

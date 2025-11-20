@@ -12,6 +12,7 @@ import type { FeatureStyleColor, FeatureStyleSize, TextPlacement } from '@/utils
 
 import { type EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
+import { OnlineMode } from '@/store/modules/drawing/types/OnlineMode.enum'
 
 export interface DrawingPreferences {
     size: FeatureStyleSize
@@ -56,10 +57,15 @@ export interface DrawingStoreState {
         state: DrawingSaveState
         pending: ReturnType<typeof setTimeout> | undefined
     }
-    /** Flag to indicate if the user is currently reporting a problem with the drawing */
-    reportProblemDrawing: boolean
-    /** KML is saved online using the KML backend service */
-    online: boolean
+    /** KML is saved online using the KML backend service 
+     * Options:
+     * - Online: KML is saved online
+     * - Offline: KML is saved only locally
+     * - OnlineWhileOffline: KML is saved online but an Offline drawing is also currently open
+     * - OfflineWhileOnline: KML is saved locally but an Online drawing is also currently open
+     * - None: No online/offline mode selected
+    */
+    onlineMode: OnlineMode
     /** The name of the drawing, or undefined if no drawing is currently edited. */
     name?: string
     /** Flag to indicate if the drawing is new (not yet saved/existing on the backend) */

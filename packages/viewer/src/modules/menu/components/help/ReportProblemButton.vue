@@ -14,6 +14,7 @@ import { FEEDBACK_EMAIL_SUBJECT } from '@/config/feedback.config'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/help/common/SendActionButtons.vue'
 import useDrawingStore from '@/store/modules/drawing'
+import { OnlineMode } from '@/store/modules/drawing/types/OnlineMode.enum'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
 import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
@@ -180,7 +181,6 @@ function closeAndCleanForm() {
         layersStore.removeSystemLayer(`KML|${temporaryKmlId}`, dispatcher)
         drawingStore.clearDrawingFeatures(dispatcher)
     }
-    drawingStore.setReportProblemDrawing(false, dispatcher)
 }
 
 function onTextValidate(valid: boolean) {
@@ -219,13 +219,16 @@ function openForm() {
 function toggleDrawingOverlay() {
     drawingStore.toggleDrawingOverlay(
         {
-            online: false,
             kmlId: temporaryKmlId,
             title: 'feedback_drawing',
         },
         dispatcher
     )
-    drawingStore.setReportProblemDrawing(true, dispatcher)
+    if (drawingStore.onlineMode === OnlineMode.Online) {
+        drawingStore.setOnlineMode(OnlineMode.OfflineWhileOnline, dispatcher)
+    } else if (drawingStore.onlineMode === OnlineMode.None) {
+        drawingStore.setOnlineMode(OnlineMode.Offline, dispatcher)
+    }
 }
 
 function selectItem(dropdownItem: DropdownItem<string>) {

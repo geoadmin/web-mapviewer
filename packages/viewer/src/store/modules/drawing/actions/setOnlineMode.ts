@@ -1,10 +1,12 @@
 import type { DrawingStore } from '@/store/modules/drawing/types/drawing'
 import type { ActionDispatcher } from '@/store/types'
 
-export default function setReportProblemDrawing(
+import { OnlineMode } from '@/store/modules/drawing/types/OnlineMode.enum'
+
+export default function setOnlineMode(
     this: DrawingStore,
-    isReportProblemDrawing: boolean,
+    onlineMode: OnlineMode,
     dispatcher: ActionDispatcher
 ) {
-    this.reportProblemDrawing = isReportProblemDrawing
+    this.onlineMode = onlineMode
 }

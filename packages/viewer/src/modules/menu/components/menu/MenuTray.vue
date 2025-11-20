@@ -13,6 +13,7 @@ import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.
 import useAppStore from '@/store/modules/app'
 import useCesiumStore from '@/store/modules/cesium'
 import useDrawingStore from '@/store/modules/drawing'
+import { OnlineMode } from '@/store/modules/drawing/types/OnlineMode.enum'
 import useUIStore from '@/store/modules/ui'
 
 const dispatcher = { name: 'MenuTray.vue' }
@@ -70,11 +71,15 @@ onMounted(() => {
 function toggleDrawingOverlay() {
     drawingStore.toggleDrawingOverlay(
         {
-            online: true,
             title: 'draw_mode_title',
         },
         dispatcher
     )
+    if (drawingStore.onlineMode === OnlineMode.Offline) {
+        drawingStore.setOnlineMode(OnlineMode.OnlineWhileOffline, dispatcher)
+    } else if (drawingStore.onlineMode === OnlineMode.None) {
+        drawingStore.setOnlineMode(OnlineMode.Online, dispatcher)
+    }
 }
 
 function onOpenMenuSection(id: string) {

@@ -10,6 +10,7 @@ import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
 import useDrawingStore from '@/store/modules/drawing'
 import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
+import { isOnlineMode } from '@/store/modules/drawing/utils/isOnlineMode'
 import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
 
@@ -76,8 +77,11 @@ async function saveDrawing({ retryOnError = true }: { retryOnError?: boolean }) 
         drawingStore.layer.ol?.getSource()?.getFeatures() ?? [],
         drawingStore.name
     )
-    if (!drawingStore.online) {
+    if (!isOnlineMode(drawingStore.onlineMode)) {
         await saveLocalDrawing(kmlData)
+        // This has to be set so that the snot shared drawing warning is not shown after drawing an offline drawing
+        // and then opening the drawing overlay and leaving it without drawing something
+        drawingStore.setDrawingSaveState(DrawingSaveState.Initial, dispatcher)
         return
     }
     const layersStore = useLayersStore()

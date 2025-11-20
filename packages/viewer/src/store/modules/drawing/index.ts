@@ -16,7 +16,7 @@ import setDrawingSaveState from '@/store/modules/drawing/actions/setDrawingSaveS
 import setEditingMode from '@/store/modules/drawing/actions/setEditingMode'
 import setIsDrawingEditShared from '@/store/modules/drawing/actions/setIsDrawingEditShared'
 import setIsVisitWithAdminId from '@/store/modules/drawing/actions/setIsVisitWithAdminId'
-import setReportProblemDrawing from '@/store/modules/drawing/actions/setReportProblemDrawing'
+import setOnlineMode from '@/store/modules/drawing/actions/setOnlineMode'
 import toggleDrawingOverlay from '@/store/modules/drawing/actions/toggleDrawingOverlay'
 import updateCurrentDrawingFeature from '@/store/modules/drawing/actions/updateCurrentDrawingFeature'
 import updateDrawingPreferences from '@/store/modules/drawing/actions/updateDrawingPreferences'
@@ -25,6 +25,7 @@ import isDrawingModified from '@/store/modules/drawing/getters/isDrawingModified
 import showNotSharedDrawingWarning from '@/store/modules/drawing/getters/showNotSharedDrawingWarning'
 import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
 import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
+import { OnlineMode } from '@/store/modules/drawing/types/OnlineMode.enum'
 import { MEDIUM, RED, TextPlacement } from '@/utils/featureStyleUtils'
 
 const defaultDrawingTitle = 'draw_mode_title'
@@ -58,8 +59,8 @@ const state = (): DrawingStoreState => ({
         state: DrawingSaveState.Initial,
         pending: undefined,
     },
-    reportProblemDrawing: false,
-    online: true,
+    // online: true,
+    onlineMode: OnlineMode.Online,
     name: undefined,
     isDrawingNew: true,
     isDrawingEditShared: false,
@@ -73,8 +74,8 @@ const getters: DrawingStoreGetters = {
 }
 
 const actions = {
+    setOnlineMode,
     deleteCurrentDrawing,
-    setReportProblemDrawing,
     clearDrawingFeatures,
     deleteDrawingFeature,
     loadAvailableIconSets,

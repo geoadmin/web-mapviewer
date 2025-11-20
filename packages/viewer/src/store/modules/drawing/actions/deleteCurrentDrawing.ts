@@ -2,6 +2,7 @@ import type { DrawingStore } from '@/store/modules/drawing/types/drawing'
 import type { ActionDispatcher } from '@/store/types'
 
 import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
+import { isOnlineMode } from '@/store/modules/drawing/utils/isOnlineMode'
 import useLayersStore from '@/store/modules/layers'
 
 export default function deleteCurrentDrawing(
@@ -18,7 +19,7 @@ export default function deleteCurrentDrawing(
 
     const layersStore = useLayersStore()
 
-    if (this.online && this.layer.config?.id) {
+    if (isOnlineMode(this.onlineMode) && this.layer.config?.id) {
         layersStore.removeLayer(this.layer.config.id, dispatcher)
     } else if (this.layer.temporaryKmlId) {
         layersStore.removeSystemLayer(`KML|${this.layer.temporaryKmlId}`, dispatcher)
