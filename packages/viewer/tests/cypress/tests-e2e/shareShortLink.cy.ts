@@ -81,7 +81,6 @@ describe('Testing the share menu', () => {
 
             // Open the share menu
             cy.openMenuIfMobile()
-            cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
             cy.get('[data-cy="menu-share-section"]').click()
             cy.wait('@shortLink')
             cy.getPinia().then((pinia) => {
