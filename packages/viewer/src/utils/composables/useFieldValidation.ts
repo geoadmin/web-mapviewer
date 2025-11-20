@@ -1,6 +1,14 @@
-import type { ComputedRef, Ref } from 'vue'
-
-import { computed, onMounted, ref, toRef, watch } from 'vue'
+import {
+    computed,
+    type ComputedRef,
+    type MaybeRefOrGetter,
+    onMounted,
+    type Ref,
+    ref,
+    toValue,
+    watch,
+    watchEffect,
+} from 'vue'
 
 export interface ValidationResult {
     valid: boolean
@@ -10,17 +18,12 @@ export interface ValidationResult {
 export type ValidateFunction<T extends string | File> = (value?: T) => ValidationResult
 
 export interface FieldValidationProps<T extends string | File> {
-    label?: string
-    description?: string
-    disabled?: boolean
-    placeholder?: string
-    required?: boolean
-    validMarker?: boolean | undefined
-    validMessage?: string
-    invalidMarker?: boolean | undefined
-    invalidMessage?: string
-    activateValidation?: boolean
-    validate?: ValidateFunction<T> | undefined
+    required?: MaybeRefOrGetter<boolean>
+    validMarker?: MaybeRefOrGetter<boolean>
+    invalidMarker?: MaybeRefOrGetter<boolean>
+    invalidMessage?: MaybeRefOrGetter<string | undefined>
+    activateValidation?: MaybeRefOrGetter<boolean>
+    validate?: MaybeRefOrGetter<ValidateFunction<T>>
 }
 
 export interface FieldValidationOptions {
@@ -28,42 +31,25 @@ export interface FieldValidationOptions {
     requiredInvalidMessage?: string
 }
 
+type FieldValidationEvents = 'change' | 'validate' | 'focusin' | 'focusout'
+interface FieldValidationEventsPayloads {
+    change: [value?: string | File]
+    validate: [result: ValidationResult]
+    focusin: [event: Event]
+    focusout: [event: Event]
+}
+type FieldValidationEmits = <key extends FieldValidationEvents>(
+    eventName: key,
+    ...args: FieldValidationEventsPayloads[key]
+) => void
+
 export interface FieldValidationReturn<T extends string | File> {
     value: Ref<T | undefined>
     isValid: ComputedRef<boolean>
     validMarker: ComputedRef<boolean>
     invalidMarker: ComputedRef<boolean>
-    validMessage: Ref<string | undefined>
     invalidMessage: ComputedRef<string | undefined>
     onFocus: (event: Event, inFocus: boolean) => void
-    required: Ref<boolean | undefined>
-    activateValidation: Ref<boolean | undefined>
-}
-
-export function propsValidator4ValidateFunc(value: unknown, _props: unknown): boolean {
-    if (value === undefined) {
-        return true
-    }
-    if (typeof value !== 'function') {
-        return false
-    }
-    const returnObject = value('') as Record<string, unknown>
-    if (typeof returnObject !== 'object') {
-        return false
-    }
-    if (!('valid' in returnObject)) {
-        return false
-    }
-    if (!('invalidMessage' in returnObject)) {
-        return false
-    }
-    if (typeof returnObject.valid !== 'boolean') {
-        return false
-    }
-    if (typeof returnObject.invalidMessage !== 'string') {
-        return false
-    }
-    return true
 }
 
 /**
@@ -76,8 +62,8 @@ export function propsValidator4ValidateFunc(value: unknown, _props: unknown): bo
  */
 export function useFieldValidation<T extends string | File>(
     props: FieldValidationProps<T>,
-    model: Ref<T | undefined>,
-    emits: (event: string, ...args: unknown[]) => void,
+    model: MaybeRefOrGetter<T | undefined>,
+    emits: FieldValidationEmits,
     {
         customValidate = (): ValidationResult => {
             return { valid: true, invalidMessage: '' }
@@ -85,13 +71,12 @@ export function useFieldValidation<T extends string | File>(
         requiredInvalidMessage = 'field_required',
     }: FieldValidationOptions = {}
 ): FieldValidationReturn<T> {
-    // Reactive data
-    const value = ref(model.value) as Ref<T | undefined>
+    const { required, validMarker, invalidMarker, invalidMessage, activateValidation, validate } =
+        props
 
+    const internalModel = ref<T | undefined>(toValue(model))
     const userIsTyping = ref<boolean>(false)
-    const activateValidation = toRef(props, 'activateValidation')
-    const required = toRef(props, 'required')
-    const validMessage = toRef(props, 'validMessage')
+
     const validation = ref<ValidationResult>({ valid: true, invalidMessage: '' })
 
     // Helper function to check if value is empty
@@ -106,66 +91,63 @@ export function useFieldValidation<T extends string | File>(
     }
 
     // Computed properties
-    const isValid = computed(() => {
+    const isValid = computed<boolean>(() => {
         return validation.value.valid
     })
-    const invalidMarker = computed(() => {
-        if (!activateValidation.value) {
+    const internalInvalidMarker = computed<boolean>(() => {
+        if (!toValue(activateValidation)) {
             return false
         }
         let _invalidMarker = !isValid.value
-        if (props.invalidMarker !== undefined) {
-            _invalidMarker = _invalidMarker || !!props.invalidMarker
+        if (toValue(invalidMarker) !== undefined) {
+            _invalidMarker = _invalidMarker || !!toValue(invalidMarker)
         }
         return _invalidMarker
     })
-    const validMarker = computed(() => {
+    const internalValidMarker = computed<boolean>(() => {
         // Do not add a valid marker when the marker are not activated or when the field is empty
         // or when it is already marked as invalid
-        if (!activateValidation.value || isEmpty(value.value) || !isValid.value) {
+        if (!toValue(activateValidation) || isEmpty(internalModel.value) || !isValid.value) {
             return false
         }
         // If validMarker prop is explicitly provided (not undefined), use it
-        if (props.validMarker !== undefined) {
-            return props.validMarker
+        if (toValue(validMarker) !== undefined) {
+            return !!toValue(validMarker)
         }
         // Default: show valid marker when field is valid
         return true
     })
-    const invalidMessage = computed(() => {
-        if (props.invalidMessage) {
-            return props.invalidMessage
-        }
-        return validation.value.invalidMessage
-    })
-
-    // Watches
-    watch(activateValidation, () => validate())
-    watch(userIsTyping, () => validate())
-    watch(value, () => {
-        model.value = value.value
-        validate()
-        emits('change', value.value)
-    })
-    watch(model, (newValue) => (value.value = newValue))
+    const internalInvalidMessage = computed<string>(
+        () => toValue(invalidMessage) ?? validation.value.invalidMessage ?? ''
+    )
 
     onMounted(() => {
-        validate()
+        internalValidate()
     })
 
-    function validate(): void {
+    watchEffect(() => {
+        if (toValue(model) !== internalModel.value) {
+            internalModel.value = toValue(model)
+        }
+        internalValidate()
+    })
+    watch(internalModel, () => {
+        emits('change', internalModel.value)
+    })
+
+    function internalValidate(): void {
         validation.value = customValidate()
-        if (required.value && isEmpty(value.value)) {
+        if (toValue(required) && isEmpty(internalModel.value)) {
             validation.value = {
                 valid: false,
                 invalidMessage: requiredInvalidMessage,
             }
         }
-        if (props.validate && validation.value.valid) {
+        if (typeof toValue(validate) === 'function' && validation.value.valid) {
             // Run user custom validation
-            validation.value = props.validate(value.value)
+            validation.value = toValue(validate)!(internalModel.value)
         }
-        emits('validate', validation.value.valid)
+        emits('validate', validation.value)
     }
 
     function onFocus(event: Event, inFocus: boolean): void {
@@ -178,14 +160,11 @@ export function useFieldValidation<T extends string | File>(
     }
 
     return {
-        value,
+        value: internalModel as Ref<T | undefined>,
         isValid,
-        validMarker,
-        invalidMarker,
-        validMessage,
-        invalidMessage,
+        validMarker: internalValidMarker,
+        invalidMarker: internalInvalidMarker,
+        invalidMessage: internalInvalidMessage,
         onFocus,
-        required,
-        activateValidation,
     }
 }

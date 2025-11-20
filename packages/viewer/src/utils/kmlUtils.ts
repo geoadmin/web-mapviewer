@@ -1,5 +1,4 @@
 import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
-import { WGS84 } from '@swissgeo/coordinates'
 import type { KMLLayer } from '@swissgeo/layers'
 import type { FeatureCollection } from 'geojson'
 import type Feature from 'ol/Feature'
