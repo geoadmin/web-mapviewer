@@ -1,10 +1,11 @@
 import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
-import { WGS84 } from '@swissgeo/coordinates'
 import type { KMLLayer } from '@swissgeo/layers'
-import { KMLStyle } from '@swissgeo/layers'
 import type { Geometry } from 'ol/geom'
 import type { Type as GeometryType } from 'ol/geom/Geometry'
 import type { Size } from 'ol/size'
+
+import { WGS84 } from '@swissgeo/coordinates'
+import { KMLStyle } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { kml as kmlToGeoJSON } from '@tmcw/togeojson'
 import { booleanValid } from '@turf/turf'
@@ -22,6 +23,7 @@ import IconStyle from 'ol/style/Icon'
 import Style from 'ol/style/Style'
 
 import type { EditableFeature } from '@/api/features.api'
+
 import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@/api/features.api'
 import { proxifyUrl } from '@/api/file-proxy.api'
 import { type DrawingIcon, type DrawingIconSet, generateIconURL } from '@/api/icon.api'

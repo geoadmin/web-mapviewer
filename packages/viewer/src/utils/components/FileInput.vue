@@ -115,7 +115,7 @@ const inputFileId = useComponentUniqueId('file-input')
 const { t } = useI18n()
 const model = defineModel<File | undefined>({ default: undefined })
 const emits = defineEmits<{
-    change: []
+    change: [void]
     validate: [isValid: boolean]
 }>()
 
@@ -161,23 +161,11 @@ const {
     value,
     validMarker: computedValidMarker,
     invalidMarker: computedInvalidMarker,
-    validMessage: computedValidMessage,
     invalidMessage: computedInvalidMessage,
-} = useFieldValidation<File>(
-    validationProps,
-    model,
-    (event: string, ...args: unknown[]) => {
-        if (event === 'change') {
-            emits('change')
-        } else if (event === 'validate') {
-            emits('validate', args[0] as boolean)
-        }
-    },
-    {
-        customValidate: validateFile,
-        requiredInvalidMessage: 'no_file',
-    }
-)
+} = useFieldValidation<File>(validationProps, model, emits, {
+    customValidate: validateFile,
+    requiredInvalidMessage: 'no_file',
+})
 
 const filePathInfo = computed(() =>
     value.value ? `${value.value.name}, ${value.value.size / 1000} kb` : ''
@@ -254,11 +242,11 @@ function onFileSelected(evt: Event): void {
                 }}
             </div>
             <div
-                v-if="computedValidMessage"
+                v-if="validMessage"
                 class="valid-feedback"
                 data-cy="file-input-valid-feedback"
             >
-                {{ t(computedValidMessage) }}
+                {{ t(validMessage) }}
             </div>
         </div>
         <div
