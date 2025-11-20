@@ -19,8 +19,8 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const generatedMediaLink = ref<string | undefined>(undefined)
-const linkDescription = ref<string | undefined>(undefined)
+const generatedMediaLink = ref<string>()
+const linkDescription = ref<string>()
 const isFormValid = ref<boolean>(false)
 const activateValidation = ref<boolean>(false)
 
@@ -119,14 +119,14 @@ function onUrlValidate(result: TextInputValidateResult): void {
                 placeholder="paste_url"
                 :validate="validateUrl"
                 data-cy="drawing-style-media-url"
-                @keydown.enter="addLink()"
+                @keydown.enter="addLink"
                 @validate="onUrlValidate"
             >
                 <button
                     class="btn btn-default btn-outline-group rounded-0 rounded-end"
                     type="button"
                     data-cy="drawing-style-media-generate-button"
-                    @click="addLink()"
+                    @click="addLink"
                 >
                     {{ t('add') }}
                 </button>
