@@ -1,4 +1,5 @@
 import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
+import { WGS84 } from '@swissgeo/coordinates'
 import type { KMLLayer } from '@swissgeo/layers'
 import type { FeatureCollection } from 'geojson'
 import type Feature from 'ol/Feature'
@@ -556,7 +557,7 @@ export function getEditableFeatureFromKmlFeature(
         })
         const image = style.getImage()
         if (image instanceof IconStyle) {
-            image.setSrc(generateIconURL(icon, fillColor, iconSize))
+            image.setSrc(generateIconURL(icon, fillColor))
         }
     }
 
