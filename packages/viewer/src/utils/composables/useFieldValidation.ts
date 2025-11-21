@@ -1,7 +1,6 @@
 import {
     computed,
     type MaybeRefOrGetter,
-    onMounted,
     type Ref,
     ref,
     toValue,
@@ -117,10 +116,6 @@ export function useFieldValidation<T extends FieldValidationTypes>(
         }
         return false
     }
-
-    onMounted(() => {
-        internalValidate()
-    })
 
     watchEffect(() => {
         internalValidate()
