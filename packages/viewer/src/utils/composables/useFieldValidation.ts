@@ -47,13 +47,13 @@ interface FieldValidationConfig<T extends FieldValidationTypes> {
     requiredInvalidMessage?: MaybeRefOrGetter<string>
 
     /**
-     * If set to false, no validation (and event emitting) will be done when the value changes. This
-     * can be used to skip validation for a field that is not available to the user but must be
-     * edited programmatically. It can also be used if the validation of the field requires some
-     * pre-conditioning (a File must be loaded and not just selected before validating its size, for
-     * example).
+     * If set to true, the validation will be triggered as soon as the field is first rendered. If
+     * set to false, the validation will only be triggered when the field is modified.
+     *
+     * By default, the field will not be validated until the user actually starts typing/editing it.
+     * This flag can force the validation from the get-go.
      */
-    activateValidation?: MaybeRefOrGetter<boolean>
+    validateWhenPristine?: MaybeRefOrGetter<boolean>
 
     /** NOTE: This prop is ignored when `activateValidation` is false. */
     forceValid?: MaybeRefOrGetter<boolean>
@@ -77,7 +77,7 @@ export function useFieldValidation<T extends FieldValidationTypes>(
         required,
         requiredInvalidMessage = 'field_required',
 
-        activateValidation,
+        validateWhenPristine = false,
 
         forceValid,
         validFieldMessage,
@@ -89,6 +89,7 @@ export function useFieldValidation<T extends FieldValidationTypes>(
         emits,
     } = config
 
+    const pristine = ref<boolean>(true)
     const userIsTyping = ref<boolean>(false)
     const validation = ref<ValidationResult | undefined>()
 
@@ -127,6 +128,7 @@ export function useFieldValidation<T extends FieldValidationTypes>(
     watch(
         () => toValue(model),
         (newValue) => {
+            pristine.value = false
             const unrefedEmits = unref(emits)
             if (unrefedEmits) {
                 unrefedEmits('change', newValue)
@@ -135,7 +137,7 @@ export function useFieldValidation<T extends FieldValidationTypes>(
     )
 
     function internalValidate(): void {
-        if (toValue(activateValidation) === false) {
+        if (pristine.value && !toValue(validateWhenPristine)) {
             validation.value = undefined
             return
         }
