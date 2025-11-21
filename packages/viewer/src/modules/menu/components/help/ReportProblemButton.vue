@@ -87,7 +87,7 @@ const request = ref({
     completed: false,
 })
 const shortLink = ref('')
-const activateValidation = ref(false)
+const userHasTriedToSubmit = ref(false)
 const isMessageValid = ref(false)
 // by default attachment and email are valid as they are optional
 const isAttachmentValid = ref(true)
@@ -121,15 +121,10 @@ watch(
     { deep: true }
 )
 
-// Methods
-
-function validate() {
-    activateValidation.value = true
-    return isFormValid.value
-}
-
 async function sendReportProblem() {
-    if (!validate() && validationResult.value) {
+    userHasTriedToSubmit.value = true
+
+    if (!isFormValid.value && validationResult.value) {
         // scrolling down to make sure the message with validation result is visible to the user
         validationResult.value.scrollIntoView()
         return
@@ -171,7 +166,6 @@ async function sendReportProblem() {
 }
 
 function closeAndCleanForm() {
-    activateValidation.value = false
     showReportProblemForm.value = false
 
     // reset the state
@@ -285,7 +279,7 @@ function selectItem(dropdownItem: DropdownItem<string>) {
                 class="my-2"
                 :class="{
                     'is-valid': feedback.category,
-                    'is-invalid': !feedback.category && activateValidation,
+                    'is-invalid': !feedback.category && userHasTriedToSubmit,
                 }"
                 @selectItem="selectItem"
             />
@@ -311,7 +305,7 @@ function selectItem(dropdownItem: DropdownItem<string>) {
                     :disabled="request.pending"
                     required
                     data-cy="report-problem-text-area"
-                    :activate-validation="activateValidation"
+                    :validate-when-pristine="userHasTriedToSubmit"
                     invalid-message="feedback_empty_warning"
                     @validate="onTextValidate"
                 />
@@ -354,7 +348,7 @@ function selectItem(dropdownItem: DropdownItem<string>) {
                     label="feedback_mail"
                     :disabled="request.pending"
                     :description="'no_email_feedback'"
-                    :activate-validation="activateValidation"
+                    :validate-when-pristine="userHasTriedToSubmit"
                     data-cy="report-problem-email"
                     @validate="onEmailValidate"
                 />
@@ -366,7 +360,7 @@ function selectItem(dropdownItem: DropdownItem<string>) {
                     label="feedback_attachment"
                     :accepted-file-types="acceptedFileTypes"
                     :placeholder="'feedback_placeholder'"
-                    :activate-validation="activateValidation"
+                    :validate-when-pristine="userHasTriedToSubmit"
                     :disabled="request.pending"
                     :max-file-size="ATTACHMENT_MAX_SIZE"
                     data-cy="report-problem-file"
@@ -391,7 +385,7 @@ function selectItem(dropdownItem: DropdownItem<string>) {
             </div>
             <SendActionButtons
                 class="text-end"
-                :class="{ 'is-invalid': !isFormValid && activateValidation }"
+                :class="{ 'is-invalid': !isFormValid && userHasTriedToSubmit }"
                 :is-disabled="request.pending"
                 :is-pending="request.pending"
                 @send="sendReportProblem"

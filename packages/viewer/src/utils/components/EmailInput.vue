@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef } from 'vue'
+import { toRef, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
@@ -10,20 +10,7 @@ import {
 } from '@/utils/composables/useFieldValidation'
 import { isValidEmail } from '@/utils/utils'
 
-const {
-    label = '',
-    description = '',
-    disabled = false,
-    placeholder = '',
-    required = undefined,
-    forceValid = undefined,
-    validMessage,
-    forceInvalid = undefined,
-    invalidMessage,
-    activateValidation = undefined,
-    validate,
-    dataCy = '',
-} = defineProps<{
+const props = defineProps<{
     /** Label to add above the field */
     label?: string
     /** Description to add below the input */
@@ -38,6 +25,7 @@ const {
     placeholder?: string
     /** Field is required and will be marked as invalid if empty */
     required?: boolean
+    requiredInvalidMessage?: string
     /**
      * Mark the field as valid
      *
@@ -69,13 +57,7 @@ const {
      * file too big or required empty file)
      */
     invalidMessage?: string
-    /**
-     * Mark the field has validated.
-     *
-     * As long as the flag is false, no validation is run and no validation marks are set. Also the
-     * props is-invalid and is-valid are ignored.
-     */
-    activateValidation?: boolean
+    validateWhenPristine?: boolean
     /**
      * Validate function to run when the input changes The function should return an object of type
      * `{valid: Boolean, invalidMessage: String}`. The `invalidMessage` string should be a
@@ -86,6 +68,23 @@ const {
     validate?: ValidateFunction<string>
     dataCy?: string
 }>()
+const {
+    label = '',
+    description = '',
+    disabled = false,
+    placeholder = '',
+    validate,
+    dataCy = '',
+} = props
+
+// the props passed down to the usFieldValidation need to be converted to refs to keep the reactivity
+const required = toRef(props, 'required', false)
+const requiredInvalidMessage = toRef(props, 'requiredInvalidMessage', 'no_email')
+const forceValid = toRef(props, 'forceValid', false)
+const forceInvalid = toRef(props, 'forceInvalid', false)
+const validFieldMessage = toRef(props, 'validMessage', '')
+const invalidFieldMessage = toRef(props, 'invalidMessage', 'invalid_email')
+const validateWhenPristine = toRef(props, 'validateWhenPristine', false)
 
 const inputEmailId = useComponentUniqueId('email-input')
 const model = defineModel<string>({ default: '' })
@@ -103,15 +102,15 @@ const { validation, onFocus } = useFieldValidation<string>({
     model,
 
     required,
-    requiredInvalidMessage: 'no_email',
+    requiredInvalidMessage,
 
-    activateValidation,
+    validateWhenPristine,
 
     forceValid,
-    validFieldMessage: validMessage,
+    validFieldMessage,
 
     forceInvalid,
-    invalidFieldMessage: invalidMessage ?? 'invalid_email',
+    invalidFieldMessage,
 
     emits,
     validate: validateEmail,
@@ -121,7 +120,7 @@ const emailInputElement = useTemplateRef<HTMLInputElement>('emailInputElement')
 
 function validateEmail(email?: string): ValidationResult {
     if (email && !isValidEmail(email)) {
-        return { valid: false, invalidMessage: invalidMessage ?? 'invalid_email' }
+        return { valid: false, invalidMessage: invalidFieldMessage.value }
     }
     if (validate) {
         return validate(email)
