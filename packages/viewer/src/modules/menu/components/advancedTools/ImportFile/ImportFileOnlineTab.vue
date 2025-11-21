@@ -4,15 +4,13 @@ import { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 import { type ComponentPublicInstance, computed, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
+import type { ValidationResult } from '@/utils/composables/useFieldValidation'
 
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import useImportFile from '@/modules/menu/components/advancedTools/ImportFile/useImportFile.composable'
 import useUIStore from '@/store/modules/ui'
-import TextInput, {
-    type TextInputExposed,
-    type TextInputValidateResult,
-} from '@/utils/components/TextInput.vue'
+import TextInput, { type TextInputExposed } from '@/utils/components/TextInput.vue'
 import { isValidUrl } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = {
@@ -27,14 +25,14 @@ const uiStore = useUIStore()
 
 const { handleFileSource } = useImportFile()
 
-// Reactive data
+const fileUrl = defineModel<string>({ default: '' })
+
 const isLoading = ref<boolean>(false)
-const fileUrlInput = useTemplateRef<ComponentPublicInstance<TextInputExposed>>('fileUrlInput')
-const fileUrl = ref<string>('')
 const importSuccessMessage = ref<string>('')
 const errorFileLoadingMessage = ref<ErrorMessage | undefined>()
 const isFormValid = ref<boolean>(false)
-const activateValidation = ref<boolean>(false)
+
+const fileUrlInput = useTemplateRef<ComponentPublicInstance<TextInputExposed>>('fileUrlInput')
 
 const buttonState = computed<'loading' | 'default'>(() => (isLoading.value ? 'loading' : 'default'))
 
@@ -54,9 +52,7 @@ onMounted(() => {
     }
 })
 
-// Methods
-
-function validateUrl(url?: string): TextInputValidateResult {
+function validateUrl(url?: string): ValidationResult {
     if (!url) {
         return { valid: false, invalidMessage: 'no_url' }
     } else if (!isValidUrl(url)) {
@@ -66,12 +62,11 @@ function validateUrl(url?: string): TextInputValidateResult {
 }
 
 function validateForm() {
-    activateValidation.value = true
     return isFormValid.value
 }
 
-function onUrlValidate(result: TextInputValidateResult) {
-    isFormValid.value = result.valid
+function onUrlValidate(validation: ValidationResult) {
+    isFormValid.value = validation.valid
 }
 
 function onUrlChange() {
@@ -132,8 +127,7 @@ async function loadFile() {
                 required
                 class="mb-2"
                 placeholder="import_file_url_placeholder"
-                :activate-validation="activateValidation"
-                :invalid-marker="!!errorFileLoadingMessage"
+                :force-invalid="!!errorFileLoadingMessage"
                 :invalid-message="errorFileLoadingMessage?.msg"
                 :invalid-message-params="errorFileLoadingMessage?.params"
                 :valid-message="importSuccessMessage"

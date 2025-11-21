@@ -3,6 +3,8 @@ import log from '@swissgeo/log'
 import { computed, nextTick, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import type { ValidationResult } from '@/utils/composables/useFieldValidation'
+
 import sendFeedbackApi from '@/api/feedback.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/help/common/SendActionButtons.vue'
@@ -111,12 +113,12 @@ function closeAndCleanForm() {
     request.value.completed = false
 }
 
-function onTextValidate(valid: boolean) {
-    isMessageValid.value = valid
+function onTextValidate(validation: ValidationResult) {
+    isMessageValid.value = validation.valid
 }
 
-function onEmailValidate(valid: boolean) {
-    isEmailValid.value = valid
+function onEmailValidate(validation: ValidationResult) {
+    isEmailValid.value = validation.valid
 }
 </script>
 

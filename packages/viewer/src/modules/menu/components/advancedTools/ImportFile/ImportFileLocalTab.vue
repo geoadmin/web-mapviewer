@@ -4,6 +4,8 @@ import type { ErrorMessage } from '@swissgeo/log/Message'
 import log from '@swissgeo/log'
 import { computed, ref } from 'vue'
 
+import type { ValidationResult } from '@/utils/composables/useFieldValidation'
+
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import useImportFile from '@/modules/menu/components/advancedTools/ImportFile/useImportFile.composable'
@@ -17,12 +19,12 @@ const { active = false } = defineProps<{
     active?: boolean
 }>()
 
+const selectedFile = defineModel<File | undefined>({ default: undefined })
+
 // Reactive data
 const loadingFile = ref(false)
-const selectedFile = ref<File | undefined>()
 const errorFileLoadingMessage = ref<ErrorMessage | undefined>()
 const isFormValid = ref(false)
-const activateValidation = ref(false)
 const importSuccessMessage = ref('')
 
 const buttonState = computed(() => (loadingFile.value ? 'loading' : 'default'))
@@ -31,7 +33,6 @@ const buttonState = computed(() => (loadingFile.value ? 'loading' : 'default'))
 async function loadFile() {
     importSuccessMessage.value = ''
     errorFileLoadingMessage.value = undefined
-    activateValidation.value = true
     loadingFile.value = true
 
     if (isFormValid.value && selectedFile.value) {
@@ -52,8 +53,8 @@ async function loadFile() {
     loadingFile.value = false
 }
 
-function validateForm(valid: boolean) {
-    isFormValid.value = valid
+function validateForm(validation: ValidationResult) {
+    isFormValid.value = validation.valid
 }
 </script>
 
@@ -74,8 +75,7 @@ function validateForm(valid: boolean) {
             required
             :accepted-file-types="acceptedFileTypes"
             :placeholder="'no_file'"
-            :activate-validation="activateValidation"
-            :invalid-marker="!!errorFileLoadingMessage"
+            :force-invalid="!!errorFileLoadingMessage"
             :invalid-message="errorFileLoadingMessage?.msg"
             :invalid-message-extra-params="errorFileLoadingMessage?.params"
             :valid-message="importSuccessMessage"

@@ -554,7 +554,7 @@ export function getEditableFeatureFromKmlFeature(
         })
         const image = style.getImage()
         if (image instanceof IconStyle) {
-            image.setSrc(generateIconURL(icon, fillColor, iconSize))
+            image.setSrc(generateIconURL(icon, fillColor))
         }
     }
 

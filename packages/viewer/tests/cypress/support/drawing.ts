@@ -199,8 +199,8 @@ Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = true) => {
 
 Cypress.Commands.add('openDrawingMode', () => {
     cy.openMenuIfMobile()
-    cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
-    // Make sure that the map pointer events are unregistered to avoid intereference with drawing
+    cy.get('[data-cy="menu-tray-drawing-section"]:visible').click()
+    // Make sure that the map pointer events are unregistered to avoid interference with drawing
     // pointer events
     cy.window().its('mapPointerEventReady').should('be.false')
 })
@@ -215,9 +215,9 @@ Cypress.Commands.add('closeDrawingMode', (closeDrawingNotSharedAdmin = true) => 
                 cy.get('[data-cy="drawing-share-admin-close"]').click()
             }
         })
-        cy.getPinia().should((pinia) => {
+        cy.waitUntilState((pinia) => {
             const drawingStore = useDrawingStore(pinia)
-            expect(drawingStore.overlay.show).to.be.false
+            return !drawingStore.overlay.show
         })
         // In drawing mode the click event on the map are removed therefore we need to wait that
         // they are added again begore continuing testing
@@ -371,7 +371,7 @@ export async function checkKMLRequest(
     request: CyHttpMessages.IncomingHttpRequest,
     data: (RegExp | string)[],
     updatedKmlId?: string
-) {
+): Promise<void> {
     // Check request
     if (updatedKmlId) {
         const urlArray = request.url.split('/')
