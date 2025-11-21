@@ -27,14 +27,14 @@ const uiStore = useUIStore()
 
 const { handleFileSource } = useImportFile()
 
-// Reactive data
+const fileUrl = defineModel<string>({ default: '' })
+
 const isLoading = ref<boolean>(false)
-const fileUrlInput = useTemplateRef<ComponentPublicInstance<TextInputExposed>>('fileUrlInput')
-const fileUrl = ref<string>('')
 const importSuccessMessage = ref<string>('')
 const errorFileLoadingMessage = ref<ErrorMessage | undefined>()
 const isFormValid = ref<boolean>(false)
-const activateValidation = ref<boolean>(false)
+
+const fileUrlInput = useTemplateRef<ComponentPublicInstance<TextInputExposed>>('fileUrlInput')
 
 const buttonState = computed<'loading' | 'default'>(() => (isLoading.value ? 'loading' : 'default'))
 
@@ -54,8 +54,6 @@ onMounted(() => {
     }
 })
 
-// Methods
-
 function validateUrl(url?: string): ValidationResult {
     if (!url) {
         return { valid: false, invalidMessage: 'no_url' }
@@ -66,7 +64,6 @@ function validateUrl(url?: string): ValidationResult {
 }
 
 function validateForm() {
-    activateValidation.value = true
     return isFormValid.value
 }
 
@@ -132,7 +129,6 @@ async function loadFile() {
                 required
                 class="mb-2"
                 placeholder="import_file_url_placeholder"
-                :activate-validation="activateValidation"
                 :force-invalid="!!errorFileLoadingMessage"
                 :invalid-message="errorFileLoadingMessage?.msg"
                 :invalid-message-params="errorFileLoadingMessage?.params"

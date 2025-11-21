@@ -308,7 +308,7 @@ describe('Drawing module tests', () => {
                 cy.log('Button should be disabled if url empty')
                 cy.get(
                     '[data-cy="drawing-style-media-url"] [data-cy="text-input-invalid-feedback"]'
-                ).should('not.be.visible')
+                ).should('not.exist')
 
                 cy.log('Button should be disabled if url invalid')
                 cy.get('[data-cy="drawing-style-media-url"] [data-cy="text-input"]').type(

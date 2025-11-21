@@ -309,7 +309,7 @@ describe('Testing the report problem form', () => {
             cy.get('[data-cy="ol-map"]').click(mapWidth / 2 + 50, mapHeight / 2)
         })
         // we need to increase the timeout here below because, upon opening the drawing mode for the
-        // first time in e2e tests, the loading of the library can take more time 
+        // first time in e2e tests, the loading of the library can take more time
         cy.get('[data-cy="drawing-header-title"]', { timeout: 15000 })
             .should('be.visible')
             .contains('3. Indicate the appropriate location on the map :')
@@ -324,18 +324,17 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="report-problem-form"]').as('reportForm').should('exist')
 
         cy.log('Select category')
-        cy.get('[data-cy="report-problem-category"] [data-cy="dropdown-main-button"]')
-            .as('categoryDropdown')
+        cy.get('[data-cy="report-problem-category"] [data-cy="dropdown-main-button"]').as(
+            'categoryDropdown'
+        )
         cy.get('@categoryDropdown').click()
         cy.get('[data-cy="dropdown-item-other"]').click()
 
         cy.log('Write description and email')
-        cy.get('[data-cy="report-problem-text-area"] [data-cy="text-area-input"]')
-            .as('textArea')
+        cy.get('[data-cy="report-problem-text-area"] [data-cy="text-area-input"]').as('textArea')
         cy.get('@textArea').type(text)
 
-        cy.get('[data-cy="report-problem-email"] [data-cy="email-input"]')
-            .as('emailInput')
+        cy.get('[data-cy="report-problem-email"] [data-cy="email-input"]').as('emailInput')
         cy.get('@emailInput').type(validEmail)
 
         cy.get('@emailInput').should('have.value', validEmail)
@@ -397,19 +396,19 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="submit-button"]').click()
         cy.wait('@feedback').then((interception) => {
             const formData = parseFormData(interception.request)
-                ;[
-                    { name: 'subject', contains: `[Problem Report]` },
-                    { name: 'feedback', contains: text },
-                    { name: 'version', contains: APP_VERSION.replace('.dirty', '') },
-                    { name: 'ua', contains: navigator.userAgent },
-                    { name: 'kml', contains: '<Data name="type"><value>marker</value></Data>' },
-                    { name: 'kml', contains: '<Data name="type"><value>annotation</value></Data>' },
-                    { name: 'kml', contains: '<Data name="type"><value>linepolygon</value></Data>' },
-                ].forEach((param) => {
-                    expect(interception.request.body).to.be.a('String')
-                    expect(formData).to.haveOwnProperty(param.name)
-                    expect(formData[param.name]).to.contain(param.contains)
-                })
+            ;[
+                { name: 'subject', contains: `[Problem Report]` },
+                { name: 'feedback', contains: text },
+                { name: 'version', contains: APP_VERSION.replace('.dirty', '') },
+                { name: 'ua', contains: navigator.userAgent },
+                { name: 'kml', contains: '<Data name="type"><value>marker</value></Data>' },
+                { name: 'kml', contains: '<Data name="type"><value>annotation</value></Data>' },
+                { name: 'kml', contains: '<Data name="type"><value>linepolygon</value></Data>' },
+            ].forEach((param) => {
+                expect(interception.request.body).to.be.a('String')
+                expect(formData).to.haveOwnProperty(param.name)
+                expect(formData[param.name]).to.contain(param.contains)
+            })
         })
     })
 })

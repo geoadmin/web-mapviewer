@@ -7,7 +7,7 @@
  * NOTE: the validation only happens when the prop activate-validation is set to true, this allow to
  * validate all fields of a form at once.
  */
-import { computed, useTemplateRef } from 'vue'
+import { computed, toRef, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
@@ -18,22 +18,7 @@ import {
 } from '@/utils/composables/useFieldValidation'
 import { humanFileSize } from '@/utils/utils'
 
-const {
-    label = '',
-    description = '',
-    disabled = false,
-    acceptedFileTypes = [],
-    maxFileSize = 250 * 1024 * 1024, // 250 MB
-    placeholder = '',
-    required = undefined,
-    forceValid = undefined,
-    validMessage,
-    forceInvalid = undefined,
-    invalidMessage,
-    activateValidation = undefined,
-    validate,
-    dataCy = '',
-} = defineProps<{
+const props = defineProps<{
     /** Label to add above the field */
     label?: string
     /** Description to add below the input */
@@ -57,6 +42,7 @@ const {
     placeholder?: string
     /** Field is required and will be marked as invalid if empty */
     required?: boolean
+    requiredInvalidMessage?: string
     /**
      * Force the field as valid
      *
@@ -94,13 +80,7 @@ const {
      * the i18n call.
      */
     invalidMessageExtraParams?: Record<string, unknown>
-    /**
-     * Mark the field has validated.
-     *
-     * As long as the flag is false, no validation is run and no validation marks are set. Also the
-     * props is-invalid and is-valid are ignored.
-     */
-    activateValidation?: boolean
+    validateWhenPristine?: boolean
     /**
      * Validate function to run when the input changes The function should return an object of type
      * `{valid: Boolean, invalidMessage: String}`. The `invalidMessage` string should be a
@@ -111,6 +91,25 @@ const {
     validate?: ValidateFunction<File>
     dataCy?: string
 }>()
+const {
+    label = '',
+    description = '',
+    disabled = false,
+    acceptedFileTypes = [],
+    maxFileSize = 250 * 1024 * 1024, // 250 MB
+    placeholder = '',
+    validate,
+    dataCy = '',
+} = props
+
+// the props passed down to the usFieldValidation need to be converted to refs to keep the reactivity
+const required = toRef(props, 'required', false)
+const requiredInvalidMessage = toRef(props, 'requiredInvalidMessage', 'no_file')
+const forceValid = toRef(props, 'forceValid', false)
+const forceInvalid = toRef(props, 'forceInvalid', false)
+const validFieldMessage = toRef(props, 'validMessage', '')
+const invalidFieldMessage = toRef(props, 'invalidMessage', '')
+const validateWhenPristine = toRef(props, 'validateWhenPristine', false)
 
 // On each component creation set the current component unique ID
 const inputFileId = useComponentUniqueId('file-input')
@@ -119,6 +118,7 @@ const { t } = useI18n()
 const model = defineModel<File | undefined>({ default: undefined })
 const emits = defineEmits<{
     change: [void]
+    fileSelected: [file?: File]
     validate: [validation: ValidationResult]
 }>()
 
@@ -155,15 +155,15 @@ const { validation } = useFieldValidation<File>({
     model,
 
     required,
-    requiredInvalidMessage: 'no_file',
+    requiredInvalidMessage,
 
-    activateValidation,
+    validateWhenPristine,
 
     forceValid,
-    validFieldMessage: validMessage,
+    validFieldMessage,
 
     forceInvalid,
-    invalidFieldMessage: invalidMessage,
+    invalidFieldMessage,
 
     emits,
     validate: validateFile,
@@ -178,6 +178,7 @@ function onFileSelected(evt: Event): void {
     const target = evt.target as HTMLInputElement
     const file = target?.files?.[0] ?? undefined
     model.value = file
+    emits('fileSelected', file)
 }
 </script>
 

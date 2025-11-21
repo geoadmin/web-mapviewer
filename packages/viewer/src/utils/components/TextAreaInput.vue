@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef } from 'vue'
+import { toRef, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
@@ -9,20 +9,7 @@ import {
     type ValidationResult,
 } from '@/utils/composables/useFieldValidation'
 
-const {
-    label = '',
-    description = '',
-    disabled = false,
-    placeholder = '',
-    required = undefined,
-    forceValid = undefined,
-    validMessage,
-    forceInvalid = undefined,
-    invalidMessage,
-    activateValidation = undefined,
-    validate,
-    dataCy = '',
-} = defineProps<{
+const props = defineProps<{
     /** Label to add above the field */
     label?: string
     /** Description to add below the input */
@@ -68,13 +55,7 @@ const {
      * file too big or required empty file)
      */
     invalidMessage?: string
-    /**
-     * Mark the field has validated.
-     *
-     * As long as the flag is false, no validation is run and no validation marks are set. Also the
-     * props is-invalid and is-valid are ignored.
-     */
-    activateValidation?: boolean
+    validateWhenPristine?: boolean
     /**
      * Validate function to run when the input changes The function should return an object of type
      * `{valid: Boolean, invalidMessage: String}`. The `invalidMessage` string should be a
@@ -85,6 +66,22 @@ const {
     validate?: ValidateFunction<string>
     dataCy?: string
 }>()
+const {
+    label = '',
+    description = '',
+    disabled = false,
+    placeholder = '',
+    validate,
+    dataCy = '',
+} = props
+
+// the props passed down to the usFieldValidation need to be converted to refs to keep the reactivity
+const required = toRef(props, 'required', false)
+const forceValid = toRef(props, 'forceValid', false)
+const forceInvalid = toRef(props, 'forceInvalid', false)
+const validFieldMessage = toRef(props, 'validMessage', '')
+const invalidFieldMessage = toRef(props, 'invalidMessage', '')
+const validateWhenPristine = toRef(props, 'validateWhenPristine', false)
 
 const textAreaInputId = useComponentUniqueId('text-area-input')
 const model = defineModel<string>({ default: '' })
@@ -106,13 +103,13 @@ const { validation, onFocus } = useFieldValidation<string>({
 
     required,
 
-    activateValidation,
+    validateWhenPristine,
 
     forceValid,
-    validFieldMessage: validMessage,
+    validFieldMessage,
 
     forceInvalid,
-    invalidFieldMessage: invalidMessage,
+    invalidFieldMessage,
 
     validate,
     emits,

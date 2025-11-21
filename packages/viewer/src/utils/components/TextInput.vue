@@ -1,9 +1,10 @@
 <script setup lang="ts">
 /** Input with clear button component */
 
+import type { Ref } from 'vue'
 import type { NamedValue } from 'vue-i18n'
 
-import { computed, nextTick, ref, useSlots, useTemplateRef } from 'vue'
+import { computed, nextTick, ref, toRef, useSlots, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
@@ -14,24 +15,11 @@ import {
 } from '@/utils/composables/useFieldValidation'
 
 export interface TextInputExposed {
+    validation: Ref<ValidationResult | undefined>
     focus: () => void
 }
 
-const {
-    label = '',
-    description = '',
-    disabled = false,
-    placeholder = '',
-    required = undefined,
-    forceValid = undefined,
-    validMessage,
-    forceInvalid = undefined,
-    invalidMessage,
-    invalidMessageParams,
-    activateValidation = undefined,
-    validate,
-    dataCy = '',
-} = defineProps<{
+const props = defineProps<{
     /** Label to add above the field */
     label?: string
     /** Description to add below the input */
@@ -82,13 +70,7 @@ const {
      * passed to Vue I18N when translating the invalid message).
      */
     invalidMessageParams?: NamedValue
-    /**
-     * Mark the field has validated.
-     *
-     * As long as the flag is false, no validation is run and no validation marks are set. Also the
-     * props is-invalid and is-valid are ignored.
-     */
-    activateValidation?: boolean
+    validateWhenPristine?: boolean
     /**
      * Validate function to run when the input changes The function should return an object of type
      * `{valid: Boolean, invalidMessage: String}`. The `invalidMessage` string should be a
@@ -99,6 +81,24 @@ const {
     validate?: ValidateFunction<string>
     dataCy?: string
 }>()
+
+const {
+    label = '',
+    description = '',
+    disabled = false,
+    placeholder = '',
+    invalidMessageParams,
+    validate,
+    dataCy = '',
+} = props
+
+// the props passed down to the usFieldValidation need to be converted to refs to keep the reactivity
+const required = toRef(props, 'required', false)
+const forceValid = toRef(props, 'forceValid', false)
+const forceInvalid = toRef(props, 'forceInvalid', false)
+const validFieldMessage = toRef(props, 'validMessage', '')
+const invalidFieldMessage = toRef(props, 'invalidMessage', '')
+const validateWhenPristine = toRef(props, 'validateWhenPristine', false)
 
 // On each component creation set the current component unique ID
 const clearButtonId = useComponentUniqueId('button-addon-clear')
@@ -119,13 +119,13 @@ const { validation, onFocus } = useFieldValidation<string>({
 
     required,
 
-    activateValidation,
+    validateWhenPristine,
 
     forceValid,
-    validFieldMessage: validMessage,
+    validFieldMessage,
 
     forceInvalid,
-    invalidFieldMessage: invalidMessage,
+    invalidFieldMessage,
 
     emits,
     validate,
@@ -160,7 +160,7 @@ function focus(): void {
     void nextTick(() => inputElement.value?.focus())
 }
 
-defineExpose<TextInputExposed>({ focus })
+defineExpose<TextInputExposed>({ validation, focus })
 </script>
 
 <template>
