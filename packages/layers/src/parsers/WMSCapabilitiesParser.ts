@@ -525,7 +525,7 @@ function getExternalLayer(
             parents?.forEach((parent) => childParents.push(parent))
             childParents.push(layer)
             return layerUtils.makeExternalWMSLayer({
-                ...getLayerAttributes(capabilities, l, childParents ?? [], outputProjection, ignoreErrors),
+                ...getLayerAttributes(capabilities, l, childParents, outputProjection, ignoreErrors),
                 format: 'png',
                 isLoading: false,
                 getFeatureInfoCapability: getFeatureInfoCapability(capabilities, ignoreErrors),
