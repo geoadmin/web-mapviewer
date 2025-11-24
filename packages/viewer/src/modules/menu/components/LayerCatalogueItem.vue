@@ -65,7 +65,7 @@ const isWmsLayer = (layer: Layer): layer is ExternalWMSLayer => {
     return layer.type === LayerType.WMS
 }
 
-const hasChildren = computed(() => (isGroupOfLayers(item) ||isWmsLayer(item)) && item?.layers?.length && item?.layers?.length > 0)
+const hasChildren = computed(() => (isGroupOfLayers(item) || isWmsLayer(item)) && item?.layers?.length && item?.layers?.length > 0)
 const hasDescription = computed(() => canBeAddedToTheMap.value && item?.hasDescription)
 const isPhoneMode = computed(() => uiStore.isPhoneMode)
 
@@ -75,8 +75,8 @@ const isPhoneMode = computed(() => uiStore.isPhoneMode)
  */
 const hasChildrenMatchSearch = computed(() => {
     if (search) {
-        if (isGroupOfLayers(item) && hasChildren.value) {
-            return containsLayer(item.layers, search)
+        if (hasChildren.value) {
+            return containsLayer((item as GeoAdminGroupOfLayers | ExternalWMSLayer).layers as Layer[], search)
         }
         return false
     }
