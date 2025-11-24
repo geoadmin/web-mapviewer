@@ -34,7 +34,7 @@ const { compact = false } = defineProps<{
 // here
 type MenuSectionType = InstanceType<typeof MenuSection>
 
-const menuItemRefs = ref<Record<string, MenuSectionType>>()
+const menuItemRefs = ref<Record<string, MenuSectionType>>({})
 
 // multiMenuSections means that they can be open together
 const multiMenuSections = ref(['topicsSection', 'activeLayersSection', '3dSection'])
@@ -62,8 +62,8 @@ watch(showImportFile, (show) => {
 })
 
 onMounted(() => {
-    if (is3dMode.value && menuItemRefs.value && '3dSection' in menuItemRefs.value) {
-        menuItemRefs.value['3dSection'].open()
+    if (is3dMode.value) {
+        menuItemRefs.value?.['3dSection']?.open()
     }
 })
 
@@ -79,24 +79,15 @@ function toggleDrawingOverlay() {
 
 function onOpenMenuSection(id: string) {
     let toClose = singleModeSections.value.filter((section) => section !== id)
-
+    
     if (singleModeSections.value.includes(id)) {
         toClose = toClose.concat(multiMenuSections.value)
     }
-
-    if (menuItemRefs.value) {
-        for (const section of toClose) {
-            menuItemRefs.value[section]?.close()
-        }
-    }
+    toClose.forEach((section) => menuItemRefs.value?.[section]?.close())
 }
 
 function onCloseMenuSection(id: string) {
-    if (
-        ['drawSection', 'toolsSection'].includes(id) &&
-        menuItemRefs.value &&
-        'activeLayersSection' in menuItemRefs.value
-    ) {
+    if (menuItemRefs.value?.activeLayersSection && ['drawSection', 'toolsSection'].includes(id)) {
         menuItemRefs.value.activeLayersSection.open()
     }
 }
@@ -108,7 +99,7 @@ function onCloseMenuSection(id: string) {
  * NOTE: To work the element requires an sectionId attribute. For Component, it requires to expose
  * an "id" constant.
  *
- * @param {any} el Reference to the element
+ * @param {Element | ComponentPublicInstance | null} el Reference to the element
  */
 const addRefBySectionId = (el: Element | ComponentPublicInstance | null): void => {
     const _el = el as MenuSectionType
@@ -137,7 +128,6 @@ const addRefBySectionId = (el: Element | ComponentPublicInstance | null): void =
             :ref="addRefBySectionId"
             :compact="compact"
             @open-menu-section="onOpenMenuSection"
-            @close-menu-section="onCloseMenuSection"
         />
         <MenuPrintSection
             v-if="!is3dMode"
@@ -180,7 +170,6 @@ const addRefBySectionId = (el: Element | ComponentPublicInstance | null): void =
             title="3D"
             secondary
             @open-menu-section="onOpenMenuSection"
-            @close-menu-section="onCloseMenuSection"
         >
             <MenuThreeD :compact="compact" />
         </MenuSection>

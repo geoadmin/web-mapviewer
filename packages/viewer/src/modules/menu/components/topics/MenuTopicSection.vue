@@ -68,7 +68,7 @@ function onCloseMenuTopics(sectionId: string) {
     topicsStore.removeTopicTreeOpenedThemeId(currentTopic.value, dispatcher)
 }
 
-defineExpose({ close, id: sectionId })
+defineExpose({ close, sectionId })
 </script>
 
 <template>
