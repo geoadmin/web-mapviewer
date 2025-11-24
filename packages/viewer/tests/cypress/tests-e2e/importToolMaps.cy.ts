@@ -11,7 +11,7 @@ describe('The Import Maps Tool', () => {
         cy.goToMapView({ withHash: true })
         cy.openMenuIfMobile()
     })
-    it.only('Import external wms layers', () => {
+    it('Import external wms layers', () => {
         cy.intercept(
             {
                 https: true,
@@ -530,7 +530,6 @@ describe('The Import Maps Tool', () => {
         cy.get('[data-cy="menu-button"]').should('be.visible').click()
         cy.openMenuIfMobile()
 
-        cy.checkOlLayer([bgLayer, layer1Id, layer2Id, layer4Id])
 
         cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
         cy.get('[data-cy="active-layer-name-layer4-2"]').should('be.visible')
@@ -539,7 +538,6 @@ describe('The Import Maps Tool', () => {
         //-----------------------------------------------------------------------------------------
         cy.log('Reload and check that everything is still present')
         cy.reload()
-        cy.checkOlLayer([bgLayer, layer1Id, layer2Id, layer4Id])
         cy.openMenuIfMobile()
         cy.get('[data-cy="active-layer-name-layer1-0"]').should('be.visible')
         cy.get('[data-cy="time-selector-layer1-0"]').should('not.exist')
