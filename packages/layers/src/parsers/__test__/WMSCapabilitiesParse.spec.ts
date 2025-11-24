@@ -62,6 +62,17 @@ describe('WMSCapabilitiesParser of wms-geoadmin-sample.xml', () => {
         expect(layer!.name).to.eql('Periodic-Tracking')
         expect(layer!.abstract).to.eql('Layer without Name element should use the Title')
         expect(layer!.baseUrl).to.eql('https://wms.geo.admin.ch/?')
+
+        // Layer with a sublayer which have an identical id
+        layer = externalWMSParser.getExternalLayer(capabilities, 'ch.swisstopo-vd.stand-oerebkataster')
+        expect(layer).toBeDefined()
+        expect(layer!.id).to.eql('ch.swisstopo-vd.stand-oerebkataster')
+        expect(layer!.name).to.eql('Verfügbarkeit des ÖREB-Katasters')
+        expect(layer!.layers).toBeDefined()
+        expect(layer!.layers!.length).to.eql(1)
+        expect(layer!.layers![0]!.name).to.eql('Verfügbarkeit des ÖREB-Katasters')
+        expect(layer!.layers![0]!.layers).toBeDefined()
+       expect(layer!.layers![0]!.layers!.length).to.eql(0)
     })
     it('Parse layer attribution', () => {
         // Attribution in root layer
