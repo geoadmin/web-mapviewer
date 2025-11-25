@@ -165,7 +165,7 @@ export function useFieldValidation<T extends string | File>(
             // Run user custom validation
             validation.value = props.validate(value.value)
         }
-        emits('validate', validation.value.valid)
+        emits('validate', validation.value)
     }
 
     function onFocus(event: Event, inFocus: boolean): void {
