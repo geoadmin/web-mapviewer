@@ -95,9 +95,8 @@ async function loadFile() {
                 dispatcher
             )
         }
+        isLoading.value = false
         importSuccessMessage.value = 'file_imported_success'
-
-        setTimeout(() => (isLoading.value = false), 3000)
     } catch (error) {
         log.error({
             title: 'Import File Online Tab',
@@ -108,7 +107,6 @@ async function loadFile() {
             errorFileLoadingMessage.value = generateErrorMessageFromErrorType(error)
         }
     }
-    isLoading.value = false
 }
 </script>
 

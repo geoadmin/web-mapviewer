@@ -17,21 +17,7 @@ export interface TextInputValidateResult {
 
 export type TextInputValidateFunction = (_value?: string) => TextInputValidateResult
 
-const {
-    label = '',
-    description = '',
-    disabled = false,
-    placeholder = '',
-    required = false,
-    validMarker = undefined,
-    validMessage = '',
-    invalidMarker = undefined,
-    invalidMessage = '',
-    invalidMessageParams = undefined,
-    activateValidation = false,
-    validate = undefined,
-    dataCy = '',
-} = defineProps<{
+const props = withDefaults(defineProps<{
     /** Label to add above the field */
     label?: string
     /** Description to add below the input */
@@ -98,7 +84,29 @@ const {
      */
     validate?: TextInputValidateFunction
     dataCy?: string
-}>()
+}>(), {
+    label: '',
+    description: '',
+    disabled: false,
+    placeholder: '',
+    required: false,
+    validMarker: undefined,
+    validMessage: '',
+    invalidMarker: undefined,
+    invalidMessage: '',
+    invalidMessageParams: undefined,
+    activateValidation: false,
+    validate: undefined,
+    dataCy: '',
+})
+
+const {
+    label = '',
+    description = '',
+    disabled = false,
+    placeholder = '',
+    dataCy = '',
+} = props
 
 // On each component creation set the current component unique ID
 const clearButtonId = useComponentUniqueId('button-addon-clear')
@@ -114,16 +122,6 @@ const emits = defineEmits<{
     'keydown.enter': []
 }>()
 
-const validationProps = {
-    required,
-    validMarker,
-    validMessage,
-    invalidMarker,
-    invalidMessage,
-    activateValidation,
-    validate,
-}
-
 const {
     value,
     validMarker: computedValidMarker,
@@ -133,7 +131,7 @@ const {
     onFocus,
     required: computedRequired,
 } = useFieldValidation(
-    validationProps,
+    props,
     model,
     emits as (_event: string, ..._args: unknown[]) => void
 )
