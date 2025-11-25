@@ -57,12 +57,12 @@ export default class GPXParser extends FileParser<GPXLayer> {
         const olGpxMetadata = gpxMetadataParser.readMetadata(gpxAsText) ?? undefined
         const gpxMetadata = olGpxMetadata
             ? {
-                  ...olGpxMetadata,
-                  bounds:
-                      olGpxMetadata.bounds && olGpxMetadata.bounds.length === 4
-                          ? (olGpxMetadata.bounds as FlatExtent)
-                          : undefined,
-              }
+                ...olGpxMetadata,
+                bounds:
+                    olGpxMetadata.bounds && olGpxMetadata.bounds.length === 4
+                        ? (olGpxMetadata.bounds as FlatExtent)
+                        : undefined,
+            }
             : undefined
 
         return layerUtils.makeGPXLayer({
