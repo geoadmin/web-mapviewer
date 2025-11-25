@@ -34,7 +34,7 @@ const backgroundLayerParamConfig = new UrlParamConfig<string>({
             queryValue,
             !!queryValue &&
                 (queryValue === 'void' ||
-                    useLayersStore().backgroundLayers?.some((layer) => layer.id == queryValue)),
+                    useLayersStore().backgroundLayers?.some((layer) => layer.id === queryValue)),
             'bgLayer'
         ),
 })
