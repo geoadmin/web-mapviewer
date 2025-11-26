@@ -75,7 +75,7 @@ export function propsValidator4ValidateFunc(value: unknown, _props: unknown): bo
  * @param options Options object for custom validation and messages
  */
 export function useFieldValidation<T extends string | File>(
-    props: FieldValidationProps<T>,
+    props: FieldValidationProps<T> | ComputedRef<FieldValidationProps<T>>,
     model: Ref<T | undefined>,
     emits: (event: string, ...args: unknown[]) => void,
     {
@@ -89,9 +89,15 @@ export function useFieldValidation<T extends string | File>(
     const value = ref(model.value) as Ref<T | undefined>
 
     const userIsTyping = ref<boolean>(false)
-    const activateValidation = toRef(props, 'activateValidation')
-    const required = toRef(props, 'required')
-    const validMessage = toRef(props, 'validMessage')
+    const activateValidation = computed(() =>
+        'value' in props ? props.value.activateValidation : props.activateValidation
+    )
+    const required = computed(() =>
+        'value' in props ? props.value.required : props.required
+    )
+    const validMessage = computed(() =>
+        'value' in props ? props.value.validMessage : props.validMessage
+    )
     const validation = ref<ValidationResult>({ valid: true, invalidMessage: '' })
 
     // Helper function to check if value is empty
@@ -118,12 +124,13 @@ export function useFieldValidation<T extends string | File>(
         }
         let _validMarker = isValid.value
 
+        const propsValue = 'value' in props ? props.value : props
         // When validMarker prop is explicitly set, use it
         // When it's false but validMessage is provided, treat it as "not provided" (use validation result)
         // This handles the Vue boolean prop coercion issue where undefined becomes false
-        if (props.validMarker === true) {
+        if (propsValue.validMarker === true) {
             _validMarker = _validMarker && true
-        } else if (props.validMarker === false && !props.validMessage) {
+        } else if (propsValue.validMarker === false && !propsValue.validMessage) {
             // Only treat false as explicitly "don't show" if there's no validMessage
             _validMarker = false
         }
@@ -136,15 +143,17 @@ export function useFieldValidation<T extends string | File>(
             return false
         }
         let _invalidMarker = !isValid.value
-        if (props.invalidMarker !== undefined) {
+        const propsValue = 'value' in props ? props.value : props
+        if (propsValue.invalidMarker !== undefined) {
             // Normalize: undefined becomes false (don't add extra invalid marker when not provided)
-            _invalidMarker = _invalidMarker || (props.invalidMarker === true)
+            _invalidMarker = _invalidMarker || (propsValue.invalidMarker === true)
         }
         return _invalidMarker
     })
     const invalidMessage = computed(() => {
-        if (props.invalidMessage) {
-            return props.invalidMessage
+        const propsValue = 'value' in props ? props.value : props
+        if (propsValue.invalidMessage) {
+            return propsValue.invalidMessage
         }
         return validation.value.invalidMessage
     })
@@ -171,9 +180,10 @@ export function useFieldValidation<T extends string | File>(
                 invalidMessage: requiredInvalidMessage,
             }
         }
-        if (props.validate && validation.value.valid) {
+        const propsValue = 'value' in props ? props.value : props
+        if (propsValue.validate && validation.value.valid) {
             // Run user custom validation
-            validation.value = props.validate(value.value)
+            validation.value = propsValue.validate(value.value)
         }
         emits('validate', validation.value)
     }
