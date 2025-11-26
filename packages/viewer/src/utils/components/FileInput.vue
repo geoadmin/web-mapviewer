@@ -14,7 +14,23 @@ import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
 import { useFieldValidation } from '@/utils/composables/useFieldValidation'
 import { humanFileSize } from '@/utils/utils'
 
-const props = defineProps<{
+const {
+    label = '',
+    description = '',
+    disabled = false,
+    acceptedFileTypes = [],
+    maxFileSize = 250 * 1024 * 1024, // 250 MB
+    placeholder = '',
+    required = false,
+    validMarker = undefined,
+    validMessage = '',
+    invalidMarker = undefined,
+    invalidMessage = '',
+    invalidMessageExtraParams = undefined,
+    activateValidation = false,
+    validate = undefined,
+    dataCy = '',
+} = defineProps<{
     /** Label to add above the field */
     label?: string
     /** Description to add below the input */
@@ -93,16 +109,6 @@ const props = defineProps<{
     dataCy?: string
 }>()
 
-const {
-    label = '',
-    description = '',
-    disabled = false,
-    acceptedFileTypes = [],
-    maxFileSize = 250 * 1024 * 1024, // 250 MB
-    placeholder = '',
-    dataCy = '',
-} = props
-
 // On each component creation set the current component unique ID
 const inputFileId = useComponentUniqueId('file-input')
 
@@ -140,6 +146,16 @@ function validateFile(): { valid: boolean; invalidMessage: string } {
     }
 }
 
+const validationProps = computed(() => ({
+    required,
+    validMarker,
+    validMessage,
+    invalidMarker,
+    invalidMessage,
+    activateValidation,
+    validate,
+}))
+
 const {
     value,
     validMarker: computedValidMarker,
@@ -148,7 +164,7 @@ const {
     invalidMessage: computedInvalidMessage,
     required: computedRequired,
 } = useFieldValidation<File>(
-    props,
+    validationProps,
     model,
     (event: string, ...args: unknown[]) => {
         if (event === 'change') {
@@ -233,7 +249,7 @@ function onFileSelected(evt: Event): void {
                     t(computedInvalidMessage, {
                         maxFileSize: maxFileSizeHuman,
                         allowedFormats: acceptedFileTypes.join(', '),
-                        ...(props.invalidMessageExtraParams ?? {}),
+                        ...(invalidMessageExtraParams ?? {}),
                     })
                 }}
             </div>
