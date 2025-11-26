@@ -323,12 +323,12 @@ function containsLayer(layers: Layer[], searchText: string): boolean {
             </button>
         </div>
         <ul
-            v-if="showChildren && (isGroupOfLayers(item) || isWmsLayer(item))"
+            v-if="showChildren && hasChildren"
             class="menu-catalogue-item-children"
             :class="`ps-${2 + depth}`"
         >
             <LayerCatalogueItem
-                v-for="(child, index) in item.layers"
+                v-for="(child, index) in (item as GeoAdminGroupOfLayers | ExternalWMSLayer).layers"
                 :key="`${index}-${child.id}`"
                 :item="child"
                 :search="search"
