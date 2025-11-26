@@ -450,7 +450,6 @@ function getExternalLayer(
         return
     }
 
-    // Try to get options from capabilities, but handle errors gracefully
     let olOptions
     try {
         olOptions = optionsFromCapabilities(capabilities, {
@@ -461,10 +460,7 @@ function getExternalLayer(
         log.warn({
             title: 'WMTS Capabilities parser',
             titleColor: LogPreDefinedColor.Indigo,
-            messages: [
-                `Failed to get OpenLayers options for layer ${attributes.id}`,
-                error
-            ],
+            messages: [`Failed to get OpenLayers options for layer ${attributes.id}`, error],
         })
         if (!ignoreErrors) {
             throw new CapabilitiesError(

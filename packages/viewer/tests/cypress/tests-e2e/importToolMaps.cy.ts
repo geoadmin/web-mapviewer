@@ -243,7 +243,6 @@ describe('The Import Maps Tool', () => {
             }
         ).as('getLegendOfficialSurvey2')
         cy.get(`[data-cy="catalogue-tree-item-info-${legendWithoutAbstractLayerId}"]`)
-            // .should('be.visible')
             .click()
         cy.wait('@getLegendOfficialSurvey2')
         cy.get(`[data-cy="simple-window-title"]`)
@@ -310,7 +309,7 @@ describe('The Import Maps Tool', () => {
 
         //------------------------------------------------------------------------------------------
         cy.log('Search in external layers')
-        // cy.get(`[data-cy="catalogue-tree-item-${layerExtentGraubunden}"]`).should('not.be.visible')
+        cy.get(`[data-cy="catalogue-tree-item-${layerExtentGraubunden}"]`).should('not.be.visible')
         cy.get('[data-cy="search-catalogue-input"]').should('be.visible').type('bebe')
         cy.get('[data-cy="search-catalogue-clear"]').should('be.visible')
         cy.get(`[data-cy="catalogue-tree-item-${layerExtentGraubunden}"]`).should('be.visible')
@@ -530,7 +529,7 @@ describe('The Import Maps Tool', () => {
         cy.get('[data-cy="menu-button"]').should('be.visible').click()
         cy.openMenuIfMobile()
 
-
+        cy.checkOlLayer([bgLayer, layer1Id, layer2Id, layer4Id])
         cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
         cy.get('[data-cy="active-layer-name-layer4-2"]').should('be.visible')
         cy.get('[data-cy="time-selector-layer4-2"]').should('not.exist')
