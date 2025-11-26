@@ -17,7 +17,7 @@ export interface TextInputValidateResult {
 
 export type TextInputValidateFunction = (_value?: string) => TextInputValidateResult
 
-const props = withDefaults(defineProps<{
+const props = defineProps<{
     /** Label to add above the field */
     label?: string
     /** Description to add below the input */
@@ -84,21 +84,7 @@ const props = withDefaults(defineProps<{
      */
     validate?: TextInputValidateFunction
     dataCy?: string
-}>(), {
-    label: '',
-    description: '',
-    disabled: false,
-    placeholder: '',
-    required: false,
-    validMarker: undefined,
-    validMessage: '',
-    invalidMarker: undefined,
-    invalidMessage: '',
-    invalidMessageParams: undefined,
-    activateValidation: false,
-    validate: undefined,
-    dataCy: '',
-})
+}>()
 
 const {
     label = '',
