@@ -123,19 +123,10 @@ export function useFieldValidation<T extends string | File>(
             return false
         }
         let _validMarker = isValid.value
-
         const propsValue = 'value' in props ? props.value : props
-        // When validMarker prop is explicitly set, use it
-        // When it's false but validMessage is provided, treat it as "not provided" (use validation result)
-        // This handles the Vue boolean prop coercion issue where undefined becomes false
-        if (propsValue.validMarker === true) {
-            _validMarker = _validMarker && true
-        } else if (propsValue.validMarker === false && !propsValue.validMessage) {
-            // Only treat false as explicitly "don't show" if there's no validMessage
-            _validMarker = false
+        if (propsValue.validMarker !== undefined) {
+            _validMarker = _validMarker && propsValue.validMarker
         }
-        // Otherwise, just use the isValid result (when validMarker is false but validMessage exists)
-
         return _validMarker
     })
     const invalidMarker = computed(() => {
@@ -145,8 +136,7 @@ export function useFieldValidation<T extends string | File>(
         let _invalidMarker = !isValid.value
         const propsValue = 'value' in props ? props.value : props
         if (propsValue.invalidMarker !== undefined) {
-            // Normalize: undefined becomes false (don't add extra invalid marker when not provided)
-            _invalidMarker = _invalidMarker || (propsValue.invalidMarker === true)
+            _invalidMarker = _invalidMarker || propsValue.invalidMarker
         }
         return _invalidMarker
     })
