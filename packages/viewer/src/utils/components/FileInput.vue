@@ -14,23 +14,7 @@ import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
 import { useFieldValidation } from '@/utils/composables/useFieldValidation'
 import { humanFileSize } from '@/utils/utils'
 
-const {
-    label = '',
-    description = '',
-    disabled = false,
-    acceptedFileTypes = [],
-    maxFileSize = 250 * 1024 * 1024, // 250 MB
-    placeholder = '',
-    required = false,
-    validMarker = undefined,
-    validMessage = '',
-    invalidMarker = undefined,
-    invalidMessage = '',
-    invalidMessageExtraParams = {},
-    activateValidation = false,
-    validate = undefined,
-    dataCy = '',
-} = defineProps<{
+const props = defineProps<{
     /** Label to add above the field */
     label?: string
     /** Description to add below the input */
@@ -109,6 +93,16 @@ const {
     dataCy?: string
 }>()
 
+const {
+    label = '',
+    description = '',
+    disabled = false,
+    acceptedFileTypes = [],
+    maxFileSize = 250 * 1024 * 1024, // 250 MB
+    placeholder = '',
+    dataCy = '',
+} = props
+
 // On each component creation set the current component unique ID
 const inputFileId = useComponentUniqueId('file-input')
 
@@ -146,25 +140,15 @@ function validateFile(): { valid: boolean; invalidMessage: string } {
     }
 }
 
-// Use the field validation composable with properly typed props
-const validationProps = {
-    required,
-    validMarker,
-    validMessage,
-    invalidMarker,
-    invalidMessage,
-    activateValidation,
-    validate,
-}
-
 const {
     value,
     validMarker: computedValidMarker,
     invalidMarker: computedInvalidMarker,
     validMessage: computedValidMessage,
     invalidMessage: computedInvalidMessage,
+    required: computedRequired,
 } = useFieldValidation<File>(
-    validationProps,
+    props,
     model,
     (event: string, ...args: unknown[]) => {
         if (event === 'change') {
@@ -199,7 +183,7 @@ function onFileSelected(evt: Event): void {
         <label
             v-if="label"
             class="mb-2"
-            :class="{ 'fw-bolder': required }"
+            :class="{ 'fw-bolder': computedRequired }"
             :for="inputFileId"
             data-cy="file-input-label"
         >
@@ -249,7 +233,7 @@ function onFileSelected(evt: Event): void {
                     t(computedInvalidMessage, {
                         maxFileSize: maxFileSizeHuman,
                         allowedFormats: acceptedFileTypes.join(', '),
-                        ...invalidMessageExtraParams,
+                        ...(props.invalidMessageExtraParams ?? {}),
                     })
                 }}
             </div>

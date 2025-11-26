@@ -78,6 +78,7 @@ function validateForm(valid: boolean) {
             :invalid-marker="!!errorFileLoadingMessage"
             :invalid-message="errorFileLoadingMessage?.msg"
             :invalid-message-extra-params="errorFileLoadingMessage?.params"
+            :valid-marker="!!importSuccessMessage"
             :valid-message="importSuccessMessage"
             @validate="validateForm"
         />
