@@ -16,7 +16,7 @@ export default function changeTopic(
         this.current = topicId
         this.loadTopic(
             {
-                changeLayers: this.router.currentRoute.value.query.layers === undefined,
+                changeLayers: true,
             },
             dispatcher
         )
