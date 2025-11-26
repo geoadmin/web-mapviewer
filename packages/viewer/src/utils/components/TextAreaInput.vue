@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
@@ -90,7 +90,7 @@ const { t } = useI18n()
 
 const textAreaElement = useTemplateRef('textAreaElement')
 
-const validationProps = {
+const validationProps = computed(() => ({
     required,
     validMarker,
     validMessage,
@@ -98,7 +98,7 @@ const validationProps = {
     invalidMessage,
     activateValidation,
     validate,
-}
+}))
 
 const {
     value,
