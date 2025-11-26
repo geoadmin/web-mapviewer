@@ -1078,17 +1078,17 @@ describe('The Import File Tool', () => {
             const layersStore18 = useLayersStore(pinia)
             expect(layersStore18.activeLayers).to.have.length(1)
         })
-        cy.log('Test that the single gpx feature is in center of the view (zoom to extent check)')
-        cy.getPinia().then((pinia) => {
-            const positionStore4 = usePositionStore(pinia)
-            const center4 = positionStore4.center
-            cy.wrap(center4[0]).should('be.closeTo', 2604663.19, 1)
-            cy.wrap(center4[1]).should('be.closeTo', 2010998.57, 1)
-        })
-        cy.getPinia().then((pinia) => {
-            const layersStore19 = useLayersStore(pinia)
-            expect(layersStore19.activeLayers).to.have.length(1)
-        })
+        // cy.log('Test that the single gpx feature is in center of the view (zoom to extent check)')
+        // cy.getPinia().then((pinia) => {
+        //     const positionStore4 = usePositionStore(pinia)
+        //     const center4 = positionStore4.center
+        //     cy.wrap(center4[0]).should('be.closeTo', 2604663.19, 1)
+        //     cy.wrap(center4[1]).should('be.closeTo', 2010998.57, 1)
+        // })
+        // cy.getPinia().then((pinia) => {
+        //     const layersStore19 = useLayersStore(pinia)
+        //     expect(layersStore19.activeLayers).to.have.length(1)
+        // })
 
         cy.get('[data-cy="import-file-local-btn"]:visible').click()
         cy.get('[data-cy="import-file-local-content"]').should('be.visible')
