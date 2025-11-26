@@ -1,6 +1,6 @@
 import type { ComputedRef, Ref } from 'vue'
 
-import { computed, onMounted, ref, toRef, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 
 export interface ValidationResult {
     valid: boolean
@@ -69,13 +69,13 @@ export function propsValidator4ValidateFunc(value: unknown, _props: unknown): bo
 /**
  * Input field validation logic
  *
- * @param props Vue properties of the component to add the field validation
+ * @param props Computed ref of Vue properties containing field validation props
  * @param model Vue model definition of the input component (Ref or ModelRef from defineModel)
  * @param emits Vue event emitter definition of the input component
  * @param options Options object for custom validation and messages
  */
 export function useFieldValidation<T extends string | File>(
-    props: FieldValidationProps<T> | ComputedRef<FieldValidationProps<T>>,
+    props: ComputedRef<FieldValidationProps<T>>,
     model: Ref<T | undefined>,
     emits: (event: string, ...args: unknown[]) => void,
     {
@@ -89,15 +89,9 @@ export function useFieldValidation<T extends string | File>(
     const value = ref(model.value) as Ref<T | undefined>
 
     const userIsTyping = ref<boolean>(false)
-    const activateValidation = computed(() =>
-        'value' in props ? props.value.activateValidation : props.activateValidation
-    )
-    const required = computed(() =>
-        'value' in props ? props.value.required : props.required
-    )
-    const validMessage = computed(() =>
-        'value' in props ? props.value.validMessage : props.validMessage
-    )
+    const activateValidation = computed(() => props.value.activateValidation)
+    const required = computed(() => props.value.required)
+    const validMessage = computed(() => props.value.validMessage)
     const validation = ref<ValidationResult>({ valid: true, invalidMessage: '' })
 
     // Helper function to check if value is empty
@@ -123,9 +117,8 @@ export function useFieldValidation<T extends string | File>(
             return false
         }
         let _validMarker = isValid.value
-        const propsValue = 'value' in props ? props.value : props
-        if (propsValue.validMarker !== undefined) {
-            _validMarker = _validMarker && propsValue.validMarker
+        if (props.value.validMarker !== undefined) {
+            _validMarker = _validMarker && props.value.validMarker
         }
         return _validMarker
     })
@@ -134,16 +127,14 @@ export function useFieldValidation<T extends string | File>(
             return false
         }
         let _invalidMarker = !isValid.value
-        const propsValue = 'value' in props ? props.value : props
-        if (propsValue.invalidMarker !== undefined) {
-            _invalidMarker = _invalidMarker || propsValue.invalidMarker
+        if (props.value.invalidMarker !== undefined) {
+            _invalidMarker = _invalidMarker || props.value.invalidMarker
         }
         return _invalidMarker
     })
     const invalidMessage = computed(() => {
-        const propsValue = 'value' in props ? props.value : props
-        if (propsValue.invalidMessage) {
-            return propsValue.invalidMessage
+        if (props.value.invalidMessage) {
+            return props.value.invalidMessage
         }
         return validation.value.invalidMessage
     })
@@ -170,10 +161,9 @@ export function useFieldValidation<T extends string | File>(
                 invalidMessage: requiredInvalidMessage,
             }
         }
-        const propsValue = 'value' in props ? props.value : props
-        if (propsValue.validate && validation.value.valid) {
+        if (props.value.validate && validation.value.valid) {
             // Run user custom validation
-            validation.value = propsValue.validate(value.value)
+            validation.value = props.value.validate(value.value)
         }
         emits('validate', validation.value)
     }
