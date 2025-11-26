@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** Input with clear button component */
-import { nextTick, ref, useSlots, useTemplateRef } from 'vue'
+import { computed, nextTick, ref, useSlots, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
@@ -17,7 +17,21 @@ export interface TextInputValidateResult {
 
 export type TextInputValidateFunction = (_value?: string) => TextInputValidateResult
 
-const props = defineProps<{
+const {
+    label = '',
+    description = '',
+    disabled = false,
+    placeholder = '',
+    required = false,
+    validMarker = false,
+    validMessage = '',
+    invalidMarker = false,
+    invalidMessage = '',
+    invalidMessageParams = undefined,
+    activateValidation = false,
+    validate = undefined,
+    dataCy = '',
+} = defineProps<{
     /** Label to add above the field */
     label?: string
     /** Description to add below the input */
@@ -86,14 +100,6 @@ const props = defineProps<{
     dataCy?: string
 }>()
 
-const {
-    label = '',
-    description = '',
-    disabled = false,
-    placeholder = '',
-    dataCy = '',
-} = props
-
 // On each component creation set the current component unique ID
 const clearButtonId = useComponentUniqueId('button-addon-clear')
 const textInputId = useComponentUniqueId('text-input')
@@ -108,6 +114,16 @@ const emits = defineEmits<{
     'keydown.enter': []
 }>()
 
+const validationProps = computed(() => ({
+    required,
+    validMarker,
+    validMessage,
+    invalidMarker,
+    invalidMessage,
+    activateValidation,
+    validate,
+}))
+
 const {
     value,
     validMarker: computedValidMarker,
@@ -117,7 +133,7 @@ const {
     onFocus,
     required: computedRequired,
 } = useFieldValidation(
-    props,
+    validationProps,
     model,
     emits as (_event: string, ..._args: unknown[]) => void
 )
