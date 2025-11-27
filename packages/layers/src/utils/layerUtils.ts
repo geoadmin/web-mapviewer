@@ -1,5 +1,6 @@
 import type { CoordinateSystem } from '@swissgeo/coordinates'
 
+import log from '@swissgeo/log'
 import { servicesBaseUrl } from '@swissgeo/staging-config'
 import { cloneDeep, merge, omit } from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
@@ -23,6 +24,7 @@ import {
     type KMLLayer,
     KMLStyle,
     type Layer,
+    type LayerAttribution,
     LayerType,
     WMTSEncodingType,
 } from '@/types/layers'
@@ -258,6 +260,9 @@ function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
     }
     const kmlFileUrl: string = values.kmlFileUrl
 
+    // Detect if this is a local file or a URL
+    const isLocalFile = !kmlFileUrl.startsWith('http')
+
     let isExternal: boolean = true
     if (values.isExternal !== undefined) {
         isExternal = values.isExternal
@@ -291,6 +296,27 @@ function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
         fileId = kmlFileUrl.split('/').pop()
     }
 
+    // Set up attributions based on file source (only if not provided in values)
+    let attributions: LayerAttribution[]
+    if (values.attributions && values.attributions.length > 0) {
+        attributions = values.attributions
+    } else {
+        let attributionName: string
+        if (isLocalFile) {
+            attributionName = kmlFileUrl
+        } else {
+            try {
+                attributionName = new URL(kmlFileUrl).hostname
+            } catch (err) {
+                const error = err ? (err as Error) : new Error('Unknown error')
+                log.error('Error parsing KML file URL for attribution:', error)
+                // If URL parsing fails, fall back to using the kmlFileUrl as-is
+                attributionName = kmlFileUrl
+            }
+        }
+        attributions = [{ name: attributionName }]
+    }
+
     const defaults: KMLLayer = {
         kmlFileUrl: '',
         uuid: uuidv4(),
@@ -305,8 +331,8 @@ function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
         fileId,
         kmlData: undefined,
         kmlMetadata: undefined,
-        isLocalFile: false,
-        attributions: [],
+        isLocalFile,
+        attributions,
         style,
         type: LayerType.KML,
         hasTooltip: false,
@@ -324,6 +350,7 @@ function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
     }
 
     const layer: KMLLayer = merge(defaults, values)
+
     validateBaseData(layer)
     return layer
 }
