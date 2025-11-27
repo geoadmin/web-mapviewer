@@ -61,6 +61,7 @@ export default async function loadLayerFromCapabilities(
                         opacity: layer.opacity,
                         isVisible: layer.isVisible,
                         customAttributes: layer.customAttributes,
+                        currentYear: (layer as ExternalWMSLayer).currentYear
                     },
                 }
             )
@@ -72,6 +73,7 @@ export default async function loadLayerFromCapabilities(
                     opacity: layer.opacity,
                     isVisible: layer.isVisible,
                     customAttributes: layer.customAttributes,
+                    currentYear: (layer as ExternalWMTSLayer).currentYear
                 },
             })
         }
