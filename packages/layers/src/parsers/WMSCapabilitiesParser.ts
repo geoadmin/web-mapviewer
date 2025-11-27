@@ -517,10 +517,24 @@ function getExternalLayer(
     let layers: ExternalWMSLayer[] = []
 
     if (layer.Layer?.length) {
-        layers = layer.Layer.map((l) => getExternalLayer(capabilities, l.Name, options)).filter(
-            (layer) => !!layer
-        )
+        layers = layer.Layer.map((l) => {
+            if (l.Layer?.length) {
+                return getExternalLayer(capabilities, l.Name, options)
+            }
+            const childParents = []
+            parents?.forEach((parent) => childParents.push(parent))
+            childParents.push(layer)
+            return layerUtils.makeExternalWMSLayer({
+                ...getLayerAttributes(capabilities, l, childParents, outputProjection, ignoreErrors),
+                format: 'png',
+                isLoading: false,
+                getFeatureInfoCapability: getFeatureInfoCapability(capabilities, ignoreErrors),
+                currentYear,
+                customAttributes: params,
+            })
+        }).filter((layer) => !!layer)
     }
+
     return layerUtils.makeExternalWMSLayer({
         ...getLayerAttributes(capabilities, layer, parents ?? [], outputProjection, ignoreErrors),
         format: 'png',
