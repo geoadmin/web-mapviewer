@@ -17,15 +17,49 @@ export default function loadTopic(
 
     loadTopicTreeForTopic(i18nStore.lang, this.current, layersStore.config)
         .then((topicTree) => {
+            if (!this.currentTopic) {
+                return
+            }
             this.setTopicTree(topicTree.layers, dispatcher)
             this.setTopicTreeOpenedThemesIds([this.current, ...topicTree.itemIdToOpen], dispatcher)
-            if (this.currentTopic?.defaultBackgroundLayer) {
-                layersStore.setBackground(this.currentTopic?.defaultBackgroundLayer.id, dispatcher)
-            } else {
-                layersStore.setBackground(undefined, dispatcher)
+            if (options.changeLayers) {
+                if (this.currentTopic.defaultBackgroundLayer) {
+                    layersStore.setBackground(this.currentTopic.defaultBackgroundLayer.id, dispatcher)
+                } else {
+                    layersStore.setBackground(undefined, dispatcher)
+                }
+
+                if (this.currentTopic.layersToActivate) {
+                    layersStore.setLayers(this.currentTopic.layersToActivate, dispatcher)
+                }
             }
-            if (options.changeLayers && this.currentTopic?.layersToActivate) {
-                layersStore.setLayers(this.currentTopic.layersToActivate, dispatcher)
+            if (this.currentTopic.layersToActivate) {
+                const layersStore = useLayersStore()
+                // Get IDs of currently active layers
+                const activeLayerIds = new Set(layersStore.activeLayers.map(layer => layer.id))
+
+                // Create a map of active layers by ID for quick lookup with their time configs
+                const activeLayersMap = new Map(
+                    layersStore.activeLayers.map(layer => [layer.id, layer])
+                )
+
+                // Filter layersToActivate to only include layers that are currently active
+                const layersToKeep = this.currentTopic.layersToActivate.filter(layer =>
+                    activeLayerIds.has(layer.id)
+                ).map(layer => {
+                    const activeLayer = activeLayersMap.get(layer.id)
+                    layer.isVisible = activeLayer?.isVisible || false
+                    // If the active layer has a time config and current time entry, update the new layer's time config
+                    if (activeLayer?.timeConfig?.currentTimeEntry && layer.timeConfig) {
+                        layer.timeConfig.currentTimeEntry = activeLayer.timeConfig.currentTimeEntry
+                    }
+
+                    return layer
+                })
+                // Only set layers if there are any to keep
+                if (layersToKeep.length > 0) {
+                    layersStore.setLayers(layersToKeep, dispatcher)
+                }
             }
         })
         .catch((error) => {
