@@ -142,9 +142,21 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="profile-segment-button-0"]').should('not.exist')
         cy.get('[data-cy="infobox-close"]').click()
         cy.openMenuIfMobile()
-        cy.get(`[data-cy^="button-remove-layer-${bigKmlFileName}"]:visible`).click({ force: true })
+        cy.get(`[data-cy^="button-remove-layer-KML|${bigKmlFileName}"]:visible`).click({
+            force: true,
+        })
+
+        // Wait for layer removal to complete
+        cy.getPinia().then((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.be.empty
+        })
+
+        // Ensure no active layers message is visible before proceeding
+        cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
+
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
-        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click({ force: true })
 
         cy.log(
             'Test if kml is sanitized and external content is blocked and description is truncated'
@@ -183,9 +195,19 @@ describe('The Import File Tool', () => {
             .should('contain', 'Contains third party content')
         cy.get('[data-cy="infobox-close"]').click()
         cy.openMenuIfMobile()
-        cy.get(`[data-cy^="button-remove-layer-${iframeTestFile}"]:visible`).click()
+        cy.get(`[data-cy^="button-remove-layer-KML|${iframeTestFile}"]:visible`).click()
+
+        // Wait for layer removal to complete
+        cy.getPinia().then((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.be.empty
+        })
+
+        // Ensure no active layers message is visible before proceeding
+        cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
+
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
-        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click({ force: true })
 
         //---------------------------------------------------------------------
         // Test the import of an online KML file
@@ -1026,7 +1048,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
     })
 
-    it.only('Import GPX file', () => {
+    it('Import GPX file', () => {
         const gpxFileName = 'external-gpx-file.gpx'
         const gpxFileFixture = `import-tool/${gpxFileName}`
 
