@@ -9,7 +9,7 @@ import EmptyFileContentError from '@/modules/menu/components/advancedTools/Impor
 import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
-import { getKmlExtent, isKml, isKmlFeaturesValid } from '@/utils/kmlUtils'
+import { getKmlExtent, isKml, isKmlFeaturesValid, parseKmlName } from '@/utils/kmlUtils'
 
 export class KMLParser extends FileParser<KMLLayer> {
     constructor() {
@@ -53,6 +53,7 @@ export class KMLParser extends FileParser<KMLLayer> {
         }
 
         const kmlFileUrl = this.isLocalFile(fileSource) ? fileSource.name : fileSource
+        const kmlName = parseKmlName(kmlAsText) ?? kmlFileUrl
         const internalFiles: Record<string, ArrayBuffer> = {}
         linkFiles.forEach((value, key) => {
             internalFiles[key] = value
@@ -68,6 +69,7 @@ export class KMLParser extends FileParser<KMLLayer> {
         }
 
         return layerUtils.makeKMLLayer({
+            name: kmlName,
             opacity: 1.0,
             isVisible: true,
             extent: extentInCurrentProjection,
@@ -75,6 +77,7 @@ export class KMLParser extends FileParser<KMLLayer> {
             kmlData: kmlAsText,
             extentProjection: currentProjection,
             warningMessages,
+            isLoading: false, // Local files already have their data loaded
         })
     }
 }
