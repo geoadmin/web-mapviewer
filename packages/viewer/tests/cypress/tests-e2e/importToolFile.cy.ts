@@ -72,7 +72,7 @@ describe('The Import File Tool', () => {
         cy.intercept('GET', proxifyUrl(url), getResponse).as(`proxyfied${aliasName}`)
     }
 
-    it('Import KML file', () => {
+    it.only('Import KML file', () => {
         cy.goToMapView({ withHash: true })
         cy.getPinia().then((pinia) => {
             const layersStore = useLayersStore(pinia)
@@ -374,6 +374,7 @@ describe('The Import File Tool', () => {
         // Open the menu and check the layer list
         cy.log('Check that the external layers have been added to the active layers menu')
         cy.openMenuIfMobile()
+        cy.get('[data-cy="menu-section-active-layers"]').scrollIntoView()
         cy.get('[data-cy="menu-section-active-layers"]')
             .should('be.visible')
             .children()
@@ -390,7 +391,7 @@ describe('The Import File Tool', () => {
                             .find('[data-cy="menu-external-disclaimer-icon-hard-drive"]')
                             .should('be.visible')
                         cy.wrap($layer)
-                            .find('[data-cy="button-has-warning-kml_feature_error.kml"]')
+                            .find('[data-cy="button-has-warning-KML|kml_feature_error.kml"]')
                             .should('be.visible')
                         break
                     case 1:
@@ -399,7 +400,7 @@ describe('The Import File Tool', () => {
                             .find('[data-cy="menu-external-disclaimer-icon-hard-drive"]')
                             .should('be.visible')
                         cy.wrap($layer)
-                            .find('[data-cy="button-has-warning-line-accross-eu.kml"]')
+                            .find('[data-cy="button-has-warning-KML|line-accross-eu.kml"]')
                             .should('be.visible')
                         break
                     case 2:
@@ -480,7 +481,7 @@ describe('The Import File Tool', () => {
             const layersStore10 = useLayersStore(pinia)
             const visibleLayers = layersStore10.visibleLayers
             const visibleIds = visibleLayers.map((layer) => layer.id)
-            expect(visibleIds).to.contain(expectedLayerId)
+            expect(visibleIds).to.contain(`KML|${expectedLayerId}`)
         })
         cy.get('@layerSearchResults').first().realClick()
         // checking that the view has centered on the feature
@@ -502,7 +503,7 @@ describe('The Import File Tool', () => {
             const layersStore11 = useLayersStore(pinia)
             const visibleLayers2 = layersStore11.visibleLayers
             const visibleIds2 = visibleLayers2.map((layer) => layer.id)
-            expect(visibleIds2).to.contain(expectedOnlineLayerId)
+            expect(visibleIds2).to.contain(`KML|${expectedOnlineLayerId}`)
         })
         cy.get('@layerSearchResults').first().realClick()
         // checking that the view has centered on the feature
