@@ -519,7 +519,7 @@ describe('The Import File Tool', () => {
         cy.openMenuIfMobile()
         cy.get('[data-cy="menu-section-active-layers"]')
             .children()
-            .find('[data-cy="menu-external-disclaimer-icon-hard-drive"]:visible')
+            .find(`[data-cy="menu-external-disclaimer-icon-hard-drive"]:visible`)
             .eq(1)
             .click()
         cy.get('[data-cy="modal-content"]')
