@@ -1,7 +1,7 @@
 import type { CoordinateSystem } from '@swissgeo/coordinates'
 
 import { servicesBaseUrl } from '@swissgeo/staging-config'
-import { cloneDeep, merge, omit } from 'lodash'
+import { cloneDeep, merge, omit, over } from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 
 import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config'
