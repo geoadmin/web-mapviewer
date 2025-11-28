@@ -5,8 +5,9 @@ import { WGS84 } from '@swissgeo/coordinates'
 import { Math as CesiumMath } from 'cesium'
 import proj4 from 'proj4'
 
-
 import { DEFAULT_PROJECTION } from '@/config/map.config'
+import useCesiumStore from '@/store/modules/cesium'
+import usePositionStore from '@/store/modules/position'
 
 registerProj4(proj4)
 
@@ -16,15 +17,27 @@ describe('Testing transitioning between 2D and 3D', () => {
             cy.goToMapView()
         })
         it('activates 3D when we click on the 3D toggle button', () => {
-            cy.readStoreValue('state.cesium.active').should('be.false')
+            cy.getPinia().then((pinia) => {
+                const cesiumStore = useCesiumStore(pinia)
+                expect(cesiumStore.active).to.be.false
+            })
             cy.get('[data-cy="3d-button"]').should('be.visible').click()
-            cy.readStoreValue('state.cesium.active').should('be.true')
+            cy.getPinia().then((pinia) => {
+                const cesiumStore2 = useCesiumStore(pinia)
+                expect(cesiumStore2.active).to.be.true
+            })
         })
         it('deactivate 3D when clicking twice on the button', () => {
-            cy.readStoreValue('state.cesium.active').should('be.false')
+            cy.getPinia().then((pinia) => {
+                const cesiumStore3 = useCesiumStore(pinia)
+                expect(cesiumStore3.active).to.be.false
+            })
             cy.get('[data-cy="3d-button"]').should('be.visible').click()
             cy.get('[data-cy="3d-button"]').should('be.visible').click()
-            cy.readStoreValue('state.cesium.active').should('be.false')
+            cy.getPinia().then((pinia) => {
+                const cesiumStore4 = useCesiumStore(pinia)
+                expect(cesiumStore4.active).to.be.false
+            })
         })
         it('shows the users that 3D is active by changing its color', () => {
             cy.get('[data-cy="3d-button"]').should('not.have.class', 'active')
@@ -49,9 +62,12 @@ describe('Testing transitioning between 2D and 3D', () => {
             })
             it('correctly parses the 3D param at startup if present', () => {
                 cy.goToMapView({
-                    queryParams: {'3d': true }
+                    queryParams: { '3d': true },
                 })
-                cy.readStoreValue('state.cesium.active').should('be.true')
+                cy.getPinia().then((pinia) => {
+                    const cesiumStore5 = useCesiumStore(pinia)
+                    expect(cesiumStore5.active).to.be.true
+                })
             })
         })
         context('camera position in URL', () => {
@@ -77,7 +93,9 @@ describe('Testing transitioning between 2D and 3D', () => {
                         ].join(','),
                     },
                 })
-                cy.readStoreValue('state.position.camera').then((camera) => {
+                cy.getPinia().then((pinia) => {
+                    const positionStore = usePositionStore(pinia)
+                    const camera = positionStore.camera
                     expect(camera).to.be.an('Object')
                     expect(camera).to.haveOwnProperty('x')
                     expect(camera).to.haveOwnProperty('y')
@@ -85,28 +103,32 @@ describe('Testing transitioning between 2D and 3D', () => {
                     expect(camera).to.haveOwnProperty('pitch')
                     expect(camera).to.haveOwnProperty('heading')
                     expect(camera).to.haveOwnProperty('roll')
-                    expect(camera.x).to.eq(expectedCameraPosition.x)
-                    expect(camera.y).to.eq(expectedCameraPosition.y)
-                    expect(camera.z).to.eq(expectedCameraPosition.z)
-                    expect(camera.pitch).to.eq(expectedCameraPosition.pitch)
-                    expect(camera.heading).to.eq(expectedCameraPosition.heading)
-                    expect(camera.roll).to.eq(expectedCameraPosition.roll)
+                    expect(camera?.x).to.eq(expectedCameraPosition.x)
+                    expect(camera?.y).to.eq(expectedCameraPosition.y)
+                    expect(camera?.z).to.eq(expectedCameraPosition.z)
+                    expect(camera?.pitch).to.eq(expectedCameraPosition.pitch)
+                    expect(camera?.heading).to.eq(expectedCameraPosition.heading)
+                    expect(camera?.roll).to.eq(expectedCameraPosition.roll)
                 })
             })
+            it('adds the camera URL param when changing the camera position', () => {})
         })
     })
-    context('transition to 3D', () => {
-        it('translates 2D position correctly', () => {
-            const lat = 46
-            const lon = 7
-            cy.goToMapView({
-                queryParams: {
-                    center: proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [lon, lat]).join(','),
-                    z: 9,
-                },
-            })
-            cy.get('[data-cy="3d-button"]').click()
-            cy.window().its('cesiumViewer').then((viewer) => {
+})
+context('transition to 3D', () => {
+    it('translates 2D position correctly', () => {
+        const lat = 46
+        const lon = 7
+        cy.goToMapView({
+            queryParams: {
+                center: proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [lon, lat]).join(','),
+                z: 9,
+            },
+        })
+        cy.get('[data-cy="3d-button"]').click()
+        cy.window()
+            .its('cesiumViewer')
+            .then((viewer) => {
                 const cameraPosition = viewer.camera.positionCartographic
                 const acceptableDelta = 0.000001
                 expect(cameraPosition.longitude).to.be.closeTo(
@@ -119,6 +141,5 @@ describe('Testing transitioning between 2D and 3D', () => {
                 )
                 // TODO: test zoom to height as soon as the conversion is implemented
             })
-        })
     })
 })

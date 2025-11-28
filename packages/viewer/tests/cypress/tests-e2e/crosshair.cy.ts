@@ -1,48 +1,29 @@
 /// <reference types="cypress" />
 
-import { DEFAULT_PROJECTION } from '@/config/map.config'
-import { CrossHairs } from '@/store/modules/position.store'
-import type { CoordinateSystem } from '@swissgeo/coordinates'
 import type { Router, RouterHistory } from 'vue-router'
 
-// Temporary until the store is migrated to pinia and typescript
-interface PositionStore {
-    displayedFormatId: string
-    zoom: number | undefined
-    rotation: number
-    autoRotation: boolean
-    hasOrientation: boolean
-    center: number[] | undefined
-    projection: CoordinateSystem
-    crossHair: typeof CrossHairs | null
-    crossHairPosition: number[] | null
-    camera: CameraPosition | null
-}
-interface CameraPosition {
-    x: number
-    y: number
-    z: number
-    heading: number
-    pitch: number
-    roll: number
-}
+import { DEFAULT_PROJECTION } from '@/config/map.config'
+import usePositionStore from '@/store/modules/position'
+import { CrossHairs } from '@/store/modules/position/types/crossHairs.enum'
 
 describe('Testing the crosshair URL param', () => {
-
     /**
      * Changes a URL parameter without reloading the app.
      *
      * Help when you want to change a value in the URL but don't want the whole app be reloaded from
      * scratch in the process.
      *
-     * @param urlParamName URL param name (present or not in the URL, will be added or
-     *   overwritten)
+     * @param urlParamName URL param name (present or not in the URL, will be added or overwritten)
      * @param urlParamValue The new URL param value we want to have
-     * @param amountOfExpectedStoreDispatches The number of dispatches this change in the URL
-     *   is going to trigger. This function will then wait for this amount of dispatch in the store
+     * @param amountOfExpectedStoreDispatches The number of dispatches this change in the URL is
+     *   going to trigger. This function will then wait for this amount of dispatch in the store
      *   before letting the test go further
      */
-    function changeUrlParam(urlParamName: string, urlParamValue: string | null, amountOfExpectedStoreDispatches = 1): void {
+    function changeUrlParam(
+        urlParamName: string,
+        urlParamValue: string | undefined,
+        amountOfExpectedStoreDispatches = 1
+    ): void {
         cy.window()
             .its('vueRouterHistory')
             .then((vueRouterHistory: RouterHistory) => {
@@ -89,67 +70,82 @@ describe('Testing the crosshair URL param', () => {
     context('At app startup', () => {
         it('does not add the crosshair by default', () => {
             cy.goToMapView()
-            cy.readStoreValue('state.position').then((positionStore: PositionStore) => {
-                expect(positionStore.crossHair).to.be.null
-                expect(positionStore.crossHairPosition).to.be.null
+            cy.getPinia().then((pinia) => {
+                const positionStore = usePositionStore(pinia)
+                expect(positionStore.crossHair).to.be.undefined
+                expect(positionStore.crossHairPosition).to.be.undefined
             })
         })
         it('adds the crosshair at the center of the map if only the crosshair param is given', () => {
-            cy.goToMapView({ queryParams: { crosshair: CrossHairs.point } })
-            cy.readStoreValue('state.position').then((positionStore: PositionStore) => {
-                expect(positionStore.crossHair).to.eq(CrossHairs.point)
+            cy.goToMapView({ queryParams: { crosshair: CrossHairs.Point } })
+            cy.getPinia().then((pinia) => {
+                const positionStore = usePositionStore(pinia)
+                expect(positionStore.crossHair).to.eq(CrossHairs.Point)
                 expect(positionStore.crossHairPosition).to.eql(positionStore.center)
             })
         })
         it('sets the crosshair at the given coordinate if provided in the URL (and not at map center)', () => {
-            const crossHairPosition = DEFAULT_PROJECTION.bounds.center.map((value: number) => value + 1000)
+            const crossHairPosition = DEFAULT_PROJECTION.bounds!.center.map(
+                (value: number) => value + 1000
+            )
             cy.goToMapView({
-                queryParams: { crosshair: `${CrossHairs.bowl},${crossHairPosition.join(',')}` }
+                queryParams: { crosshair: `${CrossHairs.Bowl},${crossHairPosition.join(',')}` },
             })
-            cy.readStoreValue('state.position').then((positionStore: PositionStore) => {
-                expect(positionStore.crossHair).to.eq(CrossHairs.bowl)
+            cy.getPinia().then((pinia) => {
+                const positionStore = usePositionStore(pinia)
+                expect(positionStore.crossHair).to.eq(CrossHairs.Bowl)
                 expect(positionStore.crossHairPosition).to.eql(crossHairPosition)
             })
         })
     })
     context('Changes of URL param value while the app has been loaded', () => {
         it('Changes the crosshair types correctly if changed after app load', () => {
-            cy.goToMapView({ queryParams: { crosshair: CrossHairs.point } })
-            cy.readStoreValue('state.position.crossHair').should('eq', CrossHairs.point)
-            changeUrlParam('crosshair', CrossHairs.marker)
-            cy.readStoreValue('state.position.crossHair').should('eq', CrossHairs.marker)
+            cy.goToMapView({ queryParams: { crosshair: CrossHairs.Point } })
+            cy.getPinia().then((pinia) => {
+                const positionStore = usePositionStore(pinia)
+                cy.wrap(positionStore.crossHair).should('eq', CrossHairs.Point)
+            })
+            changeUrlParam('crosshair', CrossHairs.Marker)
+            cy.getPinia().then((pinia) => {
+                const positionStore = usePositionStore(pinia)
+                cy.wrap(positionStore.crossHair).should('eq', CrossHairs.Marker)
+            })
         })
         it('Changes the crosshair position if set after app reload', () => {
-            cy.goToMapView({ queryParams: { crosshair: CrossHairs.cross } })
-            cy.readStoreValue('state.position').then((positionStore: PositionStore) => {
-                expect(positionStore.crossHair).to.eq(CrossHairs.cross)
+            cy.goToMapView({ queryParams: { crosshair: CrossHairs.Cross } })
+            cy.getPinia().then((pinia) => {
+                const positionStore = usePositionStore(pinia)
+                expect(positionStore.crossHair).to.eq(CrossHairs.Cross)
                 expect(positionStore.crossHairPosition).to.eql(positionStore.center)
             })
 
-            const newCrossHairPosition = DEFAULT_PROJECTION.bounds.center.map(
+            const newCrossHairPosition = DEFAULT_PROJECTION.bounds!.center.map(
                 (value: number) => value - 12345
             )
             changeUrlParam(
                 'crosshair',
-                `${CrossHairs.cross},${newCrossHairPosition.join(',')}`,
+                `${CrossHairs.Cross},${newCrossHairPosition.join(',')}`,
                 // a change of the crosshair param with position triggers two dispatches: setCrossHair and setCrossHairPosition
                 2
             )
-            cy.readStoreValue('state.position').then((positionStore: PositionStore) => {
-                expect(positionStore.crossHair).to.eq(CrossHairs.cross)
+            cy.getPinia().then((pinia) => {
+                const positionStore = usePositionStore(pinia)
+                expect(positionStore.crossHair).to.eq(CrossHairs.Cross)
                 expect(positionStore.crossHairPosition).to.eql(newCrossHairPosition)
             })
         })
-        it('removes the crosshair if the URL param is removed (or set to null)', () => {
-            cy.goToMapView({ queryParams: { crosshair: CrossHairs.circle } })
-            cy.readStoreValue('state.position').then((positionStore: PositionStore) => {
-                expect(positionStore.crossHair).to.eq(CrossHairs.circle)
+        it('removes the crosshair if the URL param is removed (or set to undefined)', () => {
+            cy.goToMapView({ queryParams: { crosshair: CrossHairs.Circle } })
+            cy.getPinia().then((pinia) => {
+                const positionStore = usePositionStore(pinia)
+                expect(positionStore.crossHair).to.eq(CrossHairs.Circle)
                 expect(positionStore.crossHairPosition).to.eql(positionStore.center)
             })
-            changeUrlParam('crosshair', null, 2)
-            cy.readStoreValue('state.position').then((positionStore: PositionStore) => {
-                expect(positionStore.crossHair).to.be.null
-                expect(positionStore.crossHairPosition).to.be.null
+            changeUrlParam('crosshair', undefined, 2)
+            cy.getPinia().then((pinia) => {
+                const positionStore = usePositionStore(pinia)
+                expect(positionStore.crossHair).to.be.undefined
+                expect(positionStore.crossHairPosition).to.be.undefined
             })
         })
     })

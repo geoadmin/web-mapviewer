@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 /**
  * Utility component that will wrap your modal content and make sure it is above the overlay of the
  * map
@@ -11,73 +11,52 @@ import { useI18n } from 'vue-i18n'
 import BlackBackdrop from '@/utils/components/BlackBackdrop.vue'
 import PrintButton from '@/utils/components/PrintButton.vue'
 
-const { title, allowPrint, showConfirmationButtons, fluid, headerPrimary, top, hide } = defineProps(
-    {
-        title: {
-            type: String,
-            default: null,
-        },
-        allowPrint: {
-            type: Boolean,
-            default: false,
-        },
-        showConfirmationButtons: {
-            type: Boolean,
-            default: false,
-        },
-        fluid: {
-            type: Boolean,
-            default: false,
-        },
-        headerPrimary: {
-            type: Boolean,
-            default: false,
-        },
-        top: {
-            type: Boolean,
-            default: false,
-        },
-        confirmKey: {
-            type: String,
-            default: 'success',
-        },
-        cancelKey: {
-            type: String,
-            default: 'cancel',
-        },
-        confirmIcon: {
-            type: String,
-            default: null,
-        },
-        cancelIcon: {
-            type: String,
-            default: null,
-        },
-        /**
-         * Hide the modal with backdrop, can be used to temporarily hide the modal without loosing
-         * its content
-         */
-        hide: {
-            type: Boolean,
-            default: false,
-        },
-    }
-)
+const {
+    title,
+    allowPrint = false,
+    showConfirmationButtons = false,
+    fluid = false,
+    headerPrimary = false,
+    top = false,
+    confirmKey = 'success',
+    cancelKey = 'cancel',
+    confirmIcon,
+    cancelIcon,
+    hide = false,
+} = defineProps<{
+    title?: string
+    allowPrint?: boolean
+    showConfirmationButtons?: boolean
+    fluid?: boolean
+    headerPrimary?: boolean
+    top?: boolean
+    confirmKey?: string
+    cancelKey?: string
+    confirmIcon?: string
+    cancelIcon?: string
+    /**
+     * Hide the modal with backdrop, can be used to temporarily hide the modal without losing its
+     * content
+     */
+    hide?: boolean
+}>()
 
-const emits = defineEmits(['close'])
+const emits = defineEmits<{
+    close: [withConfirmation: boolean]
+}>()
 
-const modalContent = useTemplateRef('modalContent')
+const modalContent = useTemplateRef<HTMLDivElement>('modalContent')
 
 const { t } = useI18n()
 
 const hideForPrint = ref(false)
 
-function onClose(withConfirmation) {
+function onClose(withConfirmation: boolean): void {
     // it will go through preventOverlayToClose first and only remove our callback from the stack
     emits('close', withConfirmation)
 }
 
-function onHideParentModal(hide) {
+function onHideParentModal(hide: boolean): void {
     hideForPrint.value = hide
 }
 </script>
@@ -97,7 +76,7 @@ function onHideParentModal(hide) {
             <div
                 class="modal-popup position-fixed start-50"
                 :class="{
-                    'top-50 translate-middle': !top,
+                    'translate-middle top-50': !top,
                     'translate-middle-x on-top-with-padding': top,
                 }"
             >
@@ -114,14 +93,14 @@ function onHideParentModal(hide) {
                     >
                         <span
                             v-if="title"
-                            class="flex-grow-1 text-truncate text-start"
+                            class="text-truncate flex-grow-1 text-start"
                             data-cy="modal-with-backdrop-title"
                         >
                             {{ title }}
                         </span>
                         <PrintButton
                             v-if="allowPrint"
-                            :content="modalContent"
+                            :content="modalContent ?? undefined"
                             @hide-parent-modal="onHideParentModal"
                         />
                         <button
@@ -138,7 +117,7 @@ function onHideParentModal(hide) {
                     </div>
                     <div
                         ref="modalContent"
-                        class="card-body pe-4 ps-4 pt-3"
+                        class="card-body ps-4 pe-4 pt-3"
                         data-cy="modal-content"
                     >
                         <slot />

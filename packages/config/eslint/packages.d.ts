@@ -1,5 +1,6 @@
-import { FlatConfig } from '@typescript-eslint/utils/ts-eslint'
 import type { Linter } from 'eslint'
+
+import { FlatConfig } from '@typescript-eslint/utils/ts-eslint'
 
 declare module 'eslint-plugin-chai-friendly' {
     const plugin: FlatConfig.Plugin

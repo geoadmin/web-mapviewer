@@ -1,68 +1,103 @@
-<script setup lang="js">
+<script setup lang="ts">
+import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type { Viewer } from 'cesium'
+import type { MultiLineString, MultiPolygon } from 'geojson'
+import type { Map } from 'ol'
+
 import GeoadminElevationProfile, {
     GeoadminElevationProfileCesiumBridge,
     GeoadminElevationProfileOpenLayersBridge,
 } from '@swissgeo/elevation-profile'
-import { computed, inject, nextTick, onUnmounted, useTemplateRef, watch } from 'vue'
+import log from '@swissgeo/log'
+import {
+    computed,
+    inject,
+    nextTick,
+    onUnmounted,
+    shallowRef,
+    type ShallowRef,
+    useTemplateRef,
+    watch,
+} from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
 import { ENVIRONMENT } from '@/config/staging.config'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
+import useCesiumStore from '@/store/modules/cesium'
+import useDrawingStore from '@/store/modules/drawing'
+import useFeaturesStore from '@/store/modules/features'
+import useI18nStore from '@/store/modules/i18n'
+import usePositionStore from '@/store/modules/position'
+import useProfileStore from '@/store/modules/profile'
+import useUiStore from '@/store/modules/ui'
 import { generateFilename } from '@/utils/utils'
 
-const dispatcher = { dispatcher: 'InfoboxContent.vue' }
+const dispatcher = { name: 'InfoboxContent.vue' }
 
-const content = useTemplateRef('content')
+const content = useTemplateRef<HTMLDivElement>('content')
 
-const store = useStore()
 const { t } = useI18n()
 
-const olMap = inject('olMap')
-const getCesiumViewer = inject('getViewer', () => undefined, true)
-
-const selectedFeatures = computed(() => store.getters.selectedFeatures)
-const showFeatureInfoInBottomPanel = computed(() => store.getters.showFeatureInfoInBottomPanel)
-const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.show)
-const projection = computed(() => store.state.position.projection)
-const currentLang = computed(() => store.state.i18n.lang)
-const is3dActive = computed(() => store.state.cesium.active)
-
-const selectedFeature = computed(() => selectedFeatures.value[0])
-
-const isSelectedFeatureEditable = computed(() => selectedFeature.value?.isEditable)
-const isEditingDrawingFeature = computed(
-    () => showDrawingOverlay.value && isSelectedFeatureEditable.value
+const olMap = inject<Map>('olMap')
+const cesiumViewer = inject<ShallowRef<Viewer | undefined>>(
+    'viewer',
+    () => shallowRef(undefined),
+    true
 )
 
-const profileFeature = computed(() => store.state.profile.feature)
-const isMultiFeature = computed(() => store.getters.isProfileFeatureMultiFeature)
+// Stores
+const featuresStore = useFeaturesStore()
+const drawingStore = useDrawingStore()
+const positionStore = usePositionStore()
+const i18nStore = useI18nStore()
+const cesiumStore = useCesiumStore()
+const profileStore = useProfileStore()
+const uiStore = useUiStore()
 
-/** Used to track MultiLineString or MultiPolygon element to give to the profile component */
-const currentFeatureSegmentIndex = computed(() => store.state.profile.currentFeatureSegmentIndex)
-const currentGeometryElements = computed(() => profileFeature.value?.geometry.coordinates)
+const profilePoints = computed<SingleCoordinate[] | undefined>(
+    () => profileStore.currentProfileCoordinates
+)
 
-const currentProfileCoordinates = computed(() => store.getters.currentProfileCoordinates)
-const showElevationProfile = computed(() => !!profileFeature.value)
-
-watch(selectedFeatures, (features) => {
-    if (features.length === 0) {
-        return
+const isMultiFeature = computed(() => {
+    const t = profileStore.feature?.geometry?.type
+    return t === 'MultiLineString' || t === 'MultiPolygon'
+})
+// Type guard to check if coordinates is an array of arrays (MultiLineString/MultiPolygon)
+function isArrayOfArrays(coords: unknown): coords is number[][] | number[][][] {
+    return Array.isArray(coords) && coords.length > 0 && Array.isArray(coords[0])
+}
+const currentGeometryElements = computed(() => {
+    if (!isMultiFeature.value) {
+        return []
     }
-    nextTick(() => {
-        content.value?.scrollTo(0, 0)
-    })
+    const coords = (profileStore.feature?.geometry as unknown as MultiLineString | MultiPolygon)
+        .coordinates
+    return isArrayOfArrays(coords) ? coords : []
 })
 
-function setCurrentSegmentIndex(index) {
-    if (index === currentFeatureSegmentIndex.value) {
+const showElevationProfile = computed(() => !!profileStore.feature)
+
+watch(
+    () => featuresStore.selectedFeatures,
+    (features) => {
+        if (!features || features.length === 0) {
+            return
+        }
+        nextTick(() => content.value?.scrollTo(0, 0)).catch((e) => {
+            log.error({
+                title: 'InfoboxContent.vue',
+                messages: ['Error while scrolling to top of infobox content', e],
+            })
+        })
+    }
+)
+
+function setCurrentSegmentIndex(index: number): void {
+    if (index === profileStore.currentFeatureGeometryIndex) {
         return
     }
-    store.dispatch('setCurrentFeatureSegmentIndex', {
-        index,
-        ...dispatcher,
-    })
+    profileStore.setCurrentFeatureSegmentIndex(index, dispatcher)
 }
 
 onUnmounted(() => {
@@ -76,7 +111,7 @@ onUnmounted(() => {
         class="infobox-content d-flex flex-column"
         data-cy="infobox-content"
     >
-        <div class="d-flex h-100 justify-content-stretch flex-column flex-md-row overflow-y-auto">
+        <div class="d-flex justify-content-stretch flex-column flex-md-row h-100 overflow-y-auto">
             <div
                 v-if="showElevationProfile"
                 key="profile-detail"
@@ -92,8 +127,8 @@ onUnmounted(() => {
                             :key="index"
                             class="btn btn-sm text-nowrap"
                             :class="{
-                                'btn-secondary': index === currentFeatureSegmentIndex,
-                                'btn-light': index !== currentFeatureSegmentIndex,
+                                'btn-secondary': index === profileStore.currentFeatureGeometryIndex,
+                                'btn-light': index !== profileStore.currentFeatureGeometryIndex,
                             }"
                             :data-cy="`profile-segment-button-${index}`"
                             @click="setCurrentSegmentIndex(index)"
@@ -103,15 +138,15 @@ onUnmounted(() => {
                     </div>
                 </div>
                 <GeoadminElevationProfile
-                    :points="currentProfileCoordinates"
-                    :projection="projection.epsg"
-                    :locale="currentLang"
+                    :points="profilePoints"
+                    :projection="positionStore.projection.epsg"
+                    :locale="i18nStore.lang"
                     :staging="ENVIRONMENT"
                     :filename="generateFilename('.csv')"
                 >
                     <GeoadminElevationProfileCesiumBridge
-                        v-if="is3dActive && getCesiumViewer()"
-                        :cesium-instance="getCesiumViewer()"
+                        v-if="cesiumStore.active && cesiumViewer"
+                        :cesium-instance="cesiumViewer"
                     />
                     <GeoadminElevationProfileOpenLayersBridge
                         v-else-if="olMap"
@@ -120,14 +155,14 @@ onUnmounted(() => {
                 </GeoadminElevationProfile>
             </div>
             <FeatureStyleEdit
-                v-if="isEditingDrawingFeature && showFeatureInfoInBottomPanel"
+                v-if="drawingStore.feature.current && uiStore.showFeatureInfoInBottomPanel"
                 v-show="!showElevationProfile"
-                :feature="selectedFeature"
+                :feature="drawingStore.feature.current"
                 class="drawing-feature-edit p-3"
                 :class="{ 'flex-grow-1': !showElevationProfile }"
             />
             <FeatureList
-                v-if="showFeatureInfoInBottomPanel"
+                v-if="uiStore.showFeatureInfoInBottomPanel"
                 v-show="!showElevationProfile"
             />
         </div>

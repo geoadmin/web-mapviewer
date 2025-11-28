@@ -1,48 +1,60 @@
-<script setup lang="js">
-import { computed, ref, useTemplateRef, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
+<script setup lang="ts">
+import type { ExternalLayer } from '@swissgeo/layers'
 
-import { CapabilitiesError } from '@/api/layers/layers-external.api'
-import ProviderList from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderList.vue'
+import { CapabilitiesError } from '@swissgeo/layers/validation'
+import { type ComponentPublicInstance, computed, ref, useTemplateRef, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+import ProviderList, {
+    type ProviderListExpose,
+} from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderList.vue'
 import { useCapabilities } from '@/modules/menu/components/advancedTools/ImportCatalogue/useCapabilities'
 import { useProviders } from '@/modules/menu/components/advancedTools/ImportCatalogue/useProviders'
+import useI18nStore from '@/store/modules/i18n'
 import { isValidUrl } from '@/utils/utils'
 
-const emit = defineEmits(['capabilities:parsed', 'capabilities:cleared'])
+const emit = defineEmits<{
+    capabilitiesParsed: [layers: ExternalLayer[]]
+    capabilitiesCleared: [void]
+}>()
 
 const { t } = useI18n()
-const store = useStore()
+const i18nStore = useI18nStore()
 
 // Reactive data
 const url = ref('')
-const capabilitiesParsed = ref(false)
-const errorMessage = ref(null)
-const providerList = useTemplateRef('providerList')
-const isLoading = ref(false)
-const providerInput = useTemplateRef('providerInput')
+const isCapabilitiesParsed = ref<boolean>(false)
+const errorMessage = ref<string | undefined>()
+const providerList = useTemplateRef<ComponentPublicInstance<ProviderListExpose>>('providerList')
+const isLoading = ref<boolean>(false)
+const providerInput = useTemplateRef<HTMLInputElement>('providerInput')
 
 const { groupedProviders, showProviders, filterApplied, toggleProviders, filterText } =
     useProviders(url)
+
 const { loadCapabilities } = useCapabilities(url)
 
 // Computed properties
-const isValid = computed(() => !errorMessage.value && capabilitiesParsed.value)
-const isInvalid = computed(() => errorMessage.value)
-const connectButtonKey = computed(() => (isLoading.value ? 'loading' : 'connect'))
-const lang = computed(() => store.state.i18n.lang)
+const isValid = computed<boolean>(() => !errorMessage.value && isCapabilitiesParsed.value)
+const isInvalid = computed<boolean>(() => !!errorMessage.value)
+const connectButtonKey = computed<string>(() => (isLoading.value ? 'loading' : 'connect'))
 
-watch(lang, () => {
-    if (isValid.value) {
-        // When the language changes re-connect to reload the translated capabilities
-        connect()
+watch(
+    () => i18nStore.lang,
+    () => {
+        if (isValid.value) {
+            // When the language changes re-connect to reload the translated capabilities
+            connect().catch((_) => {
+                // satisfying the type-checker
+            })
+        }
     }
-})
+)
 
 // Methods
-function onUrlChange(_event) {
-    capabilitiesParsed.value = false
-    errorMessage.value = null
+function onUrlChange(_event: Event) {
+    isCapabilitiesParsed.value = false
+    errorMessage.value = undefined
 }
 
 function validateUrl() {
@@ -52,41 +64,48 @@ function validateUrl() {
     return !errorMessage.value
 }
 
-function clearUrl(event) {
-    capabilitiesParsed.value = false
+function clearUrl(event: MouseEvent) {
+    isCapabilitiesParsed.value = false
     url.value = ''
     showProviders.value = false
-    errorMessage.value = null
+    errorMessage.value = undefined
     if (event.screenX !== 0 || event.screenY !== 0) {
         // only focus on the provider input when the clear button has been clicked
         // and when it is a real click event (not a key stroke)
-        providerInput.value.focus()
+        if (providerInput.value) {
+            providerInput.value.focus()
+        }
     }
-    emit('capabilities:cleared')
+    emit('capabilitiesCleared')
 }
 
-function chooseProvider(providerUrl) {
+function chooseProvider(providerUrl: string) {
     url.value = providerUrl
-    connect()
+    connect().catch((_) => {
+        // satisfying type checker
+    })
 }
 
 function goToProviderList() {
-    if (showProviders.value) {
+    if (showProviders.value && providerList.value) {
         providerList.value.goToFirst()
     }
 }
 
 async function connect() {
     showProviders.value = false
-    errorMessage.value = null
+    errorMessage.value = undefined
     try {
         isLoading.value = true
-        const { layers, wmsMaxSize } = await loadCapabilities()
+
+        const { layers } = await loadCapabilities()
+
         isLoading.value = false
-        capabilitiesParsed.value = true
-        emit('capabilities:parsed', layers, wmsMaxSize)
+        isCapabilitiesParsed.value = true
+        emit('capabilitiesParsed', layers)
     } catch (error) {
         isLoading.value = false
+
         if (error instanceof CapabilitiesError) {
             errorMessage.value = error.key
         } else {
@@ -96,12 +115,14 @@ async function connect() {
     }
 }
 
-function onToggleProviders(event) {
+function onToggleProviders(event: MouseEvent) {
     toggleProviders()
     if (showProviders.value && (event.screenX !== 0 || event.screenY !== 0)) {
         // only focus on the provider input when the provider list has been opened
         // and when it is a real click event (not a key stroke)
-        providerInput.value.focus()
+        if (providerInput.value) {
+            providerInput.value.focus()
+        }
     }
 }
 
@@ -175,7 +196,7 @@ function hideProviders() {
                     v-if="
                         // We use v-if instead of v-show here in order to have bootstrap handling
                         // the rounded corner correctly
-                        !capabilitiesParsed && url?.length && isValidUrl(url)
+                        !isCapabilitiesParsed && url?.length && isValidUrl(url)
                     "
                     id="urlConnectButton"
                     type="button"
@@ -195,7 +216,7 @@ function hideProviders() {
                 </button>
             </div>
             <div
-                v-if="isInvalid && !showProviders"
+                v-if="isInvalid && !showProviders && errorMessage"
                 id="urlInvalidMessageFeedback"
                 class="invalid-feedback"
                 data-cy="import-catalog-invalid-feedback"

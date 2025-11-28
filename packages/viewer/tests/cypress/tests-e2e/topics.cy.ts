@@ -1,7 +1,9 @@
 /// <reference types="cypress" />
 
-import type AbstractLayer from "@/api/layers/AbstractLayer.class"
-import { assertDefined } from "support/utils"
+import { assertDefined } from 'support/utils'
+
+import useLayersStore from '@/store/modules/layers'
+import useTopicsStore from '@/store/modules/topics'
 
 describe('Topics', () => {
     // mimic the output of `/rest/services` endpoint
@@ -15,8 +17,12 @@ describe('Topics', () => {
     }
 
     const checkThatActiveLayerFromTopicAreActive = (rawTopic: MockupTopicsConfig) => {
-        if (!rawTopic) return
-        cy.readStoreValue('state.layers.activeLayers').should((activeLayers: AbstractLayer[]) => {
+        if (!rawTopic) {
+            return
+        }
+        cy.getPinia().then((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            const activeLayers = layersStore.activeLayers
             expect(activeLayers).to.be.an('Array')
             expect(activeLayers.length).to.eq(rawTopic.activatedLayers.length)
 
@@ -36,9 +42,15 @@ describe('Topics', () => {
 
     type MouseButton = 'left' | 'middle' | 'right'
     type PositionName =
-        | 'topLeft' | 'top' | 'topRight'
-        | 'left' | 'center' | 'right'
-        | 'bottomLeft' | 'bottom' | 'bottomRight'
+        | 'topLeft'
+        | 'top'
+        | 'topRight'
+        | 'left'
+        | 'center'
+        | 'right'
+        | 'bottomLeft'
+        | 'bottom'
+        | 'bottomRight'
 
     interface Point {
         x: number
@@ -64,14 +76,14 @@ describe('Topics', () => {
         defaultBackground: string
         groupId: number
         id: string
-        plConfig: string | null
+        plConfig: string | undefined
         selectedLayers: string[]
     }
 
     /**
      * Resize an element by dragging the bottom right corner If using the startXY coordinates, the
-     * startPosition should be undefined and the same for endXY X and Y coordinates are relative to the
-     * top left corner of the element
+     * startPosition should be undefined and the same for endXY X and Y coordinates are relative to
+     * the top left corner of the element
      *
      * @see https://github.com/dmtrKovalenko/cypress-real-events?tab=readme-ov-file#cyrealmousedown
      * @see https://github.com/dmtrKovalenko/cypress-real-events/blob/main/src/commands/mouseDown.ts
@@ -84,15 +96,15 @@ describe('Topics', () => {
         endXY = { x: 100, y: 100 },
         button = 'left',
     }: ResizeOptions = {}) {
-        ; (cy.get(selector)).realMouseDown({
+        cy.get(selector).realMouseDown({
             button,
             ...(startXY ? { x: startXY.x, y: startXY.y } : { position: startPosition }),
         })
-            ; (cy.get(selector)).realMouseDown({
-                button,
-                ...(endPosition ? { position: endPosition } : { x: endXY.x, y: endXY.y }),
-            })
-            ; (cy.get(selector)).realMouseUp({ button })
+        cy.get(selector).realMouseDown({
+            button,
+            ...(endPosition ? { position: endPosition } : { x: endXY.x, y: endXY.y }),
+        })
+        cy.get(selector).realMouseUp({ button })
 
         cy.log('cmd: resizeElement successful')
     }
@@ -107,15 +119,18 @@ describe('Topics', () => {
         })
         // checking that all topics have been loaded
         cy.fixture('topics.fixture').then((mockupTopics: MockupTopics) => {
-            cy.readStoreValue('state.topics.config').should((topicConfig: MockupTopicsConfig[]) => {
+            cy.getPinia().then((pinia) => {
+                const topicsStore = useTopicsStore(pinia)
+                const topicConfig = topicsStore.config
                 expect(topicConfig).to.be.an('Array')
                 expect(topicConfig.length).to.eq(mockupTopics.topics.length)
             })
         })
 
         // checking the default topic at app startup (must be ech)
-        cy.readStoreValue('state.topics.current').should((currentTopic: string) => {
-            expect(currentTopic).to.eq('ech')
+        cy.getPinia().then((pinia) => {
+            const topicsStore2 = useTopicsStore(pinia)
+            expect(topicsStore2.current).to.eq('ech')
         })
         cy.url().should('contain', 'topic=ech')
         cy.openMenuIfMobile()
@@ -125,13 +140,16 @@ describe('Topics', () => {
 
         //---------------------------------------------------------------------
         cy.log('can switch topics')
-        cy.readStoreValue('getters.visibleLayers').should((layers: AbstractLayer[]) => {
+        cy.getPinia().then((pinia) => {
+            const layersStore2 = useLayersStore(pinia)
+            const layers = layersStore2.visibleLayers
             expect(layers).to.be.an('Array')
             expect(layers.length).to.eq(1)
             assertDefined(layers[0])
             expect(layers[0]).to.be.an('Object')
             expect(layers[0].id).to.eq('test.wmts.layer')
         })
+
         // it must clear all activated layers and change background layer on topic selection
         cy.fixture('topics.fixture').then((mockupTopics: MockupTopics) => {
             expect(mockupTopics.topics.length).to.be.at.least(5)
@@ -140,14 +158,16 @@ describe('Topics', () => {
 
             selectTopicWithId(topicStandard.id)
             // we expect visible layers to be empty
-            cy.readStoreValue('getters.visibleLayers').should((layers: AbstractLayer[]) => {
-                expect(layers).to.be.an('Array')
-                expect(layers.length).to.eq(0)
-            })
-            // we expect background layer to have switched to the one of the topic
-            cy.readStoreValue('getters.currentBackgroundLayer').should((bgLayer: AbstractLayer) => {
-                expect(bgLayer).to.not.be.null
-                expect(bgLayer.id).to.eq(topicStandard.defaultBackground)
+            cy.getPinia().then((pinia) => {
+                const layersStore3 = useLayersStore(pinia)
+                const layers2 = layersStore3.visibleLayers
+                expect(layers2).to.be.an('Array')
+                expect(layers2.length).to.eq(0)
+
+                // we expect background layer to have switched to the one of the topic
+                const bgLayer = layersStore3.currentBackgroundLayer
+                expect(bgLayer).to.not.be.undefined
+                expect(bgLayer?.id).to.eq(topicStandard.defaultBackground)
             })
 
             // it must show the topic tree in the menu when a topic is selected (that is not the default topic)
@@ -161,7 +181,10 @@ describe('Topics', () => {
             assertDefined(topicWithActiveLayers)
             selectTopicWithId(topicWithActiveLayers.id)
             // we expect the layer to be activated but not visible
-            cy.readStoreValue('getters.visibleLayers').should('be.empty')
+            cy.getPinia().then((pinia) => {
+                const layersStore4 = useLayersStore(pinia)
+                expect(layersStore4.visibleLayers).to.be.empty
+            })
             checkThatActiveLayerFromTopicAreActive(topicWithActiveLayers)
             // now that there are some active layer, the "Displayed map" menu section must be visible
             cy.get('[data-cy="menu-section-active-layers"]').should('be.visible')
@@ -171,14 +194,18 @@ describe('Topics', () => {
             assertDefined(topicWithVisibleLayers)
             selectTopicWithId(topicWithVisibleLayers.id)
             // there should be visible layers
-            cy.readStoreValue('getters.visibleLayers').should((visibleLayers: AbstractLayer[]) => {
+            cy.getPinia().then((pinia) => {
+                const layersStore5 = useLayersStore(pinia)
+                const visibleLayers = layersStore5.visibleLayers
                 expect(visibleLayers).to.be.an('Array')
                 expect(visibleLayers.length).to.eq(topicWithVisibleLayers.selectedLayers.length)
-                topicWithVisibleLayers.selectedLayers.forEach((layerIdThatMustBeVisible: string, index: number) => {
-                    expect(visibleLayers[index]).to.be.an('Object')
-                    assertDefined(visibleLayers[index])
-                    expect(visibleLayers[index].id).to.eq(layerIdThatMustBeVisible)
-                })
+                topicWithVisibleLayers.selectedLayers.forEach(
+                    (layerIdThatMustBeVisible: string, index: number) => {
+                        expect(visibleLayers[index]).to.be.an('Object')
+                        assertDefined(visibleLayers[index])
+                        expect(visibleLayers[index].id).to.eq(layerIdThatMustBeVisible)
+                    }
+                )
             })
             checkThatActiveLayerFromTopicAreActive(topicWithVisibleLayers)
 
@@ -193,27 +220,31 @@ describe('Topics', () => {
                 'test.wmts.layer': 0.6,
                 'test.wms.layer': 0.8,
             }
-            cy.readStoreValue('getters.visibleLayers').should((visibleLayers: AbstractLayer[]) => {
-                expect(visibleLayers).to.be.an('Array')
-                expect(visibleLayers.length).to.eq(expectedVisibleLayers.length)
+            cy.getPinia().then((pinia) => {
+                const layersStore6 = useLayersStore(pinia)
+                const visibleLayers2 = layersStore6.visibleLayers
+                expect(visibleLayers2).to.be.an('Array')
+                expect(visibleLayers2.length).to.eq(expectedVisibleLayers.length)
                 expectedVisibleLayers.forEach((layerIdThatMustBeVisible, index) => {
-                    expect(visibleLayers[index]).to.be.an('Object')
-                    assertDefined(visibleLayers[index])
-                    expect(visibleLayers[index].id).to.eq(layerIdThatMustBeVisible)
+                    expect(visibleLayers2[index]).to.be.an('Object')
+                    assertDefined(visibleLayers2[index])
+                    expect(visibleLayers2[index].id).to.eq(layerIdThatMustBeVisible)
                 })
-            })
-            cy.readStoreValue('state.layers.activeLayers').should((activeLayers: AbstractLayer[]) => {
-                expect(activeLayers).to.be.an('Array')
-                expect(activeLayers.length).to.eq(expectedActiveLayers.length)
+
+                const activeLayers2 = layersStore6.activeLayers
+                expect(activeLayers2).to.be.an('Array')
+                expect(activeLayers2.length).to.eq(expectedActiveLayers.length)
                 expectedActiveLayers.forEach((layerIdThatMustBeActive, index) => {
-                    const activeLayer = activeLayers[index]
+                    const activeLayer = activeLayers2[index]
                     assertDefined(activeLayer)
                     expect(activeLayer).to.be.an('Object')
                     expect(activeLayer.id).to.eq(layerIdThatMustBeActive)
                     expect(activeLayer.opacity).to.eq(expectedOpacity[layerIdThatMustBeActive])
                 })
+
+                const bgLayer2 = layersStore6.currentBackgroundLayer
+                expect(bgLayer2).to.be.undefined // void layer
             })
-            cy.readStoreValue('getters.currentBackgroundLayer').should('be.null') // void layer
         })
 
         //---------------------------------------------------------------------
@@ -232,8 +263,11 @@ describe('Topics', () => {
 
         // it adds a layer to the map when we click on its name in the topic tree
         cy.get('[data-cy="catalogue-tree-item-title-3"]').should('be.visible').click()
-        cy.readStoreValue('state.layers.activeLayers').should('have.length', 2)
-        cy.readStoreValue('getters.visibleLayers').should('have.length', 1)
+        cy.getPinia().then((pinia) => {
+            const layersStore7 = useLayersStore(pinia)
+            expect(layersStore7.activeLayers).to.have.length(2)
+            expect(layersStore7.visibleLayers).to.have.length(1)
+        })
         cy.get('[data-cy="catalogue-add-layer-button-test.wmts.layer"] svg').should(
             'have.class',
             'fa-square-check'
@@ -243,23 +277,28 @@ describe('Topics', () => {
             'have.class',
             'fa-square'
         )
-        cy.readStoreValue('state.layers.activeLayers').should((activeLayers: AbstractLayer[]) => {
-            expect(activeLayers).to.be.an('Array').lengthOf(1)
-            const [firstLayer] = activeLayers
+        cy.getPinia().then((pinia) => {
+            const layersStore8 = useLayersStore(pinia)
+            const activeLayers3 = layersStore8.activeLayers
+            expect(activeLayers3).to.be.an('Array').lengthOf(1)
+            const [firstLayer] = activeLayers3
             assertDefined(firstLayer)
             expect(firstLayer.id).to.eq('test.wms.layer')
         })
+
         cy.get('[data-cy="catalogue-tree-item-title-test.wmts.layer"]').should('be.visible').click()
         cy.get('[data-cy="catalogue-add-layer-button-test.wmts.layer"] svg').should(
             'have.class',
             'fa-square-check'
         )
-        cy.readStoreValue('state.layers.activeLayers').should((activeLayers: AbstractLayer[]) => {
-            expect(activeLayers).to.be.an('Array').lengthOf(2)
-            const [firstLayer, secondLayer] = activeLayers
-            assertDefined(firstLayer)
+        cy.getPinia().then((pinia) => {
+            const layersStore9 = useLayersStore(pinia)
+            const activeLayers4 = layersStore9.activeLayers
+            expect(activeLayers4).to.be.an('Array').lengthOf(2)
+            const [firstLayer2, secondLayer] = activeLayers4
+            assertDefined(firstLayer2)
             assertDefined(secondLayer)
-            expect(firstLayer.id).to.eq('test.wms.layer')
+            expect(firstLayer2.id).to.eq('test.wms.layer')
             expect(secondLayer.id).to.eq('test.wmts.layer')
         })
 
@@ -281,10 +320,15 @@ describe('Topics', () => {
         cy.get('[data-cy="catalogue-tree-item-5"]').should('be.visible').click()
         cy.get('[data-cy="catalogue-tree-item-name-test.wms.layer"]').scrollIntoView()
         cy.get('[data-cy="catalogue-tree-item-name-test.wms.layer"]').should('be.visible')
-        cy.readStoreValue('state.layers.previewLayer').should('be.null')
+        cy.getPinia().then((pinia) => {
+            const layersStore10 = useLayersStore(pinia)
+            expect(layersStore10.previewLayer).to.be.undefined
+        })
         cy.get('[data-cy="catalogue-tree-item-name-test.wms.layer"]').trigger('mouseenter')
-        cy.readStoreValue('state.layers.previewLayer').should((layer: AbstractLayer) => {
-            expect(layer.id).to.equal('test.wms.layer')
+        cy.getPinia().then((pinia) => {
+            const layersStore11 = useLayersStore(pinia)
+            const previewLayer = layersStore11.previewLayer
+            expect(previewLayer?.id).to.equal('test.wms.layer')
         })
 
         //----------------------------------------------------------------------
@@ -322,7 +366,9 @@ describe('Topics', () => {
         cy.get('[data-cy="catalogue-tree-item-5"]').should('be.visible')
         cy.get('[data-cy="catalogue-tree-item-test.wmts.layer"]').should('not.exist')
         cy.get('[data-cy="catalogue-tree-item-test.wms.layer"]').should('be.visible')
-        cy.readStoreValue('state.topics.openedTreeThemesIds').should((currentlyOpenedThemesId: string[]) => {
+        cy.getPinia().then((pinia) => {
+            const topicsStore3 = useTopicsStore(pinia)
+            const currentlyOpenedThemesId = topicsStore3.openedTreeThemesIds
             expect(currentlyOpenedThemesId).to.be.an('Array')
             expect(currentlyOpenedThemesId).to.deep.equal([
                 'test-topic-with-active-layers',
@@ -371,8 +417,18 @@ describe('Topics', () => {
                 const rect = popup[0].getBoundingClientRect()
                 const initialPosition = { x: rect.x, y: rect.y }
                 cy.get(popupSelectorHeader).trigger('mousedown', { button: 0 })
-                cy.get(popupSelectorHeader).trigger('mousemove', { button: 0, clientX: 0, clientY: 0, force: true }) // this is needed to make the drag work
-                cy.get(popupSelectorHeader).trigger('mousemove', { button: 0, clientX: moveX, clientY: moveY, force: true })
+                cy.get(popupSelectorHeader).trigger('mousemove', {
+                    button: 0,
+                    clientX: 0,
+                    clientY: 0,
+                    force: true,
+                }) // this is needed to make the drag work
+                cy.get(popupSelectorHeader).trigger('mousemove', {
+                    button: 0,
+                    clientX: moveX,
+                    clientY: moveY,
+                    force: true,
+                })
                 cy.get(popupSelectorHeader).trigger('mouseup', { button: 0 })
 
                 cy.get(popupSelector).then((popup2: JQuery<HTMLElement>) => {
@@ -418,16 +474,16 @@ describe('Topics', () => {
                 })
                 cy.wrap(genArr).each((index: number) => {
                     cy.log('reduce size loop 3 for index', index)
-                        ; (cy.get(popupSelector)).realMouseDown({
-                            button: 'left',
-                            x: initialDimensions.width - bottomRightMargin - index,
-                            y: initialDimensions.height - bottomRightMargin - index,
-                        })
-                        ; (cy.get(popupSelector)).realMouseDown({
-                            button: 'left',
-                            position: 'right',
-                        })
-                        ; (cy.get(popupSelector)).realMouseUp({ button: 'left' })
+                    cy.get(popupSelector).realMouseDown({
+                        button: 'left',
+                        x: initialDimensions.width - bottomRightMargin - index,
+                        y: initialDimensions.height - bottomRightMargin - index,
+                    })
+                    cy.get(popupSelector).realMouseDown({
+                        button: 'left',
+                        position: 'right',
+                    })
+                    cy.get(popupSelector).realMouseUp({ button: 'left' })
                 })
 
                 cy.get(popupSelector).then((popup2: JQuery<HTMLElement>) => {

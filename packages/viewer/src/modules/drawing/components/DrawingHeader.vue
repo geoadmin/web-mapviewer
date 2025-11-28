@@ -1,9 +1,9 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
+import useDrawingStore from '@/store/modules/drawing'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 
 const { isClosingInToolbox } = defineProps({
@@ -12,13 +12,15 @@ const { isClosingInToolbox } = defineProps({
         default: false,
     },
 })
-
-const emits = defineEmits(['close'])
-const store = useStore()
+type EmitType = {
+    (_e: 'close'): void
+}
+const emits = defineEmits<EmitType>()
+const drawingStore = useDrawingStore()
 
 const isClosing = ref(false)
 const isClosingWithWarning = computed(() => isClosing.value && isClosingInToolbox)
-const drawingTitle = computed(() => store.state.drawing.drawingOverlay.title)
+const drawingTitle = computed(() => drawingStore.overlay.title)
 
 const { t } = useI18n()
 

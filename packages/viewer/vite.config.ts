@@ -1,16 +1,12 @@
+import type { ViteUserConfig } from 'vitest/config'
+
 import tailwindcss from '@tailwindcss/vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import vue from '@vitejs/plugin-vue'
 import gitDescribe from 'git-describe'
 import { dirname } from 'path'
 import { fileURLToPath, URL } from 'url'
-import {
-    type ConfigEnv,
-    defineConfig,
-    normalizePath,
-    type PluginOption,
-    type UserConfig,
-} from 'vite'
+import { type ConfigEnv, defineConfig, normalizePath, type PluginOption } from 'vite'
 import ConditionalCompile from 'vite-plugin-conditional-compiler'
 import { VitePWA } from 'vite-plugin-pwa'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
@@ -43,13 +39,18 @@ const stagings: Record<ViteModes, string> = {
 
 /**
  * We use manual chunks to reduce the size of the final index.js file to improve startup
- * performance.
+ * performance. Only separate Cesium (large, rarely changes) from the rest.
  */
 function manualChunks(id: string): string | undefined {
+    // Separate Cesium - it's a large (~3.5MB), standalone library that rarely changes
+    if (id.includes('node_modules') && id.includes('cesium')) {
+        return 'vendor-cesium'
+    }
     // Put all files from the src/utils into the chunk named utils.js
     if (id.includes('/src/utils/')) {
         return 'utils'
     }
+    // Everything else goes into default chunks
 }
 
 function generatePlugins(mode: ViteModes, isTesting: boolean = false): PluginOption[] {
@@ -125,7 +126,8 @@ function generatePlugins(mode: ViteModes, isTesting: boolean = false): PluginOpt
                 includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg'],
                 injectRegister: false,
                 injectManifest: {
-                    // 5MB max (default is 2MB, some of our chunks and Cesium files are larger than that)
+                    // 5MB max (default is 2MB, some automatically generated chunks are larger than that)
+                    // Increased to accommodate Vite's automatic chunking without manual intervention
                     maximumFileSizeToCacheInBytes: 5 * 1000 * 1000,
                 },
 
@@ -167,7 +169,7 @@ function generatePlugins(mode: ViteModes, isTesting: boolean = false): PluginOpt
 }
 
 // https://vitejs.dev/config/
-export default defineConfig((configEnv: ConfigEnv): UserConfig => {
+export default defineConfig((configEnv: ConfigEnv): ViteUserConfig => {
     const { mode } = configEnv
     // "test" mode is essentially the "development" mode, but with a different plugin composition.
     // In test mode, we don't want the PWA plugin or the dev tools.

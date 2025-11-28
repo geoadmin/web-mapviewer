@@ -1,10 +1,11 @@
+import type { CyHttpMessages } from 'cypress/types/net-stubbing'
+
 import { randomIntBetween } from '@swissgeo/numbers'
 import pako from 'pako'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import { EditableFeatureTypes } from '@/api/features.api'
+import useDrawingStore from '@/store/modules/drawing'
 import { generateRGBFillString, GREEN, RED } from '@/utils/featureStyleUtils'
-
-import type { CyHttpMessages } from 'cypress/types/net-stubbing'
 
 function transformHeaders(headers: { [key: string]: string | string[] }): HeadersInit {
     const transformedHeaders: HeadersInit = {}
@@ -138,7 +139,9 @@ function addFileAPIFixtureAndIntercept(): void {
         },
         async (req) => {
             try {
-                const formData = await new Response(req.body, { headers: transformHeaders(req.headers) }).formData()
+                const formData = await new Response(req.body, {
+                    headers: transformHeaders(req.headers),
+                }).formData()
                 const adminId = formData.get('admin_id')
                 const id = req.url.split('/').pop()
 
@@ -175,7 +178,8 @@ Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = true) => {
     addProfileFixtureAndIntercept()
     addFileAPIFixtureAndIntercept()
     cy.goToMapView({ queryParams, withHash })
-    cy.window().its('map')
+    cy.window()
+        .its('map')
         .then((map) => map.getOverlays().getLength())
         .as('nbOverlaysAtBeginning')
     // opening the drawing mode if no KML with adminId defined in the URL
@@ -183,8 +187,14 @@ Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = true) => {
     if (!queryParams.layers || queryParams.layers.indexOf('@adminId=') === -1) {
         cy.openDrawingMode()
     }
-    cy.readStoreValue('state.drawing.drawingOverlay.show').should('be.true')
-    cy.waitUntilState((state) => state.drawing.iconSets.length > 0)
+    cy.getPinia().should((pinia) => {
+        const drawingStore = useDrawingStore(pinia)
+        expect(drawingStore.overlay.show).to.be.true
+    })
+    cy.waitUntilState((pinia) => {
+        const drawingStore = useDrawingStore(pinia)
+        return drawingStore.iconSets.length > 0
+    })
 })
 
 Cypress.Commands.add('openDrawingMode', () => {
@@ -205,7 +215,10 @@ Cypress.Commands.add('closeDrawingMode', (closeDrawingNotSharedAdmin = true) => 
                 cy.get('[data-cy="drawing-share-admin-close"]').click()
             }
         })
-        cy.window().its('store.state.drawing.drawingOverlay.show').should('be.false')
+        cy.getPinia().should((pinia) => {
+            const drawingStore = useDrawingStore(pinia)
+            expect(drawingStore.overlay.show).to.be.false
+        })
         // In drawing mode the click event on the map are removed therefore we need to wait that
         // they are added again begore continuing testing
         cy.waitMapIsReady()
@@ -215,16 +228,19 @@ Cypress.Commands.add('closeDrawingMode', (closeDrawingNotSharedAdmin = true) => 
 Cypress.Commands.add('clickDrawingTool', (name, unselect = false) => {
     expect(Object.values(EditableFeatureTypes)).to.include(name)
     cy.get(`[data-cy="drawing-toolbox-mode-button-${name}"]:visible`).click()
-    if (unselect) {
-        cy.readStoreValue('state.drawing.mode').should('eq', null)
-    } else {
-        cy.readStoreValue('state.drawing.mode').should('eq', name)
-    }
+    cy.getPinia().should((pinia) => {
+        const drawingStore = useDrawingStore(pinia)
+        expect(drawingStore.edit.featureType).to.eq(unselect ? undefined : name)
+    })
 })
 
-export async function getKmlAdminIdFromRequest(req: CyHttpMessages.IncomingHttpRequest): Promise<string> {
+export async function getKmlAdminIdFromRequest(
+    req: CyHttpMessages.IncomingHttpRequest
+): Promise<string> {
     try {
-        const formData = await new Response(req.body, { headers: transformHeaders(req.headers) }).formData()
+        const formData = await new Response(req.body, {
+            headers: transformHeaders(req.headers),
+        }).formData()
         return formData.get('admin_id') as string
     } catch (error) {
         Cypress.log({
@@ -249,11 +265,12 @@ function isZlib(u8: Uint8Array): boolean {
     return u8.length > 2 && u8[0] === 0x78
 }
 
-
 export async function getKmlFromRequest(req: CyHttpMessages.IncomingHttpRequest) {
     let paramBlob: ArrayBuffer | string | null = null
     try {
-        const formData = await new Response(req.body, { headers: transformHeaders(req.headers) }).formData()
+        const formData = await new Response(req.body, {
+            headers: transformHeaders(req.headers),
+        }).formData()
 
         if (req.method === 'DELETE') {
             if (!formData.has('admin_id')) {
@@ -350,7 +367,11 @@ export async function getKmlFromRequest(req: CyHttpMessages.IncomingHttpRequest)
     }
 }
 
-export async function checkKMLRequest(request: CyHttpMessages.IncomingHttpRequest, data: (RegExp | string)[], updatedKmlId?: string) {
+export async function checkKMLRequest(
+    request: CyHttpMessages.IncomingHttpRequest,
+    data: (RegExp | string)[],
+    updatedKmlId?: string
+) {
     // Check request
     if (updatedKmlId) {
         const urlArray = request.url.split('/')
@@ -370,7 +391,9 @@ export async function checkKMLRequest(request: CyHttpMessages.IncomingHttpReques
         if (test instanceof RegExp) {
             expect(test.test(kmlString), `KML content did not match ${test}`).to.be.true
         } else {
-            expect(kmlString.indexOf(test), `KML content did not contain ${test}`).to.not.be.equal(-1)
+            expect(kmlString.indexOf(test), `KML content did not contain ${test}`).to.not.be.equal(
+                -1
+            )
         }
     })
 }

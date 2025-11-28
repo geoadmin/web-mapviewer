@@ -22,21 +22,19 @@ import GeoadminElevationProfileInformation from '@/GeoadminElevationProfileInfor
 import GeoadminElevationProfilePlot from '@/GeoadminElevationProfilePlot.vue'
 import getProfile, { type ElevationProfile, ElevationProfileError } from '@/profile.api'
 
-interface ElevationProfileProps {
-    points?: SingleCoordinate[]
-    projection?: string
-    simplify?: boolean
-    staging?: Staging
-    filename?: string
-}
-
 const {
     points = [],
     projection = LV95.epsg,
     simplify = false,
     staging = 'production',
     filename = 'export',
-} = defineProps<ElevationProfileProps>()
+} = defineProps<{
+    points?: SingleCoordinate[]
+    projection?: string
+    simplify?: boolean
+    staging?: Staging
+    filename?: string
+}>()
 
 interface ElevationProfileMessages {
     profile_download_csv: string

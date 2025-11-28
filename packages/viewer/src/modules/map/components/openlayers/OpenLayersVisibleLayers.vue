@@ -1,32 +1,32 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed } from 'vue'
-import { useStore } from 'vuex'
 
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import OpenLayersInternalLayer from '@/modules/map/components/openlayers/OpenLayersInternalLayer.vue'
+import useDrawingStore from '@/store/modules/drawing'
+import useLayersStore from '@/store/modules/layers'
 
-const store = useStore()
-const visibleLayers = computed(() => store.getters.visibleLayers)
-const isCurrentlyDrawing = computed(() => store.state.drawing.drawingOverlay.show)
-const currentDrawingKmlLayer = computed(() => store.getters.activeKmlLayer)
-const temporaryKmlId = computed(() => store.state.drawing.temporaryKmlId)
-const online = computed(() => store.state.drawing.online)
+const layersStore = useLayersStore()
+const drawingStore = useDrawingStore()
 
 // We do not want the drawing layer be added to the visible layers while it is being edited, so we filter
 // it out in this case
 const filteredVisibleLayers = computed(() => {
     // In normal drawing mode show only the drawing layer
-    if (isCurrentlyDrawing.value && online.value && currentDrawingKmlLayer.value) {
-        return visibleLayers.value.filter(
+    if (drawingStore.overlay.show && drawingStore.online && layersStore.activeKmlLayer) {
+        return layersStore.visibleLayers.filter(
             (layer) =>
-                layer.id !== currentDrawingKmlLayer.value.id && layer.id !== temporaryKmlId.value
+                layer.id !== layersStore.activeKmlLayer!.id &&
+                layer.id !== drawingStore.layer.temporaryKmlId
         )
     }
     // In report problem drawing mode show the drawing layer and the temporary layer
-    if (isCurrentlyDrawing.value && !online.value && temporaryKmlId.value) {
-        return visibleLayers.value.filter((layer) => layer.id !== temporaryKmlId.value)
+    if (drawingStore.overlay.show && !drawingStore.online && drawingStore.layer.temporaryKmlId) {
+        return layersStore.visibleLayers.filter(
+            (layer) => layer.id !== drawingStore.layer.temporaryKmlId
+        )
     }
-    return visibleLayers.value
+    return layersStore.visibleLayers
 })
 
 const { getZIndexForLayer } = useLayerZIndexCalculation()

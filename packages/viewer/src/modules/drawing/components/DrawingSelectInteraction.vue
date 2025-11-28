@@ -1,34 +1,46 @@
-<script setup lang="js">
+<script setup lang="ts">
 /**
  * Manages the selection of features on the drawing layer. Shares also which features are selected
  * (as OpenLayers objects) with the modifyInteraction. It will also update the selected feature
  * (style, color, etc...) whenever it is edited through the popover.
  */
 
-import SelectInteraction from 'ol/interaction/Select'
-import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useStore } from 'vuex'
+import type Feature from 'ol/Feature'
+import type Map from 'ol/Map'
+import type { StyleFunction } from 'ol/style/Style'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import SelectInteraction, { SelectEvent } from 'ol/interaction/Select'
+import { inject, onBeforeUnmount, onMounted, shallowRef, type ShallowRef, watch } from 'vue'
+
+import type { SelectInteractionExposed } from '@/modules/drawing/types/interaction'
+import type { ActionDispatcher } from '@/store/types'
+
+import {
+    type EditableFeature,
+    EditableFeatureTypes,
+    extractOlFeatureCoordinates,
+} from '@/api/features.api'
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import useModifyInteraction from '@/modules/drawing/components/useModifyInteraction.composable'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
-import useSaveKmlOnChange from '@/modules/drawing/useKmlDataManagement.composable'
-import { extractOlFeatureCoordinates } from '@/api/features/features.api'
+import useDrawingStore from '@/store/modules/drawing'
+import useFeaturesStore from '@/store/modules/features'
 
-const emit = defineEmits(['feature-selected'])
+const dispatcher: ActionDispatcher = { name: 'DrawingSelectInteraction.vue' }
 
-const dispatcher = { dispatcher: 'DrawingSelectInteraction.vue' }
+const emits = defineEmits<{
+    'feature-selected': [Feature | undefined]
+}>()
 
-const drawingLayer = inject('drawingLayer')
-const olMap = inject('olMap')
+const olMap = inject<Map>('olMap')
 
-const store = useStore()
-const { debounceSaveDrawing } = useSaveKmlOnChange()
+const drawingStore = useDrawingStore()
+const featuresStore = useFeaturesStore()
+
 const selectInteraction = new SelectInteraction({
-    style: editingFeatureStyleFunction,
+    style: editingFeatureStyleFunction as StyleFunction,
     toggleCondition: () => false,
-    layers: [drawingLayer],
+    layers: drawingStore.layer.ol ? [drawingStore.layer.ol] : undefined,
     // As we've seen with the old viewer, some small features were hard
     // to select. We will try to add a bigger hit tolerance to mitigate that.
     hitTolerance: DRAWING_HIT_TOLERANCE,
@@ -36,102 +48,96 @@ const selectInteraction = new SelectInteraction({
 const { removeLastPoint } = useModifyInteraction(selectInteraction.getFeatures())
 
 /** OpenLayers feature currently selected */
-const currentlySelectedFeature = ref(null)
-const selectedFeatures = computed(() => store.getters.selectedFeatures)
-const showFeatureInfoInBottomPanel = computed(() => store.getters.showFeatureInfoInBottomPanel)
+const currentlySelectedOlFeature: ShallowRef<Feature | undefined> = shallowRef()
 
-watch(selectedFeatures, (newSelectedFeatures) => {
-    /* If the store doesn't contain any more feature, we clear our local variable on that topic
-       This makes it possible for other modules to call clearAllSelectedFeatures()
-       Other modules cannot however call setSelectedFeatures() from the store, as we cannot
-       infer the OlFeature from the store feature. They instead have to call the exposed
-       selectFeature() function from this module. */
-    if (!newSelectedFeatures || newSelectedFeatures.length === 0) {
-        selectInteraction.getFeatures().clear()
-        currentlySelectedFeature.value = null
+watch(
+    () => drawingStore.feature.current,
+    () => {
+        if (!drawingStore.feature.current) {
+            selectInteraction.getFeatures().clear()
+            currentlySelectedOlFeature.value = undefined
+        } else if (currentlySelectedOlFeature.value) {
+            onFeatureChange(drawingStore.feature.current)
+        }
+    },
+    {
+        deep: true,
     }
-})
-watch(currentlySelectedFeature, (newFeature, oldFeature) => {
+)
+watch(currentlySelectedOlFeature, (newFeature) => {
+    emits('feature-selected', newFeature)
     if (newFeature && newFeature.get('editableFeature')) {
-        const editableFeature = newFeature.get('editableFeature')
-        editableFeature.coordinates = extractOlFeatureCoordinates(newFeature)
-        // binding store feature change events to our handlers
-        // so that we can update the style of the OL features as soon
-        // as the store feature is edited
-        editableFeature.on('change:style', onFeatureChange)
-        store.dispatch('setSelectedFeatures', { features: [editableFeature], ...dispatcher })
-        if (
-            [EditableFeatureTypes.MEASURE, EditableFeatureTypes.LINEPOLYGON].includes(
-                editableFeature.featureType
-            ) &&
-            // only showing profile if the edit feature is done while floating
-            !showFeatureInfoInBottomPanel.value
-        ) {
-            store.dispatch('setProfileFeature', { feature: editableFeature, ...dispatcher })
+        const editableFeature = newFeature.get('editableFeature') as EditableFeature | undefined
+        if (editableFeature) {
+            editableFeature.coordinates = extractOlFeatureCoordinates(newFeature)
+            drawingStore.setCurrentlyDrawnFeature(editableFeature, dispatcher)
         }
     } else {
-        store.dispatch('clearAllSelectedFeatures', dispatcher)
-    }
-    if (oldFeature && oldFeature.get('editableFeature')) {
-        // editableFeature was removed from the state just before, so we can edit it directly again.
-        oldFeature.get('editableFeature').removeListener('change:style', onFeatureChange)
+        drawingStore.setCurrentlyDrawnFeature(undefined, dispatcher)
     }
 })
 
-watch(currentlySelectedFeature, (newFeature) => {
-    emit('feature-selected', newFeature)
-})
+// watching the selected features in the feature store to react to the closing of the popover (when no feature is selected anymore)
+watch(
+    () => featuresStore.selectedFeatures,
+    (newSelectedFeatures) => {
+        if (newSelectedFeatures.length === 0) {
+            currentlySelectedOlFeature.value = undefined
+        }
+    }
+)
 
 onMounted(() => {
     selectInteraction.setActive(true)
     selectInteraction.on('select', onSelectChange)
-    olMap.addInteraction(selectInteraction)
+    olMap?.addInteraction(selectInteraction)
 })
 onBeforeUnmount(() => {
-    olMap.removeInteraction(selectInteraction)
+    olMap?.removeInteraction(selectInteraction)
     selectInteraction.un('select', onSelectChange)
     selectInteraction.setActive(false)
 })
 
 /** Change the selected feature by user input. */
-function onSelectChange(event) {
+function onSelectChange(event: SelectEvent) {
     // The select event lists the changes in two arrays: selected, deselected
     // As we only allow for one feature to be selected at a time this event
     // will always yield one item in either of the arrays.
     if (event.selected.length > 0) {
-        currentlySelectedFeature.value = event.selected[0]
+        currentlySelectedOlFeature.value = event.selected[0]
     } else {
-        currentlySelectedFeature.value = null
+        currentlySelectedOlFeature.value = undefined
     }
 }
-function onFeatureChange(editableFeature) {
+
+function onFeatureChange(editableFeature: EditableFeature) {
     // The title and description of an editable feature are only set in the editable feature
     // however in the KML standard they should be set in the name and description tags.
     // To do this we need to set them on the ol feature as properties.
-    currentlySelectedFeature.value?.set('name', editableFeature.title)
-    currentlySelectedFeature.value?.set('description', editableFeature.description)
-    if (editableFeature.featureType === EditableFeatureTypes.MARKER) {
-        currentlySelectedFeature.value?.set('textOffset', editableFeature.textOffset.toString())
-        currentlySelectedFeature.value?.set(
+    currentlySelectedOlFeature.value?.set('name', editableFeature.title)
+    currentlySelectedOlFeature.value?.set('description', editableFeature.description)
+    if (editableFeature.featureType === EditableFeatureTypes.Marker) {
+        currentlySelectedOlFeature.value?.set('textOffset', editableFeature.textOffset.toString())
+        currentlySelectedOlFeature.value?.set(
             'showDescriptionOnMap',
             editableFeature.showDescriptionOnMap
         )
     }
-    currentlySelectedFeature.value?.changed()
-    debounceSaveDrawing()
+    currentlySelectedOlFeature.value?.changed()
 }
-function selectFeature(feature) {
+
+function selectFeature(feature: Feature | undefined) {
     selectInteraction.getFeatures().clear()
     if (feature) {
         selectInteraction.getFeatures().push(feature)
     }
-    currentlySelectedFeature.value = feature
+    currentlySelectedOlFeature.value = feature
 }
-function setActive(active) {
+function setActive(active: boolean) {
     selectInteraction.setActive(active)
 }
 
-defineExpose({
+defineExpose<SelectInteractionExposed>({
     selectFeature,
     removeLastPoint,
     setActive,

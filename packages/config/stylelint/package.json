@@ -14,7 +14,7 @@
         "typescript": "catalog:"
     },
     "peerDependencies": {
-        "stylelint": "catalog:",
-        "postcss-html": "catalog:"
+        "postcss-html": "catalog:",
+        "stylelint": "catalog:"
     }
 }

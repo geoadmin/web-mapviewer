@@ -1,10 +1,10 @@
 import log from '@swissgeo/log'
 import axios from 'axios'
 
-import externalWMSParser, { type WMSCapabilitiesResponse } from '@/parsers/WMSCapabilitiesParser'
-import wmtsCapabilitiesParser, {
-    type WMTSCapabilitiesResponse,
-} from '@/parsers/WMTSCapabilitiesParser'
+import type { WMSCapabilitiesResponse, WMTSCapabilitiesResponse } from '@/types'
+
+import externalWMSParser from '@/parsers/WMSCapabilitiesParser'
+import wmtsCapabilitiesParser from '@/parsers/WMTSCapabilitiesParser'
 import { CapabilitiesError } from '@/validation'
 
 /** Timeout for accessing external server in [ms] */
@@ -51,9 +51,9 @@ export function setWmsGetMapParams(url: URL, layer: string, crs: string, style: 
 export async function readWmsCapabilities(
     baseUrl: string,
     language?: string
-): Promise<WMSCapabilitiesResponse | undefined> {
+): Promise<WMSCapabilitiesResponse> {
     const url = setWmsGetCapabilitiesParams(new URL(baseUrl), language)
-    log.debug(`Read WMTS Get Capabilities: ${url.toString()}`)
+    log.debug(`Read WMS Get Capabilities: ${url.toString()}`)
     let response = null
     try {
         response = await axios.get(url.toString(), { timeout: EXTERNAL_SERVER_TIMEOUT })

@@ -1,5 +1,3 @@
-import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
-import type { Layer } from '@swissgeo/layers'
 import type {
     MFPEncoder as MFPBaseEncoder,
     MFPReportResponse,
@@ -9,6 +7,13 @@ import type {
     MFPSymbolizerText,
     MFPWmsLayer,
 } from '@geoblocks/mapfishprint/lib/types'
+import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
+import type { Layer } from '@swissgeo/layers'
+import type { GeoJSONFeature } from 'ol/format/GeoJSON'
+import type { State } from 'ol/layer/Layer'
+import type Map from 'ol/Map'
+import type { Size } from 'ol/size'
+
 import {
     BaseCustomizer,
     cancelPrint,
@@ -16,11 +21,6 @@ import {
     MFPEncoder,
     requestReport,
 } from '@geoblocks/mapfishprint'
-import type { GeoJSONFeature } from 'ol/format/GeoJSON'
-import type { State } from 'ol/layer/Layer'
-import type Map from 'ol/Map'
-import type { Size } from 'ol/size'
-
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import axios from 'axios'
 import { Circle, type Image, type Stroke, type Text } from 'ol/style'
@@ -32,6 +32,7 @@ import {
     getWmsBaseUrl,
 } from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
+import useI18nStore from '@/store/modules/i18n'
 import { adjustWidth } from '@/utils/styleUtils'
 
 /** Interval between each polling of the printing job status (ms) */
@@ -195,9 +196,9 @@ class GeoAdminCustomizer extends BaseCustomizer {
         if (scale && anchor && anchor.length > 0 && size && size.length > 0) {
             symbolizer.graphicXOffset = symbolizer.graphicXOffset
                 ? adjustWidth(
-                    (size[0]! / 2 - anchor[0]! + symbolizer.graphicXOffset) * scale,
-                    this.printResolution
-                )
+                      (size[0]! / 2 - anchor[0]! + symbolizer.graphicXOffset) * scale,
+                      this.printResolution
+                  )
                 : 0
             // if there is no graphicYOffset, we can't print points
             symbolizer.graphicYOffset = Math.round(1000 * (symbolizer.graphicYOffset ?? 0)) / 1000
@@ -530,6 +531,7 @@ async function transformOlMapToPrintParams(olMap: Map, config: PrintConfig): Pro
         throw new PrintError('Missing DPI for printing')
     }
     const customizer = new GeoAdminCustomizer(printExtent, excludedLayerIDs, dpi)
+    const i18nStore = useI18nStore()
 
     const attributionsOneLine = attributions.length > 0 ? `© ${attributions.join(', ')}` : ''
     try {
@@ -562,7 +564,7 @@ async function transformOlMapToPrintParams(olMap: Map, config: PrintConfig): Pro
             }
             encodedMap.layers.unshift(wmsLayer)
         }
-        const now = i18n.global.d(new Date(), 'datetime', i18n.global.locale)
+        const now = i18n.global.d(new Date(), 'datetime', i18nStore.lang)
 
         const spec: MFPSpec = {
             attributes: {

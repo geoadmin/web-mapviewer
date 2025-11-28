@@ -14,7 +14,7 @@ Adds a toolbox that enables drawing on the map
 - **EditableFeature:** We store on the openlayers feature directly the corresponding **EditableFeature**. When
   serializing the openlayers features as KML, this data will be removed to avoid duplicate styling in the final
   KML which would increase its size. When the openlayers feature is rerendered, openlayers will automatically call
-  the [featurestylefunction](lib/style.js) that was previously defined with `setStyle(featureStyleFunction)`.
+  the [featurestylefunction](lib/style.ts) that was previously defined with `setStyle(featureStyleFunction)`.
   This function will take the **EditableFeature** and generate the corresponding **Style**. When an
   openlayers feature is selected, its corresponding **EditableFeature** will be saved in the store so
   that it can be edited from everywhere. But this also means that is should ONLY be edited from the
@@ -30,5 +30,5 @@ In the following is a list of files related to the handeling of feature styles:
   selected, puts the corresponding [EditableFeature](../../api/features/EditableFeature.class.js) in the store.
   Also triggers an update of the **Style** when the corresponding [EditableFeature](../../api/features/EditableFeature.class.js)
   is modified.
-- [featurestylefunction](lib/style.js): Updates the **Style** when the corresponding **EditableFeature**
+- [featurestylefunction](lib/style.ts): Updates the **Style** when the corresponding **EditableFeature**
   is modified or when the openlayers feature must be rerendered.

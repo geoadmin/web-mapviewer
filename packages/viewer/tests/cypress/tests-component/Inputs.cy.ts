@@ -5,7 +5,15 @@ import FileInput from '@/utils/components/FileInput.vue'
 import TextAreaInput from '@/utils/components/TextAreaInput.vue'
 import TextInput from '@/utils/components/TextInput.vue'
 
-const generateTest = (element, dataCy) => {
+/**
+ * Generate common validation tests for input components
+ *
+ * @param element - Vue component to test. Using Record<string, unknown> instead of Vue's Component
+ *   type to avoid TypeScript errors with Cypress mount and to support runtime equality checks
+ *   (element === FileInput)
+ * @param dataCy - The data-cy attribute value used to select the input element in tests
+ */
+const generateTest = (element: Record<string, unknown>, dataCy: string) => {
     it('It is disabled', () => {
         cy.mount(element, {
             props: { disabled: true },

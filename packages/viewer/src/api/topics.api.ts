@@ -1,17 +1,21 @@
-import type { GeoAdminLayer, Layer } from '@swissgeo/layers'
-import { LayerType } from '@swissgeo/layers'
+import type { GeoAdminGroupOfLayers, GeoAdminLayer, Layer } from '@swissgeo/layers'
+
 import { layerUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
+import { WarningMessage } from '@swissgeo/log/Message'
 import axios from 'axios'
-import { v4 as uuidv4 } from 'uuid'
+
+import type { ActionDispatcher } from '@/store/types'
 
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
 import { ENVIRONMENT } from '@/config/staging.config'
+import useUIStore from '@/store/modules/ui'
 import {
     getBackgroundLayerFromLegacyUrlParams,
     getLayersFromLegacyUrlParams,
 } from '@/utils/legacyLayerParamUtils'
-import GeoAdminGroupOfLayers from './layers/GeoAdminGroupOfLayers.class'
+
+const dispatcher: ActionDispatcher = { name: 'Topics API' }
 
 /** Representation of a topic (a subset of layers to be shown to the user) */
 export interface Topic {
@@ -20,9 +24,9 @@ export interface Topic {
     readonly backgroundLayers: GeoAdminLayer[]
     /**
      * The layer that should be activated as the background layer by default when this topic is
-     * selected. The value will be set to null when the void layer should be selected.
+     * selected. The value will be set to undefined when the void layer should be selected.
      */
-    readonly defaultBackgroundLayer: GeoAdminLayer | null
+    readonly defaultBackgroundLayer: GeoAdminLayer | undefined
     /**
      * All layers that should be added to the displayed layer (but not necessarily visible, that
      * will depend on their state)
@@ -52,41 +56,6 @@ function gatherItemIdThatShouldBeOpened(
     return ids
 }
 
-const validateBaseData = (values: Partial<Layer>): void => {
-    if (!values.name) {
-        throw new Error('Missing layer name')
-    }
-    if (!values.id) {
-        throw new Error('Missing layer ID')
-    }
-}
-
-function makeGeoAdminGroupOfLayers(values: Partial<GeoAdminGroupOfLayers>): GeoAdminGroupOfLayers {
-    const layer = new GeoAdminGroupOfLayers({
-        id: values.id,
-        name: values.name,
-        uuid: uuidv4(),
-        layers: values.layers ?? [],
-        type: LayerType.GROUP,
-        opacity: 1,
-        isVisible: true,
-        attributions: [],
-        hasTooltip: false,
-        hasDescription: false,
-        hasLegend: false,
-        isExternal: false,
-        isLoading: false,
-        timeConfig: {
-            timeEntries: [],
-        },
-        hasError: false,
-        hasWarning: false,
-    })
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    validateBaseData(layer as any)
-    return layer
-}
-
 /**
  * Reads the output of the topic tree endpoint, and creates all themes and layers object accordingly
  *
@@ -99,6 +68,7 @@ const readTopicTreeRecursive = (
 ): GeoAdminLayer | GeoAdminGroupOfLayers => {
     if (node.category === 'topic') {
         const children: (GeoAdminLayer | GeoAdminGroupOfLayers)[] = []
+        const warnings: WarningMessage[] = []
         node.children.forEach((topicChild) => {
             try {
                 children.push(readTopicTreeRecursive(topicChild, availableLayers))
@@ -112,6 +82,13 @@ const readTopicTreeRecursive = (
                             err,
                         ],
                     })
+                    if (err instanceof Error) {
+                        warnings.push(
+                            new WarningMessage(
+                                `Topic element ${topicChild.id} can't be loaded, probably due to data integration work ongoing. cause: ${err.message}`
+                            )
+                        )
+                    }
                 } else {
                     log.error({
                         title: 'Topics API',
@@ -121,8 +98,10 @@ const readTopicTreeRecursive = (
                 }
             }
         })
-        // TODO: can't use layerUtils.makeGeoAdminGroupOfLayers for this as it does not return a GeoAdminGroupOfLayers object 
-        return makeGeoAdminGroupOfLayers({
+        if (ENVIRONMENT === 'development' && warnings.length > 0) {
+            useUIStore().addWarnings(warnings, dispatcher)
+        }
+        return layerUtils.makeGeoAdminGroupOfLayers({
             id: `${node.id}`,
             name: node.label,
             layers: children,
@@ -288,7 +267,7 @@ export function parseTopics(layersConfig: GeoAdminLayer[], rawTopics: ServicesRe
             legacyUrlParams
         )
         // first we get the background from the "plConfig" of the API response
-        let defaultBackgroundLayer = backgroundLayerFromUrlParam
+        let defaultBackgroundLayer: GeoAdminLayer | null | undefined = undefined
         // checking if there was something in the "plConfig"
         // null is a valid background as it is the void layer in our app
         // so we have to exclude only the "undefined" value and fill this variable
@@ -316,25 +295,24 @@ export function parseTopics(layersConfig: GeoAdminLayer[], rawTopics: ServicesRe
             // layers
             .filter((layerId) => !layersToActivate.some((layer) => layer.id === layerId))
         activatedLayers.forEach((layerId) => {
-            let layer = layersConfig.find((layer) => layer.id === layerId)
+            const layer = layersConfig.find((layer) => layer.id === layerId)
+
             if (layer) {
                 // deep copy so that we can reassign values later on
-                // (layers come from the Vuex store so it can't be modified directly)
-                layer = layerUtils.cloneLayer(layer)
-                    // checking if the layer should be also visible
-                    // TODO: GeoAdminLayer is missing the "visible" property but is necessary to make the layer visible when activating the topic, isVisible is currently not used for this
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    ; (layer as any).visible = rawTopic.selectedLayers?.indexOf(layerId) !== -1
+                // (layers come from the pinia store so it can't be modified directly)
+                const layerClone: GeoAdminLayer = layerUtils.cloneLayer(layer)
+                // checking if the layer should be also visible
+                layerClone.isVisible = rawTopic.selectedLayers?.indexOf(layerId) !== -1
                 // In the backend the layers are in the wrong order
                 // so we need to reverse the order here by simply adding
                 // the layer at the beginning of the array
-                layersToActivate.unshift(layer)
+                layersToActivate.unshift(layerClone)
             }
         })
         topics.push({
             id: topicId,
             backgroundLayers,
-            defaultBackgroundLayer: defaultBackgroundLayer ?? null,
+            defaultBackgroundLayer: defaultBackgroundLayer,
             layersToActivate,
         })
     })

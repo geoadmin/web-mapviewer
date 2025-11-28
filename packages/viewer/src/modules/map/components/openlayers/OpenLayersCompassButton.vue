@@ -1,23 +1,34 @@
-<script setup lang="js">
+<script setup lang="ts">
+import type { Map } from 'ol'
+import type MapEvent from 'ol/MapEvent'
+
+const RESET_ANIMATION_DURATION_MS = 300
+
+import log from '@swissgeo/log'
 import { computed, inject, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-const dispatcher = { dispatcher: 'OpenLayersCompassButton.vue' }
+import type { ActionDispatcher } from '@/store/types'
 
-const { hideIfNorth } = defineProps({
-    hideIfNorth: {
-        type: Boolean,
-        default: false,
-    },
-})
+import usePositionStore from '@/store/modules/position'
 
-const olMap = inject('olMap')
-const store = useStore()
+const dispatcher: ActionDispatcher = { name: 'OpenLayersCompassButton.vue' }
+
+const { hideIfNorth = false } = defineProps<{
+    hideIfNorth?: boolean
+}>()
+
+const olMap = inject<Map>('olMap')
+if (!olMap) {
+    log.error('OpenLayersMap is not available')
+    throw new Error('OpenLayersMap is not available')
+}
+
+const positionStore = usePositionStore()
 const { t } = useI18n()
 
 const rotation = ref(0)
-
+const isResetting = ref(false)
 const showCompass = computed(() => Math.abs(rotation.value) >= 1e-9 || !hideIfNorth)
 
 onMounted(() => {
@@ -28,14 +39,24 @@ onUnmounted(() => {
     olMap.un('postrender', onRotate)
 })
 
-function resetRotation() {
-    store.dispatch('setAutoRotation', { autoRotation: false, ...dispatcher })
-    store.dispatch('setRotation', { rotation: 0, ...dispatcher })
+function resetRotation(): void {
+    isResetting.value = true
+    positionStore.setAutoRotation(false, dispatcher)
+    positionStore.setRotation(0, dispatcher)
+    rotation.value = 0
+    // Allow rotation updates again after animation completes
+    setTimeout(() => {
+        isResetting.value = false
+    }, RESET_ANIMATION_DURATION_MS)
 }
 
-const onRotate = (mapEvent) => {
-    const newRotation = mapEvent.frameState.viewState.rotation
-    if (newRotation !== rotation.value) {
+function onRotate(mapEvent: MapEvent): void {
+    // Ignore rotation updates during reset animation to prevent button from reappearing
+    if (isResetting.value) {
+        return
+    }
+    const newRotation = mapEvent.frameState?.viewState.rotation
+    if (newRotation && newRotation !== rotation.value) {
         rotation.value = newRotation
     }
 }

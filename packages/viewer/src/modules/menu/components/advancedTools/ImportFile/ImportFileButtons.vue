@@ -1,35 +1,31 @@
-<script setup lang="js">
-import { computed, toRef } from 'vue'
+<script setup lang="ts">
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-const dispatcher = { dispatcher: 'ImportFileButtons.vue' }
+import type { ActionDispatcher } from '@/store/types'
 
+import useUIStore from '@/store/modules/ui'
+
+const dispatcher: ActionDispatcher = { name: 'ImportFileButtons.vue' }
+
+const emit = defineEmits<{
+    loadFile: [void]
+}>()
+
+const uiStore = useUIStore()
 const { t } = useI18n()
-const store = useStore()
-const emit = defineEmits(['loadFile'])
 
-// Props
-const props = defineProps({
-    buttonState: {
-        type: String,
-        default: 'default',
-    },
-    disabled: {
-        type: Boolean,
-        default: false,
-    },
-})
-
-// Reactive data
-const buttonState = toRef(props, 'buttonState')
+const { buttonState = 'default', disabled = false } = defineProps<{
+    buttonState?: 'default' | 'loading' | 'succeeded'
+    disabled?: boolean
+}>()
 
 // Store mapping (input)
-const toggleImportFile = () => store.dispatch('toggleImportFile', dispatcher)
+const toggleImportFile = () => uiStore.toggleImportFile(dispatcher)
 
 // Computed properties
-const buttonI18nKey = computed(() => {
-    switch (buttonState.value) {
+const buttonI18nKey = computed<string>(() => {
+    switch (buttonState) {
         case 'loading':
             return 'loading_file'
         case 'succeeded':
@@ -39,11 +35,11 @@ const buttonI18nKey = computed(() => {
             return 'import'
     }
 })
-const isLoading = computed(() => buttonState.value === 'loading')
+const isLoading = computed<boolean>(() => buttonState === 'loading')
 </script>
 
 <template>
-    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+    <div class="d-grid d-md-flex justify-content-md-center gap-2">
         <button
             type="button"
             class="btn btn-outline-group me-md-3 import-file-btn-connect"

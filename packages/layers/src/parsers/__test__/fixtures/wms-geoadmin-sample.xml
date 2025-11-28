@@ -440,7 +440,47 @@
             <Layer queryable="1">
                 <Name>ch.swisstopo-vd.stand-oerebkataster</Name>
                 <Title>Verfügbarkeit des ÖREB-Katasters</Title>
+                <Layer queryable="1" opaque="0" cascaded="0">
+                    <Name>ch.swisstopo-vd.stand-oerebkataster</Name>
+                    <Title>Verfügbarkeit des ÖREB-Katasters</Title>
+                    <Abstract>
+                        The map indicates the availability of the cadastre of public-law restrictions on landownership (PRL Cadastre) for each municipality, provides a direct link to the corresponding cantonal geodata portal and enables you to order the static extract (PDF) for the selected property directly via WebService. You will also find the name and address of the relevant cantonal authority.
+                    </Abstract>
+                    <KeywordList>
+                        <Keyword>
+                            ch.swisstopo-vd.stand-oerebkataster.wms_ows_keywordlist
+                        </Keyword>
+                    </KeywordList>
+                    <CRS>EPSG:2056</CRS>
+                    <CRS>EPSG:21781</CRS>
+                    <CRS>EPSG:4326</CRS>
+                    <CRS>EPSG:3857</CRS>
+                    <CRS>EPSG:3034</CRS>
+                    <CRS>EPSG:3035</CRS>
+                    <CRS>EPSG:4258</CRS>
+                    <CRS>EPSG:25832</CRS>
+                    <CRS>EPSG:25833</CRS>
+                    <CRS>EPSG:31467</CRS>
+                    <CRS>EPSG:32632</CRS>
+                    <CRS>EPSG:32633</CRS>
+                    <CRS>EPSG:900913</CRS>
+                    <EX_GeographicBoundingBox>
+                        <westBoundLongitude>3.329595</westBoundLongitude>
+                        <eastBoundLongitude>14.278255</eastBoundLongitude>
+                        <southBoundLatitude>44.074747</southBoundLatitude>
+                        <northBoundLatitude>49.200438</northBoundLatitude>
+                    </EX_GeographicBoundingBox>
+                    <BoundingBox CRS="EPSG:2056" minx="2.3e+06" miny="900000" maxx="3.1e+06" maxy="1.45e+06"/>
+                    <MetadataURL type="TC211">
+                    <Format>text/html</Format>
+                    <OnlineResource
+                        xmlns:xlink="http://www.w3.org/1999/xlink"
+                        xlink:type="simple"
+                        xlink:href="https://www.geocat.ch/geonetwork/srv/eng/catalog.search#/metadata/fb60594e-2b16-45af-9bc0-b444035070f5"/>
+                    </MetadataURL>
+                </Layer>
             </Layer>
+
         </Layer>
     </Capability>
 </WMS_Capabilities>

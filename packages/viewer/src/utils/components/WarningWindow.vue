@@ -1,40 +1,33 @@
-<script setup lang="js">
-import { computed, ref } from 'vue'
+<script setup lang="ts">
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-const { title, hide } = defineProps({
-    title: {
-        type: String,
-        default: '',
-    },
+import useUiStore from '@/store/modules/ui'
+
+const { title = '', hide = false } = defineProps<{
+    title?: string
     /**
      * Hide the modal with backdrop, can be used to temporarily hide the modal without loosing its
      * content
      */
-    hide: {
-        type: Boolean,
-        default: false,
-    },
-})
+    hide?: boolean
+}>()
+const emit = defineEmits<{
+    close: [void]
+}>()
 
-const store = useStore()
+const uiStore = useUiStore()
 
-const showBody = ref(true)
-const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
-
-const warningCount = computed(() => store.state.ui.warnings.size)
+const showBody = ref<boolean>(true)
 
 const { t } = useI18n()
-
-const emit = defineEmits(['close'])
 </script>
 
 <template>
     <div
         v-show="!hide"
         class="simple-window card bg-warning fw-bold"
-        :class="{ 'dev-disclaimer-present': hasDevSiteWarning }"
+        :class="{ 'dev-disclaimer-present': uiStore.hasDevSiteWarning }"
         data-cy="warning-window"
     >
         <div
@@ -43,10 +36,11 @@ const emit = defineEmits(['close'])
         >
             <span
                 v-if="title"
-                class="text-truncate me-auto"
+                class="text-truncate"
+                :class="{ 'me-auto': showBody, 'me-2': !showBody }"
             >
                 {{ t(title) }}
-                <span v-if="warningCount > 1">({{ warningCount }})</span>
+                <span v-if="uiStore.warnings.size > 1">({{ uiStore.warnings.size }})</span>
             </span>
 
             <span
@@ -69,7 +63,7 @@ const emit = defineEmits(['close'])
         </div>
         <div
             class="card-body"
-            :class="{ hide: !showBody }"
+            :class="{ 'd-none': !showBody }"
             data-cy="warning-window-body"
         >
             <slot />

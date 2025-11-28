@@ -1,82 +1,86 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
+
+import type { ActionDispatcher } from '@/store/types'
 
 import { MAX_WIDTH_SHOW_FLOATING_TOOLTIP } from '@/config/responsive.config'
 import InfoboxContent from '@/modules/infobox/components/InfoboxContent.vue'
-import { FeatureInfoPositions } from '@/store/modules/ui.store'
+import useDrawingStore from '@/store/modules/drawing'
+import useFeaturesStore from '@/store/modules/features'
+import useMapStore from '@/store/modules/map'
+import usePositionStore from '@/store/modules/position'
+import useProfileStore from '@/store/modules/profile'
+import useUiStore from '@/store/modules/ui'
+import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 import PrintButton from '@/utils/components/PrintButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
 
-const dispatcher = { dispatcher: 'InfoboxModule.vue' }
-const showContent = ref(true)
+const dispatcher: ActionDispatcher = { name: 'InfoboxModule.vue' }
+
+const showContent = ref<boolean>(true)
 
 const { t } = useI18n()
-const store = useStore()
 
-const selectedFeatures = computed(() => store.getters.selectedFeatures)
-const showFeatureInfoInBottomPanel = computed(() => store.getters.showFeatureInfoInBottomPanel)
-const showFeatureInfoInTooltip = computed(() => store.getters.showFeatureInfoInTooltip)
-const showDrawingOverlay = computed(() => store.state.drawing.drawingOverlay.show)
-const width = computed(() => store.state.ui.width)
+const featuresStore = useFeaturesStore()
+const drawingStore = useDrawingStore()
+const uiStore = useUiStore()
+const profileStore = useProfileStore()
+const positionStore = usePositionStore()
+const mapStore = useMapStore()
 
-const profileFeature = computed(() => store.state.profile.feature)
-const showElevationProfile = computed(() => !!profileFeature.value)
-const profileExtent = computed(() => store.getters.currentProfileExtent)
-
-const showContainer = computed(() => {
+const showElevationProfile = computed<boolean>(() => !!profileStore.feature)
+const showContainer = computed<boolean>(() => {
     return (
-        selectedFeatures.value.length > 0 &&
-        (showFeatureInfoInBottomPanel.value ||
-            (showElevationProfile.value && showFeatureInfoInTooltip.value))
+        (featuresStore.selectedFeatures?.length ?? 0) > 0 &&
+        (uiStore.showFeatureInfoInBottomPanel ||
+            (showElevationProfile.value && uiStore.showFeatureInfoInTooltip))
     )
 })
-const showTooltipToggle = computed(
-    () => showFeatureInfoInBottomPanel.value && width.value >= MAX_WIDTH_SHOW_FLOATING_TOOLTIP
+const showTooltipToggle = computed<boolean>(
+    () => uiStore.showFeatureInfoInBottomPanel && uiStore.width >= MAX_WIDTH_SHOW_FLOATING_TOOLTIP
 )
+
 const title = computed(() => {
-    if (showDrawingOverlay.value) {
-        if (showElevationProfile.value && !showFeatureInfoInBottomPanel.value) {
+    if (drawingStore.overlay.show) {
+        if (showElevationProfile.value && !uiStore.showFeatureInfoInBottomPanel) {
             return t('profile_title')
         }
         return t('draw_modify_description')
     } else if (showElevationProfile.value) {
-        return `${t('profile_title')}: ${profileFeature.value.title}`
+        return `${t('profile_title')}: ${profileStore.feature?.title ?? ''}`
     }
     return t('object_information')
 })
 
-watch(selectedFeatures, (features) => {
-    if (features.length === 0) {
-        return
+watch(
+    () => featuresStore.selectedFeatures,
+    (features) => {
+        if (!features || features.length === 0) {
+            return
+        }
+        showContent.value = true
     }
-    showContent.value = true
-})
+)
 
-function onToggleContent() {
+function onToggleContent(): void {
     showContent.value = !showContent.value
 }
-function setTooltipInfoPosition() {
-    store.dispatch('setFeatureInfoPosition', {
-        position: FeatureInfoPositions.TOOLTIP,
-        ...dispatcher,
-    })
+function setTooltipInfoPosition(): void {
+    uiStore.setFeatureInfoPosition(FeatureInfoPositions.ToolTip, dispatcher)
 }
-function onClose() {
-    if (showFeatureInfoInBottomPanel.value) {
-        store.dispatch('clearAllSelectedFeatures', dispatcher)
-        store.dispatch('clearClick', dispatcher)
+function onClose(): void {
+    if (uiStore.showFeatureInfoInBottomPanel) {
+        featuresStore.clearAllSelectedFeatures(dispatcher)
+        mapStore.clearClick(dispatcher)
     } else if (showElevationProfile.value) {
-        // if feature details are shown in the floating tooltip we don't want to close the detail
-        // when clicking on the X button, but only close the profile
         onHideProfile()
     }
 }
-function onHideProfile() {
-    store.dispatch('setProfileFeature', { feature: null, ...dispatcher })
+function onHideProfile(): void {
+    profileStore.setProfileFeature(undefined, dispatcher)
 }
 </script>
 
@@ -92,8 +96,8 @@ function onHideProfile() {
             data-cy="infobox-header"
         >
             <button
-                v-if="showElevationProfile && showFeatureInfoInBottomPanel"
-                class="btn btn-light btn-xs justify-content-left text-nowrap align-middle"
+                v-if="showElevationProfile && uiStore.showFeatureInfoInBottomPanel"
+                class="btn btn-light btn-xs justify-content-left align-middle text-nowrap"
                 data-cy="infobox-hide-profile-button"
                 @click.stop="onHideProfile"
             >
@@ -103,29 +107,30 @@ function onHideProfile() {
                 />
                 <span
                     :class="{
-                        'd-inline': showDrawingOverlay,
-                        'd-none d-md-inline': !showDrawingOverlay,
+                        'd-inline': drawingStore.overlay.show,
+                        'd-none d-md-inline': !drawingStore.overlay.show,
                     }"
                 >
                     {{ t('hide_profile') }}
                 </span>
             </button>
             <div
-                class="d-flex flex-grow-1 align-content-center justify-content-left ms-1 overflow-hidden"
+                class="d-flex align-content-center justify-content-left ms-1 flex-grow-1 overflow-hidden"
             >
                 <label>
                     <TextTruncate>{{ title }}</TextTruncate>
                 </label>
             </div>
             <ZoomToExtentButton
-                v-if="showElevationProfile && profileExtent"
-                :extent="profileExtent"
+                v-if="showElevationProfile && profileStore.currentProfileExtent"
+                :extent="profileStore.currentProfileExtent"
+                :extent-projection="positionStore.projection"
                 class="zoom-to-extent-button btn-light"
             />
             <PrintButton>
                 <div class="card rounded">
                     <div
-                        class="header-title d-flex flex-grow-1 justify-content-center border-bottom p-2"
+                        class="header-title d-flex justify-content-center border-bottom flex-grow-1 p-2"
                     >
                         <TextTruncate>{{ title }}</TextTruncate>
                     </div>

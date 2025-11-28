@@ -1,41 +1,64 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { WGS84 } from '@swissgeo/coordinates'
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { round } from '@swissgeo/numbers'
-import { Cartographic, Math, ScreenSpaceEventHandler, ScreenSpaceEventType } from 'cesium'
+import {
+    Cartesian2,
+    Cartographic,
+    Math,
+    ScreenSpaceEventHandler,
+    ScreenSpaceEventType,
+    type Viewer,
+} from 'cesium'
 import proj4 from 'proj4'
-import { computed, inject, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import {
+    computed,
+    inject,
+    onBeforeUnmount,
+    onMounted,
+    ref,
+    type ShallowRef,
+    useTemplateRef,
+    watch,
+} from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 
-import getHumanReadableCoordinate from '@/modules/map/components/common/mouseTrackerUtils'
-import allFormats, { LV95Format } from '@/utils/coordinates/coordinateFormat'
+import type { ActionDispatcher } from '@/store/types'
 
-const mousePosition = useTemplateRef('mousePosition')
+import useCesiumStore from '@/store/modules/cesium'
+import usePositionStore from '@/store/modules/position'
+import coordinateFormat, {
+    allFormats,
+    type CoordinateFormat,
+    LV95Format,
+} from '@/utils/coordinates/coordinateFormat'
+
+const mousePosition = useTemplateRef<HTMLDivElement>('mousePosition')
 const displayedFormatId = ref(LV95Format.id)
 
-const store = useStore()
+const cesiumStore = useCesiumStore()
+const positionStore = usePositionStore()
 const { t } = useI18n()
 
-const is3DReady = computed(() => store.state.cesium.isViewerReady)
-const projection = computed(() => store.state.position.projection)
-const dispatcher = { dispatcher: 'CesiumMouseTracker.vue' }
-const getViewer = inject('getViewer', () => undefined, true)
+const is3DReady = computed(() => cesiumStore.isViewerReady)
+const dispatcher: ActionDispatcher = { name: 'CesiumMouseTracker.vue' }
 
-let handler = null
+let handler: ScreenSpaceEventHandler | undefined
 
-watch(
-    is3DReady,
-    (newValue) => {
-        if (newValue) {
-            setupHandler()
-        }
-    },
-    { immediate: true }
-)
-onMounted(() => {
-    setupHandler()
+const viewer = inject<ShallowRef<Viewer | undefined>>('viewer')
+
+watch(is3DReady, (newValue) => {
+    if (newValue && viewer?.value) {
+        setupHandler()
+    }
 })
+
+onMounted(() => {
+    if (is3DReady.value && viewer?.value) {
+        setupHandler()
+    }
+})
+
 onBeforeUnmount(() => {
     if (handler) {
         handler.removeInputAction(ScreenSpaceEventType.MOUSE_MOVE)
@@ -43,45 +66,74 @@ onBeforeUnmount(() => {
     }
 })
 
-function setupHandler() {
+function setupHandler(): void {
+    const viewerInstance = viewer?.value
     // If the handler already exists for some reason, there is no need to create it again
-    if (handler || !getViewer()) {
+    if (handler || !viewerInstance) {
+        log.error({
+            title: 'CesiumMouseTracker.vue',
+            titleColor: LogPreDefinedColor.Red,
+            messages: [
+                'Viewer is not defined or handler already exists',
+                'CesiumMouseTracker.vue: cannot setup mouse position handler',
+                viewer,
+                handler,
+            ],
+        })
         return
     }
-    handler = new ScreenSpaceEventHandler(getViewer().scene.canvas)
-    const viewer = getViewer()
-    handler.setInputAction((movement) => {
-        const ray = viewer.camera.getPickRay(movement.endPosition)
-        const cartesian = viewer.scene.globe.pick(ray, viewer.scene)
+    handler = new ScreenSpaceEventHandler(viewerInstance.scene.canvas)
+    handler.setInputAction((movement: { endPosition: Cartesian2 }) => {
+        const ray = viewerInstance.camera.getPickRay(movement.endPosition)
+        if (!ray) {
+            return
+        }
+        const cartesian = viewerInstance.scene.globe.pick(ray, viewerInstance.scene)
         if (cartesian) {
             const cartographic = Cartographic.fromCartesian(cartesian)
             const longitude = Math.toDegrees(cartographic.longitude)
             const latitude = Math.toDegrees(cartographic.latitude)
-            const coordinate = proj4(WGS84.epsg, projection.value.epsg, [longitude, latitude])
-            coordinate.push(cartographic.height)
+            const projected = proj4(WGS84.epsg, positionStore.projection.epsg, [
+                longitude,
+                latitude,
+            ])
+            const coordinate: [number, number, number] = [
+                projected[0] as number,
+                projected[1] as number,
+                cartographic.height ?? 0,
+            ]
 
-            mousePosition.value.textContent = formatCoordinate(coordinate)
+            if (mousePosition.value) {
+                mousePosition.value.textContent = formatCoordinate(coordinate) ?? ''
+            }
         }
     }, ScreenSpaceEventType.MOUSE_MOVE)
 }
 
-function setDisplayedFormatWithId() {
-    store.dispatch('setDisplayedFormatId', {
-        displayedFormatId: displayedFormatId.value,
-        ...dispatcher,
-    })
+function setDisplayedFormatWithId(): void {
+    const format = allFormats.find((format) => format.id === displayedFormatId.value)
+    if (format) {
+        positionStore.setDisplayedFormat(format, dispatcher)
+    }
 }
 
-function formatCoordinate(coordinate) {
-    const displayedFormat = allFormats.find((format) => format.id === displayedFormatId.value)
+function formatCoordinate(coordinate: [number, number, number]): string | undefined {
+    const displayedFormat: CoordinateFormat | undefined = allFormats.find(
+        (format) => format.id === displayedFormatId.value
+    )
     if (displayedFormat) {
-        return `${getHumanReadableCoordinate({
-            coordinates: [coordinate[0], coordinate[1]],
-            projection: projection.value,
+        const humanReadable = coordinateFormat(
             displayedFormat,
-        })}, ${t('elevation')}: ${round(coordinate[2], 2)} m`
+            [coordinate[0], coordinate[1]],
+            positionStore.projection
+        )
+        return `${humanReadable}, ${t('elevation')}: ${round(coordinate[2] ?? 0, 2)} m`
     } else {
-        log.error('Unknown coordinates display format', displayedFormatId.value)
+        log.error({
+            title: 'CesiumMouseTracker.vue',
+            titleColor: LogPreDefinedColor.Red,
+            messages: ['Unknown coordinates display format', displayedFormatId.value],
+        })
     }
 }
 </script>

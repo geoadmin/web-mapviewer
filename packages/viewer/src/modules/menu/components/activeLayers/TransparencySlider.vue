@@ -1,49 +1,42 @@
-<script setup lang="js">
-import { onMounted, ref, watch } from 'vue'
-import { useStore } from 'vuex'
+<script setup lang="ts">
+import type { Layer } from '@swissgeo/layers'
 
-import AbstractLayer from '@/api/layers/AbstractLayer.class'
+import { onMounted, ref, watch } from 'vue'
+
+import type { ActionDispatcher } from '@/store/types'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import useLayersStore from '@/store/modules/layers'
 import debounce from '@/utils/debounce'
 
-const DISPATCHER = { dispatcher: 'MenuActiveLayersListItem.vue' }
+const dispatcher: ActionDispatcher = { name: 'MenuActiveLayersListItem.vue' }
 
-const store = useStore()
+const { layer, index } = defineProps<{
+    layer: Layer
+    index: number
+}>()
 
-const { layer, index } = defineProps({
-    layer: {
-        type: AbstractLayer,
-        required: true,
-    },
-    index: {
-        type: Number,
-        required: true,
-    }
-})
+const localTransparency = ref<number>(0)
 
-const localTransparency = ref(0)
+const layersStore = useLayersStore()
 
 onMounted(() => {
     syncOpacity()
 })
 
-const syncOpacity = () => {
+function syncOpacity(): void {
     localTransparency.value = 1 - layer.opacity
 }
 
-const saveOpacityToLayer = (opacity) => {
-    store.dispatch('setLayerOpacity', {
-        index,
-        opacity: opacity,
-        ...DISPATCHER,
-    })
+function saveOpacityToLayer(opacity: number): void {
+    layersStore.setLayerOpacity(index, opacity, dispatcher)
 }
 
 const debouncedSaveOpacityToLayer = debounce(saveOpacityToLayer, 50)
 
 watch(localTransparency, (newTransparency) => {
     const newOpacity = 1 - newTransparency
+
     // there is of course a tasty race condition if we debounce this in cypress
     if (IS_TESTING_WITH_CYPRESS) {
         saveOpacityToLayer(newOpacity)

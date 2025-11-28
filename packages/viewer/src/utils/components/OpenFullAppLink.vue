@@ -1,4 +1,4 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -14,12 +14,17 @@ const currentHost = ref(window.location.host)
 const linkMessage = computed(() =>
     t('view_on_mapgeoadminch_webmapviewer', { url: currentHost.value })
 )
-const mapView = computed(() => router.resolve({ ...router.currentRoute.value, name: MAP_VIEW }))
+const mapView = computed(() =>
+    router.resolve({
+        name: MAP_VIEW,
+        query: router.currentRoute.value.query,
+    })
+)
 </script>
 
 <template>
     <div
-        class="open-full-app-link bg-light border-1 d-flex align-items-center m-2 rounded px-2"
+        class="open-full-app-link bg-light d-flex align-items-center m-2 rounded border-1 px-2"
         data-cy="open-full-app-link"
     >
         <SwissFlag

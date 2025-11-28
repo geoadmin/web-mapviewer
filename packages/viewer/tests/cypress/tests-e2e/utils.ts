@@ -1,5 +1,7 @@
 /// <reference types="cypress" />
 
+import useUIStore from '@/store/modules/ui'
+
 export function moveTimeSlider(x: number) {
     cy.get('[data-cy="time-slider-bar-cursor-grab"]').trigger('mousedown', { button: 0 })
     cy.get('[data-cy="time-slider-bar-cursor-grab"]').trigger('mousemove', {
@@ -21,24 +23,17 @@ export function testErrorMessage(message: string) {
     cy.get(geolocationButtonSelector).trigger('mousemove', { clientX: 0, clientY: 0, force: true }) // Check error in store
 
     // Check error in store
-    cy.readStoreValue('state.ui.errors').then((errors) => {
-        expect(errors).to.be.an('Set')
+    cy.getPinia().then((pinia) => {
+        const uiStore = useUIStore(pinia)
+        expect(uiStore.errors).to.be.a('Set')
         // Make sure this is the only error (we don't want to test other errors)
-        expect(errors.size).to.eq(1)
+        expect(uiStore.errors.size).to.eq(1)
 
-        const error = errors.values().next().value
-        expect(error.msg).to.eq(message)
+        const error = uiStore.errors.values().next().value
+        expect(error).to.be.an('Object')
+        expect(error!.msg).to.eq(message)
     })
     // Check error in UI
     cy.get('[data-cy="error-window"]').should('be.visible')
     cy.get('[data-cy="error-window-close"]').should('be.visible').click() // close the error window
-}
-
-export function checkStorePosition(storeString: string, x: number, y: number) {
-    cy.readStoreValue(storeString).then((center) => {
-        expect(center).to.be.an('Array')
-        expect(center.length).to.eq(2)
-        expect(center[0]).to.approximately(x, 0.1)
-        expect(center[1]).to.approximately(y, 0.1)
-    })
 }

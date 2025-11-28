@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { Single3DCoordinate, SingleCoordinate } from '@/coordinatesUtils'
+
 import coordinatesUtils from '@/coordinatesUtils'
 import { CoordinateSystem, LV95, WEBMERCATOR, WGS84 } from '@/proj'
 
@@ -123,6 +124,17 @@ describe('Unit test for coordinatesUtils', () => {
                 [5, 6],
             ]
             const wrappedCoordinates = [expectedOutcome]
+            expect(coordinatesUtils.unwrapGeometryCoordinates(wrappedCoordinates)).to.eql(
+                expectedOutcome
+            )
+        })
+        it('can deal with multiple wrapping array around coordinates', () => {
+            const expectedOutcome: SingleCoordinate[] = [
+                [1, 2],
+                [3, 4],
+                [5, 6],
+            ]
+            const wrappedCoordinates = [[expectedOutcome]]
             expect(coordinatesUtils.unwrapGeometryCoordinates(wrappedCoordinates)).to.eql(
                 expectedOutcome
             )

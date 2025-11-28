@@ -1,25 +1,28 @@
-<script setup lang="js">
+<script setup lang="ts">
+import type { SimpleGeometry } from 'ol/geom'
+import type { StyleFunction } from 'ol/style/Style'
+
 import Feature from 'ol/Feature'
 
-import { EditableFeatureTypes } from '@/api/features/EditableFeature.class'
+import type { DrawingInteractionExposed } from '@/modules/drawing/types/interaction'
+
+import { EditableFeatureTypes } from '@/api/features.api'
 import useDrawingLineInteraction from '@/modules/drawing/components/useDrawingLineInteraction.composable'
 import { drawMeasureStyle } from '@/modules/drawing/lib/style'
 
-const emits = defineEmits({
-    drawEnd(payload) {
-        return payload instanceof Feature
-    },
-})
+const emits = defineEmits<{
+    drawEnd: [feature: Feature<SimpleGeometry>]
+}>()
 
 const { removeLastPoint } = useDrawingLineInteraction({
-    style: drawMeasureStyle,
-    featureType: EditableFeatureTypes.MEASURE,
-    drawEndCallback: (feature) => {
+    styleFunction: drawMeasureStyle as StyleFunction,
+    featureType: EditableFeatureTypes.Measure,
+    drawEndCallback: (feature: Feature<SimpleGeometry>): void => {
         emits('drawEnd', feature)
     },
 })
 
-defineExpose({
+defineExpose<DrawingInteractionExposed>({
     removeLastPoint,
 })
 </script>

@@ -1,30 +1,37 @@
-<script setup lang="js">
+<script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { LV95, WEBMERCATOR } from '@swissgeo/coordinates'
 import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { useStore } from 'vuex'
 
 import BaseUrlOverrideModal from '@/modules/menu/components/debug/BaseUrlOverrideModal.vue'
 import DebugLayerFinder from '@/modules/menu/components/debug/DebugLayerFinder.vue'
 import DebugPrint from '@/modules/menu/components/debug/DebugPrint.vue'
 import DebugViewSelector from '@/modules/menu/components/debug/DebugViewSelector.vue'
-import { PRINT_VIEW } from '@/router/viewNames.js'
+import { PRINT_VIEW } from '@/router/viewNames'
+import useCesiumStore from '@/store/modules/cesium'
+import useDebugStore from '@/store/modules/debug'
+import usePositionStore from '@/store/modules/position'
+import useUIStore from '@/store/modules/ui'
 
-const dispatcher = { dispatcher: 'DebugToolbar.vue' }
+const dispatcher = { name: 'DebugToolbar.vue' }
+
+const positionStore = usePositionStore()
+const cesiumStore = useCesiumStore()
+const debugStore = useDebugStore()
+const uiStore = useUIStore()
 
 const route = useRoute()
-const store = useStore()
 
 const showDebugTool = ref(false)
 const showBaseUrlOverride = ref(false)
 const showLayerFinder = ref(false)
 const showPrint = ref(false)
 
-const currentProjection = computed(() => store.state.position.projection)
-const is3dActive = computed(() => store.state.cesium.active)
-const showTileDebugInfo = computed(() => store.state.debug.showTileDebugInfo)
-const showLayerExtents = computed(() => store.state.debug.showLayerExtents)
+const currentProjection = computed(() => positionStore.projection)
+const is3dActive = computed(() => cesiumStore.active)
+const showTileDebugInfo = computed(() => debugStore.showTileDebugInfo)
+const showLayerExtents = computed(() => debugStore.showLayerExtents)
 
 const isMercatorTheCurrentProjection = computed(
     () => currentProjection.value.epsg === WEBMERCATOR.epsg
@@ -32,19 +39,16 @@ const isMercatorTheCurrentProjection = computed(
 
 function toggleProjection() {
     if (isMercatorTheCurrentProjection.value) {
-        store.dispatch('setProjection', { projection: LV95, ...dispatcher })
+        positionStore.setProjection(LV95, dispatcher)
     } else {
-        store.dispatch('setProjection', {
-            projection: WEBMERCATOR,
-            ...dispatcher,
-        })
+        positionStore.setProjection(WEBMERCATOR, dispatcher)
     }
 }
 function toggleShowTileDebugInfo() {
-    store.dispatch('toggleShowTileDebugInfo', dispatcher)
+    debugStore.toggleShowTileDebugInfo(dispatcher)
 }
 function toggleShowLayerExtents() {
-    store.dispatch('toggleShowLayerExtents', dispatcher)
+    debugStore.toggleShowLayerExtents(dispatcher)
 }
 function toggleShowBaseUrlOverride() {
     showBaseUrlOverride.value = !showBaseUrlOverride.value
@@ -56,18 +60,18 @@ function toggleShowPrint() {
     showPrint.value = !showPrint.value
 }
 function showSiteAsInProd() {
-    store.dispatch('setForceNoDevSiteWarning', { ...dispatcher })
+    uiStore.setForceNoDevSiteWarning(dispatcher)
 }
 </script>
 
 <template>
     <div
-        class="position-fixed end-0 top-50 z-3 debug-tools card border-danger rounded-end-0 me-n1 no-print"
+        class="position-fixed debug-tools card border-danger rounded-end-0 me-n1 no-print end-0 top-50 z-3"
         :class="{ collapsed: !showDebugTool }"
     >
         <div class="position-relative d-flex">
             <div
-                class="debug-tools-header p-2 bg-danger-subtle border-end border-danger rounded-start-1"
+                class="debug-tools-header bg-danger-subtle border-end border-danger rounded-start-1 p-2"
                 data-cy="debug-tools-header"
                 @click="showDebugTool = !showDebugTool"
             >
@@ -83,7 +87,7 @@ function showSiteAsInProd() {
                 <div class="card-body p-1">
                     <div
                         id="debug-tools-menu"
-                        class="d-flex gap-2 justify-content-center flex-wrap"
+                        class="d-flex justify-content-center flex-wrap gap-2"
                     >
                         <DebugViewSelector />
 

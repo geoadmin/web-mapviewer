@@ -1,32 +1,31 @@
-<script setup lang="js">
+<script setup lang="ts">
+import type { Map } from 'ol'
+
 import { LV95 } from '@swissgeo/coordinates'
+import log from '@swissgeo/log'
 import Feature from 'ol/Feature'
 import { Polygon } from 'ol/geom'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { Fill, Stroke, Style, Text } from 'ol/style'
 import { computed, inject, watch } from 'vue'
-import { useStore } from 'vuex'
 
-import ExternalLayer from '@/api/layers/ExternalLayer.class'
-import GeoAdminLayer from '@/api/layers/GeoAdminLayer.class'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
+import useLayersStore from '@/store/modules/layers'
+import usePositionStore from '@/store/modules/position'
 
-const { zIndex } = defineProps({
-    zIndex: {
-        type: Number,
-        default: -1,
-    },
-})
+const { zIndex = -1 } = defineProps<{
+    zIndex?: number
+}>()
 
-const store = useStore()
-const currentProjection = computed(() => store.state.position.projection)
+const positionStore = usePositionStore()
+const layersStore = useLayersStore()
 const allLayers = computed(() => {
     const layers = []
-    if (store.getters.currentBackgroundLayer) {
-        layers.push(store.getters.currentBackgroundLayer)
+    if (layersStore.currentBackgroundLayer) {
+        layers.push(layersStore.currentBackgroundLayer)
     }
-    layers.push(...store.getters.visibleLayers)
+    layers.push(...layersStore.visibleLayers)
     return layers
 })
 
@@ -35,7 +34,9 @@ const layer = new VectorLayer({
     style: (feature) => {
         // using a random color for each extent
         // https://css-tricks.com/snippets/javascript/random-hex-color/
-        const randomColor = `#${Math.floor(Math.random() * 0xffffff).toString(16)}`
+        const randomColor = `#${Math.floor(Math.random() * 0xffffff)
+            .toString(16)
+            .padStart(6, '0')}`
         return new Style({
             stroke: new Stroke({
                 color: randomColor,
@@ -59,55 +60,74 @@ const layer = new VectorLayer({
     },
 })
 
-const olMap = inject('olMap', null)
+const olMap = inject<Map>('olMap')
+if (!olMap) {
+    log.error('OpenLayersMap is not available')
+    throw new Error('OpenLayersMap is not available')
+}
 useAddLayerToMap(layer, olMap, () => zIndex)
 
-watch(currentProjection, () => layer.setSource(createVectorSourceForProjection()))
+watch(
+    () => positionStore.projection,
+    () => layer.setSource(createVectorSourceForProjection())
+)
 watch(allLayers, () => layer.setSource(createVectorSourceForProjection()))
 
-function createFeaturesForEachLayerExtent() {
-    const extents = []
-    if (allLayers.value.some((layer) => layer instanceof GeoAdminLayer)) {
-        const bounds = LV95.getBoundsAs(currentProjection.value)
-        extents.push(
-            new Feature({
-                geometry: new Polygon([
-                    [
-                        [bounds.lowerX, bounds.lowerY],
-                        [bounds.upperX, bounds.lowerY],
-                        [bounds.upperX, bounds.upperY],
-                        [bounds.lowerX, bounds.upperY],
-                        [bounds.lowerX, bounds.lowerY],
-                    ],
-                ]),
-                name: 'LV95',
-            })
-        )
-    }
-    allLayers.value
-        .filter((layer) => layer instanceof ExternalLayer && layer.extent)
-        .forEach((layer) => {
+function createFeaturesForEachLayerExtent(): Feature[] {
+    const extents: Feature[] = []
+    if (allLayers.value.some((layer) => layer.constructor.name === 'GeoAdminLayer')) {
+        const bounds = LV95.getBoundsAs(positionStore.projection)
+        if (bounds) {
             extents.push(
                 new Feature({
                     geometry: new Polygon([
                         [
-                            layer.extent[1],
-                            [layer.extent[1][0], layer.extent[0][1]],
-                            layer.extent[0],
-                            [layer.extent[0][0], layer.extent[1][1]],
-                            layer.extent[1],
+                            [bounds.lowerX, bounds.lowerY],
+                            [bounds.upperX, bounds.lowerY],
+                            [bounds.upperX, bounds.upperY],
+                            [bounds.lowerX, bounds.upperY],
+                            [bounds.lowerX, bounds.lowerY],
                         ],
                     ]),
-                    name: layer.id,
+                    name: 'LV95',
                 })
             )
+        }
+    }
+    allLayers.value
+        .filter(
+            (layer) =>
+                layer.constructor.name === 'ExternalLayer' && 'extent' in layer && !!layer.extent
+        )
+        .forEach((layer) => {
+            if (
+                'extent' in layer &&
+                layer.extent &&
+                Array.isArray(layer.extent) &&
+                layer.extent.length === 4
+            ) {
+                const [minX, minY, maxX, maxY] = layer.extent as [number, number, number, number]
+                extents.push(
+                    new Feature({
+                        geometry: new Polygon([
+                            [
+                                [maxX, maxY],
+                                [maxX, minY],
+                                [minX, minY],
+                                [minX, maxY],
+                                [maxX, maxY],
+                            ],
+                        ]),
+                        name: layer.id,
+                    })
+                )
+            }
         })
     return extents
 }
 
-function createVectorSourceForProjection() {
+function createVectorSourceForProjection(): VectorSource {
     return new VectorSource({
-        projection: currentProjection.value.epsg,
         features: createFeaturesForEachLayerExtent(),
     })
 }

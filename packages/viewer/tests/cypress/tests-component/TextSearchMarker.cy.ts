@@ -8,9 +8,7 @@ describe('<TextSearchMarker />', () => {
         cy.mount(TextSearchMarker, {
             props: { text: 'This a simple text', search: 'simple', markers: 'fw-bold' },
         })
-        cy.get('[data-cy="segment"]')
-            .should('be.visible')
-            .should('not.have.class', 'fw-bold')
+        cy.get('[data-cy="segment"]').should('be.visible').should('not.have.class', 'fw-bold')
         cy.get('[data-cy="segment-match"]')
             .should('be.visible')
             .should('have.class', 'fw-bold')
@@ -21,9 +19,7 @@ describe('<TextSearchMarker />', () => {
         cy.mount(TextSearchMarker, {
             props: { text: 'This a simple-345 text', search: /simple-\d+/, markers: 'fw-bold' },
         })
-        cy.get('[data-cy="segment"]')
-            .should('be.visible')
-            .should('not.have.class', 'fw-bold')
+        cy.get('[data-cy="segment"]').should('be.visible').should('not.have.class', 'fw-bold')
         cy.get('[data-cy="segment-match"]')
             .should('be.visible')
             .should('have.class', 'fw-bold')
@@ -38,9 +34,7 @@ describe('<TextSearchMarker />', () => {
                 markers: 'fw-bold',
             },
         })
-        cy.get('[data-cy="segment"]')
-            .should('be.visible')
-            .should('not.have.class', 'fw-bold')
+        cy.get('[data-cy="segment"]').should('be.visible').should('not.have.class', 'fw-bold')
         cy.get('[data-cy="segment-match"]')
             .should('be.visible')
             .should('have.class', 'fw-bold')
@@ -53,9 +47,7 @@ describe('<TextSearchMarker />', () => {
         cy.mount(TextSearchMarker, {
             props: { text: 'This a simple-345 text', search: /simple-\d+/ },
         })
-        cy.get('[data-cy="segment"]')
-            .should('be.visible')
-            .should('not.have.class', 'fw-bold')
+        cy.get('[data-cy="segment"]').should('be.visible').should('not.have.class', 'fw-bold')
         cy.get('[data-cy="segment-match"]')
             .should('be.visible')
             .should('have.class', 'fw-bold bg-info bg-opacity-25')
@@ -70,9 +62,7 @@ describe('<TextSearchMarker />', () => {
                 markers: 'fw-bold bg-secondary',
             },
         })
-        cy.get('[data-cy="segment"]')
-            .should('be.visible')
-            .should('not.have.class', 'fw-bold')
+        cy.get('[data-cy="segment"]').should('be.visible').should('not.have.class', 'fw-bold')
         cy.get('[data-cy="segment-match"]')
             .should('be.visible')
             .should('have.class', 'fw-bold bg-secondary')
@@ -87,9 +77,7 @@ describe('<TextSearchMarker />', () => {
                 markers: ['fw-bold', 'bg-secondary'],
             },
         })
-        cy.get('[data-cy="segment"]')
-            .should('be.visible')
-            .should('not.have.class', 'fw-bold')
+        cy.get('[data-cy="segment"]').should('be.visible').should('not.have.class', 'fw-bold')
         cy.get('[data-cy="segment-match"]')
             .should('be.visible')
             .should('have.class', 'fw-bold bg-secondary')

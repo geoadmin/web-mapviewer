@@ -1,4 +1,6 @@
-<script setup lang="js">
+<script setup lang="ts">
+import type { ErrorMessage } from '@swissgeo/log/Message'
+
 import log from '@swissgeo/log'
 import { computed, ref } from 'vue'
 
@@ -11,17 +13,14 @@ const acceptedFileTypes = ['.kml', '.kmz', '.gpx', '.tif', '.tiff']
 
 const { handleFileSource } = useImportFile()
 
-const { active } = defineProps({
-    active: {
-        type: Boolean,
-        default: false,
-    },
-})
+const { active = false } = defineProps<{
+    active?: boolean
+}>()
 
 // Reactive data
 const loadingFile = ref(false)
-const selectedFile = ref(null)
-const errorFileLoadingMessage = ref(null)
+const selectedFile = ref<File | undefined>()
+const errorFileLoadingMessage = ref<ErrorMessage | undefined>()
 const isFormValid = ref(false)
 const activateValidation = ref(false)
 const importSuccessMessage = ref('')
@@ -31,7 +30,7 @@ const buttonState = computed(() => (loadingFile.value ? 'loading' : 'default'))
 // Methods
 async function loadFile() {
     importSuccessMessage.value = ''
-    errorFileLoadingMessage.value = ''
+    errorFileLoadingMessage.value = undefined
     activateValidation.value = true
     loadingFile.value = true
 
@@ -40,15 +39,20 @@ async function loadFile() {
             await handleFileSource(selectedFile.value, false)
             importSuccessMessage.value = 'file_imported_success'
         } catch (error) {
-            errorFileLoadingMessage.value = generateErrorMessageFromErrorType(error)
-            log.error(`Failed to load file`, error)
+            errorFileLoadingMessage.value = generateErrorMessageFromErrorType(
+                error instanceof Error ? error : new Error(String(error))
+            )
+            log.error({
+                title: 'ImportFileLocalTab.vue',
+                messages: ['Failed to load file', error],
+            })
         }
     }
 
     loadingFile.value = false
 }
 
-function validateForm(valid) {
+function validateForm(valid: boolean) {
     isFormValid.value = valid
 }
 </script>
