@@ -29,6 +29,8 @@ const { t } = useI18n()
 
 const rotation = ref(0)
 const isResetting = ref(false)
+
+// Show compass when: map is rotated away from north OR hideIfNorth is false (e.g., when auto-rotation is active)
 const showCompass = computed(() => Math.abs(rotation.value) >= 1e-9 || !hideIfNorth)
 
 onMounted(() => {
@@ -56,7 +58,7 @@ function onRotate(mapEvent: MapEvent): void {
         return
     }
     const newRotation = mapEvent.frameState?.viewState.rotation
-    if (newRotation && newRotation !== rotation.value) {
+    if (newRotation !== undefined && newRotation !== rotation.value) {
         rotation.value = newRotation
     }
 }

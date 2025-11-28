@@ -92,15 +92,15 @@ const orientationParameters = computed(() => {
     ]
 })
 
-// To avoid re-centering the map on the position, we need to listen to movestart event, because
+// To avoid re-centering the map on the position, we need to listen to pointerdrag event, because
 // the center in store is set during the moveend event, so this means that if we disable tracking
 // by using the store event, it can lead to race condition when moving the map between the
 // moveend event and the geolocation event.
 onBeforeMount(() => {
-    olMap.on('movestart', disableTrackingAndAutoRotation)
+    olMap.on('pointerdrag', disableTrackingAndAutoRotation)
 })
 onBeforeUnmount(() => {
-    olMap.un('movestart', disableTrackingAndAutoRotation)
+    olMap.un('pointerdrag', disableTrackingAndAutoRotation)
 })
 
 function roundIfNumber(v: unknown, d: number): string {
