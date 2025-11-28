@@ -65,7 +65,9 @@ export default class GPXParser extends FileParser<GPXLayer> {
               }
             : undefined
 
+        const gpxFileUrl = typeof fileSource === 'string' ? fileSource : fileSource.name
         const gpxLayer: GPXLayer = layerUtils.makeGPXLayer({
+            gpxFileUrl,
             opacity: 1.0,
             isVisible: true,
             extent: extentInCurrentProjection,

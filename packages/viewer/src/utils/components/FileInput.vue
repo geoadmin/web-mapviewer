@@ -26,7 +26,7 @@ const {
     validMessage = '',
     invalidMarker = undefined,
     invalidMessage = '',
-    invalidMessageExtraParams = {},
+    invalidMessageExtraParams = undefined,
     activateValidation = false,
     validate = undefined,
     dataCy = '',
@@ -146,8 +146,7 @@ function validateFile(): { valid: boolean; invalidMessage: string } {
     }
 }
 
-// Use the field validation composable with properly typed props
-const validationProps = {
+const validationProps = computed(() => ({
     required,
     validMarker,
     validMessage,
@@ -155,7 +154,7 @@ const validationProps = {
     invalidMessage,
     activateValidation,
     validate,
-}
+}))
 
 const {
     value,
@@ -163,6 +162,7 @@ const {
     invalidMarker: computedInvalidMarker,
     validMessage: computedValidMessage,
     invalidMessage: computedInvalidMessage,
+    required: computedRequired,
 } = useFieldValidation<File>(
     validationProps,
     model,
@@ -199,7 +199,7 @@ function onFileSelected(evt: Event): void {
         <label
             v-if="label"
             class="mb-2"
-            :class="{ 'fw-bolder': required }"
+            :class="{ 'fw-bolder': computedRequired }"
             :for="inputFileId"
             data-cy="file-input-label"
         >
@@ -249,7 +249,7 @@ function onFileSelected(evt: Event): void {
                     t(computedInvalidMessage, {
                         maxFileSize: maxFileSizeHuman,
                         allowedFormats: acceptedFileTypes.join(', '),
-                        ...invalidMessageExtraParams,
+                        ...(invalidMessageExtraParams ?? {}),
                     })
                 }}
             </div>

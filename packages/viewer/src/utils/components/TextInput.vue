@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** Input with clear button component */
-import { nextTick, ref, useSlots, useTemplateRef } from 'vue'
+import { computed, nextTick, ref, useSlots, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
@@ -23,9 +23,9 @@ const {
     disabled = false,
     placeholder = '',
     required = false,
-    validMarker = undefined,
+    validMarker = false,
     validMessage = '',
-    invalidMarker = undefined,
+    invalidMarker = false,
     invalidMessage = '',
     invalidMessageParams = undefined,
     activateValidation = false,
@@ -114,7 +114,7 @@ const emits = defineEmits<{
     'keydown.enter': []
 }>()
 
-const validationProps = {
+const validationProps = computed(() => ({
     required,
     validMarker,
     validMessage,
@@ -122,7 +122,7 @@ const validationProps = {
     invalidMessage,
     activateValidation,
     validate,
-}
+}))
 
 const {
     value,

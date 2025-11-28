@@ -95,9 +95,8 @@ async function loadFile() {
                 dispatcher
             )
         }
+        isLoading.value = false
         importSuccessMessage.value = 'file_imported_success'
-
-        setTimeout(() => (isLoading.value = false), 3000)
     } catch (error) {
         log.error({
             title: 'Import File Online Tab',
@@ -108,7 +107,6 @@ async function loadFile() {
             errorFileLoadingMessage.value = generateErrorMessageFromErrorType(error)
         }
     }
-    isLoading.value = false
 }
 </script>
 
@@ -133,10 +131,11 @@ async function loadFile() {
                 class="mb-2"
                 placeholder="import_file_url_placeholder"
                 :activate-validation="activateValidation"
+                :valid-marker="!!importSuccessMessage"
+                :valid-message="importSuccessMessage"
                 :invalid-marker="!!errorFileLoadingMessage"
                 :invalid-message="errorFileLoadingMessage?.msg"
                 :invalid-message-params="errorFileLoadingMessage?.params"
-                :valid-message="importSuccessMessage"
                 :validate="validateUrl"
                 data-cy="import-file-online-url"
                 @validate="onUrlValidate"

@@ -8,6 +8,9 @@ import type { ParseOptions } from '@/modules/menu/components/advancedTools/Impor
 import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api'
 import { checkOnlineFileCompliance, getFileContentFromUrl } from '@/api/files.api'
 import { CloudOptimizedGeoTIFFParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/CloudOptimizedGeoTIFFParser.class'
+import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'
+import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
+import UnknownProjectionError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/UnknownProjectionError.error'
 import GPXParser from '@/modules/menu/components/advancedTools/ImportFile/parser/GPXParser.class'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
@@ -34,12 +37,42 @@ async function parseAll(config: ParseAllConfig, options?: ParseOptions): Promise
     if (firstFulfilled) {
         return (firstFulfilled as PromiseFulfilledResult<FileLayer>).value
     }
-    const anyErrorRaised = allSettled.find(
+
+    // Prioritize specific errors over generic InvalidFileContentError
+    // This ensures that if a parser successfully identifies the file format
+    // but encounters a specific issue (e.g., out of bounds), that error is shown
+    const rejectedResponses = allSettled.filter(
         (response) => response.status === 'rejected' && response.reason
+    ) as PromiseRejectedResult[]
+
+    // Priority order: OutOfBounds > Empty > UnknownProjection > Invalid > Other
+    const outOfBoundsError = rejectedResponses.find(
+        (response) => response.reason instanceof OutOfBoundsError
     )
-    if (anyErrorRaised) {
-        throw (anyErrorRaised as PromiseRejectedResult).reason
+    if (outOfBoundsError) {
+        throw outOfBoundsError.reason
     }
+
+    const emptyFileError = rejectedResponses.find(
+        (response) => response.reason instanceof EmptyFileContentError
+    )
+    if (emptyFileError) {
+        throw emptyFileError.reason
+    }
+
+    const unknownProjectionError = rejectedResponses.find(
+        (response) => response.reason instanceof UnknownProjectionError
+    )
+    if (unknownProjectionError) {
+        throw unknownProjectionError.reason
+    }
+
+    // Fall back to any error (including InvalidFileContentError)
+    const firstError = rejectedResponses[0]
+    if (firstError) {
+        throw firstError.reason
+    }
+
     throw new Error('Could not parse file')
 }
 
