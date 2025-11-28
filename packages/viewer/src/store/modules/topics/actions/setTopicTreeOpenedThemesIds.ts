@@ -7,8 +7,8 @@ export default function setTopicTreeOpenedThemesIds(
     dispatcher: ActionDispatcher
 ): void {
     if (typeof themes === 'string') {
-        this.openedTreeThemesIds = themes.split(',')
+        this.openedTreeThemesIds = [...new Set(themes.split(','))]
     } else if (Array.isArray(themes)) {
-        this.openedTreeThemesIds = [...themes]
+        this.openedTreeThemesIds = [...new Set(themes)]
     }
 }

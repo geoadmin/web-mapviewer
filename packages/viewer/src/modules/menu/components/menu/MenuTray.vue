@@ -98,8 +98,6 @@ function onCloseMenuSection(id: string) {
  *
  * NOTE: To work the element requires an sectionId attribute. For Component, it requires to expose
  * an "id" constant.
- *
- * @param {Element | ComponentPublicInstance | null} el Reference to the element
  */
 const addRefBySectionId = (el: Element | ComponentPublicInstance | null): void => {
     const _el = el as MenuSectionType

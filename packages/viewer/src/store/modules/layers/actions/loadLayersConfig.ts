@@ -10,6 +10,7 @@ import useTopicsStore from '@/store/modules/topics'
 
 interface LoadLayersConfigOptions {
     changeLayersOnTopicChange?: boolean
+    openGeocatalogSection?: boolean
 }
 
 export default function loadLayersConfig(
@@ -43,12 +44,12 @@ export default function loadLayersConfig(
                 swissimage3d.isBackground = true
                 swissimage.idIn3d = swissimage3d.id
             }
-
             this.setLayerConfig(layersConfig, dispatcher)
             topicsStore.setTopics(
                 topics,
                 {
                     changeLayers: options.changeLayersOnTopicChange,
+                    openGeocatalogSection: options.openGeocatalogSection,
                 },
                 dispatcher
             )
