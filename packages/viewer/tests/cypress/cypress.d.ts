@@ -68,8 +68,6 @@ declare global {
             /**
              * Cypress-wait-until wrapper to wait for a specific (Vuex) store state.
              *
-             * Cy.readStoreValue doesn't work as `.its` will prevent retries.
-             *
              * @param predicate
              * @param options
              */

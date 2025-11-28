@@ -1,8 +1,9 @@
 /// <reference types="cypress" />
 
-import type { ExternalWMSLayer, ExternalWMTSLayer } from '@swissgeo/layers'
+import type { ExternalWMSLayer, ExternalWMTSLayer, KMLLayer } from '@swissgeo/layers'
 
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
+import { LayerType } from '@swissgeo/layers'
 import { KMLStyle } from '@swissgeo/layers'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
@@ -211,10 +212,11 @@ describe('Test on legacy param import', () => {
                 expect(activeLayers2).to.be.an('Array').length(1)
                 const [kmlLayer] = activeLayers2
                 assertDefined(kmlLayer)
+                expect(kmlLayer.type).to.eq(LayerType.KML)
                 expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer.opacity).to.eq(0.6)
                 expect(kmlLayer.isVisible).to.be.true
-                expect(kmlLayer.style).to.eq(KMLStyle.GEOADMIN)
+                expect((kmlLayer as KMLLayer).style).to.eq(KMLStyle.GEOADMIN)
             })
         })
         it('is able to import an external KML from a legacy adminId query param', () => {
@@ -232,10 +234,11 @@ describe('Test on legacy param import', () => {
                 expect(activeLayers3).to.be.an('Array').length(1)
                 const [kmlLayer2] = activeLayers3
                 assertDefined(kmlLayer2)
+                expect(kmlLayer2.type).to.eq(LayerType.KML)
                 expect(kmlLayer2.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer2.opacity).to.eq(1)
                 expect(kmlLayer2.isVisible).to.be.true
-                expect(kmlLayer2.adminId).to.equal(adminId)
+                expect((kmlLayer2 as KMLLayer).adminId).to.equal(adminId)
             })
         })
         it("don't keep KML adminId in URL after import", () => {
@@ -253,10 +256,11 @@ describe('Test on legacy param import', () => {
                 expect(activeLayers4).to.be.an('Array').length(1)
                 const [kmlLayer3] = activeLayers4
                 assertDefined(kmlLayer3)
+                expect(kmlLayer3.type).to.eq(LayerType.KML)
                 expect(kmlLayer3.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer3.opacity).to.eq(1)
                 expect(kmlLayer3.isVisible).to.be.true
-                expect(kmlLayer3.adminId).to.be.equal(adminId)
+                expect((kmlLayer3 as KMLLayer).adminId).to.be.equal(adminId)
             })
             cy.url().should('not.contain', adminId)
         })
