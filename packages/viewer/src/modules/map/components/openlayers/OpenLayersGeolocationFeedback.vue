@@ -108,7 +108,7 @@ function roundIfNumber(v: unknown, d: number): string {
 }
 
 function disableTrackingAndAutoRotation(): void {
-    if (isTracking.value) {
+    if (isTracking.value && geolocationStore.position && geolocationStore.position !== positionStore.center) {
         // When the map has been dragged we disabled geolocation tracking to avoid to re-center the
         // map when the user want to have something else in the center. Also disabled the auto rotation
         // because auto rotation rotate the map using the position as center and it doesn't make sense

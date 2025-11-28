@@ -74,7 +74,6 @@ export default function setCenter(
         geolocationStore.setGeolocationTracking(false, dispatcher)
         this.setAutoRotation(false, dispatcher)
     }
-
     const cesiumStore = useCesiumStore()
     if (cesiumStore.active && this.camera) {
         // updating the 3D position with the new center values (from a search result selection, for example)
