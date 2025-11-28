@@ -41,13 +41,10 @@ export default function setCenter(
 
     const geolocationStore = useGeolocationStore()
 
-    // TODO: fix this, it stops the tracking when receiving the first geolocation position update
-    if (geolocationStore.tracking && geolocationStore.position !== center) {
-        // if we moved the map we disabled the geolocation tracking (unless the tracking moved the map)
+    if (geolocationStore.tracking && geolocationStore.position && geolocationStore.position !== this.center) {
         geolocationStore.setGeolocationTracking(false, dispatcher)
         this.setAutoRotation(false, dispatcher)
     }
-
     const cesiumStore = useCesiumStore()
     if (cesiumStore.active && this.camera) {
         // updating the 3D position with the new center values (from a search result selection, for example)
