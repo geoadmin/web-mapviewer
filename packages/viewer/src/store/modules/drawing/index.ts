@@ -4,6 +4,7 @@ import type { DrawingStoreGetters, DrawingStoreState } from '@/store/modules/dra
 
 import clearDrawingFeatures from '@/store/modules/drawing/actions/clearDrawingFeatures'
 import closeDrawing from '@/store/modules/drawing/actions/closeDrawing'
+import deleteCurrentDrawing from '@/store/modules/drawing/actions/deleteCurrentDrawing'
 import deleteDrawingFeature from '@/store/modules/drawing/actions/deleteDrawingFeature'
 import initiateDrawing from '@/store/modules/drawing/actions/initiateDrawing'
 import loadAvailableIconSets from '@/store/modules/drawing/actions/loadAvailableIconSets'
@@ -15,6 +16,7 @@ import setDrawingSaveState from '@/store/modules/drawing/actions/setDrawingSaveS
 import setEditingMode from '@/store/modules/drawing/actions/setEditingMode'
 import setIsDrawingEditShared from '@/store/modules/drawing/actions/setIsDrawingEditShared'
 import setIsVisitWithAdminId from '@/store/modules/drawing/actions/setIsVisitWithAdminId'
+import setOnlineMode from '@/store/modules/drawing/actions/setOnlineMode'
 import toggleDrawingOverlay from '@/store/modules/drawing/actions/toggleDrawingOverlay'
 import updateCurrentDrawingFeature from '@/store/modules/drawing/actions/updateCurrentDrawingFeature'
 import updateDrawingPreferences from '@/store/modules/drawing/actions/updateDrawingPreferences'
@@ -23,6 +25,7 @@ import isDrawingModified from '@/store/modules/drawing/getters/isDrawingModified
 import showNotSharedDrawingWarning from '@/store/modules/drawing/getters/showNotSharedDrawingWarning'
 import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
 import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
+import { OnlineMode } from '@/store/modules/drawing/types/OnlineMode.enum'
 import { MEDIUM, RED, TextPlacement } from '@/utils/featureStyleUtils'
 
 const defaultDrawingTitle = 'draw_mode_title'
@@ -56,7 +59,8 @@ const state = (): DrawingStoreState => ({
         state: DrawingSaveState.Initial,
         pending: undefined,
     },
-    online: true,
+    // online: true,
+    onlineMode: OnlineMode.Online,
     name: undefined,
     isDrawingNew: true,
     isDrawingEditShared: false,
@@ -70,6 +74,8 @@ const getters: DrawingStoreGetters = {
 }
 
 const actions = {
+    setOnlineMode,
+    deleteCurrentDrawing,
     clearDrawingFeatures,
     deleteDrawingFeature,
     loadAvailableIconSets,

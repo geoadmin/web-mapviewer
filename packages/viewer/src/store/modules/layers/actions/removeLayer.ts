@@ -57,7 +57,6 @@ export default function removeLayer(
             (layer) => !matchTwoLayers(layerId, isExternal, baseUrl, layer)
         )
     }
-
     removedLayers.forEach((layer) => {
         if (layer.type === LayerType.GEOJSON) {
             const geoJsonLayer = layer as GeoAdminGeoJSONLayer
