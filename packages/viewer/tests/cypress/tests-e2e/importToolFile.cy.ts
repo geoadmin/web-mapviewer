@@ -19,6 +19,8 @@ import useProfileStore from '@/store/modules/profile'
 
 registerProj4(proj4)
 
+const profileIntercept = '**/rest/services/profile.json**'
+
 function checkVectorLayerHighlightingSegment(lastIndex: number = -1): number {
     let currentIndex: number = -1
     cy.window()
@@ -116,7 +118,6 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="import-file-local-btn"]:visible').click()
         cy.get('[data-cy="import-file-load-button"]:visible').click()
 
-        const profileIntercept = '**/rest/services/profile.json**'
         cy.intercept(profileIntercept, {
             fixture: 'service-alti/profile.fixture.json',
         }).as('profile')
@@ -1288,7 +1289,6 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="text-input"]:visible').type(validMultiSegmentOnlineUrl)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
 
-        const profileIntercept = '**/rest/services/profile.json**'
         cy.intercept(profileIntercept, {
             fixture: 'service-alti/profile.fixture.json',
         }).as('profile')
@@ -1393,28 +1393,21 @@ describe('The Import File Tool', () => {
             expect(profileStore3.currentFeatureGeometryIndex).to.be.equal(2)
         })
         checkVectorLayerHighlightingSegment(lastSegmentIndex)
+    })
 
-        // Import file partially out of bounds
-        cy.log('Test import file partially out of bounds')
+    it('Import GPX file out of bounds and test profile error handling', () => {
         const gpxOutOfBoundsFileName = 'external-gpx-file-out-of-bounds.gpx'
         const gpxOutOfBoundsFileFixture = `import-tool/${gpxOutOfBoundsFileName}`
 
-        cy.openMenuIfMobile()
-        cy.get(
-            `[data-cy^="button-remove-layer-GPX|${validMultiSeparatedSegmentOnlineUrl}"]:visible`
-        ).click()
-
-        // Wait for layer removal to complete
+        cy.goToMapView({ withHash: true })
         cy.getPinia().then((pinia) => {
-            const layersStore25 = useLayersStore(pinia)
-            expect(layersStore25.activeLayers).to.be.empty
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.be.empty
         })
 
-        // Ensure no active layers message is visible before proceeding
-        cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
-
+        cy.openMenuIfMobile()
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
-        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click({ force: true })
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
         // the menu should be automatically closed on opening import tool box
         cy.get('[data-cy="menu-tray"]').should('not.be.visible')
@@ -1433,6 +1426,11 @@ describe('The Import File Tool', () => {
                 headers: { 'Content-Type': 'application/gpx+xml' },
             }
         )
+
+        cy.intercept(profileIntercept, {
+            body: [],
+        }).as('emptyProfile')
+
         cy.openMenuIfMobile()
         cy.get('[data-cy="text-input"]:visible').type(validOutOfBoundsOnlineUrl)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
@@ -1442,17 +1440,12 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="window-close"]').click()
         cy.get('[data-cy="ol-map"]').click(170, 250)
 
-        cy.intercept(profileIntercept, {
-            body: [],
-        }).as('emptyProfile')
-
         cy.log('Check that the error is displayed in the profile popup')
         cy.get('[data-cy="show-profile"]').click()
-        // TODO(IS): fix this test - the intercept seems not to work as expected
-        // cy.wait('@emptyProfile')
-        // cy.get('[data-cy="profile-popup-content"]').should('be.visible')
-        // cy.get('[data-cy="profile-error-message"]').contains(
-        //     'Error: the profile could not be generated'
-        // )
+        cy.wait('@emptyProfile')
+        cy.get('[data-cy="profile-popup-content"]').should('be.visible')
+        cy.get('[data-cy="profile-error-message"]').contains(
+            'Error: the profile could not be generated'
+        )
     })
 })
