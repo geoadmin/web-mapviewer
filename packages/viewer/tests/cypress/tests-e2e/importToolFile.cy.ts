@@ -72,7 +72,7 @@ describe('The Import File Tool', () => {
         cy.intercept('GET', proxifyUrl(url), getResponse).as(`proxyfied${aliasName}`)
     }
 
-    it.only('Import KML file', () => {
+    it('Import KML file', () => {
         cy.goToMapView({ withHash: true })
         cy.getPinia().then((pinia) => {
             const layersStore = useLayersStore(pinia)
@@ -563,6 +563,22 @@ describe('The Import File Tool', () => {
         cy.log('Test reloading the page should only keep online external layers')
         cy.reload()
         cy.waitMapIsReady()
+
+        // TODO(IS): We shoudl check for warnings about missing local files, but it needs to be fixed first (related to url)
+        // cy.get('[data-cy="warning-window"]').contains(
+        //     'You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|external-kml-file.kml layer, please re-import it.'
+        // )
+        // cy.get('[data-cy="warning-window-close"]').click({ force: true })
+        // cy.get('[data-cy="warning-window"]').contains(
+        //     'You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|line-accross-eu.kml layer, please re-import it.'
+        // )
+        // cy.get('[data-cy="warning-window-close"]').click({ force: true })
+        // cy.get('[data-cy="warning-window"]').contains(
+        //     'You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|kml_feature_error.kml layer, please re-import it.'
+        // )
+        // cy.get('[data-cy="warning-window-close"]').click({ force: true })
+        // cy.get('[data-cy="3d-button"]:visible').click()
+
         cy.openMenuIfMobile()
         cy.get('[data-cy="menu-section-active-layers"]:visible').children().should('have.length', 1)
         cy.get(`[data-cy^="active-layer-name-KML|${secondValidOnlineUrl}"]`).should('be.visible')
@@ -598,103 +614,124 @@ describe('The Import File Tool', () => {
             const layersStore13 = useLayersStore(pinia)
             expect(layersStore13.activeLayers).to.have.length(2)
         })
+    })
 
-        // cy.log('switching to 3D and checking that online file is correctly loaded on 3D viewer')
-        // cy.get('[data-cy="import-window"] [data-cy="window-close"]').click()
-        // // 3 warnings to remove before being able to see the 3D button (on mobile)
-        // cy.get('[data-cy="warning-window"]').contains(
-        //     'You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|external-kml-file.kml layer, please re-import it.'
-        // )
-        // cy.get('[data-cy="warning-window-close"]').click({ force: true })
-        // cy.get('[data-cy="warning-window"]').contains(
-        //     'You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|line-accross-eu.kml layer, please re-import it.'
-        // )
-        // cy.get('[data-cy="warning-window-close"]').click({ force: true })
-        // cy.get('[data-cy="warning-window"]').contains(
-        //     'You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|kml_feature_error.kml layer, please re-import it.'
-        // )
-        // cy.get('[data-cy="warning-window-close"]').click({ force: true })
-        // cy.get('[data-cy="3d-button"]:visible').click()
-        // cy.waitUntilCesiumTilesLoaded()
-        // cy.window()
-        //     .its('cesiumViewer')
-        //     .should((viewer: Viewer) => {
-        //         expect(viewer.scene.primitives.length).to.eq(
-        //             4,
-        //             'should have 1 primitive (KML file) on top of labels and buildings primitives'
-        //         )
-        //     })
+    // 3D test is skipped because of cesium in cypress tests is still not working
+    it.skip('Import KML file in 3D viewer', () => {
+        const localKmlFile = 'import-tool/external-kml-file.kml'
+        const lineAccrossEuFile = 'import-tool/line-accross-eu.kml'
 
-        // cy.log('adding a local KML file while being in the 3D viewer')
-        // cy.openMenuIfMobile()
-        // cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
-        // cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
-        // cy.get('[data-cy="import-file-local-btn"]').click()
-        // cy.get('[data-cy="file-input"]').selectFile('@lineAccrossEuFixture', {
-        //     force: true,
-        // })
-        // cy.get('[data-cy="import-file-load-button"]:visible').click()
-        // cy.getPinia().then((pinia) => {
-        //     const layersStore14 = useLayersStore(pinia)
-        //     const activeLayers = layersStore14.activeLayers
-        //     const kmlLayerCount = activeLayers.filter(
-        //         (layer) => layer.type === LayerType.KML
-        //     ).length
-        //     cy.window()
-        //         .its('cesiumViewer')
-        //         .should((viewer: Viewer) => {
-        //             expect(viewer.dataSources.length).to.eq(
-        //                 kmlLayerCount,
-        //                 `should have ${kmlLayerCount} date source (KML files)`
-        //             )
-        //         })
-        // })
+        // Set up fixtures
+        cy.fixture(lineAccrossEuFile).as('lineAccrossEuFixture')
 
-        // cy.log('testing the import and profile viewer with a KML MultiPolygon file')
-        // cy.get('[data-cy="import-window"] [data-cy="window-close"]').click()
-        // cy.get('[data-cy="3d-button"]:visible').click()
+        // Set up intercepts for online KML
+        const validOnlineNonCORSUrl = 'https://example.com/valid-kml-file-non-cors.kml'
+        createHeadAndGetIntercepts(
+            validOnlineNonCORSUrl,
+            'KmlNoCORS',
+            { fixture: localKmlFile },
+            {
+                statusCode: 200,
+                headers: {
+                    'Content-Type': 'application/vnd.google-earth.kml+xml',
+                },
+            },
+            true
+        )
 
-        // cy.openMenuIfMobile()
+        // Start with the map and import an online KML file
+        cy.goToMapView({ withHash: true })
+        cy.openMenuIfMobile()
+        cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
-        // cy.get(`[data-cy^="button-remove-layer-${validOnlineNonCORSUrl}"]:visible`).click()
+        // Import online KML file
+        cy.get('[data-cy="text-input"]:visible').type(validOnlineNonCORSUrl)
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+        cy.wait(['@headKmlNoCORS', '@proxyfiedKmlNoCORS'])
+        cy.get('[data-cy="import-file-close-button"]:visible').click()
+        cy.get('[data-cy="import-file-content"]').should('not.exist')
 
-        // cy.get(`[data-cy^="button-remove-layer-${secondValidOnlineUrl}"]:visible`).click()
-        // cy.get(`[data-cy^="button-remove-layer-${lineAccrossEuFileName}"]:visible`).click()
+        cy.log('switching to 3D and checking that online file is correctly loaded on 3D viewer')
+        cy.get('[data-cy="3d-button"]:visible').click()
+        cy.waitUntilCesiumTilesLoaded()
+        cy.window()
+            .its('cesiumViewer')
+            .should((viewer: Viewer) => {
+                expect(viewer.scene.primitives.length).to.eq(
+                    4,
+                    'should have 1 primitive (KML file) on top of labels and buildings primitives'
+                )
+            })
 
-        // cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
-        // cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+        cy.log('adding a local KML file while being in the 3D viewer')
+        cy.openMenuIfMobile()
+        cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+        cy.get('[data-cy="import-file-local-btn"]').click()
+        cy.get('[data-cy="file-input"]').selectFile('@lineAccrossEuFixture', {
+            force: true,
+        })
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+        cy.getPinia().then((pinia) => {
+            const layersStore14 = useLayersStore(pinia)
+            const activeLayers = layersStore14.activeLayers
+            const kmlLayerCount = activeLayers.filter(
+                (layer) => layer.type === LayerType.KML
+            ).length
+            cy.window()
+                .its('cesiumViewer')
+                .should((viewer: Viewer) => {
+                    expect(viewer.dataSources.length).to.eq(
+                        kmlLayerCount,
+                        `should have ${kmlLayerCount} date source (KML files)`
+                    )
+                })
+        })
+    })
 
-        // const kmlMultiPolygonFileName = 'kml-multi-polygon.kml'
-        // const kmlMultiPolygonFileNameFixture = `import-tool/${kmlMultiPolygonFileName}`
-        // const validMutiPolygonOnlineUrl = 'https://example.com/kml-multi-polygon.kml'
-        // createHeadAndGetIntercepts(
-        //     validMutiPolygonOnlineUrl,
-        //     'KmlNoCORS',
-        //     {
-        //         fixture: kmlMultiPolygonFileNameFixture,
-        //     },
-        //     {
-        //         statusCode: 200,
-        //         headers: { 'Content-Type': 'application/kml+xml' },
-        //     }
-        // )
-        // cy.get('[data-cy="text-input"]:visible').type(validMutiPolygonOnlineUrl)
-        // cy.get('[data-cy="import-file-load-button"]:visible').click()
-        // cy.closeMenuIfMobile()
-        // cy.get('[data-cy="window-close"]').click()
+    it('Import KML file and profile viewer with a KML MultiPolygon file', () => {
+        cy.log('testing the import and profile viewer with a KML MultiPolygon file')
+        cy.goToMapView({ withHash: true })
+        cy.getPinia().then((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.be.empty
+        })
+        cy.openMenuIfMobile()
+        cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
-        // cy.get('[data-cy="ol-map"]').click(150, 250)
+        const kmlMultiPolygonFileName = 'kml-multi-polygon.kml'
+        const kmlMultiPolygonFileNameFixture = `import-tool/${kmlMultiPolygonFileName}`
+        const validMutiPolygonOnlineUrl = 'https://example.com/kml-multi-polygon.kml'
+        createHeadAndGetIntercepts(
+            validMutiPolygonOnlineUrl,
+            'KmlNoCORS',
+            {
+                fixture: kmlMultiPolygonFileNameFixture,
+            },
+            {
+                statusCode: 200,
+                headers: { 'Content-Type': 'application/kml+xml' },
+            }
+        )
+        cy.get('[data-cy="text-input"]:visible').type(validMutiPolygonOnlineUrl)
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+        cy.closeMenuIfMobile()
+        cy.get('[data-cy="window-close"]').click()
 
-        // cy.get('[data-cy="show-profile"]').click()
+        cy.get('[data-cy="ol-map"]').click(150, 250)
 
-        // const lastSegmentIndex: number = checkVectorLayerHighlightingSegment()
+        cy.get('[data-cy="show-profile"]').click()
 
-        // cy.get('[data-cy="profile-segment-button-1"]').click()
-        // cy.getPinia().then((pinia) => {
-        //     const profileStore = useProfileStore(pinia)
-        //     expect(profileStore.currentFeatureGeometryIndex).to.be.equal(1)
-        // })
-        // checkVectorLayerHighlightingSegment(lastSegmentIndex)
+        const lastSegmentIndex: number = checkVectorLayerHighlightingSegment()
+
+        cy.get('[data-cy="profile-segment-button-1"]').click()
+        cy.getPinia().then((pinia) => {
+            const profileStore = useProfileStore(pinia)
+            expect(profileStore.currentFeatureGeometryIndex).to.be.equal(1)
+        })
+        checkVectorLayerHighlightingSegment(lastSegmentIndex)
     })
 
     it('Import KML file error handling', () => {
