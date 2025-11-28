@@ -24,13 +24,12 @@ export default function loadTopic(
             if (options.openGeocatalogSection) {
                 this.setTopicTreeOpenedThemesIds([this.current, ...topicTree.itemIdToOpen], dispatcher)
             }
+            if (this.currentTopic.defaultBackgroundLayer) {
+                layersStore.setBackground(this.currentTopic.defaultBackgroundLayer.id, dispatcher)
+            } else if (options.changeLayers) {
+                layersStore.setBackground(undefined, dispatcher)
+            }
             if (options.changeLayers) {
-                if (this.currentTopic.defaultBackgroundLayer) {
-                    layersStore.setBackground(this.currentTopic.defaultBackgroundLayer.id, dispatcher)
-                } else {
-                    layersStore.setBackground(undefined, dispatcher)
-                }
-
                 if (this.currentTopic.layersToActivate) {
                     layersStore.setLayers(this.currentTopic.layersToActivate, dispatcher)
                 }

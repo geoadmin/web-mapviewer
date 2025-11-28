@@ -30,7 +30,6 @@ const mapShown: AppState = {
 const ready: AppState = {
     name: AppStateNames.Ready,
     isFulfilled: () => {
-        console.error('ARE WE HERE AT SOME POINT ?')
         const mapStore = useMapStore()
         const cesiumStore = useCesiumStore()
         if (cesiumStore.active) {
@@ -65,7 +64,7 @@ const parseLegacyUrlParams: AppState = {
 
 const configLoaded: AppState = {
     name: AppStateNames.ConfigLoaded,
-    isFulfilled: () => true,
+    isFulfilled: () => true, // there's always a topic set, so no need to check if topicStore.current is defined
     next: () => {
         if (isLegacyParams(window?.location?.search)) {
             return parseLegacyUrlParams

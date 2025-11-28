@@ -5,6 +5,7 @@ import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/store/plugins/storeSync/UrlParamConfig.class'
 import { getDefaultValidationResponse } from '@/store/plugins/storeSync/validation'
+import useTopicsStore from '@/store/modules/topics'
 
 const backgroundLayerParamConfig = new UrlParamConfig<string>({
     urlParamName: 'bgLayer',
@@ -21,10 +22,10 @@ const backgroundLayerParamConfig = new UrlParamConfig<string>({
     },
     setValuesInStore: (_: RouteLocationNormalizedGeneric, urlParamValue?: string) => {
         const layersStore = useLayersStore()
-        if (urlParamValue && urlParamValue !== 'void') {
+        if (urlParamValue) {
             layersStore.setBackground(urlParamValue, STORE_DISPATCHER_ROUTER_PLUGIN)
         } else {
-            layersStore.setBackground(undefined, STORE_DISPATCHER_ROUTER_PLUGIN)
+            layersStore.setBackground(useTopicsStore().currentTopic?.defaultBackgroundLayer?.id, STORE_DISPATCHER_ROUTER_PLUGIN)
         }
     },
     keepInUrlWhenDefault: true,
