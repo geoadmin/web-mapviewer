@@ -48,7 +48,7 @@ function setShowTopicSelectionPopup() {
 }
 
 function selectTopic(topic: Topic): void {
-    topicsStore.changeTopic(topic.id, dispatcher)
+    topicsStore.changeTopic(topic.id, { openGeocatalogSection: true }, dispatcher)
     showTopicSelectionPopup.value = false
 }
 

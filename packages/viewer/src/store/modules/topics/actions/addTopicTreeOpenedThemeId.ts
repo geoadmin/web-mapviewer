@@ -6,5 +6,8 @@ export default function addTopicTreeOpenedThemeId(
     themeId: string,
     dispatcher: ActionDispatcher
 ): void {
+    if (this.openedTreeThemesIds.includes(themeId)) {
+        return
+    }
     this.openedTreeThemesIds.push(themeId)
 }

@@ -19,8 +19,8 @@ export interface TopicsStoreState {
 export interface LoadTopicOptions {
     /** If the layers described in the topic should replace all existing layers currently active */
     changeLayers?: boolean
-    /** List of catalog node IDs to open directly after the topic tree has been loaded */
-    openCatalogNodes?: string[]
+    /** Whether to open the geocatalog topic section*/
+    openGeocatalogSection?: boolean
 }
 
 export type TopicsStoreGetters = {
