@@ -50,9 +50,7 @@ export function useCapabilities(newUrl: MaybeRef<string>) {
 
     function handleWms(content: string, fullUrl: URL): UseCapabilitiesResponse {
         let wmsMaxSize: WMSMaxSize | undefined
-
         const capabilities = wmsCapabilitiesParser.parse(content, fullUrl)
-
         if (capabilities.Service.MaxWidth && capabilities.Service.MaxHeight) {
             wmsMaxSize = {
                 width: capabilities.Service.MaxWidth,

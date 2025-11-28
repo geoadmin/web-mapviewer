@@ -445,9 +445,30 @@ function getExternalLayer(
     }
     const attributes = getLayerAttributes(capabilities, layer, outputProjection, ignoreErrors)
 
-    if (!attributes) {
+    if (!attributes || !attributes.id) {
         log.error(`No attributes found for layer ${layer.Identifier}`)
         return
+    }
+
+    let olOptions
+    try {
+        olOptions = optionsFromCapabilities(capabilities, {
+            layer: attributes.id,
+            projection: outputProjection.epsg,
+        }) ?? undefined
+    } catch (error) {
+        log.warn({
+            title: 'WMTS Capabilities parser',
+            titleColor: LogPreDefinedColor.Indigo,
+            messages: [`Failed to get OpenLayers options for layer ${attributes.id}`, error],
+        })
+        if (!ignoreErrors) {
+            throw new CapabilitiesError(
+                `Failed to parse WMTS layer options: ${error?.toString()}`,
+                'invalid_wmts_layer'
+            )
+        }
+        olOptions = undefined
     }
 
     return layerUtils.makeExternalWMTSLayer({
@@ -456,11 +477,7 @@ function getExternalLayer(
         opacity,
         isVisible,
         isLoading: false,
-        options:
-            optionsFromCapabilities(capabilities, {
-                layer: attributes.id,
-                projection: outputProjection.epsg,
-            }) ?? undefined,
+        options: olOptions,
         timeConfig: getTimeConfig(attributes.dimensions),
         currentYear,
     })

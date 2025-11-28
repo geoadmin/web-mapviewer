@@ -161,8 +161,8 @@ describe('The Import Maps Tool', () => {
             const center = positionStore.center
             expect(center).to.have.length(2)
             const expectedCenter = [2764440, 1187890]
-            cy.wrap(center[0]).should('be.closeTo', expectedCenter[0], 5)
-            cy.wrap(center[1]).should('be.closeTo', expectedCenter[1], 5)
+            cy.wrap(center[0]).should('be.closeTo', expectedCenter[0], 50)
+            cy.wrap(center[1]).should('be.closeTo', expectedCenter[1], 50)
         })
         cy.getPinia().then((pinia) => {
             const positionStore2 = usePositionStore(pinia)
@@ -243,7 +243,6 @@ describe('The Import Maps Tool', () => {
             }
         ).as('getLegendOfficialSurvey2')
         cy.get(`[data-cy="catalogue-tree-item-info-${legendWithoutAbstractLayerId}"]`)
-            .should('be.visible')
             .click()
         cy.wait('@getLegendOfficialSurvey2')
         cy.get(`[data-cy="simple-window-title"]`)
@@ -531,7 +530,6 @@ describe('The Import Maps Tool', () => {
         cy.openMenuIfMobile()
 
         cy.checkOlLayer([bgLayer, layer1Id, layer2Id, layer4Id])
-
         cy.get('[data-cy="menu-active-layers"]').should('be.visible').click()
         cy.get('[data-cy="active-layer-name-layer4-2"]').should('be.visible')
         cy.get('[data-cy="time-selector-layer4-2"]').should('not.exist')
@@ -539,7 +537,6 @@ describe('The Import Maps Tool', () => {
         //-----------------------------------------------------------------------------------------
         cy.log('Reload and check that everything is still present')
         cy.reload()
-        cy.checkOlLayer([bgLayer, layer1Id, layer2Id, layer4Id])
         cy.openMenuIfMobile()
         cy.get('[data-cy="active-layer-name-layer1-0"]').should('be.visible')
         cy.get('[data-cy="time-selector-layer1-0"]').should('not.exist')

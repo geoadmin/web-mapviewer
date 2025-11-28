@@ -467,12 +467,14 @@ function getFeatureInfoCapability(
  * @param options.params URL parameters to pass to WMS server
  * @param options.ignoreError Don't throw exception in case of error, but return a default value or
  *   undefined
+ * @param parentsArray Optional parents array (internal parameter for recursion)
  * @returns Layer object, or undefined in case of error (and ignoreError is equal to true)
  */
 function getExternalLayer(
     capabilities: WMSCapabilitiesResponse,
     layerOrLayerId: WMSCapabilityLayer | string,
-    options?: ExternalLayerParsingOptions<ExternalWMSLayer>
+    options?: ExternalLayerParsingOptions<ExternalWMSLayer>,
+    parentsArray?: WMSCapabilityLayer[],
 ): ExternalWMSLayer | undefined {
     if (!layerOrLayerId) {
         // without a layer object or layer ID we can do nothing
@@ -482,26 +484,34 @@ function getExternalLayer(
     const { outputProjection = WGS84, initialValues = {}, ignoreErrors = true } = options ?? {}
     const { currentYear, params } = initialValues
 
-    let layerId: string
-    if (typeof layerOrLayerId === 'string') {
-        layerId = layerOrLayerId
+    let layer: WMSCapabilityLayer | undefined
+    let parents: WMSCapabilityLayer[] | undefined
+
+    // If we have a layer object, use it directly with provided parents
+    if (typeof layerOrLayerId !== 'string') {
+        layer = layerOrLayerId
+        parents = parentsArray ?? []
     } else {
-        layerId = layerOrLayerId.Name
-    }
-    if (!capabilities.Capability?.Layer?.Layer) {
-        return
+        // If we have a layer ID, search for it
+        const layerId = layerOrLayerId
+        if (!capabilities.Capability?.Layer?.Layer) {
+            return
+        }
+
+        const layerAndParents = findLayerRecurse(
+            layerId,
+            [capabilities.Capability.Layer],
+            [capabilities.Capability.Layer]
+        )
+        if (!layerAndParents) {
+            return
+        }
+        layer = layerAndParents.layer
+        parents = layerAndParents.parents
     }
 
-    const layerAndParents = findLayerRecurse(
-        layerId,
-        [capabilities.Capability.Layer],
-        [capabilities.Capability.Layer]
-    )
-    if (!layerAndParents) {
-        return
-    }
-    const { layer, parents } = layerAndParents
     if (!layer) {
+        const layerId = typeof layerOrLayerId === 'string' ? layerOrLayerId : layerOrLayerId.Name
         const msg = `No WMS layer ${layerId} found in Capabilities ${capabilities.originUrl.toString()}`
         log.error({
             title: 'WMS Capabilities parser',
@@ -513,6 +523,7 @@ function getExternalLayer(
         }
         throw new CapabilitiesError(msg, 'no_layer_found')
     }
+
     // Go through the child to get valid layers
     let layers: ExternalWMSLayer[] = []
 
