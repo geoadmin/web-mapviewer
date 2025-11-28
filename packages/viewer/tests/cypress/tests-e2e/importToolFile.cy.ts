@@ -2,7 +2,9 @@
 
 import type { Viewer } from 'cesium'
 import type BaseLayer from 'ol/layer/Base'
+import type VectorLayer from 'ol/layer/Vector'
 import type Map from 'ol/Map'
+import type VectorSource from 'ol/source/Vector'
 
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
 import { LayerType } from '@swissgeo/layers'
@@ -25,12 +27,17 @@ function checkVectorLayerHighlightingSegment(lastIndex: number = -1): number {
             const vectorLayers = map
                 .getLayers()
                 .getArray()
-                .filter((layer: BaseLayer) => layer.get('id').startsWith('vector-layer-'))
-            const geomHighlightFeature = vectorLayers.find((layer: BaseLayer) => {
-                return layer
-                    .getSource()
-                    .getFeatures()
-                    .find((feature: BaseLayer) => feature.get('id').startsWith('geom-segment-'))
+                .filter((layer: BaseLayer) =>
+                    layer.get('id').startsWith('vector-layer-')
+                ) as VectorLayer<VectorSource>[]
+            const geomHighlightFeature = vectorLayers.find((layer: VectorLayer<VectorSource>) => {
+                const source = layer.getSource()
+                return (
+                    source &&
+                    source
+                        .getFeatures()
+                        .find((feature) => feature.get('id').startsWith('geom-segment-'))
+                )
             })
             assertDefined(geomHighlightFeature)
             currentIndex = vectorLayers.indexOf(geomHighlightFeature)
