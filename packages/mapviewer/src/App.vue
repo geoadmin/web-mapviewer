@@ -28,7 +28,7 @@ const showFeedbackPopup = computed(() => {
 const showDebugToolbar = computed(() => !IS_TESTING_WITH_CYPRESS && store.getters.hasDevSiteWarning)
 
 onMounted(() => {
-    // reading size
+    // reading size 
     setScreenSizeFromWindowSize()
     debouncedOnResize = debounce(setScreenSizeFromWindowSize, 300)
     window.addEventListener('resize', debouncedOnResize, { passive: true })
