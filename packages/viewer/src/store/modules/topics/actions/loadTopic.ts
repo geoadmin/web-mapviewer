@@ -21,7 +21,9 @@ export default function loadTopic(
                 return
             }
             this.setTopicTree(topicTree.layers, dispatcher)
-            this.setTopicTreeOpenedThemesIds([this.current, ...topicTree.itemIdToOpen], dispatcher)
+            if (options.openGeocatalogSection) {
+                this.setTopicTreeOpenedThemesIds([this.current, ...topicTree.itemIdToOpen], dispatcher)
+            }
             if (options.changeLayers) {
                 if (this.currentTopic.defaultBackgroundLayer) {
                     layersStore.setBackground(this.currentTopic.defaultBackgroundLayer.id, dispatcher)
