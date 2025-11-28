@@ -741,7 +741,7 @@ describe('The Import File Tool', () => {
         checkVectorLayerHighlightingSegment(lastSegmentIndex)
     })
 
-    it.only('Import KML file error handling', () => {
+    it('Import KML file error handling', () => {
         const outOfBoundKMLFile = 'import-tool/paris.kml'
         const emptyKMLFile = 'import-tool/empty.kml'
 
@@ -1054,47 +1054,47 @@ describe('The Import File Tool', () => {
             .should('be.visible')
             .should('contain', 'Invalid file, only KML, KMZ, GPX or COG file are supported')
 
-        // //----------------------------------------------------------------------
-        // // Attach a local KML file that is out of bounds
-        // cy.log('Test add a local KML file that is out of bounds')
-        // cy.fixture(outOfBoundKMLFile, undefined).as('outOfBoundKMLFileFixture')
-        // cy.get('[data-cy="file-input"]').selectFile('@outOfBoundKMLFileFixture', {
-        //     force: true,
-        // })
-        // cy.get('[data-cy="import-file-load-button"]:visible').click()
+        //----------------------------------------------------------------------
+        // Attach a local KML file that is out of bounds
+        cy.log('Test add a local KML file that is out of bounds')
+        cy.fixture(outOfBoundKMLFile, undefined).as('outOfBoundKMLFileFixture')
+        cy.get('[data-cy="file-input"]').selectFile('@outOfBoundKMLFileFixture', {
+            force: true,
+        })
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
 
-        // cy.get('[data-cy="file-input-text"]')
-        //     .should('have.class', 'is-invalid')
-        //     .should('not.have.class', 'is-valid')
-        // cy.get('[data-cy="file-input-invalid-feedback"]')
-        //     .should('be.visible')
-        //     .contains('out of projection bounds')
+        cy.get('[data-cy="file-input-text"]')
+            .should('have.class', 'is-invalid')
+            .should('not.have.class', 'is-valid')
+        cy.get('[data-cy="file-input-invalid-feedback"]')
+            .should('be.visible')
+            .contains('out of projection bounds')
 
-        // //----------------------------------------------------------------------
-        // // Attach a local empty KML file
-        // cy.log('Test add a local invalid KML file')
-        // cy.fixture(emptyKMLFile, undefined).as('emptyKMLFileFixture')
-        // cy.get('[data-cy="file-input"]').selectFile('@emptyKMLFileFixture', {
-        //     force: true,
-        // })
-        // cy.get('[data-cy="import-file-load-button"]:visible').click()
+        //----------------------------------------------------------------------
+        // Attach a local empty KML file
+        cy.log('Test add a local invalid KML file')
+        cy.fixture(emptyKMLFile, undefined).as('emptyKMLFileFixture')
+        cy.get('[data-cy="file-input"]').selectFile('@emptyKMLFileFixture', {
+            force: true,
+        })
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
 
-        // cy.get('[data-cy="file-input-text"]')
-        //     .should('have.class', 'is-invalid')
-        //     .should('not.have.class', 'is-valid')
-        // cy.get('[data-cy="file-input-invalid-feedback"]')
-        //     .should('be.visible')
-        //     .contains('file is empty')
+        cy.get('[data-cy="file-input-text"]')
+            .should('have.class', 'is-invalid')
+            .should('not.have.class', 'is-valid')
+        cy.get('[data-cy="file-input-invalid-feedback"]')
+            .should('be.visible')
+            .contains('file is empty')
 
-        // //----------------------------------------------------------------------
-        // // Close the import tool
-        // cy.log('Test close import tool')
-        // cy.get('[data-cy="import-file-close-button"]:visible').click()
-        // cy.get('[data-cy="import-file-content"]').should('not.exist')
+        //----------------------------------------------------------------------
+        // Close the import tool
+        cy.log('Test close import tool')
+        cy.get('[data-cy="import-file-close-button"]:visible').click()
+        cy.get('[data-cy="import-file-content"]').should('not.exist')
 
-        // cy.openMenuIfMobile()
-        // cy.get('[data-cy="menu-section-active-layers"]').should('not.be.visible')
-        // cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
+        cy.openMenuIfMobile()
+        cy.get('[data-cy="menu-section-active-layers"]').should('not.be.visible')
+        cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
     })
 
     it('Import GPX file', () => {
