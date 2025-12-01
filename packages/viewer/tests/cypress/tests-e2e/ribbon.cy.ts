@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 const ribbonSelector: string = '[data-cy="warning-ribbon"]'
 const BREAKPOINT_PHONE_WIDTH: number = 576
 

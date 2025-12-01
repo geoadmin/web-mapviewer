@@ -1,5 +1,4 @@
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
-/// <reference types="cypress" />
 import { Cartesian3 } from 'cesium'
 import proj4 from 'proj4'
 

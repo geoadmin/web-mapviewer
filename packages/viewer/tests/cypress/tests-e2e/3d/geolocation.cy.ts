@@ -1,13 +1,12 @@
-/// <reference types="cypress" />
-
 import { registerProj4, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
 
 import {
+    checkPosition,
     getGeolocationButtonAndClickIt,
     testErrorMessage,
-    checkStorePosition,
 } from '@/../tests/cypress/tests-e2e/utils'
+import useGeolocationStore from '@/store/modules/geolocation'
 import usePositionStore from '@/store/modules/position'
 
 registerProj4(proj4)
@@ -64,10 +63,15 @@ describe('Geolocation on 3D cypress', () => {
                 })
 
                 getGeolocationButtonAndClickIt()
-                // check that the geolocation has been set in the store
-                checkStorePosition('state.geolocation.position', geoX, geoY)
-                // check that the map has been centered on the geolocation
-                checkStorePosition('state.position.center', geoX, geoY)
+                cy.getPinia().then((pinia) => {
+                    // check that the geolocation has been set in the store
+                    const geolocationStore = useGeolocationStore(pinia)
+                    checkPosition(geolocationStore.position, geoX, geoY)
+
+                    // check that the map has been centered on the geolocation
+                    const positionStore = usePositionStore(pinia)
+                    checkPosition(positionStore.center, geoX, geoY)
+                })
                 // Camera position after geolocation
                 cy.getPinia().then((pinia) => {
                     const positionStore2 = usePositionStore(pinia)

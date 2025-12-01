@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 import type { Viewer } from 'cesium'
 
 import useLayersStore from '@/store/modules/layers'

@@ -1,4 +1,4 @@
-/// <reference types="cypress" />
+import type { SingleCoordinate } from '@swissgeo/coordinates'
 
 import useUIStore from '@/store/modules/ui'
 
@@ -36,4 +36,15 @@ export function testErrorMessage(message: string) {
     // Check error in UI
     cy.get('[data-cy="error-window"]').should('be.visible')
     cy.get('[data-cy="error-window-close"]').should('be.visible').click() // close the error window
+}
+
+export function checkPosition(
+    position: SingleCoordinate | undefined,
+    expectedX: number,
+    expectedY: number
+) {
+    expect(position).to.be.an('Array')
+    expect(position!.length).to.eq(2)
+    expect(position![0]).to.approximately(expectedX, 0.1)
+    expect(position![1]).to.approximately(expectedY, 0.1)
 }

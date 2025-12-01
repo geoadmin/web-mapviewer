@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 import { SUPPORTED_LANG } from '@/modules/i18n'
 import useI18nStore from '@/store/modules/i18n'
 import useUIStore from '@/store/modules/ui'

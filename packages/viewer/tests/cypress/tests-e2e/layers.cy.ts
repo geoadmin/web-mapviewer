@@ -1,9 +1,8 @@
-/// <reference types="cypress" />
-
-import type { ExternalWMSLayer, ExternalWMTSLayer, Layer } from '@swissgeo/layers'
+import type { ExternalWMSLayer, ExternalWMTSLayer, GeoAdminWMSLayer, Layer } from '@swissgeo/layers'
 import type { Pinia } from 'pinia'
 
 import { WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
+import { LayerType } from '@swissgeo/layers'
 import { assertDefined } from 'support/utils'
 
 import useI18nStore from '@/store/modules/i18n'
@@ -122,7 +121,7 @@ describe('Test of layer handling', () => {
                 const [timeEnabledLayer] = layers
                 cy.fixture('layers.fixture.json').then((layersMetadata) => {
                     const timeEnabledLayerMetadata = layersMetadata[timeEnabledLayerId]
-                    expect(timeEnabledLayer.timeConfig.currentTimestamp).to.eq(
+                    expect(timeEnabledLayer?.timeConfig?.currentTimeEntry?.timestamp).to.eq(
                         timeEnabledLayerMetadata.timeBehaviour
                     )
                 })
@@ -146,7 +145,7 @@ describe('Test of layer handling', () => {
                             const layersStore4 = useLayersStore(pinia)
                             const layers = layersStore4.visibleLayers
                             const [timeEnabledLayer] = layers
-                            expect(timeEnabledLayer.timeConfig.currentTimestamp).to.eq(
+                            expect(timeEnabledLayer?.timeConfig?.currentTimeEntry?.timestamp).to.eq(
                                 randomTimestampFromLayer
                             )
                         })
@@ -157,7 +156,7 @@ describe('Test of layer handling', () => {
         context('External layers', () => {
             it('reads and adds an external WMS correctly', () => {
                 cy.getExternalWmsMockConfig().then((layerObjects) => {
-                    layerObjects.forEach((layerObject) => (layerObject.visible = true))
+                    layerObjects.forEach((layerObject) => (layerObject.isVisible = true))
                     const [mockExternalWms1, mockExternalWms2, mockExternalWms3, mockExternalWms4] =
                         layerObjects
                     /**
@@ -202,7 +201,7 @@ describe('Test of layer handling', () => {
                             expect(activeLayers2[index]?.baseUrl).to.be.eq(layer.baseUrl)
                             expect(activeLayers2[index]?.name).to.be.eq(layer.name)
                             expect(activeLayers2[index]?.wmsVersion).to.be.eq(layer.wmsVersion)
-                            expect(activeLayers2[index]?.visible).to.eq(layer.visible)
+                            expect(activeLayers2[index]?.isVisible).to.eq(layer.isVisible)
                             expect(activeLayers2[index]?.opacity).to.eq(layer.opacity)
                         })
                     })
@@ -225,7 +224,7 @@ describe('Test of layer handling', () => {
                         ...layerObjects.map((layer) => {
                             return {
                                 id: layer.id,
-                                visible: layer.visible,
+                                isVisible: layer.isVisible,
                                 opacity: layer.opacity,
                             }
                         }),
@@ -396,10 +395,10 @@ describe('Test of layer handling', () => {
                 cy.getExternalWmtsMockConfig().then((layerObjects) => {
                     const [mockExternalWmts1, mockExternalWmts2, mockExternalWmts3] = layerObjects
 
-                    mockExternalWmts1!.visible = false
+                    mockExternalWmts1!.isVisible = false
                     mockExternalWmts1!.opacity = 0.5
-                    mockExternalWmts2!.visible = false
-                    mockExternalWmts3!.visible = true
+                    mockExternalWmts2!.isVisible = false
+                    mockExternalWmts3!.isVisible = true
                     mockExternalWmts3!.opacity = 0.8
                     const layerObjects2 = [
                         mockExternalWmts1!,
@@ -451,7 +450,7 @@ describe('Test of layer handling', () => {
                         ...layerObjects2.map((layer) => {
                             return {
                                 id: layer.id,
-                                visible: layer.visible,
+                                isVisible: layer.isVisible,
                                 opacity: layer.opacity,
                             }
                         }),
@@ -986,7 +985,7 @@ describe('Test of layer handling', () => {
                     expect(activeLayers5).to.be.an('Array').length(visibleLayerIds.length)
                     const layer3 = activeLayers5.find((layer: Layer) => layer.id === timedLayerId)
                     expect(layer3).not.to.be.undefined
-                    expect(layer3!.timeConfig.currentTimestamp).to.eq(timestamp)
+                    expect(layer3?.timeConfig?.currentTimeEntry?.timestamp).to.eq(timestamp)
                 })
 
                 //---------------------------------------------------------------------------------
@@ -1033,7 +1032,7 @@ describe('Test of layer handling', () => {
                         .to.be.an('Array')
                         .length(visibleLayerIds.length + 1)
                     expect(activeLayers6[3]).not.to.be.undefined
-                    expect(activeLayers6[3]!.timeConfig.currentTimestamp).to.eq(timestamp)
+                    expect(activeLayers6[3]?.timeConfig?.currentTimeEntry?.timestamp).to.eq(timestamp)
                     expect(activeLayers6[3]?.isVisible).to.be.true
                     expect(activeLayers6[3]?.opacity).to.eq(0)
                 })
@@ -1081,13 +1080,13 @@ describe('Test of layer handling', () => {
                         .length(visibleLayerIds.length + 1)
 
                     assertDefined(activeLayers7[3])
-                    expect(activeLayers7[3].timeConfig.currentTimestamp).to.eq(newTimestamp)
+                    expect(activeLayers7[3]?.timeConfig?.currentTimeEntry?.timestamp).to.eq(newTimestamp)
                     expect(activeLayers7[3]?.isVisible).to.be.false
                     expect(activeLayers7[3]?.opacity).to.eq(0.5)
 
                     assertDefined(activeLayers7[2])
                     expect(activeLayers7[2]).not.to.be.undefined
-                    expect(activeLayers7[2].timeConfig.currentTimestamp).to.eq(timestamp)
+                    expect(activeLayers7[2]?.timeConfig?.currentTimeEntry?.timestamp).to.eq(timestamp)
                     expect(activeLayers7[2]?.isVisible).to.be.true
                     expect(activeLayers7[2]?.opacity).to.eq(0)
                 })
@@ -1234,12 +1233,12 @@ describe('Test of layer handling', () => {
                     expect(activeLayers8).to.be.an('Array').length(4)
 
                     assertDefined(activeLayers8[3])
-                    expect(activeLayers8[3].timeConfig.currentTimestamp).to.eq('20180101')
+                    expect(activeLayers8[3]?.timeConfig?.currentTimeEntry?.timestamp).to.eq('20180101')
                     expect(activeLayers8[3]?.isVisible).to.be.true
                     expect(activeLayers8[3]?.opacity).to.eq(0.7)
 
                     assertDefined(activeLayers8[0])
-                    expect(activeLayers8[0].timeConfig.currentTimestamp).to.eq(newTimestamp)
+                    expect(activeLayers8[0]?.timeConfig?.currentTimeEntry?.timestamp).to.eq(newTimestamp)
                     expect(activeLayers8[0]?.isVisible).to.be.true
                     expect(activeLayers8[0]?.opacity).to.eq(0)
                 })
@@ -1315,15 +1314,10 @@ describe('Test of layer handling', () => {
                 },
             })
 
-            // only the WMS layers have a lang attribute
-            interface Layer {
-                lang?: string
-            }
-
             // Wait until the active layers are ready.
             cy.waitUntilState((pinia: Pinia) => {
                 const layersStore = useLayersStore(pinia)
-                return layersStore.activeLayers.some((layer: Layer) => layer.lang === langBefore)
+                return layersStore.activeLayers.some((layer: Layer) => layer.type === LayerType.WMS && (layer as GeoAdminWMSLayer).lang === langBefore)
             })
 
             // CHECK before
@@ -1349,7 +1343,7 @@ describe('Test of layer handling', () => {
             // Wait until the active layers are updated.
             cy.waitUntilState((pinia: Pinia) => {
                 const layersStore = useLayersStore(pinia)
-                return layersStore.activeLayers.some((layer: Layer) => layer.lang === langAfter)
+                return layersStore.activeLayers.some((layer: Layer) => layer.type === LayerType.WMS && (layer as GeoAdminWMSLayer).lang === langBefore)
             })
 
             // CHECK after

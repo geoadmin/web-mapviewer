@@ -1,11 +1,13 @@
 /// <reference types="cypress" />
 
 import type { Viewer } from 'cesium'
+import type { FeatureLike } from 'ol/Feature'
 import type BaseLayer from 'ol/layer/Base'
 import type Map from 'ol/Map'
 
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
 import { LayerType } from '@swissgeo/layers'
+import { Vector as VectorLayer } from 'ol/layer'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 
@@ -25,12 +27,14 @@ function checkVectorLayerHighlightingSegment(lastIndex: number = -1): number {
             const vectorLayers = map
                 .getLayers()
                 .getArray()
-                .filter((layer: BaseLayer) => layer.get('id').startsWith('vector-layer-'))
-            const geomHighlightFeature = vectorLayers.find((layer: BaseLayer) => {
+                .filter((layer: BaseLayer) =>
+                    layer.get('id').startsWith('vector-layer-')
+                ) as VectorLayer[]
+            const geomHighlightFeature = vectorLayers.find((layer: VectorLayer) => {
                 return layer
                     .getSource()
-                    .getFeatures()
-                    .find((feature: BaseLayer) => feature.get('id').startsWith('geom-segment-'))
+                    ?.getFeatures()
+                    .find((feature: FeatureLike) => feature.get('id').startsWith('geom-segment-'))
             })
             assertDefined(geomHighlightFeature)
             currentIndex = vectorLayers.indexOf(geomHighlightFeature)

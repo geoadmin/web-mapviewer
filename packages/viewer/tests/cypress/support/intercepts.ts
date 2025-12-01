@@ -280,10 +280,10 @@ export interface MockFeature {
         label: string
         link_title: string
         link_uri: string
-        link_2_title: string | null
-        link_2_uri: string | null
-        link_3_title: string | null
-        link_3_uri: string | null
+        link_2_title?: string
+        link_2_uri?: string
+        link_3_title?: string
+        link_3_uri?: string
         x: number
         y: number
         lon: number

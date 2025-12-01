@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 import { assertDefined } from 'support/utils'
 
 import useLayersStore from '@/store/modules/layers'

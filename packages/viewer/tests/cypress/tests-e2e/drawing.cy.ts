@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 import type { CyHttpMessages } from 'cypress/types/net-stubbing'
 import type Feature from 'ol/Feature'
 import type { Pinia } from 'pinia'

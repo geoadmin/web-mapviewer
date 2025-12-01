@@ -9,10 +9,8 @@ import { DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION } from '@/config/map.config'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 
 registerProj4(proj4)
-type FeatureInfoPosition = (typeof FeatureInfoPositions)[keyof typeof FeatureInfoPositions]
 
 describe('Testing the feature selection', () => {
     context('Feature pre-selection in the URL', () => {
@@ -63,14 +61,14 @@ describe('Testing the feature selection', () => {
             })
         }
 
-        function checkFeatureInfoPosition(expectedPosition: FeatureInfoPositions): void {
+        function checkFeatureInfoPosition(expectedPosition: string): void {
             cy.getPinia().then((pinia) => {
                 const uiStore = useUIStore(pinia)
                 expect(uiStore.featureInfoPosition).to.equal(expectedPosition)
-                if (FeatureInfoPositions.None === expectedPosition) {
+                if (expectedPosition === 'none') {
                     cy.get('[data-cy="popover"]').should('not.exist')
                     cy.get('[data-cy="infobox"]').should('not.exist')
-                } else if (FeatureInfoPositions.ToolTip === expectedPosition) {
+                } else if (expectedPosition === 'tooltip') {
                     cy.get('[data-cy="popover"]').should('exist')
                     cy.get('[data-cy="infobox"]').should('not.exist')
                 } else {
@@ -80,9 +78,7 @@ describe('Testing the feature selection', () => {
             })
         }
 
-        function goToMapViewWithFeatureSelection(
-            featureInfoPosition?: FeatureInfoPosition | string
-        ): void {
+        function goToMapViewWithFeatureSelection(featureInfoPosition?: string): void {
             const queryParams: Record<string, string> = {
                 layers: `${standardLayer}@features=1:2:3:4:5:6:7:8:9:10`,
             }
@@ -97,18 +93,18 @@ describe('Testing the feature selection', () => {
             cy.log('When featureInfo is not specified, we should have no tooltip visible')
             goToMapViewWithFeatureSelection()
             checkFeatures()
-            checkFeatureInfoPosition(FeatureInfoPositions.None)
+            checkFeatureInfoPosition('none')
             cy.log(
                 'When using a viewport with width inferior to 400 pixels, we should always go to infobox when featureInfo is not None.'
             )
             cy.log('When featureInfo is specified, we should see the infobox')
-            goToMapViewWithFeatureSelection(FeatureInfoPositions.Default)
+            goToMapViewWithFeatureSelection('default')
             checkFeatures()
-            checkFeatureInfoPosition(FeatureInfoPositions.BottomPanel)
+            checkFeatureInfoPosition('bottomPanel')
             cy.log('parameter is case insensitive, but we should see an infobox here')
             goToMapViewWithFeatureSelection('TOoLtIp')
             checkFeatures()
-            checkFeatureInfoPosition(FeatureInfoPositions.BottomPanel)
+            checkFeatureInfoPosition('bottomPanel')
         })
 
         it.skip('Adds pre-selected features and place the tooltip according to URL param on a bigger screen', () => {
@@ -119,13 +115,13 @@ describe('Testing the feature selection', () => {
             cy.log(
                 'When featureInfo is specified, as the viewport is mobile-sized, we should see the infobox'
             )
-            goToMapViewWithFeatureSelection(FeatureInfoPositions.Default)
+            goToMapViewWithFeatureSelection('default')
             checkFeatures()
-            checkFeatureInfoPosition(FeatureInfoPositions.Default)
+            checkFeatureInfoPosition('default')
             cy.log('parameter is case insensitive, and we should see a popover here')
             goToMapViewWithFeatureSelection('TOoLtIp')
             checkFeatures()
-            checkFeatureInfoPosition(FeatureInfoPositions.ToolTip)
+            checkFeatureInfoPosition('tooltip')
         })
 
         it('Synchronise URL and feature selection', () => {
@@ -269,9 +265,9 @@ describe('Testing the feature selection', () => {
 
         it('Adds pre-selected features and verifys the translation of the feature text after changing the language', () => {
             cy.log('Open the map with a feature preselected in english')
-            goToMapViewWithFeatureSelection(FeatureInfoPositions.Default)
+            goToMapViewWithFeatureSelection('default')
             checkFeatures()
-            checkFeatureInfoPosition(FeatureInfoPositions.BottomPanel)
+            checkFeatureInfoPosition('bottomPanel')
 
             cy.wait(`@htmlPopup`)
 

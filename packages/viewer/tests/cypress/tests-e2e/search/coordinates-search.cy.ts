@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 import type { CustomCoordinateSystem, SingleCoordinate } from '@swissgeo/coordinates'
 import type { Pinia } from 'pinia'
 

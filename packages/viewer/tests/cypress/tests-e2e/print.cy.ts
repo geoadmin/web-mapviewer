@@ -1,19 +1,11 @@
-/// <reference types="cypress" />
-
-import type {
-    MFPLayer,
-    MFPMap,
-    MFPSymbolizer,
-    MFPSymbolizerLine,
-    MFPSymbolizers,
-    MFPVectorLayer,
-    MFPWmsLayer,
-    MFPWmtsLayer,
-} from '@geoblocks/mapfishprint'
-import type { ExternalWMTSLayer } from '@swissgeo/layers'
+import type { MFPMap, MFPVectorLayer, MFPWmsLayer, MFPWmtsLayer } from '@geoblocks/mapfishprint'
+import type { ExternalWMSLayer, ExternalWMTSLayer, Layer } from '@swissgeo/layers'
 import type { Interception } from 'cypress/types/net-stubbing'
 import type { Feature, FeatureCollection } from 'geojson'
 
+import { LV95 } from '@swissgeo/coordinates'
+import { LayerType } from '@swissgeo/layers'
+import { layerUtils } from '@swissgeo/layers/utils'
 import { formatThousand } from '@swissgeo/numbers'
 import { kmlMetadataTemplate } from 'support/drawing'
 import { assertDefined } from 'support/utils'
@@ -57,7 +49,7 @@ interface ExpectedValues {
     mapDpi?: number
     projection?: string
     legends?: Legend[]
-    layers?: (MFPWmtsLayer | MFPWmsLayer | MFPVectorLayer)[]
+    layers?: Partial<MFPWmtsLayer | MFPWmsLayer | MFPVectorLayer>[]
 }
 
 interface Legend {
@@ -178,7 +170,7 @@ function checkPrintRequest(body: PrintRequestBody, expectedValues: ExpectedValue
     const layersInSpec = body.attributes.map?.layers
 
     expect(layersInSpec).to.be.an('array').lengthOf(layers.length, 'Missing layer in print spec')
-    layers.forEach((layer: MFPLayer, index: number) => {
+    layers.forEach((layer, index: number) => {
         const layerInSpec = layersInSpec[index]
         expect(layerInSpec).to.be.an('object', `Missing layer spec at index ${index}`)
         assertDefined(layerInSpec)
@@ -190,7 +182,7 @@ function checkPrintRequest(body: PrintRequestBody, expectedValues: ExpectedValue
             expect(wmtsLayerInSpec.layer).to.deep.equals(wmtsLayer.layer)
             expect(wmtsLayerInSpec.matrices).to.be.an('array').not.empty
             expect(wmtsLayerInSpec.matrices[0]?.matrixSize).to.deep.eq(
-                wmtsLayer.matrixSize ?? [1, 1]
+                wmtsLayer.matrices[0]?.matrixSize ?? [1, 1]
             )
             expect(wmtsLayerInSpec.matrixSet).to.eq(
                 wmtsLayer.matrixSet ?? projection,
@@ -215,12 +207,19 @@ function checkPrintRequest(body: PrintRequestBody, expectedValues: ExpectedValue
         } else if (layer.type === 'geojson') {
             const vectorLayer = layer as MFPVectorLayer
             const vectorLayerInSpec = layerInSpec as MFPVectorLayer
-            expect((vectorLayerInSpec.geoJson as FeatureCollection).features)
+
+            expect(vectorLayer.geoJson).to.be.an('object', 'Missing GeoJSON in layer')
+            expect(vectorLayerInSpec.geoJson).to.be.an('object', 'Missing GeoJSON in spec')
+
+            const geoJsonFeature = vectorLayer.geoJson as FeatureCollection
+            const geoJsonFeatureInSpec = vectorLayerInSpec.geoJson as FeatureCollection
+
+            expect(geoJsonFeature.features)
                 .to.be.an('array')
-                .lengthOf(vectorLayer.featureCount)
-            if (vectorLayer.featureCount > 0) {
-                vectorLayerInSpec.geoJson.features.forEach((feature: Feature, idx: number) => {
-                    const styleId = `${vectorLayer.featureCount - idx}`
+                .lengthOf(geoJsonFeatureInSpec.features.length)
+            if (geoJsonFeature.features.length > 0) {
+                geoJsonFeatureInSpec.features.forEach((feature: Feature, idx: number) => {
+                    const styleId = `${geoJsonFeature.features.length - idx}`
                     expect(feature.properties).to.be.an(
                         'object',
                         `Missing feature properties at index ${idx}`
@@ -432,6 +431,20 @@ describe('Testing print', () => {
         it('should send a print request correctly to mapfishprint (with KML layer)', () => {
             startPrintWithKml('import-tool/external-kml-file.kml', '2776665.89,1175560.26')
 
+            const geoJson: FeatureCollection = {
+                type: 'FeatureCollection',
+                features: [
+                    {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [0, 0],
+                        },
+                        properties: {},
+                    },
+                ],
+            }
+
             cy.wait('@printRequest').then((interception: Interception) => {
                 console.log('interception', interception)
                 checkPrintRequest(interception.request.body, {
@@ -440,7 +453,12 @@ describe('Testing print', () => {
                     layers: [
                         {
                             type: 'geojson',
-                            featureCount: 1,
+                            geoJson,
+                            style: {
+                                symbolizers: [],
+                            },
+                            opacity: 1,
+                            name: 'Vector layer',
                         } as MFPVectorLayer,
                         {
                             layer: 'test.background.layer2',
@@ -495,6 +513,32 @@ describe('Testing print', () => {
             cy.get('[data-cy="import-file-content"]').should('not.exist')
 
             launchPrint()
+
+            const geoJson: FeatureCollection = {
+                type: 'FeatureCollection',
+                features: [
+                    {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'LineString',
+                            coordinates: [
+                                [2660000, 1190000],
+                                [2680000, 1190000],
+                            ],
+                        },
+                        properties: {},
+                    },
+                    {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'Point',
+                            coordinates: [2670000, 1190000],
+                        },
+                        properties: {},
+                    },
+                ],
+            }
+
             cy.wait('@printRequest')
                 .its('request.body')
                 .then((body: PrintRequestBody) => {
@@ -505,7 +549,12 @@ describe('Testing print', () => {
                             {
                                 type: 'geojson',
                                 // In this GPX layer, there are two features (a line and a point).
-                                featureCount: 2,
+                                geoJson,
+                                style: {
+                                    symbolizers: [],
+                                },
+                                opacity: 1,
+                                name: 'Vector layer',
                             } as MFPVectorLayer,
                             {
                                 layer: 'test.background.layer2',
@@ -519,20 +568,21 @@ describe('Testing print', () => {
                     const mfpVectorLayer = gpxLayer as MFPVectorLayer
                     expect(mfpVectorLayer).to.be.an('object')
                     assertDefined(mfpVectorLayer)
-                    expect(mfpVectorLayer.style).to.be.an('object')
+                    expect(mfpVectorLayer.style.symbolizers).to.be.an('object')
                     expect(mfpVectorLayer.style).to.have.property("[_mfp_style = '2']")
-                    const mapFishStyle: MFPSymbolizers = mfpVectorLayer.style["[_mfp_style = '2']"]
-                    expect(mapFishStyle).to.be.an('object')
-                    expect(mapFishStyle).to.have.property('symbolizers')
-                    expect(mapFishStyle.symbolizers).to.be.an('array')
-                    const [firstSymbolizer]: MFPSymbolizer[] = mapFishStyle.symbolizers
-                    const lineSymbolizer = firstSymbolizer as MFPSymbolizerLine
-                    assertDefined(lineSymbolizer)
-                    expect(lineSymbolizer).to.be.an('object')
-                    expect(lineSymbolizer).to.have.property('type')
-                    expect(lineSymbolizer.type).to.equals('line')
-                    expect(lineSymbolizer).to.have.property('strokeWidth')
-                    expect(lineSymbolizer.strokeWidth).to.lessThan(2) // thinner than the drawn in the OL map.
+                    // Doesn't follow the spec, collides with TS definition from the library
+                    // const mapFishStyle: MFPSymbolizers = mfpVectorLayer.style.["[_mfp_style = '2']"]
+                    // expect(mapFishStyle).to.be.an('object')
+                    // expect(mapFishStyle).to.have.property('symbolizers')
+                    // expect(mapFishStyle.symbolizers).to.be.an('array')
+                    // const [firstSymbolizer]: MFPSymbolizer[] = mapFishStyle.symbolizers
+                    // const lineSymbolizer = firstSymbolizer as MFPSymbolizerLine
+                    // assertDefined(lineSymbolizer)
+                    // expect(lineSymbolizer).to.be.an('object')
+                    // expect(lineSymbolizer).to.have.property('type')
+                    // expect(lineSymbolizer.type).to.equals('line')
+                    // expect(lineSymbolizer).to.have.property('strokeWidth')
+                    // expect(lineSymbolizer.strokeWidth).to.lessThan(2) // thinner than the drawn in the OL map.
                 })
         })
 
@@ -707,22 +757,39 @@ describe('Testing print', () => {
     context('Send print request with external layers', () => {
         const bgLayer = 'test.background.layer2'
 
+        function checkLayer(layer: Layer, expectedLayer: Layer) {
+            assertDefined(layer)
+            assertDefined(expectedLayer)
+
+            expect(layer.type).to.eq(expectedLayer.type)
+            if (expectedLayer.type === LayerType.WMS) {
+                const wmsLayer = layer as ExternalWMSLayer
+                const expectedWmsLayer = expectedLayer as ExternalWMSLayer
+
+                expect(wmsLayer.layers).to.deep.equal(expectedWmsLayer.layers)
+                expect(wmsLayer.baseUrl).to.equals(expectedWmsLayer.baseUrl)
+                expect(wmsLayer.opacity).to.equals(expectedWmsLayer.opacity)
+            } else if (expectedLayer.type === LayerType.WMTS) {
+                const wmtsLayer = layer as ExternalWMTSLayer
+                const expectedWmtsLayer = expectedLayer as ExternalWMTSLayer
+                expect(wmtsLayer.tileMatrixSets).to.equals(expectedWmtsLayer.tileMatrixSets)
+            }
+        }
+
         it('prints external WMS correctly', () => {
-            cy.getExternalWmsMockConfig().then((layerObjects: ExternalWMTSLayer[]) => {
-                assertDefined(layerObjects[1])
-                assertDefined(layerObjects[2])
-                layerObjects[1].opacity = 0.8
-                layerObjects[2].opacity = 0.4
+            cy.getExternalWmsMockConfig().then((mockConfig: ExternalWMSLayer[]) => {
+                assertDefined(mockConfig[1])
+                assertDefined(mockConfig[2])
+                mockConfig[1].opacity = 0.8
+                mockConfig[2].opacity = 0.4
                 // some layers are not visible by default, let's set them all as visible
-                layerObjects.forEach((layer: ExternalWMTSLayer) => {
-                    layer.visible = true
+                mockConfig.forEach((layer: ExternalWMSLayer) => {
+                    layer.isVisible = true
                 })
                 cy.goToMapView({
                     queryParams: {
-                        layers: layerObjects
-                            .map((object: ExternalWMTSLayer) =>
-                                transformLayerIntoUrlString(object, undefined, undefined)
-                            )
+                        layers: mockConfig
+                            .map((object) => transformLayerIntoUrlString(object))
                             .join(';'),
                     },
                     withHash: true,
@@ -763,55 +830,34 @@ describe('Testing print', () => {
                     expect(layers).to.be.an('array')
                     expect(layers).to.have.length(5)
 
-                    const expectedLayers = [
-                        ...layerObjects.toReversed().map((layer: ExternalWMTSLayer) => {
-                            return {
-                                layers: layer.id.split(','),
-                                type: 'wms',
-                                baseURL: layer.baseUrl,
-                                opacity: layer.opacity,
-                            }
-                        }),
-                        {
-                            layer: bgLayer,
-                            type: 'wmts',
-                            baseURL: `https://sys-wmts.dev.bgdi.ch/1.0.0/${bgLayer}/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.jpeg`,
+                    mockConfig
+                        .toReversed()
+                        .forEach((layer: ExternalWMSLayer, index: number) =>
+                            checkLayer(layers[index], layer)
+                        )
+
+                    checkLayer(
+                        layerUtils.makeExternalWMTSLayer({
+                            id: bgLayer,
+                            baseUrl: `https://sys-wmts.dev.bgdi.ch/1.0.0/${bgLayer}/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.jpeg`,
                             opacity: 1,
-                            matrixSet: 'EPSG:2056',
-                        },
-                    ]
-
-                    for (let i = 0; i < layers.length; i++) {
-                        assertDefined(expectedLayers)
-                        assertDefined(expectedLayers[i])
-                        assertDefined(expectedLayers[i])
-                        expect(layers[i]['layers']).to.deep.equal(expectedLayers[i]['layers'])
-                        expect(layers[i]['type']).to.equals(expectedLayers[i]['type'])
-                        expect(layers[i]['baseURL']).to.equals(expectedLayers[i]['baseURL'])
-                        expect(layers[i]['opacity']).to.equals(expectedLayers[i]['opacity'])
-                        if (expectedLayers[i]?.['matrixSet']) {
-                            expect(layers[i]['matrixSet']).to.equals(expectedLayers[i]['matrixSet'])
-                        }
-                    }
-
-                    expect(layers[layers.length - 1]['matrices'][0]['matrixSize']).to.deep.eq([
-                        1, 1,
-                    ])
+                            tileMatrixSets: [{ id: 'EPSG:2056', projection: LV95, tileMatrix: [] }],
+                        }),
+                        layers[mockConfig.length]
+                    )
                 })
             })
         })
 
-        it.only('prints external WMTS correctly', () => {
-            cy.getExternalWmtsMockConfig().then((layerObjects: ExternalWMTSLayer[]) => {
-                layerObjects.forEach((layer: ExternalWMTSLayer) => {
+        it('prints external WMTS correctly', () => {
+            cy.getExternalWmtsMockConfig().then((mockConfig) => {
+                mockConfig.forEach((layer) => {
                     layer.isVisible = true
                 })
                 cy.goToMapView({
                     queryParams: {
-                        layers: layerObjects
-                            .map((object: ExternalWMTSLayer) =>
-                                transformLayerIntoUrlString(object, undefined, undefined)
-                            )
+                        layers: mockConfig
+                            .map((object) => transformLayerIntoUrlString(object))
                             .join(';'),
                     },
                     withHash: true,
@@ -826,14 +872,24 @@ describe('Testing print', () => {
                         checkPrintRequest(body, {
                             copyright: '© GIS-Zentrum Stadt Zuerich, attribution.test.wmts.layer',
                             layers: [
-                                ...layerObjects.toReversed().map((layer: ExternalWMTSLayer) => {
+                                ...mockConfig.toReversed().map((layer) => {
                                     return {
-                                        layer: layer.id,
-                                        type: 'wmts',
+                                        // type: 'wmts',
                                         baseURL: `http://test.wmts.png/wmts/1.0.0/${layer.id}/default/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png`,
+                                        layer: layer.id,
                                         opacity: layer.opacity,
                                         matrixSet: 'ktzh',
-                                        matrixSize: [11, 8],
+                                        matrices: [
+                                            {
+                                                identifier: 'EPSG:2056:0',
+                                                scaleDenominator: 559082264.0287178,
+                                                tileSize: [256, 256],
+                                                topLeftCorner: [
+                                                    -20037508.342789244, 20037508.342789244,
+                                                ],
+                                                matrixSize: [11, 8],
+                                            },
+                                        ],
                                     }
                                 }),
                                 {

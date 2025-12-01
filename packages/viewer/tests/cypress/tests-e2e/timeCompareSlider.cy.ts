@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 import { moveTimeSlider } from '@/../tests/cypress/tests-e2e/utils'
 import useUIStore from '@/store/modules/ui'
 

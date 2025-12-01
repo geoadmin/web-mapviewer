@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 import useGeolocationStore from '@/store/modules/geolocation'
 import useLayersStore from '@/store/modules/layers'
 import useShareStore from '@/store/modules/share'

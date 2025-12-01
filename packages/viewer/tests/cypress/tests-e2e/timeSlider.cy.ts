@@ -1,13 +1,18 @@
+import type { LayerConfigResponse } from '@swissgeo/layers/api'
+
 import { assertDefined } from 'support/utils'
 
 import { moveTimeSlider } from '@/../tests/cypress/tests-e2e/utils'
 import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 
-/// <reference types="cypress" />
 describe('Cypress tests covering the time slider, its functionalities and its URL parameter', () => {
     context('checking the time slider behavior, both on startup and during use', () => {
-        function extractDecimal(string: string): number {
-            return parseInt(string.match(/[\d.]+/g)[0])
+        function extractDecimal(string?: string): number {
+            const matches = string?.match(/[\d.]+/g)
+            if (Array.isArray(matches) && matches.length > 0) {
+                return parseInt(matches[0])
+            }
+            return Number.NEGATIVE_INFINITY
         }
         const preSelectedYear = 2019
         const standard_layer = 'test.wmts.layer'
@@ -144,11 +149,11 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.get(`[data-cy="time-selector-${timedLayerId}-0"]`).should('contain', 2019)
             cy.log(`${timedLayerId} : CSS of time selectors on an invisible layer`)
             cy.get(`[data-cy="time-selector-${timedLayerId}-0"]`).click()
-            cy.fixture('layers.fixture').then((layers) => {
+            cy.fixture('layers.fixture').then((layers: Record<string, LayerConfigResponse>) => {
                 const timedLayerConfig = layers[timedLayerId]
-                timedLayerConfig.timestamps.forEach((timestamp) => {
+                timedLayerConfig?.timestamps?.forEach((timestamp) => {
                     cy.get(`[data-cy="time-select-${timestamp}"]`).should('satisfy', (element) => {
-                        const classList = Array.from(element[0].classList)
+                        const classList: string[] = Array.from(element[0].classList)
                         // in the invisible layer, the year is set to 2019 : it should still be 2019 and everything else
                         // should be a light button
                         return timestamp === '20190101'
@@ -169,9 +174,9 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                 )
                 cy.get(`[data-cy="time-selector-${timedLayerIdWithOddYear}-1"]`).click()
                 const oddTimestampLayer = layers[timedLayerIdWithOddYear]
-                oddTimestampLayer.timestamps.forEach((timestamp) => {
+                oddTimestampLayer?.timestamps?.forEach((timestamp) => {
                     cy.get(`[data-cy="time-select-${timestamp}"]`).should('satisfy', (element) => {
-                        const classList = Array.from(element[0].classList)
+                        const classList: string[] = Array.from(element[0].classList)
                         // in the odd layer, the year is set to 2009 and the time slider to 2013:
                         // it should show 2013 as primary, 2009 as outline and everything else
                         // should be a light button
@@ -192,9 +197,9 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
 
                 cy.get(`[data-cy="time-selector-${timedLayerIdWithAllYear}-2"]`).click()
                 const allYearLayer = layers[timedLayerIdWithAllYear]
-                allYearLayer.timestamps.forEach((timestamp) => {
+                allYearLayer?.timestamps?.forEach((timestamp) => {
                     cy.get(`[data-cy="time-select-${timestamp}"]`).should('satisfy', (element) => {
-                        const classList = Array.from(element[0].classList)
+                        const classList: string[] = Array.from(element[0].classList)
                         return isLightBtn(classList)
                     })
                 })

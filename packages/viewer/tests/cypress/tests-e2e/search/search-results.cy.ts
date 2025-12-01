@@ -1,8 +1,6 @@
-/// <reference types="cypress" />
-
 import type { Layer } from '@swissgeo/layers'
 
-import { registerProj4, WGS84, type SingleCoordinate } from '@swissgeo/coordinates'
+import { registerProj4, type SingleCoordinate, WGS84 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 
@@ -11,7 +9,6 @@ import { BREAKPOINT_TABLET } from '@/config/responsive.config'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'
-import { CrossHairs } from '@/store/modules/position/types/crossHairs.enum'
 import useSearchStore from '@/store/modules/search'
 
 registerProj4(proj4)
@@ -650,7 +647,7 @@ describe('Test the search bar result handling', () => {
         cy.goToMapView({
             queryParams: {
                 swisssearch: swissSearchString,
-                crosshair: CrossHairs.Cross,
+                crosshair: 'cross',
             },
             withHash: false,
         })
@@ -658,7 +655,7 @@ describe('Test the search bar result handling', () => {
             searchQuery: swissSearchString,
             expectedCenter: swissSearchXYCoordinates,
             expectedPinnedLocation: swissSearchXYCoordinates,
-            expectedCrosshair: CrossHairs.Cross,
+            expectedCrosshair: 'cross',
             expectedCrosshairPosition: swissSearchXYCoordinates,
         })
 
@@ -688,7 +685,7 @@ describe('Test the search bar result handling', () => {
         cy.goToMapView({
             queryParams: {
                 swisssearch: swissSearchString,
-                crosshair: CrossHairs.Cross,
+                crosshair: 'cross',
             },
             withHash: true,
         })
@@ -696,7 +693,7 @@ describe('Test the search bar result handling', () => {
             searchQuery: swissSearchString,
             expectedCenter: swissSearchXYCoordinates,
             expectedPinnedLocation: swissSearchXYCoordinates,
-            expectedCrosshair: CrossHairs.Cross,
+            expectedCrosshair: 'cross',
             expectedCrosshairPosition: swissSearchXYCoordinates,
         })
 
@@ -707,7 +704,7 @@ describe('Test the search bar result handling', () => {
         cy.goToMapView({
             queryParams: {
                 swisssearch: swissSearchString,
-                crosshair: `${CrossHairs.Cross},${crossHairX},${crossHairY}`,
+                crosshair: `cross,${crossHairX},${crossHairY}`,
             },
             withHash: true,
         })
@@ -715,7 +712,7 @@ describe('Test the search bar result handling', () => {
             searchQuery: swissSearchString,
             expectedCenter: swissSearchXYCoordinates,
             expectedPinnedLocation: swissSearchXYCoordinates,
-            expectedCrosshair: CrossHairs.Cross,
+            expectedCrosshair: 'cross',
             expectedCrosshairPosition: crossHairXYCoordinates,
         })
     })

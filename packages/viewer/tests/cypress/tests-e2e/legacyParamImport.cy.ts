@@ -1,10 +1,7 @@
-/// <reference types="cypress" />
-
 import type { ExternalWMSLayer, ExternalWMTSLayer, KMLLayer } from '@swissgeo/layers'
 
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
-import { LayerType } from '@swissgeo/layers'
-import { KMLStyle } from '@swissgeo/layers'
+import { KMLStyle, LayerType } from '@swissgeo/layers'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 
@@ -20,9 +17,10 @@ import useSearchStore from '@/store/modules/search'
 import useUIStore from '@/store/modules/ui'
 import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 
-registerProj4(proj4)
-
 describe('Test on legacy param import', () => {
+    before(() => {
+        registerProj4(proj4)
+    })
     context('Coordinates import', () => {
         it('transfers valid params to the hash part without changing them', () => {
             const lat = 47.3
@@ -552,17 +550,7 @@ describe('Test on legacy param import', () => {
             cy.get('[data-cy="compareSlider"]').should('be.visible')
         })
     })
-    // TODO: define why it is skipped, and solve the issue.
-    it.skip('should show the time slider on startup when setting it in the URL', () => {
-        cy.goToMapView({
-            queryParams: {
-                layers: `test.timeenabled.wmts.layer`,
-                time: 2019,
-            },
-            withHash: false,
-        })
-        cy.get('[data-cy="time-slider-current-year"]').should('contain', 2019)
-    })
+
     context('Feature Pre Selection Import', () => {
         function checkFeatures(featuresIds: string[]) {
             cy.getPinia().then((pinia) => {
@@ -653,6 +641,19 @@ describe('Test on legacy param import', () => {
                 cy.get('[data-cy="popover"]').should('not.exist')
                 cy.get('[data-cy="infobox"]').should('not.exist')
             })
+        })
+    })
+
+    context('Time slider', () => {
+        it('shows the time slider on startup when legacy "time" param present in the URL', () => {
+            cy.goToMapView({
+                queryParams: {
+                    layers: `test.timeenabled.wmts.layer`,
+                    time: 2019,
+                },
+                withHash: false,
+            })
+            cy.get('[data-cy="time-slider-current-year"]').should('contain', 2019)
         })
     })
 })

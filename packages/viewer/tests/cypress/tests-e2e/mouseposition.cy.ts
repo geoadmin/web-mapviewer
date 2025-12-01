@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 import type { Pinia } from 'pinia'
 
 import { LV03, LV95, registerProj4, WGS84, type SingleCoordinate } from '@swissgeo/coordinates'
@@ -98,8 +96,9 @@ function skipTestsIf(condition: boolean, message?: string) {
                 message,
             })
         }
-        const mochaContext = cy.state('runnable').ctx
-        mochaContext?.skip()
+        cy.then(function () {
+            this.skip()
+        })
     }
 }
 

@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 import { registerProj4 } from '@swissgeo/coordinates'
 import { WGS84 } from '@swissgeo/coordinates'
 import { Math as CesiumMath } from 'cesium'

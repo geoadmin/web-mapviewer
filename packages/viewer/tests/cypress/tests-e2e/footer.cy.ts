@@ -1,5 +1,3 @@
-/// <reference types="cypress" />
-
 import type { LayerConfigResponse } from '@swissgeo/layers/api'
 import type { Pinia } from 'pinia'
 
