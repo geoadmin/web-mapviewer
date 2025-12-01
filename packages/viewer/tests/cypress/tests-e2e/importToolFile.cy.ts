@@ -786,7 +786,8 @@ describe('The Import File Tool', () => {
                 statusCode: 200,
             }
         )
-
+        // Adding this goToMapView without layer first fix an issue in the CI where the test failed but pass in local
+        cy.goToMapView({ withHash: true })
         cy.goToMapView({
             queryParams: {
                 layers: [
@@ -1018,8 +1019,6 @@ describe('The Import File Tool', () => {
         //open menu and open import tool again
         cy.openMenuIfMobile()
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
-        // cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
-        // cy.get('[data-cy="import-file-content"]').should('be.visible')
 
         //----------------------------------------------------------------------
         // Test local import error handling
