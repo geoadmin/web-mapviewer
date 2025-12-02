@@ -64,6 +64,8 @@ const parseLegacyUrlParams: AppState = {
 
 const configLoaded: AppState = {
     name: AppStateNames.ConfigLoaded,
+    // we wait for the background layer to be set to the current topic default, to avoid conflicts between the mutation happening,
+    // and the URL synchronization.
     isFulfilled: () => useTopicsStore().currentTopic?.defaultBackgroundLayer?.id === useLayersStore().currentBackgroundLayer?.id,
     next: () => {
         if (isLegacyParams(window?.location?.search)) {

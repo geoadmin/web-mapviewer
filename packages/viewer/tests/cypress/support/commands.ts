@@ -1,7 +1,7 @@
 import 'cypress-real-events'
 import 'cypress-wait-until'
 import '@4tw/cypress-drag-drop'
-import type { GeoAdminLayer } from '@swissgeo/layers'
+import type { GeoAdminLayer, Layer } from '@swissgeo/layers'
 import type { Layer as OLLayer } from 'ol/layer'
 import type { Pinia } from 'pinia'
 
@@ -427,7 +427,6 @@ Cypress.Commands.add('openLayerSettings', (layerId) => {
 export interface PartialLayer {
     id: string
     opacity?: number
-    visible?: boolean // the Layers interface has 'isVisible' as a boolean, I'll make the 'visible' to 'isVisible' change in another commit so I'm not destroying everything
     isVisible?: boolean
 }
 
@@ -445,7 +444,7 @@ Cypress.Commands.add('checkOlLayer', (args) => {
             }
         })
     } else if (typeof args === 'string') {
-        layers.push({ id: args, visible: true, opacity: 1 })
+        layers.push({ id: args, isVisible: true, opacity: 1 })
     } else {
         layers.push(Cypress._.cloneDeep(args))
     }
@@ -453,16 +452,16 @@ Cypress.Commands.add('checkOlLayer', (args) => {
         if (!l.id) {
             throw new Error(`Invalid layer object ${JSON.stringify(l)}: don't have an id`)
         }
-        if (l.visible === undefined) {
-            l.visible = true
+        if (l.isVisible === undefined) {
+            l.isVisible = true
         }
         if (l.opacity === undefined) {
             l.opacity = 1
         }
         return l
     })
-    const visibleLayers: PartialLayer[] = layers.filter((l) => l.visible)
-    const invisibleLayers: PartialLayer[] = layers.filter((l) => !l.visible)
+    const visibleLayers: PartialLayer[] = layers.filter((l) => l.isVisible)
+    const invisibleLayers: PartialLayer[] = layers.filter((l) => !l.isVisible)
     cy.window()
         .its('map')
         .invoke('getAllLayers')
@@ -495,7 +494,7 @@ Cypress.Commands.add('checkOlLayer', (args) => {
                 expect(olLayer, `[${layer.id}] layer at index ${index} not found`).not.to.be
                     .undefined
                 expect(olLayer!.getVisible(), `[${layer.id}] layer.isVisible`).to.be.equal(
-                    layer.visible
+                    layer.isVisible
                 )
                 expect(olLayer!.getOpacity(), `[${layer.id}] layer.opacity`).to.be.equal(
                     layer.opacity
@@ -504,7 +503,10 @@ Cypress.Commands.add('checkOlLayer', (args) => {
                 // Also, the rendered flag is protected, so we're checking if it is set with a getRenderSource().getState()
                 // function, which returns false as long as either there is no renderer, or the rendered
                 // flag is false
-                cy.waitUntil(() => olLayer?.getRenderSource()?.getState() === 'ready', {
+                cy.waitUntil(() => {
+                    return olLayer?.getRenderSource()?.getState() === 'ready'
+                }
+                , {
                     description: `[${layer.id}] waitUntil layer.rendered`,
                     errorMsg: `[${layer.id}] layer.rendered is not true`,
                 })
