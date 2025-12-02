@@ -42,7 +42,7 @@ onMounted(() => {
     // initial load of layers config
     layersStore.loadLayersConfig(
         {
-            changeLayersOnTopicChange: !window.location.hash.includes('layers='),
+            changeLayersOnTopicChange: !(window.location.hash.includes('layers=') || window.location.hash.includes('bgLayer=')),
         },
         dispatcher
     )
