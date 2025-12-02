@@ -149,7 +149,6 @@ function measureMenu(shouldHaveMaxSize: boolean) {
 
 function init(nbLayers: number, nbSelectedLayers: number) {
     cy.goToMapView({
-        withHash: false,
         fixturesAndIntercepts: getFixturesAndIntercepts(nbLayers, nbSelectedLayers),
     })
     cy.getPinia().then((pinia) => {
