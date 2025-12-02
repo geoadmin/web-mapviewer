@@ -30,10 +30,12 @@ describe('Testing the feedback form', () => {
         cy.get('[data-cy="feedback-form"]').should('be.visible')
         closeForm()
 
+        // Reset back to mobile view
         cy.viewport(320, 568)
-
+        cy.get('[data-cy="menu-button"].btn.menu-button').contains('Menu').should('be.visible')
         cy.log('It validates the report problem form properly')
         cy.openMenuIfMobile()
+
         openForm()
         cy.log('it is not possible to send a feedback without a rating')
         cy.get('[data-cy="text-area-input"]').type('This is an awesome feedback!')
@@ -115,6 +117,7 @@ describe('Testing the feedback form', () => {
 
         cy.get('[data-cy="feedback-close-successful"]').click()
         cy.get('[data-cy="feedback-form"]').should('not.exist')
+        // Form is already closed at this point
 
         cy.log('it shows a text to the user to tell him something went wrong')
         cy.openMenuIfMobile()
