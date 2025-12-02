@@ -61,7 +61,7 @@ const { show, animate, getImageForBackgroundLayer, toggleShowSelector, onSelectB
             class="bg-selector-squared-wheel-button position-relative"
             :class="{ opened: show, 'text-bg-secondary': show, animate }"
             type="button"
-            data-cy="background-selector-open-wheel-button"
+            data-cy="background-selector-open-wheel-button-squared"
             @click="toggleShowSelector"
         >
             <FontAwesomeIcon
