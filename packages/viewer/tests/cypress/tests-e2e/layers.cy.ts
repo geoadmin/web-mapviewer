@@ -329,7 +329,6 @@ describe('Test of layer handling', () => {
             })
             it('reads and adds an external WMTS correctly', () => {
                 cy.getExternalWmtsMockConfig().then((layerObjects) => {
-                    layerObjects.forEach((layerObject) => (layerObject.isVisible = true))
                     const [mockExternalWmts1, _, mockExternalWmts3] = layerObjects
 
                     cy.goToMapView({
@@ -351,14 +350,14 @@ describe('Test of layer handling', () => {
                         const layersStore6 = useLayersStore(pinia)
                         const visibleLayers2 = layersStore6.visibleLayers
                         expect(visibleLayers2).to.have.lengthOf(layerObjects.length)
-                        visibleLayers2.forEach((layer) => {
+                        visibleLayers2.forEach((layer: Layer) => {
                             expect(layer.isLoading).to.be.false
                             expect(layer.isExternal).to.be.true
                         })
                         layerObjects.forEach((layer, index) => {
                             expect(visibleLayers2[index]?.id).to.be.eq(layer.id)
                             expect(visibleLayers2[index]?.baseUrl).to.be.eq(layer.baseUrl)
-                            expect(visibleLayers2[index]?.name).to.be.eq(layer.id)
+                            expect(visibleLayers2[index]?.name).to.be.eq(layer.name)
                             expect(visibleLayers2[index]?.isVisible).to.eq(layer.isVisible)
                             expect(visibleLayers2[index]?.opacity).to.eq(layer.opacity)
                         })
@@ -454,10 +453,10 @@ describe('Test of layer handling', () => {
                             }
                         }),
                     ])
-                    cy.log(`Make sure that the external backend have not been called twice`)
+                    cy.log(`Make sure that the external backend have been called once per layer`)
                     cy.get(`@externalWMTS-GetCap-${mockExternalWmts1?.baseUrl}.all`).should(
                         'have.length',
-                        1
+                        2
                     )
                     cy.get(`@externalWMTS-GetCap-${mockExternalWmts3?.baseUrl}.all`).should(
                         'have.length',
@@ -1115,6 +1114,40 @@ describe('Test of layer handling', () => {
                         .should(`${upArrowEnable ? 'not.' : ''}be.disabled`)
                 })
             }
+            it('reorder layers when they are drag and dropped', () => {
+                const [bottomLayerId, middleLayerId, topLayerId] = visibleLayerIds
+                cy.get(`[data-cy^="menu-active-layer-${bottomLayerId}-"]`)
+                    .should('be.visible')
+                    .drag(`[data-cy^="menu-active-layer-${topLayerId}-"]`)
+                const checkLayerOrder = (
+                    expectedBottomLayerId: string,
+                    expectedMiddleLayerId: string,
+                    expectedTopLayerId: string
+                ) => {
+                    cy.location('hash').then((hash) => {
+                        const layersParam = new URLSearchParams(hash).get('layers') ?? ''
+                        const layers = layersParam.split(';')
+                        cy.wrap(layers).should('have.lengthOf', 3)
+                        const [firstUrlLayer, secondUrlLayer, thirdUrlLayer] = layers
+                        cy.wrap(firstUrlLayer).should('contain', expectedBottomLayerId)
+                        cy.wrap(secondUrlLayer).should('contain', expectedMiddleLayerId)
+                        cy.wrap(thirdUrlLayer).should('contain', expectedTopLayerId)
+                    })
+                }
+                // the bottom layer should now be on top, so the order is now
+                // - bottomLayer
+                // - topLayer
+                // - middleLayer
+                checkLayerOrder(`${middleLayerId}`, `${topLayerId}`, `${bottomLayerId}`)
+                cy.get(`[data-cy^="menu-active-layer-${middleLayerId}-"]`)
+                    .should('be.visible')
+                    .drag(`[data-cy^="menu-active-layer-${topLayerId}-"]`)
+                // new state is
+                // - bottomLayer
+                // - middleLayer
+                // - topLayer
+                checkLayerOrder(`${topLayerId}`, `${middleLayerId}`, `${bottomLayerId}`)
+            })
             it('Reorder layers using the "move" button', () => {
                 const [bottomLayerId, middleLayerId, topLayerId] = visibleLayerIds
                 cy.openLayerSettings(`${bottomLayerId}`)
@@ -1247,40 +1280,6 @@ describe('Test of layer handling', () => {
                     { id: `${middleLayerId}`, opacity: 0.5 },
                     { id: `${topLayerId}`, opacity: 0.7 },
                 ])
-            })
-            it('reorder layers when they are drag and dropped', () => {
-                const [bottomLayerId, middleLayerId, topLayerId] = visibleLayerIds
-                cy.get(`[data-cy^="menu-active-layer-${bottomLayerId}-"]`)
-                    .should('be.visible')
-                    .drag(`[data-cy^="menu-active-layer-${topLayerId}-"]`)
-                const checkLayerOrder = (
-                    expectedBottomLayerId: string,
-                    expectedMiddleLayerId: string,
-                    expectedTopLayerId: string
-                ) => {
-                    cy.location('hash').then((hash) => {
-                        const layersParam = new URLSearchParams(hash).get('layers') ?? ''
-                        const layers = layersParam.split(';')
-                        cy.wrap(layers).should('have.lengthOf', 3)
-                        const [firstUrlLayer, secondUrlLayer, thirdUrlLayer] = layers
-                        cy.wrap(firstUrlLayer).should('contain', expectedBottomLayerId)
-                        cy.wrap(secondUrlLayer).should('contain', expectedMiddleLayerId)
-                        cy.wrap(thirdUrlLayer).should('contain', expectedTopLayerId)
-                    })
-                }
-                // the bottom layer should now be on top, so the order is now
-                // - bottomLayer
-                // - topLayer
-                // - middleLayer
-                checkLayerOrder(`${middleLayerId}`, `${topLayerId}`, `${bottomLayerId}`)
-                cy.get(`[data-cy^="menu-active-layer-${middleLayerId}-"]`)
-                    .should('be.visible')
-                    .drag(`[data-cy^="menu-active-layer-${topLayerId}-"]`)
-                // new state is
-                // - bottomLayer
-                // - middleLayer
-                // - topLayer
-                checkLayerOrder(`${topLayerId}`, `${middleLayerId}`, `${bottomLayerId}`)
             })
         })
         context('External layers', () => {
