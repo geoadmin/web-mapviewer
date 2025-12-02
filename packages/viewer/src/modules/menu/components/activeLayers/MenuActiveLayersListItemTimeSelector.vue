@@ -53,7 +53,7 @@ const humanReadableCurrentTimestamp = computed<string>(() => renderHumanReadable
         timeConfig.currentTimeEntry as LayerTimeConfigEntry & { year: string }
 ))
 
-function renderHumanReadableTimestamp(timeEntry: LayerTimeConfigEntry & { year: string }): string {
+function renderHumanReadableTimestamp(timeEntry?: LayerTimeConfigEntry & { year: string }): string {
     if (!timeEntry || !timeEntry.year) {
         return '-'
     }

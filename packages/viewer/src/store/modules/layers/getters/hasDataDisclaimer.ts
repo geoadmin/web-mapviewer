@@ -21,7 +21,7 @@ function checkLayerUrlWhitelisting(layerBaseUrl?: string): boolean {
     if (!layerBaseUrl) {
         return false
     }
-    return !!EXTERNAL_PROVIDER_WHITELISTED_URL_REGEXES.find(
+    return EXTERNAL_PROVIDER_WHITELISTED_URL_REGEXES.some(
         (regex) => !!layerBaseUrl.match(regex)
     )
 }
