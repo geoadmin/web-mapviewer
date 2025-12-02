@@ -146,7 +146,7 @@ describe('Test of layer handling', () => {
                             const layersStore4 = useLayersStore(pinia)
                             const layers = layersStore4.visibleLayers
                             const [timeEnabledLayer] = layers
-                            expect(timeEnabledLayer?.timeConfig.currentTimeEntry?.timestamp).to.eq(
+                            expect(timeEnabledLayer!.timeConfig.currentTimeEntry?.timestamp).to.eq(
                                 randomTimestampFromLayer
                             )
                         })
@@ -155,7 +155,7 @@ describe('Test of layer handling', () => {
             })
         })
         context('External layers', () => {
-            it.only('reads and adds an external WMS correctly', () => {
+            it('reads and adds an external WMS correctly', () => {
                 cy.getExternalWmsMockConfig().then((layerObjects) => {
                     layerObjects.forEach((layerObject) => (layerObject.isVisible = true))
                     const [mockExternalWms1, mockExternalWms2, mockExternalWms3, mockExternalWms4] =
@@ -169,8 +169,8 @@ describe('Test of layer handling', () => {
                     cy.log(
                         "Adding an option to one of the layer's base URL to check if these calls behave in a correct way"
                     )
-
-                    layerObjects[0]!.baseUrl = layerObjects[0]!.baseUrl + 'item=22_06_86t13214'
+                    const myItem = '22_06_86t13214'
+                    layerObjects[1]!.baseUrl = layerObjects[1]!.baseUrl + `item=${myItem}`
                     const layers = layerObjects
                         .map((object) => transformLayerIntoUrlString(object, undefined, undefined))
                         .join(';')
@@ -183,9 +183,9 @@ describe('Test of layer handling', () => {
                     ])
 
                     cy.log(`Verify that extra custom attributes are passed along to the WMS server`)
-                    cy.wait(`@externalWMS-GetMap-${mockExternalWms1?.id}`)
-                        .its('request.query')
-                        .should('have.property', 'item', '22_06_86t13214')
+                    cy.wait(`@externalWMS-GetMap-${mockExternalWms2?.id}`)
+
+                        .its('request.query').should('have.property', 'item', myItem)
 
                     cy.log(`Verify that the active layers store match the url input`)
                     cy.getPinia().then((pinia) => {
@@ -219,13 +219,13 @@ describe('Test of layer handling', () => {
                             .eq(index)
                             .should('contain', layer.name)
                     })
-
                     cy.checkOlLayer([
                         bgLayer,
                         ...layerObjects.map((layer) => {
                             return {
                                 id: layer.id,
-                                visible: layer.isVisible,
+
+                                isVisible: layer.isVisible,
                                 opacity: layer.opacity,
                             }
                         }),
@@ -239,13 +239,12 @@ describe('Test of layer handling', () => {
                     cy.get(
                         `[data-cy^="button-toggle-visibility-layer-${mockExternalWms3?.id}-"]`
                     ).click()
-
                     cy.checkOlLayer([
                         bgLayer,
-                        { id: mockExternalWms1!.id, visible: true, opacity: 1.0 },
-                        { id: mockExternalWms2!.id, visible: false, opacity: 0.8 },
-                        { id: mockExternalWms3!.id, visible: false, opacity: 1.0 },
-                        { id: mockExternalWms4!.id, visible: true, opacity: 0.4 },
+                        { id: mockExternalWms1!.id, isVisible: true, opacity: 1.0 },
+                        { id: mockExternalWms2!.id, isVisible: false, opacity: 0.8 },
+                        { id: mockExternalWms3!.id, isVisible: false, opacity: 1.0 },
+                        { id: mockExternalWms4!.id, isVisible: true, opacity: 0.4 },
                     ])
 
                     // A click on the map should trigger a getFeatureInfo on both visible/active layers 1 and 3.
@@ -321,10 +320,10 @@ describe('Test of layer handling', () => {
 
                     cy.checkOlLayer([
                         bgLayer,
-                        { id: mockExternalWms1!.id, visible: true, opacity: 0.0 },
-                        { id: mockExternalWms2!.id, visible: false, opacity: 0.8 },
-                        { id: mockExternalWms3!.id, visible: false, opacity: 0.0 },
-                        { id: mockExternalWms4!.id, visible: true, opacity: 1.0 },
+                        { id: mockExternalWms1!.id, isVisible: true, opacity: 0.0 },
+                        { id: mockExternalWms2!.id, isVisible: false, opacity: 0.8 },
+                        { id: mockExternalWms3!.id, isVisible: false, opacity: 0.0 },
+                        { id: mockExternalWms4!.id, isVisible: true, opacity: 1.0 },
                     ])
                 })
             })
@@ -359,7 +358,7 @@ describe('Test of layer handling', () => {
                         layerObjects.forEach((layer, index) => {
                             expect(visibleLayers2[index]?.id).to.be.eq(layer.id)
                             expect(visibleLayers2[index]?.baseUrl).to.be.eq(layer.baseUrl)
-                            expect(visibleLayers2[index]?.name).to.be.eq(layer.name)
+                            expect(visibleLayers2[index]?.name).to.be.eq(layer.id)
                             expect(visibleLayers2[index]?.isVisible).to.eq(layer.isVisible)
                             expect(visibleLayers2[index]?.opacity).to.eq(layer.opacity)
                         })
@@ -369,7 +368,7 @@ describe('Test of layer handling', () => {
                         ...layerObjects.map((layer) => {
                             return {
                                 id: layer.id,
-                                visible: layer.isVisible,
+                                isVisible: layer.isVisible,
                                 opacity: layer.opacity,
                             }
                         }),
@@ -423,6 +422,7 @@ describe('Test of layer handling', () => {
                         layerObjects2.forEach((layer, index) => {
                             expect(activeLayers3[index]?.id).to.eq(layer.id)
                             expect(activeLayers3[index]?.isVisible).to.eq(layer.isVisible)
+                            expect(activeLayers3[index]?.name).to.eq(layer.name)
                             expect(activeLayers3[index]?.opacity).to.eq(layer.opacity)
                         })
                     })
@@ -444,13 +444,12 @@ describe('Test of layer handling', () => {
                             .get('[data-cy="menu-external-disclaimer-icon-cloud"]')
                             .should('be.visible')
                     })
-
                     cy.checkOlLayer([
                         bgLayer,
                         ...layerObjects2.map((layer) => {
                             return {
                                 id: layer.id,
-                                visible: layer.isVisible,
+                                isVisible: layer.isVisible,
                                 opacity: layer.opacity,
                             }
                         }),
@@ -945,7 +944,6 @@ describe('Test of layer handling', () => {
                 cy.clickOnLanguage('de')
                 cy.wait('@legendGerman')
                 cy.get('@legend.all').should('have.length', legendCalls)
-                // ISSUE HERE : when we call SET TOPIC through the language, we revert the layers to their default state
                 cy.get('[data-cy="layer-description"]').should('be.visible').contains(germanText)
             })
         })
@@ -990,7 +988,6 @@ describe('Test of layer handling', () => {
 
                 //---------------------------------------------------------------------------------
                 cy.log('keep timestamp configuration when the language changes')
-                // ISSUE, AS ABOVE : changing language resets layers
                 cy.clickOnLanguage('fr')
                 cy.get('[data-cy="menu-active-layers"]:visible').should('be.visible').click()
                 cy.get('[data-cy="time-selector-test.timeenabled.wmts.layer-2"]:visible').contains(
@@ -1166,14 +1163,14 @@ describe('Test of layer handling', () => {
                     bgLayer,
                     { id: `${bottomLayerId}`, opacity: 0.75 },
                     { id: `${topLayerId}`, opacity: 0.7 },
-                    { id: `${middleLayerId}`, visible: false },
+                    { id: `${middleLayerId}`, isVisible: false },
                 ])
                 cy.get(`[data-cy^="button-toggle-visibility-layer-${middleLayerId}-"]`).click()
                 cy.checkOlLayer([
                     bgLayer,
                     { id: `${bottomLayerId}`, opacity: 0.75 },
                     { id: `${topLayerId}`, opacity: 0.7 },
-                    { id: `${middleLayerId}`, visible: true, opacity: 1 },
+                    { id: `${middleLayerId}`, isVisible: true, opacity: 1 },
                 ])
                 cy.log('Moving the layers and change the opacity')
                 cy.log(`Moving ${middleLayerId} to the bottom and toggle it visibility`)
@@ -1182,7 +1179,7 @@ describe('Test of layer handling', () => {
                 cy.checkOlLayer([
                     bgLayer,
                     { id: `${bottomLayerId}`, opacity: 0.75 },
-                    { id: `${middleLayerId}`, visible: true, opacity: 0.5 },
+                    { id: `${middleLayerId}`, isVisible: true, opacity: 0.5 },
                     { id: `${topLayerId}`, opacity: 0.7 },
                 ])
 
@@ -1252,7 +1249,6 @@ describe('Test of layer handling', () => {
                 ])
             })
             it('reorder layers when they are drag and dropped', () => {
-
                 const [bottomLayerId, middleLayerId, topLayerId] = visibleLayerIds
                 cy.get(`[data-cy^="menu-active-layer-${bottomLayerId}-"]`)
                     .should('be.visible')
@@ -1300,7 +1296,6 @@ describe('Test of layer handling', () => {
     })
     context('Language settings in menu', () => {
         it('keeps the layer settings when changing language', () => {
-            // ISSUE HERE
             const langBefore = 'en'
             const langAfter = 'de'
             const visibleLayerIds = [
