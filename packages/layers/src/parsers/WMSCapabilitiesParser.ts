@@ -467,21 +467,20 @@ function getFeatureInfoCapability(
  * @param options.params URL parameters to pass to WMS server
  * @param options.ignoreError Don't throw exception in case of error, but return a default value or
  *   undefined
- * @param parentsArray Optional parents array (internal parameter for recursion)
+ * @param options.parentsArray Optional parents array (internal parameter for recursion)
  * @returns Layer object, or undefined in case of error (and ignoreError is equal to true)
  */
 function getExternalLayer(
     capabilities: WMSCapabilitiesResponse,
     layerOrLayerId: WMSCapabilityLayer | string,
     options?: ExternalLayerParsingOptions<ExternalWMSLayer>,
-    parentsArray?: WMSCapabilityLayer[],
 ): ExternalWMSLayer | undefined {
     if (!layerOrLayerId) {
         // without a layer object or layer ID we can do nothing
         return
     }
 
-    const { outputProjection = WGS84, initialValues = {}, ignoreErrors = true } = options ?? {}
+    const { outputProjection = WGS84, initialValues = {}, ignoreErrors = true, parentsArray } = options ?? {}
     const { currentYear, params } = initialValues
 
     let layer: WMSCapabilityLayer | undefined
@@ -490,7 +489,7 @@ function getExternalLayer(
     // If we have a layer object, use it directly with provided parents
     if (typeof layerOrLayerId !== 'string') {
         layer = layerOrLayerId
-        parents = parentsArray ?? []
+        parents = (parentsArray as WMSCapabilityLayer[]) ?? []
     } else {
         // If we have a layer ID, search for it
         const layerId = layerOrLayerId

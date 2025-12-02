@@ -255,6 +255,11 @@ export interface ExternalLayerParsingOptions<ExternalLayerType> {
      * layer's visibility or opacity after parsing, without using its default values
      */
     initialValues?: Partial<ExternalLayerType>
+    /**
+     * Optional parents array (internal parameter for recursion)
+     * @internal
+     */
+    parentsArray?: unknown[]
 }
 
 export interface CapabilitiesParser<
