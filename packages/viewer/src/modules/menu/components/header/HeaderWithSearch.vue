@@ -60,7 +60,10 @@ function resetApp() {
     const defaultBackgroundLayerId =
         currentTopic.value?.defaultBackgroundLayer?.id ?? currentBackground.value
 
-    window.location.href = `${window.location.origin}?lang=${currentLang.value}&topic=${currentTopicId.value}&bgLayer=${defaultBackgroundLayerId}`
+    // Set the hash-based URL and force reload to reset the app
+    // This avoids legacy parsing state while performing a complete reload
+    window.location.hash = `#/map?lang=${currentLang.value}&topic=${currentTopicId.value}&bgLayer=${defaultBackgroundLayerId}`
+    window.location.reload()
 }
 </script>
 
