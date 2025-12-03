@@ -6,6 +6,7 @@ import proj4 from 'proj4'
 import {
     getGeolocationButtonAndClickIt,
     testErrorMessage,
+    checkPosition,
 } from '@/../tests/cypress/tests-e2e/utils'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useGeolocationStore from '@/store/modules/geolocation'
@@ -24,17 +25,6 @@ const testCases: TestCase[] = [
     { description: 'on 2D Map', is3D: false },
     { description: 'on 3D Map', is3D: true },
 ]
-
-function checkPosition(
-    position: SingleCoordinate | undefined,
-    expectedX: number,
-    expectedY: number
-) {
-    expect(position).to.be.an('Array')
-    expect(position!.length).to.eq(2)
-    expect(position![0]).to.approximately(expectedX, 0.1)
-    expect(position![1]).to.approximately(expectedY, 0.1)
-}
 
 // PB-701: TODO Those tests below are not working as expected, as the cypress-browser-permissions is not
 // working and the geolocation is always allowed, this needs to be reworked and probably need to
