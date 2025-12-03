@@ -10,6 +10,7 @@
         "build:int": "pnpm --recursive --if-present run build:int",
         "build:prod": "pnpm --recursive --if-present run build:prod",
         "dev": "pnpm --filter=web-mapviewer run dev ",
+        "dev:https": "pnpm --filter=web-mapviewer run dev:https ",
         "force-reinstall": "node ./scripts/force-pnpm-reinstall.js",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
