@@ -130,7 +130,7 @@ const yearsWithData = computed(() => {
     let yearsSeparate: number[] = []
     
     timeConfigs.forEach((timeConfig) => {
-        const years = getYearsFromTimeConfig(timeConfig as LayerTimeConfig)
+        const years = getYearsFromTimeConfig(timeConfig)
         if (!Array.isArray(years)) {
             return
         }
@@ -141,7 +141,7 @@ const yearsWithData = computed(() => {
     
     if (timeConfigs.length > 1) {
         timeConfigs.slice(1).forEach((timeConfig) => {
-            const years = getYearsFromTimeConfig(timeConfig as LayerTimeConfig)
+            const years = getYearsFromTimeConfig(timeConfig)
             yearsJoint = yearsJoint.filter((year) => years.includes(year))
         })
     }
@@ -185,10 +185,10 @@ onMounted(() => {
     if (previewYear.value === undefined) {
         if (
             layersWithTimestamps.value.length === 1 &&
-            'currentYear' in layersWithTimestamps.value[0]!.timeConfig &&
-            allYears.value.includes(layersWithTimestamps.value[0]!.timeConfig.currentYear as number)
+            'currentTimeEntry' in layersWithTimestamps.value[0]!.timeConfig &&
+            allYears.value.includes(layersWithTimestamps.value[0]!.timeConfig.currentTimeEntry?.year as number)
         ) {
-            currentYear.value = layersWithTimestamps.value[0]!.timeConfig.currentYear as number
+            currentYear.value = layersWithTimestamps.value[0]!.timeConfig.currentTimeEntry?.year as number
         } else if (yearsWithData.value.yearsJoint.length > 0) {
             currentYear.value = yearsWithData.value.yearsJoint[0]!
         } else if (yearsWithData.value.yearsSeparate[0]) {
@@ -560,7 +560,6 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
         position: absolute;
         top: 0.75 * $spacer;
         height: $cursor-height;
-        width: 100px;
 
         &-arrow {
             $arrow-width: 9px;
@@ -646,7 +645,6 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
 
 .time-slider {
     background: $time-slider-color-background !important;
-    width: auto;
 
     &:not(.grabbed) &-bar-cursor {
         cursor: grab;
@@ -671,7 +669,7 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
     &.form-control {
         padding: 0 3px;
         border-color: $white;
-        width: auto;
+        width: 2.75rem;
         &.is-invalid {
             background-size: 0;
         }
