@@ -17,8 +17,6 @@ import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
 import debounce from '@/utils/debounce'
 
-type LayerTimeConfigWithYears = LayerTimeConfig & { years: number[] }
-
 const dispatcher: ActionDispatcher = { name: 'TimeSlider.vue' }
 
 const { t } = useI18n()
@@ -114,35 +112,43 @@ const distanceBetweenLabels = computed(() => sliderWidth.value / allYears.value.
 const innerBarStepStyle = computed(() => ({ width: `${distanceBetweenLabels.value}px` }))
 const yearsWithData = computed(() => {
     const timeConfigs = layersWithTimestamps.value.map((layer) => layer.timeConfig)
-    if (timeConfigs.some((timeConfig) => !timeConfig || !('years' in timeConfig))) {
+    if (timeConfigs.some((timeConfig) => !timeConfig || !('timeEntries' in timeConfig))) {
         return {
             yearsJoint: [],
             yearsSeparate: [],
         }
     }
-    let yearsJoint = Array.isArray((timeConfigs[0] as LayerTimeConfigWithYears).years)
-        ? [...(timeConfigs[0] as LayerTimeConfigWithYears).years]
-        : []
+    
+    const getYearsFromTimeConfig = (timeConfig: LayerTimeConfig) => {
+        return 'timeEntries' in timeConfig
+            ? timeConfig.timeEntries.map((entry) => entry.year)
+            : []
+    }
+    
+    const firstConfigYears = getYearsFromTimeConfig(timeConfigs[0] as LayerTimeConfig)
+    let yearsJoint = Array.isArray(firstConfigYears) ? [...firstConfigYears] : []
     let yearsSeparate: number[] = []
+    
     timeConfigs.forEach((timeConfig) => {
-        if (!('years' in timeConfig) || !Array.isArray(timeConfig.years)) {
+        const years = getYearsFromTimeConfig(timeConfig as LayerTimeConfig)
+        if (!Array.isArray(years)) {
             return
         }
-        timeConfig.years
-            .filter((year) => !yearsSeparate.includes(year))
-            .forEach((year) => yearsSeparate.push(year))
+        years
+            .filter((year) => !year || !yearsSeparate.includes(year))
+            .forEach((year) => yearsSeparate.push(year!))
     })
+    
     if (timeConfigs.length > 1) {
         timeConfigs.slice(1).forEach((timeConfig) => {
-            yearsJoint = yearsJoint.filter((year) =>
-                (timeConfig as LayerTimeConfigWithYears).years.includes(year)
-            )
+            const years = getYearsFromTimeConfig(timeConfig as LayerTimeConfig)
+            yearsJoint = yearsJoint.filter((year) => years.includes(year))
         })
     }
     yearsSeparate = yearsSeparate.filter((year) => !yearsJoint.includes(year))
     return {
-        yearsJoint: yearsJoint.sort((a, b) => b - a).filter((year) => isNumber(year)),
-        yearsSeparate: yearsSeparate.sort((a, b) => b - a).filter((year) => isNumber(year)),
+        yearsJoint: yearsJoint.filter((year) => isNumber(year)).sort((a, b) => b! - a!),
+        yearsSeparate: yearsSeparate.sort((a, b) => b - a),
     }
 })
 
