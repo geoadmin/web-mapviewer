@@ -57,6 +57,15 @@ function setValuesInStore(to: RouteLocationNormalizedGeneric, urlParamValue?: st
                 },
                 STORE_DISPATCHER_ROUTER_PLUGIN
             )
+        } else if (parsedValue.crossHair) {
+            // Handle case where only crosshair type is provided (without coordinates)
+            // The setCrossHair action will use the map center as the crosshair position
+            positionStore.setCrossHair(
+                {
+                    crossHair: parsedValue.crossHair,
+                },
+                STORE_DISPATCHER_ROUTER_PLUGIN
+            )
         }
     }
 }
