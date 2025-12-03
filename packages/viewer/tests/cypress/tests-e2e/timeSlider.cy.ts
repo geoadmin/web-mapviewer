@@ -7,7 +7,7 @@ import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config
 describe('Cypress tests covering the time slider, its functionalities and its URL parameter', () => {
     context('checking the time slider behavior, both on startup and during use', () => {
         function extractDecimal(string: string): number {
-            return parseInt(string.match(/[\d.]+/g)[0])
+            return parseInt(string.match(/[\d.]+/g)![0])
         }
         const preSelectedYear = 2019
         const standard_layer = 'test.wmts.layer'
