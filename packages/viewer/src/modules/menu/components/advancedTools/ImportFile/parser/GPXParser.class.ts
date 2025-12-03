@@ -65,14 +65,13 @@ export default class GPXParser extends FileParser<GPXLayer> {
               }
             : undefined
 
-        const gpxLayer: GPXLayer = layerUtils.makeGPXLayer({
+        return layerUtils.makeGPXLayer({
             opacity: 1.0,
             isVisible: true,
             extent: extentInCurrentProjection,
+            gpxFileUrl: this.isLocalFile(fileSource) ? fileSource.name : fileSource,
             gpxData: gpxAsText,
             gpxMetadata,
         })
-
-        return gpxLayer
     }
 }

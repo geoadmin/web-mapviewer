@@ -42,9 +42,7 @@ const dispatcher: ActionDispatcher = { name: 'CesiumMap.vue' }
 const viewer = shallowRef<Viewer | undefined>()
 
 const viewerElement = useTemplateRef<HTMLDivElement>('viewerElement')
-// CesiumCompass is not typed yet
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const compassElement = useTemplateRef<any>('compassElement')
+const compassElement = useTemplateRef<CesiumCompass>('compassElement')
 const viewerCreated = ref<boolean>(false)
 
 const cesiumStore = useCesiumStore()
@@ -154,7 +152,8 @@ async function createViewer(): Promise<void> {
     scene.backgroundColor = Color.TRANSPARENT
 
     const postProcessStages = new PostProcessStageCollection()
-    postProcessStages.ambientOcclusion.enabled = true
+    // disabling ambient occlusion post v1.119.0 as it causes visual artifacts on the terrain
+    postProcessStages.ambientOcclusion.enabled = false
     postProcessStages.bloom.enabled = false
     postProcessStages.fxaa.enabled = true
     scene.postProcessStages = postProcessStages
