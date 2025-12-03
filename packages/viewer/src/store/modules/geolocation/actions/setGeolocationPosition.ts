@@ -16,7 +16,7 @@ export default function setGeolocationPosition(
         this.position = position
 
         const positionStore = usePositionStore()
-        positionStore.setCenter(position, dispatcher)
+        positionStore.setCenter(position, true, dispatcher)
     } else {
         log.debug({
             title: 'Geolocation store / setGeolocationPosition',
