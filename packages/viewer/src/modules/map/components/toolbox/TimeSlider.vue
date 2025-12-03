@@ -31,7 +31,7 @@ const PLAY_BUTTON_SIZE = 54
 
 const sliderWidth = ref(0)
 const currentYear = ref<number>(DEFAULT_YOUNGEST_YEAR)
-const falseYear = ref<number | undefined>()
+const falseYear = ref<number | string | undefined>(undefined)
 let cursorX = 0
 const playYearsWithData = ref(false)
 let yearCursorIsGrabbed = false
@@ -47,12 +47,15 @@ const outsideRangeTooltip = useTemplateRef<{ openTooltip: () => void; closeToolt
 const screenWidth = computed(() => uiStore.width)
 const layersWithTimestamps = computed(() => layersStore.visibleLayersWithTimeConfig)
 const activeLayers = computed(() => layersStore.activeLayers)
-const youngestYear = computed(() => layersStore.youngestYear ?? 0)
-const oldestYear = computed(() => layersStore.oldestYear ?? 0)
-const previewYear = computed(() => layersStore.previewYear ?? 0)
+const youngestYear = computed(() => layersStore.youngestYear)
+const oldestYear = computed(() => layersStore.oldestYear)
+const previewYear = computed(() => layersStore.previewYear)
 
 const allYears = computed(() => {
     const years: number[] = []
+    if (oldestYear.value === undefined || youngestYear.value === undefined) {
+        return years
+    }
     for (let year = oldestYear.value; year <= youngestYear.value; year++) {
         years.push(year)
     }
@@ -68,13 +71,16 @@ const tooltipYearOutsideRangeContent = computed(
 
 const inputYear = computed({
     get() {
-        return falseYear.value ?? currentYear.value
+        if (falseYear.value !== undefined) {
+            return falseYear.value
+        }
+        return currentYear.value
     },
-    set(value: string) {
-        const parsedValue = parseInt(value)
+    set(value: string | number) {
+        const parsedValue = parseInt(value.toString())
         if (!allYears.value.includes(parsedValue)) {
             isInputYearValid.value = false
-            falseYear.value = parsedValue || undefined
+            falseYear.value = parsedValue || ''
         } else {
             isInputYearValid.value = true
             currentYear.value = parsedValue
@@ -152,6 +158,16 @@ watch(isInputYearValid, (newValue) => {
     }
 })
 
+watch(currentYear, () => {
+    falseYear.value = undefined
+    isInputYearValid.value = true
+    dispatchPreviewYearToStoreDebounced()
+})
+
+watch(layersWithTimestamps, () => {
+    dispatchPreviewYearToStoreDebounced()
+})
+
 onMounted(() => {
     log.debug({
         title: 'TimeSlider.vue',
@@ -176,7 +192,7 @@ onMounted(() => {
         }
 
         dispatchPreviewYearToStore()
-    } else {
+    } else if (previewYear.value !== undefined) {
         currentYear.value = previewYear.value
         setPreviewYearToLayers()
     }
@@ -187,16 +203,6 @@ onMounted(() => {
         messages: [`Time slider activated, currentYear=${currentYear.value}`],
     })
     window.addEventListener('keydown', handleKeyDownEvent)
-
-    watch(currentYear, () => {
-        falseYear.value = undefined
-        isInputYearValid.value = true
-        dispatchPreviewYearToStoreDebounced()
-    })
-
-    watch(layersWithTimestamps, () => {
-        dispatchPreviewYearToStoreDebounced()
-    })
 })
 
 onUnmounted(() => {
@@ -210,8 +216,8 @@ function setPreviewYearToLayers() {
             layer.isVisible &&
             timeConfigUtils.hasMultipleTimestamps(layer) &&
             layer.timeConfig &&
-            'currentYear' in layer.timeConfig &&
-            layer.timeConfig.currentYear !== year
+            'currentTimeEntry' in layer.timeConfig &&
+            layer.timeConfig.currentTimeEntry !== year
         ) {
             layersStore.setTimedLayerCurrentYear(index, year, dispatcher)
         }
@@ -356,7 +362,7 @@ function handleKeyDownEvent(event: KeyboardEvent) {
         class="time-slider card"
         :class="{ grabbed: yearCursorIsGrabbed }"
     >
-        <div class="d-flex align-items-center justify-content-between p-2">
+        <div class="p-2 d-flex align-items-center justify-content-between">
             <div
                 class="time-slider-bar px-5"
                 data-cy="time-slider-bar"
@@ -364,11 +370,11 @@ function handleKeyDownEvent(event: KeyboardEvent) {
                 <div
                     ref="yearCursor"
                     data-cy="times-slider-cursor"
-                    class="time-slider-bar-cursor user-select-none d-flex bg-body gap-1 rounded border py-1"
+                    class="time-slider-bar-cursor py-1 user-select-none d-flex gap-1 bg-body border rounded"
                     :style="{ left: cursorPosition }"
                 >
                     <div
-                        class="border-end d-flex align-items-center px-2"
+                        class="px-2 border-end d-flex align-items-center"
                         data-cy="time-slider-bar-cursor-grab"
                         @touchstart.passive="grabCursor"
                         @mousedown.passive="grabCursor"
@@ -394,7 +400,7 @@ function handleKeyDownEvent(event: KeyboardEvent) {
                         />
                     </GeoadminTooltip>
                     <div
-                        class="border-start d-flex align-items-center px-2"
+                        class="px-2 border-start d-flex align-items-center"
                         @touchstart.passive="grabCursor"
                         @mousedown.passive="grabCursor"
                     >
@@ -483,7 +489,7 @@ function handleKeyDownEvent(event: KeyboardEvent) {
                 <button
                     id="timeSliderPlayButton"
                     data-cy="time-slider-play-button"
-                    class="btn btn-light btn-lg d-flex align-self-center m-1 border p-3"
+                    class="btn btn-light btn-lg d-flex align-self-center p-3 m-1 border"
                     @click="togglePlayYearsWithData"
                 >
                     <FontAwesomeIcon :icon="playYearsWithData ? 'pause' : 'play'" />
@@ -659,6 +665,7 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
     &.form-control {
         padding: 0 3px;
         border-color: $white;
+        width: auto;
         &.is-invalid {
             background-size: 0;
         }

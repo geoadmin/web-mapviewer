@@ -9,8 +9,17 @@ export default function youngestYear(this: LayersStore): number {
         if (!layer.timeConfig || !timeConfigUtils.hasMultipleTimestamps(layer)) {
             return youngestYear
         }
+        const sortedEntries = layer.timeConfig.timeEntries.sort((a, b) => {
+            if (a.year === undefined) {
+                return 1
+            }
+            if (b.year === undefined) {
+                return -1
+            }
+            return Number(a.year) - Number(b.year)
+        })[0]!
         const youngestLayerYear: number | undefined = timeConfigUtils.getYearFromLayerTimeEntry(
-            layer.timeConfig.timeEntries[0]!
+            sortedEntries
         )
         if (youngestLayerYear && youngestYear < youngestLayerYear) {
             return youngestLayerYear
