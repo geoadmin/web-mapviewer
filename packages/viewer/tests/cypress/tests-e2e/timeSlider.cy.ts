@@ -148,7 +148,6 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             cy.log(`${timedLayerId} : CSS of time selectors on an invisible layer`)
             cy.get(`[data-cy="time-selector-${timedLayerId}-0"]`).click()
             cy.fixture('layers.fixture').then((layers: Record<string, MockLayer>) => {
-                console.log('layers', layers)
                 const timedLayerConfig = layers[timedLayerId]
                 assertDefined(timedLayerConfig)
                 assertDefined(timedLayerConfig.timestamps)
@@ -190,6 +189,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
                         }
                     })
                 })
+                cy.log('Closing the odd year layer time selector', timedLayerIdWithAllYear)
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
                 cy.get(`[data-cy="time-selector-${timedLayerIdWithAllYear}-2"]`).should(
                     'contain',
