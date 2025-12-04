@@ -4,7 +4,8 @@ import type { StyleFunction } from 'ol/style/Style'
 
 import { toValue, type MaybeRefOrGetter } from 'vue'
 
-import { EditableFeatureTypes } from '@/api/features.api'
+import type { EditableFeatureTypes } from '@/api/features/types'
+
 import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable'
 import { drawLineStyle } from '@/modules/drawing/lib/style'
 
@@ -21,7 +22,7 @@ export interface UseExtendLineInteractionResult {
 
 export default function useExtendLineInteraction({
     style = drawLineStyle as StyleFunction,
-    featureType = EditableFeatureTypes.LinePolygon,
+    featureType = 'LINEPOLYGON',
     drawEndCallback = undefined,
     startingFeature = undefined,
 }: UseExtendLineInteractionOptions = {}): UseExtendLineInteractionResult {

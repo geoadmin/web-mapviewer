@@ -3,7 +3,8 @@
 import { mount } from 'cypress/vue'
 import type { ExternalWMSLayer, ExternalWMTSLayer } from '@swissgeo/layers'
 
-import type { GoToViewOptions, PartialLayer } from './support/commands'
+import type { GoToViewOptions, PartialLayer } from 'support/commands'
+import type { EditableFeatureTypes } from '@/api/features/types'
 
 type MountParams = Parameters<typeof mount>
 type OptionsParam = MountParams[1]
@@ -167,10 +168,10 @@ declare global {
             /**
              * Helper function to select a drawing tool.
              *
-             * @param tool The ID of the tool to activate, see {@link EditableFeatureTypes}
+             * @param tool The ID of the tool to activate
              * @param unselect Optional flag to unselect the current tool. Default to false.
              */
-            clickDrawingTool(tool: string, unselect?: boolean): void
+            clickDrawingTool(tool: EditableFeatureTypes, unselect?: boolean): void
         }
     }
 }

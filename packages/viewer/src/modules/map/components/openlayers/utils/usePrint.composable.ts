@@ -23,20 +23,19 @@ import { generateFilename } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'usePrint.composable' }
 
-export enum PrintStatus {
-    IDLE = 'IDLE',
-    PRINTING = 'PRINTING',
-    FINISHED_ABORTED = 'FINISHED_ABORTED',
-    FINISHED_SUCCESSFULLY = 'FINISHED_SUCCESSFULLY',
-    FINISHED_FAILED = 'FINISHED_FAILED',
-}
+export type PrintStatus =
+    | 'IDLE'
+    | 'PRINTING'
+    | 'FINISHED_ABORTED'
+    | 'FINISHED_SUCCESSFULLY'
+    | 'FINISHED_FAILED'
 
 /** Gathering of all the logic that will trigger and manage a print request to service-print3 */
 export function usePrint(map: MaybeRef<Map>) {
     const requester = 'print-map'
 
     const currentJobReference = ref<string | undefined>()
-    const printStatus = ref<PrintStatus>(PrintStatus.IDLE)
+    const printStatus = ref<PrintStatus>('IDLE')
     const printError = ref<PrintError>()
 
     const layerStore = useLayersStore()
@@ -75,7 +74,7 @@ export function usePrint(map: MaybeRef<Map>) {
             if (currentJobReference.value) {
                 await abortCurrentJob()
             }
-            printStatus.value = PrintStatus.PRINTING
+            printStatus.value = 'PRINTING'
             const shortLink = await createShortLink(window.location.href)
             if (!shortLink) {
                 log.error({
@@ -115,7 +114,7 @@ export function usePrint(map: MaybeRef<Map>) {
             })
             currentJobReference.value = printJob.ref
             const result = await waitForPrintJobCompletion(printJob)
-            printStatus.value = PrintStatus.FINISHED_SUCCESSFULLY
+            printStatus.value = 'FINISHED_SUCCESSFULLY'
             return result
         } catch (error) {
             log.error({
@@ -125,8 +124,8 @@ export function usePrint(map: MaybeRef<Map>) {
                 },
                 messages: ['Error while printing', error],
             })
-            if (printStatus.value === PrintStatus.PRINTING) {
-                printStatus.value = PrintStatus.FINISHED_FAILED
+            if (printStatus.value === 'PRINTING') {
+                printStatus.value = 'FINISHED_FAILED'
                 if (error instanceof PrintError) {
                     printError.value = error
                 }
@@ -150,7 +149,7 @@ export function usePrint(map: MaybeRef<Map>) {
                     messages: ['Job', currentJobReference.value, 'successfully aborted'],
                 })
                 currentJobReference.value = undefined
-                printStatus.value = PrintStatus.FINISHED_ABORTED
+                printStatus.value = 'FINISHED_ABORTED'
                 uiStore.clearLoadingBarRequester(requester, dispatcher)
             }
         } catch (error) {

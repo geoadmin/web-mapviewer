@@ -10,16 +10,17 @@ import Feature from 'ol/Feature'
 import { Point } from 'ol/geom'
 import { computed, inject, watch } from 'vue'
 
+import type { OpenLayersMarkerStyles } from '@/modules/map/components/openlayers/utils/markerStyle'
+
 import {
     getMarkerStyle,
     highlightFeatureStyle,
-    OpenLayersMarkerStyles,
 } from '@/modules/map/components/openlayers/utils/markerStyle'
 import useVectorLayer from '@/modules/map/components/openlayers/utils/useVectorLayer.composable'
 
 const {
     position,
-    markerStyle = OpenLayersMarkerStyles.Balloon,
+    markerStyle = 'balloon',
     zIndex = -1,
     selectFeatureCallback = () => {},
     deselectAfterSelect = false,

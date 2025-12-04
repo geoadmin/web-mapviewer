@@ -3,16 +3,13 @@ import type { Layer } from '@swissgeo/layers'
 
 import log from '@swissgeo/log'
 
-import type { ClickInfo, MapStore } from '@/store/modules/map/types/map'
+import type { ClickInfo, MapStore } from '@/store/modules/map/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
-import { IdentifyMode } from '@/store/modules/features/types/IdentifyMode.enum'
 import useLayersStore from '@/store/modules/layers'
-import { ClickType } from '@/store/modules/map/types/clickType.enum'
 import useUIStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 
 export default function click(
     this: MapStore,
@@ -31,13 +28,13 @@ export default function click(
     const featuresStore = useFeaturesStore()
     const layersStore = useLayersStore()
     const uiStore = useUIStore()
-    if (clickInfo.clickType === ClickType.DrawBox) {
+    if (clickInfo.clickType === 'DRAW_BOX') {
         // If the click is a box selection, we set the rectangle selection extent to the
         // coordinates of the click.
         this.setRectangleSelectionExtent(clickInfo.coordinate as FlatExtent, dispatcher)
     } else if (
-        clickInfo.clickType === ClickType.CtrlLeftSingleClick ||
-        clickInfo.clickType === ClickType.ContextMenu
+        clickInfo.clickType &&
+        ['CTRL_LEFT_SINGLE_CLICK', 'CONTEXT_MENU'].includes(clickInfo.clickType)
     ) {
         // If the click is a ctrl left single click or a right click, we keep the rectangle selection extent
     } else {
@@ -48,22 +45,21 @@ export default function click(
     if (!drawingStore.overlay.show) {
         // if a click occurs, we only take it into account (for identify and fullscreen toggle)
         // when the user is not currently drawing something on the map.
-        const isCtrlLeftSingleClick = clickInfo.clickType === ClickType.CtrlLeftSingleClick
-        const isContextMenuClick = clickInfo.clickType === ClickType.ContextMenu
+        const isCtrlLeftSingleClick = clickInfo.clickType === 'CTRL_LEFT_SINGLE_CLICK'
+        const isContextMenuClick = clickInfo.clickType === 'CONTEXT_MENU'
         const isIdentifyingFeature =
-            clickInfo.clickType === ClickType.LeftSingleClick ||
-            clickInfo.clickType === ClickType.CtrlLeftSingleClick ||
-            clickInfo.clickType === ClickType.DrawBox
+            clickInfo.clickType &&
+            ['LEFT_SINGLE_CLICK', 'CTRL_LEFT_SINGLE_CLICK', 'DRAW_BOX'].includes(
+                clickInfo.clickType
+            )
 
         if (isIdentifyingFeature) {
-            const identifyMode = isCtrlLeftSingleClick ? IdentifyMode.Toggle : IdentifyMode.New
-
             featuresStore
                 .identifyFeatureAt(
                     layersStore.visibleLayers.filter((layer: Layer) => layer.hasTooltip),
                     clickInfo.coordinate,
                     clickInfo.features ?? [],
-                    identifyMode,
+                    !isCtrlLeftSingleClick,
                     dispatcher
                 )
                 .then(() => {
@@ -73,7 +69,7 @@ export default function click(
                     ) {
                         // we only change the feature Info position when it's set to 'NONE', as
                         // we want to keep the user's choice of position between clicks.
-                        uiStore.setFeatureInfoPosition(FeatureInfoPositions.Default, dispatcher)
+                        uiStore.setFeatureInfoPosition('default', dispatcher)
                     }
                 })
                 .catch((error) => {

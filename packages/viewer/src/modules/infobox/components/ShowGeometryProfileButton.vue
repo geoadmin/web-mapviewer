@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { LayerType } from '@swissgeo/layers'
 import { useI18n } from 'vue-i18n'
 
-import type { LayerFeature, SelectableFeature } from '@/api/features.api'
+import type { LayerFeature, SelectableFeature } from '@/api/features/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import useProfileStore from '@/store/modules/profile'
@@ -11,7 +10,7 @@ import useProfileStore from '@/store/modules/profile'
 const dispatcher: ActionDispatcher = { name: 'ShowGeometryProfileButton.vue' }
 
 const { feature } = defineProps<{
-    feature: SelectableFeature<boolean>
+    feature: SelectableFeature
 }>()
 
 const { t } = useI18n()
@@ -22,7 +21,7 @@ function showProfile() {
     if (!feature.isEditable) {
         // PB-800 : to avoid a coastline paradox we simplify the geometry of GPXs
         // as they might be coming directly from a GPS device (meaning polluted with GPS uncertainty/error)
-        simplifyGeometry = (feature as LayerFeature).layer.type === LayerType.GPX
+        simplifyGeometry = (feature as LayerFeature).layer.type === 'GPX'
     }
     profileStore.setProfileFeature(
         feature,

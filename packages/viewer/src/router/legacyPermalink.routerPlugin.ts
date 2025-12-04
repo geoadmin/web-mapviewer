@@ -7,7 +7,7 @@ import proj4 from 'proj4'
 import { type LocationQueryRaw, type RouteLocationRaw, START_LOCATION } from 'vue-router'
 
 import type { RouterPlugin } from '@/router/types'
-import type { CameraPosition } from '@/store/modules/position/types/position'
+import type { CameraPosition } from '@/store/modules/position/types'
 
 import reframe from '@/api/lv03Reframe.api'
 import {
@@ -21,7 +21,6 @@ import {
 import useAppStore from '@/store/modules/app'
 import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
-import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 import { transformLayerIntoUrlString } from '@/store/plugins/storeSync/layersParamParser'
 import {
     getKmlLayerFromLegacyAdminIdParam,
@@ -165,10 +164,7 @@ export function handleLegacyParam(
             break
         case 'showTooltip':
             key = 'featureInfo'
-            newValue =
-                legacyParamValue === 'true'
-                    ? FeatureInfoPositions.Default
-                    : FeatureInfoPositions.None
+            newValue = legacyParamValue === 'true' ? 'default' : 'none'
             break
         case 'bgLayer':
             newValue = legacyParamValue === 'voidLayer' ? 'void' : legacyParamValue

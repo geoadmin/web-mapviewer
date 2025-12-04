@@ -6,7 +6,7 @@ import { LineString, Point, Polygon, type SimpleGeometry } from 'ol/geom'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { extractOlFeatureCoordinates } from '@/api/features.api'
+import { extractOlFeatureCoordinates } from '@/api/features'
 import useDrawingStore from '@/store/modules/drawing'
 
 /**

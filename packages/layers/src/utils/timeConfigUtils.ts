@@ -2,13 +2,9 @@ import log from '@swissgeo/log'
 import { isTimestampYYYYMMDD } from '@swissgeo/numbers'
 import { Interval } from 'luxon'
 
-import {
-    type Layer,
-    type LayerTimeConfig,
-    type LayerTimeConfigEntry,
-    LayerType,
-    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
-} from '@/types'
+import type { Layer, LayerTimeConfig, LayerTimeConfigEntry } from '@/types'
+
+import { YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA, } from '@/types'
 
 const hasTimestamp = (timeConfig: LayerTimeConfig, timestamp: string): boolean =>
     timeConfig.timeEntries.some((entry: LayerTimeConfigEntry) => entry.timestamp === timestamp)
@@ -179,7 +175,7 @@ const getTimeEntryForInterval = (
 /** Returns timestamp for WMS or WMTS layer from config data */
 function getTimestampFromConfig(layer: Layer): string | undefined {
     let timestamp = layer.timeConfig?.currentTimeEntry?.timestamp
-    if (!timestamp && layer.type === LayerType.WMTS) {
+    if (!timestamp && layer.type === 'WMTS') {
         // for WMTS layer fallback to current
         timestamp = 'current'
     }

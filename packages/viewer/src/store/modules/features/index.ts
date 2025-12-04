@@ -1,9 +1,6 @@
 import { defineStore } from 'pinia'
 
-import type {
-    FeaturesStoreGetters,
-    FeaturesStoreState,
-} from '@/store/modules/features/types/features'
+import type { FeaturesStoreGetters, FeaturesStoreState } from '@/store/modules/features/types'
 
 import clearAllSelectedFeatures from '@/store/modules/features/actions/clearAllSelectedFeatures'
 import identifyFeatureAt from '@/store/modules/features/actions/identifyFeatureAt'

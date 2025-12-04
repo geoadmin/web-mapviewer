@@ -6,7 +6,7 @@
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { type FlatExtent, LV95, type NormalizedExtent } from '@swissgeo/coordinates'
-import { type GeoAdminGroupOfLayers, type Layer, LayerType } from '@swissgeo/layers'
+import { type GeoAdminGroupOfLayers, type Layer } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { booleanContains, polygon } from '@turf/turf'
 import { computed, onMounted, ref, watch } from 'vue'
@@ -58,9 +58,7 @@ const showItem = computed(() => {
     return true
 })
 
-const isGroupOfLayers = (layer: Layer): layer is GeoAdminGroupOfLayers => {
-    return layer.type === LayerType.GROUP
-}
+const isGroupOfLayers = (layer: Layer): layer is GeoAdminGroupOfLayers => layer.type === 'GROUP'
 
 const hasChildren = computed(() => isGroupOfLayers(item) && item?.layers?.length > 0)
 const hasDescription = computed(() => canBeAddedToTheMap.value && item?.hasDescription)

@@ -1,4 +1,4 @@
-import type { UIStore } from '@/store/modules/ui/types/ui'
+import type { UIStore } from '@/store/modules/ui/types'
 
 import { WARNING_RIBBON_HOSTNAMES } from '@/config/staging.config'
 

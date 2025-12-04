@@ -6,7 +6,6 @@ import Feature from 'ol/Feature'
 
 import type { DrawingInteractionExposed } from '@/modules/drawing/types/interaction'
 
-import { EditableFeatureTypes } from '@/api/features.api'
 import useDrawingLineInteraction from '@/modules/drawing/components/useDrawingLineInteraction.composable'
 import { drawLineStyle } from '@/modules/drawing/lib/style'
 
@@ -16,7 +15,7 @@ const emits = defineEmits<{
 
 const { removeLastPoint } = useDrawingLineInteraction({
     styleFunction: drawLineStyle as StyleFunction,
-    featureType: EditableFeatureTypes.LinePolygon,
+    featureType: 'LINEPOLYGON',
     drawEndCallback: (feature: Feature<SimpleGeometry>): void => {
         emits('drawEnd', feature)
     },

@@ -2,7 +2,7 @@ import type { SingleCoordinate } from '@swissgeo/coordinates'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { GeolocationStore } from '@/store/modules/geolocation/types/geolocation'
+import type { GeolocationStore } from '@/store/modules/geolocation/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import usePositionStore from '@/store/modules/position'

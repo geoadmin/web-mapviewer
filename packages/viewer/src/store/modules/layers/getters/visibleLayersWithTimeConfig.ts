@@ -2,7 +2,7 @@ import type { Layer } from '@swissgeo/layers'
 
 import { timeConfigUtils } from '@swissgeo/layers/utils'
 
-import type { LayersStore } from '@/store/modules/layers/types/layers'
+import type { LayersStore } from '@/store/modules/layers/types'
 
 export default function visibleLayersWithTimeConfig(this: LayersStore): Layer[] {
     // Here we cannot take the getter visibleLayers as it also contains the preview and system

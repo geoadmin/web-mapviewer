@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { type Layer, LayerType } from '@swissgeo/layers'
+import type { Layer, LayerType } from '@swissgeo/layers'
+
 import { timeConfigUtils } from '@swissgeo/layers/utils'
 import { computed, ref } from 'vue'
 
@@ -15,7 +16,7 @@ const withTooltip = ref(null)
 const withLegend = ref(null)
 
 const layers = computed(() => layersStore.config)
-const possibleLayerTypes = [LayerType.WMTS, LayerType.WMS, LayerType.AGGREGATE, LayerType.GEOJSON]
+const possibleLayerTypes: LayerType[] = ['WMTS', 'WMS', 'AGGREGATE', 'GEOJSON']
 const currentLayerType = ref([...possibleLayerTypes])
 
 const dispatcher = { name: 'DebugLayerFinder.vue' }

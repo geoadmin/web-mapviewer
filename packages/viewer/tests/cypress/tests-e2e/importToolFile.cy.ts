@@ -6,7 +6,6 @@ import type BaseLayer from 'ol/layer/Base'
 import type Map from 'ol/Map'
 
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
-import { LayerType } from '@swissgeo/layers'
 import { Vector as VectorLayer } from 'ol/layer'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
@@ -617,7 +616,7 @@ describe('The Import File Tool', () => {
             const layersStore14 = useLayersStore(pinia)
             const activeLayers = layersStore14.activeLayers
             const kmlLayerCount = activeLayers.filter(
-                (layer) => layer.type === LayerType.KML
+                (layer) => layer.type === 'KML'
             ).length
             cy.window()
                 .its('cesiumViewer')

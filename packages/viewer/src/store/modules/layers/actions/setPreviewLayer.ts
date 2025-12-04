@@ -1,10 +1,9 @@
 import type { GeoAdminGeoJSONLayer, Layer } from '@swissgeo/layers'
 
-import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { LayersStore } from '@/store/modules/layers/types/layers'
+import type { LayersStore } from '@/store/modules/layers/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import loadGeoJsonDataAndStyle from '@/store/modules/layers/utils/loadGeoJSONDataAndStyle'
@@ -54,7 +53,7 @@ export default function setPreviewLayer(
     clone.isVisible = true
     this.previewLayer = clone
 
-    if (clone.type === LayerType.GEOJSON) {
+    if (clone.type === 'GEOJSON') {
         const { promise, abortController } = loadGeoJsonDataAndStyle(
             clone as GeoAdminGeoJSONLayer,
             dispatcher

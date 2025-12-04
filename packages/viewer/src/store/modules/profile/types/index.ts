@@ -1,9 +1,9 @@
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 
-import type { SelectableFeature } from '@/api/features.api'
+import type { SelectableFeature } from '@/api/features/types'
 
 export interface ProfileStoreState {
-    feature?: SelectableFeature<boolean>
+    feature?: SelectableFeature
     simplifyGeometry: boolean
     /**
      * Tells which part of a MultiLineString or Polygon is to be shown as the profile. Will also be

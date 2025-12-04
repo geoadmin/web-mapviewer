@@ -8,7 +8,7 @@ import { Circle as CircleStyle, Icon as IconStyle } from 'ol/style'
 import Style from 'ol/style/Style'
 
 import i18n from '@/modules/i18n/index'
-import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
+import { geoadminStyleFunction } from '@/utils/featureStyle'
 import { EMPTY_KML_DATA } from '@/utils/kmlUtils'
 
 const kmlFormat = new KML()

@@ -1,4 +1,4 @@
-import type { TopicsStore } from '@/store/modules/topics/types/topics'
+import type { TopicsStore } from '@/store/modules/topics/types'
 import type { ActionDispatcher } from '@/store/types'
 
 export default function setTopicTreeOpenedThemesIds(

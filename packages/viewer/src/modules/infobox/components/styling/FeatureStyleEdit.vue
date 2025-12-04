@@ -8,10 +8,11 @@ import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { DrawingIcon } from '@/api/icon.api'
+import type { DrawingIcon } from '@/api/icons/types'
+import type { MediaType } from '@/modules/infobox/types'
 import type { ActionDispatcher } from '@/store/types'
+import type { FeatureStyleColor, FeatureStyleSize, TextPlacement } from '@/utils/featureStyle/types'
 
-import { EditableFeatureTypes } from '@/api/features.api'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import ShowGeometryProfileButton from '@/modules/infobox/components/ShowGeometryProfileButton.vue'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
@@ -21,17 +22,11 @@ import DrawingStylePositionSelector from '@/modules/infobox/components/styling/D
 import DrawingStylePopoverButton from '@/modules/infobox/components/styling/DrawingStylePopoverButton.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
-import { MediaType } from '@/modules/infobox/DrawingStyleMediaTypes.enum'
 import useDrawingStore from '@/store/modules/drawing'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import { allFormats, type CoordinateFormat, LV95Format } from '@/utils/coordinates/coordinateFormat'
 import debounce from '@/utils/debounce'
-import {
-    calculateTextOffset,
-    type FeatureStyleColor,
-    type FeatureStyleSize,
-    TextPlacement,
-} from '@/utils/featureStyleUtils'
+import { calculateTextOffset } from '@/utils/featureStyle'
 
 const dispatcher: ActionDispatcher = { name: 'FeatureStyleEdit.vue' }
 
@@ -89,7 +84,7 @@ function updateFeatureTitle(title: string): void {
         dispatcher
     )
     // Update the text offset if the feature is a marker
-    if (drawingStore.feature.current?.featureType === EditableFeatureTypes.Marker) {
+    if (drawingStore.feature.current?.featureType === 'MARKER') {
         updateTextOffset()
     }
 }
@@ -127,16 +122,16 @@ const coordinateFormat = computed(() => {
  * line.
  */
 const isFeatureMarker = computed<boolean>(
-    () => drawingStore.feature.current?.featureType === EditableFeatureTypes.Marker
+    () => drawingStore.feature.current?.featureType === 'MARKER'
 )
 const isFeatureText = computed<boolean>(
-    () => drawingStore.feature.current?.featureType === EditableFeatureTypes.Annotation
+    () => drawingStore.feature.current?.featureType === 'ANNOTATION'
 )
 const isFeatureLinePolygon = computed<boolean>(
-    () => drawingStore.feature.current?.featureType === EditableFeatureTypes.LinePolygon
+    () => drawingStore.feature.current?.featureType === 'LINEPOLYGON'
 )
 const isFeatureMeasure = computed<boolean>(
-    () => drawingStore.feature.current?.featureType === EditableFeatureTypes.Measure
+    () => drawingStore.feature.current?.featureType === 'MEASURE'
 )
 const isLine = computed<boolean>(
     () => drawingStore.feature.current?.geometry?.type === 'LineString'
@@ -268,18 +263,18 @@ type MediaButton = {
 function mediaTypes(): MediaButton[] {
     return [
         {
-            type: MediaType.Link,
+            type: 'link',
             buttonClassOptions: 'rounded-0 rounded-top-2 rounded-end-0',
             icon: 'fa-link' as IconProp,
             extraUrlDescription: 'text_to_display',
         },
         {
-            type: MediaType.Image,
+            type: 'image',
             buttonClassOptions: 'rounded-0',
             icon: 'fa-image' as IconProp,
         },
         {
-            type: MediaType.Video,
+            type: 'video',
             buttonClassOptions: 'rounded-0 rounded-top-2 rounded-start-0',
             icon: 'fa-film' as IconProp,
         },

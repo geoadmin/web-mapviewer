@@ -3,6 +3,7 @@ import { computed, defineAsyncComponent } from 'vue'
 
 import CompareSlider from '@/modules/map/components/CompareSlider.vue'
 import LocationPopup from '@/modules/map/components/LocationPopup.vue'
+import OpenLayersMap from '@/modules/map/components/openlayers/OpenLayersMap.vue'
 import WarningRibbon from '@/modules/map/components/WarningRibbon.vue'
 import useCesiumStore from '@/store/modules/cesium'
 import useLayersStore from '@/store/modules/layers'
@@ -10,9 +11,6 @@ import useMapStore from '@/store/modules/map'
 import useUIStore from '@/store/modules/ui'
 
 const CesiumMap = defineAsyncComponent(() => import('./components/cesium/CesiumMap.vue'))
-const OpenLayersMap = defineAsyncComponent(
-    () => import('./components/openlayers/OpenLayersMap.vue')
-)
 
 const cesiumStore = useCesiumStore()
 const layersStore = useLayersStore()

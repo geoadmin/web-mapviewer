@@ -1,20 +1,14 @@
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { EditableFeature } from '@/api/features.api'
-import type { DrawingStore } from '@/store/modules/drawing/types/drawing'
+import type { EditableFeature } from '@/api/features/types'
+import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
+import type { FeatureStyleColor, FeatureStyleSize } from '@/utils/featureStyle/types'
 
-import { generateIconURL } from '@/api/icon.api'
-import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
+import { generateIconURL } from '@/api/icons'
 import debounceSaveDrawing from '@/store/modules/drawing/utils/debounceSaveDrawing'
 import useProfileStore from '@/store/modules/profile'
-import {
-    calculateTextOffset,
-    type FeatureStyleColor,
-    type FeatureStyleSize,
-    MEDIUM,
-    RED,
-} from '@/utils/featureStyleUtils'
+import { calculateTextOffset, MEDIUM, RED } from '@/utils/featureStyle'
 
 export default function updateCurrentDrawingFeature(
     this: DrawingStore,
@@ -22,7 +16,7 @@ export default function updateCurrentDrawingFeature(
     dispatcher: ActionDispatcher
 ) {
     if (this.feature.current) {
-        this.save.state = DrawingSaveState.UnsavedChanges
+        this.save.state = 'UNSAVED_CHANGES'
 
         let needIconUrlRefresh = false
 
@@ -82,10 +76,10 @@ export default function updateCurrentDrawingFeature(
 
         debounceSaveDrawing()
             .then(() => {
-                this.save.state = DrawingSaveState.Saved
+                this.save.state = 'SAVED'
             })
             .catch((error) => {
-                this.save.state = DrawingSaveState.SaveError
+                this.save.state = 'SAVE_ERROR'
                 log.error({
                     title: 'Drawing store / updateCurrentDrawingFeature',
                     titleColor: LogPreDefinedColor.Lime,

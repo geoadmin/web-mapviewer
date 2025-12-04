@@ -2,20 +2,19 @@ import type { GeoAdminLayer, GPXLayer, KMLLayer } from '@swissgeo/layers'
 import type Feature from 'ol/Feature'
 
 import { extentUtils } from '@swissgeo/coordinates'
-import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { SearchStore } from '@/store/modules/search/types/search'
+import type { LayerFeature } from '@/api/features/types'
+import type { SearchStore } from '@/store/modules/search/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import getFeature, { type LayerFeature } from '@/api/features.api'
+import getFeature from '@/api/features'
 import search, {
     type LayerFeatureSearchResult,
     type LayerSearchResult,
     type LocationSearchResult,
     type SearchResult,
-    SearchResultTypes,
 } from '@/api/search.api'
 import useFeaturesStore from '@/store/modules/features'
 import useI18nStore from '@/store/modules/i18n'
@@ -25,7 +24,6 @@ import usePositionStore from '@/store/modules/position'
 import createLayerFeature from '@/store/modules/search/utils/createLayerFeature'
 import zoomToSearchResult from '@/store/modules/search/utils/zoomToSearchResult'
 import useUIStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 import { parseGpx } from '@/utils/gpxUtils'
 import { parseKml } from '@/utils/kmlUtils'
 
@@ -41,7 +39,7 @@ export default function selectResultEntry(
     const featuresStore = useFeaturesStore()
     const uiStore = useUIStore()
 
-    if (entry.resultType === SearchResultTypes.LAYER) {
+    if (entry.resultType === 'LAYER') {
         const layerEntry = entry as LayerSearchResult
         if (
             layerStore.getActiveLayersById(layerEntry.layerId, { isExternal: false }).length === 0
@@ -76,14 +74,14 @@ export default function selectResultEntry(
                     ],
                 })
             })
-    } else if (entry.resultType === SearchResultTypes.LOCATION) {
+    } else if (entry.resultType === 'LOCATION') {
         const locationEntry = entry as LocationSearchResult
         zoomToSearchResult(locationEntry, dispatcher)
         if (locationEntry.coordinate) {
             mapStore.setPinnedLocation(locationEntry.coordinate, dispatcher)
         }
         this.setSearchQuery(locationEntry.sanitizedTitle.trim(), dispatcher)
-    } else if (entry.resultType === SearchResultTypes.FEATURE) {
+    } else if (entry.resultType === 'FEATURE') {
         const featureEntry = entry as LayerFeatureSearchResult
         zoomToSearchResult(featureEntry, dispatcher)
 
@@ -105,7 +103,7 @@ export default function selectResultEntry(
                 .then((feature: LayerFeature) => {
                     featuresStore.setSelectedFeatures([feature], dispatcher)
 
-                    uiStore.setFeatureInfoPosition(FeatureInfoPositions.ToolTip, dispatcher)
+                    uiStore.setFeatureInfoPosition('tooltip', dispatcher)
                 })
                 .catch((error) => {
                     log.error({
@@ -118,7 +116,7 @@ export default function selectResultEntry(
             // For imported KML and GPX files
             let features: Feature[] = []
 
-            if (featureEntry.layer.type === LayerType.KML) {
+            if (featureEntry.layer.type === 'KML') {
                 const kmlLayer: KMLLayer = featureEntry.layer as KMLLayer
 
                 features = parseKml(
@@ -127,7 +125,7 @@ export default function selectResultEntry(
                     [],
                     positionStore.resolution
                 )
-            } else if (featureEntry.layer.type === LayerType.GPX) {
+            } else if (featureEntry.layer.type === 'GPX') {
                 const gpxLayer = featureEntry.layer as GPXLayer
 
                 if (gpxLayer.gpxData) {
@@ -148,7 +146,7 @@ export default function selectResultEntry(
             if (layerFeatures) {
                 featuresStore.setSelectedFeatures(layerFeatures, dispatcher)
 
-                uiStore.setFeatureInfoPosition(FeatureInfoPositions.ToolTip, dispatcher)
+                uiStore.setFeatureInfoPosition('tooltip', dispatcher)
             }
         }
     }

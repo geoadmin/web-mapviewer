@@ -1,11 +1,11 @@
 import { constants, registerProj4, type SingleCoordinate, WGS84 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
-
 import {
     checkPosition,
     getGeolocationButtonAndClickIt,
-    testErrorMessage,
-} from '@/../tests/cypress/tests-e2e/utils'
+    testGeolocationErrorMessage,
+} from 'support/geolocation'
+
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useGeolocationStore from '@/store/modules/geolocation'
 import usePositionStore from '@/store/modules/position'
@@ -158,7 +158,7 @@ describe('Geolocation cypress', () => {
                     geolocationMockupOptions: { latitude: 0, longitude: 0 },
                 })
                 getGeolocationButtonAndClickIt()
-                testErrorMessage('geoloc_out_of_bounds')
+                testGeolocationErrorMessage('geoloc_out_of_bounds')
 
                 // Java island
                 cy.goToMapView({
@@ -166,7 +166,7 @@ describe('Geolocation cypress', () => {
                     geolocationMockupOptions: { latitude: -7.71, longitude: 110.37 },
                 })
                 getGeolocationButtonAndClickIt()
-                testErrorMessage('geoloc_out_of_bounds')
+                testGeolocationErrorMessage('geoloc_out_of_bounds')
             })
         }
     )
@@ -184,7 +184,7 @@ describe('Geolocation cypress', () => {
                     },
                 })
                 getGeolocationButtonAndClickIt()
-                testErrorMessage('geoloc_permission_denied')
+                testGeolocationErrorMessage('geoloc_permission_denied')
             })
 
             it(`shows an alert telling the user geolocation is not able to be retrieved due to time out ${description}`, () => {
@@ -198,7 +198,7 @@ describe('Geolocation cypress', () => {
                     },
                 })
                 getGeolocationButtonAndClickIt()
-                testErrorMessage('geoloc_time_out')
+                testGeolocationErrorMessage('geoloc_time_out')
             })
             it(`shows an alert telling the user geolocation is not available for other reason ${description}`, () => {
                 cy.goToMapView({
@@ -211,7 +211,7 @@ describe('Geolocation cypress', () => {
                     },
                 })
                 getGeolocationButtonAndClickIt()
-                testErrorMessage('geoloc_unknown')
+                testGeolocationErrorMessage('geoloc_unknown')
             })
         })
     })

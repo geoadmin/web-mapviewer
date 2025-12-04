@@ -1,14 +1,12 @@
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 
-import type { PositionStore } from '@/store/modules/position/types/position'
+import type { CrossHair, PositionStore } from '@/store/modules/position/types'
 import type { ActionDispatcher } from '@/store/types'
-
-import { CrossHairs } from '@/store/modules/position/types/crossHairs.enum'
 
 export default function setCrossHair(
     this: PositionStore,
     payload: {
-        crossHair?: CrossHairs
+        crossHair?: CrossHair
         crossHairPosition?: SingleCoordinate
     },
     dispatcher: ActionDispatcher
@@ -17,7 +15,7 @@ export default function setCrossHair(
     if (!crossHair) {
         this.crossHair = undefined
         this.crossHairPosition = undefined
-    } else if (crossHair in CrossHairs) {
+    } else {
         this.crossHair = crossHair
         // if a position is defined as param we use it
         // if no position was given, we use the current center of the map as crosshair position

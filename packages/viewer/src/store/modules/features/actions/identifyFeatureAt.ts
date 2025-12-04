@@ -4,11 +4,10 @@ import type { Layer } from '@swissgeo/layers'
 import { extentUtils } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { SelectableFeature } from '@/api/features.api'
-import type { FeaturesStore } from '@/store/modules/features/types/features'
+import type { SelectableFeature } from '@/api/features/types'
+import type { FeaturesStore } from '@/store/modules/features/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { IdentifyMode } from '@/store/modules/features/types/IdentifyMode.enum'
 import getFeatureCountForCoordinate from '@/store/modules/features/utils/getFeatureCountForCoordinate'
 import identifyOnAllLayers from '@/store/modules/features/utils/identifyOnAllLayers'
 import useI18nStore from '@/store/modules/i18n'
@@ -24,15 +23,16 @@ import useUIStore from '@/store/modules/ui'
  *   to the selected features after identification has been run on the backend.
  * @param coordinate A point ([x,y]), or a rectangle described by a flat extent ([minX, maxX, minY,
  *   maxY]). 10 features will be requested for a point, 50 for a rectangle.
- * @param identifyMode The mode in which the identify should be run.
+ * @param newIdentification The mode in which the identify action should be run. If `false` is
+ *   given, it will toggle features instead of replacing them.
  * @param dispatcher
  */
 export default async function identifyFeatureAt(
     this: FeaturesStore,
     layers: Layer[],
     coordinate: SingleCoordinate | FlatExtent,
-    vectorFeatures: SelectableFeature<false>[],
-    identifyMode: IdentifyMode,
+    vectorFeatures: SelectableFeature[],
+    newIdentification: boolean,
     dispatcher: ActionDispatcher
 ): Promise<void>
 
@@ -51,7 +51,7 @@ export default async function identifyFeatureAt(
     this: FeaturesStore,
     layers: Layer[],
     coordinate: SingleCoordinate | FlatExtent,
-    vectorFeatures: SelectableFeature<false>[],
+    vectorFeatures: SelectableFeature[],
     dispatcher: ActionDispatcher
 ): Promise<void>
 
@@ -59,14 +59,12 @@ export default async function identifyFeatureAt(
     this: FeaturesStore,
     layers: Layer[],
     coordinate: SingleCoordinate | FlatExtent,
-    vectorFeatures: SelectableFeature<false>[],
-    identifyModeOrDispatcher: IdentifyMode | ActionDispatcher,
+    vectorFeatures: SelectableFeature[],
+    identifyModeOrDispatcher: boolean | ActionDispatcher,
     dispatcherOrNothing?: ActionDispatcher
 ): Promise<void> {
     const dispatcher = dispatcherOrNothing ?? (identifyModeOrDispatcher as ActionDispatcher)
-    const identifyMode = dispatcherOrNothing
-        ? (identifyModeOrDispatcher as IdentifyMode)
-        : IdentifyMode.New
+    const isNewIdentification: boolean = dispatcherOrNothing ? !!identifyModeOrDispatcher : true
 
     const featureCount = getFeatureCountForCoordinate(coordinate)
 
@@ -88,9 +86,9 @@ export default async function identifyFeatureAt(
         })
         const features = [...vectorFeatures, ...backendFeatures]
         if (features.length > 0) {
-            if (identifyMode === IdentifyMode.New) {
+            if (isNewIdentification) {
                 this.setSelectedFeatures(features, { paginationSize: featureCount }, dispatcher)
-            } else if (identifyMode === IdentifyMode.Toggle) {
+            } else {
                 // Toggle features: remove if already selected, add if not
                 const oldFeatures = this.selectedLayerFeatures
                 const newFeatures = features

@@ -1,10 +1,11 @@
 import type { Interception } from 'cypress/types/net-stubbing'
 
+import { assertDefined, isMobile } from 'support/utils'
+
 import { APP_VERSION } from '@/config/staging.config'
 import useLayersStore from '@/store/modules/layers'
 
-import { assertDefined, isMobile } from '../support/utils'
-import { interceptFeedback, parseFormData } from './feedbackTestUtils'
+import { interceptFeedback, parseFormData } from '../support/feedback'
 
 const text =
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'

@@ -2,13 +2,14 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import type { FeatureStyleColor } from '@/utils/featureStyle/types'
+
 import {
     allStylingColors,
-    type FeatureStyleColor,
     generateFontString,
     generateTextShadow,
     MEDIUM,
-} from '@/utils/featureStyleUtils'
+} from '@/utils/featureStyle'
 
 const { currentColor } = defineProps<{
     currentColor?: FeatureStyleColor

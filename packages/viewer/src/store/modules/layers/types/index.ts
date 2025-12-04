@@ -1,7 +1,7 @@
 import type { GeoAdminLayer, KMLLayer, Layer } from '@swissgeo/layers'
 import type { Interval } from 'luxon'
 
-import type { ClickInfo } from '@/store/modules/map/types/map'
+import type { ClickInfo } from '@/store/modules/map/types'
 
 export interface LayerActionFilter {
     /** Base URL of the layer(s) to retrieve. If undefined, accepts all */

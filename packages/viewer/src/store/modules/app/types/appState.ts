@@ -1,11 +1,10 @@
-export enum AppStateNames {
-    Initializing = 'INITIALIZING',
-    ConfigLoaded = 'CONFIG_LOADED',
-    LegacyParsing = 'LEGACY_PARSING',
-    UrlParsing = 'URL_PARSING',
-    Ready = 'READY',
-    MapShown = 'MAP_SHOWN',
-}
+export type AppStateNames =
+    | 'INITIALIZING'
+    | 'CONFIG_LOADED'
+    | 'LEGACY_PARSING'
+    | 'URL_PARSING'
+    | 'READY'
+    | 'MAP_SHOWN'
 
 export interface AppState {
     name: AppStateNames

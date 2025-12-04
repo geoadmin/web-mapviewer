@@ -1,7 +1,7 @@
 import type { Layer } from '@swissgeo/layers'
 
 import type { LayerTooltipConfig } from '@/config/cesium.config'
-import type { CesiumStore } from '@/store/modules/cesium/types/cesium'
+import type { CesiumStore } from '@/store/modules/cesium/types'
 
 export default function layersWithTooltips(this: CesiumStore): Layer[] {
     return this.backgroundLayersFor3D.filter((bgLayer) =>

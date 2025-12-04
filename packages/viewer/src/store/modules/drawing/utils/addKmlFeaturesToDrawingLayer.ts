@@ -6,7 +6,6 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useDrawingStore from '@/store/modules/drawing'
-import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
 import usePositionStore from '@/store/modules/position'
 import { parseKml } from '@/utils/kmlUtils'
 
@@ -62,7 +61,7 @@ export default function addKmlFeaturesToDrawingLayer(
                 .filter((editableFeature) => !!editableFeature),
             dispatcher
         )
-        drawingStore.setDrawingSaveState(DrawingSaveState.Loaded, dispatcher)
+        drawingStore.setDrawingSaveState('LOADED', dispatcher)
     } catch (error) {
         if (!kmlLayer.isLocalFile) {
             log.error({
@@ -78,7 +77,7 @@ export default function addKmlFeaturesToDrawingLayer(
             })
         }
 
-        drawingStore.setDrawingSaveState(DrawingSaveState.LoadError, dispatcher)
+        drawingStore.setDrawingSaveState('LOAD_ERROR', dispatcher)
         if (!IS_TESTING_WITH_CYPRESS && retryOnError) {
             addKmlLayerTimeout = setTimeout(() => {
                 addKmlFeaturesToDrawingLayer(kmlLayer, { retryOnError: false })

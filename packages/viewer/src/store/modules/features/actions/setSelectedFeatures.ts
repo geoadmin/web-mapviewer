@@ -1,5 +1,5 @@
-import type { EditableFeature, LayerFeature, SelectableFeature } from '@/api/features.api'
-import type { FeaturesForLayer, FeaturesStore } from '@/store/modules/features/types/features'
+import type { EditableFeature, LayerFeature, SelectableFeature } from '@/api/features/types'
+import type { FeaturesForLayer, FeaturesStore } from '@/store/modules/features/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { sendFeatureInformationToIFrameParent } from '@/api/iframePostMessageEvent.api'
@@ -16,12 +16,12 @@ interface SetSelectedFeaturesOptions {
 
 export default function setSelectedFeatures(
     this: FeaturesStore,
-    features: SelectableFeature<boolean>[],
+    features: SelectableFeature[],
     dispatcher: ActionDispatcher
 ): void
 export default function setSelectedFeatures(
     this: FeaturesStore,
-    features: SelectableFeature<boolean>[],
+    features: SelectableFeature[],
     options: SetSelectedFeaturesOptions,
     dispatcher: ActionDispatcher
 ): void
@@ -33,7 +33,7 @@ export default function setSelectedFeatures(
  */
 export default function setSelectedFeatures(
     this: FeaturesStore,
-    features: SelectableFeature<boolean>[],
+    features: SelectableFeature[],
     optionsOrDispatcher: SetSelectedFeaturesOptions | ActionDispatcher,
     dispatcherOrNothing?: ActionDispatcher
 ) {

@@ -26,7 +26,7 @@ import {
 import proj4 from 'proj4'
 import { reproject } from 'reproject'
 
-import type { LayerFeature } from '@/api/features.api'
+import type { LayerFeature } from '@/api/features/types'
 
 import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 

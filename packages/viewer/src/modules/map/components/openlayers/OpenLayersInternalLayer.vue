@@ -4,22 +4,22 @@
  * correct OpenLayers counterpart depending on the layer type.
  */
 
-import { WEBMERCATOR } from '@swissgeo/coordinates'
-import {
-    type CloudOptimizedGeoTIFFLayer,
-    type ExternalWMSLayer,
-    type ExternalWMTSLayer,
-    type GeoAdminAggregateLayer,
-    type GeoAdminGeoJSONLayer,
-    type GeoAdminGroupOfLayers,
-    type GeoAdminVectorLayer,
-    type GeoAdminWMSLayer,
-    type GeoAdminWMTSLayer,
-    type GPXLayer,
-    type KMLLayer,
-    type Layer,
-    LayerType,
+import type {
+    CloudOptimizedGeoTIFFLayer,
+    ExternalWMSLayer,
+    ExternalWMTSLayer,
+    GeoAdminAggregateLayer,
+    GeoAdminGeoJSONLayer,
+    GeoAdminGroupOfLayers,
+    GeoAdminVectorLayer,
+    GeoAdminWMSLayer,
+    GeoAdminWMTSLayer,
+    GPXLayer,
+    KMLLayer,
+    Layer,
 } from '@swissgeo/layers'
+
+import { WEBMERCATOR } from '@swissgeo/coordinates'
 import { computed } from 'vue'
 
 import OpenLayersCOGTiffLayer from '@/modules/map/components/openlayers/OpenLayersCOGTiffLayer.vue'
@@ -57,19 +57,19 @@ const projection = computed(() => positionStore.projection)
             (see OpenLayersMap main component)
         -->
         <OpenLayersVectorLayer
-            v-if="projection.epsg === WEBMERCATOR.epsg && layerConfig?.type === LayerType.VECTOR"
+            v-if="projection.epsg === WEBMERCATOR.epsg && layerConfig?.type === 'VECTOR'"
             :vector-layer-config="layerConfig as GeoAdminVectorLayer"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
         <OpenLayersWMTSLayer
-            v-if="layerConfig?.type === LayerType.WMTS && !layerConfig?.isExternal"
+            v-if="layerConfig?.type === 'WMTS' && !layerConfig?.isExternal"
             :wmts-layer-config="layerConfig as GeoAdminWMTSLayer"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
         <OpenLayersExternalWMTSLayer
-            v-if="layerConfig?.type === LayerType.WMTS && layerConfig?.isExternal"
+            v-if="layerConfig?.type === 'WMTS' && layerConfig?.isExternal"
             :external-wmts-layer-config="layerConfig as ExternalWMTSLayer"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
@@ -77,7 +77,7 @@ const projection = computed(() => positionStore.projection)
         <!-- as external and internal (geoadmin) WMS layers can be managed the same way,
              we do not have a specific component for external layers but we reuse the one for geoadmin's layers-->
         <OpenLayersWMSLayer
-            v-if="layerConfig?.type === LayerType.WMS"
+            v-if="layerConfig?.type === 'WMS'"
             :wms-layer-config="
                 layerConfig.isExternal
                     ? (layerConfig as ExternalWMSLayer)
@@ -87,12 +87,12 @@ const projection = computed(() => positionStore.projection)
             :z-index="zIndex"
         />
         <OpenLayersGeoJSONLayer
-            v-if="layerConfig?.type === LayerType.GEOJSON"
+            v-if="layerConfig?.type === 'GEOJSON'"
             :geo-json-config="layerConfig as GeoAdminGeoJSONLayer"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
-        <div v-if="layerConfig?.type === LayerType.GROUP">
+        <div v-if="layerConfig?.type === 'GROUP'">
             <OpenLayersInternalLayer
                 v-for="(layer, index) in (layerConfig as GeoAdminGroupOfLayers).layers"
                 :key="`${layer.id}-${index}`"
@@ -108,7 +108,7 @@ const projection = computed(() => positionStore.projection)
         component in another child (that would be OpenLayersAggregateLayer.vue component, that doesn't work).
         See https://vuejs.org/v2/guide/components-edge-cases.html#Recursive-Components for more info
         -->
-        <div v-if="layerConfig?.type === LayerType.AGGREGATE">
+        <div v-if="layerConfig?.type === 'AGGREGATE'">
             <!-- Aggregate layers requires a different management.
                  They are not OpenLayers layers per-se, but rather an ensemble of other layers.
                  This component will loop through all the layer contained by this aggregate layer
@@ -125,7 +125,7 @@ const projection = computed(() => positionStore.projection)
         <OpenLayersKMLLayer
             v-if="
                 layerConfig &&
-                    layerConfig.type === LayerType.KML &&
+                    layerConfig.type === 'KML' &&
                     (layerConfig as KMLLayer).kmlData &&
                     !(layerConfig as KMLLayer).isEdited
             "
@@ -134,13 +134,13 @@ const projection = computed(() => positionStore.projection)
             :z-index="zIndex"
         />
         <OpenLayersGPXLayer
-            v-if="layerConfig?.type === LayerType.GPX"
+            v-if="layerConfig?.type === 'GPX'"
             :gpx-layer-config="layerConfig as GPXLayer"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"
         />
         <OpenLayersCOGTiffLayer
-            v-if="layerConfig?.type === LayerType.COG"
+            v-if="layerConfig?.type === 'COG'"
             :geotiff-config="layerConfig as CloudOptimizedGeoTIFFLayer"
             :parent-layer-opacity="parentLayerOpacity"
             :z-index="zIndex"

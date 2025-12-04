@@ -2,16 +2,16 @@ import log from '@swissgeo/log'
 import { servicesBaseUrl, type Staging } from '@swissgeo/staging-config'
 import axios from 'axios'
 
-import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config'
-import {
-    type AggregateSubLayer,
-    type GeoAdminLayer,
-    type GeoAdminWMSLayer,
-    type GeoAdminWMTSLayer,
-    type LayerAttribution,
-    type LayerTimeConfigEntry,
-    LayerType,
+import type {
+    AggregateSubLayer,
+    GeoAdminLayer,
+    GeoAdminWMSLayer,
+    GeoAdminWMTSLayer,
+    LayerAttribution,
+    LayerTimeConfigEntry,
 } from '@/index'
+
+import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config'
 import { layerUtils, timeConfigUtils } from '@/utils'
 
 export interface LayerConfigResponse {
@@ -147,7 +147,7 @@ export function generateLayerObject(
             break
         case 'wmts': {
             return layerUtils.makeGeoAdminWMTSLayer({
-                type: LayerType.WMTS,
+                type: 'WMTS',
                 name,
                 id,
                 baseUrl: _urlWithTrailingSlash(servicesBaseUrl.wmts[staging]),
@@ -170,7 +170,7 @@ export function generateLayerObject(
         }
         case 'wms': {
             return layerUtils.makeGeoAdminWMSLayer({
-                type: LayerType.WMS,
+                type: 'WMS',
                 name,
                 id: id,
                 idIn3d: layerConfig.config3d,
@@ -194,7 +194,7 @@ export function generateLayerObject(
         }
         case 'geojson': {
             return layerUtils.makeGeoAdminGeoJSONLayer({
-                type: LayerType.GEOJSON,
+                type: 'GEOJSON',
                 name,
                 id,
                 opacity,
@@ -249,7 +249,7 @@ export function generateLayerObject(
                 )
                 if (
                     subLayer &&
-                    (subLayer.type === LayerType.WMS || subLayer.type === LayerType.WMTS)
+                    ['WMS', 'WMTS'].includes(subLayer.type)
                 ) {
                     subLayers.push(
                         layerUtils.makeAggregateSubLayer({
@@ -272,7 +272,7 @@ export function generateLayerObject(
                 hasTooltip,
                 topics,
                 subLayers,
-                hasLegend: !!hasLegend,
+                hasLegend,
                 searchable,
             })
         }
@@ -285,10 +285,10 @@ export function generateLayerObject(
 /**
  * Loads the legend (HTML content) for this layer ID
  *
- * @param {String} lang The language in which the legend should be rendered
- * @param {String} layerId The unique layer ID used in our backends
- * @param {Staging} staging
- * @returns {Promise<String>} HTML content of the layer's legend
+ * @param lang The language in which the legend should be rendered
+ * @param layerId The unique layer ID used in our backends
+ * @param staging
+ * @returns HTML content of the layer's legend
  */
 export function getGeoadminLayerDescription(
     lang: string,
@@ -311,8 +311,8 @@ export function getGeoadminLayerDescription(
 /**
  * Loads the layer config from the backend and transforms it in classes defined in this API file
  *
- * @param {String} lang The ISO code for the lang in which the config should be loaded (required)
- * @param {Staging} staging
+ * @param lang The ISO code for the lang in which the config should be loaded (required)
+ * @param staging
  */
 export function loadGeoadminLayersConfig(
     lang: string,

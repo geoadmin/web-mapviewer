@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import type { I18nStoreGetters, I18nStoreState } from '@/store/modules/i18n/types/i18n'
+import type { I18nStoreGetters, I18nStoreState } from '@/store/modules/i18n/types'
 
 import { defaultLocal, isSupportedLang, type SupportedLang } from '@/modules/i18n'
 import setLang from '@/store/modules/i18n/actions/setLang'

@@ -3,7 +3,8 @@
 
 import { computed, onUnmounted, ref, useTemplateRef } from 'vue'
 
-import { SearchResultTypes, type SearchResult } from '@/api/search.api'
+import type { SearchResult } from '@/api/search.api'
+
 import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPopup.vue'
 import useLayersStore from '@/store/modules/layers'
 import useSearchStore from '@/store/modules/search'
@@ -39,7 +40,7 @@ const compact = computed(() => uiStore.isDesktopMode)
 const searchQuery = computed(() => searchStore.query)
 
 const layerName = computed(() => {
-    if (resultType.value === SearchResultTypes.LAYER) {
+    if (resultType.value === 'LAYER') {
         return layersStore.config.find((layer) => layer.id === entry.id)?.name
     }
     return undefined
@@ -140,7 +141,7 @@ defineExpose({
         />
 
         <div
-            v-if="resultType === SearchResultTypes.LAYER"
+            v-if="resultType === 'LAYER'"
             class="search-category-entry-controls flex-grow-0"
         >
             <button

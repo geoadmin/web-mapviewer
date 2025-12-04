@@ -4,7 +4,6 @@ import type { Interception } from 'cypress/types/net-stubbing'
 import type { Feature, FeatureCollection } from 'geojson'
 
 import { LV95 } from '@swissgeo/coordinates'
-import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import { formatThousand } from '@swissgeo/numbers'
 import { kmlMetadataTemplate } from 'support/drawing'
@@ -762,14 +761,14 @@ describe('Testing print', () => {
             assertDefined(expectedLayer)
 
             expect(layer.type).to.eq(expectedLayer.type)
-            if (expectedLayer.type === LayerType.WMS) {
+            if (expectedLayer.type === 'WMS') {
                 const wmsLayer = layer as ExternalWMSLayer
                 const expectedWmsLayer = expectedLayer as ExternalWMSLayer
 
                 expect(wmsLayer.layers).to.deep.equal(expectedWmsLayer.layers)
                 expect(wmsLayer.baseUrl).to.equals(expectedWmsLayer.baseUrl)
                 expect(wmsLayer.opacity).to.equals(expectedWmsLayer.opacity)
-            } else if (expectedLayer.type === LayerType.WMTS) {
+            } else if (expectedLayer.type === 'WMTS') {
                 const wmtsLayer = layer as ExternalWMTSLayer
                 const expectedWmtsLayer = expectedLayer as ExternalWMTSLayer
                 expect(wmtsLayer.tileMatrixSets).to.equals(expectedWmtsLayer.tileMatrixSets)

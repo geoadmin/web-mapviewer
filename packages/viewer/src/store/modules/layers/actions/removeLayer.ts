@@ -1,12 +1,7 @@
 import type { GeoAdminGeoJSONLayer, Layer } from '@swissgeo/layers'
 
-import { LayerType } from '@swissgeo/layers'
-
-import type {
-    GetLayerIdOptions,
-    GetLayerIdResult,
-} from '@/store/modules/layers/actions/identifyFeatures'
-import type { LayerActionFilter, LayersStore } from '@/store/modules/layers/types/layers'
+import type { GetLayerIdOptions, GetLayerIdResult, } from '@/store/modules/layers/actions/identifyFeatures'
+import type { LayerActionFilter, LayersStore } from '@/store/modules/layers/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import useFeaturesStore from '@/store/modules/features'
@@ -59,7 +54,7 @@ export default function removeLayer(
     }
 
     removedLayers.forEach((layer) => {
-        if (layer.type === LayerType.GEOJSON) {
+        if (layer.type === 'GEOJSON') {
             const geoJsonLayer = layer as GeoAdminGeoJSONLayer
             if (geoJsonLayer.updateDelay && geoJsonLayer.updateDelay > 0) {
                 clearAutoReload(geoJsonLayer)

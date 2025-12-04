@@ -1,7 +1,7 @@
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { isNumber } from '@swissgeo/numbers'
 
-import type { PositionStore } from '@/store/modules/position/types/position'
+import type { PositionStore } from '@/store/modules/position/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { calculateHeight } from '@/modules/map/components/cesium/utils/cameraUtils'

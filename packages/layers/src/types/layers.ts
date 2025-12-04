@@ -13,17 +13,7 @@ export type * from '@/types/geoJsonStyle'
 export const DEFAULT_OPACITY = 1.0
 export const WMS_SUPPORTED_VERSIONS = ['1.3.0']
 
-export enum LayerType {
-    WMTS = 'WMTS',
-    WMS = 'WMS',
-    GEOJSON = 'GEOJSON',
-    AGGREGATE = 'AGGREGATE',
-    KML = 'KML',
-    GPX = 'GPX',
-    VECTOR = 'VECTOR',
-    GROUP = 'GROUP',
-    COG = 'COG',
-}
+export type LayerType = 'WMTS' | 'WMS' | 'GEOJSON' | 'AGGREGATE' | 'KML' | 'GPX' | 'VECTOR' | 'GROUP' | 'COG'
 
 export interface LayerAttribution {
     name: string
@@ -156,7 +146,7 @@ export interface GeoAdminLayer extends Layer {
 
 /** Represent a WMS Layer from geo.admin.ch */
 export interface GeoAdminWMSLayer extends GeoAdminLayer {
-    readonly type: LayerType.WMS
+    readonly type: 'WMS'
     /**
      * How much of a gutter (extra pixels around the image) we want. This is specific for tiled WMS,
      * if unset this layer will be a considered a single tile WMS.
@@ -175,7 +165,7 @@ export interface GeoAdminWMSLayer extends GeoAdminLayer {
 
 /** Represent a WMTS layer from geo.admin.ch */
 export interface GeoAdminWMTSLayer extends GeoAdminLayer {
-    readonly type: LayerType.WMTS
+    readonly type: 'WMTS'
     /** Define the maximum resolution the layer can reach */
     readonly maxResolution: number
     /** In which image format the backend must be requested. */
@@ -183,7 +173,7 @@ export interface GeoAdminWMTSLayer extends GeoAdminLayer {
 }
 
 export interface GeoAdmin3DLayer extends GeoAdminLayer {
-    readonly type: LayerType.VECTOR
+    readonly type: 'VECTOR'
     /* If the JSON file stored in the /3d-tiles/ sub-folder on the S3 bucket */
     readonly use3dTileSubFolder: boolean
     /**
@@ -195,7 +185,7 @@ export interface GeoAdmin3DLayer extends GeoAdminLayer {
 }
 
 export interface GeoAdminGeoJSONLayer extends GeoAdminLayer {
-    readonly type: LayerType.GEOJSON
+    readonly type: 'GEOJSON'
     /**
      * Delay after which the data of this layer should be re-requested (if null is given, no further
      * data reload will be triggered). A good example would be layer
@@ -211,7 +201,7 @@ export interface GeoAdminGeoJSONLayer extends GeoAdminLayer {
 }
 
 export interface GeoAdminVectorLayer extends GeoAdminLayer {
-    readonly type: LayerType.VECTOR
+    readonly type: 'VECTOR'
 }
 
 // #endregion
@@ -223,7 +213,7 @@ export interface FileLayer extends Layer {
 }
 
 export interface CloudOptimizedGeoTIFFLayer extends FileLayer {
-    readonly type: LayerType.COG
+    readonly type: 'COG'
     readonly fileSource?: string
     /** Data/content of the COG file, as a string. */
     data?: string | Blob
@@ -276,13 +266,10 @@ export interface KMLMetadata {
     readonly links: KMLMetadataLinks
 }
 
-export enum KMLStyle {
-    DEFAULT = 'DEFAULT',
-    GEOADMIN = 'GEOADMIN',
-}
+export type KMLStyle = 'DEFAULT' | 'GEOADMIN'
 
 export interface KMLLayer extends FileLayer {
-    readonly type: LayerType.KML
+    readonly type: 'KML'
     /** The URL to access the KML data. */
     kmlFileUrl: string
     /**
@@ -353,7 +340,7 @@ export interface GPXMetadata {
 }
 
 export interface GPXLayer extends FileLayer {
-    readonly type: LayerType.GPX
+    readonly type: 'GPX'
     /** URL to the GPX file (can also be a local file URI) */
     readonly gpxFileUrl?: string
     /** Data/content of the GPX file, as a string. */
@@ -405,10 +392,7 @@ export interface BoundingBox {
     readonly dimensions?: number
 }
 
-export enum WMTSEncodingType {
-    KVP = 'KVP',
-    REST = 'REST',
-}
+export type WMTSEncodingType = 'KVP' | 'REST'
 
 /** Configuration describing how to request this layer's server to get feature information. */
 export interface ExternalLayerGetFeatureInfoCapability {
@@ -433,7 +417,7 @@ export interface ExternalLayer extends Layer {
 }
 
 export interface ExternalWMTSLayer extends ExternalLayer {
-    readonly type: LayerType.WMTS
+    readonly type: 'WMTS'
     /** WMTS Get Capabilities options */
     readonly options?: Partial<Options>
     /** WMTS Get Tile encoding (KVP or REST). */
@@ -450,7 +434,7 @@ export interface ExternalWMTSLayer extends ExternalLayer {
 }
 
 export interface ExternalWMSLayer extends ExternalLayer {
-    readonly type: LayerType.WMS
+    readonly type: 'WMS'
     /**
      * Description of the layers being part of this WMS layer (they will all be displayed at the
      * same time, in contrast to an aggregate layer)
@@ -480,12 +464,12 @@ export interface AggregateSubLayer {
 }
 
 export interface GeoAdminAggregateLayer extends GeoAdminLayer {
-    readonly type: LayerType.AGGREGATE
+    readonly type: 'AGGREGATE'
     readonly subLayers: AggregateSubLayer[]
 }
 
 export interface GeoAdminGroupOfLayers extends GeoAdminLayer {
-    readonly type: LayerType.GROUP
+    readonly type: 'GROUP'
     /** Description of the layers being part of this group */
     readonly layers: GeoAdminLayer[]
 }

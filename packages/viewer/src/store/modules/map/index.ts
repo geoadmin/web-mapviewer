@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import type { MapState, MapStoreGetters } from '@/store/modules/map/types/map'
+import type { MapState, MapStoreGetters } from '@/store/modules/map/types'
 
 import clearClick from '@/store/modules/map/actions/clearClick'
 import clearLocationPopupCoordinates from '@/store/modules/map/actions/clearLocationPopupCoordinates'

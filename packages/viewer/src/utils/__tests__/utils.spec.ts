@@ -5,7 +5,6 @@ import {
     formatPointCoordinates,
     getLongestCommonPrefix,
     humanFileSize,
-    isEnumValue,
     parseUrlHashQuery,
     transformUrlMapToEmbed,
 } from '@/utils/utils'
@@ -148,32 +147,6 @@ describe('utils', () => {
             // Multiple URLs with one URL is the common prefix
             urls = ['https://example.com/path', 'https://example.com/path/to']
             expect(getLongestCommonPrefix(urls)).to.equal('https://example.com/path')
-        })
-    })
-
-    describe('isEnumValue', () => {
-        enum TestEnum {
-            // eslint-disable-next-line no-unused-vars
-            Value1 = 'value1',
-            // eslint-disable-next-line no-unused-vars
-            Value2 = 'value2',
-            // eslint-disable-next-line no-unused-vars
-            Value3 = 'something-else',
-        }
-        it('returns false if the value if a specific enum value is matched', () => {
-            expect(isEnumValue<TestEnum>(TestEnum.Value1, 'value1')).to.be.true
-            expect(isEnumValue<TestEnum>(TestEnum.Value2, 'value2')).to.be.true
-            expect(isEnumValue<TestEnum>(TestEnum.Value3, 'something-else')).to.be.true
-        })
-        it('returns false if there is a mismatch between the specific enum value and the candidate (even if it belongs to the enum)', () => {
-            expect(isEnumValue<TestEnum>(TestEnum.Value2, 'value1')).to.be.false
-            expect(isEnumValue<TestEnum>(TestEnum.Value3, 'value1')).to.be.false
-
-            expect(isEnumValue<TestEnum>(TestEnum.Value1, 'value2')).to.be.false
-            expect(isEnumValue<TestEnum>(TestEnum.Value3, 'value2')).to.be.false
-
-            expect(isEnumValue<TestEnum>(TestEnum.Value1, 'something-else')).to.be.false
-            expect(isEnumValue<TestEnum>(TestEnum.Value2, 'something-else')).to.be.false
         })
     })
 })

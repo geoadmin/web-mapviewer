@@ -7,7 +7,6 @@ import {
     type GeoAdminLayer,
     type GeoAdminWMSLayer,
     type GeoAdminWMTSLayer,
-    LayerType,
     YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
 } from '@/types'
 
@@ -251,7 +250,7 @@ describe('Test layer config parsing', () => {
             const layer = parseLayer(layerId)
 
             expect(layer).to.not.be.undefined
-            expect(layer!.type).to.eq(LayerType.GEOJSON)
+            expect(layer!.type).to.eq('GEOJSON')
             const geoJsonLayer = layer as GeoAdminGeoJSONLayer
 
             expect(geoJsonLayer.geoJsonUrl).to.eq(

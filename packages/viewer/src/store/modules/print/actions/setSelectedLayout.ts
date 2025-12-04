@@ -1,5 +1,5 @@
 import type { PrintLayout } from '@/api/print.api'
-import type { PrintStore } from '@/store/modules/print/types/print'
+import type { PrintStore } from '@/store/modules/print/types'
 import type { ActionDispatcher } from '@/store/types'
 
 export default function setSelectedLayout(

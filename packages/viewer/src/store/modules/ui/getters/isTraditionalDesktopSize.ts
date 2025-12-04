@@ -1,4 +1,4 @@
-import type { UIStore } from '@/store/modules/ui/types/ui'
+import type { UIStore } from '@/store/modules/ui/types'
 
 import { BREAKPOINT_TABLET } from '@/config/responsive.config'
 

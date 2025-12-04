@@ -1,4 +1,4 @@
-import type { EditableFeature, LayerFeature } from '@/api/features.api'
+import type { EditableFeature, LayerFeature, StoreFeature } from '@/api/features/types'
 
 export interface FeaturesForLayer {
     layerId: string
@@ -13,12 +13,12 @@ export interface FeaturesForLayer {
 export interface FeaturesStoreState {
     selectedFeaturesByLayerId: FeaturesForLayer[]
     selectedEditableFeatures: EditableFeature[]
-    highlightedFeatureId: string | undefined
+    highlightedFeatureId?: string
 }
 
 export interface FeaturesStoreGetters {
     selectedLayerFeatures(): LayerFeature[]
-    selectedFeatures(): (EditableFeature | LayerFeature)[]
+    selectedFeatures(): StoreFeature[]
 }
 
 export type FeaturesStore = ReturnType<typeof import('@/store/modules/features').default>

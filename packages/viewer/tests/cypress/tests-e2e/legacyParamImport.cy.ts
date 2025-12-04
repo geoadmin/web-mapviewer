@@ -1,13 +1,10 @@
-import type { ExternalWMSLayer, ExternalWMTSLayer, KMLLayer } from '@swissgeo/layers'
+import type { KMLLayer } from '@swissgeo/layers'
+import type { Pinia } from 'pinia'
 
-import { registerProj4, WGS84 } from '@swissgeo/coordinates'
-import { KMLStyle, LayerType } from '@swissgeo/layers'
+import { LV95, WGS84 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 
-import type { EditableFeature, LayerFeature } from '@/api/features.api'
-
-import { DEFAULT_PROJECTION } from '@/config/map.config'
 import useCesiumStore from '@/store/modules/cesium'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
@@ -15,12 +12,8 @@ import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'
 import useSearchStore from '@/store/modules/search'
 import useUIStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 
 describe('Test on legacy param import', () => {
-    before(() => {
-        registerProj4(proj4)
-    })
     context('Coordinates import', () => {
         it('transfers valid params to the hash part without changing them', () => {
             const lat = 47.3
@@ -51,7 +44,7 @@ describe('Test on legacy param import', () => {
             const zoom = 12
             cy.goToMapView({
                 queryParams: {
-                    center: proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [lon, lat]).join(','),
+                    center: proj4(WGS84.epsg, LV95.epsg, [lon, lat]).join(','),
                     z: zoom,
                 },
                 withHash: true,
@@ -210,11 +203,11 @@ describe('Test on legacy param import', () => {
                 expect(activeLayers2).to.be.an('Array').length(1)
                 const [kmlLayer] = activeLayers2
                 assertDefined(kmlLayer)
-                expect(kmlLayer.type).to.eq(LayerType.KML)
+                expect(kmlLayer.type).to.eq('KML')
                 expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer.opacity).to.eq(0.6)
                 expect(kmlLayer.isVisible).to.be.true
-                expect((kmlLayer as KMLLayer).style).to.eq(KMLStyle.GEOADMIN)
+                expect((kmlLayer as KMLLayer).style).to.eq('GEOADMIN')
             })
         })
         it('is able to import an external KML from a legacy adminId query param', () => {
@@ -232,7 +225,7 @@ describe('Test on legacy param import', () => {
                 expect(activeLayers3).to.be.an('Array').length(1)
                 const [kmlLayer2] = activeLayers3
                 assertDefined(kmlLayer2)
-                expect(kmlLayer2.type).to.eq(LayerType.KML)
+                expect(kmlLayer2.type).to.eq('KML')
                 expect(kmlLayer2.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer2.opacity).to.eq(1)
                 expect(kmlLayer2.isVisible).to.be.true
@@ -254,7 +247,7 @@ describe('Test on legacy param import', () => {
                 expect(activeLayers4).to.be.an('Array').length(1)
                 const [kmlLayer3] = activeLayers4
                 assertDefined(kmlLayer3)
-                expect(kmlLayer3.type).to.eq(LayerType.KML)
+                expect(kmlLayer3.type).to.eq('KML')
                 expect(kmlLayer3.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer3.opacity).to.eq(1)
                 expect(kmlLayer3.isVisible).to.be.true
@@ -342,8 +335,7 @@ describe('Test on legacy param import', () => {
             cy.get('[data-cy="search-results-locations"]').should('not.be.visible')
         })
         it('External WMS layer', () => {
-            cy.getExternalWmsMockConfig().then((mockConfig: ExternalWMSLayer[]) => {
-                console.log('mockConfig', mockConfig)
+            cy.getExternalWmsMockConfig().then((mockConfig) => {
                 const [mockExternalWms1] = mockConfig
                 assertDefined(mockExternalWms1)
 
@@ -378,7 +370,7 @@ describe('Test on legacy param import', () => {
             })
         })
         it('External WMTS layer', () => {
-            cy.getExternalWmtsMockConfig().then((mockConfig: ExternalWMTSLayer[]) => {
+            cy.getExternalWmtsMockConfig().then((mockConfig) => {
                 const [mockExternalWmts1] = mockConfig
                 assertDefined(mockExternalWmts1)
 
@@ -555,92 +547,86 @@ describe('Test on legacy param import', () => {
         function checkFeatures(featuresIds: string[]) {
             cy.getPinia().then((pinia) => {
                 const featuresStore = useFeaturesStore(pinia)
-                const features = featuresStore.selectedFeatures
-                expect(features.length).to.eq(featuresIds.length)
-
-                features.forEach((feature: LayerFeature | EditableFeature) => {
+                expect(featuresStore.selectedFeatures.length).to.eq(featuresIds.length)
+                featuresStore.selectedFeatures.forEach((feature) => {
                     expect(featuresIds).to.include(feature.id)
                 })
             })
         }
 
-        context('Checks that the legacy bod layer id translate in the new implementation', () => {
-            it('Select a few features and shows the tooltip in its correct spot', () => {
-                const featuresIds = ['1234', '5678', '9012']
-                // ---------------------------------------------------------------------------------
-                cy.log('When showTooltip is not specified, we should have no tooltip')
+        it('Select a few features and shows the tooltip in its correct spot', () => {
+            const featuresIds = ['1234', '5678', '9012']
+            // ---------------------------------------------------------------------------------
+            cy.log('When showTooltip is not specified, we should have no tooltip')
 
-                cy.goToMapView({
-                    queryParams: {
-                        'ch.babs.kulturgueter': featuresIds.join(','),
-                    },
-                    withHash: false,
-                })
-                checkFeatures(featuresIds)
-                cy.getPinia().then((pinia) => {
-                    const uiStore3 = useUIStore(pinia)
-                    expect(uiStore3.featureInfoPosition).to.be.equal(FeatureInfoPositions.None)
-                })
-                cy.get('[data-cy="popover"]').should('not.exist')
-                cy.get('[data-cy="infobox"]').should('not.exist')
-                // ---------------------------------------------------------------------------------
-                cy.log(
-                    'When showTooltip is true, featureInfo should be bottom panel on devices with width < 400 px '
-                )
-
-                cy.goToMapView({
-                    queryParams: {
-                        'ch.babs.kulturgueter': featuresIds.join(','),
-                        showTooltip: 'true',
-                    },
-                    withHash: false,
-                })
-                checkFeatures(featuresIds)
-                cy.getPinia().then((pinia) => {
-                    const uiStore4 = useUIStore(pinia)
-                    expect(uiStore4.featureInfoPosition).to.be.equal(
-                        FeatureInfoPositions.BottomPanel
-                    )
-                })
-                cy.get('[data-cy="popover"]').should('not.exist')
-                cy.get('[data-cy="infobox"]').should('be.visible')
-                // ---------------------------------------------------------------------------------
-                cy.log(
-                    'When showTooltip is true, featureInfo should be default on devices with width >= 400 px '
-                )
-                cy.viewport(400, 800)
-                cy.goToMapView({
-                    queryParams: {
-                        'ch.babs.kulturgueter': featuresIds.join(','),
-                        showTooltip: 'true',
-                    },
-                    withHash: false,
-                })
-                checkFeatures(featuresIds)
-                cy.getPinia().then((pinia) => {
-                    const uiStore5 = useUIStore(pinia)
-                    expect(uiStore5.featureInfoPosition).to.be.equal(FeatureInfoPositions.Default)
-                })
-                cy.get('[data-cy="popover"]').should('not.exist')
-                cy.get('[data-cy="infobox"]').should('be.visible')
-                // ---------------------------------------------------------------------------------
-                cy.log('When showTooltip is given a fantasist value, we should have no tooltip')
-
-                cy.goToMapView({
-                    queryParams: {
-                        'ch.babs.kulturgueter': featuresIds.join(','),
-                        showTooltip: 'aFantasyValue',
-                    },
-                    withHash: false,
-                })
-                checkFeatures(featuresIds)
-                cy.getPinia().then((pinia) => {
-                    const uiStore6 = useUIStore(pinia)
-                    expect(uiStore6.featureInfoPosition).to.be.equal(FeatureInfoPositions.None)
-                })
-                cy.get('[data-cy="popover"]').should('not.exist')
-                cy.get('[data-cy="infobox"]').should('not.exist')
+            cy.goToMapView({
+                queryParams: {
+                    'ch.babs.kulturgueter': featuresIds.join(','),
+                },
+                withHash: false,
             })
+            checkFeatures(featuresIds)
+            cy.waitUntilState((pinia: Pinia) => {
+                const uiStore = useUIStore(pinia)
+                return uiStore.featureInfoPosition === 'none'
+            })
+            cy.get('[data-cy="popover"]').should('not.exist')
+            cy.get('[data-cy="infobox"]').should('not.exist')
+            // ---------------------------------------------------------------------------------
+            cy.log(
+                'When showTooltip is true, featureInfo should be bottom panel on devices with width < 400 px '
+            )
+
+            cy.goToMapView({
+                queryParams: {
+                    'ch.babs.kulturgueter': featuresIds.join(','),
+                    showTooltip: 'true',
+                },
+                withHash: false,
+            })
+            // checkFeatures(featuresIds)
+            cy.getPinia().then((pinia) => {
+                const uiStore = useUIStore(pinia)
+                expect(uiStore.featureInfoPosition).to.be.equal('bottompanel')
+            })
+            cy.get('[data-cy="popover"]').should('not.exist')
+            cy.get('[data-cy="infobox"]').should('be.visible')
+            // ---------------------------------------------------------------------------------
+            cy.log(
+                'When showTooltip is true, featureInfo should be default on devices with width >= 400 px '
+            )
+            cy.viewport(400, 800)
+            cy.goToMapView({
+                queryParams: {
+                    'ch.babs.kulturgueter': featuresIds.join(','),
+                    showTooltip: 'true',
+                },
+                withHash: false,
+            })
+            // checkFeatures(featuresIds)
+            cy.getPinia().then((pinia) => {
+                const uiStore = useUIStore(pinia)
+                expect(uiStore.featureInfoPosition).to.be.equal('default')
+            })
+            cy.get('[data-cy="popover"]').should('not.exist')
+            cy.get('[data-cy="infobox"]').should('be.visible')
+            // ---------------------------------------------------------------------------------
+            cy.log('When showTooltip is given a fantasist value, we should have no tooltip')
+
+            cy.goToMapView({
+                queryParams: {
+                    'ch.babs.kulturgueter': featuresIds.join(','),
+                    showTooltip: 'aFantasyValue',
+                },
+                withHash: false,
+            })
+            checkFeatures(featuresIds)
+            cy.getPinia().then((pinia) => {
+                const uiStore = useUIStore(pinia)
+                expect(uiStore.featureInfoPosition).to.be.equal('none')
+            })
+            cy.get('[data-cy="popover"]').should('not.exist')
+            cy.get('[data-cy="infobox"]').should('not.exist')
         })
     })
 

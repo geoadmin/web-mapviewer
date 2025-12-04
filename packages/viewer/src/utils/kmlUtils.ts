@@ -5,7 +5,6 @@ import type { Type as GeometryType } from 'ol/geom/Geometry'
 import type { Size } from 'ol/size'
 
 import { WGS84 } from '@swissgeo/coordinates'
-import { KMLStyle } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { kml as kmlToGeoJSON } from '@tmcw/togeojson'
 import { booleanValid } from '@turf/turf'
@@ -22,19 +21,19 @@ import KML, { getDefaultStyle } from 'ol/format/KML'
 import IconStyle from 'ol/style/Icon'
 import Style from 'ol/style/Style'
 
-import type { EditableFeature } from '@/api/features.api'
+import type { EditableFeature, EditableFeatureTypes } from '@/api/features/types'
+import type { DrawingIcon, DrawingIconSet } from '@/api/icons/types'
+import type { FeatureStyleColor, FeatureStyleSize, TextPlacement } from '@/utils/featureStyle/types'
 
-import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@/api/features.api'
+import { extractOlFeatureCoordinates } from '@/api/features'
 import { proxifyUrl } from '@/api/file-proxy.api'
-import { type DrawingIcon, type DrawingIconSet, generateIconURL } from '@/api/icon.api'
-import { DEFAULT_TITLE_OFFSET } from '@/config/icons.config'
+import { generateIconURL } from '@/api/icons'
+import { DEFAULT_TITLE_OFFSET } from '@/api/icons/config'
 import { LOCAL_OR_INTERNAL_URL_REGEX } from '@/config/regex.config'
 import {
     allStylingSizes,
     calculateTextOffsetFromPlacement,
     calculateTextXYOffset,
-    type FeatureStyleColor,
-    type FeatureStyleSize,
     geoadminStyleFunction,
     getFeatureStyleColor,
     getStyle,
@@ -43,11 +42,11 @@ import {
     MEDIUM,
     RED,
     SMALL,
-    TextPlacement,
-} from '@/utils/featureStyleUtils'
-import { isAnyEnumValue, parseRGBColor } from '@/utils/utils'
+} from '@/utils/featureStyle'
+import { parseRGBColor } from '@/utils/utils'
 
 export const EMPTY_KML_DATA: string = '<kml></kml>'
+const allEditableFeatureTypes: string[] = ['MARKER', 'ANNOTATION', 'MEASURE', 'LINEPOLYGON']
 
 // On the legacy drawing, openlayer used the scale from xml as is, but since openlayer
 // version 6.7, the scale has been normalized to 32 pixels, therefore we need to add the
@@ -140,7 +139,7 @@ export function getFeatureType(kmlFeature: Feature): string | undefined {
         })
         featureType = /(?<type>\w+)_\d+/.exec(`${featureId}`)?.groups?.type?.toUpperCase()
     }
-    if (!featureType || !isAnyEnumValue(EditableFeatureTypes, featureType)) {
+    if (!featureType || !allEditableFeatureTypes.includes(featureType)) {
         log.info({
             title: 'kmlUtils / getFeatureType',
             titleColor: LogPreDefinedColor.Lime,
@@ -457,7 +456,7 @@ export function getEditableFeatureFromKmlFeature(
         return
     }
     const featureType = getFeatureType(kmlFeature)
-    if (!featureType || !isAnyEnumValue(EditableFeatureTypes, featureType)) {
+    if (!featureType || !allEditableFeatureTypes.includes(featureType)) {
         log.debug({
             title: 'kmlUtils / getEditableFeatureFromKmlFeature',
             titleColor: LogPreDefinedColor.Lime,
@@ -596,7 +595,7 @@ function detectTextPlacement(
     currentTextOffset?: [number, number]
 ): TextPlacement {
     if (!text || !textScale || !iconScale || !anchor || !iconSize || !currentTextOffset) {
-        return TextPlacement.Unknown
+        return 'unknown'
     }
     const [textPlacementX, textPlacementY] = calculateTextXYOffset(
         textScale,
@@ -606,17 +605,29 @@ function detectTextPlacement(
         text
     )
 
-    for (const placementOption of Object.values(TextPlacement)) {
+    const allTextPlacementWithoutUnknown: TextPlacement[] = [
+        'top-left',
+        'top',
+        'top-right',
+        'left',
+        'center',
+        'right',
+        'bottom-left',
+        'bottom',
+        'bottom-right',
+    ]
+
+    for (const placementOption of allTextPlacementWithoutUnknown) {
         const [xOffset, yOffset] = calculateTextOffsetFromPlacement(
             textPlacementX,
             textPlacementY,
             placementOption
         )
         if (xOffset === currentTextOffset[0] && yOffset === currentTextOffset[1]) {
-            return placementOption as TextPlacement
+            return placementOption
         }
     }
-    return TextPlacement.Unknown
+    return 'unknown'
 }
 
 const nonGeoadminIconUrls = new Set<string>()
@@ -733,7 +744,7 @@ export function parseKml(
         featureProjection: projection.epsg,
     })
 
-    if (kmlLayer.style === KMLStyle.GEOADMIN) {
+    if (kmlLayer.style === 'GEOADMIN') {
         features.forEach((olFeature) => {
             const editableFeature = getEditableFeatureFromKmlFeature(
                 olFeature,

@@ -3,7 +3,6 @@ import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import type { GeoAdminGeoJSONLayer, KMLLayer as KMLLayerType, Layer } from '@swissgeo/layers'
 
 import { extentUtils, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
-import { LayerType } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { bbox, centroid } from '@turf/turf'
 import {
@@ -22,7 +21,7 @@ import { LineString, Point, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
 import { computed, inject, onMounted, onUnmounted, type ShallowRef, watch } from 'vue'
 
-import type { LayerFeature, SelectableFeature } from '@/api/features.api'
+import type { LayerFeature, SelectableFeature } from '@/api/features/types'
 import type { LayerTooltipConfig } from '@/config/cesium.config'
 import type { ActionDispatcher } from '@/store/types'
 
@@ -37,7 +36,6 @@ import useCesiumStore from '@/store/modules/cesium'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
-import { ClickType } from '@/store/modules/map/types/clickType.enum'
 import usePositionStore from '@/store/modules/position'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
 import { getSafe } from '@/utils/utils'
@@ -56,9 +54,7 @@ const mapStore = useMapStore()
 
 const selectedFeatures = computed(() => featuresStore.selectedFeatures)
 const visiblePrimitiveLayers = computed(() =>
-    layersStore.visibleLayers.filter((l: Layer) =>
-        [LayerType.GEOJSON, LayerType.KML, LayerType.GPX].includes(l.type)
-    )
+    layersStore.visibleLayers.filter((l: Layer) => ['GEOJSON', 'KML', 'GPX'].includes(l.type))
 )
 
 const viewer = inject<ShallowRef<Viewer | undefined>>('viewer')
@@ -257,7 +253,7 @@ function create3dFeature(
 }
 
 function handleClickHighlight(
-    features: SelectableFeature<false>[],
+    features: SelectableFeature[],
     coordinates: SingleCoordinate | []
 ): void {
     clickedHighlightPostProcessor.selected = hoveredHighlightPostProcessor.selected
@@ -277,7 +273,7 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
     if (viewerInstance) {
         unhighlightGroup(viewerInstance)
     }
-    const features: SelectableFeature<false | true>[] = []
+    const features: SelectableFeature[] = []
     let coordinates = getCoordinateAtScreenCoordinate(event.position.x, event.position.y)
 
     const objects = viewerInstance?.scene.drillPick(event.position) ?? []
@@ -296,7 +292,7 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
     // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
     if (Array.isArray(coordinates) && coordinates.length === 2) {
         visiblePrimitiveLayers.value
-            .filter((layer: Layer) => layer.type === LayerType.GEOJSON)
+            .filter((layer: Layer) => layer.type === 'GEOJSON')
             .forEach((geoJSonLayer: Layer) => {
                 const identified = identifyGeoJSONFeatureAt(
                     geoJSonLayer as GeoAdminGeoJSONLayer,
@@ -311,7 +307,7 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
     }
 
     visiblePrimitiveLayers.value
-        .filter((layer: Layer) => layer.type === LayerType.KML)
+        .filter((layer: Layer) => layer.type === 'KML')
         .forEach((kmlLayer: Layer) => {
             objects
                 .filter((obj) => obj.id?.layerId === kmlLayer.id)
@@ -339,7 +335,7 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
                 })
         })
 
-    handleClickHighlight(features as SelectableFeature<false>[], coordinates!)
+    handleClickHighlight(features, coordinates!)
 
     if ((!Array.isArray(coordinates) || !coordinates.length) && features.length) {
         const featureCoords = Array.isArray(features[0]!.coordinates?.[0])
@@ -356,8 +352,8 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
             {
                 coordinate: coordinates,
                 pixelCoordinate: [event.position.x, event.position.y],
-                features: features as SelectableFeature<false>[],
-                clickType: ClickType.LeftSingleClick,
+                features: features,
+                clickType: 'LEFT_SINGLE_CLICK',
             },
             dispatcher
         )
@@ -445,7 +441,7 @@ function onContextMenu(event: ScreenSpaceEventHandler.PositionedEvent): void {
             {
                 coordinate: coordinates,
                 pixelCoordinate: [event.position.x, event.position.y],
-                clickType: ClickType.ContextMenu,
+                clickType: 'CONTEXT_MENU',
             },
             dispatcher
         )

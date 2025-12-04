@@ -2,7 +2,6 @@
 import type RenderEvent from 'ol/render/Event'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { LayerType } from '@swissgeo/layers'
 import { round } from '@swissgeo/numbers'
 import Map from 'ol/Map'
 import { getRenderPixel } from 'ol/render'
@@ -31,7 +30,7 @@ const compareSliderPosition = computed(() => {
     }
 })
 const visibleLayerOnTop = computed(() => layersStore.visibleLayerOnTop)
-const shouldUseWebGlContext = computed(() => visibleLayerOnTop.value?.type === LayerType.COG)
+const shouldUseWebGlContext = computed(() => visibleLayerOnTop.value?.type === 'COG')
 
 watch(storeCompareRatio, (newValue) => {
     if (newValue) {

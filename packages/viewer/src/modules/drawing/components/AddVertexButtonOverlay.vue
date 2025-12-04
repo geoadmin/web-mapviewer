@@ -5,7 +5,6 @@ import log from '@swissgeo/log'
 import Overlay from 'ol/Overlay'
 import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 
-import { EditableFeatureTypes } from '@/api/features.api'
 import AddVertexButton from '@/modules/drawing/components/AddVertexButton.vue'
 import useFeaturesStore from '@/store/modules/features'
 
@@ -64,7 +63,7 @@ const updateButtonPositions = () => {
 
     const distance =
         BASE_OFFSET_DISTANCE +
-        (selectedFeatureType.value === EditableFeatureTypes.Measure ? MEASURE_ADDITIONAL_OFFSET : 0)
+        (selectedFeatureType.value === 'MEASURE' ? MEASURE_ADDITIONAL_OFFSET : 0)
 
     const lastOffset = calculateOffset(
         coordinates[coordinates.length - 1]!,

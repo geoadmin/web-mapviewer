@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 
-import type { AppStoreGetters, AppStoreState } from '@/store/modules/app/types/app'
+import type { AppStoreGetters, AppStoreState } from '@/store/modules/app/types'
+import type { AppState } from '@/store/modules/app/types/appState'
 
 import nextState from '@/store/modules/app/actions/nextState'
 import setHasPendingUrlParsing from '@/store/modules/app/actions/setHasPendingUrlParsing'
@@ -12,7 +13,6 @@ import isMapReady from '@/store/modules/app/getters/isMapReady'
 import isParsingLegacy from '@/store/modules/app/getters/isParsingLegacy'
 import isParsingUrl from '@/store/modules/app/getters/isParsingUrl'
 import isReady from '@/store/modules/app/getters/isReady'
-import { type AppState, AppStateNames } from '@/store/modules/app/types/appState'
 import useCesiumStore from '@/store/modules/cesium'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
@@ -21,13 +21,13 @@ import useUIStore from '@/store/modules/ui'
 import { isLegacyParams } from '@/utils/legacyLayerParamUtils'
 
 const mapShown: AppState = {
-    name: AppStateNames.MapShown,
+    name: 'MAP_SHOWN',
     isFulfilled: () => false, // never fulfilled, last state
     next: () => mapShown,
 }
 
 const ready: AppState = {
-    name: AppStateNames.Ready,
+    name: 'READY',
     isFulfilled: () => {
         const mapStore = useMapStore()
         const cesiumStore = useCesiumStore()
@@ -40,7 +40,7 @@ const ready: AppState = {
 }
 
 const initiateUrlParsing: AppState = {
-    name: AppStateNames.UrlParsing,
+    name: 'URL_PARSING',
     isFulfilled: () => {
         return useAppStore().initialUrlParsingHasHappened
     },
@@ -50,7 +50,7 @@ const initiateUrlParsing: AppState = {
 }
 
 const parseLegacyUrlParams: AppState = {
-    name: AppStateNames.LegacyParsing,
+    name: 'LEGACY_PARSING',
     isFulfilled: () => !isLegacyParams(window?.location?.search),
     next: () => {
         return initiateUrlParsing
@@ -58,7 +58,7 @@ const parseLegacyUrlParams: AppState = {
 }
 
 const configLoaded: AppState = {
-    name: AppStateNames.ConfigLoaded,
+    name: 'CONFIG_LOADED',
     isFulfilled: () => true, // there's always a topic set, so no need to check if topicStore.current is defined
     next: () => {
         if (isLegacyParams(window?.location?.search)) {
@@ -69,7 +69,7 @@ const configLoaded: AppState = {
 }
 
 const initializing: AppState = {
-    name: AppStateNames.Initializing,
+    name: 'INITIALIZING',
     isFulfilled: () => {
         const layersStore = useLayersStore()
         const topicsStore = useTopicsStore()

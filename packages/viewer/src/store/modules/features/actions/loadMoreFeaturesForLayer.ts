@@ -4,10 +4,10 @@ import type { GeoAdminLayer } from '@swissgeo/layers'
 import { extentUtils } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { FeaturesStore } from '@/store/modules/features/types/features'
+import type { FeaturesStore } from '@/store/modules/features/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { identifyOnGeomAdminLayer } from '@/api/features.api'
+import { identifyOnGeomAdminLayer } from '@/api/features'
 import useI18nStore from '@/store/modules/i18n'
 import usePositionStore from '@/store/modules/position'
 import useUIStore from '@/store/modules/ui'

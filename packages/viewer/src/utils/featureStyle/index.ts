@@ -9,11 +9,11 @@ import Icon from 'ol/style/Icon'
 import Style from 'ol/style/Style'
 import { toRaw } from 'vue'
 
-import type { EditableFeature } from '@/api/features.api'
+import type { EditableFeature } from '@/api/features/types'
+import type { FeatureStyleColor, FeatureStyleSize, TextPlacement } from '@/utils/featureStyle/types'
 
-import { EditableFeatureTypes } from '@/api/features.api'
-import { generateIconURL } from '@/api/icon.api'
-import { DEFAULT_ICON_SIZE, DEFAULT_TITLE_OFFSET } from '@/config/icons.config'
+import { generateIconURL } from '@/api/icons'
+import { DEFAULT_ICON_SIZE, DEFAULT_TITLE_OFFSET } from '@/api/icons/config'
 import { dashedRedStroke, StyleZIndex, whiteSketchFill } from '@/utils/styleUtils'
 
 /**
@@ -27,19 +27,6 @@ export function generateTextShadow(style: FeatureStyleColor): string {
 export function generateRGBFillString(style: FeatureStyleColor): string {
     const rgb = fromString(style.fill)
     return `${rgb[0]},${rgb[1]},${rgb[2]}`
-}
-
-/** A color that can be used to style a feature (comprised of a fill and a border color) */
-export interface FeatureStyleColor {
-    /** Name of the color in english lower cased */
-    name: string
-    /** HTML color (with # prefix) describing this color (usable in CSS or other styling context) */
-    fill: string
-    /**
-     * HTML color (with # prefix) describing the border color (usable in CSS or other styling
-     * context)
-     */
-    border: string
 }
 
 export const BLACK: FeatureStyleColor = { name: 'black', fill: '#000000', border: '#ffffff' }
@@ -68,24 +55,6 @@ export const FEATURE_FONT = 'Helvetica'
 export function generateFontString(size: FeatureStyleSize, font = FEATURE_FONT) {
     return `normal ${FEATURE_FONT_SIZE * size.textScale}px ${font}`
 }
-/**
- * Representation of a size for feature style
- *
- * Scale values (that are to apply to the KML/GeoJSON) are different for text and icon. For icon the
- * scale is the one used by open layer and is scaled up by the factor icon_size/32, see
- * https://github.com/openlayers/openlayers/issues/12670
- */
-export interface FeatureStyleSize {
-    /**
-     * Translation key for this size (must go through the i18n service to have a human-readable
-     * value)
-     */
-    label: string
-    /** Scale to apply to a text when choosing this size (related to KML/GeoJSON styling) */
-    textScale: number
-    /** Scale to apply to an icon when choosing this size (related to KML/GeoJSON styling) */
-    iconScale: number
-}
 
 /**
  * NOTE: Here below the icons scale is the one used by openlayer, not the final scale put in the KML
@@ -103,19 +72,6 @@ export const EXTRA_LARGE: FeatureStyleSize = {
 
 /** List of all available sizes for drawing style */
 export const allStylingSizes: FeatureStyleSize[] = [SMALL, MEDIUM, LARGE, EXTRA_LARGE]
-
-export enum TextPlacement {
-    TopLeft = 'top-left',
-    Top = 'top',
-    TopRight = 'top-right',
-    Left = 'left',
-    Center = 'center',
-    Right = 'right',
-    BottomLeft = 'bottom-left',
-    Bottom = 'bottom',
-    BottomRight = 'bottom-right',
-    Unknown = 'unknown',
-}
 
 /** Get Feature style from feature */
 export function getStyle(olFeature: Feature, resolution: number): Style | undefined {
@@ -270,23 +226,23 @@ export function calculateTextOffsetFromPlacement(
     defaultYOffset: number,
     placement: TextPlacement
 ): [number, number] {
-    if (placement === TextPlacement.TopLeft) {
+    if (placement === 'top-left') {
         return [-defaultXOffset, -defaultYOffset]
-    } else if (placement === TextPlacement.Top) {
+    } else if (placement === 'top') {
         return [0, -defaultYOffset]
-    } else if (placement === TextPlacement.TopRight) {
+    } else if (placement === 'top-right') {
         return [defaultXOffset, -defaultYOffset]
-    } else if (placement === TextPlacement.Left) {
+    } else if (placement === 'left') {
         return [-defaultXOffset, 0]
-    } else if (placement === TextPlacement.Center) {
+    } else if (placement === 'center') {
         return [0, 0]
-    } else if (placement === TextPlacement.Right) {
+    } else if (placement === 'right') {
         return [defaultXOffset, 0]
-    } else if (placement === TextPlacement.BottomLeft) {
+    } else if (placement === 'bottom-left') {
         return [-defaultXOffset, defaultYOffset]
-    } else if (placement === TextPlacement.Bottom) {
+    } else if (placement === 'bottom') {
         return [0, defaultYOffset]
-    } else if (placement === TextPlacement.BottomRight) {
+    } else if (placement === 'bottom-right') {
         return [defaultXOffset, defaultYOffset]
     }
     return [0, 0]
@@ -327,13 +283,13 @@ function getElementOffsets(editableFeature?: EditableFeature): {
 
     if (editableFeature.showDescriptionOnMap && editableFeature.description) {
         const isTextAtBottom =
-            editableFeature.textPlacement === TextPlacement.Bottom ||
-            editableFeature.textPlacement === TextPlacement.BottomLeft ||
-            editableFeature.textPlacement === TextPlacement.BottomRight
+            editableFeature.textPlacement === 'bottom' ||
+            editableFeature.textPlacement === 'bottom-left' ||
+            editableFeature.textPlacement === 'bottom-right'
         const isTextAtCenter =
-            editableFeature.textPlacement === TextPlacement.Center ||
-            editableFeature.textPlacement === TextPlacement.Left ||
-            editableFeature.textPlacement === TextPlacement.Right
+            editableFeature.textPlacement === 'center' ||
+            editableFeature.textPlacement === 'left' ||
+            editableFeature.textPlacement === 'right'
 
         const descriptionLineWrapCount = editableFeature.description.split('\n').length ?? 0
         const descriptionBlocHeight = descriptionLineWrapCount * FEATURE_FONT_SIZE_SMALL
@@ -427,7 +383,7 @@ export function geoadminStyleFunction(
                 offsetY: editableFeature?.icon ? offsetTopElement[1] : undefined,
             }),
             stroke:
-                editableFeature?.featureType === EditableFeatureTypes.Measure
+                editableFeature?.featureType === 'MEASURE'
                     ? dashedRedStroke
                     : new Stroke({
                           color: styleConfig.fillColor.fill,
@@ -481,11 +437,7 @@ export function geoadminStyleFunction(
     }
     /* This function is also called when saving the feature to KML, where "feature.get('geodesic')"
     is not there anymore, thats why we have to check for it here */
-    if (
-        resolution &&
-        editableFeature?.featureType === EditableFeatureTypes.Measure &&
-        feature.get('geodesic')
-    ) {
+    if (resolution && editableFeature?.featureType === 'MEASURE' && feature.get('geodesic')) {
         styles.push(...feature.get('geodesic').getMeasureStyles(resolution))
     }
     return styles
@@ -497,6 +449,6 @@ export const DEFAULT_MARKER_TITLE_OFFSET = calculateTextOffset(
     MEDIUM.iconScale,
     [0, 0.875],
     DEFAULT_ICON_SIZE,
-    TextPlacement.Top,
+    'top',
     ''
 )

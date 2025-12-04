@@ -1,6 +1,5 @@
 import type { GeoAdminGroupOfLayers, Layer } from '@swissgeo/layers'
 
-import { LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { computed } from 'vue'
 
@@ -26,7 +25,7 @@ export function useLayerZIndexCalculation() {
             visibleLayersWithZIndex.push(
                 ...layersStore.visibleLayers.filter(
                     (visibleLayer) =>
-                        ![LayerType.KML, LayerType.GEOJSON].includes(visibleLayer.type)
+                        !['KML', 'GEOJSON'].includes(visibleLayer.type)
                 )
             )
         } else {
@@ -37,7 +36,7 @@ export function useLayerZIndexCalculation() {
 
     const startingZIndexForThingsOnTopOfLayers = computed(() => {
         const nbOfSubLayers = visibleLayers.value
-            .filter((l) => l?.type === LayerType.GROUP)
+            .filter((l) => l?.type === 'GROUP')
             .map((l) => (l as GeoAdminGroupOfLayers)?.layers.length - 1)
             .reduce((a, b) => a + b, 0)
         return visibleLayers.value.length + nbOfSubLayers
@@ -63,7 +62,7 @@ export function useLayerZIndexCalculation() {
         }
         const subLayersPresentUnderThisLayer = visibleLayers.value
             .slice(0, layerIndex)
-            .filter((previousLayer) => previousLayer?.type === LayerType.GROUP)
+            .filter((previousLayer) => previousLayer?.type === 'GROUP')
             .map((previousGroup) => (previousGroup as GeoAdminGroupOfLayers)?.layers.length - 1)
             .reduce((a, b) => a + b, 0)
         return subLayersPresentUnderThisLayer + layerIndex

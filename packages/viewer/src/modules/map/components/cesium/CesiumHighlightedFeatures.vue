@@ -3,13 +3,12 @@ import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { Viewer } from 'cesium'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { LineString, Point, Polygon } from 'ol/geom'
 import { computed, inject, onMounted, ref, type ShallowRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { EditableFeature, LayerFeature } from '@/api/features.api'
+import type { EditableFeature, LayerFeature } from '@/api/features/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
@@ -24,7 +23,6 @@ import useFeaturesStore from '@/store/modules/features'
 import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'
 import useUIStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumHighlightedFeatures.vue' }
 
@@ -91,11 +89,7 @@ function highlightSelectedFeatures(): void {
             const hasLayer = (obj: LayerFeature | EditableFeature): obj is LayerFeature =>
                 !!obj && typeof obj === 'object' && 'layer' in obj
 
-            if (
-                hasLayer(f) &&
-                f.layer.type === LayerType.VECTOR &&
-                'use3dTileSubFolder' in f.layer
-            ) {
+            if (hasLayer(f) && f.layer.type === 'VECTOR' && 'use3dTileSubFolder' in f.layer) {
                 return
             }
 
@@ -143,7 +137,7 @@ function onPopupClose() {
     mapStore.clearClick(dispatcher)
 }
 function setBottomPanelFeatureInfoPosition() {
-    uiStore.setFeatureInfoPosition(FeatureInfoPositions.BottomPanel, dispatcher)
+    uiStore.setFeatureInfoPosition('bottompanel', dispatcher)
 }
 </script>
 

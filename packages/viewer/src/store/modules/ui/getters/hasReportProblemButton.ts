@@ -1,4 +1,4 @@
-import type { UIStore } from '@/store/modules/ui/types/ui'
+import type { UIStore } from '@/store/modules/ui/types'
 
 import { REPORT_PROBLEM_HOSTNAMES } from '@/config/staging.config'
 

@@ -1,7 +1,8 @@
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
-import { type Layer, LayerType } from '@/types/layers'
+import type { Layer } from '@/types/layers'
+
 import timeConfigUtils from '@/utils/timeConfigUtils'
 
 describe('Test utility functions', () => {
@@ -12,7 +13,7 @@ describe('Test utility functions', () => {
             id: 'ch.bgdi.simple',
             opacity: 0,
             isVisible: true,
-            type: LayerType.WMTS,
+            type: 'WMTS',
             attributions: [],
             hasTooltip: false,
             hasDescription: false,

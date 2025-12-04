@@ -1,26 +1,25 @@
+import type {
+    CloudOptimizedGeoTIFFLayer,
+    ExternalWMSLayer,
+    ExternalWMTSLayer,
+    GeoAdminGeoJSONLayer,
+    GeoAdminLayer,
+    GPXLayer,
+    KMLLayer,
+    Layer,
+} from '@swissgeo/layers'
 import type { RouteLocationNormalizedGeneric } from 'vue-router'
 
 import { extentUtils } from '@swissgeo/coordinates'
-import {
-    type CloudOptimizedGeoTIFFLayer,
-    DEFAULT_OPACITY,
-    type ExternalWMSLayer,
-    type ExternalWMTSLayer,
-    type GeoAdminGeoJSONLayer,
-    type GeoAdminLayer,
-    type GPXLayer,
-    type KMLLayer,
-    type Layer,
-    LayerType,
-} from '@swissgeo/layers'
+import { DEFAULT_OPACITY } from '@swissgeo/layers'
 import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 import * as vueRouter from 'vue-router'
 
-import type { LayerFeature } from '@/api/features.api'
+import type { LayerFeature } from '@/api/features/types'
 
-import getFeature from '@/api/features.api'
+import getFeature from '@/api/features'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import useI18nStore from '@/store/modules/i18n'
@@ -45,7 +44,7 @@ function createWMTSLayerObject(parsedLayer: Partial<Layer>): ExternalWMTSLayer {
     const { year } = parsedLayer.customAttributes ?? {}
 
     return layerUtils.makeExternalWMTSLayer({
-        type: LayerType.WMTS,
+        type: 'WMTS',
         id: parsedLayer.id,
         name: parsedLayer.id,
         opacity: parsedLayer.opacity,
@@ -115,7 +114,7 @@ export function createLayerObject(parsedLayer: Partial<Layer>, currentLayer?: La
 
     let layer: Layer | undefined
 
-    if (currentLayer && (currentLayer.isExternal || currentLayer.type === LayerType.KML)) {
+    if (currentLayer && (currentLayer.isExternal || currentLayer.type === 'KML')) {
         // the layer is already present in the active layers, so simply update it instead of
         // replacing it. This avoids reloading the data of the layer (e.g. KML name, external
         // layer display name) when using the browser history navigation.
@@ -124,10 +123,10 @@ export function createLayerObject(parsedLayer: Partial<Layer>, currentLayer?: La
         // external layer have a default opacity of 1.0
         layer.opacity = parsedLayer.opacity ?? DEFAULT_OPACITY
 
-        if (adminId && layer.type === LayerType.KML) {
+        if (adminId && layer.type === 'KML') {
             ;(layer as KMLLayer).adminId = adminId
         }
-    } else if (parsedLayer.type === LayerType.KML) {
+    } else if (parsedLayer.type === 'KML') {
         // format is KML|FILE_URL
         if (parsedLayer.baseUrl?.startsWith('http')) {
             layer = createKmlLayer(parsedLayer, adminId)
@@ -136,22 +135,22 @@ export function createLayerObject(parsedLayer: Partial<Layer>, currentLayer?: La
             // to the layer list upon start as we cannot load it anymore.
         }
         // format is GPX|FILE_URL
-    } else if (parsedLayer.type === LayerType.GPX) {
+    } else if (parsedLayer.type === 'GPX') {
         if (parsedLayer.baseUrl?.startsWith('http')) {
             layer = createGPGXLayer(parsedLayer)
         } else {
             // we can't re-load GPX files loaded through a file import; this GPX file is ignored
         }
-    } else if (parsedLayer.type === LayerType.COG) {
+    } else if (parsedLayer.type === 'COG') {
         // format is GEOTIFF|FILE_URL
         if (parsedLayer.baseUrl?.startsWith('http')) {
             layer = createCloudOptimizedGeoTIFFLayer(parsedLayer)
         }
         // format is WMTS|GET_CAPABILITIES_URL|LAYER_ID
-    } else if (parsedLayer.type === LayerType.WMTS) {
+    } else if (parsedLayer.type === 'WMTS') {
         layer = createWMTSLayerObject(parsedLayer)
         // format is : WMS|BASE_URL|LAYER_ID
-    } else if (parsedLayer.type === LayerType.WMS) {
+    } else if (parsedLayer.type === 'WMS') {
         layer = createWMSLayerObject(parsedLayer)
     } else if (parsedLayer.id) {
         const matchingLayer = layersStore.getLayerConfigById(parsedLayer.id)
@@ -171,7 +170,7 @@ export function createLayerObject(parsedLayer: Partial<Layer>, currentLayer?: La
             }
 
             // If we have a WMS layer add extra params from custom attributes
-            if (layer.type === LayerType.WMS) {
+            if (layer.type === 'WMS') {
                 layer.customAttributes = customAttributes
             }
         }
@@ -183,7 +182,7 @@ export function createLayerObject(parsedLayer: Partial<Layer>, currentLayer?: La
     if (layer && !layer.isExternal) {
         const internalLayer = layer as GeoAdminLayer
 
-        if (internalLayer.type === LayerType.GEOJSON && updateDelay !== undefined) {
+        if (internalLayer.type === 'GEOJSON' && updateDelay !== undefined) {
             ;(internalLayer as GeoAdminGeoJSONLayer).updateDelay = updateDelay
         }
 
@@ -260,7 +259,7 @@ function dispatchLayersFromUrlIntoStore(
             }
 
             if (layerObject) {
-                if (layerObject.type === LayerType.KML && (layerObject as KMLLayer).adminId) {
+                if (layerObject.type === 'KML' && (layerObject as KMLLayer).adminId) {
                     drawingStore.toggleDrawingOverlay(
                         {
                             show: true,
@@ -355,7 +354,9 @@ function generateLayerUrlParamFromStoreValues(): string {
         .map((layer: Layer) =>
             transformLayerIntoUrlString(
                 layer,
-                layersStore.config.find((layerConfig: GeoAdminLayer) => layerConfig.id === layer.id),
+                layersStore.config.find(
+                    (layerConfig: GeoAdminLayer) => layerConfig.id === layer.id
+                ),
                 featuresIds[layer.id]
             )
         )

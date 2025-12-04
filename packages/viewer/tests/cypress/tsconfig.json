@@ -6,11 +6,9 @@
         "lib": ["es6", "dom", "ES2024"],
         "sourceMap": true,
         "types": ["cypress", "node"],
-        "jsx": "preserve",
-        "allowJs": true,
         "paths": {
             "@/*": ["../../src/*"]
         }
     },
-    "include": ["**/*.cy.ts", "**/*.cy.js", "**/*.vue", "**/*.ts", "**/*.js", "../../types/*.ts"]
+    "include": ["**/*.ts", "**/*.cy.ts", "../../types/*.ts"]
 }

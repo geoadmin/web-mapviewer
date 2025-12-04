@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import type { LayersStoreGetters, LayersStoreState } from '@/store/modules/layers/types/layers'
+import type { LayersStoreGetters, LayersStoreState } from '@/store/modules/layers/types'
 
 import addLayer from '@/store/modules/layers/actions/addLayer'
 import addLayerError from '@/store/modules/layers/actions/addLayerError'

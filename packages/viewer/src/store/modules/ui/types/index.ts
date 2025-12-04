@@ -1,7 +1,20 @@
 import type { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 
-import type { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
-import type { UIModes } from '@/store/modules/ui/types/uiModes.enum'
+/**
+ * Describes the different mode the UI can have. Either desktop/tablet (the menu is always shown,
+ * info box is a side tray) or phone (the menu has to be opened with a button, info box is a
+ * swipeable element)
+ */
+export type UIMode = 'desktop' | 'phone'
+
+/**
+ * 'default' is not the default value, but this is the default behavior, which depends on the UI
+ * size:
+ *
+ * - 'bottompanel' on phones
+ * - 'tooltip' on desktop
+ */
+export type FeatureInfoPosition = 'default' | 'bottompanel' | 'tooltip' | 'none'
 
 /**
  * Module that stores all information related to the UI, for instance if a portion of the UI (like
@@ -50,14 +63,14 @@ export interface UIStoreState {
      * menu has to be opened through a button, for desktop it is always shown) and how the
      * information about a selected feature are shown.
      */
-    mode: UIModes
+    mode: UIMode
     /**
      * Expected position of the features tooltip position when selecting features.
      *
      * The default position is set to NONE, as we want people who want to share a feature without
      * the tooltip to have a very simple URL.
      */
-    featureInfoPosition: FeatureInfoPositions
+    featureInfoPosition: FeatureInfoPosition
     /**
      * Hostname on which the application is running (use to display warnings to the user on
      * 'non-production' hosts)

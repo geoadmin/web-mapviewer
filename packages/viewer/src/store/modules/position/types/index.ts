@@ -1,9 +1,8 @@
-import type { NormalizedExtent, SingleCoordinate } from '@swissgeo/coordinates'
-import type { CoordinateSystem } from '@swissgeo/coordinates'
+import type { CoordinateSystem, NormalizedExtent, SingleCoordinate } from '@swissgeo/coordinates'
 
 import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 
-import { CrossHairs } from '@/store/modules/position/types/crossHairs.enum'
+export type CrossHair = 'cross' | 'circle' | 'bowl' | 'point' | 'marker'
 
 export interface CameraPosition {
     /** X position of the camera in the 3D reference system (metric mercator) */
@@ -51,7 +50,7 @@ export interface PositionStoreState {
      * 1:100'000, etc...)
      */
     projection: CoordinateSystem
-    crossHair?: CrossHairs
+    crossHair?: CrossHair
     crossHairPosition?: SingleCoordinate
     /**
      * Position of the view when we are in 3D, always expressed in EPSG:3857 (only projection system

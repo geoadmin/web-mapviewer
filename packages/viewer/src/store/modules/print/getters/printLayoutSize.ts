@@ -2,7 +2,7 @@ import type {
     PrintLayoutApiSize,
     PrintLayoutSize,
     PrintStore,
-} from '@/store/modules/print/types/print'
+} from '@/store/modules/print/types'
 
 export default function printLayoutSize(this: PrintStore): PrintLayoutSize {
     const mapAttributes = this.selectedLayout?.attributes.find(

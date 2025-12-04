@@ -1,10 +1,9 @@
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { DrawingStore } from '@/store/modules/drawing/types/drawing'
+import type { EditableFeature } from '@/api/features/types'
+import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { type EditableFeature, EditableFeatureTypes } from '@/api/features.api'
-import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 import debounceSaveDrawing from '@/store/modules/drawing/utils/debounceSaveDrawing'
 import useFeaturesStore from '@/store/modules/features'
 import useProfileStore from '@/store/modules/profile'
@@ -20,13 +19,10 @@ export default function setCurrentlyDrawnFeature(
     const profileStore = useProfileStore()
 
     if (this.feature.current) {
-        this.edit.mode = EditMode.Modify
+        this.edit.mode = 'MODIFY'
         featureStore.setSelectedFeatures([this.feature.current], dispatcher)
         // showing the profile for measure and line/polygon features
-        if (
-            this.feature.current.featureType === EditableFeatureTypes.Measure ||
-            this.feature.current.featureType === EditableFeatureTypes.LinePolygon
-        ) {
+        if (['MEASURE', 'LINEPOLYGON'].includes(this.feature.current.featureType)) {
             profileStore.setProfileFeature(this.feature.current, dispatcher)
         }
         if (!this.feature.all.some((feature) => feature.id === this.feature.current?.id)) {
@@ -39,7 +35,7 @@ export default function setCurrentlyDrawnFeature(
             })
         }
     } else {
-        this.edit.mode = EditMode.Off
+        this.edit.mode = 'OFF'
         featureStore.clearAllSelectedFeatures(dispatcher)
     }
 }

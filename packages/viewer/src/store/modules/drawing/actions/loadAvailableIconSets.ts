@@ -1,10 +1,10 @@
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { WarningMessage } from '@swissgeo/log/Message'
 
-import type { DrawingStore } from '@/store/modules/drawing/types/drawing'
+import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { loadAllIconSetsFromBackend } from '@/api/icon.api'
+import { loadAllIconSetsFromBackend } from '@/api/icons'
 import useUIStore from '@/store/modules/ui'
 import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
 

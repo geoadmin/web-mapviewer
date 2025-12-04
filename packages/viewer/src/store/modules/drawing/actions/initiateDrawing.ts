@@ -6,7 +6,7 @@ import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 import { markRaw } from 'vue'
 
-import type { DrawingStore } from '@/store/modules/drawing/types/drawing'
+import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { getKmlMetadataByAdminId, getKmlUrl } from '@/api/files.api'
@@ -14,7 +14,6 @@ import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 
 interface InitiateDrawingOptions {
     adminId?: string
@@ -54,7 +53,7 @@ export default async function initiateDrawing(
     const uiStore = useUIStore()
 
     // Force feature info to be visible in drawing mode
-    uiStore.setFeatureInfoPosition(FeatureInfoPositions.Default, dispatcher)
+    uiStore.setFeatureInfoPosition('default', dispatcher)
 
     // Make sure no drawing features are selected when entering the drawing mode
     featuresStore.clearAllSelectedFeatures(dispatcher)

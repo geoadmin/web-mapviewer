@@ -2,10 +2,10 @@
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
-import type { FeatureStyleColor, FeatureStyleSize } from '@/utils/featureStyleUtils'
+import type { DrawingIcon, DrawingIconSet } from '@/api/icons/types'
+import type { FeatureStyleColor, FeatureStyleSize } from '@/utils/featureStyle/types'
 
-import { DEFAULT_ICON_SET_NAME } from '@/config/icons.config'
+import { DEFAULT_ICON_SET_NAME } from '@/api/icons/config'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIcon from '@/modules/infobox/components/styling/DrawingStyleIcon.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'

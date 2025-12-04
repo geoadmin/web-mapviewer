@@ -1,11 +1,11 @@
 import { registerProj4, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
-
 import {
     checkPosition,
     getGeolocationButtonAndClickIt,
-    testErrorMessage,
-} from '@/../tests/cypress/tests-e2e/utils'
+    testGeolocationErrorMessage,
+} from 'support/geolocation'
+
 import useGeolocationStore from '@/store/modules/geolocation'
 import usePositionStore from '@/store/modules/position'
 
@@ -98,7 +98,7 @@ describe('Geolocation on 3D cypress', () => {
                     },
                 })
                 getGeolocationButtonAndClickIt()
-                testErrorMessage('geoloc_out_of_bounds')
+                testGeolocationErrorMessage('geoloc_out_of_bounds')
 
                 // Java island
                 cy.goToMapView({
@@ -110,7 +110,7 @@ describe('Geolocation on 3D cypress', () => {
                     },
                 })
                 getGeolocationButtonAndClickIt()
-                testErrorMessage('geoloc_out_of_bounds')
+                testGeolocationErrorMessage('geoloc_out_of_bounds')
             })
         }
     )

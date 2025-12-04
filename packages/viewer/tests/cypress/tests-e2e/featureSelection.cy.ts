@@ -100,11 +100,11 @@ describe('Testing the feature selection', () => {
             cy.log('When featureInfo is specified, we should see the infobox')
             goToMapViewWithFeatureSelection('default')
             checkFeatures()
-            checkFeatureInfoPosition('bottomPanel')
+            checkFeatureInfoPosition('bottompanel')
             cy.log('parameter is case insensitive, but we should see an infobox here')
             goToMapViewWithFeatureSelection('TOoLtIp')
             checkFeatures()
-            checkFeatureInfoPosition('bottomPanel')
+            checkFeatureInfoPosition('bottompanel')
         })
 
         it.skip('Adds pre-selected features and place the tooltip according to URL param on a bigger screen', () => {
@@ -146,7 +146,7 @@ describe('Testing the feature selection', () => {
 
             cy.url().should((url) => {
                 expect(new URLSearchParams(url.split('map')[1]).get('featureInfo')).to.eq(
-                    'bottomPanel'
+                    'bottompanel'
                 )
             })
             cy.url().should((url) => {
@@ -267,7 +267,7 @@ describe('Testing the feature selection', () => {
             cy.log('Open the map with a feature preselected in english')
             goToMapViewWithFeatureSelection('default')
             checkFeatures()
-            checkFeatureInfoPosition('bottomPanel')
+            checkFeatureInfoPosition('bottompanel')
 
             cy.wait(`@htmlPopup`)
 

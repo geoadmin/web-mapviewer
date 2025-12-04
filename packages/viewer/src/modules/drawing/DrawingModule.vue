@@ -4,7 +4,6 @@ import type { LineString } from 'geojson'
 import type Map from 'ol/Map'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { LayerType } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { WarningMessage } from '@swissgeo/log/Message'
 import {
@@ -19,10 +18,10 @@ import {
 } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import type { EditableFeature } from '@/api/features/types'
 import type { DrawingInteractionExposed } from '@/modules/drawing/types/interaction'
 import type { ActionDispatcher } from '@/store/types'
 
-import { type EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import AddVertexButtonOverlay from '@/modules/drawing/components/AddVertexButtonOverlay.vue'
 import DrawingInteractions from '@/modules/drawing/components/DrawingInteractions.vue'
@@ -30,7 +29,6 @@ import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
 import useDrawingStore from '@/store/modules/drawing'
-import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 import addKmlFeaturesToDrawingLayer from '@/store/modules/drawing/utils/addKmlFeaturesToDrawingLayer'
 import useLayersStore from '@/store/modules/layers'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
@@ -78,8 +76,7 @@ const selectedLineFeature = computed<EditableFeature | undefined>(() => {
     if (
         drawingStore.feature.current &&
         drawingStore.feature.current.geometry?.type === 'LineString' &&
-        (drawingStore.feature.current.featureType === EditableFeatureTypes.LinePolygon ||
-            drawingStore.feature.current.featureType === EditableFeatureTypes.Measure)
+        ['LINEPOLYGON', 'MEASURE'].includes(drawingStore.feature.current.featureType)
     ) {
         return drawingStore.feature.current
     }
@@ -125,7 +122,7 @@ watch(availableIconSets, () => {
 
 onMounted(() => {
     const kmlLayerWithAdminId: KMLLayer | undefined = layersStore.activeLayers
-        .filter((layer) => layer.type === LayerType.KML)
+        .filter((layer) => layer.type === 'KML')
         .map((layer) => layer as KMLLayer)
         .find((kmlLayer) => !!kmlLayer.adminId)
 
@@ -188,7 +185,7 @@ const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
 
 function removeLastPoint() {
     // Only delete the last point when we are drawing a feature (or editing it)
-    if (!!drawingStore.edit.featureType || drawingStore.edit.mode === EditMode.Extend) {
+    if (!!drawingStore.edit.featureType || drawingStore.edit.mode === 'EXTEND') {
         drawingInteractions.value?.removeLastPoint()
     }
 }
@@ -231,7 +228,7 @@ function closeDrawing() {
         <DrawingTooltip />
         <DrawingInteractions ref="drawingInteractions" />
         <AddVertexButtonOverlay
-            v-if="drawingStore.edit.mode === EditMode.Modify && lineStringGeometry"
+            v-if="drawingStore.edit.mode === 'MODIFY' && lineStringGeometry"
             :coordinates="lineStringGeometry.coordinates"
         />
         <ModalWithBackdrop

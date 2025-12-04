@@ -1,6 +1,6 @@
-import type { SelectableFeature } from '@/api/features.api'
+import type { SelectableFeature } from '@/api/features/types'
 
-export function canFeatureShowProfile(feature?: SelectableFeature<boolean>): boolean {
+export function canFeatureShowProfile(feature?: SelectableFeature): boolean {
     return (
         !!feature?.geometry &&
         ['MultiLineString', 'LineString', 'Polygon', 'MultiPolygon'].includes(

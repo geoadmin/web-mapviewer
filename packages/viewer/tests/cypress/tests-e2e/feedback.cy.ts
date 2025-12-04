@@ -1,6 +1,6 @@
 import { APP_VERSION } from '@/config/staging.config'
 
-import { interceptFeedback, parseFormData } from './feedbackTestUtils'
+import { interceptFeedback, parseFormData } from '../support/feedback'
 
 describe('Testing the feedback form', () => {
     function closeForm() {

@@ -17,7 +17,6 @@ import MenuModule from '@/modules/menu/MenuModule.vue'
 import useCesiumStore from '@/store/modules/cesium'
 import useDrawingStore from '@/store/modules/drawing'
 import useUIStore from '@/store/modules/ui'
-import { UIModes } from '@/store/modules/ui/types/uiModes.enum'
 import AppVersion from '@/utils/components/AppVersion.vue'
 import DragDropOverlay from '@/utils/components/DragDropOverlay.vue'
 import LoadingBar from '@/utils/components/LoadingBar.vue'
@@ -31,7 +30,7 @@ const drawingStore = useDrawingStore()
 
 const is3DActive = computed(() => cesiumStore.active)
 const isDrawingMode = computed(() => drawingStore.overlay.show)
-const isPhoneMode = computed(() => uiStore.mode === UIModes.Phone)
+const isPhoneMode = computed(() => uiStore.mode === 'phone')
 const showLoadingBar = computed(() => uiStore.showLoadingBar)
 const showDragAndDropOverlay = computed(() => uiStore.showDragAndDropOverlay)
 const loadDrawingModule = computed(() => {

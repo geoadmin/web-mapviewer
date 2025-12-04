@@ -16,20 +16,15 @@ import { getUid } from 'ol/util'
 import { v4 as uuidv4 } from 'uuid'
 import { inject, onBeforeUnmount, onMounted, ref, toValue } from 'vue'
 
-import type { EditableFeature } from '@/api/features.api'
+import type { EditableFeature } from '@/api/features/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@/api/features.api'
+import { extractOlFeatureCoordinates } from '@/api/features/'
 import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useDrawingStore from '@/store/modules/drawing'
-import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 import usePositionStore from '@/store/modules/position'
-import {
-    DEFAULT_MARKER_TITLE_OFFSET,
-    geoadminStyleFunction,
-    TextPlacement,
-} from '@/utils/featureStyleUtils'
+import { DEFAULT_MARKER_TITLE_OFFSET, geoadminStyleFunction } from '@/utils/featureStyle'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
 
 const dispatcher: ActionDispatcher = { name: 'useDrawingModeInteraction.composable' }
@@ -205,7 +200,7 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
                 isEditable: true,
                 showDescriptionOnMap: false,
                 textOffset: DEFAULT_MARKER_TITLE_OFFSET,
-                textPlacement: TextPlacement.Center,
+                textPlacement: 'center',
                 title: '',
                 id: uid,
             }
@@ -218,7 +213,7 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
                 editableFeature,
                 type: editableFeature.featureType.toLowerCase(),
             })
-            if (editableFeature.featureType === EditableFeatureTypes.Marker) {
+            if (editableFeature.featureType === 'MARKER') {
                 feature.setProperties({
                     textOffset: editableFeature.textOffset.toString(),
                     showDescriptionOnMap: editableFeature.showDescriptionOnMap,
@@ -258,7 +253,7 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
                 drawingStore.edit.reverseLineStringExtension
             )
             drawingStore.setEditingMode(
-                EditMode.Modify,
+                'MODIFY',
                 drawingStore.edit.reverseLineStringExtension,
                 dispatcher
             )

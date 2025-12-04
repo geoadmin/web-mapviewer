@@ -3,14 +3,13 @@ import type { Layer } from '@swissgeo/layers'
 import type { Feature } from 'ol'
 import type { FeatureLike } from 'ol/Feature'
 
-import { LayerType } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { randomIntBetween } from '@swissgeo/numbers'
 import { centroid } from '@turf/turf'
 import GeoJSON, { type GeoJSONGeometry } from 'ol/format/GeoJSON'
 import RenderFeature from 'ol/render/Feature'
 
-import type { LayerFeature } from '@/api/features.api'
+import type { LayerFeature } from '@/api/features/types'
 
 /**
  * Creates a LayerFeature object from an OpenLayers feature and a layer.
@@ -78,6 +77,6 @@ export function createLayerFeature(
         coordinates: featureCoordinates,
         geometry: geometryToReturn,
         extent: olFeatureGeometry.getExtent() as FlatExtent,
-        popupDataCanBeTrusted: !layer.isExternal && layer.type !== LayerType.KML,
+        popupDataCanBeTrusted: !layer.isExternal && layer.type !== 'KML',
     }
 }

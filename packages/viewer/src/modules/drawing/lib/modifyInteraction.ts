@@ -9,6 +9,10 @@
  */
 
 import type { Map } from 'ol'
+import type { Coordinate } from 'ol/coordinate'
+import type { Condition } from 'ol/events/condition'
+import type { Extent } from 'ol/extent'
+import type { FeatureLike } from 'ol/Feature'
 import type {
     Circle,
     Geometry,
@@ -20,37 +24,37 @@ import type {
     Polygon,
     SimpleGeometry,
 } from 'ol/geom'
+import type { Options as PointerInteractionOptions } from 'ol/interaction/Pointer'
 import type { Layer } from 'ol/layer'
 import type { Pixel } from 'ol/pixel'
+import type { ProjectionLike } from 'ol/proj'
+import type { VectorSourceEvent } from 'ol/source/Vector'
 import type { FlatStyleLike } from 'ol/style/flat'
+import type { StyleFunction, StyleLike } from 'ol/style/Style'
 
 import { equals as arrayEquals } from 'ol/array'
 import Collection from 'ol/Collection'
 import CollectionEventType from 'ol/CollectionEventType'
-import { wrapX as wrapXCoordinate } from 'ol/coordinate'
 import {
     closestOnSegment,
     distance as coordinateDistance,
     equals as coordinatesEqual,
     squaredDistance as squaredCoordinateDistance,
     squaredDistanceToSegment,
-    type Coordinate,
+    wrapX as wrapXCoordinate,
 } from 'ol/coordinate'
-import { altKeyOnly, always, primaryAction, singleClick, type Condition } from 'ol/events/condition'
+import { altKeyOnly, always, primaryAction, singleClick } from 'ol/events/condition'
 import BaseEvent from 'ol/events/Event'
 import EventType from 'ol/events/EventType'
 import {
     boundingExtent,
     buffer as bufferExtent,
     createOrUpdateFromCoordinate as createExtent,
-    type Extent,
 } from 'ol/extent'
-import Feature, { type FeatureLike } from 'ol/Feature'
+import Feature from 'ol/Feature'
 import Point from 'ol/geom/Point'
 import { fromCircle } from 'ol/geom/Polygon'
-import PointerInteraction, {
-    type Options as PointerInteractionOptions,
-} from 'ol/interaction/Pointer'
+import PointerInteraction from 'ol/interaction/Pointer'
 import BaseVectorLayer from 'ol/layer/BaseVector'
 import VectorLayer from 'ol/layer/Vector'
 import MapBrowserEvent from 'ol/MapBrowserEvent'
@@ -61,12 +65,11 @@ import {
     getUserProjection,
     toUserCoordinate,
     toUserExtent,
-    type ProjectionLike,
 } from 'ol/proj'
 import CanvasVectorLayerRenderer from 'ol/renderer/canvas/VectorLayer'
-import VectorSource, { type VectorSourceEvent } from 'ol/source/Vector'
+import VectorSource from 'ol/source/Vector'
 import RBush from 'ol/structs/RBush'
-import { createEditingStyle, type StyleFunction, type StyleLike } from 'ol/style/Style'
+import { createEditingStyle } from 'ol/style/Style'
 import { getUid } from 'ol/util'
 
 /** The segment index assigned to a circle's center when breaking up a circle. */
@@ -76,10 +79,7 @@ const CIRCLE_CIRCUMFERENCE_INDEX = 1
 
 const tempExtent: Extent = [0, 0, 0, 0]
 
-export enum ModifyEventType {
-    MODIFYSTART = 'modifystart',
-    MODIFYEND = 'modifyend',
-}
+export type ModifyEventType = 'modifystart' | 'modifyend'
 
 /** A line segment between two coordinates (2 coordinates, 2D). */
 export type Segment = [Coordinate, Coordinate]
@@ -964,9 +964,7 @@ export default class Modify extends PointerInteraction {
             }
         }
         if (this.featuresBeingModified_) {
-            this.dispatchEvent(
-                new ModifyEvent(ModifyEventType.MODIFYEND, this.featuresBeingModified_, evt)
-            )
+            this.dispatchEvent(new ModifyEvent('modifyend', this.featuresBeingModified_, evt))
             this.featuresBeingModified_ = null
         }
         return false
@@ -1140,9 +1138,7 @@ export default class Modify extends PointerInteraction {
             if (this.featuresBeingModified_.getLength() === 0) {
                 this.featuresBeingModified_ = null
             } else {
-                this.dispatchEvent(
-                    new ModifyEvent(ModifyEventType.MODIFYSTART, this.featuresBeingModified_, evt)
-                )
+                this.dispatchEvent(new ModifyEvent('modifystart', this.featuresBeingModified_, evt))
             }
         }
     }
@@ -1175,9 +1171,7 @@ export default class Modify extends PointerInteraction {
             this.willModifyFeatures_(evt, this.dragSegments_)
             const removed = this.removeVertex_()
             if (this.featuresBeingModified_) {
-                this.dispatchEvent(
-                    new ModifyEvent(ModifyEventType.MODIFYEND, this.featuresBeingModified_, evt)
-                )
+                this.dispatchEvent(new ModifyEvent('modifyend', this.featuresBeingModified_, evt))
             }
             this.featuresBeingModified_ = null
             return removed

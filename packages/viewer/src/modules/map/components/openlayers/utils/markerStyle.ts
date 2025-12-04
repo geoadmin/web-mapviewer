@@ -16,38 +16,37 @@ import {
     hoveredPointStyle,
 } from '@/utils/styleUtils'
 
-export enum OpenLayersMarkerStyles {
-    Balloon = 'balloon',
-    Position = 'position',
-    Feature = 'feature',
-    Hidden = 'hidden',
-    Bowl = 'bowl',
-    Circle = 'circle',
-    Cross = 'cross',
-    Point = 'point',
-}
+export type OpenLayersMarkerStyles =
+    | 'balloon'
+    | 'position'
+    | 'feature'
+    | 'hidden'
+    | 'bowl'
+    | 'circle'
+    | 'cross'
+    | 'point'
 
 function imageForMarkerStyle(markerStyle: OpenLayersMarkerStyles): string | undefined {
     switch (markerStyle) {
-        case OpenLayersMarkerStyles.Bowl:
+        case 'bowl':
             return bowlImage
-        case OpenLayersMarkerStyles.Balloon:
+        case 'balloon':
             return markerImage
-        case OpenLayersMarkerStyles.Circle:
+        case 'circle':
             return circleImage
-        case OpenLayersMarkerStyles.Cross:
+        case 'cross':
             return crossImage
-        case OpenLayersMarkerStyles.Point:
+        case 'point':
             return pointImage
     }
 }
 
 export function getMarkerStyle(markerStyle: OpenLayersMarkerStyles): Style {
     switch (markerStyle) {
-        case OpenLayersMarkerStyles.Position:
+        case 'position':
             return geolocationPointStyle
 
-        case OpenLayersMarkerStyles.Balloon:
+        case 'balloon':
             return new Style({
                 image: new IconStyle({
                     anchor: [0.5, 1],
@@ -55,10 +54,10 @@ export function getMarkerStyle(markerStyle: OpenLayersMarkerStyles): Style {
                 }),
             })
 
-        case OpenLayersMarkerStyles.Bowl:
-        case OpenLayersMarkerStyles.Circle:
-        case OpenLayersMarkerStyles.Cross:
-        case OpenLayersMarkerStyles.Point:
+        case 'bowl':
+        case 'circle':
+        case 'cross':
+        case 'point':
             return new Style({
                 image: new IconStyle({
                     anchor: [0.5, 0.5],
@@ -66,10 +65,10 @@ export function getMarkerStyle(markerStyle: OpenLayersMarkerStyles): Style {
                 }),
             })
 
-        case OpenLayersMarkerStyles.Feature:
+        case 'feature':
             return highlightPointStyle
 
-        case OpenLayersMarkerStyles.Hidden:
+        case 'hidden':
         default:
             return new Style({
                 image: new IconStyle({

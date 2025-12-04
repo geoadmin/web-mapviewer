@@ -8,10 +8,7 @@ import { useI18n } from 'vue-i18n'
 import type { ActionDispatcher } from '@/store/types'
 
 import { PrintError, PrintLayout } from '@/api/print.api'
-import {
-    PrintStatus,
-    usePrint,
-} from '@/modules/map/components/openlayers/utils/usePrint.composable'
+import { usePrint } from '@/modules/map/components/openlayers/utils/usePrint.composable'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import useLayersStore from '@/store/modules/layers'
 import usePrintStore from '@/store/modules/print'
@@ -82,7 +79,7 @@ const selectedScale = computed<number | undefined>({
 })
 
 const printErrorMessage = computed<string>(() => {
-    if (PrintStatus.FINISHED_ABORTED) {
+    if (printStatus.value === 'FINISHED_ABORTED') {
         return t('operation_aborted')
     } else {
         if (printError.value instanceof PrintError && printError.value.key) {
@@ -131,9 +128,9 @@ async function printMap() {
         if (printDownloadUrl) {
             downloadFile(printDownloadUrl, generateFilename('pdf'))
         } else {
-            if (printStatus.value === PrintStatus.FINISHED_ABORTED) {
+            if (printStatus.value === 'FINISHED_ABORTED') {
                 log.debug('Print is aborted by the user')
-            } else if (printStatus.value === PrintStatus.FINISHED_FAILED) {
+            } else if (printStatus.value === 'FINISHED_FAILED') {
                 log.error('Print failed, received null')
             }
         }
@@ -143,8 +140,8 @@ async function printMap() {
 }
 
 function onOpenMenuSection(sectionId: string) {
-    if (printStatus.value !== PrintStatus.PRINTING) {
-        printStatus.value = PrintStatus.IDLE
+    if (printStatus.value !== 'PRINTING') {
+        printStatus.value = 'IDLE'
     }
     emits('openMenuSection', sectionId)
 }
@@ -243,11 +240,8 @@ defineExpose({
                 <input
                     hidden
                     :class="{
-                        'is-invalid': [
-                            PrintStatus.FINISHED_FAILED,
-                            PrintStatus.FINISHED_ABORTED,
-                        ].includes(printStatus),
-                        'is-valid': printStatus === PrintStatus.FINISHED_SUCCESSFULLY,
+                        'is-invalid': ['FINISHED_FAILED', 'FINISHED_ABORTED'].includes(printStatus),
+                        'is-valid': printStatus === 'FINISHED_SUCCESSFULLY',
                     }"
                 />
                 <div class="invalid-feedback">
@@ -259,13 +253,13 @@ defineExpose({
             </div>
             <div class="full-width justify-content-center">
                 <ProgressBar
-                    v-if="printStatus === PrintStatus.PRINTING"
+                    v-if="printStatus === 'PRINTING'"
                     :duration="printDuration"
                     bar-class="bg-danger"
                     class="mb-2"
                 />
                 <button
-                    v-if="printStatus === PrintStatus.PRINTING"
+                    v-if="printStatus === 'PRINTING'"
                     type="button"
                     class="btn btn-danger w-100 text-white"
                     data-cy="abort-print-button"

@@ -1,4 +1,4 @@
-import type { EditableFeature } from '@/api/features.api'
+import type { EditableFeature } from '@/api/features/types'
 
 export default function getEditableFeatureWithId(
     selectedEditableFeatures: EditableFeature[],

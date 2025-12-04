@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { EditableFeature, LayerFeature } from '@/api/features.api'
+import type { EditableFeature, LayerFeature } from '@/api/features/types'
 
 import FeatureListCategoryItem from '@/modules/infobox/components/FeatureListCategoryItem.vue'
 

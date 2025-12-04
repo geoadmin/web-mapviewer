@@ -6,7 +6,7 @@ import { ErrorMessage } from '@swissgeo/log/Message'
 import { Math as CesiumMath } from 'cesium'
 import { isEqual } from 'lodash'
 
-import type { GeolocationStore } from '@/store/modules/geolocation/types/geolocation'
+import type { GeolocationStore } from '@/store/modules/geolocation/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import useCesiumStore from '@/store/modules/cesium'

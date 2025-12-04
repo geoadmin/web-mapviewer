@@ -1,7 +1,5 @@
 import type { SearchResult } from '@/api/search.api'
 
-import { SearchResultTypes } from '@/api/search.api'
-
 /**
  * Returns the appropriate result for autoselection from a list of search results.
  *
@@ -18,9 +16,7 @@ export default function getResultForAutoselect(results: SearchResult[]): SearchR
     }
 
     // Try to find a result with resultType LOCATION
-    const locationResult = results.find(
-        (result) => result.resultType === SearchResultTypes.LOCATION
-    )
+    const locationResult = results.find((result) => result.resultType === 'LOCATION')
 
     // If a location result is found, return it; otherwise, return the first result
     return locationResult ?? results[0]! // the outer function established that this element should exist

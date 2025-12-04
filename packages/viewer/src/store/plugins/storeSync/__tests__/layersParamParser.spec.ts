@@ -1,21 +1,12 @@
-import type {
-    GeoAdminLayer,
-    Layer,
-    LayerCustomAttributes,
-    LayerTimeConfigEntry,
-} from '@swissgeo/layers'
+import type { GeoAdminLayer, Layer, LayerCustomAttributes, LayerTimeConfigEntry, } from '@swissgeo/layers'
 
-import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import { cloneDeep } from 'lodash'
 import { Interval } from 'luxon'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
-import {
-    parseLayersParam,
-    transformLayerIntoUrlString,
-} from '@/store/plugins/storeSync/layersParamParser'
+import { parseLayersParam, transformLayerIntoUrlString, } from '@/store/plugins/storeSync/layersParamParser'
 
 describe('Testing layersParamParser', () => {
     function checkParsedLayer(
@@ -85,13 +76,13 @@ describe('Testing layersParamParser', () => {
                     },
                 },
                 {
-                    type: LayerType.KML,
+                    type: 'KML',
                     id: 'somerandomurl.ch/file.kml',
                     baseUrl: 'somerandomurl.ch/file.kml',
                     opacity: 0.4,
                 },
                 {
-                    type: LayerType.WMTS,
+                    type: 'WMTS',
                     baseUrl: 'https://totally.fake.wmts.url/WMTSGetCapabilties.xml',
                     id: 'a.layer.id',
                     opacity: 0.8,
@@ -204,7 +195,7 @@ describe('Testing layersParamParser', () => {
                 expect(result).to.be.an('Array').with.lengthOf(1)
                 const [layer] = result
                 expect(layer).toBeDefined()
-                expect(layer!.type).to.eq(LayerType.KML)
+                expect(layer!.type).to.eq('KML')
                 expect(layer!.id).to.eq(kmlFileUrl)
                 expect(layer!.baseUrl).to.eq(kmlFileUrl)
                 expect(layer!.isVisible).to.be.false
@@ -219,7 +210,7 @@ describe('Testing layersParamParser', () => {
                 const [externalWMTSLayer] = results
                 expect(externalWMTSLayer).to.be.an('Object')
                 expect(externalWMTSLayer!.id).to.eq(layerId)
-                expect(externalWMTSLayer!.type).to.eq(LayerType.WMTS)
+                expect(externalWMTSLayer!.type).to.eq('WMTS')
                 expect(externalWMTSLayer!.baseUrl).to.eq(baseUrl)
                 expect(externalWMTSLayer!.isVisible).to.be.true
                 expect(externalWMTSLayer!.opacity).to.eq(1.0)
@@ -233,7 +224,7 @@ describe('Testing layersParamParser', () => {
                 const [externalWMSLayer] = results
                 expect(externalWMSLayer).to.be.an('Object')
                 expect(externalWMSLayer!.id).to.eq(layerId)
-                expect(externalWMSLayer!.type).to.eq(LayerType.WMS)
+                expect(externalWMSLayer!.type).to.eq('WMS')
                 expect(externalWMSLayer!.baseUrl).to.eq(baseUrl)
                 expect(externalWMSLayer!.isVisible).to.be.true
                 expect(externalWMSLayer!.opacity).to.eq(0.8)

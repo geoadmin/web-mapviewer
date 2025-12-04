@@ -1,4 +1,4 @@
-import type { GeolocationStore } from '@/store/modules/geolocation/types/geolocation'
+import type { GeolocationStore } from '@/store/modules/geolocation/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import setCenterIfInBounds from '@/store/modules/geolocation/utils/setCenterIfInBounds'

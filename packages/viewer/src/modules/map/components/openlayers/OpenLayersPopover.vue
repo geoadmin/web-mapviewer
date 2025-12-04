@@ -10,15 +10,16 @@ import type { Map } from 'ol'
 import log from '@swissgeo/log'
 import { inject, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 
+import type { MapPopoverMode } from '@/modules/map/types'
+
 import MapPopover from '@/modules/map/components/MapPopover.vue'
-import { MapPopoverMode } from '@/modules/map/components/MapPopoverMode.enum'
 
 const {
     coordinates,
     authorizePrint = false,
     title = '',
     useContentPadding = false,
-    mode = MapPopoverMode.Floating,
+    mode = 'FLOATING',
 } = defineProps<{
     coordinates?: SingleCoordinate
     authorizePrint?: boolean

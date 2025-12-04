@@ -1,4 +1,5 @@
-import { moveTimeSlider } from '@/../tests/cypress/tests-e2e/utils'
+import { moveTimeSlider } from 'support/timeSlider'
+
 import useUIStore from '@/store/modules/ui'
 
 type CompareConfig = {

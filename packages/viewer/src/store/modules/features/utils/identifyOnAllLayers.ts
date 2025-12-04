@@ -5,7 +5,9 @@ import { extentUtils } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { containsCoordinate, getIntersection as getExtentIntersection } from 'ol/extent'
 
-import { identify, type IdentifyConfig, type LayerFeature } from '@/api/features.api'
+import type { IdentifyConfig, LayerFeature } from '@/api/features/types'
+
+import { identify } from '@/api/features'
 import getFeatureCountForCoordinate from '@/store/modules/features/utils/getFeatureCountForCoordinate'
 
 interface MultipleIdentifyConfig extends Omit<IdentifyConfig, 'layer'> {

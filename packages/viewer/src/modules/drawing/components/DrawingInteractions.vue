@@ -10,7 +10,6 @@ import type {
     SelectInteractionExposed,
 } from '@/modules/drawing/types/interaction'
 
-import { EditableFeatureTypes } from '@/api/features.api'
 import DrawingLineInteraction from '@/modules/drawing/components/DrawingLineInteraction.vue'
 import DrawingMarkerInteraction from '@/modules/drawing/components/DrawingMarkerInteraction.vue'
 import DrawingMeasureInteraction from '@/modules/drawing/components/DrawingMeasureInteraction.vue'
@@ -19,7 +18,6 @@ import DrawingTextInteraction from '@/modules/drawing/components/DrawingTextInte
 import ExtendLineInteraction from '@/modules/drawing/components/ExtendLineInteraction.vue'
 import ExtendMeasureInteraction from '@/modules/drawing/components/ExtendMeasureInteraction.vue'
 import useDrawingStore from '@/store/modules/drawing'
-import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 
 const selectInteraction =
     useTemplateRef<ComponentPublicInstance<SelectInteractionExposed>>('selectInteraction')
@@ -32,26 +30,24 @@ const selectedLineFeature = ref<Feature | undefined>()
 const specializedInteractionComponent = computed<Component | undefined>(() => {
     let selectedInteraction
     switch (drawingStore.edit.featureType) {
-        case EditableFeatureTypes.Annotation:
+        case 'ANNOTATION':
             selectedInteraction = DrawingTextInteraction
             break
-        case EditableFeatureTypes.LinePolygon:
+        case 'LINEPOLYGON':
             selectedInteraction = DrawingLineInteraction
             break
-        case EditableFeatureTypes.Marker:
+        case 'MARKER':
             selectedInteraction = DrawingMarkerInteraction
             break
-        case EditableFeatureTypes.Measure:
+        case 'MEASURE':
             selectedInteraction = DrawingMeasureInteraction
             break
     }
-    if (drawingStore.edit.mode === EditMode.Extend) {
+    if (drawingStore.edit.mode === 'EXTEND') {
         const isMeasure =
-            selectedLineFeature.value?.get('editableFeature')?.featureType ===
-            EditableFeatureTypes.Measure
+            selectedLineFeature.value?.get('editableFeature')?.featureType === 'MEASURE'
         const isLine =
-            selectedLineFeature.value?.get('editableFeature')?.featureType ===
-            EditableFeatureTypes.LinePolygon
+            selectedLineFeature.value?.get('editableFeature')?.featureType === 'LINEPOLYGON'
         if (isMeasure) {
             selectedInteraction = ExtendMeasureInteraction
         } else if (isLine) {
@@ -72,7 +68,7 @@ const specializedInteractionComponent = computed<Component | undefined>(() => {
 })
 
 const specializedProps = computed(() => {
-    if (drawingStore.edit.mode === EditMode.Extend) {
+    if (drawingStore.edit.mode === 'EXTEND') {
         return {
             startingFeature: selectedLineFeature.value,
         }
@@ -86,7 +82,7 @@ function onDrawEnd(feature: Feature | undefined) {
 
 function removeLastPoint() {
     currentInteraction.value?.removeLastPoint()
-    if (drawingStore.edit.mode !== EditMode.Off) {
+    if (drawingStore.edit.mode !== 'OFF') {
         selectInteraction.value?.removeLastPoint()
     }
 }

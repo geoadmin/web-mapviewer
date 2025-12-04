@@ -5,16 +5,14 @@ import type { Geometry } from 'ol/geom'
 
 import GeoJSON from 'ol/format/GeoJSON'
 
-import {
-    extractOlFeatureCoordinates,
-    type LayerFeature,
-    type SelectableFeature,
-} from '@/api/features.api'
+import type { LayerFeature, SelectableFeature } from '@/api/features/types'
+
+import { extractOlFeatureCoordinates } from '@/api/features'
 
 export default function createLayerFeature(
     olFeature: Feature<Geometry>,
     layer: Layer
-): SelectableFeature<false> | undefined {
+): SelectableFeature | undefined {
     const geometry = olFeature.getGeometry()
 
     if (!geometry) {

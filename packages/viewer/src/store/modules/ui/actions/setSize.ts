@@ -1,4 +1,4 @@
-import type { UIStore } from '@/store/modules/ui/types/ui'
+import type { UIMode, UIStore } from '@/store/modules/ui/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import {
@@ -6,8 +6,6 @@ import {
     BREAKPOINT_PHONE_WIDTH,
     MAX_WIDTH_SHOW_FLOATING_TOOLTIP,
 } from '@/config/responsive.config'
-import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
-import { UIModes } from '@/store/modules/ui/types/uiModes.enum'
 
 export default function setSize(
     this: UIStore,
@@ -18,19 +16,16 @@ export default function setSize(
     this.height = height
     this.width = width
 
-    if (
-        this.featureInfoPosition !== FeatureInfoPositions.None &&
-        this.width < MAX_WIDTH_SHOW_FLOATING_TOOLTIP
-    ) {
-        this.featureInfoPosition = FeatureInfoPositions.BottomPanel
+    if (this.featureInfoPosition !== 'none' && this.width < MAX_WIDTH_SHOW_FLOATING_TOOLTIP) {
+        this.featureInfoPosition = 'bottompanel'
     }
 
-    let wantedUiMode: UIModes
+    let wantedUiMode: UIMode
     if (this.width < BREAKPOINT_PHONE_WIDTH || this.height < BREAKPOINT_PHONE_HEIGHT) {
-        wantedUiMode = UIModes.Phone
+        wantedUiMode = 'phone'
     } else {
         // so the UI mode Desktop also includes the tablet mode.
-        wantedUiMode = UIModes.Desktop
+        wantedUiMode = 'desktop'
     }
     if (wantedUiMode !== this.mode) {
         this.setUiMode(wantedUiMode, dispatcher)

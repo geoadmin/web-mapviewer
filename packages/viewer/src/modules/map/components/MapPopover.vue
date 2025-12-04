@@ -4,7 +4,8 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
 
-import { MapPopoverMode } from '@/modules/map/components/MapPopoverMode.enum'
+import type { MapPopoverMode } from '@/modules/map/types'
+
 import {
     cssDevDisclaimerHeight,
     cssDrawingMobileToolbarHeight,
@@ -28,7 +29,7 @@ const {
     title = '',
     useContentPadding,
     anchorPosition = { top: 0, left: 0 },
-    mode = MapPopoverMode.Floating,
+    mode = 'FLOATING',
 } = defineProps<{
     authorizePrint: boolean
     title?: string
@@ -50,7 +51,7 @@ const uiStore = useUIStore()
 const drawingStore = useDrawingStore()
 
 const cssPositionOnScreen = computed(() => {
-    if (mode === MapPopoverMode.FeatureTooltip && anchorPosition) {
+    if (mode === 'FEATURE_TOOLTIP' && anchorPosition) {
         return {
             top: `${anchorPosition.top}px`,
             left: `${anchorPosition.left}px`,
@@ -85,7 +86,7 @@ const popoverLimits = computed(() => {
 })
 
 onMounted(() => {
-    if (mode === MapPopoverMode.Floating && popover.value && popoverHeader.value) {
+    if (mode === 'FLOATING' && popover.value && popoverHeader.value) {
         useMovableElement({
             element: popover.value,
             grabElement: popoverHeader.value,
@@ -110,8 +111,8 @@ defineExpose({
         data-cy="popover"
         :style="cssPositionOnScreen"
         :class="{
-            floating: mode === MapPopoverMode.Floating,
-            'feature-anchored': mode === MapPopoverMode.FeatureTooltip,
+            floating: mode === 'FLOATING',
+            'feature-anchored': mode === 'FEATURE_TOOLTIP',
             'with-dev-disclaimer': uiStore.hasDevSiteWarning,
             'with-time-slider-bar': uiStore.hasDevSiteWarning && uiStore.isTraditionalDesktopSize,
             'with-dev-disclaimer-and-time-slider-bar':

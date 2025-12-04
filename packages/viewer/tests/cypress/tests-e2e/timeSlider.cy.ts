@@ -1,9 +1,10 @@
 import type { LayerConfigResponse } from '@swissgeo/layers/api'
 
+import { moveTimeSlider } from 'support/timeSlider'
 import { assertDefined } from 'support/utils'
 
-import { moveTimeSlider } from '@/../tests/cypress/tests-e2e/utils'
-import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
+const defaultOldestYear = 1844
+const defaultYoungestYear = new Date().getFullYear()
 
 describe('Cypress tests covering the time slider, its functionalities and its URL parameter', () => {
     context('checking the time slider behavior, both on startup and during use', () => {
@@ -282,13 +283,13 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
 
             cy.get('@swissFlag').click()
             cy.goToMapView({
-                queryParams: { layers: timedLayerId, timeSlider: DEFAULT_OLDEST_YEAR - 1250 },
+                queryParams: { layers: timedLayerId, timeSlider: defaultOldestYear - 1250 },
             })
             cy.get('@timeSliderYearCursor').should('not.exist')
             cy.url().should((url) => !url.includes('timeSlider='))
 
             cy.goToMapView({
-                queryParams: { layers: timedLayerId, timeSlider: DEFAULT_YOUNGEST_YEAR + 1250 },
+                queryParams: { layers: timedLayerId, timeSlider: defaultYoungestYear + 1250 },
             })
             cy.get('@timeSliderYearCursor').should('not.exist')
             cy.url().should((url) => !url.includes('timeSlider='))

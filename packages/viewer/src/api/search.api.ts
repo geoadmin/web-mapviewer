@@ -3,15 +3,14 @@ import type { GPXLayer, KMLLayer, Layer } from '@swissgeo/layers'
 import type Feature from 'ol/Feature'
 
 import { CoordinateSystem, CustomCoordinateSystem, LV95, WGS84 } from '@swissgeo/coordinates'
-import { LayerType } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { bbox, points } from '@turf/turf'
 import axios, { type AxiosResponse, type CancelToken, type CancelTokenSource } from 'axios'
 import proj4 from 'proj4'
 
-import type { DrawingIconSet } from '@/api/icon.api'
+import type { DrawingIconSet } from '@/api/icons/types'
 
-import { extractOlFeatureCoordinates } from '@/api/features.api'
+import { extractOlFeatureCoordinates } from '@/api/features'
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
 import i18n from '@/modules/i18n'
 import { getGeoJsonFeatureCenter } from '@/utils/geoJsonUtils'
@@ -25,7 +24,7 @@ const KML_GPX_SEARCH_FIELDS = ['name', 'description', 'id']
 /**
  * Error when building/sending/parsing a search request
  *
- * @property {String} message Technical english message
+ * @property message Technical english message
  */
 export class SearchError extends Error {
     constructor(message?: string) {
@@ -34,11 +33,7 @@ export class SearchError extends Error {
     }
 }
 
-export enum SearchResultTypes {
-    LAYER = 'LAYER',
-    LOCATION = 'LOCATION',
-    FEATURE = 'FEATURE',
-}
+export type SearchResultTypes = 'LAYER' | 'LOCATION' | 'FEATURE'
 
 // comes from https://stackoverflow.com/questions/5002111/how-to-strip-html-tags-from-string-in-javascript
 const REGEX_DETECT_HTML_TAGS = /<\/?[^>]+(>|$)/g
@@ -146,7 +141,7 @@ function parseLayerResult(result: SearchResponseResult): LayerSearchResult {
     }
     const { label: title, detail: description, layer: layerId } = result.attrs
     return {
-        resultType: SearchResultTypes.LAYER,
+        resultType: 'LAYER',
         id: layerId ?? title,
         title,
         sanitizedTitle: sanitizeTitle(title),
@@ -211,7 +206,7 @@ function parseLocationResult(
     }
     const newTitle = newOrigin ? `${newOrigin} ${title}` : title
     return {
-        resultType: SearchResultTypes.LOCATION,
+        resultType: 'LOCATION',
         id: featureId,
         title: newTitle,
         sanitizedTitle: sanitizeTitle(title),
@@ -322,7 +317,7 @@ async function searchLayerFeatures(
                 return {
                     ...layerContent,
                     ...locationContent,
-                    resultType: SearchResultTypes.FEATURE,
+                    resultType: 'FEATURE',
                     title,
                     layer,
                 }
@@ -396,7 +391,7 @@ function searchLayerFeaturesKMLGPX(
     iconSets: DrawingIconSet[]
 ): SearchResult[] {
     return layersToSearch.reduce((returnLayers: SearchResult[], currentLayer: Layer) => {
-        if (currentLayer.type === LayerType.KML) {
+        if (currentLayer.type === 'KML') {
             const kmlLayer = currentLayer as KMLLayer
             return returnLayers.concat(
                 searchFeatures(
@@ -407,7 +402,7 @@ function searchLayerFeaturesKMLGPX(
                 )
             )
         }
-        if (currentLayer.type === LayerType.GPX) {
+        if (currentLayer.type === 'GPX') {
             const gpxLayer = currentLayer as GPXLayer
             const gpxData = gpxLayer.gpxData
             if (!gpxData) {
@@ -443,7 +438,7 @@ function createSearchResultFromLayer(
 
     const featureId = feature.getId() ? `${feature.getId()}` : layer.id
     return {
-        resultType: SearchResultTypes.FEATURE,
+        resultType: 'FEATURE',
         id: featureId,
         title: featureName,
         sanitizedTitle: sanitizeTitle(featureName),

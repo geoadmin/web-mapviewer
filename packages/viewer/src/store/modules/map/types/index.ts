@@ -1,13 +1,23 @@
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 
-import type { SelectableFeature } from '@/api/features.api'
+import type { SelectableFeature } from '@/api/features/types'
 
-import { ClickType } from '@/store/modules/map/types/clickType.enum'
+/**
+ * Possible values:
+ *
+ * - 'CONTEXT_MENU': Any action that triggers the context menu, so for example, right click with a
+ *   mouse or a long click with the finger on a touch device
+ * - 'LEFT_SINGLE_CLICK': A single click, with the left mouse button or with the finger on a touch
+ *   device
+ * - 'CTRL_LEFT_SINGLE_CLICK': A single click with the CTRL button pressed
+ * - 'DRAW_BOX': Drawing a box with ctrl and dragging a left click
+ */
+export type ClickType = 'CONTEXT_MENU' | 'LEFT_SINGLE_CLICK' | 'CTRL_LEFT_SINGLE_CLICK' | 'DRAW_BOX'
 
 export interface ClickInfo {
     coordinate: SingleCoordinate | FlatExtent
     pixelCoordinate?: SingleCoordinate
-    features?: SelectableFeature<false>[] // LayerFeatures are not editable
+    features?: SelectableFeature[]
     clickType?: ClickType
 }
 

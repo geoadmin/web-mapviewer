@@ -3,9 +3,9 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import type { EditableFeatureTypes } from '@/api/features/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { EditableFeatureTypes } from '@/api/features.api'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import useUIStore from '@/store/modules/ui'
@@ -22,13 +22,13 @@ const featuresStore = useFeaturesStore()
 const isActive = computed<boolean>(() => featureType === drawingStore.edit.featureType)
 const buttonIcon = computed<string[]>(() => {
     switch (featureType) {
-        case EditableFeatureTypes.LinePolygon:
+        case 'LINEPOLYGON':
             return ['fa', 'draw-polygon']
-        case EditableFeatureTypes.Marker:
+        case 'MARKER':
             return ['fa', 'map-marker-alt']
-        case EditableFeatureTypes.Measure:
+        case 'MEASURE':
             return ['fa', 'ruler']
-        case EditableFeatureTypes.Annotation:
+        case 'ANNOTATION':
             return ['fa', 't']
         default:
             return []

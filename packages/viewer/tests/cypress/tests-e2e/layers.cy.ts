@@ -2,7 +2,6 @@ import type { ExternalWMSLayer, ExternalWMTSLayer, GeoAdminWMSLayer, Layer } fro
 import type { Pinia } from 'pinia'
 
 import { WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
-import { LayerType } from '@swissgeo/layers'
 import { assertDefined } from 'support/utils'
 
 import useI18nStore from '@/store/modules/i18n'
@@ -1317,7 +1316,7 @@ describe('Test of layer handling', () => {
             // Wait until the active layers are ready.
             cy.waitUntilState((pinia: Pinia) => {
                 const layersStore = useLayersStore(pinia)
-                return layersStore.activeLayers.some((layer: Layer) => layer.type === LayerType.WMS && (layer as GeoAdminWMSLayer).lang === langBefore)
+                return layersStore.activeLayers.some((layer: Layer) => layer.type === 'WMS' && (layer as GeoAdminWMSLayer).lang === langBefore)
             })
 
             // CHECK before
@@ -1343,7 +1342,7 @@ describe('Test of layer handling', () => {
             // Wait until the active layers are updated.
             cy.waitUntilState((pinia: Pinia) => {
                 const layersStore = useLayersStore(pinia)
-                return layersStore.activeLayers.some((layer: Layer) => layer.type === LayerType.WMS && (layer as GeoAdminWMSLayer).lang === langBefore)
+                return layersStore.activeLayers.some((layer: Layer) => layer.type === 'WMS' && (layer as GeoAdminWMSLayer).lang === langBefore)
             })
 
             // CHECK after

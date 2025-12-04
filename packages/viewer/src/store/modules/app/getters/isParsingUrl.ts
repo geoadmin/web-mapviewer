@@ -1,9 +1,5 @@
-import type { AppStore } from '@/store/modules/app/types/app'
-
-import { AppStateNames } from '@/store/modules/app/types/appState'
+import type { AppStore } from '@/store/modules/app/types'
 
 export default function isParsingUrl(this: AppStore): boolean {
-    return [AppStateNames.UrlParsing, AppStateNames.Ready, AppStateNames.MapShown].includes(
-        this.appState.name
-    )
+    return ['URL_PARSING', 'READY', 'MAP_SHOWN'].includes(this.appState.name)
 }

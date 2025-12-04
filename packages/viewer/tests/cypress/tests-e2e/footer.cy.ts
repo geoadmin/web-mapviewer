@@ -5,7 +5,6 @@ import { WEBMERCATOR } from '@swissgeo/coordinates'
 
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
-import { UIModes } from '@/store/modules/ui/types/uiModes.enum'
 
 describe('Testing the footer content / tools', () => {
     it('shows/hide the scale line depending on the map resolution, while in Mercator', () => {
@@ -75,7 +74,7 @@ describe('Testing the footer content / tools', () => {
         cy.viewport('macbook-11')
         cy.waitUntilState((pinia: Pinia) => {
             const uiStore = useUIStore(pinia)
-            return uiStore.mode === UIModes.Desktop
+            return uiStore.mode === 'desktop'
         })
         testBackgroundWheel(true)
     })

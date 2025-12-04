@@ -4,7 +4,7 @@ import { WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import proj4 from 'proj4'
 
-import type { PositionStore } from '@/store/modules/position/types/position'
+import type { PositionStore } from '@/store/modules/position/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import useCesiumStore from '@/store/modules/cesium'

@@ -6,8 +6,10 @@ import { type Geometry, LineString, MultiPoint, Point, Polygon } from 'ol/geom'
 import RenderFeature from 'ol/render/Feature'
 import { Circle, Fill, Style } from 'ol/style'
 
-import { type EditableFeature, isLineOrMeasure } from '@/api/features.api'
-import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
+import type { EditableFeature } from '@/api/features/types'
+
+import { isLineOrMeasure } from '@/api/features'
+import { geoadminStyleFunction } from '@/utils/featureStyle'
 import {
     dashedRedStroke,
     redStroke,

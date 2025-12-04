@@ -10,7 +10,8 @@ import Overlay from 'ol/Overlay'
 import { inject, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { EditableFeatureTypes } from '@/api/features.api'
+import type { EditableFeatureTypes } from '@/api/features/types'
+
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { getVertexCoordinates, pointWithinTolerance } from '@/modules/drawing/lib/drawingUtils'
 import useDrawingStore from '@/store/modules/drawing'
@@ -97,8 +98,8 @@ function updateTooltip() {
         }
     )
 
-    const pointFeatureTypes = [EditableFeatureTypes.Marker, EditableFeatureTypes.Annotation]
-    const nonPointFeatureTypes = [EditableFeatureTypes.LinePolygon, EditableFeatureTypes.Measure]
+    const pointFeatureTypes: EditableFeatureTypes[] = ['MARKER', 'ANNOTATION']
+    const nonPointFeatureTypes: EditableFeatureTypes[] = ['LINEPOLYGON', 'MEASURE']
     const featureDrawingMode = featureUnderCursor?.get('type').toUpperCase()
 
     const translations = []

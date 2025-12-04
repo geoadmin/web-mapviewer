@@ -8,7 +8,7 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { isNumber } from '@swissgeo/numbers'
 import proj4 from 'proj4'
 
-import type { PositionStore } from '@/store/modules/position/types/position'
+import type { PositionStore } from '@/store/modules/position/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { reprojectLayersFeatures } from '@/store/modules/position/utils/reproject'

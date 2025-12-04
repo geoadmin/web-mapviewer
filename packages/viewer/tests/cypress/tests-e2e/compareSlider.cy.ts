@@ -4,7 +4,7 @@ import type { Pinia } from 'pinia'
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 import { assertDefined } from 'support/utils'
 
-import type { IdentifyResponse, IdentifyResult } from '@/api/features.api'
+import type { IdentifyResponse, IdentifyResult } from '@/api/features/types'
 
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'

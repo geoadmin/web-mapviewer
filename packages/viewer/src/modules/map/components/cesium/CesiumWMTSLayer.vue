@@ -2,7 +2,6 @@
 import type { ExternalWMTSLayer, GeoAdminWMTSLayer } from '@swissgeo/layers'
 
 import { WGS84 } from '@swissgeo/coordinates'
-import { WMTSEncodingType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
 import { ErrorMessage } from '@swissgeo/log/Message'
@@ -129,7 +128,7 @@ function createProvider(): WebMapTileServiceImageryProvider | UrlTemplateImagery
     if (wmtsLayerConfigExternal.getTileEncoding !== undefined && tileMatrixSetId.value) {
         provider = new WebMapTileServiceImageryProvider({
             url:
-                wmtsLayerConfigExternal.getTileEncoding === WMTSEncodingType.KVP
+                wmtsLayerConfigExternal.getTileEncoding === 'KVP'
                     ? wmtsLayerConfigExternal.baseUrl
                     : wmtsLayerConfigExternal.urlTemplate,
             layer: wmtsLayerConfigExternal.id,

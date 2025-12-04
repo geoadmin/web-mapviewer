@@ -6,7 +6,7 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { cloneDeep } from 'lodash'
 import { reproject } from 'reproject'
 
-import type { SelectableFeature } from '@/api/features.api'
+import type { SelectableFeature } from '@/api/features/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import useFeaturesStore from '@/store/modules/features'
@@ -67,8 +67,8 @@ function reprojectSelectedFeatures(
 ): void {
     const featureStore = useFeaturesStore()
 
-    const reprojectedSelectedFeatures: SelectableFeature<boolean>[] = []
-    featureStore.selectedFeatures.forEach((selectedFeature: SelectableFeature<boolean>) => {
+    const reprojectedSelectedFeatures: SelectableFeature[] = []
+    featureStore.selectedFeatures.forEach((selectedFeature: SelectableFeature) => {
         if (!selectedFeature.isEditable) {
             const layerFeature = cloneDeep(selectedFeature)
             layerFeature.coordinates = coordinatesUtils.reprojectAndRound(

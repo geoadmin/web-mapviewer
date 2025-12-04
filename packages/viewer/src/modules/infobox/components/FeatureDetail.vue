@@ -6,7 +6,7 @@ import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { LayerFeature, SelectableFeature } from '@/api/features.api'
+import type { LayerFeature, SelectableFeature } from '@/api/features/types'
 import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 
 import { BLOCKED_EXTENSIONS, WHITELISTED_HOSTNAMES } from '@/config/security.config'
@@ -17,7 +17,7 @@ import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import { allFormats } from '@/utils/coordinates/coordinateFormat'
 
 const { feature } = defineProps<{
-    feature: SelectableFeature<boolean>
+    feature: SelectableFeature
 }>()
 
 const { t } = useI18n()

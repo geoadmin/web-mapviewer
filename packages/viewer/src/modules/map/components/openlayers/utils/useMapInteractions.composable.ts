@@ -2,14 +2,14 @@ import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { Layer } from '@swissgeo/layers'
 import type { Map, MapBrowserEvent } from 'ol'
 
-import { LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { altKeyOnly, platformModifierKeyOnly, primaryAction } from 'ol/events/condition'
 import { DragPan, DragRotate, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import { computed, type MaybeRef, onBeforeUnmount, toValue, watch } from 'vue'
 
-import type { LayerFeature } from '@/api/features.api'
+import type { LayerFeature } from '@/api/features/types'
+import type { ClickType } from '@/store/modules/map/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
@@ -19,7 +19,6 @@ import { useDragBoxSelect } from '@/modules/map/components/openlayers/utils/useD
 import useDrawingStore from '@/store/modules/drawing'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
-import { ClickType } from '@/store/modules/map/types/clickType.enum'
 import { createLayerFeature } from '@/utils/layerUtils'
 
 const dispatcher: ActionDispatcher = {
@@ -46,7 +45,7 @@ export default function useMapInteractions(map: MaybeRef<Map>): void {
     const isCurrentlyDrawing = computed(() => drawingStore.overlay.show)
     const activeVectorLayers = computed(() =>
         layersStore.activeLayers.filter((layer: Layer) =>
-            [LayerType.KML, LayerType.GPX, LayerType.GEOJSON].includes(layer.type)
+            ['KML', 'GPX', 'GEOJSON'].includes(layer.type)
         )
     )
 
@@ -180,9 +179,9 @@ export default function useMapInteractions(map: MaybeRef<Map>): void {
                     }
                 })
         })
-        let clickType = ClickType.LeftSingleClick
+        let clickType: ClickType = 'LEFT_SINGLE_CLICK'
         if (platformModifierKeyOnly(event)) {
-            clickType = ClickType.CtrlLeftSingleClick
+            clickType = 'CTRL_LEFT_SINGLE_CLICK'
         }
         mapStore.click(
             {
@@ -207,7 +206,7 @@ export default function useMapInteractions(map: MaybeRef<Map>): void {
                 coordinate: event.coordinate! as SingleCoordinate,
                 pixelCoordinate: event.pixel! as SingleCoordinate,
                 features: [],
-                clickType: ClickType.ContextMenu,
+                clickType: 'CONTEXT_MENU',
             },
             dispatcher
         )

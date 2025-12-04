@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import type { ProfileStoreState, ProfileStoreGetters } from '@/store/modules/profile/types/profile'
+import type { ProfileStoreState, ProfileStoreGetters } from '@/store/modules/profile/types'
 
 import setCurrentFeatureSegmentIndex from '@/store/modules/profile/actions/setCurrentFeatureSegmentIndex'
 import setProfileFeature from '@/store/modules/profile/actions/setProfileFeature'

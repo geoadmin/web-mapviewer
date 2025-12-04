@@ -3,7 +3,7 @@ import type { FlatExtent, NormalizedExtent, SingleCoordinate } from '@swissgeo/c
 import { CoordinateSystem, extentUtils } from '@swissgeo/coordinates'
 import { Math as CesiumMath } from 'cesium'
 
-import type { PositionStore } from '@/store/modules/position/types/position'
+import type { PositionStore } from '@/store/modules/position/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { calculateHeight } from '@/modules/map/components/cesium/utils/cameraUtils'

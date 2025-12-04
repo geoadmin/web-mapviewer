@@ -4,15 +4,10 @@
  * visibility, opacity or position in the layer stack)
  */
 
+import type { ExternalLayer, KMLLayer, KMLStyle, Layer } from '@swissgeo/layers'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { WGS84 } from '@swissgeo/coordinates'
-import {
-    type ExternalLayer,
-    type KMLLayer,
-    KMLStyle,
-    type Layer,
-    LayerType,
-} from '@swissgeo/layers'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
@@ -67,13 +62,14 @@ const layerDownButton = useTemplateRef<HTMLButtonElement>('layerDownButton')
 const currentKmlStyle = ref<KMLStyle | undefined>((layer as KMLLayer)?.style)
 const id = computed<string>(() => layer.id)
 
-const kmlStylesAsDropdownItems = computed<DropdownItem<KMLStyle>[]>(() =>
-    Object.values(KMLStyle).map((style: KMLStyle) => ({
+const kmlStylesAsDropdownItems = computed<DropdownItem<KMLStyle>[]>(() => {
+    const allKmlStyles: KMLStyle[] = ['DEFAULT', 'GEOADMIN']
+    return allKmlStyles.map((style) => ({
         id: style,
         title: style.toLowerCase(),
         value: style,
     }))
-)
+})
 const isLocalFile = computed<boolean>(() => layersStore.isLocalFile(layer))
 const hasDataDisclaimer = computed<boolean>(() =>
     layersStore.hasDataDisclaimer(id.value, {
@@ -88,7 +84,7 @@ const showLayerDescriptionIcon = computed<boolean>(() => layer.hasDescription)
 const hasMultipleTimestamps = computed<boolean>(() => timeConfigUtils.hasMultipleTimestamps(layer))
 const isPhoneMode = computed<boolean>(() => uiStore.isPhoneMode)
 const is3dActive = computed<boolean>(() => cesiumStore.active)
-const isLayerKml = computed<boolean>(() => layer.type === LayerType.KML)
+const isLayerKml = computed<boolean>(() => layer.type === 'KML')
 const isLayerClampedToGround = computed<boolean>({
     get: () => 'clampToGround' in layer && !!layer.clampToGround,
     set: (value: boolean) => {
@@ -182,7 +178,7 @@ function changeStyle(newStyle: { value: KMLStyle }) {
                 {{ layer.name }}
             </TextTruncate>
             <ZoomToExtentButton
-                v-if="layer.extent && layer.type == LayerType.KML"
+                v-if="layer.extent && layer.type == 'KML'"
                 :extent="layer.extent"
                 :extent-projection="(layer as KMLLayer).extentProjection ?? WGS84"
             />

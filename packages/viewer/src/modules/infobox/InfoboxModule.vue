@@ -13,7 +13,6 @@ import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'
 import useProfileStore from '@/store/modules/profile'
 import useUiStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 import PrintButton from '@/utils/components/PrintButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ZoomToExtentButton from '@/utils/components/ZoomToExtentButton.vue'
@@ -69,7 +68,7 @@ function onToggleContent(): void {
     showContent.value = !showContent.value
 }
 function setTooltipInfoPosition(): void {
-    uiStore.setFeatureInfoPosition(FeatureInfoPositions.ToolTip, dispatcher)
+    uiStore.setFeatureInfoPosition('tooltip', dispatcher)
 }
 function onClose(): void {
     if (uiStore.showFeatureInfoInBottomPanel) {

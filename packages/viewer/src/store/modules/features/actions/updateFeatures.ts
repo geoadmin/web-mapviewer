@@ -1,10 +1,11 @@
 import { extentUtils } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { FeaturesStore } from '@/store/modules/features/types/features'
+import type { LayerFeature } from '@/api/features/types'
+import type { FeaturesStore } from '@/store/modules/features/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import getFeature, { type LayerFeature } from '@/api/features.api'
+import getFeature from '@/api/features'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'

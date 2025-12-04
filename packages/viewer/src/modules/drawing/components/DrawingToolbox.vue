@@ -8,17 +8,15 @@ import DOMPurify from 'dompurify'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import type { EditableFeature, EditableFeatureTypes } from '@/api/features/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { type EditableFeature, EditableFeatureTypes } from '@/api/features.api'
 import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
 import DrawingHeader from '@/modules/drawing/components/DrawingHeader.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
 import SharePopup from '@/modules/drawing/components/SharePopup.vue'
 import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
 import useDrawingStore from '@/store/modules/drawing'
-import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
-import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
@@ -48,23 +46,23 @@ const showNoActiveKmlWarning = computed<boolean>(() => layersStore.activeKmlLaye
 const tooltipText = computed<string>(() =>
     t(showNoActiveKmlWarning.value ? 'drawing_empty_cannot_edit_name' : '')
 )
+const allEditableFeatureTypes: EditableFeatureTypes[] = [
+    'MARKER',
+    'ANNOTATION',
+    'LINEPOLYGON',
+    'MEASURE',
+]
+
 const isDrawingLineOrMeasure = computed<boolean>(() => {
     return (
         !!drawingStore.edit.featureType &&
-        [EditableFeatureTypes.LinePolygon, EditableFeatureTypes.Measure].includes(
-            drawingStore.edit.featureType
-        )
+        ['LINEPOLYGON', 'MEASURE'].includes(drawingStore.edit.featureType)
     )
 })
 const selectedLineString = computed<EditableFeature | undefined>(() => {
     return featuresStore.selectedEditableFeatures.find((feature) => {
         const geomType = feature.geometry?.type
-        return (
-            geomType === 'LineString' &&
-            [EditableFeatureTypes.LinePolygon, EditableFeatureTypes.Measure].includes(
-                feature.featureType
-            )
-        )
+        return geomType === 'LineString' && ['LINEPOLYGON', 'MEASURE'].includes(feature.featureType)
     })
 })
 
@@ -83,7 +81,7 @@ const isAllowDeleteLastPoint = computed<boolean>(
         // Allow deleting the last point only if we are drawing line or measure
         // or when extending line
         isDrawingLineOrMeasure.value ||
-        (drawingStore.edit.mode === EditMode.Extend &&
+        (drawingStore.edit.mode === 'EXTEND' &&
             selectedLineString.value !== undefined &&
             selectedLineCoordinates.value !== undefined &&
             selectedLineCoordinates.value.length > 2)
@@ -93,20 +91,18 @@ const drawingName = computed<string | undefined>({
     set: (value) => debounceSaveDrawingName(value),
 })
 const isDrawingStateError = computed(
-    () =>
-        drawingStore.save.state === DrawingSaveState.LoadError ||
-        drawingStore.save.state === DrawingSaveState.SaveError
+    () => drawingStore.save.state === 'LOAD_ERROR' || drawingStore.save.state === 'SAVE_ERROR'
 )
 /** Return a different translation key depending on the saving status */
 const drawingStateMessage = computed(() => {
     switch (drawingStore.save.state) {
-        case DrawingSaveState.Saving:
+        case 'SAVING':
             return t('draw_file_saving')
-        case DrawingSaveState.Saved:
+        case 'SAVED':
             return t('draw_file_saved')
-        case DrawingSaveState.SaveError:
+        case 'SAVE_ERROR':
             return t('draw_file_load_error')
-        case DrawingSaveState.LoadError:
+        case 'LOAD_ERROR':
             return t('draw_file_save_error')
         default:
             return undefined
@@ -210,7 +206,7 @@ const debounceSaveDrawingName = debounce(saveDrawingName, 200)
                         :class="{ 'row-cols-2': uiStore.isDesktopMode }"
                     >
                         <div
-                            v-for="featureType in Object.values(EditableFeatureTypes)"
+                            v-for="featureType in allEditableFeatureTypes"
                             :key="featureType"
                             class="col"
                             :class="{

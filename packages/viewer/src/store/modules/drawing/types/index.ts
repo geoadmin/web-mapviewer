@@ -6,12 +6,35 @@ import type { Raw } from 'vue'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
 
-import type { DrawingIconSet } from '@/api/icon.api'
-import type { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
-import type { FeatureStyleColor, FeatureStyleSize, TextPlacement } from '@/utils/featureStyleUtils'
+import type { EditableFeature, EditableFeatureTypes } from '@/api/features/types'
+import type { DrawingIconSet } from '@/api/icons/types'
+import type { FeatureStyleColor, FeatureStyleSize, TextPlacement } from '@/utils/featureStyle/types'
 
-import { type EditableFeature, EditableFeatureTypes } from '@/api/features.api'
-import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
+/**
+ * - 'MODIFY': Mode for modifying existing features
+ * - 'EXTEND': Mode for extending existing features (for line only)
+ */
+export type EditMode = 'OFF' | 'MODIFY' | 'EXTEND'
+
+/**
+ * Possible states of the drawing save process:
+ *
+ * - 'INITIAL': First state when entering the drawing mode
+ * - 'LOADED': Drawing has been loaded from the KML
+ * - 'UNSAVED_CHANGES': Pending changes -> drawing has been modified and is not saved
+ * - 'SAVING': Drawing is being saved
+ * - 'SAVED': Drawing has been saved, and no pending changes are remaining
+ * - 'SAVE_ERROR': Could not save drawing
+ * - 'LOAD_ERROR': Could not load drawing
+ */
+export type DrawingSaveState =
+    | 'INITIAL'
+    | 'LOADED'
+    | 'UNSAVED_CHANGES'
+    | 'SAVING'
+    | 'SAVED'
+    | 'SAVE_ERROR'
+    | 'LOAD_ERROR'
 
 export interface DrawingPreferences {
     size: FeatureStyleSize

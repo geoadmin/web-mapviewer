@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import type { TopicsStoreGetters, TopicsStoreState } from '@/store/modules/topics/types/topics'
+import type { TopicsStoreGetters, TopicsStoreState } from '@/store/modules/topics/types'
 
 import addTopicTreeOpenedThemeId from '@/store/modules/topics/actions/addTopicTreeOpenedThemeId'
 import changeTopic from '@/store/modules/topics/actions/changeTopic'

@@ -3,9 +3,8 @@ import type { CyHttpMessages } from 'cypress/types/net-stubbing'
 import { randomIntBetween } from '@swissgeo/numbers'
 import pako from 'pako'
 
-import { EditableFeatureTypes } from '@/api/features.api'
 import useDrawingStore from '@/store/modules/drawing'
-import { generateRGBFillString, GREEN, RED } from '@/utils/featureStyleUtils'
+import { generateRGBFillString, GREEN, RED } from '@/utils/featureStyle'
 
 function transformHeaders(headers: { [key: string]: string | string[] }): HeadersInit {
     const transformedHeaders: HeadersInit = {}
@@ -226,7 +225,7 @@ Cypress.Commands.add('closeDrawingMode', (closeDrawingNotSharedAdmin = true) => 
 })
 
 Cypress.Commands.add('clickDrawingTool', (name, unselect = false) => {
-    expect(Object.values(EditableFeatureTypes)).to.include(name)
+    expect(['MEASURE', 'MARKER', 'ANNOTATION', 'LINEPOLYGON']).to.include(name)
     cy.get(`[data-cy="drawing-toolbox-mode-button-${name}"]:visible`).click()
     cy.getPinia().should((pinia) => {
         const drawingStore = useDrawingStore(pinia)
