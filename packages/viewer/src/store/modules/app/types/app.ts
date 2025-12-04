@@ -4,6 +4,7 @@ import type { AppState } from '@/store/modules/app/types/appState'
 export interface AppStoreState {
     appState: AppState
     initialUrlParsingHasHappened: boolean
+    legacParamsParsingHasHappened: boolean
     hasPendingUrlParsing: boolean
 }
 export type AppStoreGetters = {
