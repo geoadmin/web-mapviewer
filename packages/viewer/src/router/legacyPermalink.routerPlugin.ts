@@ -30,6 +30,8 @@ import {
     isLegacyParams,
 } from '@/utils/legacyLayerParamUtils'
 
+const dispatcher = { name: 'legacyPermalinkRouterPlugin' }
+
 function toNumber(input: string | number): number {
     return typeof input === 'number' ? input : parseFloat(input)
 }
@@ -180,7 +182,7 @@ export function handleLegacyParam(
             newValue = legacyParamValue
             break
     }
-
+    console.log('handleLegacyParam', legacyParamName, legacyParamValue, key, newValue)
     if (newValue !== undefined) {
         // When receiving a query, the application will encode the URI components
         // We decode those so that the new query won't encode encoded character
@@ -449,7 +451,9 @@ export const legacyPermalinkManagementRouterPlugin: RouterPlugin = (router): voi
                                         titleColor: LogPreDefinedColor.Amber,
                                         messages: [`redirect to the converted params`, newRoute],
                                     })
-                                    router.replace(newRoute).catch((error) => {
+                                    router.replace(newRoute).then(() => {
+                                        useAppStore().setLegacyUrlParamsParsedHasHappened(dispatcher)
+                                    }).catch((error) => {
                                         log.error({
                                             title: 'Legacy URL',
                                             titleColor: LogPreDefinedColor.Amber,

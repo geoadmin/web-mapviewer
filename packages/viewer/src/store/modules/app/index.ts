@@ -5,6 +5,7 @@ import type { AppStoreGetters, AppStoreState } from '@/store/modules/app/types/a
 import nextState from '@/store/modules/app/actions/nextState'
 import setHasPendingUrlParsing from '@/store/modules/app/actions/setHasPendingUrlParsing'
 import setInitialUrlParsingHasHappened from '@/store/modules/app/actions/setInitialUrlParsingHasHappened'
+import setLegacyUrlParamsParsedHasHappened from '@/store/modules/app/actions/setLegacyUrlParamsParsingHasHappened'
 import isConfigLoaded from '@/store/modules/app/getters/isConfigLoaded'
 import isCurrentStateFulfilled from '@/store/modules/app/getters/isCurrentStateFulfilled'
 import isLoadingConfig from '@/store/modules/app/getters/isLoadingConfig'
@@ -51,7 +52,10 @@ const initiateUrlParsing: AppState = {
 
 const parseLegacyUrlParams: AppState = {
     name: AppStateNames.LegacyParsing,
-    isFulfilled: () => !isLegacyParams(window?.location?.search),
+    // legacParamsParsingHasHappened is necessary to reevaluate after the legacy parsing has happened, without it, 
+    // isFulfilled would always return false/true after the first time
+    // it also has to be the first condition because the && operator is short-circuiting
+    isFulfilled: () => useAppStore().legacParamsParsingHasHappened && !isLegacyParams(window?.location?.search),
     next: () => {
         return initiateUrlParsing
     },
@@ -89,6 +93,7 @@ const state = (): AppStoreState => ({
     appState: initializing,
     initialUrlParsingHasHappened: false,
     hasPendingUrlParsing: false,
+    legacParamsParsingHasHappened: false,
 })
 
 const getters: AppStoreGetters = {
@@ -105,6 +110,7 @@ const actions = {
     nextState,
     setHasPendingUrlParsing,
     setInitialUrlParsingHasHappened,
+    setLegacyUrlParamsParsedHasHappened,
 }
 
 const useAppStore = defineStore('app', {
