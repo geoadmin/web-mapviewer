@@ -1,3 +1,4 @@
+import { CURRENT_YEAR_TIMESTAMP } from '@swissgeo/layers'
 import { assertDefined } from 'support/utils'
 
 import useUIStore from '@/store/modules/ui'
@@ -69,7 +70,7 @@ function addFakeWMTSLayer(
         timeEnabled: false,
         highlightable: true,
         chargeable: false,
-        timestamps: ['current'],
+        timestamps: [CURRENT_YEAR_TIMESTAMP],
         hasLegend: true,
         label: 'WMTS test layer ' + id,
         type: 'wmts',
