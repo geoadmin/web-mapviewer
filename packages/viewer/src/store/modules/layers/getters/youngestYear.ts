@@ -16,11 +16,12 @@ export default function youngestYear(this: LayersStore): number {
             if (b.year === undefined) {
                 return -1
             }
-            return Number(a.year) - Number(b.year)
+            return Number(b.year) - Number(a.year)
         })[0]!
         const youngestLayerYear: number | undefined = timeConfigUtils.getYearFromLayerTimeEntry(
             sortedEntries
         )
+
         if (youngestLayerYear && youngestYear < youngestLayerYear) {
             return youngestLayerYear
         }
