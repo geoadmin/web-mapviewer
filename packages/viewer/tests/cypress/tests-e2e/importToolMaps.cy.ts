@@ -11,7 +11,7 @@ describe('The Import Maps Tool', () => {
         cy.goToMapView({ withHash: true })
         cy.openMenuIfMobile()
     })
-    it.only('Import external wms layers', () => {
+    it('Import external wms layers', () => {
         cy.intercept(
             {
                 https: true,
