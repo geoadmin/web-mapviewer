@@ -657,10 +657,10 @@ importers:
   packages/coordinates:
     dependencies:
       '@swissgeo/log':
-        specifier: workspace:*
+        specifier: 0.0.1
         version: link:../log
       '@swissgeo/numbers':
-        specifier: workspace:*
+        specifier: 0.0.1
         version: link:../numbers
       lodash:
         specifier: 'catalog:'

@@ -31,8 +31,8 @@
         "type-check": "tsc -p tsconfig.json"
     },
     "dependencies": {
-        "@swissgeo/log": "workspace:*",
-        "@swissgeo/numbers": "workspace:*",
+        "@swissgeo/log": "0.0.1",
+        "@swissgeo/numbers": "0.0.1",
         "lodash": "catalog:"
     },
     "devDependencies": {
