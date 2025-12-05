@@ -1,13 +1,11 @@
-import type { CyHttpMessages } from 'cypress/types/net-stubbing'
-
 import { randomIntBetween } from '@swissgeo/numbers'
 import pako from 'pako'
 
 import useDrawingStore from '@/store/modules/drawing'
 import { generateRGBFillString, GREEN, RED } from '@/utils/featureStyle'
 
-function transformHeaders(headers: { [key: string]: string | string[] }): HeadersInit {
-    const transformedHeaders: HeadersInit = {}
+function transformHeaders(headers) {
+    const transformedHeaders = {}
 
     for (const [key, value] of Object.entries(headers)) {
         if (Array.isArray(value)) {
@@ -20,7 +18,7 @@ function transformHeaders(headers: { [key: string]: string | string[] }): Header
     return transformedHeaders
 }
 
-export function addIconFixtureAndIntercept(): void {
+export function addIconFixtureAndIntercept() {
     cy.intercept(`**/api/icons/sets/default/icons/**${generateRGBFillString(RED)}.png`, {
         fixture: 'service-icons/placeholder.png',
     }).as('icon-default')
@@ -32,7 +30,7 @@ export function addIconFixtureAndIntercept(): void {
     }).as('icon-babs')
 }
 
-export function addLegacyIconFixtureAndIntercept(): void {
+export function addLegacyIconFixtureAndIntercept() {
     // /color/{r},{g},{b}/{image}-{size}@{scale}x.png
     cy.intercept(`**/color/*,*,*/*@*.png`, {
         fixture: 'service-icons/placeholder.png',
@@ -43,7 +41,7 @@ export function addLegacyIconFixtureAndIntercept(): void {
     }).as('legacy-icon-babs')
 }
 
-function addProfileFixtureAndIntercept(): void {
+function addProfileFixtureAndIntercept() {
     cy.intercept('**/rest/services/profile.json**', {
         fixture: 'service-alti/profile.fixture.json',
     }).as('profile')
@@ -52,8 +50,8 @@ function addProfileFixtureAndIntercept(): void {
     }).as('profileAsCsv')
 }
 
-function addFileAPIFixtureAndIntercept(): void {
-    let kmlBody: string | FormData | undefined
+function addFileAPIFixtureAndIntercept() {
+    let kmlBody
     cy.intercept(
         {
             method: 'POST',
@@ -68,8 +66,8 @@ function addFileAPIFixtureAndIntercept(): void {
                     message: `failed to get KML from request`,
                     consoleProps() {
                         return {
-                            req: req,
-                            error: error,
+                            req,
+                            error,
                         }
                     },
                 })
@@ -91,7 +89,7 @@ function addFileAPIFixtureAndIntercept(): void {
         async (req) => {
             const adminId = await getKmlAdminIdFromRequest(req)
             kmlBody = await getKmlFromRequest(req)
-            req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop()!, adminId }))
+            req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop(), adminId }))
         }
     ).as('update-kml')
     cy.intercept(
@@ -101,7 +99,7 @@ function addFileAPIFixtureAndIntercept(): void {
         },
         (req) => {
             const headers = { 'Cache-Control': 'no-cache' }
-            req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop()! }), headers)
+            req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop() }), headers)
         }
     ).as('get-kml-metadata')
     cy.intercept(
@@ -233,14 +231,12 @@ Cypress.Commands.add('clickDrawingTool', (name, unselect = false) => {
     })
 })
 
-export async function getKmlAdminIdFromRequest(
-    req: CyHttpMessages.IncomingHttpRequest
-): Promise<string> {
+export async function getKmlAdminIdFromRequest(req) {
     try {
         const formData = await new Response(req.body, {
             headers: transformHeaders(req.headers),
         }).formData()
-        return formData.get('admin_id') as string
+        return formData.get('admin_id')
     } catch (error) {
         Cypress.log({
             name: 'getKmlAdminIdFromRequest',
@@ -256,16 +252,16 @@ export async function getKmlAdminIdFromRequest(
     }
 }
 
-function isGzip(u8: Uint8Array): boolean {
+function isGzip(u8) {
     return u8.length > 2 && u8[0] === 0x1f && u8[1] === 0x8b
 }
-function isZlib(u8: Uint8Array): boolean {
+function isZlib(u8) {
     // Common zlib CMF values start with 0x78 (not perfect but good heuristic)
     return u8.length > 2 && u8[0] === 0x78
 }
 
-export async function getKmlFromRequest(req: CyHttpMessages.IncomingHttpRequest) {
-    let paramBlob: ArrayBuffer | string | null = null
+export async function getKmlFromRequest(req) {
+    let paramBlob = null
     try {
         const formData = await new Response(req.body, {
             headers: transformHeaders(req.headers),
@@ -305,8 +301,8 @@ export async function getKmlFromRequest(req: CyHttpMessages.IncomingHttpRequest)
     try {
         const u8 = new Uint8Array(paramBlob)
 
-        let kmlBytes: Uint8Array
-        let compressionType: string
+        let kmlBytes
+        let compressionType
         if (isGzip(u8)) {
             kmlBytes = pako.ungzip(u8)
             compressionType = 'gzip'
@@ -366,11 +362,7 @@ export async function getKmlFromRequest(req: CyHttpMessages.IncomingHttpRequest)
     }
 }
 
-export async function checkKMLRequest(
-    request: CyHttpMessages.IncomingHttpRequest,
-    data: (RegExp | string)[],
-    updatedKmlId?: string
-) {
+export async function checkKMLRequest(request, data, updatedKmlId) {
     // Check request
     if (updatedKmlId) {
         const urlArray = request.url.split('/')
@@ -384,26 +376,18 @@ export async function checkKMLRequest(
     // with the entire KML data on each test.
     // getKmlFromRequest will output an opt-in dump in the JS console if needed.
     expect(kml).to.be.a('string')
-    const kmlString: string = kml as string
-    expect(kmlString.indexOf('</kml>')).to.not.be.equal(-1)
+    expect(kml.indexOf('</kml>')).to.not.be.equal(-1)
     data.forEach((test) => {
         if (test instanceof RegExp) {
-            expect(test.test(kmlString), `KML content did not match ${test}`).to.be.true
+            expect(test.test(kml), `KML content did not match ${test}`).to.be.true
         } else {
-            expect(kmlString.indexOf(test), `KML content did not contain ${test}`).to.not.be.equal(
-                -1
-            )
+            expect(kml.indexOf(test), `KML content did not contain ${test}`).to.not.be.equal(-1)
         }
     })
 }
 
-interface KmlTestMetadata {
-    id: string | number
-    adminId?: string | number
-}
-
-export function kmlMetadataTemplate(data: KmlTestMetadata): Record<string, unknown> {
-    const metadata: Record<string, unknown> = {
+export function kmlMetadataTemplate(data) {
+    const metadata = {
         id: data.id,
         success: true,
         created: '2021-09-09T13:58:29Z',
