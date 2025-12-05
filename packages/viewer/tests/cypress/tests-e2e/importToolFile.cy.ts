@@ -1023,6 +1023,7 @@ describe('The Import File Tool', () => {
         //----------------------------------------------------------------------
         // Test local import error handling
         cy.log('Switch to local import')
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
         cy.get('[data-cy="import-file-local-btn"]:visible').click()
         cy.get('[data-cy="import-file-local-content"]').should('be.visible')
         cy.get('[data-cy="import-file-load-button"]:visible').click()
