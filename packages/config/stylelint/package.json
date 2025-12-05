@@ -1,6 +1,8 @@
 {
     "name": "@swissgeo/config-stylelint",
-    "private": true,
+    "version": "1.0.0-beta.1",
+    "description": "Shared Stylelint config for SWISSGEO projects.",
+    "license": "BSD-3-Clause",
     "type": "module",
     "main": "index.js",
     "dependencies": {

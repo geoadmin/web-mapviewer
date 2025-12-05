@@ -1,7 +1,8 @@
 {
     "name": "@swissgeo/config-eslint",
-    "version": "0.0.1",
-    "description": "Shared ESLint config",
+    "version": "1.0.0-beta.1",
+    "description": "Shared ESLint config for SWISSGEO projects.",
+    "license": "BSD-3-Clause",
     "type": "module",
     "main": "index.ts",
     "scripts": {

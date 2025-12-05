@@ -1,4 +1,4 @@
-/** @module geoadmin/numbers */
+/** @module swissgeo/numbers */
 
 /**
  * Rounds the given value according to how many decimals are wanted

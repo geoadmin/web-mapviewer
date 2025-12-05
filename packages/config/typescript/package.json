@@ -1,6 +1,13 @@
 {
     "name": "@swissgeo/config-typescript",
-    "private": true,
+    "version": "1.0.0-beta.1",
+    "description": "TypeScript configuration for SWISSGEO projects.",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/geoadmin/web-mapviewer.git",
+        "directory": "packages/config/typescript"
+    },
+    "license": "BSD-3-Clause",
     "main": "tsconfig.base.json",
     "dependencies": {
         "@vue/tsconfig": "catalog:"

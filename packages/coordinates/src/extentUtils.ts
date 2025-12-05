@@ -178,7 +178,7 @@ export function createPixelExtentAround(
     return extent
 }
 
-export interface GeoadminExtentUtils {
+export interface SwissGeoExtentUtils {
     projExtent: typeof projExtent
     normalizeExtent: typeof normalizeExtent
     flattenExtent: typeof flattenExtent
@@ -187,7 +187,7 @@ export interface GeoadminExtentUtils {
     getExtentCenter: typeof getExtentCenter
 }
 
-const extentUtils: GeoadminExtentUtils = {
+const extentUtils: SwissGeoExtentUtils = {
     projExtent,
     normalizeExtent,
     flattenExtent,

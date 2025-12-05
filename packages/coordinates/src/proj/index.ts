@@ -24,21 +24,21 @@ export type * from '@/proj/types'
 /** Representation of many (available in this app) projection systems */
 export const allCoordinateSystems: CoordinateSystem[] = [LV95, LV03, WGS84, WEBMERCATOR]
 
-interface GeoadminCoordinateConstants {
+interface SwissGeoCoordinateConstants {
     STANDARD_ZOOM_LEVEL_1_25000_MAP: number
     SWISS_ZOOM_LEVEL_1_25000_MAP: number
     LV95_RESOLUTIONS: number[]
     SWISSTOPO_TILEGRID_RESOLUTIONS: number[]
 }
 
-const constants: GeoadminCoordinateConstants = {
+const constants: SwissGeoCoordinateConstants = {
     STANDARD_ZOOM_LEVEL_1_25000_MAP,
     SWISS_ZOOM_LEVEL_1_25000_MAP,
     LV95_RESOLUTIONS,
     SWISSTOPO_TILEGRID_RESOLUTIONS,
 }
 
-export interface GeoadminCoordinateCRS {
+export interface SwissGeoCoordinateCRS {
     LV95: LV95CoordinateSystem
     LV03: LV03CoordinateSystem
     WGS84: WGS84CoordinateSystem
@@ -46,7 +46,7 @@ export interface GeoadminCoordinateCRS {
     allCoordinateSystems: CoordinateSystem[]
 }
 
-const crs: GeoadminCoordinateCRS = {
+const crs: SwissGeoCoordinateCRS = {
     LV95,
     LV03,
     WGS84,

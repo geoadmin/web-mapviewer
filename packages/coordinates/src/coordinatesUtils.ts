@@ -166,7 +166,7 @@ function parseCRS(crs?: string): CoordinateSystem | undefined {
     return allCoordinateSystems.find((system) => system.epsg === `EPSG:${epsgNumber}`)
 }
 
-export interface GeoadminCoordinatesUtils {
+export interface SwissGeoCoordinatesUtils {
     toRoundedString: typeof toRoundedString
     wrapXCoordinates: typeof wrapXCoordinates
     unwrapGeometryCoordinates: typeof unwrapGeometryCoordinates
@@ -175,7 +175,7 @@ export interface GeoadminCoordinatesUtils {
     parseCRS: typeof parseCRS
 }
 
-const coordinatesUtils: GeoadminCoordinatesUtils = {
+const coordinatesUtils: SwissGeoCoordinatesUtils = {
     toRoundedString,
     wrapXCoordinates,
     unwrapGeometryCoordinates,

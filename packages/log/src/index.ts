@@ -1,4 +1,4 @@
-/** @module geoadmin/log */
+/** @module swissgeo/log */
 
 /** A log level reference. The levels correspond to the native console methods and their log level. */
 export enum LogLevel {
@@ -42,7 +42,7 @@ function generateBackgroundStyle(color: LogPreDefinedColor | string): string {
     return `color: #000; font-weight: bold; background-color: ${color}; padding: 2px 4px; border-radius: 4px;`
 }
 
-function processStyle(messages: GeoadminLogInput[]): GeoadminLogInput[] {
+function processStyle(messages: SwissGeoLogInput[]): SwissGeoLogInput[] {
     return messages.flatMap((message) => {
         if (
             message &&
@@ -50,7 +50,7 @@ function processStyle(messages: GeoadminLogInput[]): GeoadminLogInput[] {
             'messages' in message &&
             Array.isArray(message.messages)
         ) {
-            const mappedMessage: GeoadminLogInput[] = []
+            const mappedMessage: SwissGeoLogInput[] = []
             // checking if we are dealing with a GeoadminLogMessage instance
             if ('title' in message && typeof message.title === 'string') {
                 mappedMessage.push(`%c[${message.title}]%c`)
@@ -71,7 +71,7 @@ function processStyle(messages: GeoadminLogInput[]): GeoadminLogInput[] {
     })
 }
 
-function logToConsole(level: LogLevel, messages: GeoadminLogInput[]) {
+function logToConsole(level: LogLevel, messages: SwissGeoLogInput[]) {
     if (!log.wantedLevels.includes(level)) {
         return
     }
@@ -92,20 +92,20 @@ function logToConsole(level: LogLevel, messages: GeoadminLogInput[]) {
     }
 }
 
-interface GeoadminLogMessage {
+interface SwissGeoLogMessage {
     title?: string
     titleColor?: LogPreDefinedColor | string
-    messages: GeoadminLogInput[]
+    messages: SwissGeoLogInput[]
 }
 
-export type GeoadminLogInput = GeoadminLogMessage | string | number | boolean | object
+export type SwissGeoLogInput = SwissGeoLogMessage | string | number | boolean | object
 
-interface GeoadminLog {
+interface SwissGeoLog {
     wantedLevels: LogLevel[]
-    debug: (...messages: GeoadminLogInput[]) => void
-    info: (...messages: GeoadminLogInput[]) => void
-    warn: (...messages: GeoadminLogInput[]) => void
-    error: (...messages: GeoadminLogInput[]) => void
+    debug: (...messages: SwissGeoLogInput[]) => void
+    info: (...messages: SwissGeoLogInput[]) => void
+    warn: (...messages: SwissGeoLogInput[]) => void
+    error: (...messages: SwissGeoLogInput[]) => void
 }
 
 /**
@@ -115,11 +115,11 @@ interface GeoadminLog {
  * debug will be ignored). If you want more logging, set the variable `log.wantedLevels` to your
  * desired list of LogLevel
  */
-const log: GeoadminLog = {
+const log: SwissGeoLog = {
     wantedLevels: [LogLevel.Error, LogLevel.Warn],
-    error: (...messages: GeoadminLogInput[]) => logToConsole(LogLevel.Error, messages),
-    warn: (...messages: GeoadminLogInput[]) => logToConsole(LogLevel.Warn, messages),
-    info: (...messages: GeoadminLogInput[]) => logToConsole(LogLevel.Info, messages),
-    debug: (...messages: GeoadminLogInput[]) => logToConsole(LogLevel.Debug, messages),
+    error: (...messages: SwissGeoLogInput[]) => logToConsole(LogLevel.Error, messages),
+    warn: (...messages: SwissGeoLogInput[]) => logToConsole(LogLevel.Warn, messages),
+    info: (...messages: SwissGeoLogInput[]) => logToConsole(LogLevel.Info, messages),
+    debug: (...messages: SwissGeoLogInput[]) => logToConsole(LogLevel.Debug, messages),
 }
 export default log
