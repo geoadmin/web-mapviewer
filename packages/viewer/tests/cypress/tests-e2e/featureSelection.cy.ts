@@ -166,7 +166,7 @@ describe('Testing the feature selection', () => {
                         }
                     })
             })
-            // -------------------------------------------------------------------------------------------------
+            // ------------------------------------------------------------------------------------------------
             cy.log('Check that clicking another feature from the same layer changes the URL')
             assertDefined(expectedFeatureIds[1])
             createInterceptWithFeatureId(expectedFeatureIds[1], standardLayer)
@@ -224,7 +224,6 @@ describe('Testing the feature selection', () => {
             cy.get(mapSelector).click()
             cy.wait(`@${timeLayer}_identify`)
             cy.wait(`@htmlPopup`)
-            cy.wait('@htmlPopup')
 
             cy.url().should((url) => {
                 new URLSearchParams(url.split('map')[1])
