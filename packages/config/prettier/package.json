@@ -1,6 +1,6 @@
 {
     "name": "@swissgeo/config-prettier",
-    "version": "1.0.0-beta.1",
+    "version": "1.0.0-beta.2",
     "description": "Shared Prettier config for SWISSGEO projects.",
     "license": "BSD-3-Clause",
     "type": "module",
