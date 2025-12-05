@@ -1,4 +1,4 @@
-/** @module geoadmin/log */
+/** @module swissgeo/log */
 
 export class Message {
     msg: string

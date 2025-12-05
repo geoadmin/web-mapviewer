@@ -1,7 +1,8 @@
 {
     "name": "@swissgeo/log",
-    "version": "0.0.1",
-    "description": "Logging utils for geoadmin",
+    "version": "1.0.0-beta.1",
+    "description": "Logging utils for SWISSGEO projects.",
+    "license": "BSD-3-Clause",
     "type": "module",
     "exports": {
         ".": {
