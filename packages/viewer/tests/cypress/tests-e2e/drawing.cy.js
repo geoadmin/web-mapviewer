@@ -8,7 +8,7 @@ import {
     checkKMLRequest,
     getKmlAdminIdFromRequest,
     kmlMetadataTemplate,
-} from 'support/drawing'
+} from 'support/drawing.js'
 
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
