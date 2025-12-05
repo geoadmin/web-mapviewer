@@ -1,6 +1,5 @@
 import { LV95, WGS84 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
-import { assertDefined } from 'support/utils'
 
 import useCesiumStore from '@/store/modules/cesium'
 import useFeaturesStore from '@/store/modules/features'
@@ -9,6 +8,8 @@ import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'
 import useSearchStore from '@/store/modules/search'
 import useUIStore from '@/store/modules/ui'
+
+import { assertDefined } from '../support/utils'
 
 describe('Test on legacy param import', () => {
     context('Coordinates import', () => {
