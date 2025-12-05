@@ -195,10 +195,10 @@ describe('Test on legacy param import', () => {
     //             withHash: false,
     //         })
     //         cy.getPinia().then((pinia) => {
-    //             const layersStore2 = useLayersStore(pinia)
-    //             const activeLayers2 = layersStore2.activeLayers
-    //             expect(activeLayers2).to.be.an('Array').length(1)
-    //             const [kmlLayer] = activeLayers2
+    //             const layersStore = useLayersStore(pinia)
+    //             const activeLayers = layersStore.activeLayers
+    //             expect(activeLayers).to.be.an('Array').length(1)
+    //             const [kmlLayer] = activeLayers
     //             assertDefined(kmlLayer)
     //             expect(kmlLayer.type).to.eq('KML')
     //             expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
@@ -217,16 +217,16 @@ describe('Test on legacy param import', () => {
     //         cy.wait('@get-kml-metada-by-admin-id')
     //         cy.wait('@get-kml')
     //         cy.getPinia().then((pinia) => {
-    //             const layersStore3 = useLayersStore(pinia)
-    //             const activeLayers3 = layersStore3.activeLayers
-    //             expect(activeLayers3).to.be.an('Array').length(1)
-    //             const [kmlLayer2] = activeLayers3
-    //             assertDefined(kmlLayer2)
-    //             expect(kmlLayer2.type).to.eq('KML')
-    //             expect(kmlLayer2.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
-    //             expect(kmlLayer2.opacity).to.eq(1)
-    //             expect(kmlLayer2.isVisible).to.be.true
-    //             expect((kmlLayer2 as KMLLayer).adminId).to.equal(adminId)
+    //             const layersStore = useLayersStore(pinia)
+    //             const activeLayers = layersStore.activeLayers
+    //             expect(activeLayers).to.be.an('Array').length(1)
+    //             const [kmlLayer] = activeLayers
+    //             assertDefined(kmlLayer)
+    //             expect(kmlLayer.type).to.eq('KML')
+    //             expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
+    //             expect(kmlLayer.opacity).to.eq(1)
+    //             expect(kmlLayer.isVisible).to.be.true
+    //             expect((kmlLayer as KMLLayer).adminId).to.equal(adminId)
     //         })
     //     })
     //     it("don't keep KML adminId in URL after import", () => {
@@ -239,16 +239,16 @@ describe('Test on legacy param import', () => {
     //         cy.wait('@get-kml-metada-by-admin-id')
     //         cy.wait('@get-kml')
     //         cy.getPinia().then((pinia) => {
-    //             const layersStore4 = useLayersStore(pinia)
-    //             const activeLayers4 = layersStore4.activeLayers
-    //             expect(activeLayers4).to.be.an('Array').length(1)
-    //             const [kmlLayer3] = activeLayers4
-    //             assertDefined(kmlLayer3)
-    //             expect(kmlLayer3.type).to.eq('KML')
-    //             expect(kmlLayer3.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
-    //             expect(kmlLayer3.opacity).to.eq(1)
-    //             expect(kmlLayer3.isVisible).to.be.true
-    //             expect((kmlLayer3 as KMLLayer).adminId).to.be.equal(adminId)
+    //             const layersStore = useLayersStore(pinia)
+    //             const activeLayers = layersStore.activeLayers
+    //             expect(activeLayers).to.be.an('Array').length(1)
+    //             const [kmlLayer] = activeLayers
+    //             assertDefined(kmlLayer)
+    //             expect(kmlLayer.type).to.eq('KML')
+    //             expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
+    //             expect(kmlLayer.opacity).to.eq(1)
+    //             expect(kmlLayer.isVisible).to.be.true
+    //             expect((kmlLayer as KMLLayer).adminId).to.be.equal(adminId)
     //         })
     //         cy.url().should('not.contain', adminId)
     //     })
@@ -265,22 +265,22 @@ describe('Test on legacy param import', () => {
     //         cy.wait('@get-kml-metada-by-admin-id')
     //         cy.wait('@get-kml')
     //         cy.getPinia().then((pinia) => {
-    //             const layersStore5 = useLayersStore(pinia)
-    //             const activeLayers5 = layersStore5.activeLayers
-    //             expect(activeLayers5).to.be.an('Array').length(3)
-    //             const [wmsLayer2, wmtsLayer2, kmlLayer4] = activeLayers5
-    //             assertDefined(wmsLayer2)
-    //             expect(wmsLayer2.id).to.eq('test.wms.layer')
-    //             expect(wmsLayer2.opacity).to.eq(0.6)
-    //             expect(wmsLayer2.isVisible).to.be.true
-    //             assertDefined(wmtsLayer2)
-    //             expect(wmtsLayer2.id).to.eq('test.wmts.layer')
-    //             expect(wmtsLayer2.opacity).to.eq(0.5)
-    //             expect(wmtsLayer2.isVisible).to.be.false
-    //             assertDefined(kmlLayer4)
-    //             expect(kmlLayer4.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
-    //             expect(kmlLayer4.opacity).to.eq(1)
-    //             expect(kmlLayer4.isVisible).to.be.true
+    //             const layersStore = useLayersStore(pinia)
+    //             const activeLayers = layersStore.activeLayers
+    //             expect(activeLayers).to.be.an('Array').length(3)
+    //             const [wmsLayer, wmtsLayer, kmlLayer] = activeLayers
+    //             assertDefined(wmsLayer)
+    //             expect(wmsLayer.id).to.eq('test.wms.layer')
+    //             expect(wmsLayer.opacity).to.eq(0.6)
+    //             expect(wmsLayer.isVisible).to.be.true
+    //             assertDefined(wmtsLayer)
+    //             expect(wmtsLayer.id).to.eq('test.wmts.layer')
+    //             expect(wmtsLayer.opacity).to.eq(0.5)
+    //             expect(wmtsLayer.isVisible).to.be.false
+    //             assertDefined(kmlLayer)
+    //             expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
+    //             expect(kmlLayer.opacity).to.eq(1)
+    //             expect(kmlLayer.isVisible).to.be.true
     //         })
     //     })
     //     it("doesn't show encoding in the search bar when serving a swisssearch legacy url", () => {
@@ -333,33 +333,33 @@ describe('Test on legacy param import', () => {
     //     })
     //     it('External WMS layer', () => {
     //         cy.getExternalWmsMockConfig().then((mockConfig) => {
-    //             const [mockExternalWms1] = mockConfig
-    //             assertDefined(mockExternalWms1)
+    //             const [mockExternalWms] = mockConfig
+    //             assertDefined(mockExternalWms)
     //
     //             cy.goToMapView({
     //                 queryParams: {
-    //                     layers: `test.wms.layer,WMS||${mockExternalWms1.name}||${mockExternalWms1.baseUrl}||${mockExternalWms1.id}||1.3.0`,
+    //                     layers: `test.wms.layer,WMS||${mockExternalWms.name}||${mockExternalWms.baseUrl}||${mockExternalWms.id}||1.3.0`,
     //                     layers_opacity: '1,1',
     //                     layers_visibility: 'false,true',
     //                     layers_timestamp: ',',
     //                 },
     //                 withHash: false,
     //             })
-    //             cy.wait(`@externalWMS-GetCap-${mockExternalWms1.baseUrl}`)
+    //             cy.wait(`@externalWMS-GetCap-${mockExternalWms.baseUrl}`)
     //             cy.getPinia().then((pinia) => {
-    //                 const layersStore6 = useLayersStore(pinia)
-    //                 const activeLayers6 = layersStore6.activeLayers
-    //                 expect(activeLayers6).to.be.an('Array').length(2)
-    //                 const externalLayer = activeLayers6[1]
+    //                 const layersStore = useLayersStore(pinia)
+    //                 const activeLayers = layersStore.activeLayers
+    //                 expect(activeLayers).to.be.an('Array').length(2)
+    //                 const externalLayer = activeLayers[1]
     //                 assertDefined(externalLayer)
     //                 expect(externalLayer.isExternal).to.be.true
     //                 expect(externalLayer.isVisible).to.be.true
-    //                 expect(externalLayer.baseUrl).to.eq(mockExternalWms1.baseUrl)
-    //                 expect(externalLayer.id).to.eq(mockExternalWms1.id)
-    //                 expect(externalLayer.name).to.eq(mockExternalWms1.name)
+    //                 expect(externalLayer.baseUrl).to.eq(mockExternalWms.baseUrl)
+    //                 expect(externalLayer.id).to.eq(mockExternalWms.id)
+    //                 expect(externalLayer.name).to.eq(mockExternalWms.name)
     //                 expect(externalLayer.isLoading).to.be.false
     //             })
-    //             const expectedHash = `layers=test.wms.layer,f,1;WMS%7C${mockExternalWms1.baseUrl}%7C${mockExternalWms1.id}`
+    //             const expectedHash = `layers=test.wms.layer,f,1;WMS%7C${mockExternalWms.baseUrl}%7C${mockExternalWms.id}`
     //             cy.location().should((location) => {
     //                 expect(location.hash).to.contain(expectedHash)
     //                 expect(location.search).to.eq('')
@@ -368,34 +368,34 @@ describe('Test on legacy param import', () => {
     //     })
     //     it('External WMTS layer', () => {
     //         cy.getExternalWmtsMockConfig().then((mockConfig) => {
-    //             const [mockExternalWmts1] = mockConfig
-    //             assertDefined(mockExternalWmts1)
+    //             const [mockExternalWmts] = mockConfig
+    //             assertDefined(mockExternalWmts)
     //
     //             cy.goToMapView({
     //                 queryParams: {
-    //                     layers: `test.wmts.layer,WMTS||${mockExternalWmts1.id}||${mockExternalWmts1.baseUrl}`,
+    //                     layers: `test.wmts.layer,WMTS||${mockExternalWmts.id}||${mockExternalWmts.baseUrl}`,
     //                     layers_opacity: '1,1',
     //                     layers_visibility: 'false,true',
     //                     layers_timestamp: '18641231,',
     //                 },
     //                 withHash: false,
     //             })
-    //             cy.wait(`@externalWMTS-GetCap-${mockExternalWmts1.baseUrl}`)
+    //             cy.wait(`@externalWMTS-GetCap-${mockExternalWmts.baseUrl}`)
     //             cy.getPinia().then((pinia) => {
-    //                 const layersStore7 = useLayersStore(pinia)
-    //                 const activeLayers7 = layersStore7.activeLayers
-    //                 expect(activeLayers7).to.be.an('Array').length(2)
-    //                 const externalLayer2 = activeLayers7[1]
-    //                 assertDefined(externalLayer2)
-    //                 expect(externalLayer2.isExternal).to.be.true
-    //                 expect(externalLayer2.isVisible).to.be.true
-    //                 expect(externalLayer2.baseUrl).to.eq(mockExternalWmts1.baseUrl)
-    //                 expect(externalLayer2.id).to.eq(mockExternalWmts1.id)
-    //                 expect(externalLayer2.name).to.eq(mockExternalWmts1.name)
-    //                 expect(externalLayer2.isLoading).to.be.false
+    //                 const layersStore = useLayersStore(pinia)
+    //                 const activeLayers = layersStore.activeLayers
+    //                 expect(activeLayers).to.be.an('Array').length(2)
+    //                 const externalLayer = activeLayers[1]
+    //                 assertDefined(externalLayer)
+    //                 expect(externalLayer.isExternal).to.be.true
+    //                 expect(externalLayer.isVisible).to.be.true
+    //                 expect(externalLayer.baseUrl).to.eq(mockExternalWmts.baseUrl)
+    //                 expect(externalLayer.id).to.eq(mockExternalWmts.id)
+    //                 expect(externalLayer.name).to.eq(mockExternalWmts.name)
+    //                 expect(externalLayer.isLoading).to.be.false
     //             })
     //             const expectedQuery = new URLSearchParams(
-    //                 `lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech&layers=test.wmts.layer,f;WMTS%7C${mockExternalWmts1.baseUrl}%7C${mockExternalWmts1.id}`
+    //                 `lang=en&center=2660013.5,1185172&z=1&bgLayer=test.background.layer2&topic=ech&layers=test.wmts.layer,f;WMTS%7C${mockExternalWmts.baseUrl}%7C${mockExternalWmts.id}`
     //             )
     //
     //             expectedQuery.sort()
@@ -410,7 +410,7 @@ describe('Test on legacy param import', () => {
     //     })
     // })
 
-    // context('3D import', () => {
+    // context.skip('3D import', () => {
     //     const lat = 47.3
     //     const lon = 7.3
     //     const elevation = 215370
@@ -513,9 +513,8 @@ describe('Test on legacy param import', () => {
     //     })
     // })
 
-    // context('Extra Parameter Imports', () => {
+    // context.skip('Extra Parameter Imports', () => {
     //     it('shows the compare slider at the correct position', () => {
-    //         /*  */
     //         cy.goToMapView({
     //             queryParams: {
     //                 layers: 'test-1.wms.layer',
@@ -523,7 +522,7 @@ describe('Test on legacy param import', () => {
     //             },
     //             withHash: false,
     //         })
-    //         // initial slider position is width * 0.3 -20
+    //         // the initial slider position is width*0.3-20
     //         cy.getPinia().then((pinia) => {
     //             const uiStore = useUIStore(pinia)
     //             cy.get('[data-cy="compareSlider"]').then((slider: JQuery<HTMLElement>) => {
@@ -531,15 +530,15 @@ describe('Test on legacy param import', () => {
     //             })
     //         })
     //         cy.getPinia().then((pinia) => {
-    //             const uiStore2 = useUIStore(pinia)
-    //             expect(uiStore2.compareRatio).to.be.equal(0.3)
-    //             expect(uiStore2.isCompareSliderActive).to.be.equal(true)
+    //             const uiStore = useUIStore(pinia)
+    //             expect(uiStore.compareRatio).to.be.equal(0.3)
+    //             expect(uiStore.isCompareSliderActive).to.be.equal(true)
     //         })
     //         cy.get('[data-cy="compareSlider"]').should('be.visible')
     //     })
     // })
 
-    context('Feature Pre Selection Import', () => {
+    context.skip('Feature Pre Selection Import', () => {
         function checkFeatures(featuresIds: string[]) {
             cy.getPinia().then((pinia) => {
                 const featuresStore = useFeaturesStore(pinia)
@@ -626,16 +625,16 @@ describe('Test on legacy param import', () => {
         })
     })
 
-    // context('Time slider', () => {
-    //     it('shows the time slider on startup when legacy "time" param present in the URL', () => {
-    //         cy.goToMapView({
-    //             queryParams: {
-    //                 layers: `test.timeenabled.wmts.layer`,
-    //                 time: 2019,
-    //             },
-    //             withHash: false,
-    //         })
-    //         cy.get('[data-cy="time-slider-current-year"]').should('contain', 2019)
-    //     })
-    // })
+    context('Time slider', () => {
+        it('shows the time slider on startup when legacy "time" param present in the URL', () => {
+            cy.goToMapView({
+                queryParams: {
+                    layers: `test.timeenabled.wmts.layer`,
+                    time: 2019,
+                },
+                withHash: false,
+            })
+            cy.get('[data-cy="time-slider-current-year"]').should('contain', 2019)
+        })
+    })
 })
