@@ -29,7 +29,7 @@ function parseFeatureInfoPosition(urlParamValue?: string): FeatureInfoPositions 
 
 const featureInfoParamConfig = new UrlParamConfig<string>({
     urlParamName: 'featureInfo',
-    actionsToWatch: ['setFeatureInfoPosition'],
+    actionsToWatch: ['setFeatureInfoPosition', 'clearAllSelectedFeatures'],
     extractValueFromStore: () => useUIStore().featureInfoPosition,
     setValuesInStore: (_: RouteLocationNormalizedGeneric, urlParamValue?: string) => {
         const position = parseFeatureInfoPosition(urlParamValue)

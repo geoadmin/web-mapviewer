@@ -127,7 +127,6 @@ describe('Testing the feature selection', () => {
             checkFeatures()
             checkFeatureInfoPosition(FeatureInfoPositions.ToolTip)
         })
-
         it('Synchronise URL and feature selection', () => {
             const expectedFeatureIds = [1234, 5678]
             const mapSelector = '[data-cy="ol-map"]'
@@ -137,7 +136,7 @@ describe('Testing the feature selection', () => {
                 },
             })
             cy.url().should((url) => {
-                expect(new URLSearchParams(url.split('map')[1]).get('featureInfo')).to.eq(undefined)
+                expect(new URLSearchParams(url.split('map')[1]).get('featureInfo')).to.eq(null)
             })
 
             cy.log('Check that the features appear in the URL')
@@ -167,7 +166,7 @@ describe('Testing the feature selection', () => {
                         }
                     })
             })
-            // ------------------------------------------------------------------------------------------------
+            // -------------------------------------------------------------------------------------------------
             cy.log('Check that clicking another feature from the same layer changes the URL')
             assertDefined(expectedFeatureIds[1])
             createInterceptWithFeatureId(expectedFeatureIds[1], standardLayer)
@@ -192,7 +191,8 @@ describe('Testing the feature selection', () => {
 
             cy.log('Check that after a reload, features remain selected')
             cy.reload()
-            cy.wait(`@featureDetail_${expectedFeatureIds[1]}`)
+            cy.wait(['@layerConfig', '@topics'])
+            cy.wait(`@featureDetail_${expectedFeatureIds[1]}`, { timeout: 10000 })
             cy.url().should((url) => {
                 new URLSearchParams(url.split('map')[1])
                     .get('layers')!
@@ -219,10 +219,12 @@ describe('Testing the feature selection', () => {
                 .should('be.visible')
                 .click()
             cy.closeMenuIfMobile()
+            cy.wait(`@htmlPopup`)
 
             cy.get(mapSelector).click()
             cy.wait(`@${timeLayer}_identify`)
             cy.wait(`@htmlPopup`)
+            cy.wait('@htmlPopup')
 
             cy.url().should((url) => {
                 new URLSearchParams(url.split('map')[1])
@@ -241,7 +243,6 @@ describe('Testing the feature selection', () => {
                         }
                     })
             })
-
             cy.log('Check that upon closing, the features are no longer in the URL')
             cy.get('[data-cy="infobox-close"]').click()
             cy.get('[data-cy="highlighted-features"]').should('not.exist')
@@ -369,7 +370,6 @@ describe('Testing the feature selection', () => {
             assertDefined(location[1])
             cy.get('@olMap').click(location[0], location[1], { ctrlKey })
         }
-
         it('can select an area to identify features inside it', () => {
             const fileName = 'external-kml-file.kml'
             const localKmlFile = `import-tool/${fileName}`
@@ -526,7 +526,6 @@ describe('Testing the feature selection', () => {
             cy.get('@identifySingleFeature.all').should('have.length', 1)
             cy.get('@emptyIdentify.all').should('have.length', 1)
         })
-
         it('can select feature by click, add more feature, and deselect feature', () => {
             const fileName = '4-points.kml'
             const localKmlFile = `import-tool/${fileName}`
@@ -598,7 +597,6 @@ describe('Testing the feature selection', () => {
                     })
                 })
         })
-
         it('can print feature information', () => {
             const fileName = 'external-kml-file.kml'
             const localKmlFile = `import-tool/${fileName}`
