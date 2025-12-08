@@ -53,8 +53,7 @@ export function identifyFeatures(
     const mapStore = useMapStore()
     const selectedFeatures = featuresStore.selectedFeatures
     const clickInfo = mapStore.clickInfo
-
-    if (!clickInfo || !clickInfo.features || !this.isFeatureSelected(clickInfo)) {
+    if (!clickInfo || !clickInfo.features) {
         return
     }
 
@@ -64,11 +63,19 @@ export function identifyFeatures(
     let updateFeatures = shouldUpdateFeatures
 
     if (layerId) {
+        // Check if there are selected features from this layer
         updateFeatures = selectedFeatures.some(
             (feature) => 'layer' in feature && feature.layer.id === layerId
         )
-    }
 
+        // If the layer is now invisible, we should clear features but not re-identify
+        const layers = this.getLayersById(layerId)
+        const layer = layers.length > 0 ? layers[0] : undefined
+        if (layer && !layer.isVisible && updateFeatures) {
+            featuresStore.clearSelectedFeaturesByLayerId(layerId, dispatcher)
+            return
+        }
+    }
     if (updateFeatures) {
         featuresStore
             .identifyFeatureAt(

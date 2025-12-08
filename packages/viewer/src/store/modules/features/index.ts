@@ -6,6 +6,7 @@ import type {
 } from '@/store/modules/features/types/features'
 
 import clearAllSelectedFeatures from '@/store/modules/features/actions/clearAllSelectedFeatures'
+import clearSelectedFeaturesByLayerId from '@/store/modules/features/actions/clearSelectedFeaturesByLayerId'
 import identifyFeatureAt from '@/store/modules/features/actions/identifyFeatureAt'
 import loadMoreFeaturesForLayer from '@/store/modules/features/actions/loadMoreFeaturesForLayer'
 import setHighlightedFeatureId from '@/store/modules/features/actions/setHighlightedFeatureId'
@@ -26,6 +27,7 @@ const getters: FeaturesStoreGetters = {
 }
 
 const actions = {
+    clearSelectedFeaturesByLayerId,
     clearAllSelectedFeatures,
     identifyFeatureAt,
     loadMoreFeaturesForLayer,

@@ -89,7 +89,6 @@ describe('Testing the feature selection', () => {
             if (featureInfoPosition) {
                 queryParams.featureInfo = featureInfoPosition
             }
-            console.log('goToMapViewWithFeatureSelection queryParams', queryParams)
             cy.goToMapView({ queryParams })
         }
 
@@ -371,8 +370,9 @@ describe('Testing the feature selection', () => {
         }
         it('can select an area to identify features inside it', () => {
             const fileName = 'external-kml-file.kml'
+            const fileNameWithKMLExtension = `KML|${fileName}`
             const localKmlFile = `import-tool/${fileName}`
-            cy.goToMapView({ queryParams: { layers: 'test.wms.layer' } })
+            cy.goToMapView({ queryParams: { layers: 'test.wms.layer', bgLayer: 'test.background.layer2' } })
             cy.wait(['@routeChange', '@layerConfig', '@topics', '@topic-ech'])
 
             const featureCountWithKml = DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION + 1
@@ -404,7 +404,7 @@ describe('Testing the feature selection', () => {
             cy.checkOlLayer([
                 'test.background.layer2',
                 { id: 'test.wms.layer', opacity: 0.75 },
-                fileName,
+                fileNameWithKMLExtension,
             ])
 
             cy.get('[data-cy="ol-map"]').as('olMap').should('be.visible')
@@ -515,7 +515,7 @@ describe('Testing the feature selection', () => {
             cy.wait('@emptyIdentify')
             cy.get('@highlightedFeatures').should('not.exist')
 
-            cy.get('@routeChange.all').should('have.length', 6)
+            cy.get('@routeChange.all').should('have.length', 10)
             cy.get('@layerConfig.all').should('have.length', 1)
             cy.get('@topics.all').should('have.length', 1)
             cy.get('@topic-ech.all').should('have.length', 1)
@@ -527,6 +527,7 @@ describe('Testing the feature selection', () => {
         })
         it('can select feature by click, add more feature, and deselect feature', () => {
             const fileName = '4-points.kml'
+            const fileNameWithKMLExtension = `KML|${fileName}`
             const localKmlFile = `import-tool/${fileName}`
             cy.goToMapView()
             cy.wait(['@routeChange', '@layerConfig', '@topics', '@topic-ech'])
@@ -556,7 +557,7 @@ describe('Testing the feature selection', () => {
 
             cy.closeMenuIfMobile()
 
-            cy.checkOlLayer(['test.background.layer2', fileName])
+            cy.checkOlLayer(['test.background.layer2', fileNameWithKMLExtension])
 
             cy.get('[data-cy="ol-map"]').as('olMap').should('be.visible')
             cy.getPinia().then((pinia) => {
@@ -580,16 +581,21 @@ describe('Testing the feature selection', () => {
                     )
 
                     clickOnMap(pixel3, false)
+                    cy.wait('@routeChange')
+                    cy.wait('@routeChange')
                     cy.getPinia().then((pinia) => {
                         const featuresStore3 = useFeaturesStore(pinia)
                         expect(featuresStore3.selectedFeatures.length).to.eq(1)
                     })
                     clickOnMap(pixel1, true)
+                    cy.wait('@routeChange')
+                    cy.wait('@routeChange')
                     cy.getPinia().then((pinia) => {
                         const featuresStore4 = useFeaturesStore(pinia)
                         expect(featuresStore4.selectedFeatures.length).to.eq(2)
                     })
                     clickOnMap(pixel1, true)
+                    cy.wait('@routeChange')
                     cy.getPinia().then((pinia) => {
                         const featuresStore5 = useFeaturesStore(pinia)
                         expect(featuresStore5.selectedFeatures.length).to.eq(1)
@@ -598,8 +604,9 @@ describe('Testing the feature selection', () => {
         })
         it('can print feature information', () => {
             const fileName = 'external-kml-file.kml'
+            const fileNameWithKMLExtension = `KML|${fileName}`
             const localKmlFile = `import-tool/${fileName}`
-            cy.goToMapView({ queryParams: { layers: 'test.wms.layer' } })
+            cy.goToMapView({ queryParams: { layers: 'test.wms.layer', bgLayer: 'test.background.layer2' } })
             cy.wait(['@routeChange', '@layerConfig', '@topics', '@topic-ech'])
 
             cy.openMenuIfMobile()
@@ -630,7 +637,7 @@ describe('Testing the feature selection', () => {
             cy.checkOlLayer([
                 'test.background.layer2',
                 { id: 'test.wms.layer', opacity: 0.75 },
-                fileName,
+                fileNameWithKMLExtension,
             ])
 
             cy.get('[data-cy="ol-map"]').as('olMap').should('be.visible')
