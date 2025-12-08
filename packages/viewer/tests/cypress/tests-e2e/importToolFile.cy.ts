@@ -1098,7 +1098,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
     })
 
-    it('Import GPX file', () => {
+    it.only('Import GPX file', () => {
         const gpxFileName = 'external-gpx-file.gpx'
         const gpxFileFixture = `import-tool/${gpxFileName}`
 
@@ -1266,7 +1266,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
 
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
-        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click({ force: true })
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
         // the menu should be automatically closed on opening import tool box
         cy.get('[data-cy="menu-tray"]').should('not.be.visible')
@@ -1346,7 +1346,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
 
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
-        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click({ force: true })
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
         // the menu should be automatically closed on opening import tool box
         cy.get('[data-cy="menu-tray"]').should('not.be.visible')
