@@ -1,4 +1,4 @@
-import type { GeoadminLogInput } from '@swissgeo/log'
+import type { SwissGeoLogInput } from '@swissgeo/log'
 import type { LocationQuery, LocationQueryRaw } from 'vue-router'
 
 import log from '@swissgeo/log'
@@ -35,7 +35,7 @@ function decode(text: string): string {
     try {
         return decodeURIComponent('' + text)
     } catch (error) {
-        const messages: GeoadminLogInput[] = [`Error decoding "${text}". Using original value`]
+        const messages: SwissGeoLogInput[] = [`Error decoding "${text}". Using original value`]
         if (error instanceof Error) {
             messages.push(error)
         }
