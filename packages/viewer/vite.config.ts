@@ -179,6 +179,7 @@ export default defineConfig((configEnv: ConfigEnv): ViteUserConfig => {
     return {
         base: './',
         build: {
+            minify: isTesting ? false : 'esbuild',
             emptyOutDir: true,
             assetsDir: `${appVersion}/assets`,
             outDir: `./dist/${stagings[definitiveMode]}`,

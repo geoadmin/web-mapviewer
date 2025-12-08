@@ -5,8 +5,6 @@
         "target": "ESNext",
         "lib": ["ES2024"],
         "sourceMap": true,
-        "types": ["cypress", "node"],
-        "allowJs": true,
         "paths": {
             "@/*": ["../../src/*"]
         }
