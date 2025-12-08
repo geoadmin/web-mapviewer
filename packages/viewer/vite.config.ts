@@ -19,7 +19,7 @@ export type ViteModes = 'development' | 'integration' | 'production' | 'test'
 
 const appVersion: string =
     // We take the version from APP_VERSION, and if not set from the git describe command
-    process.env.APP_VERSION ??
+    // process.env.APP_VERSION ??
     // NOTE: git-describe package adds sometimes `+` signs (what the real git describe command doesn't),
     // and the `+` sign on the URL is actually a space, so it should be percent encoded.
     // We therefore swap the '+' sign with '-' for simplification.
@@ -58,19 +58,19 @@ function generatePlugins(mode: ViteModes, isTesting: boolean = false): PluginOpt
 
     plugins.push(tsconfigPaths())
 
-    if (process.env.USE_HTTPS) {
-        plugins.push({
-            ...basicSsl({
-                /** Name of certification */
-                name: 'localhost',
-                /** Custom trust domains */
-                domains: ['localhost', '192.168.*.*'],
-                /** Custom certification directory */
-                certDir: './devServer/cert',
-            }),
-            apply: 'serve',
-        })
-    }
+    // if (process.env.USE_HTTPS) {
+    //     plugins.push({
+    //         ...basicSsl({
+    //             /** Name of certification */
+    //             name: 'localhost',
+    //             /** Custom trust domains */
+    //             domains: ['localhost', '192.168.*.*'],
+    //             /** Custom certification directory */
+    //             certDir: './devServer/cert',
+    //         }),
+    //         apply: 'serve',
+    //     })
+    // }
     plugins.push(tailwindcss())
     plugins.push(
         vue({
