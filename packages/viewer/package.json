@@ -35,7 +35,7 @@
         "test:component:ci": "cypress run --component --record --tag ${CYPRESS_TAGS} --group component/chrome/mobile --ci-build-id ${CODEBUILD_INITIATOR}",
         "test:component:headless": "cypress run --component",
         "test:e2e": "start-server-and-test test 8080 'cypress open --e2e'",
-        "test:e2e:ci": "DEBUG=cypress:* pnpx cypress run --record --group e2e/chrome/mobile --headless --browser chrome --tag ${CYPRESS_TAGS} --parallel --ci-build-id ${CODEBUILD_INITIATOR} --spec 'tests/cypress/tests-e2e/legacyParamImport.cy.ts'",
+        "test:e2e:ci": "DEBUG=mocha:* pnpx cypress run --record --group e2e/chrome/mobile --headless --browser chrome --tag ${CYPRESS_TAGS} --parallel --ci-build-id ${CODEBUILD_INITIATOR} --spec 'tests/cypress/tests-e2e/legacyParamImport.cy.ts'",
         "test:e2e:desktop": "start-server-and-test preview:test 8080 'cypress open --e2e --config viewportWidth=1440,viewportHeight=900'",
         "test:e2e:headless": "start-server-and-test test 8080 'cypress run'",
         "test:e2e:no-server": "cypress open --e2e",
