@@ -32,7 +32,7 @@ export default function setCenterIfInBounds(
 
     if (lv95BoundsInCurrentProjection?.isInBounds(center)) {
         if (!isEqual(positionStore.center, center)) {
-            positionStore.setCenter(center, true, dispatcher)
+            positionStore.setCenter(center, { preserveGeolocationTracking: true }, dispatcher)
 
             if (firstTime) {
                 firstTime = false

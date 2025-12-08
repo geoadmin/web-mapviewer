@@ -10,10 +10,14 @@ import type { ActionDispatcher } from '@/store/types'
 import useCesiumStore from '@/store/modules/cesium'
 import useGeolocationStore from '@/store/modules/geolocation'
 
+interface SetCenterOptions {
+    preserveGeolocationTracking?: boolean
+}
+
 export default function setCenter(
     this: PositionStore,
     center: SingleCoordinate,
-    preserveGeolocationTracking: boolean,
+    options: SetCenterOptions,
     dispatcher: ActionDispatcher
 ): void
 export default function setCenter(
@@ -24,15 +28,14 @@ export default function setCenter(
 export default function setCenter(
     this: PositionStore,
     center: SingleCoordinate,
-    preserveGeolocationTrackingOrDispatcher: boolean | ActionDispatcher,
+    optionsOrDispatcher: SetCenterOptions | ActionDispatcher,
     dispatcherOrNothing?: ActionDispatcher
 ): void {
-    const preserveGeolocationTracking =
-        typeof preserveGeolocationTrackingOrDispatcher === 'boolean'
-            ? preserveGeolocationTrackingOrDispatcher
-            : false
-    const dispatcher =
-        dispatcherOrNothing ?? (preserveGeolocationTrackingOrDispatcher as ActionDispatcher)
+    const isOptions = dispatcherOrNothing !== undefined
+    const preserveGeolocationTracking = isOptions
+        ? (optionsOrDispatcher as SetCenterOptions).preserveGeolocationTracking ?? false
+        : false
+    const dispatcher = dispatcherOrNothing ?? (optionsOrDispatcher as ActionDispatcher)
     if (!center || (Array.isArray(center) && center.length !== 2)) {
         log.error({
             title: 'Position store / setCenter',
