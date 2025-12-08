@@ -164,7 +164,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
 
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
-        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click({ force: true })
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
         cy.log(
             'Test if kml is sanitized and external content is blocked and description is truncated'
@@ -215,7 +215,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
 
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
-        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click({ force: true })
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
         //---------------------------------------------------------------------
         // Test the import of an online KML file
@@ -1098,7 +1098,7 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
     })
 
-    it.only('Import GPX file', () => {
+    it('Import GPX file', () => {
         const gpxFileName = 'external-gpx-file.gpx'
         const gpxFileFixture = `import-tool/${gpxFileName}`
 
