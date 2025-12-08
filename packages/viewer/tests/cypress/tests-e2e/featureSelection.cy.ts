@@ -13,7 +13,7 @@ import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositi
 
 registerProj4(proj4)
 type FeatureInfoPosition = (typeof FeatureInfoPositions)[keyof typeof FeatureInfoPositions]
-
+const SELECTED_FEATURE_COUNT = 10
 describe('Testing the feature selection', () => {
     context('Feature pre-selection in the URL', () => {
         const timeLayer = 'test.timeenabled.wmts.layer'
@@ -48,12 +48,12 @@ describe('Testing the feature selection', () => {
         }
 
         function checkFeatures(): void {
-            cy.log(`Ensuring there are 10 selected features, and they're all different`)
+            cy.log(`Ensuring there are ${SELECTED_FEATURE_COUNT} selected features, and they're all different`)
 
             cy.getPinia().then((pinia) => {
                 const featuresStore = useFeaturesStore(pinia)
                 const features = featuresStore.selectedFeatures
-                expect(features.length).to.eq(10)
+                expect(features.length).to.eq(SELECTED_FEATURE_COUNT)
 
                 features.forEach((feature) => {
                     expect(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']).to.include(
@@ -95,6 +95,10 @@ describe('Testing the feature selection', () => {
         it('Adds pre-selected features and place the tooltip according to URL param on a narrow width screen', () => {
             cy.log('When featureInfo is not specified, we should have no tooltip visible')
             goToMapViewWithFeatureSelection()
+            for (let i = 0; i < SELECTED_FEATURE_COUNT; i++) {
+                cy.wait('@featureDetail')
+                cy.wait('@htmlPopup')
+            }
             checkFeatures()
             checkFeatureInfoPosition(FeatureInfoPositions.None)
             cy.log(
@@ -119,6 +123,10 @@ describe('Testing the feature selection', () => {
                 'When featureInfo is specified, as the viewport is mobile-sized, we should see the infobox'
             )
             goToMapViewWithFeatureSelection(FeatureInfoPositions.Default)
+            for (let i = 0; i < SELECTED_FEATURE_COUNT; i++) {
+                cy.wait('@featureDetail')
+                cy.wait('@htmlPopup')
+            }
             checkFeatures()
             checkFeatureInfoPosition(FeatureInfoPositions.Default)
             cy.log('parameter is case insensitive, and we should see a popover here')
@@ -269,10 +277,13 @@ describe('Testing the feature selection', () => {
         it('Adds pre-selected features and verifys the translation of the feature text after changing the language', () => {
             cy.log('Open the map with a feature preselected in english')
             goToMapViewWithFeatureSelection(FeatureInfoPositions.Default)
+
+            for (let i = 0; i < SELECTED_FEATURE_COUNT; i++) {
+                cy.wait('@featureDetail')
+                cy.wait('@htmlPopup')
+            }
             checkFeatures()
             checkFeatureInfoPosition(FeatureInfoPositions.BottomPanel)
-
-            cy.wait(`@htmlPopup`)
 
             cy.get('[data-cy="feature-list-category-title"]').contains('Kultur Gueter')
             cy.get('[data-cy="feature-detail-htmlpopup-container"]')
@@ -583,12 +594,12 @@ describe('Testing the feature selection', () => {
                     clickOnMap(pixel3, false)
                     cy.wait('@routeChange')
                     cy.wait('@routeChange')
+                    cy.wait('@routeChange')
                     cy.getPinia().then((pinia) => {
                         const featuresStore3 = useFeaturesStore(pinia)
                         expect(featuresStore3.selectedFeatures.length).to.eq(1)
                     })
                     clickOnMap(pixel1, true)
-                    cy.wait('@routeChange')
                     cy.wait('@routeChange')
                     cy.getPinia().then((pinia) => {
                         const featuresStore4 = useFeaturesStore(pinia)
