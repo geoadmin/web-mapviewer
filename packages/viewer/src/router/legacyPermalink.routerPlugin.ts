@@ -182,7 +182,6 @@ export function handleLegacyParam(
             newValue = legacyParamValue
             break
     }
-    console.log('handleLegacyParam', legacyParamName, legacyParamValue, key, newValue)
     if (newValue !== undefined) {
         // When receiving a query, the application will encode the URI components
         // We decode those so that the new query won't encode encoded character
@@ -452,7 +451,7 @@ export const legacyPermalinkManagementRouterPlugin: RouterPlugin = (router): voi
                                         messages: [`redirect to the converted params`, newRoute],
                                     })
                                     router.replace(newRoute).then(() => {
-                                        useAppStore().setLegacyUrlParamsParsedHasHappened(dispatcher)
+                                        useAppStore().setLegacyUrlParsingHasHappened(dispatcher)
                                     }).catch((error) => {
                                         log.error({
                                             title: 'Legacy URL',
