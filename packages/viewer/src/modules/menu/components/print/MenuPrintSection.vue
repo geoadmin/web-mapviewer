@@ -191,7 +191,7 @@ defineExpose({
                 id="print-layout-selector"
                 :title="formatTitle(selectedLayout?.name)"
                 :items="availablePrintLayouts"
-                :current-value="selectedLayout?.name"
+                :current-value="selectedLayout"
                 data-cy="print-layout-selector"
                 @select-item="selectPrintLayout"
             />
