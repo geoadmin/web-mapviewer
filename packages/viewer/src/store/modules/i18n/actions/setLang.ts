@@ -1,7 +1,7 @@
 import type { I18nStore } from '@/store/modules/i18n/types/i18n'
 import type { ActionDispatcher } from '@/store/types'
 
-import i18n, { type SupportedLang } from '@/modules/i18n'
+import i18n, { langToLocale, type SupportedLang } from '@/modules/i18n'
 import useLayersStore from '@/store/modules/layers'
 import redoSearch from '@/store/modules/search/utils/redoSearch'
 
@@ -23,7 +23,7 @@ export default function setLang(
     const dispatcher = dispatcherOrNothing ?? (optionsOrDispatcher as ActionDispatcher)
     const options = dispatcherOrNothing ? (optionsOrDispatcher as SetLangOptions) : {}
     this.lang = lang
-    i18n.global.locale.value = lang
+    i18n.global.locale.value = langToLocale(lang)
     useLayersStore().loadLayersConfig({ changeLayersOnTopicChange: options.changeLayersOnTopicChange }, dispatcher)
     redoSearch()
 }
