@@ -33,7 +33,7 @@ export default function setCenter(
 ): void {
     const isOptions = dispatcherOrNothing !== undefined
     const preserveGeolocationTracking = isOptions
-        ? (optionsOrDispatcher as SetCenterOptions).preserveGeolocationTracking ?? false
+        ? ((optionsOrDispatcher as SetCenterOptions).preserveGeolocationTracking ?? false)
         : false
     const dispatcher = dispatcherOrNothing ?? (optionsOrDispatcher as ActionDispatcher)
     if (!center || (Array.isArray(center) && center.length !== 2)) {
