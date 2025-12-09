@@ -17,7 +17,9 @@ export default function setCrossHair(
     if (!crossHair) {
         this.crossHair = undefined
         this.crossHairPosition = undefined
-    } else if (crossHair in CrossHairs) {
+    } else if (Object.values(CrossHairs).includes(crossHair)) {
+        // Use Object.values().includes() to check if the crosshair is a valid enum value
+        // (e.g., 'point', 'cross', etc.) rather than checking if it's an enum key
         this.crossHair = crossHair
         // if a position is defined as param we use it
         // if no position was given, we use the current center of the map as crosshair position
