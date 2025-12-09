@@ -1,9 +1,9 @@
 import type { AppStore } from '@/store/modules/app/types/app'
 import type { ActionDispatcher } from '@/store/types'
 
-export default function setLegacyUrlParamsParsedHasHappened(
+export default function setLegacyUrlParsingHasHappened(
     this: AppStore,
     dispatcher: ActionDispatcher
 ) {
-    this.legacParamsParsingHasHappened = true
+    this.legacyUrlParsingHasHappened = true
 }
