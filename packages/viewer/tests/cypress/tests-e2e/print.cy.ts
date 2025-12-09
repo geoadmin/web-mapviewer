@@ -10,9 +10,9 @@ import type {
     MFPWmsLayer,
     MFPWmtsLayer,
 } from '@geoblocks/mapfishprint'
-import type { ExternalWMTSLayer } from '@swissgeo/layers'
+import type { ExternalWMSLayer, ExternalWMTSLayer } from '@swissgeo/layers'
 import type { Interception } from 'cypress/types/net-stubbing'
-import type { Feature, FeatureCollection } from 'geojson'
+import type { Feature, FeatureCollection, GeoJsonProperties, Geometry } from 'geojson'
 
 import { formatThousand } from '@swissgeo/numbers'
 import { getServiceKmlBaseUrl } from '@swissgeo/staging-config'
@@ -58,6 +58,13 @@ interface ExpectedValues {
     projection?: string
     legends?: Legend[]
     layers?: (MFPWmtsLayer | MFPWmsLayer | MFPVectorLayer)[]
+}
+
+interface GeoJsonLayer {
+    type: 'geojson'
+    geoJson: FeatureCollection
+    style: Record<string, MFPSymbolizers>
+    opacity: number
 }
 
 interface Legend {
@@ -186,12 +193,20 @@ function checkPrintRequest(body: PrintRequestBody, expectedValues: ExpectedValue
 
         if (layer.type === 'wmts') {
             const wmtsLayer = layer as MFPWmtsLayer
+            console.log('wmtsLayer', wmtsLayer)
             const wmtsLayerInSpec = layerInSpec as MFPWmtsLayer
+            console.log('wmtsLayerInSpec', wmtsLayerInSpec)
             expect(wmtsLayerInSpec.layer).to.deep.equals(wmtsLayer.layer)
             expect(wmtsLayerInSpec.matrices).to.be.an('array').not.empty
-            expect(wmtsLayerInSpec.matrices[0]?.matrixSize).to.deep.eq(
-                wmtsLayer.matrixSize ?? [1, 1]
-            )
+            if ('matrixSize' in wmtsLayer) {
+                expect(wmtsLayerInSpec.matrices[0]?.matrixSize).to.deep.eq(
+                    wmtsLayer.matrixSize ?? [1, 1]
+                )
+            } else {
+                expect(wmtsLayerInSpec.matrices[0]?.matrixSize).to.deep.eq([1, 1]
+                )
+            }
+
             expect(wmtsLayerInSpec.matrixSet).to.eq(
                 wmtsLayer.matrixSet ?? projection,
                 `wrong matrix set in WMTS layer ${wmtsLayer.layer}`
@@ -214,28 +229,31 @@ function checkPrintRequest(body: PrintRequestBody, expectedValues: ExpectedValue
             expect(wmsLayerInSpec.layers).to.deep.equals(wmsLayer.layers)
         } else if (layer.type === 'geojson') {
             const vectorLayer = layer as MFPVectorLayer
+            console.log('vectorLayer', vectorLayer)
             const vectorLayerInSpec = layerInSpec as MFPVectorLayer
-            expect((vectorLayerInSpec.geoJson as FeatureCollection).features)
-                .to.be.an('array')
-                .lengthOf(vectorLayer.featureCount)
-            if (vectorLayer.featureCount > 0) {
-                vectorLayerInSpec.geoJson.features.forEach((feature: Feature, idx: number) => {
-                    const styleId = `${vectorLayer.featureCount - idx}`
-                    expect(feature.properties).to.be.an(
-                        'object',
-                        `Missing feature properties at index ${idx}`
-                    )
-                    assertDefined(feature.properties)
-                    expect(feature.properties._mfp_style).to.equal(
-                        styleId,
-                        `Wrong style ID for feature at index ${idx}`
-                    )
-                    expect(vectorLayerInSpec.style).to.be.an('object', 'Missing layer styles')
-                    expect(Object.keys(vectorLayerInSpec.style)).to.contain(
-                        `[_mfp_style = '${styleId}']`,
-                        `Missing MapFishPrint style ID ${styleId} in layer styles`
-                    )
-                })
+            if ('featureCount' in vectorLayer && typeof vectorLayer.featureCount === 'number') {
+                expect((vectorLayerInSpec.geoJson as FeatureCollection).features)
+                    .to.be.an('array')
+                    .lengthOf(vectorLayer.featureCount)
+                if (vectorLayer.featureCount > 0) {
+                    (vectorLayerInSpec.geoJson as FeatureCollection<Geometry, GeoJsonProperties>).features.forEach((feature: Feature, idx: number) => {
+                        const styleId = `${vectorLayer.featureCount as number - idx}`
+                        expect(feature.properties).to.be.an(
+                            'object',
+                            `Missing feature properties at index ${idx}`
+                        )
+                        assertDefined(feature.properties)
+                        expect(feature.properties._mfp_style).to.equal(
+                            styleId,
+                            `Wrong style ID for feature at index ${idx}`
+                        )
+                        expect(vectorLayerInSpec.style).to.be.an('object', 'Missing layer styles')
+                        expect(Object.keys(vectorLayerInSpec.style)).to.contain(
+                            `[_mfp_style = '${styleId}']`,
+                            `Missing MapFishPrint style ID ${styleId} in layer styles`
+                        )
+                    })
+                }
             }
         }
     })
@@ -441,7 +459,7 @@ describe('Testing print', () => {
                         {
                             type: 'geojson',
                             featureCount: 1,
-                        } as MFPVectorLayer,
+                        } as unknown as MFPVectorLayer,
                         {
                             layer: 'test.background.layer2',
                             type: 'wmts',
@@ -452,7 +470,7 @@ describe('Testing print', () => {
             })
         })
 
-        it('should send a print request correctly to mapfishprint with GPX layer', () => {
+        it.only('should send a print request correctly to mapfishprint with GPX layer', () => {
             cy.goToMapView()
             cy.getPinia().then((pinia) => {
                 const layersStore2 = useLayersStore(pinia)
@@ -506,7 +524,7 @@ describe('Testing print', () => {
                                 type: 'geojson',
                                 // In this GPX layer, there are two features (a line and a point).
                                 featureCount: 2,
-                            } as MFPVectorLayer,
+                            } as unknown as MFPVectorLayer,
                             {
                                 layer: 'test.background.layer2',
                                 type: 'wmts',
@@ -521,9 +539,10 @@ describe('Testing print', () => {
                     assertDefined(mfpVectorLayer)
                     expect(mfpVectorLayer.style).to.be.an('object')
                     expect(mfpVectorLayer.style).to.have.property("[_mfp_style = '2']")
-                    const mapFishStyle: MFPSymbolizers = mfpVectorLayer.style["[_mfp_style = '2']"]
+                    const mapFishStyle: MFPSymbolizers | undefined = (mfpVectorLayer.style as unknown as Record<string, MFPSymbolizers>)["[_mfp_style = '2']"]
                     expect(mapFishStyle).to.be.an('object')
                     expect(mapFishStyle).to.have.property('symbolizers')
+                    assertDefined(mapFishStyle)
                     expect(mapFishStyle.symbolizers).to.be.an('array')
                     const [firstSymbolizer]: MFPSymbolizer[] = mapFishStyle.symbolizers
                     const lineSymbolizer = firstSymbolizer as MFPSymbolizerLine
@@ -556,27 +575,30 @@ describe('Testing print', () => {
 
                 expect(mapAttributes).to.haveOwnProperty('layers')
 
-                const layers = mapAttributes.layers
-
+                const layers: GeoJsonLayer[] = mapAttributes.layers
+                console.log('layers', layers)
                 expect(layers).to.be.an('array')
                 expect(layers).to.have.length(2)
 
                 const geoJsonLayer = layers[0]
-
+                assertDefined(geoJsonLayer)
                 expect(geoJsonLayer).to.haveOwnProperty('type')
                 expect(geoJsonLayer).to.haveOwnProperty('geoJson')
                 expect(geoJsonLayer).to.haveOwnProperty('style')
                 expect(geoJsonLayer['geoJson']).to.haveOwnProperty('features')
                 expect(geoJsonLayer['geoJson']['features'][0]).to.haveOwnProperty('properties')
+                assertDefined(geoJsonLayer['geoJson']['features'][0])
+
                 expect(geoJsonLayer['geoJson']['features'][0]['properties']).to.haveOwnProperty(
                     '_mfp_style'
                 )
                 expect(geoJsonLayer['style']).to.haveOwnProperty("[_mfp_style = '1']")
-                expect(geoJsonLayer['style']["[_mfp_style = '1']"]).to.haveOwnProperty(
+                expect((geoJsonLayer['style'])["[_mfp_style = '1']"]).to.haveOwnProperty(
                     'symbolizers'
                 )
-
-                const symbolizers = layers[0]['style']["[_mfp_style = '1']"]['symbolizers']
+                assertDefined(layers[0])
+                assertDefined(layers[0]['style']["[_mfp_style = '1']"])
+                const symbolizers = (layers[0]['style'])["[_mfp_style = '1']"]['symbolizers']
                 const pointSymbol = symbolizers[0]
                 expect(pointSymbol).to.haveOwnProperty('type')
                 const pointSymbolAttributes = {
@@ -708,19 +730,19 @@ describe('Testing print', () => {
         const bgLayer = 'test.background.layer2'
 
         it('prints external WMS correctly', () => {
-            cy.getExternalWmsMockConfig().then((layerObjects: ExternalWMTSLayer[]) => {
+            cy.getExternalWmsMockConfig().then((layerObjects: ExternalWMSLayer[]) => {
                 assertDefined(layerObjects[1])
                 assertDefined(layerObjects[2])
                 layerObjects[1].opacity = 0.8
                 layerObjects[2].opacity = 0.4
                 // some layers are not visible by default, let's set them all as visible
-                layerObjects.forEach((layer: ExternalWMTSLayer) => {
-                    layer.visible = true
+                layerObjects.forEach((layer: ExternalWMSLayer) => {
+                    layer.isVisible = true
                 })
                 cy.goToMapView({
                     queryParams: {
                         layers: layerObjects
-                            .map((object: ExternalWMTSLayer) =>
+                            .map((object: ExternalWMSLayer) =>
                                 transformLayerIntoUrlString(object, undefined, undefined)
                             )
                             .join(';'),
@@ -764,7 +786,7 @@ describe('Testing print', () => {
                     expect(layers).to.have.length(5)
 
                     const expectedLayers = [
-                        ...layerObjects.toReversed().map((layer: ExternalWMTSLayer) => {
+                        ...layerObjects.toReversed().map((layer: ExternalWMSLayer) => {
                             return {
                                 layers: layer.id.split(','),
                                 type: 'wms',
@@ -783,14 +805,19 @@ describe('Testing print', () => {
 
                     for (let i = 0; i < layers.length; i++) {
                         assertDefined(expectedLayers)
-                        assertDefined(expectedLayers[i])
-                        assertDefined(expectedLayers[i])
-                        expect(layers[i]['layers']).to.deep.equal(expectedLayers[i]['layers'])
-                        expect(layers[i]['type']).to.equals(expectedLayers[i]['type'])
-                        expect(layers[i]['baseURL']).to.equals(expectedLayers[i]['baseURL'])
-                        expect(layers[i]['opacity']).to.equals(expectedLayers[i]['opacity'])
-                        if (expectedLayers[i]?.['matrixSet']) {
-                            expect(layers[i]['matrixSet']).to.equals(expectedLayers[i]['matrixSet'])
+                        const expectedLayer = expectedLayers[i]
+                        assertDefined(expectedLayer)
+                        const layer = layers[i]
+                        assertDefined(layer)
+
+                        if ('layers' in expectedLayer) {
+                            expect(layer['layers']).to.deep.equal(expectedLayer.layers)
+                        }
+                        expect(layer['type']).to.equals(expectedLayer.type)
+                        expect(layer['baseURL']).to.equals(expectedLayer.baseURL)
+                        expect(layer['opacity']).to.equals(expectedLayer.opacity)
+                        if ('matrixSet' in expectedLayer) {
+                            expect(layer['matrixSet']).to.equals(expectedLayer.matrixSet)
                         }
                     }
 
@@ -801,7 +828,7 @@ describe('Testing print', () => {
             })
         })
 
-        it.only('prints external WMTS correctly', () => {
+        it('prints external WMTS correctly', () => {
             cy.getExternalWmtsMockConfig().then((layerObjects: ExternalWMTSLayer[]) => {
                 layerObjects.forEach((layer: ExternalWMTSLayer) => {
                     layer.isVisible = true
@@ -834,7 +861,7 @@ describe('Testing print', () => {
                                         opacity: layer.opacity,
                                         matrixSet: 'ktzh',
                                         matrixSize: [11, 8],
-                                    }
+                                    } as unknown as MFPWmtsLayer
                                 }),
                                 {
                                     layer: bgLayer,
@@ -842,7 +869,7 @@ describe('Testing print', () => {
                                     baseURL: `https://sys-wmts.dev.bgdi.ch/1.0.0/${bgLayer}/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.jpeg`,
                                     opacity: 1,
                                     matrixSet: 'EPSG:2056',
-                                },
+                                } as unknown as MFPWmtsLayer,
                             ],
                             legends: [],
                         })
