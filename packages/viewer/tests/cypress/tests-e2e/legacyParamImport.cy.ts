@@ -5,7 +5,6 @@ import { LV95, WGS84 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 
-import useCesiumStore from '@/store/modules/cesium'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
@@ -430,11 +429,10 @@ describe('Test on legacy param import', () => {
                 withHash: false,
             })
 
+            cy.get('[data-cy="cesium-map"]').should('be.visible')
+
             // checking in the store that the parameters have been converted into the new 3D parameters
             cy.getPinia().then((pinia) => {
-                const cesiumStore = useCesiumStore(pinia)
-                expect(cesiumStore.active).to.eq(true) // cesium should be active
-
                 // Checking camera position
                 const positionStore6 = usePositionStore(pinia)
                 assertDefined(positionStore6.camera)
@@ -461,11 +459,10 @@ describe('Test on legacy param import', () => {
                 withHash: false,
             })
 
+            cy.get('[data-cy="cesium-map"]').should('be.visible')
+
             // checking in the store that the parameters have been converted into the new 3D parameters
             cy.getPinia().then((pinia) => {
-                const cesiumStore2 = useCesiumStore(pinia)
-                expect(cesiumStore2.active).to.eq(true) // cesium should be active
-
                 // Checking camera position
                 const positionStore7 = usePositionStore(pinia)
                 assertDefined(positionStore7.camera)
@@ -492,11 +489,10 @@ describe('Test on legacy param import', () => {
                 withHash: false,
             })
 
+            cy.get('[data-cy="cesium-map"]').should('be.visible')
+
             // checking in the store that the parameters have been converted into the new 3D parameters
             cy.getPinia().then((pinia) => {
-                const cesiumStore3 = useCesiumStore(pinia)
-                expect(cesiumStore3.active).to.eq(true) // cesium should be active
-
                 // Checking camera position
                 // x, y, and z seems recalculated when there is only elevation, so I just check that they are not undefined
                 const positionStore8 = usePositionStore(pinia)
