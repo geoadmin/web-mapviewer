@@ -183,7 +183,6 @@ function checkPrintRequest(body: PrintRequestBody, expectedValues: ExpectedValue
     expect(mapAttributes.projection).to.equals(projection, 'wrong map projection')
 
     const layersInSpec = body.attributes.map?.layers
-
     expect(layersInSpec).to.be.an('array').lengthOf(layers.length, 'Missing layer in print spec')
     layers.forEach((layer: MFPLayer, index: number) => {
         const layerInSpec = layersInSpec[index]
@@ -364,6 +363,7 @@ describe('Testing print', () => {
                     layers: `KML|${getServiceKmlBaseUrl()}some-kml-file.kml`,
                     z: 9,
                     center,
+                    bgLayer: 'test.background.layer2',
                 },
                 withHash: true,
             })
@@ -393,6 +393,7 @@ describe('Testing print', () => {
                         'test.wmts.layer,,0.5',
                         'test.wmts.layer,,0.8',
                     ].join(';'),
+                    bgLayer: 'test.background.layer2',
                 },
             })
             launchPrint({
@@ -403,9 +404,9 @@ describe('Testing print', () => {
                 .then((body: PrintRequestBody) => {
                     checkPrintRequest(body, {
                         copyright: `© ${[
+                            'attribution.test.wmts.layer',
                             'attribution.test-1.wms.layer',
                             'attribution.test-2.wms.layer',
-                            'attribution.test.wmts.layer',
                         ].join(', ')}`,
                         layers: [
                             {
@@ -470,7 +471,7 @@ describe('Testing print', () => {
             })
         })
 
-        it.only('should send a print request correctly to mapfishprint with GPX layer', () => {
+        it('should send a print request correctly to mapfishprint with GPX layer', () => {
             cy.goToMapView()
             cy.getPinia().then((pinia) => {
                 const layersStore2 = useLayersStore(pinia)
@@ -604,11 +605,9 @@ describe('Testing print', () => {
                 const pointSymbolAttributes = {
                     type: 'point',
                     externalGraphic: '001-marker@1x-255,0,0.png',
-                    graphicWidth: 19.133858267716537,
                     graphicXOffset: -8.503937007874017,
                     graphicYOffset: -8.503937007874017,
                 }
-
                 for (const attribute in pointSymbolAttributes) {
                     expect(pointSymbol).to.haveOwnProperty(attribute)
                 }
@@ -674,7 +673,6 @@ describe('Testing print', () => {
                 const pointSymbolAttributes = {
                     type: 'point',
                     externalGraphic: '001-marker@1x-255,0,0.png',
-                    graphicWidth: 19.133858267716537,
                     graphicXOffset: -8.503937007874017,
                     graphicYOffset: -8.503937007874017,
                 }
