@@ -192,9 +192,7 @@ function checkPrintRequest(body: PrintRequestBody, expectedValues: ExpectedValue
 
         if (layer.type === 'wmts') {
             const wmtsLayer = layer as MFPWmtsLayer
-            console.log('wmtsLayer', wmtsLayer)
             const wmtsLayerInSpec = layerInSpec as MFPWmtsLayer
-            console.log('wmtsLayerInSpec', wmtsLayerInSpec)
             expect(wmtsLayerInSpec.layer).to.deep.equals(wmtsLayer.layer)
             expect(wmtsLayerInSpec.matrices).to.be.an('array').not.empty
             if ('matrixSize' in wmtsLayer) {
@@ -228,7 +226,6 @@ function checkPrintRequest(body: PrintRequestBody, expectedValues: ExpectedValue
             expect(wmsLayerInSpec.layers).to.deep.equals(wmsLayer.layers)
         } else if (layer.type === 'geojson') {
             const vectorLayer = layer as MFPVectorLayer
-            console.log('vectorLayer', vectorLayer)
             const vectorLayerInSpec = layerInSpec as MFPVectorLayer
             if ('featureCount' in vectorLayer && typeof vectorLayer.featureCount === 'number') {
                 expect((vectorLayerInSpec.geoJson as FeatureCollection).features)
@@ -452,7 +449,6 @@ describe('Testing print', () => {
             startPrintWithKml('import-tool/external-kml-file.kml', '2776665.89,1175560.26')
 
             cy.wait('@printRequest').then((interception: Interception) => {
-                console.log('interception', interception)
                 checkPrintRequest(interception.request.body, {
                     mapScale: 5000,
                     copyright: '© sys-public.dev.bgdi.ch, attribution.test.wmts.layer',
@@ -577,7 +573,6 @@ describe('Testing print', () => {
                 expect(mapAttributes).to.haveOwnProperty('layers')
 
                 const layers: GeoJsonLayer[] = mapAttributes.layers
-                console.log('layers', layers)
                 expect(layers).to.be.an('array')
                 expect(layers).to.have.length(2)
 
@@ -744,6 +739,7 @@ describe('Testing print', () => {
                                 transformLayerIntoUrlString(object, undefined, undefined)
                             )
                             .join(';'),
+                        bgLayer: bgLayer,
                     },
                     withHash: true,
                 })
@@ -769,7 +765,7 @@ describe('Testing print', () => {
 
                     expect(attributes).to.haveOwnProperty('copyright')
                     expect(attributes['copyright']).to.equal(
-                        `© ${['The federal geoportal', 'BGDI', 'attribution.test.wmts.layer'].join(
+                        `© ${['attribution.test.wmts.layer', 'The federal geoportal', 'BGDI'].join(
                             ', '
                         )}`
                     )
@@ -795,7 +791,7 @@ describe('Testing print', () => {
                         {
                             layer: bgLayer,
                             type: 'wmts',
-                            baseURL: `https://sys-wmts.dev.bgdi.ch/1.0.0/${bgLayer}/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.jpeg`,
+                            baseURL: `https://sys-wmts.dev.bgdi.ch/1.0.0/${bgLayer}/default/current/2056/{TileMatrix}/{TileCol}/{TileRow}.jpeg`,
                             opacity: 1,
                             matrixSet: 'EPSG:2056',
                         },
@@ -838,6 +834,7 @@ describe('Testing print', () => {
                                 transformLayerIntoUrlString(object, undefined, undefined)
                             )
                             .join(';'),
+                        bgLayer: bgLayer,
                     },
                     withHash: true,
                 })
@@ -849,7 +846,7 @@ describe('Testing print', () => {
                     .its('request.body')
                     .then((body: PrintRequestBody) => {
                         checkPrintRequest(body, {
-                            copyright: '© GIS-Zentrum Stadt Zuerich, attribution.test.wmts.layer',
+                            copyright: '© attribution.test.wmts.layer, GIS-Zentrum Stadt Zuerich',
                             layers: [
                                 ...layerObjects.toReversed().map((layer: ExternalWMTSLayer) => {
                                     return {
@@ -864,7 +861,7 @@ describe('Testing print', () => {
                                 {
                                     layer: bgLayer,
                                     type: 'wmts',
-                                    baseURL: `https://sys-wmts.dev.bgdi.ch/1.0.0/${bgLayer}/default/{Time}/2056/{TileMatrix}/{TileCol}/{TileRow}.jpeg`,
+                                    baseURL: `https://sys-wmts.dev.bgdi.ch/1.0.0/${bgLayer}/default/current/2056/{TileMatrix}/{TileCol}/{TileRow}.jpeg`,
                                     opacity: 1,
                                     matrixSet: 'EPSG:2056',
                                 } as unknown as MFPWmtsLayer,

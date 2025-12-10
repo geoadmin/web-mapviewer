@@ -335,7 +335,8 @@ export function loadGeoadminLayersConfig(
                             rawLayer,
                             rawLayerId,
                             rawLayersConfig,
-                            lang
+                            lang,
+                            staging
                         )
                         if (layer) {
                             layersConfig.push(layer)

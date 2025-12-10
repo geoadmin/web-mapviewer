@@ -485,7 +485,7 @@ function getExternalLayer(
         ignoreErrors = true,
         parentsArray,
     } = options ?? {}
-    const { currentYear, params } = initialValues
+    const { currentYear, params, opacity = 1, isVisible } = initialValues
 
     let layer: WMSCapabilityLayer | undefined
     let parents: WMSCapabilityLayer[] | undefined
@@ -562,6 +562,8 @@ function getExternalLayer(
         isLoading: false,
         getFeatureInfoCapability: getFeatureInfoCapability(capabilities, ignoreErrors),
         currentYear,
+        opacity,
+        isVisible,
         customAttributes: params,
         layers,
     })
