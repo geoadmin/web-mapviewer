@@ -31,11 +31,10 @@ export default function setCenter(
     optionsOrDispatcher: SetCenterOptions | ActionDispatcher,
     dispatcherOrNothing?: ActionDispatcher
 ): void {
-    const isOptions = dispatcherOrNothing !== undefined
-    const preserveGeolocationTracking = isOptions
-        ? ((optionsOrDispatcher as SetCenterOptions).preserveGeolocationTracking ?? false)
-        : false
+    const options = dispatcherOrNothing ? (optionsOrDispatcher as SetCenterOptions) : {}
     const dispatcher = dispatcherOrNothing ?? (optionsOrDispatcher as ActionDispatcher)
+
+    const { preserveGeolocationTracking = false } = options
     if (!center || (Array.isArray(center) && center.length !== 2)) {
         log.error({
             title: 'Position store / setCenter',
