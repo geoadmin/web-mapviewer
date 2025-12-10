@@ -32,7 +32,7 @@ export const SUPPORTED_LANG: string[] = ['en', ...OFFICIAL_SWISS_LANG]
 const locales: string[] = [...SUPPORTED_LANG, ...SUPPORTED_LANG.map((lang) => langToLocale(lang))]
 
 export function langToLocale(lang: string): string {
-    return `${lang}_CH`
+    return OFFICIAL_SWISS_LANG.includes(lang) ? `${lang}-CH` : lang
 }
 
 export function isSupportedLang(lang?: string): lang is SupportedLang {
