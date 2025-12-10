@@ -10,10 +10,21 @@ import FeedbackButton from '@/modules/menu/components/help/feedback/FeedbackButt
 import HelpLink from '@/modules/menu/components/help/HelpLink.vue'
 import ReportProblemButton from '@/modules/menu/components/help/ReportProblemButton.vue'
 import SearchBar from '@/modules/menu/components/search/SearchBar.vue'
+import useCesiumStore from '@/store/modules/cesium'
+import useDrawingStore from '@/store/modules/drawing'
+import useFeaturesStore from '@/store/modules/features'
+import useGeolocationStore from '@/store/modules/geolocation'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers'
+import useMapStore from '@/store/modules/map'
+import usePositionStore from '@/store/modules/position'
+import usePrintStore from '@/store/modules/print'
+import useProfileStore from '@/store/modules/profile'
+import useSearchStore from '@/store/modules/search'
+import useShareStore from '@/store/modules/share'
 import useTopicsStore from '@/store/modules/topics'
 import useUIStore from '@/store/modules/ui'
+import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 
 const dispatcher = { name: 'HeaderWithSearch.vue' }
@@ -21,10 +32,20 @@ const dispatcher = { name: 'HeaderWithSearch.vue' }
 const header = useTemplateRef('header')
 
 const { t } = useI18n()
-const uiStore = useUIStore()
-const layersStore = useLayersStore()
+const cesiumStore = useCesiumStore()
+const drawingStore = useDrawingStore()
+const featuresStore = useFeaturesStore()
+const geolocationStore = useGeolocationStore()
 const i18nStore = useI18nStore()
+const layersStore = useLayersStore()
+const mapStore = useMapStore()
+const positionStore = usePositionStore()
+const printStore = usePrintStore()
+const profileStore = useProfileStore()
+const searchStore = useSearchStore()
+const shareStore = useShareStore()
 const topicsStore = useTopicsStore()
+const uiStore = useUIStore()
 
 const currentBackground = computed(() => layersStore.currentBackgroundLayerId)
 const currentLang = computed(() => i18nStore.lang)
@@ -55,15 +76,54 @@ function updateHeaderHeight() {
 }
 
 function resetApp() {
-    // an app reset means we keep the lang, the current topic, and its default background layer but everything else is thrown away
-    // We keep the default background layer of the current topic because the app always set to `ech` topic and its default background layer before we can even get the topic from the URL
+    // Preserve the values we want to keep
+    const langToKeep = currentLang.value
+    const topicToKeep = currentTopicId.value
     const defaultBackgroundLayerId =
         currentTopic.value?.defaultBackgroundLayer?.id ?? currentBackground.value
 
-    // Set the hash-based URL and force reload to reset the app
-    // This avoids legacy parsing state while performing a complete reload
-    window.location.hash = `#/map?lang=${currentLang.value}&topic=${currentTopicId.value}&bgLayer=${defaultBackgroundLayerId}`
-    window.location.reload()
+    // Clear user-added data through store actions (but NOT layers - we'll reset those via topic change)
+    drawingStore.clearDrawingFeatures(dispatcher)
+    featuresStore.clearAllSelectedFeatures(dispatcher)
+    mapStore.clearClick(dispatcher)
+    mapStore.clearPinnedLocation(dispatcher)
+    mapStore.clearPreviewPinnedLocation(dispatcher)
+    mapStore.clearLocationPopupCoordinates(dispatcher)
+    shareStore.clearShortLinks(dispatcher)
+
+    // Reset stores that don't contain critical config or viewport dimensions
+    cesiumStore.$reset()
+    geolocationStore.$reset()
+    positionStore.$reset()
+    printStore.$reset()
+    profileStore.$reset()
+    searchStore.$reset()
+
+    uiStore.setCompareSliderActive(false, dispatcher)
+    uiStore.setTimeSliderActive(false, dispatcher)
+    uiStore.setFeatureInfoPosition(FeatureInfoPositions.None, dispatcher)
+
+    // Restore preserved values - this will trigger URL sync through store plugins
+    // Language is preserved
+    if (i18nStore.lang !== langToKeep) {
+        i18nStore.setLang(langToKeep, dispatcher)
+    }
+
+    // Changing topic will automatically:
+    // 1. Load the topic's default layers (layersToActivate)
+    // 2. Set the default background layer
+    // This effectively resets the layers to the topic's defaults
+    if (topicsStore.current !== topicToKeep) {
+        topicsStore.changeTopic(topicToKeep, dispatcher)
+    } else {
+        // If we're already on the target topic, we need to manually reload it with default layers
+        topicsStore.loadTopic({ changeLayers: true }, dispatcher)
+    }
+
+    // Ensure the correct background layer is set (in case it's different from topic default)
+    if (layersStore.currentBackgroundLayerId !== defaultBackgroundLayerId) {
+        layersStore.setBackground(defaultBackgroundLayerId, dispatcher)
+    }
 }
 </script>
 
