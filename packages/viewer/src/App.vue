@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 /**
- * Initial component of the App.
+ * Initial component of the App
  *
  * Will listen for screen size changes and commit this change to the store
  */
@@ -42,7 +42,7 @@ onMounted(() => {
     // initial load of layers config
     layersStore.loadLayersConfig(
         {
-            changeLayersOnTopicChange: !window.location.hash.includes('layers='),
+            changeLayersOnTopicChange: !window.location.hash.includes('layers=') && !window.location.hash.includes('bgLayer='),
         },
         dispatcher
     )
