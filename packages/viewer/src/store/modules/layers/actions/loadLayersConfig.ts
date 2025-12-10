@@ -5,6 +5,7 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import type { LayersStore } from '@/store/modules/layers/types'
 import type { ActionDispatcher } from '@/store/types'
 
+import { ENVIRONMENT } from '@/config'
 import useI18nStore from '@/store/modules/i18n'
 import useTopicsStore from '@/store/modules/topics'
 
@@ -32,7 +33,7 @@ export default function loadLayersConfig(
             `Start loading layers config and topics lang=${lang} topic=${topicId} dispatcher=${dispatcher.name}`,
         ],
     })
-    Promise.all([loadGeoadminLayersConfig(lang), topicsAPI.loadTopics()])
+    Promise.all([loadGeoadminLayersConfig(lang, ENVIRONMENT), topicsAPI.loadTopics()])
         .then(([layersConfig, rawTopics]) => {
             const topics = topicsAPI.parseTopics(layersConfig, rawTopics)
 
