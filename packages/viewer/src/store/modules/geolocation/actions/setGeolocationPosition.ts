@@ -14,9 +14,11 @@ export default function setGeolocationPosition(
 ) {
     if (Array.isArray(position) && position.length === 2) {
         this.position = position
-
-        const positionStore = usePositionStore()
-        positionStore.setCenter(position, dispatcher)
+        // Only update the map position if tracking is enabled
+        if (this.tracking) {
+            const positionStore = usePositionStore()
+            positionStore.setCenter(position, { preserveGeolocationTracking: true }, dispatcher)
+        }
     } else {
         log.debug({
             title: 'Geolocation store / setGeolocationPosition',

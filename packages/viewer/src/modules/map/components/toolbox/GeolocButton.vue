@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n'
 import type { ActionDispatcher } from '@/store/types'
 
 import OpenLayersCompassButton from '@/modules/map/components/openlayers/OpenLayersCompassButton.vue'
+import RecenterButton from '@/modules/map/components/toolbox/RecenterButton.vue'
 import useCesiumStore from '@/store/modules/cesium'
 import useGeolocationStore from '@/store/modules/geolocation'
 import usePositionStore from '@/store/modules/position'
@@ -25,10 +26,6 @@ const tooltipContent = computed(() => {
     let key
     if (geolocationStore.denied) {
         key = 'geoloc_permission_denied'
-    } else if (hasTrackingFeedback.value) {
-        key = 're_center_map'
-    } else if (hastAutoRotationFeedback.value) {
-        key = 'orient_map_north'
     } else if (geolocationStore.active) {
         key = 'geoloc_stop_tracking'
     } else {
@@ -37,25 +34,16 @@ const tooltipContent = computed(() => {
     return t(key)
 })
 
-const hasTrackingFeedback = computed(() => geolocationStore.active && !geolocationStore.tracking)
-const hastAutoRotationFeedback = computed(
-    () => geolocationStore.active && positionStore.hasOrientation && !positionStore.autoRotation
-)
 function toggleGeolocation(): void {
+    // Simply toggle geolocation on/off
+    geolocationStore.toggleGeolocation(dispatcher)
+
+    // If turning off geolocation, also disable tracking and auto-rotation
     if (!geolocationStore.active) {
-        geolocationStore.toggleGeolocation(dispatcher)
-        if (hasTrackingFeedback.value) {
-            geolocationStore.setGeolocationTracking(true, dispatcher)
-        }
-    } else {
-        if (hasTrackingFeedback.value) {
-            geolocationStore.setGeolocationTracking(true, dispatcher)
-        } else if (hastAutoRotationFeedback.value) {
-            positionStore.setAutoRotation(true, dispatcher)
-        } else {
-            geolocationStore.toggleGeolocation(dispatcher)
+        geolocationStore.setGeolocationTracking(false, dispatcher)
+        if (positionStore.autoRotation) {
+            positionStore.setRotation(0, dispatcher)
             positionStore.setAutoRotation(false, dispatcher)
-            geolocationStore.setGeolocationTracking(false, dispatcher)
         }
     }
 }
@@ -80,31 +68,18 @@ function toggleGeolocation(): void {
             >
                 <span class="fa-layers fa-fw h-100 w-100">
                     <FontAwesomeIcon
-                        v-if="hasTrackingFeedback"
-                        :icon="['far', 'circle']"
-                        transform="grow-4"
-                    />
-                    <FontAwesomeIcon
-                        v-if="positionStore.autoRotation"
-                        icon="minus"
-                        transform="shrink-10 up-7 rotate--90"
-                    />
-                    <FontAwesomeIcon
-                        v-if="positionStore.autoRotation"
-                        icon="location-arrow"
-                        transform="shrink-4 down-4 rotate--45"
-                    />
-                    <FontAwesomeIcon
-                        v-else
                         icon="location-arrow"
                         transform="shrink-2 down-1 left-1"
                     />
                 </span>
             </button>
         </GeoadminTooltip>
+        <!-- Recenter button: Shows when geolocation is active - enables tracking mode -->
+        <RecenterButton />
+        <!-- Compass button: Shows when map is rotated, or when auto-rotation is enabled (for orientation feedback) -->
         <OpenLayersCompassButton
             v-if="!cesiumStore.active && compassButton"
-            :hide-if-north="!positionStore.autoRotation"
+            :hide-if-north="geolocationStore.active ? !positionStore.autoRotation : true"
         />
     </div>
 </template>

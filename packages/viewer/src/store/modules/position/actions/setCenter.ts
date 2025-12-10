@@ -10,11 +10,31 @@ import type { ActionDispatcher } from '@/store/types'
 import useCesiumStore from '@/store/modules/cesium'
 import useGeolocationStore from '@/store/modules/geolocation'
 
+interface SetCenterOptions {
+    preserveGeolocationTracking?: boolean
+}
+
+export default function setCenter(
+    this: PositionStore,
+    center: SingleCoordinate,
+    options: SetCenterOptions,
+    dispatcher: ActionDispatcher
+): void
 export default function setCenter(
     this: PositionStore,
     center: SingleCoordinate,
     dispatcher: ActionDispatcher
+): void
+export default function setCenter(
+    this: PositionStore,
+    center: SingleCoordinate,
+    optionsOrDispatcher: SetCenterOptions | ActionDispatcher,
+    dispatcherOrNothing?: ActionDispatcher
 ): void {
+    const options = dispatcherOrNothing ? (optionsOrDispatcher as SetCenterOptions) : {}
+    const dispatcher = dispatcherOrNothing ?? (optionsOrDispatcher as ActionDispatcher)
+
+    const { preserveGeolocationTracking = false } = options
     if (!center || (Array.isArray(center) && center.length !== 2)) {
         log.error({
             title: 'Position store / setCenter',
@@ -41,8 +61,13 @@ export default function setCenter(
 
     const geolocationStore = useGeolocationStore()
 
-    // TODO: fix this, it stops the tracking when receiving the first geolocation position update
-    if (geolocationStore.tracking && geolocationStore.position !== center) {
+    // Only disable tracking if the center change is NOT from geolocation itself
+    // This prevents disabling tracking when geolocation updates the position
+    if (
+        geolocationStore.tracking &&
+        geolocationStore.position !== center &&
+        !preserveGeolocationTracking
+    ) {
         // if we moved the map we disabled the geolocation tracking (unless the tracking moved the map)
         geolocationStore.setGeolocationTracking(false, dispatcher)
         this.setAutoRotation(false, dispatcher)
