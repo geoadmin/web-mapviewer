@@ -6,7 +6,7 @@
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { type FlatExtent, LV95, type NormalizedExtent } from '@swissgeo/coordinates'
-import { type GeoAdminGroupOfLayers, type Layer, LayerType } from '@swissgeo/layers'
+import { type ExternalWMSLayer, type GeoAdminGroupOfLayers, type Layer, LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { booleanContains, polygon } from '@turf/turf'
 import { computed, onMounted, ref, watch } from 'vue'
@@ -61,8 +61,11 @@ const showItem = computed(() => {
 const isGroupOfLayers = (layer: Layer): layer is GeoAdminGroupOfLayers => {
     return layer.type === LayerType.GROUP
 }
+const isWmsLayer = (layer: Layer): layer is ExternalWMSLayer => {
+    return layer.type === LayerType.WMS
+}
 
-const hasChildren = computed(() => isGroupOfLayers(item) && item?.layers?.length > 0)
+const hasChildren = computed(() => (isGroupOfLayers(item) || isWmsLayer(item)) && item?.layers?.length && item?.layers?.length > 0)
 const hasDescription = computed(() => canBeAddedToTheMap.value && item?.hasDescription)
 const isPhoneMode = computed(() => uiStore.isPhoneMode)
 
@@ -72,8 +75,8 @@ const isPhoneMode = computed(() => uiStore.isPhoneMode)
  */
 const hasChildrenMatchSearch = computed(() => {
     if (search) {
-        if (isGroupOfLayers(item) && hasChildren.value) {
-            return containsLayer(item.layers, search)
+        if (hasChildren.value) {
+            return containsLayer((item as GeoAdminGroupOfLayers | ExternalWMSLayer).layers as Layer[], search)
         }
         return false
     }
@@ -320,12 +323,12 @@ function containsLayer(layers: Layer[], searchText: string): boolean {
             </button>
         </div>
         <ul
-            v-if="showChildren && isGroupOfLayers(item)"
+            v-if="showChildren && hasChildren"
             class="menu-catalogue-item-children"
             :class="`ps-${2 + depth}`"
         >
             <LayerCatalogueItem
-                v-for="(child, index) in item.layers"
+                v-for="(child, index) in (item as GeoAdminGroupOfLayers | ExternalWMSLayer).layers"
                 :key="`${index}-${child.id}`"
                 :item="child"
                 :search="search"

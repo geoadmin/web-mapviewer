@@ -49,16 +49,11 @@ const timeConfigEntriesWithYear = computed<(LayerTimeConfigEntry & { year: strin
     )
 )
 
-const humanReadableCurrentTimestamp = computed<string>(() => {
-    if (timeConfig.currentTimeEntry) {
-        return renderHumanReadableTimestamp(
-            timeConfig.currentTimeEntry as LayerTimeConfigEntry & { year: string }
-        )
-    }
-    return ''
-})
+const humanReadableCurrentTimestamp = computed<string>(() => renderHumanReadableTimestamp(
+        timeConfig.currentTimeEntry as LayerTimeConfigEntry & { year: string }
+))
 
-function renderHumanReadableTimestamp(timeEntry: LayerTimeConfigEntry & { year: string }): string {
+function renderHumanReadableTimestamp(timeEntry?: LayerTimeConfigEntry & { year: string }): string {
     if (!timeEntry || !timeEntry.year) {
         return '-'
     }
