@@ -106,6 +106,8 @@ async function loadFile() {
         if (error instanceof Error) {
             errorFileLoadingMessage.value = generateErrorMessageFromErrorType(error)
         }
+    } finally {
+        isLoading.value = false
     }
 }
 </script>
