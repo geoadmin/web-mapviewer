@@ -77,8 +77,6 @@ export class KMLParser extends FileParser<KMLLayer> {
             kmlData: kmlAsText,
             extentProjection: currentProjection,
             warningMessages,
-            hasWarning: warningMessages.length > 0,
-            isLoading: false, // Local files already have their data loaded
         })
     }
 }

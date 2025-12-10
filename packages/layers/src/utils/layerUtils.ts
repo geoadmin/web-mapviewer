@@ -350,6 +350,16 @@ function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
 
     const layer: KMLLayer = merge(defaults, values)
 
+    // If kmlData is already provided, set isLoading to false
+    if (layer.kmlData) {
+        layer.isLoading = false
+    }
+
+    // Set hasWarning based on whether warningMessages exist
+    if (layer.warningMessages && layer.warningMessages.length > 0) {
+        layer.hasWarning = true
+    }
+
     validateBaseData(layer)
     return layer
 }
