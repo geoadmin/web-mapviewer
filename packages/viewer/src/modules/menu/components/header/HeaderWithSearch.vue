@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, useTemplateRef } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import AdditionalInfoCollapsable from '@/modules/menu/components/header/AdditionalInfoCollapsable.vue'
@@ -30,6 +30,7 @@ import TextTruncate from '@/utils/components/TextTruncate.vue'
 const dispatcher = { name: 'HeaderWithSearch.vue' }
 
 const header = useTemplateRef('header')
+const isResetting = ref(false)
 
 const { t } = useI18n()
 const cesiumStore = useCesiumStore()
@@ -76,6 +77,9 @@ function updateHeaderHeight() {
 }
 
 function resetApp() {
+    // Show loading indicator
+    isResetting.value = true
+
     // Preserve the values we want to keep
     const langToKeep = currentLang.value
     const topicToKeep = currentTopicId.value
@@ -124,6 +128,11 @@ function resetApp() {
     if (layersStore.currentBackgroundLayerId !== defaultBackgroundLayerId) {
         layersStore.setBackground(defaultBackgroundLayerId, dispatcher)
     }
+
+    // Hide loading indicator after a short delay to ensure stores have updated
+    setTimeout(() => {
+        isResetting.value = false
+    }, 500)
 }
 </script>
 
@@ -134,10 +143,24 @@ function resetApp() {
         data-cy="app-header"
     >
         <div class="header-content p-sm-0 p-md-1 d-flex align-items-center w-100">
-            <ConfederationFullLogo
-                class="cursor-pointer"
-                @click="resetApp"
-            />
+            <div class="logo-container position-relative">
+                <ConfederationFullLogo
+                    class="cursor-pointer"
+                    :class="{ 'opacity-50': isResetting }"
+                    @click="resetApp"
+                />
+                <div
+                    v-if="isResetting"
+                    class="reset-spinner position-absolute translate-middle start-50 top-50"
+                >
+                    <div
+                        class="spinner-border spinner-border-sm text-primary"
+                        role="status"
+                    >
+                        <span class="visually-hidden">{{ t('loading') }}</span>
+                    </div>
+                </div>
+            </div>
             <div
                 class="search-bar-section d-flex-column me-2 flex-grow-1"
                 :class="{ 'align-self-center': !hasDevSiteWarning }"
@@ -202,6 +225,14 @@ $animation-time: 0.5s;
 }
 .header-warning-dev {
     height: $dev-disclaimer-height;
+}
+
+.logo-container {
+    display: inline-block;
+}
+
+.reset-spinner {
+    pointer-events: none;
 }
 
 .search-bar-section {
