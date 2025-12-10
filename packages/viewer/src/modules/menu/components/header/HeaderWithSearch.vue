@@ -21,7 +21,7 @@ const header = useTemplateRef('header')
 const { t } = useI18n()
 const uiStore = useUIStore()
 
-const { isResetting, resetApp: resetAppFn } = useAppReset()
+const { resetApp: resetAppFn } = useAppReset()
 
 const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
 const hasGiveFeedbackButton = computed(() => uiStore.hasGiveFeedbackButton)
@@ -63,23 +63,11 @@ function resetApp() {
         data-cy="app-header"
     >
         <div class="header-content p-sm-0 p-md-1 d-flex align-items-center w-100">
-            <div class="logo-container position-relative">
+            <div class="logo-container">
                 <ConfederationFullLogo
                     class="cursor-pointer"
-                    :class="{ 'opacity-50': isResetting }"
                     @click="resetApp"
                 />
-                <div
-                    v-if="isResetting"
-                    class="reset-spinner position-absolute translate-middle start-50 top-50"
-                >
-                    <div
-                        class="spinner-border spinner-border-sm text-primary"
-                        role="status"
-                    >
-                        <span class="visually-hidden">{{ t('loading') }}</span>
-                    </div>
-                </div>
             </div>
             <div
                 class="search-bar-section d-flex-column me-2 flex-grow-1"
@@ -149,10 +137,6 @@ $animation-time: 0.5s;
 
 .logo-container {
     display: inline-block;
-}
-
-.reset-spinner {
-    pointer-events: none;
 }
 
 .search-bar-section {

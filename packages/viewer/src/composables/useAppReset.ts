@@ -18,6 +18,8 @@ import useTopicsStore from '@/store/modules/topics'
 import useUIStore from '@/store/modules/ui'
 import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
 
+const APP_RESET_LOADING_BAR_REQUESTER = 'app-reset'
+
 /**
  * Composable for resetting the application to its default state while preserving language, topic,
  * and background layer.
@@ -27,7 +29,6 @@ import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositi
  */
 export function useAppReset() {
     const isResetting = ref(false)
-
     const cesiumStore = useCesiumStore()
     const drawingStore = useDrawingStore()
     const featuresStore = useFeaturesStore()
@@ -71,6 +72,7 @@ export function useAppReset() {
     function resetApp(dispatcher: ActionDispatcher) {
         // Show loading indicator
         isResetting.value = true
+        uiStore.setLoadingBarRequester(APP_RESET_LOADING_BAR_REQUESTER, dispatcher)
 
         // Preserve the values we want to keep
         const langToKeep = i18nStore.lang
@@ -125,7 +127,8 @@ export function useAppReset() {
         // Hide loading indicator after a short delay to ensure stores have updated
         setTimeout(() => {
             isResetting.value = false
-        }, 500)
+            uiStore.clearLoadingBarRequester(APP_RESET_LOADING_BAR_REQUESTER, dispatcher)
+        }, 5000)
     }
 
     return {
