@@ -74,8 +74,6 @@ describe('Test functions for the header / search bar', () => {
     context('Click on Swiss flag / Confederation text (app reset)', () => {
         const clickOnLogo = () => {
             cy.get('[data-cy="swiss-flag"]').click()
-            // waiting for page reload
-            cy.wait(['@layerConfig', '@topics'])
             cy.waitMapIsReady()
         }
         const clickOnConfederationText = () => {
