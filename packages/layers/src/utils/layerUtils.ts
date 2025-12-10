@@ -260,7 +260,7 @@ function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
     const kmlFileUrl: string = values.kmlFileUrl
 
     // Detect if this is a local file or a URL
-    const isLocalFile = !kmlFileUrl.startsWith('http')
+    const isLocalFile = !kmlFileUrl.includes('://')
 
     let isExternal: boolean = true
     if (values.isExternal !== undefined) {
@@ -361,7 +361,7 @@ function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
  * the function parameter will be used from defaults
  */
 function makeGPXLayer(values: Partial<GPXLayer>): GPXLayer {
-    const isLocalFile = !values.gpxFileUrl?.startsWith('http')
+    const isLocalFile = !values.gpxFileUrl?.includes('://')
     if (!values.gpxFileUrl) {
         throw new InvalidLayerDataError('Missing GPX file URL', values)
     }
@@ -498,7 +498,7 @@ function makeCloudOptimizedGeoTIFFLayer(
     }
 
     const fileSource = values.fileSource
-    const isLocalFile = !fileSource?.startsWith('http')
+    const isLocalFile = !fileSource?.includes('://')
     const attributionName = isLocalFile ? fileSource : new URL(fileSource).hostname
     const attributions = [{ name: attributionName }]
     const fileName = isLocalFile
