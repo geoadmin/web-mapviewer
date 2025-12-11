@@ -58,6 +58,7 @@ export default function setGeolocationActive(
                 dispatcher
             )
         }
+
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 log.debug({
