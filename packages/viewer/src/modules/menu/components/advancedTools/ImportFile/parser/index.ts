@@ -39,32 +39,19 @@ async function parseAll(config: ParseAllConfig, options?: ParseOptions): Promise
     }
 
     // Prioritize specific errors over generic InvalidFileContentError
-    // This ensures that if a parser successfully identifies the file format
-    // but encounters a specific issue (e.g., out of bounds), that error is shown
     const rejectedResponses = allSettled.filter(
         (response) => response.status === 'rejected' && response.reason
     ) as PromiseRejectedResult[]
 
-    // Priority order: OutOfBounds > Empty > UnknownProjection > Invalid > Other
-    const outOfBoundsError = rejectedResponses.find(
-        (response) => response.reason instanceof OutOfBoundsError
+    // Find first specific error (OutOfBounds, Empty, UnknownProjection)
+    const specificError = rejectedResponses.find(
+        (response) =>
+            response.reason instanceof OutOfBoundsError ||
+            response.reason instanceof EmptyFileContentError ||
+            response.reason instanceof UnknownProjectionError
     )
-    if (outOfBoundsError) {
-        throw outOfBoundsError.reason
-    }
-
-    const emptyFileError = rejectedResponses.find(
-        (response) => response.reason instanceof EmptyFileContentError
-    )
-    if (emptyFileError) {
-        throw emptyFileError.reason
-    }
-
-    const unknownProjectionError = rejectedResponses.find(
-        (response) => response.reason instanceof UnknownProjectionError
-    )
-    if (unknownProjectionError) {
-        throw unknownProjectionError.reason
+    if (specificError) {
+        throw specificError.reason
     }
 
     // Fall back to any error (including InvalidFileContentError)
