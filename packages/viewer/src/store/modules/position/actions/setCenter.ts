@@ -63,7 +63,9 @@ export default function setCenter(
 
     // Only disable tracking if the center change is NOT from geolocation itself
     // This prevents disabling tracking when geolocation updates the position
+    // Also only disable tracking if geolocation is actually active
     if (
+        geolocationStore.active &&
         geolocationStore.tracking &&
         geolocationStore.position !== center &&
         !preserveGeolocationTracking

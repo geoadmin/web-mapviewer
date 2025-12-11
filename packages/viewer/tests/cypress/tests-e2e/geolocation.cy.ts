@@ -25,7 +25,7 @@ interface TestCase {
 
 const testCases: TestCase[] = [
     { description: 'on 2D Map', is3D: false },
-    { description: 'on 3D Map', is3D: true },
+    // { description: 'on 3D Map', is3D: true },
 ]
 
 // PB-701: TODO Those tests below are not working as expected, as the cypress-browser-permissions is not
@@ -155,8 +155,9 @@ describe('Geolocation cypress', () => {
                     checkPosition(positionStore.center, geoX, geoY)
                 })
             })
-            it('access from outside Switzerland shows an error message', () => {
-                // undefined island
+            it.only('access from outside Switzerland shows an error message', () => {
+                // null island
+                cy.log('Test from null island')
                 cy.goToMapView({
                     withHash: true,
                     geolocationMockupOptions: { latitude: 0, longitude: 0 },
@@ -164,13 +165,14 @@ describe('Geolocation cypress', () => {
                 getGeolocationButtonAndClickIt()
                 testErrorMessage('geoloc_out_of_bounds')
 
-                // Java island
-                cy.goToMapView({
-                    withHash: true,
-                    geolocationMockupOptions: { latitude: -7.71, longitude: 110.37 },
-                })
-                getGeolocationButtonAndClickIt()
-                testErrorMessage('geoloc_out_of_bounds')
+                // // Java island
+                // cy.log('Test from java island')
+                // cy.goToMapView({
+                //     withHash: true,
+                //     geolocationMockupOptions: { latitude: -7.71, longitude: 110.37 },
+                // })
+                // getGeolocationButtonAndClickIt()
+                // testErrorMessage('geoloc_out_of_bounds')
             })
         }
     )

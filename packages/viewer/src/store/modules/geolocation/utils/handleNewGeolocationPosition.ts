@@ -43,8 +43,6 @@ export default function handleNewGeolocationPosition(
     // IMPORTANT: Call setCenterIfInBounds BEFORE updating position to avoid setCenter disabling tracking
     if (this.tracking) {
         setCenterIfInBounds.call(this, positionProjected, dispatcher)
-    } else {
-        // No action needed when tracking is false; centering is skipped by default.
     }
 
     // Update position and accuracy after centering
