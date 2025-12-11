@@ -132,6 +132,7 @@ describe('Geolocation cypress', () => {
                 })
 
                 // Check if the zoom is changed
+                cy.log('Check zoom in and zoom out after geolocation positioning')
                 cy.get('[data-cy="zoom-in"]').click()
                 cy.getPinia().then((pinia) => {
                     const positionStore = usePositionStore(pinia)
@@ -139,6 +140,7 @@ describe('Geolocation cypress', () => {
                     checkPosition(positionStore.center, geoX, geoY)
                 })
 
+                cy.log('Zoom in twice more')
                 cy.get('[data-cy="zoom-in"]').click()
                 cy.get('[data-cy="zoom-in"]').click()
                 cy.getPinia().then((pinia) => {
@@ -146,6 +148,7 @@ describe('Geolocation cypress', () => {
                     expect(positionStore.zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP + 3)
                 })
 
+                cy.log('Zoom out three times to return to initial zoom after geolocation')
                 cy.get('[data-cy="zoom-out"]').click()
                 cy.get('[data-cy="zoom-out"]').click()
                 cy.get('[data-cy="zoom-out"]').click()
@@ -155,7 +158,7 @@ describe('Geolocation cypress', () => {
                     checkPosition(positionStore.center, geoX, geoY)
                 })
             })
-            it.only('access from outside Switzerland shows an error message', () => {
+            it('access from outside Switzerland shows an error message', () => {
                 // null island
                 cy.log('Test from null island')
                 cy.goToMapView({
@@ -165,14 +168,14 @@ describe('Geolocation cypress', () => {
                 getGeolocationButtonAndClickIt()
                 testErrorMessage('geoloc_out_of_bounds')
 
-                // // Java island
-                // cy.log('Test from java island')
-                // cy.goToMapView({
-                //     withHash: true,
-                //     geolocationMockupOptions: { latitude: -7.71, longitude: 110.37 },
-                // })
-                // getGeolocationButtonAndClickIt()
-                // testErrorMessage('geoloc_out_of_bounds')
+                // Java island
+                cy.log('Test from Java island')
+                cy.goToMapView({
+                    withHash: true,
+                    geolocationMockupOptions: { latitude: -7.71, longitude: 110.37 },
+                })
+                getGeolocationButtonAndClickIt()
+                testErrorMessage('geoloc_out_of_bounds')
             })
         }
     )
