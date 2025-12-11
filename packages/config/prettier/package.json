@@ -1,11 +1,12 @@
 {
     "name": "@swissgeo/config-prettier",
-    "version": "1.0.0-beta.2",
+    "version": "1.0.0-beta.4",
     "description": "Shared Prettier config for SWISSGEO projects.",
     "license": "BSD-3-Clause",
     "type": "module",
-    "main": "index.ts",
+    "main": "index.js",
     "scripts": {
+        "build": "tsc index.ts",
         "type-check": "tsc -p tsconfig.json"
     },
     "devDependencies": {
