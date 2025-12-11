@@ -1,17 +1,27 @@
 {
     "name": "@swissgeo/config-prettier",
-    "version": "1.0.0-beta.4",
+    "version": "1.0.0-beta.5",
     "description": "Shared Prettier config for SWISSGEO projects.",
     "license": "BSD-3-Clause",
     "type": "module",
-    "main": "index.js",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.umd.cjs"
+        }
+    },
     "scripts": {
-        "build": "tsc index.ts",
+        "build": "pnpm run type-check && pnpm run generate-types && vite build",
+        "generate-types": "tsc --declaration",
         "type-check": "tsc -p tsconfig.json"
     },
     "devDependencies": {
+        "@microsoft/api-extractor": "catalog:",
         "@swissgeo/config-typescript": "workspace:*",
-        "typescript": "catalog:"
+        "typescript": "catalog:",
+        "unplugin-dts": "catalog:",
+        "vite": "catalog:"
     },
     "peerDependencies": {
         "@prettier/plugin-xml": "catalog:",
