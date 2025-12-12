@@ -430,7 +430,6 @@ function getExternalLayer(
     }
 
     const layer = getCapabilitiesLayer(capabilities, layerId)
-
     if (!layer) {
         const msg = `No WMTS layer ${layerId} found in Capabilities ${capabilities.originUrl.toString()}`
         log.error({

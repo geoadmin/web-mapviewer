@@ -37,8 +37,9 @@ const showTopicTree = computed(() => {
     // // We only want the topic tree open whenever the user has chosen a different topic
     // // than the default one (it can be opened by the user by a click on it, but by default it's closed)
     // // If we have defined catalog themes to be opened in the URL, it makes sense to open the catalog
-    // return !isDefaultTopic.value
-    return topicsStore.openedTreeThemesIds.includes(currentTopic.value)
+    return (
+        topicsStore.openedTreeThemesIds.includes(currentTopic.value) && !topicsStore.isDefaultTopic
+    )
 })
 
 const mapModuleReady = computed(() => appStore.isMapReady)

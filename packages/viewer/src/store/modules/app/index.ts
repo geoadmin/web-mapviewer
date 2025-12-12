@@ -52,10 +52,11 @@ const initiateUrlParsing: AppState = {
 
 const parseLegacyUrlParams: AppState = {
     name: AppStateNames.LegacyParsing,
-    // legacyUrlParsingHasHappened is necessary to reevaluate after the legacy parsing has happened, without it, 
+    // legacyUrlParsingHasHappened is necessary to reevaluate after the legacy parsing has happened, without it,
     // isFulfilled would always return false/true after the first time
     // it also has to be the first condition because the && operator is short-circuiting
     isFulfilled: () => useAppStore().legacyUrlParsingHasHappened && !isLegacyParams(window?.location?.search),
+
     next: () => {
         return initiateUrlParsing
     },
@@ -63,7 +64,9 @@ const parseLegacyUrlParams: AppState = {
 
 const configLoaded: AppState = {
     name: AppStateNames.ConfigLoaded,
-    isFulfilled: () => true, // there's always a topic set, so no need to check if topicStore.current is defined
+    // we wait for the background layer to be set to the current topic default, to avoid conflicts between the mutation happening,
+    // and the URL synchronization.
+    isFulfilled: () => useTopicsStore().currentTopic?.defaultBackgroundLayer?.id === useLayersStore().currentBackgroundLayer?.id,
     next: () => {
         if (isLegacyParams(window?.location?.search)) {
             return parseLegacyUrlParams

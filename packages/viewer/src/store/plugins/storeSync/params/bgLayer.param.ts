@@ -1,6 +1,7 @@
 import type { RouteLocationNormalizedGeneric } from 'vue-router'
 
 import useLayersStore from '@/store/modules/layers'
+import useTopicsStore from '@/store/modules/topics'
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/store/plugins/storeSync/UrlParamConfig.class'
@@ -21,10 +22,12 @@ const backgroundLayerParamConfig = new UrlParamConfig<string>({
     },
     setValuesInStore: (_: RouteLocationNormalizedGeneric, urlParamValue?: string) => {
         const layersStore = useLayersStore()
-        if (urlParamValue && urlParamValue !== 'void') {
+        const topicsStore = useTopicsStore()
+
+        if (urlParamValue) {
             layersStore.setBackground(urlParamValue, STORE_DISPATCHER_ROUTER_PLUGIN)
         } else {
-            layersStore.setBackground(undefined, STORE_DISPATCHER_ROUTER_PLUGIN)
+            layersStore.setBackground(topicsStore.currentTopic?.defaultBackgroundLayer?.id, STORE_DISPATCHER_ROUTER_PLUGIN)
         }
     },
     keepInUrlWhenDefault: true,
@@ -34,7 +37,7 @@ const backgroundLayerParamConfig = new UrlParamConfig<string>({
             queryValue,
             !!queryValue &&
                 (queryValue === 'void' ||
-                    useLayersStore().backgroundLayers?.some((layer) => layer.id == queryValue)),
+                    useLayersStore().backgroundLayers?.some((layer) => layer.id === queryValue)),
             'bgLayer'
         ),
 })
