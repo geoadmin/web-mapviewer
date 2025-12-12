@@ -4,11 +4,32 @@ import { mount } from 'cypress/vue'
 import type { ExternalWMSLayer, ExternalWMTSLayer } from '@swissgeo/layers'
 
 import type { GoToViewOptions, PartialLayer } from './support/commands'
-import type { MockLayer } from '@/../tests/cypress/tests-e2e/utils'
 
 type MountParams = Parameters<typeof mount>
 type OptionsParam = MountParams[1]
-
+interface MockLayer {
+    opacity: number
+    wmsLayers: string
+    attribution: string
+    background: boolean
+    searchable: boolean
+    format: string
+    topics: string
+    wmsUrl: string
+    tooltip: boolean
+    timeEnabled: boolean
+    singleTile: boolean
+    highlightable: boolean
+    chargeable: boolean
+    hasLegend: boolean
+    label: string
+    type: string
+    serverLayerName: string
+    queryableAttributes?: string[]
+    timestamps?: string[]
+    timeBehaviour?: string
+    resolutions?: number[]
+}
 declare global {
     namespace Cypress {
         interface Chainable {
