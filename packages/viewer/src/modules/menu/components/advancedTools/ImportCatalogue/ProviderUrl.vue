@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import type { ExternalLayer } from '@swissgeo/layers'
+import type { ComponentPublicInstance } from 'vue'
 
 import { CapabilitiesError } from '@swissgeo/layers/validation'
-import { type ComponentPublicInstance, computed, ref, useTemplateRef, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import ProviderList, {
-    type ProviderListExpose,
-} from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderList.vue'
+import type { ProviderListExpose } from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderList.vue'
+
+import ProviderList from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderList.vue'
 import { useCapabilities } from '@/modules/menu/components/advancedTools/ImportCatalogue/useCapabilities'
 import { useProviders } from '@/modules/menu/components/advancedTools/ImportCatalogue/useProviders'
 import useI18nStore from '@/store/modules/i18n'

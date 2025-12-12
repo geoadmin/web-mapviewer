@@ -1,11 +1,14 @@
 <script setup lang="ts">
+import type { Viewer } from 'cesium'
+import type { ShallowRef } from 'vue'
+
 import { LV95, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { wrapDegrees } from '@swissgeo/numbers'
-import { Cartesian2, Cartesian3, defined, Ellipsoid, Math as CesiumMath, type Viewer } from 'cesium'
+import { Cartesian2, Cartesian3, defined, Ellipsoid, Math as CesiumMath } from 'cesium'
 import { isEqual } from 'lodash'
 import proj4 from 'proj4'
-import { computed, inject, onBeforeUnmount, onMounted, type ShallowRef, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 

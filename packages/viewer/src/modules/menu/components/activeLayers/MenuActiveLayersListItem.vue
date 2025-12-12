@@ -4,28 +4,25 @@
  * visibility, opacity or position in the layer stack)
  */
 
+import type { ExternalLayer, KMLLayer, Layer } from '@swissgeo/layers'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { WGS84 } from '@swissgeo/coordinates'
-import {
-    type ExternalLayer,
-    type KMLLayer,
-    KMLStyle,
-    type Layer,
-    LayerType,
-} from '@swissgeo/layers'
+import { KMLStyle, LayerType } from '@swissgeo/layers'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { ActionDispatcher } from '@/store/types'
+import type { DropdownItem } from '@/utils/components/DropdownButton.vue'
 
 import MenuActiveLayersListItemTimeSelector from '@/modules/menu/components/activeLayers/MenuActiveLayersListItemTimeSelector.vue'
 import TransparencySlider from '@/modules/menu/components/activeLayers/TransparencySlider.vue'
 import useCesiumStore from '@/store/modules/cesium'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
-import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
+import DropdownButton from '@/utils/components/DropdownButton.vue'
 import ExtLayerInfoButton from '@/utils/components/ExtLayerInfoButton.vue'
 import TextTruncate from '@/utils/components/TextTruncate.vue'
 import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'

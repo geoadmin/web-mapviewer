@@ -1,7 +1,7 @@
 import type { CyHttpMessages } from 'cypress/types/net-stubbing'
 
 import { randomIntBetween } from '@swissgeo/numbers'
-import pako from 'pako'
+import { inflate, inflateRaw, ungzip } from 'pako'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import useDrawingStore from '@/store/modules/drawing'
@@ -309,15 +309,15 @@ export async function getKmlFromRequest(req: CyHttpMessages.IncomingHttpRequest)
         let kmlBytes: Uint8Array
         let compressionType: string
         if (isGzip(u8)) {
-            kmlBytes = pako.ungzip(u8)
+            kmlBytes = ungzip(u8)
             compressionType = 'gzip'
         } else if (isZlib(u8)) {
             // Try zlib; if that fails, attempt raw DEFLATE as fallback
             try {
-                kmlBytes = pako.inflate(u8)
+                kmlBytes = inflate(u8)
                 compressionType = 'zlib'
             } catch {
-                kmlBytes = pako.inflateRaw(u8)
+                kmlBytes = inflateRaw(u8)
                 compressionType = 'raw DEFLATE'
             }
         } else {

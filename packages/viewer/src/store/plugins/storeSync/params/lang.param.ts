@@ -1,6 +1,8 @@
 import type { RouteLocationNormalizedGeneric } from 'vue-router'
 
-import { SUPPORTED_LANG, type SupportedLang } from '@/modules/i18n'
+import type { SupportedLang } from '@/modules/i18n'
+
+import { SUPPORTED_LANG } from '@/modules/i18n'
 import useI18nStore from '@/store/modules/i18n'
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,

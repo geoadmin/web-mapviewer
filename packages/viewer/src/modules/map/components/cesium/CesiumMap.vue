@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import '@geoblocks/cesium-compass'
+import type { ShallowRef } from 'vue'
+
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import {
@@ -16,7 +18,6 @@ import {
     onUnmounted,
     provide,
     ref,
-    type ShallowRef,
     shallowRef,
     useTemplateRef,
     watch,

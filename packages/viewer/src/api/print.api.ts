@@ -13,6 +13,7 @@ import type { GeoJSONFeature } from 'ol/format/GeoJSON'
 import type { State } from 'ol/layer/Layer'
 import type Map from 'ol/Map'
 import type { Size } from 'ol/size'
+import type { Image, Stroke, Text } from 'ol/style'
 
 import {
     BaseCustomizer,
@@ -23,7 +24,7 @@ import {
 } from '@geoblocks/mapfishprint'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import axios from 'axios'
-import { Circle, type Image, type Stroke, type Text } from 'ol/style'
+import { Circle } from 'ol/style'
 
 import { unProxifyUrl } from '@/api/file-proxy.api'
 import {

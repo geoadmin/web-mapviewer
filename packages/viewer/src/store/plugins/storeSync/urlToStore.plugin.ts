@@ -8,16 +8,14 @@ import type {
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import axios from 'axios'
 
-import type UrlParamConfig from '@/store/plugins/storeSync/UrlParamConfig.class';
+import type UrlParamConfig from '@/store/plugins/storeSync/UrlParamConfig.class'
+import type { UrlParamConfigTypes } from '@/store/plugins/storeSync/UrlParamConfig.class'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { MAP_VIEW } from '@/router/viewNames'
 import useAppStore from '@/store/modules/app'
 import storeSyncConfig from '@/store/plugins/storeSync/storeSync.config'
-import {
-    STORE_DISPATCHER_ROUTER_PLUGIN,
-    type UrlParamConfigTypes,
-} from '@/store/plugins/storeSync/UrlParamConfig.class'
+import { STORE_DISPATCHER_ROUTER_PLUGIN } from '@/store/plugins/storeSync/UrlParamConfig.class'
 
 export const FAKE_URL_CALLED_AFTER_ROUTE_CHANGE: string = '/tell-cypress-route-has-changed'
 

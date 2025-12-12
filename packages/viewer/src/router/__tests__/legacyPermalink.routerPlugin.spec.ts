@@ -6,12 +6,10 @@ import { allCoordinateSystems } from '@swissgeo/coordinates'
 import { layerUtils } from '@swissgeo/layers/utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { StoreInputForLegacyParsing } from '@/router/legacyPermalink.routerPlugin'
 import type { CameraPosition } from '@/store/modules/position/types'
 
-import {
-    handleLegacyParam,
-    type StoreInputForLegacyParsing,
-} from '@/router/legacyPermalink.routerPlugin'
+import { handleLegacyParam } from '@/router/legacyPermalink.routerPlugin'
 import * as utils from '@/utils/legacyLayerParamUtils'
 
 const UNSET_NUMBER_VALUE: number = Number.NEGATIVE_INFINITY

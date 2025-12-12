@@ -3,15 +3,14 @@ import type { RouteLocationNormalizedGeneric } from 'vue-router'
 
 import { round } from '@swissgeo/numbers'
 
+import type { ValidationResponse } from '@/store/plugins/storeSync/validation'
+
 import usePositionStore from '@/store/modules/position'
 import { CrossHairs } from '@/store/modules/position/types'
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/store/plugins/storeSync/UrlParamConfig.class'
-import {
-    getDefaultValidationResponse,
-    type ValidationResponse,
-} from '@/store/plugins/storeSync/validation'
+import { getDefaultValidationResponse } from '@/store/plugins/storeSync/validation'
 import { isEnumValue } from '@/utils/utils'
 
 interface ParsedCrosshair {

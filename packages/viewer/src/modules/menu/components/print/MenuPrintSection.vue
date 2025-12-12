@@ -6,6 +6,7 @@ import { computed, inject, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { ActionDispatcher } from '@/store/types'
+import type { DropdownItem } from '@/utils/components/DropdownButton.vue'
 
 import { PrintError, PrintLayout } from '@/api/print.api'
 import {
@@ -15,7 +16,7 @@ import {
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import useLayersStore from '@/store/modules/layers'
 import usePrintStore from '@/store/modules/print'
-import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
+import DropdownButton from '@/utils/components/DropdownButton.vue'
 import ProgressBar from '@/utils/components/ProgressBar.vue'
 import { downloadFile, generateFilename } from '@/utils/utils'
 

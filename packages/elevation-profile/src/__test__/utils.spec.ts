@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
 import type { ElevationProfilePoint } from '@/profile.api'
+import type { ElevationProfileMetadata } from '@/utils'
 
-import getProfileMetadata, { type ElevationProfileMetadata, formatMinutesTime } from '@/utils'
+import getProfileMetadata, { formatMinutesTime } from '@/utils'
 
 const testPoints: ElevationProfilePoint[] = [
     { coordinate: [0, 0], dist: 0, elevation: 100, hasElevationData: true },

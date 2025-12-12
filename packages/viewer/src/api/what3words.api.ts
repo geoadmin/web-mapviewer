@@ -1,4 +1,4 @@
-import type { SingleCoordinate , CoordinateSystem} from '@swissgeo/coordinates'
+import type { SingleCoordinate, CoordinateSystem } from '@swissgeo/coordinates'
 
 import { WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'

@@ -1,8 +1,9 @@
 /// <reference types="cypress" />
 
+import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { Pinia } from 'pinia'
 
-import { LV03, LV95, registerProj4, WGS84, type SingleCoordinate } from '@swissgeo/coordinates'
+import { LV03, LV95, registerProj4, WGS84 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 

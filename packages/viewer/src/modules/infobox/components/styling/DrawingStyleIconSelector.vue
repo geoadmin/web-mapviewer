@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
+import type { DropdownItem } from '@/utils/components/DropdownButton.vue'
 import type { FeatureStyleColor, FeatureStyleSize } from '@/utils/featureStyleUtils'
 
 import { DEFAULT_ICON_SET_NAME } from '@/config/icons.config'
@@ -10,7 +11,7 @@ import DrawingStyleColorSelector from '@/modules/infobox/components/styling/Draw
 import DrawingStyleIcon from '@/modules/infobox/components/styling/DrawingStyleIcon.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import useDrawingStore from '@/store/modules/drawing'
-import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
+import DropdownButton from '@/utils/components/DropdownButton.vue'
 
 const emits = defineEmits<{
     change: [void]
@@ -97,8 +98,8 @@ function onCurrentIconChange(icon: DrawingIcon) {
         <div
             v-if="
                 currentIconSet &&
-                    drawingStore.feature.current &&
-                    drawingStore.feature.current.iconSize
+                drawingStore.feature.current &&
+                drawingStore.feature.current.iconSize
             "
             class="d-flex mb-3"
         >
@@ -125,9 +126,9 @@ function onCurrentIconChange(icon: DrawingIcon) {
         <DrawingStyleColorSelector
             v-if="
                 currentIconSet &&
-                    drawingStore.feature.current &&
-                    currentIconSet.isColorable &&
-                    drawingStore.feature.current.fillColor
+                drawingStore.feature.current &&
+                currentIconSet.isColorable &&
+                drawingStore.feature.current.fillColor
             "
             class="mb-3"
             inline

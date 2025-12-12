@@ -1,5 +1,7 @@
+import type { CancelTokenSource } from 'axios'
+
 import log, { LogPreDefinedColor } from '@swissgeo/log'
-import axios, { type CancelTokenSource } from 'axios'
+import axios from 'axios'
 
 import { getServiceShortLinkBaseUrl } from '@/config/baseUrl.config'
 

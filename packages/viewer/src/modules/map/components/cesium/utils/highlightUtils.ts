@@ -1,5 +1,5 @@
 import type { SingleCoordinate } from '@swissgeo/coordinates'
-import type { Viewer } from 'cesium';
+import type { Viewer } from 'cesium'
 import type { GeoJsonGeometryTypes } from 'geojson'
 
 import { WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'

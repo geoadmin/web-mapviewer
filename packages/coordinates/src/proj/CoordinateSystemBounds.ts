@@ -1,9 +1,9 @@
+import type { Coord } from '@turf/turf'
 import type { Feature, FeatureCollection, GeoJsonProperties, LineString } from 'geojson'
 
 import {
     bboxPolygon,
     booleanPointInPolygon,
-    type Coord,
     distance,
     lineSplit,
     lineString,

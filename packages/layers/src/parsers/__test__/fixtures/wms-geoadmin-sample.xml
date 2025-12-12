@@ -440,7 +440,11 @@
             <Layer queryable="1">
                 <Name>ch.swisstopo-vd.stand-oerebkataster</Name>
                 <Title>Verfügbarkeit des ÖREB-Katasters</Title>
-                <Layer queryable="1" opaque="0" cascaded="0">
+                <Layer
+                    queryable="1"
+                    opaque="0"
+                    cascaded="0"
+                >
                     <Name>ch.swisstopo-vd.stand-oerebkataster</Name>
                     <Title>Verfügbarkeit des ÖREB-Katasters</Title>
                     <Abstract>
@@ -470,13 +474,20 @@
                         <southBoundLatitude>44.074747</southBoundLatitude>
                         <northBoundLatitude>49.200438</northBoundLatitude>
                     </EX_GeographicBoundingBox>
-                    <BoundingBox CRS="EPSG:2056" minx="2.3e+06" miny="900000" maxx="3.1e+06" maxy="1.45e+06"/>
+                    <BoundingBox
+                        CRS="EPSG:2056"
+                        minx="2.3e+06"
+                        miny="900000"
+                        maxx="3.1e+06"
+                        maxy="1.45e+06"
+                    />
                     <MetadataURL type="TC211">
                     <Format>text/html</Format>
                     <OnlineResource
-                        xmlns:xlink="http://www.w3.org/1999/xlink"
-                        xlink:type="simple"
-                        xlink:href="https://www.geocat.ch/geonetwork/srv/eng/catalog.search#/metadata/fb60594e-2b16-45af-9bc0-b444035070f5"/>
+                            xmlns:xlink="http://www.w3.org/1999/xlink"
+                            xlink:type="simple"
+                            xlink:href="https://www.geocat.ch/geonetwork/srv/eng/catalog.search#/metadata/fb60594e-2b16-45af-9bc0-b444035070f5"
+                        />
                     </MetadataURL>
                 </Layer>
             </Layer>

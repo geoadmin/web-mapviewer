@@ -10,6 +10,8 @@ import { useI18n } from 'vue-i18n'
 
 import type { DrawingIcon } from '@/api/icon.api'
 import type { ActionDispatcher } from '@/store/types'
+import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
+import type { FeatureStyleColor, FeatureStyleSize } from '@/utils/featureStyleUtils'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
@@ -24,14 +26,9 @@ import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/
 import { MediaType } from '@/modules/infobox/DrawingStyleMediaTypes.enum'
 import useDrawingStore from '@/store/modules/drawing'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
-import { allFormats, type CoordinateFormat, LV95Format } from '@/utils/coordinates/coordinateFormat'
+import { allFormats, LV95Format } from '@/utils/coordinates/coordinateFormat'
 import debounce from '@/utils/debounce'
-import {
-    calculateTextOffset,
-    type FeatureStyleColor,
-    type FeatureStyleSize,
-    TextPlacement,
-} from '@/utils/featureStyleUtils'
+import { calculateTextOffset, TextPlacement } from '@/utils/featureStyleUtils'
 
 const dispatcher: ActionDispatcher = { name: 'FeatureStyleEdit.vue' }
 

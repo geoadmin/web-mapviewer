@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { type Layer, LayerType } from '@swissgeo/layers'
+import type { Layer } from '@swissgeo/layers'
+
+import { LayerType } from '@swissgeo/layers'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
 import { computed, ref } from 'vue'
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { GPXLayer } from '@swissgeo/layers'
 import type { Entity, Viewer } from 'cesium'
+import type { ShallowRef } from 'vue'
 
 import log from '@swissgeo/log'
 import {
@@ -13,7 +14,7 @@ import {
     GpxDataSource,
     HeightReference,
 } from 'cesium'
-import { computed, inject, type ShallowRef, toRef, watch } from 'vue'
+import { computed, inject, toRef, watch } from 'vue'
 
 import { GPX_BILLBOARD_RADIUS } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'

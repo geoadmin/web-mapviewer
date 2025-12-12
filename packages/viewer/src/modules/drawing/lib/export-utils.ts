@@ -1,9 +1,12 @@
-import { type CoordinateSystem, WGS84 } from '@swissgeo/coordinates'
+import type { CoordinateSystem } from '@swissgeo/coordinates'
+import type { Geometry } from 'ol/geom'
+
+import { WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import Feature from 'ol/Feature'
 import GPX from 'ol/format/GPX'
 import KML from 'ol/format/KML'
-import { type Geometry, LineString as OLLineString, Polygon as OLPolygon } from 'ol/geom'
+import { LineString as OLLineString, Polygon as OLPolygon } from 'ol/geom'
 import { Circle as CircleStyle, Icon as IconStyle } from 'ol/style'
 import Style from 'ol/style/Style'
 

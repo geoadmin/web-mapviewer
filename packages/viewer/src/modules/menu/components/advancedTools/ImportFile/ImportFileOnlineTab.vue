@@ -1,18 +1,18 @@
 <script setup lang="ts">
+import type { ComponentPublicInstance } from 'vue'
+
 import log from '@swissgeo/log'
 import { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
-import { type ComponentPublicInstance, computed, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
+import type { TextInputExposed, TextInputValidateResult } from '@/utils/components/TextInput.vue'
 
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import useImportFile from '@/modules/menu/components/advancedTools/ImportFile/useImportFile.composable'
 import useUIStore from '@/store/modules/ui'
-import TextInput, {
-    type TextInputExposed,
-    type TextInputValidateResult,
-} from '@/utils/components/TextInput.vue'
+import TextInput from '@/utils/components/TextInput.vue'
 import { isValidUrl } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = {

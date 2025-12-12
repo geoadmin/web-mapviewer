@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { type KMLLayer } from '@swissgeo/layers'
+import type { KMLLayer } from '@swissgeo/layers'
+import type { ComputedRef } from 'vue'
+
 import { layerUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
-import { computed, type ComputedRef, nextTick, ref, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { ActionDispatcher } from '@/store/types'
+import type { DropdownItem } from '@/utils/components/DropdownButton.vue'
 
 import sendFeedback, { ATTACHMENT_MAX_SIZE, KML_MAX_SIZE } from '@/api/feedback.api'
 import { getKmlUrl } from '@/api/files.api'
@@ -16,7 +19,7 @@ import SendActionButtons from '@/modules/menu/components/help/common/SendActionB
 import useDrawingStore from '@/store/modules/drawing'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
-import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
+import DropdownButton from '@/utils/components/DropdownButton.vue'
 import EmailInput from '@/utils/components/EmailInput.vue'
 import FileInput from '@/utils/components/FileInput.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'

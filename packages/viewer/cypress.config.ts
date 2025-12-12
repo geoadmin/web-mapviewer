@@ -1,6 +1,6 @@
 import { defineConfig } from 'cypress'
 import { cypressBrowserPermissionsPlugin } from 'cypress-browser-permissions'
-import vitePreprocessor from 'cypress-vite'
+import { vitePreprocessor } from 'cypress-vite'
 import { existsSync, readdirSync, unlinkSync } from 'node:fs'
 import { join } from 'node:path'
 import * as path from 'node:path'

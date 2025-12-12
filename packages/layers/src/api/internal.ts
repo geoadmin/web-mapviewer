@@ -1,17 +1,20 @@
+import type { Staging } from '@swissgeo/staging-config'
+
 import log from '@swissgeo/log'
-import { servicesBaseUrl, type Staging } from '@swissgeo/staging-config'
+import { servicesBaseUrl } from '@swissgeo/staging-config'
 import axios from 'axios'
 
-import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config'
-import {
-    type AggregateSubLayer,
-    type GeoAdminLayer,
-    type GeoAdminWMSLayer,
-    type GeoAdminWMTSLayer,
-    type LayerAttribution,
-    type LayerTimeConfigEntry,
-    LayerType,
+import type {
+    AggregateSubLayer,
+    GeoAdminLayer,
+    GeoAdminWMSLayer,
+    GeoAdminWMTSLayer,
+    LayerAttribution,
+    LayerTimeConfigEntry,
 } from '@/index'
+
+import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config'
+import { LayerType } from '@/index'
 import { layerUtils, timeConfigUtils } from '@/utils'
 
 export interface LayerConfigResponse {

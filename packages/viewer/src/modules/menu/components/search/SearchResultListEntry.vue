@@ -3,7 +3,9 @@
 
 import { computed, onUnmounted, ref, useTemplateRef } from 'vue'
 
-import { SearchResultTypes, type SearchResult } from '@/api/search.api'
+import type { SearchResult } from '@/api/search.api'
+
+import { SearchResultTypes } from '@/api/search.api'
 import LayerDescriptionPopup from '@/modules/menu/components/LayerDescriptionPopup.vue'
 import useLayersStore from '@/store/modules/layers'
 import useSearchStore from '@/store/modules/search'

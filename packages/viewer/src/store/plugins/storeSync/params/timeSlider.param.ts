@@ -4,15 +4,14 @@ import type { RouteLocationNormalizedGeneric } from 'vue-router'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
 import { WarningMessage } from '@swissgeo/log/Message'
 
+import type { ValidationResponse } from '@/store/plugins/storeSync/validation'
+
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/store/plugins/storeSync/UrlParamConfig.class'
-import {
-    getDefaultValidationResponse,
-    type ValidationResponse,
-} from '@/store/plugins/storeSync/validation'
+import { getDefaultValidationResponse } from '@/store/plugins/storeSync/validation'
 
 function isValidYear(year?: number): boolean {
     const layersStore = useLayersStore()

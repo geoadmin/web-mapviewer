@@ -1,7 +1,9 @@
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
-import { type Layer, LayerType } from '@/types/layers'
+import type { Layer } from '@/types/layers'
+
+import { LayerType } from '@/types/layers'
 import timeConfigUtils from '@/utils/timeConfigUtils'
 
 describe('Test utility functions', () => {

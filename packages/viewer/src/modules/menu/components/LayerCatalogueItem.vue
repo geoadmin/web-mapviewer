@@ -4,9 +4,12 @@
  * layers or a single layer.
  */
 
+import type { FlatExtent, NormalizedExtent } from '@swissgeo/coordinates'
+import type { ExternalWMSLayer, GeoAdminGroupOfLayers, Layer } from '@swissgeo/layers'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { type FlatExtent, LV95, type NormalizedExtent } from '@swissgeo/coordinates'
-import { type ExternalWMSLayer, type GeoAdminGroupOfLayers, type Layer, LayerType } from '@swissgeo/layers'
+import { LV95 } from '@swissgeo/coordinates'
+import { LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { booleanContains, polygon } from '@turf/turf'
 import { computed, onMounted, ref, watch } from 'vue'
@@ -65,7 +68,12 @@ const isWmsLayer = (layer: Layer): layer is ExternalWMSLayer => {
     return layer.type === LayerType.WMS
 }
 
-const hasChildren = computed(() => (isGroupOfLayers(item) || isWmsLayer(item)) && item?.layers?.length && item?.layers?.length > 0)
+const hasChildren = computed(
+    () =>
+        (isGroupOfLayers(item) || isWmsLayer(item)) &&
+        item?.layers?.length &&
+        item?.layers?.length > 0
+)
 const hasDescription = computed(() => canBeAddedToTheMap.value && item?.hasDescription)
 const isPhoneMode = computed(() => uiStore.isPhoneMode)
 
@@ -76,7 +84,10 @@ const isPhoneMode = computed(() => uiStore.isPhoneMode)
 const hasChildrenMatchSearch = computed(() => {
     if (search) {
         if (hasChildren.value) {
-            return containsLayer((item as GeoAdminGroupOfLayers | ExternalWMSLayer).layers as Layer[], search)
+            return containsLayer(
+                (item as GeoAdminGroupOfLayers | ExternalWMSLayer).layers as Layer[],
+                search
+            )
         }
         return false
     }

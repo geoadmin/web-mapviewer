@@ -8,18 +8,16 @@
 import type Feature from 'ol/Feature'
 import type Map from 'ol/Map'
 import type { StyleFunction } from 'ol/style/Style'
+import type { ShallowRef } from 'vue'
 
 import SelectInteraction, { SelectEvent } from 'ol/interaction/Select'
-import { inject, onBeforeUnmount, onMounted, shallowRef, type ShallowRef, watch } from 'vue'
+import { inject, onBeforeUnmount, onMounted, shallowRef, watch } from 'vue'
 
+import type { EditableFeature } from '@/api/features.api'
 import type { SelectInteractionExposed } from '@/modules/drawing/types/interaction'
 import type { ActionDispatcher } from '@/store/types'
 
-import {
-    type EditableFeature,
-    EditableFeatureTypes,
-    extractOlFeatureCoordinates,
-} from '@/api/features.api'
+import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@/api/features.api'
 import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import useModifyInteraction from '@/modules/drawing/components/useModifyInteraction.composable'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'

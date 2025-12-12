@@ -3,8 +3,7 @@
 import type { ExternalWMSLayer, ExternalWMTSLayer, KMLLayer } from '@swissgeo/layers'
 
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
-import { LayerType } from '@swissgeo/layers'
-import { KMLStyle } from '@swissgeo/layers'
+import { LayerType, KMLStyle } from '@swissgeo/layers'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 

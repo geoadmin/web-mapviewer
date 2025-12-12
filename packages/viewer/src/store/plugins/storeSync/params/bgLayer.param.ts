@@ -27,7 +27,10 @@ const backgroundLayerParamConfig = new UrlParamConfig<string>({
         if (urlParamValue) {
             layersStore.setBackground(urlParamValue, STORE_DISPATCHER_ROUTER_PLUGIN)
         } else {
-            layersStore.setBackground(topicsStore.currentTopic?.defaultBackgroundLayer?.id, STORE_DISPATCHER_ROUTER_PLUGIN)
+            layersStore.setBackground(
+                topicsStore.currentTopic?.defaultBackgroundLayer?.id,
+                STORE_DISPATCHER_ROUTER_PLUGIN
+            )
         }
     },
     keepInUrlWhenDefault: true,

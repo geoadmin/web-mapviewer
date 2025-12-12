@@ -6,19 +6,12 @@ import type {
     GeoAdminGeoJSONStyleSingle,
 } from '@swissgeo/layers'
 import type { Feature } from 'ol'
+import type { SimpleGeometry } from 'ol/geom'
 import type { Options as RegularShapeOptions } from 'ol/style/RegularShape'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { isNumber } from '@swissgeo/numbers'
-import {
-    LineString,
-    MultiLineString,
-    MultiPoint,
-    MultiPolygon,
-    Point,
-    Polygon,
-    type SimpleGeometry,
-} from 'ol/geom'
+import { LineString, MultiLineString, MultiPoint, MultiPolygon, Point, Polygon } from 'ol/geom'
 import { Circle, Fill, Icon, RegularShape, Stroke, Style, Text } from 'ol/style'
 
 // TODO I don't know enough about styles to do this right now...

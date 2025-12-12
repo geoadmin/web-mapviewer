@@ -1,8 +1,9 @@
 import type Feature from 'ol/Feature'
 import type { SimpleGeometry } from 'ol/geom'
 import type { StyleFunction } from 'ol/style/Style'
+import type { MaybeRefOrGetter } from 'vue'
 
-import { toValue, type MaybeRefOrGetter } from 'vue'
+import { toValue } from 'vue'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable'

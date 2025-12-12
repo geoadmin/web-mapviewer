@@ -2,9 +2,13 @@
 
 import proj4 from 'proj4'
 
-import { coordinatesUtils, type SwissGeoCoordinatesUtils } from '@/coordinatesUtils'
-import { extentUtils, type SwissGeoExtentUtils } from '@/extentUtils'
-import crs, { type SwissGeoCoordinateCRS } from '@/proj'
+import type { SwissGeoCoordinatesUtils } from '@/coordinatesUtils'
+import type { SwissGeoExtentUtils } from '@/extentUtils'
+import type { SwissGeoCoordinateCRS } from '@/proj'
+
+import { coordinatesUtils } from '@/coordinatesUtils'
+import { extentUtils } from '@/extentUtils'
+import crs from '@/proj'
 import registerProj4 from '@/registerProj4'
 
 export * from '@/proj'

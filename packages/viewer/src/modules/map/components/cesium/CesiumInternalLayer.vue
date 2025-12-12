@@ -2,21 +2,21 @@
 /** Transforms a layer config into the correct Cesium counterpart depending on the layer type. */
 
 import type { CoordinateSystem } from '@swissgeo/coordinates'
-
-import {
-    type ExternalWMSLayer,
-    type ExternalWMTSLayer,
-    type GeoAdmin3DLayer,
-    type GeoAdminAggregateLayer,
-    type GeoAdminGeoJSONLayer,
-    type GeoAdminGroupOfLayers,
-    type GeoAdminWMSLayer,
-    type GeoAdminWMTSLayer,
-    type GPXLayer,
-    type KMLLayer,
-    type Layer,
-    LayerType,
+import type {
+    ExternalWMSLayer,
+    ExternalWMTSLayer,
+    GeoAdmin3DLayer,
+    GeoAdminAggregateLayer,
+    GeoAdminGeoJSONLayer,
+    GeoAdminGroupOfLayers,
+    GeoAdminWMSLayer,
+    GeoAdminWMTSLayer,
+    GPXLayer,
+    KMLLayer,
+    Layer,
 } from '@swissgeo/layers'
+
+import { LayerType } from '@swissgeo/layers'
 import { computed } from 'vue'
 
 import CesiumGeoJSONLayer from '@/modules/map/components/cesium/CesiumGeoJSONLayer.vue'

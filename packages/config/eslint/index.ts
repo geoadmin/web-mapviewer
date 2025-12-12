@@ -5,12 +5,13 @@ import markdown from '@eslint/markdown'
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
 import pluginChaiFriendly from 'eslint-plugin-chai-friendly'
-import pluginCypress from 'eslint-plugin-cypress/flat'
+import pluginCypress from 'eslint-plugin-cypress'
+import pluginImport from 'eslint-plugin-import'
 import mocha from 'eslint-plugin-mocha'
 import perfectionist from 'eslint-plugin-perfectionist'
 import pluginVue from 'eslint-plugin-vue'
 import globals from 'globals'
-import tsESLint, { plugin as tsESLintPlugin } from 'typescript-eslint'
+import tsESLint from 'typescript-eslint'
 
 type PartialRules = Partial<Record<string, FlatConfig.RuleEntry>>
 type PartialConfig = Partial<FlatConfig.Config>
@@ -23,7 +24,16 @@ const commonTsAndJsRules: PartialRules = {
     curly: ['error', 'all'],
     // Enforce opening braces on the same line and closing brace on a new line
     'brace-style': ['error', '1tbs', { allowSingleLine: false }],
-    'perfectionist/sort-imports': ['error', { type: 'alphabetical', internalPattern: ['^@/.*'] }],
+    'perfectionist/sort-imports': [
+        'error',
+        {
+            type: 'alphabetical',
+            internalPattern: ['^@/.*'],
+        },
+    ],
+    'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
+    // has some issue (with typescript-eslint for instance), so we disable it (TS does already a good job at detecting unresolved imports)
+    'import/no-unresolved': 'off',
 }
 
 const noUnusedVarsRules: PartialRules = {
@@ -59,7 +69,13 @@ const standardTSRules: PartialRules = {
     ],
     '@typescript-eslint/consistent-type-exports': 'error',
     '@typescript-eslint/no-import-type-side-effects': 'error',
-    '@typescript-eslint/consistent-type-imports': ['error', { fixStyle: 'separate-type-imports' }],
+    '@typescript-eslint/consistent-type-imports': [
+        'error',
+        {
+            prefer: 'type-imports',
+            fixStyle: 'separate-type-imports',
+        },
+    ],
 }
 
 const chaiFriendlyRules: PartialConfig = {
@@ -112,12 +128,14 @@ const allIgnores: string[] = [
 ]
 
 export const vueConfig: FlatConfig.ConfigArray = defineConfigWithVueTs(
+    pluginImport.flatConfigs.recommended,
+    pluginImport.flatConfigs.typescript,
     pluginVue.configs['flat/essential'],
+    tsESLint.configs.recommended,
     vueTsConfigs.recommendedTypeCheckedOnly,
     {
         files: ['**/*.vue'],
         plugins: {
-            '@typescript-eslint': tsESLintPlugin,
             perfectionist,
         },
         rules: {
@@ -163,7 +181,6 @@ export const jsConfig: FlatConfig.ConfigArray = [
             mocha,
             'chai-friendly': pluginChaiFriendly,
             perfectionist,
-            '@typescript-eslint': tsESLintPlugin,
         },
         languageOptions: {
             ecmaVersion: 'latest',
@@ -195,6 +212,8 @@ export const jsConfig: FlatConfig.ConfigArray = [
 ]
 
 const defaultConfig: FlatConfig.ConfigArray = tsESLint.config(
+    pluginImport.flatConfigs.recommended,
+    pluginImport.flatConfigs.typescript,
     ...jsConfig,
     tsESLint.configs.recommended,
     ...markdownConfig,
@@ -206,7 +225,9 @@ const defaultConfig: FlatConfig.ConfigArray = tsESLint.config(
         files: ['**/*.ts', '**/*.tsx'],
         // no need to check our snippets
         ignores: ['**/*.md'],
-        plugins: { perfectionist },
+        plugins: {
+            perfectionist,
+        },
         languageOptions: {
             parserOptions: {
                 projectService: true,

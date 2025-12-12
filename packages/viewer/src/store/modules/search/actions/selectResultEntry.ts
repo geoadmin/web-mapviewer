@@ -6,17 +6,18 @@ import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
+import type { LayerFeature } from '@/api/features.api'
+import type {
+    LayerFeatureSearchResult,
+    LayerSearchResult,
+    LocationSearchResult,
+    SearchResult,
+} from '@/api/search.api'
 import type { SearchStore } from '@/store/modules/search/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import getFeature, { type LayerFeature } from '@/api/features.api'
-import search, {
-    type LayerFeatureSearchResult,
-    type LayerSearchResult,
-    type LocationSearchResult,
-    type SearchResult,
-    SearchResultTypes,
-} from '@/api/search.api'
+import getFeature from '@/api/features.api'
+import search, { SearchResultTypes } from '@/api/search.api'
 import useFeaturesStore from '@/store/modules/features'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers'

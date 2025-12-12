@@ -1,15 +1,9 @@
-import type {
-    Entity,
-    Viewer} from 'cesium';
+import type { DataSource, Entity, GpxDataSource, Viewer } from 'cesium'
+import type { MaybeRef } from 'vue'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
-import {
-    type DataSource,
-    GeoJsonDataSource,
-    type GpxDataSource,
-    KmlDataSource
-} from 'cesium'
-import { type MaybeRef, onBeforeUnmount, toRef, toValue, watch } from 'vue'
+import { GeoJsonDataSource, KmlDataSource } from 'cesium'
+import { onBeforeUnmount, toRef, toValue, watch } from 'vue'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 

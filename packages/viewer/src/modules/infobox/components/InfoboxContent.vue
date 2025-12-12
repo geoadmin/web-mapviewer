@@ -3,22 +3,14 @@ import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { Viewer } from 'cesium'
 import type { MultiLineString, MultiPolygon } from 'geojson'
 import type { Map } from 'ol'
+import type { ShallowRef } from 'vue'
 
 import GeoadminElevationProfile, {
     GeoadminElevationProfileCesiumBridge,
     GeoadminElevationProfileOpenLayersBridge,
 } from '@swissgeo/elevation-profile'
 import log from '@swissgeo/log'
-import {
-    computed,
-    inject,
-    nextTick,
-    onUnmounted,
-    shallowRef,
-    type ShallowRef,
-    useTemplateRef,
-    watch,
-} from 'vue'
+import { computed, inject, nextTick, onUnmounted, shallowRef, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { ENVIRONMENT } from '@/config/staging.config'

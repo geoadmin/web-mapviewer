@@ -1,5 +1,6 @@
 import type { CoordinateSystem, FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import type { GeoAdminGeoJSONLayer } from '@swissgeo/layers'
+import type { Coord } from '@turf/turf'
 import type {
     Feature,
     FeatureCollection,
@@ -18,7 +19,6 @@ import {
     bbox,
     booleanPointInPolygon,
     centroid,
-    type Coord,
     distance,
     point,
     pointToLineDistance,

@@ -2,9 +2,10 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import type { DropdownItem } from '@/utils/components/DropdownButton.vue'
 import type { FeatureStyleSize } from '@/utils/featureStyleUtils'
 
-import DropdownButton, { type DropdownItem } from '@/utils/components/DropdownButton.vue'
+import DropdownButton from '@/utils/components/DropdownButton.vue'
 import { allStylingSizes } from '@/utils/featureStyleUtils'
 
 const { currentSize } = defineProps<{

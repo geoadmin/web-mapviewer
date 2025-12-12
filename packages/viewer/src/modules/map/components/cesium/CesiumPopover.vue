@@ -5,21 +5,14 @@
  */
 
 import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type { Viewer } from 'cesium'
+import type { ShallowRef } from 'vue'
 
 import { CoordinateSystem, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
-import { Cartesian3, Cartographic, defined, Ellipsoid, SceneTransforms, type Viewer } from 'cesium'
+import { Cartesian3, Cartographic, defined, Ellipsoid, SceneTransforms } from 'cesium'
 import proj4 from 'proj4'
-import {
-    computed,
-    inject,
-    onMounted,
-    onUnmounted,
-    ref,
-    type ShallowRef,
-    useTemplateRef,
-    watch,
-} from 'vue'
+import { computed, inject, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 
 import MapPopover from '@/modules/map/components/MapPopover.vue'
 

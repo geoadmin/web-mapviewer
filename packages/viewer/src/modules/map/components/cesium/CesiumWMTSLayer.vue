@@ -1,18 +1,15 @@
 <script setup lang="ts">
 import type { ExternalWMTSLayer, GeoAdminWMTSLayer } from '@swissgeo/layers'
+import type { Viewer } from 'cesium'
+import type { ShallowRef } from 'vue'
 
 import { WGS84 } from '@swissgeo/coordinates'
 import { WMTSEncodingType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
 import { ErrorMessage } from '@swissgeo/log/Message'
-import {
-    Rectangle,
-    UrlTemplateImageryProvider,
-    type Viewer,
-    WebMapTileServiceImageryProvider,
-} from 'cesium'
-import { computed, inject, onBeforeUnmount, ref, type ShallowRef, toRef, watch } from 'vue'
+import { Rectangle, UrlTemplateImageryProvider, WebMapTileServiceImageryProvider } from 'cesium'
+import { computed, inject, onBeforeUnmount, ref, toRef, watch } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 

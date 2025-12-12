@@ -1,11 +1,12 @@
 import type { ExternalLayer } from '@swissgeo/layers'
+import type { MaybeRef } from 'vue'
 
 import { EXTERNAL_SERVER_TIMEOUT } from '@swissgeo/layers/api'
 import { wmsCapabilitiesParser, wmtsCapabilitiesParser } from '@swissgeo/layers/parsers'
 import { CapabilitiesError } from '@swissgeo/layers/validation'
 import log from '@swissgeo/log'
 import axios, { AxiosError, AxiosHeaders } from 'axios'
-import { type MaybeRef, toRef } from 'vue'
+import { toRef } from 'vue'
 
 import {
     guessExternalLayerUrl,

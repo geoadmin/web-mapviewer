@@ -2,9 +2,9 @@ import type { RouteLocationNormalizedGeneric } from 'vue-router'
 
 import { describe, expect, it } from 'vitest'
 
-import UrlParamConfig, {
-    type AbstractParamConfigInput,
-} from '@/store/plugins/storeSync/UrlParamConfig.class'
+import type { AbstractParamConfigInput } from '@/store/plugins/storeSync/UrlParamConfig.class'
+
+import UrlParamConfig from '@/store/plugins/storeSync/UrlParamConfig.class'
 
 interface Store {
     test: string | number | boolean

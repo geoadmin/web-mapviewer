@@ -257,6 +257,7 @@ export interface ExternalLayerParsingOptions<ExternalLayerType> {
     initialValues?: Partial<ExternalLayerType>
     /**
      * Optional parents array (internal parameter for recursion)
+     *
      * @internal
      */
     parentsArray?: unknown[]

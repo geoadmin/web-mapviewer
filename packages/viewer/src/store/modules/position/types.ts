@@ -1,5 +1,4 @@
-import type { NormalizedExtent, SingleCoordinate } from '@swissgeo/coordinates'
-import type { CoordinateSystem } from '@swissgeo/coordinates'
+import type { NormalizedExtent, SingleCoordinate, CoordinateSystem } from '@swissgeo/coordinates'
 
 import type usePositionStore from '@/store/modules/position'
 import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'

@@ -7,9 +7,7 @@ import type { ParseOptions } from '@/modules/menu/components/advancedTools/Impor
 
 import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api'
 import { checkOnlineFileCompliance, getFileContentFromUrl } from '@/api/files.api'
-import {
-    CloudOptimizedGeoTIFFParser
-} from '@/modules/menu/components/advancedTools/ImportFile/parser/CloudOptimizedGeoTIFFParser.class'
+import { CloudOptimizedGeoTIFFParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/CloudOptimizedGeoTIFFParser.class'
 import GPXParser from '@/modules/menu/components/advancedTools/ImportFile/parser/GPXParser.class'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
@@ -66,7 +64,7 @@ export async function parseLayerFromFile(
     const fileComplianceCheck = await checkOnlineFileCompliance(fileSource)
     log.debug({
         title: '[FileParser][parseLayerFromFile]',
-        messages: ['file', fileSource, 'has compliance', fileComplianceCheck]
+        messages: ['file', fileSource, 'has compliance', fileComplianceCheck],
     })
     const { mimeType, supportsCORS, supportsHTTPS } = fileComplianceCheck
 
@@ -79,7 +77,7 @@ export async function parseLayerFromFile(
         if (parserMatchingMIME) {
             log.debug({
                 title: '[FileParser][parseLayerFromFile]',
-                messages: ['parser found for MIME type', mimeType, parserMatchingMIME]
+                messages: ['parser found for MIME type', mimeType, parserMatchingMIME],
             })
             return parserMatchingMIME.parseUrl(fileSource, currentProjection, {
                 fileCompliance: fileComplianceCheck,
@@ -91,7 +89,7 @@ export async function parseLayerFromFile(
     try {
         log.debug({
             title: '[FileParser][parseLayerFromFile]',
-            messages: ['no MIME type match, loading file content for', fileSource]
+            messages: ['no MIME type match, loading file content for', fileSource],
         })
         let loadedContent: ArrayBuffer | undefined
         if (supportsCORS && supportsHTTPS) {

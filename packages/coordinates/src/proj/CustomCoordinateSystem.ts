@@ -1,7 +1,8 @@
 import type { SingleCoordinate } from '@/coordinatesUtils'
+import type { CoordinateSystemProps } from '@/proj/CoordinateSystem'
 import type CoordinateSystemBounds from '@/proj/CoordinateSystemBounds'
 
-import CoordinateSystem, { type CoordinateSystemProps } from '@/proj/CoordinateSystem'
+import CoordinateSystem from '@/proj/CoordinateSystem'
 
 export interface CustomCoordinateSystemProps extends CoordinateSystemProps {
     /** With a custom coordinate system, bounds are mandatory. */

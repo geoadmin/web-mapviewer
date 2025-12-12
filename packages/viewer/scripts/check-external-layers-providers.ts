@@ -8,18 +8,18 @@ import type {
     WMTSCapabilitiesResponse,
 } from '@swissgeo/layers'
 import type { WMSCapabilitiesParser, WMTSCapabilitiesParser } from '@swissgeo/layers/parsers'
+import type {
+    AxiosHeaderValue,
+    AxiosResponse,
+    AxiosResponseHeaders,
+    RawAxiosResponseHeaders,
+} from 'axios'
 
 import { LV95 } from '@swissgeo/coordinates'
 import { LayerType } from '@swissgeo/layers'
 import { EXTERNAL_SERVER_TIMEOUT, setWmsGetMapParams } from '@swissgeo/layers/api'
 import { wmsCapabilitiesParser, wmtsCapabilitiesParser } from '@swissgeo/layers/parsers'
-import axios, {
-    AxiosError,
-    type AxiosHeaderValue,
-    type AxiosResponse,
-    type AxiosResponseHeaders,
-    type RawAxiosResponseHeaders,
-} from 'axios'
+import axios, { AxiosError } from 'axios'
 import axiosRetry from 'axios-retry'
 import { promises as fs } from 'fs'
 import { JSDOM } from 'jsdom'

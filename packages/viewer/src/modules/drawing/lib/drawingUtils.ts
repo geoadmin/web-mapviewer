@@ -1,8 +1,9 @@
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type Feature from 'ol/Feature'
+import type { SimpleGeometry } from 'ol/geom'
 
 import GeoJSON from 'ol/format/GeoJSON'
-import { LineString, Point, Polygon, type SimpleGeometry } from 'ol/geom'
+import { LineString, Point, Polygon } from 'ol/geom'
 
 import type { ActionDispatcher } from '@/store/types'
 

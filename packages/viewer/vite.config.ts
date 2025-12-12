@@ -1,3 +1,4 @@
+import type { ConfigEnv, PluginOption } from 'vite'
 import type { ViteUserConfig } from 'vitest/config'
 
 import tailwindcss from '@tailwindcss/vite'
@@ -6,7 +7,7 @@ import vue from '@vitejs/plugin-vue'
 import gitDescribe from 'git-describe'
 import { dirname } from 'path'
 import { fileURLToPath, URL } from 'url'
-import { type ConfigEnv, defineConfig, normalizePath, type PluginOption } from 'vite'
+import { defineConfig, normalizePath } from 'vite'
 import ConditionalCompile from 'vite-plugin-conditional-compiler'
 import { VitePWA } from 'vite-plugin-pwa'
 import { viteStaticCopy } from 'vite-plugin-static-copy'

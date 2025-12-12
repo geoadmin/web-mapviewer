@@ -5,8 +5,11 @@ import log from '@swissgeo/log'
 import axios, { AxiosError } from 'axios'
 import proj4 from 'proj4'
 
-import { BASE_URL_DEV, BASE_URL_INT, BASE_URL_PROD, type Staging } from '@/config'
-import getProfileMetadata, { type ElevationProfileMetadata } from '@/utils'
+import type { Staging } from '@/config'
+import type { ElevationProfileMetadata } from '@/utils'
+
+import { BASE_URL_DEV, BASE_URL_INT, BASE_URL_PROD } from '@/config'
+import getProfileMetadata from '@/utils'
 
 export class ElevationProfileError extends Error {
     public readonly technicalError: Error

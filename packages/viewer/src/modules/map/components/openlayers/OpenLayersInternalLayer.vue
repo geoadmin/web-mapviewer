@@ -4,22 +4,23 @@
  * correct OpenLayers counterpart depending on the layer type.
  */
 
-import { WEBMERCATOR } from '@swissgeo/coordinates'
-import {
-    type CloudOptimizedGeoTIFFLayer,
-    type ExternalWMSLayer,
-    type ExternalWMTSLayer,
-    type GeoAdminAggregateLayer,
-    type GeoAdminGeoJSONLayer,
-    type GeoAdminGroupOfLayers,
-    type GeoAdminVectorLayer,
-    type GeoAdminWMSLayer,
-    type GeoAdminWMTSLayer,
-    type GPXLayer,
-    type KMLLayer,
-    type Layer,
-    LayerType,
+import type {
+    CloudOptimizedGeoTIFFLayer,
+    ExternalWMSLayer,
+    ExternalWMTSLayer,
+    GeoAdminAggregateLayer,
+    GeoAdminGeoJSONLayer,
+    GeoAdminGroupOfLayers,
+    GeoAdminVectorLayer,
+    GeoAdminWMSLayer,
+    GeoAdminWMTSLayer,
+    GPXLayer,
+    KMLLayer,
+    Layer,
 } from '@swissgeo/layers'
+
+import { WEBMERCATOR } from '@swissgeo/coordinates'
+import { LayerType } from '@swissgeo/layers'
 import { computed } from 'vue'
 
 import OpenLayersCOGTiffLayer from '@/modules/map/components/openlayers/OpenLayersCOGTiffLayer.vue'
@@ -125,9 +126,9 @@ const projection = computed(() => positionStore.projection)
         <OpenLayersKMLLayer
             v-if="
                 layerConfig &&
-                    layerConfig.type === LayerType.KML &&
-                    (layerConfig as KMLLayer).kmlData &&
-                    !(layerConfig as KMLLayer).isEdited
+                layerConfig.type === LayerType.KML &&
+                (layerConfig as KMLLayer).kmlData &&
+                !(layerConfig as KMLLayer).isEdited
             "
             :kml-layer-config="layerConfig as KMLLayer"
             :parent-layer-opacity="parentLayerOpacity"

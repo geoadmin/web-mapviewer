@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import type { GeoAdminGeoJSONLayer, KMLLayer as KMLLayerType, Layer } from '@swissgeo/layers'
+import type { ShallowRef } from 'vue'
 
 import { extentUtils, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import { LayerType } from '@swissgeo/layers'
@@ -20,7 +21,7 @@ import {
 import GeoJSON from 'ol/format/GeoJSON'
 import { LineString, Point, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
-import { computed, inject, onMounted, onUnmounted, type ShallowRef, watch } from 'vue'
+import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 
 import type { LayerFeature, SelectableFeature } from '@/api/features.api'
 import type { LayerTooltipConfig } from '@/config/cesium.config'

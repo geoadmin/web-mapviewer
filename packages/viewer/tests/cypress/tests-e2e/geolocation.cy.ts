@@ -1,6 +1,8 @@
 /// <reference types="cypress" />
 
-import { constants, registerProj4, type SingleCoordinate, WGS84 } from '@swissgeo/coordinates'
+import type { SingleCoordinate } from '@swissgeo/coordinates'
+
+import { constants, registerProj4, WGS84 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
 
 import {
