@@ -1,4 +1,11 @@
 {
-    "extends": "@swissgeo/config-typescript/tsconfig.base.json",
-    "include": ["**/*.ts"]
+    "files": ["index.ts"],
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "bundler",
+        "noEmitOnError": false,
+        "outDir": "dist",
+        "types": ["node"]
+    }
 }
