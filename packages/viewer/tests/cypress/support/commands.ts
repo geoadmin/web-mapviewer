@@ -1,7 +1,7 @@
 import 'cypress-real-events'
 import 'cypress-wait-until'
 import '@4tw/cypress-drag-drop'
-import type { GeoAdminLayer, Layer } from '@swissgeo/layers'
+import type { GeoAdminLayer } from '@swissgeo/layers'
 import type { Layer as OLLayer } from 'ol/layer'
 import type { Pinia } from 'pinia'
 
