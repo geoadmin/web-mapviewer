@@ -1,7 +1,12 @@
 {
     "name": "@swissgeo/config-eslint",
-    "version": "1.0.0-beta.3",
+    "version": "1.0.0-beta.4",
     "description": "Shared ESLint config for SWISSGEO projects.",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/geoadmin/web-mapviewer.git",
+        "directory": "packages/config/eslint"
+    },
     "license": "BSD-3-Clause",
     "type": "module",
     "exports": {
