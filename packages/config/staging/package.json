@@ -1,7 +1,12 @@
 {
     "name": "@swissgeo/staging-config",
-    "version": "0.0.1",
+    "version": "1.0.0-beta.1",
     "description": "Staging config utils for swissgeo",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/geoadmin/web-mapviewer.git",
+        "directory": "packages/config/staging"
+    },
     "type": "module",
     "exports": {
         ".": {

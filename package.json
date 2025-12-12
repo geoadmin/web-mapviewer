@@ -20,6 +20,8 @@
         "preview:int": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:int",
         "preview:prod": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:prod",
         "preview:test": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:test",
+        "publish:config": "pnpm --filter=@swissgeo/config-* --recursive publish --access public --tag next",
+        "publish:prepare": "pnpm --filter=@swissgeo/config-* --recursive build",
         "test:component": "pnpm --filter=web-mapviewer run test:component",
         "test:component:ci": "pnpm --filter=web-mapviewer run test:component:ci",
         "test:e2e": "pnpm --filter=web-mapviewer run test:e2e",
