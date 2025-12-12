@@ -1,6 +1,6 @@
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 
-import type { ProfileStore } from '@/store/modules/profile/types/profile'
+import type { ProfileStore } from '@/store/modules/profile/types'
 
 export default function currentProfileCoordinates(
     this: ProfileStore

@@ -1,4 +1,4 @@
-import type { UIStore } from '@/store/modules/ui/types/ui'
+import type { UIStore } from '@/store/modules/ui/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import {
@@ -6,8 +6,8 @@ import {
     BREAKPOINT_PHONE_WIDTH,
     MAX_WIDTH_SHOW_FLOATING_TOOLTIP,
 } from '@/config/responsive.config'
-import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
-import { UIModes } from '@/store/modules/ui/types/uiModes.enum'
+import { FeatureInfoPositions } from '@/store/modules/ui/types'
+import { UIModes } from '@/store/modules/ui/types'
 
 export default function setSize(
     this: UIStore,

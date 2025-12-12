@@ -1,6 +1,7 @@
 import type { Layer } from '@swissgeo/layers'
 
 import type { LayerTooltipConfig } from '@/config/cesium.config'
+import type useCesiumStore from '@/store/modules/cesium'
 
 /** Store for all information related to the 3D viewer */
 export interface CesiumStoreState {
@@ -40,4 +41,4 @@ export interface CesiumStoreGetters {
     layersWithTooltips(): Layer[]
 }
 
-export type CesiumStore = ReturnType<typeof import('../index.ts').default>
+export type CesiumStore = ReturnType<typeof useCesiumStore>

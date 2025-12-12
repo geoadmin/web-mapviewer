@@ -1,6 +1,6 @@
 import { LV95 } from '@swissgeo/coordinates'
 
-import type { PositionStore } from '@/store/modules/position/types/position'
+import type { PositionStore } from '@/store/modules/position/types'
 
 export default function isExtentOnlyWithinLV95Bounds(this: PositionStore): boolean {
     const [currentExtentBottomLeft, currentExtentTopRight] = this.extent

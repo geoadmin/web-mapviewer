@@ -1,6 +1,6 @@
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { GeolocationStore } from '@/store/modules/geolocation/types/geolocation'
+import type { GeolocationStore } from '@/store/modules/geolocation/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import handleGeolocationError from '@/store/modules/geolocation/utils/handleGeolocationError'

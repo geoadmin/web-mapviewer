@@ -1,6 +1,6 @@
-import type { UIStore } from '@/store/modules/ui/types/ui'
+import type { UIStore } from '@/store/modules/ui/types'
 
-import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
+import { FeatureInfoPositions } from '@/store/modules/ui/types'
 
 export default function showFeatureInfoInBottomPanel(this: UIStore): boolean {
     return (

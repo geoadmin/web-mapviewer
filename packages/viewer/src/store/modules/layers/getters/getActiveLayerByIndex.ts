@@ -1,6 +1,6 @@
 import type { Layer } from '@swissgeo/layers'
 
-import type { LayersStore } from '@/store/modules/layers/types/layers'
+import type { LayersStore } from '@/store/modules/layers/types'
 
 export default function getActiveLayerByIndex(
     this: LayersStore

@@ -1,4 +1,4 @@
-import type { PrintStore } from '@/store/modules/print/types/print'
+import type { PrintStore } from '@/store/modules/print/types'
 
 export default function selectedDPI(this: PrintStore): number | undefined {
     const mapAttributes = this.selectedLayout?.attributes.find(

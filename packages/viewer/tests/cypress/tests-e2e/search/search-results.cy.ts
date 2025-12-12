@@ -11,7 +11,7 @@ import { BREAKPOINT_TABLET } from '@/config/responsive.config'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'
-import { CrossHairs } from '@/store/modules/position/types/crossHairs.enum'
+import { CrossHairs } from '@/store/modules/position/types'
 import useSearchStore from '@/store/modules/search'
 
 registerProj4(proj4)

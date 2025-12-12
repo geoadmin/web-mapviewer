@@ -1,4 +1,4 @@
-import type { NewPrintServiceConfig, PrintStore } from '@/store/modules/print/types/print'
+import type { NewPrintServiceConfig, PrintStore } from '@/store/modules/print/types'
 import type { ActionDispatcher } from '@/store/types'
 
 export default function setPrintConfig(

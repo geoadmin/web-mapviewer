@@ -1,9 +1,6 @@
 import { defineStore } from 'pinia'
 
-import type {
-    PositionStoreGetters,
-    PositionStoreState,
-} from '@/store/modules/position/types/position'
+import type { PositionStoreGetters, PositionStoreState } from '@/store/modules/position/types'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import decreaseZoom from '@/store/modules/position/actions/decreaseZoom'

@@ -34,7 +34,7 @@ import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'
 import useProfileStore from '@/store/modules/profile'
 import useUiStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
+import { FeatureInfoPositions } from '@/store/modules/ui/types'
 import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 
 const dispatcher: ActionDispatcher = {

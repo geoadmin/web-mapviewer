@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import type {
     GeolocationStoreGetters,
     GeolocationStoreState,
-} from '@/store/modules/geolocation/types/geolocation'
+} from '@/store/modules/geolocation/types'
 
 import setGeolocationAccuracy from '@/store/modules/geolocation/actions/setGeolocationAccuracy'
 import setGeolocationActive from '@/store/modules/geolocation/actions/setGeolocationActive'

@@ -5,7 +5,7 @@ import { storeToRefs } from 'pinia'
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { FeaturesForLayer } from '@/store/modules/features/types/features'
+import type { FeaturesForLayer } from '@/store/modules/features/types'
 
 import FeatureListCategory from '@/modules/infobox/components/FeatureListCategory.vue'
 import useDrawingStore from '@/store/modules/drawing'

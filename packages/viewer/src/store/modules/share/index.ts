@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import type { ShareStoreGetters, ShareStoreState } from '@/store/modules/share/types/share'
+import type { ShareStoreGetters, ShareStoreState } from '@/store/modules/share/types'
 
 import clearShortLinks from '@/store/modules/share/actions/clearShortLinks'
 import closeShareMenuAndRemoveShortLinks from '@/store/modules/share/actions/closeShareMenuAndRemoveShortLinks'

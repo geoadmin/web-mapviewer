@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import type { CesiumStoreGetters, CesiumStoreState } from '@/store/modules/cesium/types/cesium'
+import type { CesiumStoreGetters, CesiumStoreState } from '@/store/modules/cesium/types'
 
 import { CESIUM_LAYER_TOOLTIPS_CONFIGURATION } from '@/config/cesium.config'
 import set3dActive from '@/store/modules/cesium/actions/set3dActive'

@@ -1,3 +1,5 @@
+import type useDebugStore from '@/store/modules/debug/index'
+
 export interface DebugStoreState {
     showTileDebugInfo: boolean
     showLayerExtents: boolean
@@ -6,4 +8,4 @@ export interface DebugStoreState {
 
 export type DebugStoreGetters = object
 
-export type DebugStore = ReturnType<typeof import('@/store/modules/debug').default>
+export type DebugStore = ReturnType<typeof useDebugStore>

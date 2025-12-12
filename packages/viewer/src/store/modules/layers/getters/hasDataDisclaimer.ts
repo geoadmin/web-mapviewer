@@ -2,7 +2,7 @@ import type { KMLLayer, Layer } from '@swissgeo/layers'
 
 import { LayerType } from '@swissgeo/layers'
 
-import type { LayerActionFilter, LayersStore } from '@/store/modules/layers/types/layers'
+import type { LayerActionFilter, LayersStore } from '@/store/modules/layers/types'
 
 import { EXTERNAL_PROVIDER_WHITELISTED_URL_REGEXES } from '@/config/regex.config'
 
@@ -21,7 +21,5 @@ function checkLayerUrlWhitelisting(layerBaseUrl?: string): boolean {
     if (!layerBaseUrl) {
         return false
     }
-    return EXTERNAL_PROVIDER_WHITELISTED_URL_REGEXES.some(
-        (regex) => !!layerBaseUrl.match(regex)
-    )
+    return EXTERNAL_PROVIDER_WHITELISTED_URL_REGEXES.some((regex) => !!layerBaseUrl.match(regex))
 }

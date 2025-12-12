@@ -9,7 +9,7 @@ import {
 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { SearchStore } from '@/store/modules/search/types/search'
+import type { SearchStore } from '@/store/modules/search/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import reframe from '@/api/lv03Reframe.api'

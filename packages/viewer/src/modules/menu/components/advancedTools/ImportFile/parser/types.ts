@@ -1,3 +1,5 @@
+import type { CoordinateSystem } from '@swissgeo/coordinates'
+
 export interface OnlineFileCompliance {
     mimeType?: string
     supportsCORS: boolean
@@ -6,7 +8,7 @@ export interface OnlineFileCompliance {
 
 export interface ParseConfig {
     fileSource: File | string
-    currentProjection: import('@swissgeo/coordinates').CoordinateSystem
+    currentProjection: CoordinateSystem
 }
 
 export interface ParseOptions {

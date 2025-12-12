@@ -3,16 +3,16 @@ import type { Layer } from '@swissgeo/layers'
 
 import log from '@swissgeo/log'
 
-import type { ClickInfo, MapStore } from '@/store/modules/map/types/map'
+import type { ClickInfo, MapStore } from '@/store/modules/map/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
-import { IdentifyMode } from '@/store/modules/features/types/IdentifyMode.enum'
+import { IdentifyMode } from '@/store/modules/features/types'
 import useLayersStore from '@/store/modules/layers'
-import { ClickType } from '@/store/modules/map/types/clickType.enum'
+import { ClickType } from '@/store/modules/map/types'
 import useUIStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
+import { FeatureInfoPositions } from '@/store/modules/ui/types'
 
 export default function click(
     this: MapStore,

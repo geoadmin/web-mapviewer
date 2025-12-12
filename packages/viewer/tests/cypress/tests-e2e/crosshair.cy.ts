@@ -4,7 +4,7 @@ import type { Router, RouterHistory } from 'vue-router'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 import usePositionStore from '@/store/modules/position'
-import { CrossHairs } from '@/store/modules/position/types/crossHairs.enum'
+import { CrossHairs } from '@/store/modules/position/types'
 
 describe('Testing the crosshair URL param', () => {
     /**

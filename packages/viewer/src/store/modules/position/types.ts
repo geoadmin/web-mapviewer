@@ -1,8 +1,16 @@
 import type { NormalizedExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import type { CoordinateSystem } from '@swissgeo/coordinates'
 
-import type { CrossHairs } from '@/store/modules/position/types/crossHairs.enum'
+import type usePositionStore from '@/store/modules/position'
 import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
+
+export enum CrossHairs {
+    Cross = 'cross',
+    Circle = 'circle',
+    Bowl = 'bowl',
+    Point = 'point',
+    Marker = 'marker',
+}
 
 export interface CameraPosition {
     /** X position of the camera in the 3D reference system (metric mercator) */
@@ -75,4 +83,4 @@ export interface PositionStoreGetters {
     isExtentOnlyWithinLV95Bounds(): boolean
 }
 
-export type PositionStore = ReturnType<typeof import('@/store/modules/position').default>
+export type PositionStore = ReturnType<typeof usePositionStore>

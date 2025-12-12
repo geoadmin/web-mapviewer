@@ -4,8 +4,8 @@ import { createTestingPinia } from '@pinia/testing'
 import { mount } from '@vue/test-utils'
 import { afterEach, beforeEach, describe, expect, expectTypeOf, it, vi } from 'vitest'
 
-import type { CesiumStore } from '@/store/modules/cesium/types/cesium'
-import type { CameraPosition, PositionStore } from '@/store/modules/position/types/position'
+import type { CesiumStore } from '@/store/modules/cesium/types'
+import type { CameraPosition, PositionStore } from '@/store/modules/position/types'
 
 import useCesiumStore from '@/store/modules/cesium'
 import usePositionStore from '@/store/modules/position'

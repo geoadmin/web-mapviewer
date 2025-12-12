@@ -2,7 +2,7 @@ import type { GeoAdminLayer, LayerTimeConfigEntry } from '@swissgeo/layers'
 
 import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
 
-import type { LayersStore } from '@/store/modules/layers/types/layers'
+import type { LayersStore } from '@/store/modules/layers/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import rerunSearchLayerSearchable from '@/store/modules/layers/utils/rerunSearchLayerSearchable'

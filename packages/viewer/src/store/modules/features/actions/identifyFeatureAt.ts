@@ -5,10 +5,10 @@ import { extentUtils } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
 import type { SelectableFeature } from '@/api/features.api'
-import type { FeaturesStore } from '@/store/modules/features/types/features'
+import type { FeaturesStore } from '@/store/modules/features/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { IdentifyMode } from '@/store/modules/features/types/IdentifyMode.enum'
+import { IdentifyMode } from '@/store/modules/features/types'
 import getFeatureCountForCoordinate from '@/store/modules/features/utils/getFeatureCountForCoordinate'
 import identifyOnAllLayers from '@/store/modules/features/utils/identifyOnAllLayers'
 import useI18nStore from '@/store/modules/i18n'

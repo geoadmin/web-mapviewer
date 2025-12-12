@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import type { DebugStoreGetters, DebugStoreState } from '@/store/modules/debug/types/debug'
+import type { DebugStoreGetters, DebugStoreState } from '@/store/modules/debug/types'
 
 import setHasBaseUrlOverrides from '@/store/modules/debug/actions/setHasBaseUrlOverrides'
 import toggleShowLayerExtents from '@/store/modules/debug/actions/toggleShowLayerExtents'

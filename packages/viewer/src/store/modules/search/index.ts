@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import type { SearchStoreGetters, SearchStoreState } from '@/store/modules/search/types/search'
+import type { SearchStoreGetters, SearchStoreState } from '@/store/modules/search/types'
 
 import selectResultEntry from '@/store/modules/search/actions/selectResultEntry'
 import setAutoSelect from '@/store/modules/search/actions/setAutoSelect'

@@ -2,7 +2,7 @@ import type { Layer } from '@swissgeo/layers'
 
 import { layerUtils } from '@swissgeo/layers/utils'
 
-import type { CesiumStore } from '@/store/modules/cesium/types/cesium'
+import type { CesiumStore } from '@/store/modules/cesium/types'
 
 import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
 import {

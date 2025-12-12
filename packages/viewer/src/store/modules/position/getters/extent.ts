@@ -1,6 +1,6 @@
 import type { NormalizedExtent, SingleCoordinate } from '@swissgeo/coordinates'
 
-import type { PositionStore } from '@/store/modules/position/types/position'
+import type { PositionStore } from '@/store/modules/position/types'
 
 import useUIStore from '@/store/modules/ui'
 

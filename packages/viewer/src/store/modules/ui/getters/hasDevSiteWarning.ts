@@ -1,4 +1,4 @@
-import type { UIStore } from '@/store/modules/ui/types/ui'
+import type { UIStore } from '@/store/modules/ui/types'
 
 import { NO_WARNING_BANNER_HOSTNAMES } from '@/config/staging.config'
 

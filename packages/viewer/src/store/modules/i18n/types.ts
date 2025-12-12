@@ -1,4 +1,5 @@
 import type { SupportedLang } from '@/modules/i18n'
+import type useI18nStore from '@/store/modules/i18n'
 
 export interface I18nStoreState {
     /**
@@ -10,4 +11,4 @@ export interface I18nStoreState {
 
 export type I18nStoreGetters = object
 
-export type I18nStore = ReturnType<typeof import('@/store/modules/i18n').default>
+export type I18nStore = ReturnType<typeof useI18nStore>

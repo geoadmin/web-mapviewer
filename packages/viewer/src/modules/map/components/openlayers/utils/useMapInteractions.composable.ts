@@ -19,7 +19,7 @@ import { useDragBoxSelect } from '@/modules/map/components/openlayers/utils/useD
 import useDrawingStore from '@/store/modules/drawing'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
-import { ClickType } from '@/store/modules/map/types/clickType.enum'
+import { ClickType } from '@/store/modules/map/types'
 import { createLayerFeature } from '@/utils/layerUtils'
 
 const dispatcher: ActionDispatcher = {

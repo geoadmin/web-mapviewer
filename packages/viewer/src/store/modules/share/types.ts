@@ -1,3 +1,5 @@
+import type useShareStore from '@/store/modules/share'
+
 export interface ShareStoreState {
     /**
      * Short link version of the current map position (and layers, and all...). This will not be
@@ -14,4 +16,4 @@ export interface ShareStoreState {
 
 export type ShareStoreGetters = object
 
-export type ShareStore = ReturnType<typeof import('@/store/modules/share').default>
+export type ShareStore = ReturnType<typeof useShareStore>

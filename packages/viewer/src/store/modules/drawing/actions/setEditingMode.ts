@@ -1,7 +1,7 @@
-import type { DrawingStore } from '@/store/modules/drawing/types/drawing'
+import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
+import { EditMode } from '@/store/modules/drawing/types'
 
 export default function setEditingMode(
     this: DrawingStore,

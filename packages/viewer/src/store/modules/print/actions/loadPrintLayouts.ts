@@ -1,6 +1,6 @@
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { PrintStore } from '@/store/modules/print/types/print'
+import type { PrintStore } from '@/store/modules/print/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { readPrintCapabilities } from '@/api/print.api'

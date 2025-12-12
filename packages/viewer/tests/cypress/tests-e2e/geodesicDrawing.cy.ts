@@ -7,7 +7,7 @@ import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@/api/feature
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import useUIStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
+import { FeatureInfoPositions } from '@/store/modules/ui/types'
 import { HALFSIZE_WEBMERCATOR } from '@/utils/geodesicManager'
 
 const olSelector = '.ol-viewport'

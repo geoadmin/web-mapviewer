@@ -2,7 +2,7 @@ import type { Layer } from '@swissgeo/layers'
 
 import { timeConfigUtils } from '@swissgeo/layers/utils'
 
-import type { LayersStore } from '@/store/modules/layers/types/layers'
+import type { LayersStore } from '@/store/modules/layers/types'
 
 export default function visibleLayers(this: LayersStore): Layer[] {
     const visibleLayers = this.activeLayers.filter((layer) => {

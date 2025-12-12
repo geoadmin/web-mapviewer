@@ -1,7 +1,7 @@
 import { loadGeoadminLayersConfig } from '@swissgeo/layers/api'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { LayersStore } from '@/store/modules/layers/types/layers'
+import type { LayersStore } from '@/store/modules/layers/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { loadTopics, parseTopics } from '@/api/topics.api'

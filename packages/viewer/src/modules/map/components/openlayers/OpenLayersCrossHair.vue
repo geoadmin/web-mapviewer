@@ -5,7 +5,7 @@ import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-ind
 import OpenLayersMarker from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
 import { OpenLayersMarkerStyles } from '@/modules/map/components/openlayers/utils/markerStyle'
 import usePositionStore from '@/store/modules/position'
-import { CrossHairs } from '@/store/modules/position/types/crossHairs.enum'
+import { CrossHairs } from '@/store/modules/position/types'
 
 const positionStore = usePositionStore()
 const crossHair = computed(() => positionStore.crossHair)

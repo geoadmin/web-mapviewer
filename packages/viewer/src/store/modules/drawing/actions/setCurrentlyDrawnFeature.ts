@@ -1,10 +1,10 @@
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { DrawingStore } from '@/store/modules/drawing/types/drawing'
+import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { type EditableFeature, EditableFeatureTypes } from '@/api/features.api'
-import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
+import { EditMode } from '@/store/modules/drawing/types'
 import debounceSaveDrawing from '@/store/modules/drawing/utils/debounceSaveDrawing'
 import useFeaturesStore from '@/store/modules/features'
 import useProfileStore from '@/store/modules/profile'

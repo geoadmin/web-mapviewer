@@ -1,5 +1,7 @@
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 
+import type useGeolocationStore from '@/store/modules/geolocation'
+
 export interface GeolocationStoreState {
     /** Flag telling if the user has activated the geolocation feature */
     active: boolean
@@ -22,4 +24,4 @@ export interface GeolocationStoreState {
 
 export type GeolocationStoreGetters = object
 
-export type GeolocationStore = ReturnType<typeof import('@/store/modules/geolocation').default>
+export type GeolocationStore = ReturnType<typeof useGeolocationStore>

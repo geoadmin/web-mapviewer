@@ -1,7 +1,19 @@
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 
 import type { SelectableFeature } from '@/api/features.api'
-import type { ClickType } from '@/store/modules/map/types/clickType.enum'
+import type useMapStore from '@/store/modules/map'
+
+export enum ClickType {
+    /* Any action that triggers the context menu, so for example, right click with a mouse or
+    a long click with the finger on a touch device.*/
+    ContextMenu = 'ContextMenu',
+    /* A single click, with the left mouse button or with the finger on a touch device */
+    LeftSingleClick = 'LEFT_SINGLECLICK',
+    /* A single click with the CTRL button pressed */
+    CtrlLeftSingleClick = 'CTRL_LEFT_SINGLECLICK',
+    /* Drawing a box with ctrl and dragging a left click */
+    DrawBox = 'DRAW_BOX',
+}
 
 export interface ClickInfo {
     coordinate: SingleCoordinate | FlatExtent
@@ -37,4 +49,4 @@ export interface MapState {
 
 export type MapStoreGetters = object
 
-export type MapStore = ReturnType<typeof import('@/store/modules/map').default>
+export type MapStore = ReturnType<typeof useMapStore>

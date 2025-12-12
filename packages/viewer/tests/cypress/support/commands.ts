@@ -1,7 +1,7 @@
 import 'cypress-real-events'
 import 'cypress-wait-until'
 import '@4tw/cypress-drag-drop'
-import type { GeoAdminLayer, Layer } from '@swissgeo/layers'
+import type { GeoAdminLayer } from '@swissgeo/layers'
 import type { Layer as OLLayer } from 'ol/layer'
 import type { Pinia } from 'pinia'
 
@@ -503,13 +503,15 @@ Cypress.Commands.add('checkOlLayer', (args) => {
                 // Also, the rendered flag is protected, so we're checking if it is set with a getRenderSource().getState()
                 // function, which returns false as long as either there is no renderer, or the rendered
                 // flag is false
-                cy.waitUntil(() => {
-                    return olLayer?.getRenderSource()?.getState() === 'ready'
-                }
-                , {
-                    description: `[${layer.id}] waitUntil layer.rendered`,
-                    errorMsg: `[${layer.id}] layer.rendered is not true`,
-                })
+                cy.waitUntil(
+                    () => {
+                        return olLayer?.getRenderSource()?.getState() === 'ready'
+                    },
+                    {
+                        description: `[${layer.id}] waitUntil layer.rendered`,
+                        errorMsg: `[${layer.id}] layer.rendered is not true`,
+                    }
+                )
             })
             invisibleLayers.forEach((layer) => {
                 Cypress.log({

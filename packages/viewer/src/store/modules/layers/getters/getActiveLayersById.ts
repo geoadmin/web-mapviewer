@@ -1,6 +1,6 @@
 import type { Layer } from '@swissgeo/layers'
 
-import type { LayerActionFilter, LayersStore } from '@/store/modules/layers/types/layers'
+import type { LayerActionFilter, LayersStore } from '@/store/modules/layers/types'
 
 import matchTwoLayers from '@/store/modules/layers/utils/matchTwoLayers'
 

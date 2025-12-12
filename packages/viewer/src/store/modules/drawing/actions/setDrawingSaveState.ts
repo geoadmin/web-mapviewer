@@ -1,5 +1,5 @@
-import type { DrawingStore } from '@/store/modules/drawing/types/drawing'
-import type { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
+import type { DrawingStore } from '@/store/modules/drawing/types'
+import type { DrawingSaveState } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
 export default function setDrawingSaveState(

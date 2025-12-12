@@ -1,9 +1,9 @@
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 
-import type { PositionStore } from '@/store/modules/position/types/position'
+import type { PositionStore } from '@/store/modules/position/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { CrossHairs } from '@/store/modules/position/types/crossHairs.enum'
+import { CrossHairs } from '@/store/modules/position/types'
 
 export default function setCrossHair(
     this: PositionStore,

@@ -6,7 +6,7 @@ import { allCoordinateSystems } from '@swissgeo/coordinates'
 import { layerUtils } from '@swissgeo/layers/utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { CameraPosition } from '@/store/modules/position/types/position'
+import type { CameraPosition } from '@/store/modules/position/types'
 
 import {
     handleLegacyParam,

@@ -19,7 +19,7 @@ export interface TopicsStoreState {
 export interface LoadTopicOptions {
     /** If the layers described in the topic should replace all existing layers currently active */
     changeLayers?: boolean
-    /** Whether to open the geocatalog topic section*/
+    /** Whether to open the geocatalog topic section */
     openGeocatalogSection?: boolean
 }
 
@@ -30,4 +30,5 @@ export type TopicsStoreGetters = {
 
 export type TopicsStoreStateAndGetters = TopicsStoreState & TopicsStoreGetters
 
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 export type TopicsStore = ReturnType<typeof import('@/store/modules/topics').default>

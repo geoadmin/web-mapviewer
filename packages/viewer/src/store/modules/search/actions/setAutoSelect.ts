@@ -1,4 +1,4 @@
-import type { SearchStore } from '@/store/modules/search/types/search'
+import type { SearchStore } from '@/store/modules/search/types'
 import type { ActionDispatcher } from '@/store/types'
 
 export default function setAutoSelect(

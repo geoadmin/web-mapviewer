@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import type { DrawingStoreGetters, DrawingStoreState } from '@/store/modules/drawing/types/drawing'
+import type { DrawingStoreGetters, DrawingStoreState } from '@/store/modules/drawing/types'
 
 import clearDrawingFeatures from '@/store/modules/drawing/actions/clearDrawingFeatures'
 import closeDrawing from '@/store/modules/drawing/actions/closeDrawing'
@@ -21,8 +21,8 @@ import updateDrawingPreferences from '@/store/modules/drawing/actions/updateDraw
 import { isDrawingEmpty } from '@/store/modules/drawing/getters/isDrawingEmpty'
 import isDrawingModified from '@/store/modules/drawing/getters/isDrawingModified'
 import showNotSharedDrawingWarning from '@/store/modules/drawing/getters/showNotSharedDrawingWarning'
-import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
-import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
+import { DrawingSaveState } from '@/store/modules/drawing/types'
+import { EditMode } from '@/store/modules/drawing/types'
 import { MEDIUM, RED, TextPlacement } from '@/utils/featureStyleUtils'
 
 const defaultDrawingTitle = 'draw_mode_title'

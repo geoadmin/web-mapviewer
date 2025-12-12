@@ -1,4 +1,4 @@
-import type { ProfileStore } from '@/store/modules/profile/types/profile'
+import type { ProfileStore } from '@/store/modules/profile/types'
 import type { ActionDispatcher } from '@/store/types'
 
 export default function setCurrentFeatureSegmentIndex(

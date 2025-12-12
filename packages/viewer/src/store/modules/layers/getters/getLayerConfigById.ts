@@ -1,6 +1,6 @@
 import type { GeoAdminLayer } from '@swissgeo/layers'
 
-import type { LayersStore } from '@/store/modules/layers/types/layers'
+import type { LayersStore } from '@/store/modules/layers/types'
 
 export default function getLayerConfigById(
     this: LayersStore
