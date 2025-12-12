@@ -1,5 +1,5 @@
 import type { EditableFeature, LayerFeature, SelectableFeature } from '@/api/features.api'
-import type { FeaturesForLayer, FeaturesStore } from '@/store/modules/features/types/features'
+import type { FeaturesForLayer, FeaturesStore } from '@/store/modules/features/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { sendFeatureInformationToIFrameParent } from '@/api/iframePostMessageEvent.api'

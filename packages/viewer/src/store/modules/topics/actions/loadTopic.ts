@@ -1,6 +1,6 @@
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { LoadTopicOptions, TopicsStore } from '@/store/modules/topics/types/topics'
+import type { LoadTopicOptions, TopicsStore } from '@/store/modules/topics/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { loadTopicTreeForTopic } from '@/api/topics.api'
@@ -22,7 +22,10 @@ export default function loadTopic(
             }
             this.setTopicTree(topicTree.layers, dispatcher)
             if (options.openGeocatalogSection) {
-                this.setTopicTreeOpenedThemesIds([this.current, ...topicTree.itemIdToOpen], dispatcher)
+                this.setTopicTreeOpenedThemesIds(
+                    [this.current, ...topicTree.itemIdToOpen],
+                    dispatcher
+                )
             }
             if (this.currentTopic.defaultBackgroundLayer) {
                 layersStore.setBackground(this.currentTopic.defaultBackgroundLayer.id, dispatcher)
@@ -37,26 +40,27 @@ export default function loadTopic(
             if (this.currentTopic.layersToActivate) {
                 const layersStore = useLayersStore()
                 // Get IDs of currently active layers
-                const activeLayerIds = new Set(layersStore.activeLayers.map(layer => layer.id))
+                const activeLayerIds = new Set(layersStore.activeLayers.map((layer) => layer.id))
 
                 // Create a map of active layers by ID for quick lookup with their time configs
                 const activeLayersMap = new Map(
-                    layersStore.activeLayers.map(layer => [layer.id, layer])
+                    layersStore.activeLayers.map((layer) => [layer.id, layer])
                 )
 
                 // Filter layersToActivate to only include layers that are currently active
-                const layersToKeep = this.currentTopic.layersToActivate.filter(layer =>
-                    activeLayerIds.has(layer.id)
-                ).map(layer => {
-                    const activeLayer = activeLayersMap.get(layer.id)
-                    layer.isVisible = activeLayer?.isVisible || false
-                    // If the active layer has a time config and current time entry, update the new layer's time config
-                    if (activeLayer?.timeConfig?.currentTimeEntry && layer.timeConfig) {
-                        layer.timeConfig.currentTimeEntry = activeLayer.timeConfig.currentTimeEntry
-                    }
+                const layersToKeep = this.currentTopic.layersToActivate
+                    .filter((layer) => activeLayerIds.has(layer.id))
+                    .map((layer) => {
+                        const activeLayer = activeLayersMap.get(layer.id)
+                        layer.isVisible = activeLayer?.isVisible || false
+                        // If the active layer has a time config and current time entry, update the new layer's time config
+                        if (activeLayer?.timeConfig?.currentTimeEntry && layer.timeConfig) {
+                            layer.timeConfig.currentTimeEntry =
+                                activeLayer.timeConfig.currentTimeEntry
+                        }
 
-                    return layer
-                })
+                        return layer
+                    })
                 // Only set layers if there are any to keep
                 if (layersToKeep.length > 0) {
                     layersStore.setLayers(layersToKeep, dispatcher)

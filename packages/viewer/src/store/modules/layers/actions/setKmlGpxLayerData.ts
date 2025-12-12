@@ -7,7 +7,7 @@ import { layerUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { ErrorMessage } from '@swissgeo/log/Message'
 
-import type { LayersStore } from '@/store/modules/layers/types/layers'
+import type { LayersStore } from '@/store/modules/layers/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import usePositionStore from '@/store/modules/position'

@@ -1,11 +1,11 @@
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
 import type { EditableFeature } from '@/api/features.api'
-import type { DrawingStore } from '@/store/modules/drawing/types/drawing'
+import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { generateIconURL } from '@/api/icon.api'
-import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
+import { DrawingSaveState } from '@/store/modules/drawing/types'
 import debounceSaveDrawing from '@/store/modules/drawing/utils/debounceSaveDrawing'
 import useProfileStore from '@/store/modules/profile'
 import {

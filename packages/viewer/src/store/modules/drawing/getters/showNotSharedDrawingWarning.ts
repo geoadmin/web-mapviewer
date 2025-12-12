@@ -1,4 +1,4 @@
-import type { DrawingStore } from '@/store/modules/drawing/types/drawing'
+import type { DrawingStore } from '@/store/modules/drawing/types'
 
 export default function showNotSharedDrawingWarning(this: DrawingStore): boolean {
     return (

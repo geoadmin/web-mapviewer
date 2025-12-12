@@ -4,7 +4,7 @@ import type { RouteLocationNormalizedGeneric } from 'vue-router'
 import { round } from '@swissgeo/numbers'
 
 import usePositionStore from '@/store/modules/position'
-import { CrossHairs } from '@/store/modules/position/types/crossHairs.enum'
+import { CrossHairs } from '@/store/modules/position/types'
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/store/plugins/storeSync/UrlParamConfig.class'

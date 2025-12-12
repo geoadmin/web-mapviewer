@@ -1,5 +1,5 @@
 import type { LayerFeature } from '@/api/features.api'
-import type { FeaturesForLayer, FeaturesStore } from '@/store/modules/features/types/features'
+import type { FeaturesForLayer, FeaturesStore } from '@/store/modules/features/types'
 
 export default function selectedLayerFeatures(this: FeaturesStore): LayerFeature[] {
     return this.selectedFeaturesByLayerId

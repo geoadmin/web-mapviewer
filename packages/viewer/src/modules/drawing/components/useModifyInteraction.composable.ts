@@ -16,7 +16,7 @@ import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
 import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import useDrawingStore from '@/store/modules/drawing'
-import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
+import { EditMode } from '@/store/modules/drawing/types'
 
 const dispatcher: ActionDispatcher = { name: 'useModifyInteraction.composable' }
 const cursorGrabbingClass = 'cursor-grabbing'

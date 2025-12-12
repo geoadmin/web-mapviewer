@@ -1,4 +1,4 @@
-import type { UIStore } from '@/store/modules/ui/types/ui'
+import type { UIStore } from '@/store/modules/ui/types'
 
 export default function showLoadingBar(this: UIStore): boolean {
     return Object.keys(this.loadingBarRequesters).length > 0

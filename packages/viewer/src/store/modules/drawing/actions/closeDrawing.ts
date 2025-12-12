@@ -2,7 +2,7 @@ import type { KMLLayer } from '@swissgeo/layers'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { DrawingStore } from '@/store/modules/drawing/types/drawing'
+import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'

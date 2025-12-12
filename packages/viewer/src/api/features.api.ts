@@ -1,4 +1,4 @@
-import type { FlatExtent, SingleCoordinate , CoordinateSystem} from '@swissgeo/coordinates'
+import type { FlatExtent, SingleCoordinate, CoordinateSystem } from '@swissgeo/coordinates'
 import type { ExternalLayer, ExternalWMSLayer, GeoAdminLayer, Layer } from '@swissgeo/layers'
 import type { Feature as GeoJsonFeature, FeatureCollection, Geometry } from 'geojson'
 import type Feature from 'ol/Feature'
@@ -14,12 +14,8 @@ import GeoJSON from 'ol/format/GeoJSON'
 import proj4 from 'proj4'
 
 import type { DrawingIcon } from '@/api/icon.api'
-import type {
-    TextPlacement} from '@/utils/featureStyleUtils';
-import type {
-    FeatureStyleColor,
-    FeatureStyleSize
-} from '@/utils/featureStyleUtils'
+import type { TextPlacement } from '@/utils/featureStyleUtils'
+import type { FeatureStyleColor, FeatureStyleSize } from '@/utils/featureStyleUtils'
 
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
 import {
@@ -911,8 +907,8 @@ export function getFeatureHtmlPopup(
 
 export function isLineOrMeasure(feature: EditableFeature) {
     return (
-        feature.featureType == EditableFeatureTypes.Measure ||
-        feature.featureType == EditableFeatureTypes.LinePolygon
+        feature.featureType === EditableFeatureTypes.Measure ||
+        feature.featureType === EditableFeatureTypes.LinePolygon
     )
 }
 

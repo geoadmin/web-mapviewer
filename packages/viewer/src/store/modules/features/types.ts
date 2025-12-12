@@ -1,4 +1,12 @@
 import type { EditableFeature, LayerFeature } from '@/api/features.api'
+import type useFeaturesStore from '@/store/modules/features'
+
+export enum IdentifyMode {
+    /** Clear previous selection and identify features at the given coordinate */
+    New = 'NEW',
+    /** Toggle selection: remove if already selected, add if not */
+    Toggle = 'TOGGLE',
+}
 
 export interface FeaturesForLayer {
     layerId: string
@@ -21,4 +29,4 @@ export interface FeaturesStoreGetters {
     selectedFeatures(): (EditableFeature | LayerFeature)[]
 }
 
-export type FeaturesStore = ReturnType<typeof import('@/store/modules/features').default>
+export type FeaturesStore = ReturnType<typeof useFeaturesStore>

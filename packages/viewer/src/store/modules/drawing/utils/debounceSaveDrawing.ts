@@ -9,7 +9,7 @@ import { createKml, getKmlUrl, updateKml } from '@/api/files.api'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
 import useDrawingStore from '@/store/modules/drawing'
-import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
+import { DrawingSaveState } from '@/store/modules/drawing/types'
 import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
 

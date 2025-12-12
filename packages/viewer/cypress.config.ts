@@ -69,6 +69,7 @@ export default defineConfig({
                     return readdirSync(folderName)
                 },
                 clearFolder(folderName) {
+                    // eslint-disable-next-line no-console
                     console.log('clearing folder %s', folderName)
 
                     return new Promise((resolve, reject) => {

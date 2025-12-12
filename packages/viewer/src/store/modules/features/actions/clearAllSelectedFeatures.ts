@@ -1,4 +1,4 @@
-import type { FeaturesStore } from '@/store/modules/features/types/features'
+import type { FeaturesStore } from '@/store/modules/features/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import useProfileStore from '@/store/modules/profile'

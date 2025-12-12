@@ -1,7 +1,7 @@
 import type { RouteLocationNormalizedGeneric } from 'vue-router'
 
 import useUIStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
+import { FeatureInfoPositions } from '@/store/modules/ui/types'
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/store/plugins/storeSync/UrlParamConfig.class'

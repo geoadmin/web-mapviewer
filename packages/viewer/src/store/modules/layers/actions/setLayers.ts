@@ -2,7 +2,7 @@ import type { Layer } from '@swissgeo/layers'
 
 import { layerUtils } from '@swissgeo/layers/utils'
 
-import type { LayersStore } from '@/store/modules/layers/types/layers'
+import type { LayersStore } from '@/store/modules/layers/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import afterAddOperations from '@/store/modules/layers/utils/afterAddOperations'

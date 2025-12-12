@@ -1,7 +1,7 @@
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
 
-import type { CesiumStore } from '@/store/modules/cesium/types/cesium'
+import type { CesiumStore } from '@/store/modules/cesium/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { DEFAULT_PROJECTION } from '@/config/map.config'

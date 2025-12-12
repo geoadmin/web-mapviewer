@@ -6,7 +6,7 @@ import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { SearchStore } from '@/store/modules/search/types/search'
+import type { SearchStore } from '@/store/modules/search/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import getFeature, { type LayerFeature } from '@/api/features.api'
@@ -25,7 +25,7 @@ import usePositionStore from '@/store/modules/position'
 import createLayerFeature from '@/store/modules/search/utils/createLayerFeature'
 import zoomToSearchResult from '@/store/modules/search/utils/zoomToSearchResult'
 import useUIStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
+import { FeatureInfoPositions } from '@/store/modules/ui/types'
 import { parseGpx } from '@/utils/gpxUtils'
 import { parseKml } from '@/utils/kmlUtils'
 

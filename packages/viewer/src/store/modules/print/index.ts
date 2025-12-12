@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-import type { PrintStoreState, PrintStoreGetters } from '@/store/modules/print/types/print'
+import type { PrintStoreState, PrintStoreGetters } from '@/store/modules/print/types'
 
 import { PRINT_DEFAULT_DPI } from '@/config/print.config'
 import loadPrintLayouts from '@/store/modules/print/actions/loadPrintLayouts'

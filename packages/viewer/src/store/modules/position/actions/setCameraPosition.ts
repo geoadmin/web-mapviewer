@@ -4,7 +4,7 @@ import { WGS84 } from '@swissgeo/coordinates'
 import { wrapDegrees } from '@swissgeo/numbers'
 import proj4 from 'proj4'
 
-import type { CameraPosition, PositionStore } from '@/store/modules/position/types/position'
+import type { CameraPosition, PositionStore } from '@/store/modules/position/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { calculateResolution } from '@/modules/map/components/cesium/utils/cameraUtils'

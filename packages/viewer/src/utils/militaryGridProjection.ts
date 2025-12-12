@@ -73,7 +73,7 @@ export function latLonToMGRS(lat: number, lon: number, accuracy?: number): strin
 export function inverse(mgrs: string): FlatExtent {
     const [bbox, type] = UTMtoLatLon(decodeUTM(mgrs.toUpperCase()))
 
-    if (type == 'latlon') {
+    if (type === 'latlon') {
         const _bbox = bbox as LatLon
         return [_bbox.lon, _bbox.lat, _bbox.lon, _bbox.lat]
     } else {
@@ -88,7 +88,7 @@ export function toPoint(mgrs: string): SingleCoordinate {
     }
     const [bbox, type] = UTMtoLatLon(decodeUTM(mgrs.toUpperCase()))
 
-    if (type == 'latlon') {
+    if (type === 'latlon') {
         const _bbox = bbox as LatLon
         return [_bbox.lon, _bbox.lat]
     } else {

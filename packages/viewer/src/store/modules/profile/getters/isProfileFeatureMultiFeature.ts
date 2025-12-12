@@ -1,4 +1,4 @@
-import type { ProfileStore } from '@/store/modules/profile/types/profile'
+import type { ProfileStore } from '@/store/modules/profile/types'
 
 export default function isProfileFeatureMultiFeature(this: ProfileStore): boolean {
     return (

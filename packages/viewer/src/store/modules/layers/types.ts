@@ -1,7 +1,8 @@
 import type { GeoAdminLayer, KMLLayer, Layer } from '@swissgeo/layers'
 import type { Interval } from 'luxon'
 
-import type { ClickInfo } from '@/store/modules/map/types/map'
+import type useLayersStore from '@/store/modules/layers'
+import type { ClickInfo } from '@/store/modules/map/types'
 
 export interface LayerActionFilter {
     /** Base URL of the layer(s) to retrieve. If undefined, accepts all */
@@ -109,4 +110,4 @@ export interface LayersStoreGetters {
     isFeatureSelected(): (clickInfo?: ClickInfo) => boolean
 }
 
-export type LayersStore = ReturnType<typeof import('@/store/modules/layers').default>
+export type LayersStore = ReturnType<typeof useLayersStore>

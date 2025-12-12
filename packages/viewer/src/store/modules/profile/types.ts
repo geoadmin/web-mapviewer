@@ -1,6 +1,7 @@
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 
 import type { SelectableFeature } from '@/api/features.api'
+import type useProfileStore from '@/store/modules/profile'
 
 export interface ProfileStoreState {
     feature?: SelectableFeature<boolean>
@@ -24,4 +25,4 @@ export interface ProfileStoreGetters {
     currentProfileExtent(): FlatExtent | undefined
 }
 
-export type ProfileStore = ReturnType<typeof import('@/store/modules/profile').default>
+export type ProfileStore = ReturnType<typeof useProfileStore>

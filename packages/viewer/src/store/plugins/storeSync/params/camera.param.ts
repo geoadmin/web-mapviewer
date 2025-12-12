@@ -2,7 +2,7 @@ import type { RouteLocationNormalizedGeneric } from 'vue-router'
 
 import { isNumber } from 'lodash'
 
-import type { CameraPosition } from '@/store/modules/position/types/position'
+import type { CameraPosition } from '@/store/modules/position/types'
 
 import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import useCesiumStore from '@/store/modules/cesium'

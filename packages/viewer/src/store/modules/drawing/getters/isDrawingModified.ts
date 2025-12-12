@@ -1,6 +1,6 @@
-import type { DrawingStore } from '@/store/modules/drawing/types/drawing'
+import type { DrawingStore } from '@/store/modules/drawing/types'
 
-import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
+import { DrawingSaveState } from '@/store/modules/drawing/types'
 
 export default function isDrawingModified(this: DrawingStore): boolean {
     return (

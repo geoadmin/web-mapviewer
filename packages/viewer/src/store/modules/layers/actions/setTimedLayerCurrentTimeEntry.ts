@@ -3,7 +3,7 @@ import type { GeoAdminLayer, LayerTimeConfigEntry } from '@swissgeo/layers'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { LayersStore } from '@/store/modules/layers/types/layers'
+import type { LayersStore } from '@/store/modules/layers/types'
 import type { ActionDispatcher } from '@/store/types'
 
 /** Set layer current year */

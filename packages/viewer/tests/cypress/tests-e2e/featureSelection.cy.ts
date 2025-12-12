@@ -9,7 +9,7 @@ import { DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION } from '@/config/map.config'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
+import { FeatureInfoPositions } from '@/store/modules/ui/types'
 
 import { addFeatureIdentificationIntercepts } from '../support/intercepts'
 

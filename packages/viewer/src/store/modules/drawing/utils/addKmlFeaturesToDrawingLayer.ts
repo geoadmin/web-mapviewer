@@ -6,7 +6,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import useDrawingStore from '@/store/modules/drawing'
-import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
+import { DrawingSaveState } from '@/store/modules/drawing/types'
 import usePositionStore from '@/store/modules/position'
 import { parseKml } from '@/utils/kmlUtils'
 

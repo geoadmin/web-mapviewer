@@ -4,7 +4,7 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import cloneDeep from 'lodash/cloneDeep'
 
 import type { SelectableFeature } from '@/api/features.api'
-import type { ProfileStore } from '@/store/modules/profile/types/profile'
+import type { ProfileStore } from '@/store/modules/profile/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { canFeatureShowProfile } from '@/store/modules/profile/utils/canFeatureShowProfile'

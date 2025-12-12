@@ -1,8 +1,8 @@
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type Feature from 'ol/Feature'
-import type { SimpleGeometry } from 'ol/geom';
+import type { SimpleGeometry } from 'ol/geom'
 import type { Type as GeometryType } from 'ol/geom/Geometry'
-import type { DrawEvent } from 'ol/interaction/Draw';
+import type { DrawEvent } from 'ol/interaction/Draw'
 import type Map from 'ol/Map'
 import type { StyleFunction, StyleLike } from 'ol/style/Style'
 
@@ -25,7 +25,7 @@ import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@/api/feature
 import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useDrawingStore from '@/store/modules/drawing'
-import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
+import { EditMode } from '@/store/modules/drawing/types'
 import usePositionStore from '@/store/modules/position'
 import {
     DEFAULT_MARKER_TITLE_OFFSET,

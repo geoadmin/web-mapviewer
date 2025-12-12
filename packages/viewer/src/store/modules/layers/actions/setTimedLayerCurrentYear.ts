@@ -2,7 +2,7 @@ import type { GeoAdminLayer } from '@swissgeo/layers'
 
 import { timeConfigUtils } from '@swissgeo/layers/utils'
 
-import type { LayersStore } from '@/store/modules/layers/types/layers'
+import type { LayersStore } from '@/store/modules/layers/types'
 import type { ActionDispatcher } from '@/store/types'
 
 export default function setTimedLayerCurrentYear(

@@ -5,12 +5,36 @@ import type VectorLayer from 'ol/layer/Vector'
 import type VectorSource from 'ol/source/Vector'
 import type { Raw } from 'vue'
 
-import type { EditableFeatureTypes } from '@/api/features.api';
+import type { EditableFeatureTypes } from '@/api/features.api'
 import type { EditableFeature } from '@/api/features.api'
 import type { DrawingIconSet } from '@/api/icon.api'
-import type { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
-import type { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
+import type useDrawingStore from '@/store/modules/drawing'
 import type { FeatureStyleColor, FeatureStyleSize, TextPlacement } from '@/utils/featureStyleUtils'
+
+export enum DrawingSaveState {
+    /** First state when entering the drawing mode */
+    Initial = 'INITIAL',
+    /** Drawing has been loaded */
+    Loaded = 'LOADED',
+    /** Pending changes -> drawing has been modified and is not saved */
+    UnsavedChanges = 'UNSAVED_CHANGES',
+    /** Drawing is being saved */
+    Saving = 'SAVING',
+    /** Drawing has been saved and no pending changes are remaining */
+    Saved = 'SAVED',
+    /** Could not save drawing */
+    SaveError = 'SAVE_ERROR',
+    /** Could not load drawing */
+    LoadError = 'LOAD_ERROR',
+}
+
+export enum EditMode {
+    Off = 'OFF',
+    /** Mode for modifying existing features */
+    Modify = 'MODIFY',
+    /** Mode for extending existing features (for line only) */
+    Extend = 'EXTEND',
+}
 
 export interface DrawingPreferences {
     size: FeatureStyleSize
@@ -73,4 +97,4 @@ export interface DrawingStoreGetters {
     showNotSharedDrawingWarning(): boolean
 }
 
-export type DrawingStore = ReturnType<typeof import('@/store/modules/drawing').default>
+export type DrawingStore = ReturnType<typeof useDrawingStore>

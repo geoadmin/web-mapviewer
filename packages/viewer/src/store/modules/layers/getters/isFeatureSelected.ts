@@ -1,5 +1,5 @@
-import type { LayersStore } from '@/store/modules/layers/types/layers'
-import type { ClickInfo } from '@/store/modules/map/types/map'
+import type { LayersStore } from '@/store/modules/layers/types'
+import type { ClickInfo } from '@/store/modules/map/types'
 
 import useFeaturesStore from '@/store/modules/features'
 

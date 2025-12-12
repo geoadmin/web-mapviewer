@@ -1,4 +1,5 @@
 import type { SearchResult } from '@/api/search.api'
+import type useSearchStore from '@/store/modules/search'
 
 export interface SearchStoreState {
     /** The search query. It will trigger a search to the backend if it contains 3 or more characters */
@@ -13,4 +14,4 @@ export type SearchStoreGetters = object
 
 export type SearchStoreStateAndGetters = SearchStoreState & SearchStoreGetters
 
-export type SearchStore = ReturnType<typeof import('@/store/modules/search').default>
+export type SearchStore = ReturnType<typeof useSearchStore>

@@ -7,7 +7,7 @@ import { useI18n } from 'vue-i18n'
 import type { ActionDispatcher } from '@/store/types'
 
 import useDrawingStore from '@/store/modules/drawing'
-import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
+import { EditMode } from '@/store/modules/drawing/types'
 
 const { t } = useI18n()
 

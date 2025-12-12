@@ -19,7 +19,7 @@ import DrawingTextInteraction from '@/modules/drawing/components/DrawingTextInte
 import ExtendLineInteraction from '@/modules/drawing/components/ExtendLineInteraction.vue'
 import ExtendMeasureInteraction from '@/modules/drawing/components/ExtendMeasureInteraction.vue'
 import useDrawingStore from '@/store/modules/drawing'
-import { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
+import { EditMode } from '@/store/modules/drawing/types'
 
 const selectInteraction =
     useTemplateRef<ComponentPublicInstance<SelectInteractionExposed>>('selectInteraction')

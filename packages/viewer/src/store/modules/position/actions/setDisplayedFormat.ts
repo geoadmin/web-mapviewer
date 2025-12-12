@@ -1,4 +1,4 @@
-import type { PositionStore } from '@/store/modules/position/types/position'
+import type { PositionStore } from '@/store/modules/position/types'
 import type { ActionDispatcher } from '@/store/types'
 import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 

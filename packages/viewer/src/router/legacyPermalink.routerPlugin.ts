@@ -7,7 +7,7 @@ import proj4 from 'proj4'
 import { type LocationQueryRaw, type RouteLocationRaw, START_LOCATION } from 'vue-router'
 
 import type { RouterPlugin } from '@/router/types'
-import type { CameraPosition } from '@/store/modules/position/types/position'
+import type { CameraPosition } from '@/store/modules/position/types'
 
 import reframe from '@/api/lv03Reframe.api'
 import {
@@ -21,7 +21,7 @@ import {
 import useAppStore from '@/store/modules/app'
 import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
-import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
+import { FeatureInfoPositions } from '@/store/modules/ui/types'
 import { transformLayerIntoUrlString } from '@/store/plugins/storeSync/layersParamParser'
 import {
     getKmlLayerFromLegacyAdminIdParam,
@@ -450,18 +450,21 @@ export const legacyPermalinkManagementRouterPlugin: RouterPlugin = (router): voi
                                         titleColor: LogPreDefinedColor.Amber,
                                         messages: [`redirect to the converted params`, newRoute],
                                     })
-                                    router.replace(newRoute).then(() => {
-                                        useAppStore().setLegacyUrlParsingHasHappened(dispatcher)
-                                    }).catch((error) => {
-                                        log.error({
-                                            title: 'Legacy URL',
-                                            titleColor: LogPreDefinedColor.Amber,
-                                            messages: [
-                                                `failed to redirect to the converted params`,
-                                                error,
-                                            ],
+                                    router
+                                        .replace(newRoute)
+                                        .then(() => {
+                                            useAppStore().setLegacyUrlParsingHasHappened(dispatcher)
                                         })
-                                    })
+                                        .catch((error) => {
+                                            log.error({
+                                                title: 'Legacy URL',
+                                                titleColor: LogPreDefinedColor.Amber,
+                                                messages: [
+                                                    `failed to redirect to the converted params`,
+                                                    error,
+                                                ],
+                                            })
+                                        })
                                 })
                                 .catch((error) => {
                                     log.error({

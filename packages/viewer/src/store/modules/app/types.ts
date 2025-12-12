@@ -1,4 +1,19 @@
-import type { AppState } from '@/store/modules/app/types/appState'
+import type useAppStore from '@/store/modules/app/index'
+
+export enum AppStateNames {
+    Initializing = 'INITIALIZING',
+    ConfigLoaded = 'CONFIG_LOADED',
+    LegacyParsing = 'LEGACY_PARSING',
+    UrlParsing = 'URL_PARSING',
+    Ready = 'READY',
+    MapShown = 'MAP_SHOWN',
+}
+
+export interface AppState {
+    name: AppStateNames
+    isFulfilled: () => boolean
+    next: () => AppState
+}
 
 /** Module that tells if the app has finished loading (is ready to show stuff) */
 export interface AppStoreState {
@@ -17,4 +32,4 @@ export type AppStoreGetters = {
     isMapReady(): boolean
 }
 
-export type AppStore = ReturnType<typeof import('@/store/modules/app').default>
+export type AppStore = ReturnType<typeof useAppStore>

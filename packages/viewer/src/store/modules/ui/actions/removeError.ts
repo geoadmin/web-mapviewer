@@ -2,7 +2,7 @@ import type { ErrorMessage } from '@swissgeo/log/Message'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { UIStore } from '@/store/modules/ui/types/ui'
+import type { UIStore } from '@/store/modules/ui/types'
 import type { ActionDispatcher } from '@/store/types'
 
 export default function removeError(

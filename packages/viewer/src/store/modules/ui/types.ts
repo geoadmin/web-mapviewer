@@ -1,7 +1,27 @@
 import type { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 
-import type { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
-import type { UIModes } from '@/store/modules/ui/types/uiModes.enum'
+import type useUiStore from '@/store/modules/ui'
+
+export enum FeatureInfoPositions {
+    /**
+     * This is not the default value, but this is the default behavior, which depends on the UI
+     * size. Bottompanel on phones, tooltip on desktop
+     */
+    Default = 'default',
+    BottomPanel = 'bottomPanel',
+    ToolTip = 'tooltip',
+    None = 'none',
+}
+
+/**
+ * Describes the different mode the UI can have. Either desktop / tablet (menu is always shown, info
+ * box is a side tray) or phone (menu has to be opened with a button, info box is a swipeable
+ * element)
+ */
+export enum UIModes {
+    Desktop,
+    Phone,
+}
 
 /**
  * Module that stores all information related to the UI, for instance if a portion of the UI (like
@@ -123,4 +143,4 @@ export interface UIStoreGetters {
     hasReportProblemButton(): boolean
 }
 
-export type UIStore = ReturnType<typeof import('@/store/modules/ui').default>
+export type UIStore = ReturnType<typeof useUiStore>

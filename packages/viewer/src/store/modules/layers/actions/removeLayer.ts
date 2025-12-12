@@ -6,7 +6,7 @@ import type {
     GetLayerIdOptions,
     GetLayerIdResult,
 } from '@/store/modules/layers/actions/identifyFeatures'
-import type { LayerActionFilter, LayersStore } from '@/store/modules/layers/types/layers'
+import type { LayerActionFilter, LayersStore } from '@/store/modules/layers/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import useFeaturesStore from '@/store/modules/features'

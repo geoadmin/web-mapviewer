@@ -11,7 +11,7 @@ import { getRenderPixel } from 'ol/render'
 import VectorSource from 'ol/source/Vector'
 import { computed, type MaybeRef, toValue, watch, type WatchHandle } from 'vue'
 
-import type { PrintLayoutSize } from '@/store/modules/print/types/print'
+import type { PrintLayoutSize } from '@/store/modules/print/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { PrintError } from '@/api/print.api'

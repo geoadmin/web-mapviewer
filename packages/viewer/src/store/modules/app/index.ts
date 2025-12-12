@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 
-import type { AppStoreGetters, AppStoreState } from '@/store/modules/app/types/app'
+import type { AppState } from '@/store/modules/app/types'
+import type { AppStoreGetters, AppStoreState } from '@/store/modules/app/types'
 
 import nextState from '@/store/modules/app/actions/nextState'
 import setHasPendingUrlParsing from '@/store/modules/app/actions/setHasPendingUrlParsing'
@@ -13,7 +14,7 @@ import isMapReady from '@/store/modules/app/getters/isMapReady'
 import isParsingLegacy from '@/store/modules/app/getters/isParsingLegacy'
 import isParsingUrl from '@/store/modules/app/getters/isParsingUrl'
 import isReady from '@/store/modules/app/getters/isReady'
-import { type AppState, AppStateNames } from '@/store/modules/app/types/appState'
+import { AppStateNames } from '@/store/modules/app/types'
 import useCesiumStore from '@/store/modules/cesium'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
@@ -55,7 +56,8 @@ const parseLegacyUrlParams: AppState = {
     // legacyUrlParsingHasHappened is necessary to reevaluate after the legacy parsing has happened, without it,
     // isFulfilled would always return false/true after the first time
     // it also has to be the first condition because the && operator is short-circuiting
-    isFulfilled: () => useAppStore().legacyUrlParsingHasHappened && !isLegacyParams(window?.location?.search),
+    isFulfilled: () =>
+        useAppStore().legacyUrlParsingHasHappened && !isLegacyParams(window?.location?.search),
 
     next: () => {
         return initiateUrlParsing
@@ -66,7 +68,9 @@ const configLoaded: AppState = {
     name: AppStateNames.ConfigLoaded,
     // we wait for the background layer to be set to the current topic default, to avoid conflicts between the mutation happening,
     // and the URL synchronization.
-    isFulfilled: () => useTopicsStore().currentTopic?.defaultBackgroundLayer?.id === useLayersStore().currentBackgroundLayer?.id,
+    isFulfilled: () =>
+        useTopicsStore().currentTopic?.defaultBackgroundLayer?.id ===
+        useLayersStore().currentBackgroundLayer?.id,
     next: () => {
         if (isLegacyParams(window?.location?.search)) {
             return parseLegacyUrlParams

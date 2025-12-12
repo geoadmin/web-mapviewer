@@ -1,6 +1,6 @@
 import type { RouteLocationNormalizedGeneric } from 'vue-router'
 
-import type { NewPrintServiceConfig } from '@/store/modules/print/types/print'
+import type { NewPrintServiceConfig } from '@/store/modules/print/types'
 
 import { PRINT_DEFAULT_DPI } from '@/config/print.config'
 import usePrintStore from '@/store/modules/print'
