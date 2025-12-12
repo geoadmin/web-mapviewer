@@ -1,11 +1,19 @@
 {
     "name": "@swissgeo/config-eslint",
-    "version": "1.0.0-beta.2",
+    "version": "1.0.0-beta.3",
     "description": "Shared ESLint config for SWISSGEO projects.",
     "license": "BSD-3-Clause",
     "type": "module",
-    "main": "index.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.umd.cjs"
+        }
+    },
     "scripts": {
+        "build": "pnpm run type-check && pnpm run generate-types",
+        "generate-types": "tsc --declaration",
         "lint": "eslint --fix",
         "lint:no-fix": "eslint",
         "type-check": "tsc -p tsconfig.json"
@@ -25,7 +33,9 @@
         "typescript-eslint": "catalog:"
     },
     "devDependencies": {
+        "@microsoft/api-extractor": "catalog:",
         "@swissgeo/config-typescript": "workspace:*",
+        "@types/node": "catalog:",
         "globals": "catalog:",
         "typescript": "catalog:"
     },
