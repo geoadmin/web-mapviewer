@@ -76,6 +76,7 @@ function logToConsole(level: LogLevel, messages: SwissGeoLogInput[]) {
         return
     }
 
+    /* eslint-disable no-console */
     switch (level) {
         case LogLevel.Error:
             console.error(...processStyle(messages))
@@ -90,6 +91,7 @@ function logToConsole(level: LogLevel, messages: SwissGeoLogInput[]) {
             console.debug(...processStyle(messages))
             break
     }
+    /* eslint-enable no-console */
 }
 
 interface SwissGeoLogMessage {

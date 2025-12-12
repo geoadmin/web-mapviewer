@@ -1,9 +1,9 @@
-import type { FlatExtent } from '@swissgeo/coordinates'
+import type { FlatExtent ,
+    CoordinateSystem} from '@swissgeo/coordinates'
 
 import {
     allCoordinateSystems,
     coordinatesUtils,
-    CoordinateSystem,
     extentUtils,
     WEBMERCATOR,
     WGS84,

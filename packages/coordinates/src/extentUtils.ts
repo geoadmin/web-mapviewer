@@ -4,8 +4,9 @@ import { type Extent, getIntersection as getExtentIntersection } from 'ol/extent
 import proj4 from 'proj4'
 
 import type { SingleCoordinate } from '@/coordinatesUtils'
+import type { CoordinateSystem} from '@/proj';
 
-import { CoordinateSystem, WGS84 } from '@/proj'
+import { WGS84 } from '@/proj'
 
 export type FlatExtent = [number, number, number, number]
 export type NormalizedExtent = [[number, number], [number, number]]

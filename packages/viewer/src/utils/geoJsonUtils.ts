@@ -1,7 +1,7 @@
-import type { NormalizedExtent, SingleCoordinate } from '@swissgeo/coordinates'
+import type { NormalizedExtent, SingleCoordinate , CoordinateSystem} from '@swissgeo/coordinates'
 import type { Feature, FeatureCollection, GeoJSON, Geometry, Position } from 'geojson'
 
-import { CoordinateSystem, extentUtils, WGS84 } from '@swissgeo/coordinates'
+import { extentUtils, WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import {
     bbox,

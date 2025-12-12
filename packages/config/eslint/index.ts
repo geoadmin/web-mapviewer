@@ -15,6 +15,17 @@ import tsESLint, { plugin as tsESLintPlugin } from 'typescript-eslint'
 type PartialRules = Partial<Record<string, FlatConfig.RuleEntry>>
 type PartialConfig = Partial<FlatConfig.Config>
 
+const commonTsAndJsRules: PartialRules = {
+    eqeqeq: ['error', 'always'],
+    'no-console': 'error',
+    'no-var': 'error',
+    // Enforce a consistent brace style for all control statements
+    curly: ['error', 'all'],
+    // Enforce opening braces on the same line and closing brace on a new line
+    'brace-style': ['error', '1tbs', { allowSingleLine: false }],
+    'perfectionist/sort-imports': ['error', { type: 'alphabetical', internalPattern: ['^@/.*'] }],
+}
+
 const noUnusedVarsRules: PartialRules = {
     'no-unused-vars': [
         'error',
@@ -48,6 +59,7 @@ const standardTSRules: PartialRules = {
     ],
     '@typescript-eslint/consistent-type-exports': 'error',
     '@typescript-eslint/no-import-type-side-effects': 'error',
+    '@typescript-eslint/consistent-type-imports': ['error', { fixStyle: 'separate-type-imports' }],
 }
 
 const chaiFriendlyRules: PartialConfig = {
@@ -109,17 +121,9 @@ export const vueConfig: FlatConfig.ConfigArray = defineConfigWithVueTs(
             perfectionist,
         },
         rules: {
+            ...commonTsAndJsRules,
             'vue/html-indent': ['error', 4],
-            // TODO: switch to 'error' (or remove this line) after complete TS migration
-            'vue/block-lang': 'off',
-            'perfectionist/sort-imports': [
-                'error',
-                { type: 'alphabetical', internalPattern: ['^@/.*'] },
-            ],
-            // Enforce consistent brace style for all control statements
-            curly: ['error', 'all'],
-            // Enforce opening brace on same line and closing brace on new line
-            'brace-style': ['error', '1tbs', { allowSingleLine: false }],
+            'vue/block-lang': 'error',
             ...noUnusedVarsRules,
         },
     }
@@ -178,18 +182,8 @@ export const jsConfig: FlatConfig.ConfigArray = [
             sourceType: 'module',
         },
         rules: {
-            eqeqeq: ['error', 'always'],
+            ...commonTsAndJsRules,
             'mocha/no-exclusive-tests': 'error',
-            'no-console': 'error',
-            'no-var': 'error',
-            'perfectionist/sort-imports': [
-                'error',
-                { type: 'alphabetical', internalPattern: ['^@/.*'] },
-            ],
-            // Enforce consistent brace style for all control statements
-            curly: ['error', 'all'],
-            // Enforce opening brace on same line and closing brace on new line
-            'brace-style': ['error', '1tbs', { allowSingleLine: false }],
             ...noUnusedVarsRules,
         },
     },
@@ -223,14 +217,7 @@ const defaultConfig: FlatConfig.ConfigArray = tsESLint.config(
         // on unused param from abstract function arguments
         rules: {
             ...standardTSRules,
-            'perfectionist/sort-imports': [
-                'error',
-                { type: 'alphabetical', internalPattern: ['^@/.*'] },
-            ],
-            // Enforce consistent brace style for all control statements
-            curly: ['error', 'all'],
-            // Enforce opening brace on same line and closing brace on new line
-            'brace-style': ['error', '1tbs', { allowSingleLine: false }],
+            ...commonTsAndJsRules,
         },
     },
     // we have to declare that AFTER the TS specifics, our unit test rules from the JS config are otherwise ignored (when the tests are written in TS)

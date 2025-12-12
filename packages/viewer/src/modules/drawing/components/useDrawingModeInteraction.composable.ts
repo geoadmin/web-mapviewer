@@ -1,6 +1,8 @@
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type Feature from 'ol/Feature'
+import type { SimpleGeometry } from 'ol/geom';
 import type { Type as GeometryType } from 'ol/geom/Geometry'
+import type { DrawEvent } from 'ol/interaction/Draw';
 import type Map from 'ol/Map'
 import type { StyleFunction, StyleLike } from 'ol/style/Style'
 
@@ -8,8 +10,8 @@ import { coordinatesUtils } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { primaryAction } from 'ol/events/condition'
 import GeoJSON from 'ol/format/GeoJSON'
-import { LineString, Polygon, SimpleGeometry } from 'ol/geom'
-import DrawInteraction, { DrawEvent } from 'ol/interaction/Draw'
+import { LineString, Polygon } from 'ol/geom'
+import DrawInteraction from 'ol/interaction/Draw'
 import SnapInteraction from 'ol/interaction/Snap'
 import { Style } from 'ol/style'
 import { getUid } from 'ol/util'

@@ -1,11 +1,13 @@
+import type {
+    Entity,
+    Viewer} from 'cesium';
+
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import {
     type DataSource,
-    Entity,
     GeoJsonDataSource,
     type GpxDataSource,
-    KmlDataSource,
-    Viewer,
+    KmlDataSource
 } from 'cesium'
 import { type MaybeRef, onBeforeUnmount, toRef, toValue, watch } from 'vue'
 

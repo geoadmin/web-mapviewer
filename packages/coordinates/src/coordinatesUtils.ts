@@ -1,8 +1,9 @@
 import { formatThousand, isNumber, round } from '@swissgeo/numbers'
 import proj4 from 'proj4'
 
+import type CoordinateSystem from '@/proj/CoordinateSystem'
+
 import { allCoordinateSystems, WGS84 } from '@/proj'
-import CoordinateSystem from '@/proj/CoordinateSystem'
 
 export type SingleCoordinate = [number, number]
 export type Single3DCoordinate = [number, number, number]

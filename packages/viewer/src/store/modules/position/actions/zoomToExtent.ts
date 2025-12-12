@@ -1,6 +1,6 @@
-import type { FlatExtent, NormalizedExtent, SingleCoordinate } from '@swissgeo/coordinates'
+import type { FlatExtent, NormalizedExtent, SingleCoordinate , CoordinateSystem} from '@swissgeo/coordinates'
 
-import { CoordinateSystem, extentUtils } from '@swissgeo/coordinates'
+import { extentUtils } from '@swissgeo/coordinates'
 import { Math as CesiumMath } from 'cesium'
 
 import type { PositionStore } from '@/store/modules/position/types/position'

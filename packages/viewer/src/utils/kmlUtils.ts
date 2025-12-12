@@ -1,8 +1,10 @@
 import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
 import type { KMLLayer } from '@swissgeo/layers'
+import type Feature from 'ol/Feature'
 import type { Geometry } from 'ol/geom'
 import type { Type as GeometryType } from 'ol/geom/Geometry'
 import type { Size } from 'ol/size'
+import type Style from 'ol/style/Style'
 
 import { WGS84 } from '@swissgeo/coordinates'
 import { KMLStyle } from '@swissgeo/layers'
@@ -16,11 +18,9 @@ import {
     extend as extendExtent,
     isEmpty as isExtentEmpty,
 } from 'ol/extent'
-import Feature from 'ol/Feature'
 import GeoJSON, { type GeoJSONGeometry, type GeoJSONGeometryCollection } from 'ol/format/GeoJSON'
 import KML, { getDefaultStyle } from 'ol/format/KML'
 import IconStyle from 'ol/style/Icon'
-import Style from 'ol/style/Style'
 
 import type { EditableFeature } from '@/api/features.api'
 

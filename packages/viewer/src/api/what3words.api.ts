@@ -1,6 +1,6 @@
-import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type { SingleCoordinate , CoordinateSystem} from '@swissgeo/coordinates'
 
-import { CoordinateSystem, WGS84 } from '@swissgeo/coordinates'
+import { WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import axios from 'axios'
 import proj4 from 'proj4'

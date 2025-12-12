@@ -1,5 +1,6 @@
+import type { ErrorMessage } from '@swissgeo/log/Message'
+
 import log, { LogPreDefinedColor } from '@swissgeo/log'
-import { ErrorMessage } from '@swissgeo/log/Message'
 
 import type { UIStore } from '@/store/modules/ui/types/ui'
 import type { ActionDispatcher } from '@/store/types'

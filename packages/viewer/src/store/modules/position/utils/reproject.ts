@@ -1,6 +1,6 @@
+import type { CoordinateSystem } from '@swissgeo/coordinates'
 import type { Layer } from '@swissgeo/layers'
 
-import { CoordinateSystem } from '@swissgeo/coordinates'
 import { coordinatesUtils, extentUtils } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { cloneDeep } from 'lodash'

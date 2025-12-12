@@ -1,4 +1,6 @@
-import { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
+import type { WarningMessage } from '@swissgeo/log/Message';
+
+import { ErrorMessage } from '@swissgeo/log/Message'
 
 function getDefaultErrorMessage(
     query: string | number | boolean | undefined,
