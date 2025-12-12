@@ -4,30 +4,6 @@ import type { SingleCoordinate } from '@swissgeo/coordinates'
 
 import useUIStore from '@/store/modules/ui'
 
-export interface MockLayer {
-    opacity: number
-    wmsLayers: string
-    attribution: string
-    background: boolean
-    searchable: boolean
-    format: string
-    topics: string
-    wmsUrl: string
-    tooltip: boolean
-    timeEnabled: boolean
-    singleTile: boolean
-    highlightable: boolean
-    chargeable: boolean
-    hasLegend: boolean
-    label: string
-    type: string
-    serverLayerName: string
-    queryableAttributes?: string[]
-    timestamps?: string[]
-    timeBehaviour?: string
-    resolutions?: number[]
-}
-
 export function moveTimeSlider(x: number) {
     cy.get('[data-cy="time-slider-bar-cursor-grab"]').trigger('mousedown', { button: 0 })
     cy.get('[data-cy="time-slider-bar-cursor-grab"]').trigger('mousemove', {

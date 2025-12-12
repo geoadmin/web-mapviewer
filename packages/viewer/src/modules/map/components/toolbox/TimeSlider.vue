@@ -78,6 +78,7 @@ const inputYear = computed({
         const parsedValue = parseInt(value.toString())
         if (!allYears.value.includes(parsedValue)) {
             isInputYearValid.value = false
+            // || '' enables the value to be cleared
             falseYear.value = parsedValue || ''
         } else {
             isInputYearValid.value = true

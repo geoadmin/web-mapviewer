@@ -92,7 +92,7 @@ const makeTimeConfigEntry = (timestamp: string): LayerTimeConfigEntry => {
     }
 
     // Could not parse any time interval with the input, passing the timestamp as is
-    if (interval === undefined || !interval.isValid) {
+    if ((interval === undefined || !interval.isValid) && !nonTimeBasedValue) {
         nonTimeBasedValue = timestamp
     }
     if (interval && !interval.isValid) {
