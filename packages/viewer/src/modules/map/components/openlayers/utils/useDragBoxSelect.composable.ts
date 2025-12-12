@@ -11,6 +11,7 @@ import type {
     Point,
     Polygon,
 } from 'ol/geom'
+import type Circle from 'ol/geom/Circle'
 
 import { LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
@@ -26,7 +27,6 @@ import {
 } from '@turf/turf'
 import { platformModifierKeyOnly } from 'ol/events/condition'
 import GeoJSON from 'ol/format/GeoJSON'
-import Circle from 'ol/geom/Circle'
 import { DragBox } from 'ol/interaction'
 
 import type { LayerFeature } from '@/api/features.api'

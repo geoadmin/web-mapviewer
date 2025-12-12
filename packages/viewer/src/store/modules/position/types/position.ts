@@ -1,9 +1,8 @@
 import type { NormalizedExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import type { CoordinateSystem } from '@swissgeo/coordinates'
 
+import type { CrossHairs } from '@/store/modules/position/types/crossHairs.enum'
 import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
-
-import { CrossHairs } from '@/store/modules/position/types/crossHairs.enum'
 
 export interface CameraPosition {
     /** X position of the camera in the 3D reference system (metric mercator) */

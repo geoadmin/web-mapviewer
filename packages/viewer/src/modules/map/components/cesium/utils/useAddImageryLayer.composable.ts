@@ -1,7 +1,7 @@
 import type { ImageryProvider } from 'cesium'
+import type { ImageryLayer, Viewer } from 'cesium'
 import type { MaybeRef } from 'vue'
 
-import { ImageryLayer, Viewer } from 'cesium'
 import { onBeforeUnmount, onMounted, toRef, toValue, watch } from 'vue'
 
 type ProviderFactoryFunction = () => ImageryProvider | undefined

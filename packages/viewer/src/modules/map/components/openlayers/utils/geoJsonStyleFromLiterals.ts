@@ -5,11 +5,11 @@ import type {
     GeoAdminGeoJSONStyleDefinition,
     GeoAdminGeoJSONStyleSingle,
 } from '@swissgeo/layers'
+import type { Feature } from 'ol'
 import type { Options as RegularShapeOptions } from 'ol/style/RegularShape'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { isNumber } from '@swissgeo/numbers'
-import { Feature } from 'ol'
 import {
     LineString,
     MultiLineString,

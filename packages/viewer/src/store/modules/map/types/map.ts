@@ -1,8 +1,7 @@
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 
 import type { SelectableFeature } from '@/api/features.api'
-
-import { ClickType } from '@/store/modules/map/types/clickType.enum'
+import type { ClickType } from '@/store/modules/map/types/clickType.enum'
 
 export interface ClickInfo {
     coordinate: SingleCoordinate | FlatExtent

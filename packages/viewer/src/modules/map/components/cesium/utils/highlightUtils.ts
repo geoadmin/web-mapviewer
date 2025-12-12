@@ -1,9 +1,10 @@
 import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type { Viewer } from 'cesium';
 import type { GeoJsonGeometryTypes } from 'geojson'
 
 import { WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
-import { Cartesian3, Color, Entity, HeightReference, Viewer } from 'cesium'
+import { Cartesian3, Color, Entity, HeightReference } from 'cesium'
 import proj4 from 'proj4'
 
 let highlightedEntities: Entity[] = []

@@ -21,7 +21,10 @@ import type {
     SimpleGeometry,
 } from 'ol/geom'
 import type { Layer } from 'ol/layer'
+import type BaseVectorLayer from 'ol/layer/BaseVector'
+import type MapBrowserEvent from 'ol/MapBrowserEvent'
 import type { Pixel } from 'ol/pixel'
+import type CanvasVectorLayerRenderer from 'ol/renderer/canvas/VectorLayer'
 import type { FlatStyleLike } from 'ol/style/flat'
 
 import { equals as arrayEquals } from 'ol/array'
@@ -51,9 +54,7 @@ import { fromCircle } from 'ol/geom/Polygon'
 import PointerInteraction, {
     type Options as PointerInteractionOptions,
 } from 'ol/interaction/Pointer'
-import BaseVectorLayer from 'ol/layer/BaseVector'
 import VectorLayer from 'ol/layer/Vector'
-import MapBrowserEvent from 'ol/MapBrowserEvent'
 import MapBrowserEventType from 'ol/MapBrowserEventType'
 import {
     fromUserCoordinate,
@@ -63,7 +64,6 @@ import {
     toUserExtent,
     type ProjectionLike,
 } from 'ol/proj'
-import CanvasVectorLayerRenderer from 'ol/renderer/canvas/VectorLayer'
 import VectorSource, { type VectorSourceEvent } from 'ol/source/Vector'
 import RBush from 'ol/structs/RBush'
 import { createEditingStyle, type StyleFunction, type StyleLike } from 'ol/style/Style'

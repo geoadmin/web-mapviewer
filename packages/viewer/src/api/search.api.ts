@@ -1,8 +1,8 @@
-import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
+import type { FlatExtent, SingleCoordinate , CoordinateSystem} from '@swissgeo/coordinates'
 import type { GPXLayer, KMLLayer, Layer } from '@swissgeo/layers'
 import type Feature from 'ol/Feature'
 
-import { CoordinateSystem, CustomCoordinateSystem, LV95, WGS84 } from '@swissgeo/coordinates'
+import { CustomCoordinateSystem, LV95, WGS84 } from '@swissgeo/coordinates'
 import { LayerType } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { bbox, points } from '@turf/turf'

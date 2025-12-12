@@ -1,17 +1,16 @@
 import type { KMLLayer } from '@swissgeo/layers'
 import type Feature from 'ol/Feature'
 import type { Geometry } from 'ol/geom'
+import type VectorLayer from 'ol/layer/Vector'
+import type VectorSource from 'ol/source/Vector'
 import type { Raw } from 'vue'
 
-import VectorLayer from 'ol/layer/Vector'
-import VectorSource from 'ol/source/Vector'
-
+import type { EditableFeatureTypes } from '@/api/features.api';
+import type { EditableFeature } from '@/api/features.api'
 import type { DrawingIconSet } from '@/api/icon.api'
+import type { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
 import type { EditMode } from '@/store/modules/drawing/types/EditMode.enum'
 import type { FeatureStyleColor, FeatureStyleSize, TextPlacement } from '@/utils/featureStyleUtils'
-
-import { type EditableFeature, EditableFeatureTypes } from '@/api/features.api'
-import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
 
 export interface DrawingPreferences {
     size: FeatureStyleSize

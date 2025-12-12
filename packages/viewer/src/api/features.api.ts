@@ -1,10 +1,10 @@
-import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
+import type { FlatExtent, SingleCoordinate , CoordinateSystem} from '@swissgeo/coordinates'
 import type { ExternalLayer, ExternalWMSLayer, GeoAdminLayer, Layer } from '@swissgeo/layers'
 import type { Feature as GeoJsonFeature, FeatureCollection, Geometry } from 'geojson'
 import type Feature from 'ol/Feature'
 import type { LineString, MultiLineString, MultiPolygon, Point, Polygon } from 'ol/geom'
 
-import { allCoordinateSystems, CoordinateSystem, extentUtils, LV95 } from '@swissgeo/coordinates'
+import { allCoordinateSystems, extentUtils, LV95 } from '@swissgeo/coordinates'
 import { ALL_YEARS_TIMESTAMP, CURRENT_YEAR_TIMESTAMP, LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
@@ -14,17 +14,18 @@ import GeoJSON from 'ol/format/GeoJSON'
 import proj4 from 'proj4'
 
 import type { DrawingIcon } from '@/api/icon.api'
+import type {
+    TextPlacement} from '@/utils/featureStyleUtils';
+import type {
+    FeatureStyleColor,
+    FeatureStyleSize
+} from '@/utils/featureStyleUtils'
 
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
 import {
     DEFAULT_FEATURE_COUNT_SINGLE_POINT,
     DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE,
 } from '@/config/map.config'
-import {
-    type FeatureStyleColor,
-    type FeatureStyleSize,
-    TextPlacement,
-} from '@/utils/featureStyleUtils'
 import { getGeoJsonFeatureCenter, reprojectGeoJsonGeometry } from '@/utils/geoJsonUtils'
 
 const GET_FEATURE_INFO_FAKE_VIEWPORT_SIZE = 100

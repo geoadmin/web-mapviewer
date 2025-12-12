@@ -1,4 +1,4 @@
-import { ChartType } from 'chart.js'
+import type { ChartType } from 'chart.js'
 
 import type { DataModelPluginOptions } from '@/chartjs-plugins/datamodel.plugin'
 import type { NoDataPluginOptions } from '@/chartjs-plugins/nodata.plugin'

@@ -1,10 +1,13 @@
+import type {
+    Cesium3DTileset,
+    Viewer} from 'cesium';
+
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import {
     Billboard,
     BillboardCollection,
     Cartesian2,
     Cartesian3,
-    Cesium3DTileset,
     Color,
     GroundPolylinePrimitive,
     HeightReference,
@@ -14,8 +17,7 @@ import {
     NearFarScalar,
     Primitive,
     PrimitiveCollection,
-    VerticalOrigin,
-    Viewer,
+    VerticalOrigin
 } from 'cesium'
 import { type MaybeRef, onBeforeUnmount, onMounted, toRef, toValue, watch } from 'vue'
 

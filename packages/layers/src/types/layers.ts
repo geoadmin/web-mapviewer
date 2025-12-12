@@ -1,8 +1,7 @@
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
+import type { CoordinateSystem } from '@swissgeo/coordinates'
+import type { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 import type { Options } from 'ol/source/WMTS'
-
-import { CoordinateSystem } from '@swissgeo/coordinates'
-import { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 
 import type { WMSRequestCapabilities } from '@/types/capabilities'
 import type { GeoAdminGeoJSONStyleDefinition } from '@/types/geoJsonStyle'

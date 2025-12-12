@@ -1,4 +1,5 @@
 import type { RouteLocationNormalizedGeneric } from 'vue-router'
+import type * as vueRouter from 'vue-router'
 
 import { extentUtils } from '@swissgeo/coordinates'
 import {
@@ -16,7 +17,6 @@ import {
 import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
-import * as vueRouter from 'vue-router'
 
 import type { LayerFeature } from '@/api/features.api'
 

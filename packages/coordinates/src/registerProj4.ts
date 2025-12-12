@@ -1,3 +1,5 @@
+import type proj4 from 'proj4'
+
 import log from '@swissgeo/log'
 
 import type CoordinateSystem from '@/proj/CoordinateSystem'
@@ -15,7 +17,7 @@ import { LV03, LV95, WEBMERCATOR } from '@/proj'
  * LV03 and/or WebMercator if you intended to use them too)
  */
 const registerProj4 = (
-    proj4: typeof import('proj4'),
+    proj4Instance: typeof proj4,
     projections: CoordinateSystem[] = [WEBMERCATOR, LV95, LV03]
 ): void => {
     // adding projection defining a transformation matrix to proj4 (these projection matrices can be found on the epsg.io website)
@@ -23,7 +25,7 @@ const registerProj4 = (
         .filter((projection) => projection.proj4transformationMatrix)
         .forEach((projection) => {
             try {
-                proj4.defs(projection.epsg, projection.proj4transformationMatrix)
+                proj4Instance.defs(projection.epsg, projection.proj4transformationMatrix)
             } catch (err) {
                 const error = err ? (err as Error) : new Error('Unknown error')
                 log.error('Error while setting up projection in proj4', projection.epsg, error)

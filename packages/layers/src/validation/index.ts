@@ -1,4 +1,4 @@
-import { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
+import type { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 
 import type { Layer } from '@/types'
 
