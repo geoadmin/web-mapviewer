@@ -1,6 +1,5 @@
-import type {
-    Cesium3DTileset,
-    Viewer} from 'cesium';
+import type { Cesium3DTileset, Viewer } from 'cesium'
+import type { MaybeRef } from 'vue'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import {
@@ -17,9 +16,9 @@ import {
     NearFarScalar,
     Primitive,
     PrimitiveCollection,
-    VerticalOrigin
+    VerticalOrigin,
 } from 'cesium'
-import { type MaybeRef, onBeforeUnmount, onMounted, toRef, toValue, watch } from 'vue'
+import { onBeforeUnmount, onMounted, toRef, toValue, watch } from 'vue'
 
 import { PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE } from '@/config/cesium.config'
 import { CESIUM_SWISSNAMES3D_STYLE } from '@/modules/map/components/cesium/utils/swissnamesStyle.ts'

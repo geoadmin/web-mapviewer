@@ -1,12 +1,13 @@
 import type { Map } from 'ol'
 import type MapBrowserEvent from 'ol/MapBrowserEvent'
+import type { MaybeRef } from 'vue'
 
 import { constants, LV95, WEBMERCATOR } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import { round } from '@swissgeo/numbers'
 import { View } from 'ol'
 import { DoubleClickZoom } from 'ol/interaction'
-import { computed, type MaybeRef, onBeforeUnmount, onMounted, toValue, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, toValue, watch } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 

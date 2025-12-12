@@ -2,10 +2,13 @@
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed } from 'vue'
 
-import { type DrawingIcon, type DrawingIconSet, generateIconURL } from '@/api/icon.api'
+import type { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
+import type { FeatureStyleColor } from '@/utils/featureStyleUtils'
+
+import { generateIconURL } from '@/api/icon.api'
 import useDrawingStore from '@/store/modules/drawing'
 import useI18nStore from '@/store/modules/i18n'
-import { type FeatureStyleColor, RED } from '@/utils/featureStyleUtils'
+import { RED } from '@/utils/featureStyleUtils'
 
 const { icon, currentIconSet, tooltipDisabled } = defineProps<{
     icon: DrawingIcon

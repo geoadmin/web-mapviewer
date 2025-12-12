@@ -75,7 +75,7 @@ The package exports the following TypeScript types:
 import { servicesBaseUrl, type BackendServices, type Staging } from '@swissgeo/staging-config'
 
 function getServiceUrl(service: BackendServices, environment: Staging): string {
-    return servicesBaseUrl[service][environment]
+  return servicesBaseUrl[service][environment]
 }
 
 // Get WMTS URL for integration environment

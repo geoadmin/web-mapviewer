@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 
-import type { AppState } from '@/store/modules/app/types'
-import type { AppStoreGetters, AppStoreState } from '@/store/modules/app/types'
+import type { AppState, AppStoreGetters, AppStoreState } from '@/store/modules/app/types'
 
 import nextState from '@/store/modules/app/actions/nextState'
 import setHasPendingUrlParsing from '@/store/modules/app/actions/setHasPendingUrlParsing'

@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import type { GeoAdminGeoJSONLayer } from '@swissgeo/layers'
+import type { Viewer } from 'cesium'
 import type { GeoJSON, Geometry } from 'geojson'
+import type { ShallowRef } from 'vue'
 
 import { LV03, LV95, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
-import { GeoJsonDataSource, type Viewer } from 'cesium'
+import { GeoJsonDataSource } from 'cesium'
 import { cloneDeep } from 'lodash'
 import { reproject } from 'reproject'
-import { computed, inject, type ShallowRef, toRef } from 'vue'
+import { computed, inject, toRef } from 'vue'
 
 import { setEntityStyle } from '@/modules/map/components/cesium/utils/geoJsonStyleConverter'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'

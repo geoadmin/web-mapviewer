@@ -1,5 +1,7 @@
+import type { MaybeRef } from 'vue'
+
 import log, { LogPreDefinedColor } from '@swissgeo/log'
-import { onBeforeUnmount, onMounted, toValue, type MaybeRef } from 'vue'
+import { onBeforeUnmount, onMounted, toValue } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 

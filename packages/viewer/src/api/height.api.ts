@@ -1,4 +1,6 @@
-import { type CoordinateSystem, LV95, type SingleCoordinate } from '@swissgeo/coordinates'
+import type { CoordinateSystem, SingleCoordinate } from '@swissgeo/coordinates'
+
+import { LV95 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import { round } from '@swissgeo/numbers'
 import axios from 'axios'

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { GeoAdmin3DLayer } from '@swissgeo/layers'
+import type { Viewer } from 'cesium'
+import type { ShallowRef } from 'vue'
 
 import log from '@swissgeo/log'
-import { Cesium3DTileset, type Viewer } from 'cesium'
-import { computed, inject, type ShallowRef, toRef } from 'vue'
+import { Cesium3DTileset } from 'cesium'
+import { computed, inject, toRef } from 'vue'
 
 import useAddPrimitiveLayer from '@/modules/map/components/cesium/utils/useAddPrimitiveLayer.composable'
 

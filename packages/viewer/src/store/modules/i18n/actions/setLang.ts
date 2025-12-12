@@ -1,7 +1,8 @@
+import type { SupportedLang } from '@/modules/i18n'
 import type { I18nStore } from '@/store/modules/i18n/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import i18n, { langToLocale, type SupportedLang } from '@/modules/i18n'
+import i18n, { langToLocale } from '@/modules/i18n'
 import useLayersStore from '@/store/modules/layers'
 import redoSearch from '@/store/modules/search/utils/redoSearch'
 

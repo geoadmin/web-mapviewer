@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import type { ExternalWMSLayer, GeoAdminWMSLayer } from '@swissgeo/layers'
+import type { Viewer } from 'cesium'
+import type { ShallowRef } from 'vue'
 
 import { WGS84 } from '@swissgeo/coordinates'
 import { ALL_YEARS_TIMESTAMP } from '@swissgeo/layers'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
-import { Rectangle, type Viewer, WebMapServiceImageryProvider } from 'cesium'
+import { Rectangle, WebMapServiceImageryProvider } from 'cesium'
 import { cloneDeep } from 'lodash'
-import { computed, inject, type ShallowRef, toRef, watch } from 'vue'
+import { computed, inject, toRef, watch } from 'vue'
 
 import { getBaseUrlOverride } from '@/config/baseUrl.config'
 import { DEFAULT_PROJECTION } from '@/config/map.config'

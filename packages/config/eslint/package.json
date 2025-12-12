@@ -31,6 +31,7 @@
         "@vue/eslint-config-typescript": "catalog:",
         "eslint-plugin-chai-friendly": "catalog:",
         "eslint-plugin-cypress": "catalog:",
+        "eslint-plugin-import": "catalog:",
         "eslint-plugin-mocha": "catalog:",
         "eslint-plugin-perfectionist": "catalog:",
         "eslint-plugin-prettier": "catalog:",
@@ -45,7 +46,6 @@
         "typescript": "catalog:"
     },
     "peerDependencies": {
-        "@swissgeo/config-prettier": "workspace:*",
         "@swissgeo/config-stylelint": "workspace:*",
         "eslint": "catalog:"
     }

@@ -1,4 +1,7 @@
-import { type CoordinateSystem, WGS84 } from '@swissgeo/coordinates'
+import type { CoordinateSystem } from '@swissgeo/coordinates'
+import type { Geometry } from 'ol/geom'
+
+import { WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import Feature from 'ol/Feature'
 import GPX from 'ol/format/GPX'

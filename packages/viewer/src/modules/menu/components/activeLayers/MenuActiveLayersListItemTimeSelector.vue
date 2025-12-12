@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import {
-    ALL_YEARS_TIMESTAMP,
-    CURRENT_YEAR_TIMESTAMP,
-    type LayerTimeConfig,
-    type LayerTimeConfigEntry,
-} from '@swissgeo/layers'
+import type { LayerTimeConfig, LayerTimeConfigEntry } from '@swissgeo/layers'
+
+import { ALL_YEARS_TIMESTAMP, CURRENT_YEAR_TIMESTAMP } from '@swissgeo/layers'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -49,9 +46,11 @@ const timeConfigEntriesWithYear = computed<(LayerTimeConfigEntry & { year: strin
     )
 )
 
-const humanReadableCurrentTimestamp = computed<string>(() => renderHumanReadableTimestamp(
+const humanReadableCurrentTimestamp = computed<string>(() =>
+    renderHumanReadableTimestamp(
         timeConfig.currentTimeEntry as LayerTimeConfigEntry & { year: string }
-))
+    )
+)
 
 function renderHumanReadableTimestamp(timeEntry?: LayerTimeConfigEntry & { year: string }): string {
     if (!timeEntry || !timeEntry.year) {

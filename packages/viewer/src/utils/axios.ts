@@ -1,5 +1,7 @@
+import type { AxiosResponse } from 'axios'
+
 import log, { LogPreDefinedColor } from '@swissgeo/log'
-import axios, { type AxiosResponse } from 'axios'
+import axios from 'axios'
 
 interface LoadWithAbortControllerResponse<ResponseType> {
     controller: AbortController

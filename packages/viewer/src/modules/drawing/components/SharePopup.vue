@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { KMLLayer } from '@swissgeo/layers'
+import type { Ref } from 'vue'
 
 import log from '@swissgeo/log'
-import { computed, onUnmounted, ref, watch, type Ref } from 'vue'
+import { computed, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { ActionDispatcher } from '@/store/types'

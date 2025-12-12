@@ -5,14 +5,10 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { SupportedLocales } from '@/config'
+import type { ElevationProfileMetadata } from '@/utils'
 import type { VueI18nTranslateFunction } from '@/vue-i18n'
 
-import {
-    type ElevationProfileMetadata,
-    formatDistance,
-    formatElevation,
-    formatMinutesTime,
-} from '@/utils'
+import { formatDistance, formatElevation, formatMinutesTime } from '@/utils'
 
 interface ElevationProfileInformationProps {
     metadata: ElevationProfileMetadata

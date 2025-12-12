@@ -242,8 +242,7 @@ describe('The Import Maps Tool', () => {
                 fixture: 'import-tool/legend.png',
             }
         ).as('getLegendOfficialSurvey2')
-        cy.get(`[data-cy="catalogue-tree-item-info-${legendWithoutAbstractLayerId}"]`)
-            .click()
+        cy.get(`[data-cy="catalogue-tree-item-info-${legendWithoutAbstractLayerId}"]`).click()
         cy.wait('@getLegendOfficialSurvey2')
         cy.get(`[data-cy="simple-window-title"]`)
             .should('be.visible')

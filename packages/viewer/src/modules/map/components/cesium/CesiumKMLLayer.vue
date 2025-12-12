@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { KMLLayer } from '@swissgeo/layers'
 import type { Entity, KmlDataSource as KmlDataSourceType, Viewer } from 'cesium'
+import type { ShallowRef } from 'vue'
 
 import log from '@swissgeo/log'
 import {
@@ -14,7 +15,7 @@ import {
     LabelStyle,
     VerticalOrigin,
 } from 'cesium'
-import { computed, inject, type ShallowRef, toRef, watch } from 'vue'
+import { computed, inject, toRef, watch } from 'vue'
 
 import { DEFAULT_MARKER_HORIZONTAL_OFFSET } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'

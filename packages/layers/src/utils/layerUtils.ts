@@ -4,28 +4,26 @@ import { servicesBaseUrl } from '@swissgeo/staging-config'
 import { cloneDeep, merge, omit } from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 
-import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config'
-import {
-    type AggregateSubLayer,
-    type CloudOptimizedGeoTIFFLayer,
-    DEFAULT_OPACITY,
-    type ExternalWMSLayer,
-    type ExternalWMTSLayer,
-    type GeoAdmin3DLayer,
-    type GeoAdminAggregateLayer,
-    type GeoAdminGeoJSONLayer,
-    type GeoAdminGroupOfLayers,
-    type GeoAdminLayer,
-    type GeoAdminVectorLayer,
-    type GeoAdminWMSLayer,
-    type GeoAdminWMTSLayer,
-    type GPXLayer,
-    type KMLLayer,
-    KMLStyle,
-    type Layer,
-    LayerType,
-    WMTSEncodingType,
+import type {
+    AggregateSubLayer,
+    CloudOptimizedGeoTIFFLayer,
+    ExternalWMSLayer,
+    ExternalWMTSLayer,
+    GeoAdmin3DLayer,
+    GeoAdminAggregateLayer,
+    GeoAdminGeoJSONLayer,
+    GeoAdminGroupOfLayers,
+    GeoAdminLayer,
+    GeoAdminVectorLayer,
+    GeoAdminWMSLayer,
+    GeoAdminWMTSLayer,
+    GPXLayer,
+    KMLLayer,
+    Layer,
 } from '@/types/layers'
+
+import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config'
+import { DEFAULT_OPACITY, KMLStyle, LayerType, WMTSEncodingType } from '@/types/layers'
 import timeConfigUtils from '@/utils/timeConfigUtils'
 import { InvalidLayerDataError } from '@/validation'
 

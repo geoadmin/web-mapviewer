@@ -1,5 +1,4 @@
-import type { ImageryProvider } from 'cesium'
-import type { ImageryLayer, Viewer } from 'cesium'
+import type { ImageryProvider, ImageryLayer, Viewer } from 'cesium'
 import type { MaybeRef } from 'vue'
 
 import { onBeforeUnmount, onMounted, toRef, toValue, watch } from 'vue'

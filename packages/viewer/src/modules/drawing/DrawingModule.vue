@@ -2,27 +2,20 @@
 import type { KMLLayer } from '@swissgeo/layers'
 import type { LineString } from 'geojson'
 import type Map from 'ol/Map'
+import type { ComponentPublicInstance } from 'vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { LayerType } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { WarningMessage } from '@swissgeo/log/Message'
-import {
-    type ComponentPublicInstance,
-    computed,
-    inject,
-    onBeforeUnmount,
-    onMounted,
-    ref,
-    useTemplateRef,
-    watch,
-} from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import type { EditableFeature } from '@/api/features.api'
 import type { DrawingInteractionExposed } from '@/modules/drawing/types/interaction'
 import type { ActionDispatcher } from '@/store/types'
 
-import { type EditableFeature, EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features.api'
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import AddVertexButtonOverlay from '@/modules/drawing/components/AddVertexButtonOverlay.vue'
 import DrawingInteractions from '@/modules/drawing/components/DrawingInteractions.vue'

@@ -2,13 +2,10 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import axios from 'axios'
 import { fromString } from 'ol/color'
 
+import type { FeatureStyleColor, FeatureStyleSize } from '@/utils/featureStyleUtils'
+
 import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'
-import {
-    type FeatureStyleColor,
-    type FeatureStyleSize,
-    LARGE,
-    RED,
-} from '@/utils/featureStyleUtils'
+import { LARGE, RED } from '@/utils/featureStyleUtils'
 
 /**
  * Generate an icon URL from its template. If no iconScale is given, the default scale 1 will be

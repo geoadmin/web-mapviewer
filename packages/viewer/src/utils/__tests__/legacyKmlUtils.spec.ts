@@ -6,9 +6,10 @@ import { readFileSync } from 'fs'
 import { resolve } from 'path'
 import { beforeEach, describe, expect, it } from 'vitest'
 
+import type { EditableFeature } from '@/api/features.api'
 import type { DrawingIconSet } from '@/api/icon.api'
 
-import { EditableFeatureTypes, type EditableFeature } from '@/api/features.api'
+import { EditableFeatureTypes } from '@/api/features.api'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import {
     BLACK,

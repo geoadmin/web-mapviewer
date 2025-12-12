@@ -1,8 +1,9 @@
 import type { CoordinateSystem } from '@swissgeo/coordinates'
+import type { MaybeRefOrGetter } from 'vue'
 
 import log from '@swissgeo/log'
 import axios, { AxiosError } from 'axios'
-import { type MaybeRefOrGetter, toValue } from 'vue'
+import { toValue } from 'vue'
 
 import type { ExternalWMSLayer, ExternalWMTSLayer } from '@/types'
 

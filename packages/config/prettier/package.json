@@ -29,8 +29,10 @@
         "vite": "catalog:"
     },
     "peerDependencies": {
+        "prettier": "catalog:"
+    },
+    "optionalDependencies": {
         "@prettier/plugin-xml": "catalog:",
-        "prettier": "catalog:",
         "prettier-plugin-jsdoc": "catalog:",
         "prettier-plugin-packagejson": "catalog:",
         "prettier-plugin-tailwindcss": "catalog:"

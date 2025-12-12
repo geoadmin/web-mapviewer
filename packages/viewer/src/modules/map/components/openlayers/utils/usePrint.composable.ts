@@ -1,8 +1,9 @@
 import type { GeoAdminLayer, LayerAttribution } from '@swissgeo/layers'
 import type Map from 'ol/Map'
+import type { MaybeRef } from 'vue'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
-import { computed, type MaybeRef, ref, toValue } from 'vue'
+import { computed, ref, toValue } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 

@@ -1,4 +1,4 @@
-import type { NormalizedExtent, SingleCoordinate , CoordinateSystem} from '@swissgeo/coordinates'
+import type { NormalizedExtent, SingleCoordinate, CoordinateSystem } from '@swissgeo/coordinates'
 import type { Feature, FeatureCollection, GeoJSON, Geometry, Position } from 'geojson'
 
 import { extentUtils, WGS84 } from '@swissgeo/coordinates'

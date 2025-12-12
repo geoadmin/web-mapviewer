@@ -1,4 +1,6 @@
-import { type BackendServices, servicesBaseUrl } from '@swissgeo/staging-config'
+import type { BackendServices } from '@swissgeo/staging-config'
+
+import { servicesBaseUrl } from '@swissgeo/staging-config'
 
 import { ENVIRONMENT } from '@/config/staging.config'
 

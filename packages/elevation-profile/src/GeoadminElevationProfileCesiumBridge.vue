@@ -1,7 +1,8 @@
 <script lang="ts" setup>
+import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { Viewer } from 'cesium'
 
-import { type SingleCoordinate, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
+import { WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import {
     CallbackPositionProperty,
     Cartesian3,

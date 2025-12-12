@@ -1,11 +1,13 @@
 /// <reference types="cypress" />
 
+import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type { KMLLayer } from '@swissgeo/layers'
 import type { CyHttpMessages } from 'cypress/types/net-stubbing'
 import type Feature from 'ol/Feature'
 import type { Pinia } from 'pinia'
 
-import { registerProj4, type SingleCoordinate, WGS84 } from '@swissgeo/coordinates'
-import { type KMLLayer, LayerType } from '@swissgeo/layers'
+import { registerProj4, WGS84 } from '@swissgeo/coordinates'
+import { LayerType } from '@swissgeo/layers'
 import { randomIntBetween } from '@swissgeo/numbers'
 import { recurse } from 'cypress-recurse'
 import proj4 from 'proj4'

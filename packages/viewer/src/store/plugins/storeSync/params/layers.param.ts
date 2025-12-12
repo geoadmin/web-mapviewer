@@ -1,24 +1,23 @@
-import type { RouteLocationNormalizedGeneric } from 'vue-router'
-import type * as vueRouter from 'vue-router'
+import type {
+    CloudOptimizedGeoTIFFLayer,
+    ExternalWMSLayer,
+    ExternalWMTSLayer,
+    GeoAdminGeoJSONLayer,
+    GeoAdminLayer,
+    GPXLayer,
+    KMLLayer,
+    Layer,
+} from '@swissgeo/layers'
+import type { RouteLocationNormalizedGeneric, RouteLocation } from 'vue-router'
 
 import { extentUtils } from '@swissgeo/coordinates'
-import {
-    type CloudOptimizedGeoTIFFLayer,
-    DEFAULT_OPACITY,
-    type ExternalWMSLayer,
-    type ExternalWMTSLayer,
-    type GeoAdminGeoJSONLayer,
-    type GeoAdminLayer,
-    type GPXLayer,
-    type KMLLayer,
-    type Layer,
-    LayerType,
-} from '@swissgeo/layers'
+import { DEFAULT_OPACITY, LayerType } from '@swissgeo/layers'
 import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 
 import type { LayerFeature } from '@/api/features.api'
+import type { ValidationResponse } from '@/store/plugins/storeSync/validation'
 
 import getFeature from '@/api/features.api'
 import useDrawingStore from '@/store/modules/drawing'
@@ -35,10 +34,7 @@ import {
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/store/plugins/storeSync/UrlParamConfig.class'
-import {
-    getDefaultValidationResponse,
-    type ValidationResponse,
-} from '@/store/plugins/storeSync/validation'
+import { getDefaultValidationResponse } from '@/store/plugins/storeSync/validation'
 import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 
 function createWMTSLayerObject(parsedLayer: Partial<Layer>): ExternalWMTSLayer {
@@ -125,7 +121,7 @@ export function createLayerObject(parsedLayer: Partial<Layer>, currentLayer?: La
         layer.opacity = parsedLayer.opacity ?? DEFAULT_OPACITY
 
         if (adminId && layer.type === LayerType.KML) {
-            ; (layer as KMLLayer).adminId = adminId
+            ;(layer as KMLLayer).adminId = adminId
         }
     } else if (parsedLayer.type === LayerType.KML) {
         // format is KML|FILE_URL
@@ -184,7 +180,7 @@ export function createLayerObject(parsedLayer: Partial<Layer>, currentLayer?: La
         const internalLayer = layer as GeoAdminLayer
 
         if (internalLayer.type === LayerType.GEOJSON && updateDelay !== undefined) {
-            ; (internalLayer as GeoAdminGeoJSONLayer).updateDelay = updateDelay
+            ;(internalLayer as GeoAdminGeoJSONLayer).updateDelay = updateDelay
         }
 
         // only highlightable feature will output something, for the others a click coordinate is required
@@ -295,7 +291,7 @@ function dispatchLayersFromUrlIntoStore(
 }
 
 async function getAndDispatchFeatures(
-    to: vueRouter.RouteLocation,
+    to: RouteLocation,
     featuresPromise: Promise<LayerFeature>[]
 ): Promise<void> {
     const featuresStore = useFeaturesStore()
@@ -355,7 +351,9 @@ function generateLayerUrlParamFromStoreValues(): string {
         .map((layer: Layer) =>
             transformLayerIntoUrlString(
                 layer,
-                layersStore.config.find((layerConfig: GeoAdminLayer) => layerConfig.id === layer.id),
+                layersStore.config.find(
+                    (layerConfig: GeoAdminLayer) => layerConfig.id === layer.id
+                ),
                 featuresIds[layer.id]
             )
         )

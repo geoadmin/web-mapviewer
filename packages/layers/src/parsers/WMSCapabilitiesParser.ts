@@ -1,5 +1,4 @@
-import type { FlatExtent ,
-    CoordinateSystem} from '@swissgeo/coordinates'
+import type { FlatExtent, CoordinateSystem } from '@swissgeo/coordinates'
 
 import {
     allCoordinateSystems,
@@ -22,14 +21,14 @@ import type {
     WMSCapabilityLayer,
     WMSCapabilityLayerStyle,
 } from '@/types'
-
-import {
-    type ExternalLayerGetFeatureInfoCapability,
-    type ExternalWMSLayer,
-    type LayerAttribution,
-    type LayerLegend,
-    WMS_SUPPORTED_VERSIONS,
+import type {
+    ExternalLayerGetFeatureInfoCapability,
+    ExternalWMSLayer,
+    LayerAttribution,
+    LayerLegend,
 } from '@/types/layers'
+
+import { WMS_SUPPORTED_VERSIONS } from '@/types/layers'
 import { layerUtils } from '@/utils'
 import timeConfigUtils from '@/utils/timeConfigUtils'
 import { CapabilitiesError } from '@/validation'
@@ -473,14 +472,19 @@ function getFeatureInfoCapability(
 function getExternalLayer(
     capabilities: WMSCapabilitiesResponse,
     layerOrLayerId: WMSCapabilityLayer | string,
-    options?: ExternalLayerParsingOptions<ExternalWMSLayer>,
+    options?: ExternalLayerParsingOptions<ExternalWMSLayer>
 ): ExternalWMSLayer | undefined {
     if (!layerOrLayerId) {
         // without a layer object or layer ID we can do nothing
         return
     }
 
-    const { outputProjection = WGS84, initialValues = {}, ignoreErrors = true, parentsArray } = options ?? {}
+    const {
+        outputProjection = WGS84,
+        initialValues = {},
+        ignoreErrors = true,
+        parentsArray,
+    } = options ?? {}
     const { currentYear, params } = initialValues
 
     let layer: WMSCapabilityLayer | undefined
@@ -535,7 +539,13 @@ function getExternalLayer(
             parents?.forEach((parent) => childParents.push(parent))
             childParents.push(layer)
             return layerUtils.makeExternalWMSLayer({
-                ...getLayerAttributes(capabilities, l, childParents, outputProjection, ignoreErrors),
+                ...getLayerAttributes(
+                    capabilities,
+                    l,
+                    childParents,
+                    outputProjection,
+                    ignoreErrors
+                ),
                 format: 'png',
                 isLoading: false,
                 getFeatureInfoCapability: getFeatureInfoCapability(capabilities, ignoreErrors),

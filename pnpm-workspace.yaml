@@ -74,6 +74,7 @@ catalog:
   eslint-config-prettier: release-v9
   eslint-plugin-chai-friendly: ^1.1.0
   eslint-plugin-cypress: 5.3.0
+  eslint-plugin-import: ^2.32.0
   eslint-plugin-mocha: ^11.2.0
   eslint-plugin-perfectionist: ^5.6.0
   eslint-plugin-prettier: ^5.5.5

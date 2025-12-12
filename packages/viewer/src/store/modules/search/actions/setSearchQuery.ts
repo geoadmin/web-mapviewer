@@ -1,19 +1,14 @@
-import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type { CoordinateSystem, SingleCoordinate } from '@swissgeo/coordinates'
 
-import {
-    constants,
-    coordinatesUtils,
-    type CoordinateSystem,
-    CustomCoordinateSystem,
-    LV03,
-} from '@swissgeo/coordinates'
+import { constants, coordinatesUtils, CustomCoordinateSystem, LV03 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
+import type { SearchResult } from '@/api/search.api'
 import type { SearchStore } from '@/store/modules/search/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import reframe from '@/api/lv03Reframe.api'
-import search, { type SearchResult } from '@/api/search.api'
+import search from '@/api/search.api'
 import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers'

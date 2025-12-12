@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import type { Viewer } from 'cesium'
+
 import log from '@swissgeo/log'
 import GeoadminTooltip from '@swissgeo/tooltip'
-import { Ray, type Viewer } from 'cesium'
+import { Ray } from 'cesium'
 import { computed, inject } from 'vue'
 import { useI18n } from 'vue-i18n'
 

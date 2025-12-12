@@ -1,15 +1,15 @@
 import { assertType, describe, expect, it } from 'vitest'
 
-import { generateLayerObject } from '@/api'
-import {
-    type GeoAdminAggregateLayer,
-    type GeoAdminGeoJSONLayer,
-    type GeoAdminLayer,
-    type GeoAdminWMSLayer,
-    type GeoAdminWMTSLayer,
-    LayerType,
-    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
+import type {
+    GeoAdminAggregateLayer,
+    GeoAdminGeoJSONLayer,
+    GeoAdminLayer,
+    GeoAdminWMSLayer,
+    GeoAdminWMTSLayer,
 } from '@/types'
+
+import { generateLayerObject } from '@/api'
+import { LayerType, YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from '@/types'
 
 import rawLayerConfig from './rawLayerConfig.json'
 

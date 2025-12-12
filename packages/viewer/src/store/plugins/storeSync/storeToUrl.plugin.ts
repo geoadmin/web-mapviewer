@@ -3,15 +3,13 @@ import type { LocationQuery, RouteLocationNormalizedGeneric } from 'vue-router'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
+import type { UrlParamConfigTypes } from '@/store/plugins/storeSync/UrlParamConfig.class'
 import type { ActionDispatcher } from '@/store/types'
 
 import useAppStore from '@/store/modules/app'
 import useShareStore from '@/store/modules/share'
 import storeSyncConfig from '@/store/plugins/storeSync/storeSync.config'
-import {
-    STORE_DISPATCHER_ROUTER_PLUGIN,
-    type UrlParamConfigTypes,
-} from '@/store/plugins/storeSync/UrlParamConfig.class'
+import { STORE_DISPATCHER_ROUTER_PLUGIN } from '@/store/plugins/storeSync/UrlParamConfig.class'
 
 const watchedActions: string[] = [
     ...storeSyncConfig.flatMap((paramConfig: UrlParamConfigTypes) => paramConfig.actionsToWatch),

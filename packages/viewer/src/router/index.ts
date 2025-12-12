@@ -1,10 +1,11 @@
+import type { Router } from 'vue-router'
+
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import {
     createRouter,
     createWebHashHistory,
     isNavigationFailure,
     NavigationFailureType,
-    type Router,
 } from 'vue-router'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'

@@ -1,13 +1,15 @@
 import type Collection from 'ol/Collection'
 import type Feature from 'ol/Feature'
+import type { Geometry, SimpleGeometry } from 'ol/geom'
+import type { ModifyEvent } from 'ol/interaction/Modify'
 import type Map from 'ol/Map'
 import type MapBrowserEvent from 'ol/MapBrowserEvent'
 import type { StyleFunction } from 'ol/style/Style'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { noModifierKeys, primaryAction } from 'ol/events/condition'
-import { type Geometry, LineString, type SimpleGeometry } from 'ol/geom'
-import ModifyInteraction, { type ModifyEvent } from 'ol/interaction/Modify'
+import { LineString } from 'ol/geom'
+import ModifyInteraction from 'ol/interaction/Modify'
 import { inject, onBeforeUnmount, onMounted, watch } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'

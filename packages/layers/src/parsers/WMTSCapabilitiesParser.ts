@@ -1,4 +1,4 @@
-import type { FlatExtent , CoordinateSystem} from '@swissgeo/coordinates'
+import type { FlatExtent, CoordinateSystem } from '@swissgeo/coordinates'
 
 import { allCoordinateSystems, extentUtils, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
@@ -451,10 +451,11 @@ function getExternalLayer(
 
     let olOptions
     try {
-        olOptions = optionsFromCapabilities(capabilities, {
-            layer: attributes.id,
-            projection: outputProjection.epsg,
-        }) ?? undefined
+        olOptions =
+            optionsFromCapabilities(capabilities, {
+                layer: attributes.id,
+                projection: outputProjection.epsg,
+            }) ?? undefined
     } catch (error) {
         log.warn({
             title: 'WMTS Capabilities parser',

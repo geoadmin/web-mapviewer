@@ -1,5 +1,7 @@
+import type { I18nOptions, IntlDateTimeFormat } from 'vue-i18n'
+
 import log, { LogPreDefinedColor } from '@swissgeo/log'
-import { createI18n, type I18nOptions, type IntlDateTimeFormat } from 'vue-i18n'
+import { createI18n } from 'vue-i18n'
 
 import cesiumDe from '@/modules/map/components/cesium/locales/de.json'
 import cesiumEn from '@/modules/map/components/cesium/locales/en.json'

@@ -1,10 +1,12 @@
+import type { Extent } from 'ol/extent'
+
 import { round } from '@swissgeo/numbers'
 import { bbox, buffer, point } from '@turf/turf'
-import { type Extent, getIntersection as getExtentIntersection } from 'ol/extent'
+import { getIntersection as getExtentIntersection } from 'ol/extent'
 import proj4 from 'proj4'
 
 import type { SingleCoordinate } from '@/coordinatesUtils'
-import type { CoordinateSystem} from '@/proj';
+import type { CoordinateSystem } from '@/proj'
 
 import { WGS84 } from '@/proj'
 

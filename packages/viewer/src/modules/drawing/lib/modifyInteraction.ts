@@ -9,6 +9,10 @@
  */
 
 import type { Map } from 'ol'
+import type { Coordinate } from 'ol/coordinate'
+import type { Condition } from 'ol/events/condition'
+import type { Extent } from 'ol/extent'
+import type { FeatureLike } from 'ol/Feature'
 import type {
     Circle,
     Geometry,
@@ -20,40 +24,40 @@ import type {
     Polygon,
     SimpleGeometry,
 } from 'ol/geom'
+import type { Options as PointerInteractionOptions } from 'ol/interaction/Pointer'
 import type { Layer } from 'ol/layer'
 import type BaseVectorLayer from 'ol/layer/BaseVector'
 import type MapBrowserEvent from 'ol/MapBrowserEvent'
 import type { Pixel } from 'ol/pixel'
+import type { ProjectionLike } from 'ol/proj'
 import type CanvasVectorLayerRenderer from 'ol/renderer/canvas/VectorLayer'
+import type { VectorSourceEvent } from 'ol/source/Vector'
 import type { FlatStyleLike } from 'ol/style/flat'
+import type { StyleFunction, StyleLike } from 'ol/style/Style'
 
 import { equals as arrayEquals } from 'ol/array'
 import Collection from 'ol/Collection'
 import CollectionEventType from 'ol/CollectionEventType'
-import { wrapX as wrapXCoordinate } from 'ol/coordinate'
 import {
+    wrapX as wrapXCoordinate,
     closestOnSegment,
     distance as coordinateDistance,
     equals as coordinatesEqual,
     squaredDistance as squaredCoordinateDistance,
     squaredDistanceToSegment,
-    type Coordinate,
 } from 'ol/coordinate'
-import { altKeyOnly, always, primaryAction, singleClick, type Condition } from 'ol/events/condition'
+import { altKeyOnly, always, primaryAction, singleClick } from 'ol/events/condition'
 import BaseEvent from 'ol/events/Event'
 import EventType from 'ol/events/EventType'
 import {
     boundingExtent,
     buffer as bufferExtent,
     createOrUpdateFromCoordinate as createExtent,
-    type Extent,
 } from 'ol/extent'
-import Feature, { type FeatureLike } from 'ol/Feature'
+import Feature from 'ol/Feature'
 import Point from 'ol/geom/Point'
 import { fromCircle } from 'ol/geom/Polygon'
-import PointerInteraction, {
-    type Options as PointerInteractionOptions,
-} from 'ol/interaction/Pointer'
+import PointerInteraction from 'ol/interaction/Pointer'
 import VectorLayer from 'ol/layer/Vector'
 import MapBrowserEventType from 'ol/MapBrowserEventType'
 import {
@@ -62,11 +66,10 @@ import {
     getUserProjection,
     toUserCoordinate,
     toUserExtent,
-    type ProjectionLike,
 } from 'ol/proj'
-import VectorSource, { type VectorSourceEvent } from 'ol/source/Vector'
+import VectorSource from 'ol/source/Vector'
 import RBush from 'ol/structs/RBush'
-import { createEditingStyle, type StyleFunction, type StyleLike } from 'ol/style/Style'
+import { createEditingStyle } from 'ol/style/Style'
 import { getUid } from 'ol/util'
 
 /** The segment index assigned to a circle's center when breaking up a circle. */

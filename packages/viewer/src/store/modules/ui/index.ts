@@ -48,8 +48,7 @@ import screenDensity from '@/store/modules/ui/getters/screenDensity'
 import showFeatureInfoInBottomPanel from '@/store/modules/ui/getters/showFeatureInfoInBottomPanel'
 import showFeatureInfoInTooltip from '@/store/modules/ui/getters/showFeatureInfoInTooltip'
 import showLoadingBar from '@/store/modules/ui/getters/showLoadingBar'
-import { FeatureInfoPositions } from '@/store/modules/ui/types'
-import { UIModes } from '@/store/modules/ui/types'
+import { FeatureInfoPositions, UIModes } from '@/store/modules/ui/types'
 
 export const MAP_LOADING_BAR_REQUESTER = 'app-map-loading'
 

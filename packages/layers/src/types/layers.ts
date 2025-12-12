@@ -1,5 +1,4 @@
-import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
-import type { CoordinateSystem } from '@swissgeo/coordinates'
+import type { FlatExtent, SingleCoordinate, CoordinateSystem } from '@swissgeo/coordinates'
 import type { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 import type { Options } from 'ol/source/WMTS'
 

@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { type ComponentPublicInstance, computed, onMounted, ref, watch } from 'vue'
+import type { ComponentPublicInstance } from 'vue'
+
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import MenuThreeD from '@/modules/menu/components/3d/MenuThreeD.vue'
@@ -79,7 +81,7 @@ function toggleDrawingOverlay() {
 
 function onOpenMenuSection(id: string) {
     let toClose = singleModeSections.value.filter((section) => section !== id)
-    
+
     if (singleModeSections.value.includes(id)) {
         toClose = toClose.concat(multiMenuSections.value)
     }

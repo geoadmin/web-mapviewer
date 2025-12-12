@@ -3,7 +3,7 @@ import type { KMLLayer, KMLMetadata } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import axios from 'axios'
 import FormData from 'form-data'
-import pako from 'pako'
+import { gzip } from 'pako'
 
 import { proxifyUrl } from '@/api/file-proxy.api'
 import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
@@ -129,7 +129,7 @@ function validateKmlContent(kmlContent: string | undefined, reject: PromiseRejec
 function generateFormDataForKML(kmlContent: string, reject: PromiseReject): FormData {
     validateKmlContent(kmlContent, reject)
     const form = new FormData()
-    const kmz = pako.gzip(kmlContent)
+    const kmz = gzip(kmlContent)
     const blob = new Blob([kmz], { type: 'application/vnd.google-earth.kml+xml' })
     form.append('kml', blob)
     form.append('author', 'web-mapviewer')

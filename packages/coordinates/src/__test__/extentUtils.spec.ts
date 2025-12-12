@@ -1,11 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import coordinatesUtils, { type SingleCoordinate } from '@/coordinatesUtils'
-import {
-    type FlatExtent,
-    getExtentIntersectionWithCurrentProjection,
-    getExtentCenter,
-} from '@/extentUtils'
+import type { SingleCoordinate } from '@/coordinatesUtils'
+import type { FlatExtent } from '@/extentUtils'
+
+import coordinatesUtils from '@/coordinatesUtils'
+import { getExtentIntersectionWithCurrentProjection, getExtentCenter } from '@/extentUtils'
 import { LV95, WGS84 } from '@/proj'
 
 describe('Test extent utils', () => {

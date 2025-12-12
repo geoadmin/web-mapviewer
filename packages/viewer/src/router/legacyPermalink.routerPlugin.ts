@@ -1,10 +1,11 @@
 import type { CoordinateSystem, SingleCoordinate } from '@swissgeo/coordinates'
 import type { GeoAdminLayer } from '@swissgeo/layers'
+import type { LocationQueryRaw, RouteLocationRaw } from 'vue-router'
 
 import { LV03, LV95, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import proj4 from 'proj4'
-import { type LocationQueryRaw, type RouteLocationRaw, START_LOCATION } from 'vue-router'
+import { START_LOCATION } from 'vue-router'
 
 import type { RouterPlugin } from '@/router/types'
 import type { CameraPosition } from '@/store/modules/position/types'

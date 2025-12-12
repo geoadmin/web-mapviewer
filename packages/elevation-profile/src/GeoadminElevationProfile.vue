@@ -1,12 +1,8 @@
 <script setup lang="ts">
+import type { CoordinateSystem, SingleCoordinate } from '@swissgeo/coordinates'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import {
-    allCoordinateSystems,
-    type CoordinateSystem,
-    LV95,
-    type SingleCoordinate,
-    WGS84,
-} from '@swissgeo/coordinates'
+import { allCoordinateSystems, LV95, WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { lineString, simplify as simplifyGeometry } from '@turf/turf'
@@ -14,13 +10,15 @@ import proj4 from 'proj4'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import type { Staging, SupportedLocales } from '@/config'
+import type { ElevationProfile } from '@/profile.api'
 import type { ElevationProfileMetadata } from '@/utils'
 import type { VueI18nTranslateFunction } from '@/vue-i18n'
 
-import { GEOMETRY_SIMPLIFICATION_TOLERANCE, type Staging, type SupportedLocales } from '@/config'
+import { GEOMETRY_SIMPLIFICATION_TOLERANCE } from '@/config'
 import GeoadminElevationProfileInformation from '@/GeoadminElevationProfileInformation.vue'
 import GeoadminElevationProfilePlot from '@/GeoadminElevationProfilePlot.vue'
-import getProfile, { type ElevationProfile, ElevationProfileError } from '@/profile.api'
+import getProfile, { ElevationProfileError } from '@/profile.api'
 
 const {
     points = [],

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { reactive, watch, ref, onMounted } from 'vue'
-import { useTemplateRef } from 'vue'
+import { reactive, watch, ref, onMounted, useTemplateRef } from 'vue'
 
 import { NodeType } from '@/modules/menu/components/advancedTools/ImportCatalogue/NodeType.enum'
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'

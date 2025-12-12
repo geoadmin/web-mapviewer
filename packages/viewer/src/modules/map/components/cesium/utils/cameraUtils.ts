@@ -1,4 +1,5 @@
 import type { FlatExtent } from '@swissgeo/coordinates'
+import type { Scene } from 'cesium'
 
 import {
     Cartesian2,
@@ -9,7 +10,6 @@ import {
     Matrix4,
     Ray,
     Rectangle,
-    type Scene,
     Transforms,
 } from 'cesium'
 

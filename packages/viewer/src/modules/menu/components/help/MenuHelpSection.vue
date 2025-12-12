@@ -2,8 +2,10 @@
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import type { SupportedLang } from '@/modules/i18n/index.js'
+
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
-import { languages, type SupportedLang } from '@/modules/i18n/index.js'
+import { languages } from '@/modules/i18n/index.js'
 import FeedbackButton from '@/modules/menu/components/help/feedback/FeedbackButton.vue'
 import HelpLink from '@/modules/menu/components/help/HelpLink.vue'
 import MoreInfo from '@/modules/menu/components/help/MoreInfo.vue'

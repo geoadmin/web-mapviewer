@@ -1,8 +1,9 @@
 /// <reference types="cypress" />
 
+import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { Layer } from '@swissgeo/layers'
 
-import { registerProj4, WGS84, type SingleCoordinate } from '@swissgeo/coordinates'
+import { registerProj4, WGS84 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 

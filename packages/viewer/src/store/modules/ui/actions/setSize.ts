@@ -6,8 +6,7 @@ import {
     BREAKPOINT_PHONE_WIDTH,
     MAX_WIDTH_SHOW_FLOATING_TOOLTIP,
 } from '@/config/responsive.config'
-import { FeatureInfoPositions } from '@/store/modules/ui/types'
-import { UIModes } from '@/store/modules/ui/types'
+import { FeatureInfoPositions, UIModes } from '@/store/modules/ui/types'
 
 export default function setSize(
     this: UIStore,

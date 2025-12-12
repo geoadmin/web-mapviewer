@@ -1,12 +1,15 @@
 import type { Coordinate } from 'ol/coordinate'
 import type { FeatureLike } from 'ol/Feature'
+import type { Geometry } from 'ol/geom'
 import type { GeometryFunction } from 'ol/style/Style'
 
-import { type Geometry, LineString, MultiPoint, Point, Polygon } from 'ol/geom'
+import { LineString, MultiPoint, Point, Polygon } from 'ol/geom'
 import RenderFeature from 'ol/render/Feature'
 import { Circle, Fill, Style } from 'ol/style'
 
-import { type EditableFeature, isLineOrMeasure } from '@/api/features.api'
+import type { EditableFeature } from '@/api/features.api'
+
+import { isLineOrMeasure } from '@/api/features.api'
 import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
 import {
     dashedRedStroke,

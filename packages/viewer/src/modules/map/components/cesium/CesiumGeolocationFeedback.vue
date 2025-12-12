@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import type { Entity, Viewer } from 'cesium'
+import type { ShallowRef } from 'vue'
+
 import { WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import {
@@ -6,12 +9,10 @@ import {
     Color,
     ConstantPositionProperty,
     ConstantProperty,
-    type Entity,
     HeightReference,
-    type Viewer,
 } from 'cesium'
 import proj4 from 'proj4'
-import { computed, inject, onMounted, type ShallowRef, watch } from 'vue'
+import { computed, inject, onMounted, watch } from 'vue'
 
 import useGeolocationStore from '@/store/modules/geolocation'
 import usePositionStore from '@/store/modules/position'

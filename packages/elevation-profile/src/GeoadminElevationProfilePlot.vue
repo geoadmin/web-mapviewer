@@ -1,41 +1,35 @@
 <script setup lang="ts">
 import type { SingleCoordinate } from '@swissgeo/coordinates'
-import type { ComplexFillTarget } from 'chart.js'
+import type {
+    ComplexFillTarget,
+    ChartData,
+    ChartDataset,
+    ChartOptions,
+    LineOptions,
+    Point as ChartPoint,
+    PointPrefixedHoverOptions,
+    PointPrefixedOptions,
+    ScaleOptions,
+    TooltipItem,
+    TooltipModel,
+} from 'chart.js'
 import type { ZoomPluginOptions } from 'chartjs-plugin-zoom/types/options'
+import type { ComputedRef } from 'vue'
 import type { ChartComponentRef } from 'vue-chartjs'
 
 import { round } from '@swissgeo/numbers'
-import {
-    type Chart,
-    type ChartData,
-    type ChartDataset,
-    type ChartOptions,
-    type LineOptions,
-    type Point as ChartPoint,
-    type PointPrefixedHoverOptions,
-    type PointPrefixedOptions,
-    type ScaleOptions,
-    type TooltipItem,
-    type TooltipModel,
-} from 'chart.js'
+import { Chart } from 'chart.js'
 import { resetZoom } from 'chartjs-plugin-zoom'
-import {
-    computed,
-    type ComputedRef,
-    onMounted,
-    onUnmounted,
-    provide,
-    ref,
-    useTemplateRef,
-} from 'vue'
+import { computed, onMounted, onUnmounted, provide, ref, useTemplateRef } from 'vue'
 import { Line as LineChart } from 'vue-chartjs'
 import { useI18n } from 'vue-i18n'
 
+import type { SupportedLocales } from '@/config'
 import type { ElevationProfile, ElevationProfilePoint } from '@/profile.api'
 import type { ElevationProfileMetadata } from '@/utils'
 import type { VueI18nTranslateFunction } from '@/vue-i18n'
 
-import { BORDER_COLOR, FILL_COLOR, type SupportedLocales } from '@/config'
+import { BORDER_COLOR, FILL_COLOR } from '@/config'
 
 const GAP_BETWEEN_TOOLTIP_AND_PROFILE = 12 // px
 

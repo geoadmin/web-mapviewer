@@ -11,6 +11,7 @@
     "type": "module",
     "main": "index.js",
     "dependencies": {
+        "postcss-html": "catalog:",
         "stylelint-config-recommended-scss": "catalog:",
         "stylelint-config-recommended-vue": "catalog:",
         "stylelint-order": "catalog:",
@@ -21,7 +22,6 @@
         "typescript": "catalog:"
     },
     "peerDependencies": {
-        "postcss-html": "catalog:",
         "stylelint": "catalog:"
     }
 }

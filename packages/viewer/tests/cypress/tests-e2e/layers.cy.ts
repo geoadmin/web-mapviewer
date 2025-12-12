@@ -185,7 +185,8 @@ describe('Test of layer handling', () => {
                     cy.log(`Verify that extra custom attributes are passed along to the WMS server`)
                     cy.wait(`@externalWMS-GetMap-${mockExternalWms2?.id}`)
 
-                        .its('request.query').should('have.property', 'item', myItem)
+                        .its('request.query')
+                        .should('have.property', 'item', myItem)
 
                     cy.log(`Verify that the active layers store match the url input`)
                     cy.getPinia().then((pinia) => {
@@ -1029,7 +1030,9 @@ describe('Test of layer handling', () => {
                         .to.be.an('Array')
                         .length(visibleLayerIds.length + 1)
                     expect(activeLayers6[3]).not.to.be.undefined
-                    expect(activeLayers6[3]!.timeConfig.currentTimeEntry?.timestamp).to.eq(timestamp)
+                    expect(activeLayers6[3]!.timeConfig.currentTimeEntry?.timestamp).to.eq(
+                        timestamp
+                    )
                     expect(activeLayers6[3]?.isVisible).to.be.true
                     expect(activeLayers6[3]?.opacity).to.eq(0)
                 })
@@ -1077,7 +1080,9 @@ describe('Test of layer handling', () => {
                         .length(visibleLayerIds.length + 1)
 
                     assertDefined(activeLayers7[3])
-                    expect(activeLayers7[3].timeConfig.currentTimeEntry?.timestamp).to.eq(newTimestamp)
+                    expect(activeLayers7[3].timeConfig.currentTimeEntry?.timestamp).to.eq(
+                        newTimestamp
+                    )
                     expect(activeLayers7[3]?.isVisible).to.be.false
                     expect(activeLayers7[3]?.opacity).to.eq(0.5)
 
@@ -1264,12 +1269,16 @@ describe('Test of layer handling', () => {
                     expect(activeLayers8).to.be.an('Array').length(4)
 
                     assertDefined(activeLayers8[3])
-                    expect(activeLayers8[3].timeConfig.currentTimeEntry?.timestamp).to.eq('20180101')
+                    expect(activeLayers8[3].timeConfig.currentTimeEntry?.timestamp).to.eq(
+                        '20180101'
+                    )
                     expect(activeLayers8[3]?.isVisible).to.be.true
                     expect(activeLayers8[3]?.opacity).to.eq(0.7)
 
                     assertDefined(activeLayers8[0])
-                    expect(activeLayers8[0].timeConfig.currentTimeEntry?.timestamp).to.eq(newTimestamp)
+                    expect(activeLayers8[0].timeConfig.currentTimeEntry?.timestamp).to.eq(
+                        newTimestamp
+                    )
                     expect(activeLayers8[0]?.isVisible).to.be.true
                     expect(activeLayers8[0]?.opacity).to.eq(0)
                 })

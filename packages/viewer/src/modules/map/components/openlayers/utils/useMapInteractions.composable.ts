@@ -1,13 +1,14 @@
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { Layer } from '@swissgeo/layers'
 import type { Map, MapBrowserEvent } from 'ol'
+import type { MaybeRef } from 'vue'
 
 import { LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { altKeyOnly, platformModifierKeyOnly, primaryAction } from 'ol/events/condition'
 import { DragPan, DragRotate, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
-import { computed, type MaybeRef, onBeforeUnmount, toValue, watch } from 'vue'
+import { computed, onBeforeUnmount, toValue, watch } from 'vue'
 
 import type { LayerFeature } from '@/api/features.api'
 import type { ActionDispatcher } from '@/store/types'

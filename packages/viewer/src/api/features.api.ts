@@ -1,5 +1,6 @@
 import type { FlatExtent, SingleCoordinate, CoordinateSystem } from '@swissgeo/coordinates'
 import type { ExternalLayer, ExternalWMSLayer, GeoAdminLayer, Layer } from '@swissgeo/layers'
+import type { AxiosResponse } from 'axios'
 import type { Feature as GeoJsonFeature, FeatureCollection, Geometry } from 'geojson'
 import type Feature from 'ol/Feature'
 import type { LineString, MultiLineString, MultiPolygon, Point, Polygon } from 'ol/geom'
@@ -8,14 +9,13 @@ import { allCoordinateSystems, extentUtils, LV95 } from '@swissgeo/coordinates'
 import { ALL_YEARS_TIMESTAMP, CURRENT_YEAR_TIMESTAMP, LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
-import axios, { type AxiosResponse } from 'axios'
+import axios from 'axios'
 import { WMSGetFeatureInfo } from 'ol/format'
 import GeoJSON from 'ol/format/GeoJSON'
 import proj4 from 'proj4'
 
 import type { DrawingIcon } from '@/api/icon.api'
-import type { TextPlacement } from '@/utils/featureStyleUtils'
-import type { FeatureStyleColor, FeatureStyleSize } from '@/utils/featureStyleUtils'
+import type { TextPlacement, FeatureStyleColor, FeatureStyleSize } from '@/utils/featureStyleUtils'
 
 import { getApi3BaseUrl } from '@/config/baseUrl.config'
 import {

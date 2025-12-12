@@ -14,7 +14,9 @@ import useLayersStore from '@/store/modules/layers'
 import useTopicsStore from '@/store/modules/topics'
 import useUIStore from '@/store/modules/ui'
 
-import { getDefaultFixturesAndIntercepts, type InterceptCallback } from './intercepts'
+import type { InterceptCallback } from './intercepts'
+
+import { getDefaultFixturesAndIntercepts } from './intercepts'
 import { isMobile } from './utils'
 
 registerProj4(proj4)
