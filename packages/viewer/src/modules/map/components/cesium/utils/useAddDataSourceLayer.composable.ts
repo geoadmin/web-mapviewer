@@ -60,9 +60,8 @@ export default function useAddDataSourceLayer(
         try {
             dataSource = await loadingDataSource
 
-            // Check again after async operation
-            const currentViewer = toValue(viewer)
-            if (!currentViewer || currentViewer.isDestroyed()) {
+            // Check if viewer was destroyed during async operation
+            if (!viewerInstance || viewerInstance.isDestroyed()) {
                 log.warn({
                     title: 'useAddDataSourceLayer.composable',
                     titleColor: LogPreDefinedColor.Blue,
@@ -89,22 +88,21 @@ export default function useAddDataSourceLayer(
             })
 
             // need to wait for terrain loaded otherwise primitives will be placed wrong (under the terrain)
-            if (currentViewer.scene.globe.tilesLoaded || IS_TESTING_WITH_CYPRESS) {
-                dataSource = await currentViewer.dataSources.add(dataSource)
-                currentViewer.scene.requestRender()
+            if (viewerInstance.scene.globe.tilesLoaded || IS_TESTING_WITH_CYPRESS) {
+                dataSource = await viewerInstance.dataSources.add(dataSource)
+                viewerInstance.scene.requestRender()
             } else {
                 const removeTileLoadProgressEventListener =
-                    currentViewer.scene.globe.tileLoadProgressEvent.addEventListener(
+                    viewerInstance.scene.globe.tileLoadProgressEvent.addEventListener(
                         (queueLength: number) => {
-                            const tilesViewer = toValue(viewer)
                             if (
                                 dataSource &&
-                                tilesViewer &&
-                                !tilesViewer.isDestroyed() &&
-                                tilesViewer.scene.globe.tilesLoaded &&
+                                viewerInstance &&
+                                !viewerInstance.isDestroyed() &&
+                                viewerInstance.scene.globe.tilesLoaded &&
                                 queueLength === 0
                             ) {
-                                tilesViewer.dataSources
+                                viewerInstance.dataSources
                                     .add(dataSource)
                                     .then((loadedDataSource) => {
                                         dataSource = loadedDataSource
@@ -119,8 +117,8 @@ export default function useAddDataSourceLayer(
                                             ],
                                         })
                                     })
-                                if (!tilesViewer.isDestroyed()) {
-                                    tilesViewer.scene.requestRender()
+                                if (!viewerInstance.isDestroyed()) {
+                                    viewerInstance.scene.requestRender()
                                 }
                                 removeTileLoadProgressEventListener()
                             }
@@ -154,7 +152,7 @@ export default function useAddDataSourceLayer(
         dataSource = undefined
     })
 
-    watch(toRef(opacity), () => {
+    watch(() => toValue(opacity), () => {
         const viewerInstance = toValue(viewer)
         if (!viewerInstance || viewerInstance.isDestroyed()) {
             return
