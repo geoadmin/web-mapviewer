@@ -49,6 +49,8 @@ const hoveredHighlightPostProcessor = PostProcessStageLibrary.createEdgeDetectio
 
 const clickedHighlightPostProcessor = PostProcessStageLibrary.createEdgeDetectionStage()
 
+let silhouetteStage: ReturnType<typeof PostProcessStageLibrary.createSilhouetteStage> | undefined
+
 const positionStore = usePositionStore()
 const layersStore = useLayersStore()
 const cesiumStore = useCesiumStore()
@@ -91,12 +93,11 @@ function initializeInteractions(): void {
         return
     }
     initialize3dHighlights()
-    viewerInstance.scene.postProcessStages.add(
-        PostProcessStageLibrary.createSilhouetteStage([
-            hoveredHighlightPostProcessor,
-            clickedHighlightPostProcessor,
-        ])
-    )
+    silhouetteStage = PostProcessStageLibrary.createSilhouetteStage([
+        hoveredHighlightPostProcessor,
+        clickedHighlightPostProcessor,
+    ])
+    viewerInstance.scene.postProcessStages.add(silhouetteStage)
     viewerInstance.screenSpaceEventHandler.setInputAction(onClick, ScreenSpaceEventType.LEFT_CLICK)
     viewerInstance.screenSpaceEventHandler.setInputAction(
         onContextMenu,
@@ -117,8 +118,10 @@ onUnmounted(() => {
     viewerInstance.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.LEFT_CLICK)
     viewerInstance.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.RIGHT_CLICK)
     viewerInstance.screenSpaceEventHandler.removeInputAction(ScreenSpaceEventType.MOUSE_MOVE)
-    viewerInstance.scene.postProcessStages.remove(hoveredHighlightPostProcessor)
-    viewerInstance.scene.postProcessStages.remove(clickedHighlightPostProcessor)
+    if (silhouetteStage) {
+        viewerInstance.scene.postProcessStages.remove(silhouetteStage)
+        silhouetteStage = undefined
+    }
 })
 
 // this is to remove the highlight when we close the tooltip
@@ -135,8 +138,9 @@ watch(selectedFeatures, () => {
         clickedHighlightPostProcessor.selected.length > 0
     ) {
         clickedHighlightPostProcessor.selected = []
-        if (viewer?.value) {
-            viewer.value.scene.requestRender()
+        const viewerInstance = viewer?.value
+        if (viewerInstance && !viewerInstance.isDestroyed()) {
+            viewerInstance.scene.requestRender()
         }
     }
 })
@@ -151,22 +155,41 @@ function initialize3dHighlights(): void {
     clickedHighlightPostProcessor.selected = []
 }
 function getCoordinateAtScreenCoordinate(x: number, y: number): SingleCoordinate | undefined {
-    const cartesian = viewer?.value?.scene.pickPosition(new Cartesian2(x, y))
-    let coordinates: SingleCoordinate | undefined
-    if (cartesian) {
-        const cartCoords = Cartographic.fromCartesian(cartesian)
-        coordinates = proj4(WGS84.epsg, positionStore.projection.epsg, [
-            (cartCoords.longitude * 180) / CesiumMath.PI,
-            (cartCoords.latitude * 180) / CesiumMath.PI,
-        ]) as SingleCoordinate
-    } else {
-        log.error({
-            title: 'CesiumInteractions.vue',
+    const viewerInstance = viewer?.value
+    if (!viewerInstance || viewerInstance.isDestroyed()) {
+        log.warn({
+            title: 'CesiumInteractions.vue / getCoordinateAtScreenCoordinate',
             titleColor: LogPreDefinedColor.Red,
-            messages: ['no coordinate found at this screen coordinates', [x, y]],
+            messages: ['Viewer is destroyed or undefined, cannot get coordinate'],
         })
+        return undefined
     }
-    return coordinates
+    
+    try {
+        const cartesian = viewerInstance.scene.pickPosition(new Cartesian2(x, y))
+        let coordinates: SingleCoordinate | undefined
+        if (cartesian) {
+            const cartCoords = Cartographic.fromCartesian(cartesian)
+            coordinates = proj4(WGS84.epsg, positionStore.projection.epsg, [
+                (cartCoords.longitude * 180) / CesiumMath.PI,
+                (cartCoords.latitude * 180) / CesiumMath.PI,
+            ]) as SingleCoordinate
+        } else {
+            log.debug({
+                title: 'CesiumInteractions.vue',
+                titleColor: LogPreDefinedColor.Red,
+                messages: ['no coordinate found at this screen coordinates', [x, y]],
+            })
+        }
+        return coordinates
+    } catch (error) {
+        log.error({
+            title: 'CesiumInteractions.vue / getCoordinateAtScreenCoordinate',
+            titleColor: LogPreDefinedColor.Red,
+            messages: ['Error while picking position', error, { x, y }],
+        })
+        return undefined
+    }
 }
 
 function getLayerIdFrom3dFeature(
@@ -268,9 +291,17 @@ function handleClickHighlight(
 
 function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
     const viewerInstance = viewer?.value
-    if (viewerInstance) {
-        unhighlightGroup(viewerInstance)
+    if (!viewerInstance || viewerInstance.isDestroyed()) {
+        log.warn({
+            title: 'CesiumInteractions.vue / onClick',
+            titleColor: LogPreDefinedColor.Red,
+            messages: ['Viewer is destroyed or undefined, ignoring click'],
+        })
+        return
     }
+    
+    unhighlightGroup(viewerInstance)
+    
     const features: SelectableFeature<false | true>[] = []
     let coordinates = getCoordinateAtScreenCoordinate(event.position.x, event.position.y)
 
@@ -358,7 +389,7 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
     } else {
         mapStore.click(undefined, dispatcher)
     }
-    if (viewerInstance) {
+    if (viewerInstance && !viewerInstance.isDestroyed()) {
         viewerInstance.scene.requestRender()
     }
 }
@@ -433,6 +464,16 @@ function create3dKmlFeature(
 }
 
 function onContextMenu(event: ScreenSpaceEventHandler.PositionedEvent): void {
+    const viewerInstance = viewer?.value
+    if (!viewerInstance || viewerInstance.isDestroyed()) {
+        log.warn({
+            title: 'CesiumInteractions.vue / onContextMenu',
+            titleColor: LogPreDefinedColor.Red,
+            messages: ['Viewer is destroyed or undefined, ignoring context menu'],
+        })
+        return
+    }
+    
     const coordinates = getCoordinateAtScreenCoordinate(event.position.x, event.position.y)
     if (Array.isArray(coordinates) && coordinates.length === 2) {
         mapStore.click(
@@ -447,23 +488,36 @@ function onContextMenu(event: ScreenSpaceEventHandler.PositionedEvent): void {
 }
 // when moving over a building, we should highlight
 function onMouseMove(event: ScreenSpaceEventHandler.MotionEvent): void {
+    const viewerInstance = viewer?.value
+    if (!viewerInstance || viewerInstance.isDestroyed()) {
+        return
+    }
+    
     const aFeatureIsHighlighted = hoveredHighlightPostProcessor.selected.length === 1
 
     // we pick the first 3d feature if it's in the config
-    const object = viewer?.value?.scene.pick(event.endPosition)
-    if (
-        object &&
-        cesiumStore.layersTooltipConfig
-            .map((layerConfig) => layerConfig.layerId)
-            .includes(getLayerIdFrom3dFeature(object)!)
-    ) {
-        hoveredHighlightPostProcessor.selected = [object]
-        viewer?.value?.scene.requestRender()
-    } else {
-        hoveredHighlightPostProcessor.selected = []
-        if (aFeatureIsHighlighted && viewer?.value) {
-            viewer.value.scene.requestRender()
+    try {
+        const object = viewerInstance.scene.pick(event.endPosition)
+        if (
+            object &&
+            cesiumStore.layersTooltipConfig
+                .map((layerConfig) => layerConfig.layerId)
+                .includes(getLayerIdFrom3dFeature(object)!)
+        ) {
+            hoveredHighlightPostProcessor.selected = [object]
+            viewerInstance.scene.requestRender()
+        } else {
+            hoveredHighlightPostProcessor.selected = []
+            if (aFeatureIsHighlighted) {
+                viewerInstance.scene.requestRender()
+            }
         }
+    } catch (error) {
+        log.error({
+            title: 'CesiumInteractions.vue / onMouseMove',
+            titleColor: LogPreDefinedColor.Red,
+            messages: ['Error during mouse move', error],
+        })
     }
 }
 </script>

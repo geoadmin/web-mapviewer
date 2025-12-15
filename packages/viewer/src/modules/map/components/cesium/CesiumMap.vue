@@ -143,13 +143,25 @@ async function createViewer(): Promise<void> {
         requestRenderMode: true,
     })
 
+    // Add error handler for render errors to prevent crashes
+    const scene = viewer.value.scene
+    scene.renderError.addEventListener((scene, error) => {
+        log.error({
+            title: 'CesiumMap.vue',
+            titleColor: LogPreDefinedColor.Red,
+            messages: ['Cesium render error caught', error],
+        })
+        // Don't re-throw to prevent crash
+    })
+
     if (uiStore.hasDevSiteWarning) {
         viewer.value.scene.debugShowFramesPerSecond = true
     }
 
-    const scene = viewer.value.scene
     scene.useDepthPicking = true
-    scene.pickTranslucentDepth = true
+    // Disable pickTranslucentDepth to avoid render-during-pick issues that can cause
+    // "This object was destroyed" errors when layers are being added/removed during camera movement
+    scene.pickTranslucentDepth = false
     scene.backgroundColor = Color.TRANSPARENT
 
     const postProcessStages = new PostProcessStageCollection()
