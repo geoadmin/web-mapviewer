@@ -7,7 +7,6 @@ import type { GoToViewOptions, PartialLayer } from './support/commands'
 
 type MountParams = Parameters<typeof mount>
 type OptionsParam = MountParams[1]
-
 interface MockLayer {
     opacity: number
     wmsLayers: string
@@ -31,7 +30,6 @@ interface MockLayer {
     timeBehaviour?: string
     resolutions?: number[]
 }
-
 declare global {
     namespace Cypress {
         interface Chainable {

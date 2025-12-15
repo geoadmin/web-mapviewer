@@ -43,7 +43,7 @@ import oldestYear from '@/store/modules/layers/getters/oldestYear'
 import visibleLayerOnTop from '@/store/modules/layers/getters/visibleLayerOnTop'
 import visibleLayers from '@/store/modules/layers/getters/visibleLayers'
 import visibleLayersWithTimeConfig from '@/store/modules/layers/getters/visibleLayersWithTimeConfig'
-import youngestYear from '@/store/modules/layers/getters/yougestYear'
+import youngestYear from '@/store/modules/layers/getters/youngestYear'
 
 const state = (): LayersStoreState => ({
     currentBackgroundLayerId: undefined,

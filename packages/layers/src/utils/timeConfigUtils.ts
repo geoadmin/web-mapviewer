@@ -2,9 +2,15 @@ import log from '@swissgeo/log'
 import { isTimestampYYYYMMDD } from '@swissgeo/numbers'
 import { Interval } from 'luxon'
 
-import type { Layer, LayerTimeConfig, LayerTimeConfigEntry } from '@/types'
-
-import { LayerType, YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from '@/types'
+import {
+    ALL_YEARS_TIMESTAMP,
+    CURRENT_YEAR_TIMESTAMP,
+    type Layer,
+    type LayerTimeConfig,
+    type LayerTimeConfigEntry,
+    LayerType,
+    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
+} from '@/types'
 
 const hasTimestamp = (timeConfig: LayerTimeConfig, timestamp: string): boolean =>
     timeConfig.timeEntries.some((entry: LayerTimeConfigEntry) => entry.timestamp === timestamp)
@@ -15,7 +21,7 @@ const getTimeEntryForYear = (
 ): LayerTimeConfigEntry | undefined => {
     const yearAsInterval = Interval.fromISO(`${year}-01-01/P1Y`)
     return timeConfig.timeEntries.find((entry: LayerTimeConfigEntry) => {
-        if (entry.nonTimeBasedValue && ['all', 'current'].includes(entry.nonTimeBasedValue)) {
+        if (entry.nonTimeBasedValue && [ALL_YEARS_TIMESTAMP, CURRENT_YEAR_TIMESTAMP].includes(entry.nonTimeBasedValue)) {
             return year === YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA
         }
         if (yearAsInterval.isValid && entry.interval) {
@@ -51,7 +57,7 @@ const makeTimeConfigEntry = (timestamp: string): LayerTimeConfigEntry => {
         //  1. 9999      (e.g. ch.swisstopo.lubis-terrestrische_aufnahmen)
         //  2. 99990101  (e.g. ch.astra.unfaelle-personenschaeden_alle)
         //  3. 99991231  (e.g. ch.swisstopo.lubis-luftbilder-dritte-firmen)
-        nonTimeBasedValue = 'all'
+        nonTimeBasedValue = ALL_YEARS_TIMESTAMP
     } else {
         let parsedYear: string | undefined
         let month: string | undefined
@@ -86,7 +92,7 @@ const makeTimeConfigEntry = (timestamp: string): LayerTimeConfigEntry => {
     }
 
     // Could not parse any time interval with the input, passing the timestamp as is
-    if (interval === undefined || !interval.isValid) {
+    if ((interval === undefined || !interval.isValid) && !nonTimeBasedValue) {
         nonTimeBasedValue = timestamp
     }
     if (interval && !interval.isValid) {
@@ -148,7 +154,7 @@ const hasMultipleTimestamps = (layer: Layer): boolean => {
 }
 
 export function getYearFromLayerTimeEntry(timeEntry: LayerTimeConfigEntry): number | undefined {
-    if (timeEntry.nonTimeBasedValue && ['all', 'current'].includes(timeEntry.nonTimeBasedValue)) {
+    if (timeEntry.nonTimeBasedValue && [ALL_YEARS_TIMESTAMP, CURRENT_YEAR_TIMESTAMP].includes(timeEntry.nonTimeBasedValue)) {
         return YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA
     }
     if (timeEntry.interval && timeEntry.interval.start?.year !== undefined) {
@@ -177,7 +183,7 @@ function getTimestampFromConfig(layer: Layer): string | undefined {
     let timestamp = layer.timeConfig?.currentTimeEntry?.timestamp
     if (!timestamp && layer.type === LayerType.WMTS) {
         // for WMTS layer fallback to current
-        timestamp = 'current'
+        timestamp = CURRENT_YEAR_TIMESTAMP
     }
     return timestamp
 }

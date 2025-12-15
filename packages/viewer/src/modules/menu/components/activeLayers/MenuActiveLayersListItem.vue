@@ -83,6 +83,7 @@ const attributionName = computed<string>(() =>
 )
 const showLayerDescriptionIcon = computed<boolean>(() => layer.hasDescription)
 const hasMultipleTimestamps = computed<boolean>(() => timeConfigUtils.hasMultipleTimestamps(layer))
+
 const isPhoneMode = computed<boolean>(() => uiStore.isPhoneMode)
 const is3dActive = computed<boolean>(() => cesiumStore.active)
 const isLayerKml = computed<boolean>(() => layer.type === LayerType.KML)

@@ -9,9 +9,19 @@ export default function oldestYear(this: LayersStore): number {
         if (!layer.timeConfig || !timeConfigUtils.hasMultipleTimestamps(layer)) {
             return oldestYear
         }
+        const sortedEntries = layer.timeConfig.timeEntries.sort((a, b) => {
+            if (a.year === undefined) {
+                return 1
+            }
+            if (b.year === undefined) {
+                return -1
+            }
+            return Number(b.year) - Number(a.year)
+        }).slice(-1)[0]!
         const oldestLayerYear: number | undefined = timeConfigUtils.getYearFromLayerTimeEntry(
-            layer.timeConfig.timeEntries.slice(-1)[0]!
+            sortedEntries
         )
+
         if (oldestLayerYear && oldestYear > oldestLayerYear) {
             return oldestLayerYear
         }

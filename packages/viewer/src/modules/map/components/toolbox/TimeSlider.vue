@@ -17,8 +17,6 @@ import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
 import debounce from '@/utils/debounce'
 
-type LayerTimeConfigWithYears = LayerTimeConfig & { years: number[] }
-
 const dispatcher: ActionDispatcher = { name: 'TimeSlider.vue' }
 
 const { t } = useI18n()
@@ -31,7 +29,7 @@ const PLAY_BUTTON_SIZE = 54
 
 const sliderWidth = ref(0)
 const currentYear = ref<number>(DEFAULT_YOUNGEST_YEAR)
-const falseYear = ref<number | undefined>()
+const falseYear = ref<number | string | undefined>(undefined)
 let cursorX = 0
 const playYearsWithData = ref(false)
 let yearCursorIsGrabbed = false
@@ -47,12 +45,15 @@ const outsideRangeTooltip = useTemplateRef<{ openTooltip: () => void; closeToolt
 const screenWidth = computed(() => uiStore.width)
 const layersWithTimestamps = computed(() => layersStore.visibleLayersWithTimeConfig)
 const activeLayers = computed(() => layersStore.activeLayers)
-const youngestYear = computed(() => layersStore.youngestYear ?? 0)
-const oldestYear = computed(() => layersStore.oldestYear ?? 0)
-const previewYear = computed(() => layersStore.previewYear ?? 0)
+const youngestYear = computed(() => layersStore.youngestYear)
+const oldestYear = computed(() => layersStore.oldestYear)
+const previewYear = computed(() => layersStore.previewYear)
 
 const allYears = computed(() => {
     const years: number[] = []
+    if (oldestYear.value === undefined || youngestYear.value === undefined) {
+        return years
+    }
     for (let year = oldestYear.value; year <= youngestYear.value; year++) {
         years.push(year)
     }
@@ -68,13 +69,17 @@ const tooltipYearOutsideRangeContent = computed(
 
 const inputYear = computed({
     get() {
-        return falseYear.value ?? currentYear.value
+        if (falseYear.value !== undefined) {
+            return falseYear.value
+        }
+        return currentYear.value
     },
-    set(value: string) {
-        const parsedValue = parseInt(value)
+    set(value: string | number) {
+        const parsedValue = parseInt(value.toString())
         if (!allYears.value.includes(parsedValue)) {
             isInputYearValid.value = false
-            falseYear.value = parsedValue || undefined
+            // || '' enables the value to be cleared
+            falseYear.value = parsedValue || ''
         } else {
             isInputYearValid.value = true
             currentYear.value = parsedValue
@@ -108,35 +113,43 @@ const distanceBetweenLabels = computed(() => sliderWidth.value / allYears.value.
 const innerBarStepStyle = computed(() => ({ width: `${distanceBetweenLabels.value}px` }))
 const yearsWithData = computed(() => {
     const timeConfigs = layersWithTimestamps.value.map((layer) => layer.timeConfig)
-    if (timeConfigs.some((timeConfig) => !timeConfig || !('years' in timeConfig))) {
+    if (timeConfigs.some((timeConfig) => !timeConfig || !('timeEntries' in timeConfig))) {
         return {
             yearsJoint: [],
             yearsSeparate: [],
         }
     }
-    let yearsJoint = Array.isArray((timeConfigs[0] as LayerTimeConfigWithYears).years)
-        ? [...(timeConfigs[0] as LayerTimeConfigWithYears).years]
-        : []
+    
+    const getYearsFromTimeConfig = (timeConfig: LayerTimeConfig) => {
+        return 'timeEntries' in timeConfig
+            ? timeConfig.timeEntries.map((entry) => entry.year)
+            : []
+    }
+    
+    const firstConfigYears = getYearsFromTimeConfig(timeConfigs[0] as LayerTimeConfig)
+    let yearsJoint = Array.isArray(firstConfigYears) ? [...firstConfigYears] : []
     let yearsSeparate: number[] = []
+    
     timeConfigs.forEach((timeConfig) => {
-        if (!('years' in timeConfig) || !Array.isArray(timeConfig.years)) {
+        const years = getYearsFromTimeConfig(timeConfig)
+        if (!Array.isArray(years)) {
             return
         }
-        timeConfig.years
-            .filter((year) => !yearsSeparate.includes(year))
-            .forEach((year) => yearsSeparate.push(year))
+        years
+            .filter((year) => !year || !yearsSeparate.includes(year))
+            .forEach((year) => yearsSeparate.push(year!))
     })
+    
     if (timeConfigs.length > 1) {
         timeConfigs.slice(1).forEach((timeConfig) => {
-            yearsJoint = yearsJoint.filter((year) =>
-                (timeConfig as LayerTimeConfigWithYears).years.includes(year)
-            )
+            const years = getYearsFromTimeConfig(timeConfig)
+            yearsJoint = yearsJoint.filter((year) => years.includes(year))
         })
     }
     yearsSeparate = yearsSeparate.filter((year) => !yearsJoint.includes(year))
     return {
-        yearsJoint: yearsJoint.sort((a, b) => b - a).filter((year) => isNumber(year)),
-        yearsSeparate: yearsSeparate.sort((a, b) => b - a).filter((year) => isNumber(year)),
+        yearsJoint: yearsJoint.filter((year) => isNumber(year)).sort((a, b) => b! - a!),
+        yearsSeparate: yearsSeparate.sort((a, b) => b - a),
     }
 })
 
@@ -152,6 +165,16 @@ watch(isInputYearValid, (newValue) => {
     }
 })
 
+watch(currentYear, () => {
+    falseYear.value = undefined
+    isInputYearValid.value = true
+    dispatchPreviewYearToStoreDebounced()
+})
+
+watch(layersWithTimestamps, () => {
+    dispatchPreviewYearToStoreDebounced()
+})
+
 onMounted(() => {
     log.debug({
         title: 'TimeSlider.vue',
@@ -163,10 +186,10 @@ onMounted(() => {
     if (previewYear.value === undefined) {
         if (
             layersWithTimestamps.value.length === 1 &&
-            'currentYear' in layersWithTimestamps.value[0]!.timeConfig &&
-            allYears.value.includes(layersWithTimestamps.value[0]!.timeConfig.currentYear as number)
+            'currentTimeEntry' in layersWithTimestamps.value[0]!.timeConfig &&
+            allYears.value.includes(layersWithTimestamps.value[0]!.timeConfig.currentTimeEntry?.year as number)
         ) {
-            currentYear.value = layersWithTimestamps.value[0]!.timeConfig.currentYear as number
+            currentYear.value = layersWithTimestamps.value[0]!.timeConfig.currentTimeEntry?.year as number
         } else if (yearsWithData.value.yearsJoint.length > 0) {
             currentYear.value = yearsWithData.value.yearsJoint[0]!
         } else if (yearsWithData.value.yearsSeparate[0]) {
@@ -176,7 +199,7 @@ onMounted(() => {
         }
 
         dispatchPreviewYearToStore()
-    } else {
+    } else if (previewYear.value !== undefined) {
         currentYear.value = previewYear.value
         setPreviewYearToLayers()
     }
@@ -187,16 +210,6 @@ onMounted(() => {
         messages: [`Time slider activated, currentYear=${currentYear.value}`],
     })
     window.addEventListener('keydown', handleKeyDownEvent)
-
-    watch(currentYear, () => {
-        falseYear.value = undefined
-        isInputYearValid.value = true
-        dispatchPreviewYearToStoreDebounced()
-    })
-
-    watch(layersWithTimestamps, () => {
-        dispatchPreviewYearToStoreDebounced()
-    })
 })
 
 onUnmounted(() => {
@@ -210,8 +223,8 @@ function setPreviewYearToLayers() {
             layer.isVisible &&
             timeConfigUtils.hasMultipleTimestamps(layer) &&
             layer.timeConfig &&
-            'currentYear' in layer.timeConfig &&
-            layer.timeConfig.currentYear !== year
+            'currentTimeEntry' in layer.timeConfig &&
+            layer.timeConfig.currentTimeEntry !== year
         ) {
             layersStore.setTimedLayerCurrentYear(index, year, dispatcher)
         }
@@ -356,7 +369,7 @@ function handleKeyDownEvent(event: KeyboardEvent) {
         class="time-slider card"
         :class="{ grabbed: yearCursorIsGrabbed }"
     >
-        <div class="d-flex align-items-center justify-content-between p-2">
+        <div class="p-2 d-flex align-items-center justify-content-between">
             <div
                 class="time-slider-bar px-5"
                 data-cy="time-slider-bar"
@@ -364,11 +377,11 @@ function handleKeyDownEvent(event: KeyboardEvent) {
                 <div
                     ref="yearCursor"
                     data-cy="times-slider-cursor"
-                    class="time-slider-bar-cursor user-select-none d-flex bg-body gap-1 rounded border py-1"
+                    class="time-slider-bar-cursor py-1 user-select-none d-flex gap-1 bg-body border rounded"
                     :style="{ left: cursorPosition }"
                 >
                     <div
-                        class="border-end d-flex align-items-center px-2"
+                        class="px-2 border-end d-flex align-items-center"
                         data-cy="time-slider-bar-cursor-grab"
                         @touchstart.passive="grabCursor"
                         @mousedown.passive="grabCursor"
@@ -394,7 +407,7 @@ function handleKeyDownEvent(event: KeyboardEvent) {
                         />
                     </GeoadminTooltip>
                     <div
-                        class="border-start d-flex align-items-center px-2"
+                        class="px-2 border-start d-flex align-items-center"
                         @touchstart.passive="grabCursor"
                         @mousedown.passive="grabCursor"
                     >
@@ -483,7 +496,7 @@ function handleKeyDownEvent(event: KeyboardEvent) {
                 <button
                     id="timeSliderPlayButton"
                     data-cy="time-slider-play-button"
-                    class="btn btn-light btn-lg d-flex align-self-center m-1 border p-3"
+                    class="btn btn-light btn-lg d-flex align-self-center p-3 m-1 border"
                     @click="togglePlayYearsWithData"
                 >
                     <FontAwesomeIcon :icon="playYearsWithData ? 'pause' : 'play'" />
@@ -548,7 +561,6 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
         position: absolute;
         top: 0.75 * $spacer;
         height: $cursor-height;
-        width: 100px;
 
         &-arrow {
             $arrow-width: 9px;
@@ -634,7 +646,6 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
 
 .time-slider {
     background: $time-slider-color-background !important;
-    width: auto;
 
     &:not(.grabbed) &-bar-cursor {
         cursor: grab;
@@ -659,6 +670,7 @@ $time-slider-color-partial-data: color.adjust($primary, $lightness: 45%);
     &.form-control {
         padding: 0 3px;
         border-color: $white;
+        width: 2.75rem;
         &.is-invalid {
             background-size: 0;
         }
