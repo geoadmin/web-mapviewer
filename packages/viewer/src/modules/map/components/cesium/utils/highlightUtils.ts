@@ -60,23 +60,23 @@ export function highlightGroup(viewer: Viewer, geometries: HighlightGeometry[]) 
 }
 
 // Create a Cesium Entity representing a polygon from an array of coordinates
-function createPolygon(coords: SingleCoordinate[]): Entity | null {
+function createPolygon(coords: SingleCoordinate[] | undefined): Entity | undefined {
     if (!coords || coords.length === 0) {
-        return null
+        return undefined
     }
 
     const convertedCoords = coords
         .map((c) => {
             const degCoords = proj4(WEBMERCATOR.epsg, WGS84.epsg, c)
             if (!degCoords || degCoords.length < 2 || degCoords[0] === undefined || degCoords[1] === undefined) {
-                return null
+                return undefined
             }
             return Cartesian3.fromDegrees(degCoords[0], degCoords[1])
         })
-        .filter((c) => c !== null)
+        .filter((c) => c !== undefined)
 
     if (convertedCoords.length === 0) {
-        return null
+        return undefined
     }
 
     return new Entity({
@@ -126,12 +126,11 @@ export function highlightLine(viewer: Viewer, coordinates: SingleCoordinate[]) {
         .map((c) => {
             const degCoords = proj4(WEBMERCATOR.epsg, WGS84.epsg, c)
             if (!degCoords || degCoords.length < 2 || degCoords[0] === undefined || degCoords[1] === undefined) {
-                return null
+                return undefined
             }
             return Cartesian3.fromDegrees(degCoords[0], degCoords[1])
         })
-        .filter((c) => c !== null)
-
+        .filter((c) => c !== undefined)
     if (convertedCoords.length === 0) {
         return
     }
@@ -150,7 +149,7 @@ export function highlightLine(viewer: Viewer, coordinates: SingleCoordinate[]) {
     }
 }
 
-export function highlightPoint(viewer: Viewer, coordinates: SingleCoordinate) {
+export function highlightPoint(viewer: Viewer, coordinates: SingleCoordinate | undefined) {
     if (!coordinates) {
         log.warn({
             title: 'highlightUtils / highlightPoint',
@@ -170,7 +169,8 @@ export function highlightPoint(viewer: Viewer, coordinates: SingleCoordinate) {
             messages: ['Coordinates do not have enough values', flatCoords],
         })
         return
-    } const degCoords = proj4(WEBMERCATOR.epsg, WGS84.epsg, flatCoords)
+    }
+    const degCoords = proj4(WEBMERCATOR.epsg, WGS84.epsg, flatCoords)
 
     if (!degCoords || degCoords.length < 2 || degCoords[0] === undefined || degCoords[1] === undefined) {
         log.warn({

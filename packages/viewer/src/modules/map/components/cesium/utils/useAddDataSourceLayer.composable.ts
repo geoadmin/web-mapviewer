@@ -34,7 +34,7 @@ export default function useAddDataSourceLayer(
 
     async function refreshDataSource(
         loadingDataSource:
-            | Promise<GeoJsonDataSource>
+            Promise<GeoJsonDataSource>
             | Promise<KmlDataSource>
             | Promise<GpxDataSource>
     ): Promise<void> {
