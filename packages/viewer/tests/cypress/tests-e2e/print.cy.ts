@@ -451,7 +451,7 @@ describe('Testing print', () => {
             cy.wait('@printRequest').then((interception: Interception) => {
                 checkPrintRequest(interception.request.body, {
                     mapScale: 5000,
-                    copyright: '© sys-public.dev.bgdi.ch, attribution.test.wmts.layer',
+                    copyright: '© attribution.test.wmts.layer, sys-public.dev.bgdi.ch',
                     layers: [
                         {
                             type: 'geojson',
@@ -515,7 +515,7 @@ describe('Testing print', () => {
                 .then((body: PrintRequestBody) => {
                     checkPrintRequest(body, {
                         mapScale: 10000,
-                        copyright: '© line-and-marker.gpx, attribution.test.wmts.layer',
+                        copyright: '© attribution.test.wmts.layer, line-and-marker.gpx',
                         layers: [
                             {
                                 type: 'geojson',
