@@ -11,6 +11,7 @@ import {
     Cartesian2,
     Cartesian3,
     Cartographic,
+    Cesium3DTileFeature,
     Cesium3DTilePointFeature,
     Math as CesiumMath,
     PostProcessStageLibrary,
@@ -189,18 +190,11 @@ function getLayerIdFrom3dFeature(
 }
 
 function getFeatureProperty(
-    feature: LayerFeature,
+    feature: Cesium3DTileFeature,
     propertyName: string,
     defaultValue: string
 ): string {
-    let value: string | undefined = getSafe<string>(feature, propertyName)
-    if (!value && feature.data) {
-        value = getSafe<string>(feature.data, propertyName)
-    }
-    if (!value) {
-        value = defaultValue
-    }
-    return value
+    return feature.getProperty(propertyName) ?? defaultValue
 }
 
 /**
@@ -214,7 +208,7 @@ function getFeatureProperty(
  *   Return LayerFeature a layer feature from the 3d layer
  */
 function create3dFeature(
-    feature: LayerFeature,
+    feature: Cesium3DTileFeature,
     coordinates: SingleCoordinate
 ): LayerFeature | undefined {
     const layerId = getLayerIdFrom3dFeature(feature as unknown as Cesium3DTilePointFeature)
@@ -262,7 +256,7 @@ function handleClickHighlight(
     coordinates: SingleCoordinate | []
 ): void {
     clickedHighlightPostProcessor.selected = hoveredHighlightPostProcessor.selected
-    hoveredHighlightPostProcessor.selected.forEach((feature) => {
+    hoveredHighlightPostProcessor.selected.forEach((feature: Cesium3DTileFeature) => {
         if (Array.isArray(coordinates) && coordinates.length === 2) {
             const lf = create3dFeature(feature, coordinates)
             if (lf) {
