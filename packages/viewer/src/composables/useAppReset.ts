@@ -16,7 +16,7 @@ import useSearchStore from '@/store/modules/search'
 import useShareStore from '@/store/modules/share'
 import useTopicsStore from '@/store/modules/topics'
 import useUIStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types/featureInfoPositions.enum'
+import { FeatureInfoPositions } from '@/store/modules/ui/types'
 
 const APP_RESET_LOADING_BAR_REQUESTER = 'app-reset'
 
