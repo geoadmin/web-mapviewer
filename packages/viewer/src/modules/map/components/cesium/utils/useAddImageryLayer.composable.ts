@@ -75,18 +75,16 @@ export default function useAddImageryLayer(
                     return
                 }
                 layer.alpha = toValue(opacity)
-                if (!viewerInstance.isDestroyed()) {
-                    viewerInstance.scene.requestRender()
-                }
+                viewerInstance.scene.requestRender()
             })
             watch(toRef(opacity), () => {
                 const viewerInstance = toValue(cesiumViewer)
-                if (layer && viewerInstance) {
+                if (layer && viewerInstance && !viewerInstance.isDestroyed()) {
                     layer.alpha = toValue(opacity)
                     viewerInstance.scene.requestRender()
                 }
             })
-            watch(zIndex, () => {
+            watch(toRef(zIndex), () => {
                 const viewerInstance = toValue(cesiumViewer)
                 if (!viewerInstance || viewerInstance.isDestroyed() || !layer) {
                     return
