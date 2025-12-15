@@ -39,11 +39,11 @@ export default function useAddDataSourceLayer(
             | Promise<GpxDataSource>
     ): Promise<void> {
         const viewerInstance = toValue(viewer)
-        if (!viewerInstance) {
-            log.error({
+        if (!viewerInstance || viewerInstance.isDestroyed()) {
+            log.warn({
                 title: 'useAddDataSourceLayer.composable',
                 titleColor: LogPreDefinedColor.Blue,
-                messages: ['Cesium viewer is undefined', viewerInstance],
+                messages: ['Cesium viewer is destroyed or undefined, cannot refresh data source'],
             })
             return
         }
@@ -59,6 +59,22 @@ export default function useAddDataSourceLayer(
         }
         try {
             dataSource = await loadingDataSource
+
+            // Check again after async operation
+            const currentViewer = toValue(viewer)
+            if (!currentViewer || currentViewer.isDestroyed()) {
+                log.warn({
+                    title: 'useAddDataSourceLayer.composable',
+                    titleColor: LogPreDefinedColor.Blue,
+                    messages: [
+                        'Viewer destroyed during data source loading, aborting',
+                        toValue(layerId),
+                    ],
+                })
+                dataSource = undefined
+                return
+            }
+
             if (
                 (dataSource instanceof GeoJsonDataSource || dataSource instanceof KmlDataSource) &&
                 toValue(layerId)
@@ -73,21 +89,22 @@ export default function useAddDataSourceLayer(
             })
 
             // need to wait for terrain loaded otherwise primitives will be placed wrong (under the terrain)
-            if (viewerInstance.scene.globe.tilesLoaded || IS_TESTING_WITH_CYPRESS) {
-                dataSource = await viewerInstance.dataSources.add(dataSource)
-                viewerInstance.scene.requestRender()
+            if (currentViewer.scene.globe.tilesLoaded || IS_TESTING_WITH_CYPRESS) {
+                dataSource = await currentViewer.dataSources.add(dataSource)
+                currentViewer.scene.requestRender()
             } else {
                 const removeTileLoadProgressEventListener =
-                    viewerInstance.scene.globe.tileLoadProgressEvent.addEventListener(
+                    currentViewer.scene.globe.tileLoadProgressEvent.addEventListener(
                         (queueLength: number) => {
-                            const currentViewer = toValue(viewer)
+                            const tilesViewer = toValue(viewer)
                             if (
                                 dataSource &&
-                                currentViewer &&
-                                currentViewer.scene.globe.tilesLoaded &&
+                                tilesViewer &&
+                                !tilesViewer.isDestroyed() &&
+                                tilesViewer.scene.globe.tilesLoaded &&
                                 queueLength === 0
                             ) {
-                                currentViewer.dataSources
+                                tilesViewer.dataSources
                                     .add(dataSource)
                                     .then((loadedDataSource) => {
                                         dataSource = loadedDataSource
@@ -102,7 +119,9 @@ export default function useAddDataSourceLayer(
                                             ],
                                         })
                                     })
-                                currentViewer.scene.requestRender()
+                                if (!tilesViewer.isDestroyed()) {
+                                    tilesViewer.scene.requestRender()
+                                }
                                 removeTileLoadProgressEventListener()
                             }
                         }
@@ -112,8 +131,9 @@ export default function useAddDataSourceLayer(
             log.error({
                 title: 'useAddDataSourceLayer.composable',
                 titleColor: LogPreDefinedColor.Red,
-                messages: ['Error while parsing data source in Cesium', error],
+                messages: ['Error while parsing data source in Cesium', error, toValue(layerId)],
             })
+            dataSource = undefined
         }
     }
 
@@ -127,20 +147,22 @@ export default function useAddDataSourceLayer(
 
     onBeforeUnmount(() => {
         const viewerInstance = toValue(viewer)
-        if (dataSource && viewerInstance) {
+        if (dataSource && viewerInstance && !viewerInstance.isDestroyed()) {
             viewerInstance.dataSources.remove(dataSource)
             viewerInstance.scene.requestRender()
         }
+        dataSource = undefined
     })
 
     watch(toRef(opacity), () => {
         const viewerInstance = toValue(viewer)
+        if (!viewerInstance || viewerInstance.isDestroyed()) {
+            return
+        }
         dataSource?.entities.values.forEach((entity: Entity) =>
             toValue(styleEntity)(entity, toValue(opacity) ?? 1.0)
         )
-        if (viewerInstance) {
-            viewerInstance.scene.requestRender()
-        }
+        viewerInstance.scene.requestRender()
     })
 
     return {
