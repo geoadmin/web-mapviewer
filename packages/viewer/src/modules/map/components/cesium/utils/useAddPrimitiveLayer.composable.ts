@@ -134,9 +134,8 @@ export default function useAddPrimitiveLayer(
         try {
             const loadedTileSet = await toValue(tileSet)
 
-            // Check again after async operation
-            const currentViewer = toValue(cesiumViewer)
-            if (!currentViewer || currentViewer.isDestroyed()) {
+            // Check if viewer was destroyed during async operation
+            if (!viewerInstance || viewerInstance.isDestroyed()) {
                 log.warn({
                     title: 'useAddPrimitiveLayer.composable',
                     titleColor: LogPreDefinedColor.Red,
@@ -148,7 +147,7 @@ export default function useAddPrimitiveLayer(
             if (withEnhancedLabelStyle) {
                 loadedTileSet.style = CESIUM_SWISSNAMES3D_STYLE
             }
-            layer = currentViewer.scene.primitives.add(loadedTileSet)
+            layer = viewerInstance.scene.primitives.add(loadedTileSet)
             if (layer) {
                 updateCollectionProperties(layer, {
                     opacity: toValue(opacity),
@@ -174,7 +173,7 @@ export default function useAddPrimitiveLayer(
         layer = undefined
     })
 
-    watch(toRef(opacity), () => {
+    watch(() => toValue(opacity), () => {
         if (layer) {
             updateCollectionProperties(layer, {
                 opacity: toValue(opacity),
