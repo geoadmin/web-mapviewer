@@ -7,7 +7,8 @@
 import type { Layer } from '@swissgeo/layers'
 
 import log from '@swissgeo/log'
-import Sortable from 'sortablejs'
+// eslint-disable-next-line import/no-named-as-default
+import Sortable  from 'sortablejs'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'

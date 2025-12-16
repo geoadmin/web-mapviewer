@@ -505,6 +505,7 @@ export default async function search(config: SearchConfig): Promise<SearchResult
     if (cancelTokenSource) {
         cancelTokenSource.cancel('new search query')
     }
+    // eslint-disable-next-line import/no-named-as-default-member
     cancelTokenSource = axios.CancelToken.source()
     const allResults: SearchResult[] = [
         ...(await searchLayers(queryString, lang, cancelTokenSource?.token, limit)),

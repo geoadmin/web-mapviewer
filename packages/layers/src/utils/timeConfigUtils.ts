@@ -2,14 +2,16 @@ import log from '@swissgeo/log'
 import { isTimestampYYYYMMDD } from '@swissgeo/numbers'
 import { Interval } from 'luxon'
 
+import type {Layer, LayerTimeConfig, LayerTimeConfigEntry} from '@/types';
+
 import {
     ALL_YEARS_TIMESTAMP,
     CURRENT_YEAR_TIMESTAMP,
-    type Layer,
-    type LayerTimeConfig,
-    type LayerTimeConfigEntry,
+    
+    
+    
     LayerType,
-    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
+    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA
 } from '@/types'
 
 const hasTimestamp = (timeConfig: LayerTimeConfig, timestamp: string): boolean =>

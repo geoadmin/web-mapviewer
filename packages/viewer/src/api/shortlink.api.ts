@@ -42,6 +42,7 @@ export function createShortLink(
         if (cancelToken) {
             cancelToken.cancel('A new shortLink request arrived')
         }
+        // eslint-disable-next-line import/no-named-as-default-member
         cancelToken = axios.CancelToken.source()
 
         axios
