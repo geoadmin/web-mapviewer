@@ -34,16 +34,16 @@ export default function useAddDataSourceLayer(
 
     async function refreshDataSource(
         loadingDataSource:
-            | Promise<GeoJsonDataSource>
+            Promise<GeoJsonDataSource>
             | Promise<KmlDataSource>
             | Promise<GpxDataSource>
     ): Promise<void> {
         const viewerInstance = toValue(viewer)
-        if (!viewerInstance) {
-            log.error({
+        if (!viewerInstance || viewerInstance.isDestroyed()) {
+            log.warn({
                 title: 'useAddDataSourceLayer.composable',
                 titleColor: LogPreDefinedColor.Blue,
-                messages: ['Cesium viewer is undefined', viewerInstance],
+                messages: ['Cesium viewer is destroyed or undefined, cannot refresh data source'],
             })
             return
         }
@@ -59,6 +59,21 @@ export default function useAddDataSourceLayer(
         }
         try {
             dataSource = await loadingDataSource
+
+            // Check if viewer was destroyed during async operation
+            if (!viewerInstance || viewerInstance.isDestroyed()) {
+                log.warn({
+                    title: 'useAddDataSourceLayer.composable',
+                    titleColor: LogPreDefinedColor.Blue,
+                    messages: [
+                        'Viewer destroyed during data source loading, aborting',
+                        toValue(layerId),
+                    ],
+                })
+                dataSource = undefined
+                return
+            }
+
             if (
                 (dataSource instanceof GeoJsonDataSource || dataSource instanceof KmlDataSource) &&
                 toValue(layerId)
@@ -80,14 +95,14 @@ export default function useAddDataSourceLayer(
                 const removeTileLoadProgressEventListener =
                     viewerInstance.scene.globe.tileLoadProgressEvent.addEventListener(
                         (queueLength: number) => {
-                            const currentViewer = toValue(viewer)
                             if (
                                 dataSource &&
-                                currentViewer &&
-                                currentViewer.scene.globe.tilesLoaded &&
+                                viewerInstance &&
+                                !viewerInstance.isDestroyed() &&
+                                viewerInstance.scene.globe.tilesLoaded &&
                                 queueLength === 0
                             ) {
-                                currentViewer.dataSources
+                                viewerInstance.dataSources
                                     .add(dataSource)
                                     .then((loadedDataSource) => {
                                         dataSource = loadedDataSource
@@ -102,7 +117,9 @@ export default function useAddDataSourceLayer(
                                             ],
                                         })
                                     })
-                                currentViewer.scene.requestRender()
+                                if (!viewerInstance.isDestroyed()) {
+                                    viewerInstance.scene.requestRender()
+                                }
                                 removeTileLoadProgressEventListener()
                             }
                         }
@@ -112,8 +129,9 @@ export default function useAddDataSourceLayer(
             log.error({
                 title: 'useAddDataSourceLayer.composable',
                 titleColor: LogPreDefinedColor.Red,
-                messages: ['Error while parsing data source in Cesium', error],
+                messages: ['Error while parsing data source in Cesium', error, toValue(layerId)],
             })
+            dataSource = undefined
         }
     }
 
@@ -127,20 +145,22 @@ export default function useAddDataSourceLayer(
 
     onBeforeUnmount(() => {
         const viewerInstance = toValue(viewer)
-        if (dataSource && viewerInstance) {
+        if (dataSource && viewerInstance && !viewerInstance.isDestroyed()) {
             viewerInstance.dataSources.remove(dataSource)
             viewerInstance.scene.requestRender()
         }
+        dataSource = undefined
     })
 
-    watch(toRef(opacity), () => {
+    watch(() => toValue(opacity), () => {
         const viewerInstance = toValue(viewer)
+        if (!viewerInstance || viewerInstance.isDestroyed()) {
+            return
+        }
         dataSource?.entities.values.forEach((entity: Entity) =>
             toValue(styleEntity)(entity, toValue(opacity) ?? 1.0)
         )
-        if (viewerInstance) {
-            viewerInstance.scene.requestRender()
-        }
+        viewerInstance.scene.requestRender()
     })
 
     return {

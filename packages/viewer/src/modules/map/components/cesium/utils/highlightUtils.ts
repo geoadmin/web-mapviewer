@@ -23,7 +23,7 @@ export interface HighlightGeometry {
 }
 
 export function highlightSelectedArea(viewer: Viewer, geometry?: HighlightGeometry): void {
-    if (!geometry) {
+    if (!geometry || !geometry.coordinates || geometry.coordinates.length === 0) {
         return
     }
     const coordinates = geometry.coordinates
@@ -38,7 +38,9 @@ export function highlightSelectedArea(viewer: Viewer, geometry?: HighlightGeomet
             break
         case 'Point':
         case 'MultiPoint':
-            highlightPoint(viewer, coordinates[0]!)
+            if (coordinates[0]) {
+                highlightPoint(viewer, coordinates[0])
+            }
             break
         default:
             log.error({
@@ -47,7 +49,9 @@ export function highlightSelectedArea(viewer: Viewer, geometry?: HighlightGeomet
                 messages: [`Geometry "${geometry.type}" not handled`],
             })
     }
-    viewer.scene.requestRender()
+    if (!viewer.isDestroyed()) {
+        viewer.scene.requestRender()
+    }
 }
 
 export function highlightGroup(viewer: Viewer, geometries: HighlightGeometry[]) {
@@ -56,11 +60,25 @@ export function highlightGroup(viewer: Viewer, geometries: HighlightGeometry[]) 
 }
 
 // Create a Cesium Entity representing a polygon from an array of coordinates
-function createPolygon(coords: SingleCoordinate[]): Entity {
-    const convertedCoords = coords.map((c) => {
-        const degCoords = proj4(WEBMERCATOR.epsg, WGS84.epsg, c)
-        return Cartesian3.fromDegrees(degCoords[0], degCoords[1])
-    })
+function createPolygon(coords: SingleCoordinate[] | undefined): Entity | undefined {
+    if (!coords || coords.length === 0) {
+        return undefined
+    }
+
+    const convertedCoords = coords
+        .map((c) => {
+            const degCoords = proj4(WEBMERCATOR.epsg, WGS84.epsg, c)
+            if (!degCoords || degCoords.length < 2 || degCoords[0] === undefined || degCoords[1] === undefined) {
+                return undefined
+            }
+            return Cartesian3.fromDegrees(degCoords[0], degCoords[1])
+        })
+        .filter((c) => c !== undefined)
+
+    if (convertedCoords.length === 0) {
+        return undefined
+    }
+
     return new Entity({
         polygon: {
             hierarchy: convertedCoords,
@@ -73,7 +91,8 @@ function createPolygon(coords: SingleCoordinate[]): Entity {
 function getAllPolygonEntities(coords: SingleCoordinate[] | SingleCoordinate[][]): Entity[] {
     if (Array.isArray(coords[0]) && typeof coords[0][0] === 'number') {
         // Base case: polygon
-        return [createPolygon(coords as SingleCoordinate[])]
+        const entity = createPolygon(coords as SingleCoordinate[])
+        return entity ? [entity] : []
     } else {
         // Recursive case: multipolygon or deeper
         return coords.flatMap((coord) => getAllPolygonEntities(coord as SingleCoordinate[]))
@@ -94,14 +113,28 @@ export function highlightPolygon(
         viewer.entities.add(polyEntity)
         highlightedEntities.push(polyEntity)
     })
-    viewer.scene.requestRender()
+    if (!viewer.isDestroyed()) {
+        viewer.scene.requestRender()
+    }
 }
 
 export function highlightLine(viewer: Viewer, coordinates: SingleCoordinate[]) {
-    const convertedCoords = coordinates.map((c) => {
-        const degCoords = proj4(WEBMERCATOR.epsg, WGS84.epsg, c)
-        return Cartesian3.fromDegrees(degCoords[0], degCoords[1])
-    })
+    if (!coordinates || coordinates.length === 0) {
+        return
+    }
+    const convertedCoords = coordinates
+        .map((c) => {
+            const degCoords = proj4(WEBMERCATOR.epsg, WGS84.epsg, c)
+            if (!degCoords || degCoords.length < 2 || degCoords[0] === undefined || degCoords[1] === undefined) {
+                return undefined
+            }
+            return Cartesian3.fromDegrees(degCoords[0], degCoords[1])
+        })
+        .filter((c) => c !== undefined)
+    if (convertedCoords.length === 0) {
+        return
+    }
+
     const entity = viewer.entities.add({
         polyline: {
             positions: convertedCoords,
@@ -111,12 +144,43 @@ export function highlightLine(viewer: Viewer, coordinates: SingleCoordinate[]) {
         },
     })
     highlightedEntities.push(entity)
-    viewer.scene.requestRender()
+    if (!viewer.isDestroyed()) {
+        viewer.scene.requestRender()
+    }
 }
 
-export function highlightPoint(viewer: Viewer, coordinates: SingleCoordinate) {
-    coordinates = typeof coordinates[0] === 'number' ? coordinates : coordinates[0]
-    const degCoords = proj4(WEBMERCATOR.epsg, WGS84.epsg, coordinates)
+export function highlightPoint(viewer: Viewer, coordinates: SingleCoordinate | undefined) {
+    if (!coordinates) {
+        log.warn({
+            title: 'highlightUtils / highlightPoint',
+            titleColor: LogPreDefinedColor.Red,
+            messages: ['Invalid coordinates for highlight point', coordinates],
+        })
+        return
+    }
+
+    // Ensure we have a flat coordinate array
+    const flatCoords: number[] = typeof coordinates[0] === 'number' ? coordinates : (coordinates[0] as number[])
+
+    if (!flatCoords || flatCoords.length < 2) {
+        log.warn({
+            title: 'highlightUtils / highlightPoint',
+            titleColor: LogPreDefinedColor.Red,
+            messages: ['Coordinates do not have enough values', flatCoords],
+        })
+        return
+    }
+    const degCoords = proj4(WEBMERCATOR.epsg, WGS84.epsg, flatCoords)
+
+    if (!degCoords || degCoords.length < 2 || degCoords[0] === undefined || degCoords[1] === undefined) {
+        log.warn({
+            title: 'highlightUtils / highlightPoint',
+            titleColor: LogPreDefinedColor.Red,
+            messages: ['Failed to convert coordinates to WGS84', flatCoords, degCoords],
+        })
+        return
+    }
+
     const convertedCoords = Cartesian3.fromDegrees(degCoords[0], degCoords[1])
     const entity = viewer.entities.add({
         position: convertedCoords,
@@ -130,13 +194,17 @@ export function highlightPoint(viewer: Viewer, coordinates: SingleCoordinate) {
         },
     })
     highlightedEntities.push(entity)
-    viewer.scene.requestRender()
+    if (!viewer.isDestroyed()) {
+        viewer.scene.requestRender()
+    }
 }
 
 export function unhighlightGroup(viewer: Viewer) {
     if (highlightedEntities?.length) {
         highlightedEntities.forEach((e) => viewer.entities.remove(e))
         highlightedEntities = []
-        viewer.scene.requestRender()
+        if (!viewer.isDestroyed()) {
+            viewer.scene.requestRender()
+        }
     }
 }

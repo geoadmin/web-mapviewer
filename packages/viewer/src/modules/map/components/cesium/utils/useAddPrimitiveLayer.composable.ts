@@ -122,17 +122,28 @@ export default function useAddPrimitiveLayer(
 
     onMounted(async () => {
         const viewerInstance = toValue(cesiumViewer)
-        if (!viewerInstance) {
-            log.error({
+        if (!viewerInstance || viewerInstance.isDestroyed()) {
+            log.warn({
                 title: 'useAddPrimitiveLayer.composable',
                 titleColor: LogPreDefinedColor.Red,
-                messages: ['Cesium viewer is undefined', viewerInstance],
+                messages: ['Cesium viewer is destroyed or undefined'],
             })
             return
         }
 
         try {
             const loadedTileSet = await toValue(tileSet)
+
+            // Check if viewer was destroyed during async operation
+            if (!viewerInstance || viewerInstance.isDestroyed()) {
+                log.warn({
+                    title: 'useAddPrimitiveLayer.composable',
+                    titleColor: LogPreDefinedColor.Red,
+                    messages: ['Viewer destroyed during tileset loading, aborting'],
+                })
+                return
+            }
+
             if (withEnhancedLabelStyle) {
                 loadedTileSet.style = CESIUM_SWISSNAMES3D_STYLE
             }
@@ -154,19 +165,25 @@ export default function useAddPrimitiveLayer(
 
     onBeforeUnmount(() => {
         const viewerInstance = toValue(cesiumViewer)
-        if (layer && viewerInstance) {
+        if (layer && viewerInstance && !viewerInstance.isDestroyed()) {
             layer.show = false
             viewerInstance.scene.primitives.remove(layer)
             viewerInstance.scene.requestRender()
         }
+        layer = undefined
     })
 
-    watch(toRef(opacity), () => {
+    watch(() => toValue(opacity), () => {
         if (layer) {
             updateCollectionProperties(layer, {
                 opacity: toValue(opacity),
                 disableDepthTestDistance: PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE,
             })
+
+            const viewerInstance = toValue(cesiumViewer)
+            if (viewerInstance && !viewerInstance.isDestroyed()) {
+                viewerInstance.scene.requestRender()
+            }
         }
     })
 }

@@ -30,19 +30,24 @@ export default function useAddImageryLayer(
 
     function refreshLayer() {
         const viewerInstance = toValue(cesiumViewer)
-        if (!viewerInstance) {
+        if (!viewerInstance || viewerInstance.isDestroyed()) {
             return
         }
 
         if (layer) {
             viewerInstance.scene.imageryLayers.remove(layer)
+            layer = undefined
         }
         if (createProvider) {
             const provider = createProvider()
             if (provider) {
+                // Validate zIndex is within bounds of imagery layer collection
+                const requestedIndex = toValue(zIndex)
+                const maxIndex = viewerInstance.scene.imageryLayers.length
+                const validIndex = Math.max(0, Math.min(requestedIndex, maxIndex))
                 layer = viewerInstance.scene.imageryLayers.addImageryProvider(
                     provider,
-                    toValue(zIndex)
+                    validIndex
                 )
             }
         }
@@ -57,31 +62,49 @@ export default function useAddImageryLayer(
 
     onBeforeUnmount(() => {
         const viewerInstance = toValue(cesiumViewer)
-        if (layer && viewerInstance) {
+        if (!viewerInstance || viewerInstance.isDestroyed()) {
+            layer = undefined
+            return
+        }
+        if (layer) {
             layer.show = false
             viewerInstance.scene.imageryLayers.remove(layer)
+            layer = undefined
+            if (!viewerInstance.isDestroyed()) {
+                viewerInstance.scene.requestRender()
+            }
+        }
+    })
+
+    watch(() => toValue(opacity), () => {
+        const viewerInstance = toValue(cesiumViewer)
+        if (!viewerInstance || viewerInstance.isDestroyed() || !layer) {
+            return
+        }
+        layer.alpha = toValue(opacity)
+        if (!viewerInstance.isDestroyed()) {
             viewerInstance.scene.requestRender()
         }
     })
 
-    watch(toRef(opacity), () => {
+    watch(() => toValue(zIndex), () => {
         const viewerInstance = toValue(cesiumViewer)
-        if (layer && viewerInstance) {
-            layer.alpha = toValue(opacity)
-            viewerInstance.scene.requestRender()
+        if (!viewerInstance || viewerInstance.isDestroyed() || !layer) {
+            return
         }
-    })
-    watch(toRef(zIndex), () => {
-        const viewerInstance = toValue(cesiumViewer)
-        if (layer && viewerInstance) {
-            const index = viewerInstance.scene.imageryLayers.indexOf(layer)
-            const indexDiff = Math.abs(toValue(zIndex) - index)
-            for (let i = indexDiff; i !== 0; i--) {
-                if (index > toValue(zIndex)) {
-                    viewerInstance.scene.imageryLayers.lower(layer)
-                } else {
-                    viewerInstance.scene.imageryLayers.raise(layer)
-                }
+        const index = viewerInstance.scene.imageryLayers.indexOf(layer)
+        if (index === -1) {
+            return // Layer not in collection
+        }
+        const indexDiff = Math.abs(toValue(zIndex) - index)
+        for (let i = indexDiff; i !== 0; i--) {
+            if (viewerInstance.isDestroyed()) {
+                return // Stop if viewer was destroyed during loop
+            }
+            if (index > toValue(zIndex)) {
+                viewerInstance.scene.imageryLayers.lower(layer)
+            } else {
+                viewerInstance.scene.imageryLayers.raise(layer)
             }
         }
     })
