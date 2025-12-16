@@ -1,5 +1,6 @@
 import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
 import type { KMLLayer } from '@swissgeo/layers'
+import type { FeatureCollection } from 'geojson'
 import type Feature from 'ol/Feature'
 import type { GeoJSONGeometry, GeoJSONGeometryCollection } from 'ol/format/GeoJSON'
 import type { Geometry } from 'ol/geom'
@@ -762,7 +763,7 @@ export function parseKml(
 export function isKmlFeaturesValid(kmlData: string): boolean {
     try {
         const kmlDom = new DOMParser().parseFromString(kmlData, 'text/xml')
-        const kmlGeoJson = kmlToGeoJSON(kmlDom)
+        const kmlGeoJson: FeatureCollection = kmlToGeoJSON(kmlDom)
 
         const invalidFeatures = kmlGeoJson.features.filter((feature) => !booleanValid(feature))
         const errorsCount = invalidFeatures.length
