@@ -24,6 +24,20 @@ export function testErrorMessage(message: string) {
     // error message
     cy.get(geolocationButtonSelector).trigger('mousemove', { clientX: 0, clientY: 0, force: true }) // Check error in store
 
+    // Wait for the error to appear in the store (geolocation callbacks are async)
+    cy.waitUntil(
+        () => {
+            return cy.getPinia().then((pinia) => {
+                const uiStore = useUIStore(pinia)
+                return uiStore.errors.size > 0
+            })
+        },
+        {
+            timeout: 5000,
+            errorMsg: `Expected error "${message}" to appear in store within 5 seconds`,
+        }
+    )
+
     // Check error in store
     cy.getPinia().then((pinia) => {
         const uiStore = useUIStore(pinia)

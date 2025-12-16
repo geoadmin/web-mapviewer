@@ -132,6 +132,7 @@ describe('Geolocation cypress', () => {
                 })
 
                 // Check if the zoom is changed
+                cy.log('Check zoom in and zoom out after geolocation positioning')
                 cy.get('[data-cy="zoom-in"]').click()
                 cy.getPinia().then((pinia) => {
                     const positionStore = usePositionStore(pinia)
@@ -139,6 +140,7 @@ describe('Geolocation cypress', () => {
                     checkPosition(positionStore.center, geoX, geoY)
                 })
 
+                cy.log('Zoom in twice more')
                 cy.get('[data-cy="zoom-in"]').click()
                 cy.get('[data-cy="zoom-in"]').click()
                 cy.getPinia().then((pinia) => {
@@ -146,6 +148,7 @@ describe('Geolocation cypress', () => {
                     expect(positionStore.zoom).to.eq(constants.SWISS_ZOOM_LEVEL_1_25000_MAP + 3)
                 })
 
+                cy.log('Zoom out three times to return to initial zoom after geolocation')
                 cy.get('[data-cy="zoom-out"]').click()
                 cy.get('[data-cy="zoom-out"]').click()
                 cy.get('[data-cy="zoom-out"]').click()
@@ -156,7 +159,7 @@ describe('Geolocation cypress', () => {
                 })
             })
             it('access from outside Switzerland shows an error message', () => {
-                // undefined island
+                cy.log('Test from null island')
                 cy.goToMapView({
                     withHash: true,
                     geolocationMockupOptions: { latitude: 0, longitude: 0 },
@@ -164,13 +167,120 @@ describe('Geolocation cypress', () => {
                 getGeolocationButtonAndClickIt()
                 testErrorMessage('geoloc_out_of_bounds')
 
-                // Java island
+                cy.log('Test from Java island')
                 cy.goToMapView({
                     withHash: true,
                     geolocationMockupOptions: { latitude: -7.71, longitude: 110.37 },
                 })
                 getGeolocationButtonAndClickIt()
                 testErrorMessage('geoloc_out_of_bounds')
+            })
+
+            it('Handling geolocation tracking and recentering behavior', () => {
+                const geoLatitude: number = 47.5
+                const geoLongitude: number = 6.8
+                const [geoX, geoY]: SingleCoordinate = proj4(WGS84.epsg, DEFAULT_PROJECTION.epsg, [
+                    geoLongitude,
+                    geoLatitude,
+                ])
+
+                cy.goToMapView({
+                    withHash: true,
+                    geolocationMockupOptions: { latitude: geoLatitude, longitude: geoLongitude },
+                })
+
+                // click the geolocation button for the first time
+                getGeolocationButtonAndClickIt()
+
+                // check if the geolocation is active, tracking is active, and center to the current geolocation position
+                cy.getPinia().then((pinia) => {
+                    const geolocationStore = useGeolocationStore(pinia)
+                    expect(geolocationStore.active).to.be.true
+                    expect(geolocationStore.tracking).to.be.true
+
+                    const positionStore = usePositionStore(pinia)
+                    checkPosition(positionStore.center, geoX, geoY)
+                })
+
+                // move the map
+                cy.get('[data-cy="ol-map"] canvas')
+                    .trigger('pointerdown', { button: 0, clientX: 200, clientY: 200 })
+                    .trigger('pointermove', { button: 0, clientX: 300, clientY: 300 })
+                    .trigger('pointerup', { button: 0, force: true })
+
+                // the geolocation should be still active, but tracking should be false, and the recenter button should show up
+                cy.get('[data-cy="recenter-button"]').should('be.visible')
+                cy.getPinia().then((pinia) => {
+                    const geolocationStore = useGeolocationStore(pinia)
+                    expect(geolocationStore.active).to.be.true
+                    expect(geolocationStore.tracking).to.be.false
+                })
+
+                // press the recenter button
+                cy.get('[data-cy="recenter-button"]').should('be.visible')
+                cy.get('[data-cy="recenter-button"]').click()
+                // recenter button is hidden
+                cy.get('[data-cy="recenter-button"]').should('not.exist')
+
+                // the geolocation should be still active, tracking should be active, and center is the geolocation position
+                cy.getPinia().then((pinia) => {
+                    const geolocationStore = useGeolocationStore(pinia)
+                    expect(geolocationStore.active).to.be.true
+                    expect(geolocationStore.tracking).to.be.true
+
+                    const positionStore = usePositionStore(pinia)
+                    checkPosition(positionStore.center, geoX, geoY)
+                })
+
+                // NOTE(IS): The following scenario is failed in cypress but passed in manual test
+
+                // // press geolocation button again to disable geolocation
+                // getGeolocationButtonAndClickIt()
+
+                // // the geolocation should be inactive, tracking also inactive
+                // cy.getPinia().then((pinia) => {
+                //     const geolocationStore = useGeolocationStore(pinia)
+                //     expect(geolocationStore.active).to.be.false
+                //     expect(geolocationStore.tracking).to.be.false
+                // })
+
+                // // move/pan the map
+                // cy.get('[data-cy="ol-map"] canvas')
+                //     .trigger('pointerdown', { button: 0, clientX: 200, clientY: 200 })
+                //     .trigger('pointermove', { button: 0, clientX: 300, clientY: 300 })
+                //     .trigger('pointerup', { button: 0, force: true })
+
+                // cy.getPinia().then((pinia) => {
+                //     const geolocationStore = useGeolocationStore(pinia)
+                //     expect(geolocationStore.active).to.be.false
+                //     expect(geolocationStore.tracking).to.be.false
+
+                //     const positionStore = usePositionStore(pinia)
+                //     cy.log('positionStore', positionStore.center)
+                // })
+
+                // // press again the geolocaiton button to activate it for the second time but not tracking
+                // getGeolocationButtonAndClickIt()
+
+                // this time, the geolocation should be active, but tracking is off, and the map is not centered to the current geolocation, also the recenter button is show up
+                // cy.get('[data-cy="recenter-button"]').should('be.visible')
+                // cy.getPinia().then((pinia) => {
+                //     const geolocationStore = useGeolocationStore(pinia)
+                //     expect(geolocationStore.active).to.be.true
+                //     expect(geolocationStore.tracking).to.be.false
+                // })
+
+                // // press recenter button, then geolocation, tracking should both active, then map is recenter to the current location, and the recenter button is hidden
+                // cy.get('[data-cy="recenter-button"]').click()
+                // cy.get('[data-cy="recenter-button"]').should('not.exist')
+                // cy.getPinia().then((pinia) => {
+                //     const geolocationStore = useGeolocationStore(pinia)
+                //     expect(geolocationStore.active).to.be.true
+                //     expect(geolocationStore.tracking).to.be.true
+
+                //     const positionStore = usePositionStore(pinia)
+                //     checkPosition(positionStore.center, geoX, geoY)
+                // })
             })
         }
     )

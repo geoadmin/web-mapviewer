@@ -98,8 +98,8 @@ function onCurrentIconChange(icon: DrawingIcon) {
         <div
             v-if="
                 currentIconSet &&
-                drawingStore.feature.current &&
-                drawingStore.feature.current.iconSize
+                    drawingStore.feature.current &&
+                    drawingStore.feature.current.iconSize
             "
             class="d-flex mb-3"
         >
@@ -126,9 +126,9 @@ function onCurrentIconChange(icon: DrawingIcon) {
         <DrawingStyleColorSelector
             v-if="
                 currentIconSet &&
-                drawingStore.feature.current &&
-                currentIconSet.isColorable &&
-                drawingStore.feature.current.fillColor
+                    drawingStore.feature.current &&
+                    currentIconSet.isColorable &&
+                    drawingStore.feature.current.fillColor
             "
             class="mb-3"
             inline

@@ -42,7 +42,6 @@ import useMapStore from '@/store/modules/map'
 import { ClickType } from '@/store/modules/map/types'
 import usePositionStore from '@/store/modules/position'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
-import { getSafe } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumInteractions.vue' }
 
