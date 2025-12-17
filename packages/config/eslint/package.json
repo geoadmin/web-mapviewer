@@ -17,10 +17,11 @@
         }
     },
     "scripts": {
-        "build": "pnpm run type-check && pnpm run generate-types",
+        "build": "pnpm run type-check && pnpm run generate-types && vite build",
         "generate-types": "tsc --declaration",
         "lint": "eslint --fix",
         "lint:no-fix": "eslint",
+        "prepare": "pnpm run build",
         "type-check": "tsc -p tsconfig.json"
     },
     "dependencies": {
@@ -43,7 +44,9 @@
         "@swissgeo/config-typescript": "workspace:*",
         "@types/node": "catalog:",
         "globals": "catalog:",
-        "typescript": "catalog:"
+        "typescript": "catalog:",
+        "unplugin-dts": "catalog:",
+        "vite": "catalog:"
     },
     "peerDependencies": {
         "@swissgeo/config-stylelint": "workspace:*",
