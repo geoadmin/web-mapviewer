@@ -513,6 +513,12 @@ importers:
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
+      unplugin-dts:
+        specifier: 'catalog:'
+        version: 1.0.0-beta.6(@microsoft/api-extractor@7.55.0(@types/node@24.10.1))(@vue/language-core@3.0.8(typescript@5.9.3))(esbuild@0.25.5)(rollup@4.44.1)(typescript@5.9.3)(vite@7.2.2(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.91.0)(sass@1.94.0)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1))
+      vite:
+        specifier: 'catalog:'
+        version: 7.2.2(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.91.0)(sass@1.94.0)(terser@5.43.1)(tsx@4.20.6)(yaml@2.8.1)
 
   packages/config/prettier:
     dependencies:
