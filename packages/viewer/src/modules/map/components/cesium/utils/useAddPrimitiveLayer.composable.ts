@@ -18,7 +18,7 @@ import {
     PrimitiveCollection,
     VerticalOrigin,
 } from 'cesium'
-import { onBeforeUnmount, onMounted, toRef, toValue, watch } from 'vue'
+import { onBeforeUnmount, onMounted, toValue, watch } from 'vue'
 
 import { PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE } from '@/config/cesium.config'
 import { CESIUM_SWISSNAMES3D_STYLE } from '@/modules/map/components/cesium/utils/swissnamesStyle.ts'
@@ -173,17 +173,20 @@ export default function useAddPrimitiveLayer(
         layer = undefined
     })
 
-    watch(() => toValue(opacity), () => {
-        if (layer) {
-            updateCollectionProperties(layer, {
-                opacity: toValue(opacity),
-                disableDepthTestDistance: PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE,
-            })
+    watch(
+        () => toValue(opacity),
+        () => {
+            if (layer) {
+                updateCollectionProperties(layer, {
+                    opacity: toValue(opacity),
+                    disableDepthTestDistance: PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE,
+                })
 
-            const viewerInstance = toValue(cesiumViewer)
-            if (viewerInstance && !viewerInstance.isDestroyed()) {
-                viewerInstance.scene.requestRender()
+                const viewerInstance = toValue(cesiumViewer)
+                if (viewerInstance && !viewerInstance.isDestroyed()) {
+                    viewerInstance.scene.requestRender()
+                }
             }
         }
-    })
+    )
 }

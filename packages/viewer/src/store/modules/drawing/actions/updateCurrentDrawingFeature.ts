@@ -3,13 +3,12 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import type { EditableFeature } from '@/api/features.api'
 import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
-import type { FeatureStyleColor, FeatureStyleSize } from '@/utils/featureStyleUtils'
 
 import { generateIconURL } from '@/api/icon.api'
 import { DrawingSaveState } from '@/store/modules/drawing/types'
 import debounceSaveDrawing from '@/store/modules/drawing/utils/debounceSaveDrawing'
 import useProfileStore from '@/store/modules/profile'
-import { calculateTextOffset, MEDIUM, RED } from '@/utils/featureStyleUtils'
+import { calculateTextOffset } from '@/utils/featureStyleUtils'
 
 export default function updateCurrentDrawingFeature(
     this: DrawingStore,

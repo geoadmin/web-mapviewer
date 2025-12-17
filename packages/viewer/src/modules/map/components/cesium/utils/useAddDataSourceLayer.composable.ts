@@ -3,7 +3,7 @@ import type { MaybeRef } from 'vue'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { GeoJsonDataSource, KmlDataSource } from 'cesium'
-import { onBeforeUnmount, toRef, toValue, watch } from 'vue'
+import { onBeforeUnmount, toValue, watch } from 'vue'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 
@@ -34,7 +34,7 @@ export default function useAddDataSourceLayer(
 
     async function refreshDataSource(
         loadingDataSource:
-            Promise<GeoJsonDataSource>
+            | Promise<GeoJsonDataSource>
             | Promise<KmlDataSource>
             | Promise<GpxDataSource>
     ): Promise<void> {
@@ -152,16 +152,19 @@ export default function useAddDataSourceLayer(
         dataSource = undefined
     })
 
-    watch(() => toValue(opacity), () => {
-        const viewerInstance = toValue(viewer)
-        if (!viewerInstance || viewerInstance.isDestroyed()) {
-            return
+    watch(
+        () => toValue(opacity),
+        () => {
+            const viewerInstance = toValue(viewer)
+            if (!viewerInstance || viewerInstance.isDestroyed()) {
+                return
+            }
+            dataSource?.entities.values.forEach((entity: Entity) =>
+                toValue(styleEntity)(entity, toValue(opacity) ?? 1.0)
+            )
+            viewerInstance.scene.requestRender()
         }
-        dataSource?.entities.values.forEach((entity: Entity) =>
-            toValue(styleEntity)(entity, toValue(opacity) ?? 1.0)
-        )
-        viewerInstance.scene.requestRender()
-    })
+    )
 
     return {
         refreshDataSource,

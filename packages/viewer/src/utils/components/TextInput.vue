@@ -7,11 +7,13 @@ import type { NamedValue } from 'vue-i18n'
 import { computed, nextTick, ref, toRef, useSlots, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import type {ValidateFunction, ValidationResult} from '@/utils/composables/useFieldValidation';
+
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
 import {
-    useFieldValidation,
-    type ValidateFunction,
-    type ValidationResult,
+    useFieldValidation
+    
+    
 } from '@/utils/composables/useFieldValidation'
 
 export interface TextInputExposed {

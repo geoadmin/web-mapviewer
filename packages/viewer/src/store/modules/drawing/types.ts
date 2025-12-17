@@ -35,6 +35,19 @@ export enum EditMode {
     Extend = 'EXTEND',
 }
 
+export enum OnlineMode {
+    // No online/offline mode selected
+    None = 'NONE',
+    // KML is saved online
+    Online = 'ONLINE',
+    // KML is saved only locally
+    Offline = 'OFFLINE',
+    // KML is saved online but an Offline drawing is also currently open
+    OnlineWhileOffline = 'ONLINE_WHILE_OFFLINE',
+    // KML is saved locally but an Online drawing is also currently open
+    OfflineWhileOnline = 'OFFLINE_WHILE_ONLINE',
+}
+
 export interface DrawingPreferences {
     size: FeatureStyleSize
     color: FeatureStyleColor
@@ -78,14 +91,15 @@ export interface DrawingStoreState {
         state: DrawingSaveState
         pending: ReturnType<typeof setTimeout> | undefined
     }
-    /** KML is saved online using the KML backend service 
-     * Options:
+    /**
+     * KML is saved online using the KML backend service Options:
+     *
      * - Online: KML is saved online
      * - Offline: KML is saved only locally
      * - OnlineWhileOffline: KML is saved online but an Offline drawing is also currently open
      * - OfflineWhileOnline: KML is saved locally but an Online drawing is also currently open
      * - None: No online/offline mode selected
-    */
+     */
     onlineMode: OnlineMode
     /** The name of the drawing, or undefined if no drawing is currently edited. */
     name?: string
