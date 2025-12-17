@@ -12,52 +12,56 @@ const menuSettingsContentSelector = '[data-cy="menu-help-content"]'
 const menuSettingsSectionSelector = '[data-cy="menu-help-section"] [data-cy="menu-section-header"]'
 
 describe('Test functions for the header / search bar', () => {
-    beforeEach(() => {
-        cy.goToMapView()
-    })
-    const checkMenuValue = (value: boolean) => {
-        cy.getPinia().then((pinia) => {
-            const uiStore = useUIStore(pinia)
-            expect(uiStore.isMenuShown).to.eq(value)
-        })
-    }
-
     const width = Cypress.config('viewportWidth')
-
-    if (width < BREAKPOINT_PHONE_WIDTH) {
-        it('Menu mobile functionalities', () => {
-            checkMenuValue(false)
-
-            cy.get(menuButtonSelector).click()
-            checkMenuValue(true)
-
-            cy.get(menuButtonSelector).click()
-            checkMenuValue(false)
-
-            cy.get(menuButtonSelector).click()
-            checkMenuValue(true)
-            cy.get(backdropSelector).click({ force: true })
-            checkMenuValue(false)
-        })
-    }
-
-    if (width >= BREAKPOINT_PHONE_WIDTH && width < BREAKPOINT_TABLET) {
-        context('Menu on tablet', () => {
-            it('should start closed', () => {
-                cy.get('[data-cy="menu-tray"]').should('have.class', 'desktop-menu-closed')
+    context('Menu functionalities', () => {
+        const checkMenuValue = (value: boolean) => {
+            cy.getPinia().then((pinia) => {
+                const uiStore = useUIStore(pinia)
+                expect(uiStore.isMenuShown).to.eq(value)
             })
-        })
-    }
+        }
 
-    if (width >= BREAKPOINT_TABLET) {
-        context('Menu on Desktop', () => {
-            it('should start open', () => {
-                cy.get('[data-cy="menu-tray"]').should('not.have.class', 'desktop-menu-closed')
+        const width = Cypress.config('viewportWidth')
+
+        if (width < BREAKPOINT_PHONE_WIDTH) {
+            it('Menu mobile functionalities', () => {
+                cy.goToMapView()
+                checkMenuValue(false)
+
+                cy.get(menuButtonSelector).click()
+                checkMenuValue(true)
+
+                cy.get(menuButtonSelector).click()
+                checkMenuValue(false)
+
+                cy.get(menuButtonSelector).click()
+                checkMenuValue(true)
+                cy.get(backdropSelector).click({ force: true })
+                checkMenuValue(false)
             })
-        })
-    }
+        }
+
+        if (width >= BREAKPOINT_PHONE_WIDTH && width < BREAKPOINT_TABLET) {
+            context('Menu on tablet', () => {
+                it('should start closed', () => {
+                    cy.get('[data-cy="menu-tray"]').should('have.class', 'desktop-menu-closed')
+                })
+            })
+        }
+
+        if (width >= BREAKPOINT_TABLET) {
+            context('Menu on Desktop', () => {
+                it('should start open', () => {
+                    cy.get('[data-cy="menu-tray"]').should('not.have.class', 'desktop-menu-closed')
+                })
+            })
+        }
+    })
 
     context('Settings Menu Section', () => {
+        beforeEach(() => {
+            cy.goToMapView()
+        })
         it('shows/hide the help on clicking on the help section', () => {
             if (width < BREAKPOINT_TABLET) {
                 // mobile/tablet only
@@ -143,6 +147,7 @@ describe('Test functions for the header / search bar', () => {
             })
         }
         it("resets layers added to the default topic's layers and default background layer when clicking on the logo", () => {
+            cy.goToMapView()
             selectTopicStandardAndAddLayerFromTopicTree()
             // now clicking on the swiss flag, this should reload the page without the active layer
             // we just selected (so only the topic and lang must be carried over)
