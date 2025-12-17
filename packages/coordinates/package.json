@@ -26,6 +26,7 @@
         "generate-types": "tsc --declaration",
         "lint": "eslint --fix",
         "lint:no-fix": "eslint",
+        "prepare": "pnpm run build",
         "preview": "vite preview",
         "test:unit": "vitest --run --mode development --environment jsdom",
         "test:unit:watch": "vitest --mode development --environment jsdom",

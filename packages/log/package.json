@@ -29,6 +29,7 @@
         "generate-types": "tsc --declaration",
         "lint": "eslint --fix",
         "lint:no-fix": "eslint",
+        "prepare": "pnpm run build",
         "type-check": "tsc -p tsconfig.json"
     },
     "devDependencies": {

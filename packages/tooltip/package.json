@@ -30,6 +30,7 @@
         "lint:no-fix": "eslint && pnpm run lint:styles:no-fix",
         "lint:styles": "stylelint \"**/*.{vue,scss}\" --fix",
         "lint:styles:no-fix": "stylelint \"**/*.{vue,scss}\"",
+        "prepare": "pnpm run build",
         "preview": "vite preview",
         "type-check": "vue-tsc --build"
     },
