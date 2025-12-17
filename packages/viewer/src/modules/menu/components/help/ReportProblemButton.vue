@@ -9,6 +9,7 @@ import { useI18n } from 'vue-i18n'
 
 import type { ActionDispatcher } from '@/store/types'
 import type { DropdownItem } from '@/utils/components/DropdownButton.vue'
+import type { ValidationResult } from '@/utils/composables/useFieldValidation'
 
 import sendFeedback, { ATTACHMENT_MAX_SIZE, KML_MAX_SIZE } from '@/api/feedback.api'
 import { getKmlUrl } from '@/api/files.api'
@@ -17,6 +18,7 @@ import { FEEDBACK_EMAIL_SUBJECT } from '@/config/feedback.config'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/help/common/SendActionButtons.vue'
 import useDrawingStore from '@/store/modules/drawing'
+import { OnlineMode } from '@/store/modules/drawing/types'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
@@ -86,7 +88,7 @@ const request = ref({
     completed: false,
 })
 const shortLink = ref('')
-const activateValidation = ref(false)
+const userHasTriedToSubmit = ref(false)
 const isMessageValid = ref(false)
 // by default attachment and email are valid as they are optional
 const isAttachmentValid = ref(true)
@@ -96,7 +98,7 @@ const isEmailValid = ref(true)
 const showDrawingOverlay = computed(() => drawingStore.overlay.show)
 
 const temporaryKml: ComputedRef<KMLLayer> = computed(
-    () => layersStore.systemLayers.find((l) => l.id === temporaryKmlId) as KMLLayer
+    () => layersStore.systemLayers.find((l) => l.id === `KML|${temporaryKmlId}`) as KMLLayer
 )
 
 const isTemporaryKmlValid = computed(
@@ -120,15 +122,10 @@ watch(
     { deep: true }
 )
 
-// Methods
-
-function validate() {
-    activateValidation.value = true
-    return isFormValid.value
-}
-
 async function sendReportProblem() {
-    if (!validate() && validationResult.value) {
+    userHasTriedToSubmit.value = true
+
+    if (!isFormValid.value && validationResult.value) {
         // scrolling down to make sure the message with validation result is visible to the user
         validationResult.value.scrollIntoView()
         return
@@ -170,7 +167,6 @@ async function sendReportProblem() {
 }
 
 function closeAndCleanForm() {
-    activateValidation.value = false
     showReportProblemForm.value = false
 
     // reset the state
@@ -180,21 +176,21 @@ function closeAndCleanForm() {
     request.value.failed = false
     request.value.completed = false
     if (temporaryKml.value) {
-        layersStore.removeSystemLayer(temporaryKmlId, dispatcher)
+        layersStore.removeSystemLayer(`KML|${temporaryKmlId}`, dispatcher)
         drawingStore.clearDrawingFeatures(dispatcher)
     }
 }
 
-function onTextValidate(valid: boolean) {
-    isMessageValid.value = valid
+function onTextValidate(validation: ValidationResult) {
+    isMessageValid.value = validation.valid
 }
 
-function onAttachmentValidate(valid: boolean) {
-    isAttachmentValid.value = valid
+function onAttachmentValidate(validation: ValidationResult) {
+    isAttachmentValid.value = validation.valid
 }
 
-function onEmailValidate(valid: boolean) {
-    isEmailValid.value = valid
+function onEmailValidate(validation: ValidationResult) {
+    isEmailValid.value = validation.valid
 }
 
 async function generateShortLink() {
@@ -221,12 +217,16 @@ function openForm() {
 function toggleDrawingOverlay() {
     drawingStore.toggleDrawingOverlay(
         {
-            online: false,
             kmlId: temporaryKmlId,
             title: 'feedback_drawing',
         },
         dispatcher
     )
+    if (drawingStore.onlineMode === OnlineMode.Online) {
+        drawingStore.setOnlineMode(OnlineMode.OfflineWhileOnline, dispatcher)
+    } else if (drawingStore.onlineMode === OnlineMode.None) {
+        drawingStore.setOnlineMode(OnlineMode.Offline, dispatcher)
+    }
 }
 
 function selectItem(dropdownItem: DropdownItem<string>) {
@@ -280,7 +280,7 @@ function selectItem(dropdownItem: DropdownItem<string>) {
                 class="my-2"
                 :class="{
                     'is-valid': feedback.category,
-                    'is-invalid': !feedback.category && activateValidation,
+                    'is-invalid': !feedback.category && userHasTriedToSubmit,
                 }"
                 @selectItem="selectItem"
             />
@@ -306,7 +306,7 @@ function selectItem(dropdownItem: DropdownItem<string>) {
                     :disabled="request.pending"
                     required
                     data-cy="report-problem-text-area"
-                    :activate-validation="activateValidation"
+                    :validate-when-pristine="userHasTriedToSubmit"
                     invalid-message="feedback_empty_warning"
                     @validate="onTextValidate"
                 />
@@ -349,7 +349,7 @@ function selectItem(dropdownItem: DropdownItem<string>) {
                     label="feedback_mail"
                     :disabled="request.pending"
                     :description="'no_email_feedback'"
-                    :activate-validation="activateValidation"
+                    :validate-when-pristine="userHasTriedToSubmit"
                     data-cy="report-problem-email"
                     @validate="onEmailValidate"
                 />
@@ -361,7 +361,7 @@ function selectItem(dropdownItem: DropdownItem<string>) {
                     label="feedback_attachment"
                     :accepted-file-types="acceptedFileTypes"
                     :placeholder="'feedback_placeholder'"
-                    :activate-validation="activateValidation"
+                    :validate-when-pristine="userHasTriedToSubmit"
                     :disabled="request.pending"
                     :max-file-size="ATTACHMENT_MAX_SIZE"
                     data-cy="report-problem-file"
@@ -386,7 +386,7 @@ function selectItem(dropdownItem: DropdownItem<string>) {
             </div>
             <SendActionButtons
                 class="text-end"
-                :class="{ 'is-invalid': !isFormValid && activateValidation }"
+                :class="{ 'is-invalid': !isFormValid && userHasTriedToSubmit }"
                 :is-disabled="request.pending"
                 :is-pending="request.pending"
                 @send="sendReportProblem"

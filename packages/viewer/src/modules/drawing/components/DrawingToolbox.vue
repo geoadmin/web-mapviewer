@@ -2,7 +2,6 @@
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import log from '@swissgeo/log'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import DOMPurify from 'dompurify'
 import { computed, ref } from 'vue'
@@ -19,6 +18,7 @@ import SharePopup from '@/modules/drawing/components/SharePopup.vue'
 import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
 import useDrawingStore from '@/store/modules/drawing'
 import { DrawingSaveState, EditMode } from '@/store/modules/drawing/types'
+import { isOnlineMode } from '@/store/modules/drawing/utils/isOnlineMode'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
@@ -48,6 +48,7 @@ const showNoActiveKmlWarning = computed<boolean>(() => layersStore.activeKmlLaye
 const tooltipText = computed<string>(() =>
     t(showNoActiveKmlWarning.value ? 'drawing_empty_cannot_edit_name' : '')
 )
+
 const isDrawingLineOrMeasure = computed<boolean>(() => {
     return (
         !!drawingStore.edit.featureType &&
@@ -112,17 +113,12 @@ const drawingStateMessage = computed(() => {
             return undefined
     }
 })
-const online = computed(() => drawingStore.online)
+const online = computed(() => isOnlineMode(drawingStore.onlineMode, true))
 
 function onCloseClearConfirmation(confirmed: boolean) {
     showClearConfirmationModal.value = false
     if (confirmed) {
-        drawingStore.closeDrawing(dispatcher).catch((error) => {
-            log.error({
-                title: 'DrawingToolbox.vue',
-                messages: ['Error while closing drawing', error],
-            })
-        })
+        drawingStore.deleteCurrentDrawing(dispatcher)
     }
 }
 
@@ -373,6 +369,7 @@ $zindex-drawing-toolbox: -1;
     position: relative;
     z-index: $zindex-drawing-toolbox;
     transition: transform $animation-time;
+
     .button-open-close-draw-menu {
         height: $openCloseButtonHeight;
     }
@@ -397,6 +394,7 @@ $zindex-drawing-toolbox: -1;
     .drawing-toolbox {
         position: absolute;
         max-width: $menu-tray-width;
+
         .drawing-toolbox-content {
             transition: opacity $animation-time;
         }

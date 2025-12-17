@@ -1,98 +1,112 @@
-import type { ComputedRef, Ref } from 'vue'
+import type {MaybeRefOrGetter, Ref} from 'vue';
 
-import { computed, onMounted, ref, toRef, watch } from 'vue'
+import {
+    computed,
+    
+    
+    ref,
+    toValue,
+    unref,
+    watch,
+    watchEffect
+} from 'vue'
+
+export type FieldValidationTypes = string | File
 
 export interface ValidationResult {
     valid: boolean
     invalidMessage: string
 }
 
-export type ValidateFunction<T extends string | File> = (value?: T) => ValidationResult
+export type ValidateFunction<T extends FieldValidationTypes> = (value?: T) => ValidationResult
 
-export interface FieldValidationProps<T extends string | File> {
-    label?: string
-    description?: string
-    disabled?: boolean
-    placeholder?: string
-    required?: boolean
-    validMarker?: boolean | undefined
-    validMessage?: string
-    invalidMarker?: boolean | undefined
-    invalidMessage?: string
-    activateValidation?: boolean
-    validate?: ValidateFunction<T> | undefined
+type FieldValidationEvents = 'change' | 'validate' | 'focusin' | 'focusout'
+interface FieldValidationEventsPayloads {
+    change: [value?: FieldValidationTypes]
+    validate: [result: ValidationResult]
+    focusin: [event: Event]
+    focusout: [event: Event]
 }
+type FieldValidationEmits = <key extends FieldValidationEvents>(
+    eventName: key,
+    ...args: FieldValidationEventsPayloads[key]
+) => void
 
-export interface FieldValidationOptions {
-    customValidate?: () => ValidationResult
-    requiredInvalidMessage?: string
-}
-
-export interface FieldValidationReturn<T extends string | File> {
-    value: Ref<T | undefined>
-    isValid: ComputedRef<boolean>
-    validMarker: ComputedRef<boolean>
-    invalidMarker: ComputedRef<boolean>
-    validMessage: Ref<string | undefined>
-    invalidMessage: ComputedRef<string | undefined>
+export interface FieldValidationReturn {
+    /**
+     * Will return the result of the validation, or undefined in case has not yet been validated (or
+     * if activateValidation is false)
+     */
+    validation: Ref<ValidationResult | undefined>
     onFocus: (event: Event, inFocus: boolean) => void
-    required: Ref<boolean | undefined>
-    activateValidation: Ref<boolean | undefined>
 }
 
-export function propsValidator4ValidateFunc(value: unknown, _props: unknown): boolean {
-    if (value === undefined) {
-        return true
-    }
-    if (typeof value !== 'function') {
-        return false
-    }
-    const returnObject = value('') as Record<string, unknown>
-    if (typeof returnObject !== 'object') {
-        return false
-    }
-    if (!('valid' in returnObject)) {
-        return false
-    }
-    if (!('invalidMessage' in returnObject)) {
-        return false
-    }
-    if (typeof returnObject.valid !== 'boolean') {
-        return false
-    }
-    if (typeof returnObject.invalidMessage !== 'string') {
-        return false
-    }
-    return true
+interface FieldValidationConfig<T extends FieldValidationTypes> {
+    model?: MaybeRefOrGetter<T | undefined>
+
+    required?: MaybeRefOrGetter<boolean>
+    requiredInvalidMessage?: MaybeRefOrGetter<string>
+
+    /**
+     * If set to true, the validation will be triggered as soon as the field is first rendered. If
+     * set to false, the validation will only be triggered when the field is modified.
+     *
+     * By default, the field will not be validated until the user actually starts typing/editing it.
+     * This flag can force the validation from the get-go.
+     */
+    validateWhenPristine?: MaybeRefOrGetter<boolean>
+
+    /** NOTE: This prop is ignored when `activateValidation` is false. */
+    forceValid?: MaybeRefOrGetter<boolean>
+    validFieldMessage?: MaybeRefOrGetter<string>
+
+    /** NOTE: This prop is ignored when `activateValidation` is false. */
+    forceInvalid?: MaybeRefOrGetter<boolean>
+    invalidFieldMessage?: MaybeRefOrGetter<string>
+
+    validate?: ValidateFunction<T>
+    emits?: FieldValidationEmits
 }
 
-/**
- * Input field validation logic
- *
- * @param props Vue properties of the component to add the field validation
- * @param model Vue model definition of the input component (Ref or ModelRef from defineModel)
- * @param emits Vue event emitter definition of the input component
- * @param options Options object for custom validation and messages
- */
-export function useFieldValidation<T extends string | File>(
-    props: FieldValidationProps<T>,
-    model: Ref<T | undefined>,
-    emits: (event: string, ...args: unknown[]) => void,
-    {
-        customValidate = (): ValidationResult => {
-            return { valid: true, invalidMessage: '' }
-        },
+/** Input field validation logic */
+export function useFieldValidation<T extends FieldValidationTypes>(
+    config: FieldValidationConfig<T>
+): FieldValidationReturn {
+    const {
+        model,
+
+        required,
         requiredInvalidMessage = 'field_required',
-    }: FieldValidationOptions = {}
-): FieldValidationReturn<T> {
-    // Reactive data
-    const value = ref(model.value) as Ref<T | undefined>
 
+        validateWhenPristine = false,
+
+        forceValid,
+        validFieldMessage,
+
+        forceInvalid,
+        invalidFieldMessage,
+
+        validate,
+        emits,
+    } = config
+
+    const pristine = ref<boolean>(true)
     const userIsTyping = ref<boolean>(false)
-    const activateValidation = toRef(props, 'activateValidation')
-    const required = toRef(props, 'required')
-    const validMessage = toRef(props, 'validMessage')
-    const validation = ref<ValidationResult>({ valid: true, invalidMessage: '' })
+    const validation = ref<ValidationResult | undefined>()
+
+    const validMessage = computed<string>(() => {
+        if (toValue(validFieldMessage)) {
+            return toValue(validFieldMessage)!
+        }
+        return ''
+    })
+    const invalidMessage = computed<string>(() => {
+        const propValue = toValue(invalidFieldMessage)
+        if (propValue) {
+            return propValue
+        }
+        return 'invalid_field'
+    })
 
     // Helper function to check if value is empty
     const isEmpty = (value?: T): boolean => {
@@ -105,87 +119,71 @@ export function useFieldValidation<T extends string | File>(
         return false
     }
 
-    // Computed properties
-    const isValid = computed(() => {
-        return validation.value.valid
+    watchEffect(() => {
+        internalValidate()
     })
-    const activateValidationMarkers = computed(() => activateValidation.value)
-    const validMarker = computed(() => {
-        // Do not add a valid marker when the marker are not activated or when the field is empty
-        // or when it is already marked as invalid
-        if (!activateValidationMarkers.value || isEmpty(value.value) || invalidMarker.value) {
-            return false
-        }
-        let _validMarker = isValid.value
-        if (props.validMarker !== undefined) {
-            _validMarker = _validMarker && (props.validMarker ?? false)
-        }
-        return _validMarker
-    })
-    const invalidMarker = computed(() => {
-        if (!activateValidationMarkers.value) {
-            return false
-        }
-        let _invalidMarker = !isValid.value
-        if (props.invalidMarker !== undefined) {
-            _invalidMarker = _invalidMarker || !!props.invalidMarker
-        }
-        return _invalidMarker
-    })
-    const invalidMessage = computed(() => {
-        if (props.invalidMessage) {
-            return props.invalidMessage
-        }
-        return validation.value.invalidMessage
-    })
-
-    // Watches
-    watch(activateValidation, () => validate())
-    watch(userIsTyping, () => validate())
-    watch(value, () => {
-        model.value = value.value
-        validate()
-        emits('change', value.value)
-    })
-    watch(model, (newValue) => (value.value = newValue))
-
-    onMounted(() => {
-        validate()
-    })
-
-    function validate(): void {
-        validation.value = customValidate()
-        if (required.value && isEmpty(value.value)) {
-            validation.value = {
-                valid: false,
-                invalidMessage: requiredInvalidMessage,
+    watch(
+        () => toValue(model),
+        (newValue) => {
+            pristine.value = false
+            const unrefedEmits = unref(emits)
+            if (unrefedEmits) {
+                unrefedEmits('change', newValue)
             }
         }
-        if (props.validate && validation.value.valid) {
-            // Run user custom validation
-            validation.value = props.validate(value.value)
+    )
+
+    function internalValidate(): void {
+        if (pristine.value && !toValue(validateWhenPristine)) {
+            validation.value = undefined
+            return
         }
-        emits('validate', validation.value.valid)
+
+        const unrefedEmits = unref(emits)
+
+        if (toValue(forceValid) === true) {
+            validation.value = {
+                valid: true,
+                invalidMessage: validMessage.value,
+            }
+        } else if (toValue(forceInvalid) === true) {
+            validation.value = {
+                valid: false,
+                invalidMessage: invalidMessage.value,
+            }
+        } else if (toValue(required) === true && isEmpty(toValue(model))) {
+            validation.value = {
+                valid: false,
+                invalidMessage: toValue(requiredInvalidMessage) ?? invalidMessage.value,
+            }
+        } else if (validate) {
+            validation.value = validate(toValue(model))
+        } else {
+            validation.value = {
+                valid: true,
+                invalidMessage: validMessage.value,
+            }
+        }
+        if (unrefedEmits) {
+            unrefedEmits('validate', validation.value)
+        }
     }
 
     function onFocus(event: Event, inFocus: boolean): void {
         userIsTyping.value = inFocus
+        const unrefedEmits = unref(emits)
+        if (!unrefedEmits) {
+            return
+        }
         if (inFocus) {
-            emits('focusin', event)
+            unrefedEmits('focusin', event)
         } else {
-            emits('focusout', event)
+            unrefedEmits('focusout', event)
         }
     }
 
     return {
-        value,
-        isValid,
-        validMarker,
-        invalidMarker,
-        validMessage,
-        invalidMessage,
+        validation,
         onFocus,
-        required,
-        activateValidation,
     }
 }

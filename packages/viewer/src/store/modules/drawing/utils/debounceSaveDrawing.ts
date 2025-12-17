@@ -10,6 +10,7 @@ import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
 import useDrawingStore from '@/store/modules/drawing'
 import { DrawingSaveState } from '@/store/modules/drawing/types'
+import { isOnlineMode } from '@/store/modules/drawing/utils/isOnlineMode'
 import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
 
@@ -40,15 +41,50 @@ function willModify() {
     }
 }
 
+async function saveLocalDrawing(kmlData: string) {
+    const drawingStore = useDrawingStore()
+    const layersStore = useLayersStore()
+    const kmlMetadata = await createKml(kmlData)
+
+    const kmlLayer = layerUtils.makeKMLLayer({
+        name: drawingStore.name,
+        kmlFileUrl: drawingStore.layer.temporaryKmlId,
+        isVisible: true,
+        opacity: 1,
+        kmlData: kmlData,
+        kmlMetadata,
+        adminId: kmlMetadata.adminId,
+        isEdited: true,
+    })
+    drawingStore.layer.config = kmlLayer
+
+    if (!layersStore.systemLayers.find((systemLayer) => systemLayer.id === kmlLayer.id)) {
+        layersStore.addSystemLayer(kmlLayer, dispatcher)
+    } else {
+        layersStore.updateSystemLayer(kmlLayer, dispatcher)
+    }
+}
+
 async function saveDrawing({ retryOnError = true }: { retryOnError?: boolean }) {
     const drawingStore = useDrawingStore()
 
-    if (!drawingStore.layer.ol || !drawingStore.online) {
+    if (!drawingStore.layer.ol) {
         return
     }
-
-    const layersStore = useLayersStore()
     const positionStore = usePositionStore()
+    const kmlData = generateKmlString(
+        positionStore.projection,
+        drawingStore.layer.ol?.getSource()?.getFeatures() ?? [],
+        drawingStore.name
+    )
+    if (!isOnlineMode(drawingStore.onlineMode)) {
+        await saveLocalDrawing(kmlData)
+        // This has to be set so that the snot shared drawing warning is not shown after drawing an offline drawing
+        // and then opening the drawing overlay and leaving it without drawing something
+        drawingStore.setDrawingSaveState(DrawingSaveState.Initial, dispatcher)
+        return
+    }
+    const layersStore = useLayersStore()
 
     try {
         log.debug({

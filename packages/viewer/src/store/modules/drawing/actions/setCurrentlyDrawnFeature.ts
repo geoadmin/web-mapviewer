@@ -31,6 +31,7 @@ export default function setCurrentlyDrawnFeature(
             profileStore.setProfileFeature(this.feature.current, dispatcher)
         }
         if (!this.feature.all.some((feature) => feature.id === this.feature.current?.id)) {
+            this.feature.all.push(this.feature.current)
             debounceSaveDrawing().catch((error) => {
                 log.error({
                     title: 'Drawing store / setCurrentlyDrawnFeature',
