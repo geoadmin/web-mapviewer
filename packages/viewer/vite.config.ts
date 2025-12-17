@@ -29,13 +29,20 @@ const appVersion: string =
 const __dirname: string = dirname(fileURLToPath(import.meta.url))
 const cesiumFolder: string = `${__dirname}/node_modules/cesium/`
 const cesiumSource: string = `${cesiumFolder}Source/`
-const cesiumStaticDir: string = `./${appVersion}/cesium/`
 
 const stagings: Record<ViteModes, string> = {
     development: 'dev',
     integration: 'int',
     production: 'prod',
     test: 'test',
+}
+
+/**
+ * Get the Cesium static directory path based on the mode.
+ * In test mode, use a fixed path to avoid issues with dynamic version paths.
+ */
+function getCesiumStaticDir(mode: ViteModes): string {
+    return mode === 'test' ? './cesium/' : `./${appVersion}/cesium/`
 }
 
 /**
@@ -87,24 +94,29 @@ function generatePlugins(mode: ViteModes, isTesting: boolean = false): PluginOpt
 
     // CesiumJS requires static files from the following 4 folders to be included in the build
     // https://cesium.com/learn/cesiumjs-learn/cesiumjs-quickstart/#install-with-npm
+    const cesiumStaticDir = getCesiumStaticDir(mode)
     plugins.push(
         viteStaticCopy({
             targets: [
                 {
                     src: normalizePath(`${cesiumFolder}/Build/Cesium/Workers`),
                     dest: cesiumStaticDir,
+                    overwrite: false,
                 },
                 {
-                    src: normalizePath(`${cesiumSource}/Assets/`),
+                    src: normalizePath(`${cesiumSource}/Assets`),
                     dest: cesiumStaticDir,
+                    overwrite: false,
                 },
                 {
-                    src: normalizePath(`${cesiumSource}/Widgets/`),
+                    src: normalizePath(`${cesiumSource}/Widgets`),
                     dest: cesiumStaticDir,
+                    overwrite: false,
                 },
                 {
-                    src: normalizePath(`${cesiumSource}/ThirdParty/`),
+                    src: normalizePath(`${cesiumSource}/ThirdParty`),
                     dest: cesiumStaticDir,
+                    overwrite: false,
                 },
             ],
         })
@@ -177,11 +189,12 @@ export default defineConfig((configEnv: ConfigEnv): ViteUserConfig => {
     // The app is also adding a couple of things to the "window" element when in test mode, so that Cypress can access it.
     const isTesting = mode === 'test'
     const definitiveMode: ViteModes = (isTesting ? 'development' : mode) as ViteModes
+    const pluginMode: ViteModes = mode as ViteModes
     return {
         base: './',
         build: {
             emptyOutDir: true,
-            assetsDir: `${appVersion}/assets`,
+            assetsDir: isTesting ? 'assets' : `${appVersion}/assets`,
             outDir: `./dist/${stagings[definitiveMode]}`,
             rollupOptions: {
                 external: ['tailwindcss'],
@@ -202,7 +215,7 @@ export default defineConfig((configEnv: ConfigEnv): ViteUserConfig => {
                 },
             },
         },
-        plugins: generatePlugins(definitiveMode, isTesting),
+        plugins: generatePlugins(pluginMode, isTesting),
         resolve: {
             alias: {
                 '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -214,11 +227,15 @@ export default defineConfig((configEnv: ConfigEnv): ViteUserConfig => {
         define: {
             __APP_VERSION__: JSON.stringify(appVersion),
             __VITE_ENVIRONMENT__: JSON.stringify(definitiveMode),
-            __CESIUM_STATIC_PATH__: JSON.stringify(cesiumStaticDir),
+            __CESIUM_STATIC_PATH__: JSON.stringify(getCesiumStaticDir(pluginMode)),
             __IS_TESTING_WITH_CYPRESS__: JSON.stringify(isTesting),
             // opting out explicitly of Option API to reduce the Vue bundle's size,
             // see https://vuejs.org/api/compile-time-flags#VUE_OPTIONS_API
             __VUE_OPTIONS_API__: 'false',
+            // Polyfill for Cesium's Node.js environment checks in browser context
+            // Cesium's bundled code contains checks like `typeof process !== 'undefined'`
+            // which fail in Cypress tests without this polyfill
+            'process.env.NODE_ENV': JSON.stringify(definitiveMode),
         },
         test: {
             include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
