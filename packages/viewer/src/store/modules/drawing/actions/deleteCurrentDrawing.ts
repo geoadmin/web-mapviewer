@@ -1,14 +1,11 @@
-import type { DrawingStore } from '@/store/modules/drawing/types/drawing'
+import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { DrawingSaveState } from '@/store/modules/drawing/types/DrawingSaveState.enum'
+import { DrawingSaveState } from '@/store/modules/drawing/types'
 import { isOnlineMode } from '@/store/modules/drawing/utils/isOnlineMode'
 import useLayersStore from '@/store/modules/layers'
 
-export default function deleteCurrentDrawing(
-    this: DrawingStore,
-    dispatcher: ActionDispatcher
-) {
+export default function deleteCurrentDrawing(this: DrawingStore, dispatcher: ActionDispatcher) {
     if (!this.layer.config && !this.layer.temporaryKmlId) {
         return
     }

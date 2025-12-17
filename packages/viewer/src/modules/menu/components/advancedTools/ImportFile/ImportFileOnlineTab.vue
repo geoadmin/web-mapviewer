@@ -6,7 +6,8 @@ import { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
-import type { TextInputExposed, TextInputValidateResult } from '@/utils/components/TextInput.vue'
+import type { TextInputExposed } from '@/utils/components/TextInput.vue'
+import type { ValidationResult } from '@/utils/composables/useFieldValidation'
 
 import ImportFileButtons from '@/modules/menu/components/advancedTools/ImportFile/ImportFileButtons.vue'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'

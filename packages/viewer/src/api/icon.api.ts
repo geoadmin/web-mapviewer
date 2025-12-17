@@ -2,7 +2,7 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import axios from 'axios'
 import { fromString } from 'ol/color'
 
-import type { FeatureStyleColor, FeatureStyleSize } from '@/utils/featureStyleUtils'
+import type { FeatureStyleColor } from '@/utils/featureStyleUtils'
 
 import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'
 import { LARGE, RED } from '@/utils/featureStyleUtils'

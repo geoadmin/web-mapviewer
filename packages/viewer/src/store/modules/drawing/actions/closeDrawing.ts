@@ -6,7 +6,7 @@ import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
-import { OnlineMode } from '@/store/modules/drawing/types/OnlineMode.enum'
+import { OnlineMode } from '@/store/modules/drawing/types'
 import debounceSaveDrawing from '@/store/modules/drawing/utils/debounceSaveDrawing'
 import { isOnlineMode } from '@/store/modules/drawing/utils/isOnlineMode'
 import useFeaturesStore from '@/store/modules/features'
@@ -53,7 +53,6 @@ export default async function closeDrawing(this: DrawingStore, dispatcher: Actio
                     },
                     dispatcher
                 )
-
             } else {
                 const updatedLayer = {
                     ...this.layer.config,

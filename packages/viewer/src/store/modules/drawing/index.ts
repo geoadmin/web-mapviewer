@@ -23,7 +23,7 @@ import updateDrawingPreferences from '@/store/modules/drawing/actions/updateDraw
 import { isDrawingEmpty } from '@/store/modules/drawing/getters/isDrawingEmpty'
 import isDrawingModified from '@/store/modules/drawing/getters/isDrawingModified'
 import showNotSharedDrawingWarning from '@/store/modules/drawing/getters/showNotSharedDrawingWarning'
-import { DrawingSaveState, EditMode } from '@/store/modules/drawing/types'
+import { DrawingSaveState, EditMode, OnlineMode } from '@/store/modules/drawing/types'
 import { MEDIUM, RED, TextPlacement } from '@/utils/featureStyleUtils'
 
 const defaultDrawingTitle = 'draw_mode_title'

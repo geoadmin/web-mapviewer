@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { TextInputValidateResult } from '@/utils/components/TextInput.vue'
+import type { ValidationResult } from '@/utils/composables/useFieldValidation'
 
 import { MediaType } from '@/modules/infobox/DrawingStyleMediaTypes.enum'
 import TextInput from '@/utils/components/TextInput.vue'
