@@ -3,6 +3,7 @@
 import type { Viewer } from 'cesium'
 
 import useLayersStore from '@/store/modules/layers'
+import { toValue, type MaybeRef } from 'vue'
 
 function expectLayerCountToBe(viewer: Viewer, layerCount: number) {
     const layers = viewer.scene.imageryLayers
@@ -53,10 +54,11 @@ describe('Testing the feature selection in 3D', () => {
             cy.log('Verifying that the KML layer is loaded')
             cy.window()
                 .its('cesiumViewer')
-                .then((viewer) => {
-                    expectLayerCountToBe(viewer, 2)
-                    expect(viewer.dataSources.length).to.eq(1)
-                    const kmlLayer = viewer.dataSources.get(0)
+                .then((viewer: MaybeRef<Viewer>) => {
+                    const currentViewer: Viewer = toValue(viewer)
+                    expectLayerCountToBe(currentViewer, 2)
+                    expect(currentViewer.dataSources.length).to.eq(1)
+                    const kmlLayer = currentViewer.dataSources.get(0)
                     expect(kmlLayer.show).to.eq(true)
                 })
 
