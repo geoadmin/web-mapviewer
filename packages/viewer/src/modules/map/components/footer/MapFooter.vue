@@ -67,7 +67,8 @@ function handleSlotChange() {
 
 <style lang="scss" scoped>
 @import '@/scss/media-query.mixin';
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@/scss/variables.module';
+@import '@swissgeo/theme/scss/colors';
 
 $transition-duration: 0.2s;
 $flex-gap: 1em;

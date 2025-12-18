@@ -403,7 +403,7 @@ defineExpose<ProviderListExpose>({ goToFirst })
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 
 // Adjust overflow to ensure focus outline is not clipped
 .providers-list-container {

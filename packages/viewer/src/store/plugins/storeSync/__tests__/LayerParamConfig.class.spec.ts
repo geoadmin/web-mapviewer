@@ -1,8 +1,8 @@
 import { LayerType } from '@swissgeo/layers'
 import { encodeExternalLayerParam } from '@swissgeo/layers/api'
+import { getServiceKmlBaseUrl } from '@swissgeo/staging-config'
 import { describe, expect, it } from 'vitest'
 
-import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import { decodeUrlLayerId } from '@/store/plugins/storeSync/layersParamParser'
 
 describe('External layer parsing with decodeUrlLayerId', () => {

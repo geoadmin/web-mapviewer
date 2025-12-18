@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 
 import type { SupportedLang } from '@/modules/i18n/index.js'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { languages } from '@/modules/i18n/index.js'
 import FeedbackButton from '@/modules/menu/components/help/feedback/FeedbackButton.vue'
 import HelpLink from '@/modules/menu/components/help/HelpLink.vue'
@@ -149,7 +149,7 @@ defineExpose({
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 .help-links {
     width: 100%;
     a {

@@ -1,9 +1,9 @@
+import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@swissgeo/staging-config/constants'
 import { assertDefined } from 'support/utils'
 
 import type { MockLayer } from '@/../tests/cypress/cypress.d'
 
 import { moveTimeSlider } from '@/../tests/cypress/tests-e2e/utils'
-import { DEFAULT_OLDEST_YEAR, DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 
 /// <reference types="cypress" />
 describe('Cypress tests covering the time slider, its functionalities and its URL parameter', () => {

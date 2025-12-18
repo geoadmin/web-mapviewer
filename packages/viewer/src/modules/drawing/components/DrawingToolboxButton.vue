@@ -66,7 +66,7 @@ function setDrawingMode() {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/media-query.mixin';
+@import '@swissgeo/theme/scss/media-query.mixin';
 @include respond-above(phone) {
     .drawing-mode-button {
         min-width: 7rem;

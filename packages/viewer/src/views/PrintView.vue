@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import log from '@swissgeo/log'
+import {
+    PRINT_DEFAULT_DPI,
+    PRINT_DIMENSIONS,
+    PRINT_MARGIN_IN_MILLIMETERS,
+} from '@swissgeo/staging-config/constants'
 import { getPointResolution } from 'ol/proj'
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -9,11 +14,6 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
 import { createShortLink } from '@/api/shortlink.api'
-import {
-    PRINT_DEFAULT_DPI,
-    PRINT_DIMENSIONS,
-    PRINT_MARGIN_IN_MILLIMETERS,
-} from '@/config/print.config'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
 import OpenLayersPrintResolutionEnforcer from '@/modules/map/components/openlayers/OpenLayersPrintResolutionEnforcer.vue'

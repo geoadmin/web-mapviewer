@@ -113,7 +113,7 @@ function openQrcode() {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 
 $shareButtonWidth: 46px;
 .share-network {

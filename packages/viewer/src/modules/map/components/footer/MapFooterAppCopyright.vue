@@ -35,7 +35,7 @@ const links = computed(() => {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/variables-admin.module';
+@import '@swissgeo/theme/scss/colors';
 a {
     color: $black;
     text-decoration: initial;

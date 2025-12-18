@@ -12,7 +12,7 @@ import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import useDrawingStore from '@/store/modules/drawing'
 import usePositionStore from '@/store/modules/position'

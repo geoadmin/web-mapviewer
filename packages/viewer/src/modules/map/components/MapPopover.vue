@@ -179,7 +179,8 @@ defineExpose({
 
 <style lang="scss" scoped>
 /* stylelint-disable scss/operator-no-newline-after */
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
+@import '@/scss/variables.module';
 @import '@/scss/media-query.mixin';
 
 .map-popover {

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 
 import type { PositionStoreGetters, PositionStoreState } from '@/store/modules/position/types'
 
-import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { DEFAULT_PROJECTION } from '@/config'
 import decreaseZoom from '@/store/modules/position/actions/decreaseZoom'
 import increaseZoom from '@/store/modules/position/actions/increaseZoom'
 import setAutoRotation from '@/store/modules/position/actions/setAutoRotation'

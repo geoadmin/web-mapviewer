@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { MAX_WIDTH_SHOW_FLOATING_TOOLTIP } from '@swissgeo/staging-config/constants'
 import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { MAX_WIDTH_SHOW_FLOATING_TOOLTIP } from '@/config/responsive.config'
 import InfoboxContent from '@/modules/infobox/components/InfoboxContent.vue'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'

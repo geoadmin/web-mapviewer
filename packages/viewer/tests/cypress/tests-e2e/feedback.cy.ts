@@ -1,6 +1,6 @@
 /// <reference types="cypress" />
 
-import { APP_VERSION } from '@/config/staging.config'
+import { APP_VERSION } from '@/config'
 
 import { interceptFeedback, parseFormData } from './feedbackTestUtils'
 

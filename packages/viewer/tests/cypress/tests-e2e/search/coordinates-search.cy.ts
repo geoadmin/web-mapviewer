@@ -6,7 +6,7 @@ import type { Pinia } from 'pinia'
 import { constants, coordinatesUtils, LV03, LV95, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import { assertDefined } from 'support/utils'
 
-import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { DEFAULT_PROJECTION } from '@/config'
 import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'
 import useSearchStore from '@/store/modules/search'

@@ -3,10 +3,9 @@ import type { CoordinateSystem, SingleCoordinate } from '@swissgeo/coordinates'
 import { LV95 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import { round } from '@swissgeo/numbers'
+import { getApi3BaseUrl } from '@swissgeo/staging-config'
 import axios from 'axios'
 import proj4 from 'proj4'
-
-import { getApi3BaseUrl } from '@/config/baseUrl.config'
 
 export const meterToFeetFactor: number = 3.28084
 

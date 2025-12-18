@@ -16,7 +16,7 @@ const { t } = useI18n()
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 .drag-n-drop-overlay {
     $drag-n-drop-z-index: 9999;
     position: fixed;

@@ -6,7 +6,7 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import type { ActionDispatcher } from '@/store/types'
 
 import { createKml, getKmlUrl, updateKml } from '@/api/files.api'
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
 import useDrawingStore from '@/store/modules/drawing'
 import { DrawingSaveState } from '@/store/modules/drawing/types'

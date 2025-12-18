@@ -29,7 +29,7 @@ const {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 
 .map-footer-attribution-source {
     margin-left: 2px;

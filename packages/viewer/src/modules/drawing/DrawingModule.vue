@@ -16,7 +16,7 @@ import type { DrawingInteractionExposed } from '@/modules/drawing/types/interact
 import type { ActionDispatcher } from '@/store/types'
 
 import { EditableFeatureTypes } from '@/api/features.api'
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import AddVertexButtonOverlay from '@/modules/drawing/components/AddVertexButtonOverlay.vue'
 import DrawingInteractions from '@/modules/drawing/components/DrawingInteractions.vue'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'

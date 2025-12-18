@@ -9,6 +9,7 @@ const config: UserConfig = {
         lib: {
             entry: {
                 index: resolve(__dirname, 'src/index.ts'),
+                constants: resolve(__dirname, 'src/constants/index.ts'),
             },
             name: '@swissgeo/staging-config',
         },

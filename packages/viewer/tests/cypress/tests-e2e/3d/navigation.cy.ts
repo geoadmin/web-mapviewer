@@ -1,9 +1,11 @@
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
-/// <reference types="cypress" />
+import {
+    CAMERA_MAX_ZOOM_DISTANCE,
+    CAMERA_MIN_ZOOM_DISTANCE,
+} from '@swissgeo/staging-config/constants'
 import { Cartesian3 } from 'cesium'
 import proj4 from 'proj4'
 
-import { CAMERA_MAX_ZOOM_DISTANCE, CAMERA_MIN_ZOOM_DISTANCE } from '@/config/cesium.config'
 import { calculateResolution } from '@/modules/map/components/cesium/utils/cameraUtils'
 import usePositionStore from '@/store/modules/position'
 

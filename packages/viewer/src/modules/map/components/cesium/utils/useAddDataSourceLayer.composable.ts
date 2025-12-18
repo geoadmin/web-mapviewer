@@ -5,7 +5,7 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { GeoJsonDataSource, KmlDataSource } from 'cesium'
 import { onBeforeUnmount, toValue, watch } from 'vue'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 
 /**
  * Function that will be called on each entity when load to let each "flavor" of data style the

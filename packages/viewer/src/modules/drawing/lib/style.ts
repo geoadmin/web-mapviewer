@@ -3,6 +3,7 @@ import type { FeatureLike } from 'ol/Feature'
 import type { Geometry } from 'ol/geom'
 import type { GeometryFunction } from 'ol/style/Style'
 
+import { styleUtils } from '@swissgeo/theme'
 import { LineString, MultiPoint, Point, Polygon } from 'ol/geom'
 import RenderFeature from 'ol/render/Feature'
 import { Circle, Fill, Style } from 'ol/style'
@@ -11,14 +12,6 @@ import type { EditableFeature } from '@/api/features.api'
 
 import { isLineOrMeasure } from '@/api/features.api'
 import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
-import {
-    dashedRedStroke,
-    redStroke,
-    sketchPointStyle,
-    StyleZIndex,
-    whiteCircleStyle,
-    whiteSketchFill,
-} from '@/utils/styleUtils'
 
 /**
  * Style function as used by the Modify Interaction. Used to display a translucent point on a line
@@ -34,7 +27,7 @@ export function editingVertexStyleFunction(
         return null
     }
     return new Style({
-        image: sketchPointStyle,
+        image: styleUtils.sketchPointStyle,
     })
 }
 
@@ -72,8 +65,8 @@ export function editingFeatureStyleFunction(
     the white dot when selecting a symbol or text feature. */
     const styles = [
         new Style({
-            image: whiteCircleStyle,
-            zIndex: StyleZIndex.WhiteDot,
+            image: styleUtils.whiteCircleStyle,
+            zIndex: styleUtils.StyleZIndex.WhiteDot,
         }),
     ]
     const geom = feature.getGeometry()
@@ -84,9 +77,9 @@ export function editingFeatureStyleFunction(
         // grabable.)
         styles.push(
             new Style({
-                image: whiteCircleStyle,
+                image: styleUtils.whiteCircleStyle,
                 geometry: addingGrabbingPoint,
-                zIndex: StyleZIndex.WhiteDot,
+                zIndex: styleUtils.StyleZIndex.WhiteDot,
             })
         )
     }
@@ -108,9 +101,9 @@ export function getSketchPointStyle(coordinate: Coordinate): Style {
             fill: new Fill({
                 color: [255, 0, 0, 0.4],
             }),
-            stroke: redStroke,
+            stroke: styleUtils.redStroke,
         }),
-        zIndex: StyleZIndex.WhiteDot,
+        zIndex: styleUtils.StyleZIndex.WhiteDot,
     })
 }
 
@@ -151,9 +144,9 @@ export function drawLineOrMeasureStyle(
             // lines are drawn as polygon, so both types are covered by this case
             const styles = [
                 new Style({
-                    stroke: displayMeasures ? dashedRedStroke : redStroke,
+                    stroke: displayMeasures ? styleUtils.dashedRedStroke : styleUtils.redStroke,
                     geometry: sketch.get('geodesic')?.getGeodesicGeom(),
-                    zIndex: StyleZIndex.Line,
+                    zIndex: styleUtils.StyleZIndex.Line,
                 }),
             ]
             if (displayMeasures) {
@@ -164,8 +157,8 @@ export function drawLineOrMeasureStyle(
                 styles.push(
                     new Style({
                         geometry: polygonGeom,
-                        fill: whiteSketchFill,
-                        zIndex: StyleZIndex.AzimuthCircle,
+                        fill: styleUtils.whiteSketchFill,
+                        zIndex: styleUtils.StyleZIndex.AzimuthCircle,
                     })
                 )
             }

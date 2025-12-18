@@ -1,10 +1,9 @@
 import type { KMLLayer, Layer } from '@swissgeo/layers'
 
 import { LayerType } from '@swissgeo/layers'
+import { EXTERNAL_PROVIDER_WHITELISTED_URL_REGEXES } from '@swissgeo/staging-config/constants'
 
 import type { LayerActionFilter, LayersStore } from '@/store/modules/layers/types'
-
-import { EXTERNAL_PROVIDER_WHITELISTED_URL_REGEXES } from '@/config/regex.config'
 
 export default function hasDataDisclaimer(
     this: LayersStore

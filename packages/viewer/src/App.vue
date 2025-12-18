@@ -10,7 +10,7 @@ import { useI18n } from 'vue-i18n'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import DebugToolbar from '@/modules/menu/components/debug/DebugToolbar.vue'
 import useAppStore from '@/store/modules/app'
 import useLayersStore from '@/store/modules/layers'

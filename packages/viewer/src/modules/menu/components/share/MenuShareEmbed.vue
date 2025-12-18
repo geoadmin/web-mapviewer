@@ -394,7 +394,7 @@ watch(noSimpleZoom, (value) => {
 
 <style lang="scss" scoped>
 @import '@/scss/media-query.mixin';
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 @import '@/modules/menu/scss/menu-items';
 
 .embed-btn {

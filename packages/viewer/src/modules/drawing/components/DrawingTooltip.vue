@@ -6,12 +6,12 @@ import type { SimpleGeometry } from 'ol/geom'
 import type Map from 'ol/Map'
 import type MapBrowserEvent from 'ol/MapBrowserEvent'
 
+import { DRAWING_HIT_TOLERANCE } from '@swissgeo/staging-config/constants'
 import Overlay from 'ol/Overlay'
 import { inject, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { EditableFeatureTypes } from '@/api/features.api'
-import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { getVertexCoordinates, pointWithinTolerance } from '@/modules/drawing/lib/drawingUtils'
 import useDrawingStore from '@/store/modules/drawing'
 

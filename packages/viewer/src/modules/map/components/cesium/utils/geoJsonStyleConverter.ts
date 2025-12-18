@@ -7,6 +7,10 @@ import type { Entity } from 'cesium'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import {
+    CAMERA_MAX_ZOOM_DISTANCE,
+    CAMERA_MIN_ZOOM_DISTANCE,
+} from '@swissgeo/staging-config/constants'
+import {
     BillboardGraphics,
     Cartesian2,
     Color,
@@ -16,7 +20,6 @@ import {
 } from 'cesium'
 import { DEVICE_PIXEL_RATIO } from 'ol/has'
 
-import { CAMERA_MAX_ZOOM_DISTANCE, CAMERA_MIN_ZOOM_DISTANCE } from '@/config/cesium.config'
 import { getOlImageStyleForShape } from '@/modules/map/components/openlayers/utils/geoJsonStyleFromLiterals'
 
 const BILLBOARD_PIXEL_OFFSET_Y: number = -10

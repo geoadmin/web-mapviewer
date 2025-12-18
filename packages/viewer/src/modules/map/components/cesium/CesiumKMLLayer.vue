@@ -4,6 +4,7 @@ import type { Entity, KmlDataSource as KmlDataSourceType, Viewer } from 'cesium'
 import type { ShallowRef } from 'vue'
 
 import log from '@swissgeo/log'
+import { DEFAULT_MARKER_HORIZONTAL_OFFSET } from '@swissgeo/staging-config/constants'
 import {
     ArcType,
     Color,
@@ -17,7 +18,6 @@ import {
 } from 'cesium'
 import { computed, inject, toRef, watch } from 'vue'
 
-import { DEFAULT_MARKER_HORIZONTAL_OFFSET } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
 import { getFeatureDescriptionMap } from '@/utils/kmlUtils'
 

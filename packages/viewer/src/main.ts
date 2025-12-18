@@ -8,11 +8,6 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { registerProj4 } from '@swissgeo/coordinates'
 import GeoadminElevationProfile from '@swissgeo/elevation-profile'
 import log, { LogLevel } from '@swissgeo/log'
-import { register } from 'ol/proj/proj4'
-import proj4 from 'proj4'
-import { createApp } from 'vue'
-
-import App from '@/App.vue'
 import {
     getApi3BaseUrl,
     getDataBaseUrl,
@@ -20,14 +15,19 @@ import {
     getViewerDedicatedServicesBaseUrl,
     getWmsBaseUrl,
     getWmtsBaseUrl,
-} from '@/config/baseUrl.config'
-import { WMS_TILE_SIZE } from '@/config/map.config'
+} from '@swissgeo/staging-config'
 import {
     BREAKPOINT_PHONE_HEIGHT,
     BREAKPOINT_PHONE_WIDTH,
     BREAKPOINT_TABLET,
-} from '@/config/responsive.config'
-import { APP_VERSION, ENVIRONMENT, IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+    WMS_TILE_SIZE,
+} from '@swissgeo/staging-config/constants'
+import { register } from 'ol/proj/proj4'
+import proj4 from 'proj4'
+import { createApp } from 'vue'
+
+import App from '@/App.vue'
+import { APP_VERSION, ENVIRONMENT, IS_TESTING_WITH_CYPRESS } from '@/config'
 import i18n from '@/modules/i18n'
 import router from '@/router'
 import store from '@/store'

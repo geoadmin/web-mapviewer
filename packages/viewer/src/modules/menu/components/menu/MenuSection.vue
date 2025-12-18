@@ -116,7 +116,7 @@ defineExpose({ open, close, sectionId })
 
 <style lang="scss" scoped>
 @import '@/scss/media-query.mixin';
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 
 $section-border: 1px;
 

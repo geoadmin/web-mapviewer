@@ -1,0 +1,61 @@
+{
+    "name": "@swissgeo/theme",
+    "version": "0.0.1",
+    "description": "Shared SCSS variable and theme utilities to setup BootstrapCSS/TailwindCSS within SWISSGEO/geoadmin's projects",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/geoadmin/web-mapviewer.git",
+        "directory": "packages/theme"
+    },
+    "license": "BSD-3-Clause",
+    "type": "module",
+    "exports": {
+        ".": {
+            "type": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.umd.cjs"
+        },
+        "./css": {
+            "import": "./dist/index.css",
+            "require": "./dist/index.umd.cjs"
+        },
+        "./scss": "./dist/scss/index.scss",
+        "./scss/*": "./dist/scss/*",
+        "./fonts/*": "./dist/fonts/*"
+    },
+    "main": "index.js",
+    "scripts": {
+        "build": "vite build",
+        "lint": "eslint --fix && pnpm run lint:styles",
+        "lint:no-fix": "eslint && pnpm run lint:styles:no-fix",
+        "lint:styles": "stylelint \"**/*.{css,scss}\" --fix",
+        "lint:styles:no-fix": "stylelint \"**/*.{css,scss}\"",
+        "prepare": "pnpm run build",
+        "test:unit": "vitest --run --mode development --environment jsdom"
+    },
+    "dependencies": {
+        "@fontsource/noto-sans": "catalog:",
+        "@swissgeo/staging-config": "workspace:*"
+    },
+    "devDependencies": {
+        "@microsoft/api-extractor": "catalog:",
+        "@swissgeo/config-eslint": "workspace:*",
+        "@swissgeo/config-stylelint": "workspace:*",
+        "@swissgeo/config-typescript": "workspace:*",
+        "@tailwindcss/vite": "catalog:",
+        "eslint": "catalog:",
+        "stylelint": "catalog:",
+        "typescript": "catalog:",
+        "unplugin-dts": "catalog:",
+        "vite": "catalog:",
+        "vite-plugin-static-copy": "catalog:",
+        "vite-tsconfig-paths": "catalog:",
+        "vitest": "catalog:"
+    },
+    "peerDependencies": {
+        "@fortawesome/fontawesome-svg-core": "catalog:",
+        "bootstrap": "catalog:",
+        "ol": "catalog:",
+        "stylelint": "catalog:"
+    }
+}

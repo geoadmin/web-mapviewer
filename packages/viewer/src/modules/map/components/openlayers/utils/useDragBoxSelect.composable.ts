@@ -15,6 +15,7 @@ import type Circle from 'ol/geom/Circle'
 
 import { LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
+import { DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@swissgeo/staging-config/constants'
 import {
     booleanIntersects,
     circle,
@@ -32,7 +33,6 @@ import { DragBox } from 'ol/interaction'
 import type { LayerFeature } from '@/api/features.api'
 import type { ActionDispatcher } from '@/store/types'
 
-import { DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@/config/map.config'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'

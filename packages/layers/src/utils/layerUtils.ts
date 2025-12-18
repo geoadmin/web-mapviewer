@@ -1,6 +1,6 @@
 import type { CoordinateSystem } from '@swissgeo/coordinates'
 
-import { servicesBaseUrl } from '@swissgeo/staging-config'
+import { getServiceKmlBaseUrl } from '@swissgeo/staging-config'
 import { cloneDeep, merge, omit } from 'lodash'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -262,9 +262,9 @@ function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
     } else {
         // detecting automatically if the KML file is external or not
         const internalServicesBackends = [
-            servicesBaseUrl.kml.development,
-            servicesBaseUrl.kml.integration,
-            servicesBaseUrl.kml.production,
+            getServiceKmlBaseUrl('development'),
+            getServiceKmlBaseUrl('integration'),
+            getServiceKmlBaseUrl('production'),
         ]
         isExternal = !internalServicesBackends.some((internalBackend) =>
             kmlFileUrl.startsWith(internalBackend)

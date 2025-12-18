@@ -181,7 +181,7 @@ function getItemDescription(description?: string): string | undefined {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/variables-admin.module';
+@import '@swissgeo/theme/scss/colors';
 
 .geoadmin-dropdown-button-caret {
     max-width: fit-content;

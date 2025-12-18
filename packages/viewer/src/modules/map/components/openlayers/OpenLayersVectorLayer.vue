@@ -14,10 +14,10 @@ import type { Map } from 'ol'
 
 import { MapLibreLayer } from '@geoblocks/ol-maplibre-layer'
 import log from '@swissgeo/log'
+import { VECTOR_TILES_IMAGERY_STYLE_ID } from '@swissgeo/staging-config/constants'
 import axios from 'axios'
 import { computed, inject, watch } from 'vue'
 
-import { VECTOR_TILES_IMAGERY_STYLE_ID } from '@/config/vectortiles.config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 
 const {

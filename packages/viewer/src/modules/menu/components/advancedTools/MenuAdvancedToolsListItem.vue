@@ -51,7 +51,7 @@ const { t } = useI18n()
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 @import '@/modules/menu/scss/menu-items';
 
 .advanced-tools-item {

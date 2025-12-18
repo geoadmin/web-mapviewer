@@ -75,7 +75,7 @@ const humanReadableArea: ComputedRef<string> = computed(() => {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 $rectangle-line-width: 2px;
 $rectangle-line-color: $gray-600;
 $transparent: rgba(0, 0, 0, 0);

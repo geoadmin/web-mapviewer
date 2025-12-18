@@ -1,4 +1,4 @@
-import { BREAKPOINT_TABLET } from '@/config/responsive.config'
+import { BREAKPOINT_TABLET } from '@swissgeo/staging-config/constants'
 
 export function isMobile(): boolean {
     return Cypress.config('viewportWidth') < BREAKPOINT_TABLET

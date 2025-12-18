@@ -9,7 +9,7 @@ import { onMounted, provide, useTemplateRef } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import OpenLayersLayerExtents from '@/modules/map/components/openlayers/debug/OpenLayersLayerExtents.vue'
 import OpenLayersTileDebugInfo from '@/modules/map/components/openlayers/debug/OpenLayersTileDebugInfo.vue'
@@ -125,7 +125,8 @@ const { zIndexTileInfo, zIndexLayerExtents, zIndexSelectionRectangle } = useLaye
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/colors';
+@import '@/scss/variables.module';
 
 $dragbox-width: 3px;
 

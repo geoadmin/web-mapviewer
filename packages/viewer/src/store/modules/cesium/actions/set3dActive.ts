@@ -4,7 +4,7 @@ import proj4 from 'proj4'
 import type { CesiumStore } from '@/store/modules/cesium/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { DEFAULT_PROJECTION } from '@/config'
 import useGeolocationStore from '@/store/modules/geolocation'
 import usePositionStore from '@/store/modules/position'
 

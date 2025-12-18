@@ -4,7 +4,7 @@ import type { RouteLocationNormalizedGeneric } from 'vue-router'
 import { allCoordinateSystems } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 
-import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { DEFAULT_PROJECTION } from '@/config'
 import usePositionStore from '@/store/modules/position'
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
