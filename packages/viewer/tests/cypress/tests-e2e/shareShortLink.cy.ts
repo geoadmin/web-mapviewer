@@ -312,7 +312,7 @@ describe('Testing the share menu', () => {
 
                 cy.get(
                     '[data-cy="embed-preview-modal"] [data-cy="menu-share-input-copy-text"]'
-                ).should('contain.value', 'z=1.333')
+                ).should('contain.value', 'z=1.6')
             })
         }
     )
