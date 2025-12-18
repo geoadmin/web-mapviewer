@@ -19,6 +19,7 @@
     "scripts": {
         "build": "pnpm run type-check && pnpm run generate-types && vite build",
         "generate-types": "tsc --declaration",
+        "prepare": "pnpm run build",
         "type-check": "tsc -p tsconfig.json"
     },
     "devDependencies": {

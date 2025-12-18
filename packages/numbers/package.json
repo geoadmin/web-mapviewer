@@ -24,6 +24,7 @@
         "generate-types": "tsc --declaration",
         "lint": "eslint --fix",
         "lint:no-fix": "eslint",
+        "prepare": "pnpm run build",
         "test:unit": "vitest --run --mode development --environment jsdom",
         "test:unit:watch": "vitest --mode development --environment jsdom",
         "type-check": "tsc -p tsconfig.json"

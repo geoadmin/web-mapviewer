@@ -48,6 +48,7 @@
         "generate-types": "vue-tsc --declaration",
         "lint": "eslint --fix",
         "lint:no-fix": "eslint",
+        "prepare": "pnpm run build",
         "test:unit": "vitest --run --mode development --environment jsdom --silent",
         "test:unit:watch": "vitest --mode development --environment jsdom",
         "type-check": "vue-tsc -p tsconfig.json"
