@@ -1,5 +1,6 @@
 import type { StyleFunction } from 'ol/style/Style'
 
+import { styleUtils } from '@swissgeo/theme'
 import { Style } from 'ol/style'
 import IconStyle from 'ol/style/Icon'
 
@@ -8,13 +9,6 @@ import circleImage from '@/modules/map/assets/circle.png'
 import crossImage from '@/modules/map/assets/cross.png'
 import markerImage from '@/modules/map/assets/marker.png'
 import pointImage from '@/modules/map/assets/point.png'
-import {
-    geolocationPointStyle,
-    highlightedLinePolygonStyle,
-    highlightPointStyle,
-    hoveredLinePolygonStyle,
-    hoveredPointStyle,
-} from '@/utils/styleUtils'
 
 export enum OpenLayersMarkerStyles {
     Balloon = 'balloon',
@@ -45,7 +39,7 @@ function imageForMarkerStyle(markerStyle: OpenLayersMarkerStyles): string | unde
 export function getMarkerStyle(markerStyle: OpenLayersMarkerStyles): Style {
     switch (markerStyle) {
         case OpenLayersMarkerStyles.Position:
-            return geolocationPointStyle
+            return styleUtils.geolocationPointStyle
 
         case OpenLayersMarkerStyles.Balloon:
             return new Style({
@@ -67,7 +61,7 @@ export function getMarkerStyle(markerStyle: OpenLayersMarkerStyles): Style {
             })
 
         case OpenLayersMarkerStyles.Feature:
-            return highlightPointStyle
+            return styleUtils.highlightPointStyle
 
         case OpenLayersMarkerStyles.Hidden:
         default:
@@ -94,11 +88,13 @@ export const highlightFeatureStyle: StyleFunction = (olFeature, _resolution) => 
         case 'Circle':
         case 'GeometryCollection':
             return isHovered || isCurrentSegment
-                ? hoveredLinePolygonStyle
-                : highlightedLinePolygonStyle
+                ? styleUtils.hoveredLinePolygonStyle
+                : styleUtils.highlightedLinePolygonStyle
         case 'Point':
         case 'MultiPoint':
-            return isHovered || isCurrentSegment ? hoveredPointStyle : highlightPointStyle
+            return isHovered || isCurrentSegment
+                ? styleUtils.hoveredPointStyle
+                : styleUtils.highlightPointStyle
         default:
             return
     }

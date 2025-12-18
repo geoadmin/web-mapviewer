@@ -1,6 +1,6 @@
-import type { UIStore } from '@/store/modules/ui/types'
+import { NO_WARNING_BANNER_HOSTNAMES } from '@swissgeo/staging-config/constants'
 
-import { NO_WARNING_BANNER_HOSTNAMES } from '@/config/staging.config'
+import type { UIStore } from '@/store/modules/ui/types'
 
 export default function hasDevSiteWarning(this: UIStore): boolean {
     return (

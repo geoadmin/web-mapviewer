@@ -10,6 +10,10 @@ import type Style from 'ol/style/Style'
 import { WGS84 } from '@swissgeo/coordinates'
 import { KMLStyle } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
+import {
+    DEFAULT_TITLE_OFFSET,
+    LOCAL_OR_INTERNAL_URL_REGEX,
+} from '@swissgeo/staging-config/constants'
 import { kml as kmlToGeoJSON } from '@tmcw/togeojson'
 import { booleanValid } from '@turf/turf'
 import axios from 'axios'
@@ -30,8 +34,6 @@ import type { FeatureStyleColor, FeatureStyleSize } from '@/utils/featureStyleUt
 import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@/api/features.api'
 import { proxifyUrl } from '@/api/file-proxy.api'
 import { generateIconURL } from '@/api/icon.api'
-import { DEFAULT_TITLE_OFFSET } from '@/config/icons.config'
-import { LOCAL_OR_INTERNAL_URL_REGEX } from '@/config/regex.config'
 import {
     allStylingSizes,
     calculateTextOffsetFromPlacement,

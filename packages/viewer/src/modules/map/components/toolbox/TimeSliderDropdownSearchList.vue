@@ -100,7 +100,7 @@ defineExpose({ goToFirst, goToSpecific })
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 .entries-list-container {
     max-height: 13rem;
 

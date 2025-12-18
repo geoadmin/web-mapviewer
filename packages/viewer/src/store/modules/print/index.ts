@@ -1,8 +1,8 @@
+import { PRINT_DEFAULT_DPI } from '@swissgeo/staging-config/constants'
 import { defineStore } from 'pinia'
 
 import type { PrintStoreState, PrintStoreGetters } from '@/store/modules/print/types'
 
-import { PRINT_DEFAULT_DPI } from '@/config/print.config'
 import loadPrintLayouts from '@/store/modules/print/actions/loadPrintLayouts'
 import setPrintConfig from '@/store/modules/print/actions/setPrintConfig'
 import setPrintExtent from '@/store/modules/print/actions/setPrintExtent'

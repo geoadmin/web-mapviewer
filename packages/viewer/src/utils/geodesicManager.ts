@@ -5,6 +5,7 @@ import type { Geometry } from 'ol/geom'
 
 import { WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
+import { styleUtils } from '@swissgeo/theme'
 import { Geodesic, Math as geographicMath, PolygonArea } from 'geographiclib-geodesic'
 import {
     boundingExtent,
@@ -17,7 +18,6 @@ import RBush from 'ol/structs/RBush' /* Warning: private class of openlayers */
 import { Circle, Fill, RegularShape, Stroke, Style, Text } from 'ol/style'
 import proj4 from 'proj4'
 
-import { StyleZIndex } from '@/utils/styleUtils'
 import { formatAngle, formatMeters } from '@/utils/utils'
 
 const geod = Geodesic.WGS84
@@ -328,7 +328,7 @@ export class GeodesicGeometries {
             this.azimuthCircleStyle = new Style({
                 stroke: redStroke,
                 geometry: this.azimuthCircle,
-                zIndex: StyleZIndex.AzimuthCircle,
+                zIndex: styleUtils.StyleZIndex.AzimuthCircle,
             })
         }
     }
@@ -406,7 +406,7 @@ export class GeodesicGeometries {
                     WGS84.epsg,
                     this.projection.epsg
                 ),
-                zIndex: StyleZIndex.Tooltip,
+                zIndex: styleUtils.StyleZIndex.Tooltip,
             })
         )
         // This style will only be shown in the printing, that's why the alpha is 0.0
@@ -424,7 +424,7 @@ export class GeodesicGeometries {
                     WGS84.epsg,
                     this.projection.epsg
                 ),
-                zIndex: StyleZIndex.MeasurePoint,
+                zIndex: styleUtils.StyleZIndex.MeasurePoint,
             })
         )
         //Total area tooltip
@@ -438,7 +438,7 @@ export class GeodesicGeometries {
                     geometry: new Point(
                         this.geodesicPolygonGeom.getPolygon(0).getInteriorPoint().getCoordinates()
                     ),
-                    zIndex: StyleZIndex.Tooltip,
+                    zIndex: styleUtils.StyleZIndex.Tooltip,
                 })
             )
         }
@@ -581,7 +581,7 @@ class MeasureStyles {
                 offsetY: -15,
             }),
             geometry: new Point(point).transform(WGS84.epsg, this.epsg),
-            zIndex: StyleZIndex.MeasurePoint,
+            zIndex: styleUtils.StyleZIndex.MeasurePoint,
         })
     }
 

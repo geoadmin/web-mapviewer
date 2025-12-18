@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { ref } from 'vue'
-
 import {
     getBaseUrlOverride,
     getDefaultBaseUrl,
     hasBaseUrlOverrides,
     setBaseUrlOverrides,
-} from '@/config/baseUrl.config'
+} from '@swissgeo/staging-config'
+import { ref } from 'vue'
+
 import useDebugStore from '@/store/modules/debug'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 

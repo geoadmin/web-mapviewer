@@ -67,7 +67,7 @@ const isLoading = computed<boolean>(() => buttonState === 'loading')
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 
 .import-file-btn-connect,
 .import-file-btn-close {

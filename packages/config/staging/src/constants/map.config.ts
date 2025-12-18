@@ -1,10 +1,3 @@
-import type { CoordinateSystem } from '@swissgeo/coordinates'
-
-import { LV95 } from '@swissgeo/coordinates'
-
-/** Default projection to be used throughout the application */
-export const DEFAULT_PROJECTION: CoordinateSystem = LV95
-
 /**
  * Default tile size to use when requesting WMS tiles with our internal WMSs (512px)
  *
@@ -50,9 +43,6 @@ export const DEFAULT_FEATURE_COUNT_SINGLE_POINT: number = 10
  * @see https://api3.geo.admin.ch/services/sdiservices.html#id10
  */
 export const DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION: number = 50
-
-/** Path to the cesium static assets */
-export const CESIUM_STATIC_PATH: string = __CESIUM_STATIC_PATH__
 
 /** In pixels */
 export const DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE: number = 10

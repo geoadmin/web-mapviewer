@@ -9,7 +9,7 @@ import { assertDefined } from 'support/utils'
 
 import type { EditableFeature, LayerFeature } from '@/api/features.api'
 
-import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { DEFAULT_PROJECTION } from '@/config'
 import useCesiumStore from '@/store/modules/cesium'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'

@@ -62,5 +62,5 @@ const selectedTab = ref('online')
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 </style>

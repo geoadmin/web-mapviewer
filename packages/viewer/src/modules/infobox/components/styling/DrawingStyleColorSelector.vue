@@ -59,7 +59,7 @@ function colorCircleStyle(color: FeatureStyleColor): Record<string, string> {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 
 .color-select-box button {
     display: inline-flex;

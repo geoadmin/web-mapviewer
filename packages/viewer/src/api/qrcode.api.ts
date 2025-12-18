@@ -1,7 +1,6 @@
 import log, { LogPreDefinedColor } from '@swissgeo/log'
+import { getViewerDedicatedServicesBaseUrl } from '@swissgeo/staging-config'
 import axios from 'axios'
-
-import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'
 
 /**
  * Generates a URL to generate a QR Code for a URL

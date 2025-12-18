@@ -5,6 +5,12 @@ import type { ShallowRef } from 'vue'
 import { LV95, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { wrapDegrees } from '@swissgeo/numbers'
+import {
+    CAMERA_MAX_PITCH,
+    CAMERA_MAX_ZOOM_DISTANCE,
+    CAMERA_MIN_PITCH,
+    CAMERA_MIN_ZOOM_DISTANCE,
+} from '@swissgeo/staging-config/constants'
 import { Cartesian2, Cartesian3, defined, Ellipsoid, Math as CesiumMath } from 'cesium'
 import { isEqual } from 'lodash'
 import proj4 from 'proj4'
@@ -12,12 +18,6 @@ import { computed, inject, onBeforeUnmount, onMounted, watch } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import {
-    CAMERA_MAX_PITCH,
-    CAMERA_MAX_ZOOM_DISTANCE,
-    CAMERA_MIN_PITCH,
-    CAMERA_MIN_ZOOM_DISTANCE,
-} from '@/config/cesium.config'
 import {
     calculateHeight,
     limitCameraCenter,

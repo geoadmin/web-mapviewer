@@ -4,7 +4,7 @@ import { registerProj4, WGS84 } from '@swissgeo/coordinates'
 import { Math as CesiumMath } from 'cesium'
 import proj4 from 'proj4'
 
-import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { DEFAULT_PROJECTION } from '@/config'
 import useCesiumStore from '@/store/modules/cesium'
 import usePositionStore from '@/store/modules/position'
 

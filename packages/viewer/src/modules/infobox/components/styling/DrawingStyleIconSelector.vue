@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { DEFAULT_ICON_SET_NAME } from '@swissgeo/staging-config/constants'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -6,7 +7,6 @@ import type { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
 import type { DropdownItem } from '@/utils/components/DropdownButton.vue'
 import type { FeatureStyleColor, FeatureStyleSize } from '@/utils/featureStyleUtils'
 
-import { DEFAULT_ICON_SET_NAME } from '@/config/icons.config'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIcon from '@/modules/infobox/components/styling/DrawingStyleIcon.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
@@ -176,7 +176,7 @@ function onCurrentIconChange(icon: DrawingIcon) {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 
 .icon-selector {
     overflow-y: hidden;

@@ -1,4 +1,5 @@
 export default {
+    ignoreFiles: ['**/dist/*.*'],
     extends: ['stylelint-config-recommended-vue', 'stylelint-config-recommended-scss'],
     plugins: ['stylelint-scss', 'stylelint-order'],
     overrides: [

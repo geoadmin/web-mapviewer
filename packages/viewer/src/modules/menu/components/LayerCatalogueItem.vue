@@ -357,7 +357,7 @@ function containsLayer(layers: Layer[], searchText: string): boolean {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 @import '@/modules/menu/scss/menu-items';
 
 .menu-catalogue-item {

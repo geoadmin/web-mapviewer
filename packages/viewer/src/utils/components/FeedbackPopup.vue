@@ -49,7 +49,7 @@ const warning = computed(() => {
 <style lang="scss">
 @import '@/scss/variables.module';
 @import '@/scss/media-query.mixin';
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 .feedback-window {
     $top-margin: calc(2 * $header-height + 2rem);
     z-index: calc($zindex-menu - 1);

@@ -1,6 +1,6 @@
-import type { UIStore } from '@/store/modules/ui/types'
+import { BREAKPOINT_TABLET } from '@swissgeo/staging-config/constants'
 
-import { BREAKPOINT_TABLET } from '@/config/responsive.config'
+import type { UIStore } from '@/store/modules/ui/types'
 
 export default function isTabletSize(this: UIStore): boolean {
     return this.isDesktopMode && this.width < BREAKPOINT_TABLET

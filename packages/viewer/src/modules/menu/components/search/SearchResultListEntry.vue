@@ -168,7 +168,7 @@ defineExpose({
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 @import '@/scss/media-query.mixin';
 
 .search-category-entry {

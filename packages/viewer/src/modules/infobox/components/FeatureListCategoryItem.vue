@@ -130,8 +130,7 @@ function showContentAndScrollIntoView(event?: MouseEvent): void {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/variables-admin.module';
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/colors';
 
 .feature-list-category-item-name {
     &.highlighted {

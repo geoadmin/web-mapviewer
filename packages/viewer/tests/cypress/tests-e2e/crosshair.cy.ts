@@ -2,7 +2,7 @@
 
 import type { Router, RouterHistory } from 'vue-router'
 
-import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { DEFAULT_PROJECTION } from '@/config'
 import usePositionStore from '@/store/modules/position'
 import { CrossHairs } from '@/store/modules/position/types'
 

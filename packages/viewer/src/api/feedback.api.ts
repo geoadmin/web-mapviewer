@@ -1,9 +1,9 @@
 import log, { LogPreDefinedColor } from '@swissgeo/log'
+import { getViewerDedicatedServicesBaseUrl } from '@swissgeo/staging-config'
 import axios from 'axios'
 
 import { getKmlFromUrl } from '@/api/files.api'
-import { getViewerDedicatedServicesBaseUrl } from '@/config/baseUrl.config'
-import { APP_VERSION } from '@/config/staging.config'
+import { APP_VERSION } from '@/config'
 
 /** Maximum size allowed by the backend, can be used to do validation up front */
 export const ATTACHMENT_MAX_SIZE: number = 10 * 1024 * 1024

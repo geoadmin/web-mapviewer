@@ -116,7 +116,7 @@ function agreeToDisclaimer(): void {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 
 .disclaimer {
     color: $white;

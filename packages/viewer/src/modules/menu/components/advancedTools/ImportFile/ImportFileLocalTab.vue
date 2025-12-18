@@ -90,5 +90,5 @@ function validateForm(validation: ValidationResult) {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 </style>

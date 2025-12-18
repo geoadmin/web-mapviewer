@@ -3,12 +3,11 @@ import type { Feature } from 'ol'
 import type { Geometry } from 'ol/geom'
 
 import { CoordinateSystem, WGS84 } from '@swissgeo/coordinates'
+import { styleUtils } from '@swissgeo/theme'
 import { gpx as gpxToGeoJSON } from '@tmcw/togeojson'
 import { bbox } from '@turf/turf'
 import { isEmpty as isExtentEmpty } from 'ol/extent'
 import GPX from 'ol/format/GPX'
-
-import { gpxStyles } from '@/utils/styleUtils'
 
 /**
  * Parse the GPX extent from the GPX tracks or features
@@ -46,8 +45,8 @@ export function parseGpx(gpxData: string, projection: CoordinateSystem): Feature
     })
     features.forEach((feature) => {
         const geom = feature.getGeometry()
-        if (geom && geom.getType() in gpxStyles) {
-            feature.setStyle(gpxStyles[geom.getType()])
+        if (geom && geom.getType() in styleUtils.gpxStyles) {
+            feature.setStyle(styleUtils.gpxStyles[geom.getType()])
         }
     })
     return features

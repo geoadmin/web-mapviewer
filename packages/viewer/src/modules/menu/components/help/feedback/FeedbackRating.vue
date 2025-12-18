@@ -67,7 +67,7 @@ function shouldStarBeChecked(starRating: number) {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 
 .ratings {
     color: $gray-500;

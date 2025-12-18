@@ -43,7 +43,7 @@ function forwardClickEvent(e: MouseEvent) {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 
 .custom-text-decoration {
     text-decoration: none;

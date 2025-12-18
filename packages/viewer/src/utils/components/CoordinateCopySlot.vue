@@ -109,7 +109,7 @@ async function copyValue(): Promise<void> {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 
 .location-popup-data {
     @extend %clear-no-ios-long-press;

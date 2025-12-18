@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import type { GeoAdminGeoJSONLayer, KMLLayer as KMLLayerType, Layer } from '@swissgeo/layers'
+import type { LayerTooltipConfig } from '@swissgeo/staging-config/constants'
 import type { ShallowRef } from 'vue'
 
 import { extentUtils, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import { LayerType } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
+import { get3dTilesBaseUrl } from '@swissgeo/staging-config'
 import { bbox, centroid } from '@turf/turf'
 import {
     Cartesian2,
@@ -25,10 +27,8 @@ import proj4 from 'proj4'
 import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 
 import type { LayerFeature, SelectableFeature } from '@/api/features.api'
-import type { LayerTooltipConfig } from '@/config/cesium.config'
 import type { ActionDispatcher } from '@/store/types'
 
-import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
 import {
     clicked3DFeatureFill,
     hovered3DFeatureFill,
@@ -164,7 +164,7 @@ function getCoordinateAtScreenCoordinate(x: number, y: number): SingleCoordinate
         })
         return undefined
     }
-    
+
     try {
         const cartesian = viewerInstance.scene.pickPosition(new Cartesian2(x, y))
         let coordinates: SingleCoordinate | undefined
@@ -299,9 +299,9 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
         })
         return
     }
-    
+
     unhighlightGroup(viewerInstance)
-    
+
     const features: SelectableFeature<false | true>[] = []
     let coordinates = getCoordinateAtScreenCoordinate(event.position.x, event.position.y)
 
@@ -473,7 +473,7 @@ function onContextMenu(event: ScreenSpaceEventHandler.PositionedEvent): void {
         })
         return
     }
-    
+
     const coordinates = getCoordinateAtScreenCoordinate(event.position.x, event.position.y)
     if (Array.isArray(coordinates) && coordinates.length === 2) {
         mapStore.click(
@@ -492,7 +492,7 @@ function onMouseMove(event: ScreenSpaceEventHandler.MotionEvent): void {
     if (!viewerInstance || viewerInstance.isDestroyed()) {
         return
     }
-    
+
     const aFeatureIsHighlighted = hoveredHighlightPostProcessor.selected.length === 1
 
     // we pick the first 3d feature if it's in the config

@@ -1,5 +1,6 @@
 /// <reference lib="webworker" />
 
+import { getWmsBaseUrl, getWmtsBaseUrl } from '@swissgeo/staging-config'
 import { CacheableResponsePlugin } from 'workbox-cacheable-response'
 import { clientsClaim } from 'workbox-core'
 import { ExpirationPlugin } from 'workbox-expiration'
@@ -11,8 +12,7 @@ import {
 import { NavigationRoute, registerRoute, Route } from 'workbox-routing'
 import { NetworkFirst } from 'workbox-strategies'
 
-import { getWmsBaseUrl, getWmtsBaseUrl } from '@/config/baseUrl.config'
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 
 declare let self: ServiceWorkerGlobalScope
 

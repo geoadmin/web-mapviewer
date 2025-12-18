@@ -8,7 +8,7 @@ import {
     NavigationFailureType,
 } from 'vue-router'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import appReadinessRouterPlugin from '@/router/appReadiness.routerPlugin'
 import legacyPermalinkRouterPlugin from '@/router/legacyPermalink.routerPlugin'
 import {
