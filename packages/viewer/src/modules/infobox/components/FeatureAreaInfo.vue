@@ -3,6 +3,7 @@ import type { Geometry, Polygon } from 'geojson'
 import type { ComputedRef, PropType } from 'vue'
 
 import { WGS84 } from '@swissgeo/coordinates'
+import { geoJsonUtils } from '@swissgeo/layers/utils'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
@@ -10,7 +11,6 @@ import { useI18n } from 'vue-i18n'
 
 import usePositionStore from '@/store/modules/position'
 import { computePolygonPerimeterArea } from '@/utils/geodesicManager'
-import { reprojectGeoJsonGeometry } from '@/utils/geoJsonUtils'
 
 const { geometry } = defineProps({
     geometry: {
@@ -28,7 +28,7 @@ const geometryWgs84 = computed<Geometry>(() => {
     if (projection.value === WGS84) {
         return geometry
     }
-    return reprojectGeoJsonGeometry(geometry, WGS84, projection.value)
+    return geoJsonUtils.reprojectGeoJsonGeometry(geometry, WGS84, projection.value)
 })
 
 const humanReadableArea: ComputedRef<string> = computed(() => {

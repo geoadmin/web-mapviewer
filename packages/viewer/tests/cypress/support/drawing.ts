@@ -1,9 +1,9 @@
 import type { CyHttpMessages } from 'cypress/types/net-stubbing'
 
+import { EditableFeatureTypes } from '@swissgeo/api'
 import { randomIntBetween } from '@swissgeo/numbers'
 import { inflate, inflateRaw, ungzip } from 'pako'
 
-import { EditableFeatureTypes } from '@/api/features.api'
 import useDrawingStore from '@/store/modules/drawing'
 import { generateRGBFillString, GREEN, RED } from '@/utils/featureStyleUtils'
 

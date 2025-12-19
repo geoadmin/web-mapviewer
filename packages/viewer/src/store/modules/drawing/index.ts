@@ -1,3 +1,4 @@
+import { featureStyleUtils } from '@swissgeo/api/utils'
 import { defineStore } from 'pinia'
 
 import type { DrawingStoreGetters, DrawingStoreState } from '@/store/modules/drawing/types'
@@ -24,7 +25,6 @@ import { isDrawingEmpty } from '@/store/modules/drawing/getters/isDrawingEmpty'
 import isDrawingModified from '@/store/modules/drawing/getters/isDrawingModified'
 import showNotSharedDrawingWarning from '@/store/modules/drawing/getters/showNotSharedDrawingWarning'
 import { DrawingSaveState, EditMode, OnlineMode } from '@/store/modules/drawing/types'
-import { MEDIUM, RED, TextPlacement } from '@/utils/featureStyleUtils'
 
 const defaultDrawingTitle = 'draw_mode_title'
 
@@ -39,9 +39,9 @@ const state = (): DrawingStoreState => ({
         mode: EditMode.Off,
         reverseLineStringExtension: false,
         preferred: {
-            size: MEDIUM,
-            color: RED,
-            textPlacement: TextPlacement.Top,
+            size: featureStyleUtils.MEDIUM,
+            color: featureStyleUtils.RED,
+            textPlacement: 'top',
         },
     },
     feature: {

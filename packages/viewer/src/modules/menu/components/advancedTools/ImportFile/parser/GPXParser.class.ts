@@ -1,6 +1,7 @@
 import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
 import type { GPXLayer } from '@swissgeo/layers'
 
+import { gpxUtils } from '@swissgeo/api/utils'
 import { extentUtils, WGS84 } from '@swissgeo/coordinates'
 import { layerUtils } from '@swissgeo/layers/utils'
 import GPX from 'ol/format/GPX'
@@ -9,7 +10,6 @@ import EmptyFileContentError from '@/modules/menu/components/advancedTools/Impor
 import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
-import { getGpxExtent } from '@/utils/gpxUtils'
 
 /** Checks if file is GPX */
 export function isGpx(fileContent: ArrayBuffer): boolean {
@@ -39,7 +39,7 @@ export default class GPXParser extends FileParser<GPXLayer> {
             throw new InvalidFileContentError()
         }
         const gpxAsText = new TextDecoder('utf-8').decode(fileContent)
-        const extent = getGpxExtent(gpxAsText)
+        const extent = gpxUtils.getGpxExtent(gpxAsText)
         if (!extent) {
             throw new EmptyFileContentError()
         }

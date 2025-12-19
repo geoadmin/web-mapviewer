@@ -4,12 +4,12 @@ import type { Viewer } from 'cesium'
 import type BaseLayer from 'ol/layer/Base'
 import type Map from 'ol/Map'
 
+import { fileProxyAPI } from '@swissgeo/api'
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
 import { LayerType } from '@swissgeo/layers'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 
-import { proxifyUrl } from '@/api/file-proxy.api.js'
 import { DEFAULT_PROJECTION } from '@/config'
 import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
@@ -68,8 +68,8 @@ describe('The Import File Tool', () => {
         }
         cy.intercept('GET', url, getResponse).as(`get${aliasName}`)
 
-        cy.intercept('HEAD', proxifyUrl(url), headResponse).as(`proxyfied${aliasName}`)
-        cy.intercept('GET', proxifyUrl(url), getResponse).as(`proxyfied${aliasName}`)
+        cy.intercept('HEAD', fileProxyAPI.proxifyUrl(url), headResponse).as(`proxyfied${aliasName}`)
+        cy.intercept('GET', fileProxyAPI.proxifyUrl(url), getResponse).as(`proxyfied${aliasName}`)
     }
 
     it('Import KML file', () => {

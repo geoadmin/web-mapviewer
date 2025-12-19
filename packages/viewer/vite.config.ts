@@ -196,8 +196,6 @@ export default defineConfig((configEnv: ConfigEnv): ViteUserConfig => {
                     // Boostrap 5.3.x has too many deprecation warnings (10k+ on a single build)
                     // TODO: remove as soon as migration to TailwindCSS is done
                     quietDeps: true,
-                    // @see https://github.com/vitejs/vite/issues/18164
-                    verbose: true,
                     silenceDeprecations: ['import', 'color-functions'],
                 },
             },

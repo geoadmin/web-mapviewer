@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import type { EditableFeature, LayerFeature } from '@swissgeo/api'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { computed, nextTick, ref, useTemplateRef } from 'vue'
 
-import type { EditableFeature, LayerFeature } from '@/api/features.api'
 import type { ActionDispatcher } from '@/store/types'
 
 import FeatureDetail from '@/modules/infobox/components/FeatureDetail.vue'

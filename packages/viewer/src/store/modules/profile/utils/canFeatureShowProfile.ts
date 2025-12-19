@@ -1,4 +1,4 @@
-import type { SelectableFeature } from '@/api/features.api'
+import type { SelectableFeature } from '@swissgeo/api'
 
 export function canFeatureShowProfile(feature?: SelectableFeature<boolean>): boolean {
     return (

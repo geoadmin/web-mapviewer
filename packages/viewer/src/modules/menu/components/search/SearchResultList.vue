@@ -1,11 +1,10 @@
 <script setup lang="ts">
+import type { LocationSearchResult, SearchResult } from '@swissgeo/api'
+
 import log from '@swissgeo/log'
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { LocationSearchResult, SearchResult } from '@/api/search.api'
-
-import { SearchResultTypes } from '@/api/search.api'
 import SearchResultCategory from '@/modules/menu/components/search/SearchResultCategory.vue'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
@@ -34,13 +33,11 @@ const previewLayer = computed(() => layersStore.previewLayer)
 const previewedPinnedLocation = computed(() => mapStore.previewedPinnedLocation)
 
 const locationResults = computed(() =>
-    results.value.filter((result) => result.resultType === SearchResultTypes.LOCATION)
+    results.value.filter((result) => result.resultType === 'LOCATION')
 )
-const layerResults = computed(() =>
-    results.value.filter((result) => result.resultType === SearchResultTypes.LAYER)
-)
+const layerResults = computed(() => results.value.filter((result) => result.resultType === 'LAYER'))
 const layerFeatureResults = computed(() =>
-    results.value.filter((result) => result.resultType === SearchResultTypes.FEATURE)
+    results.value.filter((result) => result.resultType === 'FEATURE')
 )
 
 const categories = computed(() => {
@@ -129,7 +126,7 @@ const setPreviewDebounced = debounce((entry?: SearchResult) => {
         if (previewedPinnedLocation.value) {
             mapStore.clearPreviewPinnedLocation(dispatcher)
         }
-    } else if (entry.resultType === SearchResultTypes.LAYER) {
+    } else if (entry.resultType === 'LAYER') {
         layersStore.setPreviewLayer(entry.id, dispatcher)
 
         if (previewedPinnedLocation.value) {

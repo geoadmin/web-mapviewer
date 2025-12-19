@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { LayerFeature, SelectableFeature } from '@swissgeo/api'
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import type { GeoAdminGeoJSONLayer, KMLLayer as KMLLayerType, Layer } from '@swissgeo/layers'
 import type { LayerTooltipConfig } from '@swissgeo/staging-config/constants'
@@ -26,7 +27,6 @@ import { LineString, Point, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
 import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 
-import type { LayerFeature, SelectableFeature } from '@/api/features.api'
 import type { ActionDispatcher } from '@/store/types'
 
 import {

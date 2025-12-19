@@ -1,8 +1,8 @@
+import type { EditableFeatureTypes } from '@swissgeo/api'
 import type Feature from 'ol/Feature'
 import type { SimpleGeometry } from 'ol/geom'
 import type { StyleFunction } from 'ol/style/Style'
 
-import { EditableFeatureTypes } from '@/api/features.api'
 import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable'
 import { drawLineStyle } from '@/modules/drawing/lib/style'
 import useDrawingStore from '@/store/modules/drawing'
@@ -14,11 +14,7 @@ interface UseDrawingLineInteractionConfig {
 }
 
 export default function useDrawingLineInteraction(config: UseDrawingLineInteractionConfig) {
-    const {
-        styleFunction = drawLineStyle,
-        featureType = EditableFeatureTypes.LinePolygon,
-        drawEndCallback,
-    } = config
+    const { styleFunction = drawLineStyle, featureType = 'LINEPOLYGON', drawEndCallback } = config
 
     const drawingStore = useDrawingStore()
 

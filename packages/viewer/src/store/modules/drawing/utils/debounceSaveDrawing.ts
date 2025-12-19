@@ -1,11 +1,11 @@
 import type { KMLLayer } from '@swissgeo/layers'
 
+import { filesAPI } from '@swissgeo/api'
 import { layerUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { createKml, getKmlUrl, updateKml } from '@/api/files.api'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
 import useDrawingStore from '@/store/modules/drawing'
@@ -44,7 +44,7 @@ function willModify() {
 async function saveLocalDrawing(kmlData: string) {
     const drawingStore = useDrawingStore()
     const layersStore = useLayersStore()
-    const kmlMetadata = await createKml(kmlData)
+    const kmlMetadata = await filesAPI.createKml(kmlData)
 
     const kmlLayer = layerUtils.makeKMLLayer({
         name: drawingStore.name,
@@ -109,7 +109,7 @@ async function saveDrawing({ retryOnError = true }: { retryOnError?: boolean }) 
                 titleColor: LogPreDefinedColor.Lime,
                 messages: [`Updating drawing with adminId ${drawingStore.layer.config.adminId}`],
             })
-            drawingStore.layer.config.kmlMetadata = await updateKml(
+            drawingStore.layer.config.kmlMetadata = await filesAPI.updateKml(
                 drawingStore.layer.config.fileId!,
                 drawingStore.layer.config.adminId,
                 kmlData
@@ -123,7 +123,7 @@ async function saveDrawing({ retryOnError = true }: { retryOnError?: boolean }) 
             )
         } else {
             // Creating a new KML on the backend
-            const kmlMetadata = await createKml(kmlData)
+            const kmlMetadata = await filesAPI.createKml(kmlData)
 
             let kmlLayer: KMLLayer
             if (drawingStore.layer.config) {
@@ -149,7 +149,7 @@ async function saveDrawing({ retryOnError = true }: { retryOnError?: boolean }) 
                 })
                 kmlLayer = layerUtils.makeKMLLayer({
                     name: drawingStore.name,
-                    kmlFileUrl: getKmlUrl(kmlMetadata.id),
+                    kmlFileUrl: filesAPI.getKmlUrl(kmlMetadata.id),
                     adminId: kmlMetadata.adminId,
                     isEdited: true,
                     isLoading: false,

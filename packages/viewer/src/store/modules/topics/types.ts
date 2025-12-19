@@ -1,6 +1,5 @@
+import type { Topic } from '@swissgeo/api'
 import type { GeoAdminLayer } from '@swissgeo/layers'
-
-import type { Topic } from '@/api/topics.api'
 
 export interface TopicsStoreState {
     /** List of all available topics */

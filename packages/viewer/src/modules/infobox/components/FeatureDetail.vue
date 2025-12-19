@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { LayerFeature, SelectableFeature } from '@swissgeo/api'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import log from '@swissgeo/log'
 import { BLOCKED_EXTENSIONS, WHITELISTED_HOSTNAMES } from '@swissgeo/staging-config/constants'
@@ -7,7 +9,6 @@ import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { LayerFeature, SelectableFeature } from '@/api/features.api'
 import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'

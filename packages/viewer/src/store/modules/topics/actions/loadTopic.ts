@@ -1,11 +1,13 @@
+import { topicsAPI } from '@swissgeo/api'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
 import type { LoadTopicOptions, TopicsStore } from '@/store/modules/topics/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { loadTopicTreeForTopic } from '@/api/topics.api'
+import { ENVIRONMENT } from '@/config'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers'
+import useUIStore from '@/store/modules/ui'
 
 export default function loadTopic(
     this: TopicsStore,
@@ -14,18 +16,20 @@ export default function loadTopic(
 ): void {
     const i18nStore = useI18nStore()
     const layersStore = useLayersStore()
+    const uiStore = useUIStore()
 
-    loadTopicTreeForTopic(i18nStore.lang, this.current, layersStore.config)
-        .then((topicTree) => {
+    topicsAPI
+        .loadTopicTreeForTopic(i18nStore.lang, this.current, layersStore.config)
+        .then(({ tree, warnings }) => {
+            if (ENVIRONMENT === 'development' && warnings.length > 0) {
+                uiStore.addWarnings(warnings, dispatcher)
+            }
             if (!this.currentTopic) {
                 return
             }
-            this.setTopicTree(topicTree.layers, dispatcher)
+            this.setTopicTree(tree.layers, dispatcher)
             if (options.openGeocatalogSection) {
-                this.setTopicTreeOpenedThemesIds(
-                    [this.current, ...topicTree.itemIdToOpen],
-                    dispatcher
-                )
+                this.setTopicTreeOpenedThemesIds([this.current, ...tree.itemIdToOpen], dispatcher)
             }
             if (this.currentTopic.defaultBackgroundLayer) {
                 layersStore.setBackground(this.currentTopic.defaultBackgroundLayer.id, dispatcher)

@@ -2,6 +2,7 @@
 import type { KMLLayer } from '@swissgeo/layers'
 import type { ComputedRef } from 'vue'
 
+import { feedbackAPI, filesAPI, shortLinkAPI } from '@swissgeo/api'
 import { layerUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
 import { FEEDBACK_EMAIL_SUBJECT } from '@swissgeo/staging-config/constants'
@@ -12,9 +13,6 @@ import type { ActionDispatcher } from '@/store/types'
 import type { DropdownItem } from '@/utils/components/DropdownButton.vue'
 import type { ValidationResult } from '@/utils/composables/useFieldValidation'
 
-import sendFeedback, { ATTACHMENT_MAX_SIZE, KML_MAX_SIZE } from '@/api/feedback.api'
-import { getKmlUrl } from '@/api/files.api'
-import { createShortLink } from '@/api/shortlink.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/help/common/SendActionButtons.vue'
 import useDrawingStore from '@/store/modules/drawing'
@@ -28,7 +26,7 @@ import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 import TextAreaInput from '@/utils/components/TextAreaInput.vue'
 
 const dispatcher: ActionDispatcher = { name: 'ReportProblemButton.vue' }
-const temporaryKmlId = getKmlUrl('temporary-kml-for-reporting-a-problem')
+const temporaryKmlId = filesAPI.getKmlUrl('temporary-kml-for-reporting-a-problem')
 
 const acceptedFileTypes = ['.kml', '.gpx', '.pdf', '.zip', '.jpg', '.jpeg', '.png', '.kmz']
 
@@ -102,7 +100,7 @@ const temporaryKml: ComputedRef<KMLLayer> = computed(
 )
 
 const isTemporaryKmlValid = computed(
-    () => (temporaryKml.value?.kmlData?.length ?? 0) <= KML_MAX_SIZE
+    () => (temporaryKml.value?.kmlData?.length ?? 0) <= feedbackAPI.KML_MAX_SIZE
 )
 
 const isFormValid = computed(
@@ -134,7 +132,7 @@ async function sendReportProblem() {
     request.value.pending = true
     try {
         if (feedback.value.message) {
-            const feedbackSentSuccessfully = await sendFeedback(
+            const feedbackSentSuccessfully = await feedbackAPI.sendFeedback(
                 FEEDBACK_EMAIL_SUBJECT,
                 feedback.value.message,
                 {
@@ -194,7 +192,7 @@ function onEmailValidate(validation: ValidationResult) {
 }
 
 async function generateShortLink() {
-    const createdShortlink = await createShortLink(window.location.href)
+    const createdShortlink = await shortLinkAPI.createShortLink(window.location.href)
     if (createdShortlink) {
         shortLink.value = createdShortlink
     }
@@ -363,7 +361,7 @@ function selectItem(dropdownItem: DropdownItem<string>) {
                     :placeholder="'feedback_placeholder'"
                     :validate-when-pristine="userHasTriedToSubmit"
                     :disabled="request.pending"
-                    :max-file-size="ATTACHMENT_MAX_SIZE"
+                    :max-file-size="feedbackAPI.ATTACHMENT_MAX_SIZE"
                     data-cy="report-problem-file"
                     @validate="onAttachmentValidate"
                 />

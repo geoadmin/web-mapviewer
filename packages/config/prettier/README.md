@@ -17,13 +17,13 @@ This differs from ESLint configuration, which is typically added to each package
 ## Installation
 
 ```bash
-pnpm install --save-dev @swissgeo/config-prettier prettier
+pnpm install --workspace-root --save-dev @swissgeo/config-prettier prettier
 ```
 
 Then, install whichever Prettier plugins you want to enable in your project (optional — pick only what you need):
 
 ```bash
-pnpm install --save-dev @prettier/plugin-xml prettier-plugin-jsdoc prettier-plugin-packagejson prettier-plugin-tailwindcss
+pnpm install --workspace-root --save-dev @prettier/plugin-xml prettier-plugin-jsdoc prettier-plugin-packagejson prettier-plugin-tailwindcss
 ```
 
 ## Usage

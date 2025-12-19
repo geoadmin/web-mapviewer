@@ -5,6 +5,7 @@ import type { GeoAdminGeoJSONLayer } from '@swissgeo/layers'
 import type { Map } from 'ol'
 import type { FeatureLike } from 'ol/Feature'
 
+import { geoJsonUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
 import { Feature } from 'ol'
 import GeoJSON from 'ol/format/GeoJSON'
@@ -15,7 +16,6 @@ import { computed, inject, watch } from 'vue'
 import OlStyleForPropertyValue from '@/modules/map/components/openlayers/utils/geoJsonStyleFromLiterals'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import usePositionStore from '@/store/modules/position'
-import { reprojectGeoJsonGeometry } from '@/utils/geoJsonUtils'
 
 const {
     geoJsonConfig,
@@ -72,7 +72,7 @@ function setFeatures(): void {
     layer.setSource(
         new VectorSource({
             features: new GeoJSON().readFeatures(
-                reprojectGeoJsonGeometry(geoJsonObject, projection.value)
+                geoJsonUtils.reprojectGeoJsonGeometry(geoJsonObject, projection.value)
             ),
         })
     )

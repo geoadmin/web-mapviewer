@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
+import { shortLinkAPI } from '@swissgeo/api'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, ref, useTemplateRef, watch } from 'vue'
@@ -9,7 +10,6 @@ import { useRoute } from 'vue-router'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { createShortLink } from '@/api/shortlink.api'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
 import LocationPopupPosition from '@/modules/map/components/LocationPopupPosition.vue'
 import LocationPopupShare from '@/modules/map/components/LocationPopupShare.vue'
@@ -116,7 +116,7 @@ function updateShareLink() {
 
 async function shortenShareLink(url: string) {
     try {
-        shareLinkUrlShorten.value = await createShortLink(url)
+        shareLinkUrlShorten.value = await shortLinkAPI.createShortLink(url)
     } catch (error) {
         log.error({
             title: 'LocationPopup.vue',

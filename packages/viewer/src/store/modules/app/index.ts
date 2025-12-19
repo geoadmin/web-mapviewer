@@ -1,3 +1,4 @@
+import { legacyLayerParamUtils } from '@swissgeo/api/utils'
 import { defineStore } from 'pinia'
 
 import type { AppState, AppStoreGetters, AppStoreState } from '@/store/modules/app/types'
@@ -19,7 +20,6 @@ import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
 import useTopicsStore from '@/store/modules/topics'
 import useUIStore from '@/store/modules/ui'
-import { isLegacyParams } from '@/utils/legacyLayerParamUtils'
 
 const mapShown: AppState = {
     name: AppStateNames.MapShown,
@@ -56,7 +56,8 @@ const parseLegacyUrlParams: AppState = {
     // isFulfilled would always return false/true after the first time
     // it also has to be the first condition because the && operator is short-circuiting
     isFulfilled: () =>
-        useAppStore().legacyUrlParsingHasHappened && !isLegacyParams(window?.location?.search),
+        useAppStore().legacyUrlParsingHasHappened &&
+        !legacyLayerParamUtils.isLegacyParams(window?.location?.search),
 
     next: () => {
         return initiateUrlParsing
@@ -71,7 +72,7 @@ const configLoaded: AppState = {
         useTopicsStore().currentTopic?.defaultBackgroundLayer?.id ===
         useLayersStore().currentBackgroundLayer?.id,
     next: () => {
-        if (isLegacyParams(window?.location?.search)) {
+        if (legacyLayerParamUtils.isLegacyParams(window?.location?.search)) {
             return parseLegacyUrlParams
         }
         return initiateUrlParsing

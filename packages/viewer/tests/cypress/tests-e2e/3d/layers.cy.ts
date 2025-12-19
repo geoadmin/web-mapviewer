@@ -1,8 +1,8 @@
 import type { Viewer } from 'cesium'
 
+import { EditableFeatureTypes } from '@swissgeo/api'
 import { LV95, WEBMERCATOR } from '@swissgeo/coordinates'
 
-import { EditableFeatureTypes } from '@/api/features.api'
 import useFeaturesStore from '@/store/modules/features'
 import { transformLayerIntoUrlString } from '@/store/plugins/storeSync/layersParamParser'
 

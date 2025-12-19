@@ -3,6 +3,7 @@ import type { KMLLayer } from '@swissgeo/layers'
 import type { Entity, KmlDataSource as KmlDataSourceType, Viewer } from 'cesium'
 import type { ShallowRef } from 'vue'
 
+import { kmlUtils } from '@swissgeo/api/utils'
 import log from '@swissgeo/log'
 import { DEFAULT_MARKER_HORIZONTAL_OFFSET } from '@swissgeo/staging-config/constants'
 import {
@@ -19,7 +20,6 @@ import {
 import { computed, inject, toRef, watch } from 'vue'
 
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
-import { getFeatureDescriptionMap } from '@/utils/kmlUtils'
 
 const { kmlLayerConfig } = defineProps<{ kmlLayerConfig: KMLLayer }>()
 
@@ -60,7 +60,7 @@ async function createSource(): Promise<KmlDataSourceType> {
  * description is changed in place.
  */
 function resetKmlDescription(kmlDataSource: KmlDataSource) {
-    const descriptionMap = getFeatureDescriptionMap(kmlData.value ?? '')
+    const descriptionMap = kmlUtils.getFeatureDescriptionMap(kmlData.value ?? '')
     kmlDataSource.entities.values.forEach((entity: Entity) => {
         entity.description = new ConstantProperty(descriptionMap.get(entity.id)!)
     })

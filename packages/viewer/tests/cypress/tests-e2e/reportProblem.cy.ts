@@ -2,7 +2,8 @@
 
 import type { Interception } from 'cypress/types/net-stubbing'
 
-import { EditableFeatureTypes } from '@/api/features.api'
+import { EditableFeatureTypes } from '@swissgeo/api'
+
 import { APP_VERSION } from '@/config'
 import useLayersStore from '@/store/modules/layers'
 

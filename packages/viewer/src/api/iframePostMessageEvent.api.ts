@@ -1,6 +1,6 @@
-import log, { LogPreDefinedColor } from '@swissgeo/log'
+import type { LayerFeature } from '@swissgeo/api'
 
-import type { LayerFeature } from '@/api/features.api'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 
 const targetWindow: Window = parent ?? window.parent ?? window.opener ?? window.top
 

@@ -1,15 +1,9 @@
 <script setup lang="ts">
+import type { FeatureStyleColor } from '@swissgeo/api'
+
+import { featureStyleUtils } from '@swissgeo/api/utils'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-
-import type { FeatureStyleColor } from '@/utils/featureStyleUtils'
-
-import {
-    allStylingColors,
-    generateFontString,
-    generateTextShadow,
-    MEDIUM,
-} from '@/utils/featureStyleUtils'
 
 const { currentColor } = defineProps<{
     currentColor?: FeatureStyleColor
@@ -19,7 +13,7 @@ const emits = defineEmits<{
     change: [color: FeatureStyleColor]
 }>()
 
-const colors = ref<FeatureStyleColor[]>(allStylingColors)
+const colors = ref<FeatureStyleColor[]>(featureStyleUtils.allStylingColors)
 
 const { t } = useI18n()
 
@@ -50,8 +44,8 @@ function onColorChange(color: FeatureStyleColor): void {
                 }"
                 :style="{
                     color: color.name,
-                    font: generateFontString(MEDIUM),
-                    'text-shadow': generateTextShadow(color),
+                    font: featureStyleUtils.generateFontString(featureStyleUtils.MEDIUM),
+                    'text-shadow': featureStyleUtils.generateTextShadow(color),
                 }"
                 :data-cy="`drawing-style-text-color-${color.name}`"
                 @click="onColorChange(color)"

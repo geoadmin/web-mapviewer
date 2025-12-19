@@ -1,15 +1,13 @@
+import type { SearchResult } from '@swissgeo/api'
 import type { CoordinateSystem, SingleCoordinate } from '@swissgeo/coordinates'
 
+import { lv03ReframeAPI, searchAPI, what3wordsAPI } from '@swissgeo/api'
 import { constants, coordinatesUtils, CustomCoordinateSystem, LV03 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { SearchResult } from '@/api/search.api'
 import type { SearchStore } from '@/store/modules/search/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import reframe from '@/api/lv03Reframe.api'
-import search from '@/api/search.api'
-import { isWhat3WordsString, retrieveWhat3WordsLocation } from '@/api/what3words.api'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
@@ -59,8 +57,9 @@ export default function setSearchQuery(
         // checking first if this corresponds to a set of coordinates (or a what3words)
         const extractedCoordinate = coordinateFromString(query)
         let what3wordLocation: SingleCoordinate | undefined
-        if (!extractedCoordinate && isWhat3WordsString(query)) {
-            retrieveWhat3WordsLocation(query, currentProjection)
+        if (!extractedCoordinate && what3wordsAPI.isWhat3WordsString(query)) {
+            what3wordsAPI
+                .retrieveWhat3WordsLocation(query, currentProjection)
                 .then((location) => {
                     what3wordLocation = location
                     processWhat3WordsLocation(what3wordLocation, currentProjection, dispatcher)
@@ -86,11 +85,12 @@ export default function setSearchQuery(
                 // So we pass through a LV95 REFRAME (done by a backend service that knows all deformations between the two)
                 // and then go to the wanted coordinate system
                 if (extractedCoordinate.coordinateSystem === LV03) {
-                    reframe({
-                        inputProjection: LV03,
-                        inputCoordinates: coordinates,
-                        outputProjection: currentProjection,
-                    })
+                    lv03ReframeAPI
+                        .reframe({
+                            inputProjection: LV03,
+                            inputCoordinates: coordinates,
+                            outputProjection: currentProjection,
+                        })
                         .then((reframedCoordinates) => {
                             coordinates = reframedCoordinates
                             applyCoordinates(coordinates, currentProjection, dispatcher)
@@ -165,14 +165,15 @@ function performSearch(
     const i18nStore = useI18nStore()
     const layerStore = useLayersStore()
     const positionStore = usePositionStore()
-    search({
-        outputProjection: currentProjection,
-        queryString: query,
-        lang: i18nStore.lang,
-        layersToSearch: layerStore.visibleLayers,
-        resolution: positionStore.resolution,
-        limit: searchStore.autoSelect ? 1 : undefined,
-    })
+    searchAPI
+        .search({
+            outputProjection: currentProjection,
+            queryString: query,
+            lang: i18nStore.lang,
+            layersToSearch: layerStore.visibleLayers,
+            resolution: positionStore.resolution,
+            limit: searchStore.autoSelect ? 1 : undefined,
+        })
         .then((results) => {
             searchStore.results = results
             if (

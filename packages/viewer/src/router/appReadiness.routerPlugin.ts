@@ -1,3 +1,4 @@
+import { legacyLayerParamUtils } from '@swissgeo/api/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { START_LOCATION } from 'vue-router'
 
@@ -12,7 +13,6 @@ import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers'
 import useTopicsStore from '@/store/modules/topics'
 import useUIStore from '@/store/modules/ui'
-import { isLegacyParams } from '@/utils/legacyLayerParamUtils'
 import { readSingleParamAsString } from '@/utils/url-router'
 
 const dispatcher: ActionDispatcher = { name: 'appReadiness.routerPlugin' }
@@ -33,7 +33,7 @@ export const appReadinessRouterPlugin: RouterPlugin = (router): void => {
 
     const unRegisterRouterHook = router.beforeEach((to, from) => {
         let startingTopic: string | undefined
-        const isLegacyUrl = isLegacyParams(window?.location?.search)
+        const isLegacyUrl = legacyLayerParamUtils.isLegacyParams(window?.location?.search)
 
         const appStore = useAppStore()
         const i18nStore = useI18nStore()

@@ -62,7 +62,7 @@ const { t } = useI18n()
             </button>
         </div>
         <div
-            class="card-body"
+            class="card-body clear-no-ios-long-press"
             :class="{ 'd-none': !showBody }"
             data-cy="warning-window-body"
         >

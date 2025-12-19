@@ -1,4 +1,5 @@
-import type { EditableFeature } from '@/api/features.api'
+import type { EditableFeature } from '@swissgeo/api'
+
 import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 

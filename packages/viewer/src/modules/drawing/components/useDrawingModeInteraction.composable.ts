@@ -1,3 +1,4 @@
+import type { EditableFeature } from '@swissgeo/api'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type Feature from 'ol/Feature'
 import type { SimpleGeometry } from 'ol/geom'
@@ -6,6 +7,8 @@ import type { DrawEvent } from 'ol/interaction/Draw'
 import type Map from 'ol/Map'
 import type { StyleFunction, StyleLike } from 'ol/style/Style'
 
+import { featuresAPI } from '@swissgeo/api'
+import { featureStyleUtils } from '@swissgeo/api/utils'
 import { coordinatesUtils } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { primaryAction } from 'ol/events/condition'
@@ -18,20 +21,13 @@ import { getUid } from 'ol/util'
 import { v4 as uuidv4 } from 'uuid'
 import { inject, onBeforeUnmount, onMounted, ref, toValue } from 'vue'
 
-import type { EditableFeature } from '@/api/features.api'
 import type { ActionDispatcher } from '@/store/types'
 
-import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@/api/features.api'
 import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useDrawingStore from '@/store/modules/drawing'
 import { EditMode } from '@/store/modules/drawing/types'
 import usePositionStore from '@/store/modules/position'
-import {
-    DEFAULT_MARKER_TITLE_OFFSET,
-    geoadminStyleFunction,
-    TextPlacement,
-} from '@/utils/featureStyleUtils'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
 
 const dispatcher: ActionDispatcher = { name: 'useDrawingModeInteraction.composable' }
@@ -206,8 +202,8 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
                 featureType: drawingStore.edit.featureType!,
                 isEditable: true,
                 showDescriptionOnMap: false,
-                textOffset: DEFAULT_MARKER_TITLE_OFFSET,
-                textPlacement: TextPlacement.Center,
+                textOffset: featureStyleUtils.DEFAULT_MARKER_TITLE_OFFSET,
+                textPlacement: 'center',
                 title: '',
                 id: uid,
             }
@@ -220,7 +216,7 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
                 editableFeature,
                 type: editableFeature.featureType.toLowerCase(),
             })
-            if (editableFeature.featureType === EditableFeatureTypes.Marker) {
+            if (editableFeature.featureType === 'MARKER') {
                 feature.setProperties({
                     textOffset: editableFeature.textOffset.toString(),
                     showDescriptionOnMap: editableFeature.showDescriptionOnMap,
@@ -340,7 +336,7 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
                 | EditableFeature
                 | undefined
             if (editableFeature) {
-                editableFeature.coordinates = extractOlFeatureCoordinates(drawnFeature)
+                editableFeature.coordinates = featuresAPI.extractOlFeatureCoordinates(drawnFeature)
                 // setting the geometry too so that the floating popup can be placed correctly on the map
                 editableFeature.geometry = new GeoJSON().writeGeometryObject(geometry)
             }
@@ -350,7 +346,7 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
             // setting the definitive style function for this feature (thus replacing the editing style from the interaction)
             // This function will be automatically recalled every time the feature object is modified or rerendered.
             // (so there is no need to recall setstyle after modifying an extended property)
-            drawnFeature.setStyle(geoadminStyleFunction)
+            drawnFeature.setStyle(featureStyleUtils.geoadminStyleFunction)
             // see https://openlayers.org/en/latest/apidoc/module-ol_interaction_Draw-Draw.html#finishDrawing
             interaction.finishDrawing()
             drawingStore.setCurrentlyDrawnFeature(editableFeature, dispatcher)

@@ -1,17 +1,15 @@
+import type { EditableFeature } from '@swissgeo/api'
 import type { Coordinate } from 'ol/coordinate'
 import type { FeatureLike } from 'ol/Feature'
 import type { Geometry } from 'ol/geom'
 import type { GeometryFunction } from 'ol/style/Style'
 
+import { featuresAPI } from '@swissgeo/api'
+import { featureStyleUtils } from '@swissgeo/api/utils'
 import { styleUtils } from '@swissgeo/theme'
 import { LineString, MultiPoint, Point, Polygon } from 'ol/geom'
 import RenderFeature from 'ol/render/Feature'
 import { Circle, Fill, Style } from 'ol/style'
-
-import type { EditableFeature } from '@/api/features.api'
-
-import { isLineOrMeasure } from '@/api/features.api'
-import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
 
 /**
  * Style function as used by the Modify Interaction. Used to display a translucent point on a line
@@ -23,7 +21,7 @@ export function editingVertexStyleFunction(
 ): Style | Style[] | null {
     const associatedFeature = vertex.get('features')[0]
     const editableFeature = associatedFeature?.get('editableFeature') as EditableFeature | undefined
-    if (!associatedFeature || (editableFeature && isLineOrMeasure(editableFeature))) {
+    if (!associatedFeature || (editableFeature && featuresAPI.isLineOrMeasure(editableFeature))) {
         return null
     }
     return new Style({
@@ -83,7 +81,7 @@ export function editingFeatureStyleFunction(
             })
         )
     }
-    const defStyle = geoadminStyleFunction(feature, resolution)
+    const defStyle = featureStyleUtils.geoadminStyleFunction(feature, resolution)
     if (Array.isArray(defStyle)) {
         styles.push(...defStyle)
     } else if (defStyle) {

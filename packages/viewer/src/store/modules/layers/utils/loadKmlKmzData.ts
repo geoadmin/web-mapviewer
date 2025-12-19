@@ -1,12 +1,11 @@
 import type { KMLLayer } from '@swissgeo/layers'
 
+import { filesAPI, fileProxyAPI } from '@swissgeo/api'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { ErrorMessage } from '@swissgeo/log/Message'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api'
-import { checkOnlineFileCompliance, getFileContentFromUrl, loadKmlMetadata } from '@/api/files.api'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
@@ -32,7 +31,7 @@ async function loadMetadata(kmlLayer: KMLLayer, dispatcher: ActionDispatcher): P
     uiStore.setLoadingBarRequester(`${LOADING_BAR_REQUEST_NAME}/metadata`, dispatcher)
 
     try {
-        const metadata = await loadKmlMetadata(kmlLayer)
+        const metadata = await filesAPI.loadKmlMetadata(kmlLayer)
         layersStore.updateLayer<KMLLayer>(
             kmlLayer.id,
             {
@@ -66,7 +65,7 @@ async function loadData(kmlLayer: KMLLayer, dispatcher: ActionDispatcher): Promi
     let complianceCheck = null
     uiStore.setLoadingBarRequester(`${LOADING_BAR_REQUEST_NAME}/compliance`, dispatcher)
     try {
-        complianceCheck = await checkOnlineFileCompliance(kmlLayer.kmlFileUrl)
+        complianceCheck = await filesAPI.checkOnlineFileCompliance(kmlLayer.kmlFileUrl)
     } catch (error) {
         log.error({
             title: 'Layer store / loadKmlKmzData',
@@ -87,9 +86,11 @@ async function loadData(kmlLayer: KMLLayer, dispatcher: ActionDispatcher): Promi
     uiStore.setLoadingBarRequester(`${LOADING_BAR_REQUEST_NAME}/content`, dispatcher)
     try {
         if (supportsCORS && supportsHTTPS) {
-            loadedContent = await getFileContentFromUrl(kmlLayer.kmlFileUrl)
+            loadedContent = await filesAPI.getFileContentFromUrl(kmlLayer.kmlFileUrl)
         } else if (mimeType) {
-            loadedContent = await getFileContentThroughServiceProxy(kmlLayer.kmlFileUrl)
+            loadedContent = await fileProxyAPI.getFileContentThroughServiceProxy(
+                kmlLayer.kmlFileUrl
+            )
         }
     } catch (error) {
         log.error({

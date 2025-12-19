@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import type { TextPlacement } from '@swissgeo/api'
+
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-
-import { TextPlacement } from '@/utils/featureStyleUtils'
 
 const { currentPlacement } = defineProps<{
     currentPlacement: TextPlacement
@@ -13,15 +13,15 @@ const emit = defineEmits<{
 }>()
 
 const allStylingTextPlacements = ref<TextPlacement[]>([
-    TextPlacement.TopLeft,
-    TextPlacement.Top,
-    TextPlacement.TopRight,
-    TextPlacement.Left,
-    TextPlacement.Center,
-    TextPlacement.Right,
-    TextPlacement.BottomLeft,
-    TextPlacement.Bottom,
-    TextPlacement.BottomRight,
+    'top-left',
+    'top',
+    'top-right',
+    'left',
+    'center',
+    'right',
+    'bottom-left',
+    'bottom',
+    'bottom-right',
 ])
 
 const { t } = useI18n()

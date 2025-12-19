@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { EditableFeature, LayerFeature } from '@swissgeo/api'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { Viewer } from 'cesium'
 import type { ShallowRef } from 'vue'
@@ -10,7 +11,6 @@ import { LineString, Point, Polygon } from 'ol/geom'
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { EditableFeature, LayerFeature } from '@/api/features.api'
 import type { HighlightGeometry } from '@/modules/map/components/cesium/utils/highlightUtils'
 import type { ActionDispatcher } from '@/store/types'
 

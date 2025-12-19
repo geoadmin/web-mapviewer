@@ -1,6 +1,5 @@
+import type { Topic } from '@swissgeo/api'
 import type { RouteLocationNormalizedGeneric } from 'vue-router'
-
-import type { Topic } from '@/api/topics.api'
 
 import useTopicsStore from '@/store/modules/topics'
 import UrlParamConfig, {

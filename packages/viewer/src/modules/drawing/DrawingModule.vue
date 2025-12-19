@@ -1,21 +1,21 @@
 <script setup lang="ts">
+import type { EditableFeature } from '@swissgeo/api'
 import type { KMLLayer } from '@swissgeo/layers'
 import type { LineString } from 'geojson'
 import type Map from 'ol/Map'
 import type { ComponentPublicInstance } from 'vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { kmlUtils } from '@swissgeo/api/utils'
 import { LayerType } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { WarningMessage } from '@swissgeo/log/Message'
 import { computed, inject, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { EditableFeature } from '@/api/features.api'
 import type { DrawingInteractionExposed } from '@/modules/drawing/types/interaction'
 import type { ActionDispatcher } from '@/store/types'
 
-import { EditableFeatureTypes } from '@/api/features.api'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import AddVertexButtonOverlay from '@/modules/drawing/components/AddVertexButtonOverlay.vue'
 import DrawingInteractions from '@/modules/drawing/components/DrawingInteractions.vue'
@@ -27,7 +27,6 @@ import { EditMode } from '@/store/modules/drawing/types'
 import addKmlFeaturesToDrawingLayer from '@/store/modules/drawing/utils/addKmlFeaturesToDrawingLayer'
 import useLayersStore from '@/store/modules/layers'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
-import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
 
 const dispatcher: ActionDispatcher = { name: 'DrawingModule.vue' }
 
@@ -63,8 +62,8 @@ const selectedLineFeature = computed<EditableFeature | undefined>(() => {
     if (
         drawingStore.feature.current &&
         drawingStore.feature.current.geometry?.type === 'LineString' &&
-        (drawingStore.feature.current.featureType === EditableFeatureTypes.LinePolygon ||
-            drawingStore.feature.current.featureType === EditableFeatureTypes.Measure)
+        (drawingStore.feature.current.featureType === 'LINEPOLYGON' ||
+            drawingStore.feature.current.featureType === 'MEASURE')
     ) {
         return drawingStore.feature.current
     }
@@ -94,13 +93,18 @@ watch(availableIconSets, () => {
 
     drawingStore.feature.all.forEach((feature) => {
         if (feature.icon) {
-            const iconArgs = parseIconUrl(feature.icon.imageURL)
-            const icon = getIcon(iconArgs, undefined /*iconStyle*/, availableIconSets.value, () => {
-                // Fallback warning handler (Pinia app store could be used if available)
-                log.warn(
-                    new WarningMessage('kml_icon_set_not_found', { iconSetName: iconArgs!.set })
-                )
-            })
+            const iconArgs = kmlUtils.parseIconUrl(feature.icon.imageURL)
+            const icon = kmlUtils.getIcon(
+                iconArgs,
+                undefined /*iconStyle*/,
+                availableIconSets.value,
+                () => {
+                    // Fallback warning handler (Pinia app store could be used if available)
+                    log.warn(
+                        new WarningMessage('kml_icon_set_not_found', { iconSetName: iconArgs!.set })
+                    )
+                }
+            )
             if (icon) {
                 feature.icon = icon
             }

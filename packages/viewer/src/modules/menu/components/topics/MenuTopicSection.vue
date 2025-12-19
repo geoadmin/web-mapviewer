@@ -1,8 +1,8 @@
 <script setup lang="ts">
+import type { Topic } from '@swissgeo/api'
+
 import { computed, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
-
-import type { Topic } from '@/api/topics.api'
 
 import LayerCatalogue from '@/modules/menu/components/LayerCatalogue.vue'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'

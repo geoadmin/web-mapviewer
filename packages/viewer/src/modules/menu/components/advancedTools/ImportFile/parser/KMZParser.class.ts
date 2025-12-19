@@ -1,9 +1,10 @@
 import type { CoordinateSystem } from '@swissgeo/coordinates'
 import type { KMLLayer } from '@swissgeo/layers'
 
+import { kmlUtils } from '@swissgeo/api/utils'
+
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
-import { unzipKmz } from '@/utils/kmlUtils'
 
 const ZIP_FILE_LITTLE_ENDIAN_SIGNATURE = [0x50, 0x4b, 0x03, 0x04]
 
@@ -40,7 +41,7 @@ export default class KMZParser extends FileParser<KMLLayer> {
         if (!data) {
             throw new Error('No data provided for KMZ file')
         }
-        const kmz = await unzipKmz(
+        const kmz = await kmlUtils.unzipKmz(
             data,
             this.isLocalFile(fileSource) ? fileSource.name : fileSource
         )

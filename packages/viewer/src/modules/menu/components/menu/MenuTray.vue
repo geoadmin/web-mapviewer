@@ -8,23 +8,20 @@ import MenuThreeD from '@/modules/menu/components/3d/MenuThreeD.vue'
 import MenuActiveLayersList from '@/modules/menu/components/activeLayers/MenuActiveLayersList.vue'
 import MenuAdvancedToolsList from '@/modules/menu/components/advancedTools/MenuAdvancedToolsList.vue'
 import MenuHelpSection from '@/modules/menu/components/help/MenuHelpSection.vue'
+import MenuDrawingSection from '@/modules/menu/components/menu/MenuDrawingSection.vue'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import MenuPrintSection from '@/modules/menu/components/print/MenuPrintSection.vue'
 import MenuShareSection from '@/modules/menu/components/share/MenuShareSection.vue'
 import MenuTopicSection from '@/modules/menu/components/topics/MenuTopicSection.vue'
 import useAppStore from '@/store/modules/app'
 import useCesiumStore from '@/store/modules/cesium'
-import useDrawingStore from '@/store/modules/drawing'
-import { OnlineMode } from '@/store/modules/drawing/types'
 import useUIStore from '@/store/modules/ui'
 
-const dispatcher = { name: 'MenuTray.vue' }
-
 const { t } = useI18n()
+
+const appStore = useAppStore()
 const cesiumStore = useCesiumStore()
 const uiStore = useUIStore()
-const drawingStore = useDrawingStore()
-const appStore = useAppStore()
 
 const { compact = false } = defineProps<{
     compact?: boolean
@@ -54,7 +51,6 @@ const singleModeSections = ref([
 
 const is3dMode = computed(() => cesiumStore.active)
 const showImportFile = computed(() => uiStore.importFile)
-const showDrawingOverlay = computed(() => drawingStore.overlay.show)
 const mapModuleReady = computed(() => appStore.isMapReady)
 
 watch(showImportFile, (show) => {
@@ -69,20 +65,6 @@ onMounted(() => {
         menuItemRefs.value?.['3dSection']?.open()
     }
 })
-
-function toggleDrawingOverlay() {
-    drawingStore.toggleDrawingOverlay(
-        {
-            title: 'draw_mode_title',
-        },
-        dispatcher
-    )
-    if (drawingStore.onlineMode === OnlineMode.Offline) {
-        drawingStore.setOnlineMode(OnlineMode.OnlineWhileOffline, dispatcher)
-    } else if (drawingStore.onlineMode === OnlineMode.None) {
-        drawingStore.setOnlineMode(OnlineMode.Online, dispatcher)
-    }
-}
 
 function onOpenMenuSection(id: string) {
     let toClose = singleModeSections.value.filter((section) => section !== id)
@@ -139,23 +121,11 @@ const addRefBySectionId = (el: Element | ComponentPublicInstance | null): void =
             :ref="addRefBySectionId"
             @open-menu-section="onOpenMenuSection"
         />
-        <!-- Drawing section is a glorified button, we always keep it closed and listen to click events -->
-        <div
-            id="drawSectionTooltip"
-            tabindex="0"
-        >
-            <MenuSection
-                v-if="!is3dMode"
-                section-id="drawSection"
-                :title="t('draw_panel_title')"
-                secondary
-                :show-content="showDrawingOverlay"
-                data-cy="menu-tray-drawing-section"
-                @click:header="toggleDrawingOverlay"
-                @open-menu-section="onOpenMenuSection"
-                @close-menu-section="onCloseMenuSection"
-            />
-        </div>
+        <MenuDrawingSection
+            v-if="!is3dMode"
+            @open-menu-section="onOpenMenuSection"
+            @close-menu-section="onCloseMenuSection"
+        />
         <MenuSection
             :ref="addRefBySectionId"
             section-id="toolsSection"

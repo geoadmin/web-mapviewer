@@ -1,5 +1,6 @@
-import type { Layer } from '@swissgeo/layers'
+import type { Layer, KMLLayer } from '@swissgeo/layers'
 
+import { LayerType } from '@swissgeo/layers'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
 
 import type { LayersStore } from '@/store/modules/layers/types'
@@ -23,5 +24,11 @@ export default function visibleLayers(this: LayersStore): Layer[] {
     if (this.systemLayers.length > 0) {
         visibleLayers.push(...this.systemLayers.filter((layer) => layer.isVisible))
     }
-    return visibleLayers
+    return visibleLayers.filter((layer) => {
+        // we filter out any "drawing" layer that are currently edited (it will be loaded by the drawing module onto the map)
+        if (layer.type === LayerType.KML) {
+            return !(layer as KMLLayer).isEdited
+        }
+        return true
+    })
 }

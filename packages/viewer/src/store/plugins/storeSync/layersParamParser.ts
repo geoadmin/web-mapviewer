@@ -1,3 +1,4 @@
+import type { EditableFeature, LayerFeature } from '@swissgeo/api'
 import type {
     GeoAdminGeoJSONLayer,
     GeoAdminLayer,
@@ -5,13 +6,16 @@ import type {
     Layer,
     LayerCustomAttributes,
 } from '@swissgeo/layers'
+import type { LocationQueryRaw } from 'vue-router'
 
+import { legacyLayerParamUtils } from '@swissgeo/api/utils'
 import { KMLStyle, LayerType } from '@swissgeo/layers'
 import { decodeExternalLayerParam, encodeExternalLayerParam } from '@swissgeo/layers/api'
 import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
 import { isNumber } from '@swissgeo/numbers'
 
-import type { EditableFeature, LayerFeature } from '@/api/features.api'
+import useLayersStore from '@/store/modules/layers'
+import storeSyncConfig from '@/store/plugins/storeSync/storeSync.config'
 
 const ENC_COMMA: string = '%2C'
 const ENC_SEMI_COLON: string = '%3B'
@@ -259,4 +263,59 @@ export function orderFeaturesByLayers(
             layersFeatures[feature.layer.id]!.push(`${feature.id}`)
         })
     return layersFeatures
+}
+
+/**
+ * Parse all params to check if a layer-id=features-ids parameter has been sent. If this is the
+ * case, we either add the layers parameter if it doesn't exist, add the layer to the existing
+ * layers param if it exists and the layer is not part of it, or we need to insert the features to
+ * the existing layer
+ *
+ * @param params The parameters sent to the legacy router
+ * @param newQuery
+ */
+export function handleLegacyFeaturePreSelectionParam(
+    params: URLSearchParams,
+    newQuery: LocationQueryRaw
+): void {
+    const layersStore = useLayersStore()
+    const standardURLParams = storeSyncConfig.map((param) => {
+        return param.urlParamName
+    })
+    // we begin by removing all params that are either a standard URL param, or a
+    // legacy specific param
+    const relevantParams = Object.entries(Object.fromEntries(params)).filter(
+        ([key]) =>
+            !(
+                standardURLParams.includes(key) ||
+                legacyLayerParamUtils.legacyOnlyURLParams.includes(key)
+            )
+    )
+    relevantParams
+        .filter(([key]) => layersStore.config.some((layer: GeoAdminLayer) => layer.id === key))
+        .forEach(([layerId, featuresIds]) => {
+            // we only iterate on layers
+            const currentLayers = (newQuery.layers as string) ?? ''
+            if (currentLayers.match(new RegExp(`\\b${layerId}\\b`))) {
+                // the layer given as key is also in the query 'layers'
+                // we need to ensure all params are kept intact
+                newQuery.layers = legacyLayerParamUtils.createLayersParamForFeaturePreselection(
+                    layerId,
+                    featuresIds,
+                    currentLayers
+                )
+            } else {
+                // the layer is not yet part of the `layers` parameter
+                let layersString = currentLayers
+                if (!layersString) {
+                    // if there are no layers parameters at all, we need to create one
+                    layersString = ''
+                }
+                if (layersString.length > 0) {
+                    layersString += ';'
+                }
+                layersString += `${layerId}@features=${featuresIds.split(',').join(':')}`
+                newQuery.layers = layersString
+            }
+        })
 }

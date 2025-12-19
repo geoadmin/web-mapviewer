@@ -1,4 +1,5 @@
-import type { SearchResult } from '@/api/search.api'
+import type { SearchResult } from '@swissgeo/api'
+
 import type useSearchStore from '@/store/modules/search'
 
 export interface SearchStoreState {

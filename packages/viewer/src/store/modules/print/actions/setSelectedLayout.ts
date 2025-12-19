@@ -1,4 +1,5 @@
-import type { PrintLayout } from '@/api/print.api'
+import type { PrintLayout } from '@swissgeo/api'
+
 import type { PrintStore } from '@/store/modules/print/types'
 import type { ActionDispatcher } from '@/store/types'
 
