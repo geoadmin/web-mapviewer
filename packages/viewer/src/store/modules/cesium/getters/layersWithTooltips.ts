@@ -1,6 +1,6 @@
 import type { Layer } from '@swissgeo/layers'
+import type { LayerTooltipConfig } from '@swissgeo/staging-config/constants'
 
-import type { LayerTooltipConfig } from '@/config/cesium.config'
 import type { CesiumStore } from '@/store/modules/cesium/types'
 
 export default function layersWithTooltips(this: CesiumStore): Layer[] {

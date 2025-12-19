@@ -3,7 +3,7 @@
 import type { Interception } from 'cypress/types/net-stubbing'
 
 import { EditableFeatureTypes } from '@/api/features.api'
-import { APP_VERSION } from '@/config/staging.config'
+import { APP_VERSION } from '@/config'
 import useLayersStore from '@/store/modules/layers'
 
 import { assertDefined, isMobile } from '../support/utils'

@@ -13,7 +13,7 @@ import { computed, inject, onBeforeUnmount, ref, toRef, watch } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { DEFAULT_PROJECTION } from '@/config'
 import useAddImageryLayer from '@/modules/map/components/cesium/utils/useAddImageryLayer.composable'
 import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'

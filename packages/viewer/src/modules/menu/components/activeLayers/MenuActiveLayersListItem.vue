@@ -334,7 +334,7 @@ function changeStyle(newStyle: { value: KMLStyle }) {
 
 <style lang="scss" scoped>
 @import 'bootstrap';
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 @import '@/modules/menu/scss/menu-items';
 
 .data-disclaimer-tooltip {

@@ -36,7 +36,7 @@ function changeLang(lang: SupportedLang) {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 
 .lang-switch-menu {
     transition: max-height 0.3s linear;

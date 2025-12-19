@@ -2,10 +2,10 @@ import type Map from 'ol/Map'
 import type { MockFeature } from 'support/intercepts'
 
 import { registerProj4 } from '@swissgeo/coordinates'
+import { DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION } from '@swissgeo/staging-config/constants'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 
-import { DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION } from '@/config/map.config'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'

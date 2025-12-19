@@ -4,11 +4,11 @@ import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { Layer } from '@swissgeo/layers'
 
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
+import { BREAKPOINT_TABLET } from '@swissgeo/staging-config/constants'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 
-import { DEFAULT_PROJECTION } from '@/config/map.config'
-import { BREAKPOINT_TABLET } from '@/config/responsive.config'
+import { DEFAULT_PROJECTION } from '@/config'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'

@@ -7,11 +7,11 @@ import type {
 
 import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
+import { getServiceKmlBaseUrl } from '@swissgeo/staging-config'
 import { cloneDeep } from 'lodash'
 import { Interval } from 'luxon'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import {
     parseLayersParam,
     transformLayerIntoUrlString,

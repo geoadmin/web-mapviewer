@@ -4,6 +4,7 @@ import type { ShallowRef } from 'vue'
 
 import { WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
+import { styleUtils } from '@swissgeo/theme'
 import {
     Cartesian3,
     Color,
@@ -16,13 +17,6 @@ import { computed, inject, onMounted, watch } from 'vue'
 
 import useGeolocationStore from '@/store/modules/geolocation'
 import usePositionStore from '@/store/modules/position'
-import {
-    geolocationAccuracyCircleFillColor,
-    geolocationPointBorderColor,
-    geolocationPointBorderWidth,
-    geolocationPointFillColor,
-    geolocationPointWidth,
-} from '@/utils/styleUtils'
 
 const viewer = inject<ShallowRef<Viewer | undefined>>('viewer')
 if (!viewer?.value) {
@@ -113,7 +107,9 @@ function activateTracking(): void {
             ellipse: {
                 semiMajorAxis: accuracy.value,
                 semiMinorAxis: accuracy.value,
-                material: transformArrayColorIntoCesiumColor(geolocationAccuracyCircleFillColor),
+                material: transformArrayColorIntoCesiumColor(
+                    styleUtils.geolocationAccuracyCircleFillColor
+                ),
                 heightReference: HeightReference.CLAMP_TO_TERRAIN,
             },
         })
@@ -121,10 +117,12 @@ function activateTracking(): void {
             id: 'geolocation-position',
             position: geolocationPositionCartesian3.value,
             point: {
-                pixelSize: geolocationPointWidth,
-                color: transformArrayColorIntoCesiumColor(geolocationPointFillColor),
-                outlineWidth: geolocationPointBorderWidth,
-                outlineColor: transformArrayColorIntoCesiumColor(geolocationPointBorderColor),
+                pixelSize: styleUtils.geolocationPointWidth,
+                color: transformArrayColorIntoCesiumColor(styleUtils.geolocationPointFillColor),
+                outlineWidth: styleUtils.geolocationPointBorderWidth,
+                outlineColor: transformArrayColorIntoCesiumColor(
+                    styleUtils.geolocationPointBorderColor
+                ),
                 heightReference: HeightReference.CLAMP_TO_GROUND,
                 // disable depth test so that the point isn't clipped or hidden by the terrain or buildings
                 disableDepthTestDistance: Number.POSITIVE_INFINITY,

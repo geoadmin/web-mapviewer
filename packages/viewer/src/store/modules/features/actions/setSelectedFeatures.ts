@@ -1,9 +1,10 @@
+import { DEFAULT_FEATURE_COUNT_SINGLE_POINT } from '@swissgeo/staging-config/constants'
+
 import type { EditableFeature, LayerFeature, SelectableFeature } from '@/api/features.api'
 import type { FeaturesForLayer, FeaturesStore } from '@/store/modules/features/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { sendFeatureInformationToIFrameParent } from '@/api/iframePostMessageEvent.api'
-import { DEFAULT_FEATURE_COUNT_SINGLE_POINT } from '@/config/map.config'
 import useProfileStore from '@/store/modules/profile'
 
 interface SetSelectedFeaturesOptions {

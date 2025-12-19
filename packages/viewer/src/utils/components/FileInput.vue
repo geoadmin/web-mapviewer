@@ -10,14 +10,10 @@
 import { computed, toRef, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type {ValidateFunction, ValidationResult} from '@/utils/composables/useFieldValidation';
+import type { ValidateFunction, ValidationResult } from '@/utils/composables/useFieldValidation'
 
 import { useComponentUniqueId } from '@/utils/composables/useComponentUniqueId'
-import {
-    useFieldValidation
-    
-    
-} from '@/utils/composables/useFieldValidation'
+import { useFieldValidation } from '@/utils/composables/useFieldValidation'
 import { humanFileSize } from '@/utils/utils'
 
 const props = defineProps<{
@@ -268,7 +264,7 @@ function onFileSelected(evt: Event): void {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 
 .local-file-input {
     cursor: pointer;

@@ -157,7 +157,7 @@ onMounted(async () => {
 <style lang="scss">
 // No scoping here as we need to apply styles to the markup we included with v-html.
 @import '@/scss/variables.module';
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 
 $spacing: 8px;
 

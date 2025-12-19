@@ -5,7 +5,8 @@ import {
     getBaseUrlOverride,
     hasBaseUrlOverrides,
     setBaseUrlOverrides,
-} from '@/config/baseUrl.config'
+} from '@swissgeo/staging-config'
+
 import useDebugStore from '@/store/modules/debug'
 import UrlParamConfig from '@/store/plugins/storeSync/UrlParamConfig.class'
 import { isValidUrl } from '@/utils/utils'

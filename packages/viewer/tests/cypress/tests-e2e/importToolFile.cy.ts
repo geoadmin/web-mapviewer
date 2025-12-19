@@ -10,7 +10,7 @@ import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 
 import { proxifyUrl } from '@/api/file-proxy.api.js'
-import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { DEFAULT_PROJECTION } from '@/config'
 import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
 import useProfileStore from '@/store/modules/profile'

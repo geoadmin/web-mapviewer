@@ -1,8 +1,8 @@
+import { CESIUM_LAYER_TOOLTIPS_CONFIGURATION } from '@swissgeo/staging-config/constants'
 import { defineStore } from 'pinia'
 
 import type { CesiumStoreGetters, CesiumStoreState } from '@/store/modules/cesium/types'
 
-import { CESIUM_LAYER_TOOLTIPS_CONFIGURATION } from '@/config/cesium.config'
 import set3dActive from '@/store/modules/cesium/actions/set3dActive'
 import setShowConstructionsBuildings from '@/store/modules/cesium/actions/setShowConstructionsBuildings'
 import setShowLabels from '@/store/modules/cesium/actions/setShowLabels'

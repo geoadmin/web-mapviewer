@@ -13,7 +13,7 @@ import log from '@swissgeo/log'
 import { computed, inject, nextTick, onUnmounted, shallowRef, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import { ENVIRONMENT } from '@/config/staging.config'
+import { ENVIRONMENT } from '@/config'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 import useCesiumStore from '@/store/modules/cesium'

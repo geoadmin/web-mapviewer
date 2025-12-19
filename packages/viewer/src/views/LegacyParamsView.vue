@@ -25,7 +25,7 @@ const showLoadingBar = computed(() => uiStore.showLoadingBar)
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 
 #splashscreen {
     position: fixed;

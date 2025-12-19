@@ -4,6 +4,7 @@ import type { ShallowRef } from 'vue'
 
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
+import { TERRAIN_URL } from '@swissgeo/staging-config/constants'
 import {
     CesiumTerrainProvider,
     Color,
@@ -25,9 +26,7 @@ import {
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { TERRAIN_URL } from '@/config/cesium.config'
-import { CESIUM_STATIC_PATH } from '@/config/map.config'
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import { IS_TESTING_WITH_CYPRESS, CESIUM_STATIC_PATH } from '@/config'
 import CesiumBackgroundLayer from '@/modules/map/components/cesium/CesiumBackgroundLayer.vue'
 import CesiumCamera from '@/modules/map/components/cesium/CesiumCamera.vue'
 import CesiumGeolocationFeedback from '@/modules/map/components/cesium/CesiumGeolocationFeedback.vue'
@@ -223,7 +222,8 @@ provide<ShallowRef<Viewer | undefined>>('viewer', viewer)
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
+@import '@/scss/variables.module';
 @import '@/scss/media-query.mixin';
 
 .cesium-map {

@@ -63,7 +63,7 @@ function onColorChange(color: FeatureStyleColor): void {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 
 #drawing-style-text-color-selector {
     display: grid;

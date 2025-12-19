@@ -3,6 +3,8 @@ import type { ColorLike, PatternDescriptor } from 'ol/colorlike'
 import type { default as Feature, FeatureLike } from 'ol/Feature'
 import type { Size } from 'ol/size'
 
+import { DEFAULT_ICON_SIZE, DEFAULT_TITLE_OFFSET } from '@swissgeo/staging-config/constants'
+import { styleUtils } from '@swissgeo/theme'
 import { fromString } from 'ol/color'
 import { Fill, Stroke, Text } from 'ol/style'
 import Icon from 'ol/style/Icon'
@@ -13,8 +15,6 @@ import type { EditableFeature } from '@/api/features.api'
 
 import { EditableFeatureTypes } from '@/api/features.api'
 import { generateIconURL } from '@/api/icon.api'
-import { DEFAULT_ICON_SIZE, DEFAULT_TITLE_OFFSET } from '@/config/icons.config'
-import { dashedRedStroke, StyleZIndex, whiteSketchFill } from '@/utils/styleUtils'
 
 /**
  * @returns CSS string describing the text shadow that must be applied when coloring a text with
@@ -425,18 +425,18 @@ export function geoadminStyleFunction(
             }),
             stroke:
                 editableFeature?.featureType === EditableFeatureTypes.Measure
-                    ? dashedRedStroke
+                    ? styleUtils.dashedRedStroke
                     : new Stroke({
                           color: styleConfig.fillColor.fill,
                           width: 3,
                       }),
             // filling a polygon with white if first time being drawn (otherwise fallback to user set color)
             fill: isDrawing
-                ? whiteSketchFill
+                ? styleUtils.whiteSketchFill
                 : new Fill({
                       color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
                   }),
-            zIndex: StyleZIndex.MainStyle,
+            zIndex: styleUtils.StyleZIndex.MainStyle,
         }),
     ]
     if (editableFeature?.showDescriptionOnMap && editableFeature?.description) {
@@ -464,11 +464,11 @@ export function geoadminStyleFunction(
             new Style({
                 geometry: polygonGeom,
                 fill: isDrawing
-                    ? whiteSketchFill
+                    ? styleUtils.whiteSketchFill
                     : new Fill({
                           color: [...fromString(styleConfig.fillColor.fill).slice(0, 3), 0.4],
                       }),
-                zIndex: StyleZIndex.AzimuthCircle,
+                zIndex: styleUtils.StyleZIndex.AzimuthCircle,
                 stroke: new Stroke({
                     color: styleConfig.strokeColor.fill,
                     width: 3,

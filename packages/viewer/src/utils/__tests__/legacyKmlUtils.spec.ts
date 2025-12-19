@@ -2,6 +2,7 @@ import type { default as Feature } from 'ol/Feature'
 
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 import { layerUtils } from '@swissgeo/layers/utils'
+import { getServiceKmlBaseUrl } from '@swissgeo/staging-config'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -10,7 +11,6 @@ import type { EditableFeature } from '@/api/features.api'
 import type { DrawingIconSet } from '@/api/icon.api'
 
 import { EditableFeatureTypes } from '@/api/features.api'
-import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import {
     BLACK,
     BLUE,

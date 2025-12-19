@@ -1,6 +1,7 @@
 /// <reference types="cypress" />
 
-import { BREAKPOINT_PHONE_WIDTH, BREAKPOINT_TABLET } from '@/config/responsive.config'
+import { BREAKPOINT_PHONE_WIDTH, BREAKPOINT_TABLET } from '@swissgeo/staging-config/constants'
+
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers'
 import useTopicsStore from '@/store/modules/topics'

@@ -4,14 +4,14 @@ import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { Pinia } from 'pinia'
 
 import { LV03, LV95, registerProj4, WGS84 } from '@swissgeo/coordinates'
+import { getServiceShortLinkBaseUrl } from '@swissgeo/staging-config'
+import { BREAKPOINT_TABLET } from '@swissgeo/staging-config/constants'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 
 import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 
-import { getServiceShortLinkBaseUrl } from '@/config/baseUrl.config'
-import { DEFAULT_PROJECTION } from '@/config/map.config'
-import { BREAKPOINT_TABLET } from '@/config/responsive.config'
+import { DEFAULT_PROJECTION } from '@/config'
 import useDrawingStore from '@/store/modules/drawing'
 import useMapStore from '@/store/modules/map'
 import {

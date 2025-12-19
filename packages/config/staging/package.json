@@ -13,6 +13,11 @@
             "types": "./dist/index.d.ts",
             "import": "./dist/index.js",
             "require": "./dist/index.umd.cjs"
+        },
+        "./constants": {
+            "types": "./dist/constants.d.ts",
+            "import": "./dist/constants.js",
+            "require": "./dist/constants.umd.cjs"
         }
     },
     "main": "./dist/index.umd.cjs",

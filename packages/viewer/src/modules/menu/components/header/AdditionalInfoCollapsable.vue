@@ -33,7 +33,8 @@ const isOpen = ref(false)
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
+@import '@/scss/variables.module';
 // we need this component to be under the searchbar when not hovered, and over it when hovered.
 
 .z-menu-1 {

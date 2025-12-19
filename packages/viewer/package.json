@@ -65,6 +65,7 @@
         "@swissgeo/log": "workspace:*",
         "@swissgeo/numbers": "workspace:*",
         "@swissgeo/staging-config": "workspace:*",
+        "@swissgeo/theme": "workspace:*",
         "@swissgeo/tooltip": "workspace:*",
         "@tmcw/togeojson": "catalog:",
         "@turf/turf": "catalog:",

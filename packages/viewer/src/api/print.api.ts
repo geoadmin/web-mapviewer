@@ -23,18 +23,30 @@ import {
     requestReport,
 } from '@geoblocks/mapfishprint'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
-import axios from 'axios'
-import { Circle } from 'ol/style'
-
-import { unProxifyUrl } from '@/api/file-proxy.api'
 import {
     getApi3BaseUrl,
     getViewerDedicatedServicesBaseUrl,
     getWmsBaseUrl,
-} from '@/config/baseUrl.config'
+} from '@swissgeo/staging-config'
+import { MIN_PRINT_SCALE_SIZE, PRINT_DPI_COMPENSATION } from '@swissgeo/staging-config/constants'
+import axios from 'axios'
+import { Circle } from 'ol/style'
+
+import { unProxifyUrl } from '@/api/file-proxy.api'
 import i18n from '@/modules/i18n'
 import useI18nStore from '@/store/modules/i18n'
-import { adjustWidth } from '@/utils/styleUtils'
+
+// Change a width according to the change of DPI (from the old geoadmin)
+// Originally introduced here https://github.com/geoadmin/mf-geoadmin3/pull/3280
+export function adjustWidth(width: number, dpi: number): number {
+    if (!width || isNaN(width) || !dpi || isNaN(dpi) || dpi <= 0) {
+        return 0
+    }
+    if (width <= 0) {
+        return -adjustWidth(-width, dpi)
+    }
+    return Math.max((width * PRINT_DPI_COMPENSATION) / dpi, MIN_PRINT_SCALE_SIZE)
+}
 
 /** Interval between each polling of the printing job status (ms) */
 const PRINTING_DEFAULT_POLL_INTERVAL: number = 2000

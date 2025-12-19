@@ -1,6 +1,6 @@
 import type { Layer } from '@swissgeo/layers'
+import type { LayerTooltipConfig } from '@swissgeo/staging-config/constants'
 
-import type { LayerTooltipConfig } from '@/config/cesium.config'
 import type useCesiumStore from '@/store/modules/cesium'
 
 /** Store for all information related to the 3D viewer */

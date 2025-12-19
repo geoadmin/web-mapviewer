@@ -1,12 +1,12 @@
 import type { KMLLayer, KMLMetadata } from '@swissgeo/layers'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
+import { getServiceKmlBaseUrl } from '@swissgeo/staging-config'
 import axios from 'axios'
 import FormData from 'form-data'
 import { gzip } from 'pako'
 
 import { proxifyUrl } from '@/api/file-proxy.api'
-import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 
 const LOG_BACKGROUND_COLOR = LogPreDefinedColor.Indigo
 

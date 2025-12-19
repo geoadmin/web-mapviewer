@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import log from '@swissgeo/log'
+import { BLOCKED_EXTENSIONS, WHITELISTED_HOSTNAMES } from '@swissgeo/staging-config/constants'
 import DOMPurify from 'dompurify'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
@@ -9,7 +10,6 @@ import { useI18n } from 'vue-i18n'
 import type { LayerFeature, SelectableFeature } from '@/api/features.api'
 import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 
-import { BLOCKED_EXTENSIONS, WHITELISTED_HOSTNAMES } from '@/config/security.config'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import FeatureDetailDisclaimer from '@/modules/infobox/components/FeatureDetailDisclaimer.vue'
 import usePositionStore from '@/store/modules/position'
@@ -199,8 +199,6 @@ function getIframeHosts(value: string): string[] {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/variables-admin.module';
-
 // Styling for external HTML content
 :global(.htmlpopup-container) {
     width: 100%;

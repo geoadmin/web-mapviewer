@@ -1,8 +1,7 @@
 import log, { LogPreDefinedColor } from '@swissgeo/log'
+import { getServiceProxyBaseUrl } from '@swissgeo/staging-config'
 import axios from 'axios'
 import { isString } from 'lodash'
-
-import { getServiceProxyBaseUrl } from '@/config/baseUrl.config'
 
 const dropboxPattern = /^(https?:\/\/(www\.)?dropbox\.com\/.+)/
 

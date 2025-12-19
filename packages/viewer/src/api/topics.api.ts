@@ -3,12 +3,12 @@ import type { GeoAdminGroupOfLayers, GeoAdminLayer, Layer } from '@swissgeo/laye
 import { layerUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { WarningMessage } from '@swissgeo/log/Message'
+import { getApi3BaseUrl } from '@swissgeo/staging-config'
 import axios from 'axios'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { getApi3BaseUrl } from '@/config/baseUrl.config'
-import { ENVIRONMENT } from '@/config/staging.config'
+import { ENVIRONMENT } from '@/config'
 import useUIStore from '@/store/modules/ui'
 import {
     getBackgroundLayerFromLegacyUrlParams,

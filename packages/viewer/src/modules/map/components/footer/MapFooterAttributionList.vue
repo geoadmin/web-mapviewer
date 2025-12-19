@@ -86,7 +86,7 @@ const sources = computed(() => {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 
 .map-footer-attribution {
     padding: 0.2em 0.6em;

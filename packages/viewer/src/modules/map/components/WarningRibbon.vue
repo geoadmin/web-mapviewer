@@ -15,8 +15,8 @@ const uiStore = useUIStore()
 </template>
 
 <style lang="scss" scoped>
+@import '@swissgeo/theme/scss/colors';
 @import '@/scss/media-query.mixin';
-@import '@/scss/variables-admin.module';
 @import '@/scss/variables.module';
 
 /* Corner ribbons, from http://codepen.io/eode9/pen/twkKm

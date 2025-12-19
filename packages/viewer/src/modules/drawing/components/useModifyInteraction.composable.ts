@@ -7,6 +7,7 @@ import type MapBrowserEvent from 'ol/MapBrowserEvent'
 import type { StyleFunction } from 'ol/style/Style'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
+import { DRAWING_HIT_TOLERANCE } from '@swissgeo/staging-config/constants'
 import { noModifierKeys, primaryAction } from 'ol/events/condition'
 import { LineString } from 'ol/geom'
 import ModifyInteraction from 'ol/interaction/Modify'
@@ -14,7 +15,6 @@ import { inject, onBeforeUnmount, onMounted, watch } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { DRAWING_HIT_TOLERANCE } from '@/config/map.config'
 import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
 import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import useDrawingStore from '@/store/modules/drawing'

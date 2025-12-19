@@ -284,7 +284,8 @@ function releaseSlider() {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/colors';
+@import '@/scss/variables.module';
 @import '@/scss/media-query.mixin';
 
 .compare-slider {

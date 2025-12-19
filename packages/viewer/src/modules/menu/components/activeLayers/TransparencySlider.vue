@@ -5,7 +5,7 @@ import { onMounted, ref, watch } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import useLayersStore from '@/store/modules/layers'
 import debounce from '@/utils/debounce'
 

@@ -17,24 +17,26 @@ npm install @swissgeo/staging-config
 ### Import Service Base URLs
 
 ```typescript
-import { servicesBaseUrl, type Staging, type BackendServices } from '@swissgeo/staging-config'
+import { type Staging, type BackendServices } from '@swissgeo/staging-config'
+import { getApi3BaseUrl, getWmsBaseUrl } from '@swissgeo/staging-config'
 
 // Get WMS service URL for production environment
-const wmsUrl = servicesBaseUrl.wms.production
+const wmsUrl = getWmsBaseUrl() // default environment is 'production'
 // => 'https://wms.geo.admin.ch/'
 
 // Get API3 service URL for development environment
-const api3Url = servicesBaseUrl.api3.development
+const api3Url = getApi3BaseUrl('development')
 // => 'https://sys-api3.dev.bgdi.ch/'
 ```
 
 ### Environment-based URL Selection
 
 ```typescript
-import { servicesBaseUrl, type Staging } from '@swissgeo/staging-config'
+import type { Staging } from '@swissgeo/staging-config'
+import { getWmtsBaseUrl } from '@swissgeo/staging-config'
 
 const environment: Staging = 'production' // or 'development', 'integration'
-const wmtsUrl = servicesBaseUrl.wmts[environment]
+const wmtsUrl = getWmtsBaseUrl(environment)
 ```
 
 ## Available Services

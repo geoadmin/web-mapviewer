@@ -1,8 +1,9 @@
 import type { RouteLocationNormalizedGeneric } from 'vue-router'
 
+import { PRINT_DEFAULT_DPI } from '@swissgeo/staging-config/constants'
+
 import type { NewPrintServiceConfig } from '@/store/modules/print/types'
 
-import { PRINT_DEFAULT_DPI } from '@/config/print.config'
 import usePrintStore from '@/store/modules/print'
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,

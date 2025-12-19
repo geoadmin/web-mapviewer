@@ -5,13 +5,13 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { isNumber, round } from '@swissgeo/numbers'
+import { DEFAULT_YOUNGEST_YEAR } from '@swissgeo/staging-config/constants'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { DEFAULT_YOUNGEST_YEAR } from '@/config/time.config'
 import TimeSliderDropdown from '@/modules/map/components/toolbox/TimeSliderDropdown.vue'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
@@ -119,17 +119,15 @@ const yearsWithData = computed(() => {
             yearsSeparate: [],
         }
     }
-    
+
     const getYearsFromTimeConfig = (timeConfig: LayerTimeConfig) => {
-        return 'timeEntries' in timeConfig
-            ? timeConfig.timeEntries.map((entry) => entry.year)
-            : []
+        return 'timeEntries' in timeConfig ? timeConfig.timeEntries.map((entry) => entry.year) : []
     }
-    
+
     const firstConfigYears = getYearsFromTimeConfig(timeConfigs[0] as LayerTimeConfig)
     let yearsJoint = Array.isArray(firstConfigYears) ? [...firstConfigYears] : []
     let yearsSeparate: number[] = []
-    
+
     timeConfigs.forEach((timeConfig) => {
         const years = getYearsFromTimeConfig(timeConfig)
         if (!Array.isArray(years)) {
@@ -139,7 +137,7 @@ const yearsWithData = computed(() => {
             .filter((year) => !year || !yearsSeparate.includes(year))
             .forEach((year) => yearsSeparate.push(year!))
     })
-    
+
     if (timeConfigs.length > 1) {
         timeConfigs.slice(1).forEach((timeConfig) => {
             const years = getYearsFromTimeConfig(timeConfig)
@@ -187,9 +185,12 @@ onMounted(() => {
         if (
             layersWithTimestamps.value.length === 1 &&
             'currentTimeEntry' in layersWithTimestamps.value[0]!.timeConfig &&
-            allYears.value.includes(layersWithTimestamps.value[0]!.timeConfig.currentTimeEntry?.year as number)
+            allYears.value.includes(
+                layersWithTimestamps.value[0]!.timeConfig.currentTimeEntry?.year as number
+            )
         ) {
-            currentYear.value = layersWithTimestamps.value[0]!.timeConfig.currentTimeEntry?.year as number
+            currentYear.value = layersWithTimestamps.value[0]!.timeConfig.currentTimeEntry
+                ?.year as number
         } else if (yearsWithData.value.yearsJoint.length > 0) {
             currentYear.value = yearsWithData.value.yearsJoint[0]!
         } else if (yearsWithData.value.yearsSeparate[0]) {
@@ -369,7 +370,7 @@ function handleKeyDownEvent(event: KeyboardEvent) {
         class="time-slider card"
         :class="{ grabbed: yearCursorIsGrabbed }"
     >
-        <div class="p-2 d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center justify-content-between p-2">
             <div
                 class="time-slider-bar px-5"
                 data-cy="time-slider-bar"
@@ -377,11 +378,11 @@ function handleKeyDownEvent(event: KeyboardEvent) {
                 <div
                     ref="yearCursor"
                     data-cy="times-slider-cursor"
-                    class="time-slider-bar-cursor py-1 user-select-none d-flex gap-1 bg-body border rounded"
+                    class="time-slider-bar-cursor user-select-none d-flex bg-body gap-1 rounded border py-1"
                     :style="{ left: cursorPosition }"
                 >
                     <div
-                        class="px-2 border-end d-flex align-items-center"
+                        class="border-end d-flex align-items-center px-2"
                         data-cy="time-slider-bar-cursor-grab"
                         @touchstart.passive="grabCursor"
                         @mousedown.passive="grabCursor"
@@ -407,7 +408,7 @@ function handleKeyDownEvent(event: KeyboardEvent) {
                         />
                     </GeoadminTooltip>
                     <div
-                        class="px-2 border-start d-flex align-items-center"
+                        class="border-start d-flex align-items-center px-2"
                         @touchstart.passive="grabCursor"
                         @mousedown.passive="grabCursor"
                     >
@@ -496,7 +497,7 @@ function handleKeyDownEvent(event: KeyboardEvent) {
                 <button
                     id="timeSliderPlayButton"
                     data-cy="time-slider-play-button"
-                    class="btn btn-light btn-lg d-flex align-self-center p-3 m-1 border"
+                    class="btn btn-light btn-lg d-flex align-self-center m-1 border p-3"
                     @click="togglePlayYearsWithData"
                 >
                     <FontAwesomeIcon :icon="playYearsWithData ? 'pause' : 'play'" />
@@ -511,7 +512,7 @@ function handleKeyDownEvent(event: KeyboardEvent) {
 @use 'sass:color';
 
 @import '@/scss/media-query.mixin';
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 
 $time-slider-color-background: color.adjust($white, $alpha: -0.1);
 $time-slider-color-has-data: color.adjust($primary, $lightness: 30%);

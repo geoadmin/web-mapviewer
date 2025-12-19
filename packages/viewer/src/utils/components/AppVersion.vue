@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import { GITHUB_REPOSITORY } from '@swissgeo/staging-config/constants'
 import { computed, ref } from 'vue'
 
-import { APP_VERSION, GITHUB_REPOSITORY } from '@/config/staging.config'
+import { APP_VERSION } from '@/config'
 import useUiStore from '@/store/modules/ui'
 
 const cleanAppVersionRegex = /v\d+\.\d+\.\d+$/
@@ -45,7 +46,7 @@ function openGithubRepoLink(): void {
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 
 .app-version {
     color: $gray-800;

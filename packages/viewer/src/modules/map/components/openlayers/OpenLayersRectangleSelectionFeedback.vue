@@ -2,15 +2,16 @@
 import type { Map } from 'ol'
 
 import log from '@swissgeo/log'
+import { styleUtils } from '@swissgeo/theme'
 import Feature from 'ol/Feature'
 import { Polygon } from 'ol/geom'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
+import { Style } from 'ol/style'
 import { v4 as uuidv4 } from 'uuid'
 import { computed, inject, watch } from 'vue'
 
 import useMapStore from '@/store/modules/map'
-import { selectionBoxStyle } from '@/utils/styleUtils'
 
 const mapStore = useMapStore()
 const selectionPolygon = computed<Feature<Polygon> | undefined>(() => {
@@ -42,9 +43,11 @@ const vectorLayer = new VectorLayer({
     source: new VectorSource({
         features: [],
     }),
-    style: selectionBoxStyle,
+    style: new Style({
+        stroke: styleUtils.redStroke,
+    }),
     // always on top, like an overlay
-    zIndex: 9999,
+    zIndex: styleUtils.StyleZIndex.OnTop,
 })
 
 watch(selectionPolygon, () => updateLayer())

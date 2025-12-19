@@ -1,16 +1,16 @@
 import type { Layer } from '@swissgeo/layers'
 
 import { layerUtils } from '@swissgeo/layers/utils'
-
-import type { CesiumStore } from '@/store/modules/cesium/types'
-
-import { get3dTilesBaseUrl } from '@/config/baseUrl.config'
+import { get3dTilesBaseUrl } from '@swissgeo/staging-config'
 import {
     CESIUM_BUILDING_LAYER_ID,
     CESIUM_CONSTRUCTIONS_LAYER_ID,
     CESIUM_LABELS_LAYER_ID,
     CESIUM_VEGETATION_LAYER_ID,
-} from '@/config/cesium.config'
+} from '@swissgeo/staging-config/constants'
+
+import type { CesiumStore } from '@/store/modules/cesium/types'
+
 import useLayersStore from '@/store/modules/layers'
 
 const labelLayer = layerUtils.makeGeoAdmin3DLayer({

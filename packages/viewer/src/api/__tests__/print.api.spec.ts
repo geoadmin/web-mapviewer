@@ -1,8 +1,7 @@
+import { MIN_PRINT_SCALE_SIZE, PRINT_DPI_COMPENSATION } from '@swissgeo/staging-config/constants'
 import { describe, expect, it } from 'vitest'
 
-import { PrintLayout, PrintLayoutAttribute } from '@/api/print.api'
-import { MIN_PRINT_SCALE_SIZE, PRINT_DPI_COMPENSATION } from '@/config/print.config'
-import { adjustWidth } from '@/utils/styleUtils'
+import { PrintLayout, PrintLayoutAttribute, adjustWidth } from '@/api/print.api'
 
 describe('Print API unit tests', () => {
     describe('PrintLayoutAttribute tests', () => {

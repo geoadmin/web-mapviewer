@@ -11,7 +11,7 @@ import axios from 'axios'
 import type UrlParamConfig from '@/store/plugins/storeSync/UrlParamConfig.class'
 import type { UrlParamConfigTypes } from '@/store/plugins/storeSync/UrlParamConfig.class'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { MAP_VIEW } from '@/router/viewNames'
 import useAppStore from '@/store/modules/app'
 import storeSyncConfig from '@/store/plugins/storeSync/storeSync.config'

@@ -51,7 +51,7 @@ const isCompareSliderActive = computed<boolean>(
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/webmapviewer-bootstrap-theme';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 
 .full-screen-map {
     position: relative;

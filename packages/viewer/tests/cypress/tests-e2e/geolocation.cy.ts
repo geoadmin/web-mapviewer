@@ -10,7 +10,7 @@ import {
     testErrorMessage,
     checkPosition,
 } from '@/../tests/cypress/tests-e2e/utils'
-import { DEFAULT_PROJECTION } from '@/config/map.config'
+import { DEFAULT_PROJECTION } from '@/config'
 import useGeolocationStore from '@/store/modules/geolocation'
 import usePositionStore from '@/store/modules/position'
 

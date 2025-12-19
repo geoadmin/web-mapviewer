@@ -5,7 +5,7 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import { OnlineMode } from '@/store/modules/drawing/types'
 import debounceSaveDrawing from '@/store/modules/drawing/utils/debounceSaveDrawing'
 import { isOnlineMode } from '@/store/modules/drawing/utils/isOnlineMode'

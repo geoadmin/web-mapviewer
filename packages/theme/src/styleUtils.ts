@@ -3,19 +3,18 @@ import type { StyleLike } from 'ol/style/Style'
 import { Circle, Fill, RegularShape, Stroke, Style } from 'ol/style'
 import CircleStyle from 'ol/style/Circle'
 
-import { MIN_PRINT_SCALE_SIZE, PRINT_DPI_COMPENSATION } from '@/config/print.config'
-import variables from '@/scss/variables-admin.module.scss'
+import colors from '@/colors'
 
-const { red, mocassin, mocassinToRed1, mocassinToRed2, malibu, black, white } = variables
+const { red, mocassin, mocassinToRed1, mocassinToRed2, malibu, black, white } = colors
 
-export enum StyleZIndex {
-    AzimuthCircle = 0,
-    MainStyle = 10,
-    Line = 20,
-    MeasurePoint = 21,
-    WhiteDot = 30,
-    Tooltip = 40,
-    OnTop = 9999,
+const StyleZIndex = {
+    AzimuthCircle: 0,
+    MainStyle: 10,
+    Line: 20,
+    MeasurePoint: 21,
+    WhiteDot: 30,
+    Tooltip: 40,
+    OnTop: 9999,
 }
 
 // OL needs color as RGBA arrays, so we convert them through this function
@@ -37,47 +36,47 @@ function hexToRgba(hexValue: string, alpha: number = 1.0): number[] {
 
 const STROKE_WIDTH = 3
 
-export const whiteSketchFill = new Fill({
+const whiteSketchFill = new Fill({
     color: hexToRgba(white, 0.4),
 })
 
-export const redFill = new Fill({
+const redFill = new Fill({
     color: hexToRgba(red, 0.7),
 })
 /** Standard line styling */
-export const redStroke = new Stroke({
+const redStroke = new Stroke({
     width: STROKE_WIDTH,
     color: hexToRgba(red),
 })
 
-export const malibuStroke = new Stroke({
+const malibuStroke = new Stroke({
     width: STROKE_WIDTH,
     color: hexToRgba(malibu),
 })
 
 /** Styling specific for measurement, with a dashed red line */
-export const dashedRedStroke = new Stroke({
+const dashedRedStroke = new Stroke({
     color: hexToRgba(red),
     width: STROKE_WIDTH,
     lineDash: [8],
 })
 
-export const gpxStrokeStyle = new Stroke({ width: STROKE_WIDTH, color: hexToRgba(red, 1) })
+const gpxStrokeStyle = new Stroke({ width: STROKE_WIDTH, color: hexToRgba(red, 1) })
 
-export const pointStyle = {
+const pointStyle = {
     radius: 7,
     stroke: new Stroke({
         color: hexToRgba(black),
     }),
 }
-export const whiteCircleStyle = new Circle({
+const whiteCircleStyle = new Circle({
     ...pointStyle,
     fill: new Fill({
         color: hexToRgba(white),
     }),
 })
 
-export const redCircleStyle = new Circle({
+const redCircleStyle = new Circle({
     ...pointStyle,
     fill: new Fill({
         color: hexToRgba(red),
@@ -85,12 +84,12 @@ export const redCircleStyle = new Circle({
     stroke: gpxStrokeStyle,
 })
 /** Style for grabbing points when editing a feature */
-export const sketchPointStyle = new Circle({
+const sketchPointStyle = new Circle({
     ...pointStyle,
     fill: whiteSketchFill,
 })
 
-export const tooltipArrow = new RegularShape({
+const tooltipArrow = new RegularShape({
     points: 4,
     radius: 10,
     fill: new Fill({
@@ -99,18 +98,18 @@ export const tooltipArrow = new RegularShape({
     displacement: [0, 10],
 })
 
-export const gpxStyles: { [key: string]: StyleLike } = {
+const gpxStyles: { [key: string]: StyleLike } = {
     Point: new Style({ image: redCircleStyle }),
     LineString: new Style({ stroke: gpxStrokeStyle, fill: redFill }),
     MultiLineString: new Style({ stroke: gpxStrokeStyle, fill: redFill }),
 }
 
-export const geolocationPointWidth = 10
-export const geolocationPointFillColor = hexToRgba(red, 0.9)
-export const geolocationPointBorderWidth = STROKE_WIDTH
-export const geolocationPointBorderColor = hexToRgba(white, 1.0)
+const geolocationPointWidth = 10
+const geolocationPointFillColor = hexToRgba(red, 0.9)
+const geolocationPointBorderWidth = STROKE_WIDTH
+const geolocationPointBorderColor = hexToRgba(white, 1.0)
 
-export const geolocationPointStyle = new Style({
+const geolocationPointStyle = new Style({
     image: new CircleStyle({
         radius: geolocationPointWidth,
         fill: new Fill({
@@ -123,11 +122,11 @@ export const geolocationPointStyle = new Style({
     }),
 })
 
-export const geolocationAccuracyCircleFillColor = hexToRgba(red, 0.1)
-export const geolocationAccuracyCircleBorderWidth = geolocationPointBorderWidth
-export const geolocationAccuracyCircleBorderColor = hexToRgba(red, 0.9)
+const geolocationAccuracyCircleFillColor = hexToRgba(red, 0.1)
+const geolocationAccuracyCircleBorderWidth = geolocationPointBorderWidth
+const geolocationAccuracyCircleBorderColor = hexToRgba(red, 0.9)
 
-export const geolocationAccuracyCircleStyle = new Style({
+const geolocationAccuracyCircleStyle = new Style({
     fill: new Fill({
         color: geolocationAccuracyCircleFillColor,
     }),
@@ -137,34 +136,30 @@ export const geolocationAccuracyCircleStyle = new Style({
     }),
 })
 
-export const selectionBoxStyle = new Style({
-    stroke: redStroke,
-})
-
 // style for feature highlighting (we export it so that they can be re-used by OpenLayersHighlightedFeature)
-export const highlightedFill = new Fill({
+const highlightedFill = new Fill({
     color: hexToRgba(mocassin, 0.6),
 })
-export const highlightedStroke = new Stroke({
+const highlightedStroke = new Stroke({
     color: hexToRgba(mocassinToRed2, 1.0),
     width: STROKE_WIDTH,
 })
 
-export const hoveredFill = new Fill({
+const hoveredFill = new Fill({
     color: hexToRgba(mocassinToRed1, 0.8),
 })
-export const hoveredStroke = new Stroke({
+const hoveredStroke = new Stroke({
     color: hexToRgba(red, 1.0),
     width: STROKE_WIDTH,
 })
 
-export const hoveredLinePolygonStyle = new Style({
+const hoveredLinePolygonStyle = new Style({
     fill: hoveredFill,
     stroke: hoveredStroke,
     // always on top (in case there's an overlap with another selected feature)
     zIndex: StyleZIndex.OnTop,
 })
-export const hoveredPointStyle = new Style({
+const hoveredPointStyle = new Style({
     image: new CircleStyle({
         radius: 10,
         fill: hoveredFill,
@@ -173,11 +168,11 @@ export const hoveredPointStyle = new Style({
     // always on top (in case there's an overlap with another selected feature)
     zIndex: StyleZIndex.OnTop,
 })
-export const highlightedLinePolygonStyle = new Style({
+const highlightedLinePolygonStyle = new Style({
     fill: highlightedFill,
     stroke: highlightedStroke,
 })
-export const highlightPointStyle = new Style({
+const highlightPointStyle = new Style({
     image: new CircleStyle({
         radius: 10,
         fill: highlightedFill,
@@ -185,14 +180,37 @@ export const highlightPointStyle = new Style({
     }),
 })
 
-// Change a width according to the change of DPI (from the old geoadmin)
-// Originally introduced here https://github.com/geoadmin/mf-geoadmin3/pull/3280
-export function adjustWidth(width: number, dpi: number): number {
-    if (!width || isNaN(width) || !dpi || isNaN(dpi) || dpi <= 0) {
-        return 0
-    }
-    if (width <= 0) {
-        return -adjustWidth(-width, dpi)
-    }
-    return Math.max((width * PRINT_DPI_COMPENSATION) / dpi, MIN_PRINT_SCALE_SIZE)
+export const styleUtils = {
+    hexToRgba,
+    StyleZIndex,
+    whiteSketchFill,
+    redFill,
+    redStroke,
+    malibuStroke,
+    dashedRedStroke,
+    gpxStrokeStyle,
+    pointStyle,
+    whiteCircleStyle,
+    redCircleStyle,
+    sketchPointStyle,
+    tooltipArrow,
+    gpxStyles,
+    geolocationPointWidth,
+    geolocationPointFillColor,
+    geolocationPointBorderWidth,
+    geolocationPointBorderColor,
+    geolocationPointStyle,
+    geolocationAccuracyCircleFillColor,
+    geolocationAccuracyCircleBorderWidth,
+    geolocationAccuracyCircleBorderColor,
+    geolocationAccuracyCircleStyle,
+    highlightedFill,
+    highlightedStroke,
+    hoveredFill,
+    hoveredStroke,
+    hoveredLinePolygonStyle,
+    hoveredPointStyle,
+    highlightedLinePolygonStyle,
+    highlightPointStyle,
 }
+export default styleUtils

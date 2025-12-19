@@ -4,6 +4,7 @@ import type { Entity, Viewer } from 'cesium'
 import type { ShallowRef } from 'vue'
 
 import log from '@swissgeo/log'
+import { GPX_BILLBOARD_RADIUS } from '@swissgeo/staging-config/constants'
 import {
     BillboardGraphics,
     Cartesian3,
@@ -16,7 +17,6 @@ import {
 } from 'cesium'
 import { computed, inject, toRef, watch } from 'vue'
 
-import { GPX_BILLBOARD_RADIUS } from '@/config/cesium.config'
 import useAddDataSourceLayer from '@/modules/map/components/cesium/utils/useAddDataSourceLayer.composable'
 
 const { gpxLayerConfig } = defineProps<{ gpxLayerConfig: GPXLayer }>()

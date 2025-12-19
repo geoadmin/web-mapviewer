@@ -15,10 +15,10 @@ import type { Interception } from 'cypress/types/net-stubbing'
 import type { Feature, FeatureCollection } from 'geojson'
 
 import { formatThousand } from '@swissgeo/numbers'
+import { getServiceKmlBaseUrl } from '@swissgeo/staging-config'
 import { kmlMetadataTemplate } from 'support/drawing'
 import { assertDefined } from 'support/utils'
 
-import { getServiceKmlBaseUrl } from '@/config/baseUrl.config'
 import useLayersStore from '@/store/modules/layers'
 import { transformLayerIntoUrlString } from '@/store/plugins/storeSync/layersParamParser'
 

@@ -10,7 +10,7 @@ import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { getKmlMetadataByAdminId, getKmlUrl } from '@/api/files.api'
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'

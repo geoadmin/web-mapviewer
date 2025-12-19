@@ -67,7 +67,7 @@ const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
 </template>
 
 <style lang="scss" scoped>
-@import '@/scss/variables-admin.module';
+@import '@swissgeo/theme/scss/geoadmin-theme';
 @import '@/scss/media-query.mixin';
 // the document uses some Adobe Illustrator specific unit, that looks like is in fact a 1000th of a char size
 $letterSpacing: calc((78 / 1000) * 1em);

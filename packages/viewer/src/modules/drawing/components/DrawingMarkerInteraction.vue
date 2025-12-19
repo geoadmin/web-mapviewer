@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type { SimpleGeometry } from 'ol/geom'
 
+import { DEFAULT_ICON_SET_NAME } from '@swissgeo/staging-config/constants'
 import Feature from 'ol/Feature'
 
 import type { DrawingInteractionExposed } from '@/modules/drawing/types/interaction'
 
 import { EditableFeatureTypes } from '@/api/features.api'
-import { DEFAULT_ICON_SET_NAME } from '@/config/icons.config'
 import useDrawingModeInteraction from '@/modules/drawing/components/useDrawingModeInteraction.composable'
 import useDrawingStore from '@/store/modules/drawing'
 import { DEFAULT_MARKER_TITLE_OFFSET } from '@/utils/featureStyleUtils'

@@ -1,8 +1,6 @@
 @use 'sass:color';
 
-@import 'variables.module';
-@import 'variables-admin.module';
-@import 'diemo';
+@import './colors';
 
 // Font used to generate the confederation logo/text.
 // It might switch in the future to NotoSans too. (Frutiger is a copyrighted font and Bund is paying a 6 figure
@@ -12,10 +10,10 @@
     font-weight: 300;
     font-style: normal;
     src:
-        url('./fonts/FrutigerLight/FrutigerLTStd-Light.woff2') format('woff2'),
-        url('./fonts/FrutigerLight/FrutigerLTStd-Light.woff') format('woff'),
-        url('./fonts/FrutigerLight/FrutigerLTStd-Light.ttf') format('truetype'),
-        url('./fonts/FrutigerLight/FrutigerLTStd-Light.eot') format('embedded-opentype');
+        url('@/fonts/FrutigerLight/FrutigerLTStd-Light.woff2') format('woff2'),
+        url('@/fonts/FrutigerLight/FrutigerLTStd-Light.woff') format('woff'),
+        url('@/fonts/FrutigerLight/FrutigerLTStd-Light.ttf') format('truetype'),
+        url('@/fonts/FrutigerLight/FrutigerLTStd-Light.eot') format('embedded-opentype');
 }
 
 // Override bootstrap variables here

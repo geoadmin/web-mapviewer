@@ -8,6 +8,7 @@ import type { Map } from 'ol'
 import type { Coordinate } from 'ol/coordinate'
 
 import log from '@swissgeo/log'
+import { styleUtils } from '@swissgeo/theme'
 import Feature from 'ol/Feature'
 import { Circle } from 'ol/geom'
 import { Vector as VectorLayer } from 'ol/layer'
@@ -17,7 +18,6 @@ import { computed, inject, watch } from 'vue'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import useGeolocationStore from '@/store/modules/geolocation'
-import { geolocationAccuracyCircleStyle } from '@/utils/styleUtils'
 
 const { zIndex = -1 } = defineProps<{
     zIndex?: number
@@ -34,7 +34,7 @@ if (position.value) {
         geometry: accuracyCircle,
     })
 
-    accuracyCircleFeature.setStyle(geolocationAccuracyCircleStyle)
+    accuracyCircleFeature.setStyle(styleUtils.geolocationAccuracyCircleStyle)
 
     const layer = new VectorLayer({
         properties: {

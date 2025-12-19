@@ -4,7 +4,7 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import useDrawingStore from '@/store/modules/drawing'
 import { DrawingSaveState } from '@/store/modules/drawing/types'
 import usePositionStore from '@/store/modules/position'

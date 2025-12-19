@@ -1,8 +1,8 @@
+import { BREAKPOINT_TABLET } from '@swissgeo/staging-config/constants'
 import { defineStore } from 'pinia'
 
 import type { UIStoreGetters, UIStoreState } from '@/store/modules/ui/types'
 
-import { BREAKPOINT_TABLET } from '@/config/responsive.config'
 import addErrors from '@/store/modules/ui/actions/addErrors'
 import addWarnings from '@/store/modules/ui/actions/addWarnings'
 import clearLoadingBarRequester from '@/store/modules/ui/actions/clearLoadingBarRequester'
