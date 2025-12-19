@@ -3,11 +3,12 @@ import {
     CAMERA_MAX_ZOOM_DISTANCE,
     CAMERA_MIN_ZOOM_DISTANCE,
 } from '@swissgeo/staging-config/constants'
-import { Cartesian3 } from 'cesium'
+import { Cartesian3, Viewer } from 'cesium'
 import proj4 from 'proj4'
 
 import { calculateResolution } from '@/modules/map/components/cesium/utils/cameraUtils'
 import usePositionStore from '@/store/modules/position'
+import { toValue, type MaybeRef } from 'vue'
 
 registerProj4(proj4)
 
@@ -22,9 +23,10 @@ describe('Testing 3D navigation', () => {
             cy.waitUntilCesiumTilesLoaded()
             cy.window()
                 .its('cesiumViewer')
-                .then((viewer) => {
+                .then((viewer: MaybeRef<Viewer>) => {
+                    const currentViewer: Viewer = toValue(viewer)
                     // Move close to the ground and try to zoom closer with the mouse wheel
-                    viewer.camera.flyTo({
+                    currentViewer.camera.flyTo({
                         destination: Cartesian3.fromDegrees(
                             7.451498,
                             46.92805,
@@ -39,7 +41,7 @@ describe('Testing 3D navigation', () => {
                     cy.window()
                         .its('cesiumViewer')
                         .then(() => {
-                            expect(viewer.scene.camera.positionCartographic.height).gt(
+                            expect(currentViewer.scene.camera.positionCartographic.height).gt(
                                 CAMERA_MIN_ZOOM_DISTANCE
                             )
                         })
@@ -49,9 +51,10 @@ describe('Testing 3D navigation', () => {
             cy.waitUntilCesiumTilesLoaded()
             cy.window()
                 .its('cesiumViewer')
-                .then((viewer) => {
+                .then((viewer: MaybeRef<Viewer>) => {
+                    const currentViewer: Viewer = toValue(viewer)
                     // Move far from the ground and try to zoom higher with the mouse wheel
-                    viewer.camera.flyTo({
+                    currentViewer.camera.flyTo({
                         destination: Cartesian3.fromDegrees(
                             7.451498,
                             46.92805,
@@ -65,7 +68,7 @@ describe('Testing 3D navigation', () => {
                     cy.window()
                         .its('cesiumViewer')
                         .then(() => {
-                            expect(viewer.scene.camera.positionCartographic.height).lt(
+                            expect(currentViewer.scene.camera.positionCartographic.height).lt(
                                 CAMERA_MAX_ZOOM_DISTANCE
                             )
                         })
@@ -73,18 +76,22 @@ describe('Testing 3D navigation', () => {
         })
         it('updates the position in store', () => {
             cy.waitUntilCesiumTilesLoaded()
+            cy.wait('@routeChange')
+            cy.wait('@routeChange')
             cy.window()
                 .its('cesiumViewer')
-                .then((viewer) => {
+                .then((viewer: MaybeRef<Viewer>) => {
+                    const currentViewer: Viewer = toValue(viewer)
                     const lon = 7.451498
                     const lat = 46.92805
-                    viewer.camera.flyTo({
+                    currentViewer.camera.flyTo({
                         destination: Cartesian3.fromDegrees(lon, lat, 1000),
                         orientation: {
                             heading: Math.PI,
                         },
                         duration: 0.0,
                     })
+                    cy.wait('@routeChange')
                     cy.window()
                         .its('cesiumViewer')
                         .then(() => {
@@ -95,10 +102,10 @@ describe('Testing 3D navigation', () => {
                                 expect(center?.[1]).to.eq(lat)
 
                                 const { zoom, projection } = positionStore
-                                const height = viewer.camera.positionCartographic.height
+                                const height = currentViewer.camera.positionCartographic.height
                                 const resolution = calculateResolution(
                                     height,
-                                    viewer.canvas.clientWidth
+                                    currentViewer.canvas.clientWidth
                                 )
                                 expect(zoom).to.approximately(
                                     projection?.getZoomForResolution(
