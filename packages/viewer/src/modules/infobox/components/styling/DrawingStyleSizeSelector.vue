@@ -1,12 +1,13 @@
 <script setup lang="ts">
+import type { FeatureStyleSize } from '@swissgeo/api'
+
+import { featureStyleUtils } from '@swissgeo/api/utils'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { DropdownItem } from '@/utils/components/DropdownButton.vue'
-import type { FeatureStyleSize } from '@/utils/featureStyleUtils'
 
 import DropdownButton from '@/utils/components/DropdownButton.vue'
-import { allStylingSizes } from '@/utils/featureStyleUtils'
 
 const { currentSize } = defineProps<{
     currentSize?: FeatureStyleSize
@@ -20,7 +21,7 @@ const { t } = useI18n()
 
 const sizeLabel = computed<string | undefined>(() => currentSize?.label)
 const dropdownItems = computed<DropdownItem<FeatureStyleSize>[]>(() =>
-    allStylingSizes.map((size) => {
+    featureStyleUtils.allStylingSizes.map((size) => {
         return { id: size.label, title: size.label, value: size }
     })
 )

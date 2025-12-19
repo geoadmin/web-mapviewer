@@ -4,12 +4,11 @@
  * sharing to external social media will be done through a popup.
  */
 
+import { qrcodeAPI } from '@swissgeo/api'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ShareNetwork } from 'vue3-social-sharing'
-
-import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
 
 const { shortLink } = defineProps<{
     shortLink?: string
@@ -67,7 +66,7 @@ function openQrcode() {
         window.screenLeft + window.innerWidth / 2 - windowSize / 2,
     ]
     window.open(
-        getGenerateQRCodeUrl(shortLink),
+        qrcodeAPI.getGenerateQRCodeUrl(shortLink),
         '_blank',
         `popup,width=${windowSize},height=${windowSize},top=${windowPosition[0]},left=${windowPosition[1]}`
     )

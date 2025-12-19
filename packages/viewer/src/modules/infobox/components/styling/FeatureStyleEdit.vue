@@ -2,18 +2,17 @@
 /** Tools necessary to edit a feature from the drawing module. */
 
 import type { IconProp } from '@fortawesome/fontawesome-svg-core'
+import type { DrawingIcon, FeatureStyleColor, FeatureStyleSize, TextPlacement } from '@swissgeo/api'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { featureStyleUtils } from '@swissgeo/api/utils'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { DrawingIcon } from '@/api/icon.api'
 import type { ActionDispatcher } from '@/store/types'
 import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
-import type { FeatureStyleColor, FeatureStyleSize } from '@/utils/featureStyleUtils'
 
-import { EditableFeatureTypes } from '@/api/features.api'
 import FeatureAreaInfo from '@/modules/infobox/components/FeatureAreaInfo.vue'
 import ShowGeometryProfileButton from '@/modules/infobox/components/ShowGeometryProfileButton.vue'
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
@@ -28,7 +27,6 @@ import useDrawingStore from '@/store/modules/drawing'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import { allFormats, LV95Format } from '@/utils/coordinates/coordinateFormat'
 import debounce from '@/utils/debounce'
-import { calculateTextOffset, TextPlacement } from '@/utils/featureStyleUtils'
 
 const dispatcher: ActionDispatcher = { name: 'FeatureStyleEdit.vue' }
 
@@ -86,7 +84,7 @@ function updateFeatureTitle(title: string): void {
         dispatcher
     )
     // Update the text offset if the feature is a marker
-    if (drawingStore.feature.current?.featureType === EditableFeatureTypes.Marker) {
+    if (drawingStore.feature.current?.featureType === 'MARKER') {
         updateTextOffset()
     }
 }
@@ -124,16 +122,16 @@ const coordinateFormat = computed(() => {
  * line.
  */
 const isFeatureMarker = computed<boolean>(
-    () => drawingStore.feature.current?.featureType === EditableFeatureTypes.Marker
+    () => drawingStore.feature.current?.featureType === 'MARKER'
 )
 const isFeatureText = computed<boolean>(
-    () => drawingStore.feature.current?.featureType === EditableFeatureTypes.Annotation
+    () => drawingStore.feature.current?.featureType === 'ANNOTATION'
 )
 const isFeatureLinePolygon = computed<boolean>(
-    () => drawingStore.feature.current?.featureType === EditableFeatureTypes.LinePolygon
+    () => drawingStore.feature.current?.featureType === 'LINEPOLYGON'
 )
 const isFeatureMeasure = computed<boolean>(
-    () => drawingStore.feature.current?.featureType === EditableFeatureTypes.Measure
+    () => drawingStore.feature.current?.featureType === 'MEASURE'
 )
 const isLine = computed<boolean>(
     () => drawingStore.feature.current?.geometry?.type === 'LineString'
@@ -242,7 +240,7 @@ function updateTextOffset(): void {
     ) {
         drawingStore.updateCurrentDrawingFeature(
             {
-                textOffset: calculateTextOffset(
+                textOffset: featureStyleUtils.calculateTextOffset(
                     drawingStore.feature.current.textSize.textScale,
                     drawingStore.feature.current.iconSize.iconScale,
                     drawingStore.feature.current.icon.anchor,

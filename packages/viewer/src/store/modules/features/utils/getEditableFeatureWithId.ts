@@ -1,4 +1,4 @@
-import type { EditableFeature } from '@/api/features.api'
+import type { EditableFeature } from '@swissgeo/api'
 
 export default function getEditableFeatureWithId(
     selectedEditableFeatures: EditableFeature[],

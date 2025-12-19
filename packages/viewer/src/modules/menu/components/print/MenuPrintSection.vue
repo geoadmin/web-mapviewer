@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import type { PrintLayout } from '@swissgeo/api'
+
+import { PrintError } from '@swissgeo/api'
 import log from '@swissgeo/log'
 import { formatThousand } from '@swissgeo/numbers'
 import Map from 'ol/Map'
@@ -8,7 +11,6 @@ import { useI18n } from 'vue-i18n'
 import type { ActionDispatcher } from '@/store/types'
 import type { DropdownItem } from '@/utils/components/DropdownButton.vue'
 
-import { PrintError, PrintLayout } from '@/api/print.api'
 import {
     PrintStatus,
     usePrint,
@@ -57,7 +59,7 @@ const availablePrintLayouts = computed<DropdownItem<PrintLayout>[]>(() =>
 
 const availableScales = computed<DropdownItem<number>[]>(
     () =>
-        selectedLayout?.value?.scales?.map((scale) => ({
+        selectedLayout?.value?.scales()?.map((scale) => ({
             id: scale,
             title: formatScale(scale),
             value: scale,

@@ -1,4 +1,5 @@
-import type { Topic } from '@/api/topics.api'
+import type { Topic } from '@swissgeo/api'
+
 import type { LoadTopicOptions, TopicsStore } from '@/store/modules/topics/types'
 import type { ActionDispatcher } from '@/store/types'
 

@@ -9,6 +9,7 @@ import type { Map } from 'ol'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { WGS84 } from '@swissgeo/coordinates'
+import { geoJsonUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
 import { randomIntBetween } from '@swissgeo/numbers'
 import { explode, nearestPoint, point } from '@turf/turf'
@@ -35,7 +36,6 @@ import usePositionStore from '@/store/modules/position'
 import useProfileStore from '@/store/modules/profile'
 import useUiStore from '@/store/modules/ui'
 import { FeatureInfoPositions } from '@/store/modules/ui/types'
-import { transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 
 const dispatcher: ActionDispatcher = {
     name: 'OpenLayersHighlightedFeatures.vue',
@@ -133,7 +133,7 @@ const popoverCoordinate = computed((): SingleCoordinate | undefined => {
     const mostSouthernFeature = selectedFeatures.value
         .filter((feature) => feature.geometry !== undefined)
         .map((feature) => feature.geometry!)
-        .map((geometry) => transformIntoTurfEquivalent(geometry, projection.value))
+        .map((geometry) => geoJsonUtils.transformIntoTurfEquivalent(geometry, projection.value))
         .filter((turfGeom) => turfGeom !== undefined)
         .map((turfGeom) => explode(turfGeom))
         .map((points) => nearestPoint(southPole, points))

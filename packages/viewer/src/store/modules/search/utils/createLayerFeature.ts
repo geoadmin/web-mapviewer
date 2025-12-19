@@ -1,13 +1,11 @@
+import type { LayerFeature, SelectableFeature } from '@swissgeo/api'
 import type { FlatExtent } from '@swissgeo/coordinates'
 import type { Layer } from '@swissgeo/layers'
 import type Feature from 'ol/Feature'
 import type { Geometry } from 'ol/geom'
 
+import { featuresAPI } from '@swissgeo/api'
 import GeoJSON from 'ol/format/GeoJSON'
-
-import type { LayerFeature, SelectableFeature } from '@/api/features.api'
-
-import { extractOlFeatureCoordinates } from '@/api/features.api'
 
 export default function createLayerFeature(
     olFeature: Feature<Geometry>,
@@ -19,7 +17,7 @@ export default function createLayerFeature(
         return
     }
 
-    const coordinates = extractOlFeatureCoordinates(olFeature)
+    const coordinates = featuresAPI.extractOlFeatureCoordinates(olFeature)
 
     const layerFeature: LayerFeature = {
         layer: layer,

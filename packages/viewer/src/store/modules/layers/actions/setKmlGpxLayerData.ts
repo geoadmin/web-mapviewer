@@ -1,6 +1,7 @@
 import type { FlatExtent } from '@swissgeo/coordinates'
 import type { GPXLayer, GPXMetadata, KMLLayer, KMLMetadata, Layer } from '@swissgeo/layers'
 
+import { gpxUtils, kmlUtils } from '@swissgeo/api/utils'
 import { extentUtils, WGS84 } from '@swissgeo/coordinates'
 import { addErrorMessageToLayer, LayerType, removeErrorMessageFromLayer } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
@@ -11,8 +12,6 @@ import type { LayersStore } from '@/store/modules/layers/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import usePositionStore from '@/store/modules/position'
-import { getGpxExtent } from '@/utils/gpxUtils'
-import { getKmlExtent, parseKmlName } from '@/utils/kmlUtils'
 
 /**
  * Set KML/GPX layer(s) with its data and metadata.
@@ -44,7 +43,7 @@ export default function setKmlGpxLayerData(
 
         if (clone.type === LayerType.KML) {
             const kmlLayer = clone as KMLLayer
-            let kmlName: string | undefined = parseKmlName(data)
+            let kmlName: string | undefined = kmlUtils.parseKmlName(data)
             if (!kmlName || kmlName === '') {
                 kmlName = kmlLayer.kmlFileUrl
             }
@@ -53,7 +52,7 @@ export default function setKmlGpxLayerData(
             }
             kmlLayer.kmlData = data
             kmlLayer.kmlMetadata = metadata as KMLMetadata
-            extent = getKmlExtent(data)
+            extent = kmlUtils.getKmlExtent(data)
         } else if (clone.type === LayerType.GPX) {
             const gpxLayer = clone as GPXLayer
             const gpxMetadata = metadata as GPXMetadata
@@ -61,7 +60,7 @@ export default function setKmlGpxLayerData(
             gpxLayer.gpxData = data
             gpxLayer.gpxMetadata = gpxMetadata
             gpxLayer.name = gpxMetadata.name ?? 'GPX'
-            extent = getGpxExtent(data)
+            extent = gpxUtils.getGpxExtent(data)
         }
         clone.isLoading = false
 

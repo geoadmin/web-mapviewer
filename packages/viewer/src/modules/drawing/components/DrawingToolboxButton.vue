@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import type { EditableFeatureTypes } from '@swissgeo/api'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { EditableFeatureTypes } from '@/api/features.api'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import useUIStore from '@/store/modules/ui'
@@ -19,16 +20,17 @@ const uiStore = useUIStore()
 const drawingStore = useDrawingStore()
 const featuresStore = useFeaturesStore()
 
+const featureTypeLowerCase = computed<string>(() => featureType.toLowerCase())
 const isActive = computed<boolean>(() => featureType === drawingStore.edit.featureType)
 const buttonIcon = computed<string[]>(() => {
     switch (featureType) {
-        case EditableFeatureTypes.LinePolygon:
+        case 'LINEPOLYGON':
             return ['fa', 'draw-polygon']
-        case EditableFeatureTypes.Marker:
+        case 'MARKER':
             return ['fa', 'map-marker-alt']
-        case EditableFeatureTypes.Measure:
+        case 'MEASURE':
             return ['fa', 'ruler']
-        case EditableFeatureTypes.Annotation:
+        case 'ANNOTATION':
             return ['fa', 't']
         default:
             return []
@@ -60,7 +62,7 @@ function setDrawingMode() {
             v-if="!uiStore.isPhoneMode"
             class="d-sm-block"
         >
-            {{ t(`draw_${featureType.toLowerCase()}`) }}
+            {{ t(`draw_${featureTypeLowerCase}`) }}
         </small>
     </button>
 </template>

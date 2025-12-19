@@ -1,6 +1,7 @@
 import type { CoordinateSystem } from '@swissgeo/coordinates'
 import type { KMLLayer } from '@swissgeo/layers'
 
+import { kmlUtils } from '@swissgeo/api/utils'
 import { extentUtils, WGS84 } from '@swissgeo/coordinates'
 import { layerUtils } from '@swissgeo/layers/utils'
 import { WarningMessage } from '@swissgeo/log/Message'
@@ -9,7 +10,6 @@ import EmptyFileContentError from '@/modules/menu/components/advancedTools/Impor
 import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
 import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
-import { getKmlExtent, isKml, isKmlFeaturesValid } from '@/utils/kmlUtils'
 
 export class KMLParser extends FileParser<KMLLayer> {
     constructor() {
@@ -20,7 +20,7 @@ export class KMLParser extends FileParser<KMLLayer> {
                 'application/xml',
                 'text/xml',
             ],
-            validateFileContent: isKml,
+            validateFileContent: kmlUtils.isKml,
             allowServiceProxy: true,
         })
     }
@@ -33,11 +33,11 @@ export class KMLParser extends FileParser<KMLLayer> {
         currentProjection: CoordinateSystem,
         linkFiles: Map<string, ArrayBuffer> = new Map()
     ): Promise<KMLLayer> {
-        if (!fileContent || !isKml(fileContent)) {
+        if (!fileContent || !kmlUtils.isKml(fileContent)) {
             throw new InvalidFileContentError('No KML data found in this file')
         }
         const kmlAsText = new TextDecoder('utf-8').decode(fileContent)
-        const extent = getKmlExtent(kmlAsText)
+        const extent = kmlUtils.getKmlExtent(kmlAsText)
         if (!extent) {
             throw new EmptyFileContentError()
         }
@@ -59,7 +59,7 @@ export class KMLParser extends FileParser<KMLLayer> {
         })
 
         const warningMessages: WarningMessage[] = []
-        if (!isKmlFeaturesValid(kmlAsText)) {
+        if (!kmlUtils.isKmlFeaturesValid(kmlAsText)) {
             warningMessages.push(
                 new WarningMessage('kml_malformed', {
                     filename: kmlFileUrl,

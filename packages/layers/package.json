@@ -58,11 +58,13 @@
         "@swissgeo/log": "workspace:*",
         "@swissgeo/numbers": "workspace:*",
         "@swissgeo/staging-config": "workspace:*",
+        "@turf/turf": "catalog:",
         "axios": "catalog:",
         "lodash": "catalog:",
         "luxon": "catalog:",
         "ol": "catalog:",
         "proj4": "catalog:",
+        "reproject": "catalog:",
         "uuid": "catalog:"
     },
     "devDependencies": {
@@ -70,6 +72,7 @@
         "@swissgeo/config-eslint": "workspace:*",
         "@swissgeo/config-typescript": "workspace:*",
         "@types/chai": "catalog:",
+        "@types/geojson": "catalog:",
         "@types/lodash": "catalog:",
         "@types/luxon": "catalog:",
         "@types/openlayers": "catalog:",

@@ -68,24 +68,6 @@ export function segmentizeMatch(text: string, search: RegExp | string): TextSegm
 }
 
 /**
- * Parse an RGB color
- *
- * @param color Color code in string format (should be between 0 and 255)
- * @returns Color code, default to 255 in case of invalid
- */
-export function parseRGBColor(color: string): number {
-    try {
-        return Math.max(Math.min(Number(color), 255), 0)
-    } catch (error) {
-        log.error({
-            title: 'utils / parseRGBColor',
-            messages: [`Invalid RGB color code`, color, error],
-        })
-        return 255
-    }
-}
-
-/**
  * Using Date's toISOString outputs an ISO8601 timestamp that is UTC only.
  *
  * This function uses the local time and export is as ISO8601

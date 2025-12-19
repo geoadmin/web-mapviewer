@@ -1,9 +1,9 @@
 import type { Pinia } from 'pinia'
 
+import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@swissgeo/api'
 import { extentUtils, WEBMERCATOR } from '@swissgeo/coordinates'
 import { assertDefined } from 'support/utils'
 
-import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@/api/features.api'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import useUIStore from '@/store/modules/ui'

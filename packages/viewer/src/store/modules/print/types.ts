@@ -1,6 +1,6 @@
+import type { PrintLayout } from '@swissgeo/api'
 import type { FlatExtent } from '@swissgeo/coordinates'
 
-import type { PrintLayout } from '@/api/print.api'
 import type usePrintStore from '@/store/modules/print'
 
 export interface NewPrintServiceConfig {

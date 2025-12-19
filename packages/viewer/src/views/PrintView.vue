@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { shortLinkAPI, qrcodeAPI } from '@swissgeo/api'
 import log from '@swissgeo/log'
 import {
     PRINT_DEFAULT_DPI,
@@ -12,8 +13,6 @@ import { useRoute } from 'vue-router'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
-import { createShortLink } from '@/api/shortlink.api'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
 import OpenLayersPrintResolutionEnforcer from '@/modules/map/components/openlayers/OpenLayersPrintResolutionEnforcer.vue'
@@ -40,7 +39,7 @@ const inchToMillimeter = 25.4
 
 const shortLink = ref<string | undefined>()
 const qrCodeUrl = computed<string | undefined>(
-    () => shortLink.value && getGenerateQRCodeUrl(shortLink.value)
+    () => shortLink.value && qrcodeAPI.getGenerateQRCodeUrl(shortLink.value)
 )
 
 const now = new Date()
@@ -150,7 +149,7 @@ watch(() => route.query, generateShareLink)
 
 async function generateShareLink() {
     try {
-        shortLink.value = await createShortLink(
+        shortLink.value = await shortLinkAPI.createShortLink(
             `${location.origin}/#/map?${stringifyQuery(route.query)}`
         )
     } catch (error) {

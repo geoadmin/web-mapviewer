@@ -1,3 +1,4 @@
+import type { LayerFeature } from '@swissgeo/api'
 import type {
     CloudOptimizedGeoTIFFLayer,
     ExternalWMSLayer,
@@ -10,16 +11,15 @@ import type {
 } from '@swissgeo/layers'
 import type { RouteLocationNormalizedGeneric, RouteLocation } from 'vue-router'
 
+import { featuresAPI } from '@swissgeo/api'
 import { extentUtils } from '@swissgeo/coordinates'
 import { DEFAULT_OPACITY, LayerType } from '@swissgeo/layers'
-import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
+import { layerUtils, timeConfigUtils, geoJsonUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 
-import type { LayerFeature } from '@/api/features.api'
 import type { ValidationResponse } from '@/store/plugins/storeSync/validation'
 
-import getFeature from '@/api/features.api'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import useI18nStore from '@/store/modules/i18n'
@@ -35,7 +35,6 @@ import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/store/plugins/storeSync/UrlParamConfig.class'
 import { getDefaultValidationResponse } from '@/store/plugins/storeSync/validation'
-import { getExtentOfGeometries } from '@/utils/geoJsonUtils'
 
 function createWMTSLayerObject(parsedLayer: Partial<Layer>): ExternalWMTSLayer {
     const { year } = parsedLayer.customAttributes ?? {}
@@ -194,7 +193,7 @@ export function createLayerObject(parsedLayer: Partial<Layer>, currentLayer?: La
                 .split(':')
                 .forEach((featureId) => {
                     featuresRequests.push(
-                        getFeature(internalLayer, featureId, positionStore.projection, {
+                        featuresAPI.getFeature(internalLayer, featureId, positionStore.projection, {
                             lang: i18nStore.lang,
                             screenWidth: uiStore.width,
                             screenHeight: uiStore.height,
@@ -305,7 +304,7 @@ async function getAndDispatchFeatures(
         if (features.length > 0) {
             featuresStore.setSelectedFeatures(features, STORE_DISPATCHER_ROUTER_PLUGIN)
 
-            const extent = getExtentOfGeometries(
+            const extent = geoJsonUtils.getExtentOfGeometries(
                 features.map((feature) => feature.geometry).filter((geometry) => !!geometry)
             )
             if (!extent) {

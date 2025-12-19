@@ -1,13 +1,12 @@
 /// <reference types="cypress" />
 
+import type { EditableFeature, LayerFeature } from '@swissgeo/api'
 import type { ExternalWMSLayer, ExternalWMTSLayer, KMLLayer } from '@swissgeo/layers'
 
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
-import { LayerType, KMLStyle } from '@swissgeo/layers'
+import { KMLStyle, LayerType } from '@swissgeo/layers'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
-
-import type { EditableFeature, LayerFeature } from '@/api/features.api'
 
 import { DEFAULT_PROJECTION } from '@/config'
 import useCesiumStore from '@/store/modules/cesium'

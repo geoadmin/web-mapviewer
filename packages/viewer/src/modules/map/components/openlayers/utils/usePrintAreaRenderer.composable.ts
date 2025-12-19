@@ -5,6 +5,7 @@ import type RenderEvent from 'ol/render/Event'
 import type { Size } from 'ol/size'
 import type { MaybeRef, WatchHandle } from 'vue'
 
+import { PrintError } from '@swissgeo/api'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { DEVICE_PIXEL_RATIO } from 'ol/has'
 import VectorLayer from 'ol/layer/Vector'
@@ -15,7 +16,6 @@ import { computed, toValue, watch } from 'vue'
 import type { PrintLayoutSize } from '@/store/modules/print/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { PrintError } from '@/api/print.api'
 import usePrintStore from '@/store/modules/print'
 import useUIStore from '@/store/modules/ui'
 
@@ -275,7 +275,7 @@ export default function usePrintAreaRenderer(map: MaybeRef<Map>): void {
         if (scaleHeight < testScale) {
             testScale = scaleHeight
         }
-        const selectedLayoutScales = Array.from(printStore.selectedLayout.scales)
+        const selectedLayoutScales = Array.from(printStore.selectedLayout.scales())
         // Make sure it's sorted descending
         selectedLayoutScales.sort((a, b) => b - a)
         log.debug({

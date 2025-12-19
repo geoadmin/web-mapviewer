@@ -2,6 +2,7 @@ import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { GeoAdminLayer } from '@swissgeo/layers'
 import type { LocationQueryRaw } from 'vue-router'
 
+import { legacyLayerParamUtils } from '@swissgeo/api/utils'
 import { allCoordinateSystems } from '@swissgeo/coordinates'
 import { layerUtils } from '@swissgeo/layers/utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -10,7 +11,6 @@ import type { StoreInputForLegacyParsing } from '@/router/legacyPermalink.router
 import type { CameraPosition } from '@/store/modules/position/types'
 
 import { handleLegacyParam } from '@/router/legacyPermalink.routerPlugin'
-import * as utils from '@/utils/legacyLayerParamUtils'
 
 const UNSET_NUMBER_VALUE: number = Number.NEGATIVE_INFINITY
 
@@ -176,12 +176,12 @@ describe('Testing legacyPermalink router plugin', () => {
         it.skip('layers with new separators', () => {
             const param = 'layers'
             const legacyValue = '@feature'
-            vi.spyOn(utils, 'getLayersFromLegacyUrlParams')
+            vi.spyOn(legacyLayerParamUtils, 'getLayersFromLegacyUrlParams')
 
             testHandleLegacyParam(param, legacyValue)
 
             expect(newQuery).to.eql({ layers: ['@feature'] })
-            expect(utils.getLayersFromLegacyUrlParams).not.have.been.called
+            expect(legacyLayerParamUtils.getLayersFromLegacyUrlParams).not.have.been.called
         })
         it('layers without new separators', () => {
             const layerVisibility = 'layers_visibility'
@@ -192,12 +192,12 @@ describe('Testing legacyPermalink router plugin', () => {
             exisitingParams.set('layers_timestamp', layerTimestamp)
             const param = 'layers'
             const legacyValue = 'ch.bfe.ladebedarfswelt-heimladeverfuegbarkeit_bequem'
-            vi.spyOn(utils, 'getLayersFromLegacyUrlParams')
+            vi.spyOn(legacyLayerParamUtils, 'getLayersFromLegacyUrlParams')
 
             testHandleLegacyParam(param, legacyValue)
 
             expect(newQuery).to.eql({ layers: `${legacyValue},f` })
-            expect(utils.getLayersFromLegacyUrlParams).toHaveBeenCalledWith(
+            expect(legacyLayerParamUtils.getLayersFromLegacyUrlParams).toHaveBeenCalledWith(
                 [layerConfig],
                 legacyValue,
                 layerVisibility,

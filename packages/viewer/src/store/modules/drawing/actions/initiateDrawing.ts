@@ -1,5 +1,6 @@
 import type { KMLLayer } from '@swissgeo/layers'
 
+import { filesAPI } from '@swissgeo/api'
 import { layerUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import VectorLayer from 'ol/layer/Vector'
@@ -9,7 +10,6 @@ import { markRaw } from 'vue'
 import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { getKmlMetadataByAdminId, getKmlUrl } from '@/api/files.api'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
@@ -74,10 +74,10 @@ export default async function initiateDrawing(
             kmlLayer = preExistingDrawing
             this.isDrawingNew = !!kmlLayer.adminId
         } else if (adminId) {
-            const kmlMetadata = await getKmlMetadataByAdminId(adminId)
+            const kmlMetadata = await filesAPI.getKmlMetadataByAdminId(adminId)
             kmlLayer = layerUtils.makeKMLLayer({
                 name: this.name,
-                kmlFileUrl: getKmlUrl(kmlMetadata.id),
+                kmlFileUrl: filesAPI.getKmlUrl(kmlMetadata.id),
                 isVisible: true,
                 isEdited: true,
                 adminId: kmlMetadata.adminId,

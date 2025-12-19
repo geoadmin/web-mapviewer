@@ -4,6 +4,7 @@
 import type { KMLLayer } from '@swissgeo/layers'
 import type { Map } from 'ol'
 
+import { kmlUtils } from '@swissgeo/api/utils'
 import log from '@swissgeo/log'
 import { WarningMessage } from '@swissgeo/log/Message'
 import VectorLayer from 'ol/layer/Vector'
@@ -17,7 +18,6 @@ import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLa
 import useDrawingStore from '@/store/modules/drawing'
 import usePositionStore from '@/store/modules/position'
 import useUiStore from '@/store/modules/ui'
-import { iconUrlProxyFy, parseKml } from '@/utils/kmlUtils'
 
 const dispatcher: ActionDispatcher = { name: 'OpenLayersKMLLayer.vue' }
 
@@ -97,7 +97,7 @@ onUnmounted(() => {
 })
 
 function iconUrlProxy(url: string): string {
-    return iconUrlProxyFy(
+    return kmlUtils.iconUrlProxyFy(
         url,
         (url: string) => {
             uiStore.addWarnings(
@@ -132,7 +132,7 @@ function createSourceForProjection(): void {
     layer.setSource(
         new VectorSource({
             wrapX: true,
-            features: parseKml(
+            features: kmlUtils.parseKml(
                 kmlLayerConfig,
                 projection.value,
                 availableIconSets.value,

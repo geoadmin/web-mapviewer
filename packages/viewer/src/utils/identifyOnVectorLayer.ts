@@ -1,3 +1,4 @@
+import type { LayerFeature } from '@swissgeo/api'
 import type { CoordinateSystem, FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import type { GeoAdminGeoJSONLayer } from '@swissgeo/layers'
 import type { Coord } from '@turf/turf'
@@ -14,6 +15,7 @@ import type {
 } from 'geojson'
 
 import { WGS84 } from '@swissgeo/coordinates'
+import { geoJsonUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
 import {
     bbox,
@@ -25,10 +27,6 @@ import {
 } from '@turf/turf'
 import proj4 from 'proj4'
 import { reproject } from 'reproject'
-
-import type { LayerFeature } from '@/api/features.api'
-
-import { reprojectGeoJsonData, transformIntoTurfEquivalent } from '@/utils/geoJsonUtils'
 
 const pixelToleranceForIdentify = 20
 
@@ -83,7 +81,7 @@ function identifyInGeoJson(
                 feature.geometry !== null && feature.geometry !== undefined
         )
         .filter((feature) => {
-            const turfFeature = transformIntoTurfEquivalent(feature.geometry)
+            const turfFeature = geoJsonUtils.transformIntoTurfEquivalent(feature.geometry)
             if (!turfFeature || !turfFeature.geometry) {
                 return false
             }
@@ -150,7 +148,11 @@ export function identifyGeoJSONFeatureAt(
     // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
     // to use turf functions, we need to have lat/lon (WGS84) coordinates
     const parsedGeoJsonData = JSON.parse(geoJsonLayer.geoJsonData) as FeatureCollection
-    const reprojectedGeoJSON = reprojectGeoJsonData(parsedGeoJsonData, WGS84, projection)
+    const reprojectedGeoJSON = geoJsonUtils.reprojectGeoJsonData(
+        parsedGeoJsonData,
+        WGS84,
+        projection
+    )
     if (!reprojectedGeoJSON) {
         log.error(
             `Unable to reproject GeoJSON data in order to find features at coordinates`,

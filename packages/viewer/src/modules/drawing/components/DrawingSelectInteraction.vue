@@ -5,20 +5,20 @@
  * (style, color, etc...) whenever it is edited through the popover.
  */
 
+import type { EditableFeature } from '@swissgeo/api'
 import type Feature from 'ol/Feature'
 import type Map from 'ol/Map'
 import type { StyleFunction } from 'ol/style/Style'
 import type { ShallowRef } from 'vue'
 
+import { featuresAPI } from '@swissgeo/api'
 import { DRAWING_HIT_TOLERANCE } from '@swissgeo/staging-config/constants'
 import SelectInteraction, { SelectEvent } from 'ol/interaction/Select'
 import { inject, onBeforeUnmount, onMounted, shallowRef, watch } from 'vue'
 
-import type { EditableFeature } from '@/api/features.api'
 import type { SelectInteractionExposed } from '@/modules/drawing/types/interaction'
 import type { ActionDispatcher } from '@/store/types'
 
-import { EditableFeatureTypes, extractOlFeatureCoordinates } from '@/api/features.api'
 import useModifyInteraction from '@/modules/drawing/components/useModifyInteraction.composable'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useDrawingStore from '@/store/modules/drawing'
@@ -67,7 +67,7 @@ watch(currentlySelectedOlFeature, (newFeature) => {
     if (newFeature && newFeature.get('editableFeature')) {
         const editableFeature = newFeature.get('editableFeature') as EditableFeature | undefined
         if (editableFeature) {
-            editableFeature.coordinates = extractOlFeatureCoordinates(newFeature)
+            editableFeature.coordinates = featuresAPI.extractOlFeatureCoordinates(newFeature)
             drawingStore.setCurrentlyDrawnFeature(editableFeature, dispatcher)
         }
     } else {
@@ -114,7 +114,7 @@ function onFeatureChange(editableFeature: EditableFeature) {
     // To do this we need to set them on the ol feature as properties.
     currentlySelectedOlFeature.value?.set('name', editableFeature.title)
     currentlySelectedOlFeature.value?.set('description', editableFeature.description)
-    if (editableFeature.featureType === EditableFeatureTypes.Marker) {
+    if (editableFeature.featureType === 'MARKER') {
         currentlySelectedOlFeature.value?.set('textOffset', editableFeature.textOffset.toString())
         currentlySelectedOlFeature.value?.set(
             'showDescriptionOnMap',

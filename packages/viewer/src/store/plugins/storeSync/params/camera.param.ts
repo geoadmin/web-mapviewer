@@ -1,10 +1,10 @@
 import type { RouteLocationNormalizedGeneric } from 'vue-router'
 
+import { ErrorMessage } from '@swissgeo/log/Message'
 import { isNumber } from 'lodash'
 
 import type { CameraPosition } from '@/store/modules/position/types'
 
-import { getStandardValidationResponse } from '@/api/errorQueues.api'
 import useCesiumStore from '@/store/modules/cesium'
 import usePositionStore from '@/store/modules/position'
 import UrlParamConfig, {
@@ -72,14 +72,23 @@ const cameraParam = new UrlParamConfig<string>({
     extractValueFromStore: generateCameraUrlParamFromStoreValues,
     keepInUrlWhenDefault: false,
     valueType: String,
-    validateUrlInput: (queryValue?: string) =>
-        getStandardValidationResponse(
-            queryValue,
+    validateUrlInput: (queryValue?: string) => {
+        const isValid =
             !!queryValue &&
-                queryValue.split(',').length === 6 &&
-                queryValue.split(',').every((value) => value === '' || !isNumber(value)),
-            'camera'
-        ),
+            queryValue.split(',').length === 6 &&
+            queryValue.split(',').every((value) => value === '' || !isNumber(value))
+        return {
+            valid: isValid,
+            errors: isValid
+                ? []
+                : [
+                      new ErrorMessage('url_parameter_error', {
+                          param: 'camera',
+                          value: queryValue,
+                      }),
+                  ],
+        }
+    },
 })
 
 export default cameraParam

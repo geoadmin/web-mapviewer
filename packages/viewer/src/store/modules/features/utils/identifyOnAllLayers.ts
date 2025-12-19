@@ -1,13 +1,12 @@
+import type { IdentifyConfig, LayerFeature } from '@swissgeo/api'
 import type { FlatExtent, NormalizedExtent } from '@swissgeo/coordinates'
 import type { Layer } from '@swissgeo/layers'
 
+import { featuresAPI } from '@swissgeo/api'
 import { extentUtils } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { containsCoordinate, getIntersection as getExtentIntersection } from 'ol/extent'
 
-import type { IdentifyConfig, LayerFeature } from '@/api/features.api'
-
-import { identify } from '@/api/features.api'
 import getFeatureCountForCoordinate from '@/store/modules/features/utils/getFeatureCountForCoordinate'
 
 interface MultipleIdentifyConfig extends Omit<IdentifyConfig, 'layer'> {
@@ -74,7 +73,7 @@ export default function identifyOnAllLayers(
             })
             .forEach((layer) => {
                 pendingRequests.push(
-                    identify({
+                    featuresAPI.identify({
                         layer,
                         ...commonParams,
                     })

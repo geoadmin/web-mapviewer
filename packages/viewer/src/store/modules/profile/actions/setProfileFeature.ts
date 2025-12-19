@@ -1,9 +1,9 @@
+import type { SelectableFeature } from '@swissgeo/api'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import cloneDeep from 'lodash/cloneDeep'
 
-import type { SelectableFeature } from '@/api/features.api'
 import type { ProfileStore } from '@/store/modules/profile/types'
 import type { ActionDispatcher } from '@/store/types'
 
