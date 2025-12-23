@@ -7,6 +7,9 @@ import log from '@swissgeo/log'
 import type { ParseOptions } from '@/modules/menu/components/advancedTools/ImportFile/parser/types'
 
 import { CloudOptimizedGeoTIFFParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/CloudOptimizedGeoTIFFParser.class'
+import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'
+import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
+import UnknownProjectionError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/UnknownProjectionError.error'
 import GPXParser from '@/modules/menu/components/advancedTools/ImportFile/parser/GPXParser.class'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
@@ -33,12 +36,29 @@ async function parseAll(config: ParseAllConfig, options?: ParseOptions): Promise
     if (firstFulfilled) {
         return (firstFulfilled as PromiseFulfilledResult<FileLayer>).value
     }
-    const anyErrorRaised = allSettled.find(
+
+    // Prioritize specific errors over generic InvalidFileContentError
+    const rejectedResponses = allSettled.filter(
         (response) => response.status === 'rejected' && response.reason
+    ) as PromiseRejectedResult[]
+
+    // Find first specific error (OutOfBounds, Empty, UnknownProjection)
+    const specificError = rejectedResponses.find(
+        (response) =>
+            response.reason instanceof OutOfBoundsError ||
+            response.reason instanceof EmptyFileContentError ||
+            response.reason instanceof UnknownProjectionError
     )
-    if (anyErrorRaised) {
-        throw (anyErrorRaised as PromiseRejectedResult).reason
+    if (specificError) {
+        throw specificError.reason
     }
+
+    // Fall back to any error (including InvalidFileContentError)
+    const firstError = rejectedResponses[0]
+    if (firstError) {
+        throw firstError.reason
+    }
+
     throw new Error('Could not parse file')
 }
 

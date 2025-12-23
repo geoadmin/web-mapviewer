@@ -28,14 +28,14 @@ const uiStore = useUIStore()
 
 const { handleFileSource } = useImportFile()
 
-const fileUrl = defineModel<string>({ default: '' })
-
+// Reactive data
 const isLoading = ref<boolean>(false)
+const fileUrlInput = useTemplateRef<ComponentPublicInstance<TextInputExposed>>('fileUrlInput')
+const fileUrl = ref<string>('')
 const importSuccessMessage = ref<string>('')
 const errorFileLoadingMessage = ref<ErrorMessage | undefined>()
 const isFormValid = ref<boolean>(false)
-
-const fileUrlInput = useTemplateRef<ComponentPublicInstance<TextInputExposed>>('fileUrlInput')
+const activateValidation = ref<boolean>(false)
 
 const buttonState = computed<'loading' | 'default'>(() => (isLoading.value ? 'loading' : 'default'))
 
@@ -55,6 +55,8 @@ onMounted(() => {
     }
 })
 
+// Methods
+
 function validateUrl(url?: string): ValidationResult {
     if (!url) {
         return { valid: false, invalidMessage: 'no_url' }
@@ -65,11 +67,12 @@ function validateUrl(url?: string): ValidationResult {
 }
 
 function validateForm() {
+    activateValidation.value = true
     return isFormValid.value
 }
 
-function onUrlValidate(validation: ValidationResult) {
-    isFormValid.value = validation.valid
+function onUrlValidate(result: ValidationResult) {
+    isFormValid.value = result.valid
 }
 
 function onUrlChange() {
@@ -93,9 +96,8 @@ async function loadFile() {
                 dispatcher
             )
         }
+        isLoading.value = false
         importSuccessMessage.value = 'file_imported_success'
-
-        setTimeout(() => (isLoading.value = false), 3000)
     } catch (error) {
         log.error({
             title: 'Import File Online Tab',
@@ -105,8 +107,9 @@ async function loadFile() {
         if (error instanceof Error) {
             errorFileLoadingMessage.value = generateErrorMessageFromErrorType(error)
         }
+    } finally {
+        isLoading.value = false
     }
-    isLoading.value = false
 }
 </script>
 
@@ -133,7 +136,6 @@ async function loadFile() {
                 :force-invalid="!!errorFileLoadingMessage"
                 :invalid-message="errorFileLoadingMessage?.msg"
                 :invalid-message-params="errorFileLoadingMessage?.params"
-                :valid-message="importSuccessMessage"
                 :validate="validateUrl"
                 data-cy="import-file-online-url"
                 @validate="onUrlValidate"

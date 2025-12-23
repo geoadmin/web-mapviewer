@@ -59,6 +59,7 @@ export class KMLParser extends FileParser<KMLLayer> {
         }
 
         const kmlFileUrl = this.isLocalFile(fileSource) ? fileSource.name : fileSource
+        const kmlName = kmlUtils.parseKmlName(kmlAsText) ?? kmlFileUrl
         const internalFiles: Record<string, ArrayBuffer> = {}
         linkFiles.forEach((value, key) => {
             internalFiles[key] = value
@@ -68,12 +69,13 @@ export class KMLParser extends FileParser<KMLLayer> {
         if (!kmlUtils.isKmlFeaturesValid(kmlAsText)) {
             warningMessages.push(
                 new WarningMessage('kml_malformed', {
-                    filename: kmlFileUrl,
+                    filename: kmlName,
                 })
             )
         }
 
         return layerUtils.makeKMLLayer({
+            name: kmlName,
             opacity: 1.0,
             isVisible: true,
             extent: extentInCurrentProjection,

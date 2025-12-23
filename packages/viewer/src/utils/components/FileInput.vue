@@ -78,6 +78,13 @@ const props = defineProps<{
      * the i18n call.
      */
     invalidMessageExtraParams?: Record<string, unknown>
+    /**
+     * Activate validation
+     *
+     * When set to true, validation will be triggered even for pristine (untouched) fields.
+     * This allows validating all fields of a form at once when a submit button is clicked.
+     */
+    activateValidation?: boolean
     validateWhenPristine?: boolean
     /**
      * Validate function to run when the input changes The function should return an object of type
@@ -107,7 +114,10 @@ const forceValid = toRef(props, 'forceValid', false)
 const forceInvalid = toRef(props, 'forceInvalid', false)
 const validFieldMessage = toRef(props, 'validMessage', '')
 const invalidFieldMessage = toRef(props, 'invalidMessage', '')
-const validateWhenPristine = toRef(props, 'validateWhenPristine', false)
+const activateValidation = toRef(props, 'activateValidation', false)
+const validateWhenPristineBase = toRef(props, 'validateWhenPristine', false)
+// Combine validateWhenPristine with activateValidation
+const validateWhenPristine = computed(() => validateWhenPristineBase.value || activateValidation.value)
 
 // On each component creation set the current component unique ID
 const inputFileId = useComponentUniqueId('file-input')

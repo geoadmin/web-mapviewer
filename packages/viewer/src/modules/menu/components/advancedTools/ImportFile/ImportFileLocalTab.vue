@@ -19,12 +19,12 @@ const { active = false } = defineProps<{
     active?: boolean
 }>()
 
-const selectedFile = defineModel<File | undefined>({ default: undefined })
-
 // Reactive data
 const loadingFile = ref(false)
+const selectedFile = ref<File | undefined>()
 const errorFileLoadingMessage = ref<ErrorMessage | undefined>()
 const isFormValid = ref(false)
+const activateValidation = ref(false)
 const importSuccessMessage = ref('')
 
 const buttonState = computed(() => (loadingFile.value ? 'loading' : 'default'))
@@ -33,6 +33,7 @@ const buttonState = computed(() => (loadingFile.value ? 'loading' : 'default'))
 async function loadFile() {
     importSuccessMessage.value = ''
     errorFileLoadingMessage.value = undefined
+    activateValidation.value = true
     loadingFile.value = true
 
     if (isFormValid.value && selectedFile.value) {
@@ -53,8 +54,8 @@ async function loadFile() {
     loadingFile.value = false
 }
 
-function validateForm(validation: ValidationResult) {
-    isFormValid.value = validation.valid
+function validateForm(valid: ValidationResult) {
+    isFormValid.value = valid.valid
 }
 </script>
 
@@ -75,9 +76,11 @@ function validateForm(validation: ValidationResult) {
             required
             :accepted-file-types="acceptedFileTypes"
             :placeholder="'no_file'"
-            :force-invalid="!!errorFileLoadingMessage"
+            :activate-validation="activateValidation"
+            :invalid-marker="!!errorFileLoadingMessage"
             :invalid-message="errorFileLoadingMessage?.msg"
             :invalid-message-extra-params="errorFileLoadingMessage?.params"
+            :valid-marker="!!importSuccessMessage"
             :valid-message="importSuccessMessage"
             @validate="validateForm"
         />
