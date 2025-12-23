@@ -38,6 +38,9 @@ watch(errorFileLoadingMessage, (newVal) => {
 })
 watch(selectedFile, (newVal) => {
     console.log('[ImportFileLocalTab] selectedFile changed to:', newVal?.name)
+    // Clear previous error/success messages when a new file is selected
+    importSuccessMessage.value = ''
+    errorFileLoadingMessage.value = undefined
 })
 
 // Methods
@@ -51,10 +54,7 @@ async function loadFile() {
         return
     }
 
-    // Only clear messages when we're actually going to attempt loading
-    console.log('[ImportFileLocalTab] Clearing messages and attempting load')
-    importSuccessMessage.value = ''
-    errorFileLoadingMessage.value = undefined
+    console.log('[ImportFileLocalTab] Attempting load')
     loadingFile.value = true
 
     try {
