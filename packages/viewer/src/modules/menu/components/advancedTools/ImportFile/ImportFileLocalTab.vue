@@ -2,7 +2,7 @@
 import type { ErrorMessage } from '@swissgeo/log/Message'
 
 import log from '@swissgeo/log'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import type { ValidationResult } from '@/utils/composables/useFieldValidation'
 
@@ -29,32 +29,57 @@ const importSuccessMessage = ref('')
 
 const buttonState = computed(() => (loadingFile.value ? 'loading' : 'default'))
 
+// Debug watchers
+watch(importSuccessMessage, (newVal) => {
+    console.log('[ImportFileLocalTab] importSuccessMessage changed to:', newVal)
+})
+watch(errorFileLoadingMessage, (newVal) => {
+    console.log('[ImportFileLocalTab] errorFileLoadingMessage changed to:', newVal?.msg)
+})
+watch(selectedFile, (newVal) => {
+    console.log('[ImportFileLocalTab] selectedFile changed to:', newVal?.name)
+})
+
 // Methods
 async function loadFile() {
+    console.log('[ImportFileLocalTab] loadFile called')
+    activateValidation.value = true
+
+    console.log('[ImportFileLocalTab] isFormValid:', isFormValid.value, 'selectedFile:', selectedFile.value?.name)
+    if (!isFormValid.value || !selectedFile.value) {
+        console.log('[ImportFileLocalTab] Skipping load - form invalid or no file selected')
+        return
+    }
+
+    // Only clear messages when we're actually going to attempt loading
+    console.log('[ImportFileLocalTab] Clearing messages and attempting load')
     importSuccessMessage.value = ''
     errorFileLoadingMessage.value = undefined
-    activateValidation.value = true
     loadingFile.value = true
 
-    if (isFormValid.value && selectedFile.value) {
-        try {
-            await handleFileSource(selectedFile.value, false)
-            importSuccessMessage.value = 'file_imported_success'
-        } catch (error) {
-            errorFileLoadingMessage.value = generateErrorMessageFromErrorType(
-                error instanceof Error ? error : new Error(String(error))
-            )
-            log.error({
-                title: 'ImportFileLocalTab.vue',
-                messages: ['Failed to load file', error],
-            })
-        }
+    try {
+        console.log('[ImportFileLocalTab] Attempting to load file:', selectedFile.value.name)
+        await handleFileSource(selectedFile.value, false)
+        console.log('[ImportFileLocalTab] File loaded successfully')
+        importSuccessMessage.value = 'file_imported_success'
+    } catch (error) {
+        console.log('[ImportFileLocalTab] File load error:', error)
+        errorFileLoadingMessage.value = generateErrorMessageFromErrorType(
+            error instanceof Error ? error : new Error(String(error))
+        )
+        console.log('[ImportFileLocalTab] errorFileLoadingMessage set to:', errorFileLoadingMessage.value)
+        log.error({
+            title: 'ImportFileLocalTab.vue',
+            messages: ['Failed to load file', error],
+        })
     }
 
     loadingFile.value = false
+    console.log('[ImportFileLocalTab] loadFile complete. Success:', importSuccessMessage.value, 'Error:', errorFileLoadingMessage.value?.msg)
 }
 
 function validateForm(valid: ValidationResult) {
+    console.log('[ImportFileLocalTab] validateForm called:', valid)
     isFormValid.value = valid.valid
 }
 </script>
