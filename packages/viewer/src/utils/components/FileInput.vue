@@ -81,8 +81,8 @@ const props = defineProps<{
     /**
      * Activate validation
      *
-     * When set to true, validation will be triggered even for pristine (untouched) fields.
-     * This allows validating all fields of a form at once when a submit button is clicked.
+     * When set to true, validation will be triggered even for pristine (untouched) fields. This
+     * allows validating all fields of a form at once when a submit button is clicked.
      */
     activateValidation?: boolean
     validateWhenPristine?: boolean
@@ -114,11 +114,12 @@ const forceValid = toRef(props, 'forceValid', false)
 const forceInvalid = toRef(props, 'forceInvalid', false)
 const validFieldMessage = toRef(props, 'validMessage', '')
 const invalidFieldMessage = toRef(props, 'invalidMessage', '')
-const activateValidation = toRef(props, 'activateValidation', false)
-const validateWhenPristineBase = toRef(props, 'validateWhenPristine', false)
-// Combine validateWhenPristine with activateValidation
-const validateWhenPristine = computed(() => validateWhenPristineBase.value || activateValidation.value)
 
+// Combine validateWhenPristine with activateValidation
+// When either activateValidation or validateWhenPristine is true, validation should be triggered
+const validateWhenPristine = computed(
+    () => props.validateWhenPristine || props.activateValidation
+)
 // On each component creation set the current component unique ID
 const inputFileId = useComponentUniqueId('file-input')
 
