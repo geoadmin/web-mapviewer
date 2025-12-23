@@ -133,7 +133,10 @@ async function loadFile() {
                 required
                 class="mb-2"
                 placeholder="import_file_url_placeholder"
+                :validate-when-pristine="activateValidation"
                 :force-invalid="!!errorFileLoadingMessage"
+                :force-valid="!!importSuccessMessage"
+                :valid-message="importSuccessMessage"
                 :invalid-message="errorFileLoadingMessage?.msg"
                 :invalid-message-params="errorFileLoadingMessage?.params"
                 :validate="validateUrl"

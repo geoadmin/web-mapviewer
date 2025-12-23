@@ -77,10 +77,10 @@ function validateForm(valid: ValidationResult) {
             :accepted-file-types="acceptedFileTypes"
             :placeholder="'no_file'"
             :activate-validation="activateValidation"
-            :invalid-marker="!!errorFileLoadingMessage"
+            :force-invalid="!!errorFileLoadingMessage"
             :invalid-message="errorFileLoadingMessage?.msg"
             :invalid-message-extra-params="errorFileLoadingMessage?.params"
-            :valid-marker="!!importSuccessMessage"
+            :force-valid="!!importSuccessMessage"
             :valid-message="importSuccessMessage"
             @validate="validateForm"
         />
