@@ -117,9 +117,7 @@ const invalidFieldMessage = toRef(props, 'invalidMessage', '')
 
 // Combine validateWhenPristine with activateValidation
 // When either activateValidation or validateWhenPristine is true, validation should be triggered
-const validateWhenPristine = computed(
-    () => props.validateWhenPristine || props.activateValidation
-)
+const validateWhenPristine = computed(() => props.validateWhenPristine || props.activateValidation)
 // On each component creation set the current component unique ID
 const inputFileId = useComponentUniqueId('file-input')
 
@@ -139,6 +137,10 @@ const maxFileSizeHuman = computed(() => humanFileSize(maxFileSize))
 
 // Validation logic for file-specific checks
 function validateFile(file?: File): ValidationResult {
+    console.log('Validating file:', file)
+    console.log('Accepted file types:', acceptedFileTypes)
+    console.log('Max file size:', maxFileSize)
+
     if (
         file &&
         acceptedFileTypes?.length > 0 &&

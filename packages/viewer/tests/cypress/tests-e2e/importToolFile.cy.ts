@@ -801,222 +801,222 @@ describe('The Import File Tool', () => {
             },
             withHash: true,
         })
-        // cy.openMenuIfMobile()
+        cy.openMenuIfMobile()
+
+        // ---------------------------------------------------------------------
+        cy.log('Test invalid external KML file from url parameter')
+
+        // Wait for all network calls to resolve
+        const kmlRequests = [
+            '@headInvalidKmlFile',
+            '@getInvalidKmlFile',
+            '@headUnreachableKmlFile',
+            '@getUnreachableKmlFile',
+            '@headOutOfBoundKmlFile',
+            '@getOutOfBoundKmlFile',
+            '@headValidKmlFileWrongContentType',
+            '@getValidKmlFileWrongContentType',
+        ]
+        cy.wait(kmlRequests)
+
+        // Expected values per index - this is to avoid having nested
+        // if statements
+        const errorDataMap: Record<string, { shouldHaveError: boolean; errorMessage?: string }> = {
+            [validOnlineUrlWithInvalidContentType]: {
+                shouldHaveError: false,
+            },
+            [onlineUrlNotReachable]: {
+                shouldHaveError: true,
+                errorMessage: 'file not accessible',
+            },
+            [invalidFileOnlineUrl]: {
+                shouldHaveError: true,
+                errorMessage: 'Invalid file',
+            },
+            [outOfBoundKMLUrl]: {
+                shouldHaveError: true,
+                errorMessage: 'out of projection bounds',
+            },
+        }
+
+        // Validate store and visible layers
+        cy.getPinia().then((pinia) => {
+            const layersStore15 = useLayersStore(pinia)
+            expect(layersStore15.activeLayers).to.have.length(4)
+        })
+        cy.get('[data-cy="menu-section-active-layers"]')
+            .should('be.visible')
+            .children()
+            .should('have.length', 4)
+            .each(($layer) => {
+                const url = $layer.attr('data-layer-id') as string
+                const errorData = errorDataMap[url.replace('KML|', '')]
+
+                cy.wrap($layer)
+                    .find('[data-cy="menu-external-disclaimer-icon-cloud"]')
+                    .should('be.visible')
+                assertDefined(errorData)
+                if (errorData.shouldHaveError) {
+                    cy.wrap($layer)
+                        .find('[data-cy^="button-has-error"]')
+                        .should('be.visible')
+                        .trigger('mouseover')
+
+                    cy.get(`[data-cy^="floating-button-has-error-${url}"]`)
+                        .should('be.visible')
+                        .contains(errorData.errorMessage as string)
+
+                    // Trigger mouseleave on the button to hide the tooltip
+                    cy.wrap($layer).find('[data-cy^="button-has-error"]').trigger('mouseleave')
+
+                    // Verify tooltip is hidden
+                    cy.get(`[data-cy^="floating-button-has-error-${url}"]`).should('not.exist')
+                } else {
+                    cy.get(`[data-cy^="floating-button-has-error-${url}"]`).should('not.exist')
+                }
+
+                // Ensure no spinner is shown
+                cy.wrap($layer)
+                    .find('[data-cy^="button-loading-metadata-spinner"]')
+                    .should('not.exist')
+            })
 
         //---------------------------------------------------------------------
-        // cy.log('Test invalid external KML file from url parameter')
+        // Test removing a layer
+        cy.log('Test removing all kml layer')
+        cy.get(
+            `[data-cy^="button-remove-layer-KML|${validOnlineUrlWithInvalidContentType}-3"]:visible`
+        ).click({
+            force: true,
+        })
+        cy.get(`[data-cy^="button-remove-layer-KML|${onlineUrlNotReachable}-2"]:visible`).click({
+            force: true,
+        })
+        cy.get(`[data-cy^="button-remove-layer-KML|${invalidFileOnlineUrl}-1"]:visible`).click({
+            force: true,
+        })
+        cy.get(`[data-cy^="button-remove-layer-KML|${outOfBoundKMLUrl}-0"]:visible`).click({
+            force: true,
+        })
+        cy.getPinia().then((pinia) => {
+            const layersStore16 = useLayersStore(pinia)
+            expect(layersStore16.activeLayers).to.have.length(0)
+        })
+        cy.get('[data-cy="menu-section-active-layers"]').children().should('have.length', 0)
+        //---------------------------------------------------------------------
 
-        // // Wait for all network calls to resolve
-        // const kmlRequests = [
-        //     '@headInvalidKmlFile',
-        //     '@getInvalidKmlFile',
-        //     '@headUnreachableKmlFile',
-        //     '@getUnreachableKmlFile',
-        //     '@headOutOfBoundKmlFile',
-        //     '@getOutOfBoundKmlFile',
-        //     '@headValidKmlFileWrongContentType',
-        //     '@getValidKmlFileWrongContentType',
-        // ]
-        // cy.wait(kmlRequests)
+        cy.log('Test online import invalid file')
 
-        // // Expected values per index - this is to avoid having nested
-        // // if statements
-        // const errorDataMap: Record<string, { shouldHaveError: boolean; errorMessage?: string }> = {
-        //     [validOnlineUrlWithInvalidContentType]: {
-        //         shouldHaveError: false,
-        //     },
-        //     [onlineUrlNotReachable]: {
-        //         shouldHaveError: true,
-        //         errorMessage: 'file not accessible',
-        //     },
-        //     [invalidFileOnlineUrl]: {
-        //         shouldHaveError: true,
-        //         errorMessage: 'Invalid file',
-        //     },
-        //     [outOfBoundKMLUrl]: {
-        //         shouldHaveError: true,
-        //         errorMessage: 'out of projection bounds',
-        //     },
-        // }
+        cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
-        // // Validate store and visible layers
-        // cy.getPinia().then((pinia) => {
-        //     const layersStore15 = useLayersStore(pinia)
-        //     expect(layersStore15.activeLayers).to.have.length(4)
-        // })
-        // cy.get('[data-cy="menu-section-active-layers"]')
-        //     .should('be.visible')
-        //     .children()
-        //     .should('have.length', 4)
-        //     .each(($layer) => {
-        //         const url = $layer.attr('data-layer-id') as string
-        //         const errorData = errorDataMap[url.replace('KML|', '')]
+        cy.get('[data-cy="text-input"]:visible').type(invalidFileOnlineUrl)
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+        cy.wait(['@headInvalidKmlFile', '@getInvalidKmlFile'])
 
-        //         cy.wrap($layer)
-        //             .find('[data-cy="menu-external-disclaimer-icon-cloud"]')
-        //             .should('be.visible')
-        //         assertDefined(errorData)
-        //         if (errorData.shouldHaveError) {
-        //             cy.wrap($layer)
-        //                 .find('[data-cy^="button-has-error"]')
-        //                 .should('be.visible')
-        //                 .trigger('mouseover')
+        cy.get('[data-cy="text-input"]')
+            .should('have.class', 'is-invalid')
+            .should('not.have.class', 'is-valid')
+        cy.get('[data-cy="text-input-invalid-feedback"]')
+            .should('be.visible')
+            .contains('Invalid file')
+        cy.get('[data-cy="import-file-load-button"]:visible').should('not.be.disabled')
 
-        //             cy.get(`[data-cy^="floating-button-has-error-${url}"]`)
-        //                 .should('be.visible')
-        //                 .contains(errorData.errorMessage as string)
+        //---------------------------------------------------------------------
+        cy.log('Test online import invalid url')
+        const invalidOnlineUrl = 'hello world'
 
-        //             // Trigger mouseleave on the button to hide the tooltip
-        //             cy.wrap($layer).find('[data-cy^="button-has-error"]').trigger('mouseleave')
+        cy.get('[data-cy="text-input"]:visible')
+        cy.get('[data-cy="text-input-clear"]:visible').click()
 
-        //             // Verify tooltip is hidden
-        //             cy.get(`[data-cy^="floating-button-has-error-${url}"]`).should('not.exist')
-        //         } else {
-        //             cy.get(`[data-cy^="floating-button-has-error-${url}"]`).should('not.exist')
-        //         }
+        cy.get('[data-cy="text-input"]:visible').type(invalidOnlineUrl)
 
-        //         // Ensure no spinner is shown
-        //         cy.wrap($layer)
-        //             .find('[data-cy^="button-loading-metadata-spinner"]')
-        //             .should('not.exist')
-        //     })
+        cy.get('[data-cy="text-input"]')
+            .should('have.class', 'is-invalid')
+            .should('not.have.class', 'is-valid')
 
-        // //---------------------------------------------------------------------
-        // // Test removing a layer
-        // cy.log('Test removing all kml layer')
-        // cy.get(
-        //     `[data-cy^="button-remove-layer-KML|${validOnlineUrlWithInvalidContentType}-3"]:visible`
-        // ).click({
-        //     force: true,
-        // })
-        // cy.get(`[data-cy^="button-remove-layer-KML|${onlineUrlNotReachable}-2"]:visible`).click({
-        //     force: true,
-        // })
-        // cy.get(`[data-cy^="button-remove-layer-KML|${invalidFileOnlineUrl}-1"]:visible`).click({
-        //     force: true,
-        // })
-        // cy.get(`[data-cy^="button-remove-layer-KML|${outOfBoundKMLUrl}-0"]:visible`).click({
-        //     force: true,
-        // })
-        // cy.getPinia().then((pinia) => {
-        //     const layersStore16 = useLayersStore(pinia)
-        //     expect(layersStore16.activeLayers).to.have.length(0)
-        // })
-        // cy.get('[data-cy="menu-section-active-layers"]').children().should('have.length', 0)
-        // //---------------------------------------------------------------------
+        cy.get('[data-cy="text-input-invalid-feedback"]')
+            .should('be.visible')
+            .contains('URL is not valid')
 
-        // cy.log('Test online import invalid file')
+        cy.get('[data-cy="import-file-load-button"]:visible').should('not.be.disabled')
 
-        // cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
-        // cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+        cy.get('[data-cy="text-input"]').type('{enter}')
+        cy.get('[data-cy="text-input-invalid-feedback"]')
+            .should('be.visible')
+            .contains('URL is not valid')
 
-        // cy.get('[data-cy="text-input"]:visible').type(invalidFileOnlineUrl)
-        // cy.get('[data-cy="import-file-load-button"]:visible').click()
-        // cy.wait(['@headInvalidKmlFile', '@getInvalidKmlFile'])
+        //---------------------------------------------------------------------
+        cy.log('Test online import url not reachable')
 
-        // cy.get('[data-cy="text-input"]')
-        //     .should('have.class', 'is-invalid')
-        //     .should('not.have.class', 'is-valid')
-        // cy.get('[data-cy="text-input-invalid-feedback"]')
-        //     .should('be.visible')
-        //     .contains('Invalid file')
-        // cy.get('[data-cy="import-file-load-button"]:visible').should('not.be.disabled')
+        cy.get('[data-cy="text-input"]:visible')
+        cy.get('[data-cy="text-input-clear"]:visible').click()
 
-        // //---------------------------------------------------------------------
-        // cy.log('Test online import invalid url')
-        // const invalidOnlineUrl = 'hello world'
+        cy.get('[data-cy="text-input"]:visible').type(onlineUrlNotReachable)
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+        cy.wait(['@headUnreachableKmlFile', '@getUnreachableKmlFile'])
 
-        // cy.get('[data-cy="text-input"]:visible')
-        // cy.get('[data-cy="text-input-clear"]:visible').click()
+        cy.get('[data-cy="text-input"]')
+            .should('have.class', 'is-invalid')
+            .should('not.have.class', 'is-valid')
+        cy.get('[data-cy="text-input-invalid-feedback"]')
+            .should('be.visible')
+            .contains('file not accessible')
+        cy.get('[data-cy="import-file-load-button"]:visible').should('not.be.disabled')
 
-        // cy.get('[data-cy="text-input"]:visible').type(invalidOnlineUrl)
+        //----------------------------------------------------------------------
+        // Attach an online KML file that is out of bounds
+        cy.log('Test add an online KML file that is out of bounds')
+        cy.get('[data-cy="text-input"]:visible')
+        cy.get('[data-cy="text-input-clear"]:visible').click()
+        cy.get('[data-cy="text-input"]:visible').type(outOfBoundKMLUrl)
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+        cy.wait(['@headOutOfBoundKmlFile', '@getOutOfBoundKmlFile'])
 
-        // cy.get('[data-cy="text-input"]')
-        //     .should('have.class', 'is-invalid')
-        //     .should('not.have.class', 'is-valid')
+        cy.get('[data-cy="text-input"]')
+            .should('have.class', 'is-invalid')
+            .should('not.have.class', 'is-valid')
+        cy.get('[data-cy="text-input-invalid-feedback"]')
+            .should('be.visible')
+            .contains('out of projection bounds')
+        cy.get('[data-cy="import-file-load-button"]:visible').should('not.be.disabled')
 
-        // cy.get('[data-cy="text-input-invalid-feedback"]')
-        //     .should('be.visible')
-        //     .contains('URL is not valid')
+        //----------------------------------------------------------------------
+        // Attach an online empty KML file
+        cy.log('Test add an online empty KML file')
+        const emptyKMLUrl = 'https://example.com/empty-kml-file.kml'
+        createHeadAndGetIntercepts(emptyKMLUrl, 'EmptyKmlFile', { fixture: emptyKMLFile })
 
-        // cy.get('[data-cy="import-file-load-button"]:visible').should('not.be.disabled')
+        cy.get('[data-cy="text-input"]:visible')
+        cy.get('[data-cy="text-input-clear"]:visible').click()
+        cy.get('[data-cy="text-input"]:visible').type(emptyKMLUrl)
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+        cy.wait(['@headEmptyKmlFile', '@getEmptyKmlFile'])
 
-        // cy.get('[data-cy="text-input"]').type('{enter}')
-        // cy.get('[data-cy="text-input-invalid-feedback"]')
-        //     .should('be.visible')
-        //     .contains('URL is not valid')
+        cy.get('[data-cy="text-input"]')
+            .should('have.class', 'is-invalid')
+            .should('not.have.class', 'is-valid')
+        cy.get('[data-cy="text-input-invalid-feedback"]')
+            .should('be.visible')
+            .contains('file is empty')
+        cy.get('[data-cy="import-file-load-button"]:visible').should('not.be.disabled')
 
-        // //---------------------------------------------------------------------
-        // cy.log('Test online import url not reachable')
+        //----------------------------------------------------------------------
+        // Test the import of a valid online KML with invalid content-type
+        cy.log('Test online import with invalid content-type')
 
-        // cy.get('[data-cy="text-input"]:visible')
-        // cy.get('[data-cy="text-input-clear"]:visible').click()
+        cy.get('[data-cy="text-input"]:visible')
+        cy.get('[data-cy="text-input-clear"]:visible').click()
+        cy.get('[data-cy="text-input"]:visible').type(validOnlineUrlWithInvalidContentType)
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+        cy.wait(['@headValidKmlFileWrongContentType', '@getValidKmlFileWrongContentType'])
 
-        // cy.get('[data-cy="text-input"]:visible').type(onlineUrlNotReachable)
-        // cy.get('[data-cy="import-file-load-button"]:visible').click()
-        // cy.wait(['@headUnreachableKmlFile', '@getUnreachableKmlFile'])
+        //this means the kml was parsed despite the wrong content type
+        cy.get('[data-cy="text-input"]').should('have.class', 'is-invalid')
 
-        // cy.get('[data-cy="text-input"]')
-        //     .should('have.class', 'is-invalid')
-        //     .should('not.have.class', 'is-valid')
-        // cy.get('[data-cy="text-input-invalid-feedback"]')
-        //     .should('be.visible')
-        //     .contains('file not accessible')
-        // cy.get('[data-cy="import-file-load-button"]:visible').should('not.be.disabled')
-
-        // //----------------------------------------------------------------------
-        // // Attach an online KML file that is out of bounds
-        // cy.log('Test add an online KML file that is out of bounds')
-        // cy.get('[data-cy="text-input"]:visible')
-        // cy.get('[data-cy="text-input-clear"]:visible').click()
-        // cy.get('[data-cy="text-input"]:visible').type(outOfBoundKMLUrl)
-        // cy.get('[data-cy="import-file-load-button"]:visible').click()
-        // cy.wait(['@headOutOfBoundKmlFile', '@getOutOfBoundKmlFile'])
-
-        // cy.get('[data-cy="text-input"]')
-        //     .should('have.class', 'is-invalid')
-        //     .should('not.have.class', 'is-valid')
-        // cy.get('[data-cy="text-input-invalid-feedback"]')
-        //     .should('be.visible')
-        //     .contains('out of projection bounds')
-        // cy.get('[data-cy="import-file-load-button"]:visible').should('not.be.disabled')
-
-        // //----------------------------------------------------------------------
-        // // Attach an online empty KML file
-        // cy.log('Test add an online empty KML file')
-        // const emptyKMLUrl = 'https://example.com/empty-kml-file.kml'
-        // createHeadAndGetIntercepts(emptyKMLUrl, 'EmptyKmlFile', { fixture: emptyKMLFile })
-
-        // cy.get('[data-cy="text-input"]:visible')
-        // cy.get('[data-cy="text-input-clear"]:visible').click()
-        // cy.get('[data-cy="text-input"]:visible').type(emptyKMLUrl)
-        // cy.get('[data-cy="import-file-load-button"]:visible').click()
-        // cy.wait(['@headEmptyKmlFile', '@getEmptyKmlFile'])
-
-        // cy.get('[data-cy="text-input"]')
-        //     .should('have.class', 'is-invalid')
-        //     .should('not.have.class', 'is-valid')
-        // cy.get('[data-cy="text-input-invalid-feedback"]')
-        //     .should('be.visible')
-        //     .contains('file is empty')
-        // cy.get('[data-cy="import-file-load-button"]:visible').should('not.be.disabled')
-
-        // //----------------------------------------------------------------------
-        // // Test the import of a valid online KML with invalid content-type
-        // cy.log('Test online import with invalid content-type')
-
-        // cy.get('[data-cy="text-input"]:visible')
-        // cy.get('[data-cy="text-input-clear"]:visible').click()
-        // cy.get('[data-cy="text-input"]:visible').type(validOnlineUrlWithInvalidContentType)
-        // cy.get('[data-cy="import-file-load-button"]:visible').click()
-        // cy.wait(['@headValidKmlFileWrongContentType', '@getValidKmlFileWrongContentType'])
-
-        // //this means the kml was parsed despite the wrong content type
-        // cy.get('[data-cy="text-input"]').should('have.class', 'is-invalid')
-
-        // //close import menu
-        // cy.get('[data-cy="import-file-close-button"]:visible').click()
-        // cy.get('[data-cy="import-file-content"]').should('not.exist')
+        //close import menu
+        cy.get('[data-cy="import-file-close-button"]:visible').click()
+        cy.get('[data-cy="import-file-content"]').should('not.exist')
 
         //open menu and open import tool again
         cy.openMenuIfMobile()
@@ -1055,7 +1055,10 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="file-input-invalid-feedback"]')
             .should('have.class', 'invalid-feedback')
             .should('be.visible')
-            .should('contain', 'Invalid file, only KML, KMZ, GPX or COG file are supported')
+            .should(
+                'contain',
+                'This file format is not supported.  Only the following formats are allowed: .kml, .kmz, .gpx, .tif, .tiff'
+            )
 
         //----------------------------------------------------------------------
         // Attach a local KML file that is out of bounds
