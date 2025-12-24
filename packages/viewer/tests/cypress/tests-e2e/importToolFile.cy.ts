@@ -698,7 +698,6 @@ describe('The Import File Tool', () => {
         })
     })
 
-    // already pass
     it('Import KML file and profile viewer with a KML MultiPolygon file', () => {
         cy.log('testing the import and profile viewer with a KML MultiPolygon file')
         cy.goToMapView({ withHash: true })
@@ -743,8 +742,7 @@ describe('The Import File Tool', () => {
         checkVectorLayerHighlightingSegment(lastSegmentIndex)
     })
 
-    // Failed
-    it.only('Import KML file error handling', () => {
+    it('Import KML file error handling', () => {
         const outOfBoundKMLFile = 'import-tool/paris.kml'
         const emptyKMLFile = 'import-tool/empty.kml'
 
@@ -1103,7 +1101,6 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
     })
 
-    // pass already
     it('Import GPX file', () => {
         const gpxFileName = 'external-gpx-file.gpx'
         const gpxFileFixture = `import-tool/${gpxFileName}`
@@ -1401,7 +1398,6 @@ describe('The Import File Tool', () => {
         checkVectorLayerHighlightingSegment(lastSegmentIndex)
     })
 
-    // pass already
     it('Import GPX file out of bounds and test profile error handling', () => {
         const gpxOutOfBoundsFileName = 'external-gpx-file-out-of-bounds.gpx'
         const gpxOutOfBoundsFileFixture = `import-tool/${gpxOutOfBoundsFileName}`
