@@ -137,10 +137,6 @@ const maxFileSizeHuman = computed(() => humanFileSize(maxFileSize))
 
 // Validation logic for file-specific checks
 function validateFile(file?: File): ValidationResult {
-    console.log('Validating file:', file)
-    console.log('Accepted file types:', acceptedFileTypes)
-    console.log('Max file size:', maxFileSize)
-
     if (
         file &&
         acceptedFileTypes?.length > 0 &&
