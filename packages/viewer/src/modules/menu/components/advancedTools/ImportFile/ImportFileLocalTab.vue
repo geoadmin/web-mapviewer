@@ -30,14 +30,7 @@ const importSuccessMessage = ref('')
 const buttonState = computed(() => (loadingFile.value ? 'loading' : 'default'))
 
 // Debug watchers
-watch(importSuccessMessage, (newVal) => {
-    console.log('[ImportFileLocalTab] importSuccessMessage changed to:', newVal)
-})
-watch(errorFileLoadingMessage, (newVal) => {
-    console.log('[ImportFileLocalTab] errorFileLoadingMessage changed to:', newVal?.msg)
-})
-watch(selectedFile, (newVal) => {
-    console.log('[ImportFileLocalTab] selectedFile changed to:', newVal?.name)
+watch(selectedFile, () => {
     // Clear previous error/success messages when a new file is selected
     importSuccessMessage.value = ''
     errorFileLoadingMessage.value = undefined
@@ -45,29 +38,20 @@ watch(selectedFile, (newVal) => {
 
 // Methods
 async function loadFile() {
-    console.log('[ImportFileLocalTab] loadFile called')
     activateValidation.value = true
-
-    console.log('[ImportFileLocalTab] isFormValid:', isFormValid.value, 'selectedFile:', selectedFile.value?.name)
     if (!isFormValid.value || !selectedFile.value) {
-        console.log('[ImportFileLocalTab] Skipping load - form invalid or no file selected')
         return
     }
 
-    console.log('[ImportFileLocalTab] Attempting load')
     loadingFile.value = true
 
     try {
-        console.log('[ImportFileLocalTab] Attempting to load file:', selectedFile.value.name)
         await handleFileSource(selectedFile.value, false)
-        console.log('[ImportFileLocalTab] File loaded successfully')
         importSuccessMessage.value = 'file_imported_success'
     } catch (error) {
-        console.log('[ImportFileLocalTab] File load error:', error)
         errorFileLoadingMessage.value = generateErrorMessageFromErrorType(
             error instanceof Error ? error : new Error(String(error))
         )
-        console.log('[ImportFileLocalTab] errorFileLoadingMessage set to:', errorFileLoadingMessage.value)
         log.error({
             title: 'ImportFileLocalTab.vue',
             messages: ['Failed to load file', error],
@@ -75,11 +59,9 @@ async function loadFile() {
     }
 
     loadingFile.value = false
-    console.log('[ImportFileLocalTab] loadFile complete. Success:', importSuccessMessage.value, 'Error:', errorFileLoadingMessage.value?.msg)
 }
 
 function validateForm(valid: ValidationResult) {
-    console.log('[ImportFileLocalTab] validateForm called:', valid)
     isFormValid.value = valid.valid
 }
 </script>
