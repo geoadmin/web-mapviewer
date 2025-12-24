@@ -1,13 +1,11 @@
-import type { ViteUserConfig } from 'vitest/config'
-
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import dts from 'unplugin-dts/vite'
 import { fileURLToPath, URL } from 'url'
-import { defineConfig } from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
+import { defineConfig } from 'vitest/config'
 
-const config: ViteUserConfig = defineConfig({
+export default defineConfig({
     build: {
         lib: {
             entry: {
@@ -45,7 +43,6 @@ const config: ViteUserConfig = defineConfig({
     ],
     test: {
         environment: 'jsdom',
+        pool: 'threads',
     },
 })
-
-export default config
