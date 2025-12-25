@@ -219,6 +219,9 @@ export default defineConfig((configEnv: ConfigEnv): ViteUserConfig => {
             // opting out explicitly of Option API to reduce the Vue bundle's size,
             // see https://vuejs.org/api/compile-time-flags#VUE_OPTIONS_API
             __VUE_OPTIONS_API__: 'false',
+            // Polyfill Node.js process object for browser environment (needed for Cypress tests)
+            // Some dependencies may try to access process.env at module load time
+            'process.env': JSON.stringify({}),
         },
         test: {
             include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
