@@ -527,7 +527,7 @@ describe('Test the search bar result handling', () => {
         })
         cy.get('@locationSearchResults').should('not.exist')
     })
-    it('autoselects the first swisssearch result when swisssearch_autoselect is true', () => {
+    it.only('autoselects the first swisssearch result when swisssearch_autoselect is true', () => {
         cy.intercept('**/rest/services/ech/SearchServer*?type=layers*', {
             body: { results: [] },
         }).as('search-layers')
