@@ -1,6 +1,7 @@
 import type { GeoAdminLayer, LayerTimeConfigEntry } from '@swissgeo/layers'
 
 import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
+import { markRaw } from 'vue'
 
 import type { LayersStore } from '@/store/modules/layers/types'
 import type { ActionDispatcher } from '@/store/types'
@@ -19,7 +20,10 @@ export default function setLayerConfig(
 ): void {
     const activeLayerBeforeConfigChange = [...this.activeLayers]
     if (Array.isArray(config)) {
-        this.config = [...config]
+        // Use markRaw to prevent deep reactivity on large config array (performance optimization for DevTools)
+        // this config will not be mutated partially, only fully replaced when needed
+        // so this is safe to do (replacing the whole array will still be reactive)
+        this.config = config.map((layer) => markRaw(layer))
     }
     this.activeLayers = activeLayerBeforeConfigChange.map((layer) => {
         const layerConfig: GeoAdminLayer | undefined = this.getLayerConfigById(layer.id)
