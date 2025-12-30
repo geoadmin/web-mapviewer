@@ -134,11 +134,9 @@ describe('Test the search bar result handling', () => {
                     lat: expectedCenterEpsg4326[1],
                     rank: 1,
                     // we create an extent of 1km around the center
-                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0]! - 500} ${
-                        expectedCenterDefaultProjection[1]! - 500
-                    },${expectedCenterDefaultProjection[0]! + 500} ${
-                        expectedCenterDefaultProjection[1]! + 500
-                    })`,
+                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0]! - 500} ${expectedCenterDefaultProjection[1]! - 500
+                        },${expectedCenterDefaultProjection[0]! + 500} ${expectedCenterDefaultProjection[1]! + 500
+                        })`,
                     label: expectedLocationLabel,
                     origin: 'kantone',
                 },
@@ -175,11 +173,9 @@ describe('Test the search bar result handling', () => {
                     lat: expectedCenterEpsg4326[1],
                     rank: 1,
                     // we create an extent of 1km around the center
-                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0]! - 500} ${
-                        expectedCenterDefaultProjection[1]! - 500
-                    },${expectedCenterDefaultProjection[0]! + 500} ${
-                        expectedCenterDefaultProjection[1]! + 500
-                    })`,
+                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0]! - 500} ${expectedCenterDefaultProjection[1]! - 500
+                        },${expectedCenterDefaultProjection[0]! + 500} ${expectedCenterDefaultProjection[1]! + 500
+                        })`,
                     label: expectedLocationLabel,
                 },
             },
@@ -527,7 +523,7 @@ describe('Test the search bar result handling', () => {
         })
         cy.get('@locationSearchResults').should('not.exist')
     })
-    it.only('autoselects the first swisssearch result when swisssearch_autoselect is true', () => {
+    it('autoselects the first swisssearch result when swisssearch_autoselect is true', () => {
         cy.intercept('**/rest/services/ech/SearchServer*?type=layers*', {
             body: { results: [] },
         }).as('search-layers')
