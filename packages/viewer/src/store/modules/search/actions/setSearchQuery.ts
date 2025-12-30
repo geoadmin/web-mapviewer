@@ -23,23 +23,12 @@ interface SetSearchQueryOptions {
     originUrlParam?: boolean
 }
 
-export default function setSearchQuery(
-    this: SearchStore,
-    query: string,
-    dispatcher: ActionDispatcher
-): void
-export default function setSearchQuery(
-    this: SearchStore,
-    query: string,
-    options: SetSearchQueryOptions,
-    dispatcher: ActionDispatcher
-): void
-export default function setSearchQuery(
+export default async function setSearchQuery(
     this: SearchStore,
     query: string,
     optionsOrDispatcher: SetSearchQueryOptions | ActionDispatcher,
     dispatcherOrNothing?: ActionDispatcher
-): void {
+): Promise<void> {
     const dispatcher = dispatcherOrNothing ?? (optionsOrDispatcher as ActionDispatcher)
     const options = dispatcherOrNothing ? (optionsOrDispatcher as SetSearchQueryOptions) : {}
 
@@ -49,32 +38,29 @@ export default function setSearchQuery(
 
     const currentProjection: CoordinateSystem = positionStore.projection
 
-    const results: SearchResult[] = []
     this.query = query
+    this.results = []
 
     // only firing search if the query is longer than or equal to 2 chars
     if (query.length >= 2) {
         // checking first if this corresponds to a set of coordinates (or a what3words)
         const extractedCoordinate = coordinateFromString(query)
-        let what3wordLocation: SingleCoordinate | undefined
         if (!extractedCoordinate && what3wordsAPI.isWhat3WordsString(query)) {
-            what3wordsAPI
-                .retrieveWhat3WordsLocation(query, currentProjection)
-                .then((location) => {
-                    what3wordLocation = location
-                    processWhat3WordsLocation(what3wordLocation, currentProjection, dispatcher)
+            try {
+                const what3wordLocation = await what3wordsAPI.retrieveWhat3WordsLocation(query, currentProjection)
+                if (what3wordLocation) {
+                    applyCoordinates(what3wordLocation, currentProjection, dispatcher)
+                }
+            } catch (error) {
+                log.info({
+                    title: 'Search store / setSearchQuery',
+                    messages: [
+                        `Query "${query}" is not a valid What3Words, fallback to service search`,
+                        error,
+                    ],
                 })
-                .catch((error) => {
-                    log.info({
-                        title: 'Search store / setSearchQuery',
-                        messages: [
-                            `Query "${query}" is not a valid What3Words, fallback to service search`,
-                            error,
-                        ],
-                    })
-                    what3wordLocation = undefined
-                    performSearch(this, query, currentProjection, originUrlParam, dispatcher)
-                })
+                await performSearch(this, query, currentProjection, originUrlParam, dispatcher)
+            }
             return
         }
         if (extractedCoordinate) {
@@ -85,27 +71,23 @@ export default function setSearchQuery(
                 // So we pass through a LV95 REFRAME (done by a backend service that knows all deformations between the two)
                 // and then go to the wanted coordinate system
                 if (extractedCoordinate.coordinateSystem === LV03) {
-                    lv03ReframeAPI
-                        .reframe({
+                    try {
+                        coordinates = await lv03ReframeAPI.reframe({
                             inputProjection: LV03,
                             inputCoordinates: coordinates,
                             outputProjection: currentProjection,
                         })
-                        .then((reframedCoordinates) => {
-                            coordinates = reframedCoordinates
-                            applyCoordinates(coordinates, currentProjection, dispatcher)
+                    } catch (error) {
+                        log.error({
+                            title: 'Search store / setSearchQuery',
+                            titleColor: LogPreDefinedColor.Red,
+                            messages: [
+                                `Error while reframing coordinates from LV03 to ${currentProjection.epsg}`,
+                                error,
+                            ],
                         })
-                        .catch((error) => {
-                            log.error({
-                                title: 'Search store / setSearchQuery',
-                                titleColor: LogPreDefinedColor.Red,
-                                messages: [
-                                    `Error while reframing coordinates from LV03 to ${currentProjection.epsg}`,
-                                    error,
-                                ],
-                            })
-                        })
-                    return
+                        return
+                    }
                 } else {
                     coordinates = coordinatesUtils.reprojectAndRound(
                         extractedCoordinate.coordinateSystem,
@@ -116,12 +98,11 @@ export default function setSearchQuery(
             }
             applyCoordinates(coordinates, currentProjection, dispatcher)
         } else {
-            performSearch(this, query, currentProjection, originUrlParam, dispatcher)
+            await performSearch(this, query, currentProjection, originUrlParam, dispatcher)
         }
     } else if (query.length === 0) {
         mapStore.clearPinnedLocation(dispatcher)
     }
-    this.results = results
 }
 
 function applyCoordinates(
@@ -145,28 +126,18 @@ function applyCoordinates(
     mapStore.setPinnedLocation(coordinates, dispatcher)
 }
 
-function processWhat3WordsLocation(
-    what3wordLocation: SingleCoordinate,
-    currentProjection: CoordinateSystem,
-    dispatcher: ActionDispatcher
-): void {
-    if (what3wordLocation) {
-        applyCoordinates(what3wordLocation, currentProjection, dispatcher)
-    }
-}
-
-function performSearch(
+async function performSearch(
     searchStore: SearchStore,
     query: string,
     currentProjection: CoordinateSystem,
     originUrlParam: boolean,
     dispatcher: ActionDispatcher
-): void {
+): Promise<void> {
     const i18nStore = useI18nStore()
     const layerStore = useLayersStore()
     const positionStore = usePositionStore()
-    searchAPI
-        .search({
+    try {
+        const results = await searchAPI.search({
             outputProjection: currentProjection,
             queryString: query,
             lang: i18nStore.lang,
@@ -174,19 +145,17 @@ function performSearch(
             resolution: positionStore.resolution,
             limit: searchStore.autoSelect ? 1 : undefined,
         })
-        .then((results) => {
-            searchStore.results = results
-            if (
-                (originUrlParam && results.length === 1) ||
-                (originUrlParam && searchStore.autoSelect && results.length >= 1)
-            ) {
-                searchStore.selectResultEntry(getResultForAutoselect(results), dispatcher)
-            }
+        searchStore.results = results
+        if (
+            (originUrlParam && results.length === 1) ||
+            (originUrlParam && searchStore.autoSelect && results.length >= 1)
+        ) {
+            searchStore.selectResultEntry(getResultForAutoselect(results), dispatcher)
+        }
+    } catch (error) {
+        log.error({
+            title: 'Search store / setSearchQuery / performSearch',
+            messages: [`Error while searching for "${query}"`, error],
         })
-        .catch((error) => {
-            log.error({
-                title: 'Search store / setSearchQuery / performSearch',
-                messages: [`Error while searching for "${query}"`, error],
-            })
-        })
+    }
 }

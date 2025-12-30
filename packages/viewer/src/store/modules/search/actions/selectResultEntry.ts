@@ -82,10 +82,13 @@ export default function selectResultEntry(
         if (locationEntry.coordinate) {
             mapStore.setPinnedLocation(locationEntry.coordinate, dispatcher)
         }
-        this.setSearchQuery(locationEntry.sanitizedTitle.trim(), dispatcher)
+        this.query = locationEntry.sanitizedTitle.trim()
     } else if (entry.resultType === 'FEATURE') {
         const featureEntry = entry as LayerFeatureSearchResult
         zoomToSearchResult(featureEntry, dispatcher)
+        if (featureEntry.coordinate) {
+            mapStore.setPinnedLocation(featureEntry.coordinate, dispatcher)
+        }
 
         // Automatically select the feature
         if (layerUtils.getTopicForIdentifyAndTooltipRequests(featureEntry.layer)) {
@@ -104,9 +107,11 @@ export default function selectResultEntry(
                     }
                 )
                 .then((feature: LayerFeature) => {
-                    featuresStore.setSelectedFeatures([feature], dispatcher)
+                    if (feature) {
+                        featuresStore.setSelectedFeatures([feature], dispatcher)
 
-                    uiStore.setFeatureInfoPosition(FeatureInfoPositions.ToolTip, dispatcher)
+                        uiStore.setFeatureInfoPosition(FeatureInfoPositions.ToolTip, dispatcher)
+                    }
                 })
                 .catch((error) => {
                     log.error({
