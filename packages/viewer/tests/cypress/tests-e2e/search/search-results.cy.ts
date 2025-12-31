@@ -6,7 +6,6 @@ import type { Layer } from '@swissgeo/layers'
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
 import { BREAKPOINT_TABLET } from '@swissgeo/staging-config/constants'
 import proj4 from 'proj4'
-import { assertDefined } from 'support/utils'
 
 import { DEFAULT_PROJECTION } from '@/config'
 import useLayersStore from '@/store/modules/layers'
@@ -101,7 +100,7 @@ function testQueryPositionCrosshairStore({
             cy.wrap(positionStore).its('crossHairPosition').should('not.be.undefined')
             cy.wrap(positionStore)
                 .its('crossHairPosition')
-                .should((pos) => checkLocation(expectedCrosshairPosition, pos!))
+                .should((pos) => checkLocation(expectedCrosshairPosition, pos))
         } else {
             cy.wrap(positionStore).its('crossHairPosition').should('be.undefined')
         }
@@ -112,7 +111,7 @@ function testQueryPositionCrosshairStore({
         cy.wrap(mapStore).its('pinnedLocation').should('not.be.undefined')
         cy.wrap(mapStore)
             .its('pinnedLocation')
-            .should((loc) => checkLocation(expectedPinnedLocation, loc!))
+            .should((loc) => checkLocation(expectedPinnedLocation, loc))
     })
 }
 
@@ -361,7 +360,7 @@ describe('Test the search bar result handling', () => {
             cy.wrap(mapStore2).its('pinnedLocation').should('not.be.undefined')
             cy.wrap(mapStore2)
                 .its('pinnedLocation')
-                .then((loc) => checkLocation(expectedCenterDefaultProjection, loc!))
+                .then((loc) => checkLocation(expectedCenterDefaultProjection, loc))
         })
         // clearing selected entry by clearing the search bar and re-entering a search text
         cy.get('[data-cy="searchbar-clear"]').click()
@@ -382,7 +381,7 @@ describe('Test the search bar result handling', () => {
             cy.wrap(mapStore2).its('previewedPinnedLocation').should('not.be.undefined')
             cy.wrap(mapStore2)
                 .its('previewedPinnedLocation')
-                .then((loc) => checkLocation(expectedCenterDefaultProjection, loc!))
+                .then((loc) => checkLocation(expectedCenterDefaultProjection, loc))
         })
         // Location - Leave
         cy.get('@locationSearchResults').first().trigger('mouseleave')
@@ -456,7 +455,7 @@ describe('Test the search bar result handling', () => {
             cy.wrap(mapStore2).its('pinnedLocation').should('not.be.undefined')
             cy.wrap(mapStore2)
                 .its('pinnedLocation')
-                .should((loc) => checkLocation(expectedCenterDefaultProjection, loc!))
+                .should((loc) => checkLocation(expectedCenterDefaultProjection, loc))
         })
 
         cy.log('Search bar dropdown should be hidden after centering on the feature')
@@ -605,8 +604,8 @@ describe('Test the search bar result handling', () => {
                 .then((loc) => {
                     expect(loc).to.be.a('array').that.is.not.empty
                     expect(loc?.length).to.greaterThan(1)
-                    expect(loc![0]).to.be.approximately(coordinates[0]!, acceptableDelta)
-                    expect(loc![1]).to.be.approximately(coordinates[1]!, acceptableDelta)
+                    expect(loc[0]).to.be.approximately(coordinates[0]!, acceptableDelta)
+                    expect(loc[1]).to.be.approximately(coordinates[1]!, acceptableDelta)
                 })
         })
 
