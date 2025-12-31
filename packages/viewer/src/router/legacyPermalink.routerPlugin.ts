@@ -51,9 +51,9 @@ async function handleLegacyKmlAdminIdParam(
         messages: ['Adding KML layer from legacy kml adminId'],
     })
     if (newQuery.layers && typeof newQuery.layers === 'string') {
-        newQuery.layers = `${newQuery.layers};KML|${kmlLayer.id}@adminId=${kmlLayer.adminId}`
+        newQuery.layers = `${newQuery.layers};${kmlLayer.id}@adminId=${kmlLayer.adminId}`
     } else {
-        newQuery.layers = `KML|${kmlLayer.id}@adminId=${kmlLayer.adminId}`
+        newQuery.layers = `${kmlLayer.id}@adminId=${kmlLayer.adminId}`
     }
 }
 
