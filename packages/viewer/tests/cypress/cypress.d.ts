@@ -62,8 +62,14 @@ declare global {
              * @param options.timeout Optional timeout in ms. Default to 20000
              * @param options.olMap Optional flag to wait for the OpenLayers map to be ready.
              *   Default to true.
+             * @param options.expectPointerReady Optional flag to wait for the map pointer event to be
+             *   ready. Default to true.
              */
-            waitMapIsReady(options?: { timeout?: number; olMap?: boolean }): void
+            waitMapIsReady(options?: {
+                timeout?: number
+                olMap?: boolean
+                expectPointerReady?: boolean
+            }): void
             /**
              * Cypress-wait-until wrapper to wait for a specific (Vuex) store state.
              *
