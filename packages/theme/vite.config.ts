@@ -44,8 +44,8 @@ const config: UserConfig = {
                     dest: './scss/',
                 },
                 {
-                    src: 'src/fonts/*',
-                    dest: './fonts/',
+                    src: 'src/fonts/FrutigerLight/*',
+                    dest: './fonts/FrutigerLight/',
                 },
             ],
         }),

@@ -45,6 +45,7 @@ const config: ViteUserConfig = defineConfig({
     ],
     test: {
         environment: 'jsdom',
+        pool: 'threads',
     },
 })
 
