@@ -32,8 +32,8 @@
         "lint:styles:no-fix": "stylelint \"**/*.{vue,scss}\"",
         "prepare": "pnpm run build",
         "preview": "vite preview",
-        "test:unit": "vitest --run --mode development --environment jsdom",
-        "test:unit:watch": "vitest --mode development --environment jsdom",
+        "test:unit": "vitest run",
+        "test:unit:watch": "vitest watch",
         "type-check": "vue-tsc --build"
     },
     "dependencies": {

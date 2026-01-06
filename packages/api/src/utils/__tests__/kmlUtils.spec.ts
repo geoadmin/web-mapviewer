@@ -121,11 +121,14 @@ describe('Test KML utils', () => {
     })
     describe('isKmlFeaturesValid', () => {
         it('returns false if there is an error in the features of the KML', () => {
-            const kml = readFileSync(resolve(__dirname, './kml_feature_error.kml'), 'utf8')
+            const kml = readFileSync(resolve(__dirname, './samples/kml_feature_error.kml'), 'utf8')
             expect(kmlUtils.isKmlFeaturesValid(kml)).to.be.false
         })
         it('returns true if there is no error in the features of the KML', () => {
-            const kml = readFileSync(resolve(__dirname, './webmapviewerOffsetTestKml.kml'), 'utf8')
+            const kml = readFileSync(
+                resolve(__dirname, './samples/webmapviewerOffsetTestKml.kml'),
+                'utf8'
+            )
             expect(kmlUtils.isKmlFeaturesValid(kml)).to.be.true
         })
     })
@@ -136,7 +139,10 @@ describe('Test KML utils', () => {
         }
 
         beforeEach(() => {
-            const kml = readFileSync(resolve(__dirname, './webmapviewerOffsetTestKml.kml'), 'utf8')
+            const kml = readFileSync(
+                resolve(__dirname, './samples/webmapviewerOffsetTestKml.kml'),
+                'utf8'
+            )
             const kmlLayer = layerUtils.makeKMLLayer({
                 kmlFileUrl: getServiceKmlBaseUrl(), // so that it is not considered external
                 kmlData: kml,

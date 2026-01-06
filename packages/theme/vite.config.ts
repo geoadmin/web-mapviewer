@@ -1,4 +1,4 @@
-import type { UserConfig } from 'vite'
+import type { ViteUserConfig } from 'vitest/config'
 
 import tailwindcss from '@tailwindcss/vite'
 import { resolve } from 'path'
@@ -7,7 +7,7 @@ import { fileURLToPath, URL } from 'url'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
-const config: UserConfig = {
+const config: ViteUserConfig = {
     build: {
         lib: {
             entry: {
@@ -53,6 +53,9 @@ const config: UserConfig = {
             bundleTypes: true,
         }),
     ],
+    test: {
+        environment: 'jsdom',
+    },
 }
 
 export default config

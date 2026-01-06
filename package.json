@@ -41,6 +41,7 @@
         "@swissgeo/config-prettier": "workspace:*",
         "@types/node": "catalog:",
         "tsx": "catalog:",
+        "vitest": "catalog:",
         "yaml": "catalog:"
     },
     "pnpm": {
