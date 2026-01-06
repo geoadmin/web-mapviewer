@@ -1,11 +1,10 @@
 import type { CyHttpMessages } from 'cypress/types/net-stubbing'
 
-import { EditableFeatureTypes } from '@swissgeo/api'
+import { featureStyleUtils } from '@swissgeo/api/utils'
 import { randomIntBetween } from '@swissgeo/numbers'
 import { inflate, inflateRaw, ungzip } from 'pako'
 
 import useDrawingStore from '@/store/modules/drawing'
-import { generateRGBFillString, GREEN, RED } from '@/utils/featureStyleUtils'
 
 function transformHeaders(headers: { [key: string]: string | string[] }): HeadersInit {
     const transformedHeaders: HeadersInit = {}
@@ -22,10 +21,10 @@ function transformHeaders(headers: { [key: string]: string | string[] }): Header
 }
 
 export function addIconFixtureAndIntercept(): void {
-    cy.intercept(`**/api/icons/sets/default/icons/**${generateRGBFillString(RED)}.png`, {
+    cy.intercept(`**/api/icons/sets/default/icons/**${featureStyleUtils.generateRGBFillString(featureStyleUtils.RED)}.png`, {
         fixture: 'service-icons/placeholder.png',
     }).as('icon-default')
-    cy.intercept(`**/api/icons/sets/default/icons/**${generateRGBFillString(GREEN)}.png`, {
+    cy.intercept(`**/api/icons/sets/default/icons/**${featureStyleUtils.generateRGBFillString(featureStyleUtils.GREEN)}.png`, {
         fixture: 'service-icons/placeholder.png',
     }).as('icon-default-green')
     cy.intercept(`**/api/icons/sets/babs/icons/*@*.png`, {
@@ -219,14 +218,13 @@ Cypress.Commands.add('closeDrawingMode', (closeDrawingNotSharedAdmin = true) => 
             const drawingStore = useDrawingStore(pinia)
             return !drawingStore.overlay.show
         })
-        // In drawing mode the click event on the map are removed therefore we need to wait that
-        // they are added again begore continuing testing
+        // In drawing mode the click events on the map are removed. Therefore, we need to wait that
+        // they are added again before continuing testing
         cy.waitMapIsReady()
     }
 })
 
 Cypress.Commands.add('clickDrawingTool', (name, unselect = false) => {
-    expect(Object.values(EditableFeatureTypes)).to.include(name)
     cy.get(`[data-cy="drawing-toolbox-mode-button-${name}"]:visible`).click()
     cy.getPinia().should((pinia) => {
         const drawingStore = useDrawingStore(pinia)

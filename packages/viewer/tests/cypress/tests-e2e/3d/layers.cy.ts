@@ -1,6 +1,5 @@
 import type { Viewer } from 'cesium'
 
-import { EditableFeatureTypes } from '@swissgeo/api'
 import { LV95, WEBMERCATOR } from '@swissgeo/coordinates'
 
 import useFeaturesStore from '@/store/modules/features'
@@ -277,12 +276,12 @@ describe('Test of layer handling in 3D', () => {
     })
     it('add KML layer from drawing', () => {
         cy.goToDrawing()
-        cy.clickDrawingTool(EditableFeatureTypes.LinePolygon)
+        cy.clickDrawingTool('LINEPOLYGON')
         cy.get('[data-cy="ol-map"]').click(100, 250)
         cy.get('[data-cy="ol-map"]').click(150, 250)
         cy.get('[data-cy="ol-map"]').dblclick(150, 280)
 
-        cy.clickDrawingTool(EditableFeatureTypes.Marker)
+        cy.clickDrawingTool('MARKER')
         cy.get('[data-cy="ol-map"]').click()
 
         cy.get('[data-cy="drawing-style-feature-title"]').type('This is a title')

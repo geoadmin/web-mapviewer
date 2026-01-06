@@ -92,10 +92,10 @@ describe('The infobox', () => {
         properties: {
             link_title: 'This is a test feature',
             link_uri: 'http://localhost:8080/',
-            link_2_title: undefined,
-            link_2_uri: undefined,
+            link_2_title: null,
+            link_2_uri: null,
             link_3_title: 'This is a test feature',
-            link_3_uri: undefined,
+            link_3_uri: null,
             label: 'This is a test feature',
             x: 1234.0,
             y: 1234.0,
