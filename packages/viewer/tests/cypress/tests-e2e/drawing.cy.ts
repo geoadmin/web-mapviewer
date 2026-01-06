@@ -1,12 +1,13 @@
 /// <reference types="cypress" />
 
+import type { EditableFeatureTypes } from '@swissgeo/api'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { KMLLayer } from '@swissgeo/layers'
 import type { CyHttpMessages } from 'cypress/types/net-stubbing'
 import type Feature from 'ol/Feature'
 import type { Pinia } from 'pinia'
 
-import { EditableFeatureTypes } from '@swissgeo/api'
+import { featureStyleUtils, kmlUtils } from '@swissgeo/api/utils'
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
 import { LayerType } from '@swissgeo/layers'
 import { randomIntBetween } from '@swissgeo/numbers'
@@ -18,17 +19,6 @@ import { DEFAULT_PROJECTION } from '@/config'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
-import {
-    allStylingColors,
-    allStylingSizes,
-    BLACK,
-    generateRGBFillString,
-    GREEN,
-    LARGE,
-    RED,
-    SMALL,
-} from '@/utils/featureStyleUtils'
-import { EMPTY_KML_DATA, LEGACY_ICON_XML_SCALE_FACTOR } from '@/utils/kmlUtils'
 
 import {
     addIconFixtureAndIntercept,
@@ -50,7 +40,7 @@ const isNonEmptyArray = (value: unknown): value is unknown[] => {
 const KML_STYLE_RED = 'ff0000ff'
 const KML_STYLE_BLACK = 'ff000000'
 
-const DEFAULT_ICON_URL_SCALE = `${LARGE.iconScale}x`
+const DEFAULT_ICON_URL_SCALE = `${featureStyleUtils.LARGE.iconScale}x`
 
 describe('Drawing module tests', () => {
     context('Drawing mode/tools', () => {
@@ -144,7 +134,7 @@ describe('Drawing module tests', () => {
             cy.wait('@icon-sets')
             cy.wait('@icon-set-default')
 
-            cy.clickDrawingTool(EditableFeatureTypes.Marker)
+            cy.clickDrawingTool('MARKER')
             cy.get('[data-cy="ol-map"]:visible').click()
 
             cy.wait('@post-kml').then((interception) => {
@@ -157,7 +147,7 @@ describe('Drawing module tests', () => {
                 cy.wait('@icon-default')
                     .its('request.url')
                     .should('include', '/api/icons/sets/default/icons/')
-                    .should('include', `${generateRGBFillString(RED)}.png`)
+                    .should('include', `${featureStyleUtils.generateRGBFillString(featureStyleUtils.RED)}.png`)
 
                 cy.log('clicking on the "Edit icon" button')
                 cy.get('[data-cy="drawing-style-marker-button"]:visible').click()
@@ -194,14 +184,15 @@ describe('Drawing module tests', () => {
 
                 cy.log("changing icon list's color to green")
                 cy.get(
-                    `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"] [data-cy="color-selector-${GREEN.name}"]:visible`
+                    `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-color-select-box"] [data-cy="color-selector-${featureStyleUtils.GREEN.name}"]:visible`
                 ).click()
                 cy.log('it should load all icons with the green color')
                 cy.wait('@icon-default-green')
 
                 cy.log('the color of the marker already placed on the map must switch to green')
+                const greenFillString = featureStyleUtils.generateRGBFillString(featureStyleUtils.GREEN)
                 waitForKmlUpdate(
-                    `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${generateRGBFillString(GREEN)}.png</href>`
+                    `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${greenFillString}.png</href>`
                 )
 
                 cy.log('opening up the icon size selector')
@@ -209,21 +200,21 @@ describe('Drawing module tests', () => {
                     '[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-main-button"]:visible'
                 ).click()
                 cy.log('all sizes should be represented')
-                allStylingSizes.forEach((size) => {
+                featureStyleUtils.allStylingSizes.forEach((size) => {
                     cy.get(
                         `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${size.label}"]`
                     ).should('be.visible')
                 })
                 cy.log('selecting large size')
                 cy.get(
-                    `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${LARGE.label}"]`
+                    `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${featureStyleUtils.LARGE.label}"]`
                 ).click()
                 cy.log('the existing icon on the map must be updated to large and green')
                 waitForKmlUpdate(
-                    `<IconStyle><scale>${LARGE.iconScale * LEGACY_ICON_XML_SCALE_FACTOR}</scale>`,
+                    `<IconStyle><scale>${featureStyleUtils.LARGE.iconScale * kmlUtils.LEGACY_ICON_XML_SCALE_FACTOR}</scale>`,
                     `<Icon>.*?<gx:w>48</gx:w>.*?</Icon>`,
                     `<Icon>.*?<gx:h>48</gx:h>.*?</Icon>`,
-                    `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${generateRGBFillString(GREEN)}.png</href>`
+                    `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${greenFillString}.png</href>`
                 )
 
                 cy.log('opening up all icons of the current sets so that we may choose a new one')
@@ -237,7 +228,7 @@ describe('Drawing module tests', () => {
                         `[data-cy="drawing-style-marker-popup"] [data-cy="drawing-style-icon-selector-${fourthIcon.name}"]:visible`
                     ).click()
                     waitForKmlUpdate(
-                        `<href>https?://.*/api/icons/sets/default/icons/${fourthIcon.name}@${DEFAULT_ICON_URL_SCALE}-${generateRGBFillString(GREEN)}.png</href>`
+                        `<href>https?://.*/api/icons/sets/default/icons/${fourthIcon.name}@${DEFAULT_ICON_URL_SCALE}-${greenFillString}.png</href>`
                     )
                 })
                 cy.log('closing the icons')
@@ -298,7 +289,7 @@ describe('Drawing module tests', () => {
                 const invalid_url = 'invalidurl'
                 const media_description = 'description'
 
-                cy.clickDrawingTool(EditableFeatureTypes.Marker)
+                cy.clickDrawingTool('MARKER')
                 cy.get('[data-cy="ol-map"]').click(20, 260)
                 cy.wait('@update-kml')
 
@@ -335,7 +326,7 @@ describe('Drawing module tests', () => {
                 cy.get('[data-cy="infobox-close"]').click()
 
                 cy.log('Entering no description should use link as description')
-                cy.clickDrawingTool(EditableFeatureTypes.Marker)
+                cy.clickDrawingTool('MARKER')
                 cy.get('[data-cy="ol-map"]').click(60, 260)
                 cy.wait('@update-kml')
                 cy.get('[data-cy="drawing-style-link-button"]').click()
@@ -349,7 +340,7 @@ describe('Drawing module tests', () => {
                 cy.get('[data-cy="infobox-close"]').click()
 
                 cy.log('Open image embed popup')
-                cy.clickDrawingTool(EditableFeatureTypes.Marker)
+                cy.clickDrawingTool('MARKER')
                 cy.get('[data-cy="ol-map"]').click(100, 260)
                 cy.wait('@update-kml')
                 cy.get('[data-cy="drawing-style-image-button"]').click()
@@ -366,7 +357,7 @@ describe('Drawing module tests', () => {
                 cy.get('[data-cy="infobox-close"]').click()
 
                 cy.log('Open video embed popup')
-                cy.clickDrawingTool(EditableFeatureTypes.Marker)
+                cy.clickDrawingTool('MARKER')
                 cy.get('[data-cy="ol-map"]').click(140, 260)
                 cy.wait('@update-kml')
                 cy.get('[data-cy="drawing-style-video-button"]').click()
@@ -383,7 +374,7 @@ describe('Drawing module tests', () => {
                 cy.get('[data-cy="infobox-close"]').click()
 
                 cy.log('Adding a second marker with video link (external URL)')
-                cy.clickDrawingTool(EditableFeatureTypes.Marker)
+                cy.clickDrawingTool('MARKER')
                 cy.get('[data-cy="ol-map"]').click(160, 220)
                 cy.wait('@update-kml')
                 cy.get('[data-cy="drawing-style-video-button"]').click()
@@ -395,7 +386,7 @@ describe('Drawing module tests', () => {
                 cy.log(
                     'Adding a third marker with image link (from geo.admin.ch, there should be no disclaimer)'
                 )
-                cy.clickDrawingTool(EditableFeatureTypes.Marker)
+                cy.clickDrawingTool('MARKER')
                 cy.get('[data-cy="ol-map"]').click(220, 260)
                 cy.wait('@update-kml')
                 cy.get('[data-cy="drawing-style-video-button"]').click()
@@ -491,7 +482,7 @@ describe('Drawing module tests', () => {
             })
         })
         it('can create annotation/text and edit them', () => {
-            cy.clickDrawingTool(EditableFeatureTypes.Annotation)
+            cy.clickDrawingTool('ANNOTATION')
             cy.get('[data-cy="ol-map"]').click()
             cy.wait('@post-kml')
                 .its('request')
@@ -513,11 +504,11 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-style-text-popup"]').should('be.visible')
 
             cy.log('all available colors must have a dedicated element/button')
-            allStylingColors.forEach((color) => {
+            featureStyleUtils.allStylingColors.forEach((color) => {
                 cy.get(`[data-cy="drawing-style-text-color-${color.name}"]`).should('be.visible')
             })
             cy.log('when clicking on another color, the text color in the KML must change')
-            cy.get(`[data-cy="drawing-style-text-color-${BLACK.name}"]`)
+            cy.get(`[data-cy="drawing-style-text-color-${featureStyleUtils.BLACK.name}"]`)
                 .should('be.visible')
                 .click()
             cy.wait('@update-kml')
@@ -534,14 +525,14 @@ describe('Drawing module tests', () => {
                 '[data-cy="drawing-style-text-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-main-button"]'
             ).click({ force: true })
             cy.log('checking that all (text) sizes are represented in the size selector')
-            allStylingSizes.forEach((size) => {
+            featureStyleUtils.allStylingSizes.forEach((size) => {
                 cy.get(
                     `[data-cy="drawing-style-text-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${size.label}"]`
                 ).should('exist')
             })
             cy.log('selecting "very small" size')
             cy.get(
-                `[data-cy="drawing-style-text-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${SMALL.label}"]`
+                `[data-cy="drawing-style-text-popup"] [data-cy="drawing-style-size-selector"] [data-cy="dropdown-item-${featureStyleUtils.SMALL.label}"]`
             ).click({ force: true })
             cy.wait('@update-kml')
                 .its('request')
@@ -552,7 +543,7 @@ describe('Drawing module tests', () => {
                 })
 
             cy.log('Coordinates for annotation can be copied while in drawing mode')
-            cy.clickDrawingTool(EditableFeatureTypes.Annotation)
+            cy.clickDrawingTool('ANNOTATION')
             cy.get('[data-cy="ol-map"]').click(160, 200)
             cy.wait('@update-kml')
             readCoordinateClipboard(
@@ -575,7 +566,7 @@ describe('Drawing module tests', () => {
         })
         it('can create line / measurement, extend it, and delete the last node by right click / button, and make a polygon', () => {
             cy.viewport(1920, 1080)
-            cy.clickDrawingTool(EditableFeatureTypes.LinePolygon)
+            cy.clickDrawingTool('LINEPOLYGON')
 
             const lineCoordinates: SingleCoordinate[] = [
                 [500, 500],
@@ -603,7 +594,7 @@ describe('Drawing module tests', () => {
                 firstFeatureDescription,
                 lineCoordinates.length,
                 'LineString',
-                EditableFeatureTypes.LinePolygon
+                'LINEPOLYGON'
             )
 
             cy.log('Extending from the last node of the line')
@@ -615,7 +606,7 @@ describe('Drawing module tests', () => {
                 firstFeatureDescription,
                 lineCoordinates.length + 2,
                 'LineString',
-                EditableFeatureTypes.LinePolygon
+                'LINEPOLYGON'
             )
 
             cy.log('Extending from the first node of the line')
@@ -627,7 +618,7 @@ describe('Drawing module tests', () => {
                 firstFeatureDescription,
                 lineCoordinates.length + 4,
                 'LineString',
-                EditableFeatureTypes.LinePolygon
+                'LINEPOLYGON'
             )
 
             cy.log('Deleting a node in the middle by right clicking on it')
@@ -637,7 +628,7 @@ describe('Drawing module tests', () => {
                 firstFeatureDescription,
                 lineCoordinates.length + 3,
                 'LineString',
-                EditableFeatureTypes.LinePolygon
+                'LINEPOLYGON'
             )
 
             cy.log(
@@ -649,7 +640,7 @@ describe('Drawing module tests', () => {
                 firstFeatureDescription,
                 lineCoordinates.length + 2,
                 'LineString',
-                EditableFeatureTypes.LinePolygon
+                'LINEPOLYGON'
             )
 
             cy.log(
@@ -661,7 +652,7 @@ describe('Drawing module tests', () => {
                 firstFeatureDescription,
                 lineCoordinates.length + 1,
                 'LineString',
-                EditableFeatureTypes.LinePolygon
+                'LINEPOLYGON'
             )
 
             cy.log('Deleting the last node by clicking the delete button')
@@ -678,7 +669,7 @@ describe('Drawing module tests', () => {
                 firstFeatureDescription,
                 lineCoordinates.length,
                 'LineString',
-                EditableFeatureTypes.LinePolygon
+                'LINEPOLYGON'
             )
 
             cy.log('Extending line into a polygon (closing it)')
@@ -691,7 +682,7 @@ describe('Drawing module tests', () => {
                 firstFeatureDescription,
                 lineCoordinates.length + 1, // closing point counts twice (start and finish of geometry)
                 'Polygon',
-                EditableFeatureTypes.LinePolygon
+                'LINEPOLYGON'
             )
 
             cy.log('Checking that no more "extend button" are present with a polygon')
@@ -699,7 +690,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-delete-last-point-button"]').should('not.exist')
 
             cy.log('Create measurement line')
-            cy.clickDrawingTool(EditableFeatureTypes.Measure)
+            cy.clickDrawingTool('MEASURE')
 
             const measurementCoordinates: SingleCoordinate[] = [
                 [1000, 500],
@@ -727,7 +718,7 @@ describe('Drawing module tests', () => {
                 secondFeatureDescription,
                 8,
                 'LineString',
-                EditableFeatureTypes.Measure
+                'MEASURE'
             )
 
             cy.log('Extend from the last node of line')
@@ -737,7 +728,7 @@ describe('Drawing module tests', () => {
                 secondFeatureDescription,
                 9,
                 'LineString',
-                EditableFeatureTypes.Measure
+                'MEASURE'
             )
 
             cy.log('check if the first feature still there')
@@ -745,11 +736,11 @@ describe('Drawing module tests', () => {
                 firstFeatureDescription,
                 9,
                 'Polygon',
-                EditableFeatureTypes.LinePolygon
+                'LINEPOLYGON'
             )
         })
         it('can create line/polygons and edit them', () => {
-            cy.clickDrawingTool(EditableFeatureTypes.LinePolygon)
+            cy.clickDrawingTool('LINEPOLYGON')
             cy.get('[data-cy="ol-map"]').click(100, 250)
             cy.get('[data-cy="ol-map"]').click(150, 250)
             cy.get('[data-cy="ol-map"]').click(150, 280)
@@ -774,7 +765,7 @@ describe('Drawing module tests', () => {
                         (request) =>
                             void checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [
                                 new RegExp(
-                                    `<Data name="type"><value>${EditableFeatureTypes.LinePolygon.toLowerCase()}</value></Data>`
+                                    `<Data name="type"><value>linepolygon</value></Data>`
                                 ),
                                 new RegExp(
                                     `<Style><LineStyle><color>${KML_STYLE_RED}</color><width>3</width></LineStyle><PolyStyle><color>66${KML_STYLE_RED.slice(
@@ -803,7 +794,7 @@ describe('Drawing module tests', () => {
             )
             cy.get('[data-cy="drawing-style-line-button"]').click()
             cy.get(
-                `[data-cy="drawing-style-line-popup"] [data-cy="color-selector-${BLACK.name}"]`
+                `[data-cy="drawing-style-line-popup"] [data-cy="color-selector-${featureStyleUtils.BLACK.name}"]`
             ).click({
                 // clicking in this popup is flaky (Cypress considers there's something else on top), so we force the click
                 force: true,
@@ -831,7 +822,7 @@ describe('Drawing module tests', () => {
             cy.closeDrawingMode()
             cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
             cy.log('Now creating a line, and finishing it by double-clicking the same spot')
-            cy.clickDrawingTool(EditableFeatureTypes.LinePolygon)
+            cy.clickDrawingTool('LINEPOLYGON')
             cy.get('[data-cy="ol-map"]').click(120, 270)
             cy.get('[data-cy="ol-map"]').dblclick(120, 290)
             cy.wait('@update-kml')
@@ -851,7 +842,7 @@ describe('Drawing module tests', () => {
 
             cy.log('Feature Area Info should be in meters below unit threshold')
             cy.goToDrawing()
-            cy.clickDrawingTool(EditableFeatureTypes.LinePolygon)
+            cy.clickDrawingTool('LINEPOLYGON')
 
             cy.get('[data-cy="ol-map"]').click(140, 360)
             cy.get('[data-cy="ol-map"]').click(150, 360)
@@ -862,7 +853,7 @@ describe('Drawing module tests', () => {
                 .contains('9999.8 m2')
 
             cy.log('Feature Area Info should be in kilometers above unit threshold')
-            cy.clickDrawingTool(EditableFeatureTypes.LinePolygon)
+            cy.clickDrawingTool('LINEPOLYGON')
 
             cy.get('[data-cy="ol-map"]').click(200, 250)
             cy.get('[data-cy="ol-map"]').click(250, 250)
@@ -877,7 +868,7 @@ describe('Drawing module tests', () => {
     context('KML management', () => {
         it('deletes the drawing when confirming the delete modal', () => {
             cy.goToDrawing()
-            cy.clickDrawingTool(EditableFeatureTypes.Annotation)
+            cy.clickDrawingTool('ANNOTATION')
             cy.get('[data-cy="ol-map"]').click()
             cy.wait('@post-kml')
 
@@ -912,7 +903,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-toolbox-share-button"]').should('have.attr', 'disabled')
 
             cy.log('Draw something new to verify that the KML ID being sent is different')
-            cy.clickDrawingTool(EditableFeatureTypes.LinePolygon)
+            cy.clickDrawingTool('LINEPOLYGON')
             cy.get('[data-cy="ol-map"]').click(100, 250)
             cy.get('[data-cy="ol-map"]').click(150, 250)
             cy.get('[data-cy="ol-map"]').click(150, 280)
@@ -932,7 +923,7 @@ describe('Drawing module tests', () => {
         it('manages the KML layer in the layer list / URL params correctly', () => {
             const warningTitle = `Warning, you have not copied/saved the link enabling you to edit your drawing at a later date. You risk not being able to edit your drawing if you reload or close the page.`
             cy.goToDrawing()
-            cy.clickDrawingTool(EditableFeatureTypes.Marker)
+            cy.clickDrawingTool('MARKER')
             cy.get('[data-cy="ol-map"]').click()
             cy.wait(['@post-kml', '@layerConfig', '@topics', '@topic-ech', '@routeChange'])
 
@@ -988,7 +979,7 @@ describe('Drawing module tests', () => {
             ).click()
             cy.get('[data-cy="drawing-toolbox-delete-button"]').click()
             cy.get('[data-cy="modal-confirm-button"]').click()
-            cy.clickDrawingTool(EditableFeatureTypes.Marker)
+            cy.clickDrawingTool('MARKER')
             cy.get('[data-cy="ol-map"]').click()
             cy.closeDrawingMode(false)
             cy.get('[data-cy="drawing-not-shared-admin-warning"]')
@@ -1021,7 +1012,7 @@ describe('Drawing module tests', () => {
         it('keeps the KML after a page reload, and creates a copy if it is then edited', () => {
             cy.goToDrawing()
             cy.log('Create a simple drawing with a marker')
-            cy.clickDrawingTool(EditableFeatureTypes.Marker)
+            cy.clickDrawingTool('MARKER')
             cy.get('[data-cy="ol-map"]').click()
 
             cy.wait('@post-kml').then((interception) => {
@@ -1102,7 +1093,7 @@ describe('Drawing module tests', () => {
 
                     cy.log(`Check that adding a new feature update the new kml ${newKmlId}`)
                     // Add another feature and checking that we do not create subsequent copies (we now have the adminId for this KML)
-                    cy.clickDrawingTool(EditableFeatureTypes.Annotation)
+                    cy.clickDrawingTool('ANNOTATION')
                     cy.get('[data-cy="ol-map"]').click('center')
                     cy.wait('@post-kml').then((interception2) => {
                         const newNewKmlId = interception2.response?.body?.id
@@ -1177,7 +1168,7 @@ describe('Drawing module tests', () => {
                 .should('have.length', 1)
 
             cy.log('creating another feature')
-            cy.clickDrawingTool(EditableFeatureTypes.Marker)
+            cy.clickDrawingTool('MARKER')
             cy.get('[data-cy="ol-map"]').click(200, 200)
 
             cy.log('checking that it updates the existing KML, and not creating a new copy of it')
@@ -1303,7 +1294,7 @@ describe('Drawing module tests', () => {
             )
 
             cy.log('Test creating a new feature')
-            cy.clickDrawingTool(EditableFeatureTypes.Marker)
+            cy.clickDrawingTool('MARKER')
             cy.get('[data-cy="ol-map"]').click(200, 200)
 
             cy.log('checking that it updates the existing KML, and not creating a new copy of it')
@@ -1328,7 +1319,7 @@ describe('Drawing module tests', () => {
             }
             cy.intercept('GET', `**/api/kml/files/**`, (req) => {
                 const headers = { 'Cache-Control': 'no-cache' }
-                req.reply(EMPTY_KML_DATA, headers)
+                req.reply(kmlUtils.EMPTY_KML_DATA, headers)
             }).as('get-empty-kml')
 
             cy.intercept('POST', `**/api/kml/admin**`).as('post-new-kml')
@@ -1370,7 +1361,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-toolbox-file-name-input"]', { timeout: 15000 }).should(
                 'be.visible'
             )
-            cy.clickDrawingTool(EditableFeatureTypes.Marker)
+            cy.clickDrawingTool('MARKER')
             cy.get('[data-cy="ol-map"]').click(120, 240)
             cy.closeDrawingMode()
             cy.wait('@post-new-kml')
@@ -1392,7 +1383,7 @@ describe('Drawing module tests', () => {
                 expect(`Unexpected call to ${req.method} ${req.url}`).to.be.false
             }).as('post-put-kml-not-allowed')
             cy.goToDrawing()
-            cy.clickDrawingTool(EditableFeatureTypes.Marker)
+            cy.clickDrawingTool('MARKER')
             cy.closeDrawingMode()
         })
         it('can export the drawing/profile in multiple formats', () => {
@@ -1412,7 +1403,7 @@ describe('Drawing module tests', () => {
 
             cy.goToDrawing()
 
-            cy.clickDrawingTool(EditableFeatureTypes.LinePolygon)
+            cy.clickDrawingTool('LINEPOLYGON')
             cy.get('[data-cy="ol-map"]').click(140, 360)
             cy.get('[data-cy="ol-map"]').click(150, 360)
             cy.get('[data-cy="ol-map"]').click(150, 380)
@@ -1450,7 +1441,7 @@ describe('Drawing module tests', () => {
             checkFiles('kml', (content) => {
                 expect(content).to.contains(`<Document><name>${newKmlName}</name>`)
                 expect(content).to.contains(
-                    `<ExtendedData><Data name="type"><value>${EditableFeatureTypes.LinePolygon.toLocaleLowerCase()}</value></Data></ExtendedData>`,
+                    `<ExtendedData><Data name="type"><value>linepolygon</value></Data></ExtendedData>`,
                     `Feature type LINEPOLYGON not found in KML, there might be a missing feature`
                 )
             })
@@ -1470,7 +1461,7 @@ describe('Drawing module tests', () => {
             checkFiles('kml', (content) => {
                 expect(content).to.contains(`<Document><name>${newDirtyKmlNameSanitized}</name>`)
                 expect(content).to.contains(
-                    `<ExtendedData><Data name="type"><value>${EditableFeatureTypes.LinePolygon.toLocaleLowerCase()}</value></Data></ExtendedData>`,
+                    `<ExtendedData><Data name="type"><value>linepolygon</value></Data></ExtendedData>`,
                     `Feature type LINEPOLYGON not found in KML, there might be a missing feature`
                 )
             })
@@ -1485,7 +1476,7 @@ describe('Drawing module tests', () => {
             ).click()
             checkFiles('kml', (content) => {
                 expect(content).to.contains(
-                    `<ExtendedData><Data name="type"><value>${EditableFeatureTypes.LinePolygon.toLocaleLowerCase()}</value></Data></ExtendedData>`,
+                    `<ExtendedData><Data name="type"><value>linepolygon</value></Data></ExtendedData>`,
                     `Feature type LINEPOLYGON not found in KML, there might be a missing feature`
                 )
             })
@@ -1514,7 +1505,7 @@ describe('Drawing module tests', () => {
 
             cy.goToDrawing()
 
-            cy.clickDrawingTool(EditableFeatureTypes.Marker)
+            cy.clickDrawingTool('MARKER')
             cy.get('[data-cy="ol-map"]').click()
             cy.wait('@post-kml').then((intercept) => {
                 adminId = intercept.response?.body?.admin_id
@@ -1603,7 +1594,7 @@ describe('Drawing module tests', () => {
             cy.log('returning an empty profile as a start')
             cy.intercept(profileIntercept, []).as('empty-profile')
 
-            cy.clickDrawingTool(EditableFeatureTypes.Measure)
+            cy.clickDrawingTool('MEASURE')
             cy.get('[data-cy="ol-map"]').click(100, 240)
             cy.get('[data-cy="ol-map"]').click(150, 250)
             cy.get('[data-cy="ol-map"]').dblclick(120, 260)
@@ -1627,7 +1618,7 @@ describe('Drawing module tests', () => {
                 fixture: 'service-alti/profile.fixture.json',
             }).as('profile')
 
-            cy.clickDrawingTool(EditableFeatureTypes.LinePolygon)
+            cy.clickDrawingTool('LINEPOLYGON')
             cy.get('[data-cy="ol-map"]').click(100, 240)
             cy.get('[data-cy="ol-map"]').click(150, 250)
             cy.get('[data-cy="ol-map"]').click(190, 250)
@@ -1683,7 +1674,7 @@ describe('Drawing module tests', () => {
             cy.closeDrawingMode()
             cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
 
-            cy.clickDrawingTool(EditableFeatureTypes.Marker)
+            cy.clickDrawingTool('MARKER')
             cy.get('[data-cy="ol-map"]').click(200, 290)
             cy.log('open info box')
             cy.get('[data-cy="ol-map"]').click(200, 290)
@@ -1729,7 +1720,7 @@ describe('Drawing module tests', () => {
             }
 
             cy.log('Testing a floating tooltiop with a marker')
-            cy.clickDrawingTool(EditableFeatureTypes.Marker)
+            cy.clickDrawingTool('MARKER')
             cy.get('[data-cy="ol-map"]').click()
             cy.wait('@post-kml')
             testEditPopupFloatingToggle()
@@ -1737,7 +1728,7 @@ describe('Drawing module tests', () => {
             cy.log(
                 'same test, but this time with a line (the placement of the popup is a bit trickier and different from a single coordinate marker)'
             )
-            cy.clickDrawingTool(EditableFeatureTypes.LinePolygon)
+            cy.clickDrawingTool('LINEPOLYGON')
             cy.get('[data-cy="ol-map"]').click(120, 240)
             cy.get('[data-cy="ol-map"]').click(150, 250)
             cy.get('[data-cy="ol-map"]').click(150, 260)
@@ -1747,12 +1738,12 @@ describe('Drawing module tests', () => {
             testEditPopupFloatingToggle()
 
             cy.log('Infobox closes when drawing tool is selected')
-            cy.clickDrawingTool(EditableFeatureTypes.Annotation)
+            cy.clickDrawingTool('ANNOTATION')
             cy.get('[data-cy="ol-map"]').click()
             cy.wait('@update-kml')
             cy.get('[data-cy="infobox"] [data-cy="drawing-style-popup"]').should('be.visible')
             cy.get('[data-cy="popover"] [data-cy="drawing-style-popup"]').should('not.exist')
-            cy.clickDrawingTool(EditableFeatureTypes.Annotation)
+            cy.clickDrawingTool('ANNOTATION')
             cy.get('[data-cy="infobox"] [data-cy="drawing-style-popup"]').should('not.exist')
             cy.get('[data-cy="popover"] [data-cy="drawing-style-popup"]').should('not.exist')
 
@@ -1762,7 +1753,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="infobox-toggle-floating"]').click()
             cy.get('[data-cy="infobox"] [data-cy="drawing-style-popup"]').should('not.exist')
             cy.get('[data-cy="popover"] [data-cy="drawing-style-popup"]').should('be.visible')
-            cy.clickDrawingTool(EditableFeatureTypes.Annotation)
+            cy.clickDrawingTool('ANNOTATION')
             cy.get('[data-cy="infobox"] [data-cy="drawing-style-popup"]').should('not.exist')
             cy.get('[data-cy="popover"] [data-cy="drawing-style-popup"]').should('not.exist')
         })

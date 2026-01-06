@@ -2,8 +2,6 @@
 
 import type { Interception } from 'cypress/types/net-stubbing'
 
-import { EditableFeatureTypes } from '@swissgeo/api'
-
 import { APP_VERSION } from '@/config'
 import useLayersStore from '@/store/modules/layers'
 
@@ -262,10 +260,10 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="report-problem-drawing-button"]').as('reportDrawing').scrollIntoView()
         cy.get('@reportDrawing').should('be.visible').click()
         cy.log('Draw some features')
-        cy.clickDrawingTool(EditableFeatureTypes.Marker)
+        cy.clickDrawingTool('MARKER')
         cy.get('[data-cy="ol-map"]').click('center')
 
-        cy.clickDrawingTool(EditableFeatureTypes.Annotation)
+        cy.clickDrawingTool('ANNOTATION')
         cy.get('[data-cy="ol-map"]').then(($el) => {
             const mapWidth = $el.width()
             const mapHeight = $el.height()
@@ -298,10 +296,10 @@ describe('Testing the report problem form', () => {
 
         cy.log('Draw some features')
         cy.viewport('macbook-11')
-        cy.clickDrawingTool(EditableFeatureTypes.Marker)
+        cy.clickDrawingTool('MARKER')
         cy.get('[data-cy="ol-map"]').click('center')
 
-        cy.clickDrawingTool(EditableFeatureTypes.Annotation)
+        cy.clickDrawingTool('ANNOTATION')
         cy.get('[data-cy="ol-map"]').then(($el) => {
             const mapWidth = $el.width()
             const mapHeight = $el.height()
@@ -359,10 +357,10 @@ describe('Testing the report problem form', () => {
 
         cy.log('Draw some more features')
         cy.get('@reportDrawing').click()
-        cy.clickDrawingTool(EditableFeatureTypes.Marker)
+        cy.clickDrawingTool('MARKER')
         cy.get('[data-cy="ol-map"]').click()
 
-        cy.clickDrawingTool(EditableFeatureTypes.Annotation)
+        cy.clickDrawingTool('ANNOTATION')
         cy.get('[data-cy="ol-map"]').then(($el) => {
             const mapWidth = $el.width()
             const mapHeight = $el.height()
@@ -371,7 +369,7 @@ describe('Testing the report problem form', () => {
             cy.get('[data-cy="ol-map"]').click(mapWidth / 2 + 50, mapHeight / 2)
         })
 
-        cy.clickDrawingTool(EditableFeatureTypes.LinePolygon)
+        cy.clickDrawingTool('LINEPOLYGON')
         cy.get('[data-cy="ol-map"]').then(($el) => {
             const mapWidth = $el.width()
             const mapHeight = $el.height()

@@ -1,6 +1,7 @@
 /// <reference types="cypress" />
 
 import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type { Runnable } from 'mocha'
 import type { Pinia } from 'pinia'
 
 import { LV03, LV95, registerProj4, WGS84 } from '@swissgeo/coordinates'
@@ -91,7 +92,7 @@ function checkMousePositionNumberValue(
  * @param condition
  * @param message A message to log in case tests are skipped
  */
-function skipTestsIf(condition: boolean, message?: string) {
+function skipTestsIf(this: Runnable, condition: boolean, message?: string) {
     if (condition) {
         if (message) {
             Cypress.log({
@@ -99,8 +100,7 @@ function skipTestsIf(condition: boolean, message?: string) {
                 message,
             })
         }
-        const mochaContext = cy.state('runnable').ctx
-        mochaContext?.skip()
+        this.skip()
     }
 }
 
@@ -112,9 +112,9 @@ describe('Test mouse position and interactions', () => {
     const centerMGRS = MGRSFormat.formatCallback(centerWGS84 as SingleCoordinate, false)
 
     context('Tablet/desktop tests', () => {
-        before(() => {
+        before(function () {
             const viewportWidth = Cypress.config('viewportWidth')
-            skipTestsIf(
+            this.bind(skipTestsIf,
                 viewportWidth < BREAKPOINT_TABLET,
                 'This test will only be run on tablet and bigger viewports'
             )
@@ -149,9 +149,9 @@ describe('Test mouse position and interactions', () => {
     })
 
     context('Mobile only tests', () => {
-        before(() => {
+        before(function (){
             const viewportWidth = Cypress.config('viewportWidth')
-            skipTestsIf(viewportWidth >= BREAKPOINT_TABLET, 'This test will only be run on mobile')
+            this.bind(skipTestsIf, viewportWidth >= BREAKPOINT_TABLET, 'This test will only be run on mobile')
         })
         beforeEach(() => {
             cy.goToMapView({
