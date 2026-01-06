@@ -28,8 +28,8 @@
         "lint:no-fix": "eslint",
         "prepare": "pnpm run build",
         "preview": "vite preview",
-        "test:unit": "vitest --run --mode development --environment jsdom",
-        "test:unit:watch": "vitest --mode development --environment jsdom",
+        "test:unit": "vitest run",
+        "test:unit:watch": "vitest watch",
         "type-check": "tsc -p tsconfig.json"
     },
     "dependencies": {

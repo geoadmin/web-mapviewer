@@ -31,7 +31,7 @@
         "lint:styles": "stylelint \"**/*.{css,scss}\" --fix",
         "lint:styles:no-fix": "stylelint \"**/*.{css,scss}\"",
         "prepare": "pnpm run build",
-        "test:unit": "vitest --run --mode development --environment jsdom"
+        "test:unit": "vitest run"
     },
     "dependencies": {
         "@fontsource/noto-sans": "catalog:",

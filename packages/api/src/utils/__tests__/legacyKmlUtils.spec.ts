@@ -101,7 +101,7 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
     }
 
     beforeEach(() => {
-        const kml = readFileSync(resolve(__dirname, './mfgeoadmin3TestKml.kml'), 'utf8')
+        const kml = readFileSync(resolve(__dirname, './samples/mfgeoadmin3TestKml.kml'), 'utf8')
         const kmlLayer = layerUtils.makeKMLLayer({
             kmlFileUrl: getServiceKmlBaseUrl(), // so that it is not considered external
             kmlData: kml,
@@ -123,7 +123,8 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
             performStandardChecks(icon, 'MARKER', 'icon 1', 'desc 1')
             expect(icon!.icon).toBeDefined()
             expect(icon!.icon!.name).to.be.equal('001-marker')
-            expect(icon!.fillColor).to.be.equal('#0000ff')
+            expect(icon!.fillColor).to.be.an('Object').that.have.property('fill')
+            expect(icon!.fillColor!.fill).to.equal('#0000ff')
             expect(icon!.iconSize).to.be.equal(featureStyleUtils.SMALL)
         })
         it('parses a marker with a small scale and grey fill color correctly', () => {
