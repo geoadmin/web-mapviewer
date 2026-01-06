@@ -127,9 +127,9 @@ function generatePlugins(mode: ViteModes, isTesting: boolean = false): PluginOpt
                 includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg'],
                 injectRegister: false,
                 injectManifest: {
-                    // 5MB max (default is 2MB, some automatically generated chunks are larger than that)
+                    // 7MB max (default is 2MB, some automatically generated chunks are larger than that)
                     // Increased to accommodate Vite's automatic chunking without manual intervention
-                    maximumFileSizeToCacheInBytes: 5 * 1000 * 1000,
+                    maximumFileSizeToCacheInBytes: 7 * 1000 * 1000,
                 },
 
                 pwaAssets: {
