@@ -175,8 +175,8 @@ catalogs:
       specifier: ^2.2.0
       version: 2.2.0
     cypress:
-      specifier: ^15.8.1
-      version: 15.8.1
+      specifier: ^15.8.2
+      version: 15.8.2
     cypress-browser-permissions:
       specifier: ^1.1.0
       version: 1.1.0
@@ -1416,13 +1416,13 @@ importers:
     devDependencies:
       '@4tw/cypress-drag-drop':
         specifier: 'catalog:'
-        version: 2.3.1(cypress@15.8.1)
+        version: 2.3.1(cypress@15.8.2)
       '@cypress/vite-dev-server':
         specifier: 'catalog:'
-        version: 7.0.1(cypress@15.8.1)
+        version: 7.0.1(cypress@15.8.2)
       '@cypress/vue':
         specifier: 'catalog:'
-        version: 6.0.2(cypress@15.8.1)(vue@3.5.26(typescript@5.9.3))
+        version: 6.0.2(cypress@15.8.2)(vue@3.5.26(typescript@5.9.3))
       '@fontsource/noto-sans':
         specifier: 'catalog:'
         version: 5.2.10
@@ -1497,13 +1497,13 @@ importers:
         version: 6.2.2
       cypress:
         specifier: 'catalog:'
-        version: 15.8.1
+        version: 15.8.2
       cypress-browser-permissions:
         specifier: 'catalog:'
-        version: 1.1.0(cypress@15.8.1)
+        version: 1.1.0(cypress@15.8.2)
       cypress-real-events:
         specifier: 'catalog:'
-        version: 1.15.0(cypress@15.8.1)
+        version: 1.15.0(cypress@15.8.2)
       cypress-recurse:
         specifier: 'catalog:'
         version: 1.37.1
@@ -2252,8 +2252,8 @@ packages:
     peerDependencies:
       postcss-selector-parser: ^7.0.0
 
-  '@cypress/request@3.0.9':
-    resolution: {integrity: sha512-I3l7FdGRXluAS44/0NguwWlO83J18p0vlr2FYHrJkWdNYhgVoiYo61IXPqaOsL+vNxU1ZqMACzItGK3/KKDsdw==}
+  '@cypress/request@3.0.10':
+    resolution: {integrity: sha512-hauBrOdvu08vOsagkZ/Aju5XuiZx6ldsLfByg1htFeldhex+PeMrYauANzFsMJeAA0+dyPLbDoX2OYuvVoLDkQ==}
     engines: {node: '>= 6'}
 
   '@cypress/vite-dev-server@7.0.1':
@@ -4893,8 +4893,8 @@ packages:
   cypress-wait-until@3.0.2:
     resolution: {integrity: sha512-iemies796dD5CgjG5kV0MnpEmKSH+s7O83ZoJLVzuVbZmm4lheMsZqAVT73hlMx4QlkwhxbyUzhOBUOZwoOe0w==}
 
-  cypress@15.8.1:
-    resolution: {integrity: sha512-ogc62stTQGh1395ipKxfCE5hQuSApTzeH5e0d9U6m7wYO9HQeCpgnkYtBtd0MbkN2Fnch5Od2mX9u4hoTlrH4Q==}
+  cypress@15.8.2:
+    resolution: {integrity: sha512-KGpuiE8o9l9eyVLPkig574t8zOXkEDKzI0a+RQwy4cfXzpaLipvTOv0t+QEEkLiw/8HbgMNZ0fbPKakJAB3USA==}
     engines: {node: ^20.1.0 || ^22.0.0 || >=24.0.0}
     hasBin: true
 
@@ -7208,6 +7208,10 @@ packages:
     resolution: {integrity: sha512-YWWTjgABSKcvs/nWBi9PycY/JiPJqOD4JA6o9Sej2AtvSGarXxKC3OQSk4pAarbdQlKAh5D4FCQkJNkW+GAn3w==}
     engines: {node: '>=0.6'}
 
+  qs@6.14.1:
+    resolution: {integrity: sha512-4EK3+xJl8Ts67nLYNwqw/dsFVnCf+qR7RgXSK9jEEm9unao3njwMDdmsdvoKBKHzxd7tCYz5e5M+SnMjdtXGQQ==}
+    engines: {node: '>=0.6'}
+
   quansync@0.2.10:
     resolution: {integrity: sha512-t41VRkMYbkHyCYmOvx/6URnN80H7k4X0lLdBMGsz+maAwrJQYB1djpV6vHrQIBE0WBSGqhtEHrK9U3DWWH8v7A==}
 
@@ -8723,9 +8727,9 @@ packages:
 
 snapshots:
 
-  '@4tw/cypress-drag-drop@2.3.1(cypress@15.8.1)':
+  '@4tw/cypress-drag-drop@2.3.1(cypress@15.8.2)':
     dependencies:
-      cypress: 15.8.1
+      cypress: 15.8.2
 
   '@acemir/cssom@0.9.30': {}
 
@@ -9532,7 +9536,7 @@ snapshots:
     dependencies:
       postcss-selector-parser: 7.1.0
 
-  '@cypress/request@3.0.9':
+  '@cypress/request@3.0.10':
     dependencies:
       aws-sign2: 0.7.0
       aws4: 1.13.2
@@ -9547,15 +9551,15 @@ snapshots:
       json-stringify-safe: 5.0.1
       mime-types: 2.1.35
       performance-now: 2.1.0
-      qs: 6.14.0
+      qs: 6.14.1
       safe-buffer: 5.2.1
       tough-cookie: 5.1.1
       tunnel-agent: 0.6.0
       uuid: 8.3.2
 
-  '@cypress/vite-dev-server@7.0.1(cypress@15.8.1)':
+  '@cypress/vite-dev-server@7.0.1(cypress@15.8.2)':
     dependencies:
-      cypress: 15.8.1
+      cypress: 15.8.2
       debug: 4.4.3(supports-color@8.1.1)
       find-up: 6.3.0
       node-html-parser: 5.3.3
@@ -9563,9 +9567,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@cypress/vue@6.0.2(cypress@15.8.1)(vue@3.5.26(typescript@5.9.3))':
+  '@cypress/vue@6.0.2(cypress@15.8.2)(vue@3.5.26(typescript@5.9.3))':
     dependencies:
-      cypress: 15.8.1
+      cypress: 15.8.2
       vue: 3.5.26(typescript@5.9.3)
 
   '@cypress/xvfb@1.2.4(supports-color@8.1.1)':
@@ -12807,14 +12811,14 @@ snapshots:
 
   csstype@3.2.3: {}
 
-  cypress-browser-permissions@1.1.0(cypress@15.8.1):
+  cypress-browser-permissions@1.1.0(cypress@15.8.2):
     dependencies:
-      cypress: 15.8.1
+      cypress: 15.8.2
       lodash: 4.17.21
 
-  cypress-real-events@1.15.0(cypress@15.8.1):
+  cypress-real-events@1.15.0(cypress@15.8.2):
     dependencies:
-      cypress: 15.8.1
+      cypress: 15.8.2
 
   cypress-recurse@1.37.1:
     dependencies:
@@ -12830,9 +12834,9 @@ snapshots:
 
   cypress-wait-until@3.0.2: {}
 
-  cypress@15.8.1:
+  cypress@15.8.2:
     dependencies:
-      '@cypress/request': 3.0.9
+      '@cypress/request': 3.0.10
       '@cypress/xvfb': 1.2.4(supports-color@8.1.1)
       '@types/sinonjs__fake-timers': 8.1.1
       '@types/sizzle': 2.3.9
@@ -15479,6 +15483,10 @@ snapshots:
       hookified: 1.15.0
 
   qs@6.14.0:
+    dependencies:
+      side-channel: 1.1.0
+
+  qs@6.14.1:
     dependencies:
       side-channel: 1.1.0
 
