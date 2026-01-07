@@ -1,8 +1,5 @@
-import type { Extent } from 'ol/extent'
-
 import { round } from '@swissgeo/numbers'
-import { bbox, buffer, point } from '@turf/turf'
-import { getIntersection as getExtentIntersection } from 'ol/extent'
+import { bbox, bboxClip, bboxPolygon, buffer, point } from '@turf/turf'
 import proj4 from 'proj4'
 
 import type { SingleCoordinate } from '@/coordinatesUtils'
@@ -113,23 +110,20 @@ export function getExtentIntersectionWithCurrentProjection(
             currentProjectionAsExtentProjection
         )
     }
-    let finalExtent: Extent = getExtentIntersection(
-        flattenExtent(extent),
-        currentProjectionAsExtentProjection
-    )
+    let intersectionOfExtents = bbox(bboxClip(bboxPolygon(currentProjectionAsExtentProjection), flattenExtent(extent)))
+
     if (
-        !finalExtent ||
-        // OL now populates the extent with Infinity when nothing is in common, instead returning a null value
-        finalExtent.every((value) => Math.abs(value) === Infinity)
+        !intersectionOfExtents || intersectionOfExtents.length !== 4 ||
+        intersectionOfExtents.every((value) => Math.abs(value) === Infinity)
     ) {
         return undefined
     }
     if (extentProjection.epsg !== currentProjection.epsg) {
         // if we transformed the current projection extent above, we now need to output the correct proj
-        finalExtent = projExtent(extentProjection, currentProjection, finalExtent as FlatExtent)
+        intersectionOfExtents = projExtent(extentProjection, currentProjection, intersectionOfExtents)
     }
 
-    return flattenExtent(finalExtent as FlatExtent)
+    return intersectionOfExtents
 }
 
 export function getExtentCenter(extent: FlatExtent | NormalizedExtent): SingleCoordinate {

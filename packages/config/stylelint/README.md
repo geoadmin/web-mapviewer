@@ -69,6 +69,10 @@ Extends `stylelint-config-recommended-scss` for comprehensive SCSS linting with 
 
 Includes `stylelint-order` plugin for consistent CSS property ordering.
 
+### Ignore Files
+
+By default, the configuration ignores all files in `**/dist/*.*`.
+
 ### Custom Rules
 
 - **Duplicate Selectors**: Disabled to follow Sass mixin expected behavior
