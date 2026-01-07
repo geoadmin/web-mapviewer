@@ -36,6 +36,7 @@ const showDebugToolbar = computed(() => !IS_TESTING_WITH_CYPRESS && uiStore.hasD
 
 onMounted(() => {
     // reading size
+    
     setScreenSizeFromWindowSize()
     debouncedOnResize = debounce(setScreenSizeFromWindowSize, 300)
 
