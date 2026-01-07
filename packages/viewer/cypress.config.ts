@@ -45,20 +45,12 @@ export default defineConfig({
                         // Since we're running the Cypress tests on trusted sites,
                         // we can enable the --no-sandbox flag to reduce memory consumption
                         launchOptions.args.push('--no-sandbox')
-                        // When running Cypress tests in headless mode,
-                        // we can disable the WebGL graphics on the rendered pages
-                        // to avoid additional memory usage by passing the --disable-webgl flag.
-                        launchOptions.args.push('--disable-webgl')
-                        // When running tests on low-resource machines,
-                        // using hardware acceleration can impact performance.
-                        // To avoid this, we can pass the --disable-gpu flag.
-                        launchOptions.args.push('--disable-gpu')
                     } else {
-                        // For headed mode, ensure WebGL is enabled
-                        launchOptions.args.push('--enable-webgl')
+                        // For the headed mode, ensure WebGL is enabled
                         launchOptions.args.push('--ignore-gpu-blocklist')
                         launchOptions.args.push('--enable-unsafe-webgl')
                     }
+                    launchOptions.args.push('--enable-webgl')
                     // increasing Cypress heap size to 3.5GB (default is 500MB) to reduce crash while running test locally
                     launchOptions.args.push('--js-flags=--max-old-space-size=3500')
                 }
