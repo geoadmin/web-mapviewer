@@ -46,7 +46,7 @@ export default defineConfig({
                         // we can enable the --no-sandbox flag to reduce memory consumption
                         launchOptions.args.push('--no-sandbox')
                     } else {
-                        // For the headed mode, ensure WebGL is enabled
+                        // For headed mode, ensure WebGL is enabled
                         launchOptions.args.push('--ignore-gpu-blocklist')
                         launchOptions.args.push('--enable-unsafe-webgl')
                     }
