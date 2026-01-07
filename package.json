@@ -21,7 +21,7 @@
         "preview:int": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:int",
         "preview:prod": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:prod",
         "preview:test": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:test",
-        "publish": "pnpm --filter=@swissgeo/config-* --filter=@swissgeo/log --filter=@swissgeo/numbers --filter=@swissgeo/coordinates --recursive publish --access public --tag next",
+        "publish": "pnpm --filter=@swissgeo/config-* --filter=@swissgeo/log --filter=@swissgeo/numbers --filter=@swissgeo/coordinates --recursive publish --access public --tag latest",
         "publish:prepare": "pnpm --filter=@swissgeo/config-* --filter=@swissgeo/log --filter=@swissgeo/numbers --filter=@swissgeo/coordinates --recursive --parallel build",
         "test:component": "pnpm --filter=web-mapviewer run test:component",
         "test:component:ci": "pnpm --filter=web-mapviewer run test:component:ci",
