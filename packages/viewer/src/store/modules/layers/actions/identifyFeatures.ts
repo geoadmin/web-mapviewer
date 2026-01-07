@@ -53,8 +53,9 @@ export function identifyFeatures(
     const mapStore = useMapStore()
     const selectedFeatures = featuresStore.selectedFeatures
     const clickInfo = mapStore.clickInfo
-
+    console.log('identifyFeatures called with options:', options, clickInfo, this.isFeatureSelected(clickInfo))
     if (!clickInfo || !clickInfo.features || !this.isFeatureSelected(clickInfo)) {
+        // featuresStore.clearAllSelectedFeatures(dispatcher)
         return
     }
 
@@ -62,7 +63,7 @@ export function identifyFeatures(
     const { layerId, updateFeatures: shouldUpdateFeatures = true } =
         getLayerContext?.(options) ?? {}
     let updateFeatures = shouldUpdateFeatures
-
+    console.log('Identify features called with layerId:', layerId, 'updateFeatures:', updateFeatures)
     if (layerId) {
         updateFeatures = selectedFeatures.some(
             (feature) => 'layer' in feature && feature.layer.id === layerId
