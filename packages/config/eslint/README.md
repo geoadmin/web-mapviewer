@@ -44,6 +44,24 @@ export default [
 ]
 ```
 
+### Granular Configurations
+
+You can also import specific configurations if you don't want the full default set:
+
+- `vueConfig`: Vue 3 specific rules
+- `unitTestsConfig`: Mocha/Chai rules for `*.spec.{js,ts}`
+- `markdownConfig`: Markdown linting rules
+- `jsConfig`: Standard JavaScript rules
+
+```typescript
+import { jsConfig, vueConfig } from '@swissgeo/config-eslint'
+
+export default [
+  ...jsConfig,
+  ...vueConfig,
+]
+```
+
 ### Custom Configuration
 
 You can extend or override the default configuration:

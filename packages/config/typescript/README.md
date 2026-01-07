@@ -58,6 +58,7 @@ For Vue 3 projects with SFC support, extend the Vue configuration:
 - **Target**: DOM and ESNext features
 - **Isolated Modules**: Enabled (required for Vite)
 - **ES Module Interop**: Enabled
+- **Library Support**: Includes `DOM`, `ESNext`, and `webworker` types
 
 #### Includes
 
@@ -69,11 +70,11 @@ For Vue 3 projects with SFC support, extend the Vue configuration:
 
 #### Excludes
 
-- Markdown files
+- Markdown files (`**/*.md`)
 - `node_modules`
 - `dist`
-- ESLint config files
-- Cypress files and tests
+- ESLint config files (`eslint.config.mts`)
+- Cypress files and tests (`cypress.config.*`, `tests/cypress/`)
 
 ### Vue Configuration (`tsconfig.vue.json`)
 

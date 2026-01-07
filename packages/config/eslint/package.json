@@ -1,6 +1,6 @@
 {
     "name": "@swissgeo/config-eslint",
-    "version": "1.0.0-rc.1",
+    "version": "1.0.0",
     "description": "Shared ESLint config for SWISSGEO projects.",
     "repository": {
         "type": "git",
