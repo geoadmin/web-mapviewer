@@ -1,9 +1,10 @@
 /// <reference types="cypress" />
 
-import type { ExternalWMSLayer, ExternalWMTSLayer, Layer } from '@swissgeo/layers'
+import type { ExternalWMSLayer, ExternalWMTSLayer, GeoAdminWMSLayer, Layer } from '@swissgeo/layers'
 import type { Pinia } from 'pinia'
 
 import { WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
+import { LayerType } from '@swissgeo/layers'
 import { assertDefined } from 'support/utils'
 
 import useI18nStore from '@/store/modules/i18n'
@@ -1320,15 +1321,12 @@ describe('Test of layer handling', () => {
                 },
             })
 
-            // only the WMS layers have a lang attribute
-            interface Layer {
-                lang?: string
-            }
-
             // Wait until the active layers are ready.
             cy.waitUntilState((pinia: Pinia) => {
                 const layersStore = useLayersStore(pinia)
-                return layersStore.activeLayers.some((layer: Layer) => layer.lang === langBefore)
+                return layersStore.activeLayers.some((layer) =>
+                    (layer.type === LayerType.WMS && !layer.isExternal && (layer as GeoAdminWMSLayer).lang === langBefore)
+                )
             })
 
             // CHECK before
@@ -1354,7 +1352,7 @@ describe('Test of layer handling', () => {
             // Wait until the active layers are updated.
             cy.waitUntilState((pinia: Pinia) => {
                 const layersStore = useLayersStore(pinia)
-                return layersStore.activeLayers.some((layer: Layer) => layer.lang === langAfter)
+                return layersStore.activeLayers.some((layer) => (layer.type === LayerType.WMS && !layer.isExternal && (layer as GeoAdminWMSLayer).lang === langAfter))
             })
 
             // CHECK after

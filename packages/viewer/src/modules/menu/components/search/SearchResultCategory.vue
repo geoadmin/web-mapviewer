@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useTemplateRef } from 'vue'
+import type { SearchResult } from '@swissgeo/api'
 
-import type { SearchResult } from '@/api/search.api'
+import { useTemplateRef } from 'vue'
 
 import SearchResultListEntry from '@/modules/menu/components/search/SearchResultListEntry.vue'
 

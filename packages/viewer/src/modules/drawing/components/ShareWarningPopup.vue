@@ -2,13 +2,13 @@
 import type { KMLLayer } from '@swissgeo/layers'
 import type { Ref } from 'vue'
 
+import { shortLinkAPI } from '@swissgeo/api'
 import log from '@swissgeo/log'
 import { computed, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { createShortLink } from '@/api/shortlink.api'
 import router from '@/router'
 import useDrawingStore from '@/store/modules/drawing'
 import { encodeLayerId } from '@/store/plugins/storeSync/layersParamParser'
@@ -90,7 +90,7 @@ async function copyAdminShareUrl() {
 async function updateShareUrl() {
     if (fileUrl.value) {
         try {
-            shareUrl.value = await createShortLink(fileUrl.value, !!shareUrl.value)
+            shareUrl.value = await shortLinkAPI.createShortLink(fileUrl.value, !!shareUrl.value)
         } catch (_) {
             // Fallback to normal url
             shareUrl.value = fileUrl.value
@@ -100,7 +100,7 @@ async function updateShareUrl() {
 async function updateAdminShareUrl() {
     if (adminUrl.value) {
         try {
-            adminShareUrl.value = await createShortLink(adminUrl.value)
+            adminShareUrl.value = await shortLinkAPI.createShortLink(adminUrl.value)
         } catch (_) {
             // Fallback to normal url
             adminShareUrl.value = adminUrl.value

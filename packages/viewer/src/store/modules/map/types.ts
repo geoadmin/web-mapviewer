@@ -1,6 +1,6 @@
+import type { SelectableFeature } from '@swissgeo/api'
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 
-import type { SelectableFeature } from '@/api/features.api'
 import type useMapStore from '@/store/modules/map'
 
 export enum ClickType {

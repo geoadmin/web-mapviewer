@@ -39,8 +39,8 @@
         "test:e2e:desktop": "start-server-and-test preview:test 8080 'cypress open --e2e --config viewportWidth=1440,viewportHeight=900'",
         "test:e2e:headless": "start-server-and-test test 8080 'cypress run'",
         "test:e2e:tablet": "start-server-and-test preview:test 8080 'cypress open --e2e --config viewportWidth=768,viewportHeight=1024'",
-        "test:unit": "pnpm run delete:reports:unit && vitest --run --mode development",
-        "test:unit:watch": "pnpm run delete:reports:unit && vitest --mode development",
+        "test:unit": "pnpm run delete:reports:unit && vitest run",
+        "test:unit:watch": "pnpm run delete:reports:unit && vitest watch",
         "type-check": "vue-tsc -p tsconfig.json",
         "update:translations": "node scripts/generate-i18n-files.js"
     },
@@ -59,6 +59,7 @@
         "@geoblocks/ol-maplibre-layer": "catalog:",
         "@pinia/testing": "catalog:",
         "@popperjs/core": "catalog:",
+        "@swissgeo/api": "workspace:*",
         "@swissgeo/coordinates": "workspace:*",
         "@swissgeo/elevation-profile": "workspace:*",
         "@swissgeo/layers": "workspace:*",

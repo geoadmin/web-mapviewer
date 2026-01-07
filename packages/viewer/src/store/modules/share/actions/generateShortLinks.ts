@@ -1,16 +1,16 @@
+import { shortLinkAPI } from '@swissgeo/api'
 import log from '@swissgeo/log'
 
 import type { ShareStore } from '@/store/modules/share/types'
 import type { ActionDispatcher } from '@/store/types'
-
-import { createShortLink } from '@/api/shortlink.api'
 
 export default function generateShortLinks(
     this: ShareStore,
     withCrosshair: boolean = false,
     dispatcher: ActionDispatcher
 ): void {
-    createShortLink(window.location.href, withCrosshair)
+    shortLinkAPI
+        .createShortLink(window.location.href, withCrosshair)
         .then((shortLink) => {
             if (shortLink) {
                 this.setShortLink(shortLink, dispatcher)

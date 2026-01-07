@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { EditableFeature, EditableFeatureTypes } from '@swissgeo/api'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -7,10 +8,8 @@ import DOMPurify from 'dompurify'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { EditableFeature } from '@/api/features.api'
 import type { ActionDispatcher } from '@/store/types'
 
-import { EditableFeatureTypes } from '@/api/features.api'
 import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
 import DrawingHeader from '@/modules/drawing/components/DrawingHeader.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
@@ -38,6 +37,12 @@ const uiStore = useUIStore()
 const layersStore = useLayersStore()
 const featuresStore = useFeaturesStore()
 
+const allEditableFeatureTypes = ref<EditableFeatureTypes[]>([
+    'LINEPOLYGON',
+    'MEASURE',
+    'ANNOTATION',
+    'MARKER',
+])
 const drawMenuOpen = ref<boolean>(true)
 const showClearConfirmationModal = ref<boolean>(false)
 const showShareModal = ref<boolean>(false)
@@ -52,9 +57,8 @@ const tooltipText = computed<string>(() =>
 const isDrawingLineOrMeasure = computed<boolean>(() => {
     return (
         !!drawingStore.edit.featureType &&
-        [EditableFeatureTypes.LinePolygon, EditableFeatureTypes.Measure].includes(
-            drawingStore.edit.featureType
-        )
+        (drawingStore.edit.featureType === 'LINEPOLYGON' ||
+            drawingStore.edit.featureType === 'MEASURE')
     )
 })
 const selectedLineString = computed<EditableFeature | undefined>(() => {
@@ -62,9 +66,7 @@ const selectedLineString = computed<EditableFeature | undefined>(() => {
         const geomType = feature.geometry?.type
         return (
             geomType === 'LineString' &&
-            [EditableFeatureTypes.LinePolygon, EditableFeatureTypes.Measure].includes(
-                feature.featureType
-            )
+            (feature.featureType === 'LINEPOLYGON' || feature.featureType === 'MEASURE')
         )
     })
 })
@@ -206,7 +208,7 @@ const debounceSaveDrawingName = debounce(saveDrawingName, 200)
                         :class="{ 'row-cols-2': uiStore.isDesktopMode }"
                     >
                         <div
-                            v-for="featureType in Object.values(EditableFeatureTypes)"
+                            v-for="featureType in allEditableFeatureTypes"
                             :key="featureType"
                             class="col"
                             :class="{

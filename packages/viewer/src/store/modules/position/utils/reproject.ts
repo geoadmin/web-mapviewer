@@ -1,3 +1,4 @@
+import type { SelectableFeature } from '@swissgeo/api'
 import type { CoordinateSystem } from '@swissgeo/coordinates'
 import type { Layer } from '@swissgeo/layers'
 
@@ -6,7 +7,6 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { cloneDeep } from 'lodash'
 import { reproject } from 'reproject'
 
-import type { SelectableFeature } from '@/api/features.api'
 import type { ActionDispatcher } from '@/store/types'
 
 import useFeaturesStore from '@/store/modules/features'

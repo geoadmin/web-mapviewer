@@ -1,6 +1,7 @@
+import type { Topic } from '@swissgeo/api'
+
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { Topic } from '@/api/topics.api'
 import type { TopicsStore } from '@/store/modules/topics/types'
 import type { ActionDispatcher } from '@/store/types'
 

@@ -1,19 +1,20 @@
+import { iconsAPI } from '@swissgeo/api'
+import { kmlUtils } from '@swissgeo/api/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { WarningMessage } from '@swissgeo/log/Message'
 
 import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { loadAllIconSetsFromBackend } from '@/api/icon.api'
 import useUIStore from '@/store/modules/ui'
-import { getIcon, parseIconUrl } from '@/utils/kmlUtils'
 
 export default function loadAvailableIconSets(
     this: DrawingStore,
     dispatcher: ActionDispatcher
 ): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        loadAllIconSetsFromBackend()
+        iconsAPI
+            .loadAllIconSetsFromBackend()
             .then((iconSets) => {
                 if (iconSets?.length > 0) {
                     this.iconSets = iconSets
@@ -27,8 +28,8 @@ export default function loadAvailableIconSets(
                 }
                 this.feature.all.forEach((feature) => {
                     if (feature.icon) {
-                        const iconArgs = parseIconUrl(feature.icon.imageURL)
-                        const icon = getIcon(
+                        const iconArgs = kmlUtils.parseIconUrl(feature.icon.imageURL)
+                        const icon = kmlUtils.getIcon(
                             iconArgs,
                             undefined /*iconStyle*/,
                             this.iconSets,

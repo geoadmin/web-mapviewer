@@ -1,10 +1,10 @@
+import type { EditableFeature } from '@swissgeo/api'
+
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { EditableFeature } from '@/api/features.api'
 import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { EditableFeatureTypes } from '@/api/features.api'
 import { EditMode } from '@/store/modules/drawing/types'
 import debounceSaveDrawing from '@/store/modules/drawing/utils/debounceSaveDrawing'
 import useFeaturesStore from '@/store/modules/features'
@@ -25,8 +25,8 @@ export default function setCurrentlyDrawnFeature(
         featureStore.setSelectedFeatures([this.feature.current], dispatcher)
         // showing the profile for measure and line/polygon features
         if (
-            this.feature.current.featureType === EditableFeatureTypes.Measure ||
-            this.feature.current.featureType === EditableFeatureTypes.LinePolygon
+            this.feature.current.featureType === 'MEASURE' ||
+            this.feature.current.featureType === 'LINEPOLYGON'
         ) {
             profileStore.setProfileFeature(this.feature.current, dispatcher)
         }

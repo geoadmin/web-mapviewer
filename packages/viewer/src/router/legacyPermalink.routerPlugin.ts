@@ -2,6 +2,8 @@ import type { CoordinateSystem, SingleCoordinate } from '@swissgeo/coordinates'
 import type { GeoAdminLayer } from '@swissgeo/layers'
 import type { LocationQueryRaw, RouteLocationRaw } from 'vue-router'
 
+import { lv03ReframeAPI } from '@swissgeo/api'
+import { legacyLayerParamUtils } from '@swissgeo/api/utils'
 import { LV03, LV95, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import proj4 from 'proj4'
@@ -10,7 +12,6 @@ import { START_LOCATION } from 'vue-router'
 import type { RouterPlugin } from '@/router/types'
 import type { CameraPosition } from '@/store/modules/position/types'
 
-import reframe from '@/api/lv03Reframe.api'
 import {
     EMBED_VIEW,
     LEGACY_EMBED_PARAM_VIEW,
@@ -23,13 +24,10 @@ import useAppStore from '@/store/modules/app'
 import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
 import { FeatureInfoPositions } from '@/store/modules/ui/types'
-import { transformLayerIntoUrlString } from '@/store/plugins/storeSync/layersParamParser'
 import {
-    getKmlLayerFromLegacyAdminIdParam,
-    getLayersFromLegacyUrlParams,
     handleLegacyFeaturePreSelectionParam,
-    isLegacyParams,
-} from '@/utils/legacyLayerParamUtils'
+    transformLayerIntoUrlString,
+} from '@/store/plugins/storeSync/layersParamParser'
 
 const dispatcher = { name: 'legacyPermalinkRouterPlugin' }
 
@@ -46,7 +44,7 @@ async function handleLegacyKmlAdminIdParam(
         titleColor: LogPreDefinedColor.Amber,
         messages: ['Transforming legacy kml adminId, get KML ID from adminId...'],
     })
-    const kmlLayer = await getKmlLayerFromLegacyAdminIdParam(adminId)
+    const kmlLayer = await legacyLayerParamUtils.getKmlLayerFromLegacyAdminIdParam(adminId)
     log.debug({
         title: 'Legacy URL',
         titleColor: LogPreDefinedColor.Amber,
@@ -118,13 +116,14 @@ export function handleLegacyParam(
             // for legacy layers param, we need to give the layers visibility, opacity and timestamps,
             // as they are combined into one value with the layer in the current 'layers' parameter
             // implementation
-            newValue = getLayersFromLegacyUrlParams(
-                config,
-                `${legacyParamValue}`,
-                params.get('layers_visibility') ?? undefined,
-                params.get('layers_opacity') ?? undefined,
-                params.get('layers_timestamp') ?? undefined
-            )
+            newValue = legacyLayerParamUtils
+                .getLayersFromLegacyUrlParams(
+                    config,
+                    `${legacyParamValue}`,
+                    params.get('layers_visibility') ?? undefined,
+                    params.get('layers_opacity') ?? undefined,
+                    params.get('layers_timestamp') ?? undefined
+                )
                 .map((layer) =>
                     transformLayerIntoUrlString(
                         layer,
@@ -293,7 +292,7 @@ async function handleLegacyParams(
             })
         } else if (LV03.isInBounds(legacyCoordinates) && projection.epsg !== LV03.epsg) {
             // if the current projection is not LV03, we also need to re-project x/y or N/E
-            newCoordinates = await reframe({
+            newCoordinates = await lv03ReframeAPI.reframe({
                 inputCoordinates: legacyCoordinates,
                 inputProjection: LV03,
                 outputProjection: projection,
@@ -377,7 +376,9 @@ async function handleLegacyParams(
 export const legacyPermalinkManagementRouterPlugin: RouterPlugin = (router): void => {
     // We need to take the legacy params from the window.location.search, because the Vue Router
     // to.query only parse the query after the /#? and legacy params are at the root /?
-    const legacyParams: URLSearchParams | undefined = isLegacyParams(window?.location?.search)
+    const legacyParams: URLSearchParams | undefined = legacyLayerParamUtils.isLegacyParams(
+        window?.location?.search
+    )
         ? new URLSearchParams(window?.location?.search)
         : undefined
     if (legacyParams) {

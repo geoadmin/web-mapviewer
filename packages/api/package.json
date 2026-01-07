@@ -1,0 +1,71 @@
+{
+    "name": "@swissgeo/api",
+    "version": "0.0.1",
+    "description": "API utilities to interact with SWISSGEO's backend services",
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.umd.cjs"
+        },
+        "./utils": {
+            "types": "./dist/utils.d.ts",
+            "import": "./dist/utils.js",
+            "require": "./dist/utils.umd.cjs"
+        }
+    },
+    "scripts": {
+        "build": "pnpm run type-check && pnpm run generate-types && vite build",
+        "generate-types": "vue-tsc --declaration",
+        "lint": "eslint --fix",
+        "lint:no-fix": "eslint",
+        "prepare": "pnpm run build",
+        "test:unit": "vitest run",
+        "test:unit:watch": "vitest watch",
+        "type-check": "vue-tsc --build"
+    },
+    "dependencies": {
+        "@geoblocks/mapfishprint": "catalog:",
+        "@swissgeo/coordinates": "workspace:*",
+        "@swissgeo/layers": "workspace:*",
+        "@swissgeo/log": "workspace:*",
+        "@swissgeo/numbers": "workspace:*",
+        "@swissgeo/staging-config": "workspace:*",
+        "@swissgeo/theme": "workspace:*",
+        "@tmcw/togeojson": "catalog:",
+        "@turf/turf": "catalog:",
+        "form-data": "catalog:",
+        "jszip": "catalog:",
+        "lodash": "catalog:",
+        "luxon": "catalog:",
+        "pako": "catalog:"
+    },
+    "devDependencies": {
+        "@intlify/core-base": "catalog:",
+        "@microsoft/api-extractor": "catalog:",
+        "@swissgeo/config-eslint": "workspace:*",
+        "@swissgeo/config-prettier": "workspace:*",
+        "@swissgeo/config-typescript": "workspace:*",
+        "@tsconfig/node22": "catalog:",
+        "@types/chai": "catalog:",
+        "@types/geojson": "catalog:",
+        "@types/jsdom": "catalog:",
+        "@types/lodash": "catalog:",
+        "@types/pako": "catalog:",
+        "chai": "catalog:",
+        "eslint": "catalog:",
+        "typescript": "catalog:",
+        "unplugin-dts": "catalog:",
+        "vite": "catalog:",
+        "vite-plugin-vue-devtools": "catalog:",
+        "vite-tsconfig-paths": "catalog:",
+        "vitest": "catalog:",
+        "vue-tsc": "catalog:"
+    },
+    "peerDependencies": {
+        "axios": "catalog:",
+        "ol": "catalog:",
+        "proj4": "catalog:"
+    }
+}

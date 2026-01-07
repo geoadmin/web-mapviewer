@@ -4,6 +4,7 @@
 import type { GPXLayer } from '@swissgeo/layers'
 import type { Map } from 'ol'
 
+import { gpxUtils } from '@swissgeo/api/utils'
 import log from '@swissgeo/log'
 import VectorLayer from 'ol/layer/Vector'
 import VectorSource from 'ol/source/Vector'
@@ -12,7 +13,6 @@ import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
 import usePositionStore from '@/store/modules/position'
-import { parseGpx } from '@/utils/gpxUtils'
 
 const {
     gpxLayerConfig,
@@ -82,7 +82,7 @@ function createSourceForProjection(): void {
     layer.setSource(
         new VectorSource({
             wrapX: true,
-            features: parseGpx(gpxData.value, projection.value),
+            features: gpxUtils.parseGpx(gpxData.value, projection.value),
         })
     )
     log.debug('Openlayer GPX layer source created')

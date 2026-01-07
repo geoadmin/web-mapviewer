@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { feedbackAPI } from '@swissgeo/api'
 import log from '@swissgeo/log'
 import { computed, nextTick, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { ValidationResult } from '@/utils/composables/useFieldValidation'
 
-import sendFeedbackApi from '@/api/feedback.api'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/help/common/SendActionButtons.vue'
 import FeedbackRating from '@/modules/menu/components/help/feedback/FeedbackRating.vue'
@@ -71,10 +71,14 @@ async function sendFeedback() {
             subject += ` [rating: ${feedback.value.rating}/${maxRating.value}]`
         }
 
-        const feedbackSentSuccessfully = await sendFeedbackApi(subject, feedback.value.message, {
-            kmlFileUrl: activeKmlLayer.value?.kmlFileUrl,
-            email: feedback.value.email,
-        })
+        const feedbackSentSuccessfully = await feedbackAPI.sendFeedback(
+            subject,
+            feedback.value.message,
+            {
+                kmlFileUrl: activeKmlLayer.value?.kmlFileUrl,
+                email: feedback.value.email,
+            }
+        )
 
         request.value.completed = feedbackSentSuccessfully
         request.value.failed = !feedbackSentSuccessfully

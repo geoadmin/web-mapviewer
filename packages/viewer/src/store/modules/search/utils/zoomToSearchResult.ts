@@ -1,4 +1,5 @@
-import type { LayerFeatureSearchResult, LocationSearchResult } from '@/api/search.api'
+import type { LayerFeatureSearchResult, LocationSearchResult } from '@swissgeo/api'
+
 import type { ActionDispatcher } from '@/store/types'
 
 import usePositionStore from '@/store/modules/position'

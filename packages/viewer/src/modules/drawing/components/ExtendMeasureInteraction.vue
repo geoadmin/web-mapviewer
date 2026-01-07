@@ -6,7 +6,6 @@ import Feature from 'ol/Feature'
 
 import type { DrawingInteractionExposed } from '@/modules/drawing/types/interaction'
 
-import { EditableFeatureTypes } from '@/api/features.api'
 import useExtendLineInteraction from '@/modules/drawing/components/useExtendLineInteraction.composable'
 import { drawMeasureStyle } from '@/modules/drawing/lib/style'
 
@@ -18,7 +17,7 @@ type EmitType = {
 const emits = defineEmits<EmitType>()
 
 const { removeLastPoint } = useExtendLineInteraction({
-    featureType: EditableFeatureTypes.Measure,
+    featureType: 'MEASURE',
     style: drawMeasureStyle as StyleFunction,
     drawEndCallback: (feature) => {
         emits('drawEnd', feature)

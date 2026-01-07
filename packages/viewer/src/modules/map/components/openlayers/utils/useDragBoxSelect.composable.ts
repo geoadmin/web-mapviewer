@@ -1,3 +1,4 @@
+import type { LayerFeature } from '@swissgeo/api'
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import type { GeoAdminGeoJSONLayer, GPXLayer, KMLLayer } from '@swissgeo/layers'
 import type { Geometry as TurfGeometry } from 'geojson'
@@ -13,6 +14,7 @@ import type {
 } from 'ol/geom'
 import type Circle from 'ol/geom/Circle'
 
+import { gpxUtils, kmlUtils } from '@swissgeo/api/utils'
 import { LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@swissgeo/staging-config/constants'
@@ -30,7 +32,6 @@ import { platformModifierKeyOnly } from 'ol/events/condition'
 import GeoJSON from 'ol/format/GeoJSON'
 import { DragBox } from 'ol/interaction'
 
-import type { LayerFeature } from '@/api/features.api'
 import type { ActionDispatcher } from '@/store/types'
 
 import useFeaturesStore from '@/store/modules/features'
@@ -38,8 +39,6 @@ import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
 import { ClickType } from '@/store/modules/map/types'
 import usePositionStore from '@/store/modules/position'
-import { parseGpx } from '@/utils/gpxUtils'
-import { parseKml } from '@/utils/kmlUtils'
 import { createLayerFeature } from '@/utils/layerUtils'
 
 const dispatcher: ActionDispatcher = {
@@ -104,7 +103,7 @@ export function useDragBoxSelect(): {
         const vectorFeatures: LayerFeature[] = visibleLayers
             .flatMap((layer) => {
                 if (layer.type === LayerType.KML) {
-                    const kmlFeatures = parseKml(
+                    const kmlFeatures = kmlUtils.parseKml(
                         layer as KMLLayer,
                         positionStore.projection,
                         [],
@@ -117,7 +116,7 @@ export function useDragBoxSelect(): {
                     if (!gpxData) {
                         return []
                     }
-                    const gpxFeatures = parseGpx(gpxData, positionStore.projection)
+                    const gpxFeatures = gpxUtils.parseGpx(gpxData, positionStore.projection)
                     return Array.isArray(gpxFeatures)
                         ? gpxFeatures.map((feature) => ({ feature: feature, layer }))
                         : []

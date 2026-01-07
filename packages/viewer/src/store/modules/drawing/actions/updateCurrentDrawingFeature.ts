@@ -1,14 +1,15 @@
+import type { EditableFeature } from '@swissgeo/api'
+
+import { iconsAPI } from '@swissgeo/api'
+import { featureStyleUtils } from '@swissgeo/api/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { EditableFeature } from '@/api/features.api'
 import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { generateIconURL } from '@/api/icon.api'
 import { DrawingSaveState } from '@/store/modules/drawing/types'
 import debounceSaveDrawing from '@/store/modules/drawing/utils/debounceSaveDrawing'
 import useProfileStore from '@/store/modules/profile'
-import { calculateTextOffset } from '@/utils/featureStyleUtils'
 
 export default function updateCurrentDrawingFeature(
     this: DrawingStore,
@@ -31,9 +32,9 @@ export default function updateCurrentDrawingFeature(
             this.edit.preferred.color = valuesToUpdate.fillColor
             // refreshing the icon color if present
             if (this.feature.current.icon) {
-                this.feature.current.icon.imageURL = generateIconURL(
+                this.feature.current.icon.imageURL = iconsAPI.generateIconURL(
                     this.feature.current.icon,
-                    valuesToUpdate.fillColor
+                    valuesToUpdate.fillColor.fill
                 )
             }
         }
@@ -48,7 +49,7 @@ export default function updateCurrentDrawingFeature(
                 this.feature.current.iconSize &&
                 this.feature.current.icon
             ) {
-                this.feature.current.textOffset = calculateTextOffset(
+                this.feature.current.textOffset = featureStyleUtils.calculateTextOffset(
                     this.feature.current.textSize.textScale,
                     this.feature.current.iconSize.iconScale,
                     this.feature.current.icon.anchor,

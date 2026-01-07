@@ -1,11 +1,16 @@
 <script setup lang="ts">
+import type {
+    DrawingIcon,
+    DrawingIconSet,
+    FeatureStyleColor,
+    FeatureStyleSize,
+} from '@swissgeo/api'
+
 import { DEFAULT_ICON_SET_NAME } from '@swissgeo/staging-config/constants'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
 import type { DropdownItem } from '@/utils/components/DropdownButton.vue'
-import type { FeatureStyleColor, FeatureStyleSize } from '@/utils/featureStyleUtils'
 
 import DrawingStyleColorSelector from '@/modules/infobox/components/styling/DrawingStyleColorSelector.vue'
 import DrawingStyleIcon from '@/modules/infobox/components/styling/DrawingStyleIcon.vue'

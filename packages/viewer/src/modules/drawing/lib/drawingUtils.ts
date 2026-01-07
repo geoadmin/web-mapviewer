@@ -2,12 +2,12 @@ import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type Feature from 'ol/Feature'
 import type { SimpleGeometry } from 'ol/geom'
 
+import { featuresAPI } from '@swissgeo/api'
 import GeoJSON from 'ol/format/GeoJSON'
 import { LineString, Point, Polygon } from 'ol/geom'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { extractOlFeatureCoordinates } from '@/api/features.api'
 import useDrawingStore from '@/store/modules/drawing'
 
 /**
@@ -81,7 +81,7 @@ export function updateStoreFeatureCoordinatesGeometry(
     const drawingStore = useDrawingStore()
     drawingStore.updateCurrentDrawingFeature(
         {
-            coordinates: extractOlFeatureCoordinates(feature),
+            coordinates: featuresAPI.extractOlFeatureCoordinates(feature),
             geometry: new GeoJSON().writeGeometryObject(featureGeometry),
         },
         dispatcher

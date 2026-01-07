@@ -1,3 +1,4 @@
+import type { LayerFeature } from '@swissgeo/api'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { Layer } from '@swissgeo/layers'
 import type { Map, MapBrowserEvent } from 'ol'
@@ -11,7 +12,6 @@ import { DragPan, DragRotate, MouseWheelZoom } from 'ol/interaction'
 import DoubleClickZoomInteraction from 'ol/interaction/DoubleClickZoom'
 import { computed, onBeforeUnmount, toValue, watch } from 'vue'
 
-import type { LayerFeature } from '@/api/features.api'
 import type { ActionDispatcher } from '@/store/types'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config'

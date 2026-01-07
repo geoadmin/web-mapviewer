@@ -116,6 +116,7 @@ defineExpose({ open, close, sectionId })
 
 <style lang="scss" scoped>
 @import '@/scss/media-query.mixin';
+@import '@swissgeo/theme/scss/media-query.mixin';
 @import '@swissgeo/theme/scss/geoadmin-theme';
 
 $section-border: 1px;

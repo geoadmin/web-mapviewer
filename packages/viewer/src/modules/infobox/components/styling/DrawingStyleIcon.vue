@@ -1,14 +1,13 @@
 <script setup lang="ts">
+import type { DrawingIcon, DrawingIconSet, FeatureStyleColor } from '@swissgeo/api'
+
+import { iconsAPI } from '@swissgeo/api'
+import { featureStyleUtils } from '@swissgeo/api/utils'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed } from 'vue'
 
-import type { DrawingIcon, DrawingIconSet } from '@/api/icon.api'
-import type { FeatureStyleColor } from '@/utils/featureStyleUtils'
-
-import { generateIconURL } from '@/api/icon.api'
 import useDrawingStore from '@/store/modules/drawing'
 import useI18nStore from '@/store/modules/i18n'
-import { RED } from '@/utils/featureStyleUtils'
 
 const { icon, currentIconSet, tooltipDisabled } = defineProps<{
     icon: DrawingIcon
@@ -28,7 +27,10 @@ const i18nStore = useI18nStore()
 
 const isTooltipDisabled = computed<boolean>(() => !icon.description || tooltipDisabled)
 const iconPreviewColor = computed<FeatureStyleColor>(
-    () => drawingStore.edit.preferred.color ?? drawingStore.feature.current?.fillColor ?? RED
+    () =>
+        drawingStore.edit.preferred.color ??
+        drawingStore.feature.current?.fillColor ??
+        featureStyleUtils.RED
 )
 
 const isTextSameLanguage = (langKey: string): boolean => langKey === i18nStore.lang
@@ -43,7 +45,7 @@ function onCurrentIconChange(icon: DrawingIcon): void {
  * when the user selects a different size for the icon the map)
  */
 function generateColorizedURL(icon: DrawingIcon): string {
-    return generateIconURL(icon, iconPreviewColor.value)
+    return iconsAPI.generateIconURL(icon, iconPreviewColor.value.fill)
 }
 
 function getImageStrokeStyle(isColorable: boolean, isSelected: boolean, color?: FeatureStyleColor) {

@@ -1,5 +1,6 @@
 import type { KMLLayer } from '@swissgeo/layers'
 
+import { kmlUtils } from '@swissgeo/api/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
 import type { ActionDispatcher } from '@/store/types'
@@ -8,7 +9,6 @@ import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import useDrawingStore from '@/store/modules/drawing'
 import { DrawingSaveState } from '@/store/modules/drawing/types'
 import usePositionStore from '@/store/modules/position'
-import { parseKml } from '@/utils/kmlUtils'
 
 const dispatcher: ActionDispatcher = { name: 'addKmlFeaturesToDrawingLayer' }
 
@@ -42,7 +42,7 @@ export default function addKmlFeaturesToDrawingLayer(
     }
 
     try {
-        const features = parseKml(
+        const features = kmlUtils.parseKml(
             kmlLayer,
             positionStore.projection,
             drawingStore.iconSets,

@@ -1,6 +1,7 @@
 import type { CoordinateSystem } from '@swissgeo/coordinates'
 import type { Geometry } from 'ol/geom'
 
+import { kmlUtils, featureStyleUtils } from '@swissgeo/api/utils'
 import { WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import Feature from 'ol/Feature'
@@ -11,8 +12,6 @@ import { Circle as CircleStyle, Icon as IconStyle } from 'ol/style'
 import Style from 'ol/style/Style'
 
 import i18n from '@/modules/i18n/index'
-import { geoadminStyleFunction } from '@/utils/featureStyleUtils'
-import { EMPTY_KML_DATA } from '@/utils/kmlUtils'
 
 const kmlFormat = new KML()
 
@@ -71,7 +70,7 @@ export function generateKmlString(
         log.error('Cannot generate KML string without projection')
         return ''
     }
-    let kmlString = EMPTY_KML_DATA
+    let kmlString = kmlUtils.EMPTY_KML_DATA
     const exportFeatures: Feature<Geometry>[] = []
 
     features.forEach((f) => {
@@ -87,7 +86,7 @@ export function generateKmlString(
         }
 
         // Apply style compatible with KML export
-        const styles = geoadminStyleFunction(clone) as Style[]
+        const styles = featureStyleUtils.geoadminStyleFunction(clone) as Style[]
         if (!styles || styles.length === 0) {
             log.warn('Feature has no style, cannot export to KML')
             return

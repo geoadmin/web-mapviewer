@@ -1,4 +1,5 @@
-import type { EditableFeature, LayerFeature } from '@/api/features.api'
+import type { EditableFeature, LayerFeature } from '@swissgeo/api'
+
 import type useFeaturesStore from '@/store/modules/features'
 
 export enum IdentifyMode {

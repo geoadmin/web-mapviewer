@@ -1,10 +1,9 @@
+import type { IdentifyResponse, IdentifyResult } from '@swissgeo/api'
 import type { Layer } from '@swissgeo/layers'
 import type { Pinia } from 'pinia'
 
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 import { assertDefined } from 'support/utils'
-
-import type { IdentifyResponse, IdentifyResult } from '@/api/features.api'
 
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
@@ -238,7 +237,7 @@ describe('Testing of the compare slider', () => {
                     'checking that if we remove a layer, the compare slider will cut the other layer'
                 )
                 cy.openMenuIfMobile()
-                cy.get(`[data-cy^="button-toggle-visibility-layer-${layer1}-"`)
+                cy.get(`[data-cy^="button-toggle-visibility-layer-${layer1}-"]`)
                     .should('be.visible')
                     .click()
                 cy.closeMenuIfMobile()

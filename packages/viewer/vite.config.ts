@@ -127,9 +127,9 @@ function generatePlugins(mode: ViteModes, isTesting: boolean = false): PluginOpt
                 includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg'],
                 injectRegister: false,
                 injectManifest: {
-                    // 5MB max (default is 2MB, some automatically generated chunks are larger than that)
+                    // 7MB max (default is 2MB, some automatically generated chunks are larger than that)
                     // Increased to accommodate Vite's automatic chunking without manual intervention
-                    maximumFileSizeToCacheInBytes: 5 * 1000 * 1000,
+                    maximumFileSizeToCacheInBytes: 7 * 1000 * 1000,
                 },
 
                 pwaAssets: {
@@ -196,8 +196,6 @@ export default defineConfig((configEnv: ConfigEnv): ViteUserConfig => {
                     // Boostrap 5.3.x has too many deprecation warnings (10k+ on a single build)
                     // TODO: remove as soon as migration to TailwindCSS is done
                     quietDeps: true,
-                    // @see https://github.com/vitejs/vite/issues/18164
-                    verbose: true,
                     silenceDeprecations: ['import', 'color-functions'],
                 },
             },
@@ -226,7 +224,7 @@ export default defineConfig((configEnv: ConfigEnv): ViteUserConfig => {
         test: {
             include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
             outputFile: 'tests/results/unit/unit-test-report.xml',
-            silent: true,
+            silent: 'passed-only',
             setupFiles: ['tests/setup-vitest.ts'],
             environment: 'jsdom',
         },

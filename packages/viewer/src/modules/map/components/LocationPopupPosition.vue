@@ -1,8 +1,9 @@
 <script setup lang="ts">
 /** Right click pop up which shows the coordinates of the position under the cursor. */
 
-import type { SingleCoordinate, CoordinateSystem } from '@swissgeo/coordinates'
+import type { CoordinateSystem, SingleCoordinate } from '@swissgeo/coordinates'
 
+import { heightAPI, lv03ReframeAPI, what3wordsAPI } from '@swissgeo/api'
 import { coordinatesUtils, LV03, LV95, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { computed, onMounted, ref, watch } from 'vue'
@@ -10,9 +11,6 @@ import { useI18n } from 'vue-i18n'
 
 import type { ClickInfo } from '@/store/modules/map/types'
 
-import { requestHeight } from '@/api/height.api'
-import reframe from '@/api/lv03Reframe.api'
-import { registerWhat3WordsLocation } from '@/api/what3words.api'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import {
     LV03Format,
@@ -111,7 +109,7 @@ watch(() => currentLang, updateWhat3Word)
 async function updateLV03Coordinate() {
     try {
         const lv95coordinate = coordinatesUtils.reprojectAndRound(projection, LV95, coordinate)
-        lv03Coordinate.value = await reframe({
+        lv03Coordinate.value = await lv03ReframeAPI.reframe({
             inputCoordinates: lv95coordinate,
             inputProjection: LV95,
             outputProjection: LV03,
@@ -128,7 +126,11 @@ async function updateLV03Coordinate() {
 
 async function updateWhat3Word() {
     try {
-        what3Words.value = await registerWhat3WordsLocation(coordinate, projection, currentLang)
+        what3Words.value = await what3wordsAPI.registerWhat3WordsLocation(
+            coordinate,
+            projection,
+            currentLang
+        )
     } catch (error) {
         log.error({
             title: 'LocationPopup.vue',
@@ -140,7 +142,7 @@ async function updateWhat3Word() {
 }
 async function updateHeight() {
     try {
-        height.value = await requestHeight(coordinate, projection)
+        height.value = await heightAPI.getHeightForPosition(coordinate, projection)
     } catch (error) {
         log.error({
             title: 'LocationPopup.vue',

@@ -1,3 +1,4 @@
+import type { LayerFeature } from '@swissgeo/api'
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import type { Layer } from '@swissgeo/layers'
 import type { Feature } from 'ol'
@@ -10,8 +11,6 @@ import { randomIntBetween } from '@swissgeo/numbers'
 import { centroid } from '@turf/turf'
 import GeoJSON from 'ol/format/GeoJSON'
 import RenderFeature from 'ol/render/Feature'
-
-import type { LayerFeature } from '@/api/features.api'
 
 /**
  * Creates a LayerFeature object from an OpenLayers feature and a layer.

@@ -1,7 +1,7 @@
 import { resolve } from 'path'
 import dts from 'unplugin-dts/vite'
 import { fileURLToPath, URL } from 'url'
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
     build: {
@@ -25,4 +25,7 @@ export default defineConfig({
             bundleTypes: true,
         }),
     ],
+    test: {
+        environment: 'jsdom',
+    },
 })

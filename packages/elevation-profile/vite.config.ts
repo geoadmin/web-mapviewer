@@ -1,4 +1,4 @@
-import type { UserConfig } from 'vite'
+import type { ViteUserConfig } from 'vitest/config'
 
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
@@ -8,7 +8,7 @@ import { fileURLToPath, URL } from 'url'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
-const config: UserConfig = {
+const config: ViteUserConfig = {
     build: {
         lib: {
             entry: [resolve(__dirname, 'src/index.ts')],
@@ -39,6 +39,9 @@ const config: UserConfig = {
             processor: 'vue',
         }),
     ],
+    test: {
+        environment: 'jsdom',
+    },
 }
 
 export default config

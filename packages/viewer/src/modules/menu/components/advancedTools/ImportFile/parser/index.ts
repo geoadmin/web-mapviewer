@@ -1,12 +1,11 @@
 import type { CoordinateSystem } from '@swissgeo/coordinates'
 import type { FileLayer } from '@swissgeo/layers'
 
+import { fileProxyAPI, filesAPI } from '@swissgeo/api'
 import log from '@swissgeo/log'
 
 import type { ParseOptions } from '@/modules/menu/components/advancedTools/ImportFile/parser/types'
 
-import { getFileContentThroughServiceProxy } from '@/api/file-proxy.api'
-import { checkOnlineFileCompliance, getFileContentFromUrl } from '@/api/files.api'
 import { CloudOptimizedGeoTIFFParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/CloudOptimizedGeoTIFFParser.class'
 import GPXParser from '@/modules/menu/components/advancedTools/ImportFile/parser/GPXParser.class'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
@@ -61,7 +60,7 @@ export async function parseLayerFromFile(
     }
 
     // online file, we start by getting its MIME type and other compliance information (CORS, HTTPS)
-    const fileComplianceCheck = await checkOnlineFileCompliance(fileSource)
+    const fileComplianceCheck = await filesAPI.checkOnlineFileCompliance(fileSource)
     log.debug({
         title: '[FileParser][parseLayerFromFile]',
         messages: ['file', fileSource, 'has compliance', fileComplianceCheck],
@@ -93,9 +92,9 @@ export async function parseLayerFromFile(
         })
         let loadedContent: ArrayBuffer | undefined
         if (supportsCORS && supportsHTTPS) {
-            loadedContent = await getFileContentFromUrl(fileSource)
+            loadedContent = await filesAPI.getFileContentFromUrl(fileSource)
         } else {
-            loadedContent = await getFileContentThroughServiceProxy(fileSource)
+            loadedContent = await fileProxyAPI.getFileContentThroughServiceProxy(fileSource)
         }
         return await parseAll(
             {

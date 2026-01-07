@@ -2,19 +2,12 @@ import type { GeoAdminLayer, LayerAttribution } from '@swissgeo/layers'
 import type Map from 'ol/Map'
 import type { MaybeRef } from 'vue'
 
+import { printAPI, PrintError, qrcodeAPI, shortLinkAPI } from '@swissgeo/api'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { computed, ref, toValue } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import {
-    abortPrintJob,
-    createPrintJob,
-    PrintError,
-    waitForPrintJobCompletion,
-} from '@/api/print.api'
-import { getGenerateQRCodeUrl } from '@/api/qrcode.api'
-import { createShortLink } from '@/api/shortlink.api'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
@@ -77,21 +70,19 @@ export function usePrint(map: MaybeRef<Map>) {
                 await abortCurrentJob()
             }
             printStatus.value = PrintStatus.PRINTING
-            const shortLink = await createShortLink(window.location.href)
+            const shortLink = await shortLinkAPI.createShortLink(window.location.href)
             if (!shortLink) {
                 log.error({
                     title: 'usePrint / print',
-                    titleStyle: {
-                        backgroundColor: LogPreDefinedColor.Emerald,
-                    },
+                    titleColor: LogPreDefinedColor.Emerald,
                     messages: ['failed to print because the short link request failed'],
                 })
                 return
             }
-            const qrCodeUrl = getGenerateQRCodeUrl(shortLink)
+            const qrCodeUrl = qrcodeAPI.getGenerateQRCodeUrl(shortLink)
             // using store values directly (instead of going through computed) so that it is a bit more performant
             // (we do not need to have reactivity on these values, if they change while printing we do nothing)
-            const printJob = await createPrintJob(toValue(map), {
+            const printJob = await printAPI.createPrintJob(toValue(map), {
                 // .pdf extension will be written by MapFish too, so we remove it to not have it twice in a row
                 outputFilename: generateFilename('pdf').replace('.pdf', ''),
                 layout: printStore.selectedLayout,
@@ -115,15 +106,13 @@ export function usePrint(map: MaybeRef<Map>) {
                 dpi: printStore.selectedDPI,
             })
             currentJobReference.value = printJob.ref
-            const result = await waitForPrintJobCompletion(printJob)
+            const result = await printAPI.waitForPrintJobCompletion(printJob)
             printStatus.value = PrintStatus.FINISHED_SUCCESSFULLY
             return result
         } catch (error) {
             log.error({
                 title: 'usePrint.composable',
-                titleStyle: {
-                    backgroundColor: LogPreDefinedColor.Lime,
-                },
+                titleColor: LogPreDefinedColor.Emerald,
                 messages: ['Error while printing', error],
             })
             if (printStatus.value === PrintStatus.PRINTING) {
@@ -142,12 +131,10 @@ export function usePrint(map: MaybeRef<Map>) {
     async function abortCurrentJob() {
         try {
             if (currentJobReference.value) {
-                await abortPrintJob(currentJobReference.value)
+                await printAPI.abortPrintJob(currentJobReference.value)
                 log.debug({
                     title: 'usePrint.composable',
-                    titleStyle: {
-                        backgroundColor: LogPreDefinedColor.Lime,
-                    },
+                    titleColor: LogPreDefinedColor.Emerald,
                     messages: ['Job', currentJobReference.value, 'successfully aborted'],
                 })
                 currentJobReference.value = undefined
@@ -157,9 +144,7 @@ export function usePrint(map: MaybeRef<Map>) {
         } catch (error) {
             log.error({
                 title: 'usePrint.composable',
-                titleStyle: {
-                    backgroundColor: LogPreDefinedColor.Lime,
-                },
+                titleColor: LogPreDefinedColor.Emerald,
                 messages: ['Error while aborting job', currentJobReference.value, error],
             })
         }
