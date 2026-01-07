@@ -2,6 +2,7 @@
 import OLTileLayer from 'ol/layer/Tile'
 import OLMap from 'ol/Map'
 import XYZ from 'ol/source/XYZ'
+import proj4 from 'proj4'
 import { onMounted } from 'vue'
 
 import { getLV95TileGrid, getLV95View, registerSwissGeoProjections as registerOL } from '@/ol'
@@ -11,7 +12,7 @@ const pixelKarteFarbeURL = 'https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelka
 
 function setupOpenLayers() {
 
-    registerOL()
+    registerOL(proj4)
 
     const pixelKarteFarbe = new OLTileLayer({
         source: new XYZ({

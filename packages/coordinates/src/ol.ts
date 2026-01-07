@@ -1,17 +1,18 @@
 /** @module swissgeo/coordinates/ol */
 
-import { View } from "ol";
-import { register } from "ol/proj/proj4";
-import WMTSTileGrid from "ol/tilegrid/WMTS";
-import proj4 from "proj4";
+import type proj4 from 'proj4'
 
-import { LV95 } from "@/proj";
-import { LV95_RESOLUTIONS } from "@/proj/SwissCoordinateSystem";
-import registerProj4 from "@/registerProj4";
+import { View } from 'ol'
+import { register } from 'ol/proj/proj4'
+import WMTSTileGrid from 'ol/tilegrid/WMTS'
 
-export function registerSwissGeoProjections() {
-    registerProj4(proj4)
-    register(proj4)
+import { LV95 } from '@/proj'
+import { LV95_RESOLUTIONS } from '@/proj/SwissCoordinateSystem'
+import registerProj4 from '@/registerProj4'
+
+export function registerSwissGeoProjections(proj4Instance: typeof proj4) {
+    registerProj4(proj4Instance)
+    register(proj4Instance)
 }
 
 function indexOfMaxResolution(layerMaxResolution: number): number {

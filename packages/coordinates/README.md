@@ -89,9 +89,10 @@ import { getLV95View, getLV95TileGrid, registerSwissGeoProjections } from '@swis
 import TileLayer from 'ol/layer/Tile'
 import Map from 'ol/Map'
 import XYZ from 'ol/source/XYZ'
+import proj4 from 'proj4'
 
 // 1. Register projections in proj4 and OpenLayers
-registerSwissGeoProjections()
+registerSwissGeoProjections(proj4)
 
 // 2. Use helpers to create View and TileGrid
 const map = new Map({
