@@ -26,7 +26,7 @@ export default function useAddDataSourceLayer(
     loadDataSource: MaybeRef<
         Promise<GeoJsonDataSource> | Promise<KmlDataSource> | Promise<GpxDataSource>
     >,
-    styleEntity: MaybeRef<StyleEntityCallback>,
+    styleEntity: StyleEntityCallback,
     opacity: MaybeRef<number>,
     layerId: MaybeRef<string>
 ) {
@@ -59,7 +59,6 @@ export default function useAddDataSourceLayer(
         }
         try {
             dataSource = await loadingDataSource
-
             // Check if viewer was destroyed during async operation
             if (!viewerInstance || viewerInstance.isDestroyed()) {
                 log.warn({
@@ -84,7 +83,7 @@ export default function useAddDataSourceLayer(
             }
             dataSource.entities.values.forEach((entity: Entity) => {
                 entity.layerId = toValue(layerId)
-                toValue(styleEntity)(entity, toValue(opacity) ?? 1.0)
+                styleEntity(entity, toValue(opacity) ?? 1.0)
             })
 
             // need to wait for terrain loaded otherwise primitives will be placed wrong (under the terrain)
@@ -158,7 +157,7 @@ export default function useAddDataSourceLayer(
             return
         }
         dataSource?.entities.values.forEach((entity: Entity) =>
-            toValue(styleEntity)(entity, toValue(opacity) ?? 1.0)
+            styleEntity(entity, toValue(opacity) ?? 1.0)
         )
         viewerInstance.scene.requestRender()
     })
