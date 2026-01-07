@@ -1,19 +1,11 @@
 /** @module swissgeo/coordinates/ol */
 
-import type proj4 from 'proj4'
+import type { ViewOptions } from 'ol/View'
 
-import { View } from 'ol'
-import { register } from 'ol/proj/proj4'
 import WMTSTileGrid from 'ol/tilegrid/WMTS'
 
 import { LV95 } from '@/proj'
 import { LV95_RESOLUTIONS } from '@/proj/SwissCoordinateSystem'
-import registerProj4 from '@/registerProj4'
-
-export function registerSwissGeoProjections(proj4Instance: typeof proj4) {
-    registerProj4(proj4Instance)
-    register(proj4Instance)
-}
 
 function indexOfMaxResolution(layerMaxResolution: number): number {
     const resolutionSteps = LV95.getResolutionSteps()
@@ -40,8 +32,8 @@ export function getLV95TileGrid(maxResolution = 0.25): WMTSTileGrid {
     })
 }
 
-export function getLV95View(): View {
-    return new View({
+export function getLV95ViewConfig(): ViewOptions {
+    return {
         projection: LV95.epsg,
         center: LV95.bounds.center,
         zoom: LV95.getDefaultZoom(),
@@ -49,5 +41,5 @@ export function getLV95View(): View {
         resolutions: LV95_RESOLUTIONS,
         extent: LV95.bounds.flatten,
         constrainOnlyCenter: true,
-    })
+    }
 }

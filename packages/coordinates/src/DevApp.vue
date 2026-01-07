@@ -1,18 +1,22 @@
 <script setup lang="ts">
+import { View } from 'ol'
 import OLTileLayer from 'ol/layer/Tile'
 import OLMap from 'ol/Map'
+import { register } from 'ol/proj/proj4'
 import XYZ from 'ol/source/XYZ'
 import proj4 from 'proj4'
 import { onMounted } from 'vue'
 
-import { getLV95TileGrid, getLV95View, registerSwissGeoProjections as registerOL } from '@/ol'
+import { getLV95TileGrid, getLV95ViewConfig } from '@/ol'
 import { LV95 } from '@/proj'
+import registerProj4 from '@/registerProj4'
 
 const pixelKarteFarbeURL = 'https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/2056/{z}/{x}/{y}.jpeg'
 
 function setupOpenLayers() {
 
-    registerOL(proj4)
+    registerProj4(proj4);
+    register(proj4);
 
     const pixelKarteFarbe = new OLTileLayer({
         source: new XYZ({
@@ -25,7 +29,9 @@ function setupOpenLayers() {
     new OLMap({
         target: 'ol-map',
         layers: [pixelKarteFarbe],
-        view: getLV95View()
+        view: new View({
+            ...getLV95ViewConfig()
+        })
     })
 }
 
