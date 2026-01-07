@@ -1,12 +1,13 @@
 /// <reference types="cypress" />
 
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
-import { Math as CesiumMath } from 'cesium'
+import { Math as CesiumMath, Viewer } from 'cesium'
 import proj4 from 'proj4'
 
 import { DEFAULT_PROJECTION } from '@/config'
 import useCesiumStore from '@/store/modules/cesium'
 import usePositionStore from '@/store/modules/position'
+import { toValue, type MaybeRef } from 'vue'
 
 registerProj4(proj4)
 
@@ -110,7 +111,6 @@ describe('Testing transitioning between 2D and 3D', () => {
                     expect(camera?.roll).to.eq(expectedCameraPosition.roll)
                 })
             })
-            it('adds the camera URL param when changing the camera position', () => {})
         })
     })
 })
@@ -127,8 +127,9 @@ context('transition to 3D', () => {
         cy.get('[data-cy="3d-button"]').click()
         cy.window()
             .its('cesiumViewer')
-            .then((viewer) => {
-                const cameraPosition = viewer.camera.positionCartographic
+            .then((viewer: MaybeRef<Viewer>) => {
+                const currentViewer: Viewer = toValue(viewer)
+                const cameraPosition = currentViewer.camera.positionCartographic
                 const acceptableDelta = 0.000001
                 expect(cameraPosition.longitude).to.be.closeTo(
                     CesiumMath.toRadians(lon),
