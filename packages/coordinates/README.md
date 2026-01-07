@@ -85,19 +85,25 @@ const center = extentUtils.getExtentCenter(extentLV95)
 The package provides specialized helpers for OpenLayers in `@swissgeo/coordinates/ol`.
 
 ```typescript
-import { getLV95View, getLV95TileGrid, registerSwissGeoProjections } from '@swissgeo/coordinates/ol'
+import { getLV95ViewConfig, getLV95TileGrid, registerProj4, registerSwissGeoProjections } from '@swissgeo/coordinates/ol'
 import TileLayer from 'ol/layer/Tile'
 import Map from 'ol/Map'
+import View from 'ol/View'
 import XYZ from 'ol/source/XYZ'
+import { register } from 'ol/proj/proj4'
 import proj4 from 'proj4'
 
 // 1. Register projections in proj4 and OpenLayers
-registerSwissGeoProjections(proj4)
+registerProj4(proj4);
+register(proj4);
 
 // 2. Use helpers to create View and TileGrid
 const map = new Map({
   target: 'map',
-  view: getLV95View(),
+  view: new View({
+    ...getLV95ViewConfig(),
+    // any other view configuration
+  }),
   layers: [
     new TileLayer({
       source: new XYZ({

@@ -1,6 +1,6 @@
 {
     "name": "@swissgeo/coordinates",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "Projection definition and coordinates utils for SWISSGEO projects.",
     "license": "BSD-3-Clause",
     "type": "module",
