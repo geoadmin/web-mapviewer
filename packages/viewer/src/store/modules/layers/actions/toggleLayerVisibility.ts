@@ -69,6 +69,6 @@ function setLayerIdUpdateFeatures(options: GetLayerIdOptions): GetLayerIdResult 
             (feature) => 'layer' in feature && feature.layer.id === layerId
         )
     }
-
+    console.log('setLayerIdUpdateFeatures called with layerId:', layerId, 'updateFeatures:', updateFeatures)
     return { layerId, updateFeatures }
 }

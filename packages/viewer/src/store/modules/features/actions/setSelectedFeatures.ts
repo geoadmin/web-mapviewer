@@ -84,6 +84,9 @@ export default function setSelectedFeatures(
         // when a feature is selected while embedded, so that the parent can get the selected feature(s) ID(s)
         sendFeatureInformationToIFrameParent(layerFeatures)
     }
+    console.log('Set selected features', features, layerFeaturesByLayerId, drawingFeatures)
+    // setTimeout(() => {
+    // }, 200) // to have a clear separation in the console logs
     this.selectedFeaturesByLayerId = layerFeaturesByLayerId
     this.selectedEditableFeatures = [...drawingFeatures]
 }

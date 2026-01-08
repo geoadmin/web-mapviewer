@@ -13,6 +13,7 @@ export default function clearAllSelectedFeatures(
     if (this.highlightedFeatureId) {
         this.highlightedFeatureId = undefined
     }
+    console.log('Cleared all selected features', this.selectedEditableFeatures, this.selectedFeaturesByLayerId)
     const profileStore = useProfileStore()
     if (profileStore.feature) {
         profileStore.setProfileFeature(undefined, dispatcher)
