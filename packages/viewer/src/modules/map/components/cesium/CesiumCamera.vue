@@ -23,8 +23,8 @@ import {
     limitCameraCenter,
     limitCameraPitchRoll,
 } from '@/modules/map/components/cesium/utils/cameraUtils'
-import { useCameraPositionSync } from '@/modules/map/components/cesium/composables/useCameraPositionSync'
 import usePositionStore from '@/store/modules/position'
+import useUIStore from '@/store/modules/ui'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumCamera.vue' }
 
@@ -40,7 +40,7 @@ if (!viewer?.value) {
 
 const positionStore = usePositionStore()
 const cameraPosition = computed(() => positionStore.camera)
-const { calculatePositionFromCamera } = useCameraPositionSync()
+const uiStore = useUIStore()
 
 onMounted(() => {
     initCamera()
@@ -152,7 +152,7 @@ function onCameraMoveEnd(): void {
     }
 
     if (!isEqual(newCameraPosition, cameraPosition.value)) {
-        const { center, zoom, rotation } = calculatePositionFromCamera(newCameraPosition)
+        const { center, zoom, rotation } = positionStore.calculatePositionFromCamera(uiStore.width, newCameraPosition)
         positionStore.setCameraPosition(newCameraPosition, dispatcher)
         positionStore.setCenter(center, dispatcher)
         positionStore.setZoom(zoom, dispatcher)

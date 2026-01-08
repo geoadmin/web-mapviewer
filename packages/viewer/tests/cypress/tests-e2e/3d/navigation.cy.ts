@@ -8,7 +8,7 @@ import proj4 from 'proj4'
 
 import { calculateResolution } from '@/modules/map/components/cesium/utils/cameraUtils'
 import usePositionStore from '@/store/modules/position'
-import { toValue, type MaybeRef } from 'vue'
+import { toValue, type ShallowRef } from 'vue'
 
 registerProj4(proj4)
 
@@ -23,7 +23,7 @@ describe('Testing 3D navigation', () => {
             cy.waitUntilCesiumTilesLoaded()
             cy.window()
                 .its('cesiumViewer')
-                .then((viewer: MaybeRef<Viewer>) => {
+                .then((viewer: ShallowRef<Viewer>) => {
                     const currentViewer: Viewer = toValue(viewer)
                     // Move close to the ground and try to zoom closer with the mouse wheel
                     currentViewer.camera.flyTo({
@@ -51,7 +51,7 @@ describe('Testing 3D navigation', () => {
             cy.waitUntilCesiumTilesLoaded()
             cy.window()
                 .its('cesiumViewer')
-                .then((viewer: MaybeRef<Viewer>) => {
+                .then((viewer: ShallowRef<Viewer>) => {
                     const currentViewer: Viewer = toValue(viewer)
                     // Move far from the ground and try to zoom higher with the mouse wheel
                     currentViewer.camera.flyTo({
@@ -80,7 +80,7 @@ describe('Testing 3D navigation', () => {
             cy.wait('@routeChange')
             cy.window()
                 .its('cesiumViewer')
-                .then((viewer: MaybeRef<Viewer>) => {
+                .then((viewer: ShallowRef<Viewer>) => {
                     const currentViewer: Viewer = toValue(viewer)
                     const lon = 7.451498
                     const lat = 46.92805

@@ -7,7 +7,7 @@ import proj4 from 'proj4'
 import { DEFAULT_PROJECTION } from '@/config'
 import useCesiumStore from '@/store/modules/cesium'
 import usePositionStore from '@/store/modules/position'
-import { toValue, type MaybeRef } from 'vue'
+import { toValue, type ShallowRef } from 'vue'
 
 registerProj4(proj4)
 
@@ -127,7 +127,7 @@ context('transition to 3D', () => {
         cy.get('[data-cy="3d-button"]').click()
         cy.window()
             .its('cesiumViewer')
-            .then((viewer: MaybeRef<Viewer>) => {
+            .then((viewer: ShallowRef<Viewer>) => {
                 const currentViewer: Viewer = toValue(viewer)
                 const cameraPosition = currentViewer.camera.positionCartographic
                 const acceptableDelta = 0.000001
