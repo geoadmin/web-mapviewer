@@ -1,5 +1,5 @@
-import type { WebMapServiceImageryProvider, type UrlTemplateImageryProvider, type Viewer } from 'cesium';
-import type { MaybeRef } from 'vue';
+import type { UrlTemplateImageryProvider, Viewer, WebMapServiceImageryProvider } from 'cesium'
+import type { ShallowRef } from 'vue'
 
 import { LV95, WEBMERCATOR } from '@swissgeo/coordinates'
 import { toValue } from 'vue'
@@ -49,7 +49,7 @@ describe('Test of layer handling in 3D', () => {
         cy.get('[data-cy="menu-button"]').click()
         cy.window()
             .its('cesiumViewer')
-            .then((viewer: MaybeRef<Viewer>) => {
+            .then((viewer: ShallowRef<Viewer>) => {
                 const currentViewer = toValue(viewer)
                 expectLayerCountToBe(currentViewer, 2)
                 const wmtsLayer = currentViewer.scene.imageryLayers.get(1)
@@ -81,7 +81,7 @@ describe('Test of layer handling in 3D', () => {
         cy.get('[data-cy="search-results-layers"] [data-cy="search-result-entry"]').first().click()
         cy.window()
             .its('cesiumViewer')
-            .then((viewer: MaybeRef<Viewer>) => {
+            .then((viewer: ShallowRef<Viewer>) => {
                 const currentViewer = toValue(viewer)
                 expectLayerCountToBe(currentViewer, 3)
                 const wmsLayer = currentViewer.scene.imageryLayers.get(2)
@@ -101,7 +101,7 @@ describe('Test of layer handling in 3D', () => {
         cy.waitUntilCesiumTilesLoaded()
         cy.window()
             .its('cesiumViewer')
-            .then((viewer: MaybeRef<Viewer>) => {
+            .then((viewer: ShallowRef<Viewer>) => {
                 const currentViewer = toValue(viewer)
                 const layers = currentViewer.scene.imageryLayers
                 expect(layers.length).to.eq(
@@ -128,7 +128,7 @@ describe('Test of layer handling in 3D', () => {
             .trigger('input')
         cy.window()
             .its('cesiumViewer')
-            .should((viewer: MaybeRef<Viewer>) => {
+            .should((viewer: ShallowRef<Viewer>) => {
                 const currentViewer = toValue(viewer)
                 const layers = currentViewer.scene.imageryLayers
                 expect(layers.get(1).alpha).to.eq(
@@ -147,7 +147,7 @@ describe('Test of layer handling in 3D', () => {
         cy.get(`[data-cy="catalogue-add-layer-button-${wmsLayerIdWithout3DConfig}"]`).click()
         cy.window()
             .its('cesiumViewer')
-            .should((viewer: MaybeRef<Viewer>) => {
+            .should((viewer: ShallowRef<Viewer>) => {
                 const currentViewer = toValue(viewer)
                 expectLayerCountToBe(currentViewer, 3)
                 const wmsLayer = currentViewer.scene.imageryLayers.get(2)
@@ -172,7 +172,7 @@ describe('Test of layer handling in 3D', () => {
                 cy.waitUntilCesiumTilesLoaded()
                 cy.window()
                     .its('cesiumViewer')
-                    .then((viewer: MaybeRef<Viewer>) => {
+                    .then((viewer: ShallowRef<Viewer>) => {
                         const currentViewer = toValue(viewer)
                         expect(
                             (currentViewer.scene.imageryLayers.get(1).imageryProvider as UrlTemplateImageryProvider).url
@@ -204,7 +204,7 @@ describe('Test of layer handling in 3D', () => {
         // checking that the order has changed
         cy.window()
             .its('cesiumViewer')
-            .then((viewer: MaybeRef<Viewer>) => {
+            .then((viewer: ShallowRef<Viewer>) => {
                 const currentViewer = toValue(viewer)
                 expect((currentViewer.scene.imageryLayers.get(1).imageryProvider as UrlTemplateImageryProvider).url).to.have.string(
                     `1.0.0/${secondLayerId}/default/current/3857/{z}/{x}/{y}.png`
@@ -218,7 +218,7 @@ describe('Test of layer handling in 3D', () => {
         // re-checking the order that should be back to the starting values
         cy.window()
             .its('cesiumViewer')
-            .then((viewer: MaybeRef<Viewer>) => {
+            .then((viewer: ShallowRef<Viewer>) => {
                 const currentViewer = toValue(viewer)
                 expect((currentViewer.scene.imageryLayers.get(1).imageryProvider as WebMapServiceImageryProvider).layers).to.eq(firstLayerId)
                 expect((currentViewer.scene.imageryLayers.get(2).imageryProvider as UrlTemplateImageryProvider).url).to.have.string(
@@ -240,7 +240,7 @@ describe('Test of layer handling in 3D', () => {
         cy.waitUntilCesiumTilesLoaded()
         cy.window()
             .its('cesiumViewer')
-            .should((viewer: MaybeRef<Viewer>) => {
+            .should((viewer: ShallowRef<Viewer>) => {
                 const currentViewer = toValue(viewer)
                 console.log('Current viewer layers:', currentViewer.dataSources)
                 expect(currentViewer.dataSources.length).to.eq(1, 'should have 1 data source (GeoJSON)')
@@ -259,7 +259,7 @@ describe('Test of layer handling in 3D', () => {
         cy.wait(['@geojson-data', '@geojson-style'])
         cy.window()
             .its('cesiumViewer')
-            .should((viewer: MaybeRef<Viewer>) => {
+            .should((viewer: ShallowRef<Viewer>) => {
                 const currentViewer = toValue(viewer)
                 expect(currentViewer.dataSources.length).to.eq(1)
             })
@@ -267,7 +267,7 @@ describe('Test of layer handling in 3D', () => {
         cy.get(`[data-cy^="button-remove-layer-${geojsonlayerId}-"]`).should('be.visible').click()
         cy.window()
             .its('cesiumViewer')
-            .then((viewer: MaybeRef<Viewer>) => {
+            .then((viewer: ShallowRef<Viewer>) => {
                 const currentViewer = toValue(viewer)
                 expect(currentViewer.dataSources.length).to.eq(0)
             })
@@ -282,7 +282,7 @@ describe('Test of layer handling in 3D', () => {
         cy.waitUntilCesiumTilesLoaded()
         cy.window()
             .its('cesiumViewer')
-            .then((viewer: MaybeRef<Viewer>) => {
+            .then((viewer: ShallowRef<Viewer>) => {
                 const currentViewer = toValue(viewer)
                 const layer = currentViewer.scene.imageryLayers.get(1)
                 // the opacity of the parent 2D layer must be applied to the 3D counterpart
@@ -310,7 +310,7 @@ describe('Test of layer handling in 3D', () => {
         cy.waitUntilCesiumTilesLoaded()
         cy.window()
             .its('cesiumViewer')
-            .should((viewer: MaybeRef<Viewer>) => {
+            .should((viewer: ShallowRef<Viewer>) => {
                 const currentViewer = toValue(viewer)
                 expect(currentViewer.dataSources.length).to.eq(1)
             })
@@ -327,8 +327,8 @@ describe('Test of layer handling in 3D', () => {
         cy.waitUntilCesiumTilesLoaded()
         cy.window()
             .its('cesiumViewer')
-            .then((viewer: MaybeRef<Viewer>) => {
-                const currentViewer = toValue(viewer)
+            .then((viewer: ShallowRef<Viewer>) => {
+                const currentViewer: Viewer = toValue(viewer)
                 expectLayerCountToBe(currentViewer, 2)
                 const wmsLayer = currentViewer.scene.imageryLayers.get(1)
                 expect(wmsLayer.show).to.eq(true)
@@ -378,8 +378,8 @@ describe('Test of layer handling in 3D', () => {
         cy.waitUntilCesiumTilesLoaded()
         cy.window()
             .its('cesiumViewer')
-            .then((viewer: MaybeRef<Viewer>) => {
-                const currentViewer = toValue(viewer)
+            .then((viewer: ShallowRef<Viewer>) => {
+                const currentViewer: Viewer = toValue(viewer)
                 expect(currentViewer.entities.values.length).to.eq(10)
             })
         cy.get('@highlightedFeatures')
@@ -414,7 +414,7 @@ describe('Test of layer handling in 3D', () => {
         cy.get('@highlightedFeatures').should('not.exist')
         cy.window()
             .its('cesiumViewer')
-            .then((viewer: MaybeRef<Viewer>) => {
+            .then((viewer: ShallowRef<Viewer>) => {
                 const currentViewer = toValue(viewer)
                 expect(currentViewer.entities.values.length).to.eq(0)
             })
@@ -442,7 +442,7 @@ describe('Test of layer handling in 3D', () => {
                 cy.waitUntilCesiumTilesLoaded()
                 cy.window()
                     .its('cesiumViewer')
-                    .then((viewer: MaybeRef<Viewer>) => {
+                    .then((viewer: ShallowRef<Viewer>) => {
                         const currentViewer = toValue(viewer)
                         expectLayerCountToBe(currentViewer, 2)
                         const wmsLayer = currentViewer.scene.imageryLayers.get(1)
