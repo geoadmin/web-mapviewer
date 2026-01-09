@@ -227,7 +227,6 @@ describe('Test of layer handling in 3D', () => {
                 )
             })
     })
-    //
     it('add GeoJson layer with opacity from URL param', () => {
         const geojsonlayerId = 'test.geojson.layer'
         cy.goToMapView({
@@ -243,7 +242,6 @@ describe('Test of layer handling in 3D', () => {
             .its('cesiumViewer')
             .should((viewer: ShallowRef<Viewer>) => {
                 const currentViewer = toValue(viewer)
-                console.log('Current viewer layers:', currentViewer.dataSources)
                 expect(currentViewer.dataSources.length).to.eq(1, 'should have 1 data source (GeoJSON)')
             })
     })
