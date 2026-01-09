@@ -87,7 +87,6 @@ export default async function identifyFeatureAt(
             featureCount,
         })
         const features = [...vectorFeatures, ...backendFeatures]
-        console.log('identifyFeatureAt: identified features', features, coordinate, identifyMode)
         if (features.length > 0) {
             if (identifyMode === IdentifyMode.New) {
                 this.setSelectedFeatures(features, { paginationSize: featureCount }, dispatcher)
@@ -129,10 +128,7 @@ export default async function identifyFeatureAt(
                 }
             }
         } else {
-            console.log('identifyFeatureAt: no features identified, clearing selection')
-            setTimeout(() => {
-                this.clearAllSelectedFeatures(dispatcher)
-            }, 200) // to have a clear separation in the console logs
+            this.clearAllSelectedFeatures(dispatcher)
         }
     } catch (error) {
         log.error({

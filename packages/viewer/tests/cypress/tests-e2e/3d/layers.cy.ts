@@ -89,6 +89,7 @@ describe('Test of layer handling in 3D', () => {
                 expect((wmsLayer.imageryProvider as WebMapServiceImageryProvider).layers).to.have.string(expectedWmsLayerId)
             })
     })
+    //
     it('sets the opacity to the value defined in the layers URL param or menu UI', () => {
         cy.log('checking a WMTS layer without 3D specific configuration')
         const wmtsLayerIdWithout3DConfig = 'test.timeenabled.wmts.layer'
