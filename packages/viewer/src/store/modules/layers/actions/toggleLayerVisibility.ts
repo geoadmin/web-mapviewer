@@ -25,43 +25,25 @@ export default function toggleLayerVisibility(
             messages: ['Failed to toggleLayerVisibility: invalid index', index, dispatcher],
         })
     }
-    console.log('Toggled layer visibility for layer at index', index, layer)
-    this.identifyFeatures(setLayerIdUpdateFeatures, { activeLayer: layer, index }, dispatcher)
+    // after the layer visibility has been toggled we need to identify features again
+    // we use setTimeout to let the layer visibility change propagate before identifying features
+    // else the storeSync plugin will update the URL with the new layer visibility while the identifyFeatures is running and
+    // the URL will then be out of sync and the layers reappear on the page
+    setTimeout(() =>
+        this.identifyFeatures(setLayerIdUpdateFeatures, { activeLayer: layer, index }, dispatcher)
+        , 0)
 }
 
-// function setLayerIdUpdateFeatures(options: GetLayerIdOptions): GetLayerIdResult {
-//     const featuresStore = useFeaturesStore()
-
-//     const selectedFeatures = featuresStore.selectedFeatures
-//     let layerId
-//     // for toggleLayerVisibility we always update if layer has gone from invisible to visible
-//     // if the layer went from visible to invisible we need to check if there are selected features from this layer
-//     let updateFeatures = true
-//     if (!options.activeLayer?.isVisible) {
-//         layerId = options.activeLayer?.id
-//     }
-
-//     if (layerId) {
-//         updateFeatures = selectedFeatures.some(
-//             (feature) => 'layer' in feature && feature.layer.id === layerId
-//         )
-//     }
-//     console.log('setLayerIdUpdateFeatures called with layerId:', layerId, 'updateFeatures:', updateFeatures)
-//     return { layerId, updateFeatures }
-// }
 function setLayerIdUpdateFeatures(options: GetLayerIdOptions): GetLayerIdResult {
     const featuresStore = useFeaturesStore()
 
     const selectedFeatures = featuresStore.selectedFeatures
-    console.log('setLayerIdUpdateFeatures called with options:', options, selectedFeatures)
     let layerId
+    // for toggleLayerVisibility we always update if layer has gone from invisible to visible
+    // if the layer went from visible to invisible we need to check if there are selected features from this layer
     let updateFeatures = true
-    if (typeof options.layerOrIndex === 'string') {
-        layerId = options.layerOrIndex
-    } else if (typeof options.layerOrIndex === 'number') {
-        if (options.activeLayer) {
-            layerId = options.activeLayer.id
-        }
+    if (!options.activeLayer?.isVisible) {
+        layerId = options.activeLayer?.id
     }
 
     if (layerId) {
@@ -69,6 +51,5 @@ function setLayerIdUpdateFeatures(options: GetLayerIdOptions): GetLayerIdResult 
             (feature) => 'layer' in feature && feature.layer.id === layerId
         )
     }
-    console.log('setLayerIdUpdateFeatures called with layerId:', layerId, 'updateFeatures:', updateFeatures)
     return { layerId, updateFeatures }
 }
