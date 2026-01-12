@@ -85,7 +85,8 @@ const center = extentUtils.getExtentCenter(extentLV95)
 The package provides specialized helpers for OpenLayers in `@swissgeo/coordinates/ol`.
 
 ```typescript
-import { getLV95ViewConfig, getLV95TileGrid, registerProj4, registerSwissGeoProjections } from '@swissgeo/coordinates/ol'
+import {registerProj4 } from '@swissgeo/coordinates'
+import { getLV95ViewConfig, getLV95WMTSTileGrid } from '@swissgeo/coordinates/ol'
 import TileLayer from 'ol/layer/Tile'
 import Map from 'ol/Map'
 import View from 'ol/View'
@@ -109,7 +110,7 @@ const map = new Map({
       source: new XYZ({
         url: 'https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/2056/{z}/{x}/{y}.jpeg'
         projection: LV95.epsg,
-        tileGrid: getLV95TileGrid()
+        tileGrid: getLV95WMTSTileGrid()
       })
     })
   ]

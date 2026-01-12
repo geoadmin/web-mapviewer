@@ -39,7 +39,7 @@ export default class WebMercatorCoordinateSystem extends StandardCoordinateSyste
      *
      *          resolution = 156543.03 meters / pixel * cos(latitude) / (2 ^ zoom level)
      */
-    getResolutionForZoomAndCenter(zoom: number, center: SingleCoordinate): number {
+    getResolutionForZoom(zoom: number, center: SingleCoordinate): number {
         const centerInRad = proj4(this.epsg, WGS84.epsg, center).map(
             (coordinate) => (coordinate * Math.PI) / 180.0
         )
@@ -71,7 +71,7 @@ export default class WebMercatorCoordinateSystem extends StandardCoordinateSyste
      *   account the deformation of the WebMercator projection (that is greater the further north we
      *   are)
      */
-    getZoomForResolutionAndCenter(resolution: number, center: SingleCoordinate): number {
+    getZoomForResolution(resolution: number, center: SingleCoordinate): number {
         const centerInRad = proj4(this.epsg, WGS84.epsg, center).map(
             (coordinate) => (coordinate * Math.PI) / 180.0
         )
