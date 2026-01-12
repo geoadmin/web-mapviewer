@@ -16,7 +16,7 @@ const swisssearchParamConfig = new UrlParamConfig<string>({
     extractValueFromStore: () => '',
     setValuesInStore: (_: RouteLocationNormalizedGeneric, urlParamValue?: string) => {
         if (urlParamValue) {
-            void useSearchStore().setSearchQuery(
+            useSearchStore().setSearchQuery(
                 urlParamValue,
                 { originUrlParam: true },
                 STORE_DISPATCHER_ROUTER_PLUGIN
