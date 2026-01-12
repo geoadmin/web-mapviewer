@@ -58,32 +58,13 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="dev-app">
-        <div class="map-container">
+    <div class="absolute top-0 left-0 grid h-full w-full grid-rows-2">
+        <div class="flex flex-col">
             <h2>OpenLayers</h2>
             <div
                 id="ol-map"
-                class="map-container-element"
+                class="grow"
             ></div>
         </div>
     </div>
 </template>
-
-<style scoped lang="scss">
-.dev-app {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    display: grid;
-    grid-template-rows: 1fr 1fr;
-}
-.map-container {
-    display: flex;
-    flex-direction: column;
-    &-element {
-        flex-grow: 1;
-    }
-}
-</style>

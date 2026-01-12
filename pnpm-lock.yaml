@@ -786,6 +786,9 @@ importers:
       '@swissgeo/config-typescript':
         specifier: workspace:*
         version: link:../config/typescript
+      '@tailwindcss/vite':
+        specifier: 'catalog:'
+        version: 4.2.1(vite@7.2.2(@types/node@25.3.0)(jiti@2.6.1)(lightningcss@1.31.1)(sass-embedded@1.91.0)(sass@1.97.3)(terser@5.43.1)(tsx@4.21.0)(yaml@2.8.2))
       '@turf/turf':
         specifier: 'catalog:'
         version: 7.3.4
@@ -807,6 +810,9 @@ importers:
       eslint:
         specifier: 'catalog:'
         version: 9.39.3(jiti@2.6.1)
+      tailwindcss:
+        specifier: 'catalog:'
+        version: 4.2.1
       typescript:
         specifier: 'catalog:'
         version: 5.9.3

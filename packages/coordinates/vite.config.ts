@@ -1,5 +1,6 @@
 import type { ViteUserConfig } from 'vitest/config'
 
+import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import dts from 'unplugin-dts/vite'
@@ -34,6 +35,7 @@ const config: ViteUserConfig = {
     },
     plugins: [
         tsconfigPaths(),
+        tailwindcss(),
         vue(),
         vueDevTools(),
         dts({
