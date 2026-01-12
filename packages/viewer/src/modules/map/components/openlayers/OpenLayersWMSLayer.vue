@@ -4,15 +4,14 @@ import type { ExternalWMSLayer, GeoAdminWMSLayer, LayerCustomAttributes } from '
 import type { Map } from 'ol'
 
 import { extentUtils, LV95 } from '@swissgeo/coordinates'
+import { getLV95WMSTileGrid } from '@swissgeo/coordinates/ol'
 import { ALL_YEARS_TIMESTAMP } from '@swissgeo/layers'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
 import { getBaseUrlOverride } from '@swissgeo/staging-config'
-import { WMS_TILE_SIZE } from '@swissgeo/staging-config/constants'
 import { cloneDeep } from 'lodash'
 import { Image as ImageLayer, Tile as TileLayer } from 'ol/layer'
 import { ImageWMS, TileWMS } from 'ol/source'
-import TileGrid from 'ol/tilegrid/TileGrid'
 import { computed, inject, watch, watchEffect } from 'vue'
 
 import useAddLayerToMap from '@/modules/map/components/openlayers/utils/useAddLayerToMap.composable'
@@ -154,16 +153,7 @@ function createTileWMSSource(): TileWMS {
         url: url.value,
         gutter: gutter.value,
         params: wmsUrlParams.value,
-        tileGrid: !positionStore.projection.usesMercatorPyramid
-            ? new TileGrid({
-                  resolutions: positionStore.projection
-                      .getResolutionSteps()
-                      .map((step) => step.resolution),
-                  extent: positionStore.projection.bounds?.flatten,
-                  origin: positionStore.projection.getTileOrigin(),
-                  tileSize: WMS_TILE_SIZE,
-              })
-            : undefined,
+        tileGrid: !positionStore.projection.usesMercatorPyramid ? getLV95WMSTileGrid() : undefined,
     })
 }
 

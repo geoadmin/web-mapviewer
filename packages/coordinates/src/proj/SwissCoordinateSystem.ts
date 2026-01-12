@@ -11,7 +11,7 @@ import CustomCoordinateSystem from '@/proj/CustomCoordinateSystem'
 /**
  * Resolutions for each LV95 zoom level, from 0 to 14
  *
- * @see https://api3.geo.admin.ch/services/sdiservices.html#gettile
+ * @see https://docs.geo.admin.ch/visualize-data/wmts.html#gettile
  */
 export const LV95_RESOLUTIONS: number[] = [
     650.0, 500.0, 250.0, 100.0, 50.0, 20.0, 10.0, 5.0, 2.5, 2.0, 1.0, 0.5, 0.25, 0.1,
@@ -19,7 +19,7 @@ export const LV95_RESOLUTIONS: number[] = [
 
 /**
  * Resolutions steps (one per zoom level) for our own WMTS pyramid (see
- * {@link http://api3.geo.admin.ch/services/sdiservices.html#wmts}) expressed in meters/pixel
+ * {@link https://docs.geo.admin.ch/visualize-data/wmts.html}) expressed in meters/pixel
  *
  * Be mindful that zoom levels described on our doc are expressed for LV95 and need conversion to
  * World Wide zoom level (see {@link SwissCoordinateSystem})
@@ -43,7 +43,7 @@ export const SWISSTOPO_TILEGRID_RESOLUTIONS: number[] = [
     1000.0,
     750.0,
     ...LV95_RESOLUTIONS.slice(0, 10),
-    // see table https://api3.geo.admin.ch/services/sdiservices.html#gettile
+    // see table https://docs.geo.admin.ch/visualize-data/wmts.html#gettile
     // LV95 doesn't support zoom level 10 at 1.5 resolution, so we need to split
     // the resolution and add it here
     1.5,
@@ -106,7 +106,7 @@ const swisstopoZoomLevels: number[] = SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_M
  * the map).
  *
  * @abstract
- * @see https://api3.geo.admin.ch/services/sdiservices.html#wmts
+ * @see https://docs.geo.admin.ch/visualize-data/wmts.html
  * @see https://wiki.openstreetmap.org/wiki/Zoom_levels
  */
 export default class SwissCoordinateSystem extends CustomCoordinateSystem {
@@ -166,7 +166,7 @@ export default class SwissCoordinateSystem extends CustomCoordinateSystem {
      * {@link https://github.com/geoadmin/mf-geoadmin3/blob/ce885985e4af5e3e20c87321e67a650388af3602/src/components/map/MapUtilsService.js#L603-L631 MapUtilsService.js on mf-geoadmin3}
      *
      * @param customZoomLevel A zoom level as desribed in
-     *   {@link http://api3.geo.admin.ch/services/sdiservices.html#wmts our backend's doc}
+     *   {@link https://docs.geo.admin.ch/visualize-data/wmts.html our backend's doc}
      * @returns A web-mercator zoom level (as described on
      *   {@link https://wiki.openstreetmap.org/wiki/Zoom_levels | OpenStreetMap's wiki}) or the zoom
      *   level to show the 1:25'000 map if the input is invalid
@@ -183,7 +183,7 @@ export default class SwissCoordinateSystem extends CustomCoordinateSystem {
         return STANDARD_ZOOM_LEVEL_1_25000_MAP
     }
 
-    getResolutionForZoomAndCenter(zoom: number): number {
+    getResolutionForZoom(zoom: number): number {
         const roundedZoom = Math.round(zoom)
         if (typeof LV95_RESOLUTIONS[roundedZoom] !== 'number') {
             return 0
@@ -192,7 +192,7 @@ export default class SwissCoordinateSystem extends CustomCoordinateSystem {
         return LV95_RESOLUTIONS[roundedZoom]
     }
 
-    getZoomForResolutionAndCenter(resolution: number): number {
+    getZoomForResolution(resolution: number): number {
         // ignoring the center, as it won't have any effect on the resolution
         const matchingResolution = LV95_RESOLUTIONS.find(
             (lv95Resolution) => lv95Resolution <= resolution

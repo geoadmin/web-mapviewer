@@ -94,15 +94,15 @@ describe('Unit test functions from SwissCoordinateSystem', () => {
             })
         })
     })
-    describe('getZoomForResolutionAndY', () => {
+    describe('getZoomForResolution', () => {
         it('returns zoom=0 if the resolution is too great', () => {
-            expect(LV95.getZoomForResolutionAndCenter(LV95_RESOLUTIONS[0]! + 1)).to.eq(0)
-            expect(LV03.getZoomForResolutionAndCenter(LV95_RESOLUTIONS[0]! + 1)).to.eq(0)
+            expect(LV95.getZoomForResolution(LV95_RESOLUTIONS[0]! + 1)).to.eq(0)
+            expect(LV03.getZoomForResolution(LV95_RESOLUTIONS[0]! + 1)).to.eq(0)
         })
         it('returns zoom correctly while resolution is exactly on a threshold', () => {
             for (let i = 0; i < LV95_RESOLUTIONS.length - 1; i++) {
-                expect(LV95.getZoomForResolutionAndCenter(LV95_RESOLUTIONS[i]!)).to.eq(i)
-                expect(LV03.getZoomForResolutionAndCenter(LV95_RESOLUTIONS[i]!)).to.eq(i)
+                expect(LV95.getZoomForResolution(LV95_RESOLUTIONS[i]!)).to.eq(i)
+                expect(LV03.getZoomForResolution(LV95_RESOLUTIONS[i]!)).to.eq(i)
             }
         })
         it('returns zoom correctly while resolution is in between the two thresholds', () => {
@@ -112,11 +112,11 @@ describe('Unit test functions from SwissCoordinateSystem', () => {
                     resolution > LV95_RESOLUTIONS[i + 1]!;
                     resolution--
                 ) {
-                    expect(LV95.getZoomForResolutionAndCenter(resolution)).to.eq(
+                    expect(LV95.getZoomForResolution(resolution)).to.eq(
                         i + 1,
                         `resolution ${resolution} was misinterpreted`
                     )
-                    expect(LV03.getZoomForResolutionAndCenter(resolution)).to.eq(
+                    expect(LV03.getZoomForResolution(resolution)).to.eq(
                         i + 1,
                         `resolution ${resolution} was misinterpreted`
                     )
@@ -125,10 +125,10 @@ describe('Unit test functions from SwissCoordinateSystem', () => {
         })
         it('returns the max zoom available, event if the resolution is smaller than expected', () => {
             const smallestResolution = LV95_RESOLUTIONS[LV95_RESOLUTIONS.length - 1]!
-            expect(LV95.getZoomForResolutionAndCenter(smallestResolution - 0.1)).to.eq(
+            expect(LV95.getZoomForResolution(smallestResolution - 0.1)).to.eq(
                 LV95_RESOLUTIONS.indexOf(smallestResolution)
             )
-            expect(LV03.getZoomForResolutionAndCenter(smallestResolution - 0.1)).to.eq(
+            expect(LV03.getZoomForResolution(smallestResolution - 0.1)).to.eq(
                 LV95_RESOLUTIONS.indexOf(smallestResolution)
             )
         })

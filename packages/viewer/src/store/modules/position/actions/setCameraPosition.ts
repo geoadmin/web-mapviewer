@@ -42,7 +42,7 @@ export default function setCameraPosition(
         )
 
         const resolution = calculateResolution(this.camera.z, uiStore.width)
-        const zoom = this.projection.getZoomForResolutionAndCenter(
+        const zoom = this.projection.getZoomForResolution(
             resolution,
             centerExpressedInWantedProjection
         )

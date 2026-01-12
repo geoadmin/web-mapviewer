@@ -16,9 +16,11 @@ const config: ViteUserConfig = {
             },
             name: '@swissgeo/coordinates',
         },
+        sourcemap: true,
         rollupOptions: {
             output: {
                 exports: 'named',
+                name: '@swissgeo/coordinates',
                 globals: {
                     vue: 'Vue',
                 },

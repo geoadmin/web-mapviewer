@@ -13,11 +13,11 @@ class BoundlessCoordinateSystem extends StandardCoordinateSystem {
             epsgNumber: 1234,
         })
     }
-    getResolutionForZoomAndCenter(): number {
+    getResolutionForZoom(): number {
         return 0
     }
 
-    getZoomForResolutionAndCenter(): number {
+    getZoomForResolution(): number {
         return 0
     }
 

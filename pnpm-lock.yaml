@@ -289,8 +289,8 @@ catalogs:
       specifier: ^3.7.4
       version: 3.7.4
     prettier-plugin-jsdoc:
-      specifier: ^1.5.0
-      version: 1.8.0
+      specifier: 1.5.0
+      version: 1.5.0
     prettier-plugin-packagejson:
       specifier: ^2.5.20
       version: 2.5.20
@@ -453,13 +453,13 @@ importers:
         version: 3.7.4
       prettier-plugin-jsdoc:
         specifier: 'catalog:'
-        version: 1.8.0(prettier@3.7.4)
+        version: 1.5.0(prettier@3.7.4)
       prettier-plugin-packagejson:
         specifier: 'catalog:'
         version: 2.5.20(prettier@3.7.4)
       prettier-plugin-tailwindcss:
         specifier: 'catalog:'
-        version: 0.7.2(prettier-plugin-jsdoc@1.8.0(prettier@3.7.4))(prettier@3.7.4)
+        version: 0.7.2(prettier-plugin-jsdoc@1.5.0(prettier@3.7.4))(prettier@3.7.4)
       tsx:
         specifier: 'catalog:'
         version: 4.21.0
@@ -682,13 +682,13 @@ importers:
         version: 3.4.2(prettier@3.7.4)
       prettier-plugin-jsdoc:
         specifier: 'catalog:'
-        version: 1.8.0(prettier@3.7.4)
+        version: 1.5.0(prettier@3.7.4)
       prettier-plugin-packagejson:
         specifier: 'catalog:'
         version: 2.5.20(prettier@3.7.4)
       prettier-plugin-tailwindcss:
         specifier: 'catalog:'
-        version: 0.7.2(prettier-plugin-jsdoc@1.8.0(prettier@3.7.4))(prettier@3.7.4)
+        version: 0.7.2(prettier-plugin-jsdoc@1.5.0(prettier@3.7.4))(prettier@3.7.4)
 
   packages/config/staging:
     devDependencies:
@@ -852,6 +852,136 @@ importers:
       ol:
         specifier: 'catalog:'
         version: 10.7.0(patch_hash=c45d557dbcd90a243829dc2bfff07b642daeec88f138b1adb39e540e8c1ed3a4)
+
+  packages/drawing:
+    dependencies:
+      '@fortawesome/fontawesome-svg-core':
+        specifier: 'catalog:'
+        version: 7.1.0
+      '@fortawesome/free-regular-svg-icons':
+        specifier: 'catalog:'
+        version: 7.1.0
+      '@fortawesome/free-solid-svg-icons':
+        specifier: 'catalog:'
+        version: 7.1.0
+      '@fortawesome/vue-fontawesome':
+        specifier: 'catalog:'
+        version: 3.1.2(@fortawesome/fontawesome-svg-core@7.1.0)(vue@3.5.26(typescript@5.9.3))
+      '@swissgeo/api':
+        specifier: workspace:*
+        version: link:../api
+      '@swissgeo/coordinates':
+        specifier: workspace:*
+        version: link:../coordinates
+      '@swissgeo/layers':
+        specifier: workspace:*
+        version: link:../layers
+      '@swissgeo/log':
+        specifier: workspace:*
+        version: link:../log
+      '@swissgeo/numbers':
+        specifier: workspace:*
+        version: link:../numbers
+      '@swissgeo/staging-config':
+        specifier: workspace:*
+        version: link:../config/staging
+      '@swissgeo/tooltip':
+        specifier: workspace:*
+        version: link:../tooltip
+      '@tmcw/togeojson':
+        specifier: 'catalog:'
+        version: 7.1.2
+      '@turf/turf':
+        specifier: 'catalog:'
+        version: 7.3.1
+      axios:
+        specifier: 'catalog:'
+        version: 1.13.2(debug@4.4.3)
+      ol:
+        specifier: 'catalog:'
+        version: 10.7.0(patch_hash=c45d557dbcd90a243829dc2bfff07b642daeec88f138b1adb39e540e8c1ed3a4)
+      pinia:
+        specifier: 'catalog:'
+        version: 3.0.4(typescript@5.9.3)(vue@3.5.26(typescript@5.9.3))
+      proj4:
+        specifier: 'catalog:'
+        version: 2.20.2
+      vue:
+        specifier: 'catalog:'
+        version: 3.5.26(typescript@5.9.3)
+      vue-i18n:
+        specifier: 'catalog:'
+        version: 11.2.8(vue@3.5.26(typescript@5.9.3))
+    devDependencies:
+      '@intlify/core-base':
+        specifier: 'catalog:'
+        version: 11.2.8
+      '@microsoft/api-extractor':
+        specifier: 'catalog:'
+        version: 7.55.2(@types/node@25.0.3)
+      '@swissgeo/config-eslint':
+        specifier: workspace:*
+        version: link:../config/eslint
+      '@swissgeo/config-prettier':
+        specifier: workspace:*
+        version: link:../config/prettier
+      '@swissgeo/config-stylelint':
+        specifier: workspace:*
+        version: link:../config/stylelint
+      '@swissgeo/config-typescript':
+        specifier: workspace:*
+        version: link:../config/typescript
+      '@tailwindcss/vite':
+        specifier: 'catalog:'
+        version: 4.1.18(vite@7.2.2(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.91.0)(sass@1.97.2)(terser@5.43.1)(tsx@4.21.0)(yaml@2.8.2))
+      '@tsconfig/node22':
+        specifier: 'catalog:'
+        version: 22.0.5
+      '@types/chai':
+        specifier: 'catalog:'
+        version: 5.2.3
+      '@types/jsdom':
+        specifier: 'catalog:'
+        version: 27.0.0
+      '@vitejs/plugin-vue':
+        specifier: 'catalog:'
+        version: 6.0.3(vite@7.2.2(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.91.0)(sass@1.97.2)(terser@5.43.1)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.26(typescript@5.9.3))
+      '@vue/tsconfig':
+        specifier: 'catalog:'
+        version: 0.8.1(typescript@5.9.3)(vue@3.5.26(typescript@5.9.3))
+      chai:
+        specifier: 'catalog:'
+        version: 6.2.1
+      eslint:
+        specifier: 'catalog:'
+        version: 9.39.2(jiti@2.6.1)
+      stylelint:
+        specifier: 'catalog:'
+        version: 16.26.1(typescript@5.9.3)
+      tailwindcss:
+        specifier: 'catalog:'
+        version: 4.1.18
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      unplugin-dts:
+        specifier: 'catalog:'
+        version: 1.0.0-beta.6(@microsoft/api-extractor@7.55.2(@types/node@25.0.3))(@vue/language-core@3.0.8(typescript@5.9.3))(esbuild@0.27.2)(rollup@4.44.1)(typescript@5.9.3)(vite@7.2.2(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.91.0)(sass@1.97.2)(terser@5.43.1)(tsx@4.21.0)(yaml@2.8.2))
+      vite:
+        specifier: 'catalog:'
+        version: 7.2.2(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.91.0)(sass@1.97.2)(terser@5.43.1)(tsx@4.21.0)(yaml@2.8.2)
+      vite-plugin-vue-devtools:
+        specifier: 'catalog:'
+        version: 8.0.5(vite@7.2.2(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.91.0)(sass@1.97.2)(terser@5.43.1)(tsx@4.21.0)(yaml@2.8.2))(vue@3.5.26(typescript@5.9.3))
+      vite-tsconfig-paths:
+        specifier: 'catalog:'
+        version: 6.0.3(typescript@5.9.3)(vite@7.2.2(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.91.0)(sass@1.97.2)(terser@5.43.1)(tsx@4.21.0)(yaml@2.8.2))
+      vitest:
+        specifier: 'catalog:'
+        version: 4.0.16(@types/node@25.0.3)(jiti@2.6.1)(jsdom@27.4.0)(lightningcss@1.30.2)(sass-embedded@1.91.0)(sass@1.97.2)(terser@5.43.1)(tsx@4.21.0)(yaml@2.8.2)
+      vue-tsc:
+        specifier: 'catalog:'
+        version: 3.2.2(typescript@5.9.3)
 
   packages/elevation-profile:
     dependencies:
@@ -2618,10 +2748,6 @@ packages:
     peerDependencies:
       eslint: ^6.0.0 || ^7.0.0 || >=8.0.0
 
-  '@eslint-community/regexpp@4.12.1':
-    resolution: {integrity: sha512-CCZCDJuduB9OUkFkY2IgppNZMi2lBQgD2qzwXkEia16cge2pijY/aXi96CJMquDMn3nJdlPV1A5KrJEXwfLNzQ==}
-    engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
-
   '@eslint-community/regexpp@4.12.2':
     resolution: {integrity: sha512-EriSTlt5OC9/7SXkRSCAhfSxxoSUgBm33OH+IkwbdpgoqsSsUg7y3uh+IICI/Qg4BBWr3U2i39RpmycbxMq4ew==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
@@ -4147,9 +4273,6 @@ packages:
 
   '@volar/source-map@2.4.27':
     resolution: {integrity: sha512-ynlcBReMgOZj2i6po+qVswtDUeeBRCTgDurjMGShbm8WYZgJ0PA4RmtebBJ0BCYol1qPv3GQF6jK7C9qoVc7lg==}
-
-  '@volar/typescript@2.4.23':
-    resolution: {integrity: sha512-lAB5zJghWxVPqfcStmAP1ZqQacMpe90UrP5RJ3arDyrhy4aCUQqmxPPLB2PWDKugvylmO41ljK7vZ+t6INMTag==}
 
   '@volar/typescript@2.4.27':
     resolution: {integrity: sha512-eWaYCcl/uAPInSK2Lze6IqVWaBu/itVqR5InXcHXFyles4zO++Mglt3oxdgj75BDcv1Knr9Y93nowS8U3wqhxg==}
@@ -7078,8 +7201,8 @@ packages:
     resolution: {integrity: sha512-GbK2cP9nraSSUF9N2XwUwqfzlAFlMNYYl+ShE/V+H8a9uNl/oUqB1w2EL54Jh0OlyRSd8RfWYJ3coVS4TROP2w==}
     engines: {node: '>=6.0.0'}
 
-  prettier-plugin-jsdoc@1.8.0:
-    resolution: {integrity: sha512-byW8EBZ1DSA3CPdDGBXfcdqqhh2eq0+HlIOPTGZ6rf9O2p/AwBmtS0e49ot5ZeOdcszj81FyzbyHr/VS0eYpCg==}
+  prettier-plugin-jsdoc@1.5.0:
+    resolution: {integrity: sha512-Fehp5qkFQhNFcxUilDPEcqHX8AdP6oGyCRLatqRc0gLXv3qOtndTnnUxfHCYc26I4Lc1A4lVozAtWEE8o7ubUA==}
     engines: {node: '>=14.13.1 || >=16.0.0'}
     peerDependencies:
       prettier: ^3.0.0
@@ -9533,9 +9656,9 @@ snapshots:
       '@csstools/css-parser-algorithms': 3.0.5(@csstools/css-tokenizer@3.0.4)
       '@csstools/css-tokenizer': 3.0.4
 
-  '@csstools/selector-specificity@5.0.0(postcss-selector-parser@7.1.0)':
+  '@csstools/selector-specificity@5.0.0(postcss-selector-parser@7.1.1)':
     dependencies:
-      postcss-selector-parser: 7.1.0
+      postcss-selector-parser: 7.1.1
 
   '@cypress/request@3.0.10':
     dependencies:
@@ -9754,8 +9877,6 @@ snapshots:
     dependencies:
       eslint: 9.39.2(jiti@2.6.1)
       eslint-visitor-keys: 3.4.3
-
-  '@eslint-community/regexpp@4.12.1': {}
 
   '@eslint-community/regexpp@4.12.2': {}
 
@@ -11966,12 +12087,6 @@ snapshots:
 
   '@volar/source-map@2.4.27': {}
 
-  '@volar/typescript@2.4.23':
-    dependencies:
-      '@volar/language-core': 2.4.23
-      path-browserify: 1.0.1
-      vscode-uri: 3.1.0
-
   '@volar/typescript@2.4.27':
     dependencies:
       '@volar/language-core': 2.4.27
@@ -13394,8 +13509,8 @@ snapshots:
 
   eslint@9.39.2(jiti@2.6.1):
     dependencies:
-      '@eslint-community/eslint-utils': 4.9.0(eslint@9.39.2(jiti@2.6.1))
-      '@eslint-community/regexpp': 4.12.1
+      '@eslint-community/eslint-utils': 4.9.1(eslint@9.39.2(jiti@2.6.1))
+      '@eslint-community/regexpp': 4.12.2
       '@eslint/config-array': 0.21.1
       '@eslint/config-helpers': 0.4.2
       '@eslint/core': 0.17.0
@@ -15374,7 +15489,7 @@ snapshots:
     dependencies:
       fast-diff: 1.3.0
 
-  prettier-plugin-jsdoc@1.8.0(prettier@3.7.4):
+  prettier-plugin-jsdoc@1.5.0(prettier@3.7.4):
     dependencies:
       binary-searching: 2.0.5
       comment-parser: 1.4.1
@@ -15390,11 +15505,11 @@ snapshots:
     optionalDependencies:
       prettier: 3.7.4
 
-  prettier-plugin-tailwindcss@0.7.2(prettier-plugin-jsdoc@1.8.0(prettier@3.7.4))(prettier@3.7.4):
+  prettier-plugin-tailwindcss@0.7.2(prettier-plugin-jsdoc@1.5.0(prettier@3.7.4))(prettier@3.7.4):
     dependencies:
       prettier: 3.7.4
     optionalDependencies:
-      prettier-plugin-jsdoc: 1.8.0(prettier@3.7.4)
+      prettier-plugin-jsdoc: 1.5.0(prettier@3.7.4)
 
   prettier@3.7.4: {}
 
@@ -16180,7 +16295,7 @@ snapshots:
       '@csstools/css-syntax-patches-for-csstree': 1.0.22
       '@csstools/css-tokenizer': 3.0.4
       '@csstools/media-query-list-parser': 4.0.3(@csstools/css-parser-algorithms@3.0.5(@csstools/css-tokenizer@3.0.4))(@csstools/css-tokenizer@3.0.4)
-      '@csstools/selector-specificity': 5.0.0(postcss-selector-parser@7.1.0)
+      '@csstools/selector-specificity': 5.0.0(postcss-selector-parser@7.1.1)
       '@dual-bundle/import-meta-resolve': 4.2.1
       balanced-match: 2.0.0
       colord: 2.9.3
@@ -16207,7 +16322,7 @@ snapshots:
       postcss: 8.5.6
       postcss-resolve-nested-selector: 0.1.6
       postcss-safe-parser: 7.0.1(postcss@8.5.6)
-      postcss-selector-parser: 7.1.0
+      postcss-selector-parser: 7.1.1
       postcss-value-parser: 4.2.0
       resolve-from: 5.0.0
       string-width: 4.2.3
@@ -16513,7 +16628,7 @@ snapshots:
   unplugin-dts@1.0.0-beta.6(@microsoft/api-extractor@7.55.2(@types/node@25.0.3))(@vue/language-core@3.0.8(typescript@5.9.3))(esbuild@0.27.2)(rollup@4.44.1)(typescript@5.9.3)(vite@7.2.2(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.91.0)(sass@1.97.2)(terser@5.43.1)(tsx@4.21.0)(yaml@2.8.2)):
     dependencies:
       '@rollup/pluginutils': 5.2.0(rollup@4.44.1)
-      '@volar/typescript': 2.4.23
+      '@volar/typescript': 2.4.27
       compare-versions: 6.1.1
       debug: 4.4.3(supports-color@8.1.1)
       kolorist: 1.8.0
@@ -16533,7 +16648,7 @@ snapshots:
   unplugin-dts@1.0.0-beta.6(@microsoft/api-extractor@7.55.2(@types/node@25.0.3))(@vue/language-core@3.1.3(typescript@5.9.3))(esbuild@0.27.2)(rollup@4.44.1)(typescript@5.9.3)(vite@7.2.2(@types/node@25.0.3)(jiti@2.6.1)(lightningcss@1.30.2)(sass-embedded@1.91.0)(sass@1.97.2)(terser@5.43.1)(tsx@4.21.0)(yaml@2.8.2)):
     dependencies:
       '@rollup/pluginutils': 5.2.0(rollup@4.44.1)
-      '@volar/typescript': 2.4.23
+      '@volar/typescript': 2.4.27
       compare-versions: 6.1.1
       debug: 4.4.3(supports-color@8.1.1)
       kolorist: 1.8.0

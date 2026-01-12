@@ -194,7 +194,7 @@ describe('Test the search bar result handling', () => {
         const resolution = 1000.0 / Math.min(currentViewportWidth, currentViewPortHeight)
         // we now zoom out once after calculation (see BGDIINF_SB-3153)
         return (
-            DEFAULT_PROJECTION.getZoomForResolutionAndCenter(
+            DEFAULT_PROJECTION.getZoomForResolution(
                 resolution,
                 proj4(
                     WGS84.epsg,

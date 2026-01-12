@@ -37,7 +37,7 @@ export default class WGS84CoordinateSystem extends StandardCoordinateSystem {
      *
      *          resolution = 156543.03 meters / pixel * cos(latitude) / (2 ^ zoom level)
      */
-    getResolutionForZoomAndCenter(zoom: number, center: SingleCoordinate): number {
+    getResolutionForZoom(zoom: number, center: SingleCoordinate): number {
         return round(
             Math.abs(
                 (PIXEL_LENGTH_IN_KM_AT_ZOOM_ZERO_WITH_256PX_TILES *
@@ -70,7 +70,7 @@ export default class WGS84CoordinateSystem extends StandardCoordinateSystem {
     }
 
     /**
-     * Calculating zoom level by reversing formula from
+     * Calculating zoom level by reversing the formula from
      * https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Resolution_and_Scale :
      *
      *          resolution = 156543.03 * cos(latitude) / (2 ^ zoom level)
@@ -80,12 +80,12 @@ export default class WGS84CoordinateSystem extends StandardCoordinateSystem {
      *          zoom level = log2( resolution / 156543.03 / cos(latitude) )
      *
      * @param resolution Resolution in meter/pixel
-     * @param center As the use an equatorial constant to calculate the zoom level, we need to know
+     * @param center As we use an equatorial constant to calculate the zoom level, we need to know
      *   the latitude of the position the resolution must be calculated at, as we need to take into
      *   account the deformation of the WebMercator projection (that is greater the further north we
      *   are)
      */
-    getZoomForResolutionAndCenter(resolution: number, center: SingleCoordinate): number {
+    getZoomForResolution(resolution: number, center: SingleCoordinate): number {
         return Math.abs(
             Math.log2(
                 resolution /

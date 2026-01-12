@@ -70,7 +70,7 @@ export default function zoomToExtent(
             targetResolution = extentSize.width / uiStore.width
         }
 
-        const zoomForResolution = this.projection.getZoomForResolutionAndCenter(
+        const zoomForResolution = this.projection.getZoomForResolution(
             targetResolution,
             centerOfExtent
         )

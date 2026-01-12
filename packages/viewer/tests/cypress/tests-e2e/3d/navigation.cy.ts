@@ -101,7 +101,7 @@ describe('Testing 3D navigation', () => {
                                     viewer.canvas.clientWidth
                                 )
                                 expect(zoom).to.approximately(
-                                    projection?.getZoomForResolutionAndCenter(
+                                    projection?.getZoomForResolution(
                                         resolution,
                                         proj4(WGS84.epsg, projection.epsg, [lon, lat])
                                     ),
