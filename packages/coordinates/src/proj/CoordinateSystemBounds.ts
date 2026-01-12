@@ -12,7 +12,7 @@ import {
 import { sortBy } from 'lodash'
 
 import type { SingleCoordinate } from '@/coordinatesUtils'
-import type { CoordinatesChunk } from '@/proj/CoordinatesChunk'
+import type { CoordinatesChunk } from '@/proj/types'
 
 interface CoordinateSystemBoundsProps {
     lowerX: number

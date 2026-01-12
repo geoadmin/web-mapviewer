@@ -1,6 +1,6 @@
 {
     "name": "@swissgeo/coordinates",
-    "version": "1.0.0-rc.1",
+    "version": "1.0.3",
     "description": "Projection definition and coordinates utils for SWISSGEO projects.",
     "license": "BSD-3-Clause",
     "type": "module",
@@ -9,13 +9,13 @@
             "types": "./dist/index.d.ts",
             "import": "./dist/index.js",
             "require": "./dist/index.cjs"
+        },
+        "./ol": {
+            "types": "./dist/ol.d.ts",
+            "import": "./dist/ol.js",
+            "require": "./dist/ol.cjs"
         }
     },
-    "main": "./dist/index.umd.cjs",
-    "module": "./dist/index.js",
-    "files": [
-        "dist"
-    ],
     "scripts": {
         "build": "pnpm run type-check && pnpm run generate-types && vite build",
         "build:dev": "pnpm run build --mode development",
@@ -23,14 +23,14 @@
         "build:int": "pnpm run build --mode integration",
         "build:prod": "pnpm run build --mode production",
         "dev": "vite",
-        "generate-types": "tsc --declaration",
+        "generate-types": "vue-tsc --declaration",
         "lint": "eslint --fix",
         "lint:no-fix": "eslint",
         "prepare": "pnpm run build",
         "preview": "vite preview",
         "test:unit": "vitest run",
         "test:unit:watch": "vitest watch",
-        "type-check": "tsc -p tsconfig.json"
+        "type-check": "vue-tsc --build"
     },
     "dependencies": {
         "@swissgeo/log": "workspace:*",
@@ -41,19 +41,28 @@
         "@microsoft/api-extractor": "catalog:",
         "@swissgeo/config-eslint": "workspace:*",
         "@swissgeo/config-typescript": "workspace:*",
+        "@tailwindcss/vite": "catalog:",
         "@turf/turf": "catalog:",
         "@types/chai": "catalog:",
         "@types/geojson": "catalog:",
         "@types/lodash": "catalog:",
+        "@vitejs/plugin-vue": "catalog:",
         "chai": "catalog:",
         "eslint": "catalog:",
+        "tailwindcss": "catalog:",
         "typescript": "catalog:",
         "unplugin-dts": "catalog:",
         "vite": "catalog:",
-        "vitest": "catalog:"
+        "vite-plugin-vue-devtools": "catalog:",
+        "vite-tsconfig-paths": "catalog:",
+        "vitest": "catalog:",
+        "vue": "catalog:",
+        "vue-tsc": "catalog:"
     },
     "peerDependencies": {
-        "ol": "catalog:",
         "proj4": "catalog:"
+    },
+    "optionalDependencies": {
+        "ol": "catalog:"
     }
 }

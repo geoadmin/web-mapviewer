@@ -2,7 +2,8 @@ import type { Map } from 'ol'
 import type MapBrowserEvent from 'ol/MapBrowserEvent'
 import type { MaybeRef } from 'vue'
 
-import { constants, LV95, WEBMERCATOR } from '@swissgeo/coordinates'
+import { LV95, WEBMERCATOR } from '@swissgeo/coordinates'
+import { getLV95ViewConfig } from '@swissgeo/coordinates/ol'
 import log from '@swissgeo/log'
 import { round } from '@swissgeo/numbers'
 import { VIEW_MIN_RESOLUTION } from '@swissgeo/staging-config/constants'
@@ -32,13 +33,9 @@ export default function useViewBasedOnProjection(map: MaybeRef<Map>): void {
 
     const viewsForProjection: Record<string, View> = {}
     viewsForProjection[LV95.epsg] = new View({
+        ...getLV95ViewConfig(),
         zoom: zoom.value,
-        minResolution: VIEW_MIN_RESOLUTION,
         rotation: rotation.value,
-        resolutions: constants.LV95_RESOLUTIONS,
-        projection: LV95.epsg,
-        extent: LV95.bounds.flatten,
-        constrainOnlyCenter: true,
     })
     viewsForProjection[WEBMERCATOR.epsg] = new View({
         zoom: zoom.value,

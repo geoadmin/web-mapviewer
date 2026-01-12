@@ -1,6 +1,6 @@
 {
     "name": "@swissgeo/staging-config",
-    "version": "1.0.0-rc.1",
+    "version": "1.0.0",
     "description": "Staging config utils for swissgeo",
     "repository": {
         "type": "git",

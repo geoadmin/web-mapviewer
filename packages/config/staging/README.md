@@ -18,7 +18,7 @@ npm install @swissgeo/staging-config
 
 ```typescript
 import { type Staging, type BackendServices } from '@swissgeo/staging-config'
-import { getApi3BaseUrl, getWmsBaseUrl } from '@swissgeo/staging-config'
+import { getApi3BaseUrl, getWmsBaseUrl, getWmtsBaseUrl } from '@swissgeo/staging-config'
 
 // Get WMS service URL for production environment
 const wmsUrl = getWmsBaseUrl() // default environment is 'production'
@@ -27,16 +27,41 @@ const wmsUrl = getWmsBaseUrl() // default environment is 'production'
 // Get API3 service URL for development environment
 const api3Url = getApi3BaseUrl('development')
 // => 'https://sys-api3.dev.bgdi.ch/'
+
+// Get WMTS service URL for integration environment
+const wmtsUrl = getWmtsBaseUrl('integration')
+// => 'https://sys-wmts.int.bgdi.ch/'
 ```
 
 ### Environment-based URL Selection
 
 ```typescript
-import type { Staging } from '@swissgeo/staging-config'
-import { getWmtsBaseUrl } from '@swissgeo/staging-config'
+import { getBaseUrl, type Staging } from '@swissgeo/staging-config'
 
 const environment: Staging = 'production' // or 'development', 'integration'
-const wmtsUrl = getWmtsBaseUrl(environment)
+const wmtsUrl = getBaseUrl('wmts', environment)
+```
+
+### Overriding Base URLs
+
+You can override base URLs globally for your application, which is useful for testing or local development:
+
+```typescript
+import { setBaseUrlOverrides } from '@swissgeo/staging-config'
+
+// Override API3 URL
+setBaseUrlOverrides('api3', 'http://localhost:8080/')
+
+// Now getApi3BaseUrl() will return your override
+// getApi3BaseUrl() => 'http://localhost:8080/'
+```
+
+### Constants
+
+The package also exports various constants used across SWISSGEO projects:
+
+```typescript
+import { WMS_TILE_SIZE } from '@swissgeo/staging-config/constants'
 ```
 
 ## Available Services
@@ -70,6 +95,23 @@ The package exports the following TypeScript types:
 - **`BackendServices`**: Union type for available backend services
 - **`ServiceBaseUrl`**: Object mapping staging environments to URLs
 - **`ServicesBaseUrl`**: Complete mapping of all services to their base URLs
+
+## Helper Functions
+
+The package provides several helper functions for retrieving service URLs:
+
+- **`getApi3BaseUrl(staging)`**: Returns the API3 base URL.
+- **`getWmsBaseUrl(staging)`**: Returns the WMS base URL.
+- **`getWmtsBaseUrl(staging)`**: Returns the WMTS base URL.
+- **`getServiceKmlBaseUrl(staging)`**: Returns the KML service base URL.
+- **`getServiceProxyBaseUrl(staging)`**: Returns the proxy service base URL.
+- **`getServiceShortLinkBaseUrl(staging)`**: Returns the shortlink service base URL.
+- **`getDataBaseUrl(staging)`**: Returns the GeoJSON data service base URL.
+- **`get3dTilesBaseUrl(staging)`**: Returns the 3D tiles base URL.
+- **`getVectorTilesBaseUrl(staging)`**: Returns the vector tiles base URL.
+- **`getViewerDedicatedServicesBaseUrl(staging)`**: Returns the viewer-specific services base URL.
+
+All functions accept an optional `staging` parameter (`'development' | 'integration' | 'production'`, defaulting to `'production'`).
 
 ## Example: Dynamic Service Selection
 
