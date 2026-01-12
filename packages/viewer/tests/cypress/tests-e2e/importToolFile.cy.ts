@@ -572,7 +572,7 @@ describe('The Import File Tool', () => {
         cy.reload()
         cy.waitMapIsReady()
 
-        // TODO(IS): We shoudl check for warnings about missing local files, but it needs to be fixed first (related to url)
+        // TODO(IS): We should check for warnings about missing local files, but the warning window needs to be fixed first (related to url reload)
         // cy.get('[data-cy="warning-window"]').contains(
         //     'You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|external-kml-file.kml layer, please re-import it.'
         // )

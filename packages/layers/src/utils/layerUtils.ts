@@ -38,6 +38,19 @@ function transformToLayerTypeEnum(value: string): LayerType | undefined {
 }
 
 /**
+ * Determine if a file URL is a local file or a remote URL.
+ *
+ * @param fileUrl - The file URL to check
+ * @returns True if the file is local (not http:// or https://), false otherwise
+ */
+function isLocalFile(fileUrl: string | undefined): boolean {
+    if (!fileUrl) {
+        return true
+    }
+    return !(fileUrl.startsWith('http://') || fileUrl.startsWith('https://'))
+}
+
+/**
  * Encode an external layer parameter.
  *
  * This percent-encodes the special character "|" used to separate external layer parameters.
@@ -259,7 +272,7 @@ function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
     const kmlFileUrl: string = values.kmlFileUrl
 
     // Detect if this is a local file or a URL
-    const isLocalFile = !kmlFileUrl.includes('://')
+    const isLocal = isLocalFile(kmlFileUrl)
 
     let isExternal: boolean = true
     if (values.isExternal !== undefined) {
@@ -300,7 +313,7 @@ function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
         attributions = values.attributions
     } else {
         let attributionName: string
-        if (isLocalFile) {
+        if (isLocal) {
             attributionName = kmlFileUrl
         } else {
             try {
@@ -329,7 +342,7 @@ function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
         fileId,
         kmlData: undefined,
         kmlMetadata: undefined,
-        isLocalFile,
+        isLocalFile: isLocal,
         attributions,
         style,
         type: LayerType.KML,
@@ -370,11 +383,11 @@ function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
  * the function parameter will be used from defaults
  */
 function makeGPXLayer(values: Partial<GPXLayer>): GPXLayer {
-    const isLocalFile = !values.gpxFileUrl?.includes('://')
+    const isLocal = isLocalFile(values.gpxFileUrl)
     if (!values.gpxFileUrl) {
         throw new InvalidLayerDataError('Missing GPX file URL', values)
     }
-    const attributionName = isLocalFile ? values.gpxFileUrl : new URL(values.gpxFileUrl).hostname
+    const attributionName = isLocal ? values.gpxFileUrl : new URL(values.gpxFileUrl).hostname
     const attributions = [{ name: attributionName }]
     const name = values.gpxMetadata?.name ?? 'GPX'
 
@@ -395,7 +408,7 @@ function makeGPXLayer(values: Partial<GPXLayer>): GPXLayer {
         hasDescription: false,
         hasLegend: false,
         isExternal: true,
-        isLocalFile,
+        isLocalFile: isLocal,
         hasError: false,
         hasWarning: false,
         isLoading: !values.gpxData,
@@ -507,18 +520,16 @@ function makeCloudOptimizedGeoTIFFLayer(
     }
 
     const fileSource = values.fileSource
-    const isLocalFile = !fileSource?.includes('://')
-    const attributionName = isLocalFile ? fileSource : new URL(fileSource).hostname
+    const isLocal = isLocalFile(fileSource)
+    const attributionName = isLocal ? fileSource : new URL(fileSource).hostname
     const attributions = [{ name: attributionName }]
-    const fileName = isLocalFile
-        ? fileSource
-        : fileSource?.substring(fileSource.lastIndexOf('/') + 1)
+    const fileName = isLocal ? fileSource : fileSource?.substring(fileSource.lastIndexOf('/') + 1)
 
     const defaults: CloudOptimizedGeoTIFFLayer = {
         uuid: uuidv4(),
         baseUrl: fileSource,
         type: LayerType.COG,
-        isLocalFile,
+        isLocalFile: isLocal,
         fileSource: undefined,
         data: undefined,
         extent: undefined,
