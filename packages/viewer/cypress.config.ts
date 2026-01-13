@@ -63,6 +63,7 @@ export default defineConfig({
                         launchOptions.args.push('--enable-unsafe-webgl')
                     }
                     launchOptions.args.push('--enable-webgl')
+                    // increasing Cypress heap size to 3.5GB (default is 500MB) to reduce crash while running test locally
                     launchOptions.args.push('--js-flags=--max-old-space-size=3500')
                 }
 

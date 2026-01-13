@@ -1,17 +1,12 @@
 <script setup lang="ts">
 import '@geoblocks/cesium-compass'
+// Type-only import - doesn't bundle Cesium library at build time
+import type { Viewer } from 'cesium'
 import type { ShallowRef } from 'vue'
 
 import { WEBMERCATOR } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { TERRAIN_URL } from '@swissgeo/staging-config/constants'
-import {
-    CesiumTerrainProvider,
-    Color,
-    PostProcessStageCollection,
-    ShadowMode,
-    Viewer,
-} from 'cesium'
 import {
     computed,
     onBeforeMount,
@@ -33,6 +28,7 @@ import CesiumGeolocationFeedback from '@/modules/map/components/cesium/CesiumGeo
 import CesiumHighlightedFeatures from '@/modules/map/components/cesium/CesiumHighlightedFeatures.vue'
 import CesiumInteractions from '@/modules/map/components/cesium/CesiumInteractions.vue'
 import CesiumVisibleLayers from '@/modules/map/components/cesium/CesiumVisibleLayers.vue'
+import { loadCesium } from '@/modules/map/components/cesium/utils/useCesium.composable'
 import useCesiumStore from '@/store/modules/cesium'
 import usePositionStore from '@/store/modules/position'
 import useUIStore from '@/store/modules/ui'
@@ -115,7 +111,11 @@ async function createViewer(): Promise<void> {
     if (!viewerElement.value) {
         return
     }
-    viewer.value = new Viewer(viewerElement.value, {
+
+    // Load Cesium library only when actually needed (when 3D mode is activated).
+    const Cesium = await loadCesium()
+
+    viewer.value = new Cesium.Viewer(viewerElement.value, {
         showRenderLoopErrors: uiStore.hasDevSiteWarning,
         // de-activating default Cesium UI elements
         animation: false,
@@ -135,10 +135,10 @@ async function createViewer(): Promise<void> {
         // activating shadows so that buildings cast shadows on the ground/roof elements
         shadows: false,
         // no casting of buildings shadow on the terrain
-        terrainShadows: ShadowMode.DISABLED,
+        terrainShadows: Cesium.ShadowMode.DISABLED,
         baseLayer: false,
         useBrowserRecommendedResolution: true,
-        terrainProvider: await CesiumTerrainProvider.fromUrl(TERRAIN_URL),
+        terrainProvider: await Cesium.CesiumTerrainProvider.fromUrl(TERRAIN_URL),
         requestRenderMode: true,
     })
 
@@ -161,9 +161,9 @@ async function createViewer(): Promise<void> {
     // Disable pickTranslucentDepth to avoid render-during-pick issues that can cause
     // "This object was destroyed" errors when layers are being added/removed during camera movement
     scene.pickTranslucentDepth = false
-    scene.backgroundColor = Color.TRANSPARENT
+    scene.backgroundColor = Cesium.Color.TRANSPARENT
 
-    const postProcessStages = new PostProcessStageCollection()
+    const postProcessStages = new Cesium.PostProcessStageCollection()
     // disabling ambient occlusion post v1.119.0 as it causes visual artifacts on the terrain
     postProcessStages.ambientOcclusion.enabled = false
     postProcessStages.bloom.enabled = false
@@ -171,7 +171,7 @@ async function createViewer(): Promise<void> {
     scene.postProcessStages = postProcessStages
 
     const globe = scene.globe
-    globe.baseColor = Color.WHITE
+    globe.baseColor = Cesium.Color.WHITE
     globe.depthTestAgainstTerrain = true
     globe.showGroundAtmosphere = false
     globe.showWaterEffect = false
