@@ -1,14 +1,15 @@
 <script lang="ts" setup>
 import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type Map from 'ol/Map'
+import type { Raw } from 'vue'
 
 import Overlay from 'ol/Overlay'
-import { computed, inject, onBeforeUnmount, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 
-import type { GetPointBeingHoveredFunction } from '@/GeoadminElevationProfilePlot.vue'
+import type { GetPointBeingHoveredFunction } from '@/SwissGeoElevationProfilePlot.vue'
 
 const { olInstance } = defineProps<{
-    olInstance: Map
+    olInstance: Raw<Map>
 }>()
 
 const getPointBeingHovered = inject<GetPointBeingHoveredFunction>('getPointBeingHovered')
@@ -22,21 +23,17 @@ const coordinate = computed<SingleCoordinate | undefined>(() => {
 
 const overlayAdded = ref<boolean>(false)
 
-const element = document.createElement('div')
-element.classList.add(
-    'tw:size-[20px]',
-    'tw:bg-red-500/75',
-    'tw:border-3',
-    'tw:border-red-600',
-    'tw:rounded-full'
-)
+const tooltipElement = useTemplateRef<HTMLDivElement>('tooltipElement')
+
 // Overlay that shows the corresponding position on the OL map when hovering over the profile graph.
 const currentHoverPosOverlay = new Overlay({
-    element,
     positioning: 'center-center',
     stopEvent: false,
 })
 onMounted(() => {
+    if (tooltipElement.value) {
+        currentHoverPosOverlay.setElement(tooltipElement.value)
+    }
     if (coordinate.value) {
         currentHoverPosOverlay.setPosition(coordinate.value)
         addHoverPositionOverlay()
@@ -44,9 +41,6 @@ onMounted(() => {
 })
 onBeforeUnmount(() => {
     removeHoverPositionOverlay()
-})
-onUnmounted(() => {
-    element.remove()
 })
 
 watch(coordinate, () => {
@@ -73,5 +67,9 @@ function removeHoverPositionOverlay() {
 </script>
 
 <template>
+    <div
+        ref="tooltipElement"
+        class="tw:size-5 tw:bg-red-500/75 tw:border-3 tw:border-red-600 tw:rounded-full"
+    ></div>
     <slot />
 </template>

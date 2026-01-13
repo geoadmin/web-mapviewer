@@ -6,7 +6,7 @@ import '@/setup-fontawesome'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { registerProj4 } from '@swissgeo/coordinates'
-import GeoadminElevationProfile from '@swissgeo/elevation-profile'
+import SwissGeoElevationProfile from '@swissgeo/elevation-profile'
 import log, { LogLevel } from '@swissgeo/log'
 import {
     getApi3BaseUrl,
@@ -78,6 +78,6 @@ if (IS_TESTING_WITH_CYPRESS) {
 
 app.directive('click-outside', clickOutside)
 app.component('FontAwesomeIcon', FontAwesomeIcon)
-app.component('GeoadminElevationProfile', GeoadminElevationProfile)
+app.component('SwissGeoElevationProfile', SwissGeoElevationProfile)
 
 app.mount('#app')

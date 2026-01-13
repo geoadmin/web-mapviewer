@@ -1,24 +1,23 @@
 <script setup lang="ts">
+import type { ElevationProfile, ElevationProfileMetadata } from '@swissgeo/api'
 import type { CoordinateSystem, SingleCoordinate } from '@swissgeo/coordinates'
+import type { Staging, SupportedLocales } from '@swissgeo/staging-config'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { ElevationProfileError, profileAPI } from '@swissgeo/api'
 import { allCoordinateSystems, LV95, WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
-import GeoadminTooltip from '@swissgeo/tooltip'
+import SwissGeoTooltip from '@swissgeo/tooltip'
 import { lineString, simplify as simplifyGeometry } from '@turf/turf'
 import proj4 from 'proj4'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { Staging, SupportedLocales } from '@/config'
-import type { ElevationProfile } from '@/profile.api'
-import type { ElevationProfileMetadata } from '@/utils'
-import type { VueI18nTranslateFunction } from '@/vue-i18n'
+import { GEOMETRY_SIMPLIFICATION_TOLERANCE, logConfig } from '@/config'
+import SwissGeoElevationProfileInformation from '@/SwissGeoElevationProfileInformation.vue'
+import SwissGeoElevationProfilePlot from '@/SwissGeoElevationProfilePlot.vue'
 
-import { GEOMETRY_SIMPLIFICATION_TOLERANCE } from '@/config'
-import GeoadminElevationProfileInformation from '@/GeoadminElevationProfileInformation.vue'
-import GeoadminElevationProfilePlot from '@/GeoadminElevationProfilePlot.vue'
-import getProfile, { ElevationProfileError } from '@/profile.api'
+import type { VueI18nTranslateFunction } from '../types/vue-i18n'
 
 const {
     points = [],
@@ -89,17 +88,21 @@ function loadElevationProfileData() {
     if (reverse.value) {
         pointsForProfile = pointsForProfile.toReversed()
     }
-    getProfile(pointsForProfile, coordinateSystem.value, staging)
+    profileAPI
+        .getProfile(pointsForProfile, coordinateSystem.value, staging)
         .then((profile: ElevationProfile) => {
             profileData.value = profile
         })
         .catch((err: ElevationProfileError) => {
             profileRequestError.value = err
-            log.error(
-                '[GeoadminElevationProfile] Error while loading elevation profile data',
-                err.message,
-                err.technicalError?.message
-            )
+            log.error({
+                ...logConfig,
+                messages: [
+                    'Error while loading elevation profile data',
+                    err.message,
+                    err.technicalError?.message,
+                ],
+            })
         })
 }
 
@@ -174,25 +177,25 @@ function onCSVDownload() {
                 {{ t(profileRequestError.message) }}
             </span>
         </div>
-        <GeoadminElevationProfilePlot
+        <SwissGeoElevationProfilePlot
             v-if="profileData && hasData"
             :profile="profileData"
         >
             <slot />
-        </GeoadminElevationProfilePlot>
-        <GeoadminElevationProfileInformation
+        </SwissGeoElevationProfilePlot>
+        <SwissGeoElevationProfileInformation
             v-if="profileMetadata"
             :metadata="profileMetadata"
         >
-            <GeoadminTooltip :tooltip-content="t('profile_invert')">
+            <SwissGeoTooltip :tooltip-content="t('profile_invert')">
                 <button
                     class="tw:bg-neutral-100 tw:hover:bg-neutral-200 tw:border tw:rounded tw:border-neutral-400 tw:print:hidden tw:min-w-[2.5rem] tw:h-full tw:cursor-pointer"
                     @click="revertProfileDirection"
                 >
                     <FontAwesomeIcon icon="shuffle" />
                 </button>
-            </GeoadminTooltip>
-            <GeoadminTooltip :tooltip-content="t('profile_download_csv')">
+            </SwissGeoTooltip>
+            <SwissGeoTooltip :tooltip-content="t('profile_download_csv')">
                 <button
                     class="tw:bg-neutral-100 tw:hover:bg-neutral-200 tw:border tw:rounded tw:border-neutral-400 tw:print:hidden tw:min-w-[2.5rem] tw:h-full tw:cursor-pointer"
                     data-cy="profile-popup-csv-download-button"
@@ -200,8 +203,8 @@ function onCSVDownload() {
                 >
                     <FontAwesomeIcon icon="download" />
                 </button>
-            </GeoadminTooltip>
+            </SwissGeoTooltip>
             <slot name="extra-buttons" />
-        </GeoadminElevationProfileInformation>
+        </SwissGeoElevationProfileInformation>
     </div>
 </template>

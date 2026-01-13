@@ -12,16 +12,13 @@ import { getLV95WMTSTileGrid, getLV95ViewConfig, getLV95WMSTileGrid } from '@/ol
 import { LV95 } from '@/proj'
 import registerProj4 from '@/registerProj4'
 
-const pixelKarteFarbeURL =
-    'https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/2056/{z}/{x}/{y}.jpeg'
-
 function setupOpenLayers() {
     registerProj4(proj4)
     register(proj4)
 
     const pixelKarteFarbe = new OLTileLayer({
         source: new XYZ({
-            url: pixelKarteFarbeURL,
+            url: 'https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.pixelkarte-farbe/default/current/2056/{z}/{x}/{y}.jpeg',
             projection: LV95.epsg,
             tileGrid: getLV95WMTSTileGrid(),
         }),

@@ -1,4 +1,4 @@
-import GeoadminTooltip from '@/GeoadminTooltip.vue'
+import SwissGeoTooltip from '@/SwissGeoTooltip.vue'
 import '@/style.css'
 
-export default GeoadminTooltip
+export default SwissGeoTooltip
