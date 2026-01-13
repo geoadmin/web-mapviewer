@@ -20,6 +20,7 @@ import useI18nStore from '@/store/modules/i18n'
 import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'
 import { stringifyQuery } from '@/utils/url-router'
+import { ENVIRONMENT } from '@/config'
 
 const dispatcher: ActionDispatcher = { name: 'LocationPopup.vue' }
 
@@ -116,7 +117,7 @@ function updateShareLink() {
 
 async function shortenShareLink(url: string) {
     try {
-        shareLinkUrlShorten.value = await shortLinkAPI.createShortLink(url)
+        shareLinkUrlShorten.value = await shortLinkAPI.createShortLink(url, false, ENVIRONMENT)
     } catch (error) {
         log.error({
             title: 'LocationPopup.vue',

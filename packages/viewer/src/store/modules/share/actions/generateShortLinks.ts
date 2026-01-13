@@ -4,13 +4,15 @@ import log from '@swissgeo/log'
 import type { ShareStore } from '@/store/modules/share/types'
 import type { ActionDispatcher } from '@/store/types'
 
+import { ENVIRONMENT } from '@/config'
+
 export default function generateShortLinks(
     this: ShareStore,
     withCrosshair: boolean = false,
     dispatcher: ActionDispatcher
 ): void {
     shortLinkAPI
-        .createShortLink(window.location.href, withCrosshair)
+        .createShortLink(window.location.href, withCrosshair, ENVIRONMENT)
         .then((shortLink) => {
             if (shortLink) {
                 this.setShortLink(shortLink, dispatcher)

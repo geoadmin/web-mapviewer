@@ -24,6 +24,7 @@ import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'
 import usePrintStore from '@/store/modules/print'
 import { stringifyQuery } from '@/utils/url-router'
+import { ENVIRONMENT } from '@/config'
 
 const dispatcher: ActionDispatcher = { name: 'PrintView.vue' }
 
@@ -150,7 +151,7 @@ watch(() => route.query, generateShareLink)
 async function generateShareLink() {
     try {
         shortLink.value = await shortLinkAPI.createShortLink(
-            `${location.origin}/#/map?${stringifyQuery(route.query)}`
+            `${location.origin}/#/map?${stringifyQuery(route.query)}`, false, ENVIRONMENT
         )
     } catch (error) {
         log.error({ messages: `Failed to create shortlink`, error })
