@@ -10,6 +10,17 @@ export default defineConfig({
     video: false,
     defaultCommandTimeout: 15000,
     requestTimeout: 5000,
+    // ==============================================================================
+    // MEMORY OPTIMIZATION: Aggressive Garbage Collection
+    // ==============================================================================
+    // numTestsKeptInMemory controls how many test contexts Cypress keeps in memory.
+    //
+    // Before: 1 (keep the last test in memory for debugging)
+    // After: 0 (force immediate garbage collection after each test)
+    //
+    // Trade-off: Slightly slower test execution, but prevents memory buildup
+    // Impact: Reduces peak memory usage, especially important with 33+ test files
+    // ==============================================================================
     numTestsKeptInMemory: 0,
     watchForFileChanges: false, // Prevent auto run on file changes
 
@@ -34,11 +45,12 @@ export default defineConfig({
             on('before:browser:launch', (browser, launchOptions) => {
                 // see https://www.bigbinary.com/blog/how-we-fixed-the-cypress-out-of-memory-error-in-chromium-browsers
                 if (['chrome', 'edge'].includes(browser.name)) {
-                    launchOptions.args = launchOptions.args.filter(arg =>
-                        !arg.includes('--disable-webgl') &&
-                        !arg.includes('--disable-gpu') &&
-                        !arg.includes('--disable-software-rasterizer') &&
-                        !arg.includes('--disable-accelerated-2d-canvas')
+                    launchOptions.args = launchOptions.args.filter(
+                        (arg) =>
+                            !arg.includes('--disable-webgl') &&
+                            !arg.includes('--disable-gpu') &&
+                            !arg.includes('--disable-software-rasterizer') &&
+                            !arg.includes('--disable-accelerated-2d-canvas')
                     )
                     if (browser.isHeadless) {
                         // Chromium browsers sandbox the pages, which increases the memory usage.
@@ -51,7 +63,6 @@ export default defineConfig({
                         launchOptions.args.push('--enable-unsafe-webgl')
                     }
                     launchOptions.args.push('--enable-webgl')
-                    // increasing Cypress heap size to 3.5GB (default is 500MB) to reduce crash while running test locally
                     launchOptions.args.push('--js-flags=--max-old-space-size=3500')
                 }
 
