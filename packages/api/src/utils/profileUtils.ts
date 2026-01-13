@@ -1,28 +1,8 @@
+import type { CoordinatesChunk } from '@swissgeo/coordinates'
+
 import { format } from '@swissgeo/numbers'
 
-import type { ElevationProfilePoint } from '@/profile.api'
-
-export interface ElevationProfileMetadata {
-    totalLinearDist: number
-    minElevation: number
-    maxElevation: number
-    elevationDifference: number
-    totalAscent: number
-    totalDescent: number
-    /** Sum of slope/surface distances (distance on the ground) */
-    slopeDistance: number
-    /**
-     * Hiking time calculation for the profile in minutes.
-     *
-     * Official formula: http://www.wandern.ch/download.php?id=4574_62003b89 Reference link:
-     * http://www.wandern.ch
-     *
-     * But we use a slightly modified version from Schweizmobil
-     */
-    hikingTime: number
-    hasElevationData: boolean
-    hasDistanceData: boolean
-}
+import type { ElevationProfileMetadata, ElevationProfilePoint } from '@/types/profile'
 
 function totalLinearDist(points: ElevationProfilePoint[]): number {
     return points.filter((point) => point.dist !== undefined).pop()?.dist ?? 0
@@ -169,7 +149,7 @@ function hikingTime(points: ElevationProfilePoint[]): number {
  *
  * @returns Time in 'Hh Mmin'
  */
-export function formatMinutesTime(minutes?: number): string {
+function formatMinutesTime(minutes?: number): string {
     if (!minutes || isNaN(minutes)) {
         return '-'
     }
@@ -187,7 +167,7 @@ export function formatMinutesTime(minutes?: number): string {
     return result
 }
 
-export function formatDistance(value?: number) {
+function formatDistance(value?: number) {
     if (!value || isNaN(value)) {
         return '0.00m'
     }
@@ -197,7 +177,7 @@ export function formatDistance(value?: number) {
     return `${(value / 1000).toFixed(2)}km`
 }
 
-export function formatElevation(value?: number) {
+function formatElevation(value?: number) {
     if (!value || isNaN(value)) {
         return '0.00m'
     }
@@ -207,9 +187,7 @@ export function formatElevation(value?: number) {
     return `${format(Math.round(value), 3)}m`
 }
 
-export default function getProfileMetadata(
-    points: ElevationProfilePoint[]
-): ElevationProfileMetadata {
+function getProfileMetadata(points: ElevationProfilePoint[]): ElevationProfileMetadata {
     return {
         totalLinearDist: totalLinearDist(points),
         minElevation: minElevation(points),
@@ -223,3 +201,32 @@ export default function getProfileMetadata(
         hasElevationData: points.some((point) => point.hasElevationData),
     }
 }
+
+function splitIfTooManyPoints(
+    chunk: CoordinatesChunk,
+    maxPoints = 3000
+): CoordinatesChunk[] | undefined {
+    if (!chunk) {
+        return
+    }
+    if (chunk.coordinates.length <= maxPoints) {
+        return [chunk]
+    }
+    const subChunks = []
+    for (let i = 0; i < chunk.coordinates.length; i += maxPoints) {
+        subChunks.push({
+            isWithinBounds: chunk.isWithinBounds,
+            coordinates: chunk.coordinates.slice(i, i + maxPoints),
+        })
+    }
+    return subChunks
+}
+
+export const profileUtils = {
+    splitIfTooManyPoints,
+    getProfileMetadata,
+    formatMinutesTime,
+    formatDistance,
+    formatElevation,
+}
+export default profileUtils

@@ -5,9 +5,9 @@ import type { MultiLineString, MultiPolygon } from 'geojson'
 import type { Map } from 'ol'
 import type { ShallowRef } from 'vue'
 
-import GeoadminElevationProfile, {
-    GeoadminElevationProfileCesiumBridge,
-    GeoadminElevationProfileOpenLayersBridge,
+import SwissGeoElevationProfile, {
+    SwissGeoElevationProfileCesiumBridge,
+    SwissGeoElevationProfileOpenLayersBridge,
 } from '@swissgeo/elevation-profile'
 import log from '@swissgeo/log'
 import { computed, inject, nextTick, onUnmounted, shallowRef, useTemplateRef, watch } from 'vue'
@@ -129,22 +129,22 @@ onUnmounted(() => {
                         </button>
                     </div>
                 </div>
-                <GeoadminElevationProfile
+                <SwissGeoElevationProfile
                     :points="profilePoints"
                     :projection="positionStore.projection.epsg"
                     :locale="i18nStore.lang"
                     :staging="ENVIRONMENT"
                     :filename="generateFilename('.csv')"
                 >
-                    <GeoadminElevationProfileCesiumBridge
+                    <SwissGeoElevationProfileCesiumBridge
                         v-if="cesiumStore.active && cesiumViewer"
-                        :cesium-instance="cesiumViewer"
+                        :cesium-viewer="cesiumViewer"
                     />
-                    <GeoadminElevationProfileOpenLayersBridge
+                    <SwissGeoElevationProfileOpenLayersBridge
                         v-else-if="olMap"
                         :ol-instance="olMap"
                     />
-                </GeoadminElevationProfile>
+                </SwissGeoElevationProfile>
             </div>
             <FeatureStyleEdit
                 v-if="drawingStore.feature.current && uiStore.showFeatureInfoInBottomPanel"

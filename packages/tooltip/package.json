@@ -1,7 +1,8 @@
 {
     "name": "@swissgeo/tooltip",
-    "version": "0.0.1",
-    "description": "Tooltip for geoadmin",
+    "version": "1.0.0",
+    "description": "Tooltip for SWISSGEO projects.",
+    "license": "BSD-3-Clause",
     "type": "module",
     "exports": {
         ".": {
@@ -13,11 +14,6 @@
             "./dist/tooltip.css"
         ]
     },
-    "main": "./dist/index.umd.cjs",
-    "module": "./dist/index.js",
-    "files": [
-        "dist"
-    ],
     "scripts": {
         "build": "pnpm run type-check && pnpm run generate-types && vite build",
         "build:dev": "pnpm run build --mode development",

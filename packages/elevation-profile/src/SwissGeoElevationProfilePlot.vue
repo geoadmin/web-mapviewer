@@ -1,10 +1,16 @@
 <script setup lang="ts">
-import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type {
-    ComplexFillTarget,
+    ElevationProfile,
+    ElevationProfileMetadata,
+    ElevationProfilePoint,
+} from '@swissgeo/api'
+import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type { SupportedLocales } from '@swissgeo/staging-config'
+import type {
     ChartData,
     ChartDataset,
     ChartOptions,
+    ComplexFillTarget,
     LineOptions,
     Point as ChartPoint,
     PointPrefixedHoverOptions,
@@ -24,12 +30,9 @@ import { computed, onMounted, onUnmounted, provide, ref, useTemplateRef } from '
 import { Line as LineChart } from 'vue-chartjs'
 import { useI18n } from 'vue-i18n'
 
-import type { SupportedLocales } from '@/config'
-import type { ElevationProfile, ElevationProfilePoint } from '@/profile.api'
-import type { ElevationProfileMetadata } from '@/utils'
-import type { VueI18nTranslateFunction } from '@/vue-i18n'
-
 import { BORDER_COLOR, FILL_COLOR } from '@/config'
+
+import type { VueI18nTranslateFunction } from '../types/vue-i18n'
 
 const GAP_BETWEEN_TOOLTIP_AND_PROFILE = 12 // px
 
@@ -61,7 +64,7 @@ const profileMetadata: ComputedRef<ElevationProfileMetadata | undefined> = compu
     () => profile?.metadata
 )
 const profilePoints: ComputedRef<ElevationProfilePoint[]> = computed(() =>
-    profile.chunks.flatMap((s) => s.points).toSorted((p1, p2) => (p2.dist ?? 0) - (p1.dist ?? 0))
+    profile.chunks.flatMap((s) => s.points)
 )
 const totalLinearDist: ComputedRef<number> = computed(
     () => profileMetadata.value?.totalLinearDist ?? 0
@@ -166,11 +169,14 @@ const tooltipStyle: ComputedRef<TooltipStyleCSSDeclaration> = computed(() => {
 const chartJsData: ComputedRef<ChartData<'line', ElevationProfileChartPoint[]>> = computed<
     ChartData<'line', ElevationProfileChartPoint[]>
 >(() => {
-    const data: ElevationProfileChartPoint[] = profilePoints.value.map((point) => ({
-        x: point.dist ?? 0,
-        y: point.elevation ?? 0,
-        ...point,
-    }))
+    const data: ElevationProfileChartPoint[] = profilePoints.value.map((point) =>
+        // ChartJS ChartPoint type requires null instead of undefined
+        ({
+            x: point.dist ?? 0,
+            y: point.elevation ?? null,
+            ...point,
+        })
+    )
 
     const lineFill: ComplexFillTarget = {
         target: 'origin',
@@ -354,7 +360,6 @@ const chartJsOptions: ComputedRef<ChartOptions<'line'> | undefined> = computed((
                 display: false,
             },
             tooltip: chartJsTooltipConfiguration.value,
-            // TODO: fix type error with our CharTJS plugin
             noData: {
                 profile,
                 noDataText: t('profile_no_data'),
@@ -417,7 +422,7 @@ function resizeChart() {
 <template>
     <div
         ref="profileChartContainer"
-        class="tw:flex tw:flex-grow-1 tw:overflow-hidden tw:min-h-100px tw:p-2"
+        class="tw:flex tw:grow tw:overflow-hidden tw:min-h-100px tw:p-2"
         @mouseenter="startPositionTracking"
         @mouseleave="stopPositionTracking"
     >

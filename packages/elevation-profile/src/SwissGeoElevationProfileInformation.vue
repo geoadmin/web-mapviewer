@@ -1,14 +1,14 @@
 <script setup lang="ts">
+import type { ElevationProfileMetadata } from '@swissgeo/api'
+import type { SupportedLocales } from '@swissgeo/staging-config'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { profileUtils } from '@swissgeo/api/utils'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { SupportedLocales } from '@/config'
-import type { ElevationProfileMetadata } from '@/utils'
-import type { VueI18nTranslateFunction } from '@/vue-i18n'
-
-import { formatDistance, formatElevation, formatMinutesTime } from '@/utils'
+import type { VueI18nTranslateFunction } from '../types/vue-i18n'
 
 interface ElevationProfileInformationProps {
     metadata: ElevationProfileMetadata
@@ -36,27 +36,27 @@ const metadataEntries = computed(() => {
         {
             title: 'profile_elevation_difference',
             icons: [['fa', 'arrows-alt-v']],
-            value: formatElevation(metadata.elevationDifference),
+            value: profileUtils.formatElevation(metadata.elevationDifference),
         },
         {
             title: 'profile_elevation_up',
             icons: [['fa', 'sort-amount-up-alt']],
-            value: formatElevation(metadata.totalAscent),
+            value: profileUtils.formatElevation(metadata.totalAscent),
         },
         {
             title: 'profile_elevation_down',
             icons: [['fa', 'sort-amount-down-alt']],
-            value: formatElevation(metadata.totalDescent),
+            value: profileUtils.formatElevation(metadata.totalDescent),
         },
         {
             title: 'profile_poi_up',
             icons: [['fa', 'chevron-up']],
-            value: formatElevation(metadata.maxElevation),
+            value: profileUtils.formatElevation(metadata.maxElevation),
         },
         {
             title: 'profile_poi_down',
             icons: [['fa', 'chevron-down']],
-            value: formatElevation(metadata.minElevation),
+            value: profileUtils.formatElevation(metadata.minElevation),
         },
         {
             title: 'profile_distance',
@@ -64,7 +64,7 @@ const metadataEntries = computed(() => {
                 ['fa', 'globe'],
                 ['fa', 'arrows-alt-h'],
             ],
-            value: formatDistance(metadata.totalLinearDist),
+            value: profileUtils.formatDistance(metadata.totalLinearDist),
         },
         {
             title: 'profile_slope_distance',
@@ -72,12 +72,12 @@ const metadataEntries = computed(() => {
                 ['fa', 'mountain-sun'],
                 ['fa', 'arrows-alt-h'],
             ],
-            value: formatDistance(metadata.slopeDistance),
+            value: profileUtils.formatDistance(metadata.slopeDistance),
         },
         {
             title: 'profile_hike_time',
             icons: [['far', 'clock']],
-            value: formatMinutesTime(metadata.hikingTime),
+            value: profileUtils.formatMinutesTime(metadata.hikingTime),
         },
     ]
 })

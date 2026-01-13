@@ -1,6 +1,7 @@
 <script lang="ts" setup>
-import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type { SingleCoordinate, CoordinateSystem } from '@swissgeo/coordinates'
 import type { Viewer } from 'cesium'
+import type { Raw } from 'vue'
 
 import { WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import {
@@ -14,12 +15,13 @@ import {
 import proj4 from 'proj4'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
-import type { GetPointBeingHoveredFunction } from '@/GeoadminElevationProfilePlot.vue'
+import type { GetPointBeingHoveredFunction } from '@/SwissGeoElevationProfilePlot.vue'
 
 import { BORDER_COLOR, FILL_COLOR } from '@/config'
 
-const { cesiumInstance } = defineProps<{
-    cesiumInstance: Viewer
+const { cesiumViewer, inputProjection = WEBMERCATOR } = defineProps<{
+    cesiumViewer: Raw<Viewer>
+    inputProjection?: CoordinateSystem
 }>()
 
 const getPointBeingHovered = inject<GetPointBeingHoveredFunction>('getPointBeingHovered')
@@ -72,17 +74,17 @@ watch(coordinate, () => {
 
 function addTrackingPoint() {
     pointAdded.value = true
-    cesiumInstance?.entities.add(trackingPoint)
+    cesiumViewer?.entities.add(trackingPoint)
 }
 
 function removeTrackingPoint() {
     pointAdded.value = false
-    cesiumInstance?.entities.remove(trackingPoint)
+    cesiumViewer?.entities.remove(trackingPoint)
 }
 
 function updatePosition() {
     if (coordinate.value) {
-        const wgs84Position = proj4(WEBMERCATOR.epsg, WGS84.epsg, coordinate.value)
+        const wgs84Position = proj4(inputProjection.epsg, WGS84.epsg, coordinate.value)
         Cartesian3.fromDegrees(
             wgs84Position[0],
             wgs84Position[1],
@@ -90,7 +92,7 @@ function updatePosition() {
             Ellipsoid.WGS84,
             trackingPointPosition
         )
-        cesiumInstance?.scene.requestRender()
+        cesiumViewer?.scene.requestRender()
     }
 }
 </script>

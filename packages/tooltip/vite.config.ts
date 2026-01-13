@@ -14,6 +14,7 @@ const config: UserConfig = {
             entry: [resolve(__dirname, 'src/index.ts')],
             name: '@swissgeo/tooltip',
         },
+        sourcemap: true,
         rollupOptions: {
             external: ['vue', 'ol', 'cesium', 'tailwindcss'],
             output: {
