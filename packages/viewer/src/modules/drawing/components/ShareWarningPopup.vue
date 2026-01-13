@@ -12,6 +12,7 @@ import type { ActionDispatcher } from '@/store/types'
 import router from '@/router'
 import useDrawingStore from '@/store/modules/drawing'
 import { encodeLayerId } from '@/store/plugins/storeSync/layersParamParser'
+import { ENVIRONMENT } from '@/config'
 
 const dispatcher: ActionDispatcher = { name: 'ShareWarningPopup.vue' }
 
@@ -90,7 +91,7 @@ async function copyAdminShareUrl() {
 async function updateShareUrl() {
     if (fileUrl.value) {
         try {
-            shareUrl.value = await shortLinkAPI.createShortLink(fileUrl.value, !!shareUrl.value)
+            shareUrl.value = await shortLinkAPI.createShortLink(fileUrl.value, !!shareUrl.value, ENVIRONMENT)
         } catch (_) {
             // Fallback to normal url
             shareUrl.value = fileUrl.value
@@ -100,7 +101,7 @@ async function updateShareUrl() {
 async function updateAdminShareUrl() {
     if (adminUrl.value) {
         try {
-            adminShareUrl.value = await shortLinkAPI.createShortLink(adminUrl.value)
+            adminShareUrl.value = await shortLinkAPI.createShortLink(adminUrl.value, false, ENVIRONMENT)
         } catch (_) {
             // Fallback to normal url
             adminShareUrl.value = adminUrl.value

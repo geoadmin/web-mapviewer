@@ -59,35 +59,6 @@ function openDrawingModule() {
     } else if (drawingStore.onlineMode === OnlineMode.None) {
         drawingStore.setOnlineMode(OnlineMode.Online, dispatcher)
     }
-    drawingStore
-        .initiateDrawing(
-            {
-                // olMap: markRaw(olMap!),
-                // title: 'draw_mode_title',
-            },
-            dispatcher
-        )
-        .then(() => {
-            if (drawingStore.layer.config) {
-                // checking if the layer is already in the active layers. If so: hiding it (it will be shown through the system layers)
-                const index = layersStore.getIndexOfActiveLayerById(drawingStore.layer.config.id)
-                if (index === -1) {
-                    layersStore.addLayer(drawingStore.layer.config, dispatcher)
-                } else {
-                    layersStore.updateLayer<KMLLayer>(
-                        drawingStore.layer.config,
-                        { isEdited: true },
-                        dispatcher
-                    )
-                }
-            }
-        })
-        .catch((error) => {
-            log.error({
-                title: 'MenuTray',
-                messages: ['Error while initializing drawing', error],
-            })
-        })
 }
 </script>
 

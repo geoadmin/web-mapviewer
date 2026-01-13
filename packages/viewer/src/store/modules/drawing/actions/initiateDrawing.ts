@@ -10,7 +10,7 @@ import { markRaw } from 'vue'
 import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import { ENVIRONMENT, IS_TESTING_WITH_CYPRESS } from '@/config'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
@@ -41,7 +41,6 @@ export default async function initiateDrawing(
 ) {
     const dispatcher = dispatcherOrNothing ?? (optionsOrDispatcher as ActionDispatcher)
     const options = dispatcherOrNothing ? (optionsOrDispatcher as InitiateDrawingOptions) : {}
-
     if (this.layer.ol) {
         log.error({
             title: 'Drawing store / initiateDrawing',
@@ -74,10 +73,10 @@ export default async function initiateDrawing(
             kmlLayer = preExistingDrawing
             this.isDrawingNew = !!kmlLayer.adminId
         } else if (adminId) {
-            const kmlMetadata = await filesAPI.getKmlMetadataByAdminId(adminId)
+            const kmlMetadata = await filesAPI.getKmlMetadataByAdminId(adminId, ENVIRONMENT)
             kmlLayer = layerUtils.makeKMLLayer({
                 name: this.name,
-                kmlFileUrl: filesAPI.getKmlUrl(kmlMetadata.id),
+                kmlFileUrl: filesAPI.getKmlUrl(kmlMetadata.id, ENVIRONMENT),
                 isVisible: true,
                 isEdited: true,
                 adminId: kmlMetadata.adminId,

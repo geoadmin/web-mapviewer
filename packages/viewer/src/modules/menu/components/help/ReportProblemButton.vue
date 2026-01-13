@@ -24,9 +24,10 @@ import EmailInput from '@/utils/components/EmailInput.vue'
 import FileInput from '@/utils/components/FileInput.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 import TextAreaInput from '@/utils/components/TextAreaInput.vue'
+import { ENVIRONMENT } from '@/config'
 
 const dispatcher: ActionDispatcher = { name: 'ReportProblemButton.vue' }
-const temporaryKmlId = filesAPI.getKmlUrl('temporary-kml-for-reporting-a-problem')
+const temporaryKmlId = filesAPI.getKmlUrl('temporary-kml-for-reporting-a-problem', ENVIRONMENT)
 
 const acceptedFileTypes = ['.kml', '.gpx', '.pdf', '.zip', '.jpg', '.jpeg', '.png', '.kmz']
 
@@ -192,7 +193,7 @@ function onEmailValidate(validation: ValidationResult) {
 }
 
 async function generateShortLink() {
-    const createdShortlink = await shortLinkAPI.createShortLink(window.location.href)
+    const createdShortlink = await shortLinkAPI.createShortLink(window.location.href, false, ENVIRONMENT)
     if (createdShortlink) {
         shortLink.value = createdShortlink
     }
