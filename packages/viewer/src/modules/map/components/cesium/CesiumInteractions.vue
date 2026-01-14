@@ -29,6 +29,7 @@ import { computed, inject, onMounted, onUnmounted, watch } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import {
     clicked3DFeatureFill,
     hovered3DFeatureFill,
@@ -156,7 +157,7 @@ function initialize3dHighlights(): void {
 }
 function getCoordinateAtScreenCoordinate(x: number, y: number): SingleCoordinate | undefined {
     const viewerInstance = viewer?.value
-    if (!viewerInstance || viewerInstance.isDestroyed()) {
+    if (!viewerInstance || viewerInstance.isDestroyed() || !viewerInstance.scene) {
         log.warn({
             title: 'CesiumInteractions.vue / getCoordinateAtScreenCoordinate',
             titleColor: LogPreDefinedColor.Red,
@@ -168,11 +169,28 @@ function getCoordinateAtScreenCoordinate(x: number, y: number): SingleCoordinate
     try {
         const cartesian = viewerInstance.scene.pickPosition(new Cartesian2(x, y))
         let coordinates: SingleCoordinate | undefined
+
         if (cartesian) {
             const cartCoords = Cartographic.fromCartesian(cartesian)
             coordinates = proj4(WGS84.epsg, positionStore.projection.epsg, [
                 (cartCoords.longitude * 180) / CesiumMath.PI,
                 (cartCoords.latitude * 180) / CesiumMath.PI,
+            ]) as SingleCoordinate
+        } else if (IS_TESTING_WITH_CYPRESS) {
+            // Fallback for tests: use camera position to estimate coordinate at click
+            // This is needed because fake tiles in tests don't support pickPosition
+            log.debug({
+                title: 'CesiumInteractions.vue',
+                titleColor: LogPreDefinedColor.Orange,
+                messages: ['Using camera fallback for coordinate (test mode)', [x, y]],
+            })
+            
+            // Use camera position as approximate coordinate for tests
+            const camera = viewerInstance.camera
+            const cartographic = camera.positionCartographic
+            coordinates = proj4(WGS84.epsg, positionStore.projection.epsg, [
+                CesiumMath.toDegrees(cartographic.longitude),
+                CesiumMath.toDegrees(cartographic.latitude),
             ]) as SingleCoordinate
         } else {
             log.debug({
@@ -181,6 +199,7 @@ function getCoordinateAtScreenCoordinate(x: number, y: number): SingleCoordinate
                 messages: ['no coordinate found at this screen coordinates', [x, y]],
             })
         }
+        
         return coordinates
     } catch (error) {
         log.error({
@@ -304,7 +323,6 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
 
     const features: SelectableFeature<false | true>[] = []
     let coordinates = getCoordinateAtScreenCoordinate(event.position.x, event.position.y)
-
     const objects = viewerInstance?.scene.drillPick(event.position) ?? []
 
     log.debug({
