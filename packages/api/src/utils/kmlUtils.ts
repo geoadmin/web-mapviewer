@@ -8,7 +8,7 @@ import type { Type as GeometryType } from 'ol/geom/Geometry'
 import type { Size } from 'ol/size'
 import type Style from 'ol/style/Style'
 
-import { WGS84 } from '@swissgeo/coordinates'
+import { registerProj4, WGS84 } from '@swissgeo/coordinates'
 import { KMLStyle } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import {
@@ -26,7 +26,9 @@ import {
 } from 'ol/extent'
 import GeoJSON from 'ol/format/GeoJSON'
 import KML, { getDefaultStyle } from 'ol/format/KML'
+import { register } from 'ol/proj/proj4'
 import IconStyle from 'ol/style/Icon'
+import proj4 from 'proj4'
 
 import type {
     EditableFeature,
@@ -757,6 +759,17 @@ function parseKml(
 ): Feature<Geometry>[] {
     const kmlData = kmlLayer.kmlData
     const files = kmlLayer.internalFiles
+
+    // Register projections with proj4 only if they're not already defined
+    const projectionDefined = proj4.defs(projection.epsg)
+    const wgs84Defined = proj4.defs(WGS84.epsg)
+
+    if (!projectionDefined || !wgs84Defined) {
+        // Register all Swiss projections (LV95, LV03, WebMercator) with proj4
+        registerProj4(proj4)
+        // Register proj4 with OpenLayers
+        register(proj4)
+    }
 
     const features = new KML({
         iconUrlFunction: (url: string) => handleIconUrl(url, iconUrlProxy, files),
