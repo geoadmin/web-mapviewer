@@ -12,8 +12,6 @@ import { UIModes } from '@/store/modules/ui/types'
 describe('Testing the footer content / tools', () => {
     it('shows/hide the scale line depending on the map resolution, while in Mercator', () => {
         cy.viewport(1920, 1080)
-        // MEMORY OPTIMIZATION: Only load core intercepts (saves ~7 MB)
-        // This test only needs router, layers, topics - no features/print/3d/drawing
         cy.goToMapView({
             queryParams: { sr: WEBMERCATOR.epsgNumber },
             interceptCategories: ['core'],
@@ -74,8 +72,6 @@ describe('Testing the footer content / tools', () => {
             })
         }
 
-        // MEMORY OPTIMIZATION: Only load core intercepts (saves ~7 MB)
-        // This test only needs router, layers, topics - no features/print/3d/drawing
         cy.goToMapView({
             queryParams: { bgLayer: 'void' },
             interceptCategories: ['core'],

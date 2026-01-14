@@ -73,7 +73,10 @@ describe('The Import File Tool', () => {
     }
 
     it('Import KML file', () => {
-        cy.goToMapView({ withHash: true })
+        cy.goToMapView({
+            withHash: true,
+            interceptCategories: ['core', 'features', 'drawing', '3d'],
+        })
         cy.getPinia().then((pinia) => {
             const layersStore = useLayersStore(pinia)
             expect(layersStore.activeLayers).to.be.empty
@@ -727,6 +730,7 @@ describe('The Import File Tool', () => {
                 ].join(';'),
             },
             withHash: true,
+            interceptCategories: ['core', 'features', 'drawing'],
         })
         cy.openMenuIfMobile()
 
@@ -1030,7 +1034,10 @@ describe('The Import File Tool', () => {
         const gpxFileName = 'external-gpx-file.gpx'
         const gpxFileFixture = `import-tool/${gpxFileName}`
 
-        cy.goToMapView({ withHash: true })
+        cy.goToMapView({
+            withHash: true,
+            interceptCategories: ['core', 'features', 'drawing'],
+        })
         cy.getPinia().then((pinia) => {
             const layersStore17 = useLayersStore(pinia)
             expect(layersStore17.activeLayers).to.be.empty

@@ -16,7 +16,7 @@ import useUIStore from '@/store/modules/ui'
 
 import type { InterceptCallback, InterceptCategory } from './intercepts'
 
-import { getDefaultFixturesAndIntercepts, getInterceptsByCategory } from './intercepts'
+import { getInterceptsByCategory } from './intercepts'
 import { isMobile } from './utils'
 
 registerProj4(proj4)

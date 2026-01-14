@@ -220,7 +220,10 @@ describe('Test the search bar result handling', () => {
 
     // Skipped: due to failure in checking the center. See TODO inside the test
     it.skip('search different type of entries correctly', () => {
-        cy.goToMapView({ queryParams: { sr: 2056 } }) // Use LV95 projection
+        cy.goToMapView({
+            queryParams: { sr: 2056 }, // Use LV95 projection
+            interceptCategories: ['core', 'features'],
+        })
         cy.wait(['@layerConfig', '@topics', '@topic-ech'])
 
         cy.get(searchbarSelector).paste('test')
@@ -572,6 +575,7 @@ describe('Test the search bar result handling', () => {
                 swisssearch_autoselect: 'true',
             },
             withHash: false,
+            interceptCategories: ['core'],
         })
         // Wait for search API calls to complete and results to be processed
         cy.wait('@search-locations')
@@ -635,6 +639,7 @@ describe('Test the search bar result handling', () => {
                 swisssearch: swissSearchString,
             },
             withHash: false,
+            interceptCategories: ['core'],
         })
         testQueryPositionCrosshairStore({
             searchQuery: swissSearchString,
@@ -654,6 +659,7 @@ describe('Test the search bar result handling', () => {
                 crosshair: CrossHairs.Cross,
             },
             withHash: false,
+            interceptCategories: ['core'],
         })
         testQueryPositionCrosshairStore({
             searchQuery: swissSearchString,
@@ -673,6 +679,7 @@ describe('Test the search bar result handling', () => {
                 swisssearch: swissSearchString,
             },
             withHash: true,
+            interceptCategories: ['core'],
         })
         testQueryPositionCrosshairStore({
             searchQuery: swissSearchString,
@@ -692,6 +699,7 @@ describe('Test the search bar result handling', () => {
                 crosshair: CrossHairs.Cross,
             },
             withHash: true,
+            interceptCategories: ['core'],
         })
         testQueryPositionCrosshairStore({
             searchQuery: swissSearchString,
@@ -711,6 +719,7 @@ describe('Test the search bar result handling', () => {
                 crosshair: `${CrossHairs.Cross},${crossHairX},${crossHairY}`,
             },
             withHash: true,
+            interceptCategories: ['core'],
         })
         testQueryPositionCrosshairStore({
             searchQuery: swissSearchString,
