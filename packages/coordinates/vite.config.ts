@@ -1,4 +1,4 @@
-import type { ViteUserConfig } from 'vitest/config'
+import type { UserConfig } from 'vite'
 
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
@@ -8,7 +8,7 @@ import { fileURLToPath, URL } from 'url'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
-const config: ViteUserConfig = {
+const config: UserConfig = {
     build: {
         lib: {
             entry: {
@@ -42,9 +42,6 @@ const config: ViteUserConfig = {
             bundleTypes: true,
         }),
     ],
-    test: {
-        setupFiles: ['setup-vitest.ts'],
-    },
 }
 
 export default config

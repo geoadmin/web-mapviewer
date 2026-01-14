@@ -1,13 +1,15 @@
-import type { ViteUserConfig } from 'vitest/config'
+import type { UserConfig } from 'vite'
 
 import tailwindcss from '@tailwindcss/vite'
-import { resolve } from 'path'
+import { dirname, resolve } from 'path'
 import dts from 'unplugin-dts/vite'
 import { fileURLToPath, URL } from 'url'
+import { normalizePath } from 'vite'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
-const config: ViteUserConfig = {
+const __dirname: string = dirname(fileURLToPath(import.meta.url))
+const config: UserConfig = {
     build: {
         lib: {
             entry: {
@@ -40,12 +42,12 @@ const config: ViteUserConfig = {
         viteStaticCopy({
             targets: [
                 {
-                    src: 'src/scss/*',
+                    src: normalizePath(`${__dirname}/src/scss/*`),
                     dest: './scss/',
                 },
                 {
-                    src: 'src/fonts/FrutigerLight/*',
-                    dest: './fonts/FrutigerLight/',
+                    src: normalizePath(`${__dirname}/src/fonts/*`),
+                    dest: './fonts/',
                 },
             ],
         }),
@@ -53,9 +55,6 @@ const config: ViteUserConfig = {
             bundleTypes: true,
         }),
     ],
-    test: {
-        environment: 'jsdom',
-    },
 }
 
 export default config
