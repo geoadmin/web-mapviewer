@@ -1,9 +1,9 @@
 /// <reference types="cypress" />
 
 import type { Viewer } from 'cesium'
-import type {ShallowRef} from 'vue';
+import type { ShallowRef } from 'vue'
 
-import { toValue  } from 'vue'
+import { toValue } from 'vue'
 
 import useLayersStore from '@/store/modules/layers'
 

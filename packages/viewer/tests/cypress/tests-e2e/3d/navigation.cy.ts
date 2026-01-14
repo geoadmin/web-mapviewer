@@ -1,5 +1,5 @@
-import type { Viewer } from 'cesium';
-import type {ShallowRef} from 'vue';
+import type { Viewer } from 'cesium'
+import type { ShallowRef } from 'vue'
 
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
 import {
@@ -8,7 +8,7 @@ import {
 } from '@swissgeo/staging-config/constants'
 import { Cartesian3 } from 'cesium'
 import proj4 from 'proj4'
-import { toValue  } from 'vue'
+import { toValue } from 'vue'
 
 import { calculateResolution } from '@/modules/map/components/cesium/utils/cameraUtils'
 import usePositionStore from '@/store/modules/position'
