@@ -22,7 +22,17 @@ interface SetSearchQueryOptions {
      */
     originUrlParam?: boolean
 }
-
+export default function setSearchQuery(
+    this: SearchStore,
+    query: string,
+    dispatcher: ActionDispatcher
+): void
+export default function setSearchQuery(
+    this: SearchStore,
+    query: string,
+    options: SetSearchQueryOptions,
+    dispatcher: ActionDispatcher
+): void
 export default function setSearchQuery(
     this: SearchStore,
     query: string,
