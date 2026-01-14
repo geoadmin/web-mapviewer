@@ -139,9 +139,11 @@ describe('Test the search bar result handling', () => {
                     lat: expectedCenterEpsg4326[1],
                     rank: 1,
                     // we create an extent of 1km around the center
-                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0]! - 500} ${expectedCenterDefaultProjection[1]! - 500
-                        },${expectedCenterDefaultProjection[0]! + 500} ${expectedCenterDefaultProjection[1]! + 500
-                        })`,
+                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0]! - 500} ${
+                        expectedCenterDefaultProjection[1]! - 500
+                    },${expectedCenterDefaultProjection[0]! + 500} ${
+                        expectedCenterDefaultProjection[1]! + 500
+                    })`,
                     label: expectedLocationLabel,
                     origin: 'kantone',
                 },
@@ -178,9 +180,11 @@ describe('Test the search bar result handling', () => {
                     lat: expectedCenterEpsg4326[1],
                     rank: 1,
                     // we create an extent of 1km around the center
-                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0]! - 500} ${expectedCenterDefaultProjection[1]! - 500
-                        },${expectedCenterDefaultProjection[0]! + 500} ${expectedCenterDefaultProjection[1]! + 500
-                        })`,
+                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0]! - 500} ${
+                        expectedCenterDefaultProjection[1]! - 500
+                    },${expectedCenterDefaultProjection[0]! + 500} ${
+                        expectedCenterDefaultProjection[1]! + 500
+                    })`,
                     label: expectedLocationLabel,
                 },
             },
@@ -220,7 +224,7 @@ describe('Test the search bar result handling', () => {
     })
 
     // Skipped: due to failure in checking the center. See TODO inside the test
-    it.only('search different type of entries correctly', () => {
+    it('search different type of entries correctly', () => {
         cy.goToMapView({ queryParams: { sr: 2056 } }) // Use LV95 projection
         cy.wait(['@layerConfig', '@topics', '@topic-ech'])
 
