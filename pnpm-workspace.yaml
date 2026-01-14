@@ -6,7 +6,7 @@ autoInstallPeers: true
 
 catalog:
     '@4tw/cypress-drag-drop': ^2.3.1
-    '@cypress/vite-dev-server': ^7.0.1
+    '@cypress/vite-dev-server': ^7.1.0
     '@cypress/vue': ^6.0.2
     '@eslint/js': ^9.39.2
     '@eslint/markdown': ^7.5.1
@@ -16,7 +16,7 @@ catalog:
     '@fortawesome/free-brands-svg-icons': ^7.1.0
     '@fortawesome/free-regular-svg-icons': ^7.1.0
     '@fortawesome/free-solid-svg-icons': ^7.1.0
-    '@fortawesome/vue-fontawesome': ^3.1.2
+    '@fortawesome/vue-fontawesome': ^3.1.3
     '@geoblocks/cesium-compass': ^0.6.0
     '@geoblocks/mapfishprint': ^0.2.22
     '@geoblocks/ol-maplibre-layer': ^1.0.3
@@ -32,25 +32,25 @@ catalog:
     '@tailwindcss/vite': ^4.1.18
     '@tmcw/togeojson': ^7.1.2
     '@tsconfig/node22': ^22.0.5
-    '@turf/turf': ^7.3.1
+    '@turf/turf': ^7.3.2
     '@types/bootstrap': ^5.2.10
     '@types/chai': ^5.2.3
     '@types/geojson': ^7946.0.16
     '@types/jsdom': ^27.0.0
-    '@types/lodash': ^4.17.21
+    '@types/lodash': ^4.17.23
     '@types/luxon': ^3.7.1
-    '@types/node': ts5.9
+    '@types/node': 25.0.8
     '@types/openlayers': ^4.6.23
     '@types/pako': ^2.0.4
     '@types/sortablejs': ^1.15.9
     '@types/yargs': ^17.0.35
-    '@typescript-eslint/utils': ^8.52.0
+    '@typescript-eslint/utils': ^8.53.0
     '@vite-pwa/assets-generator': ^1.0.2
-    '@vitejs/plugin-basic-ssl': ^2.1.0
+    '@vitejs/plugin-basic-ssl': ^2.1.3
     '@vitejs/plugin-vue': ^6.0.3
     '@vue/eslint-config-prettier': ^10.2.0
     '@vue/eslint-config-typescript': ^14.6.0
-    '@vue/language-core': 3.1.3
+    '@vue/language-core': 3.2.2
     '@vue/test-utils': ^2.4.6
     '@vue/tsconfig': ^0.8.1
     '@vueuse/core': ^14.1.0
@@ -63,7 +63,7 @@ catalog:
     chai: ^6.2.2
     chart.js: ^4.5.1
     chartjs-plugin-zoom: ^2.2.0
-    cypress: ^15.8.2
+    cypress: ^15.9.0
     cypress-browser-permissions: ^1.1.0
     cypress-real-events: ^1.15.0
     cypress-recurse: ^1.37.1
@@ -74,11 +74,11 @@ catalog:
     eslint: ^9.39.2
     eslint-config-prettier: ^10.1.8
     eslint-plugin-chai-friendly: ^1.1.0
-    eslint-plugin-cypress: ^5.2.0
+    eslint-plugin-cypress: ^5.2.1
     eslint-plugin-import: ^2.32.0
     eslint-plugin-mocha: ^11.2.0
-    eslint-plugin-perfectionist: ^5.2.0
-    eslint-plugin-prettier: ^5.5.4
+    eslint-plugin-perfectionist: ^5.3.1
+    eslint-plugin-prettier: ^5.5.5
     eslint-plugin-vue: ^10.6.2
     form-data: ^4.0.5
     geographiclib-geodesic: ^2.2.0
@@ -86,26 +86,26 @@ catalog:
     git-describe: ^4.1.1
     gitconfig: ^2.0.8
     globals: ^17.0.0
-    googleapis: ^169.0.0
+    googleapis: ^170.0.0
     hammerjs: ^2.0.8
     jquery: ^3.7.1
     jsdom: ^27.4.0
     jszip: ^3.10.1
     lodash: ^4.17.21
     luxon: ^3.7.2
-    maplibre-gl: ^5.15.0
+    maplibre-gl: ^5.16.0
     mime-types: ^3.0.2
     mocha-junit-reporter: ^2.2.1
     ol: ^10.7.0
     pako: ^2.1.0
     pinia: ^3.0.4
     pinia-logger: ^1.3.14
-    postcss-html: ^1.8.0
+    postcss-html: ^1.8.1
     prettier: ^3.7.4
     # prettier-plugin-jsdoc 1.6+ creates many "Max call stack size exceeded" errors when used in tandem with prettier-plugin-tailwindcss
     # waiting for a fix, see https://github.com/hosseinmd/prettier-plugin-jsdoc/pull/255
     prettier-plugin-jsdoc: 1.5.0
-    prettier-plugin-packagejson: ^2.5.20
+    prettier-plugin-packagejson: ^2.5.21
     prettier-plugin-tailwindcss: ^0.7.2
     print-js: ^1.6.0
     proj4: ^2.20.2
@@ -124,18 +124,17 @@ catalog:
     tailwindcss: ^4.1.18
     tsx: ^4.21.0
     typescript: ^5.9.3
-    typescript-eslint: ^8.52.0
+    typescript-eslint: ^8.53.0
     unplugin-dts: 1.0.0-beta.6
     uuid: ^13.0.0
-    # The last version of Vite to work with the unplugin-dts library (switching to a more recent version breaks the build)
-    vite: 7.2.2
+    vite: ^7.3.1
     vite-node: ^5.2.0
     vite-plugin-conditional-compiler: ^0.4.0
     vite-plugin-pwa: ^1.2.0
     vite-plugin-static-copy: ^3.1.4
     vite-plugin-vue-devtools: ^8.0.5
-    vite-tsconfig-paths: ^6.0.3
-    vitest: ^4.0.16
+    vite-tsconfig-paths: ^6.0.4
+    vitest: ^4.0.17
     vue: ^3.5.26
     vue-chartjs: ^5.3.3
     vue-i18n: ^11.2.8
