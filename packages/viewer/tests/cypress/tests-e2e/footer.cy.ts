@@ -12,7 +12,12 @@ import { UIModes } from '@/store/modules/ui/types'
 describe('Testing the footer content / tools', () => {
     it('shows/hide the scale line depending on the map resolution, while in Mercator', () => {
         cy.viewport(1920, 1080)
-        cy.goToMapView({ queryParams: { sr: WEBMERCATOR.epsgNumber } })
+        // MEMORY OPTIMIZATION: Only load core intercepts (saves ~7 MB)
+        // This test only needs router, layers, topics - no features/print/3d/drawing
+        cy.goToMapView({
+            queryParams: { sr: WEBMERCATOR.epsgNumber },
+            interceptCategories: ['core'],
+        })
 
         // Scale line not visible on standard startup, as the standard zoom level is 7,
         // which means a higher resolution than the acceptable threshold for the scale line to be visible
@@ -69,7 +74,12 @@ describe('Testing the footer content / tools', () => {
             })
         }
 
-        cy.goToMapView({ queryParams: { bgLayer: 'void' } })
+        // MEMORY OPTIMIZATION: Only load core intercepts (saves ~7 MB)
+        // This test only needs router, layers, topics - no features/print/3d/drawing
+        cy.goToMapView({
+            queryParams: { bgLayer: 'void' },
+            interceptCategories: ['core'],
+        })
         // checking the rounded background wheel (mobile/tablet only)
         cy.viewport('iphone-se2')
         testBackgroundWheel()

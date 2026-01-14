@@ -1,21 +1,3 @@
-/**
- * # ==============================================================================
- *
- * Cypress E2E Test Intercepts & Mock Data Configuration
- *
- * This file contains network intercept handlers for mocking API responses during Cypress E2E tests.
- * It includes memory optimizations to handle 33+ test files that were previously causing
- * "JavaScript heap out of memory" errors.
- *
- * MEMORY OPTIMIZATIONS IMPLEMENTED:
- *
- * 1. Fixture Caching - Load fixtures once, reuse across 176+ test calls (~500MB-1GB saved)
- * 2. Proj4 Transform Caching - Cache coordinate transformations (~100-200MB saved)
- * 3. Shallow Spreading - Replace deep clones with shallow spreads (~200-400MB saved)
- *
- * Total memory reduction: ~800MB-1.6GB (20-40% improvement)
- */
-
 import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
 import type { ExternalWMSLayer, ExternalWMTSLayer } from '@swissgeo/layers'
 import type { Geometry } from 'geojson'
@@ -30,18 +12,7 @@ import { FAKE_URL_CALLED_AFTER_ROUTE_CHANGE } from '@/store/plugins/storeSync/ur
 
 registerProj4(proj4)
 
-// ==============================================================================
-// MEMORY OPTIMIZATION: Fixture Caching
-// ==============================================================================
-// Problem: cy.goToMapView() is called 176 times across 32 test files. Each call
-// was loading the same fixture files from disk, creating multiple copies in memory.
-//
-// Solution: Load fixtures once and cache them for reuse across all tests.
-// This reduces memory usage by ~500MB-1GB during test execution.
-//
-// Note: The cache is scoped to the entire test session, not per-test.
-// ==============================================================================
-
+// Load fixtures once and cache them for reuse across all tests.
 // Interface definitions moved here for fixture cache typing
 interface IdentifyBounds {
     lowerX: number
@@ -94,18 +65,7 @@ const fixtureCache: {
     featureDetailTemplate?: MockFeatureDetail
 } = {}
 
-// ==============================================================================
-// MEMORY OPTIMIZATION: proj4 Transform Caching
-// ==============================================================================
-// Problem: Each mock API request generates 10-100 features, and each feature
-// requires a coordinate transformation from LV95 to WGS84 using proj4.
-// With many tests and requests, this results in thousands of identical transformations.
-//
-// Solution: Cache transformation results keyed by source/target projection and coordinates.
-// This reduces CPU usage and memory allocations by ~100-200MB.
-//
-// Example: transforming [2660000, 1185000] from LV95 to WGS84 happens once, not 100+ times.
-// ==============================================================================
+// Cache transformation results keyed by source/target projection and coordinates
 const proj4Cache = new Map<string, [number, number]>()
 
 /**
@@ -159,9 +119,7 @@ const mockExternalWms4 = layerUtils.makeExternalWMSLayer({
     opacity: 0.4,
 })
 
-// MEMORY OPTIMIZATION: Removed unnecessary Cypress._.cloneDeep() calls
-// The mock configs are read-only in tests, so we don't need to clone them.
-// This saves ~10-20MB per test that uses external WMS layers.
+// mock configs are read only, no need to clone them
 Cypress.Commands.add('getExternalWmsMockConfig', () =>
     cy.wrap([mockExternalWms1, mockExternalWms2, mockExternalWms3, mockExternalWms4])
 )
@@ -190,9 +148,7 @@ const mockExternalWmts4 = layerUtils.makeExternalWMTSLayer({
     baseUrl: 'https://fake.wmts.getcap-2.url/WMTSGetCapabilities.xml',
 })
 
-// MEMORY OPTIMIZATION: Removed unnecessary Cypress._.cloneDeep() calls
-// The mock configs are read-only in tests, so we don't need to clone them.
-// This saves ~10-20MB per test that uses external WMTS layers.
+// mock configs are read only, no need to clone them
 Cypress.Commands.add('getExternalWmtsMockConfig', () =>
     cy.wrap([mockExternalWmts1, mockExternalWmts2, mockExternalWmts3, mockExternalWmts4])
 )
@@ -386,15 +342,7 @@ let lastIdentifiedFeatures: MockFeature[] = []
  * selected within the LV95 extent (or within the selection box, if one is given).
  */
 function addFeatureIdentificationIntercepts(): void {
-    // ==============================================================================
-    // MEMORY OPTIMIZATION: Fixture Caching
-    // ==============================================================================
-    // Before: cy.fixture() was called every time this function ran (176 times total).
-    // After: Load fixtures only once on first call, then reuse from cache.
-    //
-    // Impact: Reduces fixture loading from 176× to 1× per test session.
-    // Saves: ~500MB-1GB of memory
-    // ==============================================================================
+    // Load fixtures only once on first call, then reuse from cache.
     if (!fixtureCache.featureTemplate) {
         cy.fixture('features/features.fixture').then(
             (featuresFixture: { results: MockFeature[] }) => {
@@ -454,28 +402,11 @@ function addFeatureIdentificationIntercepts(): void {
                 randomIntBetween(identifyBounds.lowerX, identifyBounds.upperX),
                 randomIntBetween(identifyBounds.lowerY, identifyBounds.upperY),
             ]
-            // OPTIMIZATION: Use cached proj4 transformation instead of computing every time
-            // This single line is called thousands of times during test execution
+            // Use cached proj4 transformation
             const coordinateWGS84 = getCachedProj4Transform(LV95.epsg, WGS84.epsg, coordinate)
             const featureId = `${startingFeatureId + i}`
 
-            // ==============================================================================
-            // MEMORY OPTIMIZATION: Shallow Spread Instead of Deep Clone
-            // ==============================================================================
-            // Before: const feature = Cypress._.cloneDeep(featureTemplate)
-            //
-            // Problem: Cypress._.cloneDeep() recursively copies all nested objects/arrays.
-            // For 10-100 features per request × many requests, this creates huge memory overhead.
-            //
-            // Solution: Use shallow object spreading (...) which only copies references.
-            // We only need to override specific properties (id, coordinates, etc.),
-            // so we don't need a full deep clone.
-            //
-            // Impact: ~10× faster and uses ~50-80% less memory per feature generation.
-            // Saves: ~200-400MB across all tests
-            // ==============================================================================
-            // Non-null assertion (!) is safe here because the cache is guaranteed to be
-            // populated by the fixture loading checks above
+            // Use shallow spread instead of deep clone for memory efficiency
             const feature: MockFeature = {
                 ...fixtureCache.featureTemplate!,
                 geometry: {
@@ -528,17 +459,7 @@ function addFeatureIdentificationIntercepts(): void {
                     return
                 }
 
-                // ==============================================================================
-                // MEMORY OPTIMIZATION: Shallow Spread Instead of Deep Clone
-                // ==============================================================================
-                // Before: const featureDetail = Cypress._.cloneDeep(featureDetailTemplate)
-                //
-                // Same optimization as above: shallow spread is faster and uses less memory.
-                // Feature detail objects are only used for the duration of a single request,
-                // so we don't need persistent deep copies.
-                // ==============================================================================
-                // Non-null assertion (!) is safe here because the cache is guaranteed to be
-                // populated by the fixture loading checks above
+                // Use shallow spread instead of deep clone for memory efficiency
                 const featureDetail: MockFeatureDetail = {
                     ...fixtureCache.featureDetailTemplate!,
                     geometry: {
@@ -726,16 +647,10 @@ function addShortLinkIntercept({
 export type InterceptCallback = (options?: Record<string, unknown>) => void
 
 /**
- * ==============================================================================
- * MEMORY OPTIMIZATION: Opt-in Intercept Categories
- * ==============================================================================
- *
- * PROBLEM: All 21 intercept handlers were registered for every test, even when
- * most tests only need a subset. This wastes ~1.08 GB of memory (60% of 1.80 GB).
- *
- * SOLUTION: Categorize intercepts and allow tests to opt-in to only what they need.
+ * Categorize intercepts and allow tests to opt-in to only what they need.
  *
  * CATEGORIES:
+ *
  * - 'core': Essential for all tests (router, base layers, topics, catalog)
  * - 'features': Feature identification and queries (height, what3word, popups, identify)
  * - 'drawing': Drawing and import tools (icons, GeoJSON)
@@ -744,6 +659,7 @@ export type InterceptCallback = (options?: Record<string, unknown>) => void
  * - 'external': External layer providers (WMS, WMTS)
  *
  * USAGE:
+ *
  * ```typescript
  * // Only core intercepts (minimal)
  * cy.goToMapView({ interceptCategories: ['core'] })
@@ -754,17 +670,19 @@ export type InterceptCallback = (options?: Record<string, unknown>) => void
  * // All intercepts (backward compatible)
  * cy.goToMapView() // or cy.goToMapView({ interceptCategories: ['all'] })
  * ```
- * ==============================================================================
  */
 
-/**
- * Intercept category names
- */
-export type InterceptCategory = 'core' | 'features' | 'drawing' | 'print' | '3d' | 'external' | 'all'
+/** Intercept category names */
+export type InterceptCategory =
+    | 'core'
+    | 'features'
+    | 'drawing'
+    | 'print'
+    | '3d'
+    | 'external'
+    | 'all'
 
-/**
- * Categorized intercepts mapped by category name
- */
+/** Categorized intercepts mapped by category name */
 const INTERCEPT_CATEGORIES: Record<InterceptCategory, Record<string, InterceptCallback>> = {
     // Core intercepts - required for basic app functionality
     core: {
@@ -817,23 +735,23 @@ const INTERCEPT_CATEGORIES: Record<InterceptCategory, Record<string, InterceptCa
 }
 
 /**
- * Returns intercepts for the specified categories.
- * If no categories specified or 'all' is included, returns all intercepts.
+ * Returns intercepts for the specified categories. If no categories specified or 'all' is included,
+ * returns all intercepts.
+ *
+ * @example
+ *     // Get only core intercepts (saves ~60% memory for simple tests)
+ *     const intercepts = getInterceptsByCategory(['core'])
+ *
+ * @example
+ *     // Get core + features (common for map interaction tests)
+ *     const intercepts = getInterceptsByCategory(['core', 'features'])
+ *
+ * @example
+ *     // Get all intercepts (backward compatible)
+ *     const intercepts = getInterceptsByCategory(['all'])
  *
  * @param categories - Array of category names to include (defaults to ['all'])
  * @returns Record of intercept callbacks to register
- *
- * @example
- * // Get only core intercepts (saves ~60% memory for simple tests)
- * const intercepts = getInterceptsByCategory(['core'])
- *
- * @example
- * // Get core + features (common for map interaction tests)
- * const intercepts = getInterceptsByCategory(['core', 'features'])
- *
- * @example
- * // Get all intercepts (backward compatible)
- * const intercepts = getInterceptsByCategory(['all'])
  */
 export function getInterceptsByCategory(
     categories: InterceptCategory[] = ['all']
@@ -857,11 +775,11 @@ export function getInterceptsByCategory(
 }
 
 /**
- * Returns all default fixtures and intercepts.
- * This is the backward-compatible function that registers all 21 intercepts.
+ * Returns all default fixtures and intercepts. This is the backward-compatible function that
+ * registers all 21 intercepts.
  *
- * MEMORY IMPACT: Using this function loads all 21 intercepts (~10.5 MB per test).
- * For memory optimization, prefer `getInterceptsByCategory()` with specific categories.
+ * MEMORY IMPACT: Using this function loads all 21 intercepts (~10.5 MB per test). For memory
+ * optimization, prefer `getInterceptsByCategory()` with specific categories.
  */
 export function getDefaultFixturesAndIntercepts(): Record<string, InterceptCallback> {
     return {

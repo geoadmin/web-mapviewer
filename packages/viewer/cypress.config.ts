@@ -10,17 +10,6 @@ export default defineConfig({
     video: false,
     defaultCommandTimeout: 15000,
     requestTimeout: 5000,
-    // ==============================================================================
-    // MEMORY OPTIMIZATION: Aggressive Garbage Collection
-    // ==============================================================================
-    // numTestsKeptInMemory controls how many test contexts Cypress keeps in memory.
-    //
-    // Before: 1 (keep the last test in memory for debugging)
-    // After: 0 (force immediate garbage collection after each test)
-    //
-    // Trade-off: Slightly slower test execution, but prevents memory buildup
-    // Impact: Reduces peak memory usage, especially important with 33+ test files
-    // ==============================================================================
     numTestsKeptInMemory: 0,
     watchForFileChanges: false, // Prevent auto run on file changes
 
