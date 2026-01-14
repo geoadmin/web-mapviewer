@@ -1,9 +1,11 @@
 /// <reference types="cypress" />
 
 import type { Viewer } from 'cesium'
+import type {ShallowRef} from 'vue';
+
+import { toValue  } from 'vue'
 
 import useLayersStore from '@/store/modules/layers'
-import { toValue, type ShallowRef } from 'vue'
 
 function expectLayerCountToBe(viewer: Viewer, layerCount: number) {
     const layers = viewer.scene.imageryLayers
