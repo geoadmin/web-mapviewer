@@ -1,13 +1,16 @@
 /// <reference types="cypress" />
 
+import type { Viewer } from 'cesium';
+import type {ShallowRef} from 'vue';
+
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
-import { Math as CesiumMath, Viewer } from 'cesium'
+import { Math as CesiumMath } from 'cesium'
 import proj4 from 'proj4'
+import { toValue  } from 'vue'
 
 import { DEFAULT_PROJECTION } from '@/config'
 import useCesiumStore from '@/store/modules/cesium'
 import usePositionStore from '@/store/modules/position'
-import { toValue, type ShallowRef } from 'vue'
 
 registerProj4(proj4)
 

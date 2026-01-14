@@ -1,14 +1,17 @@
+import type { Viewer } from 'cesium';
+import type {ShallowRef} from 'vue';
+
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
 import {
     CAMERA_MAX_ZOOM_DISTANCE,
     CAMERA_MIN_ZOOM_DISTANCE,
 } from '@swissgeo/staging-config/constants'
-import { Cartesian3, Viewer } from 'cesium'
+import { Cartesian3 } from 'cesium'
 import proj4 from 'proj4'
+import { toValue  } from 'vue'
 
 import { calculateResolution } from '@/modules/map/components/cesium/utils/cameraUtils'
 import usePositionStore from '@/store/modules/position'
-import { toValue, type ShallowRef } from 'vue'
 
 registerProj4(proj4)
 
