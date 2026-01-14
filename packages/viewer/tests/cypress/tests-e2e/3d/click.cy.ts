@@ -21,32 +21,32 @@ describe('Testing click', () => {
             },
         })
         cy.waitUntilCesiumTilesLoaded()
+        cy.get('[data-cy="cesium-map"] .cesium-viewer').click()
+
         cy.log('Filling store with initial click info')
         cy.getPinia().then((pinia) => {
             const mapStore = useMapStore(pinia)
-            mapStore.clickInfo = {
-                clickType: ClickType.LeftSingleClick,
-                coordinate: [7.451498, 46.92805],
-                pixelCoordinate: undefined,
-                features: [],
-            }
             const clickInfo = mapStore.clickInfo
             expect(clickInfo?.clickType).to.equal(
                 ClickType.LeftSingleClick,
                 'Click type is correctly detected'
             )
-        })
 
-
-        cy.get('[data-cy="cesium-map"] .cesium-viewer').click()
-        cy.log('Checking store after click processing in the app where no Tile is present and no coordinate can be retrieved')
-        cy.getPinia().then((pinia) => {
-            const mapStore = useMapStore(pinia)
-            const clickInfo = mapStore.clickInfo
-            expect(clickInfo).to.equal(
-                undefined,
+            expect(clickInfo?.features?.length).to.equal(
+                0,
+                'No feature are detected under the click'
+            )
+            expect(clickInfo?.pixelCoordinate?.[0]).to.equal(
+                Cypress.config('viewportWidth') / 2,
+                'Cesium width is correctly passed along'
+            )
+            expect(clickInfo?.pixelCoordinate?.[1]).to.equal(
+                Cypress.config('viewportHeight') / 2,
+                'Cesium height is correctly passed along'
             )
         })
+
+
         // since switching to fake tileset and tiles for testing
         // these tests here do not functioning properly, they are commented until we find
         // a way to give fake tile that Cesium can "pick" (ray trace) with again
