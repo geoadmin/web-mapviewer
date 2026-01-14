@@ -1,10 +1,10 @@
-import useUIStore from '@/store/modules/ui'
 import { wrapDegrees } from '@swissgeo/numbers'
 
 import type { CameraPosition, PositionStore } from '@/store/modules/position/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import useCesiumStore from '@/store/modules/cesium'
+import useUIStore from '@/store/modules/ui'
 
 export default function setCameraPosition(
     this: PositionStore,
