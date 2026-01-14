@@ -1,5 +1,4 @@
-import type { ConfigEnv, PluginOption } from 'vite'
-import type { ViteUserConfig } from 'vitest/config'
+import type { ConfigEnv, PluginOption, UserConfig } from 'vite'
 
 import tailwindcss from '@tailwindcss/vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
@@ -38,8 +37,8 @@ const stagings: Record<ViteModes, string> = {
 }
 
 /**
- * Get the Cesium static directory path based on the mode.
- * In test mode, use a fixed path to avoid issues with dynamic version paths.
+ * Get the Cesium static directory path based on the mode. In test mode, use a fixed path to avoid
+ * issues with dynamic version paths.
  */
 function getCesiumStaticDir(mode: ViteModes): string {
     return mode === 'test' ? './cesium/' : `./${appVersion}/cesium/`
@@ -182,7 +181,7 @@ function generatePlugins(mode: ViteModes, isTesting: boolean = false): PluginOpt
 }
 
 // https://vitejs.dev/config/
-export default defineConfig((configEnv: ConfigEnv): ViteUserConfig => {
+export default defineConfig((configEnv: ConfigEnv): UserConfig => {
     const { mode } = configEnv
     // "test" mode is essentially the "development" mode, but with a different plugin composition.
     // In test mode, we don't want the PWA plugin or the dev tools.
@@ -233,13 +232,6 @@ export default defineConfig((configEnv: ConfigEnv): ViteUserConfig => {
             // Polyfill Node.js process object for browser environment (needed for Cypress tests)
             // Some dependencies may try to access process.env at module load time
             'process.env': JSON.stringify({}),
-        },
-        test: {
-            include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-            outputFile: 'tests/results/unit/unit-test-report.xml',
-            silent: 'passed-only',
-            setupFiles: ['tests/setup-vitest.ts'],
-            environment: 'jsdom',
         },
     }
 })

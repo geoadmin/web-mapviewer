@@ -1,9 +1,10 @@
+import type { UserConfig } from 'vite'
+
 import { resolve } from 'path'
 import dts from 'unplugin-dts/vite'
 import { fileURLToPath, URL } from 'url'
-import { defineConfig } from 'vitest/config'
 
-export default defineConfig({
+const config: UserConfig = {
     build: {
         lib: {
             entry: [resolve(__dirname, 'src/index.ts')],
@@ -25,7 +26,6 @@ export default defineConfig({
             bundleTypes: true,
         }),
     ],
-    test: {
-        environment: 'jsdom',
-    },
-})
+}
+
+export default config

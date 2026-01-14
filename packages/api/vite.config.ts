@@ -1,11 +1,11 @@
-import type { ViteUserConfig } from 'vitest/config'
+import type { UserConfig } from 'vite'
 
 import { resolve } from 'path'
 import dts from 'unplugin-dts/vite'
 import { fileURLToPath, URL } from 'url'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
-const config: ViteUserConfig = {
+const config: UserConfig = {
     build: {
         lib: {
             entry: {
@@ -31,10 +31,6 @@ const config: ViteUserConfig = {
             bundleTypes: true,
         }),
     ],
-    test: {
-        environment: 'jsdom',
-        silent: 'passed-only',
-    },
 }
 
 export default config
