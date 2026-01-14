@@ -14,9 +14,9 @@ import useLayersStore from '@/store/modules/layers'
 import useTopicsStore from '@/store/modules/topics'
 import useUIStore from '@/store/modules/ui'
 
-import type { InterceptCallback } from './intercepts'
+import type { InterceptCallback, InterceptCategory } from './intercepts'
 
-import { getDefaultFixturesAndIntercepts } from './intercepts'
+import { getDefaultFixturesAndIntercepts, getInterceptsByCategory } from './intercepts'
 import { isMobile } from './utils'
 
 registerProj4(proj4)
@@ -42,6 +42,35 @@ export interface GoToViewOptions {
     geolocationMockupOptions?: GeolocationMockupOptions
     /** Overrides for default interceptions to the backend. */
     fixturesAndIntercepts?: Record<string, InterceptCallback>
+    /**
+     * Specify which intercept categories to load. Only the specified categories will be registered,
+     * reducing memory usage for tests that don't need all intercepts.
+     *
+     * Categories:
+     *
+     * - 'core': Essential intercepts (router, base layers, topics, catalog) - ~3.5 MB
+     * - 'features': Feature queries (height, what3word, popups, identify) - ~2 MB
+     * - 'drawing': Drawing tools (icons, GeoJSON) - ~2 MB
+     * - 'print': Print functionality - ~1.5 MB
+     * - '3d': Cesium 3D mode - ~0.5 MB
+     * - 'external': External providers (WMS, WMTS) - ~1 MB
+     * - 'all': All intercepts (default, backward compatible) - ~10.5 MB
+     *
+     * @example
+     *     // Minimal setup (saves ~7 MB per test)
+     *     cy.goToMapView({ interceptCategories: ['core'] })
+     *
+     * @example
+     *     // Common setup for feature tests (saves ~5 MB per test)
+     *     cy.goToMapView({ interceptCategories: ['core', 'features'] })
+     *
+     * @example
+     *     // All intercepts (backward compatible)
+     *     cy.goToMapView({ interceptCategories: ['all'] }) // or omit parameter
+     *
+     * @default ['all'] - All intercepts loaded for backward compatibility
+     */
+    interceptCategories?: InterceptCategory[]
     /** Whether to use the legacy (vue-router) view */
     legacy?: boolean
 }
@@ -129,11 +158,15 @@ function goToView(view: 'embed' | 'map', options?: GoToViewOptions): void {
         withHash = true,
         geolocationMockupOptions = { latitude: 47, longitude: 7 },
         fixturesAndIntercepts = {},
+        interceptCategories = ['all'], // Default to all for backward compatibility
         legacy = !withHash,
     } = options ?? {}
+
+    // Get base intercepts from specified categories (or all by default)
+    const defIntercepts = getInterceptsByCategory(interceptCategories)
+
     // Intercepts passed as parameters to "fixturesAndIntercepts" will overwrite the correspondent
-    // default intercept.
-    const defIntercepts = getDefaultFixturesAndIntercepts()
+    // category-based intercept.
     const intercepts = fixturesAndIntercepts
     for (const intercept in defIntercepts) {
         let interceptCallback: InterceptCallback = defIntercepts[intercept]!

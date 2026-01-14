@@ -725,6 +725,144 @@ function addShortLinkIntercept({
 // eslint-disable-next-line no-unused-vars
 export type InterceptCallback = (options?: Record<string, unknown>) => void
 
+/**
+ * ==============================================================================
+ * MEMORY OPTIMIZATION: Opt-in Intercept Categories
+ * ==============================================================================
+ *
+ * PROBLEM: All 21 intercept handlers were registered for every test, even when
+ * most tests only need a subset. This wastes ~1.08 GB of memory (60% of 1.80 GB).
+ *
+ * SOLUTION: Categorize intercepts and allow tests to opt-in to only what they need.
+ *
+ * CATEGORIES:
+ * - 'core': Essential for all tests (router, base layers, topics, catalog)
+ * - 'features': Feature identification and queries (height, what3word, popups, identify)
+ * - 'drawing': Drawing and import tools (icons, GeoJSON)
+ * - 'print': Print functionality (capabilities, request, status, download)
+ * - '3d': Cesium 3D mode (terrain tiles, imagery tiles)
+ * - 'external': External layer providers (WMS, WMTS)
+ *
+ * USAGE:
+ * ```typescript
+ * // Only core intercepts (minimal)
+ * cy.goToMapView({ interceptCategories: ['core'] })
+ *
+ * // Core + features (most common)
+ * cy.goToMapView({ interceptCategories: ['core', 'features'] })
+ *
+ * // All intercepts (backward compatible)
+ * cy.goToMapView() // or cy.goToMapView({ interceptCategories: ['all'] })
+ * ```
+ * ==============================================================================
+ */
+
+/**
+ * Intercept category names
+ */
+export type InterceptCategory = 'core' | 'features' | 'drawing' | 'print' | '3d' | 'external' | 'all'
+
+/**
+ * Categorized intercepts mapped by category name
+ */
+const INTERCEPT_CATEGORIES: Record<InterceptCategory, Record<string, InterceptCallback>> = {
+    // Core intercepts - required for basic app functionality
+    core: {
+        addVueRouterIntercept,
+        addWmtsIntercept,
+        addWmsIntercept,
+        addLayerConfigIntercept,
+        addTopicIntercept,
+        addCatalogIntercept,
+        addShortLinkIntercept,
+    },
+
+    // Feature-related intercepts - for feature identification, search, and queries
+    features: {
+        addHeightIntercept,
+        addWhat3WordIntercept,
+        addHtmlPopupIntercepts,
+        addFeatureIdentificationIntercepts,
+    },
+
+    // Drawing and import intercepts - for drawing tools and GeoJSON import
+    drawing: {
+        addIconsSetIntercept,
+        addDefaultIconsIntercept,
+        addSecondIconsIntercept,
+        addGeoJsonIntercept,
+    },
+
+    // Print intercepts - for map printing functionality
+    print: {
+        addPrintCapabilitiesIntercept,
+        addPrintRequestIntercept,
+        addPrintStatusIntercept,
+        addPrintDownloadIntercept,
+    },
+
+    // 3D mode intercepts - for Cesium terrain and imagery
+    '3d': {
+        addCesiumTilesetIntercepts,
+    },
+
+    // External provider intercepts - for external WMS/WMTS layers
+    external: {
+        addExternalWmsLayerIntercepts,
+        addExternalWmtsIntercepts,
+    },
+
+    // Special 'all' category - placeholder (will be computed)
+    all: {},
+}
+
+/**
+ * Returns intercepts for the specified categories.
+ * If no categories specified or 'all' is included, returns all intercepts.
+ *
+ * @param categories - Array of category names to include (defaults to ['all'])
+ * @returns Record of intercept callbacks to register
+ *
+ * @example
+ * // Get only core intercepts (saves ~60% memory for simple tests)
+ * const intercepts = getInterceptsByCategory(['core'])
+ *
+ * @example
+ * // Get core + features (common for map interaction tests)
+ * const intercepts = getInterceptsByCategory(['core', 'features'])
+ *
+ * @example
+ * // Get all intercepts (backward compatible)
+ * const intercepts = getInterceptsByCategory(['all'])
+ */
+export function getInterceptsByCategory(
+    categories: InterceptCategory[] = ['all']
+): Record<string, InterceptCallback> {
+    // If 'all' is requested, return all intercepts
+    if (categories.includes('all')) {
+        return getDefaultFixturesAndIntercepts()
+    }
+
+    // Merge intercepts from all requested categories
+    const intercepts: Record<string, InterceptCallback> = {}
+
+    for (const category of categories) {
+        const categoryIntercepts = INTERCEPT_CATEGORIES[category]
+        if (categoryIntercepts) {
+            Object.assign(intercepts, categoryIntercepts)
+        }
+    }
+
+    return intercepts
+}
+
+/**
+ * Returns all default fixtures and intercepts.
+ * This is the backward-compatible function that registers all 21 intercepts.
+ *
+ * MEMORY IMPACT: Using this function loads all 21 intercepts (~10.5 MB per test).
+ * For memory optimization, prefer `getInterceptsByCategory()` with specific categories.
+ */
 export function getDefaultFixturesAndIntercepts(): Record<string, InterceptCallback> {
     return {
         addVueRouterIntercept,
