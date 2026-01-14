@@ -27,26 +27,34 @@ export default defineConfig({
 
     e2e: {
         setupNodeEvents(on, config) {
+            // plugin that help tests define which browser permission is set or denied (e.g. location API)
+            // Call this first to let it set up its handlers and modify config
+            const updatedConfig = cypressBrowserPermissionsPlugin(on, config)
+
             on('before:browser:launch', (browser, launchOptions) => {
                 // see https://www.bigbinary.com/blog/how-we-fixed-the-cypress-out-of-memory-error-in-chromium-browsers
                 if (['chrome', 'edge'].includes(browser.name)) {
+                    launchOptions.args = launchOptions.args.filter(arg =>
+                        !arg.includes('--disable-webgl') &&
+                        !arg.includes('--disable-gpu') &&
+                        !arg.includes('--disable-software-rasterizer') &&
+                        !arg.includes('--disable-accelerated-2d-canvas')
+                    )
                     if (browser.isHeadless) {
                         // Chromium browsers sandbox the pages, which increases the memory usage.
                         // Since we're running the Cypress tests on trusted sites,
                         // we can enable the --no-sandbox flag to reduce memory consumption
                         launchOptions.args.push('--no-sandbox')
-                        // When running Cypress tests in headless mode,
-                        // we can disable the WebGL graphics on the rendered pages
-                        // to avoid additional memory usage by passing the --disable-webgl flag.
-                        launchOptions.args.push('--disable-webgl')
-                        // When running tests on low-resource machines,
-                        // using hardware acceleration can impact performance.
-                        // To avoid this, we can pass the --disable-gpu flag.
-                        launchOptions.args.push('--disable-gpu')
+                    } else {
+                        // For the headed mode, ensure WebGL is enabled
+                        launchOptions.args.push('--ignore-gpu-blocklist')
+                        launchOptions.args.push('--enable-unsafe-webgl')
                     }
+                    launchOptions.args.push('--enable-webgl')
                     // increasing Cypress heap size to 3.5GB (default is 500MB) to reduce crash while running test locally
                     launchOptions.args.push('--js-flags=--max-old-space-size=3500')
                 }
+
                 return launchOptions
             })
 
@@ -59,9 +67,6 @@ export default defineConfig({
                     mode: 'test',
                 })
             )
-
-            // plugin that help tests define which browser permission is set or denied (e.g. location API)
-            cypressBrowserPermissionsPlugin(on, config)
 
             // adding task to help manage (local/downloaded) files
             on('task', {
@@ -112,6 +117,9 @@ export default defineConfig({
                     })
                 },
             })
+
+            // Return the modified config from the plugin
+            return updatedConfig
         },
         baseUrl: 'http://localhost:8080',
         specPattern: 'tests/cypress/tests-e2e/**/*.cy.{ts,js}',
