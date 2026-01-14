@@ -2,6 +2,7 @@ import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { RouteLocationNormalizedGeneric } from 'vue-router'
 
 import { round } from '@swissgeo/numbers'
+import { isEqual } from 'lodash'
 
 import type { ValidationResponse } from '@/store/plugins/storeSync/validation'
 
@@ -41,31 +42,28 @@ function parseCrosshairParam(urlParamValue?: string): ParsedCrosshair {
 function setValuesInStore(to: RouteLocationNormalizedGeneric, urlParamValue?: string) {
     const positionStore = usePositionStore()
 
-    if (typeof urlParamValue !== 'string') {
-        positionStore.setCrossHair({ crossHair: undefined }, STORE_DISPATCHER_ROUTER_PLUGIN)
-    } else {
+    let crossHair: CrossHairs | undefined
+    let crossHairPosition: [number, number] | undefined
+
+    if (typeof urlParamValue === 'string') {
         const parsedValue = parseCrosshairParam(urlParamValue)
 
-        if (!parsedValue.crossHair && !parsedValue.crossHairPosition) {
-            positionStore.setCrossHair({ crossHair: undefined }, STORE_DISPATCHER_ROUTER_PLUGIN)
-        } else if (parsedValue.crossHairPosition) {
-            positionStore.setCrossHair(
-                {
-                    crossHair: parsedValue.crossHair ?? CrossHairs.Marker,
-                    crossHairPosition: parsedValue.crossHairPosition,
-                },
-                STORE_DISPATCHER_ROUTER_PLUGIN
-            )
-        } else if (parsedValue.crossHair) {
-            // Handle case where only crosshair type is provided (without coordinates)
-            // The setCrossHair action will use the map center as the crosshair position
-            positionStore.setCrossHair(
-                {
-                    crossHair: parsedValue.crossHair,
-                },
-                STORE_DISPATCHER_ROUTER_PLUGIN
-            )
+        if (parsedValue.crossHair || parsedValue.crossHairPosition) {
+            crossHair = parsedValue.crossHair ?? CrossHairs.Marker
+            crossHairPosition = parsedValue.crossHairPosition
         }
+    }
+    if (
+        crossHair !== positionStore.crossHair ||
+        !isEqual(crossHairPosition, positionStore.crossHairPosition)
+    ) {
+        positionStore.setCrossHair(
+            {
+                crossHair,
+                crossHairPosition,
+            },
+            STORE_DISPATCHER_ROUTER_PLUGIN
+        )
     }
 }
 
