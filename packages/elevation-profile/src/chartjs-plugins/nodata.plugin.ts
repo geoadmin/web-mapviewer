@@ -1,6 +1,5 @@
+import type { ElevationProfile } from '@swissgeo/api'
 import type { Chart, Plugin } from 'chart.js'
-
-import type { ElevationProfile } from '@/profile.api'
 
 export interface NoDataPluginOptions {
     profile: ElevationProfile

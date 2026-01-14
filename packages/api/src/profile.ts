@@ -1,15 +1,23 @@
 import type { CoordinatesChunk, CoordinateSystem, SingleCoordinate } from '@swissgeo/coordinates'
+import type { Staging } from '@swissgeo/staging-config'
 
-import { LV95, coordinatesUtils } from '@swissgeo/coordinates'
+import { coordinatesUtils, LV95 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
+import { getApi3BaseUrl } from '@swissgeo/staging-config'
 import axios, { AxiosError } from 'axios'
 import proj4 from 'proj4'
 
-import type { Staging } from '@/config'
-import type { ElevationProfileMetadata } from '@/utils'
+import type {
+    ElevationProfile,
+    ElevationProfileChunk,
+    ElevationProfilePoint,
+    ServiceProfilePoints,
+} from '@/types/profile'
 
-import { BASE_URL_DEV, BASE_URL_INT, BASE_URL_PROD } from '@/config'
-import getProfileMetadata from '@/utils'
+import LogColorPerService from '@/config/log'
+import profileUtils from '@/utils/profileUtils'
+
+const logTitle = { title: 'Profile API', titleColor: LogColorPerService.profile }
 
 export class ElevationProfileError extends Error {
     public readonly technicalError: Error
@@ -20,73 +28,12 @@ export class ElevationProfileError extends Error {
     }
 }
 
-interface ServiceProfileAltitudes {
-    COMB?: number
-    DTM2?: number
-    DTM25?: number
-}
-
-interface ServiceProfilePoints {
-    alts?: ServiceProfileAltitudes
-    dist: number
-    easting: number
-    northing: number
-}
-
-export interface ElevationProfilePoint {
-    /** Distance from first to current point (relative to the whole profile, not by chunks) */
-    dist?: number
-    coordinate: SingleCoordinate
-    /** Expressed in the COMB elevation model */
-    elevation?: number
-    hasElevationData: boolean
-}
-
-export interface ElevationProfileChunk {
-    points: ElevationProfilePoint[]
-    hasElevationData: boolean
-    hasDistanceData: boolean
-}
-
-export interface ElevationProfile {
-    chunks: ElevationProfileChunk[]
-    metadata: ElevationProfileMetadata
-}
-
 /**
  * How many coordinate we will let a chunk have before splitting it into multiple requests/chunks
  *
  * Backend has a hard limit at 5k, we take a conservative approach with 3k.
  */
 const MAX_REQUEST_POINT_LENGTH: number = 3000
-
-export function splitIfTooManyPoints(chunk: CoordinatesChunk): CoordinatesChunk[] | undefined {
-    if (!chunk) {
-        return
-    }
-    if (chunk.coordinates.length <= MAX_REQUEST_POINT_LENGTH) {
-        return [chunk]
-    }
-    const subChunks = []
-    for (let i = 0; i < chunk.coordinates.length; i += MAX_REQUEST_POINT_LENGTH) {
-        subChunks.push({
-            isWithinBounds: chunk.isWithinBounds,
-            coordinates: chunk.coordinates.slice(i, i + MAX_REQUEST_POINT_LENGTH),
-        })
-    }
-    return subChunks
-}
-
-function getUrlForStaging(staging: Staging = 'production'): string {
-    switch (staging) {
-        case 'development':
-            return BASE_URL_DEV
-        case 'integration':
-            return BASE_URL_INT
-        default:
-            return BASE_URL_PROD
-    }
-}
 
 function parseProfileChunkFromBackendResponse(
     backendResponse: Awaited<ServiceProfilePoints[]>,
@@ -114,7 +61,7 @@ function parseProfileChunkFromBackendResponse(
 }
 
 /** @throws ElevationProfileError */
-export async function getProfileDataForChunk(
+async function getProfileDataForChunk(
     chunk: CoordinatesChunk,
     outputProjection: CoordinateSystem,
     staging: Staging = 'production'
@@ -123,7 +70,8 @@ export async function getProfileDataForChunk(
         try {
             // our backend has a hard limit of 5k points, we split the coordinates if they are above 3k
             // (after a couple tests, 3k was a good trade-off for performance, 5k was a bit sluggish)
-            const coordinatesToRequest: CoordinatesChunk[] | undefined = splitIfTooManyPoints(chunk)
+            const coordinatesToRequest: CoordinatesChunk[] | undefined =
+                profileUtils.splitIfTooManyPoints(chunk, MAX_REQUEST_POINT_LENGTH)
             if (!coordinatesToRequest) {
                 return []
             }
@@ -132,7 +80,7 @@ export async function getProfileDataForChunk(
                 .filter((coordinateChunk) => coordinateChunk !== null)
                 .map((coordinatesChunk) => {
                     return axios({
-                        url: `${getUrlForStaging(staging)}rest/services/profile.json`,
+                        url: `${getApi3BaseUrl(staging)}rest/services/profile.json`,
                         method: 'POST',
                         params: {
                             offset: 0,
@@ -165,7 +113,10 @@ export async function getProfileDataForChunk(
                     )
                     previousDist = finalResponse.slice(-1)[0]?.dist ?? 0
                 } else {
-                    log.error('Incorrect/empty response while getting profile', response)
+                    log.error({
+                        ...logTitle,
+                        messages: ['Incorrect/empty response while getting profile', response],
+                    })
                     throw new ElevationProfileError(
                         'profile_network_error',
                         new Error('Incorrect/empty response while getting profile')
@@ -175,7 +126,10 @@ export async function getProfileDataForChunk(
             return finalResponse
         } catch (err: unknown) {
             if (err) {
-                log.error('Error while trying to fetch profile data', err)
+                log.error({
+                    ...logTitle,
+                    messages: ['Error while trying to fetch profile data', err],
+                })
             }
             if (
                 err instanceof AxiosError &&
@@ -185,10 +139,13 @@ export async function getProfileDataForChunk(
                     'Request Geometry contains too many points. Maximum number of points allowed'
                 )
             ) {
-                log.error(
-                    'Requesting too many points for a profile, request could not be processed',
-                    err
-                )
+                log.error({
+                    ...logTitle,
+                    messages: [
+                        'Requesting too many points for a profile, request could not be processed',
+                        err,
+                    ],
+                })
                 throw new ElevationProfileError(
                     'profile_too_many_points_error',
                     new Error('Error requesting profile with too many points')
@@ -205,7 +162,10 @@ export async function getProfileDataForChunk(
     }
     // returning a chunk without data (and also evaluating distance between point as if we were on a flat plane)
     if (!chunk?.coordinates) {
-        log.error('Malformed chunk', chunk)
+        log.error({
+            ...logTitle,
+            messages: ['Malformed chunk', chunk],
+        })
         throw new ElevationProfileError('profile_network_error', new Error('Malformed chunk'))
     }
     let lastCoordinate: SingleCoordinate
@@ -280,14 +240,17 @@ function sanitizeCoordinates(
  * @throws ElevationProfileError will reject the promise with a ProfileError if something went
  *   wrong.
  */
-export default async (
+async function getProfile(
     profileCoordinates: SingleCoordinate[] | SingleCoordinate[][],
     projection: CoordinateSystem,
     staging: Staging = 'production'
-): Promise<ElevationProfile> => {
+): Promise<ElevationProfile> {
     if (!profileCoordinates || profileCoordinates.length === 0) {
         const errorMessage = `Coordinates not provided`
-        log.error(errorMessage)
+        log.error({
+            ...logTitle,
+            messages: [errorMessage],
+        })
         throw new ElevationProfileError(errorMessage, new Error('profile_could_not_generate'))
     }
     const chunks: ElevationProfileChunk[] = []
@@ -299,17 +262,23 @@ export default async (
             LV95.bounds.splitIfOutOfBounds(coordinates)
 
         if (!coordinateChunks) {
-            log.error(
-                '[Profile] No data found within LV95 bounds, no profile data could be fetched',
-                coordinates
-            )
+            log.error({
+                ...logTitle,
+                messages: [
+                    'No data found within LV95 bounds, no profile data could be fetched',
+                    coordinates,
+                ],
+            })
             throw new ElevationProfileError(
                 'profile_could_not_generate',
                 new Error('No data found within LV95 bounds, no profile data could be fetched')
             )
         }
         if (coordinateChunks.some((chunk) => !chunk.isWithinBounds)) {
-            log.warn('[Profile] Some parts of the profile are out of LV95 bounds')
+            log.warn({
+                ...logTitle,
+                messages: ['Some parts of the profile are out of LV95 bounds'],
+            })
         }
         if (coordinateChunks.every((chunk) => !chunk.isWithinBounds)) {
             throw new ElevationProfileError(
@@ -335,10 +304,13 @@ export default async (
                     chunks.push(resultingChunk)
                 }
             } else {
-                log.error(
-                    '[Profile] Error while getting profile for chunk',
-                    chunkResponse.reason?.message
-                )
+                log.error({
+                    ...logTitle,
+                    messages: [
+                        'Error while getting profile for chunk',
+                        chunkResponse.reason?.message,
+                    ],
+                })
             }
         }
     }
@@ -350,10 +322,16 @@ export default async (
     }
     return {
         chunks: chunks,
-        metadata: getProfileMetadata(
+        metadata: profileUtils.getProfileMetadata(
             chunks
                 .flatMap((chunk) => chunk.points)
                 .toSorted((p1, p2) => (p1.dist ?? 0) - (p2.dist ?? 0))
         ),
     }
 }
+
+export const profileAPI = {
+    getProfile,
+}
+
+export default profileAPI
