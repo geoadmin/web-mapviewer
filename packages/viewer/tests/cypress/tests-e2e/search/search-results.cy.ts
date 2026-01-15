@@ -611,7 +611,7 @@ describe('Test the search bar result handling', () => {
         cy.get('@locationSearchResults').should('not.be.visible')
     })
 
-    it('handle swisssearch and crosshair together correctly', () => {
+    context('swisssearch and crosshair together', () => {
         const latitude = 46.3163
         const longitude = 7.6347
         const swissSearchString = `${latitude},${longitude}`
@@ -627,98 +627,101 @@ describe('Test the search bar result handling', () => {
         const crossHairY = 1185272
         const crossHairXYCoordinates = [crossHairX, crossHairY]
 
-        // =========================================================================== //
-        cy.log('Legacy parser / router (without #map part in the URL)')
-        // --------------------------------------------------------------------------- //
-        cy.log('Swisssearch only -> center to swisssearch coordinates')
-        cy.goToMapView({
-            queryParams: {
-                swisssearch: swissSearchString,
-            },
-            withHash: false,
-        })
-        testQueryPositionCrosshairStore({
-            searchQuery: swissSearchString,
-            expectedCenter: swissSearchXYCoordinates,
-            expectedPinnedLocation: swissSearchXYCoordinates,
-            expectedCrosshair: undefined,
-            expectedCrosshairPosition: undefined,
-        })
-
-        // --------------------------------------------------------------------------- //
-        cy.log(
-            'Swisssearch with crosshair -> center to swisssearch coordinates with crosshair in swisssearch coordinate'
-        )
-        cy.goToMapView({
-            queryParams: {
-                swisssearch: swissSearchString,
-                crosshair: CrossHairs.Cross,
-            },
-            withHash: false,
-        })
-        testQueryPositionCrosshairStore({
-            searchQuery: swissSearchString,
-            expectedCenter: swissSearchXYCoordinates,
-            expectedPinnedLocation: swissSearchXYCoordinates,
-            expectedCrosshair: CrossHairs.Cross,
-            expectedCrosshairPosition: swissSearchXYCoordinates,
+        it('handles a legacy param (without #map part in the URL) correctly', () => {
+            // =========================================================================== //
+            cy.log('Legacy parser / router (without #map part in the URL)')
+            // --------------------------------------------------------------------------- //
+            cy.log('Swisssearch only -> center to swisssearch coordinates')
+            cy.goToMapView({
+                queryParams: {
+                    swisssearch: swissSearchString,
+                },
+                withHash: false,
+            })
+            testQueryPositionCrosshairStore({
+                searchQuery: swissSearchString,
+                expectedCenter: swissSearchXYCoordinates,
+                expectedPinnedLocation: swissSearchXYCoordinates,
+                expectedCrosshair: undefined,
+                expectedCrosshairPosition: undefined,
+            })
         })
 
-        // =========================================================================== //
-        cy.log('Current parser / router (with #map part in the URL)')
-
-        // --------------------------------------------------------------------------- //
-        cy.log('Swisssearch only -> center to swisssearch coordinates')
-        cy.goToMapView({
-            queryParams: {
-                swisssearch: swissSearchString,
-            },
-            withHash: true,
-        })
-        testQueryPositionCrosshairStore({
-            searchQuery: swissSearchString,
-            expectedCenter: swissSearchXYCoordinates,
-            expectedPinnedLocation: swissSearchXYCoordinates,
-            expectedCrosshair: undefined,
-            expectedCrosshairPosition: undefined,
-        })
-
-        // --------------------------------------------------------------------------- //
-        cy.log(
-            'Swisssearch with crosshair -> center to swisssearch coordinates with crosshair in swisssearch coordinate'
-        )
-        cy.goToMapView({
-            queryParams: {
-                swisssearch: swissSearchString,
-                crosshair: CrossHairs.Cross,
-            },
-            withHash: true,
-        })
-        testQueryPositionCrosshairStore({
-            searchQuery: swissSearchString,
-            expectedCenter: swissSearchXYCoordinates,
-            expectedPinnedLocation: swissSearchXYCoordinates,
-            expectedCrosshair: CrossHairs.Cross,
-            expectedCrosshairPosition: swissSearchXYCoordinates,
+        it('handles a legacy swisssearch and a simple crosshair (no position) correctly', () => {
+            cy.log(
+                'It should center to swisssearch coordinates with crosshair in swisssearch coordinate'
+            )
+            cy.goToMapView({
+                queryParams: {
+                    swisssearch: swissSearchString,
+                    crosshair: CrossHairs.Cross,
+                },
+                withHash: false,
+            })
+            testQueryPositionCrosshairStore({
+                searchQuery: swissSearchString,
+                expectedCenter: swissSearchXYCoordinates,
+                expectedPinnedLocation: swissSearchXYCoordinates,
+                expectedCrosshair: CrossHairs.Cross,
+                expectedCrosshairPosition: swissSearchXYCoordinates,
+            })
         })
 
-        // --------------------------------------------------------------------------- //
-        cy.log(
-            'Swisssearch with crosshair and crosshair location -> center to swisssearch coordinates with crosshair in crosshair coordinate'
-        )
-        cy.goToMapView({
-            queryParams: {
-                swisssearch: swissSearchString,
-                crosshair: `${CrossHairs.Cross},${crossHairX},${crossHairY}`,
-            },
-            withHash: true,
+        it('handles swisssearch alone correctly', () => {
+            cy.log('Swisssearch only -> center to swisssearch coordinates')
+            cy.goToMapView({
+                queryParams: {
+                    swisssearch: swissSearchString,
+                },
+                withHash: true,
+            })
+            testQueryPositionCrosshairStore({
+                searchQuery: swissSearchString,
+                expectedCenter: swissSearchXYCoordinates,
+                expectedPinnedLocation: swissSearchXYCoordinates,
+                expectedCrosshair: undefined,
+                expectedCrosshairPosition: undefined,
+            })
         })
-        testQueryPositionCrosshairStore({
-            searchQuery: swissSearchString,
-            expectedCenter: swissSearchXYCoordinates,
-            expectedPinnedLocation: swissSearchXYCoordinates,
-            expectedCrosshair: CrossHairs.Cross,
-            expectedCrosshairPosition: crossHairXYCoordinates,
+
+        it('handles swisssearch and crosshair with position correctly', () => {
+            cy.log(
+                'Swisssearch with crosshair -> center to swisssearch coordinates with crosshair in swisssearch coordinate'
+            )
+            cy.goToMapView({
+                queryParams: {
+                    swisssearch: swissSearchString,
+                    crosshair: CrossHairs.Cross,
+                },
+                withHash: true,
+            })
+            testQueryPositionCrosshairStore({
+                searchQuery: swissSearchString,
+                expectedCenter: swissSearchXYCoordinates,
+                expectedPinnedLocation: swissSearchXYCoordinates,
+                expectedCrosshair: CrossHairs.Cross,
+                expectedCrosshairPosition: swissSearchXYCoordinates,
+            })
+        })
+
+        it('handles a swisssearch and a complete crosshair (with position) correctly', () => {
+            cy.log(
+                'Swisssearch with crosshair and crosshair location -> center to swisssearch coordinates with crosshair in crosshair coordinate'
+            )
+            cy.goToMapView({
+                queryParams: {
+                    swisssearch: swissSearchString,
+                    crosshair: `${CrossHairs.Cross},${crossHairX},${crossHairY}`,
+                },
+                withHash: true,
+            })
+            testQueryPositionCrosshairStore({
+                searchQuery: swissSearchString,
+                expectedCenter: swissSearchXYCoordinates,
+                expectedPinnedLocation: swissSearchXYCoordinates,
+                expectedCrosshair: CrossHairs.Cross,
+                expectedCrosshairPosition: crossHairXYCoordinates,
+            })
         })
     })
 })
