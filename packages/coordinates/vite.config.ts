@@ -19,11 +19,16 @@ const config: UserConfig = {
         },
         sourcemap: true,
         rollupOptions: {
+            // Externalize peer dependencies so they use the host application's instances
+            external: ['proj4', 'ol', 'ol/proj/proj4'],
             output: {
                 exports: 'named',
                 name: '@swissgeo/coordinates',
                 globals: {
                     vue: 'Vue',
+                    proj4: 'proj4',
+                    ol: 'ol',
+                    'ol/proj/proj4': 'ol/proj/proj4',
                 },
             },
         },

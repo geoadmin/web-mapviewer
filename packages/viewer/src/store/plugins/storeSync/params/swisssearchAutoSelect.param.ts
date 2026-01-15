@@ -23,8 +23,13 @@ const swisssearchAutoSelectParam = new UrlParamConfig<boolean>({
             searchStore.setAutoSelect(false, STORE_DISPATCHER_ROUTER_PLUGIN)
         }
     },
-    afterSetValuesInStore: () => removeQueryParamFromHref(URL_PARAM_NAME),
-    extractValueFromStore: () => useSearchStore().autoSelect,
+    afterSetValuesInStore: () => {
+        // Defer removal to next event loop tick to ensure all URL params are processed
+        // and router state is stable before manually modifying the URL
+        setTimeout(() => removeQueryParamFromHref(URL_PARAM_NAME), 0)
+    },
+    // Always return default value so this param never gets re-added to URL by storeToUrl plugin
+    extractValueFromStore: () => false,
     keepInUrlWhenDefault: false,
     valueType: Boolean,
     defaultValue: false,

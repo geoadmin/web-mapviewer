@@ -12,13 +12,22 @@ const swisssearchParamConfig = new UrlParamConfig<string>({
     urlParamName: URL_PARAM_NAME_SWISSSEARCH,
     // no mutation to watch, we only react to this param if it is there at app start-up
     actionsToWatch: [],
-    extractValueFromStore: () => useSearchStore().query,
+    // Always return default value so this param never gets re-added to URL by storeToUrl plugin
+    extractValueFromStore: () => '',
     setValuesInStore: (_: RouteLocationNormalizedGeneric, urlParamValue?: string) => {
         if (urlParamValue) {
-            useSearchStore().setSearchQuery(urlParamValue, STORE_DISPATCHER_ROUTER_PLUGIN)
+            useSearchStore().setSearchQuery(
+                urlParamValue,
+                { originUrlParam: true },
+                STORE_DISPATCHER_ROUTER_PLUGIN
+            )
         }
     },
-    afterSetValuesInStore: () => removeQueryParamFromHref(URL_PARAM_NAME_SWISSSEARCH),
+    afterSetValuesInStore: () => {
+        // Defer removal to next event loop tick to ensure all URL params are processed
+        // and router state is stable before manually modifying the URL
+        setTimeout(() => removeQueryParamFromHref(URL_PARAM_NAME_SWISSSEARCH), 0)
+    },
     keepInUrlWhenDefault: false,
     valueType: String,
     defaultValue: '',

@@ -189,7 +189,11 @@ async function searchLocation(
     queryString: string,
     lang: string,
     cancelToken: CancelToken,
-    limit?: number
+    limit?: number,
+    translations?: {
+        kantone: string
+        district: string
+    }
 ): Promise<LocationSearchResult[]> {
     try {
         const locationResponse = await generateAxiosSearchRequest(
@@ -207,7 +211,9 @@ async function searchLocation(
             (result: SearchResponseResult) => !!result.attrs
         )
         return (
-            resultWithAttrs.map((location) => parseLocationResult(location, outputProjection)) ?? []
+            resultWithAttrs.map((location) =>
+                parseLocationResult(location, outputProjection, translations)
+            ) ?? []
         )
     } catch (error) {
         log.error({
@@ -400,6 +406,11 @@ interface SearchConfig {
     /** The maximum number of results to return */
     limit?: number
     iconSets?: DrawingIconSet[]
+    /** Translations for location origin prefixes (e.g., "Ct." for kantone, "District" for district) */
+    translations?: {
+        kantone: string
+        district: string
+    }
 }
 
 let cancelTokenSource: CancelTokenSource | undefined
@@ -412,6 +423,7 @@ async function search(config: SearchConfig): Promise<SearchResult[]> {
         layersToSearch = [],
         limit,
         iconSets = [],
+        translations,
     } = config
 
     if (!outputProjection) {
@@ -443,7 +455,8 @@ async function search(config: SearchConfig): Promise<SearchResult[]> {
             queryString,
             lang,
             cancelTokenSource?.token,
-            limit
+            limit,
+            translations
         )),
     ]
 

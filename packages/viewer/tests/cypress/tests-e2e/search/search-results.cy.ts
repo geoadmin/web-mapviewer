@@ -83,12 +83,12 @@ function testQueryPositionCrosshairStore({
     expectedCrosshairPosition,
 }: TestQueryParams): void {
     // check the query
-    cy.getPinia().then((pinia) => {
+    cy.getPinia().should((pinia) => {
         const searchStore = useSearchStore(pinia)
         expect(searchStore.query).to.eq(searchQuery)
     })
     // check the center of the map
-    cy.getPinia().then((pinia) => {
+    cy.getPinia().should((pinia) => {
         const positionStore = usePositionStore(pinia)
         checkLocation(expectedCenter, positionStore.center)
         // check the crosshair
@@ -103,7 +103,7 @@ function testQueryPositionCrosshairStore({
         }
     })
     // check the location of pinnedLocation
-    cy.getPinia().then((pinia) => {
+    cy.getPinia().should((pinia) => {
         const mapStore = useMapStore(pinia)
         assertDefined(mapStore.pinnedLocation)
         checkLocation(expectedPinnedLocation, mapStore.pinnedLocation)
@@ -218,8 +218,7 @@ describe('Test the search bar result handling', () => {
         }).as('search-layer-features')
     })
 
-    // Skipped: due to failure in checking the center. See TODO inside the test
-    it.skip('search different type of entries correctly', () => {
+    it('search different type of entries correctly', () => {
         cy.goToMapView({ queryParams: { sr: 2056 } }) // Use LV95 projection
         cy.wait(['@layerConfig', '@topics', '@topic-ech'])
 
@@ -244,7 +243,7 @@ describe('Test the search bar result handling', () => {
             'Checking that it reads the swisssearch URL param at startup and launch a search with its content'
         )
 
-        cy.getPinia().then((pinia) => {
+        cy.getPinia().should((pinia) => {
             const searchStore2 = useSearchStore(pinia)
             expect(searchStore2.query).to.eq('test')
         })
@@ -354,15 +353,14 @@ describe('Test the search bar result handling', () => {
         cy.focused().trigger('keydown', { key: 'ArrowDown' })
         cy.focused().trigger('keyup', { key: 'Enter' })
 
-        cy.getPinia().then((pinia) => {
+        cy.getPinia().should((pinia) => {
             const mapStore2 = useMapStore(pinia)
             assertDefined(mapStore2.pinnedLocation)
-
             checkLocation(expectedCenterDefaultProjection, mapStore2.pinnedLocation)
         })
         // clearing selected entry by clearing the search bar and re-entering a search text
         cy.get('[data-cy="searchbar-clear"]').click()
-        cy.getPinia().then((pinia) => {
+        cy.getPinia().should((pinia) => {
             const mapStore2 = useMapStore(pinia)
             expect(mapStore2.pinnedLocation).to.be.undefined
         })
@@ -376,29 +374,39 @@ describe('Test the search bar result handling', () => {
         cy.get('@locationSearchResults').first().trigger('mouseenter')
         cy.getPinia().then((pinia) => {
             const mapStore2 = useMapStore(pinia)
-            assertDefined(mapStore2.previewedPinnedLocation)
-            checkLocation(expectedCenterDefaultProjection, mapStore2.previewedPinnedLocation)
+            cy.wrap(mapStore2).its('previewedPinnedLocation').should('not.be.undefined')
+            cy.wrap(mapStore2)
+                .its('previewedPinnedLocation')
+                .then((loc) => checkLocation(expectedCenterDefaultProjection, loc))
         })
         // Location - Leave
         cy.get('@locationSearchResults').first().trigger('mouseleave')
         cy.getPinia().then((pinia) => {
             const mapStore2 = useMapStore(pinia)
-            expect(mapStore2.previewedPinnedLocation).to.be.undefined
+            cy.wrap(mapStore2).its('previewedPinnedLocation').should('be.undefined')
         })
 
         // Layer - Enter
         cy.get('@layerSearchResults').first().trigger('mouseenter')
         cy.getPinia().then((pinia) => {
             const layersStore = useLayersStore(pinia)
-            const visibleIds = layersStore.visibleLayers.map((layer: Layer) => layer.id)
-            expect(visibleIds).to.contain(expectedLayerId)
+            cy.wrap(layersStore)
+                .its('visibleLayers')
+                .should((layers: Layer[]) => {
+                    const visibleIds = layers.map((layer: Layer) => layer.id)
+                    expect(visibleIds).to.contain(expectedLayerId)
+                })
         })
         // Layer - Leave
         cy.get('@layerSearchResults').first().trigger('mouseleave')
         cy.getPinia().then((pinia) => {
             const layersStore2 = useLayersStore(pinia)
-            const visibleIds2 = layersStore2.visibleLayers.map((layer: Layer) => layer.id)
-            expect(visibleIds2).not.to.contain(expectedLayerId)
+            cy.wrap(layersStore2)
+                .its('visibleLayers')
+                .should((layers: Layer[]) => {
+                    const visibleIds = layers.map((layer: Layer) => layer.id)
+                    expect(visibleIds).not.to.contain(expectedLayerId)
+                })
         })
 
         // Location - Leave via unmount
@@ -406,7 +414,7 @@ describe('Test the search bar result handling', () => {
         cy.get('[data-cy="searchbar-clear"]').click()
         cy.getPinia().then((pinia) => {
             const mapStore2 = useMapStore(pinia)
-            expect(mapStore2.previewedPinnedLocation).to.be.undefined
+            cy.wrap(mapStore2).its('previewedPinnedLocation').should('be.undefined')
         })
 
         cy.log('Clicking on the first entry to test handling of zoom/extent/position')
@@ -416,15 +424,8 @@ describe('Test the search bar result handling', () => {
         // search bar should take element's title as value if it's a location
         cy.get(searchbarSelector).should('have.value', 'Test location')
 
-        // TODO(IS): The test is currently failed here.
-        // For some reason, it doesn't center to the new location. But center to the default location
-        // See commands.ts:
-        // "old" MAP_CENTER constant re-projected in LV95
-        // queryParams.center = '2660013.5,1185172'
-        // Even in develop branch, the test failed when I run locally
-
         // checking that the view has centered on the feature
-        cy.getPinia().then((pinia) => {
+        cy.getPinia().should((pinia) => {
             const positionStore2 = usePositionStore(pinia)
             checkLocation(expectedCenterDefaultProjection, positionStore2.center)
         })
@@ -434,14 +435,14 @@ describe('Test the search bar result handling', () => {
         const width = Cypress.config('viewportWidth')
         const height = Cypress.config('viewportHeight')
         if (width < BREAKPOINT_TABLET) {
-            cy.getPinia().then((pinia) => {
+            cy.getPinia().should((pinia) => {
                 const positionStore3 = usePositionStore(pinia)
                 expect(positionStore3.zoom).to.be.closeTo(calculateExpectedZoom(width, height), 0.2)
             })
         }
 
         // checking that a dropped pin has been placed at the feature's location
-        cy.getPinia().then((pinia) => {
+        cy.getPinia().should((pinia) => {
             const mapStore2 = useMapStore(pinia)
             assertDefined(mapStore2.pinnedLocation)
             checkLocation(expectedCenterDefaultProjection, mapStore2.pinnedLocation)
@@ -521,7 +522,7 @@ describe('Test the search bar result handling', () => {
         cy.wait(['@layerConfig', '@topics', '@topic-ech'])
 
         cy.url().should('not.contain', 'swisssearch')
-        cy.getPinia().then((pinia) => {
+        cy.getPinia().should((pinia) => {
             const searchStore3 = useSearchStore(pinia)
             expect(searchStore3.query).to.equal('')
         })
@@ -577,7 +578,7 @@ describe('Test the search bar result handling', () => {
         cy.wait('@search-locations')
         cy.wait('@routeChange')
         // Wait for search query to be set in store (this happens after URL params are processed)
-        cy.getPinia().then((pinia) => {
+        cy.getPinia().should((pinia) => {
             const searchStore4 = useSearchStore(pinia)
             expect(searchStore4.query).to.eq('1530 Payerne')
         })
@@ -585,7 +586,7 @@ describe('Test the search bar result handling', () => {
         cy.url().should('not.contain', 'swisssearch_autoselect')
         const acceptableDelta = 0.25
 
-        cy.getPinia().then((pinia) => {
+        cy.getPinia().should((pinia) => {
             const mapStore8 = useMapStore(pinia)
             const feature = mapStore8.pinnedLocation
             assertDefined(feature)
@@ -610,7 +611,7 @@ describe('Test the search bar result handling', () => {
         cy.get('@locationSearchResults').should('not.be.visible')
     })
 
-    it('handle swisssearch and crosshair together correctly', () => {
+    context('swisssearch and crosshair together', () => {
         const latitude = 46.3163
         const longitude = 7.6347
         const swissSearchString = `${latitude},${longitude}`
@@ -626,98 +627,101 @@ describe('Test the search bar result handling', () => {
         const crossHairY = 1185272
         const crossHairXYCoordinates = [crossHairX, crossHairY]
 
-        // =========================================================================== //
-        cy.log('Legacy parser / router (without #map part in the URL)')
-        // --------------------------------------------------------------------------- //
-        cy.log('Swisssearch only -> center to swisssearch coordinates')
-        cy.goToMapView({
-            queryParams: {
-                swisssearch: swissSearchString,
-            },
-            withHash: false,
-        })
-        testQueryPositionCrosshairStore({
-            searchQuery: swissSearchString,
-            expectedCenter: swissSearchXYCoordinates,
-            expectedPinnedLocation: swissSearchXYCoordinates,
-            expectedCrosshair: undefined,
-            expectedCrosshairPosition: undefined,
-        })
-
-        // --------------------------------------------------------------------------- //
-        cy.log(
-            'Swisssearch with crosshair -> center to swisssearch coordinates with crosshair in swisssearch coordinate'
-        )
-        cy.goToMapView({
-            queryParams: {
-                swisssearch: swissSearchString,
-                crosshair: CrossHairs.Cross,
-            },
-            withHash: false,
-        })
-        testQueryPositionCrosshairStore({
-            searchQuery: swissSearchString,
-            expectedCenter: swissSearchXYCoordinates,
-            expectedPinnedLocation: swissSearchXYCoordinates,
-            expectedCrosshair: CrossHairs.Cross,
-            expectedCrosshairPosition: swissSearchXYCoordinates,
+        it('handles a legacy param (without #map part in the URL) correctly', () => {
+            // =========================================================================== //
+            cy.log('Legacy parser / router (without #map part in the URL)')
+            // --------------------------------------------------------------------------- //
+            cy.log('Swisssearch only -> center to swisssearch coordinates')
+            cy.goToMapView({
+                queryParams: {
+                    swisssearch: swissSearchString,
+                },
+                withHash: false,
+            })
+            testQueryPositionCrosshairStore({
+                searchQuery: swissSearchString,
+                expectedCenter: swissSearchXYCoordinates,
+                expectedPinnedLocation: swissSearchXYCoordinates,
+                expectedCrosshair: undefined,
+                expectedCrosshairPosition: undefined,
+            })
         })
 
-        // =========================================================================== //
-        cy.log('Current parser / router (with #map part in the URL)')
-
-        // --------------------------------------------------------------------------- //
-        cy.log('Swisssearch only -> center to swisssearch coordinates')
-        cy.goToMapView({
-            queryParams: {
-                swisssearch: swissSearchString,
-            },
-            withHash: true,
-        })
-        testQueryPositionCrosshairStore({
-            searchQuery: swissSearchString,
-            expectedCenter: swissSearchXYCoordinates,
-            expectedPinnedLocation: swissSearchXYCoordinates,
-            expectedCrosshair: undefined,
-            expectedCrosshairPosition: undefined,
-        })
-
-        // --------------------------------------------------------------------------- //
-        cy.log(
-            'Swisssearch with crosshair -> center to swisssearch coordinates with crosshair in swisssearch coordinate'
-        )
-        cy.goToMapView({
-            queryParams: {
-                swisssearch: swissSearchString,
-                crosshair: CrossHairs.Cross,
-            },
-            withHash: true,
-        })
-        testQueryPositionCrosshairStore({
-            searchQuery: swissSearchString,
-            expectedCenter: swissSearchXYCoordinates,
-            expectedPinnedLocation: swissSearchXYCoordinates,
-            expectedCrosshair: CrossHairs.Cross,
-            expectedCrosshairPosition: swissSearchXYCoordinates,
+        it('handles a legacy swisssearch and a simple crosshair (no position) correctly', () => {
+            cy.log(
+                'It should center to swisssearch coordinates with crosshair in swisssearch coordinate'
+            )
+            cy.goToMapView({
+                queryParams: {
+                    swisssearch: swissSearchString,
+                    crosshair: CrossHairs.Cross,
+                },
+                withHash: false,
+            })
+            testQueryPositionCrosshairStore({
+                searchQuery: swissSearchString,
+                expectedCenter: swissSearchXYCoordinates,
+                expectedPinnedLocation: swissSearchXYCoordinates,
+                expectedCrosshair: CrossHairs.Cross,
+                expectedCrosshairPosition: swissSearchXYCoordinates,
+            })
         })
 
-        // --------------------------------------------------------------------------- //
-        cy.log(
-            'Swisssearch with crosshair and crosshair location -> center to swisssearch coordinates with crosshair in crosshair coordinate'
-        )
-        cy.goToMapView({
-            queryParams: {
-                swisssearch: swissSearchString,
-                crosshair: `${CrossHairs.Cross},${crossHairX},${crossHairY}`,
-            },
-            withHash: true,
+        it('handles swisssearch alone correctly', () => {
+            cy.log('Swisssearch only -> center to swisssearch coordinates')
+            cy.goToMapView({
+                queryParams: {
+                    swisssearch: swissSearchString,
+                },
+                withHash: true,
+            })
+            testQueryPositionCrosshairStore({
+                searchQuery: swissSearchString,
+                expectedCenter: swissSearchXYCoordinates,
+                expectedPinnedLocation: swissSearchXYCoordinates,
+                expectedCrosshair: undefined,
+                expectedCrosshairPosition: undefined,
+            })
         })
-        testQueryPositionCrosshairStore({
-            searchQuery: swissSearchString,
-            expectedCenter: swissSearchXYCoordinates,
-            expectedPinnedLocation: swissSearchXYCoordinates,
-            expectedCrosshair: CrossHairs.Cross,
-            expectedCrosshairPosition: crossHairXYCoordinates,
+
+        it('handles swisssearch and crosshair with position correctly', () => {
+            cy.log(
+                'Swisssearch with crosshair -> center to swisssearch coordinates with crosshair in swisssearch coordinate'
+            )
+            cy.goToMapView({
+                queryParams: {
+                    swisssearch: swissSearchString,
+                    crosshair: CrossHairs.Cross,
+                },
+                withHash: true,
+            })
+            testQueryPositionCrosshairStore({
+                searchQuery: swissSearchString,
+                expectedCenter: swissSearchXYCoordinates,
+                expectedPinnedLocation: swissSearchXYCoordinates,
+                expectedCrosshair: CrossHairs.Cross,
+                expectedCrosshairPosition: swissSearchXYCoordinates,
+            })
+        })
+
+        it('handles a swisssearch and a complete crosshair (with position) correctly', () => {
+            cy.log(
+                'Swisssearch with crosshair and crosshair location -> center to swisssearch coordinates with crosshair in crosshair coordinate'
+            )
+            cy.goToMapView({
+                queryParams: {
+                    swisssearch: swissSearchString,
+                    crosshair: `${CrossHairs.Cross},${crossHairX},${crossHairY}`,
+                },
+                withHash: true,
+            })
+            testQueryPositionCrosshairStore({
+                searchQuery: swissSearchString,
+                expectedCenter: swissSearchXYCoordinates,
+                expectedPinnedLocation: swissSearchXYCoordinates,
+                expectedCrosshair: CrossHairs.Cross,
+                expectedCrosshairPosition: crossHairXYCoordinates,
+            })
         })
     })
 })
