@@ -6,7 +6,11 @@ import { getServiceShortLinkBaseUrl } from '@swissgeo/staging-config'
 import axios from 'axios'
 
 let cancelToken: CancelTokenSource | undefined
-
+export interface ShortLinkOptions {
+    withCrosshair?: boolean
+    url: string
+    staging: Staging
+}
 /**
  * Generates a short link from the given URL
  *
@@ -14,7 +18,8 @@ let cancelToken: CancelTokenSource | undefined
  * @param withCrosshair If a cross-hair should be placed at the center of the map in the shortlink
  * @returns A promise that will resolve with the short link
  */
-function createShortLink(url: string, withCrosshair: boolean = false, staging: Staging): Promise<string | undefined> {
+function createShortLink(options: ShortLinkOptions): Promise<string | undefined> {
+    const { url, withCrosshair = false, staging } = options
     return new Promise((resolve, reject) => {
         // we do not want the geolocation of the user clicking the link to kick in, so we force the flag out of the URL
         let sanitizedUrl = url.replace('&geolocation', '')
