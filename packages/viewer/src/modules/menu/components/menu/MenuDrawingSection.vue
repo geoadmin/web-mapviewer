@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { KMLLayer } from '@swissgeo/layers'
 import type { Map } from 'ol'
 
 import log from '@swissgeo/log'
@@ -11,7 +10,6 @@ import type { ActionDispatcher } from '@/store/types'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import useDrawingStore from '@/store/modules/drawing'
 import { OnlineMode } from '@/store/modules/drawing/types'
-import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
 import useUIStore from '@/store/modules/ui'
 import { FeatureInfoPositions } from '@/store/modules/ui/types'
@@ -26,7 +24,6 @@ const emits = defineEmits<{
 const { t } = useI18n()
 
 const drawingStore = useDrawingStore()
-const layersStore = useLayersStore()
 const mapStore = useMapStore()
 const uiStore = useUIStore()
 
