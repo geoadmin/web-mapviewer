@@ -23,7 +23,6 @@ describe('Testing click', () => {
         cy.waitUntilCesiumTilesLoaded()
         cy.get('[data-cy="cesium-map"] .cesium-viewer').click()
 
-        cy.log('Filling store with initial click info')
         cy.getPinia().then((pinia) => {
             const mapStore = useMapStore(pinia)
             const clickInfo = mapStore.clickInfo

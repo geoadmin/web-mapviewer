@@ -2,8 +2,7 @@
 
 import type { Interception } from 'cypress/types/net-stubbing'
 
-import { randomIntBetween } from '@swissgeo/numbers'
-import { kmlMetadataTemplate } from 'support/drawing'
+import { interceptPostKml } from 'support/drawing'
 
 import { APP_VERSION } from '@/config'
 import useLayersStore from '@/store/modules/layers'
@@ -245,24 +244,10 @@ describe('Testing the report problem form', () => {
         closeForm()
     })
 
-    it.only('reports a problem with drawing attachment', () => {
+    it('reports a problem with drawing attachment', () => {
         let kmlBody: string | FormData | undefined
 
-        cy.intercept(
-            {
-                method: 'POST',
-                url: '**/api/kml/admin',
-            },
-            (req) => {
-                req.reply(
-                    201,
-                    kmlMetadataTemplate({
-                        id: `${Date.now()}_${randomIntBetween(1000, 9999)}_fileId`,
-                        adminId: `1234_adminId`,
-                    })
-                )
-            }
-        ).as('post-kml')
+        interceptPostKml()
         cy.goToMapView()
         interceptFeedback(true)
         cy.openMenuIfMobile()
