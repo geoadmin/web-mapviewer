@@ -2,6 +2,9 @@
 
 import type { Interception } from 'cypress/types/net-stubbing'
 
+import { randomIntBetween } from '@swissgeo/numbers'
+import { kmlMetadataTemplate } from 'support/drawing'
+
 import { APP_VERSION } from '@/config'
 import useLayersStore from '@/store/modules/layers'
 
@@ -161,6 +164,7 @@ describe('Testing the report problem form', () => {
                 { name: 'subject', contains: `[Problem Report]` },
                 { name: 'feedback', contains: text },
                 { name: 'category', contains: 'thematic_map' },
+                // Verification of the Version fails in local as APP_VERSION is set diffferently than in CI/CD
                 { name: 'version', contains: APP_VERSION },
                 { name: 'ua', contains: navigator.userAgent },
                 { name: 'email', contains: validEmail },
@@ -241,7 +245,24 @@ describe('Testing the report problem form', () => {
         closeForm()
     })
 
-    it('reports a problem with drawing attachment', () => {
+    it.only('reports a problem with drawing attachment', () => {
+        let kmlBody: string | FormData | undefined
+
+        cy.intercept(
+            {
+                method: 'POST',
+                url: '**/api/kml/admin',
+            },
+            (req) => {
+                req.reply(
+                    201,
+                    kmlMetadataTemplate({
+                        id: `${Date.now()}_${randomIntBetween(1000, 9999)}_fileId`,
+                        adminId: `1234_adminId`,
+                    })
+                )
+            }
+        ).as('post-kml')
         cy.goToMapView()
         interceptFeedback(true)
         cy.openMenuIfMobile()
@@ -380,7 +401,14 @@ describe('Testing the report problem form', () => {
             cy.get('[data-cy="ol-map"]').dblclick(mapWidth / 2 + 10, mapHeight / 2 + 50)
         })
 
+        cy.wait('@post-kml')
+
         cy.get('[data-cy="drawing-toolbox-close-button"]').should('be.visible').click()
+        cy.wait('@post-kml')
+
+        cy.wait('@post-kml')
+
+        console.log('KML Body:', kmlBody)
         cy.get('@reportForm').should('exist')
         cy.get('[data-cy="drawing-header-title"]').should('not.exist')
         cy.get('@textArea').should('have.value', text)
@@ -395,19 +423,19 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="submit-button"]').click()
         cy.wait('@feedback').then((interception) => {
             const formData = parseFormData(interception.request)
-            ;[
-                { name: 'subject', contains: `[Problem Report]` },
-                { name: 'feedback', contains: text },
-                { name: 'version', contains: APP_VERSION.replace('.dirty', '') },
-                { name: 'ua', contains: navigator.userAgent },
-                { name: 'kml', contains: '<Data name="type"><value>marker</value></Data>' },
-                { name: 'kml', contains: '<Data name="type"><value>annotation</value></Data>' },
-                { name: 'kml', contains: '<Data name="type"><value>linepolygon</value></Data>' },
-            ].forEach((param) => {
-                expect(interception.request.body).to.be.a('String')
-                expect(formData).to.haveOwnProperty(param.name)
-                expect(formData[param.name]).to.contain(param.contains)
-            })
+                ;[
+                    { name: 'subject', contains: `[Problem Report]` },
+                    { name: 'feedback', contains: text },
+                    { name: 'version', contains: APP_VERSION.replace('.dirty', '') },
+                    { name: 'ua', contains: navigator.userAgent },
+                    { name: 'kml', contains: '<Data name="type"><value>marker</value></Data>' },
+                    { name: 'kml', contains: '<Data name="type"><value>annotation</value></Data>' },
+                    { name: 'kml', contains: '<Data name="type"><value>linepolygon</value></Data>' },
+                ].forEach((param) => {
+                    expect(interception.request.body).to.be.a('String')
+                    expect(formData).to.haveOwnProperty(param.name)
+                    expect(formData[param.name]).to.contain(param.contains)
+                })
         })
     })
 })
