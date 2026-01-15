@@ -218,7 +218,6 @@ describe('Test the search bar result handling', () => {
         }).as('search-layer-features')
     })
 
-    // Skipped: due to failure in checking the center. See TODO inside the test
     it('search different type of entries correctly', () => {
         cy.goToMapView({ queryParams: { sr: 2056 } }) // Use LV95 projection
         cy.wait(['@layerConfig', '@topics', '@topic-ech'])
@@ -373,39 +372,49 @@ describe('Test the search bar result handling', () => {
 
         // Location - Enter
         cy.get('@locationSearchResults').first().trigger('mouseenter')
-        cy.getPinia().should((pinia) => {
+        cy.getPinia().then((pinia) => {
             const mapStore2 = useMapStore(pinia)
-            assertDefined(mapStore2.previewedPinnedLocation)
-            checkLocation(expectedCenterDefaultProjection, mapStore2.previewedPinnedLocation)
+            cy.wrap(mapStore2).its('previewedPinnedLocation').should('not.be.undefined')
+            cy.wrap(mapStore2)
+                .its('previewedPinnedLocation')
+                .then((loc) => checkLocation(expectedCenterDefaultProjection, loc))
         })
         // Location - Leave
         cy.get('@locationSearchResults').first().trigger('mouseleave')
-        cy.getPinia().should((pinia) => {
+        cy.getPinia().then((pinia) => {
             const mapStore2 = useMapStore(pinia)
-            expect(mapStore2.previewedPinnedLocation).to.be.undefined
+            cy.wrap(mapStore2).its('previewedPinnedLocation').should('be.undefined')
         })
 
         // Layer - Enter
         cy.get('@layerSearchResults').first().trigger('mouseenter')
-        cy.getPinia().should((pinia) => {
+        cy.getPinia().then((pinia) => {
             const layersStore = useLayersStore(pinia)
-            const visibleIds = layersStore.visibleLayers.map((layer: Layer) => layer.id)
-            expect(visibleIds).to.contain(expectedLayerId)
+            cy.wrap(layersStore)
+                .its('visibleLayers')
+                .should((layers: Layer[]) => {
+                    const visibleIds = layers.map((layer: Layer) => layer.id)
+                    expect(visibleIds).to.contain(expectedLayerId)
+                })
         })
         // Layer - Leave
         cy.get('@layerSearchResults').first().trigger('mouseleave')
-        cy.getPinia().should((pinia) => {
+        cy.getPinia().then((pinia) => {
             const layersStore2 = useLayersStore(pinia)
-            const visibleIds2 = layersStore2.visibleLayers.map((layer: Layer) => layer.id)
-            expect(visibleIds2).not.to.contain(expectedLayerId)
+            cy.wrap(layersStore2)
+                .its('visibleLayers')
+                .should((layers: Layer[]) => {
+                    const visibleIds = layers.map((layer: Layer) => layer.id)
+                    expect(visibleIds).not.to.contain(expectedLayerId)
+                })
         })
 
         // Location - Leave via unmount
         cy.get('@locationSearchResults').first().trigger('mouseenter')
         cy.get('[data-cy="searchbar-clear"]').click()
-        cy.getPinia().should((pinia) => {
+        cy.getPinia().then((pinia) => {
             const mapStore2 = useMapStore(pinia)
-            expect(mapStore2.previewedPinnedLocation).to.be.undefined
+            cy.wrap(mapStore2).its('previewedPinnedLocation').should('be.undefined')
         })
 
         cy.log('Clicking on the first entry to test handling of zoom/extent/position')
