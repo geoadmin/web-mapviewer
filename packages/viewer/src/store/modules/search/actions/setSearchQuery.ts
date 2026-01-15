@@ -8,6 +8,7 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import type { SearchStore } from '@/store/modules/search/types'
 import type { ActionDispatcher } from '@/store/types'
 
+import i18n from '@/modules/i18n'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
@@ -172,6 +173,10 @@ function performSearch(
             layersToSearch: layerStore.visibleLayers,
             resolution: positionStore.resolution,
             limit: searchStore.autoSelect ? 1 : undefined,
+            translations: {
+                kantone: i18n.global.t('ct'),
+                district: i18n.global.t('district'),
+            },
         })
         .then((results) => {
             searchStore.results = results
