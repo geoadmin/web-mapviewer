@@ -52,27 +52,35 @@ function addProfileFixtureAndIntercept(): void {
     }).as('profileAsCsv')
 }
 
-function addFileAPIFixtureAndIntercept(): void {
-    let kmlBody: string | FormData | undefined
+async function handlePostKmlRequest(req: CyHttpMessages.IncomingHttpRequest): Promise<string | FormData | undefined> {
+    try {
+        return await getKmlFromRequest(req)
+    } catch (error) {
+        Cypress.log({
+            name: 'handlePostKmlRequest',
+            message: `failed to get KML from request`,
+            consoleProps() {
+                return {
+                    req: req,
+                    error: error,
+                }
+            },
+        })
+        return undefined
+    }
+}
+
+export function interceptPostKml(
+    onRequestStart?: (_req: CyHttpMessages.IncomingHttpRequest) => void | Promise<void>
+): void {
     cy.intercept(
         {
             method: 'POST',
             url: '**/api/kml/admin',
         },
         async (req) => {
-            try {
-                kmlBody = await getKmlFromRequest(req)
-            } catch (error) {
-                Cypress.log({
-                    name: 'addFileAPIFixtureAndIntercept',
-                    message: `failed to get KML from request`,
-                    consoleProps() {
-                        return {
-                            req: req,
-                            error: error,
-                        }
-                    },
-                })
+            if (onRequestStart) {
+                await onRequestStart(req)
             }
             req.reply(
                 201,
@@ -83,39 +91,73 @@ function addFileAPIFixtureAndIntercept(): void {
             )
         }
     ).as('post-kml')
+}
+
+export function interceptPutKml(
+    onRequestStart?: (_req: CyHttpMessages.IncomingHttpRequest) => void | Promise<void>
+): void {
     cy.intercept(
         {
             method: 'PUT',
             url: '**/api/kml/admin/**',
         },
         async (req) => {
+            if (onRequestStart) {
+                await onRequestStart(req)
+            }
             const adminId = await getKmlAdminIdFromRequest(req)
-            kmlBody = await getKmlFromRequest(req)
+            await getKmlFromRequest(req)
             req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop()!, adminId }))
         }
     ).as('update-kml')
+}
+
+export function interceptGetKmlMetadata(
+    onRequestStart?: (_req: CyHttpMessages.IncomingHttpRequest) => void | Promise<void>
+): void {
     cy.intercept(
         {
             method: 'GET',
             url: '**/api/kml/admin/**',
         },
-        (req) => {
+        async (req) => {
+            if (onRequestStart) {
+                await onRequestStart(req)
+            }
             const headers = { 'Cache-Control': 'no-cache' }
             req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop()! }), headers)
         }
     ).as('get-kml-metadata')
+}
+
+export function interceptGetKmlMetadataByAdminId(
+    onRequestStart?: (_req: CyHttpMessages.IncomingHttpRequest) => void | Promise<void>
+): void {
     cy.intercept(
         {
             method: 'GET',
             url: '**/api/kml/admin?admin_id=*',
         },
-        (req) => {
+        async (req) => {
+            if (onRequestStart) {
+                await onRequestStart(req)
+            }
             const headers = { 'Cache-Control': 'no-cache' }
             req.reply(kmlMetadataTemplate({ id: 'dummy-id', adminId: req.query.admin_id }), headers)
         }
     ).as('get-kml-metadata-by-admin-id')
-    cy.intercept('GET', `**/api/kml/files/**`, (req) => {
+}
+
+export function interceptGetKmlFiles(
+    getKmlBody: () => string | FormData | undefined,
+    onRequestStart?: (_req: CyHttpMessages.IncomingHttpRequest) => void | Promise<void>
+): void {
+    cy.intercept('GET', `**/api/kml/files/**`, async (req) => {
+        if (onRequestStart) {
+            await onRequestStart(req)
+        }
         const headers = { 'Cache-Control': 'no-cache' }
+        const kmlBody = getKmlBody()
         if (kmlBody) {
             req.reply(kmlBody, headers)
         } else {
@@ -125,18 +167,36 @@ function addFileAPIFixtureAndIntercept(): void {
             })
         }
     }).as('get-kml')
-    cy.intercept('HEAD', `**/api/kml/files/**`, {
-        statusCode: 200,
-        headers: {
-            'Content-Type': 'application/vnd.google-earth.kml+xml',
-        },
+}
+
+export function interceptHeadKmlFiles(
+    onRequestStart?: (_req: CyHttpMessages.IncomingHttpRequest) => void | Promise<void>
+): void {
+    cy.intercept('HEAD', `**/api/kml/files/**`, async (req) => {
+        if (onRequestStart) {
+            await onRequestStart(req)
+        }
+        req.reply({
+            statusCode: 200,
+            headers: {
+                'Content-Type': 'application/vnd.google-earth.kml+xml',
+            },
+        })
     }).as('head-kml')
+}
+
+export function interceptDeleteKml(
+    onRequestStart?: (_req: CyHttpMessages.IncomingHttpRequest) => void | Promise<void>
+): void {
     cy.intercept(
         {
             method: 'DELETE',
             url: '**/api/kml/admin/**',
         },
         async (req) => {
+            if (onRequestStart) {
+                await onRequestStart(req)
+            }
             try {
                 const formData = await new Response(req.body, {
                     headers: transformHeaders(req.headers),
@@ -170,6 +230,22 @@ function addFileAPIFixtureAndIntercept(): void {
             }
         }
     ).as('delete-kml')
+}
+
+function addFileAPIFixtureAndIntercept(): void {
+    let kmlBody: string | FormData | undefined
+
+    interceptPostKml(async (req) => {
+        kmlBody = await handlePostKmlRequest(req)
+    })
+    interceptPutKml(async (req) => {
+        kmlBody = await getKmlFromRequest(req)
+    })
+    interceptGetKmlMetadata()
+    interceptGetKmlMetadataByAdminId()
+    interceptGetKmlFiles(() => kmlBody)
+    interceptHeadKmlFiles()
+    interceptDeleteKml()
 }
 
 Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = true) => {
