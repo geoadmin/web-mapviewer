@@ -15,8 +15,15 @@ const config: UserConfig = {
             name: '@swissgeo/api',
         },
         rollupOptions: {
+            // Externalize peer dependencies so they use the host application's instances
+            external: ['axios', 'ol', 'proj4'],
             output: {
                 exports: 'named',
+                globals: {
+                    axios: 'axios',
+                    ol: 'ol',
+                    proj4: 'proj4',
+                },
             },
         },
     },
