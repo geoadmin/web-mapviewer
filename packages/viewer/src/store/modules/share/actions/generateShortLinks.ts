@@ -12,7 +12,11 @@ export default function generateShortLinks(
     dispatcher: ActionDispatcher
 ): void {
     shortLinkAPI
-        .createShortLink(window.location.href, withCrosshair, ENVIRONMENT)
+        .createShortLink({
+            url: window.location.href,
+            withCrosshair,
+            staging: ENVIRONMENT
+        })
         .then((shortLink) => {
             if (shortLink) {
                 this.setShortLink(shortLink, dispatcher)

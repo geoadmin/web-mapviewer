@@ -141,12 +141,12 @@ function generateFormDataForKML(kmlContent: string, reject: PromiseReject): Form
  * @param id KML ID
  * @returns URL to the KML file on our service-kml backend
  */
-function getKmlUrl(id: string, staging: Staging): string {
+function getKmlUrl(id: string, staging: Staging = 'production'): string {
     return `${getKMLBaseUrl(staging)}files/${id}`
 }
 
 /** Publish a new KML on the backend and receives back the metadata of the new file */
-function createKml(kmlContent: string, staging: Staging): Promise<KMLMetadata> {
+function createKml(kmlContent: string, staging: Staging = 'production'): Promise<KMLMetadata> {
     return new Promise((resolve, reject) => {
         const form = generateFormDataForKML(kmlContent, reject)
         axios
@@ -179,7 +179,7 @@ function createKml(kmlContent: string, staging: Staging): Promise<KMLMetadata> {
 }
 
 /** Update a KML on the backend */
-function updateKml(id: string, adminId: string, kmlContent: string, staging: Staging): Promise<KMLMetadata> {
+function updateKml(id: string, adminId: string, kmlContent: string, staging: Staging = 'production'): Promise<KMLMetadata> {
     return new Promise((resolve, reject) => {
         validateId(id, reject)
         validateAdminId(adminId, reject)
@@ -215,7 +215,7 @@ function updateKml(id: string, adminId: string, kmlContent: string, staging: Sta
 }
 
 /** Delete a KML on the backend */
-function deleteKml(id: string, adminId: string, staging: Staging): Promise<void> {
+function deleteKml(id: string, adminId: string, staging: Staging = 'production'): Promise<void> {
     return new Promise((resolve, reject) => {
         validateId(id, reject)
         validateAdminId(adminId, reject)
@@ -280,7 +280,7 @@ function getKmlFromUrl(url: string): Promise<string> {
 }
 
 /** Get the KML's metadata by its adminId */
-function getKmlMetadataByAdminId(adminId: string, staging: Staging): Promise<KMLMetadata> {
+function getKmlMetadataByAdminId(adminId: string, staging: Staging = 'production'): Promise<KMLMetadata> {
     return new Promise((resolve, reject) => {
         validateAdminId(adminId, reject)
         axios
@@ -317,7 +317,7 @@ function getKmlMetadataByAdminId(adminId: string, staging: Staging): Promise<KML
  * If this KML file is not managed by our infrastructure (e.g., external KML), this will reject the
  * request (the promise will be rejected)
  */
-function loadKmlMetadata(kmlLayer: KMLLayer, staging: Staging): Promise<KMLMetadata> {
+function loadKmlMetadata(kmlLayer: KMLLayer, staging: Staging = 'production'): Promise<KMLMetadata> {
     return new Promise((resolve, reject) => {
         if (!kmlLayer) {
             reject(new Error('Missing KML layer, cannot load metadata'))

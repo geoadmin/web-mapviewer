@@ -71,7 +71,10 @@ export function usePrint(map: MaybeRef<Map>) {
                 await abortCurrentJob()
             }
             printStatus.value = PrintStatus.PRINTING
-            const shortLink = await shortLinkAPI.createShortLink(window.location.href, false, ENVIRONMENT)
+            const shortLink = await shortLinkAPI.createShortLink({
+                url: window.location.href,
+                staging: ENVIRONMENT
+            })
             if (!shortLink) {
                 log.error({
                     title: 'usePrint / print',

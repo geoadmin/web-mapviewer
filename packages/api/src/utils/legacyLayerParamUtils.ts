@@ -219,7 +219,7 @@ function getBackgroundLayerFromLegacyUrlParams(
  * @param adminId KML admin ID
  * @returns KML Layer
  */
-async function getKmlLayerFromLegacyAdminIdParam(adminId: string, staging: Staging): Promise<KMLLayer> {
+async function getKmlLayerFromLegacyAdminIdParam(adminId: string, staging: Staging = 'production'): Promise<KMLLayer> {
     const kmlMetadata = await filesAPI.getKmlMetadataByAdminId(adminId, staging)
     return layerUtils.makeKMLLayer({
         kmlFileUrl: kmlMetadata.links.kml,

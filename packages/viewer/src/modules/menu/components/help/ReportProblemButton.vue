@@ -13,6 +13,7 @@ import type { ActionDispatcher } from '@/store/types'
 import type { DropdownItem } from '@/utils/components/DropdownButton.vue'
 import type { ValidationResult } from '@/utils/composables/useFieldValidation'
 
+import { ENVIRONMENT } from '@/config'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/help/common/SendActionButtons.vue'
 import useDrawingStore from '@/store/modules/drawing'
@@ -24,7 +25,6 @@ import EmailInput from '@/utils/components/EmailInput.vue'
 import FileInput from '@/utils/components/FileInput.vue'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 import TextAreaInput from '@/utils/components/TextAreaInput.vue'
-import { ENVIRONMENT } from '@/config'
 
 const dispatcher: ActionDispatcher = { name: 'ReportProblemButton.vue' }
 const temporaryKmlId = filesAPI.getKmlUrl('temporary-kml-for-reporting-a-problem', ENVIRONMENT)
@@ -193,7 +193,10 @@ function onEmailValidate(validation: ValidationResult) {
 }
 
 async function generateShortLink() {
-    const createdShortlink = await shortLinkAPI.createShortLink(window.location.href, false, ENVIRONMENT)
+    const createdShortlink = await shortLinkAPI.createShortLink({
+        url: window.location.href,
+        staging: ENVIRONMENT
+    })
     if (createdShortlink) {
         shortLink.value = createdShortlink
     }
