@@ -139,14 +139,18 @@ function getOlBasicStyles(vectorOptions: GeoAdminGeoJSONVectorOptions): OLBasicS
  * Example of our JSON can be accessed here
  * https://sys-api3.dev.bgdi.ch/static/vectorStyles/ch.bafu.hydroweb-messstationen_grundwasser.json
  */
-function getOlStyleFromLiterals(rangeDefinition: GeoAdminGeoJSONRangeDefinition): Style {
-    const olStyles: OLBasicStyles = {}
+function getOlStyleFromLiterals(geoadminStyleJson: GeoAdminGeoJSONRangeDefinition | GeoAdminGeoJSONStyleSingle): Style {
 
-    if (!rangeDefinition.vectorOptions) {
-        return new Style(olStyles)
+    const {vectorOptions, geomType} = geoadminStyleJson
+
+    const olStyles: OLBasicStyles = vectorOptions ? getOlBasicStyles(vectorOptions) : {}
+
+
+    if (vectorOptions && geomType === 'point') {
+        olStyles.image = getOlImageStyleForShape(vectorOptions)
+
     }
-
-    return new Style(getOlBasicStyles(rangeDefinition.vectorOptions))
+    return new Style(olStyles)
 }
 
 function getGeomTypeFromGeometry(olGeometry: SimpleGeometry): string | undefined {
@@ -159,11 +163,6 @@ function getGeomTypeFromGeometry(olGeometry: SimpleGeometry): string | undefined
     }
 }
 
-function getLabelProperty(_value: GeoAdminGeoJSONVectorOptions['label']): string | undefined {
-    // This function was looking for a 'property' field, but the label interface doesn't have one
-    // Based on the interface, labels use the template field instead
-    return undefined
-}
 
 function getLabelTemplate(value: GeoAdminGeoJSONVectorOptions['label']): string | undefined {
     if (value?.template) {
@@ -178,7 +177,6 @@ function getStyleSpec(value: GeoAdminGeoJSONRangeDefinition): StyleSpec {
         olStyle: getOlStyleFromLiterals(value),
         minResolution: getMinResolution(value),
         maxResolution: getMaxResolution(value),
-        labelProperty: getLabelProperty(value.vectorOptions?.label),
         labelTemplate: getLabelTemplate(value.vectorOptions?.label),
         imageRotationProperty: rotation,
     }
@@ -225,12 +223,14 @@ class OlStyleForPropertyValue {
             single: {},
             unique: {},
             range: {},
+
         }
         // this.styles: [key in Language]GeoAdminGeoJSONStyleType //{
-        //     // point: {},
-        //     // line: {},
-        //     // polygon: {},
-        // //}
+        //  point: {},
+        //  line: {},
+        //  polygon: {},
+        //
+        // }
         this.type = geoadminStyleJson.type
 
         const isStyleSingle = (
@@ -247,9 +247,8 @@ class OlStyleForPropertyValue {
                 type: geoadminStyleJson.type,
                 property: geoadminStyleJson.property,
                 olStyle: getOlStyleFromLiterals(
-                    geoadminStyleJson as unknown as GeoAdminGeoJSONRangeDefinition
+                    geoadminStyleJson
                 ),
-                labelProperty: getLabelProperty(geoadminStyleJson.vectorOptions?.label),
                 labelTemplate: getLabelTemplate(geoadminStyleJson.vectorOptions?.label),
                 imageRotationProperty:
                     'rotation' in geoadminStyleJson
@@ -400,7 +399,7 @@ class OlStyleForPropertyValue {
         if (styleSpec && styleSpec.olStyle) {
             const olStyle = this.setOlText_(
                 styleSpec.olStyle,
-                styleSpec.labelProperty,
+                undefined,
                 styleSpec.labelTemplate,
                 properties
             )
@@ -408,6 +407,7 @@ class OlStyleForPropertyValue {
         }
         return this.defaultStyle
     }
+
 
     /**
      * Returns an OpenLayers style for the feature and the current map resolution (as style can be
@@ -428,7 +428,7 @@ class OlStyleForPropertyValue {
             }
             const olStyle = this.setOlText_(
                 this.singleStyle.olStyle,
-                this.singleStyle.labelProperty,
+                undefined,
                 this.singleStyle.labelTemplate,
                 properties
             )
@@ -440,6 +440,8 @@ class OlStyleForPropertyValue {
         }
         return this.defaultStyle
     }
+
 }
+
 
 export default OlStyleForPropertyValue
