@@ -50,10 +50,13 @@ export default function loadGeoJsonDataAndStyle(
         promise: new Promise((resolve, reject) => {
             Promise.all([pendingDataRequest, pendingStyleRequest])
                 .then(([dataResponse, styleResponse]) => {
+                    const parsedGeoJsonData = typeof dataResponse.data === 'string'
+                        ? JSON.parse(dataResponse.data)
+                        : dataResponse.data
                     layersStore.updateLayer<GeoAdminGeoJSONLayer>(
                         geoJsonLayer.id,
                         {
-                            geoJsonData: dataResponse.data,
+                            geoJsonData: parsedGeoJsonData,
                             geoJsonStyle: styleResponse.data,
                             isLoading: false,
                         },

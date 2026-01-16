@@ -147,7 +147,9 @@ export function identifyGeoJSONFeatureAt(
     }
     // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
     // to use turf functions, we need to have lat/lon (WGS84) coordinates
-    const parsedGeoJsonData = JSON.parse(geoJsonLayer.geoJsonData) as FeatureCollection
+    const parsedGeoJsonData = typeof geoJsonLayer.geoJsonData === 'string'
+        ? JSON.parse(geoJsonLayer.geoJsonData) as FeatureCollection
+        : geoJsonLayer.geoJsonData as FeatureCollection
     const reprojectedGeoJSON = geoJsonUtils.reprojectGeoJsonData(
         parsedGeoJsonData,
         WGS84,
