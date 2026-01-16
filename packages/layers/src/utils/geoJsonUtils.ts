@@ -1,7 +1,7 @@
 import type { NormalizedExtent, SingleCoordinate, CoordinateSystem } from '@swissgeo/coordinates'
 import type { Feature, FeatureCollection, GeoJSON, Geometry, Position } from 'geojson'
 
-import { extentUtils, WGS84 } from '@swissgeo/coordinates'
+import { allCoordinateSystems, extentUtils, WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import {
     bbox,
@@ -16,6 +16,11 @@ import {
 } from '@turf/turf'
 import proj4 from 'proj4'
 import { reproject } from 'reproject'
+
+import type { FeatureCollectionWithCRS } from '@/types/geoJson'
+
+
+
 /**
  * Re-projecting the GeoJSON data (FeatureCollection) if not in the wanted projection
  *
@@ -32,7 +37,7 @@ import { reproject } from 'reproject'
  *   none were set in the GeoJSON data, meaning it is described with WGS84)
  */
 function reprojectGeoJsonData(
-    geoJsonData: FeatureCollection,
+    geoJsonData: FeatureCollectionWithCRS,
     toProjection: CoordinateSystem,
     fromProjection?: CoordinateSystem
 ): FeatureCollection | undefined {
@@ -40,7 +45,11 @@ function reprojectGeoJsonData(
         return undefined
     }
     const matchingProjection: CoordinateSystem =
-        // GeoJSONs don't give CRS anymore, since some later revision (see https://datatracker.ietf.org/doc/html/rfc7946#appendix-B.1)
+        // if the GeoJSON describes a CRS (projection) we grab it so that we can reproject on the fly if needed
+        allCoordinateSystems.find(
+            (coordinateSystem: CoordinateSystem) => coordinateSystem.epsg === geoJsonData.crs?.properties?.name
+        ) ??
+        // if no projection is given by the GeoJSON we use the one given as param
         fromProjection ??
         // if nothing is found in the GeoJSON or the param value, we default to WGS84
         // according to the IETF reference, if nothing is said about the projection used, it should be WGS84
