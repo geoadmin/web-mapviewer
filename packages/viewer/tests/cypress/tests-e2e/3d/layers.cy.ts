@@ -296,7 +296,6 @@ describe('Test of layer handling in 3D', () => {
                 expect(viewer.dataSources.length).to.eq(1)
             })
     })
-
     it('Verify layer features in 2D and 3D', () => {
         cy.log('Go to 3D and add a WMS layer')
         const expectedWmsLayerId = 'test.wms.layer'
