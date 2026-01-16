@@ -39,10 +39,13 @@ export function launchGeoJsonAutoReload(
         axios
             .get<string>(geoJsonLayer.geoJsonUrl)
             .then((response) => {
+                const parsedGeoJsonData = typeof response.data === 'string'
+                    ? JSON.parse(response.data)
+                    : response.data
                 layersStore.updateLayer<GeoAdminGeoJSONLayer>(
                     geoJsonLayer.id,
                     {
-                        geoJsonData: response.data,
+                        geoJsonData: parsedGeoJsonData,
                     },
                     dispatcher
                 )
