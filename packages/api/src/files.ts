@@ -1,4 +1,5 @@
 import type { KMLLayer, KMLMetadata } from '@swissgeo/layers'
+import type { Staging } from '@swissgeo/staging-config'
 
 import log from '@swissgeo/log'
 import { getServiceKmlBaseUrl } from '@swissgeo/staging-config'
@@ -84,8 +85,8 @@ function generateKMLMetadataFromAPIData(
 }
 
 // using a function so that any URL override made while using the app will be taken into account
-function getKMLBaseUrl(): string {
-    return `${getServiceKmlBaseUrl()}api/kml/`
+function getKMLBaseUrl(staging: Staging = 'production'): string {
+    return `${getServiceKmlBaseUrl(staging)}api/kml/`
 }
 
 type PromiseReject = (reason: Error) => void
@@ -140,16 +141,16 @@ function generateFormDataForKML(kmlContent: string, reject: PromiseReject): Form
  * @param id KML ID
  * @returns URL to the KML file on our service-kml backend
  */
-function getKmlUrl(id: string): string {
-    return `${getKMLBaseUrl()}files/${id}`
+function getKmlUrl(id: string, staging: Staging = 'production'): string {
+    return `${getKMLBaseUrl(staging)}files/${id}`
 }
 
 /** Publish a new KML on the backend and receives back the metadata of the new file */
-function createKml(kmlContent: string): Promise<KMLMetadata> {
+function createKml(kmlContent: string, staging: Staging = 'production'): Promise<KMLMetadata> {
     return new Promise((resolve, reject) => {
         const form = generateFormDataForKML(kmlContent, reject)
         axios
-            .post<FileAPIMetadataResponse>(`${getKMLBaseUrl()}admin`, form)
+            .post<FileAPIMetadataResponse>(`${getKMLBaseUrl(staging)}admin`, form)
             .then((response) => {
                 if (
                     response.status === 201 &&
@@ -178,14 +179,14 @@ function createKml(kmlContent: string): Promise<KMLMetadata> {
 }
 
 /** Update a KML on the backend */
-function updateKml(id: string, adminId: string, kmlContent: string): Promise<KMLMetadata> {
+function updateKml(id: string, adminId: string, kmlContent: string, staging: Staging = 'production'): Promise<KMLMetadata> {
     return new Promise((resolve, reject) => {
         validateId(id, reject)
         validateAdminId(adminId, reject)
         const form = generateFormDataForKML(kmlContent, reject)
         form.append('admin_id', adminId)
         axios
-            .put<FileAPIMetadataResponse>(`${getKMLBaseUrl()}admin/${id}`, form)
+            .put<FileAPIMetadataResponse>(`${getKMLBaseUrl(staging)}admin/${id}`, form)
             .then((response) => {
                 if (
                     response.status === 200 &&
@@ -214,7 +215,7 @@ function updateKml(id: string, adminId: string, kmlContent: string): Promise<KML
 }
 
 /** Delete a KML on the backend */
-function deleteKml(id: string, adminId: string): Promise<void> {
+function deleteKml(id: string, adminId: string, staging: Staging = 'production'): Promise<void> {
     return new Promise((resolve, reject) => {
         validateId(id, reject)
         validateAdminId(adminId, reject)
@@ -223,7 +224,7 @@ function deleteKml(id: string, adminId: string): Promise<void> {
         axios
             .request({
                 method: 'DELETE',
-                url: `${getKMLBaseUrl()}admin/${id}`,
+                url: `${getKMLBaseUrl(staging)}admin/${id}`,
                 data: form,
                 headers: {
                     'Content-Type': 'multipart/form-data',
@@ -279,11 +280,11 @@ function getKmlFromUrl(url: string): Promise<string> {
 }
 
 /** Get the KML's metadata by its adminId */
-function getKmlMetadataByAdminId(adminId: string): Promise<KMLMetadata> {
+function getKmlMetadataByAdminId(adminId: string, staging: Staging = 'production'): Promise<KMLMetadata> {
     return new Promise((resolve, reject) => {
         validateAdminId(adminId, reject)
         axios
-            .get<FileAPIMetadataResponse>(`${getKMLBaseUrl()}admin`, {
+            .get<FileAPIMetadataResponse>(`${getKMLBaseUrl(staging)}admin`, {
                 params: {
                     admin_id: adminId,
                 },
@@ -316,7 +317,7 @@ function getKmlMetadataByAdminId(adminId: string): Promise<KMLMetadata> {
  * If this KML file is not managed by our infrastructure (e.g., external KML), this will reject the
  * request (the promise will be rejected)
  */
-function loadKmlMetadata(kmlLayer: KMLLayer): Promise<KMLMetadata> {
+function loadKmlMetadata(kmlLayer: KMLLayer, staging: Staging = 'production'): Promise<KMLMetadata> {
     return new Promise((resolve, reject) => {
         if (!kmlLayer) {
             reject(new Error('Missing KML layer, cannot load metadata'))
@@ -329,7 +330,7 @@ function loadKmlMetadata(kmlLayer: KMLLayer): Promise<KMLMetadata> {
             )
         }
         axios
-            .get(`${getKMLBaseUrl()}admin/${kmlLayer.fileId}`)
+            .get(`${getKMLBaseUrl(staging)}admin/${kmlLayer.fileId}`)
             .then((response) => {
                 if (response.status === 200 && response.data) {
                     const metadata = generateKMLMetadataFromAPIData(response.data, kmlLayer.adminId)

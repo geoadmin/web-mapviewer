@@ -13,6 +13,7 @@ import { useRoute } from 'vue-router'
 
 import type { ActionDispatcher } from '@/store/types'
 
+import { ENVIRONMENT } from '@/config'
 import InfoboxModule from '@/modules/infobox/InfoboxModule.vue'
 import MapFooter from '@/modules/map/components/footer/MapFooter.vue'
 import OpenLayersPrintResolutionEnforcer from '@/modules/map/components/openlayers/OpenLayersPrintResolutionEnforcer.vue'
@@ -149,9 +150,10 @@ watch(() => route.query, generateShareLink)
 
 async function generateShareLink() {
     try {
-        shortLink.value = await shortLinkAPI.createShortLink(
-            `${location.origin}/#/map?${stringifyQuery(route.query)}`
-        )
+        shortLink.value = await shortLinkAPI.createShortLink({ 
+            url: `${location.origin}/#/map?${stringifyQuery(route.query)}`,
+            staging: ENVIRONMENT
+        })
     } catch (error) {
         log.error({ messages: `Failed to create shortlink`, error })
     }

@@ -6,6 +6,7 @@ import { ErrorMessage } from '@swissgeo/log/Message'
 
 import type { ActionDispatcher } from '@/store/types'
 
+import { ENVIRONMENT } from '@/config'
 import generateErrorMessageFromErrorType from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/generateErrorMessageFromErrorType.utils'
 import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/parser/KMLParser.class'
 import KMZParser from '@/modules/menu/components/advancedTools/ImportFile/parser/KMZParser.class'
@@ -31,7 +32,7 @@ async function loadMetadata(kmlLayer: KMLLayer, dispatcher: ActionDispatcher): P
     uiStore.setLoadingBarRequester(`${LOADING_BAR_REQUEST_NAME}/metadata`, dispatcher)
 
     try {
-        const metadata = await filesAPI.loadKmlMetadata(kmlLayer)
+        const metadata = await filesAPI.loadKmlMetadata(kmlLayer, ENVIRONMENT)
         layersStore.updateLayer<KMLLayer>(
             kmlLayer.id,
             {

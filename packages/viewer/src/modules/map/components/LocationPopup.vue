@@ -10,6 +10,7 @@ import { useRoute } from 'vue-router'
 
 import type { ActionDispatcher } from '@/store/types'
 
+import { ENVIRONMENT } from '@/config'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
 import LocationPopupPosition from '@/modules/map/components/LocationPopupPosition.vue'
 import LocationPopupShare from '@/modules/map/components/LocationPopupShare.vue'
@@ -116,7 +117,10 @@ function updateShareLink() {
 
 async function shortenShareLink(url: string) {
     try {
-        shareLinkUrlShorten.value = await shortLinkAPI.createShortLink(url)
+        shareLinkUrlShorten.value = await shortLinkAPI.createShortLink({
+            url,
+            staging: ENVIRONMENT
+        })
     } catch (error) {
         log.error({
             title: 'LocationPopup.vue',

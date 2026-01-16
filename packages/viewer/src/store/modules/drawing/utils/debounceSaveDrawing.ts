@@ -6,7 +6,7 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
+import { ENVIRONMENT, IS_TESTING_WITH_CYPRESS } from '@/config'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
 import useDrawingStore from '@/store/modules/drawing'
 import { DrawingSaveState } from '@/store/modules/drawing/types'
@@ -44,7 +44,7 @@ function willModify() {
 async function saveLocalDrawing(kmlData: string) {
     const drawingStore = useDrawingStore()
     const layersStore = useLayersStore()
-    const kmlMetadata = await filesAPI.createKml(kmlData)
+    const kmlMetadata = await filesAPI.createKml(kmlData, ENVIRONMENT)
 
     const kmlLayer = layerUtils.makeKMLLayer({
         name: drawingStore.name,
@@ -112,7 +112,8 @@ async function saveDrawing({ retryOnError = true }: { retryOnError?: boolean }) 
             drawingStore.layer.config.kmlMetadata = await filesAPI.updateKml(
                 drawingStore.layer.config.fileId!,
                 drawingStore.layer.config.adminId,
-                kmlData
+                kmlData,
+                ENVIRONMENT
             )
             drawingStore.layer.config.kmlData = kmlData
 
@@ -123,7 +124,7 @@ async function saveDrawing({ retryOnError = true }: { retryOnError?: boolean }) 
             )
         } else {
             // Creating a new KML on the backend
-            const kmlMetadata = await filesAPI.createKml(kmlData)
+            const kmlMetadata = await filesAPI.createKml(kmlData, ENVIRONMENT)
 
             let kmlLayer: KMLLayer
             if (drawingStore.layer.config) {
@@ -149,7 +150,7 @@ async function saveDrawing({ retryOnError = true }: { retryOnError?: boolean }) 
                 })
                 kmlLayer = layerUtils.makeKMLLayer({
                     name: drawingStore.name,
-                    kmlFileUrl: filesAPI.getKmlUrl(kmlMetadata.id),
+                    kmlFileUrl: filesAPI.getKmlUrl(kmlMetadata.id, ENVIRONMENT),
                     adminId: kmlMetadata.adminId,
                     isEdited: true,
                     isLoading: false,

@@ -8,6 +8,7 @@ import { computed, ref, toValue } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
 
+import { ENVIRONMENT } from '@/config'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
@@ -70,7 +71,10 @@ export function usePrint(map: MaybeRef<Map>) {
                 await abortCurrentJob()
             }
             printStatus.value = PrintStatus.PRINTING
-            const shortLink = await shortLinkAPI.createShortLink(window.location.href)
+            const shortLink = await shortLinkAPI.createShortLink({
+                url: window.location.href,
+                staging: ENVIRONMENT
+            })
             if (!shortLink) {
                 log.error({
                     title: 'usePrint / print',
@@ -92,12 +96,12 @@ export function usePrint(map: MaybeRef<Map>) {
                 shortLink,
                 layersWithLegends: printLegend
                     ? layerStore.visibleLayers
-                          .filter((layer) => layer.hasLegend)
-                          // remove duplicate layers for the legends to avoid duplicate legends
-                          .filter(
-                              (layer, index, self) =>
-                                  self.findIndex((l) => l.id === layer.id) === index
-                          )
+                        .filter((layer) => layer.hasLegend)
+                        // remove duplicate layers for the legends to avoid duplicate legends
+                        .filter(
+                            (layer, index, self) =>
+                                self.findIndex((l) => l.id === layer.id) === index
+                        )
                     : [],
                 lang: i18nStore.lang,
                 printGrid: printGrid,
