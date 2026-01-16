@@ -767,10 +767,8 @@ function parseKml(
     if (!projectionDefined || !wgs84Defined) {
         // Register all Swiss projections (LV95, LV03, WebMercator) with proj4
         registerProj4(proj4)
-        // Register proj4 with OpenLayers
-        register(proj4)
     }
-
+    register(proj4)
     const features = new KML({
         iconUrlFunction: (url: string) => handleIconUrl(url, iconUrlProxy, files),
     }).readFeatures(kmlData, {
