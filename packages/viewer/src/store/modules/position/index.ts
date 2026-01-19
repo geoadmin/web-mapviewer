@@ -15,6 +15,7 @@ import setProjection from '@/store/modules/position/actions/setProjection'
 import setRotation from '@/store/modules/position/actions/setRotation'
 import setZoom from '@/store/modules/position/actions/setZoom'
 import zoomToExtent from '@/store/modules/position/actions/zoomToExtent'
+import calculatePositionFromCamera from '@/store/modules/position/getters/calculatePositionFromCamera'
 import centerEpsg4326 from '@/store/modules/position/getters/centerEpsg4326'
 import extent from '@/store/modules/position/getters/extent'
 import isExtentOnlyWithinLV95Bounds from '@/store/modules/position/getters/isExtentOnlyWithinLV95Bounds'
@@ -43,6 +44,7 @@ const getters: PositionStoreGetters = {
     resolution,
     extent,
     isExtentOnlyWithinLV95Bounds,
+    calculatePositionFromCamera,
 }
 
 const actions = {

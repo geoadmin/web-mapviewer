@@ -82,11 +82,11 @@ const cameraParam = new UrlParamConfig<string>({
             errors: isValid
                 ? []
                 : [
-                      new ErrorMessage('url_parameter_error', {
-                          param: 'camera',
-                          value: queryValue,
-                      }),
-                  ],
+                    new ErrorMessage('url_parameter_error', {
+                        param: 'camera',
+                        value: queryValue,
+                    }),
+                ],
         }
     },
 })

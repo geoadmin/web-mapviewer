@@ -1,6 +1,9 @@
 /// <reference types="cypress" />
 
 import type { Viewer } from 'cesium'
+import type { ShallowRef } from 'vue'
+
+import { toValue } from 'vue'
 
 import useLayersStore from '@/store/modules/layers'
 
@@ -53,10 +56,11 @@ describe('Testing the feature selection in 3D', () => {
             cy.log('Verifying that the KML layer is loaded')
             cy.window()
                 .its('cesiumViewer')
-                .then((viewer) => {
-                    expectLayerCountToBe(viewer, 2)
-                    expect(viewer.dataSources.length).to.eq(1)
-                    const kmlLayer = viewer.dataSources.get(0)
+                .then((viewer: ShallowRef<Viewer>) => {
+                    const currentViewer: Viewer = toValue(viewer)
+                    expectLayerCountToBe(currentViewer, 2)
+                    expect(currentViewer.dataSources.length).to.eq(1)
+                    const kmlLayer = currentViewer.dataSources.get(0)
                     expect(kmlLayer.show).to.eq(true)
                 })
 

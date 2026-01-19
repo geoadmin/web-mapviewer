@@ -54,7 +54,6 @@ export default defineConfig({
                     // increasing Cypress heap size to 3.5GB (default is 500MB) to reduce crash while running test locally
                     launchOptions.args.push('--js-flags=--max-old-space-size=3500')
                 }
-
                 return launchOptions
             })
 

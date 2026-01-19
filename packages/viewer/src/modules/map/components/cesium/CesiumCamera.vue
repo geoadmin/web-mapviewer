@@ -24,6 +24,7 @@ import {
     limitCameraPitchRoll,
 } from '@/modules/map/components/cesium/utils/cameraUtils'
 import usePositionStore from '@/store/modules/position'
+import useUIStore from '@/store/modules/ui'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumCamera.vue' }
 
@@ -39,6 +40,7 @@ if (!viewer?.value) {
 
 const positionStore = usePositionStore()
 const cameraPosition = computed(() => positionStore.camera)
+const uiStore = useUIStore()
 
 onMounted(() => {
     initCamera()
@@ -148,8 +150,13 @@ function onCameraMoveEnd(): void {
         pitch: wrapDegrees(parseFloat(CesiumMath.toDegrees(camera.pitch).toFixed(0))),
         roll: wrapDegrees(parseFloat(CesiumMath.toDegrees(camera.roll).toFixed(0))),
     }
+
     if (!isEqual(newCameraPosition, cameraPosition.value)) {
+        const { center, zoom, rotation } = positionStore.calculatePositionFromCamera(uiStore.width, newCameraPosition)
         positionStore.setCameraPosition(newCameraPosition, dispatcher)
+        positionStore.setCenter(center, dispatcher)
+        positionStore.setZoom(zoom, dispatcher)
+        positionStore.setRotation(rotation, dispatcher)
     }
 }
 

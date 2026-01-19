@@ -22,6 +22,7 @@ describe('Testing click', () => {
         })
         cy.waitUntilCesiumTilesLoaded()
         cy.get('[data-cy="cesium-map"] .cesium-viewer').click()
+
         cy.getPinia().then((pinia) => {
             const mapStore = useMapStore(pinia)
             const clickInfo = mapStore.clickInfo
@@ -29,6 +30,7 @@ describe('Testing click', () => {
                 ClickType.LeftSingleClick,
                 'Click type is correctly detected'
             )
+
             expect(clickInfo?.features?.length).to.equal(
                 0,
                 'No feature are detected under the click'
@@ -42,6 +44,8 @@ describe('Testing click', () => {
                 'Cesium height is correctly passed along'
             )
         })
+
+
         // since switching to fake tileset and tiles for testing
         // these tests here do not functioning properly, they are commented until we find
         // a way to give fake tile that Cesium can "pick" (ray trace) with again

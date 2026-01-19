@@ -29,6 +29,13 @@ export interface CameraPosition {
     roll: number
 }
 
+export interface Position {
+    center: SingleCoordinate
+    zoom: number
+    rotation: number
+    resolution: number
+}
+
 export interface PositionStoreState {
     /** The display format selected for the mouse tracker */
     displayFormat: CoordinateFormat
@@ -80,6 +87,7 @@ export interface PositionStoreGetters {
      * from our LV 95 services are currently in display)
      */
     isExtentOnlyWithinLV95Bounds(): boolean
+    calculatePositionFromCamera(): (width: number, camera: CameraPosition) => Position
 }
 
 export type PositionStore = ReturnType<typeof usePositionStore>
