@@ -18,9 +18,16 @@ export default function loadTopic(
     const layersStore = useLayersStore()
     const uiStore = useUIStore()
 
+    const {
+        changeLayers,
+        openGeocatalogSection,
+        changeBackgroundLayer = true
+    } = options
+
     topicsAPI
         .loadTopicTreeForTopic(i18nStore.lang, this.current, layersStore.config)
         .then(({ tree, warnings }) => {
+
             if (ENVIRONMENT === 'development' && warnings.length > 0) {
                 uiStore.addWarnings(warnings, dispatcher)
             }
@@ -28,15 +35,18 @@ export default function loadTopic(
                 return
             }
             this.setTopicTree(tree.layers, dispatcher)
-            if (options.openGeocatalogSection) {
+            if (openGeocatalogSection) {
                 this.setTopicTreeOpenedThemesIds([this.current, ...tree.itemIdToOpen], dispatcher)
             }
-            if (this.currentTopic.defaultBackgroundLayer) {
-                layersStore.setBackground(this.currentTopic.defaultBackgroundLayer.id, dispatcher)
-            } else if (options.changeLayers) {
-                layersStore.setBackground(undefined, dispatcher)
+            // by default, if nothing is specified, we change the background layer
+            if (changeBackgroundLayer) {
+                if (this.currentTopic.defaultBackgroundLayer) {
+                    layersStore.setBackground(this.currentTopic.defaultBackgroundLayer.id, dispatcher)
+                } else if (changeLayers) {
+                    layersStore.setBackground(undefined, dispatcher)
+                }
             }
-            if (options.changeLayers) {
+            if (changeLayers) {
                 if (this.currentTopic.layersToActivate) {
                     layersStore.setLayers(this.currentTopic.layersToActivate, dispatcher)
                 }

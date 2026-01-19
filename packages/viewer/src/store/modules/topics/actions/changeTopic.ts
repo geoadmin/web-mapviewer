@@ -38,6 +38,7 @@ export default function changeTopic(
             {
                 changeLayers: true,
                 openGeocatalogSection: options.openGeocatalogSection,
+                changeBackgroundLayer: true
             },
             dispatcher
         )
