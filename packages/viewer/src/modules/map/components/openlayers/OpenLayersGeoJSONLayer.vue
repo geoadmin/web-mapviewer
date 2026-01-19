@@ -72,7 +72,7 @@ function setFeatures(): void {
     layer.setSource(
         new VectorSource({
             features: new GeoJSON().readFeatures(
-                geoJsonUtils.reprojectGeoJsonGeometry(geoJsonObject, projection.value)
+                geoJsonUtils.reprojectGeoJsonData(geoJsonObject, projection.value)
             ),
         })
     )
