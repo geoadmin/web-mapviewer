@@ -7,6 +7,7 @@ import { WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import { LayerType } from '@swissgeo/layers'
 import { assertDefined } from 'support/utils'
 
+import { SUPPORTED_LANG } from '@/modules/i18n'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers'
 import { transformLayerIntoUrlString } from '@/store/plugins/storeSync/layersParamParser'
@@ -667,13 +668,19 @@ describe('Test of layer handling', () => {
                 })
             })
         })
-        it('sets the background according to the URL param if present at startup', () => {
+        it('sets the background according to the URL param if present at startup, and that it does not revert to the default after a lang change', () => {
             cy.goToMapView({ queryParams: { bgLayer: 'test.background.layer' } })
             cy.getPinia().then((pinia) => {
                 const layersStore15 = useLayersStore(pinia)
                 const bgLayer3 = layersStore15.currentBackgroundLayer
                 expect(bgLayer3).to.not.be.undefined
                 expect(bgLayer3?.id).to.eq('test.background.layer')
+                cy.log('We check that whenever we click to change the language, we keep the same background layer')
+                SUPPORTED_LANG.forEach((lang) => {
+                cy.clickOnLanguage(lang)
+                expect(bgLayer3).to.not.be.undefined
+                expect(bgLayer3?.id).to.eq('test.background.layer')
+                })
             })
         })
     })
