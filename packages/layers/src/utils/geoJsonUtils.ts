@@ -17,10 +17,6 @@ import {
 import proj4 from 'proj4'
 import { reproject } from 'reproject'
 
-import type { FeatureCollectionWithCRS } from '@/types/geoJson'
-
-
-
 /**
  * Re-projecting the GeoJSON data (FeatureCollection) if not in the wanted projection
  *
@@ -37,7 +33,7 @@ import type { FeatureCollectionWithCRS } from '@/types/geoJson'
  *   none were set in the GeoJSON data, meaning it is described with WGS84)
  */
 function reprojectGeoJsonData(
-    geoJsonData: FeatureCollectionWithCRS,
+    geoJsonData: FeatureCollection,
     toProjection: CoordinateSystem,
     fromProjection?: CoordinateSystem
 ): FeatureCollection | undefined {
@@ -47,7 +43,8 @@ function reprojectGeoJsonData(
     const matchingProjection: CoordinateSystem =
         // if the GeoJSON describes a CRS (projection) we grab it so that we can reproject on the fly if needed
         allCoordinateSystems.find(
-            (coordinateSystem: CoordinateSystem) => coordinateSystem.epsg === geoJsonData.crs?.properties?.name
+            (coordinateSystem: CoordinateSystem) =>
+                coordinateSystem.epsg === geoJsonData.crs?.properties?.name
         ) ??
         // if no projection is given by the GeoJSON we use the one given as param
         fromProjection ??
