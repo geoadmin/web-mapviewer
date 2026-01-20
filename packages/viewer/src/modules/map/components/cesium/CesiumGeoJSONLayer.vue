@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { GeoAdminGeoJSONLayer } from '@swissgeo/layers'
 import type { Viewer } from 'cesium'
-import type { Geometry } from 'geojson'
 import type { ShallowRef } from 'vue'
 
 import { LV03, LV95, WGS84 } from '@swissgeo/coordinates'
