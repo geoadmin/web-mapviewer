@@ -1,6 +1,5 @@
 import type { FlatExtent, SingleCoordinate, CoordinateSystem } from '@swissgeo/coordinates'
 import type { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
-import type { Feature } from 'geojson'
 import type { Options } from 'ol/source/WMTS'
 
 import type { WMSRequestCapabilities } from '@/types/capabilities'
@@ -206,16 +205,7 @@ export interface GeoAdminGeoJSONLayer extends GeoAdminLayer {
     /** The URL to use when requesting the GeoJSON data (the true GeoJSON per se...) */
     readonly geoJsonUrl: string
     geoJsonStyle?: GeoAdminGeoJSONStyleDefinition
-    geoJsonData?: GeoJsonData
-}
-
-export interface GeoJsonData {
-    features: Feature[]
-    type: 'FeatureCollection'
-    mapname: string
-    crs: { type: string; properties: { name: string } }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    [key: string]: any
+    geoJsonData?: GeoJSON.FeatureCollection
 }
 
 export interface GeoAdminVectorLayer extends GeoAdminLayer {
