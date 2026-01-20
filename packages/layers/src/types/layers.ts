@@ -206,7 +206,7 @@ export interface GeoAdminGeoJSONLayer extends GeoAdminLayer {
     /** The URL to use when requesting the GeoJSON data (the true GeoJSON per se...) */
     readonly geoJsonUrl: string
     geoJsonStyle?: GeoAdminGeoJSONStyleDefinition
-    geoJsonData?: GeoJsonData | string
+    geoJsonData?: GeoJsonData
 }
 
 export interface GeoJsonData {
