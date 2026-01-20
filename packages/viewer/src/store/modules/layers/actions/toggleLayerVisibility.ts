@@ -26,12 +26,13 @@ export default function toggleLayerVisibility(
         })
     }
     // after the layer visibility has been toggled we need to identify features again
-    // we use setTimeout to let the layer visibility change propagate before identifying features
-    // else the storeSync plugin will update the URL with the new layer visibility while the identifyFeatures is running and
-    // the URL will then be out of sync and the layers reappear on the page
-    setTimeout(() =>
+    // we wait for the next router navigation to complete to ensure the storeSync plugin has updated the URL
+    // with the new layer visibility before identifying features, otherwise the URL will be out of sync
+    // and the layers may reappear on the page
+    const removeHook = this.router.afterEach(() => {
+        removeHook()
         this.identifyFeatures(setLayerIdUpdateFeatures, { activeLayer: layer, index }, dispatcher)
-        , 0)
+    })
 }
 
 function setLayerIdUpdateFeatures(options: GetLayerIdOptions): GetLayerIdResult {
