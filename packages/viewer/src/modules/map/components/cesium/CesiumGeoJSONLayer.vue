@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { GeoAdminGeoJSONLayer, GeoJsonData } from '@swissgeo/layers'
+import type { GeoAdminGeoJSONLayer } from '@swissgeo/layers'
 import type { Viewer } from 'cesium'
 import type { Geometry } from 'geojson'
 import type { ShallowRef } from 'vue'
@@ -27,12 +27,12 @@ if (!viewer?.value) {
 }
 
 const layerId = computed<string>(() => geoJsonConfig.id)
-const geoJsonData = computed<GeoJsonData | undefined>(() => geoJsonConfig.geoJsonData)
+const geoJsonData = computed<GeoJSON.FeatureCollection | undefined>(() => geoJsonConfig.geoJsonData)
 const geoJsonStyle = computed(() => geoJsonConfig.geoJsonStyle)
 const opacity = computed(() => geoJsonConfig.opacity)
 
 async function createSource(): Promise<GeoJsonDataSource> {
-    let geoJsonDataInMercator: Geometry | GeoJsonData | undefined = geoJsonData.value
+    let geoJsonDataInMercator: Geometry | GeoJSON.FeatureCollection | undefined = geoJsonData.value
     let crsName: string | undefined
     const crsEntry = getSafe<object>(geoJsonDataInMercator, 'crs')
     // CRS isn't part of the "standard" anymore, but we might have some old GeoJSON still providing it

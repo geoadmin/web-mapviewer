@@ -1,8 +1,7 @@
 import type {
     GeoAdminGeoJSONLayer,
     GeoAdminGeoJSONStyleRange,
-    GeoAdminGeoJSONStyleUnique,
-    GeoJsonData,
+    GeoAdminGeoJSONStyleUnique
 } from '@swissgeo/layers'
 
 import { layerUtils } from '@swissgeo/layers/utils'
@@ -38,7 +37,7 @@ export default function loadGeoJsonDataAndStyle(
         messages: [`Loading data/style for added GeoJSON layer`, geoJsonLayer],
     })
 
-    const { pendingRequest: pendingDataRequest, controller } = getWithAbortController<string>(
+    const { pendingRequest: pendingDataRequest, controller } = getWithAbortController<GeoJSON.FeatureCollection>(
         geoJsonLayer.geoJsonUrl
     )
 
@@ -54,7 +53,7 @@ export default function loadGeoJsonDataAndStyle(
                     layersStore.updateLayer<GeoAdminGeoJSONLayer>(
                         geoJsonLayer.id,
                         {
-                            geoJsonData: dataResponse.data as unknown as GeoJsonData,
+                            geoJsonData: dataResponse.data,
                             geoJsonStyle: styleResponse.data,
                             isLoading: false,
                         },
