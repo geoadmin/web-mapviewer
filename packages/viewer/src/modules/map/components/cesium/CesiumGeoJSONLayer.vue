@@ -32,7 +32,7 @@ const geoJsonStyle = computed(() => geoJsonConfig.geoJsonStyle)
 const opacity = computed(() => geoJsonConfig.opacity)
 
 async function createSource(): Promise<GeoJsonDataSource> {
-    let geoJsonDataInMercator: Geometry | GeoJSON.FeatureCollection | undefined = geoJsonData.value
+    let geoJsonDataInMercator: GeoJSON.FeatureCollection | undefined = geoJsonData.value
     let crsName: string | undefined
     const crsEntry = getSafe<object>(geoJsonDataInMercator, 'crs')
     // CRS isn't part of the "standard" anymore, but we might have some old GeoJSON still providing it
@@ -43,13 +43,13 @@ async function createSource(): Promise<GeoJsonDataSource> {
             crsName = getSafe<string>(properties, 'name')
         }
     }
-    if (crsName && [LV95.epsg, LV03.epsg].includes(crsName)) {
+    if (crsName && [LV95.epsg, LV03.epsg].includes(crsName) && geoJsonData.value) {
         log.debug({
             title: 'CesiumGeoJSONLayer.vue',
             titleColor: LogPreDefinedColor.Blue,
             messages: [`GeoJSON ${layerId.value} is not expressed in WGS84, reprojecting it`],
         })
-        const reprojectedData = reproject(geoJsonData.value as unknown as Geometry, crsName, WGS84.epsg)
+        const reprojectedData = reproject(geoJsonData.value, crsName, WGS84.epsg)
         if (reprojectedData && typeof reprojectedData === 'object' && 'crs' in reprojectedData) {
             delete (reprojectedData as { crs?: unknown }).crs
         }
