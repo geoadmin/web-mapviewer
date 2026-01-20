@@ -27,15 +27,12 @@ if (!viewer?.value) {
 }
 
 const layerId = computed<string>(() => geoJsonConfig.id)
-const geoJsonData = computed<GeoJsonData | string | undefined>(() => geoJsonConfig.geoJsonData)
+const geoJsonData = computed<GeoJsonData | undefined>(() => geoJsonConfig.geoJsonData)
 const geoJsonStyle = computed(() => geoJsonConfig.geoJsonStyle)
 const opacity = computed(() => geoJsonConfig.opacity)
 
 async function createSource(): Promise<GeoJsonDataSource> {
-    const parsedGeoJsonData = typeof geoJsonData.value === 'string'
-        ? JSON.parse(geoJsonData.value)
-        : geoJsonData.value
-    let geoJsonDataInMercator: Geometry | GeoJsonData | undefined = parsedGeoJsonData
+    let geoJsonDataInMercator: Geometry | GeoJsonData | undefined = geoJsonData.value
     let crsName: string | undefined
     const crsEntry = getSafe<object>(geoJsonDataInMercator, 'crs')
     // CRS isn't part of the "standard" anymore, but we might have some old GeoJSON still providing it

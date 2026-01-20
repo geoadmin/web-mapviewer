@@ -2,6 +2,7 @@ import type {
     GeoAdminGeoJSONLayer,
     GeoAdminGeoJSONStyleRange,
     GeoAdminGeoJSONStyleUnique,
+    GeoJsonData,
 } from '@swissgeo/layers'
 
 import { layerUtils } from '@swissgeo/layers/utils'
@@ -50,13 +51,10 @@ export default function loadGeoJsonDataAndStyle(
         promise: new Promise((resolve, reject) => {
             Promise.all([pendingDataRequest, pendingStyleRequest])
                 .then(([dataResponse, styleResponse]) => {
-                    const parsedGeoJsonData = typeof dataResponse.data === 'string'
-                        ? JSON.parse(dataResponse.data)
-                        : dataResponse.data
                     layersStore.updateLayer<GeoAdminGeoJSONLayer>(
                         geoJsonLayer.id,
                         {
-                            geoJsonData: parsedGeoJsonData,
+                            geoJsonData: dataResponse.data as unknown as GeoJsonData,
                             geoJsonStyle: styleResponse.data,
                             isLoading: false,
                         },

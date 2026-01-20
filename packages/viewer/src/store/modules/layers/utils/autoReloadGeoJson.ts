@@ -1,4 +1,4 @@
-import type { GeoAdminGeoJSONLayer } from '@swissgeo/layers'
+import type { GeoAdminGeoJSONLayer, GeoJsonData } from '@swissgeo/layers'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import axios from 'axios'
@@ -39,13 +39,10 @@ export function launchGeoJsonAutoReload(
         axios
             .get<string>(geoJsonLayer.geoJsonUrl)
             .then((response) => {
-                const parsedGeoJsonData = typeof response.data === 'string'
-                    ? JSON.parse(response.data)
-                    : response.data
                 layersStore.updateLayer<GeoAdminGeoJSONLayer>(
                     geoJsonLayer.id,
                     {
-                        geoJsonData: parsedGeoJsonData,
+                        geoJsonData: response.data as unknown as GeoJsonData,
                     },
                     dispatcher
                 )
