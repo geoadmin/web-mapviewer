@@ -1,6 +1,6 @@
 {
     "name": "@swissgeo/api",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "description": "API utilities to interact with SWISSGEO's backend services",
     "type": "module",
     "exports": {
@@ -45,7 +45,6 @@
         "@intlify/core-base": "catalog:",
         "@microsoft/api-extractor": "catalog:",
         "@swissgeo/config-eslint": "workspace:*",
-        "@swissgeo/config-prettier": "workspace:*",
         "@swissgeo/config-typescript": "workspace:*",
         "@tsconfig/node22": "catalog:",
         "@types/chai": "catalog:",
