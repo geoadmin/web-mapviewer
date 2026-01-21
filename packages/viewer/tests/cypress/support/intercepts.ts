@@ -583,7 +583,7 @@ function addExternalWmtsIntercepts(options?: {
     }).as('externalWMTS')
 }
 
-function addShortLinkIntercept({
+export function addShortLinkIntercept({
     shortUrl = 'https://s.geo.admin.ch/0000000',
 }: { shortUrl?: string } = {}): void {
     cy.intercept(/^http[s]?:\/\/(sys-s\.\w+\.bgdi\.ch|s\.geo\.admin\.ch)\//, {
