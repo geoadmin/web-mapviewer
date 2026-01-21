@@ -1,7 +1,7 @@
 import type {
     GeoAdminGeoJSONLayer,
     GeoAdminGeoJSONStyleRange,
-    GeoAdminGeoJSONStyleUnique,
+    GeoAdminGeoJSONStyleUnique
 } from '@swissgeo/layers'
 
 import { layerUtils } from '@swissgeo/layers/utils'
@@ -37,7 +37,7 @@ export default function loadGeoJsonDataAndStyle(
         messages: [`Loading data/style for added GeoJSON layer`, geoJsonLayer],
     })
 
-    const { pendingRequest: pendingDataRequest, controller } = getWithAbortController<string>(
+    const { pendingRequest: pendingDataRequest, controller } = getWithAbortController<GeoJSON.FeatureCollection>(
         geoJsonLayer.geoJsonUrl
     )
 

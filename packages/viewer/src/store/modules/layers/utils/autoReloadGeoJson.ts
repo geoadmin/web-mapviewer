@@ -37,7 +37,7 @@ export function launchGeoJsonAutoReload(
 
         uiStore.setLoadingBarRequester(LOADING_BAR_AUTO_RELOAD_REQUESTER, dispatcher)
         axios
-            .get<string>(geoJsonLayer.geoJsonUrl)
+            .get<GeoJSON.FeatureCollection>(geoJsonLayer.geoJsonUrl)
             .then((response) => {
                 layersStore.updateLayer<GeoAdminGeoJSONLayer>(
                     geoJsonLayer.id,

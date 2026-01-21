@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import type { GeoAdminGeoJSONLayer } from '@swissgeo/layers'
 import type { Viewer } from 'cesium'
-import type { GeoJSON, Geometry } from 'geojson'
 import type { ShallowRef } from 'vue'
 
 import { LV03, LV95, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { GeoJsonDataSource } from 'cesium'
-import { cloneDeep } from 'lodash'
 import { reproject } from 'reproject'
 import { computed, inject, toRef } from 'vue'
 
@@ -28,21 +26,14 @@ if (!viewer?.value) {
 }
 
 const layerId = computed<string>(() => geoJsonConfig.id)
-const geoJsonData = computed<string | undefined>(() => geoJsonConfig.geoJsonData)
-const geoJsonObject = computed<GeoJSON | undefined>(() => {
-    if (geoJsonData.value) {
-        return cloneDeep<GeoJSON>(JSON.parse(geoJsonData.value))
-    }
-    return undefined
-})
+const geoJsonData = computed<GeoJSON.FeatureCollection | undefined>(() => geoJsonConfig.geoJsonData)
 const geoJsonStyle = computed(() => geoJsonConfig.geoJsonStyle)
 const opacity = computed(() => geoJsonConfig.opacity)
 
 async function createSource(): Promise<GeoJsonDataSource> {
-    let geoJsonDataInMercator = geoJsonConfig.geoJsonData
+    let geoJsonDataInMercator: GeoJSON.FeatureCollection | undefined = geoJsonData.value
     let crsName: string | undefined
-
-    const crsEntry = getSafe<object>(geoJsonObject, 'crs')
+    const crsEntry = getSafe<object>(geoJsonDataInMercator, 'crs')
     // CRS isn't part of the "standard" anymore, but we might have some old GeoJSON still providing it
     // @see https://datatracker.ietf.org/doc/html/rfc7946#appendix-B.1
     if (crsEntry) {
@@ -51,23 +42,17 @@ async function createSource(): Promise<GeoJsonDataSource> {
             crsName = getSafe<string>(properties, 'name')
         }
     }
-    if (crsName && [LV95.epsg, LV03.epsg].includes(crsName)) {
+    if (crsName && [LV95.epsg, LV03.epsg].includes(crsName) && geoJsonData.value) {
         log.debug({
             title: 'CesiumGeoJSONLayer.vue',
             titleColor: LogPreDefinedColor.Blue,
             messages: [`GeoJSON ${layerId.value} is not expressed in WGS84, reprojecting it`],
         })
-        const reprojectedData = reproject(geoJsonObject.value as Geometry, crsName, WGS84.epsg)
-        if (reprojectedData && typeof reprojectedData === 'object') {
-            if (
-                reprojectedData &&
-                typeof reprojectedData === 'object' &&
-                'crs' in reprojectedData
-            ) {
-                delete (reprojectedData as { crs?: unknown }).crs
-            }
+        const reprojectedData = reproject(geoJsonData.value, crsName, WGS84.epsg)
+        if (reprojectedData && typeof reprojectedData === 'object' && 'crs' in reprojectedData) {
+            delete (reprojectedData as { crs?: unknown }).crs
         }
-        geoJsonDataInMercator = JSON.stringify(reprojectedData)
+        geoJsonDataInMercator = reprojectedData
     }
     try {
         return await GeoJsonDataSource.load(geoJsonDataInMercator)

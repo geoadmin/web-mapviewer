@@ -16,16 +16,30 @@ export default function toggleLayerVisibility(
     dispatcher: ActionDispatcher
 ) {
     const layer = this.getActiveLayerByIndex(index)
-    if (layer) {
-        layer.isVisible = !layer.isVisible
-    } else {
+    if (!layer) {
         log.error({
             title: 'Layers store / toggleLayerVisibility',
             titleColor: LogPreDefinedColor.Red,
             messages: ['Failed to toggleLayerVisibility: invalid index', index, dispatcher],
         })
+        return
     }
-    this.identifyFeatures(setLayerIdUpdateFeatures, { activeLayer: layer, index }, dispatcher)
+
+    // Register the hook before changing visibility to avoid race conditions
+    // After the layer visibility has been toggled we need to identify features again
+    // We wait for the next router navigation to complete to ensure the storeSync plugin has updated the URL
+    // with the new layer visibility before identifying features, otherwise the URL will be out of sync
+    // and the layers may reappear on the page
+    if (this.router) {
+        const removeHook = this.router.afterEach(() => {
+            removeHook()
+            this.identifyFeatures(setLayerIdUpdateFeatures, { activeLayer: layer, index }, dispatcher)
+        })
+    } else {
+        this.identifyFeatures(setLayerIdUpdateFeatures, { activeLayer: layer, index }, dispatcher)
+    }
+
+    layer.isVisible = !layer.isVisible
 }
 
 function setLayerIdUpdateFeatures(options: GetLayerIdOptions): GetLayerIdResult {
@@ -45,6 +59,5 @@ function setLayerIdUpdateFeatures(options: GetLayerIdOptions): GetLayerIdResult 
             (feature) => 'layer' in feature && feature.layer.id === layerId
         )
     }
-
     return { layerId, updateFeatures }
 }

@@ -205,7 +205,7 @@ export interface GeoAdminGeoJSONLayer extends GeoAdminLayer {
     /** The URL to use when requesting the GeoJSON data (the true GeoJSON per se...) */
     readonly geoJsonUrl: string
     geoJsonStyle?: GeoAdminGeoJSONStyleDefinition
-    geoJsonData?: string
+    geoJsonData?: GeoJSON.FeatureCollection
 }
 
 export interface GeoAdminVectorLayer extends GeoAdminLayer {
