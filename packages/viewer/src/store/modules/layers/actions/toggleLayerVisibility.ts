@@ -30,10 +30,14 @@ export default function toggleLayerVisibility(
     // We wait for the next router navigation to complete to ensure the storeSync plugin has updated the URL
     // with the new layer visibility before identifying features, otherwise the URL will be out of sync
     // and the layers may reappear on the page
-    const removeHook = this.router.afterEach(() => {
-        removeHook()
+    if (this.router) {
+        const removeHook = this.router.afterEach(() => {
+            removeHook()
+            this.identifyFeatures(setLayerIdUpdateFeatures, { activeLayer: layer, index }, dispatcher)
+        })
+    } else {
         this.identifyFeatures(setLayerIdUpdateFeatures, { activeLayer: layer, index }, dispatcher)
-    })
+    }
 
     layer.isVisible = !layer.isVisible
 }
