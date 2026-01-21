@@ -1,13 +1,11 @@
 /// <reference types="cypress" />
 
 import type { SingleCoordinate } from '@swissgeo/coordinates'
-import type { Runnable } from 'mocha'
 import type { Pinia } from 'pinia'
 
 import { LV03, LV95, registerProj4, WGS84 } from '@swissgeo/coordinates'
-import { getServiceShortLinkBaseUrl } from '@swissgeo/staging-config'
-import { BREAKPOINT_TABLET } from '@swissgeo/staging-config/constants'
 import proj4 from 'proj4'
+import { addShortLinkIntercept } from 'support/intercepts'
 import { assertDefined } from 'support/utils'
 
 import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
@@ -15,6 +13,7 @@ import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 import { DEFAULT_PROJECTION } from '@/config'
 import useDrawingStore from '@/store/modules/drawing'
 import useMapStore from '@/store/modules/map'
+import usePositionStore from '@/store/modules/position'
 import {
     LV03Format,
     LV95Format,
@@ -85,25 +84,6 @@ function checkMousePositionNumberValue(
         .then(checkXY(expectedX, expectedY))
 }
 
-/**
- * Will skip this test (or all tests if this is run inside a context/describe) when the condition is
- * true.
- *
- * @param condition
- * @param message A message to log in case tests are skipped
- */
-function skipTestsIf(this: Runnable, condition: boolean, message?: string) {
-    if (condition) {
-        if (message) {
-            Cypress.log({
-                name: 'skipTestsIf',
-                message,
-            })
-        }
-        this.skip()
-    }
-}
-
 describe('Test mouse position and interactions', () => {
     const center = DEFAULT_PROJECTION.bounds!.center.map((val: number) => val + 1000)
     const centerLV95 = proj4(DEFAULT_PROJECTION.epsg, LV95.epsg, center) as [number, number]
@@ -112,14 +92,8 @@ describe('Test mouse position and interactions', () => {
     const centerMGRS = MGRSFormat.formatCallback(centerWGS84 as SingleCoordinate, false)
 
     context('Tablet/desktop tests', () => {
-        before(function () {
-            const viewportWidth = Cypress.config('viewportWidth')
-            this.bind(skipTestsIf,
-                viewportWidth < BREAKPOINT_TABLET,
-                'This test will only be run on tablet and bigger viewports'
-            )
-        })
         beforeEach(() => {
+            cy.viewport('ipad-2', 'landscape')
             cy.goToMapView({
                 queryParams: {
                     center: center.join(','),
@@ -149,32 +123,30 @@ describe('Test mouse position and interactions', () => {
     })
 
     context('Mobile only tests', () => {
-        before(function (){
-            const viewportWidth = Cypress.config('viewportWidth')
-            this.bind(skipTestsIf, viewportWidth >= BREAKPOINT_TABLET, 'This test will only be run on mobile')
-        })
         beforeEach(() => {
+            cy.viewport('iphone-x')
             cy.goToMapView({
                 queryParams: {
                     center: center.join(','),
-                    z: DEFAULT_PROJECTION.getDefaultZoom() + 2.23,
+                    z: 3.23,
                 },
             })
         })
         it('shows the LocationPopUp when rightclick occurs on the map', () => {
-            function stubShortLinkResponse(shortLinkStub: string) {
-                cy.intercept(`${getServiceShortLinkBaseUrl()}**`, {
-                    body: { shorturl: shortLinkStub, success: true },
-                }).as('shortlink')
-            }
-            // Verify that double click on the map zooms in to a full integer zoom level
-            cy.url().should('include', 'z=3.23')
-            cy.get('[data-cy="ol-map"]').should('be.visible').dblclick()
-            cy.url().should('include', 'z=4')
+            cy.getPinia().should((pinia) => {
+                const positionStore = usePositionStore(pinia)
+                expect(positionStore.zoom).to.be.eq(3.23)
+            })
+            cy.log('Check that a zoom-in rounds the zoom level to the next step')
+            cy.get('[data-cy="zoom-in"]').click()
+            cy.getPinia().should((pinia) => {
+                const positionStore = usePositionStore(pinia)
+                expect(positionStore.zoom).to.be.eq(4)
+            })
 
             const fakeLV03Coordinate: [number, number] = [1234.56, 7890.12]
             cy.intercept('**/lv95tolv03**', { coordinates: fakeLV03Coordinate }).as('reframe')
-            stubShortLinkResponse('https://s.geo.admin.ch/000000')
+            addShortLinkIntercept({ shortUrl: 'https://s.geo.admin.ch/000000' })
 
             // location popup need a bit of room on the Y axis, otherwise it is half hidden (and Cypress complains)
             cy.viewport(320, 1000)
@@ -281,7 +253,7 @@ describe('Test mouse position and interactions', () => {
             )
 
             cy.log('Test that the shortlink is updated when new language selected')
-            stubShortLinkResponse('https://s.geo.admin.ch/111111')
+            addShortLinkIntercept({ shortUrl: 'https://s.geo.admin.ch/111111' })
             cy.openMenuIfMobile()
             cy.clickOnLanguage('de')
             cy.closeMenuIfMobile()
@@ -292,7 +264,7 @@ describe('Test mouse position and interactions', () => {
             )
 
             cy.log('Test that changing layers (background) triggers a new shortlink generation')
-            stubShortLinkResponse('https://s.geo.admin.ch/222222')
+            addShortLinkIntercept({ shortUrl: 'https://s.geo.admin.ch/222222' })
             cy.get('[data-cy="background-selector-open-wheel-button"]').click()
             cy.get('[data-cy="background-selector-void"]').click()
             cy.wait('@shortlink').then((interception) => {

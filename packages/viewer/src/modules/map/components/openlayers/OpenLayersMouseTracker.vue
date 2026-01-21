@@ -8,9 +8,12 @@ import { computed, inject, nextTick, onMounted, onUnmounted, ref, useTemplateRef
 
 import type { ActionDispatcher } from '@/store/types'
 
-import getHumanReadableCoordinate from '@/modules/map/components/common/mouseTrackerUtils'
 import usePositionStore from '@/store/modules/position'
-import { allFormats, LV95Format } from '@/utils/coordinates/coordinateFormat'
+import coordinateFormat, {
+    allFormats,
+    LV95Format,
+    WGS84Format,
+} from '@/utils/coordinates/coordinateFormat'
 
 const dispatcher: ActionDispatcher = { name: 'OpenLayersMouseTracker.vue' }
 
@@ -53,11 +56,12 @@ function setDisplayedFormatWithId(): void {
     }
     if (displayedFormat && mousePositionControl) {
         mousePositionControl.setCoordinateFormat((coordinates) => {
-            return getHumanReadableCoordinate({
-                coordinates: coordinates as SingleCoordinate,
+            return coordinateFormat(
                 displayedFormat,
-                projection: projection.value,
-            })
+                coordinates as SingleCoordinate,
+                projection.value,
+                [WGS84Format.id].includes(displayedFormat.id)
+            )
         })
     } else {
         log.error('Unknown coordinates display format', displayedFormatId.value)

@@ -9,7 +9,7 @@ import type { UTM } from '@/utils/militaryGridProjection'
 
 import { latLonToMGRS, latLonToUTM } from '@/utils/militaryGridProjection'
 
-type CoordinateFormatCallback = (coordinates: SingleCoordinate, withExtra: boolean) => string
+type CoordinateFormatCallback = (coordinates: SingleCoordinate, withExtra?: boolean) => string
 
 /** Representation of coordinates in a human-readable format */
 export interface CoordinateFormat {
@@ -24,10 +24,8 @@ export interface CoordinateFormat {
     formatCallback: CoordinateFormatCallback
 }
 
-const defaultCallback: CoordinateFormatCallback = (
-    coordinates: SingleCoordinate,
-    _withExtra: boolean = false
-): string => coordinatesUtils.toRoundedString(coordinates, 2, true, true) ?? ''
+const defaultCallback: CoordinateFormatCallback = (coordinates: SingleCoordinate): string =>
+    coordinatesUtils.toRoundedString(coordinates, 2, true, true) ?? ''
 
 export const LV95Format: CoordinateFormat = {
     id: 'LV95',
@@ -48,7 +46,7 @@ export const WGS84Format: CoordinateFormat = {
     label: 'WGS 84 (lat/lon)',
     requiredInputProjection: WGS84,
     decimalPoints: 5,
-    formatCallback: (coordinates: SingleCoordinate, withExtra: boolean): string => {
+    formatCallback: (coordinates: SingleCoordinate, withExtra?: boolean): string => {
         let output: string = `${toStringHDMS(coordinates, 2)}`
         if (withExtra) {
             output += ` (${formatCoordinate(coordinates, '{y}, {x}', 5)})`
@@ -68,7 +66,7 @@ export const UTMFormat: CoordinateFormat = {
     label: 'UTM',
     requiredInputProjection: WGS84,
     decimalPoints: 5,
-    formatCallback: (coordinates: SingleCoordinate, _withExtra: boolean = false): string => {
+    formatCallback: (coordinates: SingleCoordinate): string => {
         const c: UTM = latLonToUTM(coordinates[1], coordinates[0])
         return [
             formatThousand(c.easting),
