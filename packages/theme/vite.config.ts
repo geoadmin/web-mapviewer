@@ -53,6 +53,7 @@ const config: UserConfig = {
         }),
         dts({
             bundleTypes: true,
+            exclude: ['/fonts'],
         }),
     ],
 }

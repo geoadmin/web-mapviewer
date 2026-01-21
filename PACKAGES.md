@@ -1,6 +1,6 @@
 # @swissgeo Packages Dependency Map
 
-State made on the 2026-01-12 (subject to change)
+State made on the 2026-01-21 (subject to change)
 
 This document maps the dependencies between the packages exported to NPMJS.com under the `@swissgeo` organization.
 
@@ -11,7 +11,6 @@ graph TD
     subgraph Core Libraries
         api["@swissgeo/api"]
         coordinates["@swissgeo/coordinates"]
-        drawing["@swissgeo/drawing"]
         elevation["@swissgeo/elevation-profile"]
         layers["@swissgeo/layers"]
         log["@swissgeo/log"]
@@ -39,17 +38,11 @@ graph TD
     coordinates --> log
     coordinates --> numbers
 
-    drawing --> api
-    drawing --> coordinates
-    drawing --> layers
-    drawing --> log
-    drawing --> numbers
-    drawing --> staging
-    drawing --> tooltip
-
+    elevation --> api
     elevation --> coordinates
     elevation --> log
     elevation --> numbers
+    elevation --> staging
     elevation --> tooltip
 
     layers --> coordinates
@@ -109,8 +102,7 @@ graph TD
 | ------- | ------------------------ | --------------------------- |
 | `@swissgeo/api` | `coordinates`, `layers`, `log`, `numbers`, `staging-config`, `theme` | `config-eslint`, `config-prettier`, `config-typescript` |
 | `@swissgeo/coordinates` | `log`, `numbers` | `config-eslint`, `config-typescript` |
-| `@swissgeo/drawing` | `api`, `coordinates`, `layers`, `log`, `numbers`, `staging-config`, `tooltip` | `config-eslint`, `config-prettier`, `config-stylelint`, `config-typescript` |
-| `@swissgeo/elevation-profile` | `coordinates`, `log`, `numbers`, `tooltip` | `config-eslint`, `config-stylelint`, `config-typescript` |
+| `@swissgeo/elevation-profile` | `api`, `coordinates`, `log`, `numbers`, `staging-config`, `tooltip` | `config-eslint`, `config-stylelint`, `config-typescript` |
 | `@swissgeo/layers` | `coordinates`, `log`, `numbers`, `staging-config` | `config-eslint`, `config-typescript` |
 | `@swissgeo/log` | - | `config-eslint`, `config-typescript` |
 | `@swissgeo/numbers` | `log` | `config-eslint`, `config-typescript` |
@@ -130,10 +122,9 @@ This table shows which package imports which dependency.
 
 | Importing Package | api | coord | draw | elev | layr | log | numb | thme | tool | esl | pret | styl | ts | stag |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| `@swissgeo/api` | - | X | | | X | X | X | X | | d | d | | d | X |
+| `@swissgeo/api` | - | X | | | X | X | X | X | | d | | | d | X |
 | `@swissgeo/coordinates` | | - | | | | X | X | | | d | | | d | |
-| `@swissgeo/drawing` | X | X | - | | X | X | X | | X | d | d | d | d | X |
-| `@swissgeo/elevation-profile` | | X | | - | | X | X | | X | d | | d | d | |
+| `@swissgeo/elevation-profile` | X | X | | - | | X | X | | X | d | | d | d | X |
 | `@swissgeo/layers` | | X | | | - | X | X | | | d | | | d | X |
 | `@swissgeo/log` | | | | | | - | | | | d | | | d | |
 | `@swissgeo/numbers` | | | | | | X | - | | | d | | | d | |
@@ -148,7 +139,6 @@ This table shows which package imports which dependency.
 **Legend:**
 - **api**: `@swissgeo/api`
 - **coord**: `@swissgeo/coordinates`
-- **draw**: `@swissgeo/drawing`
 - **elev**: `@swissgeo/elevation-profile`
 - **layr**: `@swissgeo/layers`
 - **log**: `@swissgeo/log`

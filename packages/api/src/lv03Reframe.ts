@@ -33,10 +33,10 @@ export function reframe(config: ReframeConfig): Promise<SingleCoordinate> {
         if (![LV03.epsg, LV95.epsg].includes(inputProjection?.epsg)) {
             reject(new Error('inputProjection must be LV03 or LV95'))
         }
-        const backendResponseProjection = inputProjection === LV03 ? LV95 : LV03
+        const backendResponseProjection = inputProjection.epsg === LV03.epsg ? LV95 : LV03
         axios({
             method: 'GET',
-            url: `${REFRAME_BASE_URL}${inputProjection === LV95 ? 'lv95tolv03' : 'lv03tolv95'}`,
+            url: `${REFRAME_BASE_URL}${inputProjection.epsg === LV95.epsg ? 'lv95tolv03' : 'lv03tolv95'}`,
             params: {
                 easting: inputCoordinates[0],
                 northing: inputCoordinates[1],
