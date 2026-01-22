@@ -20,6 +20,8 @@ export interface LoadTopicOptions {
     changeLayers?: boolean
     /** Whether to open the geocatalog topic section */
     openGeocatalogSection?: boolean
+    /** Wether to change the background layer to the default one or not */
+    changeBackgroundLayer?:boolean
 }
 
 export type TopicsStoreGetters = {

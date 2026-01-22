@@ -26,7 +26,7 @@ export default function setLang(
     this.lang = lang
     i18n.global.locale.value = langToLocale(lang)
     useLayersStore().loadLayersConfig(
-        { changeLayersOnTopicChange: options.changeLayersOnTopicChange },
+        { changeLayersOnTopicChange: options.changeLayersOnTopicChange, changeBackgroundLayer: false },
         dispatcher
     )
     redoSearch()

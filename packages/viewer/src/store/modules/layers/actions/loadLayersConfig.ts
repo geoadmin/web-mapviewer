@@ -11,6 +11,7 @@ import useTopicsStore from '@/store/modules/topics'
 interface LoadLayersConfigOptions {
     changeLayersOnTopicChange?: boolean
     openGeocatalogSection?: boolean
+    changeBackgroundLayer?: boolean
 }
 
 export default function loadLayersConfig(
@@ -50,6 +51,7 @@ export default function loadLayersConfig(
                 {
                     changeLayers: options.changeLayersOnTopicChange,
                     openGeocatalogSection: options.openGeocatalogSection,
+                    changeBackgroundLayer: options.changeBackgroundLayer,
                 },
                 dispatcher
             )
