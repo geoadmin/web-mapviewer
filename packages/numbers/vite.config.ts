@@ -14,6 +14,7 @@ const config: UserConfig = {
             output: {
                 exports: 'named',
             },
+            external: ['@swissgeo/log'],
         },
     },
     resolve: {

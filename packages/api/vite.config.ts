@@ -16,7 +16,7 @@ const config: UserConfig = {
         },
         rollupOptions: {
             // Externalize peer dependencies so they use the host application's instances
-            external: ['axios', 'ol', 'proj4'],
+            external: ['axios', 'ol', 'proj4', '@swissgeo/log'],
             output: {
                 exports: 'named',
                 globals: {

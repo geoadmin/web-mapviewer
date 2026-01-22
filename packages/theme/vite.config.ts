@@ -19,7 +19,12 @@ const config: UserConfig = {
             name: '@swissgeo/theme',
         },
         rollupOptions: {
-            external: ['tailwindcss', 'bootstrap'],
+            external: [
+                '@fortawesome/fontawesome-svg-core',
+                'bootstrap',
+                'tailwindcss',
+                'stylelint',
+            ],
         },
     },
     css: {

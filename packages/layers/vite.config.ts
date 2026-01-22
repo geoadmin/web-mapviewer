@@ -20,7 +20,7 @@ const config: UserConfig = {
             name: '@swissgeo/layers',
         },
         rollupOptions: {
-            external: ['vue'],
+            external: ['vue', '@swissgeo/log'],
             output: {
                 exports: 'named',
                 globals: {
