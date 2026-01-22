@@ -53,12 +53,13 @@ const config: UserConfig = {
                 {
                     src: normalizePath(`${__dirname}/src/fonts/*`),
                     dest: './fonts/',
+                    overwrite: false,
                 },
             ],
         }),
         dts({
             bundleTypes: true,
-            exclude: ['/fonts'],
+            exclude: ['./dist/fonts'],
         }),
     ],
 }
