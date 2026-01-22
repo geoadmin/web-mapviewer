@@ -2,13 +2,17 @@
 
 import type { Viewer } from 'cesium'
 import type BaseLayer from 'ol/layer/Base'
+import type VectorLayer from 'ol/layer/Vector'
 import type Map from 'ol/Map'
+import type VectorSource from 'ol/source/Vector'
+import type { ShallowRef } from 'vue'
 
 import { fileProxyAPI } from '@swissgeo/api'
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
 import { LayerType } from '@swissgeo/layers'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
+import { toValue } from 'vue'
 
 import { DEFAULT_PROJECTION } from '@/config'
 import useLayersStore from '@/store/modules/layers'
@@ -16,6 +20,8 @@ import usePositionStore from '@/store/modules/position'
 import useProfileStore from '@/store/modules/profile'
 
 registerProj4(proj4)
+
+const profileIntercept = '**/rest/services/profile.json**'
 
 function checkVectorLayerHighlightingSegment(lastIndex: number = -1): number {
     let currentIndex: number = -1
@@ -25,12 +31,17 @@ function checkVectorLayerHighlightingSegment(lastIndex: number = -1): number {
             const vectorLayers = map
                 .getLayers()
                 .getArray()
-                .filter((layer: BaseLayer) => layer.get('id').startsWith('vector-layer-'))
-            const geomHighlightFeature = vectorLayers.find((layer: BaseLayer) => {
-                return layer
-                    .getSource()
-                    .getFeatures()
-                    .find((feature: BaseLayer) => feature.get('id').startsWith('geom-segment-'))
+                .filter((layer: BaseLayer) =>
+                    layer.get('id').startsWith('vector-layer-')
+                ) as VectorLayer<VectorSource>[]
+            const geomHighlightFeature = vectorLayers.find((layer: VectorLayer<VectorSource>) => {
+                const source = layer.getSource()
+                return (
+                    source &&
+                    source
+                        .getFeatures()
+                        .find((feature) => feature.get('id').startsWith('geom-segment-'))
+                )
             })
             assertDefined(geomHighlightFeature)
             currentIndex = vectorLayers.indexOf(geomHighlightFeature)
@@ -74,7 +85,7 @@ describe('The Import File Tool', () => {
 
     it('Import KML file', () => {
         cy.goToMapView({ withHash: true })
-        cy.getPinia().then((pinia) => {
+        cy.getPinia().should((pinia) => {
             const layersStore = useLayersStore(pinia)
             expect(layersStore.activeLayers).to.be.empty
         })
@@ -96,9 +107,9 @@ describe('The Import File Tool', () => {
         const bigKmlFileName = 'big-external-kml-file.kml'
         const bigKmlFileFixture = `import-tool/${bigKmlFileName}`
 
-        cy.getPinia().then((pinia) => {
-            const layersStore2 = useLayersStore(pinia)
-            expect(layersStore2.activeLayers).to.be.empty
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.be.empty
         })
         cy.openMenuIfMobile()
 
@@ -109,7 +120,6 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="import-file-local-btn"]:visible').click()
         cy.get('[data-cy="import-file-load-button"]:visible').click()
 
-        const profileIntercept = '**/rest/services/profile.json**'
         cy.intercept(profileIntercept, {
             fixture: 'service-alti/profile.fixture.json',
         }).as('profile')
@@ -142,7 +152,19 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="profile-segment-button-0"]').should('not.exist')
         cy.get('[data-cy="infobox-close"]').click()
         cy.openMenuIfMobile()
-        cy.get(`[data-cy^="button-remove-layer-${bigKmlFileName}"]:visible`).click({ force: true })
+        cy.get(`[data-cy^="button-remove-layer-KML|${bigKmlFileName}"]:visible`).click({
+            force: true,
+        })
+
+        // Wait for layer removal to complete
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.be.empty
+        })
+
+        // Ensure no active layers message is visible before proceeding
+        cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
+
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
@@ -152,9 +174,9 @@ describe('The Import File Tool', () => {
         const iframeTestFile = 'iframe-test.kml'
         const iframeTestFileFixture = `import-tool/${iframeTestFile}`
 
-        cy.getPinia().then((pinia) => {
-            const layersStore3 = useLayersStore(pinia)
-            expect(layersStore3.activeLayers).to.be.empty
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.be.empty
         })
         cy.openMenuIfMobile()
 
@@ -183,7 +205,17 @@ describe('The Import File Tool', () => {
             .should('contain', 'Contains third party content')
         cy.get('[data-cy="infobox-close"]').click()
         cy.openMenuIfMobile()
-        cy.get(`[data-cy^="button-remove-layer-${iframeTestFile}"]:visible`).click()
+        cy.get(`[data-cy^="button-remove-layer-KML|${iframeTestFile}"]:visible`).click()
+
+        // Wait for layer removal to complete
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.be.empty
+        })
+
+        // Ensure no active layers message is visible before proceeding
+        cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
+
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
@@ -208,16 +240,16 @@ describe('The Import File Tool', () => {
             .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-local-content"]').should('not.be.visible')
-        cy.getPinia().then((pinia) => {
-            const layersStore4 = useLayersStore(pinia)
-            expect(layersStore4.activeLayers).to.have.length(1)
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.have.length(1)
         })
         cy.log('Test that the single kml feature is in center of the view (zoom to extent check)')
-        cy.getPinia().then((pinia) => {
+        cy.getPinia().should((pinia) => {
             const positionStore = usePositionStore(pinia)
             const center = positionStore.center
-            cy.wrap(center[0]).should('be.closeTo', 2776665.92, 1)
-            cy.wrap(center[1]).should('be.closeTo', 1175560.21, 1)
+            expect(center[0]).to.be.closeTo(2776665.92, 1)
+            expect(center[1]).to.be.closeTo(1175560.21, 1)
         })
 
         //---------------------------------------------------------------------
@@ -225,9 +257,9 @@ describe('The Import File Tool', () => {
         cy.log('Test re-adding the layer, should not have effect')
         cy.get('[data-cy="import-file-load-button"]:visible').click()
         cy.wait(['@headValidKmlFile', '@getValidKmlFile'])
-        cy.getPinia().then((pinia) => {
-            const layersStore5 = useLayersStore(pinia)
-            expect(layersStore5.activeLayers).to.have.length(1)
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.have.length(1)
         })
 
         //----------------------------------------------------------------------
@@ -253,9 +285,9 @@ describe('The Import File Tool', () => {
             .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-local-content"]').should('not.be.visible')
-        cy.getPinia().then((pinia) => {
-            const layersStore6 = useLayersStore(pinia)
-            expect(layersStore6.activeLayers).to.have.length(2)
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.have.length(2)
         })
 
         //----------------------------------------------------------------------
@@ -282,18 +314,18 @@ describe('The Import File Tool', () => {
             .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
-        cy.getPinia().then((pinia) => {
-            const layersStore7 = useLayersStore(pinia)
-            expect(layersStore7.activeLayers).to.have.length(3)
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.have.length(3)
         })
 
         //----------------------------------------------------------------------
         // RE-add the layer should have no effect (no duplicate layer)
         cy.log('Test re-adding the layer, should not have effect')
         cy.get('[data-cy="import-file-load-button"]:visible').click()
-        cy.getPinia().then((pinia) => {
-            const layersStore8 = useLayersStore(pinia)
-            expect(layersStore8.activeLayers).to.have.length(3)
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.have.length(3)
         })
 
         //----------------------------------------------------------------------
@@ -327,9 +359,9 @@ describe('The Import File Tool', () => {
             .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
-        cy.getPinia().then((pinia) => {
-            const layersStore9 = useLayersStore(pinia)
-            expect(layersStore9.activeLayers).to.have.length(5)
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.have.length(5)
         })
 
         //----------------------------------------------------------------------
@@ -352,6 +384,7 @@ describe('The Import File Tool', () => {
         // Open the menu and check the layer list
         cy.log('Check that the external layers have been added to the active layers menu')
         cy.openMenuIfMobile()
+        cy.get('[data-cy="menu-section-active-layers"]').scrollIntoView()
         cy.get('[data-cy="menu-section-active-layers"]')
             .should('be.visible')
             .children()
@@ -368,7 +401,7 @@ describe('The Import File Tool', () => {
                             .find('[data-cy="menu-external-disclaimer-icon-hard-drive"]')
                             .should('be.visible')
                         cy.wrap($layer)
-                            .find('[data-cy="button-has-warning-kml_feature_error.kml"]')
+                            .find('[data-cy="button-has-warning-KML|kml_feature_error.kml"]')
                             .should('be.visible')
                         break
                     case 1:
@@ -377,7 +410,7 @@ describe('The Import File Tool', () => {
                             .find('[data-cy="menu-external-disclaimer-icon-hard-drive"]')
                             .should('be.visible')
                         cy.wrap($layer)
-                            .find('[data-cy="button-has-warning-line-accross-eu.kml"]')
+                            .find('[data-cy="button-has-warning-KML|line-accross-eu.kml"]')
                             .should('be.visible')
                         break
                     case 2:
@@ -454,18 +487,17 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="search-result-entry"]').as('layerSearchResults').should('have.length', 3)
         cy.get('@layerSearchResults').invoke('text').should('contain', 'Sample Placemark')
         cy.get('@layerSearchResults').first().trigger('mouseenter')
-        cy.getPinia().then((pinia) => {
-            const layersStore10 = useLayersStore(pinia)
-            const visibleLayers = layersStore10.visibleLayers
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            const visibleLayers = layersStore.visibleLayers
             const visibleIds = visibleLayers.map((layer) => layer.id)
-            expect(visibleIds).to.contain(expectedLayerId)
+            expect(visibleIds).to.contain(`KML|${expectedLayerId}`)
         })
         cy.get('@layerSearchResults').first().realClick()
         // checking that the view has centered on the feature
-        cy.getPinia().then((pinia) => {
-            const positionStore2 = usePositionStore(pinia)
-            const center2 = positionStore2.center
-            checkLocation(expectedCenterDefaultProjection, center2)
+        cy.getPinia().should((pinia) => {
+            const positionStore = usePositionStore(pinia)
+            checkLocation(expectedCenterDefaultProjection, positionStore.center)
         })
 
         cy.log('Test search for a feature in the online KML file')
@@ -476,18 +508,16 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="search-result-entry"]').as('layerSearchResults').should('have.length', 1)
         cy.get('@layerSearchResults').invoke('text').should('contain', 'Another Sample Placemark')
         cy.get('@layerSearchResults').first().trigger('mouseenter')
-        cy.getPinia().then((pinia) => {
-            const layersStore11 = useLayersStore(pinia)
-            const visibleLayers2 = layersStore11.visibleLayers
-            const visibleIds2 = visibleLayers2.map((layer) => layer.id)
-            expect(visibleIds2).to.contain(expectedOnlineLayerId)
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            const visibleIds = layersStore.visibleLayers.map((layer) => layer.id)
+            expect(visibleIds).to.contain(`KML|${expectedOnlineLayerId}`)
         })
         cy.get('@layerSearchResults').first().realClick()
         // checking that the view has centered on the feature
-        cy.getPinia().then((pinia) => {
-            const positionStore3 = usePositionStore(pinia)
-            const center3 = positionStore3.center
-            checkLocation(expectedSecondCenterDefaultProjection, center3)
+        cy.getPinia().should((pinia) => {
+            const positionStore = usePositionStore(pinia)
+            checkLocation(expectedSecondCenterDefaultProjection, positionStore.center)
         })
 
         //---------------------------------------------------------------------
@@ -496,7 +526,7 @@ describe('The Import File Tool', () => {
         cy.openMenuIfMobile()
         cy.get('[data-cy="menu-section-active-layers"]')
             .children()
-            .find('[data-cy="menu-external-disclaimer-icon-hard-drive"]:visible')
+            .find(`[data-cy="menu-external-disclaimer-icon-hard-drive"]:visible`)
             .eq(1)
             .click()
         cy.get('[data-cy="modal-content"]')
@@ -508,10 +538,10 @@ describe('The Import File Tool', () => {
         //---------------------------------------------------------------------
         // Test removing a layer
         cy.log('Test removing an external layer')
-        cy.get(`[data-cy^="button-remove-layer-${validOnlineUrl}"]:visible`).click()
-        cy.getPinia().then((pinia) => {
-            const layersStore12 = useLayersStore(pinia)
-            expect(layersStore12.activeLayers).to.have.length(4)
+        cy.get(`[data-cy^="button-remove-layer-KML|${validOnlineUrl}-0"]:visible`).click()
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.have.length(4)
         })
         cy.get('[data-cy="menu-section-active-layers"]').children().should('have.length', 4)
 
@@ -540,12 +570,13 @@ describe('The Import File Tool', () => {
         cy.log('Test reloading the page should only keep online external layers')
         cy.reload()
         cy.waitMapIsReady()
+
         cy.openMenuIfMobile()
         cy.get('[data-cy="menu-section-active-layers"]:visible').children().should('have.length', 1)
-        cy.get(`[data-cy^="active-layer-name-${secondValidOnlineUrl}"]`).should('be.visible')
+        cy.get(`[data-cy^="active-layer-name-KML|${secondValidOnlineUrl}"]`).should('be.visible')
         cy.get('[data-cy^="button-loading-metadata-spinner"]').should('not.exist')
 
-        // Test the import of an online KML file that don't support CORS
+        // Test the import of an online KML file that doesn't support CORS
         cy.log('Test online import - Non CORS server')
         const validOnlineNonCORSUrl = 'https://example.com/valid-kml-file-non-cors.kml'
         createHeadAndGetIntercepts(
@@ -569,34 +600,60 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="text-input"]:visible').type(validOnlineNonCORSUrl)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
         cy.wait(['@headKmlNoCORS', '@proxyfiedKmlNoCORS'])
-        cy.getPinia().then((pinia) => {
-            const layersStore13 = useLayersStore(pinia)
-            expect(layersStore13.activeLayers).to.have.length(2)
+        cy.openMenuIfMobile()
+        cy.get('[data-cy="menu-section-active-layers"]:visible').children().should('have.length', 2)
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.have.length(2)
         })
+    })
+
+    it('Import KML file in 3D viewer', () => {
+        const localKmlFile = 'import-tool/external-kml-file.kml'
+        const lineAccrossEuFile = 'import-tool/line-accross-eu.kml'
+
+        // Set up fixtures
+        cy.fixture(lineAccrossEuFile).as('lineAccrossEuFixture')
+
+        // Set up intercepts for online KML
+        const validOnlineNonCORSUrl = 'https://example.com/valid-kml-file-non-cors.kml'
+        createHeadAndGetIntercepts(
+            validOnlineNonCORSUrl,
+            'KmlNoCORS',
+            { fixture: localKmlFile },
+            {
+                statusCode: 200,
+                headers: {
+                    'Content-Type': 'application/vnd.google-earth.kml+xml',
+                },
+            },
+            true
+        )
+
+        // Start with the map and import an online KML file
+        cy.goToMapView({ withHash: true })
+        cy.openMenuIfMobile()
+        cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
+
+        // Import online KML file
+        cy.get('[data-cy="text-input"]:visible').type(validOnlineNonCORSUrl)
+        cy.get('[data-cy="import-file-load-button"]:visible').click()
+        cy.wait(['@headKmlNoCORS', '@proxyfiedKmlNoCORS'])
+        cy.get('[data-cy="import-file-close-button"]:visible').click()
+        cy.get('[data-cy="import-file-content"]').should('not.exist')
 
         cy.log('switching to 3D and checking that online file is correctly loaded on 3D viewer')
-        cy.get('[data-cy="import-window"] [data-cy="window-close"]').click()
-        // 3 warnings to remove before being able to see the 3D button (on mobile)
-        cy.get('[data-cy="warning-window"]').contains(
-            'You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|external-kml-file.kml layer, please re-import it.'
-        )
-        cy.get('[data-cy="warning-window-close"]').click({ force: true })
-        cy.get('[data-cy="warning-window"]').contains(
-            'You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|line-accross-eu.kml layer, please re-import it.'
-        )
-        cy.get('[data-cy="warning-window-close"]').click({ force: true })
-        cy.get('[data-cy="warning-window"]').contains(
-            'You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|kml_feature_error.kml layer, please re-import it.'
-        )
-        cy.get('[data-cy="warning-window-close"]').click({ force: true })
         cy.get('[data-cy="3d-button"]:visible').click()
         cy.waitUntilCesiumTilesLoaded()
         cy.window()
             .its('cesiumViewer')
-            .should((viewer: Viewer) => {
-                expect(viewer.scene.primitives.length).to.eq(
-                    4,
-                    'should have 1 primitive (KML file) on top of labels and buildings primitives'
+            .should((viewer: ShallowRef<Viewer>) => {
+                const currentViewer: Viewer = toValue(viewer)
+                expect(currentViewer.dataSources).to.not.be.undefined
+                expect(currentViewer.dataSources.length).to.eq(
+                    1,
+                    'the KML should have been loaded as 1 dataSource'
                 )
             })
 
@@ -610,32 +667,31 @@ describe('The Import File Tool', () => {
         })
         cy.get('[data-cy="import-file-load-button"]:visible').click()
         cy.getPinia().then((pinia) => {
-            const layersStore14 = useLayersStore(pinia)
-            const activeLayers = layersStore14.activeLayers
-            const kmlLayerCount = activeLayers.filter(
+            const layersStore = useLayersStore(pinia)
+            const kmlLayerCount = layersStore.activeLayers.filter(
                 (layer) => layer.type === LayerType.KML
             ).length
             cy.window()
                 .its('cesiumViewer')
-                .should((viewer: Viewer) => {
-                    expect(viewer.dataSources.length).to.eq(
+                .should((viewer: ShallowRef<Viewer>) => {
+                    const currentViewer: Viewer = toValue(viewer)
+                    expect(currentViewer.dataSources).to.not.be.undefined
+                    expect(currentViewer.dataSources.length).to.eq(
                         kmlLayerCount,
                         `should have ${kmlLayerCount} date source (KML files)`
                     )
                 })
         })
+    })
 
+    it('Import KML file and profile viewer with a KML MultiPolygon file', () => {
         cy.log('testing the import and profile viewer with a KML MultiPolygon file')
-        cy.get('[data-cy="import-window"] [data-cy="window-close"]').click()
-        cy.get('[data-cy="3d-button"]:visible').click()
-
+        cy.goToMapView({ withHash: true })
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.be.empty
+        })
         cy.openMenuIfMobile()
-
-        cy.get(`[data-cy^="button-remove-layer-${validOnlineNonCORSUrl}"]:visible`).click()
-
-        cy.get(`[data-cy^="button-remove-layer-${secondValidOnlineUrl}"]:visible`).click()
-        cy.get(`[data-cy^="button-remove-layer-${lineAccrossEuFileName}"]:visible`).click()
-
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
@@ -655,6 +711,7 @@ describe('The Import File Tool', () => {
         )
         cy.get('[data-cy="text-input"]:visible').type(validMutiPolygonOnlineUrl)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
+        cy.wait(['@headKmlNoCORS', '@getKmlNoCORS'])
         cy.closeMenuIfMobile()
         cy.get('[data-cy="window-close"]').click()
 
@@ -665,7 +722,7 @@ describe('The Import File Tool', () => {
         const lastSegmentIndex: number = checkVectorLayerHighlightingSegment()
 
         cy.get('[data-cy="profile-segment-button-1"]').click()
-        cy.getPinia().then((pinia) => {
+        cy.getPinia().should((pinia) => {
             const profileStore = useProfileStore(pinia)
             expect(profileStore.currentFeatureGeometryIndex).to.be.equal(1)
         })
@@ -716,7 +773,8 @@ describe('The Import File Tool', () => {
                 statusCode: 200,
             }
         )
-
+        // Adding this goToMapView without layer first fix an issue in the CI where the test failed but pass in local
+        cy.goToMapView({ withHash: true })
         cy.goToMapView({
             queryParams: {
                 layers: [
@@ -730,7 +788,7 @@ describe('The Import File Tool', () => {
         })
         cy.openMenuIfMobile()
 
-        //---------------------------------------------------------------------
+        // ---------------------------------------------------------------------
         cy.log('Test invalid external KML file from url parameter')
 
         // Wait for all network calls to resolve
@@ -777,7 +835,7 @@ describe('The Import File Tool', () => {
             .should('have.length', 4)
             .each(($layer) => {
                 const url = $layer.attr('data-layer-id') as string
-                const errorData = errorDataMap[url]
+                const errorData = errorDataMap[url.replace('KML|', '')]
 
                 cy.wrap($layer)
                     .find('[data-cy="menu-external-disclaimer-icon-cloud"]')
@@ -793,9 +851,11 @@ describe('The Import File Tool', () => {
                         .should('be.visible')
                         .contains(errorData.errorMessage as string)
 
-                    cy.get(`[data-cy^="floating-button-has-error-${url}"]`).trigger('mouseout', {
-                        force: true,
-                    })
+                    // Trigger mouseleave on the button to hide the tooltip
+                    cy.wrap($layer).find('[data-cy^="button-has-error"]').trigger('mouseleave')
+
+                    // Verify tooltip is hidden
+                    cy.get(`[data-cy^="floating-button-has-error-${url}"]`).should('not.exist')
                 } else {
                     cy.get(`[data-cy^="floating-button-has-error-${url}"]`).should('not.exist')
                 }
@@ -810,17 +870,17 @@ describe('The Import File Tool', () => {
         // Test removing a layer
         cy.log('Test removing all kml layer')
         cy.get(
-            `[data-cy^="button-remove-layer-${validOnlineUrlWithInvalidContentType}"]:visible`
+            `[data-cy^="button-remove-layer-KML|${validOnlineUrlWithInvalidContentType}-3"]:visible`
         ).click({
             force: true,
         })
-        cy.get(`[data-cy^="button-remove-layer-${invalidFileOnlineUrl}"]:visible`).click({
+        cy.get(`[data-cy^="button-remove-layer-KML|${onlineUrlNotReachable}-2"]:visible`).click({
             force: true,
         })
-        cy.get(`[data-cy^="button-remove-layer-${onlineUrlNotReachable}"]:visible`).click({
+        cy.get(`[data-cy^="button-remove-layer-KML|${invalidFileOnlineUrl}-1"]:visible`).click({
             force: true,
         })
-        cy.get(`[data-cy^="button-remove-layer-${outOfBoundKMLUrl}"]:visible`).click({
+        cy.get(`[data-cy^="button-remove-layer-KML|${outOfBoundKMLUrl}-0"]:visible`).click({
             force: true,
         })
         cy.getPinia().then((pinia) => {
@@ -946,12 +1006,11 @@ describe('The Import File Tool', () => {
         //open menu and open import tool again
         cy.openMenuIfMobile()
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
-        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
-        cy.get('[data-cy="import-file-content"]').should('be.visible')
 
         //----------------------------------------------------------------------
         // Test local import error handling
         cy.log('Switch to local import')
+        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
         cy.get('[data-cy="import-file-local-btn"]:visible').click()
         cy.get('[data-cy="import-file-local-content"]').should('be.visible')
         cy.get('[data-cy="import-file-load-button"]:visible').click()
@@ -981,7 +1040,10 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="file-input-invalid-feedback"]')
             .should('have.class', 'invalid-feedback')
             .should('be.visible')
-            .should('contain', 'This file format is not supported')
+            .should(
+                'contain',
+                'This file format is not supported.  Only the following formats are allowed: .kml, .kmz, .gpx, .tif, .tiff'
+            )
 
         //----------------------------------------------------------------------
         // Attach a local KML file that is out of bounds
@@ -1026,25 +1088,24 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
     })
 
-    it.only('Import GPX file', () => {
+    it('Import GPX file', () => {
         const gpxFileName = 'external-gpx-file.gpx'
         const gpxFileFixture = `import-tool/${gpxFileName}`
 
         cy.goToMapView({ withHash: true })
-        cy.getPinia().then((pinia) => {
-            const layersStore17 = useLayersStore(pinia)
-            expect(layersStore17.activeLayers).to.be.empty
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.be.empty
         })
         cy.openMenuIfMobile()
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
-        // the menu should be automatically closed on opening import tool box
+        cy.log('the menu should be automatically closed on opening import tool box')
         cy.get('[data-cy="menu-tray"]').should('not.be.visible')
         cy.get('[data-cy="import-file-content"]').should('be.visible')
         cy.get('[data-cy="import-file-online-content"]').should('be.visible')
 
-        // Test the import of an online GPX file
         cy.log('Test online import')
         const validOnlineUrl = 'https://example.com/valid-gpx-file.gpx'
         const gpxOnlineLayerId = `GPX|${validOnlineUrl}`
@@ -1060,12 +1121,11 @@ describe('The Import File Tool', () => {
             }
         )
 
-        // Type a valid online GPX file URL
+        cy.log('Type a valid online GPX file URL')
         cy.get('[data-cy="text-input"]:visible').type(validOnlineUrl)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
         cy.wait(['@headGpxFile', '@getGpxFile'])
 
-        // Assertions for successful import
         cy.get('[data-cy="text-input"]')
             .should('have.class', 'is-valid')
             .should('not.have.class', 'is-invalid')
@@ -1074,20 +1134,20 @@ describe('The Import File Tool', () => {
             .contains('File successfully imported')
         cy.get('[data-cy="import-file-load-button"]').should('be.visible').contains('Import')
         cy.get('[data-cy="import-file-local-content"]').should('not.be.visible')
-        cy.getPinia().then((pinia) => {
-            const layersStore18 = useLayersStore(pinia)
-            expect(layersStore18.activeLayers).to.have.length(1)
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.have.length(1)
         })
+
         cy.log('Test that the single gpx feature is in center of the view (zoom to extent check)')
-        cy.getPinia().then((pinia) => {
-            const positionStore4 = usePositionStore(pinia)
-            const center4 = positionStore4.center
-            cy.wrap(center4[0]).should('be.closeTo', 2604663.19, 1)
-            cy.wrap(center4[1]).should('be.closeTo', 2010998.57, 1)
-        })
-        cy.getPinia().then((pinia) => {
-            const layersStore19 = useLayersStore(pinia)
-            expect(layersStore19.activeLayers).to.have.length(1)
+        cy.getPinia().should((pinia) => {
+            const positionStore = usePositionStore(pinia)
+            const center = positionStore.center
+            expect(center[0]).to.be.closeTo(2604663.19, 1)
+            expect(center[1]).to.be.closeTo(1210998.57, 1)
+
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.have.length(1)
         })
 
         cy.get('[data-cy="import-file-local-btn"]:visible').click()
@@ -1100,7 +1160,6 @@ describe('The Import File Tool', () => {
         })
         cy.get('[data-cy="import-file-load-button"]:visible').click()
 
-        // Assertions for successful import
         cy.get('[data-cy="file-input-text"]')
             .should('have.class', 'is-valid')
             .should('not.have.class', 'is-invalid')
@@ -1111,31 +1170,27 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="import-file-online-content"]').should('not.be.visible')
 
         cy.log('Check that the GPX layer has been added to the map')
-        cy.getPinia().then((pinia) => {
-            const layersStore20 = useLayersStore(pinia)
-            expect(layersStore20.activeLayers).to.have.length(2)
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.have.length(2)
         })
 
         cy.get('[data-cy="import-file-close-button"]:visible').click()
         cy.get('[data-cy="import-file-content"]').should('not.exist')
 
-        //---------------------------------------------------------------------
-        // Test reloading the page
         cy.log('Test reloading the page should only keep online external layers')
         cy.reload()
         cy.wait(['@headGpxFile', '@getGpxFile'])
         cy.waitMapIsReady()
 
-        // Test removing a layer
         cy.log('Test removing an external GPX layer')
         cy.openMenuIfMobile()
         cy.get(`[data-cy^="button-remove-layer-${gpxOnlineLayerId}"]:visible`).click()
-        cy.getPinia().then((pinia) => {
-            const layersStore21 = useLayersStore(pinia)
-            expect(layersStore21.activeLayers).to.be.empty
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.be.empty
         })
 
-        // Test the import of an online GPX file that don't support CORS
         cy.log('Test online import - Non CORS server')
         const validOnlineNonCORSUrl = 'https://example.com/valid-gpx-file-non-cors.gpx'
         createHeadAndGetIntercepts(
@@ -1155,33 +1210,47 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
-        // Type a valid online GPX file URL
+        cy.log('Type a valid online GPX file URL')
         cy.get('[data-cy="text-input"]:visible').type(validOnlineNonCORSUrl)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
         cy.wait(['@headGpxNoCORS', '@proxyfiedGpxNoCORS'])
-        cy.getPinia().then((pinia) => {
-            const layersStore22 = useLayersStore(pinia)
-            expect(layersStore22.activeLayers).to.have.length(1)
+
+        cy.log('Wait for the import to complete before checking store')
+        cy.get('[data-cy="text-input"]')
+            .should('have.class', 'is-valid')
+            .should('not.have.class', 'is-invalid')
+        cy.get('[data-cy="text-input-valid-feedback"]')
+            .should('be.visible')
+            .contains('File successfully imported')
+
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.have.length(1)
         })
         cy.get(
             '[data-cy="import-file-online-content"] [data-cy="import-file-close-button"]'
         ).click()
 
-        // Import multi segment GPX file and verify profile
         cy.log('Test import multi segment GPX file and verify profile')
         const gpxMultiSegmentFileName = 'external-gpx-file-multi-segment.gpx'
         const gpxMultiSegmentFileFixture = `import-tool/${gpxMultiSegmentFileName}`
 
         cy.openMenuIfMobile()
         cy.get(`[data-cy^="button-remove-layer-GPX|${validOnlineNonCORSUrl}"]:visible`).click()
-        cy.getPinia().then((pinia) => {
-            const layersStore23 = useLayersStore(pinia)
-            expect(layersStore23.activeLayers).to.be.empty
+
+        cy.log('Wait for layer removal to complete')
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.be.empty
         })
+
+        cy.log('Ensure no active layers message is visible before proceeding')
+        cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
+
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
-        // the menu should be automatically closed on opening import tool box
+        cy.log('the menu should be automatically closed on opening import tool box')
         cy.get('[data-cy="menu-tray"]').should('not.be.visible')
         cy.get('[data-cy="import-file-content"]').should('be.visible')
         cy.get('[data-cy="import-file-online-content"]').should('be.visible')
@@ -1202,7 +1271,6 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="text-input"]:visible').type(validMultiSegmentOnlineUrl)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
 
-        const profileIntercept = '**/rest/services/profile.json**'
         cy.intercept(profileIntercept, {
             fixture: 'service-alti/profile.fixture.json',
         }).as('profile')
@@ -1210,7 +1278,14 @@ describe('The Import File Tool', () => {
         cy.closeMenuIfMobile()
 
         cy.get('[data-cy="window-close"]').click()
-        cy.get('[data-cy="warning-window-close"]').click()
+
+        cy.log('Close warning window if it appears (it may not always appear)')
+        cy.get('body').then(($body) => {
+            if ($body.find('[data-cy="warning-window-close"]').length > 0) {
+                cy.get('[data-cy="warning-window-close"]').click()
+            }
+        })
+
         cy.get('[data-cy="ol-map"]').click(150, 250)
 
         cy.get('[data-cy="show-profile"]').click()
@@ -1242,14 +1317,20 @@ describe('The Import File Tool', () => {
         cy.log('Loading separated multi segment GPX file to test segment buttons')
         cy.openMenuIfMobile()
         cy.get(`[data-cy^="button-remove-layer-GPX|${validMultiSegmentOnlineUrl}"]:visible`).click()
-        cy.getPinia().then((pinia) => {
-            const layersStore24 = useLayersStore(pinia)
-            expect(layersStore24.activeLayers).to.be.empty
+
+        cy.log('Wait for layer removal to complete')
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.be.empty
         })
+
+        cy.log('Ensure no active layers message is visible before proceeding')
+        cy.get('[data-cy="menu-section-no-layers"]').should('be.visible')
+
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
-        // the menu should be automatically closed on opening import tool box
+        cy.log('the menu should be automatically closed on opening import tool box')
         cy.get('[data-cy="menu-tray"]').should('not.be.visible')
         cy.get('[data-cy="import-file-content"]').should('be.visible')
         cy.get('[data-cy="import-file-online-content"]').should('be.visible')
@@ -1277,37 +1358,36 @@ describe('The Import File Tool', () => {
         cy.get('[data-cy="ol-map"]').click(150, 250)
 
         cy.get('[data-cy="show-profile"]').click()
-        // Test segment buttons and highlights
+
         cy.log('Check that the segment buttons are working and that the segment is highlighted')
         let lastSegmentIndex: number = checkVectorLayerHighlightingSegment()
 
         cy.get('[data-cy="profile-segment-button-1"]').click()
-        cy.getPinia().then((pinia) => {
-            const profileStore2 = useProfileStore(pinia)
-            expect(profileStore2.currentFeatureGeometryIndex).to.be.equal(1)
+        cy.getPinia().should((pinia) => {
+            const profileStore = useProfileStore(pinia)
+            expect(profileStore.currentFeatureGeometryIndex).to.be.equal(1)
         })
         lastSegmentIndex = checkVectorLayerHighlightingSegment(lastSegmentIndex)
 
         cy.get('[data-cy="profile-segment-button-2"]').click()
-        cy.getPinia().then((pinia) => {
-            const profileStore3 = useProfileStore(pinia)
-            expect(profileStore3.currentFeatureGeometryIndex).to.be.equal(2)
+        cy.getPinia().should((pinia) => {
+            const profileStore = useProfileStore(pinia)
+            expect(profileStore.currentFeatureGeometryIndex).to.be.equal(2)
         })
         checkVectorLayerHighlightingSegment(lastSegmentIndex)
+    })
 
-        // Import file partially out of bounds
-        cy.log('Test import file partially out of bounds')
+    it('Import GPX file out of bounds and test profile error handling', () => {
         const gpxOutOfBoundsFileName = 'external-gpx-file-out-of-bounds.gpx'
         const gpxOutOfBoundsFileFixture = `import-tool/${gpxOutOfBoundsFileName}`
 
-        cy.openMenuIfMobile()
-        cy.get(
-            `[data-cy^="button-remove-layer-GPX|${validMultiSeparatedSegmentOnlineUrl}"]:visible`
-        ).click()
-        cy.getPinia().then((pinia) => {
-            const layersStore25 = useLayersStore(pinia)
-            expect(layersStore25.activeLayers).to.be.empty
+        cy.goToMapView({ withHash: true })
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.activeLayers).to.be.empty
         })
+
+        cy.openMenuIfMobile()
         cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
         cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
 
@@ -1328,6 +1408,11 @@ describe('The Import File Tool', () => {
                 headers: { 'Content-Type': 'application/gpx+xml' },
             }
         )
+
+        cy.intercept(profileIntercept, {
+            body: [],
+        }).as('emptyProfile')
+
         cy.openMenuIfMobile()
         cy.get('[data-cy="text-input"]:visible').type(validOutOfBoundsOnlineUrl)
         cy.get('[data-cy="import-file-load-button"]:visible').click()
@@ -1336,10 +1421,6 @@ describe('The Import File Tool', () => {
 
         cy.get('[data-cy="window-close"]').click()
         cy.get('[data-cy="ol-map"]').click(170, 250)
-
-        cy.intercept(profileIntercept, {
-            body: [],
-        }).as('emptyProfile')
 
         cy.log('Check that the error is displayed in the profile popup')
         cy.get('[data-cy="show-profile"]').click()

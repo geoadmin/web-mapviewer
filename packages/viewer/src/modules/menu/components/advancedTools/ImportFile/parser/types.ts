@@ -14,7 +14,7 @@ export interface ParseConfig {
 export interface ParseOptions {
     timeout?: number
     fileCompliance?: OnlineFileCompliance
-    loadedContent?: ArrayBuffer
+    loadedContent?: ArrayBuffer | string
 }
 
-export type ValidateFileContent = (content: ArrayBuffer) => boolean
+export type ValidateFileContent = (content: ArrayBuffer | string) => boolean

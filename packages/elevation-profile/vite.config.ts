@@ -57,7 +57,7 @@ export default defineConfig((configEnv: ConfigEnv): UserConfig => {
             },
             sourcemap: true,
             rollupOptions: {
-                external: ['vue', 'tailwindcss'],
+                external: ['vue', 'tailwindcss', '@swissgeo/log'],
                 output: {
                     exports: 'named',
                     globals: {

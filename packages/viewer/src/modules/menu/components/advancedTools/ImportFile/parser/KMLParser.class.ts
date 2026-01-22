@@ -28,7 +28,7 @@ export class KMLParser extends FileParser<KMLLayer> {
     /** @param linkFiles Used in the context of a KMZ to carry the embedded files with the layer */
     // eslint-disable-next-line @typescript-eslint/require-await
     async parseFileContent(
-        fileContent: ArrayBuffer | undefined,
+        fileContent: ArrayBuffer | string | undefined,
         fileSource: string | File,
         currentProjection: CoordinateSystem,
         linkFiles: Map<string, ArrayBuffer> = new Map()
@@ -36,7 +36,12 @@ export class KMLParser extends FileParser<KMLLayer> {
         if (!fileContent || !kmlUtils.isKml(fileContent)) {
             throw new InvalidFileContentError('No KML data found in this file')
         }
-        const kmlAsText = new TextDecoder('utf-8').decode(fileContent)
+        let kmlAsText: string
+        if (typeof fileContent === 'string') {
+            kmlAsText = fileContent
+        } else {
+            kmlAsText = new TextDecoder('utf-8').decode(fileContent)
+        }
         const extent = kmlUtils.getKmlExtent(kmlAsText)
         if (!extent) {
             throw new EmptyFileContentError()
@@ -53,6 +58,7 @@ export class KMLParser extends FileParser<KMLLayer> {
         }
 
         const kmlFileUrl = this.isLocalFile(fileSource) ? fileSource.name : fileSource
+        const kmlName = kmlUtils.parseKmlName(kmlAsText) ?? kmlFileUrl
         const internalFiles: Record<string, ArrayBuffer> = {}
         linkFiles.forEach((value, key) => {
             internalFiles[key] = value
@@ -62,12 +68,13 @@ export class KMLParser extends FileParser<KMLLayer> {
         if (!kmlUtils.isKmlFeaturesValid(kmlAsText)) {
             warningMessages.push(
                 new WarningMessage('kml_malformed', {
-                    filename: kmlFileUrl,
+                    filename: kmlName,
                 })
             )
         }
 
         return layerUtils.makeKMLLayer({
+            name: kmlName,
             opacity: 1.0,
             isVisible: true,
             extent: extentInCurrentProjection,

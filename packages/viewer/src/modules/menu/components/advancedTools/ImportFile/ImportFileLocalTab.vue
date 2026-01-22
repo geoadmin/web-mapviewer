@@ -2,7 +2,7 @@
 import type { ErrorMessage } from '@swissgeo/log/Message'
 
 import log from '@swissgeo/log'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import type { ValidationResult } from '@/utils/composables/useFieldValidation'
 
@@ -19,42 +19,50 @@ const { active = false } = defineProps<{
     active?: boolean
 }>()
 
-const selectedFile = defineModel<File | undefined>({ default: undefined })
-
 // Reactive data
 const loadingFile = ref(false)
+const selectedFile = ref<File | undefined>()
 const errorFileLoadingMessage = ref<ErrorMessage | undefined>()
 const isFormValid = ref(false)
+const activateValidation = ref(false)
 const importSuccessMessage = ref('')
 
 const buttonState = computed(() => (loadingFile.value ? 'loading' : 'default'))
 
-// Methods
-async function loadFile() {
+// Debug watchers
+watch(selectedFile, () => {
+    // Clear previous error/success messages when a new file is selected
     importSuccessMessage.value = ''
     errorFileLoadingMessage.value = undefined
+})
+
+// Methods
+async function loadFile() {
+    activateValidation.value = true
+    if (!isFormValid.value || !selectedFile.value) {
+        return
+    }
+
     loadingFile.value = true
 
-    if (isFormValid.value && selectedFile.value) {
-        try {
-            await handleFileSource(selectedFile.value, false)
-            importSuccessMessage.value = 'file_imported_success'
-        } catch (error) {
-            errorFileLoadingMessage.value = generateErrorMessageFromErrorType(
-                error instanceof Error ? error : new Error(String(error))
-            )
-            log.error({
-                title: 'ImportFileLocalTab.vue',
-                messages: ['Failed to load file', error],
-            })
-        }
+    try {
+        await handleFileSource(selectedFile.value, false)
+        importSuccessMessage.value = 'file_imported_success'
+    } catch (error) {
+        errorFileLoadingMessage.value = generateErrorMessageFromErrorType(
+            error instanceof Error ? error : new Error(String(error))
+        )
+        log.error({
+            title: 'ImportFileLocalTab.vue',
+            messages: ['Failed to load file', error],
+        })
     }
 
     loadingFile.value = false
 }
 
-function validateForm(validation: ValidationResult) {
-    isFormValid.value = validation.valid
+function validateForm(valid: ValidationResult) {
+    isFormValid.value = valid.valid
 }
 </script>
 
@@ -75,9 +83,11 @@ function validateForm(validation: ValidationResult) {
             required
             :accepted-file-types="acceptedFileTypes"
             :placeholder="'no_file'"
+            :activate-validation="activateValidation"
             :force-invalid="!!errorFileLoadingMessage"
             :invalid-message="errorFileLoadingMessage?.msg"
             :invalid-message-extra-params="errorFileLoadingMessage?.params"
+            :force-valid="!!importSuccessMessage"
             :valid-message="importSuccessMessage"
             @validate="validateForm"
         />
