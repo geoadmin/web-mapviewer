@@ -1,8 +1,8 @@
 /// <reference types="cypress" />
 
-import { APP_VERSION } from '@/config'
+import { interceptFeedback, parseFormData } from 'support/feedbackTestUtils'
 
-import { interceptFeedback, parseFormData } from './feedbackTestUtils'
+import { APP_VERSION } from '@/config'
 
 describe('Testing the feedback form', () => {
     function closeForm() {

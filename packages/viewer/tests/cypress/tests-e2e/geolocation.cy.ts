@@ -4,12 +4,13 @@ import type { SingleCoordinate } from '@swissgeo/coordinates'
 
 import { constants, registerProj4, WGS84 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
-
 import {
+    changeUrlParam,
     getGeolocationButtonAndClickIt,
     testErrorMessage,
     checkPosition,
-} from '@/../tests/cypress/tests-e2e/utils'
+} from 'support/utils'
+
 import { DEFAULT_PROJECTION } from '@/config'
 import useGeolocationStore from '@/store/modules/geolocation'
 import usePositionStore from '@/store/modules/position'
@@ -27,10 +28,6 @@ const testCases: TestCase[] = [
     { description: 'on 2D Map', is3D: false },
     { description: 'on 3D Map', is3D: true },
 ]
-
-// PB-701: TODO Those tests below are not working as expected, as the cypress-browser-permissions is not
-// working and the geolocation is always allowed, this needs to be reworked and probably need to
-// use another plugin.
 
 describe('Geolocation cypress', () => {
     context(
@@ -70,7 +67,7 @@ describe('Geolocation cypress', () => {
         () => {
             testCases.forEach(({ description, is3D }: TestCase) => {
                 it(`Doesn't prompt the user if geolocation has previously been authorized ${description}`, () => {
-                    cy.goToMapView({ queryParams: { '3d': is3D }, withHash: true })
+                    cy.goToMapView({ queryParams: { '3d': is3D } })
                     getGeolocationButtonAndClickIt()
                     cy.on('window:alert', () => {
                         throw new Error('Should not prompt for geolocation API permission again')
@@ -175,7 +172,6 @@ describe('Geolocation cypress', () => {
                 getGeolocationButtonAndClickIt()
                 testErrorMessage('geoloc_out_of_bounds')
             })
-
             it('Handling geolocation tracking and recentering behavior', () => {
                 const geoLatitude: number = 47.5
                 const geoLongitude: number = 6.8
@@ -203,10 +199,13 @@ describe('Geolocation cypress', () => {
                 })
 
                 // move the map
-                cy.get('[data-cy="ol-map"] canvas')
-                    .trigger('pointerdown', { button: 0, clientX: 200, clientY: 200 })
-                    .trigger('pointermove', { button: 0, clientX: 300, clientY: 300 })
-                    .trigger('pointerup', { button: 0, force: true })
+                cy.getPinia().then((pinia) => {
+                    const positionStore = usePositionStore(pinia)
+                    changeUrlParam(
+                        'center',
+                        positionStore.center.map((value) => value + 2500).join(',')
+                    )
+                })
 
                 // the geolocation should be still active, but tracking should be false, and the recenter button should show up
                 cy.get('[data-cy="recenter-button"]').should('be.visible')
@@ -300,7 +299,6 @@ describe('Geolocation cypress', () => {
                 getGeolocationButtonAndClickIt()
                 testErrorMessage('geoloc_permission_denied')
             })
-
             it(`shows an alert telling the user geolocation is not able to be retrieved due to time out ${description}`, () => {
                 cy.goToMapView({
                     queryParams: { '3d': is3D },
