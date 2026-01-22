@@ -14,19 +14,18 @@ import { randomIntBetween } from '@swissgeo/numbers'
 import { getServiceKmlBaseUrl } from '@swissgeo/staging-config'
 import { recurse } from 'cypress-recurse'
 import proj4 from 'proj4'
-
-import { DEFAULT_PROJECTION } from '@/config'
-import useDrawingStore from '@/store/modules/drawing'
-import useFeaturesStore from '@/store/modules/features'
-import useLayersStore from '@/store/modules/layers'
-
 import {
     addIconFixtureAndIntercept,
     addLegacyIconFixtureAndIntercept,
     checkKMLRequest,
     getKmlAdminIdFromRequest,
     kmlMetadataTemplate,
-} from '../support/drawing'
+} from 'support/drawing'
+
+import { DEFAULT_PROJECTION } from '@/config'
+import useDrawingStore from '@/store/modules/drawing'
+import useFeaturesStore from '@/store/modules/features'
+import useLayersStore from '@/store/modules/layers'
 
 registerProj4(proj4)
 
@@ -147,7 +146,10 @@ describe('Drawing module tests', () => {
                 cy.wait('@icon-default')
                     .its('request.url')
                     .should('include', '/api/icons/sets/default/icons/')
-                    .should('include', `${featureStyleUtils.generateRGBFillString(featureStyleUtils.RED)}.png`)
+                    .should(
+                        'include',
+                        `${featureStyleUtils.generateRGBFillString(featureStyleUtils.RED)}.png`
+                    )
 
                 cy.log('clicking on the "Edit icon" button')
                 cy.get('[data-cy="drawing-style-marker-button"]:visible').click()
@@ -190,7 +192,9 @@ describe('Drawing module tests', () => {
                 cy.wait('@icon-default-green')
 
                 cy.log('the color of the marker already placed on the map must switch to green')
-                const greenFillString = featureStyleUtils.generateRGBFillString(featureStyleUtils.GREEN)
+                const greenFillString = featureStyleUtils.generateRGBFillString(
+                    featureStyleUtils.GREEN
+                )
                 waitForKmlUpdate(
                     `<href>https?://.*/api/icons/sets/default/icons/001-marker@${DEFAULT_ICON_URL_SCALE}-${greenFillString}.png</href>`
                 )
@@ -714,30 +718,15 @@ describe('Drawing module tests', () => {
             const secondFeatureDescription = 'second feature'
             addDescription(secondFeatureDescription)
 
-            checkDrawnFeature(
-                secondFeatureDescription,
-                8,
-                'LineString',
-                'MEASURE'
-            )
+            checkDrawnFeature(secondFeatureDescription, 8, 'LineString', 'MEASURE')
 
             cy.log('Extend from the last node of line')
             cy.get('[data-cy="extend-from-last-node-button"] button').click()
             cy.get('[data-cy="ol-map"]').dblclick(1400, 450)
-            checkDrawnFeature(
-                secondFeatureDescription,
-                9,
-                'LineString',
-                'MEASURE'
-            )
+            checkDrawnFeature(secondFeatureDescription, 9, 'LineString', 'MEASURE')
 
             cy.log('check if the first feature still there')
-            checkDrawnFeature(
-                firstFeatureDescription,
-                9,
-                'Polygon',
-                'LINEPOLYGON'
-            )
+            checkDrawnFeature(firstFeatureDescription, 9, 'Polygon', 'LINEPOLYGON')
         })
         it('can create line/polygons and edit them', () => {
             cy.clickDrawingTool('LINEPOLYGON')
@@ -764,9 +753,7 @@ describe('Drawing module tests', () => {
                     .should(
                         (request) =>
                             void checkKMLRequest(request as CyHttpMessages.IncomingHttpRequest, [
-                                new RegExp(
-                                    `<Data name="type"><value>linepolygon</value></Data>`
-                                ),
+                                new RegExp(`<Data name="type"><value>linepolygon</value></Data>`),
                                 new RegExp(
                                     `<Style><LineStyle><color>${KML_STYLE_RED}</color><width>3</width></LineStyle><PolyStyle><color>66${KML_STYLE_RED.slice(
                                         2

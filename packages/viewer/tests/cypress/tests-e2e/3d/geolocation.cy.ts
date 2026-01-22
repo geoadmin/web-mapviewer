@@ -2,12 +2,8 @@
 
 import { registerProj4, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
+import { checkPosition, getGeolocationButtonAndClickIt, testErrorMessage } from 'support/utils'
 
-import {
-    getGeolocationButtonAndClickIt,
-    testErrorMessage,
-    checkPosition,
-} from '@/../tests/cypress/tests-e2e/utils'
 import useGeolocationStore from '@/store/modules/geolocation'
 import usePositionStore from '@/store/modules/position'
 

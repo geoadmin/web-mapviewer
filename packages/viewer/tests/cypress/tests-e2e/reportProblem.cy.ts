@@ -3,12 +3,11 @@
 import type { Interception } from 'cypress/types/net-stubbing'
 
 import { interceptPostKml } from 'support/drawing'
+import { interceptFeedback, parseFormData } from 'support/feedbackTestUtils'
+import { assertDefined, isMobile } from 'support/utils'
 
 import { APP_VERSION } from '@/config'
 import useLayersStore from '@/store/modules/layers'
-
-import { assertDefined, isMobile } from '../support/utils'
-import { interceptFeedback, parseFormData } from './feedbackTestUtils'
 
 const text =
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
@@ -408,19 +407,19 @@ describe('Testing the report problem form', () => {
         cy.get('[data-cy="submit-button"]').click()
         cy.wait('@feedback').then((interception) => {
             const formData = parseFormData(interception.request)
-                ;[
-                    { name: 'subject', contains: `[Problem Report]` },
-                    { name: 'feedback', contains: text },
-                    { name: 'version', contains: APP_VERSION.replace('.dirty', '') },
-                    { name: 'ua', contains: navigator.userAgent },
-                    { name: 'kml', contains: '<Data name="type"><value>marker</value></Data>' },
-                    { name: 'kml', contains: '<Data name="type"><value>annotation</value></Data>' },
-                    { name: 'kml', contains: '<Data name="type"><value>linepolygon</value></Data>' },
-                ].forEach((param) => {
-                    expect(interception.request.body).to.be.a('String')
-                    expect(formData).to.haveOwnProperty(param.name)
-                    expect(formData[param.name]).to.contain(param.contains)
-                })
+            ;[
+                { name: 'subject', contains: `[Problem Report]` },
+                { name: 'feedback', contains: text },
+                { name: 'version', contains: APP_VERSION.replace('.dirty', '') },
+                { name: 'ua', contains: navigator.userAgent },
+                { name: 'kml', contains: '<Data name="type"><value>marker</value></Data>' },
+                { name: 'kml', contains: '<Data name="type"><value>annotation</value></Data>' },
+                { name: 'kml', contains: '<Data name="type"><value>linepolygon</value></Data>' },
+            ].forEach((param) => {
+                expect(interception.request.body).to.be.a('String')
+                expect(formData).to.haveOwnProperty(param.name)
+                expect(formData[param.name]).to.contain(param.contains)
+            })
         })
     })
 })

@@ -1,72 +1,12 @@
 /// <reference types="cypress" />
 
-import type { Router, RouterHistory } from 'vue-router'
+import { changeUrlParam } from 'support/utils'
 
 import { DEFAULT_PROJECTION } from '@/config'
 import usePositionStore from '@/store/modules/position'
 import { CrossHairs } from '@/store/modules/position/types'
 
 describe('Testing the crosshair URL param', () => {
-    /**
-     * Changes a URL parameter without reloading the app.
-     *
-     * Help when you want to change a value in the URL but don't want the whole app be reloaded from
-     * scratch in the process.
-     *
-     * @param urlParamName URL param name (present or not in the URL, will be added or overwritten)
-     * @param urlParamValue The new URL param value we want to have
-     * @param amountOfExpectedStoreDispatches The number of dispatches this change in the URL is
-     *   going to trigger. This function will then wait for this amount of dispatch in the store
-     *   before letting the test go further
-     */
-    function changeUrlParam(
-        urlParamName: string,
-        urlParamValue: string | undefined,
-        amountOfExpectedStoreDispatches = 1
-    ): void {
-        cy.window()
-            .its('vueRouterHistory')
-            .then((vueRouterHistory: RouterHistory) => {
-                // the router location will everything behind the hash sign, meaning /map?param1=...&param2=...
-                const queryPart = vueRouterHistory.location.split('?')[1]
-                const query = new URLSearchParams(queryPart)
-                if (urlParamValue) {
-                    query.set(urlParamName, urlParamValue)
-                } else {
-                    query.delete(urlParamName)
-                }
-
-                // We have to do the toString by hand, as if we use the standard toString all param value
-                // will be encoded. And so comas will be URL encoded instead of left untouched, meaning layers, camera and
-                // other params that use the coma to split values will not work.
-                const unencodedQuery = Array.from(query)
-                    .map(([key, value]: [string, string]) => `${key}=${value}`)
-                    .reduce((param1, param2) => `${param1}${param2}&`, '?')
-                    // removing the trailing & resulting of the reduction above
-                    .slice(0, -1)
-                // regenerating the complete router location
-                const newLocation = `${vueRouterHistory.location.split('?')[0]}${unencodedQuery}`
-                Cypress.log({
-                    name: 'changeUrlParam',
-                    message: `router location changed from ${vueRouterHistory.location} to ${newLocation}`,
-                    consoleProps() {
-                        return {
-                            oldLocation: vueRouterHistory.location,
-                            newLocation,
-                        }
-                    },
-                })
-                cy.window()
-                    .its('vueRouter')
-                    .then(async (vueRouter: Router) => {
-                        await vueRouter.push(newLocation)
-                        for (let i = 0; i < amountOfExpectedStoreDispatches; i++) {
-                            cy.wait('@routeChange')
-                        }
-                    })
-            })
-    }
-
     context('At app startup', () => {
         it('does not add the crosshair by default', () => {
             cy.goToMapView()

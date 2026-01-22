@@ -1,9 +1,9 @@
 /// <reference types="cypress" />
 
+import { isMobile } from 'support/utils'
+
 import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
-
-import { isMobile } from '../support/utils'
 
 describe('The Import Maps Tool', () => {
     const bgLayer = 'test.background.layer2'
