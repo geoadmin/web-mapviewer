@@ -89,22 +89,30 @@ function waitAllLayersLoaded(options?: {
         (pinia: Pinia) => {
             const layersStore = useLayersStore(pinia)
             const topicsStore = useTopicsStore(pinia)
+
+            // When handling a legacy parameter, the pre-selection of feature was done by writing the layer BOD ID as key, and the feature IDs as value
+            const legacyLayerWithFeatureSelection = Object.keys(queryParams).filter((key) =>
+                layersStore.config.find((layer) => layer.id === key)
+            )
+
             const active = layersStore.activeLayers.length
             // The required layers can be set via topic or manually.
-            const targetTopic = topicsStore.currentTopic?.layersToActivate.length
-            let target = targetTopic
-            if ('layers' in queryParams) {
-                const layers: string = queryParams.layers as string
-                target = layers.split(legacy ? ',' : ';').length
+            let target: number = topicsStore.currentTopic?.layersToActivate.length ?? 0
+            if ('layers' in queryParams || legacyLayerWithFeatureSelection.length > 0) {
+                target = legacyLayerWithFeatureSelection.length
+                if ('layers' in queryParams) {
+                    const layers: string = queryParams.layers as string
+                    target = layers.split(legacy ? ',' : ';').length
+                }
             }
-            if (target && legacy && 'adminId' in queryParams) {
+            if (legacy && 'adminId' in queryParams) {
                 // In legacy drawing with adminId the layer is not added to the layers parameter
                 target += 1
             }
             // When handling a legacy parameter, the {bod Layer Id} parameter,
             // which has been reworked into the 'features' layer attribute might add extra
             // layers, thus the need to check if those extra layers have been added
-            if (target && legacy && 'layers' in queryParams) {
+            if (legacy && 'layers' in queryParams) {
                 const layers: string = queryParams.layers as string
                 const layersConfig = layersStore.config
                 target += Object.keys(queryParams)
@@ -230,7 +238,13 @@ function goToView(view: 'embed' | 'map', options?: GoToViewOptions): void {
     const is3d = '3d' in queryParams && queryParams['3d'] === true
 
     // waiting for the app to load and layers to be configured.
-    cy.waitMapIsReady({ olMap: !(is3d || isLegacy3d) })
+    const isDrawingActive =
+        (legacy && 'adminId' in queryParams) ||
+        (queryParams.layers?.toString().includes('adminId=') ?? false)
+    cy.waitMapIsReady({
+        olMap: !(is3d || isLegacy3d),
+        expectPointerReady: !isDrawingActive,
+    })
     waitAllLayersLoaded({ queryParams, legacy })
 
     if (is3d || isLegacy3d) {
@@ -252,20 +266,25 @@ Cypress.Commands.add('goToEmbedView', (options) => {
     goToView('embed', options)
 })
 
-Cypress.Commands.add('waitMapIsReady', ({ timeout = 20000, olMap = true } = {}) => {
-    cy.waitUntilState(
-        (pinia: Pinia) => {
-            const appStore = useAppStore(pinia)
-            return appStore.isMapReady
-        },
-        { timeout: timeout }
-    )
-    // We also need to wait for the pointer event to be set
-    if (olMap) {
-        cy.window().its('mapPointerEventReady', { timeout: timeout }).should('be.true')
+Cypress.Commands.add(
+    'waitMapIsReady',
+    ({ timeout = 20000, olMap = true, expectPointerReady = true } = {}) => {
+        cy.waitUntilState(
+            (pinia: Pinia) => {
+                const appStore = useAppStore(pinia)
+                return appStore.isMapReady
+            },
+            { timeout: timeout }
+        )
+        // We also need to wait for the pointer event to be set
+        if (olMap) {
+            cy.window()
+                .its('mapPointerEventReady', { timeout: timeout })
+                .should('eq', expectPointerReady)
+        }
+        cy.log('cmd: waitMapIsReady successful')
     }
-    cy.log('cmd: waitMapIsReady successful')
-})
+)
 
 Cypress.Commands.add('clickOnLanguage', (lang) => {
     if (isMobile()) {

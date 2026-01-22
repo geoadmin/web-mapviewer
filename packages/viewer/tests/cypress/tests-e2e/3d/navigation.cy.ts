@@ -113,7 +113,7 @@ describe('Testing 3D navigation', () => {
                                 expect(zoom).to.approximately(
                                     projection?.getZoomForResolution(
                                         resolution,
-                                        proj4(WGS84.epsg, projection.epsg, [lon, lat])
+                                        proj4(WGS84.epsg, projection.epsg, center)
                                     ),
                                     0.001
                                 )

@@ -51,9 +51,9 @@ async function handleLegacyKmlAdminIdParam(
         messages: ['Adding KML layer from legacy kml adminId'],
     })
     if (newQuery.layers && typeof newQuery.layers === 'string') {
-        newQuery.layers = `${newQuery.layers};KML|${kmlLayer.id}@adminId=${kmlLayer.adminId}`
+        newQuery.layers = `${newQuery.layers};${kmlLayer.id}@adminId=${kmlLayer.adminId}`
     } else {
-        newQuery.layers = `KML|${kmlLayer.id}@adminId=${kmlLayer.adminId}`
+        newQuery.layers = `${kmlLayer.id}@adminId=${kmlLayer.adminId}`
     }
 }
 
@@ -247,12 +247,22 @@ async function handleLegacyParams(
             storeInputs
         )
     })
-    if (
-        cameraPosition.x !== Number.NEGATIVE_INFINITY &&
-        cameraPosition.y !== Number.NEGATIVE_INFINITY &&
-        cameraPosition.z !== Number.NEGATIVE_INFINITY
-    ) {
-        const { x, y, z, pitch, heading, roll } = cameraPosition
+    const is3d =
+        cameraPosition.z !== Number.NEGATIVE_INFINITY ||
+        cameraPosition.pitch !== -90 ||
+        cameraPosition.heading !== 0
+    if (is3d) {
+        let { x, y, z } = cameraPosition
+        const { pitch, heading, roll } = cameraPosition
+        if (x === Number.NEGATIVE_INFINITY) {
+            x = latLongCoordinates[0] !== Number.NEGATIVE_INFINITY ? latLongCoordinates[0] : 0
+        }
+        if (y === Number.NEGATIVE_INFINITY) {
+            y = latLongCoordinates[1] !== Number.NEGATIVE_INFINITY ? latLongCoordinates[1] : 0
+        }
+        if (z === Number.NEGATIVE_INFINITY) {
+            z = 0
+        }
         newQuery['camera'] = [x, y, z, pitch, heading, roll]
             .map((value) => (value === 0 ? '' : `${value}`))
             .join(',')

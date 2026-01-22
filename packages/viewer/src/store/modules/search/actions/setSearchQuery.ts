@@ -1,4 +1,3 @@
-import type { SearchResult } from '@swissgeo/api'
 import type { CoordinateSystem, SingleCoordinate } from '@swissgeo/coordinates'
 
 import { lv03ReframeAPI, searchAPI, what3wordsAPI } from '@swissgeo/api'
@@ -49,8 +48,8 @@ export default function setSearchQuery(
 
     const currentProjection: CoordinateSystem = positionStore.projection
 
-    const results: SearchResult[] = []
     this.query = query
+    this.results = []
 
     // only firing search if the query is longer than or equal to 2 chars
     if (query.length >= 2) {
@@ -121,7 +120,6 @@ export default function setSearchQuery(
     } else if (query.length === 0) {
         mapStore.clearPinnedLocation(dispatcher)
     }
-    this.results = results
 }
 
 function applyCoordinates(
