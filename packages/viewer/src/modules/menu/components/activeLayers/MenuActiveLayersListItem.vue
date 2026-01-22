@@ -4,7 +4,8 @@
  * visibility, opacity or position in the layer stack)
  */
 
-import type { ExternalLayer, KMLLayer, Layer } from '@swissgeo/layers'
+import type { FlatExtent, CoordinateSystem } from '@swissgeo/coordinates'
+import type { ExternalLayer, KMLLayer, GPXLayer, Layer } from '@swissgeo/layers'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { WGS84 } from '@swissgeo/coordinates'
@@ -103,6 +104,21 @@ const isLayerClampedToGround = computed<boolean>({
 // backend should be quick enough and don't require any spinner
 const showSpinner = computed<boolean>(() => layer.isLoading && layer.isExternal && !layer.hasError)
 
+const layerExtent = computed<FlatExtent | undefined>(() => {
+    if (layer.type === LayerType.KML) {
+        return (layer as KMLLayer).extent
+    } else if (layer.type === LayerType.GPX) {
+        return (layer as GPXLayer).extent
+    }
+    return undefined
+})
+const layerExtentProjection = computed<CoordinateSystem>(() => {
+    if (layer.type === LayerType.KML) {
+        return (layer as KMLLayer).extentProjection ?? WGS84
+    }
+    return WGS84
+})
+
 onMounted(() => {
     if (showLayerDetail) {
         if (focusMoveButton === 'up' && layerUpButton.value) {
@@ -180,9 +196,9 @@ function changeStyle(newStyle: { value: KMLStyle }) {
                 {{ layer.name }}
             </TextTruncate>
             <ZoomToExtentButton
-                v-if="layer.extent && layer.type == LayerType.KML"
-                :extent="layer.extent"
-                :extent-projection="(layer as KMLLayer).extentProjection ?? WGS84"
+                v-if="layerExtent"
+                :extent="layerExtent"
+                :extent-projection="layerExtentProjection"
             />
             <ExtLayerInfoButton
                 :show-spinner="showSpinner"
