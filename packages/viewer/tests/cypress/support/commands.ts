@@ -89,13 +89,21 @@ function waitAllLayersLoaded(options?: {
         (pinia: Pinia) => {
             const layersStore = useLayersStore(pinia)
             const topicsStore = useTopicsStore(pinia)
+
+            // When handling a legacy parameter, the pre-selection of feature was done by writing the layer BOD ID as key, and the feature IDs as value
+            const legacyLayerWithFeatureSelection = Object.keys(queryParams).filter((key) =>
+                layersStore.config.find((layer) => layer.id === key)
+            )
+
             const active = layersStore.activeLayers.length
             // The required layers can be set via topic or manually.
-            const targetTopic = topicsStore.currentTopic?.layersToActivate.length
-            let target: number = targetTopic ?? 0
-            if ('layers' in queryParams) {
-                const layers: string = queryParams.layers as string
-                target = layers.split(legacy ? ',' : ';').length
+            let target: number = topicsStore.currentTopic?.layersToActivate.length ?? 0
+            if ('layers' in queryParams || legacyLayerWithFeatureSelection.length > 0) {
+                target = legacyLayerWithFeatureSelection.length
+                if ('layers' in queryParams) {
+                    const layers: string = queryParams.layers as string
+                    target = layers.split(legacy ? ',' : ';').length
+                }
             }
             if (legacy && 'adminId' in queryParams) {
                 // In legacy drawing with adminId the layer is not added to the layers parameter
