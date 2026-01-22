@@ -9,7 +9,10 @@ import { KMLParser } from '@/modules/menu/components/advancedTools/ImportFile/pa
 const ZIP_FILE_LITTLE_ENDIAN_SIGNATURE = [0x50, 0x4b, 0x03, 0x04]
 
 /** Check if the input is a zipfile content or not */
-export function isZipContent(content: ArrayBuffer): boolean {
+export function isZipContent(content: ArrayBuffer | string): boolean {
+    if (typeof content === 'string') {
+        return false
+    }
     // Check the first 4 bytes for the ZIP file signature
     const view = new Uint8Array(content.slice(0, 4))
     for (let i = 0; i < ZIP_FILE_LITTLE_ENDIAN_SIGNATURE.length; i++) {
@@ -34,12 +37,15 @@ export default class KMZParser extends FileParser<KMLLayer> {
     }
 
     async parseFileContent(
-        data: ArrayBuffer | undefined,
+        data: ArrayBuffer | string | undefined,
         fileSource: string | File,
         currentProjection: CoordinateSystem
     ): Promise<KMLLayer> {
         if (!data) {
             throw new Error('No data provided for KMZ file')
+        }
+        if (typeof data === 'string') {
+            throw new Error('KMZ can only be parsed from an ArrayBuffer')
         }
         const kmz = await kmlUtils.unzipKmz(
             data,
