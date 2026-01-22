@@ -37,7 +37,7 @@ export class CloudOptimizedGeoTIFFParser extends FileParser<CloudOptimizedGeoTIF
     }
 
     async parseFileContent(
-        _fileContent: ArrayBuffer | undefined,
+        _fileContent: ArrayBuffer | string | undefined,
         fileSource: File | string,
         currentProjection: CoordinateSystem
     ): Promise<CloudOptimizedGeoTIFFLayer> {

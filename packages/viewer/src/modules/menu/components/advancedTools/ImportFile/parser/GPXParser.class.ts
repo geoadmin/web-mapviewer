@@ -12,8 +12,13 @@ import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile
 import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
 
 /** Checks if file is GPX */
-export function isGpx(fileContent: ArrayBuffer): boolean {
-    const stringValue = new TextDecoder('utf-8').decode(fileContent)
+export function isGpx(fileContent: ArrayBuffer | string): boolean {
+    let stringValue: string
+    if (typeof fileContent === 'string') {
+        stringValue = fileContent
+    } else {
+        stringValue = new TextDecoder('utf-8').decode(fileContent)
+    }
     return /<gpx/.test(stringValue) && /<\/gpx\s*>/.test(stringValue)
 }
 
@@ -29,16 +34,20 @@ export default class GPXParser extends FileParser<GPXLayer> {
         })
     }
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async parseFileContent(
-        fileContent: ArrayBuffer | undefined,
+    parseFileContent(
+        fileContent: ArrayBuffer | string | undefined,
         fileSource: File | string,
         currentProjection: CoordinateSystem
     ): Promise<GPXLayer> {
         if (!fileContent || !isGpx(fileContent)) {
             throw new InvalidFileContentError()
         }
-        const gpxAsText = new TextDecoder('utf-8').decode(fileContent)
+        let gpxAsText: string
+        if (typeof fileContent === 'string') {
+            gpxAsText = fileContent
+        } else {
+            gpxAsText = new TextDecoder('utf-8').decode(fileContent)
+        }
         const extent = gpxUtils.getGpxExtent(gpxAsText)
         if (!extent) {
             throw new EmptyFileContentError()
@@ -65,13 +74,17 @@ export default class GPXParser extends FileParser<GPXLayer> {
               }
             : undefined
 
-        return layerUtils.makeGPXLayer({
-            opacity: 1.0,
-            isVisible: true,
-            extent: extentInCurrentProjection,
-            gpxFileUrl: this.isLocalFile(fileSource) ? fileSource.name : fileSource,
-            gpxData: gpxAsText,
-            gpxMetadata,
+        return new Promise<GPXLayer>((resolve) => {
+            resolve(
+                layerUtils.makeGPXLayer({
+                    opacity: 1.0,
+                    isVisible: true,
+                    extent: extentInCurrentProjection,
+                    gpxFileUrl: this.isLocalFile(fileSource) ? fileSource.name : fileSource,
+                    gpxData: gpxAsText,
+                    gpxMetadata,
+                })
+            )
         })
     }
 }

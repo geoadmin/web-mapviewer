@@ -104,7 +104,7 @@ export default abstract class FileParser<T extends FileLayer> {
         return this.parseFileContent(await file.arrayBuffer(), file, currentProjection)
     }
 
-    isFileContentValid(fileArrayBuffer: ArrayBuffer): boolean {
+    isFileContentValid(fileArrayBuffer: ArrayBuffer | string): boolean {
         if (!this.validateFileContent) {
             return false
         }
@@ -130,7 +130,7 @@ export default abstract class FileParser<T extends FileLayer> {
         }
 
         log.debug({
-            title: `[FileParser][${this.constructor.name}]`,
+            title: `FileParser / ${this.constructor.name}`,
             messages: [
                 `no pre-loaded content to verify, launching HEAD request on file URL`,
                 fileUrl,
@@ -158,14 +158,14 @@ export default abstract class FileParser<T extends FileLayer> {
                     return loadedContent ? this.isFileContentValid(loadedContent) : false
                 } catch (error) {
                     log.error({
-                        title: `[FileParser][${this.constructor.name}]`,
+                        title: `FileParser / ${this.constructor.name}`,
                         messages: ['Could not load file content for', fileUrl, error],
                     })
                 }
             }
         } catch (error) {
             log.warn({
-                title: `[FileParser][${this.constructor.name}]`,
+                title: `FileParser / ${this.constructor.name}`,
                 messages: ['HEAD request failed, could not parse', fileUrl, error],
             })
         }
@@ -174,7 +174,7 @@ export default abstract class FileParser<T extends FileLayer> {
 
     /** @abstract */
     abstract parseFileContent(
-        fileContent: ArrayBuffer | undefined,
+        fileContent: ArrayBuffer | string | undefined,
         fileSource: File | string,
         currentProjection: CoordinateSystem
     ): Promise<T>
@@ -187,7 +187,7 @@ export default abstract class FileParser<T extends FileLayer> {
         const { loadedContent, fileCompliance } = options
         if (loadedContent) {
             log.debug({
-                title: `[FileParser][${this.constructor.name}]`,
+                title: `FileParser / ${this.constructor.name}`,
                 messages: [`preloaded content detected, won't create new requests`],
             })
             return await this.parseFileContent(loadedContent, fileUrl, currentProjection)
@@ -203,7 +203,7 @@ export default abstract class FileParser<T extends FileLayer> {
                 fileContent = await fileProxyAPI.getFileContentThroughServiceProxy(fileUrl)
             } else {
                 log.error({
-                    title: `[FileParser][${this.constructor.name}]`,
+                    title: `FileParser / ${this.constructor.name}`,
                     messages: [
                         `could not load content for file ${fileUrl}`,
                         `CORS/HTTPS support not found`,
@@ -227,7 +227,7 @@ export default abstract class FileParser<T extends FileLayer> {
         const { fileSource, currentProjection } = config
         if (!fileSource || !currentProjection) {
             log.error({
-                title: `[FileParser][${this.constructor.name}]`,
+                title: `FileParser / ${this.constructor.name}`,
                 messages: [
                     ` Could not attempt parsing of the file, wrong configuration received`,
                     config,

@@ -30,10 +30,15 @@ export default async function loadGpxData(
 
     try {
         uiStore.setLoadingBarRequester(LOADING_BAR_REQUEST_NAME, dispatcher)
-        const updatedLayer = await gpxParser.parse({
-            fileSource: gpxLayer.gpxFileUrl || '',
-            currentProjection: positionStore.projection,
-        })
+        const updatedLayer = await gpxParser.parse(
+            {
+                fileSource: gpxLayer.gpxFileUrl || '',
+                currentProjection: positionStore.projection,
+            },
+            {
+                loadedContent: gpxLayer.gpxData,
+            }
+        )
 
         layerStore.updateLayer(updatedLayer.id, updatedLayer, dispatcher)
     } catch (error) {
