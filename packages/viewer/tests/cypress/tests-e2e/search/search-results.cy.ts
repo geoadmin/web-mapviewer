@@ -84,34 +84,26 @@ function testQueryPositionCrosshairStore({
     // check the query
     cy.getPinia().should((pinia) => {
         const searchStore = useSearchStore(pinia)
-        cy.wrap(searchStore).its('query').should('eq', searchQuery)
-    })
-    // check the center of the map
-    cy.getPinia().should((pinia) => {
+        expect(searchStore.query).to.eq(searchQuery)
+
+        // check the center of the map
         const positionStore = usePositionStore(pinia)
-        cy.wrap(positionStore)
-            .its('center')
-            .should((center) => checkLocation(expectedCenter, center))
-        // check the crosshair
-        cy.wrap(positionStore).its('crossHair').should('eq', expectedCrosshair)
+        checkLocation(expectedCenter, positionStore.center)
+
+        expect(positionStore.crossHair).to.eq(expectedCrosshair)
 
         // check the crosshair position
         if (expectedCrosshairPosition !== undefined) {
-            cy.wrap(positionStore).its('crossHairPosition').should('not.be.undefined')
-            cy.wrap(positionStore)
-                .its('crossHairPosition')
-                .should((pos) => checkLocation(expectedCrosshairPosition, pos))
+            expect(positionStore.crossHairPosition).to.not.be.undefined
+            checkLocation(expectedCrosshairPosition, positionStore.crossHairPosition!)
         } else {
-            cy.wrap(positionStore).its('crossHairPosition').should('be.undefined')
+            expect(positionStore.crossHairPosition).to.be.undefined
         }
-    })
-    // check the location of pinnedLocation
-    cy.getPinia().should((pinia) => {
+
+        // check the location of pinnedLocation
         const mapStore = useMapStore(pinia)
-        cy.wrap(mapStore).its('pinnedLocation').should('not.be.undefined')
-        cy.wrap(mapStore)
-            .its('pinnedLocation')
-            .should((loc) => checkLocation(expectedPinnedLocation, loc))
+        expect(mapStore.pinnedLocation).to.not.be.undefined
+        checkLocation(expectedPinnedLocation, mapStore.pinnedLocation!)
     })
 }
 
@@ -249,8 +241,8 @@ describe('Test the search bar result handling', () => {
         )
 
         cy.getPinia().should((pinia) => {
-            const searchStore2 = useSearchStore(pinia)
-            cy.wrap(searchStore2).its('query').should('eq', 'test')
+            const searchStore = useSearchStore(pinia)
+            expect(searchStore.query).to.eq('test')
         })
         cy.get('@locationSearchResults').should('be.visible')
 
@@ -359,17 +351,15 @@ describe('Test the search bar result handling', () => {
         cy.focused().trigger('keyup', { key: 'Enter' })
 
         cy.getPinia().should((pinia) => {
-            const mapStore2 = useMapStore(pinia)
-            cy.wrap(mapStore2).its('pinnedLocation').should('not.be.undefined')
-            cy.wrap(mapStore2)
-                .its('pinnedLocation')
-                .then((loc) => checkLocation(expectedCenterDefaultProjection, loc))
+            const mapStore = useMapStore(pinia)
+            expect(mapStore.pinnedLocation).to.not.be.undefined
+            checkLocation(expectedCenterDefaultProjection, mapStore.pinnedLocation!)
         })
         // clearing selected entry by clearing the search bar and re-entering a search text
         cy.get('[data-cy="searchbar-clear"]').click()
         cy.getPinia().should((pinia) => {
-            const mapStore2 = useMapStore(pinia)
-            cy.wrap(mapStore2).its('pinnedLocation').should('be.undefined')
+            const mapStore = useMapStore(pinia)
+            expect(mapStore.pinnedLocation).to.be.undefined
         })
 
         cy.log('Testing previewing the location or layer on hover')
@@ -379,49 +369,41 @@ describe('Test the search bar result handling', () => {
 
         // Location - Enter
         cy.get('@locationSearchResults').first().trigger('mouseenter')
-        cy.getPinia().then((pinia) => {
-            const mapStore2 = useMapStore(pinia)
-            cy.wrap(mapStore2).its('previewedPinnedLocation').should('not.be.undefined')
-            cy.wrap(mapStore2)
-                .its('previewedPinnedLocation')
-                .then((loc) => checkLocation(expectedCenterDefaultProjection, loc))
+        cy.getPinia().should((pinia) => {
+            const mapStore = useMapStore(pinia)
+            expect(mapStore.previewedPinnedLocation).to.not.be.undefined
+            checkLocation(expectedCenterDefaultProjection, mapStore.previewedPinnedLocation!)
         })
         // Location - Leave
         cy.get('@locationSearchResults').first().trigger('mouseleave')
-        cy.getPinia().then((pinia) => {
-            const mapStore2 = useMapStore(pinia)
-            cy.wrap(mapStore2).its('previewedPinnedLocation').should('be.undefined')
+        cy.getPinia().should((pinia) => {
+            const mapStore = useMapStore(pinia)
+            expect(mapStore.previewedPinnedLocation).to.be.undefined
         })
 
         // Layer - Enter
         cy.get('@layerSearchResults').first().trigger('mouseenter')
-        cy.getPinia().then((pinia) => {
+        cy.getPinia().should((pinia) => {
             const layersStore = useLayersStore(pinia)
-            cy.wrap(layersStore)
-                .its('visibleLayers')
-                .should((layers: Layer[]) => {
-                    const visibleIds = layers.map((layer: Layer) => layer.id)
-                    expect(visibleIds).to.contain(expectedLayerId)
-                })
+            expect(layersStore.visibleLayers).to.not.be.undefined
+            const visibleIds = layersStore.visibleLayers.map((layer: Layer) => layer.id)
+            expect(visibleIds).to.contain(expectedLayerId)
         })
         // Layer - Leave
         cy.get('@layerSearchResults').first().trigger('mouseleave')
-        cy.getPinia().then((pinia) => {
-            const layersStore2 = useLayersStore(pinia)
-            cy.wrap(layersStore2)
-                .its('visibleLayers')
-                .should((layers: Layer[]) => {
-                    const visibleIds = layers.map((layer: Layer) => layer.id)
-                    expect(visibleIds).not.to.contain(expectedLayerId)
-                })
+        cy.getPinia().should((pinia) => {
+            const layersStore = useLayersStore(pinia)
+            expect(layersStore.visibleLayers).to.not.be.undefined
+            const visibleIds = layersStore.visibleLayers.map((layer: Layer) => layer.id)
+            expect(visibleIds).not.to.contain(expectedLayerId)
         })
 
         // Location - Leave via unmount
         cy.get('@locationSearchResults').first().trigger('mouseenter')
         cy.get('[data-cy="searchbar-clear"]').click()
-        cy.getPinia().then((pinia) => {
-            const mapStore2 = useMapStore(pinia)
-            cy.wrap(mapStore2).its('previewedPinnedLocation').should('be.undefined')
+        cy.getPinia().should((pinia) => {
+            const mapStore = useMapStore(pinia)
+            expect(mapStore.previewedPinnedLocation).to.be.undefined
         })
 
         cy.log('Clicking on the first entry to test handling of zoom/extent/position')
@@ -433,10 +415,8 @@ describe('Test the search bar result handling', () => {
 
         // checking that the view has centered on the feature
         cy.getPinia().should((pinia) => {
-            const positionStore2 = usePositionStore(pinia)
-            cy.wrap(positionStore2)
-                .its('center')
-                .should((center) => checkLocation(expectedCenterDefaultProjection, center))
+            const positionStore = usePositionStore(pinia)
+            checkLocation(expectedCenterDefaultProjection, positionStore.center)
         })
 
         // checking that the zoom level corresponds to the extent of the feature
@@ -445,20 +425,16 @@ describe('Test the search bar result handling', () => {
         const height = Cypress.config('viewportHeight')
         if (width < BREAKPOINT_TABLET) {
             cy.getPinia().should((pinia) => {
-                const positionStore3 = usePositionStore(pinia)
-                cy.wrap(positionStore3)
-                    .its('zoom')
-                    .should('be.closeTo', calculateExpectedZoom(width, height), 0.2)
+                const positionStore = usePositionStore(pinia)
+                expect(positionStore.zoom).to.be.closeTo(calculateExpectedZoom(width, height), 0.2)
             })
         }
 
         // checking that a dropped pin has been placed at the feature's location
         cy.getPinia().should((pinia) => {
-            const mapStore2 = useMapStore(pinia)
-            cy.wrap(mapStore2).its('pinnedLocation').should('not.be.undefined')
-            cy.wrap(mapStore2)
-                .its('pinnedLocation')
-                .should((loc) => checkLocation(expectedCenterDefaultProjection, loc))
+            const mapStore = useMapStore(pinia)
+            expect(mapStore.pinnedLocation).to.not.be.undefined
+            checkLocation(expectedCenterDefaultProjection, mapStore.pinnedLocation!)
         })
 
         cy.log('Search bar dropdown should be hidden after centering on the feature')
@@ -536,8 +512,8 @@ describe('Test the search bar result handling', () => {
 
         cy.url().should('not.contain', 'swisssearch')
         cy.getPinia().should((pinia) => {
-            const searchStore3 = useSearchStore(pinia)
-            cy.wrap(searchStore3).its('query').should('eq', '')
+            const searchStore = useSearchStore(pinia)
+            expect(searchStore.query).to.eq('')
         })
         cy.get('@locationSearchResults').should('not.exist')
     })
@@ -592,24 +568,17 @@ describe('Test the search bar result handling', () => {
         cy.wait('@routeChange')
         // Wait for search query to be set in store (this happens after URL params are processed)
         cy.getPinia().should((pinia) => {
-            const searchStore4 = useSearchStore(pinia)
-            cy.wrap(searchStore4).its('query').should('eq', '1530 Payerne')
+            const searchStore = useSearchStore(pinia)
+            expect(searchStore.query).to.eq('1530 Payerne')
         })
         cy.url().should('not.contain', 'swisssearch')
         cy.url().should('not.contain', 'swisssearch_autoselect')
         const acceptableDelta = 0.25
 
         cy.getPinia().should((pinia) => {
-            const mapStore8 = useMapStore(pinia)
-            cy.wrap(mapStore8).its('pinnedLocation').should('not.be.undefined')
-            cy.wrap(mapStore8)
-                .its('pinnedLocation')
-                .then((loc) => {
-                    expect(loc).to.be.a('array').that.is.not.empty
-                    expect(loc?.length).to.greaterThan(1)
-                    expect(loc[0]).to.be.approximately(coordinates[0]!, acceptableDelta)
-                    expect(loc[1]).to.be.approximately(coordinates[1]!, acceptableDelta)
-                })
+            const mapStore = useMapStore(pinia)
+            expect(mapStore.pinnedLocation).to.not.be.undefined
+            checkLocation(coordinates, mapStore.pinnedLocation!)
         })
 
         // ----------------------------------------------------------------------
