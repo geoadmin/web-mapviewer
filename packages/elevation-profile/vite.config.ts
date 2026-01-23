@@ -62,6 +62,7 @@ export default defineConfig((configEnv: ConfigEnv): UserConfig => {
                     exports: 'named',
                     globals: {
                         vue: 'Vue',
+                        '@swissgeo/log': 'log',
                     },
                 },
             },

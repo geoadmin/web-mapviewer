@@ -1,3 +1,10 @@
+<script lang="ts">
+export interface SearchResultCategoryExposed {
+    focusFirstEntry: () => void
+    focusLastEntry: () => void
+}
+</script>
+
 <script setup lang="ts">
 import type { SearchResult } from '@swissgeo/api'
 
@@ -36,7 +43,7 @@ function focusLastEntry() {
     }
 }
 
-defineExpose({ focusFirstEntry, focusLastEntry })
+defineExpose<SearchResultCategoryExposed>({ focusFirstEntry, focusLastEntry })
 </script>
 
 <template>

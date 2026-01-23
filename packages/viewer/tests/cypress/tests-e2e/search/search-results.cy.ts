@@ -58,8 +58,7 @@ function checkDescendantOf(
         return $element
     }
 }
-const acceptedDelta = 0.1
-const checkLocation = (expected: number[], result: number[]) => {
+const checkLocation = (expected: number[], result: number[], acceptedDelta = 0.1) => {
     expect(result).to.be.an('Array')
     expect(result.length).to.eq(2)
     expect(result[0]).to.approximately(expected[0]!, acceptedDelta)
@@ -371,21 +370,26 @@ describe('Test the search bar result handling', () => {
         cy.get('@locationSearchResults').first().trigger('mouseenter')
         cy.getPinia().should((pinia) => {
             const mapStore = useMapStore(pinia)
-            expect(mapStore.previewedPinnedLocation).to.not.be.undefined
+            expect(mapStore.previewedPinnedLocation, 'preview pinned location should be set').to.not
+                .be.undefined
             checkLocation(expectedCenterDefaultProjection, mapStore.previewedPinnedLocation!)
         })
         // Location - Leave
         cy.get('@locationSearchResults').first().trigger('mouseleave')
         cy.getPinia().should((pinia) => {
             const mapStore = useMapStore(pinia)
-            expect(mapStore.previewedPinnedLocation).to.be.undefined
+            expect(mapStore.previewedPinnedLocation, 'preview pinned location should be cleared').to
+                .be.undefined
         })
 
         // Layer - Enter
         cy.get('@layerSearchResults').first().trigger('mouseenter')
         cy.getPinia().should((pinia) => {
             const layersStore = useLayersStore(pinia)
-            expect(layersStore.visibleLayers).to.not.be.undefined
+            expect(
+                layersStore.visibleLayers,
+                'A layer should have been added to the visible layers'
+            ).to.not.be.undefined
             const visibleIds = layersStore.visibleLayers.map((layer: Layer) => layer.id)
             expect(visibleIds).to.contain(expectedLayerId)
         })
@@ -573,12 +577,11 @@ describe('Test the search bar result handling', () => {
         })
         cy.url().should('not.contain', 'swisssearch')
         cy.url().should('not.contain', 'swisssearch_autoselect')
-        const acceptableDelta = 0.25
 
         cy.getPinia().should((pinia) => {
             const mapStore = useMapStore(pinia)
             expect(mapStore.pinnedLocation).to.not.be.undefined
-            checkLocation(coordinates, mapStore.pinnedLocation!)
+            checkLocation(coordinates, mapStore.pinnedLocation!, 0.25)
         })
 
         // ----------------------------------------------------------------------
