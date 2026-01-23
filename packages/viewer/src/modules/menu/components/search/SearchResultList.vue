@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import type { LocationSearchResult, SearchResult } from '@swissgeo/api'
+import type { ComponentPublicInstance } from 'vue'
 
 import log from '@swissgeo/log'
-import { computed, ref, useTemplateRef, watch } from 'vue'
+import { computed, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import type { SearchResultCategoryExposed } from '@/modules/menu/components/search/SearchResultCategory.vue'
+import type { ActionDispatcher } from '@/store/types'
+
+import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import SearchResultCategory from '@/modules/menu/components/search/SearchResultCategory.vue'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
@@ -12,35 +17,36 @@ import useSearchStore from '@/store/modules/search'
 import useUIStore from '@/store/modules/ui'
 import debounce from '@/utils/debounce'
 
-const dispatcher = { name: 'SearchResultList.vue' }
+const dispatcher: ActionDispatcher = { name: 'SearchResultList.vue' }
 
-const emit = defineEmits(['close', 'firstResultEntryReached'])
+const emit = defineEmits<{
+    close: [void]
+    firstResultEntryReached: [void]
+}>()
+
 const { t } = useI18n()
+
 const searchStore = useSearchStore()
 const uiStore = useUIStore()
 const layersStore = useLayersStore()
 const mapStore = useMapStore()
 
-const resultCategories = useTemplateRef('resultCategories')
+const resultCategories =
+    useTemplateRef<ComponentPublicInstance<SearchResultCategoryExposed>[]>('resultCategories')
 
-const preview = ref<SearchResult>()
+const currentPreviewEntry = ref<SearchResult>()
 
-const results = computed(() => searchStore.results)
-const hasDevSiteWarning = computed(() => uiStore.hasDevSiteWarning)
-const isPhoneMode = computed(() => uiStore.isPhoneMode)
-
-const previewLayer = computed(() => layersStore.previewLayer)
-const previewedPinnedLocation = computed(() => mapStore.previewedPinnedLocation)
-
-const locationResults = computed(() =>
-    results.value.filter((result) => result.resultType === 'LOCATION')
+const locationResults = computed<SearchResult[]>(() =>
+    searchStore.results.filter((result) => result.resultType === 'LOCATION')
 )
-const layerResults = computed(() => results.value.filter((result) => result.resultType === 'LAYER'))
-const layerFeatureResults = computed(() =>
-    results.value.filter((result) => result.resultType === 'FEATURE')
+const layerResults = computed<SearchResult[]>(() =>
+    searchStore.results.filter((result) => result.resultType === 'LAYER')
+)
+const layerFeatureResults = computed<SearchResult[]>(() =>
+    searchStore.results.filter((result) => result.resultType === 'FEATURE')
 )
 
-const categories = computed(() => {
+const categories = computed<{ id: string; results: SearchResult[] }[]>(() => {
     return [
         {
             id: 'locations',
@@ -56,8 +62,6 @@ const categories = computed(() => {
         },
     ]
 })
-
-watch(preview, (newPreview) => setPreviewDebounced(newPreview))
 
 function focusFirstEntry() {
     const firstCategory = categories.value.findIndex((category) => category.results.length > 0)
@@ -92,14 +96,20 @@ function onLastEntryReached(index: number) {
     }
 }
 
-function setPreview(entry: SearchResult) {
-    preview.value = entry
+function onPreviewChange(entry?: SearchResult) {
+    currentPreviewEntry.value = entry
+    // When not testing with Cypress, we debounce the preview to avoid too many store dispatch
+    if (IS_TESTING_WITH_CYPRESS) {
+        setPreview(entry)
+    } else {
+        setPreviewDebounced(entry)
+    }
 }
 
 function clearPreview(entry: SearchResult) {
     // only clear the preview if not another entry has been set
-    if (preview.value?.id === entry.id) {
-        preview.value = undefined
+    if (currentPreviewEntry.value?.id === entry.id) {
+        onPreviewChange(undefined)
     }
 }
 
@@ -107,39 +117,38 @@ const isLocationSearchResult = (entry: SearchResult): entry is LocationSearchRes
     return 'coordinate' in entry
 }
 
-// We debounce the preview to avoid too many store dispatch
-const PREVIEW_DEBOUNCING_DELAY = 50
-const setPreviewDebounced = debounce((entry?: SearchResult) => {
+function setPreview(entry?: SearchResult) {
     log.debug({
         messages: [
             `Set preview`,
             entry,
-            previewLayer.value ?? '',
-            previewedPinnedLocation.value?.toString(),
+            layersStore.previewLayer ?? '',
+            mapStore.previewedPinnedLocation?.toString(),
         ],
     })
 
     if (!entry) {
-        if (previewLayer.value) {
+        if (layersStore.previewLayer) {
             layersStore.clearPreviewLayer(dispatcher)
         }
-        if (previewedPinnedLocation.value) {
+        if (mapStore.previewedPinnedLocation) {
             mapStore.clearPreviewPinnedLocation(dispatcher)
         }
     } else if (entry.resultType === 'LAYER') {
         layersStore.setPreviewLayer(entry.id, dispatcher)
 
-        if (previewedPinnedLocation.value) {
+        if (mapStore.previewedPinnedLocation) {
             mapStore.clearPreviewPinnedLocation(dispatcher)
         }
     } else if (isLocationSearchResult(entry)) {
         mapStore.setPreviewedPinnedLocation(entry.coordinate, dispatcher)
 
-        if (previewLayer.value) {
+        if (layersStore.previewLayer) {
             layersStore.clearPreviewLayer(dispatcher)
         }
     }
-}, PREVIEW_DEBOUNCING_DELAY)
+}
+const setPreviewDebounced = debounce(setPreview, 50)
 
 defineExpose({ focusFirstEntry })
 </script>
@@ -147,19 +156,21 @@ defineExpose({ focusFirstEntry })
 <template>
     <div
         class="search-results-container m-0"
-        :class="{ 'search-results-dev-site-warning': hasDevSiteWarning && isPhoneMode }"
+        :class="{
+            'search-results-dev-site-warning': uiStore.hasDevSiteWarning && uiStore.isPhoneMode,
+        }"
     >
         <div
             class="search-results bg-light shadow-lg"
             :class="{
-                'border-top border-bottom': isPhoneMode,
-                'rounded-bottom': !isPhoneMode,
+                'border-top border-bottom': uiStore.isPhoneMode,
+                'rounded-bottom': !uiStore.isPhoneMode,
             }"
             data-cy="search-results"
         >
             <div
                 class="search-results-inner"
-                :class="{ 'rounded-bottom': !isPhoneMode }"
+                :class="{ 'rounded-bottom': !uiStore.isPhoneMode }"
             >
                 <SearchResultCategory
                     v-for="(category, index) in categories"
@@ -172,7 +183,7 @@ defineExpose({ focusFirstEntry })
                     @entry-selected="emit('close')"
                     @first-entry-reached="onFirstEntryReached(index)"
                     @last-entry-reached="onLastEntryReached(index)"
-                    @setPreview="setPreview"
+                    @setPreview="onPreviewChange"
                     @clearPreview="clearPreview"
                 />
             </div>
