@@ -4,7 +4,6 @@ import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import dts from 'unplugin-dts/vite'
-import { fileURLToPath, URL } from 'url'
 import { defineConfig } from 'vite'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import vueDevTools from 'vite-plugin-vue-devtools'
@@ -69,7 +68,7 @@ export default defineConfig((configEnv: ConfigEnv): UserConfig => {
         },
         resolve: {
             alias: {
-                '@': fileURLToPath(new URL('./src', import.meta.url)),
+                '@': resolve(__dirname, 'src'),
             },
         },
         define: {

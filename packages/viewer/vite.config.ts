@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import vue from '@vitejs/plugin-vue'
 import gitDescribe from 'git-describe'
-import { dirname } from 'path'
+import { dirname, resolve } from 'path'
 import { fileURLToPath, URL } from 'url'
 import { defineConfig, normalizePath } from 'vite'
 import ConditionalCompile from 'vite-plugin-conditional-compiler'
@@ -52,6 +52,10 @@ function manualChunks(id: string): string | undefined {
     // Separate Cesium - it's a large (~3.5MB), standalone library that rarely changes
     if (id.includes('node_modules') && id.includes('cesium')) {
         return 'vendor-cesium'
+    }
+    // Separate OpenLayers - it's a core library for the map viewer
+    if (id.includes('node_modules') && id.includes('ol')) {
+        return 'vendor-ol'
     }
     // Put all files from the src/utils into the chunk named utils.js
     if (id.includes('/src/utils/')) {
@@ -215,10 +219,13 @@ export default defineConfig((configEnv: ConfigEnv): UserConfig => {
         plugins: generatePlugins(pluginMode, isTesting),
         resolve: {
             alias: {
-                '@': fileURLToPath(new URL('./src', import.meta.url)),
+                '@': resolve(__dirname, 'src'),
                 tests: fileURLToPath(new URL('./tests', import.meta.url)),
                 cesium: normalizePath(cesiumFolder),
+                // making sure we share one OpenLayers instance throughout all libs requiring it
+                ol: resolve(__dirname, 'node_modules/ol'),
             },
+            dedupe: ['ol'],
         },
         // see https://vite.dev/config/#using-environment-variables-in-config
         define: {
