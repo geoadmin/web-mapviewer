@@ -543,7 +543,7 @@ describe('Test of layer handling', () => {
                     .should('be.visible')
                     .trigger('mouseover')
                 cy.get(`[data-cy="floating-button-has-error-${wmtsUnreachableLayerId}"]`)
-                    .should('have.class', 'tw:bg-red-500')
+                    .should('have.class', 'bg-red-500')
                     .should('be.visible')
                     .contains('Network error')
                 cy.get(`[data-cy="button-has-error-${wmtsUnreachableLayerId}"]`).trigger(
@@ -569,7 +569,7 @@ describe('Test of layer handling', () => {
                     .should('be.visible')
                     .trigger('mouseover')
                 cy.get(`[data-cy="floating-button-has-error-${wmtsInvalidContentLayerId}"]`)
-                    .should('have.class', 'tw:bg-red-500')
+                    .should('have.class', 'bg-red-500')
                     .should('be.visible')
                     .contains('Invalid WMTS Capabilities')
                 cy.get(`[data-cy="button-has-error-${wmtsInvalidContentLayerId}"]`).trigger(
@@ -595,7 +595,7 @@ describe('Test of layer handling', () => {
                     .should('be.visible')
                     .trigger('mouseover')
                 cy.get(`[data-cy="floating-button-has-error-${wmsUnreachableLayerId}"]`)
-                    .should('have.class', 'tw:bg-red-500')
+                    .should('have.class', 'bg-red-500')
                     .should('be.visible')
                     .contains('Network error')
                 cy.get(`[data-cy="button-has-error-${wmsUnreachableLayerId}"]`).trigger(
@@ -621,7 +621,7 @@ describe('Test of layer handling', () => {
                     .should('be.visible')
                     .trigger('mouseover')
                 cy.get(`[data-cy="floating-button-has-error-${wmsInvalidContentLayerId}"]`)
-                    .should('have.class', 'tw:bg-red-500')
+                    .should('have.class', 'bg-red-500')
                     .should('be.visible')
                     .contains('Invalid WMS Capabilities')
                 cy.get(`[data-cy="button-has-error-${wmsInvalidContentLayerId}"]`).trigger(
@@ -675,11 +675,13 @@ describe('Test of layer handling', () => {
                 const bgLayer3 = layersStore15.currentBackgroundLayer
                 expect(bgLayer3).to.not.be.undefined
                 expect(bgLayer3?.id).to.eq('test.background.layer')
-                cy.log('We check that whenever we click to change the language, we keep the same background layer')
+                cy.log(
+                    'We check that whenever we click to change the language, we keep the same background layer'
+                )
                 SUPPORTED_LANG.forEach((lang) => {
-                cy.clickOnLanguage(lang)
-                expect(bgLayer3).to.not.be.undefined
-                expect(bgLayer3?.id).to.eq('test.background.layer')
+                    cy.clickOnLanguage(lang)
+                    expect(bgLayer3).to.not.be.undefined
+                    expect(bgLayer3?.id).to.eq('test.background.layer')
                 })
             })
         })
@@ -1331,8 +1333,11 @@ describe('Test of layer handling', () => {
             // Wait until the active layers are ready.
             cy.waitUntilState((pinia: Pinia) => {
                 const layersStore = useLayersStore(pinia)
-                return layersStore.activeLayers.some((layer) =>
-                    (layer.type === LayerType.WMS && !layer.isExternal && (layer as GeoAdminWMSLayer).lang === langBefore)
+                return layersStore.activeLayers.some(
+                    (layer) =>
+                        layer.type === LayerType.WMS &&
+                        !layer.isExternal &&
+                        (layer as GeoAdminWMSLayer).lang === langBefore
                 )
             })
 
@@ -1359,7 +1364,12 @@ describe('Test of layer handling', () => {
             // Wait until the active layers are updated.
             cy.waitUntilState((pinia: Pinia) => {
                 const layersStore = useLayersStore(pinia)
-                return layersStore.activeLayers.some((layer) => (layer.type === LayerType.WMS && !layer.isExternal && (layer as GeoAdminWMSLayer).lang === langAfter))
+                return layersStore.activeLayers.some(
+                    (layer) =>
+                        layer.type === LayerType.WMS &&
+                        !layer.isExternal &&
+                        (layer as GeoAdminWMSLayer).lang === langAfter
+                )
             })
 
             // CHECK after

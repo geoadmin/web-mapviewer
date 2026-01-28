@@ -2,24 +2,30 @@
 /**
  * A Tooltip Component using floating-ui
  *
- * This tooltip component can be used by wrapping any element with
+ * The content of the tooltip can be provided in two ways:
  *
- *     <GeoadminTooltip>
- *     <whatever-is-tooltipped /> </GeoadminTooltip>
- *     </GeoadminTooltip>
+ * - By wrapping any element with it
+ * - By providing the slot #content
  *
- * The content of the tooltip can be provided in two ways: Either the slot #content is used:
+ * Or, for simpler cases, the property tooltip-content can be used. The placement is by default
+ * 'top' but can be overridden with the placement prop to 'bottom' / 'left' / 'right'.
  *
- *     <GeoadminTooltip>
- *     <whatever-is-tooltipped /> </GeoadminTooltip>
- *      <template #content>
- *          My Text to be shown,
- *      </template>
- *     </GeoadminTooltip>
+ * @example <caption>Using props to pass the tooltip content</caption>
+ *     ;<SwissGeoTooltip
+ *         tooltip-content="My Text to be shown"
+ *         placement="bottom"
+ *     >
+ *         <whatever-is-tooltipped />
+ *     </SwissGeoTooltip>
  *
- * Or, for simpler cases, the property tooltip-content can be used.
- *
- * The placement is by default 'top' but can be overridden with the placement prop to 'bottom'
+ * @example <caption>Using slot to pass the tooltip content (with HTML tags and possibly interactive elements)</caption>
+ *     ;<SwissGeoTooltip placement="bottom">
+ *         <whatever-is-tooltipped />
+ *         <template #content>
+ *             My complex <strong>text</strong> to be shown
+ *             <button>Do something</button>
+ *         </template>
+ *     </SwissGeoTooltip>
  */
 
 import { arrow, autoUpdate, flip, offset, shift, useFloating } from '@floating-ui/vue'
@@ -34,17 +40,17 @@ const {
     noWrap = false,
     useDefaultPadding = false,
 } = defineProps<{
-    /** @property {tooltipContent} string The text content of the tooltip */
+    /** The text content of the tooltip */
     tooltipContent?: string
-    /** @property {placement} enum The desired placement */
+    /** The desired placement */
     placement?: 'top' | 'bottom' | 'right' | 'left'
-    /** @property {disabled} boolean Disable the tooltip */
+    /** Disable the tooltip */
     disabled?: boolean
-    /** @property {theme} enum The tooltip theme */
+    /** The tooltip theme */
     theme?: 'light' | 'warning' | 'secondary' | 'danger'
-    /** @property {openTrigger} enum How the tooltip shall be triggered */
+    /** How the tooltip shall be triggered */
     openTrigger?: 'hover' | 'click' | 'manual'
-    /** @property {noWrap} boolean If whitespace wrapping the content should be avoided */
+    /** If whitespaces wrapping the content should be avoided */
     noWrap?: boolean
     /** - @property {useDefaultPadding} boolean Use the padding regardless of content slot usage */
     useDefaultPadding?: boolean
@@ -212,8 +218,8 @@ defineExpose({ tooltipElement: tooltipElementRef, isOpen, openTooltip, closeTool
 <template>
     <div
         data-cy="floating-container"
-        class="tw:max-w-full tw:h-auto"
-        :class="{ 'tw:select-none': isTouching }"
+        class="h-auto max-w-full"
+        :class="{ 'select-none': isTouching }"
         @touchstart="onTouchStart"
         @touchmove="onTouchMove"
         @touchend="onTouchEnd"
@@ -232,18 +238,18 @@ defineExpose({ tooltipElement: tooltipElementRef, isOpen, openTooltip, closeTool
                 v-if="isOpen"
                 ref="floatingElement"
                 :style="floatingStyles"
-                class="tw:z-100 tw:border tw:rounded-sm tw:shadow-md"
+                class="z-100 rounded-sm border shadow-md"
                 :class="{
-                    'tw:bg-white tw:border-gray-200': theme === 'light',
-                    'tw:bg-gray-500 tw:border-gray-600 tw:text-white': theme === 'secondary',
-                    'tw:bg-amber-300 tw:border-amber-400': theme === 'warning',
-                    'tw:bg-red-500 tw:border-red-600 tw:text-white': theme === 'danger',
-                    'tw:whitespace-nowrap': noWrap,
+                    'border-gray-200 bg-white': theme === 'light',
+                    'border-gray-600 bg-gray-500 text-white': theme === 'secondary',
+                    'border-amber-400 bg-amber-300': theme === 'warning',
+                    'border-red-600 bg-red-500 text-white': theme === 'danger',
+                    'whitespace-nowrap': noWrap,
                     // if the content slot is used, we delegate the styling to the user
                     // if it's the fallback, then it's a simple tooltip, thus add the padding
                     // if forceExtraPadding is set, we also want the padding
-                    'tw:px-2': !slots.content || useDefaultPadding,
-                    'tw:py-1': !slots.content || useDefaultPadding,
+                    'px-2': !slots.content || useDefaultPadding,
+                    'py-1': !slots.content || useDefaultPadding,
                 }"
                 :data-cy="dataCyValue"
             >
@@ -261,50 +267,50 @@ defineExpose({ tooltipElement: tooltipElementRef, isOpen, openTooltip, closeTool
                         left: `${middlewareData.arrow.x}px`,
                         top: `${middlewareData.arrow.y}px`,
                     }"
-                    class="tw:absolute tw:h-0 tw:w-0 tw:after:content-[''] tw:after:h-0 tw:after:w-0 tw:after:fixed tw:after:top-[inherit] tw:after:left-[inherit] tw:after:z-[-1]"
+                    class="absolute h-0 w-0 after:fixed after:top-[inherit] after:left-[inherit] after:z-[-1] after:h-0 after:w-0 after:content-['']"
                     :class="{
-                        'tw:bottom-[-8px] tw:border-x-8 tw:border-x-transparent tw:border-t-8 tw:after:bottom-[-9px] tw:after:border-x-8 tw:after:border-x-transparent tw:after:border-t-8':
+                        '-bottom-2 border-x-8 border-t-8 border-x-transparent after:-bottom-2.25 after:border-x-8 after:border-t-8 after:border-x-transparent':
                             placement == 'top',
-                        'tw:border-t-white tw:after:border-t-gray-200':
+                        'border-t-white after:border-t-gray-200':
                             placement == 'top' && theme == 'light',
-                        'tw:border-t-gray-500 tw:after:border-t-gray-600':
+                        'border-t-gray-500 after:border-t-gray-600':
                             placement == 'top' && theme == 'secondary',
-                        'tw:border-t-amber-300 tw:after:border-t-amber-400':
+                        'border-t-amber-300 after:border-t-amber-400':
                             placement == 'top' && theme == 'warning',
-                        'tw:border-t-red-500 tw:after:border-t-red-600':
+                        'border-t-red-500 after:border-t-red-600':
                             placement == 'top' && theme == 'danger',
 
-                        'tw:right-[-8px] tw:border-y-8 tw:border-y-transparent tw:border-l-8 tw:after:right-[-9px] tw:after:border-y-8 tw:after:border-y-transparent tw:after:border-l-8':
+                        '-right-2 border-y-8 border-l-8 border-y-transparent after:-right-2.25 after:border-y-8 after:border-l-8 after:border-y-transparent':
                             placement == 'left',
-                        'tw:border-l-white tw:after:border-l-gray-200':
+                        'border-l-white after:border-l-gray-200':
                             placement == 'left' && theme == 'light',
-                        'tw:border-l-gray-500 tw:after:border-l-gray-600':
+                        'border-l-gray-500 after:border-l-gray-600':
                             placement == 'left' && theme == 'secondary',
-                        'tw:border-l-amber-300 tw:after:border-l-amber-400':
+                        'border-l-amber-300 after:border-l-amber-400':
                             placement == 'left' && theme == 'warning',
-                        'tw:border-l-red-500 tw:after:border-l-red-600':
+                        'border-l-red-500 after:border-l-red-600':
                             placement == 'left' && theme == 'danger',
 
-                        'tw:top-[-8px] tw:border-x-8 tw:border-x-transparent tw:border-b-8 tw:after:top-[-9px] tw:after:border-x-8 tw:after:border-x-transparent tw:after:border-b-8':
+                        '-top-2 border-x-8 border-b-8 border-x-transparent after:-top-2.25 after:border-x-8 after:border-b-8 after:border-x-transparent':
                             placement == 'bottom',
-                        'tw:border-b-white tw:after:border-b-gray-200':
+                        'border-b-white after:border-b-gray-200':
                             placement == 'bottom' && theme == 'light',
-                        'tw:border-b-gray-500 tw:after:border-b-gray-600':
+                        'border-b-gray-500 after:border-b-gray-600':
                             placement == 'bottom' && theme == 'secondary',
-                        'tw:border-b-amber-300 tw:after:border-b-amber-400':
+                        'border-b-amber-300 after:border-b-amber-400':
                             placement == 'bottom' && theme == 'warning',
-                        'tw:border-b-red-500 tw:after:border-b-red-600':
+                        'border-b-red-500 after:border-b-red-600':
                             placement == 'bottom' && theme == 'danger',
 
-                        'tw:left-[-8px] tw:border-y-8 tw:border-y-transparent tw:border-r-8 tw:after:left-[-9px] tw:after:border-y-8 tw:after:border-y-transparent tw:after:border-r-8':
+                        '-left-2 border-y-8 border-r-8 border-y-transparent after:-left-2.25 after:border-y-8 after:border-r-8 after:border-y-transparent':
                             placement == 'right',
-                        'tw:border-r-white tw:after:border-r-gray-200':
+                        'border-r-white after:border-r-gray-200':
                             placement == 'right' && theme == 'light',
-                        'tw:border-r-gray-500 tw:after:border-r-gray-600':
+                        'border-r-gray-500 after:border-r-gray-600':
                             placement == 'right' && theme == 'secondary',
-                        'tw:border-r-amber-300 tw:after:border-r-amber-400':
+                        'border-r-amber-300 after:border-r-amber-400':
                             placement == 'right' && theme == 'warning',
-                        'tw:border-r-red-500 tw:after:border-r-red-600':
+                        'border-r-red-500 after:border-r-red-600':
                             placement == 'right' && theme == 'danger',
                     }"
                 ></div>

@@ -146,7 +146,7 @@ function refreshCache() {
                 <div class="mt-1">{{ tooltipContent }}</div>
             </div>
         </template>
-        <div class="tw:flex tw:gap-1 tw:justify-around tw:items-center tw:p-1">
+        <div class="flex items-center justify-around gap-1 p-1">
             <small
                 v-if="withText"
                 class="bg-secondary text-light fw-bold rounded p-1"
@@ -160,7 +160,7 @@ function refreshCache() {
                 />
                 <FontAwesomeIcon
                     icon="slash"
-                    class="tw:text-red-600"
+                    class="text-red-600"
                     transform="up-1"
                 />
             </FontAwesomeLayers>
@@ -173,7 +173,7 @@ function refreshCache() {
             <FontAwesomeIcon
                 :icon="statusIcon"
                 :spin="shouldStatusIconSpin"
-                :class="{ 'tw:text-lime-500': offlineReady, 'tw:text-amber-500': needRefresh }"
+                :class="{ 'text-lime-500': offlineReady, 'text-amber-500': needRefresh }"
                 size="sm"
             />
             <span v-if="withText && !offlineReady && !needRefresh">

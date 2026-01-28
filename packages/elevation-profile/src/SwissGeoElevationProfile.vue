@@ -162,17 +162,17 @@ function onCSVDownload() {
 <template>
     <div
         data-cy="profile-popup-content"
-        class="tw:flex tw:h-auto tw:min-h-[200px] tw:flex-col tw:p-2"
+        class="flex h-auto min-h-50 flex-col p-2"
     >
         <div v-if="!hasData && profileRequestError">
             <span
-                class="tw:font-bold tw:flex tw:items-center tw:gap-1"
+                class="flex items-center gap-1 font-bold"
                 data-cy="profile-error-message"
             >
                 <FontAwesomeIcon
                     icon="exclamation-triangle"
                     size="2x"
-                    class="tw:text-amber-500"
+                    class="text-amber-500"
                 />
                 {{ t(profileRequestError.message) }}
             </span>
@@ -189,7 +189,7 @@ function onCSVDownload() {
         >
             <SwissGeoTooltip :tooltip-content="t('profile_invert')">
                 <button
-                    class="tw:bg-neutral-100 tw:hover:bg-neutral-200 tw:border tw:rounded tw:border-neutral-400 tw:print:hidden tw:min-w-[2.5rem] tw:h-full tw:cursor-pointer"
+                    class="h-full min-w-10 cursor-pointer rounded border border-neutral-400 bg-neutral-100 hover:bg-neutral-200 print:hidden"
                     @click="revertProfileDirection"
                 >
                     <FontAwesomeIcon icon="shuffle" />
@@ -197,7 +197,7 @@ function onCSVDownload() {
             </SwissGeoTooltip>
             <SwissGeoTooltip :tooltip-content="t('profile_download_csv')">
                 <button
-                    class="tw:bg-neutral-100 tw:hover:bg-neutral-200 tw:border tw:rounded tw:border-neutral-400 tw:print:hidden tw:min-w-[2.5rem] tw:h-full tw:cursor-pointer"
+                    class="h-full min-w-10 cursor-pointer rounded border border-neutral-400 bg-neutral-100 hover:bg-neutral-200 print:hidden"
                     data-cy="profile-popup-csv-download-button"
                     @click="onCSVDownload"
                 >
