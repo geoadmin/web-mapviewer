@@ -52,6 +52,9 @@
             "sharp",
             "vue-demi"
         ],
+        "patchedDependencies": {
+            "@geoblocks/mapfishprint@0.2.22": "patches/@geoblocks__mapfishprint@0.2.22.patch"
+        },
         "ignoredBuiltDependencies": [
             "core-js",
             "cypress",

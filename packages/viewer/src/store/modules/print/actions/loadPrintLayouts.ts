@@ -1,8 +1,9 @@
-import { printAPI } from '@swissgeo/api'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
 import type { PrintStore } from '@/store/modules/print/types'
 import type { ActionDispatcher } from '@/store/types'
+
+import { printAPI } from '@/utils/print/print.api'
 
 export default function loadPrintLayouts(this: PrintStore, dispatcher: ActionDispatcher): void {
     printAPI

@@ -22,12 +22,12 @@ import OpenLayersRectangleSelectionFeedback from '@/modules/map/components/openl
 import OpenLayersSelectionRectangle from '@/modules/map/components/openlayers/OpenLayersSelectionRectangle.vue'
 import OpenLayersVisibleLayers from '@/modules/map/components/openlayers/OpenLayersVisibleLayers.vue'
 import useMapInteractions from '@/modules/map/components/openlayers/utils/useMapInteractions.composable'
-import usePrintAreaRenderer from '@/modules/map/components/openlayers/utils/usePrintAreaRenderer.composable'
 import useViewBasedOnProjection from '@/modules/map/components/openlayers/utils/useViewBasedOnProjection.composable'
 import useDebugStore from '@/store/modules/debug'
 import useGeolocationStore from '@/store/modules/geolocation'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
+import usePrintAreaRenderer from '@/utils/print/usePrintAreaRenderer.composable'
 
 const dispatcher: ActionDispatcher = { name: 'OpenLayersMap.vue' }
 
