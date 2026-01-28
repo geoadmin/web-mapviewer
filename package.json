@@ -56,7 +56,8 @@
             "vue-demi"
         ],
         "patchedDependencies": {
-            "ol@10.7.0": "patches/ol@10.7.0.patch"
+            "ol@10.7.0": "patches/ol@10.7.0.patch",
+            "@geoblocks/mapfishprint@0.2.22": "patches/@geoblocks__mapfishprint@0.2.22.patch"
         },
         "ignoredBuiltDependencies": [
             "core-js",

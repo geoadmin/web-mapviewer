@@ -431,6 +431,9 @@ catalogs:
       version: 18.0.0
 
 patchedDependencies:
+  '@geoblocks/mapfishprint@0.2.22':
+    hash: c73cd18109ae4f8f81acffd559a6cc00ea9c6142d6ab452a3ba1c564a3b49624
+    path: patches/@geoblocks__mapfishprint@0.2.22.patch
   ol@10.7.0:
     hash: c45d557dbcd90a243829dc2bfff07b642daeec88f138b1adb39e540e8c1ed3a4
     path: patches/ol@10.7.0.patch
@@ -474,7 +477,7 @@ importers:
     dependencies:
       '@geoblocks/mapfishprint':
         specifier: 'catalog:'
-        version: 0.2.22(ol@10.7.0(patch_hash=c45d557dbcd90a243829dc2bfff07b642daeec88f138b1adb39e540e8c1ed3a4))
+        version: 0.2.22(patch_hash=c73cd18109ae4f8f81acffd559a6cc00ea9c6142d6ab452a3ba1c564a3b49624)(ol@10.7.0(patch_hash=c45d557dbcd90a243829dc2bfff07b642daeec88f138b1adb39e540e8c1ed3a4))
       '@swissgeo/coordinates':
         specifier: workspace:*
         version: link:../coordinates
@@ -1299,7 +1302,7 @@ importers:
         version: 0.6.0(@cesium/engine@22.2.0)
       '@geoblocks/mapfishprint':
         specifier: 'catalog:'
-        version: 0.2.22(ol@10.7.0(patch_hash=c45d557dbcd90a243829dc2bfff07b642daeec88f138b1adb39e540e8c1ed3a4))
+        version: 0.2.22(patch_hash=c73cd18109ae4f8f81acffd559a6cc00ea9c6142d6ab452a3ba1c564a3b49624)(ol@10.7.0(patch_hash=c45d557dbcd90a243829dc2bfff07b642daeec88f138b1adb39e540e8c1ed3a4))
       '@geoblocks/ol-maplibre-layer':
         specifier: 'catalog:'
         version: 1.0.3(maplibre-gl@5.16.0)(ol@10.7.0(patch_hash=c45d557dbcd90a243829dc2bfff07b642daeec88f138b1adb39e540e8c1ed3a4))
@@ -9861,7 +9864,7 @@ snapshots:
       '@cesium/engine': 22.2.0
       lit: 3.2.1
 
-  '@geoblocks/mapfishprint@0.2.22(ol@10.7.0(patch_hash=c45d557dbcd90a243829dc2bfff07b642daeec88f138b1adb39e540e8c1ed3a4))':
+  '@geoblocks/mapfishprint@0.2.22(patch_hash=c73cd18109ae4f8f81acffd559a6cc00ea9c6142d6ab452a3ba1c564a3b49624)(ol@10.7.0(patch_hash=c45d557dbcd90a243829dc2bfff07b642daeec88f138b1adb39e540e8c1ed3a4))':
     dependencies:
       ol: 10.7.0(patch_hash=c45d557dbcd90a243829dc2bfff07b642daeec88f138b1adb39e540e8c1ed3a4)
     optionalDependencies:

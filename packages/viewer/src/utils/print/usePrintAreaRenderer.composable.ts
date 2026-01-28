@@ -5,7 +5,6 @@ import type RenderEvent from 'ol/render/Event'
 import type { Size } from 'ol/size'
 import type { MaybeRef, WatchHandle } from 'vue'
 
-import { PrintError } from '@swissgeo/api'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { DEVICE_PIXEL_RATIO } from 'ol/has'
 import VectorLayer from 'ol/layer/Vector'
@@ -18,6 +17,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import usePrintStore from '@/store/modules/print'
 import useUIStore from '@/store/modules/ui'
+import { PrintError } from '@/utils/print/print.api'
 
 const dispatcher: ActionDispatcher = { name: 'print-area-renderer.composable' }
 
