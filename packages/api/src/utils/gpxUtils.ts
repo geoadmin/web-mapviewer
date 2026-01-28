@@ -58,7 +58,7 @@ function parseGpx(gpxData: string, projection: CoordinateSystem): Feature[] | un
     })
     features.forEach((feature) => {
         const geom = feature.getGeometry()
-        if (geom && geom.getType() in styleUtils.gpxStyles) {
+        if (geom) {
             feature.setStyle(styleUtils.gpxStyles[geom.getType()])
         }
     })
