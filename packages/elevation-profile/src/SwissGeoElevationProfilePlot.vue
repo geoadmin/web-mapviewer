@@ -4,7 +4,6 @@ import type {
     ElevationProfileMetadata,
     ElevationProfilePoint,
 } from '@swissgeo/api'
-import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type { SupportedLocales } from '@swissgeo/staging-config'
 import type {
     ChartData,
@@ -35,14 +34,6 @@ import { BORDER_COLOR, FILL_COLOR } from '@/config'
 import type { VueI18nTranslateFunction } from '../types/vue-i18n'
 
 const GAP_BETWEEN_TOOLTIP_AND_PROFILE = 12 // px
-
-export type PointBeingHovered = {
-    elevation: number
-    dist: number
-    coordinates: SingleCoordinate[]
-    screenPosition: SingleCoordinate[]
-    hasElevationData: boolean
-}
 
 export type ScreenPoint = ElevationProfilePoint & {
     screenPosition: [number, number]
@@ -422,7 +413,7 @@ function resizeChart() {
 <template>
     <div
         ref="profileChartContainer"
-        class="tw:flex tw:grow tw:overflow-hidden tw:min-h-100px tw:p-2"
+        class="min-h-100px flex grow overflow-hidden p-2"
         @mouseenter="startPositionTracking"
         @mouseleave="stopPositionTracking"
     >
@@ -431,7 +422,7 @@ function resizeChart() {
             ref="chart"
             :data="chartJsData"
             :options="chartJsOptions"
-            class="tw:min-w-full"
+            class="min-w-full"
             data-cy="profile-graph"
             @mouseleave="clearHoverPosition"
             @contextmenu.prevent="resetZoomToBaseValue"
@@ -439,13 +430,13 @@ function resizeChart() {
     </div>
     <div
         ref="profileTooltip"
-        class="tw:fixed tw:bg-white tw:border tw:rounded tw:py-1 tw:px-2"
+        class="fixed rounded border bg-white px-2 py-1"
         :style="tooltipStyle"
         data-cy="profile-popup-tooltip"
     >
         <div
             v-if="pointBeingHovered && pointBeingHovered.hasElevationData"
-            class="tw:p-1 tw:m-auto"
+            class="m-auto p-1"
         >
             <div>
                 <small>

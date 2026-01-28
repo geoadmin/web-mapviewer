@@ -84,10 +84,10 @@ const metadataEntries = computed(() => {
 </script>
 
 <template>
-    <div class="tw:flex tw:gap-1 tw:p-1">
+    <div class="flex gap-1 p-1">
         <div
             v-if="metadata.hasElevationData"
-            class="tw:flex tw:border tw:rounded tw:border-neutral-300 tw:p-1 tw:py-2 tw:md:p-2 tw:md:py-3 tw:overflow-x-auto tw:gap-2"
+            class="flex gap-2 overflow-x-auto rounded border border-neutral-300 p-1 py-2 md:p-2 md:py-3"
             data-cy="profile-popup-info-container"
         >
             <GeoadminTooltip
@@ -96,10 +96,9 @@ const metadataEntries = computed(() => {
                 :tooltip-content="t(data.title)"
             >
                 <small
-                    class="tw:text-nowrap tw:flex tw:gap-1 tw:items-center"
+                    class="flex items-center gap-1 text-nowrap"
                     :class="{
-                        'tw:pe-2 tw:border-r-1 tw:border-neutral-300':
-                            index !== metadataEntries.length - 1,
+                        'border-r-1 border-neutral-300 pe-2': index !== metadataEntries.length - 1,
                     }"
                     :data-cy="`profile-popup-info-${data.title}`"
                 >
@@ -114,7 +113,7 @@ const metadataEntries = computed(() => {
                 </small>
             </GeoadminTooltip>
         </div>
-        <div class="tw:flex tw:gap-1">
+        <div class="flex gap-1">
             <slot />
         </div>
     </div>

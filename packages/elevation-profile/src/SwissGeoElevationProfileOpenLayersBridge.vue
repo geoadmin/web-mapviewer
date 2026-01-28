@@ -69,7 +69,7 @@ function removeHoverPositionOverlay() {
 <template>
     <div
         ref="tooltipElement"
-        class="tw:size-5 tw:bg-red-500/75 tw:border-3 tw:border-red-600 tw:rounded-full"
+        class="size-5 rounded-full border-3 border-red-600 bg-red-500/75"
     ></div>
     <slot />
 </template>
