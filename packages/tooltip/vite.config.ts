@@ -4,7 +4,6 @@ import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import dts from 'unplugin-dts/vite'
-import { fileURLToPath, URL } from 'url'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
@@ -27,7 +26,7 @@ const config: UserConfig = {
     },
     resolve: {
         alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url)),
+            '@': resolve(__dirname, 'src'),
         },
     },
     plugins: [

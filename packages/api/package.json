@@ -38,8 +38,7 @@
         "form-data": "catalog:",
         "jszip": "catalog:",
         "lodash": "catalog:",
-        "luxon": "catalog:",
-        "pako": "catalog:"
+        "luxon": "catalog:"
     },
     "devDependencies": {
         "@intlify/core-base": "catalog:",
@@ -63,8 +62,12 @@
         "vue-tsc": "catalog:"
     },
     "peerDependencies": {
+        "@swissgeo/layers": "workspace:*",
+        "@swissgeo/log": "workspace:*",
+        "@swissgeo/staging-config": "workspace:*",
         "axios": "catalog:",
         "ol": "catalog:",
+        "pako": "catalog:",
         "proj4": "catalog:"
     }
 }

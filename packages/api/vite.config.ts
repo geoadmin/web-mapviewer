@@ -2,7 +2,6 @@ import type { UserConfig } from 'vite'
 
 import { resolve } from 'path'
 import dts from 'unplugin-dts/vite'
-import { fileURLToPath, URL } from 'url'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 const config: UserConfig = {
@@ -16,20 +15,21 @@ const config: UserConfig = {
         },
         rollupOptions: {
             // Externalize peer dependencies so they use the host application's instances
-            external: ['axios', 'ol', 'proj4', '@swissgeo/log'],
-            output: {
-                exports: 'named',
-                globals: {
-                    axios: 'axios',
-                    ol: 'ol',
-                    proj4: 'proj4',
-                },
-            },
+            external: [
+                'axios',
+                'ol',
+                'pako',
+                'proj4',
+                '@swissgeo/layers',
+                '@swissgeo/layers/utils',
+                '@swissgeo/log',
+                '@swissgeo/staging-config',
+            ],
         },
     },
     resolve: {
         alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url)),
+            '@': resolve(__dirname, 'src'),
         },
     },
     plugins: [
