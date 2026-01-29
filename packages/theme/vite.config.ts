@@ -1,14 +1,12 @@
 import type { UserConfig } from 'vite'
 
 import tailwindcss from '@tailwindcss/vite'
-import { dirname, resolve } from 'path'
+import { resolve } from 'path'
 import dts from 'unplugin-dts/vite'
-import { fileURLToPath, URL } from 'url'
 import { normalizePath } from 'vite'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
-const __dirname: string = dirname(fileURLToPath(import.meta.url))
 const config: UserConfig = {
     build: {
         lib: {
@@ -24,6 +22,7 @@ const config: UserConfig = {
                 'bootstrap',
                 'tailwindcss',
                 'stylelint',
+                'ol',
             ],
         },
     },
@@ -38,7 +37,7 @@ const config: UserConfig = {
     },
     resolve: {
         alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url)),
+            '@': resolve(__dirname, 'src'),
         },
     },
     plugins: [

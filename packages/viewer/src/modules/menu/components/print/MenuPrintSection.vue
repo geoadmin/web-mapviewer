@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import type { PrintLayout } from '@swissgeo/api'
-
-import { PrintError } from '@swissgeo/api'
 import log from '@swissgeo/log'
 import { formatThousand } from '@swissgeo/numbers'
 import Map from 'ol/Map'
@@ -10,16 +7,15 @@ import { useI18n } from 'vue-i18n'
 
 import type { ActionDispatcher } from '@/store/types'
 import type { DropdownItem } from '@/utils/components/DropdownButton.vue'
+import type { PrintLayout } from '@/utils/print/types'
 
-import {
-    PrintStatus,
-    usePrint,
-} from '@/modules/map/components/openlayers/utils/usePrint.composable'
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import useLayersStore from '@/store/modules/layers'
 import usePrintStore from '@/store/modules/print'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
 import ProgressBar from '@/utils/components/ProgressBar.vue'
+import { PrintError } from '@/utils/print/print.api'
+import { PrintStatus, usePrint } from '@/utils/print/usePrint.composable'
 import { downloadFile, generateFilename } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'MapPrintSection.vue' }
@@ -191,7 +187,7 @@ defineExpose({
                 id="print-layout-selector"
                 :title="formatTitle(selectedLayout?.name)"
                 :items="availablePrintLayouts"
-                :current-value="selectedLayout?.name"
+                :current-value="selectedLayout"
                 data-cy="print-layout-selector"
                 @select-item="selectPrintLayout"
             />

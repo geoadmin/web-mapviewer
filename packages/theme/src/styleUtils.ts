@@ -1,7 +1,7 @@
+import type { Type as GeometryType } from 'ol/geom/Geometry'
 import type { StyleLike } from 'ol/style/Style'
 
 import { Circle, Fill, RegularShape, Stroke, Style } from 'ol/style'
-import CircleStyle from 'ol/style/Circle'
 
 import colors from '@/colors'
 
@@ -98,10 +98,19 @@ const tooltipArrow = new RegularShape({
     displacement: [0, 10],
 })
 
-const gpxStyles: { [key: string]: StyleLike } = {
-    Point: new Style({ image: redCircleStyle }),
-    LineString: new Style({ stroke: gpxStrokeStyle, fill: redFill }),
-    MultiLineString: new Style({ stroke: gpxStrokeStyle, fill: redFill }),
+const gpxPointStyle = new Style({ image: redCircleStyle })
+const gpxLineStyle = new Style({ stroke: gpxStrokeStyle, fill: redFill })
+
+const gpxStyles: Record<GeometryType, StyleLike | undefined> = {
+    Circle: gpxPointStyle,
+    GeometryCollection: undefined,
+    LineString: gpxLineStyle,
+    LinearRing: undefined,
+    Point: gpxPointStyle,
+    MultiLineString: gpxLineStyle,
+    MultiPoint: gpxPointStyle,
+    MultiPolygon: gpxLineStyle,
+    Polygon: gpxLineStyle,
 }
 
 const geolocationPointWidth = 10
@@ -110,7 +119,7 @@ const geolocationPointBorderWidth = STROKE_WIDTH
 const geolocationPointBorderColor = hexToRgba(white, 1.0)
 
 const geolocationPointStyle = new Style({
-    image: new CircleStyle({
+    image: new Circle({
         radius: geolocationPointWidth,
         fill: new Fill({
             color: geolocationPointFillColor,
@@ -160,7 +169,7 @@ const hoveredLinePolygonStyle = new Style({
     zIndex: StyleZIndex.OnTop,
 })
 const hoveredPointStyle = new Style({
-    image: new CircleStyle({
+    image: new Circle({
         radius: 10,
         fill: hoveredFill,
         stroke: hoveredStroke,
@@ -173,7 +182,7 @@ const highlightedLinePolygonStyle = new Style({
     stroke: highlightedStroke,
 })
 const highlightPointStyle = new Style({
-    image: new CircleStyle({
+    image: new Circle({
         radius: 10,
         fill: highlightedFill,
         stroke: highlightedStroke,

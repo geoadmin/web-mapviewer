@@ -2,7 +2,6 @@ import type { UserConfig } from 'vite'
 
 import { resolve } from 'path'
 import dts from 'unplugin-dts/vite'
-import { fileURLToPath, URL } from 'url'
 
 const config: UserConfig = {
     build: {
@@ -19,7 +18,7 @@ const config: UserConfig = {
     },
     resolve: {
         alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url)),
+            '@': resolve(__dirname, 'src'),
         },
     },
     plugins: [

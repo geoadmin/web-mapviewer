@@ -15,9 +15,9 @@ function toggleManualTooltip() {
 </script>
 
 <template>
-    <div class="tw:p-4">
-        <strong class="tw:text-2xl">Themes</strong>
-        <div class="tw:my-2 tw:grid tw:grid-cols-3 tw:gap-3 tw:justify-items-center">
+    <div class="p-4">
+        <strong class="text-2xl">Themes</strong>
+        <div class="my-2 grid grid-cols-3 justify-items-center gap-3">
             <SwissGeoTooltip tooltip-content="Default theme">
                 <span>Default theme</span>
             </SwissGeoTooltip>
@@ -46,8 +46,8 @@ function toggleManualTooltip() {
                 <span>Danger theme</span>
             </SwissGeoTooltip>
         </div>
-        <strong class="tw:text-2xl">Placements</strong>
-        <div class="tw:my-2 tw:grid tw:grid-cols-4 tw:gap-3 tw:justify-items-center">
+        <strong class="text-2xl">Placements</strong>
+        <div class="my-2 grid grid-cols-4 justify-items-center gap-3">
             <SwissGeoTooltip
                 tooltip-content="Top placement"
                 placement="top"
@@ -162,12 +162,12 @@ function toggleManualTooltip() {
             </SwissGeoTooltip>
         </div>
         <strong
-            class="tw:text-2xl"
+            class="text-2xl"
             @click="toggleManualTooltip"
         >
             Triggers
         </strong>
-        <div class="tw:my-2 tw:grid tw:grid-cols-3 tw:gap-3 tw:justify-items-center">
+        <div class="my-2 grid grid-cols-3 justify-items-center gap-3">
             <SwissGeoTooltip tooltip-content="Default trigger"> Default trigger </SwissGeoTooltip>
             <SwissGeoTooltip
                 tooltip-content="Hover trigger"

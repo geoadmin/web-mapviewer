@@ -7,7 +7,6 @@ const LogColorPerService = {
     height: LogPreDefinedColor.Orange,
     icons: LogPreDefinedColor.Lime,
     lv03Reframe: LogPreDefinedColor.Zinc,
-    print: LogPreDefinedColor.Emerald,
     profile: LogPreDefinedColor.Teal,
     qrCode: LogPreDefinedColor.Purple,
 }

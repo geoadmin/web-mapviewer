@@ -4,8 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import vue from '@vitejs/plugin-vue'
 import gitDescribe from 'git-describe'
-import { dirname } from 'path'
-import { fileURLToPath, URL } from 'url'
+import { resolve } from 'path'
 import { defineConfig, normalizePath } from 'vite'
 import ConditionalCompile from 'vite-plugin-conditional-compiler'
 import { VitePWA } from 'vite-plugin-pwa'
@@ -25,7 +24,6 @@ const appVersion: string =
     // We therefore swap the '+' sign with '-' for simplification.
     `v${gitDescribe.gitDescribeSync().semverString?.replace('+', '-')}`
 
-const __dirname: string = dirname(fileURLToPath(import.meta.url))
 const cesiumFolder: string = `${__dirname}/node_modules/cesium/`
 const cesiumSource: string = `${cesiumFolder}Source/`
 
@@ -215,10 +213,13 @@ export default defineConfig((configEnv: ConfigEnv): UserConfig => {
         plugins: generatePlugins(pluginMode, isTesting),
         resolve: {
             alias: {
-                '@': fileURLToPath(new URL('./src', import.meta.url)),
-                tests: fileURLToPath(new URL('./tests', import.meta.url)),
+                '@': resolve(__dirname, 'src'),
+                tests: resolve(__dirname, 'tests'),
                 cesium: normalizePath(cesiumFolder),
+                // making sure we share one OpenLayers instance throughout all libs requiring it
+                ol: resolve(__dirname, 'node_modules/ol'),
             },
+            dedupe: ['ol'],
         },
         // see https://vite.dev/config/#using-environment-variables-in-config
         define: {

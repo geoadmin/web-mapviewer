@@ -1,3 +1,5 @@
+import type { Staging } from '@swissgeo/staging-config'
+
 import log from '@swissgeo/log'
 import { getViewerDedicatedServicesBaseUrl } from '@swissgeo/staging-config'
 import axios from 'axios'
@@ -9,24 +11,20 @@ const logConfig = {
     titleColor: LogColorPerService.qrCode,
 }
 
-/**
- * Generates a URL to generate a QR Code for a URL
- *
- * @param url The URL we want to QR-Codify
- * @returns The URL to generate the QR Code
- */
-function generateQRCodeUrl(url: string): string {
+/** Generates a URL to generate a QR Code for a URL */
+function generateQRCodeUrl(url: string, staging: Staging = 'production'): string {
     const encodedUrl = encodeURIComponent(url)
-    return `${getViewerDedicatedServicesBaseUrl()}qrcode/generate?url=${encodedUrl}`
+    return `${getViewerDedicatedServicesBaseUrl(staging)}qrcode/generate?url=${encodedUrl}`
 }
 
 /**
  * Generates a QR Code that, when scanned by mobile devices, open the URL given in parameters
  *
  * @param url The URL we want to QR-Codify
+ * @param [staging] On which backend to run the request
  * @returns A promise that will resolve with the image (QR-Code) in PNG format (byte)
  */
-const generateQrCodeImage = (url: string): Promise<string> => {
+const generateQrCodeImage = (url: string, staging: Staging = 'production'): Promise<string> => {
     return new Promise((resolve, reject) => {
         try {
             new URL(url)
@@ -39,7 +37,7 @@ const generateQrCodeImage = (url: string): Promise<string> => {
             reject(new Error(errorMessage))
         }
         axios
-            .get(generateQRCodeUrl(url), {
+            .get(generateQRCodeUrl(url, staging), {
                 responseType: 'arraybuffer',
             })
             .then((image) => {

@@ -103,7 +103,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="tw:absolute tw:top-0 tw:left-0 tw:w-full tw:h-full grid grid-rows-2">
+    <div class="absolute top-0 left-0 grid h-full w-full grid-rows-2">
         <SwissGeoElevationProfile
             :locale="'de'"
             :title="'test'"
@@ -111,7 +111,7 @@ onMounted(() => {
                 [2500000, 1000000],
                 [2800000, 1400000],
             ]"
-            :projection="'ESPG:2056'"
+            :projection="LV95.epsg"
         >
             <SwissGeoElevationProfileOpenLayersBridge
                 v-if="olMap"
@@ -123,11 +123,11 @@ onMounted(() => {
                 :input-projection="LV95"
             />
         </SwissGeoElevationProfile>
-        <div class="tw:grid tw:grow tw:grid-cols-2">
+        <div class="grid grow grid-cols-2">
             <div id="ol-map"></div>
             <div
                 id="cesium-map"
-                class="tw:relative tw:top-0 tw:left-0 tw:w-full tw:h-full"
+                class="relative top-0 left-0 h-full w-full"
             ></div>
         </div>
     </div>

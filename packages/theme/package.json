@@ -1,6 +1,6 @@
 {
     "name": "@swissgeo/theme",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Shared SCSS variable and theme utilities to setup BootstrapCSS/TailwindCSS within SWISSGEO/geoadmin's projects",
     "repository": {
         "type": "git",

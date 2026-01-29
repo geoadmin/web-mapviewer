@@ -19,18 +19,36 @@ const mockExternalWms1 = layerUtils.makeExternalWMSLayer({
     customAttributes: {
         item: 'MyItem',
     },
+    legends: [
+        {
+            url: 'https://fake.wms.base-1.url/?SERVICE=WMS&REQUEST=GetLegendGraphic&VERSION=1.3.0&FORMAT=image%2Fpng&LAYER=ch.swisstopo-vd.official-survey&SLD_VERSION=1.1.0',
+            format: 'image/png',
+        },
+    ],
 })
 const mockExternalWms2 = layerUtils.makeExternalWMSLayer({
     id: 'Periodic Tracking, with | comma & @ ; äö',
     name: 'Periodic Tracking, with | comma & @ ; äö',
     baseUrl: 'https://fake.wms.base-1.url/?',
     opacity: 0.8,
+    legends: [
+        {
+            url: 'https://wms.geo.admin.ch/?version=1.3.0&service=WMS&request=GetLegendGraphic&sld_version=1.1.0&layer=ch.swisstopo-vd.geometa-periodische_nachfuehrung&format=image/png&STYLE=default',
+            format: 'image/png',
+        },
+    ],
 })
 const mockExternalWms3 = layerUtils.makeExternalWMSLayer({
     id: 'ch.swisstopo-vd.spannungsarme-gebiete-2',
     name: 'Spannungsarme Gebiete 2',
     baseUrl: 'https://fake.wms.base-2.url/?',
     isVisible: false,
+    legends: [
+        {
+            url: 'https://wms.geo.admin.ch/?version=1.3.0&service=WMS&request=GetLegendGraphic&sld_version=1.1.0&layer=ch.swisstopo-vd.spannungsarme-gebiete&format=image/png&STYLE=default',
+            format: 'image/png',
+        },
+    ],
 })
 const mockExternalWms4 = layerUtils.makeExternalWMSLayer({
     id: 'ch.swisstopo-vd.stand-oerebkataster-2',
@@ -38,6 +56,12 @@ const mockExternalWms4 = layerUtils.makeExternalWMSLayer({
     baseUrl: 'https://fake.wms.base-2.url/?',
     isVisible: false,
     opacity: 0.4,
+    legends: [
+        {
+            url: 'https://wms.geo.admin.ch/?version=1.3.0&service=WMS&request=GetLegendGraphic&sld_version=1.1.0&layer=ch.swisstopo-vd.stand-oerebkataster&format=image/png&STYLE=default',
+            format: 'image/png',
+        },
+    ],
 })
 
 Cypress.Commands.add('getExternalWmsMockConfig', () =>

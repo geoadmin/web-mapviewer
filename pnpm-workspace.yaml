@@ -6,11 +6,11 @@ autoInstallPeers: true
 
 catalog:
     '@4tw/cypress-drag-drop': ^2.3.1
-    '@cypress/vite-dev-server': ^7.1.0
+    '@cypress/vite-dev-server': ^7.2.0
     '@cypress/vue': ^6.0.2
     '@eslint/js': ^9.39.2
     '@eslint/markdown': ^7.5.1
-    '@floating-ui/vue': ^1.1.9
+    '@floating-ui/vue': ^1.1.10
     '@fontsource/noto-sans': ^5.2.10
     '@fortawesome/fontawesome-svg-core': ^7.1.0
     '@fortawesome/free-brands-svg-icons': ^7.1.0
@@ -32,31 +32,31 @@ catalog:
     '@tailwindcss/vite': ^4.1.18
     '@tmcw/togeojson': ^7.1.2
     '@tsconfig/node22': ^22.0.5
-    '@turf/turf': ^7.3.2
+    '@turf/turf': ^7.3.3
     '@types/bootstrap': ^5.2.10
     '@types/chai': ^5.2.3
     '@types/geojson': ^7946.0.16
     '@types/jsdom': ^27.0.0
     '@types/lodash': ^4.17.23
     '@types/luxon': ^3.7.1
-    '@types/node': 25.0.8
+    '@types/node': 25.0.10
     '@types/openlayers': ^4.6.23
     '@types/pako': ^2.0.4
     '@types/sortablejs': ^1.15.9
     '@types/yargs': ^17.0.35
-    '@typescript-eslint/utils': ^8.53.0
+    '@typescript-eslint/utils': ^8.54.0
     '@vite-pwa/assets-generator': ^1.0.2
-    '@vitejs/plugin-basic-ssl': ^2.1.3
+    '@vitejs/plugin-basic-ssl': ^2.1.4
     '@vitejs/plugin-vue': ^6.0.3
     '@vue/eslint-config-prettier': ^10.2.0
     '@vue/eslint-config-typescript': ^14.6.0
-    '@vue/language-core': 3.2.2
+    '@vue/language-core': 3.2.4
     '@vue/test-utils': ^2.4.6
     '@vue/tsconfig': ^0.8.1
     '@vueuse/core': ^14.1.0
     '@xmldom/xmldom': ^0.8.11
     animate.css: ^4.1.1
-    axios: ^1.13.2
+    axios: ^1.13.4
     axios-retry: ^4.5.0
     bootstrap: ^5.3.8
     cesium: ^1.137.0
@@ -77,23 +77,23 @@ catalog:
     eslint-plugin-cypress: ^5.2.1
     eslint-plugin-import: ^2.32.0
     eslint-plugin-mocha: ^11.2.0
-    eslint-plugin-perfectionist: ^5.3.1
+    eslint-plugin-perfectionist: ^5.4.0
     eslint-plugin-prettier: ^5.5.5
-    eslint-plugin-vue: ^10.6.2
+    eslint-plugin-vue: ^10.7.0
     form-data: ^4.0.5
     geographiclib-geodesic: ^2.2.0
-    geotiff: ^2.1.4-beta.1
+    geotiff: ^3.0.0
     git-describe: ^4.1.1
     gitconfig: ^2.0.8
-    globals: ^17.0.0
-    googleapis: ^170.0.0
+    globals: ^17.2.0
+    googleapis: ^170.1.0
     hammerjs: ^2.0.8
-    jquery: ^3.7.1
+    jquery: ^4.0.0
     jsdom: ^27.4.0
     jszip: ^3.10.1
-    lodash: ^4.17.21
+    lodash: ^4.17.23
     luxon: ^3.7.2
-    maplibre-gl: ^5.16.0
+    maplibre-gl: ^5.17.0
     mime-types: ^3.0.2
     mocha-junit-reporter: ^2.2.1
     ol: ^10.7.0
@@ -101,45 +101,47 @@ catalog:
     pinia: ^3.0.4
     pinia-logger: ^1.3.14
     postcss-html: ^1.8.1
-    prettier: ^3.7.4
+    prettier: ^3.8.1
     # prettier-plugin-jsdoc 1.6+ creates many "Max call stack size exceeded" errors when used in tandem with prettier-plugin-tailwindcss
     # waiting for a fix, see https://github.com/hosseinmd/prettier-plugin-jsdoc/pull/255
     prettier-plugin-jsdoc: 1.5.0
-    prettier-plugin-packagejson: ^2.5.21
+    prettier-plugin-packagejson: ^3.0.0
     prettier-plugin-tailwindcss: ^0.7.2
     print-js: ^1.6.0
     proj4: ^2.20.2
     reproject: ^1.2.7
     rimraf: ^6.1.2
-    rollup: ^4.55.1
-    sass: ^1.97.2
+    rollup: ^4.57.0
+    sass: ^1.97.3
     sharp: ^0.34.5
     sortablejs: ^1.15.6
     start-server-and-test: ^2.1.3
-    stylelint: ^16.26.1
-    stylelint-config-recommended-scss: ^16.0.2
+    # fixing stylelint version for now, waiting on stylelint-config-recommended-vue to be compatible with stylelint 17
+    stylelint: 16.26.1
+    # same as above
+    stylelint-config-recommended-scss: 16.0.2
     stylelint-config-recommended-vue: ^1.6.1
     stylelint-order: ^7.0.1
-    stylelint-scss: ^6.14.0
+    stylelint-scss: ^7.0.0
     tailwindcss: ^4.1.18
     tsx: ^4.21.0
     typescript: ^5.9.3
-    typescript-eslint: ^8.53.0
+    typescript-eslint: ^8.54.0
     unplugin-dts: 1.0.0-beta.6
     uuid: ^13.0.0
     vite: ^7.3.1
-    vite-node: ^5.2.0
+    vite-node: ^5.3.0
     vite-plugin-conditional-compiler: ^0.4.0
     vite-plugin-pwa: ^1.2.0
-    vite-plugin-static-copy: ^3.1.4
+    vite-plugin-static-copy: ^3.2.0
     vite-plugin-vue-devtools: ^8.0.5
-    vite-tsconfig-paths: ^6.0.4
-    vitest: ^4.0.17
-    vue: ^3.5.26
+    vite-tsconfig-paths: ^6.0.5
+    vitest: ^4.0.18
+    vue: ^3.5.27
     vue-chartjs: ^5.3.3
     vue-i18n: ^11.2.8
     vue-router: ^4.6.4
-    vue-tsc: ^3.2.2
+    vue-tsc: ^3.2.4
     vue3-social-sharing: ^1.4.1
     vuex: ^4.1.0
     workbox-cacheable-response: ^7.4.0

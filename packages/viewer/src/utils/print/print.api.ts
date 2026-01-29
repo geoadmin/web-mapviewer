@@ -1,241 +1,40 @@
+import type { MFPLegend } from '@geoblocks/mapfishprint'
 import type {
-    MFPEncoder as MFPBaseEncoder,
+    MFPMap,
     MFPReportResponse,
     MFPSpec,
-    MFPSymbolizerLine,
-    MFPSymbolizerPoint,
-    MFPSymbolizerText,
     MFPWmsLayer,
 } from '@geoblocks/mapfishprint/lib/types'
-import type { GeoJSONFeature } from 'ol/format/GeoJSON'
-import type { State } from 'ol/layer/Layer'
-import type Map from 'ol/Map'
-import type { Size } from 'ol/size'
-import type { Image, Stroke, Text } from 'ol/style'
+import type { ExternalLayer } from '@swissgeo/layers'
 
-import {
-    BaseCustomizer,
-    cancelPrint,
-    getDownloadUrl,
-    MFPEncoder,
-    requestReport,
-} from '@geoblocks/mapfishprint'
-import log from '@swissgeo/log'
+import { cancelPrint, getDownloadUrl, requestReport } from '@geoblocks/mapfishprint'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import {
     getApi3BaseUrl,
     getViewerDedicatedServicesBaseUrl,
     getWmsBaseUrl,
 } from '@swissgeo/staging-config'
-import { MIN_PRINT_SCALE_SIZE, PRINT_DPI_COMPENSATION } from '@swissgeo/staging-config/constants'
 import axios from 'axios'
-import { Circle } from 'ol/style'
 
-import type { PrintCapabilitiesResponse, PrintConfig, PrintLayout } from '@/types/print'
+import type { PrintCapabilitiesResponse, PrintConfig, PrintLayout } from '@/utils/print/types'
 
-import LogColorPerService from '@/config/log'
-import fileProxyAPI from '@/fileProxy'
+import { ENVIRONMENT } from '@/config'
 
 /** Interval between each polling of the printing job status (ms) */
 const PRINTING_DEFAULT_POLL_INTERVAL: number = 2000
 /** In ms (= 10 minutes) */
 const PRINTING_DEFAULT_POLL_TIMEOUT: number = 600000
-const SERVICE_PRINT_URL: string = `${getViewerDedicatedServicesBaseUrl()}print3/print/mapviewer`
 /** 1MB in bytes (should be in sync with the backend) */
 const MAX_PRINT_SPEC_SIZE: number = 1024 * 1024
 
 const logConfig = (functioName: string) => ({
     title: `Print API / ${functioName}`,
-    titleColor: LogColorPerService.print,
+    titleColor: LogPreDefinedColor.Emerald,
 })
 
-// Change a width according to the change of DPI (from the old geoadmin)
-// Originally introduced here https://github.com/geoadmin/mf-geoadmin3/pull/3280
-function adjustWidth(width: number, dpi: number): number {
-    if (!width || isNaN(width) || !dpi || isNaN(dpi) || dpi <= 0) {
-        return 0
-    }
-    if (width <= 0) {
-        return -adjustWidth(-width, dpi)
-    }
-    return Math.max((width * PRINT_DPI_COMPENSATION) / dpi, MIN_PRINT_SCALE_SIZE)
+function getServicePrintURL() {
+    return `${getViewerDedicatedServicesBaseUrl(ENVIRONMENT)}print3/print/mapviewer`
 }
-
-/**
- * Customizes the printing behavior for GeoAdmin.
- *
- * @extends BaseCustomizer
- */
-class GeoAdminCustomizer extends BaseCustomizer {
-    readonly layerIDsToExclude: string[]
-    readonly printResolution: number
-
-    /**
-     * Constructor(layerIDsToExclude, printResolution) {
-     *
-     * @param printExtent - The extent of the area to be printed. super()
-     * @param layerIDsToExclude - An array of layer IDs to exclude from the print.
-     * @param printResolution - The resolution for the print.
-     */
-    constructor(printExtent: number[], layerIDsToExclude: string[], printResolution: number) {
-        super(printExtent)
-        this.layerIDsToExclude = layerIDsToExclude
-        this.printResolution = printResolution
-        this.layerFilter = this.layerFilter.bind(this)
-        this.geometryFilter = this.geometryFilter.bind(this)
-        this.line = this.line.bind(this)
-        this.text = this.text.bind(this)
-        this.point = this.point.bind(this)
-    }
-
-    /**
-     * Filter out layers that should not be printed. This function is automatically called when the
-     * encodeMap is called using this customizer.
-     *
-     * @param layerState
-     * @returns True to convert this layer, false to skip it
-     */
-    layerFilter(layerState: State): boolean {
-        if (this.layerIDsToExclude.includes(layerState.layer.get('id'))) {
-            return false
-        }
-        // Call the parent's layerFilter method for other layers
-        return super.layerFilter(layerState)
-    }
-
-    /**
-     * Manipulate the symbolizer of a line feature before printing it. In this case replace the
-     * strokeDashstyle to dash instead of 8 (measurement line style in the mapfishprint3 backend)
-     *
-     * @param _state
-     * @param _geoJsonFeature
-     * @param symbolizer Interface for the symbolizer of a line feature
-     * @param _stroke Stroke style of the line feature
-     */
-
-    line(
-        _state: State,
-        _geoJsonFeature: GeoJSONFeature,
-        symbolizer: MFPSymbolizerLine,
-        _stroke: Stroke
-    ) {
-        if (symbolizer?.strokeDashstyle === '8') {
-            symbolizer.strokeDashstyle = 'dash'
-        }
-        if (symbolizer.strokeWidth) {
-            symbolizer.strokeWidth = adjustWidth(symbolizer.strokeWidth, this.printResolution)
-        }
-    }
-
-    /**
-     * Manipulate the symbolizer of a text style of a feature before printing it.
-     *
-     * @param _layerState
-     * @param _geoJsonFeature
-     * @param symbolizer Interface for the symbolizer of a text feature
-     * @param text Text style of the feature
-     */
-    text(
-        _layerState: State,
-        _geoJsonFeature: GeoJSONFeature,
-        symbolizer: MFPSymbolizerText,
-        text: Text
-    ) {
-        symbolizer.haloRadius = adjustWidth(symbolizer.haloRadius, this.printResolution)
-
-        // we try to adapt the font size and offsets to have roughly the same
-        // scales on print than on the viewer.
-        try {
-            symbolizer.labelYOffset = adjustWidth(symbolizer.labelYOffset, this.printResolution)
-            symbolizer.labelXOffset = adjustWidth(symbolizer.labelXOffset, this.printResolution)
-            let textScale: number = 0
-            const originalTextScale = text.getScale()
-            if (originalTextScale) {
-                if (Array.isArray(originalTextScale) && originalTextScale.length > 0) {
-                    textScale = originalTextScale[0]!
-                } else if (typeof originalTextScale === 'number') {
-                    textScale = originalTextScale
-                }
-            }
-            symbolizer.fontSize = `${adjustWidth(
-                parseInt(symbolizer.fontSize) * textScale,
-                this.printResolution
-            )}px`
-        } catch (error) {
-            log.debug({
-                ...logConfig('GeoAdminCustomizer / text'),
-                messages: [
-                    'Failed to adapt font size and offsets to print resolution',
-                    'Keeping the font family as it is',
-                    error,
-                ],
-            })
-        }
-    }
-
-    /**
-     * Manipulate the symbolizer of a point style of a feature before printing it. In this case it
-     * manipulates the width and offset of the image to match the old geoadmin
-     *
-     * @param _layerState
-     * @param _geoJsonFeature
-     * @param symbolizer Interface for the symbolizer of a text feature
-     * @param image Image style of the feature
-     */
-    point(
-        _layerState: State,
-        _geoJsonFeature: GeoJSONFeature,
-        symbolizer: MFPSymbolizerPoint,
-        image: Image
-    ) {
-        const scale = image.getScaleArray()[0]
-        let size: Size | undefined
-        let anchor: number[] | undefined
-
-        // We need to resize the image to match the old geoadmin
-        if (symbolizer.externalGraphic) {
-            size = image.getSize()
-            anchor = image.getAnchor()
-            // service print can't handle a proxied url, so we ensure we're
-            // giving the original url for the print job.
-            symbolizer.externalGraphic = fileProxyAPI.unProxifyUrl(symbolizer.externalGraphic)
-        } else if (image instanceof Circle) {
-            const radius = image.getRadius()
-            const width = adjustWidth(2 * radius, this.printResolution)
-            size = [width, width]
-            anchor = [width / 2, width / 2]
-        }
-
-        if (scale && anchor && anchor.length > 0 && size && size.length > 0) {
-            symbolizer.graphicXOffset = symbolizer.graphicXOffset
-                ? adjustWidth(
-                      (size[0]! / 2 - anchor[0]! + symbolizer.graphicXOffset) * scale,
-                      this.printResolution
-                  )
-                : 0
-            // if there is no graphicYOffset, we can't print points
-            symbolizer.graphicYOffset = Math.round(1000 * (symbolizer.graphicYOffset ?? 0)) / 1000
-        }
-        if (scale && size && size.length > 0) {
-            symbolizer.graphicWidth = adjustWidth(size[0]! * scale, this.printResolution)
-        }
-        symbolizer.graphicXOffset = symbolizer.graphicXOffset ?? 0
-        symbolizer.graphicYOffset = symbolizer.graphicYOffset ?? 0
-
-        if (symbolizer.fillOpacity === 0.0 && symbolizer.fillColor === '#ff0000') {
-            // Handling the case where we need to print a circle in the end of measurement lines
-            // It's not rendered in the OpenLayers (opacity == 0.0) but it's needed to be rendered in the print
-            symbolizer.fillOpacity = 1
-        }
-    }
-}
-
-/**
- * Tool to transform an OpenLayers map into a "spec" for MapFishPrint3 (meaning a big JSON) that can
- * then be used as request body for printing.
- *
- * @see createPrintJob
- */
-const encoder: MFPBaseEncoder = new MFPEncoder(SERVICE_PRINT_URL)
 
 function validateBackendResponse(response: PrintCapabilitiesResponse): boolean {
     if (
@@ -277,7 +76,7 @@ function validateBackendResponse(response: PrintCapabilitiesResponse): boolean {
 function readPrintCapabilities(): Promise<PrintLayout[]> {
     return new Promise((resolve, reject) => {
         axios
-            .get<PrintCapabilitiesResponse>(`${SERVICE_PRINT_URL}/capabilities.json`)
+            .get<PrintCapabilitiesResponse>(`${getServicePrintURL()}/capabilities.json`)
             .then((response) => response.data)
             .then((capabilities) => {
                 if (!validateBackendResponse(capabilities)) {
@@ -333,7 +132,7 @@ function readPrintCapabilities(): Promise<PrintLayout[]> {
 }
 
 /**
- * @param olMap OL map
+ * @param map OpenLayers map encoded with @geoblocks/mapfishprint utils
  * @param config
  * @param config.attributions List of all attributions of layers currently visible on the map.
  * @param config.qrCodeUrl URL to a QR-code encoded short link of the current view of the map
@@ -346,12 +145,11 @@ function readPrintCapabilities(): Promise<PrintLayout[]> {
  * @param config.printGrid Whether the coordinate grid should be printed or not.
  * @param config.projection The projection used by the map, necessary when the grid is to be printed
  *   (it can otherwise be null).
- * @param config.excludedLayerIDs List of the IDs of OpenLayers layer to exclude from the print.
  * @param config.dpi The DPI of the printed map.
  * @param config.outputFilename Output file name, without extension. When null, let the server
  *   decide.
  */
-async function transformOlMapToPrintParams(olMap: Map, config: PrintConfig): Promise<MFPSpec> {
+function transformOlMapToPrintParams(map: MFPMap, config: PrintConfig): MFPSpec {
     const {
         attributions = [],
         qrCodeUrl,
@@ -363,7 +161,6 @@ async function transformOlMapToPrintParams(olMap: Map, config: PrintConfig): Pro
         printExtent,
         printGrid,
         projection,
-        excludedLayerIDs = [],
         dpi,
         outputFilename,
         legendName,
@@ -393,17 +190,9 @@ async function transformOlMapToPrintParams(olMap: Map, config: PrintConfig): Pro
     if (!dpi) {
         throw new PrintError('Missing DPI for printing')
     }
-    const customizer = new GeoAdminCustomizer(printExtent, excludedLayerIDs, dpi)
 
     const attributionsOneLine = attributions.length > 0 ? `© ${attributions.join(', ')}` : ''
     try {
-        const encodedMap = await encoder.encodeMap({
-            map: olMap,
-            scale,
-            printResolution: olMap.getView().getResolution() ?? 0,
-            dpi: dpi,
-            customizer: customizer,
-        })
         if (printGrid && projection) {
             const wmsLayer: MFPWmsLayer = {
                 name: 'Grid layer',
@@ -424,7 +213,7 @@ async function transformOlMapToPrintParams(olMap: Map, config: PrintConfig): Pro
                     MAP_RESOLUTION: Math.floor(dpi * 0.85).toString(),
                 },
             }
-            encodedMap.layers.unshift(wmsLayer)
+            map.layers.unshift(wmsLayer)
         }
         const now = new Date()
         const printDate = now.toLocaleString(lang, {
@@ -435,7 +224,7 @@ async function transformOlMapToPrintParams(olMap: Map, config: PrintConfig): Pro
 
         const spec: MFPSpec = {
             attributes: {
-                map: encodedMap,
+                map,
                 copyright: attributionsOneLine,
                 url: shortLink,
                 qrimage: qrCodeUrl,
@@ -447,15 +236,30 @@ async function transformOlMapToPrintParams(olMap: Map, config: PrintConfig): Pro
             outputFilename,
         }
         if (layersWithLegends.length > 0) {
+            const transformedLegends: MFPLegend[] = layersWithLegends
+                .flatMap((layer) => {
+                    if (layer.isExternal) {
+                        return (layer as ExternalLayer).legends?.map((legend) => {
+                            return {
+                                name: layer.name,
+                                icons: [legend.url],
+                            }
+                        })
+                    } else {
+                        return {
+                            name: layer.name,
+                            icons: [
+                                `${getApi3BaseUrl(ENVIRONMENT)}static/images/legends/${layer.id}_${lang}.png`,
+                            ],
+                        }
+                    }
+                })
+                .filter((legend) => legend !== undefined)
             spec.attributes.legend = {
                 name: legendName ?? 'Legend',
-                classes: layersWithLegends.map((layer) => {
-                    return {
-                        name: layer.name,
-                        icons: [`${getApi3BaseUrl()}static/images/legends/${layer.id}_${lang}.png`],
-                    }
-                }),
+                classes: transformedLegends,
             }
+            spec.attributes.printLegend = transformedLegends.length > 0 ? 1 : 0
         } else {
             spec.attributes.printLegend = 0
         }
@@ -509,7 +313,7 @@ function printSpecReplacer(key: string, value: unknown): unknown {
  * @param config.outputFilename Output file name, without extension. When null, let the server
  *   decide.
  */
-async function createPrintJob(map: Map, config: PrintConfig): Promise<MFPReportResponse> {
+async function createPrintJob(map: MFPMap, config: PrintConfig): Promise<MFPReportResponse> {
     const {
         layout,
         scale,
@@ -526,7 +330,7 @@ async function createPrintJob(map: Map, config: PrintConfig): Promise<MFPReportR
         dpi,
     } = config
     try {
-        const printingSpec = await transformOlMapToPrintParams(map, {
+        const printingSpec = transformOlMapToPrintParams(map, {
             attributions,
             qrCodeUrl,
             shortLink,
@@ -549,7 +353,7 @@ async function createPrintJob(map: Map, config: PrintConfig): Promise<MFPReportR
             messages: ['Starting print for spec', printingSpec],
         })
 
-        return await requestReport(SERVICE_PRINT_URL, printingSpec, printSpecReplacer)
+        return await requestReport(getServicePrintURL(), printingSpec, printSpecReplacer)
     } catch (error) {
         log.error({
             ...logConfig('createPrintJob'),
@@ -567,24 +371,20 @@ async function createPrintJob(map: Map, config: PrintConfig): Promise<MFPReportR
  * Polls a job and wait for its completion
  *
  * @param printJob
- * @param config
- * @param config.interval Time between each polling of the job in ms. Default is 2000ms (= 2 sec)
- * @param config.timeout Time before the job is deemed timed out in ms. Default is 60000ms (= 10
- *   minutes)
  * @returns {Promise<String>}
  */
-async function waitForPrintJobCompletion(
-    printJob: MFPReportResponse,
-    config?: { interval: number; timeout: number }
-): Promise<string> {
-    const { interval = PRINTING_DEFAULT_POLL_INTERVAL, timeout = PRINTING_DEFAULT_POLL_TIMEOUT } =
-        config ?? {}
-    return await getDownloadUrl(SERVICE_PRINT_URL, printJob, interval, timeout)
+async function waitForPrintJobCompletion(printJob: MFPReportResponse): Promise<string> {
+    return await getDownloadUrl(
+        getServicePrintURL(),
+        printJob,
+        PRINTING_DEFAULT_POLL_INTERVAL,
+        PRINTING_DEFAULT_POLL_TIMEOUT
+    )
 }
 
 async function abortPrintJob(printJobReference: string): Promise<void> {
     try {
-        await cancelPrint(SERVICE_PRINT_URL, printJobReference)
+        await cancelPrint(getServicePrintURL(), printJobReference)
     } catch (error) {
         log.error({
             ...logConfig('abortPrintJob'),
@@ -593,6 +393,7 @@ async function abortPrintJob(printJobReference: string): Promise<void> {
         throw new PrintError('Could not abort print job')
     }
 }
+
 /**
  * Check if the size of the printing spec is not bigger than MAX_PRINT_SPEC_SIZE
  *

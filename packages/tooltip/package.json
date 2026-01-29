@@ -1,6 +1,6 @@
 {
     "name": "@swissgeo/tooltip",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Tooltip for SWISSGEO projects.",
     "license": "BSD-3-Clause",
     "type": "module",
