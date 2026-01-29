@@ -51,10 +51,6 @@ function manualChunks(id: string): string | undefined {
     if (id.includes('node_modules') && id.includes('cesium')) {
         return 'vendor-cesium'
     }
-    // Separate OpenLayers - it's a core library for the map viewer
-    if (id.includes('node_modules') && id.includes('ol')) {
-        return 'vendor-ol'
-    }
     // Put all files from the src/utils into the chunk named utils.js
     if (id.includes('/src/utils/')) {
         return 'utils'
