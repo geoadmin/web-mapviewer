@@ -4,7 +4,6 @@
     "type": "module",
     "scripts": {
         "build": "pnpm run --recursive --if-present build",
-        "build-libs": "pnpm --filter=!web-mapviewer run --recursive --if-present build",
         "build:dev": "pnpm --recursive --if-present run build:dev",
         "build:dev:watch": "pnpm --filter=!web-mapviewer --recursive --parallel --if-present run build:dev:watch",
         "build:int": "pnpm --recursive --if-present run build:int",
@@ -15,11 +14,11 @@
         "format:check": "prettier --check .",
         "lint": "pnpm run --recursive --parallel --no-bail --if-present lint",
         "lint:no-fix": "pnpm run --recursive --parallel --no-bail --if-present lint:no-fix ",
-        "preview": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview",
-        "preview:dev": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:dev ",
-        "preview:int": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:int",
-        "preview:prod": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:prod",
-        "preview:test": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:test",
+        "preview": "pnpm --filter=web-mapviewer run preview",
+        "preview:dev": "pnpm --filter=web-mapviewer run preview:dev ",
+        "preview:int": "pnpm --filter=web-mapviewer run preview:int",
+        "preview:prod": "pnpm --filter=web-mapviewer run preview:prod",
+        "preview:test": "pnpm --filter=web-mapviewer run preview:test",
         "publish": "pnpm --filter=!web-mapviewer --filter=!@swissgeo/layers --recursive publish --access public --tag latest",
         "publish:prepare": "pnpm --filter=!web-mapviewer --filter=!@swissgeo/layers --recursive --parallel build",
         "test:component": "pnpm --filter=web-mapviewer run test:component",
@@ -56,8 +55,8 @@
             "vue-demi"
         ],
         "patchedDependencies": {
-            "ol@10.7.0": "patches/ol@10.7.0.patch",
-            "@geoblocks/mapfishprint@0.2.22": "patches/@geoblocks__mapfishprint@0.2.22.patch"
+            "@geoblocks/mapfishprint@0.2.22": "patches/@geoblocks__mapfishprint@0.2.22.patch",
+            "ol@10.7.0": "patches/ol@10.7.0.patch"
         },
         "ignoredBuiltDependencies": [
             "core-js",
