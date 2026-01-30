@@ -21,12 +21,18 @@ function transformHeaders(headers: { [key: string]: string | string[] }): Header
 }
 
 export function addIconFixtureAndIntercept(): void {
-    cy.intercept(`**/api/icons/sets/default/icons/**${featureStyleUtils.generateRGBFillString(featureStyleUtils.RED)}.png`, {
-        fixture: 'service-icons/placeholder.png',
-    }).as('icon-default')
-    cy.intercept(`**/api/icons/sets/default/icons/**${featureStyleUtils.generateRGBFillString(featureStyleUtils.GREEN)}.png`, {
-        fixture: 'service-icons/placeholder.png',
-    }).as('icon-default-green')
+    cy.intercept(
+        `**/api/icons/sets/default/icons/**${featureStyleUtils.generateRGBFillString(featureStyleUtils.RED)}.png`,
+        {
+            fixture: 'service-icons/placeholder.png',
+        }
+    ).as('icon-default')
+    cy.intercept(
+        `**/api/icons/sets/default/icons/**${featureStyleUtils.generateRGBFillString(featureStyleUtils.GREEN)}.png`,
+        {
+            fixture: 'service-icons/placeholder.png',
+        }
+    ).as('icon-default-green')
     cy.intercept(`**/api/icons/sets/babs/icons/*@*.png`, {
         fixture: 'service-icons/placeholder.png',
     }).as('icon-babs')
@@ -52,7 +58,9 @@ function addProfileFixtureAndIntercept(): void {
     }).as('profileAsCsv')
 }
 
-async function handlePostKmlRequest(req: CyHttpMessages.IncomingHttpRequest): Promise<string | FormData | undefined> {
+async function handlePostKmlRequest(
+    req: CyHttpMessages.IncomingHttpRequest
+): Promise<string | FormData | undefined> {
     try {
         return await getKmlFromRequest(req)
     } catch (error) {
@@ -266,17 +274,15 @@ Cypress.Commands.add('goToDrawing', (queryParams = {}, withHash = true) => {
         const drawingStore = useDrawingStore(pinia)
         expect(drawingStore.overlay.show).to.be.true
     })
-    cy.waitUntilState((pinia) => {
-        const drawingStore = useDrawingStore(pinia)
-        return drawingStore.iconSets.length > 0
-    })
+    // it should load all icon sets as soon as we enter the drawing module
+    cy.wait('@icon-sets')
+    cy.wait('@icon-set-default')
 })
 
 Cypress.Commands.add('openDrawingMode', () => {
     cy.openMenuIfMobile()
     cy.get('[data-cy="menu-tray-drawing-section"]:visible').click()
-    // Make sure that the map pointer events are unregistered to avoid interference with drawing
-    // pointer events
+    // Make sure that the map pointer events are unregistered to avoid interference with drawing pointer events
     cy.window().its('mapPointerEventReady').should('be.false')
 })
 
