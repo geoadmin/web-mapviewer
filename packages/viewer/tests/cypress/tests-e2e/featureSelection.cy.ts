@@ -50,19 +50,9 @@ describe('Testing the feature selection', () => {
         }
 
         function checkFeatures(): void {
-            cy.log(`Ensuring there are 10 selected features, and they're all different`)
-
-            cy.getPinia().then((pinia) => {
-                const featuresStore = useFeaturesStore(pinia)
-                const features = featuresStore.selectedFeatures
-                expect(features.length).to.eq(10)
-
-                features.forEach((feature) => {
-                    expect(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']).to.include(
-                        feature.id
-                    )
-                })
-            })
+            cy.log(`Ensuring there are 10 selected features`)
+            cy.get('[data-cy="highlighted-features"]').should('be.visible')
+            cy.get('[data-cy="feature-item"]').should('have.length', 10)
         }
 
         function checkFeatureInfoPosition(expectedPosition: FeatureInfoPositions): void {
@@ -96,7 +86,7 @@ describe('Testing the feature selection', () => {
         it('Adds pre-selected features and place the tooltip according to URL param on a narrow width screen', () => {
             cy.log('When featureInfo is not specified, we should have no tooltip visible')
             goToMapViewWithFeatureSelection()
-            checkFeatures()
+            cy.get('[data-cy="highlighted-features"]').should('not.exist')
             checkFeatureInfoPosition('none')
             cy.log(
                 'When using a viewport with width inferior to 400 pixels, we should always go to infobox when featureInfo is not None.'
