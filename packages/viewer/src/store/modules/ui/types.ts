@@ -2,16 +2,11 @@ import type { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 
 import type useUiStore from '@/store/modules/ui'
 
-export enum FeatureInfoPositions {
-    /**
-     * This is not the default value, but this is the default behavior, which depends on the UI
-     * size. Bottompanel on phones, tooltip on desktop
-     */
-    Default = 'default',
-    BottomPanel = 'bottomPanel',
-    ToolTip = 'tooltip',
-    None = 'none',
-}
+/**
+ * 'default' is not the default value, but the default behavior, which depends on the UI size:
+ * 'bottomPanel' on phones, 'tooltip' on desktop
+ */
+export type FeatureInfoPositions = 'default' | 'bottomPanel' | 'tooltip' | 'none'
 
 /**
  * Describes the different mode the UI can have. Either desktop / tablet (menu is always shown, info

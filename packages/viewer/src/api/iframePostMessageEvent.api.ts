@@ -7,29 +7,15 @@ const targetWindow: Window = parent ?? window.parent ?? window.opener ?? window.
 /**
  * All events fired by the iFrame postMessage implementation.
  *
- * @enum
+ * - 'gaChange': raised whenever the app changes its state (the URL changed). Payload: a string with
+ *   the new URL of the viewer
+ * - 'gaFeatureSelection': raised when a feature has been selected. Will fire as many events as there
+ *   are feature selected on the map (won't bundle all features into one event). Payload: a JSON
+ *   containing the layerId and featureId of the selected feature
+ * - 'gaMapReady': raised when the map shown has finished loading and is now visible in the HTML DOM.
+ *   No payload with this event.
  */
-export enum IFrameEvents {
-    /**
-     * Event raised whenever the app changes its state (the URL changed).
-     *
-     * Payload of this event : a String with the new URL of the viewer
-     */
-    Change = 'gaChange',
-    /**
-     * Event raised when a feature has been selected. Will fire as many events as there are feature
-     * selected on the map (won't bundle all features into one event)
-     *
-     * Payload of this event : a JSON containing the layerId and featureId of the selected feature
-     */
-    FeatureSelection = 'gaFeatureSelection',
-    /**
-     * Event raised when the map shown has finished loading and is now visible in the HTML DOM.
-     *
-     * No payload with this event.
-     */
-    MapReady = 'gaMapReady',
-}
+export type IFrameEvents = 'gaChange' | 'gaFeatureSelection' | 'gaMapReady'
 
 /**
  * Sends information to the iFrame's parent about features, through the use of the postMessage
@@ -52,7 +38,7 @@ export function sendFeatureInformationToIFrameParent(features: LayerFeature[]): 
     })
     // from what I can understand from the codepen, one event is fired per feature with a structured response
     features.forEach((feature) => {
-        sendEventToParent(IFrameEvents.FeatureSelection, {
+        sendEventToParent('gaFeatureSelection', {
             layerId: feature.layer.id,
             featureId: feature.id,
             // if we want to expose more stuff from our features (EGID, EWID, etc...), it should come here...
@@ -73,7 +59,7 @@ export function sendFeatureInformationToIFrameParent(features: LayerFeature[]): 
  * snippet if the user decide to move / zoom the map while looking at the preview
  */
 export function sendChangeEventToParent(): void {
-    sendEventToParent(IFrameEvents.Change, {
+    sendEventToParent('gaChange', {
         newUrl: window.location.href,
     })
 }
@@ -84,7 +70,7 @@ export function sendMapReadyEventToParent(): void {
         titleColor: LogPreDefinedColor.Violet,
         messages: ['sending map ready event to iframe parent'],
     })
-    sendEventToParent(IFrameEvents.MapReady)
+    sendEventToParent('gaMapReady')
 }
 
 function sendEventToParent(type: IFrameEvents, payload?: Record<string, unknown>): void {

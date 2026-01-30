@@ -8,7 +8,6 @@ import type { ActionDispatcher } from '@/store/types'
 import { isSupportedLang } from '@/modules/i18n'
 import { MAP_VIEW } from '@/router/viewNames'
 import useAppStore from '@/store/modules/app'
-import { AppStateNames } from '@/store/modules/app/types'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers'
 import useTopicsStore from '@/store/modules/topics'
@@ -92,10 +91,7 @@ export const appReadinessRouterPlugin: RouterPlugin = (router): void => {
                     } else {
                         appStore.$onAction(({ after, name }) => {
                             const nextState = appStore.appState.next()
-                            if (
-                                name === 'nextState' &&
-                                nextState.name === AppStateNames.ConfigLoaded
-                            ) {
+                            if (name === 'nextState' && nextState.name === 'CONFIG_LOADED') {
                                 after(() => {
                                     if (startingTopic) {
                                         topicsStore.changeTopic(startingTopic, dispatcher)

@@ -26,7 +26,7 @@ import {
 
 import type { ActionDispatcher } from '@/store/types'
 
-import { IS_TESTING_WITH_CYPRESS, CESIUM_STATIC_PATH } from '@/config'
+import { CESIUM_STATIC_PATH, IS_TESTING_WITH_CYPRESS } from '@/config'
 import CesiumBackgroundLayer from '@/modules/map/components/cesium/CesiumBackgroundLayer.vue'
 import CesiumCamera from '@/modules/map/components/cesium/CesiumCamera.vue'
 import CesiumGeolocationFeedback from '@/modules/map/components/cesium/CesiumGeolocationFeedback.vue'

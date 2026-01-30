@@ -76,7 +76,7 @@ export default function setSelectedFeatures(
             }
         })
         layerFeaturesByLayerId.forEach((layerFeatures) => {
-            // if less feature than the pagination size are present, we can already tell there won't be more data to load
+            // if fewer features than the pagination size are present, we can already tell there won't be more data to load
             layerFeatures.featureCountForMoreData =
                 layerFeatures.features.length % paginationSize === 0 ? paginationSize : 0
         })

@@ -1,28 +1,29 @@
 import type { RouteLocationNormalizedGeneric } from 'vue-router'
 
+import type { FeatureInfoPositions } from '@/store/modules/ui/types'
+
 import useUIStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types'
 import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/store/plugins/storeSync/UrlParamConfig.class'
 import { getDefaultValidationResponse } from '@/store/plugins/storeSync/validation'
-import { isEnumValue } from '@/utils/utils'
 
 function parseFeatureInfoPosition(urlParamValue?: string): FeatureInfoPositions | undefined {
     if (!urlParamValue) {
         return undefined
     }
-    if (isEnumValue<FeatureInfoPositions>(FeatureInfoPositions.Default, urlParamValue)) {
-        return FeatureInfoPositions.Default
+    const lowerCaseValue = urlParamValue.toLowerCase()
+    if (lowerCaseValue === 'default') {
+        return 'default'
     }
-    if (isEnumValue<FeatureInfoPositions>(FeatureInfoPositions.ToolTip, urlParamValue)) {
-        return FeatureInfoPositions.ToolTip
+    if (lowerCaseValue === 'tooltip') {
+        return 'tooltip'
     }
-    if (isEnumValue<FeatureInfoPositions>(FeatureInfoPositions.BottomPanel, urlParamValue)) {
-        return FeatureInfoPositions.BottomPanel
+    if (lowerCaseValue === 'bottompanel') {
+        return 'bottomPanel'
     }
-    if (isEnumValue<FeatureInfoPositions>(FeatureInfoPositions.None, urlParamValue)) {
-        return FeatureInfoPositions.None
+    if (lowerCaseValue === 'none') {
+        return 'none'
     }
     return undefined
 }
@@ -39,7 +40,7 @@ const featureInfoParamConfig = new UrlParamConfig<string>({
     },
     keepInUrlWhenDefault: false,
     valueType: String,
-    defaultValue: FeatureInfoPositions.None,
+    defaultValue: 'none',
     validateUrlInput: (queryValue?: string) =>
         getDefaultValidationResponse(
             queryValue,

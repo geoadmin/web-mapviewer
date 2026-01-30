@@ -25,7 +25,6 @@ import useFeaturesStore from '@/store/modules/features'
 import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'
 import useUIStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types'
 
 const dispatcher: ActionDispatcher = { name: 'CesiumHighlightedFeatures.vue' }
 
@@ -144,7 +143,7 @@ function onPopupClose() {
     mapStore.clearClick(dispatcher)
 }
 function setBottomPanelFeatureInfoPosition() {
-    uiStore.setFeatureInfoPosition(FeatureInfoPositions.BottomPanel, dispatcher)
+    uiStore.setFeatureInfoPosition('bottomPanel', dispatcher)
 }
 </script>
 

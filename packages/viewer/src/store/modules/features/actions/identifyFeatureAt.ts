@@ -5,10 +5,9 @@ import type { Layer } from '@swissgeo/layers'
 import { extentUtils } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
-import type { FeaturesStore } from '@/store/modules/features/types'
+import type { FeaturesStore, IdentifyMode } from '@/store/modules/features/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { IdentifyMode } from '@/store/modules/features/types'
 import getFeatureCountForCoordinate from '@/store/modules/features/utils/getFeatureCountForCoordinate'
 import identifyOnAllLayers from '@/store/modules/features/utils/identifyOnAllLayers'
 import useI18nStore from '@/store/modules/i18n'
@@ -64,9 +63,7 @@ export default async function identifyFeatureAt(
     dispatcherOrNothing?: ActionDispatcher
 ): Promise<void> {
     const dispatcher = dispatcherOrNothing ?? (identifyModeOrDispatcher as ActionDispatcher)
-    const identifyMode = dispatcherOrNothing
-        ? (identifyModeOrDispatcher as IdentifyMode)
-        : IdentifyMode.New
+    const identifyMode = dispatcherOrNothing ? (identifyModeOrDispatcher as IdentifyMode) : 'NEW'
 
     const featureCount = getFeatureCountForCoordinate(coordinate)
 
@@ -88,9 +85,9 @@ export default async function identifyFeatureAt(
         })
         const features = [...vectorFeatures, ...backendFeatures]
         if (features.length > 0) {
-            if (identifyMode === IdentifyMode.New) {
+            if (identifyMode === 'NEW') {
                 this.setSelectedFeatures(features, { paginationSize: featureCount }, dispatcher)
-            } else if (identifyMode === IdentifyMode.Toggle) {
+            } else if (identifyMode === 'TOGGLE') {
                 // Toggle features: remove if already selected, add if not
                 const oldFeatures = this.selectedLayerFeatures
                 const newFeatures = features

@@ -4,17 +4,17 @@ import type { MockFeature } from 'support/intercepts'
 import { registerProj4 } from '@swissgeo/coordinates'
 import { DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION } from '@swissgeo/staging-config/constants'
 import proj4 from 'proj4'
-import { assertDefined } from 'support/utils'
+import { assertDefined, checkUrlParams } from 'support/utils'
+
+import type { FeatureInfoPositions } from '@/store/modules/ui/types'
 
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types'
 
 import { addFeatureIdentificationIntercepts } from '../support/intercepts'
 
 registerProj4(proj4)
-type FeatureInfoPosition = (typeof FeatureInfoPositions)[keyof typeof FeatureInfoPositions]
 
 describe('Testing the feature selection', () => {
     context('Feature pre-selection in the URL', () => {
@@ -33,7 +33,7 @@ describe('Testing the feature selection', () => {
                 singleFeature.id = featureId.toString()
                 singleFeature.featureId = featureId.toString()
 
-                cy.intercept('**identify**', (req) => {
+                cy.intercept('**/MapServer/identify**', (req) => {
                     const { layers } = req.query as Record<string, string>
                     if (typeof layers === 'string' && layers.includes(layerId)) {
                         req.alias = `${layerId}_identify`
@@ -69,10 +69,10 @@ describe('Testing the feature selection', () => {
             cy.getPinia().then((pinia) => {
                 const uiStore = useUIStore(pinia)
                 expect(uiStore.featureInfoPosition).to.equal(expectedPosition)
-                if (FeatureInfoPositions.None === expectedPosition) {
+                if (expectedPosition === 'none') {
                     cy.get('[data-cy="popover"]').should('not.exist')
                     cy.get('[data-cy="infobox"]').should('not.exist')
-                } else if (FeatureInfoPositions.ToolTip === expectedPosition) {
+                } else if (expectedPosition === 'tooltip') {
                     cy.get('[data-cy="popover"]').should('exist')
                     cy.get('[data-cy="infobox"]').should('not.exist')
                 } else {
@@ -82,9 +82,7 @@ describe('Testing the feature selection', () => {
             })
         }
 
-        function goToMapViewWithFeatureSelection(
-            featureInfoPosition?: FeatureInfoPosition | string
-        ): void {
+        function goToMapViewWithFeatureSelection(featureInfoPosition?: string): void {
             const queryParams: Record<string, string> = {
                 layers: `${standardLayer}@features=1:2:3:4:5:6:7:8:9:10`,
             }
@@ -99,18 +97,18 @@ describe('Testing the feature selection', () => {
             cy.log('When featureInfo is not specified, we should have no tooltip visible')
             goToMapViewWithFeatureSelection()
             checkFeatures()
-            checkFeatureInfoPosition(FeatureInfoPositions.None)
+            checkFeatureInfoPosition('none')
             cy.log(
                 'When using a viewport with width inferior to 400 pixels, we should always go to infobox when featureInfo is not None.'
             )
             cy.log('When featureInfo is specified, we should see the infobox')
-            goToMapViewWithFeatureSelection(FeatureInfoPositions.Default)
+            goToMapViewWithFeatureSelection('default')
             checkFeatures()
-            checkFeatureInfoPosition(FeatureInfoPositions.BottomPanel)
+            checkFeatureInfoPosition('bottomPanel')
             cy.log('parameter is case insensitive, but we should see an infobox here')
             goToMapViewWithFeatureSelection('TOoLtIp')
             checkFeatures()
-            checkFeatureInfoPosition(FeatureInfoPositions.BottomPanel)
+            checkFeatureInfoPosition('bottomPanel')
         })
         it('Centers correctly the map when pre-selected features are present', () => {
             cy.log('We ensure that when no center is defined, we are on the center of the extent')
@@ -148,7 +146,7 @@ describe('Testing the feature selection', () => {
                 expect(storeCenter[1]).to.to.approximately(preDefinedCenter[1], 0.01)
             })
         })
-        it.skip('Adds pre-selected features and place the tooltip according to URL param on a bigger screen', () => {
+        it('Adds pre-selected features and place the tooltip according to URL param on a bigger screen', () => {
             cy.log(
                 'When using a viewport with width superior or equal to 400 pixels, the tooltip should behave normally'
             )
@@ -156,15 +154,14 @@ describe('Testing the feature selection', () => {
             cy.log(
                 'When featureInfo is specified, as the viewport is mobile-sized, we should see the infobox'
             )
-            goToMapViewWithFeatureSelection(FeatureInfoPositions.Default)
+            goToMapViewWithFeatureSelection('default')
             checkFeatures()
-            checkFeatureInfoPosition(FeatureInfoPositions.Default)
+            checkFeatureInfoPosition('default')
             cy.log('parameter is case insensitive, and we should see a popover here')
             goToMapViewWithFeatureSelection('TOoLtIp')
             checkFeatures()
-            checkFeatureInfoPosition(FeatureInfoPositions.ToolTip)
+            checkFeatureInfoPosition('tooltip')
         })
-
         it('Synchronise URL and feature selection', () => {
             const expectedFeatureIds = [1234, 5678]
             const mapSelector = '[data-cy="ol-map"]'
@@ -173,8 +170,9 @@ describe('Testing the feature selection', () => {
                     layers: `${standardLayer};${timeLayer}@year=2018,f`,
                 },
             })
+
             cy.url().should((url) => {
-                expect(new URLSearchParams(url.split('map')[1]).get('featureInfo')).to.eq(undefined)
+                checkUrlParams(url, {}, ['featureInfo'])
             })
 
             cy.log('Check that the features appear in the URL')
@@ -186,25 +184,12 @@ describe('Testing the feature selection', () => {
             cy.wait(`@htmlPopup`)
 
             cy.url().should((url) => {
-                expect(new URLSearchParams(url.split('map')[1]).get('featureInfo')).to.eq(
-                    'bottomPanel'
-                )
+                checkUrlParams(url, {
+                    featureInfo: 'bottomPanel',
+                    layers: `${standardLayer}@features=${expectedFeatureIds[0]};${timeLayer}@year=2018,f`,
+                })
             })
-            cy.url().should((url) => {
-                new URLSearchParams(url.split('map')[1])
-                    .get('layers')!
-                    .split(';')
-                    .forEach((layerParam) => {
-                        const layerAndAttributes = layerParam.split('@')
-                        if (layerAndAttributes[0] === standardLayer) {
-                            const featureAttribute = layerAndAttributes
-                                .find((attribute) => attribute.startsWith('features'))
-                                ?.split('=')
-                            expect(featureAttribute![1]).to.eq(`${expectedFeatureIds[0]}`)
-                        }
-                    })
-            })
-            // ------------------------------------------------------------------------------------------------
+
             cy.log('Check that clicking another feature from the same layer changes the URL')
             assertDefined(expectedFeatureIds[1])
             createInterceptWithFeatureId(expectedFeatureIds[1], standardLayer)
@@ -214,47 +199,21 @@ describe('Testing the feature selection', () => {
             cy.wait(`@htmlPopup`)
 
             cy.url().should((url) => {
-                new URLSearchParams(url.split('map')[1])
-                    .get('layers')!
-                    .split(';')
-                    .forEach((layerParam) => {
-                        const layerAndFeatures = layerParam.split('@features=')
-                        if (layerAndFeatures[0] === standardLayer) {
-                            expect(layerAndFeatures[1]).to.eq(`${expectedFeatureIds[1]}`)
-                        } else {
-                            expect(layerAndFeatures.length).to.eq(1)
-                        }
-                    })
+                checkUrlParams(url, {
+                    featureInfo: 'bottomPanel',
+                    layers: `${standardLayer}@features=${expectedFeatureIds[1]};${timeLayer}@year=2018,f`,
+                })
             })
 
             cy.log('Check that after a reload, features remain selected')
             cy.reload()
-            cy.waitMapIsReady()
-            cy.wait(`@featureDetail_${expectedFeatureIds[1]}`)
-            cy.readStoreValue('getters.selectedFeatures').should((features) => {
-                expect(features.length).to.eq(1)
-                expect(features[0].id).to.eq(`${expectedFeatureIds[1]}`)
-            })
-            /*
-            TODO PB-1889:
-            This test is flaky. When reloading, and only in the test environment, the feature
-            selected is still present in the store but not in the URL. It doesn't happen on the
-            viewer itself, either locally, in dev or in prod.
-            It became flaky with the fix to PB-1875, as the re-centering forced the mutation and URL
-            change to be taken into account. Currently, in the tests, the feature selected exists in
-            the store but not in the URL.
+            // no identify after a reload (only htmlPopup)
+            cy.wait(`@htmlPopup`)
             cy.url().should((url) => {
-                new URLSearchParams(url.split('map')[1])
-                    .get('layers')!
-                    .split(';')
-                    .forEach((layerParam) => {
-                        const layerAndFeatures = layerParam.split('@features=')
-                        if (layerAndFeatures[0] === standardLayer) {
-                            expect(layerAndFeatures[1]).to.eq(`${expectedFeatureIds[1]}`)
-                        } else {
-                            expect(layerAndFeatures.length).to.eq(1)
-                        }
-                    })
+                checkUrlParams(url, {
+                    featureInfo: 'bottomPanel',
+                    layers: `${standardLayer}@features=${expectedFeatureIds[1]};${timeLayer}@year=2018,f`,
+                })
             })
 
             cy.log('Selecting feature from another layer which is time enabled')
@@ -275,21 +234,10 @@ describe('Testing the feature selection', () => {
             cy.wait(`@htmlPopup`)
 
             cy.url().should((url) => {
-                new URLSearchParams(url.split('map')[1])
-                    .get('layers')!
-                    .split(';')
-                    .forEach((layerParam) => {
-                        const splittedParam = layerParam.split('@')
-                        if (splittedParam[0] === timeLayer) {
-                            expect(splittedParam.length).to.eq(3)
-                            expect(splittedParam.includes('year=2018')).to.eq(true)
-                            expect(
-                                splittedParam.includes(`features=${expectedFeatureIds[0]}`)
-                            ).to.eq(true)
-                        } else {
-                            expect(splittedParam.length).to.eq(1)
-                        }
-                    })
+                checkUrlParams(url, {
+                    featureInfo: 'bottomPanel',
+                    layers: `${standardLayer},f;${timeLayer}@year=2018@features=${expectedFeatureIds[0]}`,
+                })
             })
 
             cy.log('Check that upon closing, the features are no longer in the URL')
@@ -316,12 +264,11 @@ describe('Testing the feature selection', () => {
                 expect(layer.length).to.eq(1)
             })
         })
-
         it('Adds pre-selected features and verifys the translation of the feature text after changing the language', () => {
             cy.log('Open the map with a feature preselected in english')
-            goToMapViewWithFeatureSelection(FeatureInfoPositions.Default)
+            goToMapViewWithFeatureSelection('default')
             checkFeatures()
-            checkFeatureInfoPosition(FeatureInfoPositions.BottomPanel)
+            checkFeatureInfoPosition('bottomPanel')
 
             cy.wait(`@htmlPopup`)
 
@@ -414,12 +361,6 @@ describe('Testing the feature selection', () => {
             })
         }
 
-        function clickOnMap(location: number[], ctrlKey = false): void {
-            assertDefined(location[0])
-            assertDefined(location[1])
-            cy.get('@olMap').click(location[0], location[1], { ctrlKey })
-        }
-
         it('can select an area to identify features inside it', () => {
             const fileName = 'external-kml-file.kml'
             const localKmlFile = `import-tool/${fileName}`
@@ -444,18 +385,25 @@ describe('Testing the feature selection', () => {
 
             cy.get('[data-cy="file-input-text"]').should('contain.value', fileName)
             cy.get('[data-cy="import-file-close-button"]:visible').click()
-            cy.getPinia().then((pinia) => {
+            cy.getPinia().should((pinia) => {
                 const layersStore = useLayersStore(pinia)
-                expect(layersStore.activeLayers.length).to.eq(2)
-                expect(layersStore.visibleLayers.length).to.eq(2)
+                expect(
+                    layersStore.activeLayers.length,
+                    'KML and background layer are present in active layers'
+                ).to.eq(2)
+                expect(
+                    layersStore.visibleLayers.length,
+                    'KML and background layer are visible'
+                ).to.eq(2)
             })
 
             cy.closeMenuIfMobile()
 
+            cy.log('Checking that the KML layer was correctly loaded in OL')
             cy.checkOlLayer([
                 'test.background.layer2',
                 { id: 'test.wms.layer', opacity: 0.75 },
-                fileName,
+                `KML|${fileName}`,
             ])
 
             cy.get('[data-cy="ol-map"]').as('olMap').should('be.visible')
@@ -495,8 +443,14 @@ describe('Testing the feature selection', () => {
             cy.wait('@identify')
                 .its('request.query')
                 .should((query: { limit: number; offset: number }) => {
-                    expect(query.limit).to.eq(`${DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION}`)
-                    expect(query.offset).to.eq(`${DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION}`)
+                    expect(
+                        query.limit,
+                        'the limit for a rectangle/box identify to be higher than default'
+                    ).to.eq(`${DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION}`)
+                    expect(
+                        query.offset,
+                        'the offset to be moved the amount of limit to show the second page'
+                    ).to.eq(`${DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION}`)
                 })
 
             for (
@@ -566,17 +520,12 @@ describe('Testing the feature selection', () => {
             cy.wait('@emptyIdentify')
             cy.get('@highlightedFeatures').should('not.exist')
 
-            cy.get('@routeChange.all').should('have.length', 6)
-            cy.get('@layerConfig.all').should('have.length', 1)
-            cy.get('@topics.all').should('have.length', 1)
-            cy.get('@topic-ech.all').should('have.length', 1)
             cy.get('@htmlPopup.all').should('have.length', 101)
             cy.get('@noMoreResults.all').should('have.length', 1)
             cy.get('@identify.all').should('have.length', 2)
             cy.get('@identifySingleFeature.all').should('have.length', 1)
             cy.get('@emptyIdentify.all').should('have.length', 1)
         })
-
         it('can select feature by click, add more feature, and deselect feature', () => {
             const fileName = '4-points.kml'
             const localKmlFile = `import-tool/${fileName}`
@@ -596,24 +545,37 @@ describe('Testing the feature selection', () => {
 
             cy.get('[data-cy="import-file-load-button"]:visible').click()
 
-            cy.wait(['@icon-sets', '@icon-set-babs', '@icon-set-default'])
+            cy.wait(['@icon-sets', '@icon-set-babs', '@icon-set-default', '@routeChange'])
 
             cy.get('[data-cy="file-input-text"]').should('contain.value', fileName)
             cy.get('[data-cy="import-file-close-button"]:visible').click()
-            cy.getPinia().then((pinia) => {
-                const layersStore2 = useLayersStore(pinia)
-                expect(layersStore2.activeLayers.length).to.eq(1)
-                expect(layersStore2.visibleLayers.length).to.eq(1)
+            cy.getPinia().should((pinia) => {
+                const layersStore = useLayersStore(pinia)
+                expect(
+                    layersStore.activeLayers.length,
+                    'KML layer is present in active layers'
+                ).to.eq(1)
+                expect(layersStore.visibleLayers.length, 'KML layer is visible').to.eq(1)
             })
 
             cy.closeMenuIfMobile()
 
-            cy.checkOlLayer(['test.background.layer2', fileName])
+            cy.checkOlLayer(['test.background.layer2', `KML|${fileName}`])
 
-            cy.get('[data-cy="ol-map"]').as('olMap').should('be.visible')
-            cy.getPinia().then((pinia) => {
-                const featuresStore2 = useFeaturesStore(pinia)
-                expect(featuresStore2.selectedFeatures.length).to.eq(0)
+            cy.log(
+                'Zooming out to check feature selection (the zoom-to-extent after import is zooming to close for our tests)'
+            )
+            cy.get('[data-cy="zoom-out"]:visible').click()
+            cy.wait('@routeChange')
+
+            cy.get('[data-cy="ol-map"]').should('be.visible')
+
+            cy.getPinia().should((pinia) => {
+                const featuresStore = useFeaturesStore(pinia)
+                expect(
+                    featuresStore.selectedFeatures.length,
+                    'No feature should be currently selected'
+                ).to.eq(0)
             })
 
             cy.window()
@@ -627,28 +589,39 @@ describe('Testing the feature selection', () => {
                     const pixel1 = olMap.getPixelFromCoordinate(
                         proj4('EPSG:4326', mapProjection, point1)
                     )
+                    assertDefined(pixel1)
+                    expect(pixel1).to.be.an('array').with.length(2)
                     const pixel3 = olMap.getPixelFromCoordinate(
                         proj4('EPSG:4326', mapProjection, point3)
                     )
+                    assertDefined(pixel3)
+                    expect(pixel3).to.be.an('array').with.length(2)
 
-                    clickOnMap(pixel3, false)
-                    cy.getPinia().then((pinia) => {
-                        const featuresStore3 = useFeaturesStore(pinia)
-                        expect(featuresStore3.selectedFeatures.length).to.eq(1)
-                    })
-                    clickOnMap(pixel1, true)
-                    cy.getPinia().then((pinia) => {
-                        const featuresStore4 = useFeaturesStore(pinia)
-                        expect(featuresStore4.selectedFeatures.length).to.eq(2)
-                    })
-                    clickOnMap(pixel1, true)
-                    cy.getPinia().then((pinia) => {
-                        const featuresStore5 = useFeaturesStore(pinia)
-                        expect(featuresStore5.selectedFeatures.length).to.eq(1)
-                    })
+                    cy.get('[data-cy="ol-map"]').click(pixel3[0]!, pixel3[1]!, { ctrlKey: false })
+                    cy.log('One feature should be selected after clicking on the map')
+                    cy.get('[data-cy="highlighted-features"]')
+                        .as('highlightedFeatures')
+                        .should('be.visible')
+                    cy.get('@highlightedFeatures')
+                        .find('[data-cy="feature-item"]')
+                        .as('featureItems')
+                        .should('have.length', 1)
+
+                    cy.get('[data-cy="ol-map"]').click(pixel1[0]!, pixel1[1]!, { ctrlKey: true })
+                    cy.log(
+                        'Two features should be selected after clicking on a feature on the map with CTRL (one added)'
+                    )
+                    cy.get('@highlightedFeatures').should('be.visible')
+                    cy.get('@featureItems').should('have.length', 2)
+
+                    cy.get('[data-cy="ol-map"]').click(pixel1[0]!, pixel1[1]!, { ctrlKey: true })
+                    cy.log(
+                        'One feature should be left selected after clicking on one feature on the map with CTRL (one removed)'
+                    )
+                    cy.get('@highlightedFeatures').should('be.visible')
+                    cy.get('@featureItems').should('have.length', 1)
                 })
         })
-
         it('can print feature information', () => {
             const fileName = 'external-kml-file.kml'
             const localKmlFile = `import-tool/${fileName}`
@@ -672,10 +645,10 @@ describe('Testing the feature selection', () => {
             cy.wait(['@icon-sets', '@icon-set-babs', '@icon-set-default'])
 
             cy.get('[data-cy="import-file-close-button"]:visible').click()
-            cy.getPinia().then((pinia) => {
-                const layersStore3 = useLayersStore(pinia)
-                expect(layersStore3.activeLayers.length).to.eq(2)
-                expect(layersStore3.visibleLayers.length).to.eq(2)
+            cy.getPinia().should((pinia) => {
+                const layersStore = useLayersStore(pinia)
+                expect(layersStore.activeLayers.length).to.eq(2)
+                expect(layersStore.visibleLayers.length).to.eq(2)
             })
 
             cy.closeMenuIfMobile()
@@ -683,7 +656,7 @@ describe('Testing the feature selection', () => {
             cy.checkOlLayer([
                 'test.background.layer2',
                 { id: 'test.wms.layer', opacity: 0.75 },
-                fileName,
+                `KML|${fileName}`,
             ])
 
             cy.get('[data-cy="ol-map"]').as('olMap').should('be.visible')

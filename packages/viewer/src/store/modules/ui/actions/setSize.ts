@@ -7,7 +7,7 @@ import {
 import type { UIStore } from '@/store/modules/ui/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { FeatureInfoPositions, UIModes } from '@/store/modules/ui/types'
+import { UIModes } from '@/store/modules/ui/types'
 
 export default function setSize(
     this: UIStore,
@@ -18,11 +18,8 @@ export default function setSize(
     this.height = height
     this.width = width
 
-    if (
-        this.featureInfoPosition !== FeatureInfoPositions.None &&
-        this.width < MAX_WIDTH_SHOW_FLOATING_TOOLTIP
-    ) {
-        this.featureInfoPosition = FeatureInfoPositions.BottomPanel
+    if (this.featureInfoPosition !== 'none' && this.width < MAX_WIDTH_SHOW_FLOATING_TOOLTIP) {
+        this.featureInfoPosition = 'bottomPanel'
     }
 
     let wantedUiMode: UIModes

@@ -2,12 +2,11 @@ import type { EditableFeature, LayerFeature } from '@swissgeo/api'
 
 import type useFeaturesStore from '@/store/modules/features'
 
-export enum IdentifyMode {
-    /** Clear previous selection and identify features at the given coordinate */
-    New = 'NEW',
-    /** Toggle selection: remove if already selected, add if not */
-    Toggle = 'TOGGLE',
-}
+/**
+ * - NEW: Clear previous selection and identify features at the given coordinate
+ * - TOGGLE: Toggle selection: remove if already selected, add if not
+ */
+export type IdentifyMode = 'NEW' | 'TOGGLE'
 
 export interface FeaturesForLayer {
     layerId: string

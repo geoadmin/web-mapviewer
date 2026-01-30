@@ -10,6 +10,7 @@ import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import type { MediaType } from '@/modules/infobox/types'
 import type { ActionDispatcher } from '@/store/types'
 import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 
@@ -22,7 +23,6 @@ import DrawingStylePositionSelector from '@/modules/infobox/components/styling/D
 import DrawingStylePopoverButton from '@/modules/infobox/components/styling/DrawingStylePopoverButton.vue'
 import DrawingStyleSizeSelector from '@/modules/infobox/components/styling/DrawingStyleSizeSelector.vue'
 import DrawingStyleTextColorSelector from '@/modules/infobox/components/styling/DrawingStyleTextColorSelector.vue'
-import { MediaType } from '@/modules/infobox/DrawingStyleMediaTypes.enum'
 import useDrawingStore from '@/store/modules/drawing'
 import CoordinateCopySlot from '@/utils/components/CoordinateCopySlot.vue'
 import { allFormats, LV95Format } from '@/utils/coordinates/coordinateFormat'
@@ -263,18 +263,18 @@ type MediaButton = {
 function mediaTypes(): MediaButton[] {
     return [
         {
-            type: MediaType.Link,
+            type: 'link',
             buttonClassOptions: 'rounded-0 rounded-top-2 rounded-end-0',
             icon: 'fa-link' as IconProp,
             extraUrlDescription: 'text_to_display',
         },
         {
-            type: MediaType.Image,
+            type: 'image',
             buttonClassOptions: 'rounded-0',
             icon: 'fa-image' as IconProp,
         },
         {
-            type: MediaType.Video,
+            type: 'video',
             buttonClassOptions: 'rounded-0 rounded-top-2 rounded-start-0',
             icon: 'fa-film' as IconProp,
         },

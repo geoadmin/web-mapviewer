@@ -31,13 +31,12 @@ import { generateFilename } from '@/utils/utils'
 
 const dispatcher: ActionDispatcher = { name: 'usePrint.composable' }
 
-export enum PrintStatus {
-    IDLE = 'IDLE',
-    PRINTING = 'PRINTING',
-    FINISHED_ABORTED = 'FINISHED_ABORTED',
-    FINISHED_SUCCESSFULLY = 'FINISHED_SUCCESSFULLY',
-    FINISHED_FAILED = 'FINISHED_FAILED',
-}
+export type PrintStatus =
+    | 'IDLE'
+    | 'PRINTING'
+    | 'FINISHED_ABORTED'
+    | 'FINISHED_SUCCESSFULLY'
+    | 'FINISHED_FAILED'
 
 // Change a width according to the change of DPI (from the old geoadmin)
 // Originally introduced here https://github.com/geoadmin/mf-geoadmin3/pull/3280
@@ -211,7 +210,7 @@ export function usePrint(map: Raw<Map>) {
     const requester = 'print-map'
 
     const currentJobReference = ref<string | undefined>()
-    const printStatus = ref<PrintStatus>(PrintStatus.IDLE)
+    const printStatus = ref<PrintStatus>('IDLE')
     const printError = ref<PrintError>()
 
     const layerStore = useLayersStore()
@@ -266,7 +265,7 @@ export function usePrint(map: Raw<Map>) {
             if (currentJobReference.value) {
                 await abortCurrentJob()
             }
-            printStatus.value = PrintStatus.PRINTING
+            printStatus.value = 'PRINTING'
 
             const qrCodeUrl = qrcodeAPI.getGenerateQRCodeUrl(shortLink, ENVIRONMENT)
 
@@ -324,7 +323,7 @@ export function usePrint(map: Raw<Map>) {
             })
             currentJobReference.value = printJob.ref
             const result = await printAPI.waitForPrintJobCompletion(printJob)
-            printStatus.value = PrintStatus.FINISHED_SUCCESSFULLY
+            printStatus.value = 'FINISHED_SUCCESSFULLY'
             return result
         } catch (error) {
             log.error({
@@ -332,8 +331,8 @@ export function usePrint(map: Raw<Map>) {
                 titleColor: LogPreDefinedColor.Emerald,
                 messages: ['Error while printing', error],
             })
-            if (printStatus.value === PrintStatus.PRINTING) {
-                printStatus.value = PrintStatus.FINISHED_FAILED
+            if (printStatus.value === 'PRINTING') {
+                printStatus.value = 'FINISHED_FAILED'
                 if (error instanceof PrintError) {
                     printError.value = error
                 }
@@ -355,7 +354,7 @@ export function usePrint(map: Raw<Map>) {
                     messages: ['Job', currentJobReference.value, 'successfully aborted'],
                 })
                 currentJobReference.value = undefined
-                printStatus.value = PrintStatus.FINISHED_ABORTED
+                printStatus.value = 'FINISHED_ABORTED'
                 uiStore.clearLoadingBarRequester(requester, dispatcher)
             }
         } catch (error) {
