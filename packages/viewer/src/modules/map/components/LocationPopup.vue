@@ -14,7 +14,6 @@ import { ENVIRONMENT } from '@/config'
 import CesiumPopover from '@/modules/map/components/cesium/CesiumPopover.vue'
 import LocationPopupPosition from '@/modules/map/components/LocationPopupPosition.vue'
 import LocationPopupShare from '@/modules/map/components/LocationPopupShare.vue'
-import { MapPopoverMode } from '@/modules/map/components/MapPopoverMode.enum'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import useCesiumStore from '@/store/modules/cesium'
 import useI18nStore from '@/store/modules/i18n'
@@ -119,7 +118,7 @@ async function shortenShareLink(url: string) {
     try {
         shareLinkUrlShorten.value = await shortLinkAPI.createShortLink({
             url,
-            staging: ENVIRONMENT
+            staging: ENVIRONMENT,
         })
     } catch (error) {
         log.error({
@@ -185,7 +184,7 @@ function clearClick() {
         :title="selectedTab === 'position' ? t('position') : t('link_bowl_crosshair')"
         :coordinates="coordinate"
         :projection="positionStore.projection"
-        :mode="MapPopoverMode.FeatureTooltip"
+        mode="FEATURE_TOOLTIP"
         use-content-padding
         class="location-popup"
         data-cy="location-popup"

@@ -1,22 +1,10 @@
 /// <reference types="cypress" />
 
-import { assertDefined } from 'support/utils'
+import { assertDefined, checkUrlParams } from 'support/utils'
 
 import useLayersStore from '@/store/modules/layers'
 
 describe('Testing the embed view', () => {
-    function checkUrlParams(urlToCheck: string, expectedParams: Record<string, string>): void {
-        expect(urlToCheck).to.contain('#/map?')
-        const receivedParams = new URLSearchParams(
-            urlToCheck.substring(urlToCheck.indexOf('#/map?') + 6)
-        )
-        for (const [key, value] of Object.entries(expectedParams)) {
-            expect(value).to.equal(
-                receivedParams.get(key),
-                `Wrong value for key ${key}\nexpected: ${value}\nreceived: ${receivedParams.get(key)}`
-            )
-        }
-    }
     it('Open in embed mode and can jump to the non embed mode', () => {
         cy.goToEmbedView({
             queryParams: { z: 2 },

@@ -14,7 +14,6 @@ import isMapReady from '@/store/modules/app/getters/isMapReady'
 import isParsingLegacy from '@/store/modules/app/getters/isParsingLegacy'
 import isParsingUrl from '@/store/modules/app/getters/isParsingUrl'
 import isReady from '@/store/modules/app/getters/isReady'
-import { AppStateNames } from '@/store/modules/app/types'
 import useCesiumStore from '@/store/modules/cesium'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
@@ -22,13 +21,13 @@ import useTopicsStore from '@/store/modules/topics'
 import useUIStore from '@/store/modules/ui'
 
 const mapShown: AppState = {
-    name: AppStateNames.MapShown,
+    name: 'MAP_SHOWN',
     isFulfilled: () => false, // never fulfilled, last state
     next: () => mapShown,
 }
 
 const ready: AppState = {
-    name: AppStateNames.Ready,
+    name: 'READY',
     isFulfilled: () => {
         const mapStore = useMapStore()
         const cesiumStore = useCesiumStore()
@@ -41,7 +40,7 @@ const ready: AppState = {
 }
 
 const initiateUrlParsing: AppState = {
-    name: AppStateNames.UrlParsing,
+    name: 'URL_PARSING',
     isFulfilled: () => {
         return useAppStore().initialUrlParsingHasHappened
     },
@@ -51,7 +50,7 @@ const initiateUrlParsing: AppState = {
 }
 
 const parseLegacyUrlParams: AppState = {
-    name: AppStateNames.LegacyParsing,
+    name: 'LEGACY_PARSING',
     // legacyUrlParsingHasHappened is necessary to reevaluate after the legacy parsing has happened, without it,
     // isFulfilled would always return false/true after the first time
     // it also has to be the first condition because the && operator is short-circuiting
@@ -65,7 +64,7 @@ const parseLegacyUrlParams: AppState = {
 }
 
 const configLoaded: AppState = {
-    name: AppStateNames.ConfigLoaded,
+    name: 'CONFIG_LOADED',
     // we wait for the background layer to be set to the current topic default, to avoid conflicts between the mutation happening,
     // and the URL synchronization.
     isFulfilled: () =>
@@ -80,7 +79,7 @@ const configLoaded: AppState = {
 }
 
 const initializing: AppState = {
-    name: AppStateNames.Initializing,
+    name: 'INITIALIZING',
     isFulfilled: () => {
         const layersStore = useLayersStore()
         const topicsStore = useTopicsStore()

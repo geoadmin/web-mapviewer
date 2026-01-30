@@ -25,7 +25,6 @@ import type { ActionDispatcher } from '@/store/types'
 import FeatureList from '@/modules/infobox/components/FeatureList.vue'
 import FeatureStyleEdit from '@/modules/infobox/components/styling/FeatureStyleEdit.vue'
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
-import { MapPopoverMode } from '@/modules/map/components/MapPopoverMode.enum'
 import OpenLayersPopover from '@/modules/map/components/openlayers/OpenLayersPopover.vue'
 import { highlightFeatureStyle } from '@/modules/map/components/openlayers/utils/markerStyle'
 import useVectorLayer from '@/modules/map/components/openlayers/utils/useVectorLayer.composable.ts'
@@ -35,7 +34,6 @@ import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'
 import useProfileStore from '@/store/modules/profile'
 import useUiStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types'
 
 const dispatcher: ActionDispatcher = {
     name: 'OpenLayersHighlightedFeatures.vue',
@@ -192,7 +190,7 @@ function clearAllSelectedFeatures(): void {
     mapStore.clearClick(dispatcher)
 }
 function setBottomPanelFeatureInfoPosition(): void {
-    uiStore.setFeatureInfoPosition(FeatureInfoPositions.BottomPanel, dispatcher)
+    uiStore.setFeatureInfoPosition('bottomPanel', dispatcher)
 }
 </script>
 
@@ -203,7 +201,7 @@ function setBottomPanelFeatureInfoPosition(): void {
         :title="isCurrentlyDrawing ? t('draw_modify_description') : t('object_information')"
         authorize-print
         :use-content-padding="selectedEditableFeatures.length > 0"
-        :mode="MapPopoverMode.Floating"
+        mode="FLOATING"
         @close="clearAllSelectedFeatures"
     >
         <template #extra-buttons>

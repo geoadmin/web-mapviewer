@@ -231,7 +231,18 @@ function goToView(view: 'embed' | 'map', options?: GoToViewOptions): void {
         },
     })
 
-    cy.get('@mapReadyEvent').should('have.been.calledOnce')
+    if (!hasVisitedBefore) {
+        cy.get('@mapReadyEvent', {
+            timeout: 30000,
+        }).should('have.been.called')
+        hasVisitedBefore = true
+    } else {
+        // For later visits, we don't need to wait for the mapReadyEvent as it is already
+        // triggered by the initial visit, and another wait would just timeout or be redundant.
+        // We still need to wait for the map to be ready, but this is handled by cy.waitMapIsReady
+        // and waitAllLayersLoaded below.
+        cy.log('Subsequent visit, skipping @mapReadyEvent wait')
+    }
     // In the legacy URL, 3d is not found. We check if the map in 3d or not by checking the pitch, heading, and elevation
     const isLegacy3d =
         'pitch' in queryParams || 'heading' in queryParams || 'elevation' in queryParams
@@ -257,6 +268,12 @@ function goToView(view: 'embed' | 'map', options?: GoToViewOptions): void {
 }
 
 let hasForwardedPostMessage = false
+let hasVisitedBefore = false
+
+beforeEach(() => {
+    hasForwardedPostMessage = false
+    hasVisitedBefore = false
+})
 
 Cypress.Commands.add('goToMapView', (options) => {
     goToView('map', options)

@@ -12,7 +12,6 @@ import useDrawingStore from '@/store/modules/drawing'
 import { OnlineMode } from '@/store/modules/drawing/types'
 import useMapStore from '@/store/modules/map'
 import useUIStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types'
 
 const dispatcher: ActionDispatcher = { name: 'MenuTray.vue' }
 
@@ -41,7 +40,7 @@ onMounted(() => {
 
 function openDrawingModule() {
     // Force feature info to be visible in drawing mode
-    uiStore.setFeatureInfoPosition(FeatureInfoPositions.Default, dispatcher)
+    uiStore.setFeatureInfoPosition('default', dispatcher)
 
     // when entering the drawing menu, we need to clear the location popup
     mapStore.clearLocationPopupCoordinates(dispatcher)

@@ -1,0 +1,1 @@
+export type MediaType = 'link' | 'image' | 'video'

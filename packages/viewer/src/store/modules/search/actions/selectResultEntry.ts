@@ -26,7 +26,6 @@ import usePositionStore from '@/store/modules/position'
 import createLayerFeature from '@/store/modules/search/utils/createLayerFeature'
 import zoomToSearchResult from '@/store/modules/search/utils/zoomToSearchResult'
 import useUIStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types'
 
 export default function selectResultEntry(
     this: SearchStore,
@@ -110,7 +109,7 @@ export default function selectResultEntry(
                     if (feature) {
                         featuresStore.setSelectedFeatures([feature], dispatcher)
 
-                        uiStore.setFeatureInfoPosition(FeatureInfoPositions.ToolTip, dispatcher)
+                        uiStore.setFeatureInfoPosition('tooltip', dispatcher)
                     }
                 })
                 .catch((error) => {
@@ -154,7 +153,7 @@ export default function selectResultEntry(
             if (layerFeatures) {
                 featuresStore.setSelectedFeatures(layerFeatures, dispatcher)
 
-                uiStore.setFeatureInfoPosition(FeatureInfoPositions.ToolTip, dispatcher)
+                uiStore.setFeatureInfoPosition('tooltip', dispatcher)
             }
         }
     }

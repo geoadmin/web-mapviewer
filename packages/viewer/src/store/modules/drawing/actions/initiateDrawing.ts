@@ -14,7 +14,6 @@ import { ENVIRONMENT, IS_TESTING_WITH_CYPRESS } from '@/config'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types'
 
 import { isOnlineMode } from '../utils/isOnlineMode'
 
@@ -55,7 +54,7 @@ export default async function initiateDrawing(
     const uiStore = useUIStore()
 
     // Force feature info to be visible in drawing mode
-    uiStore.setFeatureInfoPosition(FeatureInfoPositions.Default, dispatcher)
+    uiStore.setFeatureInfoPosition('default', dispatcher)
 
     // Make sure no drawing features are selected when entering the drawing mode
     featuresStore.clearAllSelectedFeatures(dispatcher)

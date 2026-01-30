@@ -23,7 +23,6 @@ import {
 import useAppStore from '@/store/modules/app'
 import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
-import { FeatureInfoPositions } from '@/store/modules/ui/types'
 import {
     handleLegacyFeaturePreSelectionParam,
     transformLayerIntoUrlString,
@@ -167,10 +166,7 @@ export function handleLegacyParam(
             break
         case 'showTooltip':
             key = 'featureInfo'
-            newValue =
-                legacyParamValue === 'true'
-                    ? FeatureInfoPositions.Default
-                    : FeatureInfoPositions.None
+            newValue = legacyParamValue === 'true' ? 'default' : 'none'
             break
         case 'bgLayer':
             newValue = legacyParamValue === 'voidLayer' ? 'void' : legacyParamValue

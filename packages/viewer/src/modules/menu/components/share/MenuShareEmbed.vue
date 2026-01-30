@@ -13,7 +13,6 @@ import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
-import { IFrameEvents } from '@/api/iframePostMessageEvent.api'
 import MenuShareInputCopyButton from '@/modules/menu/components/share/MenuShareInputCopyButton.vue'
 import useLayersStore from '@/store/modules/layers'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
@@ -159,7 +158,7 @@ function togglePreviewModal() {
 }
 
 function onPreviewChange(e: MessageEvent) {
-    if (e?.data?.type === IFrameEvents.Change) {
+    if (e?.data?.type === 'gaChange') {
         // see iframePostMessageEvent.api.js -> sendChangeEventToParent
         embedSource.value = e.data.payload.newUrl
     }

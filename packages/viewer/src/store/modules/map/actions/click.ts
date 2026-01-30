@@ -3,16 +3,15 @@ import type { Layer } from '@swissgeo/layers'
 
 import log from '@swissgeo/log'
 
+import type { IdentifyMode } from '@/store/modules/features/types'
 import type { ClickInfo, MapStore } from '@/store/modules/map/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
-import { IdentifyMode } from '@/store/modules/features/types'
 import useLayersStore from '@/store/modules/layers'
 import { ClickType } from '@/store/modules/map/types'
 import useUIStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types'
 
 export default function click(
     this: MapStore,
@@ -56,7 +55,7 @@ export default function click(
             clickInfo.clickType === ClickType.DrawBox
 
         if (isIdentifyingFeature) {
-            const identifyMode = isCtrlLeftSingleClick ? IdentifyMode.Toggle : IdentifyMode.New
+            const identifyMode: IdentifyMode = isCtrlLeftSingleClick ? 'TOGGLE' : 'NEW'
 
             featuresStore
                 .identifyFeatureAt(
@@ -73,7 +72,7 @@ export default function click(
                     ) {
                         // we only change the feature Info position when it's set to 'NONE', as
                         // we want to keep the user's choice of position between clicks.
-                        uiStore.setFeatureInfoPosition(FeatureInfoPositions.Default, dispatcher)
+                        uiStore.setFeatureInfoPosition('default', dispatcher)
                     }
                 })
                 .catch((error) => {

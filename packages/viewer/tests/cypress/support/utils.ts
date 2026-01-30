@@ -135,3 +135,23 @@ export function checkPosition(
     expect(position![0]).to.approximately(expectedX, 0.1)
     expect(position![1]).to.approximately(expectedY, 0.1)
 }
+
+export function checkUrlParams(
+    urlToCheck: string,
+    expectedParams: Record<string, string>,
+    expectedAbsentParams: string[] = []
+): void {
+    expect(urlToCheck).to.contain('#/map?')
+    const receivedParams = new URLSearchParams(
+        urlToCheck.substring(urlToCheck.indexOf('#/map?') + 6)
+    )
+    for (const [key, value] of Object.entries(expectedParams)) {
+        expect(value).to.equal(
+            receivedParams.get(key),
+            `Wrong value for key ${key}\nexpected: ${value}\nreceived: ${receivedParams.get(key)}`
+        )
+    }
+    for (const key of expectedAbsentParams) {
+        expect(receivedParams.get(key)).to.be.null
+    }
+}

@@ -16,7 +16,6 @@ import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'
 import useSearchStore from '@/store/modules/search'
 import useUIStore from '@/store/modules/ui'
-import { FeatureInfoPositions } from '@/store/modules/ui/types'
 
 registerProj4(proj4)
 
@@ -576,7 +575,7 @@ describe('Test on legacy param import', () => {
             checkFeatures(featuresIds)
             cy.getPinia().should((pinia) => {
                 const uiStore = useUIStore(pinia)
-                expect(uiStore.featureInfoPosition).to.be.equal(FeatureInfoPositions.None)
+                expect(uiStore.featureInfoPosition).to.be.equal('none')
             })
             cy.get('[data-cy="popover"]').should('not.exist')
             cy.get('[data-cy="infobox"]').should('not.exist')
@@ -595,7 +594,7 @@ describe('Test on legacy param import', () => {
             checkFeatures(featuresIds)
             cy.getPinia().should((pinia) => {
                 const uiStore = useUIStore(pinia)
-                expect(uiStore.featureInfoPosition).to.be.equal(FeatureInfoPositions.BottomPanel)
+                expect(uiStore.featureInfoPosition).to.be.equal('bottomPanel')
             })
             cy.get('[data-cy="popover"]').should('not.exist')
             cy.get('[data-cy="infobox"]').should('be.visible')
@@ -614,7 +613,7 @@ describe('Test on legacy param import', () => {
             checkFeatures(featuresIds)
             cy.getPinia().should((pinia) => {
                 const uiStore = useUIStore(pinia)
-                expect(uiStore.featureInfoPosition).to.be.equal(FeatureInfoPositions.Default)
+                expect(uiStore.featureInfoPosition).to.be.equal('default')
             })
             cy.get('[data-cy="popover"]').should('not.exist')
             cy.get('[data-cy="infobox"]').should('be.visible')
@@ -631,7 +630,7 @@ describe('Test on legacy param import', () => {
             checkFeatures(featuresIds)
             cy.getPinia().should((pinia) => {
                 const uiStore = useUIStore(pinia)
-                expect(uiStore.featureInfoPosition).to.be.equal(FeatureInfoPositions.None)
+                expect(uiStore.featureInfoPosition).to.be.equal('none')
             })
             cy.get('[data-cy="popover"]').should('not.exist')
             cy.get('[data-cy="infobox"]').should('not.exist')
