@@ -282,7 +282,6 @@ function getDimensions(layer: WMTSCapabilityLayer): ExternalLayerTimeDimension[]
             id: identifier,
             values: entriesForIdentifier.flatMap((d) => d.Value),
             defaultValue: entriesForIdentifier[0]!.Default,
-            // TODO: find if "current" is part of the WMTS spec
         })
     }
     return dimensions
