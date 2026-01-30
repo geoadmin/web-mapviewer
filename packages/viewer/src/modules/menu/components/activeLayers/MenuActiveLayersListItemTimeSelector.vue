@@ -33,27 +33,28 @@ const layersStore = useLayersStore()
 const hasMultipleTimestamps = computed<boolean>(() => timeConfig.timeEntries.length > 1)
 const hasValidTimestamps = computed<boolean>(() =>
     // External layers may have timestamp that we don't support (not "all", "current" or ISO timestamp)
-    timeConfig.timeEntries.every((entry) => ('year' in entry && !!entry.year) || !!entry.nonTimeBasedValue)
+    timeConfig.timeEntries.every(
+        (entry) => ('year' in entry && !!entry.year) || !!entry.nonTimeBasedValue
+    )
 )
 const hasTimeSelector = computed<boolean>(
     () => hasMultipleTimestamps.value && hasValidTimestamps.value
 )
 const isTimeSliderActive = computed<boolean>(() => uiStore.isTimeSliderActive)
 
-const timeConfigEntriesWithYear = computed<(LayerTimeConfigEntry & { year: string })[]>(() =>
+const timeConfigEntriesWithYear = computed<LayerTimeConfigEntry[]>(() =>
     timeConfig.timeEntries.filter(
-        (entry): entry is LayerTimeConfigEntry & { year: string } => ('year' in entry && !!entry.year) || !!entry.nonTimeBasedValue
+        (entry): entry is LayerTimeConfigEntry =>
+            ('year' in entry && !!entry.year) || !!entry.nonTimeBasedValue
     )
 )
 
 const humanReadableCurrentTimestamp = computed<string>(() =>
-    renderHumanReadableTimestamp(
-        timeConfig.currentTimeEntry as LayerTimeConfigEntry & { year: string }
-    )
+    renderHumanReadableTimestamp(timeConfig.currentTimeEntry)
 )
 
-function renderHumanReadableTimestamp(timeEntry?: LayerTimeConfigEntry & { year: string }): string {
-    if (!timeEntry || (!timeEntry.year && !timeEntry.nonTimeBasedValue)) {
+function renderHumanReadableTimestamp(timeEntry?: LayerTimeConfigEntry): string {
+    if (!timeEntry) {
         return '-'
     }
     if (timeEntry.nonTimeBasedValue === CURRENT_YEAR_TIMESTAMP) {
@@ -62,7 +63,13 @@ function renderHumanReadableTimestamp(timeEntry?: LayerTimeConfigEntry & { year:
     if (timeEntry.nonTimeBasedValue === ALL_YEARS_TIMESTAMP) {
         return t('time_all')
     }
-    return timeEntry.year
+    if (timeEntry.year) {
+        return `${timeEntry.year}`
+    }
+    if (timeEntry.nonTimeBasedValue) {
+        return t(timeEntry.nonTimeBasedValue)
+    }
+    return '-'
 }
 
 function handleClickOnTimestamp(entry: LayerTimeConfigEntry): void {
@@ -143,5 +150,6 @@ function isSelected(timeEntry: LayerTimeConfigEntry): boolean {
 }
 .btn-timestamp-selector {
     font-size: small;
+    max-width: 100px;
 }
 </style>
