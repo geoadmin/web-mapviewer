@@ -33,12 +33,14 @@ export default function useViewBasedOnProjection(map) {
         projection: LV95.epsg,
         extent: LV95.bounds.flatten,
         constrainOnlyCenter: true,
+        constrainResolution: true,
     })
     viewsForProjection[WEBMERCATOR.epsg] = new View({
         zoom: zoom.value,
         minResolution: VIEW_MIN_RESOLUTION,
         rotation: rotation.value,
         projection: WEBMERCATOR.epsg,
+        constrainResolution: true,
     })
 
     const roundedDoubleClickZoom = new DoubleClickZoom()
