@@ -5,9 +5,10 @@ import { FontAwesomeIcon, FontAwesomeLayers } from '@fortawesome/vue-fontawesome
 import log, { LogPreDefinedColor } from '@geoadmin/log'
 import GeoadminTooltip from '@geoadmin/tooltip'
 import { useRegisterSW } from 'virtual:pwa-register/vue'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { APP_VERSION } from '@/config/staging.config'
 import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 
 // check for updates every hour
@@ -18,8 +19,60 @@ const { withText = false } = defineProps<{
 }>()
 
 const isServiceWorkerActive = ref(false)
+const swValidationFailed = ref(false)
 
 const { t } = useI18n()
+
+/**
+ * Check if service worker versioning/configuration is valid by fetching the validation file
+ */
+async function checkSwValidation() {
+    try {
+        const response = await fetch(`${APP_VERSION}/sw-ready.json`, {
+            cache: 'no-store',
+            headers: {
+                'cache-control': 'no-cache',
+            },
+        })
+
+        if (!response.ok) {
+            log.warn({
+                title: 'OfflineReadinessStatus',
+                titleColor: LogPreDefinedColor.Sky,
+                messages: ['SW validation file not found - SW versioning may have failed'],
+            })
+            swValidationFailed.value = true
+            return
+        }
+
+        const validationData = await response.json()
+
+        if (!validationData.swVersioned) {
+            log.error({
+                title: 'OfflineReadinessStatus',
+                titleColor: LogPreDefinedColor.Sky,
+                messages: [
+                    'SW validation FAILED - service worker was not properly versioned',
+                    validationData,
+                ],
+            })
+            swValidationFailed.value = true
+        } else {
+            log.debug({
+                title: 'OfflineReadinessStatus',
+                titleColor: LogPreDefinedColor.Sky,
+                messages: ['SW validation passed', validationData],
+            })
+        }
+    } catch (error) {
+        log.error({
+            title: 'OfflineReadinessStatus',
+            titleColor: LogPreDefinedColor.Sky,
+            messages: ['Failed to check SW validation', error],
+        })
+        swValidationFailed.value = true
+    }
+}
 
 /**
  * This function will register a periodic sync check every hour and check if there are newer
@@ -79,7 +132,15 @@ const { offlineReady, needRefresh, updateServiceWorker } = useRegisterSW({
     },
 })
 
+onMounted(() => {
+    // Check SW validation status on component mount
+    checkSwValidation()
+})
+
 const statusIcon = computed<string>(() => {
+    if (swValidationFailed.value) {
+        return 'circle-xmark'
+    }
     if (isServiceWorkerActive.value) {
         return 'check'
     }
@@ -89,11 +150,14 @@ const statusIcon = computed<string>(() => {
     return 'circle-notch'
 })
 const shouldStatusIconSpin = computed<boolean>(
-    () => !isServiceWorkerActive.value && !needRefresh.value
+    () => !swValidationFailed.value && !isServiceWorkerActive.value && !needRefresh.value
 )
 const tooltipContent = computed<string>(() => {
     const title = t('offline_modal_title')
     let extraInfoKey = 'wait_data_loading'
+    if (swValidationFailed.value) {
+        return `${title}: Service worker configuration error. Offline functionality may not work correctly.`
+    }
     if (needRefresh.value) {
         extraInfoKey = 'offline_cache_obsolete'
     }
@@ -158,16 +222,23 @@ function refreshCache() {
             <FontAwesomeIcon
                 :icon="statusIcon"
                 :spin="shouldStatusIconSpin"
-                :class="{ 'tw:text-lime-500': offlineReady, 'tw:text-amber-500': needRefresh }"
+                :class="{
+                    'tw:text-lime-500': offlineReady && !swValidationFailed,
+                    'tw:text-amber-500': needRefresh,
+                    'tw:text-red-600': swValidationFailed,
+                }"
                 size="sm"
             />
-            <span v-if="withText && !offlineReady && !needRefresh">
+            <span v-if="withText && swValidationFailed">
+                Service worker configuration error
+            </span>
+            <span v-if="withText && !swValidationFailed && !offlineReady && !needRefresh">
                 {{ t('wait_data_loading') }}
             </span>
-            <span v-if="withText && offlineReady && !needRefresh">
+            <span v-if="withText && !swValidationFailed && offlineReady && !needRefresh">
                 {{ t('offline_dl_succeed') }}
             </span>
-            <span v-if="withText && needRefresh">
+            <span v-if="withText && !swValidationFailed && needRefresh">
                 {{ t('offline_cache_obsolete') }}
             </span>
         </div>

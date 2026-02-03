@@ -18,7 +18,7 @@ declare let self: ServiceWorkerGlobalScope
 
 // disabling workbox's console.debug (comment that line if you need them)
 self.__WB_DISABLE_DEV_LOGS = true
-
+console.log('Service Worker: workbox dev logs are disabled:', self.__WB_DISABLE_DEV_LOGS)
 // Setting up Service Worker API to have a client-side cache.
 // This means the app can mostly function in offline mode, so long as the initial load has happened naturally before.
 // This is the first step to get a proper offline mode, where users will be able to select
@@ -27,6 +27,7 @@ self.__WB_DISABLE_DEV_LOGS = true
 // Cypress doesn't handle well Service Worker API being active, so we skip the setup if we
 // are testing things with Cypress
 if (!IS_TESTING_WITH_CYPRESS) {
+    console.log('Service Worker: initializing the service worker...')
     // self.__WB_MANIFEST is the default injection point
     precacheAndRoute(self.__WB_MANIFEST)
 
