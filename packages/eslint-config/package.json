@@ -1,0 +1,46 @@
+{
+    "name": "@swissgeo/eslint-config",
+    "version": "0.0.1",
+    "description": "Shared ESLint config",
+    "type": "module",
+    "main": "index.ts",
+    "scripts": {
+        "lint": "eslint --fix",
+        "lint:no-fix": "eslint",
+        "generate-types": "tsc --declaration",
+        "type-check": "tsc -p tsconfig.json"
+    },
+    "devDependencies": {
+        "@eslint/js": "catalog:",
+        "@eslint/markdown": "catalog:",
+        "@microsoft/api-extractor": "catalog:",
+        "@prettier/plugin-xml": "catalog:",
+        "@swissgeo/typescript-config": "workspace:*",
+        "@typescript-eslint/utils": "catalog:",
+        "@vue/eslint-config-prettier": "catalog:",
+        "@vue/eslint-config-typescript": "catalog:",
+        "eslint-plugin-chai-friendly": "catalog:",
+        "eslint-plugin-cypress": "catalog:",
+        "eslint-plugin-mocha": "catalog:",
+        "eslint-plugin-perfectionist": "catalog:",
+        "eslint-plugin-prettier": "catalog:",
+        "eslint-plugin-vue": "catalog:",
+        "globals": "catalog:",
+        "prettier": "catalog:",
+        "prettier-plugin-jsdoc": "catalog:",
+        "prettier-plugin-packagejson": "catalog:",
+        "prettier-plugin-tailwindcss": "catalog:",
+        "stylelint": "catalog:",
+        "stylelint-config-recommended-scss": "catalog:",
+        "stylelint-config-recommended-vue": "catalog:",
+        "stylelint-order": "catalog:",
+        "stylelint-scss": "catalog:",
+        "typescript": "catalog:",
+        "typescript-eslint": "catalog:",
+        "unplugin-dts": "catalog:",
+        "vite": "catalog:"
+    },
+    "peerDependencies": {
+        "eslint": "catalog:"
+    }
+}

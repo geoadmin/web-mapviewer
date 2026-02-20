@@ -1,0 +1,19 @@
+{
+    "extends": "@swissgeo/typescript-config/tsconfig.vue.json",
+    "include": [
+        "**/*.ts",
+        "**/*.js",
+        "**/*.vue",
+        "vite.config.ts"
+    ],
+    "exclude": [
+        "eslint.config.mts",
+        // the tests/cypress folder is managed as a separate TS project (it has its own tsconfig.json)
+        "tests/cypress"
+    ],
+    "compilerOptions": {
+        // see https://www.typescriptlang.org/tsconfig#allowJs
+        // see https://github.com/vuejs/eslint-config-typescript?tab=readme-ov-file#advanced-setup
+        "allowJs": true
+    }
+}

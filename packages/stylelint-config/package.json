@@ -1,0 +1,26 @@
+{
+    "name": "@swissgeo/stylelint-config",
+    "private": true,
+    "type": "module",
+    "main": "index.js",
+    "scripts": {
+        "lint": "eslint --fix",
+        "lint:no-fix": "eslint"
+    },
+    "devDependencies": {
+        "@swissgeo/eslint-config": "workspace:*",
+        "@swissgeo/typescript-config": "workspace:*",
+        "eslint": "catalog:",
+        "postcss-html": "catalog:",
+        "stylelint": "catalog:",
+        "stylelint-config-recommended-scss": "catalog:",
+        "stylelint-config-recommended-vue": "catalog:",
+        "stylelint-order": "catalog:",
+        "stylelint-scss": "catalog:",
+        "typescript": "catalog:"
+    },
+    "peerDependencies": {
+      "stylelint": "catalog:"
+    },
+    "packageManager": "^pnpm@10.15.0"
+}
