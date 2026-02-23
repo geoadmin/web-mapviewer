@@ -1396,16 +1396,30 @@ describe('Drawing module tests', () => {
             })
             cy.task('clearFolder', downloadsFolder)
 
-            cy.log('it exports a GPX if chosen in the dropdown')
+            cy.log('it exports a GPX Route if chosen in the dropdown')
             cy.get(
                 '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]'
             ).click()
             cy.get(
-                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-GPX"]'
+                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-GPX-Route"]'
             ).click()
             checkFiles('gpx', (content) => {
-                // 1 <rte> (routes), for the single LINEPOLYGON
-                expect(content).to.match(/<gpx.*<rte>.*<\/rte>.*<\/gpx>/)
+                // 1 <rte> (route), for the single LINEPOLYGON
+                expect(content).to.match(/<gpx.*<rte>.*<rtept.*<\/rte>.*<\/gpx>/)
+            })
+
+            cy.task('clearFolder', downloadsFolder)
+
+            cy.log('it exports a GPX Track if chosen in the dropdown')
+            cy.get(
+                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-toggle-button"]'
+            ).click()
+            cy.get(
+                '[data-cy="drawing-toolbox-export-button"] [data-cy="dropdown-item-GPX-Track"]'
+            ).click()
+            checkFiles('gpx', (content) => {
+                // 1 <trk> (track), for the single LINEPOLYGON
+                expect(content).to.match(/<gpx.*<trk>.*<trkseg>.*<trkpt.*<\/trkseg>.*<\/trk>.*<\/gpx>/)
             })
 
             cy.task('clearFolder', downloadsFolder)

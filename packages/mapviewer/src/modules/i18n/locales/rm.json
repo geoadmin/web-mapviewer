@@ -228,6 +228,8 @@
     "export": "Exportar",
     "export_kml": "Exportar",
     "export_kml_notsupported": "Voss browser na sustegna betg arcunar. Duvrai  IE10, Firefox u Chrome.",
+    "gpx_route": "GPX (Route)",
+    "gpx_track": "GPX (Track)",
     "external_data_tooltip": "Datas e/u stil da terzas partidas",
     "external_data_warning": "Attenziun: questas datas e/u stil derivan da partidas terzas  (--URL--). La disponibladad vegn garantida tras partidas terzas. Ultra da quai valan las cundiziuns dals patruns da las datas correspundentas.",
     "extra_large_size": "Extra Grond",
