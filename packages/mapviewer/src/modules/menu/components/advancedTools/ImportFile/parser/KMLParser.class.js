@@ -42,9 +42,12 @@ export class KMLParser extends FileParser {
      * @param currentProjection
      * @param {Map<string, ArrayBuffer>} [linkFiles] Used in the context of a KMZ to carry the
      *   embedded files with the layer
+     * @param {ArrayBuffer} [kmzContent] Content of the whole KMZ archive (untouched/zipped), if this
+     *   layer is coming from a KMZ file. Necessary to load the layer inside the Cesium viewer (to
+     *   have access to the linked files).
      * @returns {Promise<KMLLayer>}
      */
-    async parseFileContent(fileContent, fileSource, currentProjection, linkFiles = new Map()) {
+    async parseFileContent(fileContent, fileSource, currentProjection, linkFiles = new Map(), kmzContent = null) {
         if (!isKml(fileContent)) {
             throw new InvalidFileContentError('No KML data found in this file')
         }
@@ -70,6 +73,7 @@ export class KMLParser extends FileParser {
             extent: extentInCurrentProjection,
             extentProjection: currentProjection,
             linkFiles,
+            kmzContent
         })
 
         if (!isKmlFeaturesValid(kmlAsText)) {

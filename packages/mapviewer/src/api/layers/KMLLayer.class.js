@@ -43,6 +43,9 @@ export default class KMLLayer extends AbstractLayer {
      *   tracks) that were not clamped to the ground (they are providing height values), and others
      *   wanted to have their flat surface visible on the ground, so that is the way to please both
      *   crowds.
+     * @param {ArrayBuffer} [kmlLayerData.kmzContent] Content of the whole KMZ archive
+     *   (untouched/zipped), if this layer is coming from a KMZ file. Necessary to load the layer
+     *   inside the Cesium viewer (to have access to the linked files).
      * @throws InvalidLayerDataError if no `kmlLayerData` is given or if it is invalid
      */
     constructor(kmlLayerData) {
@@ -62,6 +65,7 @@ export default class KMLLayer extends AbstractLayer {
             extentProjection = null,
             style = null,
             clampToGround = null,
+            kmzContent = null,
         } = kmlLayerData
         if (kmlFileUrl === null) {
             throw new InvalidLayerDataError('Missing KML file URL', kmlLayerData)
@@ -106,6 +110,7 @@ export default class KMLLayer extends AbstractLayer {
         }
         this.kmlData = kmlData
         this.linkFiles = linkFiles
+        this.kmzContent = kmzContent
         this.extent = extent
         this.extentProjection = extentProjection
         if (style === null) {
