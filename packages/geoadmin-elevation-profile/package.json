@@ -53,6 +53,7 @@
         "@intlify/core-base": "catalog:",
         "@tailwindcss/vite": "catalog:",
         "@tsconfig/node22": "catalog:",
+        "@types/chai": "catalog:",
         "@types/jsdom": "catalog:",
         "@vitejs/plugin-vue": "catalog:",
         "@vue/tsconfig": "catalog:",

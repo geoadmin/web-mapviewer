@@ -228,9 +228,9 @@ async function updateHeight() {
     &-coordinates {
         display: grid;
         grid-template-columns: max-content auto;
-        grid-column-gap: 8px;
+        column-gap: 8px;
         font-size: 0.75rem;
-        grid-row-gap: 2px;
+        row-gap: 2px;
         &-label {
             white-space: nowrap;
         }

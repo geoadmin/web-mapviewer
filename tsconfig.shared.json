@@ -12,16 +12,12 @@
         "module": "ESNext",
         "moduleResolution": "bundler",
         "esModuleInterop": true,
-        "lib": [
-            "DOM",
-            "ESNext.Array",
-            "ESNext",
-            "webworker"
-        ],
+        "lib": ["DOM", "ESNext.Array", "ESNext", "webworker"],
 
         // see https://vite.dev/guide/features.html#typescript-compiler-options
         "isolatedModules": true,
         "useDefineForClassFields": true,
+        "strictNullChecks": false,
 
         "baseUrl": "${configDir}",
         "outDir": "${configDir}/dist",
