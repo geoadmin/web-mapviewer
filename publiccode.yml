@@ -1,4 +1,4 @@
-publiccodeYmlVersion: 0.4.0
+publiccodeYmlVersion: 0.5.0
 name: Map Viewer
 applicationSuite: geo.admin.ch
 url: https://github.com/geoadmin/web-mapviewer.git
@@ -9,6 +9,9 @@ categories:
   - geographic-information-systems
 developmentStatus: stable
 softwareType: standalone/web
+organisation:
+  uri: https://ld.admin.ch/office/IV.1.5a
+  name: Federal Office of Topography
 description:
   en:
     localisedName: Map Viewer
