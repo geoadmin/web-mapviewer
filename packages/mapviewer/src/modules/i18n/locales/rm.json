@@ -361,6 +361,7 @@
     "kml_icon_url_scheme_http": "Il MPML \" {layerName}\" cuntegna iconas cun il URL {url} en il program da http. A partir dals 31 da schaner 2025 vegn il sustegn per questas resursas franà, i vegn rapportà mo pli da las resursas da https. Ulteriuras infurmaziuns sin https://www.geo.admin.ch/de/informationen-ssl-zertifikate-http-protokoll",
     "kml_malformed": "La datoteca da las KML importada '{filename}' n'è betg formulada fauss, verifitgai Voss dossier.",
     "kml_no_text_elements": " Infurmaziun: ils labels na vegnan betg memorisads",
+    "kml_ol_missing_feature_support": "Il {layerType} \"{layerName}\" cuntegna funcziuns che na vegnan betg sustegnidas da noss maletg 2D. Il resultat sin la charta po perquai variar.",
     "kml_style_default": "Standard",
     "kml_style_geoadmin": "GeoAdmin",
     "kmlimport_tooltip": "Agiuntar in unitad da datas externa KML",

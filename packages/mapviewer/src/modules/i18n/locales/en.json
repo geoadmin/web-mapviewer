@@ -361,6 +361,7 @@
     "kml_icon_url_scheme_http": "The {layerName} KML contains icons with the URL {url} in http. As of January 31, 2025, support for these resources will be discontinued, and only https resources will be supported. For more information, see https://www.geo.admin.ch/en/important-imformation-ssl-certificates-http-protocols",
     "kml_malformed": "The imported KML file '{filename}' is malformed, please verify your file.",
     "kml_no_text_elements": "Information: The labels won't be saved",
+    "kml_ol_missing_feature_support": "The {layerType} \"{layerName}\" contains unsupported features for our 2D viewer, the result on the map may vary.",
     "kml_style_default": "default",
     "kml_style_geoadmin": "GeoAdmin",
     "kmlimport_tooltip": "Import external KML data sources",
