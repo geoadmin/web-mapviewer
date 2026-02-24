@@ -109,7 +109,7 @@ The store is divided into modules that mostly correspond to the application part
 The goal is to have a centralized way of dealing with changes, and not delegate that to each component.
 
 Store plugins can be used to react to store changes.
-See the [store read-me](packages/viewer/src/store/README.md) for more information.
+See the [store read-me](packages/mapviewer/src/store/README.md) for more information.
 
 ### Best practices
 
@@ -117,7 +117,7 @@ See the [store read-me](packages/viewer/src/store/README.md) for more informatio
 - Don't use a complex object as reactive data
 - Avoid using JavaScript getter and setter in class that are used in reactive data
 
-See also [Store Best Practices](packages/viewer/src/store/README.md#best-practices)
+See also [Store Best Practices](packages/mapviewer/src/store/README.md#best-practices)
 
 ### Vue Composition API
 
