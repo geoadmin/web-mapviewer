@@ -13,11 +13,13 @@ export default {
             name: '@geoadmin/elevation-profile',
         },
         rollupOptions: {
-            external: ['vue', 'tailwindcss'],
+            external: ['vue', 'ol', 'cesium', 'tailwindcss'],
             output: {
                 exports: 'named',
                 globals: {
                     vue: 'Vue',
+                    ol: 'ol',
+                    cesium: 'cesium'
                 }
             },
         },

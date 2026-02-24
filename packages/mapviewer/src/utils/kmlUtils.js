@@ -668,14 +668,16 @@ export class KMZError extends Error {}
  * @class
  * @property {string} name Name of the KMZ archive
  * @property {ArrayBuffer} kml Content of the KML file within the KMZ archive (unzipped)
+ * @property {ArrayBuffer} kmz Content of the whole KMZ archive (untouched/zipped)
  * @property {Map<string, ArrayBuffer>} files A Map of files with their absolute path as key and
  *   their unzipped content as ArrayBuffer
  */
 export class KMZObject {
     constructor(params = {}) {
-        const { name = null, kml = null, files = new Map() } = params
+        const { name = null, kml = null, kmz = null, files = new Map() } = params
         this.name = name
         this.kml = kml
+        this.kmz = kmz
         this.files = files
     }
 }
@@ -690,7 +692,7 @@ export class KMZObject {
  * @returns {KMZObject} Returns a KMZ unzip object
  */
 export async function unzipKmz(kmzContent, kmzFileName) {
-    const kmz = new KMZObject({ name: kmzFileName })
+    const kmz = new KMZObject({ name: kmzFileName, kmz: kmzContent })
     const zip = new JSZip()
     try {
         await zip.loadAsync(kmzContent)

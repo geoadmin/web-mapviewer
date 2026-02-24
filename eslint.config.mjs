@@ -70,6 +70,7 @@ export default defineConfigWithVueTs(
                 { type: 'alphabetical', internalPattern: ['^@/.*'] },
             ],
             'vue/html-indent': ['error', 4],
+            'no-useless-assignment': 'off'
         },
     },
     {

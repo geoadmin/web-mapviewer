@@ -3,12 +3,13 @@
     "private": true,
     "scripts": {
         "build": "pnpm run --recursive build",
-        "build-libs": "pnpm --filter=!web-mapviewer run --recursive build",
         "build:dev": "pnpm --recursive run build:dev",
         "build:dev:watch": "pnpm --filter=!web-mapviewer --recursive --parallel --if-present run build:dev:watch",
         "build:int": "pnpm --recursive run build:int",
         "build:prod": "pnpm --recursive run build:prod",
+        "build-libs": "pnpm --filter=!web-mapviewer run --recursive build",
         "dev": "pnpm --filter=web-mapviewer run dev ",
+        "force-reinstall": "node ./scripts/force-pnpm-reinstall.js",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
         "lint": "eslint --fix || stylelint \"**/*.{vue,scss}\" --fix",
@@ -18,15 +19,16 @@
         "preview": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview",
         "preview:dev": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:dev ",
         "preview:int": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:int",
-        "preview:test": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:test",
         "preview:prod": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:prod",
+        "preview:test": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:test",
         "test:component": "pnpm --filter=web-mapviewer run test:component",
         "test:component:ci": "pnpm --filter=web-mapviewer run test:component:ci",
         "test:e2e": "pnpm --filter=web-mapviewer run test:e2e",
         "test:e2e:ci": "pnpm --filter=web-mapviewer run test:e2e:ci",
         "test:e2e:headless": "pnpm --filter=web-mapviewer run test:e2e:headless",
         "test:unit": "pnpm run --recursive --if-present test:unit",
-        "test:unit:watch": "pnpm run --recursive --if-present  test:unit:watch"
+        "test:unit:watch": "pnpm run --recursive --if-present  test:unit:watch",
+        "update:pnpm-workspace": "node ./scripts/update-pnpm-workspace.js"
     },
     "dependencies": {
         "cesium": "catalog:"
@@ -64,7 +66,8 @@
         "vite": "catalog:",
         "vite-plugin-dts": "catalog:",
         "vitest": "catalog:",
-        "vue-tsc": "catalog:"
+        "vue-tsc": "catalog:",
+        "yaml": "catalog:"
     },
     "engines": {
         "node": ">=22",
@@ -72,6 +75,8 @@
     },
     "pnpm": {
         "onlyBuiltDependencies": [
+            "@parcel/watcher",
+            "@tailwindcss/oxide",
             "cypress",
             "sharp"
         ],

@@ -1,0 +1,60 @@
+publiccodeYmlVersion: 0.5.0
+name: Map Viewer
+applicationSuite: geo.admin.ch
+url: https://github.com/geoadmin/web-mapviewer.git
+landingURL: https://github.com/geoadmin/web-mapviewer
+platforms:
+  - web
+categories:
+  - geographic-information-systems
+developmentStatus: stable
+softwareType: standalone/web
+organisation:
+  uri: https://ld.admin.ch/office/IV.1.5a
+  name: Federal Office of Topography
+description:
+  en:
+    localisedName: Map Viewer
+    shortDescription: The map viewer behind map.geo.admin.ch
+    longDescription: The Swiss Confederation Map Viewer is an interactive online
+      tool that lets users explore a wide range of official geographic data from
+      Switzerland. Whether you’re a citizen, researcher, or professional, you
+      can easily view, search, and analyze detailed maps showing everything from
+      administrative borders and natural landscapes to infrastructure and
+      environmental information. With its intuitive interface and reliable data
+      from trusted federal and cantonal sources, the viewer supports informed
+      decisions and provides transparent access to Switzerland’s authoritative
+      spatial information.
+    documentation: https://www.geo.admin.ch/en/map-viewer-help
+    apiDocumentation: https://api3.geo.admin.ch/
+    features:
+      - Display maps
+      - Search geo data
+      - Print maps
+      - Create customized maps
+      - Measure distances
+      - Compare maps with a split view slider
+      - Import maps from other map providers or local files
+      - Create a mini map to embed in a website
+      - Time travel through snapshots of maps at different points in time
+      - Browse the geocatalogue of the Swiss Confederation and the Cantons by
+        topic
+    screenshots:
+      - screenshots/map-geo-admin-matterhorn.png
+legal:
+  license: BSD-3-Clause-Modification
+maintenance:
+  type: internal
+  contacts:
+    - name: Helpdesk geo.admin.ch
+      email: info@geo.admin.ch
+      phone: +41 58 469 01 11
+      affiliation: Swisstopo
+localisation:
+  localisationReady: true
+  availableLanguages:
+    - de
+    - fr
+    - it
+    - rm-CH
+    - en

@@ -44,7 +44,7 @@ function reassembleLineSegments(
                 throw new Error('Feature missing geometry')
             }
         })
-        const closest = candidateFeatures.shift() as Feature<LineString, GeoJsonProperties>
+        const closest = candidateFeatures.shift()
         origin = closest.geometry.coordinates[closest.geometry.coordinates.length - 1]
         orderedFeatures.push(closest)
     }

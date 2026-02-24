@@ -45,6 +45,6 @@ export default class KMZParser extends FileParser {
             data,
             this.isLocalFile(fileSource) ? fileSource.name : fileSource
         )
-        return kmlParser.parseFileContent(kmz.kml, kmz.name, currentProjection, kmz.files)
+        return kmlParser.parseFileContent(kmz.kml, kmz.name, currentProjection, kmz.files, kmz.kmz)
     }
 }
