@@ -1,14 +1,8 @@
 <script lang="ts" setup>
+import type { Viewer } from 'cesium'
+
 import { type SingleCoordinate, WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
-import {
-    CallbackProperty,
-    Cartesian3,
-    Color,
-    Ellipsoid,
-    Entity,
-    HeightReference,
-    Viewer,
-} from 'cesium'
+import { CallbackProperty, Cartesian3, Color, Ellipsoid, Entity, HeightReference } from 'cesium'
 import proj4 from 'proj4'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
