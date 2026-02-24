@@ -20,6 +20,7 @@ const { withText = false } = defineProps<{
 
 const isServiceWorkerActive = ref(false)
 const swValidationFailed = ref(false)
+const swInsecureContext = ref(false)
 
 const { t } = useI18n()
 
@@ -27,6 +28,10 @@ const { t } = useI18n()
  * Check if service worker versioning/configuration is valid by fetching the validation file
  */
 async function checkSwValidation() {
+    if (import.meta.env.DEV || swInsecureContext.value) {
+        return
+    }
+
     try {
         const response = await fetch(`${APP_VERSION}/sw-ready.json`, {
             cache: 'no-store',
@@ -42,6 +47,19 @@ async function checkSwValidation() {
                 messages: ['SW validation file not found - SW versioning may have failed'],
             })
             swValidationFailed.value = true
+            return
+        }
+
+        const contentType = response.headers.get('content-type') ?? ''
+        if (!contentType.includes('application/json')) {
+            log.warn({
+                title: 'OfflineReadinessStatus',
+                titleColor: LogPreDefinedColor.Sky,
+                messages: [
+                    'SW validation response is not JSON - SW versioning may not be active in this mode',
+                    contentType,
+                ],
+            })
             return
         }
 
@@ -100,38 +118,68 @@ function registerPeriodicSync(serviceWorkerUrl: string, registration: ServiceWor
     }, period)
 }
 
-const { offlineReady, needRefresh, updateServiceWorker } = useRegisterSW({
-    immediate: true,
-    onRegisteredSW(serviceWorkerUrl, registration) {
-        log.debug({
-            title: 'OfflineReadinessStatus',
-            titleColor: LogPreDefinedColor.Sky,
-            messages: ['ServiceWorker registration pending', registration],
-        })
-        if (registration?.active?.state === 'activated') {
+type BooleanRefLike = { value: boolean }
+
+let offlineReadySource: BooleanRefLike = { value: false }
+let needRefreshSource: BooleanRefLike = { value: false }
+const offlineReady = computed(() => offlineReadySource.value)
+const needRefresh = computed(() => needRefreshSource.value)
+let updateServiceWorker: (_reloadPage?: boolean) => Promise<void> = () => Promise.resolve()
+
+if (window.isSecureContext) {
+    const registerSw = useRegisterSW({
+        immediate: true,
+        onRegisterError(error) {
+            log.error({
+                title: 'OfflineReadinessStatus',
+                titleColor: LogPreDefinedColor.Sky,
+                messages: ['ServiceWorker registration failed', error],
+            })
+        },
+        onRegisteredSW(serviceWorkerUrl, registration) {
             log.debug({
                 title: 'OfflineReadinessStatus',
                 titleColor: LogPreDefinedColor.Sky,
-                messages: ['ServiceWorker activated', registration],
+                messages: ['ServiceWorker registration pending', registration],
             })
-            isServiceWorkerActive.value = true
-            registerPeriodicSync(serviceWorkerUrl, registration)
-        } else if (registration?.installing) {
-            registration.installing.addEventListener('statechange', (e) => {
-                const sw = e.target as ServiceWorker
+            if (registration?.active?.state === 'activated') {
                 log.debug({
                     title: 'OfflineReadinessStatus',
                     titleColor: LogPreDefinedColor.Sky,
-                    messages: ['ServiceWorker state change', sw.state],
+                    messages: ['ServiceWorker activated', registration],
                 })
-                isServiceWorkerActive.value = sw.state === 'activated'
-                if (isServiceWorkerActive.value) {
-                    registerPeriodicSync(serviceWorkerUrl, registration)
-                }
-            })
-        }
-    },
-})
+                isServiceWorkerActive.value = true
+                registerPeriodicSync(serviceWorkerUrl, registration)
+            } else if (registration?.installing) {
+                registration.installing.addEventListener('statechange', (e) => {
+                    const sw = e.target as ServiceWorker
+                    log.debug({
+                        title: 'OfflineReadinessStatus',
+                        titleColor: LogPreDefinedColor.Sky,
+                        messages: ['ServiceWorker state change', sw.state],
+                    })
+                    isServiceWorkerActive.value = sw.state === 'activated'
+                    if (isServiceWorkerActive.value) {
+                        registerPeriodicSync(serviceWorkerUrl, registration)
+                    }
+                })
+            }
+        },
+    })
+
+    updateServiceWorker = registerSw.updateServiceWorker
+    offlineReadySource = registerSw.offlineReady
+    needRefreshSource = registerSw.needRefresh
+} else {
+    swInsecureContext.value = true
+    log.warn({
+        title: 'OfflineReadinessStatus',
+        titleColor: LogPreDefinedColor.Sky,
+        messages: [
+            'ServiceWorker registration skipped: insecure context (HTTPS with trusted certificate required).',
+        ],
+    })
+}
 
 onMounted(() => {
     // Check SW validation status on component mount
@@ -145,6 +193,9 @@ onMounted(() => {
 })
 
 const statusIcon = computed<string>(() => {
+    if (swInsecureContext.value) {
+        return 'triangle-exclamation'
+    }
     if (swValidationFailed.value) {
         return 'circle-xmark'
     }
@@ -157,11 +208,18 @@ const statusIcon = computed<string>(() => {
     return 'circle-notch'
 })
 const shouldStatusIconSpin = computed<boolean>(
-    () => !swValidationFailed.value && !isServiceWorkerActive.value && !needRefresh.value
+    () =>
+        !swInsecureContext.value &&
+        !swValidationFailed.value &&
+        !isServiceWorkerActive.value &&
+        !needRefresh.value
 )
 const tooltipContent = computed<string>(() => {
     const title = t('offline_modal_title')
     let extraInfoKey = 'wait_data_loading'
+    if (swInsecureContext.value) {
+        return `${title}: Service worker requires a secure context (HTTPS with a trusted certificate).`
+    }
     if (swValidationFailed.value) {
         return `${title}: Service worker configuration error. Offline functionality may not work correctly.`
     }
@@ -231,11 +289,14 @@ function refreshCache() {
                 :spin="shouldStatusIconSpin"
                 :class="{
                     'tw:text-lime-500': offlineReady && !swValidationFailed,
-                    'tw:text-amber-500': needRefresh,
+                    'tw:text-amber-500': needRefresh || swInsecureContext,
                     'tw:text-red-600': swValidationFailed,
                 }"
                 size="sm"
             />
+            <span v-if="withText && swInsecureContext">
+                Service worker requires HTTPS with a trusted certificate
+            </span>
             <span v-if="withText && swValidationFailed">
                 Service worker configuration error
             </span>

@@ -1,12 +1,11 @@
 /**
- * Vite plugin that versions the service worker path in generated bundles.
+ * Vite plugin that validates the service worker registration path and emits a build validation file.
  *
  * This plugin:
  * 1. Finds chunks containing service worker registration code from the virtual:pwa-register module
- * 2. Replaces "./service-workers.js" with the versioned path (e.g., "./v1.59.0/service-workers.js")
- * 3. Injects scope configuration {scope:"/"} to ensure SW controls the entire origin
- * 4. Emits a validation file (sw-ready.json) to indicate successful configuration
- * 5. Warns if no SW registration pattern is found (validation failure)
+ * 2. Validates that the registration path remains "./service-workers.js" (root scope-safe path)
+ * 3. Emits a validation file (sw-ready.json) to indicate successful configuration
+ * 4. Warns if no SW registration pattern is found (validation failure)
  */
 export default function versionServiceWorkerPath(appVersion, staging) {
     let swPatternFound = false
@@ -28,7 +27,7 @@ export default function versionServiceWorkerPath(appVersion, staging) {
                 const chunk = bundle[fileName]
 
                 if (chunk.type === 'chunk' && chunk.code) {
-                    // Pattern 1: Look for Workbox registration with the SW path
+                    // Pattern 1: Look for Workbox registration with root SW path
                     // Example: new Workbox("./service-workers.js", {...})
                     const workboxPattern = /new\s+(\w+)\("\.\/service-workers\.js"/g
 
@@ -38,44 +37,15 @@ export default function versionServiceWorkerPath(appVersion, staging) {
                             `[vite-plugin-version-sw-path] Found SW registration in ${fileName}`
                         )
                         swPatternFound = true
-
-                        // Replace the SW path with versioned path
-                        chunk.code = chunk.code.replace(
-                            /new\s+(\w+)\("\.\/service-workers\.js"/g,
-                            `new $1("./${appVersion}/service-workers.js"`
-                        )
-
-                        // Pattern 2: Also check for scope configuration and inject if needed
-                        // Look for the options object: new Workbox("path", {scope:"./", type:"classic"})
-                        // We need to ensure scope is set to "/" for root-level control
-                        const scopePattern = /new\s+(\w+)\("\.\/[^"]+",\s*\{([^}]*)\}/g
-
-                        chunk.code = chunk.code.replace(scopePattern, (match, constructor, opts) => {
-                            // Check if scope is already defined
-                            if (opts.includes('scope:')) {
-                                // Replace existing scope with "/"
-                                const newOpts = opts.replace(/scope:\s*"[^"]*"/, 'scope:"/"')
-                                return `new ${constructor}("./${appVersion}/service-workers.js",{${newOpts}}`
-                            } else {
-                                // Inject scope if not present
-                                return `new ${constructor}("./${appVersion}/service-workers.js",{scope:"/",${opts}}`
-                            }
-                        })
                     }
 
-                    // Pattern 3: Look for standalone string references to the SW path
-                    // (in case registration uses a different pattern)
+                    // Pattern 2: Look for standalone string references to the root SW path
                     if (chunk.code.includes('"./service-workers.js"')) {
                         // eslint-disable-next-line no-console
                         console.log(
                             `[vite-plugin-version-sw-path] Found SW path reference in ${fileName}`
                         )
                         swPatternFound = true
-
-                        chunk.code = chunk.code.replace(
-                            /"\.\/service-workers\.js"/g,
-                            `"./${appVersion}/service-workers.js"`
-                        )
                     }
                 }
             }
@@ -95,7 +65,7 @@ export default function versionServiceWorkerPath(appVersion, staging) {
             // Emit validation file indicating whether SW versioning succeeded
             const validationData = {
                 swVersioned: swPatternFound,
-                swPath: swPatternFound ? `${appVersion}/service-workers.js` : null,
+                swPath: swPatternFound ? 'service-workers.js' : null,
                 timestamp: new Date().toISOString(),
                 staging,
                 version: appVersion,

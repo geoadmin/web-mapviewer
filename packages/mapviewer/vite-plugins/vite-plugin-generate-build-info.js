@@ -91,7 +91,7 @@ export default function generateBuildInfo(staging, version, mode) {
                             },
                             serviceWorker: {
                                 path:
-                                    mode === 'production'
+                                    mode !== 'test'
                                         ? `${version}/service-workers.js`
                                         : 'service-workers.js',
                                 version: version,

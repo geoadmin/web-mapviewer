@@ -161,8 +161,8 @@ export default defineConfig(({ mode }) => {
                         ],
                     },
                 }),
-            // Service worker versioning plugins - only in production mode
-            ...(mode !== 'development'
+            // Service worker versioning plugins - enabled for all non-test builds
+            ...(mode !== 'test'
                 ? [
                     versionServiceWorkerPath(appVersion, stagings[definitiveMode]),
                     moveServiceWorkerFile(appVersion, stagings[definitiveMode]),

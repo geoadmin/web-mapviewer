@@ -1,5 +1,6 @@
 /// <reference lib="webworker" />
 
+import log, { LogPreDefinedColor } from '@geoadmin/log'
 import { CacheableResponsePlugin } from 'workbox-cacheable-response'
 import { clientsClaim } from 'workbox-core'
 import { ExpirationPlugin } from 'workbox-expiration'
@@ -12,14 +13,19 @@ import { NavigationRoute, registerRoute, Route } from 'workbox-routing'
 import { NetworkFirst } from 'workbox-strategies'
 
 import { getWmsBaseUrl, getWmtsBaseUrl } from '@/config/baseUrl.config'
-import { IS_TESTING_WITH_CYPRESS } from '@/config/staging.config'
 
 declare let self: ServiceWorkerGlobalScope
 
 // disabling workbox's console.debug (comment that line if you need them)
 self.__WB_DISABLE_DEV_LOGS = true
-// eslint-disable-next-line no-console
-console.log('Service Worker: workbox dev logs are disabled:', self.__WB_DISABLE_DEV_LOGS)
+log.debug({
+    title: 'Service Worker: dev logs disabled',
+    titleColor: LogPreDefinedColor.Sky,
+    messages: [
+        'Service Worker: workbox dev logs are disabled',
+        String(self.__WB_DISABLE_DEV_LOGS),
+    ],
+})
 // Setting up Service Worker API to have a client-side cache.
 // This means the app can mostly function in offline mode, so long as the initial load has happened naturally before.
 // This is the first step to get a proper offline mode, where users will be able to select
@@ -27,41 +33,41 @@ console.log('Service Worker: workbox dev logs are disabled:', self.__WB_DISABLE_
 
 // Cypress doesn't handle well Service Worker API being active, so we skip the setup if we
 // are testing things with Cypress
-if (!IS_TESTING_WITH_CYPRESS) {
-    // eslint-disable-next-line no-console
-    console.log('Service Worker: initializing the service worker...')
+if (import.meta.env.MODE !== 'test') {
+    log.debug({
+        title: 'Service Worker: validation passed',
+        titleColor: LogPreDefinedColor.Sky,
+        messages: ['Service Worker: initializing the service worker...'],
+    })
     // self.__WB_MANIFEST is the default injection point
     precacheAndRoute(self.__WB_MANIFEST)
 
     // clean old assets
     cleanupOutdatedCaches()
 
-    let allowlist: RegExp[] | undefined
-    // in dev mode, we disable precaching to avoid caching issues
-    if (import.meta.env.DEV) {
-        allowlist = [/^\/$/]
+    // in dev mode, we disable navigation fallback registration to avoid runtime errors
+    // with an empty precache manifest in Vite's dev service worker
+    if (!import.meta.env.DEV) {
+        // setting up a cache instance for offline app assets (HTML/JS/CSS)
+        registerRoute(
+            new NavigationRoute(createHandlerBoundToURL(`index.html`), {
+                denylist: [
+                    // exclude all api calls, as the service worker might interacts with those in a way
+                    // that can shut down the service from the user's perspective
+                    // (injecting the cached index.html file instead of providing the expected output)
+                    /^\/api\//,
+                    // excluding the embed legacy endpoint, as it stops the redirection to the
+                    // `legacyEmbed` route and display map views instead of embed views
+                    /^\/embed/,
+                    // preview sites must be excluded too (we want the latest code, not some cached version)
+                    /^\/preview\//,
+                ],
+            }),
+            new NetworkFirst({
+                cacheName: 'geoadmin-app-cache',
+            })
+        )
     }
-
-    // setting up a cache instance for offline app assets (HTML/JS/CSS)
-    registerRoute(
-        new NavigationRoute(createHandlerBoundToURL(`index.html`), {
-            allowlist,
-            denylist: [
-                // exclude all api calls, as the service worker might interacts with those in a way
-                // that can shut down the service from the user's perspective
-                // (injecting the cached index.html file instead of providing the expected output)
-                /^\/api\//,
-                // excluding the embed legacy endpoint, as it stops the redirection to the
-                // `legacyEmbed` route and display map views instead of embed views
-                /^\/embed/,
-                // preview sites must be excluded too (we want the latest code, not some cached version)
-                /^\/preview\//,
-            ],
-        }),
-        new NetworkFirst({
-            cacheName: 'geoadmin-app-cache',
-        })
-    )
 
     // caching essential backend items (layers config, topic list, etc...)
     const configItemPathNames = [
