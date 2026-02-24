@@ -2,13 +2,14 @@
  * Vite plugin that moves the generated service worker file to a versioned directory.
  *
  * This plugin:
+ *
  * 1. Runs after VitePWA generates the service worker file at the root of dist
  * 2. Moves service-workers.js to ${appVersion}/service-workers.js
  * 3. Moves service-workers.js.map if it exists
  * 4. Updates source map references in the moved JS file
  * 5. Warns if the expected files are not found
  */
-export default function moveServiceWorkerFile(appVersion, staging) {
+export default function moveServiceWorkerFile(appVersion) {
     let outputDir = ''
 
     return {
@@ -19,6 +20,7 @@ export default function moveServiceWorkerFile(appVersion, staging) {
                 const fs = await import('fs/promises')
                 const path = await import('path')
 
+                // eslint-disable-next-line no-console
                 console.log('[vite-plugin-move-sw] Moving service worker to versioned directory...')
 
                 const swFileName = 'service-workers.js'
@@ -39,6 +41,7 @@ export default function moveServiceWorkerFile(appVersion, staging) {
 
                     // Move the service worker file
                     await fs.rename(oldSwPath, newSwPath)
+                    // eslint-disable-next-line no-console
                     console.log(`[vite-plugin-move-sw] Moved ${swFileName} to ${appVersion}/`)
 
                     // Handle source map if it exists
@@ -47,6 +50,7 @@ export default function moveServiceWorkerFile(appVersion, staging) {
 
                         // Move the source map file
                         await fs.rename(oldSwMapPath, newSwMapPath)
+                        // eslint-disable-next-line no-console
                         console.log(
                             `[vite-plugin-move-sw] Moved ${swMapFileName} to ${appVersion}/`
                         )
@@ -59,12 +63,17 @@ export default function moveServiceWorkerFile(appVersion, staging) {
                         )
 
                         await fs.writeFile(newSwPath, updatedContent, 'utf-8')
+                        // eslint-disable-next-line no-console
                         console.log('[vite-plugin-move-sw] Updated source map reference')
                     } catch (mapError) {
                         // Source map doesn't exist, which is fine
-                        console.log('[vite-plugin-move-sw] No source map found (this is OK)')
+                        // eslint-disable-next-line no-console
+                        console.log(
+                            '[vite-plugin-move-sw] No source map found (this is OK)',
+                            mapError
+                        )
                     }
-
+                    // eslint-disable-next-line no-console
                     console.log('[vite-plugin-move-sw] Service worker relocation complete')
                 } catch (error) {
                     this.warn(

@@ -79,7 +79,7 @@ async function checkSwValidation() {
  * versions of cached files online
  */
 function registerPeriodicSync(serviceWorkerUrl: string, registration: ServiceWorkerRegistration) {
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+     
     setInterval(async () => {
         if ('onLine' in navigator && !navigator.onLine) {
             return

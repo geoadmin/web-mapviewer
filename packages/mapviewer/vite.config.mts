@@ -53,6 +53,7 @@ function manualChunks(id) {
 export default defineConfig(({ mode }) => {
     // We use "test" only to decide if we want to add Vue dev tools or not (we don't want them when testing).
     // It otherwise is "development" mode...
+    // eslint-disable-next-line no-console
     console.log('Vite mode:', mode, appVersion)
     const definitiveMode = mode === 'test' ? 'development' : mode
     return {

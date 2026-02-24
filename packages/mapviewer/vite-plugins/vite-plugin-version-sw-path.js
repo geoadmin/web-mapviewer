@@ -21,6 +21,7 @@ export default function versionServiceWorkerPath(appVersion, staging) {
         },
 
         generateBundle(options, bundle) {
+            // eslint-disable-next-line no-console
             console.log('[vite-plugin-version-sw-path] Scanning bundles for SW registration...')
 
             for (const fileName in bundle) {
@@ -32,6 +33,7 @@ export default function versionServiceWorkerPath(appVersion, staging) {
                     const workboxPattern = /new\s+(\w+)\("\.\/service-workers\.js"/g
 
                     if (workboxPattern.test(chunk.code)) {
+                        // eslint-disable-next-line no-console
                         console.log(
                             `[vite-plugin-version-sw-path] Found SW registration in ${fileName}`
                         )
@@ -64,6 +66,7 @@ export default function versionServiceWorkerPath(appVersion, staging) {
                     // Pattern 3: Look for standalone string references to the SW path
                     // (in case registration uses a different pattern)
                     if (chunk.code.includes('"./service-workers.js"')) {
+                        // eslint-disable-next-line no-console
                         console.log(
                             `[vite-plugin-version-sw-path] Found SW path reference in ${fileName}`
                         )
@@ -109,12 +112,13 @@ export default function versionServiceWorkerPath(appVersion, staging) {
                     JSON.stringify(validationData, null, 2),
                     'utf-8'
                 )
-
+                // eslint-disable-next-line no-console
                 console.log(
                     `[vite-plugin-version-sw-path] Validation file written: ${validationFilePath}`
                 )
 
                 if (!swPatternFound) {
+                    // eslint-disable-next-line no-console
                     console.error(
                         '[vite-plugin-version-sw-path] ERROR: SW versioning validation FAILED'
                     )
