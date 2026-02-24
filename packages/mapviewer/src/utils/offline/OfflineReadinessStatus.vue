@@ -79,23 +79,24 @@ async function checkSwValidation() {
  * versions of cached files online
  */
 function registerPeriodicSync(serviceWorkerUrl: string, registration: ServiceWorkerRegistration) {
-     
-    setInterval(async () => {
-        if ('onLine' in navigator && !navigator.onLine) {
-            return
-        }
+    setInterval(() => {
+        void (async () => {
+            if ('onLine' in navigator && !navigator.onLine) {
+                return
+            }
 
-        const resp = await fetch(serviceWorkerUrl, {
-            cache: 'no-store',
-            headers: {
+            const resp = await fetch(serviceWorkerUrl, {
                 cache: 'no-store',
-                'cache-control': 'no-cache',
-            },
-        })
+                headers: {
+                    cache: 'no-store',
+                    'cache-control': 'no-cache',
+                },
+            })
 
-        if (resp?.status === 200) {
-            await registration.update()
-        }
+            if (resp?.status === 200) {
+                await registration.update()
+            }
+        })()
     }, period)
 }
 
@@ -134,7 +135,13 @@ const { offlineReady, needRefresh, updateServiceWorker } = useRegisterSW({
 
 onMounted(() => {
     // Check SW validation status on component mount
-    checkSwValidation()
+    checkSwValidation().catch((error) => {
+        log.error({
+            title: 'OfflineReadinessStatus',
+            titleColor: LogPreDefinedColor.Sky,
+            messages: ['Error during SW validation check', error],
+        })
+    })
 })
 
 const statusIcon = computed<string>(() => {

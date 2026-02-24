@@ -52,7 +52,7 @@ export default function moveServiceWorkerFile(appVersion) {
                         await fs.rename(oldSwMapPath, newSwMapPath)
                         // eslint-disable-next-line no-console
                         console.log(
-                            `[vite-plugin-move-sw] Moved ${swMapFileName} to ${appVersion}/`
+                            `[vite-plugin-move-sw] Moved from ${swMapFileName} to ${appVersion}/`
                         )
 
                         // Update source map reference in the JS file
