@@ -35,7 +35,7 @@ const viewer = getViewer()
 /** @returns {Promise<KmlDataSource>} */
 async function createSource() {
     try {
-        const kmlDataSource = await KmlDataSource.load(new Blob([kmlData.value]), {
+        const kmlDataSource = await KmlDataSource.load( new Blob([kmlLayerConfig.kmzContent ??kmlData.value]), {
             clampToGround: isClampedToGround.value,
         })
         resetKmlDescription(kmlDataSource)
