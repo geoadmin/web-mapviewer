@@ -3,7 +3,7 @@ packages:
   - packages/config/*
 
 catalog:
-  '4tw/cypress-drag-drop': ^2.3.1
+  '@4tw/cypress-drag-drop': ^2.3.1
   '@cypress/vite-dev-server': ^7.2.0
   '@cypress/vue': ^6.0.2
   '@eslint/js': 10.0.1
