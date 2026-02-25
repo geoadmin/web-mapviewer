@@ -307,6 +307,9 @@ let lastIdentifiedFeatures: MockFeature[] = []
  *
  * Features IDs will start from 1 + offset (if an offset is given) and coordinates will be randomly
  * selected within the LV95 extent (or within the selection box, if one is given).
+ *
+ * @param coordinates {[Number, Number] | undefined} : if this is set, the coordinates of each
+ *   feature generated is set to the given coordinates rather than random coordinates.
  */
 function addFeatureIdentificationIntercepts(): void {
     let featureTemplate: MockFeature
@@ -427,7 +430,7 @@ function addFeatureIdentificationIntercepts(): void {
                     featureDetail.bbox = [...coordinate, ...coordinate] as FlatExtent
                     featureDetail.geometry.coordinates = [coordinate]
                 } else {
-                    const randomCoordinate: SingleCoordinate = [
+                    const randomCoordinate: SingleCoordinate = coordinates ?? [
                         Cypress._.random(LV95.bounds.lowerX, LV95.bounds.upperX),
                         Cypress._.random(LV95.bounds.lowerY, LV95.bounds.upperY),
                     ]

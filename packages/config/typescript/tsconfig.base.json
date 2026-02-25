@@ -31,6 +31,7 @@
         // see https://vite.dev/guide/features.html#typescript-compiler-options
         "isolatedModules": true,
         "useDefineForClassFields": true,
+        "strictNullChecks": false,
 
         "baseUrl": "${configDir}",
         "outDir": "${configDir}/dist",
