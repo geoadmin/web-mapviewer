@@ -149,7 +149,7 @@ async function loadTopicTreeForTopic(
             titleColor: LogPreDefinedColor.Amber,
             messages: [errorMessage, error],
         })
-        throw new Error(errorMessage)
+        throw new Error(errorMessage, { cause: error})
     }
 }
 
@@ -169,7 +169,7 @@ async function loadTopics(): Promise<ServicesResponse> {
             titleColor: LogPreDefinedColor.Amber,
             messages: [errorMessage, error],
         })
-        throw new Error(errorMessage)
+        throw new Error(errorMessage, { cause: error})
     }
 }
 

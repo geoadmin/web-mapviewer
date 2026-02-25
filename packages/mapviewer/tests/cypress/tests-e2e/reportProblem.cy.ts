@@ -244,8 +244,6 @@ describe('Testing the report problem form', () => {
     })
 
     it('reports a problem with drawing attachment', () => {
-        let kmlBody: string | FormData | undefined
-
         interceptPostKml()
         cy.goToMapView()
         interceptFeedback(true)
@@ -392,7 +390,6 @@ describe('Testing the report problem form', () => {
 
         cy.wait('@post-kml')
 
-        console.log('KML Body:', kmlBody)
         cy.get('@reportForm').should('exist')
         cy.get('[data-cy="drawing-header-title"]').should('not.exist')
         cy.get('@textArea').should('have.value', text)

@@ -180,7 +180,6 @@ function registerRouterHooks(context: PiniaPluginContext) {
                         from,
                     ],
                 })
-                Object.assign(store.router.currentRoute.value.query, queryParamsStoredAtStartup)
                 return undefined
             }
 
@@ -196,26 +195,7 @@ function registerRouterHooks(context: PiniaPluginContext) {
 
             appStore.setHasPendingUrlParsing(true, STORE_DISPATCHER_ROUTER_PLUGIN)
 
-            const newRoute = urlQueryWatcher(to, from)
-
-            if (queryParamsStoredAtStartup && Object.keys(queryParamsStoredAtStartup).length > 0) {
-                log.debug({
-                    title: 'URL param to store plugin / beforeEach',
-                    titleColor: LogPreDefinedColor.Orange,
-                    messages: [
-                        `Restoring URL query params stored at startup to the new route`,
-                        queryParamsStoredAtStartup,
-                    ],
-                })
-                return {
-                    ...newRoute,
-                    query: {
-                        ...newRoute?.query,
-                        ...queryParamsStoredAtStartup,
-                    },
-                }
-            }
-            return newRoute
+            return urlQueryWatcher(to, from)
         }
     )
     store.router.afterEach(() => {
@@ -226,7 +206,6 @@ function registerRouterHooks(context: PiniaPluginContext) {
     })
 }
 
-let queryParamsStoredAtStartup: LocationQuery | undefined
 let hasBeenInitialized: boolean = false
 
 const urlToStorePlugin: PiniaPlugin = (context: PiniaPluginContext) => {

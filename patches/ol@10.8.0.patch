@@ -1,0 +1,15 @@
+diff --git a/style/Icon.js b/style/Icon.js
+index 50d5aa80b0331adc0b6021e53e921026cb483999..b7d1774f664aac3153c49a0e531f41ad6d4725e9 100644
+--- a/style/Icon.js
++++ b/style/Icon.js
+@@ -391,8 +391,8 @@ class Icon extends ImageStyle {
+     // anchor is scaled by renderer but displacement should not be scaled
+     // so divide by scale here
+     return [
+-      anchor[0] - displacement[0] / scale[0],
+-      anchor[1] + displacement[1] / scale[1],
++      scale[0] == 0 ? 0 : anchor[0] - displacement[0] / scale[0],
++      scale[1] == 0 ? 0 : anchor[1] + displacement[1] / scale[1],
+     ];
+   }
+ 

@@ -65,11 +65,9 @@ updateAdminShareUrl().catch((error: Error) =>
 )
 
 let adminTimeout: ReturnType<typeof setTimeout> | undefined
-let fileTimeout: ReturnType<typeof setTimeout> | undefined
 
 onUnmounted(() => {
     clearTimeout(adminTimeout)
-    clearTimeout(fileTimeout)
 })
 
 function onAccept() {
@@ -92,9 +90,9 @@ async function updateShareUrl() {
     if (fileUrl.value) {
         try {
             shareUrl.value = await shortLinkAPI.createShortLink({
-                url: fileUrl.value, 
+                url: fileUrl.value,
                 withCrosshair: !!shareUrl.value,
-                staging: ENVIRONMENT
+                staging: ENVIRONMENT,
             })
         } catch (_) {
             // Fallback to normal url
@@ -107,7 +105,7 @@ async function updateAdminShareUrl() {
         try {
             adminShareUrl.value = await shortLinkAPI.createShortLink({
                 url: adminUrl.value,
-                staging: ENVIRONMENT
+                staging: ENVIRONMENT,
             })
         } catch (_) {
             // Fallback to normal url

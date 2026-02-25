@@ -34,6 +34,7 @@ const commonTsAndJsRules: PartialRules = {
     'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
     // has some issue (with typescript-eslint for instance), so we disable it (TS does already a good job at detecting unresolved imports)
     'import/no-unresolved': 'off',
+    'no-useless-assignment': 'off',
 }
 
 const noUnusedVarsRules: PartialRules = {
