@@ -44,6 +44,7 @@ const cogSource = createLayerSource()
 const layer = new WebGLTileLayer({
     source: cogSource,
     opacity: opacity.value,
+    interpolate: false,
     // local files do not have an url so we take the blob name
     id: source.value.url ?? source.value.blob?.name,
     uuid: geotiffConfig.uuid,
@@ -90,6 +91,7 @@ function createLayerSource() {
     return new GeoTIFFSource({
         convertToRGB: 'auto',
         sources: [source.value],
+        interpolate: false,
     })
 }
 </script>

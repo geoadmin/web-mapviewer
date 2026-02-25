@@ -2,7 +2,7 @@ import { WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import Feature from 'ol/Feature'
 import { GPX } from 'ol/format'
-import { LineString, Polygon } from 'ol/geom'
+import { LineString, MultiLineString, Polygon } from 'ol/geom'
 import { Circle, Icon } from 'ol/style'
 import Style from 'ol/style/Style'
 
@@ -44,9 +44,10 @@ export const DrawingState = Object.freeze({
  *
  * @param {CoordinateSystem} projection Coordinate system of the features
  * @param features {Feature[]} Features (OpenLayers) to be converted to GPX format
+ * @param asTrack {boolean} If true, exports as track (trk/trkpt), otherwise as route (rte/rtept)
  * @returns {string}
  */
-export function generateGpxString(projection, features = []) {
+export function generateGpxString(projection, features = [], asTrack = false) {
     const normalizedFeatures = features.map((feature) => {
         const clone = feature.clone()
         const geom = clone.getGeometry()
@@ -54,6 +55,21 @@ export function generateGpxString(projection, features = []) {
         if (geom instanceof Polygon) {
             const coordinates = geom.getLinearRing().getCoordinates()
             clone.setGeometry(new LineString(coordinates))
+        }
+        // Convert between LineString and MultiLineString based on export mode
+        // OpenLayers outputs LineString as <rte> and MultiLineString as <trk>
+        if (asTrack) {
+            // Track mode: convert LineString to MultiLineString
+            if (clone.getGeometry() instanceof LineString) {
+                const coords = clone.getGeometry().getCoordinates()
+                clone.setGeometry(new MultiLineString([coords]))
+            }
+        } else {
+            // Route mode: convert MultiLineString to LineString (take first line segment)
+            if (clone.getGeometry() instanceof MultiLineString) {
+                const coords = clone.getGeometry().getCoordinates()[0]
+                clone.setGeometry(new LineString(coords))
+            }
         }
         // Set the desc attribute from description property so that it is exported to GPX in desc tag
         if (clone.getProperties().description) {

@@ -14,12 +14,14 @@ const config: UserConfig = {
             name: '@swissgeo/tooltip',
         },
         rollupOptions: {
-            external: ['vue', 'tailwindcss'],
+            external: ['vue', 'ol', 'cesium', 'tailwindcss'],
             output: {
                 exports: 'named',
                 globals: {
                     vue: 'Vue',
-                },
+                    ol: 'ol',
+                    cesium: 'cesium'
+                }
             },
         },
     },

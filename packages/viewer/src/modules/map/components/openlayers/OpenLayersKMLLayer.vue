@@ -77,6 +77,7 @@ onMounted(() => {
     }
 
     createSourceForProjection()
+    warnForMissingFeatureSupport()
 })
 onUnmounted(() => {
     if (IS_TESTING_WITH_CYPRESS) {
@@ -135,6 +136,20 @@ function createSourceForProjection() {
         })
     )
     log.debug('Openlayer KML layer source created')
+}
+
+function warnForMissingFeatureSupport() {
+    if (kmlData.value.indexOf('<GroundOverlay') !== -1) {
+        store.dispatch('addWarnings', {
+            warnings: [
+                new WarningMessage('kml_ol_missing_feature_support', {
+                    layerName: layerName.value,
+                    layerType: kmlLayerConfig.kmzContent ? 'KMZ' : 'KML',
+                }),
+            ],
+            ...dispatcher,
+        })
+    }
 }
 </script>
 

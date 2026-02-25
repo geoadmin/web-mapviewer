@@ -716,6 +716,8 @@ export interface KMZObject {
     name?: string
     /** Content of the KML file within the KMZ archive (unzipped) */
     kml?: ArrayBuffer
+    /** Content of the whole KMZ archive (untouched/zipped) */
+    kmz?: ArrayBuffer
     /** A Map of files with their absolute path as key and their unzipped content as ArrayBuffer */
     files: Map<string, ArrayBuffer>
 }
@@ -730,7 +732,7 @@ export interface KMZObject {
  * @returns Returns a KMZ unzip object
  */
 export async function unzipKmz(kmzContent: ArrayBuffer, kmzFileName: string): Promise<KMZObject> {
-    const kmz: KMZObject = { name: kmzFileName, files: new Map<string, ArrayBuffer>() }
+    const kmz: KMZObject = { name: kmzFileName, files: new Map<string, ArrayBuffer>(), kmz: kmzContent }
     const zip = new JSZip()
     try {
         await zip.loadAsync(kmzContent)
