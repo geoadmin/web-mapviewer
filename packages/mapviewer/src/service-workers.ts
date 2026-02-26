@@ -35,7 +35,7 @@ log.debug({
 // are testing things with Cypress
 if (import.meta.env.MODE !== 'test') {
     log.debug({
-        title: 'Service Worker: validation passed',
+        title: 'Service Worker: starting initialization',
         titleColor: LogPreDefinedColor.Sky,
         messages: ['Service Worker: initializing the service worker...'],
     })

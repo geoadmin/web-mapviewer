@@ -20,6 +20,7 @@ export default function versionServiceWorkerPath(appVersion, staging) {
         },
 
         generateBundle(options, bundle) {
+            swPatternFound = false
             // eslint-disable-next-line no-console
             console.log('[vite-plugin-version-sw-path] Scanning bundles for SW registration...')
 

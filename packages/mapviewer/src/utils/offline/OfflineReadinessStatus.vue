@@ -106,7 +106,6 @@ function registerPeriodicSync(serviceWorkerUrl: string, registration: ServiceWor
             const resp = await fetch(serviceWorkerUrl, {
                 cache: 'no-store',
                 headers: {
-                    cache: 'no-store',
                     'cache-control': 'no-cache',
                 },
             })
@@ -135,6 +134,8 @@ if (window.isSecureContext) {
                 titleColor: LogPreDefinedColor.Sky,
                 messages: ['ServiceWorker registration failed', error],
             })
+            // mark service worker validation as failed
+            swValidationFailed.value = true
         },
         onRegisteredSW(serviceWorkerUrl, registration) {
             log.debug({

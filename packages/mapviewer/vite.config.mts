@@ -42,7 +42,7 @@ const stagings = {
  * @param id
  * @returns
  */
-function manualChunks(id) {
+function manualChunks(id: string) {
     // Put all files from the src/utils into the chunk named utils.js
     if (id.includes('/src/utils/')) {
         return 'utils'
@@ -53,8 +53,6 @@ function manualChunks(id) {
 export default defineConfig(({ mode }) => {
     // We use "test" only to decide if we want to add Vue dev tools or not (we don't want them when testing).
     // It otherwise is "development" mode...
-    // eslint-disable-next-line no-console
-    console.log('Vite mode:', mode, appVersion)
     const definitiveMode = mode === 'test' ? 'development' : mode
     return {
         base: './',
@@ -91,7 +89,7 @@ export default defineConfig(({ mode }) => {
                     },
                 },
             }),
-            generateBuildInfo(stagings[definitiveMode], appVersion, definitiveMode),
+            generateBuildInfo(stagings[definitiveMode], appVersion, mode),
             // CesiumJS requires static files from the following 4 folders to be included in the build
             // https://cesium.com/learn/cesiumjs-learn/cesiumjs-quickstart/#install-with-npm
             viteStaticCopy({
@@ -165,7 +163,7 @@ export default defineConfig(({ mode }) => {
             ...(mode !== 'test'
                 ? [
                     versionServiceWorkerPath(appVersion, stagings[definitiveMode]),
-                    moveServiceWorkerFile(appVersion, stagings[definitiveMode]),
+                    moveServiceWorkerFile(appVersion),
                 ]
                 : []),
             mode === 'development' ? vueDevTools() : {},

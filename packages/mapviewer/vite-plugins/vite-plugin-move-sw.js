@@ -5,10 +5,8 @@
  *
  * 1. Runs after VitePWA generates the service worker file at the root of dist
  * 2. Copies service-workers.js to ${appVersion}/service-workers.js
- * 3. Rewrites root service-workers.js as a bootstrap loader importing the versioned SW
- * 3. Moves service-workers.js.map if it exists
- * 4. Updates source map references in the moved JS file
- * 5. Warns if the expected files are not found
+ * 3. Rewrites root service-workers.js as a bootstrap loader importing the versioned SW and moves service-workers.js.map if it exists
+ * 4. Warns if the expected files are not found
  */
 export default function moveServiceWorkerFile(appVersion) {
     let outputDir = ''
