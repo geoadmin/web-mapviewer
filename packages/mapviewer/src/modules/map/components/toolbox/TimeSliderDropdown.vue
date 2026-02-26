@@ -113,7 +113,7 @@ function onFocusOut() {
         <div class="d-flex">
             <form
                 action=""
-                class="input-group input-group-append"
+                class="input-group input-group-append flex-nowrap"
                 data-cy="time-slider-dropdown"
                 @submit.prevent
             >
@@ -141,7 +141,7 @@ function onFocusOut() {
 
                 <div class="input-group-append btn-group">
                     <button
-                        class="btn border btn-outline-group d-flex align-items-center rounded-start-0 rounded-end-0"
+                        class="btn btn-outline-group d-flex align-items-center rounded-start-0 rounded-end-0 border"
                         :class="{
                             'url-input-dropdown-open': isDropdownOpen,
                         }"
@@ -155,7 +155,7 @@ function onFocusOut() {
                     </button>
                     <button
                         data-cy="time-slider-play-button"
-                        class="btn btn-outline-group d-flex align-items-center px-3 border rounded-start-0"
+                        class="btn btn-outline-group d-flex align-items-center rounded-start-0 border px-3"
                         :class="{ 'rounded-bottom-0': isDropdownOpen }"
                         @click="emit('play')"
                     >
