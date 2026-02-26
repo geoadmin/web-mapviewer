@@ -163,7 +163,7 @@ describe('Test of layer handling in 3D', () => {
                 cy.goToMapView({
                     queryParams: {
                         '3d': true,
-                        layers: `${timeEnabledLayerId}@year=${randomTimestampFromLayer!.substring(
+                        layers: `${timeEnabledLayerId}@year=${randomTimestampFromLayer.substring(
                             0,
                             4
                         )}`,
@@ -340,10 +340,10 @@ describe('Test of layer handling in 3D', () => {
             .then((map) => {
                 const layers = map.getLayers().getArray()
                 expect(layers.length).to.greaterThan(1)
-                expect(layers[1]!.getProperties().id).to.deep.equal(expectedWmsLayerId)
+                expect(layers[1].getProperties().id).to.deep.equal(expectedWmsLayerId)
 
                 // If the layer is not visible, it is usually because the extent is not correct
-                expect(layers[1]!.getExtent()).to.deep.equal(LV95.bounds.flatten)
+                expect(layers[1].getExtent()).to.deep.equal(LV95.bounds.flatten)
             })
 
         cy.log('Select features and check that they are visible in 3D and then also back in 2D')
@@ -455,9 +455,9 @@ describe('Test of layer handling in 3D', () => {
                     .then((map) => {
                         const layers = map.getLayers().getArray()
                         expect(layers.length).to.greaterThan(1)
-                        expect(layers[1]!.getProperties().id).to.deep.equal(mockExternalWms2.id)
+                        expect(layers[1].getProperties().id).to.deep.equal(mockExternalWms2.id)
                         // If the layer is not visible, it is usually because the extent is not correct
-                        expect(layers[1]!.getExtent()).to.deep.equal(layerExtentInLV95)
+                        expect(layers[1].getExtent()).to.deep.equal(layerExtentInLV95)
                     })
 
                 // activate 3D
@@ -470,9 +470,9 @@ describe('Test of layer handling in 3D', () => {
                     .then((map) => {
                         const layers = map.getLayers().getArray()
                         expect(layers.length).to.greaterThan(1)
-                        expect(layers[1]!.getProperties().id).to.deep.equal(mockExternalWms2.id)
+                        expect(layers[1].getProperties().id).to.deep.equal(mockExternalWms2.id)
                         // If the layer is not visible, it is usually because the extent is not correct
-                        expect(layers[1]!.getExtent()).to.deep.equal(layerExtentInLV95)
+                        expect(layers[1].getExtent()).to.deep.equal(layerExtentInLV95)
                     })
             })
         })

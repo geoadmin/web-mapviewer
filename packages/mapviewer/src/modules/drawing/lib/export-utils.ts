@@ -1,13 +1,13 @@
 import type { CoordinateSystem } from '@swissgeo/coordinates'
 import type { Geometry } from 'ol/geom'
 
-import { kmlUtils, featureStyleUtils } from '@swissgeo/api/utils'
+import { featureStyleUtils, kmlUtils } from '@swissgeo/api/utils'
 import { WGS84 } from '@swissgeo/coordinates'
 import log from '@swissgeo/log'
 import Feature from 'ol/Feature'
 import GPX from 'ol/format/GPX'
 import KML from 'ol/format/KML'
-import { LineString as OLLineString, Polygon as OLPolygon, type Geometry, LineString, MultiLineString } from 'ol/geom'
+import { LineString, MultiLineString, Polygon } from 'ol/geom'
 import { Circle as CircleStyle, Icon as IconStyle } from 'ol/style'
 import Style from 'ol/style/Style'
 
@@ -35,10 +35,10 @@ export function generateGpxString(
         const geom = clone.getGeometry()
 
         // convert polygon to line because GPX doesn't support polygons
-        if (geom instanceof OLPolygon) {
+        if (geom instanceof Polygon) {
             // Take the exterior ring coordinates
             const coordinates = geom.getLinearRing(0)?.getCoordinates()
-            clone.setGeometry(new OLLineString(coordinates ?? []))
+            clone.setGeometry(new LineString(coordinates ?? []))
         }
         // Convert between LineString and MultiLineString based on export mode
         // OpenLayers outputs LineString as <rte> and MultiLineString as <trk>

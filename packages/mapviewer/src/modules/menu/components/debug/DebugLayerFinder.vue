@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Layer } from '@swissgeo/layers'
+import type { GeoAdminLayer } from '@swissgeo/layers'
 
 import { LayerType } from '@swissgeo/layers'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
@@ -16,13 +16,13 @@ const with3DConfig = ref(null)
 const withTooltip = ref(null)
 const withLegend = ref(null)
 
-const layers = computed(() => layersStore.config)
+const layers = computed<GeoAdminLayer[]>(() => layersStore.config as GeoAdminLayer[])
 const possibleLayerTypes = [LayerType.WMTS, LayerType.WMS, LayerType.AGGREGATE, LayerType.GEOJSON]
 const currentLayerType = ref([...possibleLayerTypes])
 
 const dispatcher = { name: 'DebugLayerFinder.vue' }
 
-const filteredLayers = computed(() => {
+const filteredLayers = computed<GeoAdminLayer[]>(() => {
     if (!currentLayerType.value) {
         return []
     }
@@ -39,7 +39,7 @@ const filteredLayers = computed(() => {
     })
 })
 
-function addLayer(layerConfig: Layer) {
+function addLayer(layerConfig: GeoAdminLayer) {
     layersStore.addLayer(
         layerConfig,
         {

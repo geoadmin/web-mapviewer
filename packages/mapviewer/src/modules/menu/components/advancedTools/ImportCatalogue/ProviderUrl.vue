@@ -3,15 +3,16 @@ import type { ExternalLayer } from '@swissgeo/layers'
 import type { ComponentPublicInstance } from 'vue'
 
 import { CapabilitiesError } from '@swissgeo/layers/validation'
+import { useCapabilities } from '@swissgeo/layers/vue'
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { ProviderListExpose } from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderList.vue'
 
 import ProviderList from '@/modules/menu/components/advancedTools/ImportCatalogue/ProviderList.vue'
-import { useCapabilities } from '@/modules/menu/components/advancedTools/ImportCatalogue/useCapabilities'
 import { useProviders } from '@/modules/menu/components/advancedTools/ImportCatalogue/useProviders'
 import useI18nStore from '@/store/modules/i18n'
+import usePositionStore from '@/store/modules/position'
 import { isValidUrl } from '@/utils/utils'
 
 const emit = defineEmits<{
@@ -21,6 +22,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const i18nStore = useI18nStore()
+const positionStore = usePositionStore()
 
 // Reactive data
 const url = ref('')
@@ -33,7 +35,7 @@ const providerInput = useTemplateRef<HTMLInputElement>('providerInput')
 const { groupedProviders, showProviders, filterApplied, toggleProviders, filterText } =
     useProviders(url)
 
-const { loadCapabilities } = useCapabilities(url)
+const { loadCapabilities } = useCapabilities(url, positionStore.projection, i18nStore.lang)
 
 // Computed properties
 const isValid = computed<boolean>(() => !errorMessage.value && isCapabilitiesParsed.value)

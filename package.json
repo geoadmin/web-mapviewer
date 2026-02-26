@@ -40,6 +40,10 @@
         "@prettier/plugin-xml": "catalog:",
         "@swissgeo/config-prettier": "workspace:*",
         "@types/node": "catalog:",
+        "prettier": "catalog:",
+        "prettier-plugin-jsdoc": "catalog:",
+        "prettier-plugin-packagejson": "catalog:",
+        "prettier-plugin-tailwindcss": "catalog:",
         "tsx": "catalog:",
         "vitest": "catalog:",
         "yaml": "catalog:"

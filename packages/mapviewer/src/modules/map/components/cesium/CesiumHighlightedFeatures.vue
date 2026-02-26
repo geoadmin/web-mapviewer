@@ -103,13 +103,13 @@ function highlightSelectedFeatures(): void {
             if (!f.geometry || !f.geometry?.type) {
                 let type
                 let coordinates
-                if (f.geometry! instanceof Polygon) {
+                if (f.geometry instanceof Polygon) {
                     type = 'Polygon'
                     coordinates = (f.geometry as Polygon).getCoordinates()
-                } else if (f.geometry! instanceof LineString) {
+                } else if (f.geometry instanceof LineString) {
                     type = 'LineString'
                     coordinates = (f.geometry as LineString).getCoordinates()
-                } else if (f.geometry! instanceof Point) {
+                } else if (f.geometry instanceof Point) {
                     type = 'Point'
                     coordinates = (f.geometry as Point).getCoordinates()
                 }

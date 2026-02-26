@@ -188,7 +188,7 @@ function calculateTextXYOffset(
     const anchorScale: number = anchor ? anchor[1] * 2 : 1
 
     const iconScaleXY: [number, number] = Array.isArray(iconScale)
-        ? [iconScale[0]!, iconScale[1]!]
+        ? [iconScale[0], iconScale[1]]
         : [iconScale, iconScale]
 
     const iconOffset: [number, number] = [

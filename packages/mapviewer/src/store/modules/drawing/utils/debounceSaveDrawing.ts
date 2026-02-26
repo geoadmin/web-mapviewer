@@ -86,6 +86,8 @@ async function saveDrawing({ retryOnError = true }: { retryOnError?: boolean }) 
     }
     const layersStore = useLayersStore()
 
+    const drawingLayer = drawingStore.layer.config as KMLLayer
+
     try {
         log.debug({
             title: 'Drawing store / saveDrawing',
@@ -110,18 +112,14 @@ async function saveDrawing({ retryOnError = true }: { retryOnError?: boolean }) 
                 messages: [`Updating drawing with adminId ${drawingStore.layer.config.adminId}`],
             })
             drawingStore.layer.config.kmlMetadata = await filesAPI.updateKml(
-                drawingStore.layer.config.fileId!,
+                drawingStore.layer.config.fileId,
                 drawingStore.layer.config.adminId,
                 kmlData,
                 ENVIRONMENT
             )
             drawingStore.layer.config.kmlData = kmlData
 
-            layersStore.updateLayer(
-                drawingStore.layer.config,
-                drawingStore.layer.config,
-                dispatcher
-            )
+            layersStore.updateLayer<KMLLayer>(drawingLayer, drawingLayer, dispatcher)
         } else {
             // Creating a new KML on the backend
             const kmlMetadata = await filesAPI.createKml(kmlData, ENVIRONMENT)
@@ -134,7 +132,7 @@ async function saveDrawing({ retryOnError = true }: { retryOnError?: boolean }) 
                     messages: ['Copying existing KML layer', drawingStore.layer.config],
                 })
                 // copying the existing drawing's data/config (we don't have the adminId so we can't/mustn't update it)
-                kmlLayer = layerUtils.cloneLayer(drawingStore.layer.config, {
+                kmlLayer = layerUtils.cloneLayer<KMLLayer>(drawingLayer, {
                     kmlMetadata,
                     opacity: drawingStore.layer.config.opacity,
                     isEdited: true,

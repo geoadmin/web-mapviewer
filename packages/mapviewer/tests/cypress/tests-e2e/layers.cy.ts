@@ -148,7 +148,7 @@ describe('Test of layer handling', () => {
                             const layersStore4 = useLayersStore(pinia)
                             const layers = layersStore4.visibleLayers
                             const [timeEnabledLayer] = layers
-                            expect(timeEnabledLayer!.timeConfig.currentTimeEntry?.timestamp).to.eq(
+                            expect(timeEnabledLayer.timeConfig.currentTimeEntry?.timestamp).to.eq(
                                 randomTimestampFromLayer
                             )
                         })
@@ -172,7 +172,7 @@ describe('Test of layer handling', () => {
                         "Adding an option to one of the layer's base URL to check if these calls behave in a correct way"
                     )
                     const myItem = '22_06_86t13214'
-                    layerObjects[1]!.baseUrl = layerObjects[1]!.baseUrl + `item=${myItem}`
+                    layerObjects[1].baseUrl = layerObjects[1].baseUrl + `item=${myItem}`
                     const layers = layerObjects
                         .map((object) => transformLayerIntoUrlString(object, undefined, undefined))
                         .join(';')
@@ -244,10 +244,10 @@ describe('Test of layer handling', () => {
                     ).click()
                     cy.checkOlLayer([
                         bgLayer,
-                        { id: mockExternalWms1!.id, isVisible: true, opacity: 1.0 },
-                        { id: mockExternalWms2!.id, isVisible: false, opacity: 0.8 },
-                        { id: mockExternalWms3!.id, isVisible: false, opacity: 1.0 },
-                        { id: mockExternalWms4!.id, isVisible: true, opacity: 0.4 },
+                        { id: mockExternalWms1.id, isVisible: true, opacity: 1.0 },
+                        { id: mockExternalWms2.id, isVisible: false, opacity: 0.8 },
+                        { id: mockExternalWms3.id, isVisible: false, opacity: 1.0 },
+                        { id: mockExternalWms4.id, isVisible: true, opacity: 0.4 },
                     ])
 
                     // A click on the map should trigger a getFeatureInfo on both visible/active layers 1 and 3.
@@ -298,13 +298,13 @@ describe('Test of layer handling', () => {
                     cy.openMenuIfMobile()
                     // we play with the transparency to ensure nothing goes wrong
                     cy.log('We ensure transparency works as expected for external layers too')
-                    cy.openLayerSettings(mockExternalWms1!.id)
+                    cy.openLayerSettings(mockExternalWms1.id)
 
                     cy.get(`[data-cy^="slider-transparency-layer-${mockExternalWms1?.id}-"]`)
                         .should('be.visible')
                         .invoke('val', 1)
                         .trigger('input')
-                    cy.openLayerSettings(mockExternalWms4!.id)
+                    cy.openLayerSettings(mockExternalWms4.id)
 
                     cy.get(`[data-cy^="slider-transparency-layer-${mockExternalWms4?.id}-"]`)
                         .should('be.visible')
@@ -314,7 +314,7 @@ describe('Test of layer handling', () => {
                     // we had some issues with wms transparency reverting back to default when reaching 0
                     // we test layer 1 and 3 for transparency 0, since that's both our wms fixtures tested
                     // this way
-                    cy.openLayerSettings(mockExternalWms3!.id)
+                    cy.openLayerSettings(mockExternalWms3.id)
 
                     cy.get(`[data-cy^="slider-transparency-layer-${mockExternalWms3?.id}-"]`)
                         .should('be.visible')
@@ -323,10 +323,10 @@ describe('Test of layer handling', () => {
 
                     cy.checkOlLayer([
                         bgLayer,
-                        { id: mockExternalWms1!.id, isVisible: true, opacity: 0.0 },
-                        { id: mockExternalWms2!.id, isVisible: false, opacity: 0.8 },
-                        { id: mockExternalWms3!.id, isVisible: false, opacity: 0.0 },
-                        { id: mockExternalWms4!.id, isVisible: true, opacity: 1.0 },
+                        { id: mockExternalWms1.id, isVisible: true, opacity: 0.0 },
+                        { id: mockExternalWms2.id, isVisible: false, opacity: 0.8 },
+                        { id: mockExternalWms3.id, isVisible: false, opacity: 0.0 },
+                        { id: mockExternalWms4.id, isVisible: true, opacity: 1.0 },
                     ])
                 })
             })
@@ -396,15 +396,15 @@ describe('Test of layer handling', () => {
                 cy.getExternalWmtsMockConfig().then((layerObjects) => {
                     const [mockExternalWmts1, mockExternalWmts2, mockExternalWmts3] = layerObjects
 
-                    mockExternalWmts1!.isVisible = false
-                    mockExternalWmts1!.opacity = 0.5
-                    mockExternalWmts2!.isVisible = false
-                    mockExternalWmts3!.isVisible = true
-                    mockExternalWmts3!.opacity = 0.8
+                    mockExternalWmts1.isVisible = false
+                    mockExternalWmts1.opacity = 0.5
+                    mockExternalWmts2.isVisible = false
+                    mockExternalWmts3.isVisible = true
+                    mockExternalWmts3.opacity = 0.8
                     const layerObjects2 = [
-                        mockExternalWmts1!,
-                        mockExternalWmts2!,
-                        mockExternalWmts3!,
+                        mockExternalWmts1,
+                        mockExternalWmts2,
+                        mockExternalWmts3,
                     ]
                     // reads and sets non default layer config; visible and opacity
                     cy.goToMapView({
@@ -858,7 +858,7 @@ describe('Test of layer handling', () => {
                 cy.getPinia().then((pinia) => {
                     const layersStore22 = useLayersStore(pinia)
                     const visibleLayers13 = layersStore22.visibleLayers
-                    initialOpacity = visibleLayers13.find((layer) => layer.id === layerId)!.opacity
+                    initialOpacity = visibleLayers13.find((layer) => layer.id === layerId).opacity
                 })
                 // using the keyboard to change slider's value
                 const step = -0.01
@@ -993,7 +993,7 @@ describe('Test of layer handling', () => {
                     expect(activeLayers5).to.be.an('Array').length(visibleLayerIds.length)
                     const layer3 = activeLayers5.find((layer: Layer) => layer.id === timedLayerId)
                     expect(layer3).not.to.be.undefined
-                    expect(layer3!.timeConfig.currentTimeEntry?.timestamp).to.eq(timestamp)
+                    expect(layer3.timeConfig.currentTimeEntry?.timestamp).to.eq(timestamp)
                 })
 
                 //---------------------------------------------------------------------------------
@@ -1040,7 +1040,7 @@ describe('Test of layer handling', () => {
                         .to.be.an('Array')
                         .length(visibleLayerIds.length + 1)
                     expect(activeLayers6[3]).not.to.be.undefined
-                    expect(activeLayers6[3]!.timeConfig.currentTimeEntry?.timestamp).to.eq(
+                    expect(activeLayers6[3].timeConfig.currentTimeEntry?.timestamp).to.eq(
                         timestamp
                     )
                     expect(activeLayers6[3]?.isVisible).to.be.true

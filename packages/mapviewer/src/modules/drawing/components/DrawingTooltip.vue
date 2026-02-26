@@ -59,7 +59,7 @@ function updateTooltip() {
         return
     }
 
-    const mapElement = olMap!.getTarget()
+    const mapElement = olMap.getTarget()
     if (!mapElement || !(mapElement instanceof HTMLElement)) {
         return
     }
@@ -116,7 +116,7 @@ function updateTooltip() {
             const coordinates = getVertexCoordinates(featureUnderCursor).slice(0, -2)
 
             coordinates.some((coordinate, index) => {
-                const pixel = olMap!.getPixelFromCoordinate(coordinate)
+                const pixel = olMap.getPixelFromCoordinate(coordinate)
                 if (
                     pointWithinTolerance(
                         pixel as SingleCoordinate,
@@ -149,7 +149,7 @@ function updateTooltip() {
         }
     } else {
         if (hoveringSelectedFeature && olMap) {
-            const hoveringVertex = getVertexCoordinates(featureUnderCursor!).some((coordinate) => {
+            const hoveringVertex = getVertexCoordinates(featureUnderCursor).some((coordinate) => {
                 const pixel = olMap.getPixelFromCoordinate(coordinate)
                 return pointWithinTolerance(
                     pixel as SingleCoordinate,
@@ -160,7 +160,7 @@ function updateTooltip() {
             if (hoveringVertex) {
                 if (nonPointFeatureTypes.includes(featureDrawingMode)) {
                     const selectedFeature = drawingStore.feature.current
-                    const geometryType = selectedFeature!.geometry!.type.toLowerCase()
+                    const geometryType = selectedFeature.geometry.type.toLowerCase()
                     translations.push({
                         key: `modify_existing_vertex_line`,
                         params: {
@@ -200,7 +200,7 @@ function updateTooltip() {
     }
 
     tooltipText.value = translations
-        .map((translation) => t(translation.key.toLowerCase(), translation.params!))
+        .map((translation) => t(translation.key.toLowerCase(), translation.params))
         .join('<br>')
 }
 </script>

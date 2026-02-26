@@ -28,8 +28,8 @@ function checkCoordsEqual(coords1: number[][], coords2: number[][], precision?: 
     coords1.forEach((coord, i) => {
         expect(coord).to.have.length(2)
         expect(coords2[i]).to.have.length(2)
-        expect(coord[0]).to.be.closeTo(coords2[i]![0]!, precision ?? 0.0001)
-        expect(coord[1]).to.be.closeTo(coords2[i]![1]!, precision ?? 0.0001)
+        expect(coord[0]).to.be.closeTo(coords2[i][0], precision ?? 0.0001)
+        expect(coord[1]).to.be.closeTo(coords2[i][1], precision ?? 0.0001)
     })
 }
 
@@ -37,7 +37,7 @@ function checkExtentEqual(extent: Extent, extent2: Extent): void {
     expect(extent).to.have.length(4) //minX, minY, maxX, maxY
     for (let i = 0; i < 4; i++) {
         // not so high precision as we also append a buffer to each extent
-        expect(extent[i]).to.be.closeTo(extent2[i]!, 0.01)
+        expect(extent[i]).to.be.closeTo(extent2[i], 0.01)
     }
 }
 
@@ -47,8 +47,8 @@ function validateResults(geodesic: GeodesicGeometries, exp: ExpectedResults): vo
     expect(geom).to.be.instanceOf(MultiLineString)
     expect(geom.getCoordinates()).to.have.length(exp.geodesicGeom.length)
     for (let i = 0; i < exp.geodesicGeom.length; i++) {
-        expect(geom.getCoordinates()[i]!).to.have.length(exp.geodesicGeom[i]!.length)
-        checkCoordsEqual(geom.getCoordinates()[i]!, exp.geodesicGeom[i]!)
+        expect(geom.getCoordinates()[i]).to.have.length(exp.geodesicGeom[i].length)
+        checkCoordsEqual(geom.getCoordinates()[i], exp.geodesicGeom[i])
     }
 
     // Validate geodesicPolygonGeom
@@ -58,15 +58,15 @@ function validateResults(geodesic: GeodesicGeometries, exp: ExpectedResults): vo
     const expPolygonGeom = 'geodesicPolygonGeom' in exp ? exp.geodesicPolygonGeom : exp.geodesicGeom
     if (expPolygonGeom) {
         expect(polygonGeom).to.be.instanceOf(MultiPolygon)
-        expect(polygonGeom!.getCoordinates()).to.have.length(expPolygonGeom.length) // nb polygons
+        expect(polygonGeom.getCoordinates()).to.have.length(expPolygonGeom.length) // nb polygons
         for (let i = 0; i < expPolygonGeom.length; i++) {
-            expect(polygonGeom!.getCoordinates()[i]!).to.have.length(1) // 1 Subpolygon
-            expect(polygonGeom!.getCoordinates()[i]![0]!).to.have.length(
-                expPolygonGeom[i]!.length + 1
+            expect(polygonGeom.getCoordinates()[i]).to.have.length(1) // 1 Subpolygon
+            expect(polygonGeom.getCoordinates()[i][0]).to.have.length(
+                expPolygonGeom[i].length + 1
             )
-            checkCoordsEqual(polygonGeom!.getCoordinates()[i]![0]!, [
-                ...expPolygonGeom[i]!,
-                expPolygonGeom[i]![0]!,
+            checkCoordsEqual(polygonGeom.getCoordinates()[i][0], [
+                ...expPolygonGeom[i],
+                expPolygonGeom[i][0],
             ])
         }
     } else {
@@ -88,8 +88,8 @@ function validateResults(geodesic: GeodesicGeometries, exp: ExpectedResults): vo
 describe('Unit tests for Geodesic geometries', () => {
     it('test azimuth calculation', () => {
         expect(constructGeodLineString([0, 500], [0, 600]).rotation).to.equal(0)
-        expect(constructGeodLineString([500, 10], [600, 10]).rotation!.toFixed(2)).to.equal('90.00')
-        expect(constructGeodLineString([600, 10], [500, 10]).rotation!.toFixed(2)).to.equal(
+        expect(constructGeodLineString([500, 10], [600, 10]).rotation.toFixed(2)).to.equal('90.00')
+        expect(constructGeodLineString([600, 10], [500, 10]).rotation.toFixed(2)).to.equal(
             '270.00'
         )
         const line = constructGeodLineString([1064265.7618468616, 5882082.735211225])

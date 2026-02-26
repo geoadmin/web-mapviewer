@@ -21,7 +21,7 @@ export default function setTimedLayerCurrentTimeEntry(
         // if this layer has a 3D counterpart, we also update its time entry (keep it in sync)
         if ('idIn3d' in layer && layer.idIn3d !== undefined) {
             const geoadminLayer = layer as GeoAdminLayer
-            const layerIn3d = this.getLayerConfigById(geoadminLayer.idIn3d as string)
+            const layerIn3d = this.getLayerConfigById(geoadminLayer.idIn3d)
             if (layerIn3d?.timeConfig) {
                 timeConfigUtils.updateCurrentTimeEntry(layerIn3d.timeConfig, timeEntry)
             }

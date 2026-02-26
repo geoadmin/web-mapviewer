@@ -88,8 +88,8 @@ function setupHandler(): void {
                 latitude,
             ])
             const coordinate: [number, number, number] = [
-                projected[0] as number,
-                projected[1] as number,
+                projected[0],
+                projected[1],
                 cartographic.height ?? 0,
             ]
 

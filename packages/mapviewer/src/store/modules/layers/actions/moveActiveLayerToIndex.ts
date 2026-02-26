@@ -33,6 +33,6 @@ export default function moveActiveLayerToIndex(
     }
     const removed = this.activeLayers.splice(index, 1)
     if (removed.length > 0) {
-        this.activeLayers.splice(newIndex, 0, removed[0]!)
+        this.activeLayers.splice(newIndex, 0, removed[0])
     }
 }

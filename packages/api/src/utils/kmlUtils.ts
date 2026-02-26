@@ -95,7 +95,7 @@ function getKmlExtent(content: string): FlatExtent | undefined {
         // guarding against empty/null geometry (in case the KML feature doesn't declare any coordinate)
         .filter((feature) => !!feature.getGeometry()?.getExtent())
         .forEach((feature) => {
-            extendExtent(extent, feature.getGeometry()!.getExtent())
+            extendExtent(extent, feature.getGeometry().getExtent())
         })
     if (isExtentEmpty(extent)) {
         return
@@ -449,9 +449,9 @@ function getFillColor(
             iconArgs.color.b,
         ])
     } else if (['LineString', 'Point'].includes(geometryType) && style.getStroke()) {
-        return featureStyleUtils.getFeatureStyleColor(style.getStroke()!.getColor())
+        return featureStyleUtils.getFeatureStyleColor(style.getStroke().getColor())
     } else if (geometryType === 'Polygon' && style.getFill()) {
-        return featureStyleUtils.getFeatureStyleColor(style.getFill()!.getColor())
+        return featureStyleUtils.getFeatureStyleColor(style.getFill().getColor())
     } else {
         return featureStyleUtils.RED
     }
@@ -522,7 +522,7 @@ function getEditableFeatureFromKmlFeature(
     const description = kmlFeature.get('description') ?? ''
 
     const iconStyle = getIconStyle(style)
-    const iconArgs = iconStyle?.getSrc() ? parseIconUrl(iconStyle.getSrc()!) : undefined
+    const iconArgs = iconStyle?.getSrc() ? parseIconUrl(iconStyle.getSrc()) : undefined
     if (iconStyle && iconArgs?.isLegacy) {
         // On the legacy drawing, openlayer used the scale from xml as is, but since openlayer
         // version 6.7, the scale has been normalized to 32 pixels, therefore we need to add the
@@ -877,7 +877,7 @@ async function unzipKmz(kmzContent: ArrayBuffer, kmzFileName: string): Promise<K
         // Valid KMZ archive must have 1 KML file with .kml extension
         const allFiles = zip.file(/^.*\.kml$/)
         if (allFiles.length > 0) {
-            kmz.kml = await allFiles[0]!.async('arraybuffer')
+            kmz.kml = await allFiles[0].async('arraybuffer')
         }
     } catch (error) {
         if (error instanceof Error) {

@@ -120,7 +120,7 @@ export function createLayerObject(parsedLayer: Partial<Layer>, currentLayer?: La
         layer.opacity = parsedLayer.opacity ?? DEFAULT_OPACITY
 
         if (adminId && layer.type === LayerType.KML) {
-            ; (layer as KMLLayer).adminId = adminId
+            ;(layer as KMLLayer).adminId = adminId
         }
     } else if (parsedLayer.type === LayerType.KML) {
         // format is KML|FILE_URL
@@ -179,7 +179,7 @@ export function createLayerObject(parsedLayer: Partial<Layer>, currentLayer?: La
         const internalLayer = layer as GeoAdminLayer
 
         if (internalLayer.type === LayerType.GEOJSON && updateDelay !== undefined) {
-            ; (internalLayer as GeoAdminGeoJSONLayer).updateDelay = updateDelay
+            ;(internalLayer as GeoAdminGeoJSONLayer).updateDelay = updateDelay
         }
 
         // only highlightable feature will output something, for the others a click coordinate is required
@@ -347,12 +347,12 @@ function generateLayerUrlParamFromStoreValues(): string {
     >
 
     return layersStore.activeLayers
-        .map((layer: Layer) =>
+        .map((layer) =>
             transformLayerIntoUrlString(
-                layer,
-                layersStore.config.find(
-                    (layerConfig: GeoAdminLayer) => layerConfig.id === layer.id
-                ),
+                layer as Layer,
+                layersStore.config.find((layerConfig) => layerConfig.id === layer.id) as
+                    | GeoAdminLayer
+                    | undefined,
                 featuresIds[layer.id]
             )
         )

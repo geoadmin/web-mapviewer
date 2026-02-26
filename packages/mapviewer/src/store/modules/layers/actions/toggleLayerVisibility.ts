@@ -33,7 +33,11 @@ export default function toggleLayerVisibility(
     if (this.router) {
         const removeHook = this.router.afterEach(() => {
             removeHook()
-            this.identifyFeatures(setLayerIdUpdateFeatures, { activeLayer: layer, index }, dispatcher)
+            this.identifyFeatures(
+                setLayerIdUpdateFeatures,
+                { activeLayer: layer, index },
+                dispatcher
+            )
         })
     } else {
         this.identifyFeatures(setLayerIdUpdateFeatures, { activeLayer: layer, index }, dispatcher)
@@ -46,7 +50,7 @@ function setLayerIdUpdateFeatures(options: GetLayerIdOptions): GetLayerIdResult 
     const featuresStore = useFeaturesStore()
 
     const selectedFeatures = featuresStore.selectedFeatures
-    let layerId
+    let layerId: string | undefined
     // for toggleLayerVisibility we always update if layer has gone from invisible to visible
     // if the layer went from visible to invisible we need to check if there are selected features from this layer
     let updateFeatures = true

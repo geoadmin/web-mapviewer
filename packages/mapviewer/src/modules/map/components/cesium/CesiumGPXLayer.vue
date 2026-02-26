@@ -54,7 +54,7 @@ async function createSource(): Promise<GpxDataSource> {
 function createRedCircleImage(opacity: number = 1): string {
     // Create a new canvas element
     const canvas = document.createElement('canvas')
-    const context = canvas.getContext('2d')!
+    const context = canvas.getContext('2d')
 
     // Set the canvas sizes
     canvas.width = GPX_BILLBOARD_RADIUS * 2

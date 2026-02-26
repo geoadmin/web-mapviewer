@@ -74,15 +74,15 @@ async function setupCesium() {
                     url: 'https://wmts.geo.admin.ch/1.0.0/ch.swisstopo.swisstlm3d-karte-farbe.3d/default/current/3857/{z}/{x}/{y}.jpeg',
                     minimumLevel: 8,
                     maximumLevel: 17,
-                    rectangle: CesiumRectangle.fromDegrees(...LV95.getBoundsAs(WGS84)!.flatten),
+                    rectangle: CesiumRectangle.fromDegrees(...LV95.getBoundsAs(WGS84).flatten),
                 })
             ),
         })
     )
     cesiumViewer.camera.setView({
         destination: CesiumCartesian3.fromDegrees(
-            WGS84.bounds!.center[0],
-            WGS84.bounds!.center[1],
+            WGS84.bounds.center[0],
+            WGS84.bounds.center[1],
             250000
         ),
         orientation: {

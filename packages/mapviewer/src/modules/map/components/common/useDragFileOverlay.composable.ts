@@ -28,7 +28,7 @@ export default function useDragFileOverlay(mapHtmlElementRef: MaybeRef<HTMLEleme
         if (event.dataTransfer?.items) {
             for (const item of event.dataTransfer.items) {
                 if (item.kind === 'file') {
-                    handleFileSource(item.getAsFile()!).catch((error) => {
+                    handleFileSource(item.getAsFile()).catch((error) => {
                         log.error({
                             title: 'useDragFileOverlay.composable',
                             titleColor: LogPreDefinedColor.Red,

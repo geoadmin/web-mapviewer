@@ -18,7 +18,7 @@ describe('Testing coordinates typing in search bar', () => {
     beforeEach(() => {
         cy.goToMapView()
     })
-    const expectedCenter: SingleCoordinate = DEFAULT_PROJECTION.bounds!.center
+    const expectedCenter: SingleCoordinate = DEFAULT_PROJECTION.bounds.center
     const expectedCenterLV95 = coordinatesUtils.reprojectAndRound(
         DEFAULT_PROJECTION,
         LV95,

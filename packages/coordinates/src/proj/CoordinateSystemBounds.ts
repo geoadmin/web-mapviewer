@@ -44,7 +44,7 @@ function reassembleLineSegments(
                 throw new Error('Feature missing geometry')
             }
         })
-        const closest = candidateFeatures.shift()!
+        const closest = candidateFeatures.shift()
         const closestOrigin = closest.geometry.coordinates[closest.geometry.coordinates.length - 1]
         if (closestOrigin) {
             origin = closestOrigin
@@ -114,8 +114,8 @@ export default class CoordinateSystemBounds {
             return (
                 xOrCoordinate >= this.lowerX &&
                 xOrCoordinate <= this.upperX &&
-                y! >= this.lowerY &&
-                y! <= this.upperY
+                y >= this.lowerY &&
+                y <= this.upperY
             )
         }
         return this.isInBounds(xOrCoordinate[0], xOrCoordinate[1])

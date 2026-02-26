@@ -136,9 +136,9 @@ function createProvider(): WebMapTileServiceImageryProvider | UrlTemplateImagery
         })
     } else {
         provider = new UrlTemplateImageryProvider({
-            rectangle: Rectangle.fromDegrees(...DEFAULT_PROJECTION.getBoundsAs(WGS84)!.flatten),
+            rectangle: Rectangle.fromDegrees(...DEFAULT_PROJECTION.getBoundsAs(WGS84).flatten),
             maximumLevel: MAXIMUM_LEVEL_OF_DETAILS,
-            url: url.value!,
+            url: url.value,
         })
     }
     return provider

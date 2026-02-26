@@ -101,7 +101,7 @@ watch(availableIconSets, () => {
                 () => {
                     // Fallback warning handler (Pinia app store could be used if available)
                     log.warn(
-                        new WarningMessage('kml_icon_set_not_found', { iconSetName: iconArgs!.set })
+                        new WarningMessage('kml_icon_set_not_found', { iconSetName: iconArgs.set })
                     )
                 }
             )
@@ -149,7 +149,9 @@ onMounted(() => {
     // If a KML was previously created with the drawing module, add it back for further editing
     if (drawingStore.layer.config) {
         if (hasLoaded.value) {
-            addKmlFeaturesToDrawingLayer(drawingStore.layer.config, { retryOnError: true })
+            addKmlFeaturesToDrawingLayer(drawingStore.layer.config as KMLLayer, {
+                retryOnError: true,
+            })
         }
     } else {
         drawingStore.setDrawingName(t('draw_layer_label'), dispatcher)
@@ -198,7 +200,7 @@ function closeDrawing() {
         .closeDrawing(dispatcher)
         .then(() => {
             if (drawingStore.layer.ol) {
-                olMap!.removeLayer(drawingStore.layer.ol)
+                olMap.removeLayer(drawingStore.layer.ol)
             }
         })
         .catch((error) => {
@@ -230,7 +232,7 @@ function closeDrawing() {
             @close="showNotSharedDrawingWarningModal = false"
         >
             <ShareWarningPopup
-                :kml-layer="drawingStore.layer.config"
+                :kml-layer="drawingStore.layer.config as KMLLayer"
                 @accept="showNotSharedDrawingWarningModal = false"
             />
         </ModalWithBackdrop>

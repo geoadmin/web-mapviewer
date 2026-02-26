@@ -254,13 +254,13 @@ export function orderFeaturesByLayers(
 
     selectedFeatures
         .filter((feature) => !feature.isEditable)
-        .map((feature) => feature)
+        .map((feature) => feature as LayerFeature)
         .forEach((feature) => {
             if (!layersFeatures[feature.layer.id]) {
                 layersFeatures[feature.layer.id] = []
             }
 
-            layersFeatures[feature.layer.id]!.push(`${feature.id}`)
+            layersFeatures[feature.layer.id].push(`${feature.id}`)
         })
     return layersFeatures
 }
@@ -292,7 +292,7 @@ export function handleLegacyFeaturePreSelectionParam(
             )
     )
     relevantParams
-        .filter(([key]) => layersStore.config.some((layer: GeoAdminLayer) => layer.id === key))
+        .filter(([key]) => layersStore.config.some((layer) => layer.id === key))
         .forEach(([layerId, featuresIds]) => {
             // we only iterate on layers
             const currentLayers = (newQuery.layers as string) ?? ''

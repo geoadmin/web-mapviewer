@@ -39,7 +39,7 @@ function getProcessedEntityLabelTemplate(
         entity.properties.propertyNames.forEach((prop) => {
             processedTemplate = processedTemplate.replace(
                 `$\{${prop}}`,
-                entity.properties![prop]!.getValue()
+                entity.properties[prop]!.getValue()
             )
         })
         return processedTemplate

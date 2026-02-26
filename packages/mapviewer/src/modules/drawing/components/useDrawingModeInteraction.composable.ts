@@ -83,7 +83,7 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
         throw new Error('Drawing layer source not found')
     }
     const interaction = new DrawInteraction({
-        style: editingStyle as StyleFunction,
+        style: editingStyle,
         type: toValue(geometryType),
         source: interactionSource,
         minPoints: 2, // Default polygon geometries require at least 3 points
@@ -141,7 +141,6 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
         deactivate()
         const overlaySource = interaction.getOverlay().getSource()
         if (snapping) {
-            // @ts-expect-error "addfeature" event isn't recognized in this context for some reason... (but is recognized when registering the event)
             overlaySource?.un('addfeature', checkIfSnapping)
             interaction.un('drawstart', onDrawStartResetPointCounter)
             olMap.removeInteraction(snapInteraction)
@@ -151,11 +150,10 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
     function deactivate() {
         const overlaySource = interaction.getOverlay().getSource()
 
-        olMap!.removeInteraction(interaction)
+        olMap.removeInteraction(interaction)
 
         interaction.un('drawend', onDrawEnd)
         interaction.un('drawstart', onDrawStart)
-        // @ts-expect-error "addfeature" event isn't recognized in this context for some reason... (but is recognized when registering the event)
         overlaySource?.un('addfeature', onAddFeature)
 
         interaction.setActive(false)
@@ -199,7 +197,7 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
             feature.setId(uid)
             const editableFeature: EditableFeature = {
                 coordinates: feature.getGeometry()?.getCoordinates() ?? [],
-                featureType: drawingStore.edit.featureType!,
+                featureType: drawingStore.edit.featureType,
                 isEditable: true,
                 showDescriptionOnMap: false,
                 textOffset: featureStyleUtils.DEFAULT_MARKER_TITLE_OFFSET,

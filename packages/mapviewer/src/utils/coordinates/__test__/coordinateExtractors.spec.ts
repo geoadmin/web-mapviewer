@@ -50,16 +50,16 @@ describe('Unit test functions from coordinateExtractors.js', () => {
             expect(result).to.be.an('Object', message)
             expect(result?.coordinate).to.be.an('Array')
             expect(result?.coordinateSystem).to.be.an('Object')
-            const coordinate = result!.coordinate
-            const coordinateSystem = result!.coordinateSystem
+            const coordinate = result.coordinate
+            const coordinateSystem = result.coordinateSystem
             expect(coordinate.length).to.eq(2, message)
             expect(coordinate[0]).to.approximately(
-                expected[0]!,
+                expected[0],
                 acceptableDelta,
                 message + '\nx result: ' + coordinate[0] + '\n'
             )
             expect(coordinate[1]).to.approximately(
-                expected[1]!,
+                expected[1],
                 acceptableDelta,
                 message + '\ny result: ' + coordinate[1] + '\n'
             )
@@ -235,8 +235,8 @@ describe('Unit test functions from coordinateExtractors.js', () => {
 
             it(`Returns coordinates with degree decimal (DD) format : ${expectedCenterWGS84_DD.join(',')}`, () => {
                 checkXY(
-                    expectedCenterWGS84_DD[0]!,
-                    expectedCenterWGS84_DD[1]!,
+                    expectedCenterWGS84_DD[0],
+                    expectedCenterWGS84_DD[1],
                     expectedCenterWGS84[0],
                     expectedCenterWGS84[1],
                     WGS84,
@@ -262,8 +262,8 @@ describe('Unit test functions from coordinateExtractors.js', () => {
             })
             it(`Returns coordinates with DM (degree/minutes) format : ${expectedCenterWGS84_DMS.join(',')}`, () => {
                 checkXY(
-                    expectedCenterWGS84_DMS[0]!,
-                    expectedCenterWGS84_DMS[1]!,
+                    expectedCenterWGS84_DMS[0],
+                    expectedCenterWGS84_DMS[1],
                     expectedCenterWGS84[0],
                     expectedCenterWGS84[1],
                     WGS84,
@@ -303,11 +303,11 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 )
             })
             it(`Returns coordinates with DMS (degree/minutes/seconds) format : ${expectedCenterWGS84_DMS_No_NE.join(',')}`, () => {
-                const latWithSpaceBetweenDegAndMin = expectedCenterWGS84_DMS_No_NE[0]!.replace(
+                const latWithSpaceBetweenDegAndMin = expectedCenterWGS84_DMS_No_NE[0].replace(
                     /°/g,
                     '° '
                 )
-                const lonWithSpaceBetweenDegAndMin = expectedCenterWGS84_DMS_No_NE[1]!.replace(
+                const lonWithSpaceBetweenDegAndMin = expectedCenterWGS84_DMS_No_NE[1].replace(
                     /°/g,
                     '° '
                 )
@@ -323,8 +323,8 @@ describe('Unit test functions from coordinateExtractors.js', () => {
 
                 // double quote notation for seconds
                 checkXY(
-                    expectedCenterWGS84_DMS_No_NE[0]!,
-                    expectedCenterWGS84_DMS_No_NE[1]!,
+                    expectedCenterWGS84_DMS_No_NE[0],
+                    expectedCenterWGS84_DMS_No_NE[1],
                     expectedCenterWGS84[0],
                     expectedCenterWGS84[1],
                     WGS84,
@@ -349,8 +349,8 @@ describe('Unit test functions from coordinateExtractors.js', () => {
 
                 // two single quote notation for seconds
                 checkXY(
-                    expectedCenterWGS84_DMS_No_NE[0]!.replace(/"/g, "''"),
-                    expectedCenterWGS84_DMS_No_NE[1]!.replace(/"/g, "''"),
+                    expectedCenterWGS84_DMS_No_NE[0].replace(/"/g, "''"),
+                    expectedCenterWGS84_DMS_No_NE[1].replace(/"/g, "''"),
                     expectedCenterWGS84[0],
                     expectedCenterWGS84[1],
                     WGS84,
@@ -375,8 +375,8 @@ describe('Unit test functions from coordinateExtractors.js', () => {
             })
             it(`Returns coordinate with DM format (degree minutes without symbols, aka Google style) : ${expectedCenterWGS84_DD_NoSymbol.join(',')}`, () => {
                 checkXY(
-                    expectedCenterWGS84_DD_NoSymbol[0]!,
-                    expectedCenterWGS84_DD_NoSymbol[1]!,
+                    expectedCenterWGS84_DD_NoSymbol[0],
+                    expectedCenterWGS84_DD_NoSymbol[1],
                     expectedCenterWGS84[0],
                     expectedCenterWGS84[1],
                     WGS84,
@@ -402,8 +402,8 @@ describe('Unit test functions from coordinateExtractors.js', () => {
             })
             it(`Returns coordinate with DMS format (degree minutes without symbols, aka Google style) : ${expectedCenterWGS84_DMS_NoSymbol.join(',')}`, () => {
                 checkXY(
-                    expectedCenterWGS84_DMS_NoSymbol[0]!,
-                    expectedCenterWGS84_DMS_NoSymbol[1]!,
+                    expectedCenterWGS84_DMS_NoSymbol[0],
+                    expectedCenterWGS84_DMS_NoSymbol[1],
                     expectedCenterWGS84[0],
                     expectedCenterWGS84[1],
                     WGS84,
@@ -412,8 +412,8 @@ describe('Unit test functions from coordinateExtractors.js', () => {
             })
             it('Returns coordinate with DMS format with cardinal point information', () => {
                 checkXY(
-                    expectedCenterWGS84_DMS[0]!,
-                    expectedCenterWGS84_DMS[1]!,
+                    expectedCenterWGS84_DMS[0],
+                    expectedCenterWGS84_DMS[1],
                     expectedCenterWGS84[0],
                     expectedCenterWGS84[1],
                     WGS84,
@@ -426,18 +426,18 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 const pointInSouthAmericaInEPSG3857 = [-6504867, -4110554]
                 const pointInSouthAmericaInEPSG4326 = ['34°36\'23.937"S', '58°26\'3.172"W']
                 checkXY(
-                    pointInSouthAmericaInEPSG4326[0]!,
-                    pointInSouthAmericaInEPSG4326[1]!,
-                    pointInSouthAmericaInEPSG3857[0]!,
-                    pointInSouthAmericaInEPSG3857[1]!,
+                    pointInSouthAmericaInEPSG4326[0],
+                    pointInSouthAmericaInEPSG4326[1],
+                    pointInSouthAmericaInEPSG3857[0],
+                    pointInSouthAmericaInEPSG3857[1],
                     WEBMERCATOR,
                     { acceptableDelta }
                 )
                 checkXY(
-                    pointInSouthAmericaInEPSG4326[1]!,
-                    pointInSouthAmericaInEPSG4326[0]!,
-                    pointInSouthAmericaInEPSG3857[0]!,
-                    pointInSouthAmericaInEPSG3857[1]!,
+                    pointInSouthAmericaInEPSG4326[1],
+                    pointInSouthAmericaInEPSG4326[0],
+                    pointInSouthAmericaInEPSG3857[0],
+                    pointInSouthAmericaInEPSG3857[1],
                     WEBMERCATOR,
                     { acceptableDelta }
                 )
@@ -448,18 +448,18 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 const pointInNorthAmericaInEPSG3857 = [-9457276, 4961988]
                 const pointInNorthAmericaInEPSG4326 = ['40°39\'27.846"N', '84°57\'22.161"W']
                 checkXY(
-                    pointInNorthAmericaInEPSG4326[0]!,
-                    pointInNorthAmericaInEPSG4326[1]!,
-                    pointInNorthAmericaInEPSG3857[0]!,
-                    pointInNorthAmericaInEPSG3857[1]!,
+                    pointInNorthAmericaInEPSG4326[0],
+                    pointInNorthAmericaInEPSG4326[1],
+                    pointInNorthAmericaInEPSG3857[0],
+                    pointInNorthAmericaInEPSG3857[1],
                     WEBMERCATOR,
                     { acceptableDelta }
                 )
                 checkXY(
-                    pointInNorthAmericaInEPSG4326[1]!,
-                    pointInNorthAmericaInEPSG4326[0]!,
-                    pointInNorthAmericaInEPSG3857[0]!,
-                    pointInNorthAmericaInEPSG3857[1]!,
+                    pointInNorthAmericaInEPSG4326[1],
+                    pointInNorthAmericaInEPSG4326[0],
+                    pointInNorthAmericaInEPSG3857[0],
+                    pointInNorthAmericaInEPSG3857[1],
                     WEBMERCATOR,
                     { acceptableDelta }
                 )
@@ -470,18 +470,18 @@ describe('Unit test functions from coordinateExtractors.js', () => {
                 const pointInOceaniaInEPSG3857 = [12894439, -3757563]
                 const pointInOceaniaInEPSG4326 = ['31°57\'22.332"S', '115°49\'57.779"E']
                 checkXY(
-                    pointInOceaniaInEPSG4326[0]!,
-                    pointInOceaniaInEPSG4326[1]!,
-                    pointInOceaniaInEPSG3857[0]!,
-                    pointInOceaniaInEPSG3857[1]!,
+                    pointInOceaniaInEPSG4326[0],
+                    pointInOceaniaInEPSG4326[1],
+                    pointInOceaniaInEPSG3857[0],
+                    pointInOceaniaInEPSG3857[1],
                     WEBMERCATOR,
                     { acceptableDelta }
                 )
                 checkXY(
-                    pointInOceaniaInEPSG4326[1]!,
-                    pointInOceaniaInEPSG4326[0]!,
-                    pointInOceaniaInEPSG3857[0]!,
-                    pointInOceaniaInEPSG3857[1]!,
+                    pointInOceaniaInEPSG4326[1],
+                    pointInOceaniaInEPSG4326[0],
+                    pointInOceaniaInEPSG3857[0],
+                    pointInOceaniaInEPSG3857[1],
                     WEBMERCATOR,
                     { acceptableDelta }
                 )
@@ -575,7 +575,7 @@ describe('Unit test functions from coordinateExtractors.js', () => {
             it('Returns coordinates in EPSG:4326 when MGRS string is entered', () => {
                 // as MGRS is a grid based system, what is return is essentially a 1-meter box.
                 // So depending on which part of the box is taken, the answer is correct, we then tolerate here a margin of 1m
-                checkText(MGRS, LV95.getBoundsAs(WGS84)!.center, 'MGRS not supported', 1, WGS84)
+                checkText(MGRS, LV95.getBoundsAs(WGS84).center, 'MGRS not supported', 1, WGS84)
             })
         })
     })

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ExternalLayer } from '@swissgeo/layers'
+import type { ExternalLayer, Layer } from '@swissgeo/layers'
 
 import log from '@swissgeo/log'
 import { ref } from 'vue'
@@ -41,7 +41,7 @@ function onClear(): void {
         />
         <LayerCatalogue
             class="mb-2"
-            :layer-catalogue="capabilities"
+            :layer-catalogue="capabilities as Layer[]"
             :compact="compact"
             with-search-bar
         />

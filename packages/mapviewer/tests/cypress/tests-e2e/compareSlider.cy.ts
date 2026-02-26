@@ -171,8 +171,8 @@ describe('Testing of the compare slider', () => {
                     feature_layer_2 = features.results[1]
                 })
                 const layerIds = ['test1.wms.layer', 'test2.wms.layer']
-                const layer1 = layerIds[0]!
-                const layer2 = layerIds[1]!
+                const layer1 = layerIds[0]
+                const layer2 = layerIds[1]
                 assertDefined(feature_layer_1)
                 assertDefined(feature_layer_2)
                 const feature_1_coordinates: [number, number] = [

@@ -102,16 +102,17 @@ export const clearWarningMessages = (layer: Layer): void => {
  * This class also contains an i18n translation key in plus of a technical english message. The
  * translation key can be used to display a translated user message.
  *
- * @property {string} message Technical english message
- * @property {string} key I18n translation key for user message
+ * @property message Technical english message
+ * @property key I18n translation key for user message
+ * @property cause Optional cause of the error
  */
 export class CapabilitiesError extends Error {
     key?: string
 
-    constructor(message: string, key?: string) {
-        super(message)
+    constructor(message: string, options: {key?: string, cause?: unknown} = {}) {
+        super(message, { cause: options.cause })
         this.name = 'CapabilitiesError'
-        this.key = key
+        this.key = options.key
     }
 }
 

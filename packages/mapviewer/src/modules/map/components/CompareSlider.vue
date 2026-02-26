@@ -134,11 +134,11 @@ function onPreRenderWebGL(event: RenderEvent, context: WebGLRenderingContext) {
     }
 
     // get render coordinates and dimensions given CSS coordinates
-    const bottomLeft = getRenderPixel(event, [0, mapSize[1]!])
-    const topRight = getRenderPixel(event, [mapSize[0]!, 0])
+    const bottomLeft = getRenderPixel(event, [0, mapSize[1]])
+    const topRight = getRenderPixel(event, [mapSize[0], 0])
 
-    let width = topRight[0]! - bottomLeft[0]!
-    const height = topRight[1]! - bottomLeft[1]!
+    let width = topRight[0] - bottomLeft[0]
+    const height = topRight[1] - bottomLeft[1]
 
     if (compareRatio.value < 1.0 && compareRatio.value > 0.0) {
         width = Math.round(width * compareRatio.value)
@@ -148,7 +148,7 @@ function onPreRenderWebGL(event: RenderEvent, context: WebGLRenderingContext) {
     // moving the slider.
     context.clear(context.COLOR_BUFFER_BIT)
 
-    context.scissor(bottomLeft[0]!, bottomLeft[1]!, width, height)
+    context.scissor(bottomLeft[0], bottomLeft[1], width, height)
 }
 
 function onPreRender2d(

@@ -47,18 +47,20 @@ export default async function closeDrawing(this: DrawingStore, dispatcher: Actio
             // flagging the layer as not edited anymore (not displayed on the map by the drawing module anymore)
             if (isOnlineMode(this.onlineMode)) {
                 layersStore.updateLayer<KMLLayer>(
-                    this.layer.config,
+                    this.layer.config as KMLLayer,
                     {
                         isEdited: false,
                     },
                     dispatcher
                 )
             } else {
-                const updatedLayer = {
-                    ...this.layer.config,
-                    isEdited: false,
-                }
-                layersStore.updateSystemLayer(updatedLayer, dispatcher)
+                layersStore.updateSystemLayer<KMLLayer>(
+                    {
+                        id: this.layer.config.id,
+                        isEdited: false,
+                    },
+                    dispatcher
+                )
             }
 
             delete this.layer.config

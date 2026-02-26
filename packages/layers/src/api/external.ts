@@ -59,10 +59,10 @@ export async function readWmsCapabilities(
         response = await axios.get(url.toString(), { timeout: EXTERNAL_SERVER_TIMEOUT })
     } catch (error) {
         if (error instanceof Error) {
-            throw new CapabilitiesError(
-                `Failed to get WMS Capabilities: ${error.toString()}`,
-                'network_error'
-            )
+            throw new CapabilitiesError(`Failed to get WMS Capabilities`, {
+                key: 'network_error',
+                cause: error,
+            })
         }
         throw new Error('Unknown error', { cause: error })
     }
@@ -70,7 +70,7 @@ export async function readWmsCapabilities(
     if (response.status !== 200) {
         const msg = `Failed to read GetCapabilities from ${url}`
         log.error(msg, response)
-        throw new CapabilitiesError(msg, 'network_error')
+        throw new CapabilitiesError(msg, { key: 'network_error' })
     }
 
     return parseWmsCapabilities(response.data)
@@ -86,10 +86,10 @@ export function parseWmsCapabilities(content: string): WMSCapabilitiesResponse {
         return externalWMSParser.parse(content)
     } catch (error) {
         if (error instanceof Error) {
-            throw new CapabilitiesError(
-                `Failed to parse WMS capabilities: ${error.toString()}`,
-                'invalid_wms_capabilities'
-            )
+            throw new CapabilitiesError('Failed to parse WMS capabilities', {
+                key: 'invalid_wms_capabilities',
+                cause: error,
+            })
         }
         throw new Error('Unknown error', { cause: error })
     }
@@ -120,10 +120,10 @@ export async function readWmtsCapabilities(
         response = await axios.get(url.toString(), { timeout: EXTERNAL_SERVER_TIMEOUT })
     } catch (error) {
         if (error instanceof Error) {
-            throw new CapabilitiesError(
-                `Failed to get the remote capabilities: ${error.message}`,
-                'network_error'
-            )
+            throw new CapabilitiesError(`Failed to get the remote capabilities`, {
+                key: 'network_error',
+                cause: error,
+            })
         }
         throw new Error('Unknown error', { cause: error })
     }
@@ -131,7 +131,7 @@ export async function readWmtsCapabilities(
     if (response.status !== 200) {
         const msg = `Failed to read GetCapabilities from ${url}`
         log.error(msg, response)
-        throw new CapabilitiesError(msg, 'network_error')
+        throw new CapabilitiesError(msg, { key: 'network_error' })
     }
 
     return parseWmtsCapabilities(response.data, url)
@@ -149,10 +149,10 @@ export function parseWmtsCapabilities(content: string, originUrl: URL): WMTSCapa
         return wmtsCapabilitiesParser.parse(content, originUrl)
     } catch (error) {
         if (error instanceof Error) {
-            throw new CapabilitiesError(
-                `Failed to parse WMTS capabilities: ${error.toString()}`,
-                'invalid_wmts_capabilities'
-            )
+            throw new CapabilitiesError('Failed to parse WMTS capabilities', {
+                key: 'invalid_wmts_capabilities',
+                cause: error,
+            })
         }
         throw new Error('Unknown error', { cause: error })
     }

@@ -67,8 +67,8 @@ export function useDragBoxSelect(): {
         const minDragDistance = DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE * resolution
         const [minX, minY, maxX, maxY] = selectExtent
         if (
-            Math.abs(minX! - maxX!) < minDragDistance ||
-            Math.abs(minY! - maxY!) < minDragDistance
+            Math.abs(minX - maxX) < minDragDistance ||
+            Math.abs(minY - maxY) < minDragDistance
         ) {
             return
         }

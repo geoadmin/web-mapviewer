@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { LayerTimeConfig } from '@swissgeo/layers'
+import type { Layer, LayerTimeConfig } from '@swissgeo/layers'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
@@ -44,7 +44,7 @@ const outsideRangeTooltip = useTemplateRef<{ openTooltip: () => void; closeToolt
 
 const screenWidth = computed(() => uiStore.width)
 const layersWithTimestamps = computed(() => layersStore.visibleLayersWithTimeConfig)
-const activeLayers = computed(() => layersStore.activeLayers)
+const activeLayers = computed<Layer[]>(() => layersStore.activeLayers as Layer[])
 const youngestYear = computed(() => layersStore.youngestYear)
 const oldestYear = computed(() => layersStore.oldestYear)
 const previewYear = computed(() => layersStore.previewYear)
@@ -124,7 +124,7 @@ const yearsWithData = computed(() => {
         return 'timeEntries' in timeConfig ? timeConfig.timeEntries.map((entry) => entry.year) : []
     }
 
-    const firstConfigYears = getYearsFromTimeConfig(timeConfigs[0] as LayerTimeConfig)
+    const firstConfigYears = getYearsFromTimeConfig(timeConfigs[0])
     let yearsJoint = Array.isArray(firstConfigYears) ? [...firstConfigYears] : []
     let yearsSeparate: number[] = []
 
@@ -135,7 +135,7 @@ const yearsWithData = computed(() => {
         }
         years
             .filter((year) => !year || !yearsSeparate.includes(year))
-            .forEach((year) => yearsSeparate.push(year!))
+            .forEach((year) => yearsSeparate.push(year))
     })
 
     if (timeConfigs.length > 1) {
@@ -146,7 +146,7 @@ const yearsWithData = computed(() => {
     }
     yearsSeparate = yearsSeparate.filter((year) => !yearsJoint.includes(year))
     return {
-        yearsJoint: yearsJoint.filter((year) => isNumber(year)).sort((a, b) => b! - a!),
+        yearsJoint: yearsJoint.filter((year) => isNumber(year)).sort((a, b) => b - a),
         yearsSeparate: yearsSeparate.sort((a, b) => b - a),
     }
 })
@@ -184,13 +184,10 @@ onMounted(() => {
     if (previewYear.value === undefined) {
         if (
             layersWithTimestamps.value.length === 1 &&
-            'currentTimeEntry' in layersWithTimestamps.value[0]!.timeConfig &&
-            allYears.value.includes(
-                layersWithTimestamps.value[0]!.timeConfig.currentTimeEntry?.year as number
-            )
+            'currentTimeEntry' in layersWithTimestamps.value[0].timeConfig &&
+            allYears.value.includes(layersWithTimestamps.value[0].timeConfig.currentTimeEntry?.year)
         ) {
-            currentYear.value = layersWithTimestamps.value[0]!.timeConfig.currentTimeEntry
-                ?.year as number
+            currentYear.value = layersWithTimestamps.value[0].timeConfig.currentTimeEntry?.year
         } else if (yearsWithData.value.yearsJoint.length > 0) {
             currentYear.value = yearsWithData.value.yearsJoint[0]!
         } else if (yearsWithData.value.yearsSeparate[0]) {
@@ -225,7 +222,7 @@ function setPreviewYearToLayers() {
             timeConfigUtils.hasMultipleTimestamps(layer) &&
             layer.timeConfig &&
             'currentTimeEntry' in layer.timeConfig &&
-            layer.timeConfig.currentTimeEntry !== year
+            layer.timeConfig.currentTimeEntry.year !== year
         ) {
             layersStore.setTimedLayerCurrentYear(index, year, dispatcher)
         }
@@ -267,7 +264,7 @@ function positionNodeLabel(year: number) {
 function grabCursor(event: MouseEvent | TouchEvent) {
     yearCursorIsGrabbed = true
     if ('touches' in event) {
-        cursorX = event.touches[0]!.screenX
+        cursorX = event.touches[0].screenX
     } else {
         cursorX = event.screenX
     }
@@ -278,7 +275,7 @@ function grabCursor(event: MouseEvent | TouchEvent) {
 }
 
 function listenToMouseMove(event: MouseEvent | TouchEvent) {
-    const currentPosition = 'touches' in event ? event.touches[0]!.screenX : event.screenX
+    const currentPosition = 'touches' in event ? event.touches[0].screenX : event.screenX
     const deltaX = cursorX - currentPosition
     if (Math.abs(deltaX) >= distanceBetweenLabels.value) {
         let futureYearIndex = allYears.value.indexOf(currentYear.value)

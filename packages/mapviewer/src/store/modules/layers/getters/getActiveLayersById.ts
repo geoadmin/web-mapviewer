@@ -10,7 +10,7 @@ export default function getActiveLayersById(
     return (layerId: string, options?: LayerActionFilter) => {
         const { isExternal, baseUrl } = options ?? {}
         return this.activeLayers.filter((layer) =>
-            matchTwoLayers(layerId, isExternal, baseUrl, layer)
-        )
+            matchTwoLayers(layerId, isExternal, baseUrl, layer as Layer)
+        ) as Layer[]
     }
 }

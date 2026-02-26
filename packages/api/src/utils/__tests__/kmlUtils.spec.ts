@@ -167,12 +167,12 @@ describe('Test KML utils', () => {
         it('handles correctly text offset from extended data', () => {
             const icon = findFeatureWithId('drawing_feature_1714651153088')
             expect(icon).toBeDefined()
-            expect(icon!.textOffset).to.deep.equal([0, -44.75])
+            expect(icon.textOffset).to.deep.equal([0, -44.75])
         })
         it('handles correctly text offset if no offset provided', () => {
             const icon = findFeatureWithId('drawing_feature_1714651899088')
             expect(icon).toBeDefined()
-            expect(icon!.textOffset).to.deep.equal([0, 0])
+            expect(icon.textOffset).to.deep.equal([0, 0])
         })
     })
     describe('parseIconUrl', () => {
@@ -181,26 +181,26 @@ describe('Test KML utils', () => {
                 'https://sys-map.dev.bgdi.ch/api/icons/sets/default/icons/001-marker@1.5x-0,128,0.png'
             )
             expect(args).toBeDefined()
-            expect(args!.set).to.be.equal('default')
-            expect(args!.name).to.be.equal('001-marker')
-            expect(args!.color).toBeDefined()
-            expect(args!.color?.r).to.be.equal(0)
-            expect(args!.color?.g).to.be.equal(128)
-            expect(args!.color?.b).to.be.equal(0)
-            expect(args!.isLegacy).to.be.false
+            expect(args.set).to.be.equal('default')
+            expect(args.name).to.be.equal('001-marker')
+            expect(args.color).toBeDefined()
+            expect(args.color?.r).to.be.equal(0)
+            expect(args.color?.g).to.be.equal(128)
+            expect(args.color?.b).to.be.equal(0)
+            expect(args.isLegacy).to.be.false
         })
         it('parse a new icon url of a default set with invalid color', () => {
             const args = kmlUtils.parseIconUrl(
                 'https://sys-map.dev.bgdi.ch/api/icons/sets/default/icons/001-marker@4x-0,600,0.png'
             )
             expect(args).toBeDefined()
-            expect(args!.set).to.be.equal('default')
-            expect(args!.name).to.be.equal('001-marker')
-            expect(args!.color).toBeDefined()
-            expect(args!.color?.r).to.be.equal(0)
-            expect(args!.color?.g).to.be.equal(255)
-            expect(args!.color?.b).to.be.equal(0)
-            expect(args!.isLegacy).to.be.false
+            expect(args.set).to.be.equal('default')
+            expect(args.name).to.be.equal('001-marker')
+            expect(args.color).toBeDefined()
+            expect(args.color?.r).to.be.equal(0)
+            expect(args.color?.g).to.be.equal(255)
+            expect(args.color?.b).to.be.equal(0)
+            expect(args.isLegacy).to.be.false
         })
         it('parse a new icon url of a default set with no number color', () => {
             const args = kmlUtils.parseIconUrl(
@@ -213,13 +213,13 @@ describe('Test KML utils', () => {
                 'https://sys-map.dev.bgdi.ch/api/icons/sets/babs/icons/babs-100@1x-255,128,3.png'
             )
             expect(args).toBeDefined()
-            expect(args!.set).to.be.equal('babs')
-            expect(args!.name).to.be.equal('babs-100')
-            expect(args!.color).toBeDefined()
-            expect(args!.color?.r).to.be.equal(255)
-            expect(args!.color?.g).to.be.equal(128)
-            expect(args!.color?.b).to.be.equal(3)
-            expect(args!.isLegacy).to.be.false
+            expect(args.set).to.be.equal('babs')
+            expect(args.name).to.be.equal('babs-100')
+            expect(args.color).toBeDefined()
+            expect(args.color?.r).to.be.equal(255)
+            expect(args.color?.g).to.be.equal(128)
+            expect(args.color?.b).to.be.equal(3)
+            expect(args.isLegacy).to.be.false
         })
         it('parse a new icon standard url of a default set (no scale no color)', () => {
             const args = kmlUtils.parseIconUrl(
@@ -244,27 +244,27 @@ describe('Test KML utils', () => {
                 'https://api3.geo.admin.ch/color/45,128,23/star-24@2x.png'
             )
             expect(args).toBeDefined()
-            expect(args!.set).to.be.equal('default')
-            expect(args!.name).to.be.equal('star')
-            expect(args!.color).toBeDefined()
-            expect(args!.color?.r).to.be.equal(45)
-            expect(args!.color?.g).to.be.equal(128)
-            expect(args!.color?.b).to.be.equal(23)
-            expect(args!.isLegacy).to.be.true
+            expect(args.set).to.be.equal('default')
+            expect(args.name).to.be.equal('star')
+            expect(args.color).toBeDefined()
+            expect(args.color?.r).to.be.equal(45)
+            expect(args.color?.g).to.be.equal(128)
+            expect(args.color?.b).to.be.equal(23)
+            expect(args.isLegacy).to.be.true
         })
         it('parse a legacy icon url of a default set with invalid color', () => {
             const args = kmlUtils.parseIconUrl(
                 'https://api3.geo.admin.ch/color/45,600,800/star-24@2x.png'
             )
             expect(args).toBeDefined()
-            expect(args!.set).to.be.equal('default')
-            expect(args!.name).to.be.equal('star')
-            expect(args!.color).toBeDefined()
-            expect(args!.color?.r).to.be.equal(45)
+            expect(args.set).to.be.equal('default')
+            expect(args.name).to.be.equal('star')
+            expect(args.color).toBeDefined()
+            expect(args.color?.r).to.be.equal(45)
             // invalid color fallback to 255
-            expect(args!.color?.g).to.be.equal(255)
-            expect(args!.color?.b).to.be.equal(255)
-            expect(args!.isLegacy).to.be.true
+            expect(args.color?.g).to.be.equal(255)
+            expect(args.color?.b).to.be.equal(255)
+            expect(args.isLegacy).to.be.true
         })
         it('parse a legacy icon url of a default set with non number color', () => {
             const args = kmlUtils.parseIconUrl(
@@ -277,13 +277,13 @@ describe('Test KML utils', () => {
                 'https://sys-api3.dev.bgdi.ch/images/babs/babs-76.png'
             )
             expect(args).toBeDefined()
-            expect(args!.set).to.be.equal('babs')
-            expect(args!.name).to.be.equal('babs-76')
+            expect(args.set).to.be.equal('babs')
+            expect(args.name).to.be.equal('babs-76')
             // expect default scale and color
-            expect(args!.color?.r).to.be.equal(255)
-            expect(args!.color?.g).to.be.equal(0)
-            expect(args!.color?.b).to.be.equal(0)
-            expect(args!.isLegacy).to.be.true
+            expect(args.color?.r).to.be.equal(255)
+            expect(args.color?.g).to.be.equal(0)
+            expect(args.color?.b).to.be.equal(0)
+            expect(args.isLegacy).to.be.true
         })
     })
     describe('getIcon', () => {
@@ -358,9 +358,9 @@ describe('Test KML utils', () => {
                 fakeIconSets
             )
             expect(icon).toBeDefined()
-            expect(icon!.name).to.be.equal('001-marker')
-            expect(icon!.iconSetName).to.be.equal('default')
-            expect(iconsAPI.generateIconURL(icon!)).to.be.equal(
+            expect(icon.name).to.be.equal('001-marker')
+            expect(icon.iconSetName).to.be.equal('default')
+            expect(iconsAPI.generateIconURL(icon)).to.be.equal(
                 'https://fake.image.url/api/icons/sets/default/icons/001-marker@1x-255,0,0.png'
             )
         })
@@ -375,9 +375,9 @@ describe('Test KML utils', () => {
                 fakeIconSets
             )
             expect(icon).toBeDefined()
-            expect(icon!.name).to.be.equal('001-marker')
-            expect(icon!.iconSetName).to.be.equal('default')
-            expect(iconsAPI.generateIconURL(icon!, '#123456')).to.be.equal(
+            expect(icon.name).to.be.equal('001-marker')
+            expect(icon.iconSetName).to.be.equal('default')
+            expect(iconsAPI.generateIconURL(icon, '#123456')).to.be.equal(
                 'https://fake.image.url/api/icons/sets/default/icons/001-marker@1x-18,52,86.png'
             )
         })
@@ -392,9 +392,9 @@ describe('Test KML utils', () => {
                 fakeIconSets
             )
             expect(icon).toBeDefined()
-            expect(icon!.name).to.be.equal('babs-3')
-            expect(icon!.iconSetName).to.be.equal('babs')
-            expect(iconsAPI.generateIconURL(icon!)).to.be.equal(
+            expect(icon.name).to.be.equal('babs-3')
+            expect(icon.iconSetName).to.be.equal('babs')
+            expect(iconsAPI.generateIconURL(icon)).to.be.equal(
                 'https://fake.image.url/api/icons/sets/babs/icons/babs-3@1x-255,0,0.png'
             )
         })
@@ -422,9 +422,9 @@ describe('Test KML utils', () => {
                 })
             )
             expect(icon).toBeDefined()
-            expect(icon!.name).to.be.equal('001-marker')
-            expect(icon!.iconSetName).to.be.equal('default')
-            expect(iconsAPI.generateIconURL(icon!)).to.be.equal(
+            expect(icon.name).to.be.equal('001-marker')
+            expect(icon.iconSetName).to.be.equal('default')
+            expect(iconsAPI.generateIconURL(icon)).to.be.equal(
                 'https://fake.image.url/api/icons/sets/default/icons/001-marker@1x-255,0,0.png'
             )
         })
@@ -440,9 +440,9 @@ describe('Test KML utils', () => {
                 })
             )
             expect(icon).toBeDefined()
-            expect(icon!.name).to.be.equal('star')
-            expect(icon!.iconSetName).to.be.equal('default')
-            expect(iconsAPI.generateIconURL(icon!)).to.be.equal(
+            expect(icon.name).to.be.equal('star')
+            expect(icon.iconSetName).to.be.equal('default')
+            expect(iconsAPI.generateIconURL(icon)).to.be.equal(
                 'https://api3.geo.admin.ch/color/45,600,800/star-24@2x.png'
             )
         })

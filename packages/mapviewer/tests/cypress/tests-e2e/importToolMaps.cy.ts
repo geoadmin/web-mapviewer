@@ -92,11 +92,11 @@ describe('The Import Maps Tool', () => {
             expect(layers).to.have.length(1)
             const [firstLayer] = layers
             expect(firstLayer).to.be.an('object')
-            expect(firstLayer!.name).to.be.eq(itemName)
-            expect(firstLayer!.id).to.be.eq(itemId)
-            expect(firstLayer!.isVisible).to.be.true
-            expect(firstLayer!.opacity).to.be.eq(1)
-            expect(firstLayer!.isExternal).to.be.true
+            expect(firstLayer.name).to.be.eq(itemName)
+            expect(firstLayer.id).to.be.eq(itemId)
+            expect(firstLayer.isVisible).to.be.true
+            expect(firstLayer.opacity).to.be.eq(1)
+            expect(firstLayer.isExternal).to.be.true
         })
 
         cy.get(`[data-cy="catalogue-tree-item-name-${itemId}"]`).should('be.visible').click()
@@ -277,11 +277,11 @@ describe('The Import Maps Tool', () => {
             expect(layers).to.have.length(3)
             const thirdLayer = layers[2]
             expect(thirdLayer).to.be.an('object')
-            expect(thirdLayer!.name).to.eq(singleLayerName)
-            expect(thirdLayer!.id).to.eq(singleLayerId)
-            expect(thirdLayer!.isVisible).to.be.true
-            expect(thirdLayer!.opacity).to.eq(1)
-            expect(thirdLayer!.isExternal).to.be.true
+            expect(thirdLayer.name).to.eq(singleLayerName)
+            expect(thirdLayer.id).to.eq(singleLayerId)
+            expect(thirdLayer.isVisible).to.be.true
+            expect(thirdLayer.opacity).to.eq(1)
+            expect(thirdLayer.isExternal).to.be.true
         })
 
         //---------------------------------------------------------------------------------
@@ -422,11 +422,11 @@ describe('The Import Maps Tool', () => {
             expect(layers).to.have.length(1)
             const [firstLayer] = layers
             expect(firstLayer).to.be.an('object')
-            expect(firstLayer!.name).to.eq(layer1Name)
-            expect(firstLayer!.id).to.eq(layer1Id)
-            expect(firstLayer!.isVisible).to.be.true
-            expect(firstLayer!.opacity).to.eq(1)
-            expect(firstLayer!.isExternal).to.be.true
+            expect(firstLayer.name).to.eq(layer1Name)
+            expect(firstLayer.id).to.eq(layer1Id)
+            expect(firstLayer.isVisible).to.be.true
+            expect(firstLayer.opacity).to.eq(1)
+            expect(firstLayer.isExternal).to.be.true
         })
         cy.checkOlLayer([bgLayer, layer1Id])
 

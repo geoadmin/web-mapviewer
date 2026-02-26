@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { reactive, watch, ref, onMounted, useTemplateRef } from 'vue'
+import { onMounted, reactive, ref, useTemplateRef, watch } from 'vue'
 
 import { NodeType } from '@/modules/menu/components/advancedTools/ImportCatalogue/NodeType.enum'
 import TextSearchMarker from '@/utils/components/TextSearchMarker.vue'
@@ -36,7 +36,7 @@ const emit = defineEmits<{
     chooseProvider: [url: string]
     hide: []
 }>()
-const providerList = useTemplateRef<HTMLDivElement>('providerList')
+const providerListEntries = useTemplateRef<HTMLDivElement[]>('providerListEntries')
 const maxTabIndex = ref(0)
 const treeData = reactive<ProviderTreeNode[]>([])
 
@@ -200,7 +200,9 @@ function goToPrevious(currentTaxIndex: number) {
     }
     let key = currentTaxIndex - 1
     while (key >= 0) {
-        const element = providerList.value?.querySelector(`[tabindex="${key}"]`) as HTMLElement
+        const element = providerListEntries.value?.find(
+            (entry) => entry.getAttribute('tabindex') === key.toString()
+        )
         if (element && element.offsetParent !== null) {
             // Check if the element is visible
             element.focus()
@@ -217,7 +219,9 @@ function goToNext(currentTabIndex: number) {
     }
     let key = currentTabIndex + 1
     while (key <= maxTabIndex.value) {
-        const element = providerList.value?.querySelector(`[tabindex="${key}"]`) as HTMLElement
+        const element = providerListEntries.value?.find(
+            (entry) => entry.getAttribute('tabindex') === key.toString()
+        )
         if (element && element.offsetParent !== null) {
             // Check if the element is visible
             element.focus()
@@ -229,7 +233,9 @@ function goToNext(currentTabIndex: number) {
 }
 
 function goToFirst() {
-    const element = providerList.value?.querySelector('[tabindex="0"]') as HTMLElement
+    const element = providerListEntries.value?.find(
+        (entry) => entry.getAttribute('tabindex') === '0'
+    )
     if (element) {
         element.focus()
         element.scrollIntoView({ behavior: 'smooth', block: 'nearest' }) // Ensure the element is visible
@@ -253,10 +259,7 @@ defineExpose<ProviderListExpose>({ goToFirst })
         v-show="showProviders"
         class="providers-list-container rounded-bottom overflow-auto border shadow"
     >
-        <div
-            ref="providerList"
-            data-cy="import-provider-list"
-        >
+        <div data-cy="import-provider-list">
             <template
                 v-for="node in treeData"
                 :key="node.id"
@@ -265,6 +268,7 @@ defineExpose<ProviderListExpose>({ goToFirst })
                 <div :data-cy="`import-provider-${node.type}`">
                     <div
                         v-if="node.type === NodeType.Group"
+                        ref="providerListEntries"
                         class="providers-header fw-bold position-sticky top-0 z-2 w-100 cursor-pointer px-2 py-1 text-nowrap"
                         :tabindex="getTabIndex(node)"
                         @click="toggleNode(node)"

@@ -36,10 +36,11 @@ export default function removeLayer(
     const dispatcher = dispatcherOrNothing ?? (optionsOrDispatcher as ActionDispatcher)
     const { baseUrl, isExternal } = options
 
+    const activeLayers: Layer[] = this.activeLayers as Layer[]
     const removedLayers: Layer[] = []
 
     if (typeof layerOrIndex === 'number') {
-        removedLayers.push(...this.activeLayers.splice(layerOrIndex, 1))
+        removedLayers.push(...activeLayers.splice(layerOrIndex, 1))
     } else {
         let layerId: string | undefined
         if (typeof layerOrIndex === 'string') {
@@ -49,11 +50,9 @@ export default function removeLayer(
         }
 
         removedLayers.push(
-            ...this.activeLayers.filter((layer) =>
-                matchTwoLayers(layerId, isExternal, baseUrl, layer)
-            )
+            ...activeLayers.filter((layer) => matchTwoLayers(layerId, isExternal, baseUrl, layer))
         )
-        this.activeLayers = this.activeLayers.filter(
+        this.activeLayers = activeLayers.filter(
             (layer) => !matchTwoLayers(layerId, isExternal, baseUrl, layer)
         )
     }
@@ -80,7 +79,7 @@ function setLayerIdUpdateFeatures(options: GetLayerIdOptions): GetLayerIdResult 
     const featuresStore = useFeaturesStore()
 
     const selectedFeatures = featuresStore.selectedFeatures
-    let layerId
+    let layerId: string | undefined
     let updateFeatures = true
     if (typeof options.layerOrIndex === 'string') {
         layerId = options.layerOrIndex

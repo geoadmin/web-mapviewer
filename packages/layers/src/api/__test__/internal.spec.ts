@@ -235,14 +235,14 @@ describe('Test layer config parsing', () => {
             const aggregateLayer = layer as GeoAdminAggregateLayer
 
             expect(aggregateLayer.subLayers).toHaveLength(2)
-            expect(aggregateLayer.subLayers[0]!.subLayerId).to.eq(
+            expect(aggregateLayer.subLayers[0].subLayerId).to.eq(
                 'ch.bfs.gebaeude_wohnungs_register_waermequelle_heizung_wmts'
             )
-            expect(aggregateLayer.subLayers[0]!.minResolution).to.eq(10)
-            expect(aggregateLayer.subLayers[1]!.subLayerId).to.eq(
+            expect(aggregateLayer.subLayers[0].minResolution).to.eq(10)
+            expect(aggregateLayer.subLayers[1].subLayerId).to.eq(
                 'ch.bfs.gebaeude_wohnungs_register_waermequelle_heizung_wms'
             )
-            expect(aggregateLayer.subLayers[1]!.maxResolution).to.eq(10)
+            expect(aggregateLayer.subLayers[1].maxResolution).to.eq(10)
         })
     })
     describe('GeoJSON', () => {
@@ -251,7 +251,7 @@ describe('Test layer config parsing', () => {
             const layer = parseLayer(layerId)
 
             expect(layer).to.not.be.undefined
-            expect(layer!.type).to.eq(LayerType.GEOJSON)
+            expect(layer.type).to.eq(LayerType.GEOJSON)
             const geoJsonLayer = layer as GeoAdminGeoJSONLayer
 
             expect(geoJsonLayer.geoJsonUrl).to.eq(

@@ -96,7 +96,13 @@ router.afterEach((to, from, failure) => {
             titleColor: LogPreDefinedColor.Emerald,
             messages: ['Navigation aborted from', from.query, '\nto', to.query],
         })
-    } else if (failure && !isNavigationFailure(failure, NavigationFailureType.cancelled)) {
+    } else if (isNavigationFailure(failure, NavigationFailureType.cancelled)) {
+        log.debug({
+            title: 'Router / afterEach',
+            titleColor: LogPreDefinedColor.Emerald,
+            messages: ['Navigation cancelled from', from.query, '\nto', to.query],
+        })
+    } else {
         log.error({
             title: 'Router / afterEach',
             titleColor: LogPreDefinedColor.Emerald,

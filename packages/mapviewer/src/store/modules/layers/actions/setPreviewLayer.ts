@@ -28,7 +28,7 @@ export default function setPreviewLayer(
         return
     }
 
-    let clone
+    let clone: Layer | undefined
     if (typeof layer === 'object') {
         // got the layer, thus we copy it directly
         clone = layerUtils.cloneLayer(layer)

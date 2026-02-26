@@ -39,7 +39,7 @@ function parseLV(text: string): number[] {
     const matches = text.match(/([-\d'.]+),\s*([-\d'.]+)$/)
     expect(matches).to.be.an('array', `Cannot parse LV coordinate from ${text}`)
     expect(matches?.length).to.be.eq(3, `Cannot parse LV coordinate from ${text}`)
-    return (matches as RegExpMatchArray)
+    return (matches)
         .slice(1)
         .map((value) => value.replace(/'/g, ''))
         .map(parseFloat)
@@ -85,7 +85,7 @@ function checkMousePositionNumberValue(
 }
 
 describe('Test mouse position and interactions', () => {
-    const center = DEFAULT_PROJECTION.bounds!.center.map((val: number) => val + 1000)
+    const center = DEFAULT_PROJECTION.bounds.center.map((val: number) => val + 1000)
     const centerLV95 = proj4(DEFAULT_PROJECTION.epsg, LV95.epsg, center) as [number, number]
     const centerLV03 = proj4(DEFAULT_PROJECTION.epsg, LV03.epsg, center) as [number, number]
     const centerWGS84 = proj4(DEFAULT_PROJECTION.epsg, WGS84.epsg, center) as [number, number]

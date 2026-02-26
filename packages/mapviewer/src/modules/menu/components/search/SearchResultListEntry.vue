@@ -57,7 +57,7 @@ function goToFirst() {
     if (!item.value) {
         return
     }
-    ;(item.value.parentElement!.firstElementChild as HTMLLIElement)?.focus()
+    ;(item.value.parentElement.firstElementChild as HTMLLIElement)?.focus()
 }
 
 function goToPrevious() {

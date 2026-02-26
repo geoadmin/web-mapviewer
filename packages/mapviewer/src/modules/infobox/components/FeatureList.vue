@@ -97,7 +97,7 @@ function loadMoreResultForLayer(layerId: string): void {
     const layer = activeLayers.value.find((l: Layer) => l.id === layerId)
     featuresStore.loadMoreFeaturesForLayer(
         layer as GeoAdminLayer,
-        clickInfo.value!.coordinate,
+        clickInfo.value.coordinate,
         dispatcher
     )
 }

@@ -139,16 +139,15 @@ function getOlBasicStyles(vectorOptions: GeoAdminGeoJSONVectorOptions): OLBasicS
  * Example of our JSON can be accessed here
  * https://sys-api3.dev.bgdi.ch/static/vectorStyles/ch.bafu.hydroweb-messstationen_grundwasser.json
  */
-function getOlStyleFromLiterals(geoadminStyleJson: GeoAdminGeoJSONRangeDefinition | GeoAdminGeoJSONStyleSingle): Style {
-
-    const {vectorOptions, geomType} = geoadminStyleJson
+function getOlStyleFromLiterals(
+    geoadminStyleJson: GeoAdminGeoJSONRangeDefinition | GeoAdminGeoJSONStyleSingle
+): Style {
+    const { vectorOptions, geomType } = geoadminStyleJson
 
     const olStyles: OLBasicStyles = vectorOptions ? getOlBasicStyles(vectorOptions) : {}
 
-
     if (vectorOptions && geomType === 'point') {
         olStyles.image = getOlImageStyleForShape(vectorOptions)
-
     }
     return new Style(olStyles)
 }
@@ -162,7 +161,6 @@ function getGeomTypeFromGeometry(olGeometry: SimpleGeometry): string | undefined
         return 'polygon'
     }
 }
-
 
 function getLabelTemplate(value: GeoAdminGeoJSONVectorOptions['label']): string | undefined {
     if (value?.template) {
@@ -223,7 +221,6 @@ class OlStyleForPropertyValue {
             single: {},
             unique: {},
             range: {},
-
         }
         // this.styles: [key in Language]GeoAdminGeoJSONStyleType //{
         //  point: {},
@@ -246,9 +243,7 @@ class OlStyleForPropertyValue {
             this.singleStyle = {
                 type: geoadminStyleJson.type,
                 property: geoadminStyleJson.property,
-                olStyle: getOlStyleFromLiterals(
-                    geoadminStyleJson
-                ),
+                olStyle: getOlStyleFromLiterals(geoadminStyleJson),
                 labelTemplate: getLabelTemplate(geoadminStyleJson.vectorOptions?.label),
                 imageRotationProperty:
                     'rotation' in geoadminStyleJson
@@ -340,10 +335,16 @@ class OlStyleForPropertyValue {
             }
         } else if (labelTemplate) {
             text = labelTemplate
-            Object.keys(properties).forEach(
-                (prop) =>
-                    (text = (text as string).replace('${' + prop + '}', String(properties[prop])))
-            )
+            Object.keys(properties).forEach((prop) => {
+                const value = properties[prop]
+                let stringValue: string | undefined
+                if (typeof value === 'object') {
+                    stringValue = JSON.stringify(value)
+                } else {
+                    stringValue = String(value as string | number | boolean)
+                }
+                text = text.replace('${' + prop + '}', stringValue)
+            })
         }
         if (text) {
             const textStyle = olStyle.getText()
@@ -386,7 +387,7 @@ class OlStyleForPropertyValue {
         if (!olStyles) {
             let valueStr: string
             if (value === null || value === undefined) {
-                valueStr = String(value)
+                valueStr = String(value as null | undefined)
             } else if (typeof value === 'object') {
                 valueStr = Array.isArray(value) ? value.join(',') : JSON.stringify(value)
             } else {
@@ -407,7 +408,6 @@ class OlStyleForPropertyValue {
         }
         return this.defaultStyle
     }
-
 
     /**
      * Returns an OpenLayers style for the feature and the current map resolution (as style can be
@@ -440,8 +440,6 @@ class OlStyleForPropertyValue {
         }
         return this.defaultStyle
     }
-
 }
-
 
 export default OlStyleForPropertyValue

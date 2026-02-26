@@ -35,9 +35,9 @@ export function parseFormData(request: CyRequest | CyHttpMessages.IncomingReques
                 if (split.length === 0) {
                     return {}
                 }
-                let name = split[0]!.substring(
-                    split[0]!.indexOf('name="') + 6, // removing the 6 chars from name="
-                    split[0]!.length - 1 // removing trailing "
+                let name = split[0].substring(
+                    split[0].indexOf('name="') + 6, // removing the 6 chars from name="
+                    split[0].length - 1 // removing trailing "
                 )
                 // Special handling for attachment, only the filename will be checked
                 if (name.includes('attachment') && name.includes('filename')) {

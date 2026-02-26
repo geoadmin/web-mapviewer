@@ -259,7 +259,7 @@ const chartJsTooltipConfiguration = computed(() => {
                 return
             }
             if (tooltip.dataPoints.length > 0 && track.value) {
-                const point: TooltipItem<'line'> = tooltip.dataPoints[0]!
+                const point: TooltipItem<'line'> = tooltip.dataPoints[0]
                 const elevationDataInPoint: ElevationProfilePoint & ChartPoint =
                     point.raw as ElevationProfilePoint & ChartPoint
                 const chartPosition = chart.canvas.getBoundingClientRect()

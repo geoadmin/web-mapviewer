@@ -346,7 +346,7 @@ function addFeatureIdentificationIntercepts(): void {
     let featureDetailTemplate: MockFeatureDetail
     cy.fixture('features/features.fixture').then((featuresFixture: { results: MockFeature[] }) => {
         // using the first entry of the fixture as template
-        featureTemplate = featuresFixture.results.pop() as MockFeature
+        featureTemplate = featuresFixture.results.pop()
     })
     cy.fixture('features/featureDetail.fixture').then(
         (featureDetail: { feature: MockFeatureDetail }) => {
@@ -383,10 +383,10 @@ function addFeatureIdentificationIntercepts(): void {
                 identifyBounds.lowerY = coordinateSplit[1]!
                 identifyBounds.upperY = coordinateSplit[3]!
             } else if (coordinateSplit.length === 2) {
-                identifyBounds.lowerX = coordinateSplit[0]! - 1000
-                identifyBounds.upperX = coordinateSplit[0]! + 1000
-                identifyBounds.lowerY = coordinateSplit[1]! - 1000
-                identifyBounds.upperY = coordinateSplit[1]! + 1000
+                identifyBounds.lowerX = coordinateSplit[0] - 1000
+                identifyBounds.upperX = coordinateSplit[0] + 1000
+                identifyBounds.lowerY = coordinateSplit[1] - 1000
+                identifyBounds.upperY = coordinateSplit[1] + 1000
             }
         }
 
@@ -487,7 +487,7 @@ function addFeatureIdentificationIntercepts(): void {
                     features: features.map((featureId) => generateFeature(featureId)),
                 })
             } else if (features.length === 1) {
-                const featureId = features[0]!
+                const featureId = features[0]
                 const featureDetail = generateFeature(featureId)
 
                 req.alias = `featureDetail_${featureId}`

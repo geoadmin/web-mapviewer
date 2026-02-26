@@ -30,7 +30,7 @@ function parseCrosshairParam(urlParamValue?: string): ParsedCrosshair {
             crossHair = parseCrossHairValue(parts[0])
         } else if (parts.length === 3) {
             crossHair = parseCrossHairValue(parts[0])
-            crossHairPosition = [parseFloat(parts[1]!), parseFloat(parts[2]!)]
+            crossHairPosition = [parseFloat(parts[1]), parseFloat(parts[2])]
         }
     }
     return {

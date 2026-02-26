@@ -98,7 +98,7 @@ export function parseQuery(search: string): LocationQuery {
     const searchParams = (hasLeadingIM ? search.slice(1) : search).split('&')
     for (let i = 0; i < searchParams.length; ++i) {
         // pre decode the + into space
-        const searchParam = searchParams[i]!.replace(PLUS_RE, ' ')
+        const searchParam = searchParams[i].replace(PLUS_RE, ' ')
         // allow the = character
         const eqPos = searchParam.indexOf('=')
         const key = decode(eqPos < 0 ? searchParam : searchParam.slice(0, eqPos))
@@ -171,7 +171,7 @@ export function readSingleParamAsString(query: LocationQuery, name: string): str
         return
     }
     if (Array.isArray(value)) {
-        return value[0] as string
+        return value[0]
     }
     return value
 }

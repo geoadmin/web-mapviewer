@@ -79,18 +79,18 @@ function performStandardChecks(
     expectedCoordinateCount: number = 3
 ): void {
     expect(feature).toBeDefined()
-    expect(feature!.coordinates).toBeDefined()
-    expect(feature!.coordinates).to.have.length.greaterThan(0)
+    expect(feature.coordinates).toBeDefined()
+    expect(feature.coordinates).to.have.length.greaterThan(0)
 
-    if (feature!.coordinates.length === 1) {
-        expect(feature!.coordinates[0]).to.have.length(expectedCoordinateCount)
+    if (feature.coordinates.length === 1) {
+        expect(feature.coordinates[0]).to.have.length(expectedCoordinateCount)
     } else {
-        expect(feature!.coordinates).to.have.length(expectedCoordinateCount)
+        expect(feature.coordinates).to.have.length(expectedCoordinateCount)
     }
 
-    expect(feature!.title).to.be.equal(expectedTitle)
-    expect(feature!.description).to.equal(expectedDescription)
-    expect(feature!.featureType).to.be.equal(expectedFeatureType)
+    expect(feature.title).to.be.equal(expectedTitle)
+    expect(feature.description).to.equal(expectedDescription)
+    expect(feature.featureType).to.be.equal(expectedFeatureType)
 }
 
 describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () => {
@@ -121,81 +121,81 @@ describe('Validate deserialization of the mf-geoadmin3 viewer kml format', () =>
         it('parses a marker with a very small scale and blue fill color correctly', () => {
             const icon = findFeatureWithId('marker_1668530694970')
             performStandardChecks(icon, 'MARKER', 'icon 1', 'desc 1')
-            expect(icon!.icon).toBeDefined()
-            expect(icon!.icon!.name).to.be.equal('001-marker')
-            expect(icon!.fillColor).to.be.an('Object').that.have.property('fill')
-            expect(icon!.fillColor!.fill).to.equal('#0000ff')
-            expect(icon!.iconSize).to.be.equal(featureStyleUtils.SMALL)
+            expect(icon.icon).toBeDefined()
+            expect(icon.icon.name).to.be.equal('001-marker')
+            expect(icon.fillColor).to.be.an('Object').that.have.property('fill')
+            expect(icon.fillColor.fill).to.equal('#0000ff')
+            expect(icon.iconSize).to.be.equal(featureStyleUtils.SMALL)
         })
         it('parses a marker with a small scale and grey fill color correctly', () => {
             const icon = findFeatureWithId('marker_1668530774636')
             performStandardChecks(icon, 'MARKER', 'icon 2', 'desc 2')
-            expect(icon!.icon).toBeDefined()
-            expect(icon!.icon!.name).to.be.equal('002-circle')
-            expect(icon!.fillColor).to.be.equal(featureStyleUtils.GRAY)
-            expect(icon!.iconSize).to.be.equal(featureStyleUtils.MEDIUM)
-            expect(icon!.textColor).to.be.equal(featureStyleUtils.WHITE)
+            expect(icon.icon).toBeDefined()
+            expect(icon.icon.name).to.be.equal('002-circle')
+            expect(icon.fillColor).to.be.equal(featureStyleUtils.GRAY)
+            expect(icon.iconSize).to.be.equal(featureStyleUtils.MEDIUM)
+            expect(icon.textColor).to.be.equal(featureStyleUtils.WHITE)
         })
         it('parses a marker with a big BABS icon correctly', () => {
             const icon = findFeatureWithId('marker_1668530823345')
             performStandardChecks(icon, 'MARKER', 'icon 3', 'desc 3')
-            expect(icon!.icon).toBeDefined()
-            expect(icon!.icon!.name).to.be.equal('babs-3')
-            expect(icon!.fillColor).to.be.equal(featureStyleUtils.RED) // default should be red
-            expect(icon!.iconSize).to.be.equal(featureStyleUtils.LARGE)
-            expect(icon!.textColor).to.be.equal(featureStyleUtils.RED)
+            expect(icon.icon).toBeDefined()
+            expect(icon.icon.name).to.be.equal('babs-3')
+            expect(icon.fillColor).to.be.equal(featureStyleUtils.RED) // default should be red
+            expect(icon.iconSize).to.be.equal(featureStyleUtils.LARGE)
+            expect(icon.textColor).to.be.equal(featureStyleUtils.RED)
         })
     })
     describe('text parsing', () => {
         it('parses a small black text correctly', () => {
             const standardText = findFeatureWithId('annotation_1668530699494')
             performStandardChecks(standardText, 'ANNOTATION', 'text 1', '')
-            expect(standardText!.textColor).to.be.equal(featureStyleUtils.BLACK)
-            expect(standardText!.textSize).to.be.equal(featureStyleUtils.SMALL)
-            expect(standardText!.fillColor).to.be.equal(featureStyleUtils.RED) // default should be RED even if no icon is defined
-            expect(standardText!.iconSize).to.eq(featureStyleUtils.MEDIUM)
-            expect(standardText!.icon).to.be.undefined
+            expect(standardText.textColor).to.be.equal(featureStyleUtils.BLACK)
+            expect(standardText.textSize).to.be.equal(featureStyleUtils.SMALL)
+            expect(standardText.fillColor).to.be.equal(featureStyleUtils.RED) // default should be RED even if no icon is defined
+            expect(standardText.iconSize).to.eq(featureStyleUtils.MEDIUM)
+            expect(standardText.icon).to.be.undefined
         })
         it('parses a medium blue text correctly', () => {
             const standardText = findFeatureWithId('annotation_1668530932170')
             performStandardChecks(standardText, 'ANNOTATION', 'text 2', '')
-            expect(standardText!.textColor).to.be.equal(featureStyleUtils.BLUE)
-            expect(standardText!.textSize).to.be.equal(featureStyleUtils.MEDIUM)
-            expect(standardText!.fillColor).to.be.equal(featureStyleUtils.RED) // default should be RED even if no icon is defined
-            expect(standardText!.iconSize).to.eq(featureStyleUtils.MEDIUM)
-            expect(standardText!.icon).to.be.undefined
+            expect(standardText.textColor).to.be.equal(featureStyleUtils.BLUE)
+            expect(standardText.textSize).to.be.equal(featureStyleUtils.MEDIUM)
+            expect(standardText.fillColor).to.be.equal(featureStyleUtils.RED) // default should be RED even if no icon is defined
+            expect(standardText.iconSize).to.eq(featureStyleUtils.MEDIUM)
+            expect(standardText.icon).to.be.undefined
         })
         it('parses a large gray text correctly', () => {
             const standardText = findFeatureWithId('annotation_1668530944079')
             performStandardChecks(standardText, 'ANNOTATION', 'text 3', '')
-            expect(standardText!.textColor).to.be.equal(featureStyleUtils.GRAY)
-            expect(standardText!.textSize).to.be.equal(featureStyleUtils.LARGE)
-            expect(standardText!.fillColor).to.be.equal(featureStyleUtils.RED) // default should be RED even if no icon is defined
-            expect(standardText!.iconSize).to.eq(featureStyleUtils.MEDIUM)
-            expect(standardText!.icon).to.be.undefined
+            expect(standardText.textColor).to.be.equal(featureStyleUtils.GRAY)
+            expect(standardText.textSize).to.be.equal(featureStyleUtils.LARGE)
+            expect(standardText.fillColor).to.be.equal(featureStyleUtils.RED) // default should be RED even if no icon is defined
+            expect(standardText.iconSize).to.eq(featureStyleUtils.MEDIUM)
+            expect(standardText.icon).to.be.undefined
         })
     })
     describe('line/polygon parsing', () => {
         it('parses a line/polygon with two points and black fill correctly', () => {
             const line = findFeatureWithId('linepolygon_1668530962424')
             performStandardChecks(line, 'LINEPOLYGON', '', 'desc 7', 2)
-            expect(line!.fillColor).to.be.equal(featureStyleUtils.BLACK)
-            expect(line!.iconSize).to.eq(featureStyleUtils.MEDIUM)
-            expect(line!.icon).to.be.undefined
+            expect(line.fillColor).to.be.equal(featureStyleUtils.BLACK)
+            expect(line.iconSize).to.eq(featureStyleUtils.MEDIUM)
+            expect(line.icon).to.be.undefined
         })
         it('parses a line/polygon with two points and blue fill correctly', () => {
             const line = findFeatureWithId('linepolygon_1668530991477')
             performStandardChecks(line, 'LINEPOLYGON', '', 'desc 8', 2)
-            expect(line!.fillColor).to.be.equal(featureStyleUtils.BLUE)
-            expect(line!.iconSize).to.eq(featureStyleUtils.MEDIUM)
-            expect(line!.icon).to.be.undefined
+            expect(line.fillColor).to.be.equal(featureStyleUtils.BLUE)
+            expect(line.iconSize).to.eq(featureStyleUtils.MEDIUM)
+            expect(line.icon).to.be.undefined
         })
         it('parses a line/polygon with five points and yellow fill correctly', () => {
             const line = findFeatureWithId('linepolygon_1668625663095')
             performStandardChecks(line, 'LINEPOLYGON', '', 'desc 9', 5)
-            expect(line!.fillColor).to.be.equal(featureStyleUtils.YELLOW)
-            expect(line!.iconSize).to.eq(featureStyleUtils.MEDIUM)
-            expect(line!.icon).to.be.undefined
+            expect(line.fillColor).to.be.equal(featureStyleUtils.YELLOW)
+            expect(line.iconSize).to.eq(featureStyleUtils.MEDIUM)
+            expect(line.icon).to.be.undefined
         })
     })
     describe('measure parsing', () => {

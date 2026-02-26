@@ -1,4 +1,4 @@
-import type { FlatExtent, CoordinateSystem } from '@swissgeo/coordinates'
+import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
 
 import { allCoordinateSystems, extentUtils, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
@@ -281,7 +281,7 @@ function getDimensions(layer: WMTSCapabilityLayer): ExternalLayerTimeDimension[]
         dimensions.push({
             id: identifier,
             values: entriesForIdentifier.flatMap((d) => d.Value),
-            defaultValue: entriesForIdentifier[0]!.Default,
+            defaultValue: entriesForIdentifier[0].Default,
         })
     }
     return dimensions
@@ -310,7 +310,7 @@ function getLayerAttributes(
         if (ignoreError) {
             return {}
         }
-        throw new CapabilitiesError(msg, 'invalid_wmts_capabilities')
+        throw new CapabilitiesError(msg, { key: 'invalid_wmts_capabilities' })
     }
 
     let getCapUrl: string | undefined
@@ -322,9 +322,9 @@ function getLayerAttributes(
     ) {
         const httpOperations = capabilities.OperationsMetadata.GetCapabilities.DCP.HTTP
         if (httpOperations.Get && httpOperations.Get.length > 0) {
-            getCapUrl = httpOperations.Get[0]!.href
+            getCapUrl = httpOperations.Get[0].href
         } else if (httpOperations.Post && httpOperations.Post.length > 0) {
-            getCapUrl = httpOperations.Post[0]!.href
+            getCapUrl = httpOperations.Post[0].href
         }
     }
     if (!getCapUrl) {
@@ -345,8 +345,8 @@ function getLayerAttributes(
             onlineResource = httpOperations.Post[0]!
         }
         if (onlineResource?.Constraint && onlineResource?.Constraint?.length > 0) {
-            getTileEncoding = onlineResource.Constraint[0]!.AllowedValues
-                .Value[0]! as WMTSEncodingType
+            getTileEncoding = onlineResource.Constraint[0].AllowedValues
+                .Value[0] as WMTSEncodingType
         }
     }
 
@@ -439,7 +439,7 @@ function getExternalLayer(
         if (ignoreErrors) {
             return
         }
-        throw new CapabilitiesError(msg, 'no_layer_found')
+        throw new CapabilitiesError(msg, { key: 'no_layer_found' })
     }
     const attributes = getLayerAttributes(capabilities, layer, outputProjection, ignoreErrors)
 
@@ -462,10 +462,10 @@ function getExternalLayer(
             messages: [`Failed to get OpenLayers options for layer ${attributes.id}`, error],
         })
         if (!ignoreErrors) {
-            throw new CapabilitiesError(
-                `Failed to parse WMTS layer options: ${error?.toString()}`,
-                'invalid_wmts_layer'
-            )
+            throw new CapabilitiesError('Failed to parse WMTS layer options', {
+                key: 'invalid_wmts_layer',
+                cause: error,
+            })
         }
         olOptions = undefined
     }
@@ -498,7 +498,7 @@ function parse(content: string, originUrl: URL): WMTSCapabilitiesResponse {
         if (!capabilities.version) {
             throw new CapabilitiesError(
                 `No version found in Capabilities ${originUrl.toString()}`,
-                'invalid_wmts_capabilities'
+                { key: 'invalid_wmts_capabilities' }
             )
         }
         capabilities.originUrl = originUrl
@@ -509,10 +509,10 @@ function parse(content: string, originUrl: URL): WMTSCapabilitiesResponse {
             titleColor: LogPreDefinedColor.Indigo,
             messages: [`Failed to parse capabilities of ${originUrl?.toString()}`, error],
         })
-        throw new CapabilitiesError(
-            `Failed to parse WMTS Capabilities: invalid content: ${error?.toString()}`,
-            'invalid_wmts_capabilities'
-        )
+        throw new CapabilitiesError('Failed to parse WMTS Capabilities: invalid content', {
+            key: 'invalid_wmts_capabilities',
+            cause: error,
+        })
     }
 }
 

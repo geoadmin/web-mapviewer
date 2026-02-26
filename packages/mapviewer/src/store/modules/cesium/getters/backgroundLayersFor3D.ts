@@ -45,14 +45,18 @@ const constructionsLayer = layerUtils.makeGeoAdmin3DLayer({
 export default function backgroundLayersFor3D(this: CesiumStore): Layer[] {
     const layerStore = useLayersStore()
 
-    const bgLayers = []
+    const bgLayers: Layer[] = []
     const backgroundLayer = layerStore.currentBackgroundLayer
     if (backgroundLayer) {
         if ('idIn3d' in backgroundLayer && backgroundLayer.idIn3d !== undefined) {
             const matchingBackgroundIn3D = layerStore.config.find(
                 (layer) => layer.id === backgroundLayer.idIn3d
             )
-            bgLayers.push(matchingBackgroundIn3D ?? backgroundLayer)
+            if (matchingBackgroundIn3D) {
+                bgLayers.push(matchingBackgroundIn3D as Layer)
+            } else {
+                bgLayers.push(backgroundLayer)
+            }
         } else {
             bgLayers.push(backgroundLayer)
         }

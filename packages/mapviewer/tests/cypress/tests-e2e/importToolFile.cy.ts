@@ -834,7 +834,7 @@ describe('The Import File Tool', () => {
             .children()
             .should('have.length', 4)
             .each(($layer) => {
-                const url = $layer.attr('data-layer-id') as string
+                const url = $layer.attr('data-layer-id')
                 const errorData = errorDataMap[url.replace('KML|', '')]
 
                 cy.wrap($layer)
@@ -849,7 +849,7 @@ describe('The Import File Tool', () => {
 
                     cy.get(`[data-cy^="floating-button-has-error-${url}"]`)
                         .should('be.visible')
-                        .contains(errorData.errorMessage as string)
+                        .contains(errorData.errorMessage)
 
                     // Trigger mouseleave on the button to hide the tooltip
                     cy.wrap($layer).find('[data-cy^="button-has-error"]').trigger('mouseleave')

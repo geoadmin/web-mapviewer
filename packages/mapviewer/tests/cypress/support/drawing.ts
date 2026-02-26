@@ -107,7 +107,7 @@ export function interceptPutKml(
             }
             const adminId = await getKmlAdminIdFromRequest(req)
             await getKmlFromRequest(req)
-            req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop()!, adminId }))
+            req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop(), adminId }))
         }
     ).as('update-kml')
 }
@@ -125,7 +125,7 @@ export function interceptGetKmlMetadata(
                 await onRequestStart(req)
             }
             const headers = { 'Cache-Control': 'no-cache' }
-            req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop()! }), headers)
+            req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop() }), headers)
         }
     ).as('get-kml-metadata')
 }

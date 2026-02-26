@@ -49,9 +49,13 @@ async function loadFile() {
         await handleFileSource(selectedFile.value, false)
         importSuccessMessage.value = 'file_imported_success'
     } catch (error) {
-        errorFileLoadingMessage.value = generateErrorMessageFromErrorType(
-            error instanceof Error ? error : new Error(String(error))
-        )
+        if (error instanceof Error) {
+            errorFileLoadingMessage.value = generateErrorMessageFromErrorType(error)
+        } else {
+            errorFileLoadingMessage.value = generateErrorMessageFromErrorType(
+                new Error('Unknown error occurred', { cause: error })
+            )
+        }
         log.error({
             title: 'ImportFileLocalTab.vue',
             messages: ['Failed to load file', error],

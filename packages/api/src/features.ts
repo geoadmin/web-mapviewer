@@ -222,7 +222,7 @@ async function identifyOnExternalLayer(config: IdentifyConfig): Promise<LayerFea
     ) {
         // trying to find a candidate among the app supported projections
         requestProjection = allCoordinateSystems.find((candidate) =>
-            externalLayer.availableProjections!.some(
+            externalLayer.availableProjections.some(
                 (availableProjection) => availableProjection.epsg === candidate.epsg
             )
         )
@@ -636,8 +636,8 @@ function parseGeomAdminFeature(
             LV95,
             outputProjection
         )
-    } else {
-        if (coordinate && coordinate.length === 4) {
+    } else if (coordinate) {
+        if (coordinate.length === 4) {
             center = extentUtils.getExtentCenter(coordinate)
         } else {
             center = coordinate

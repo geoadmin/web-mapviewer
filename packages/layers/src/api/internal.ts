@@ -203,8 +203,8 @@ export function generateLayerObject(
                 opacity,
                 isVisible: false,
                 attributions,
-                geoJsonUrl: enforceHttpsProtocol(layerConfig.geojsonUrl!),
-                styleUrl: enforceHttpsProtocol(layerConfig.styleUrl!),
+                geoJsonUrl: enforceHttpsProtocol(layerConfig.geojsonUrl),
+                styleUrl: enforceHttpsProtocol(layerConfig.styleUrl),
                 updateDelay: layerConfig.updateDelay,
                 hasLegend,
                 hasTooltip: false,
@@ -238,9 +238,9 @@ export function generateLayerObject(
 
             // here id would be "parent.layer" in the example above
             const subLayers: AggregateSubLayer[] = []
-            layerConfig.subLayersIds!.forEach((subLayerId: string) => {
+            layerConfig.subLayersIds.forEach((subLayerId: string) => {
                 // each subLayerId is one of the "subLayersIds", so "i.am.a.sub.layer_1" or "i.am.a.sub.layer_2" from the example above
-                const subLayerRawConfig = allOtherLayers[subLayerId]!
+                const subLayerRawConfig = allOtherLayers[subLayerId]
                 // the "real" layer ID (the one that will be used to request the backend) is the serverLayerName of this config
                 // (see example above, that would be "hey.i.am.not.the.same.as.the.sublayer.id")
                 const subLayer = generateLayerObject(
@@ -330,7 +330,7 @@ export function loadGeoadminLayersConfig(
             .then(({ data: rawLayersConfig }) => {
                 if (Object.keys(rawLayersConfig).length > 0) {
                     Object.keys(rawLayersConfig).forEach((rawLayerId) => {
-                        const rawLayer = rawLayersConfig[rawLayerId]!
+                        const rawLayer = rawLayersConfig[rawLayerId]
                         const layer = generateLayerObject(
                             rawLayer,
                             rawLayerId,

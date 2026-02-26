@@ -17,7 +17,7 @@ class DummyUrlParamConfig<T extends string | number | boolean> extends UrlParamC
             urlParamName: 'test',
             actionsToWatch: ['test'],
             setValuesInStore: (_to: RouteLocationNormalizedGeneric, _urlParamValue?: T) => {},
-            extractValueFromStore: extractValueFromStore ?? (() => undefined),
+            extractValueFromStore,
             keepInUrlWhenDefault,
             valueType,
             defaultValue,

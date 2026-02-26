@@ -76,8 +76,8 @@ const printContainerSize = computed<{ width: number; height: number } | undefine
         return
     }
     return {
-        width: Math.round((layoutDimensions.value[0]! * printDPI.value) / inchToMillimeter),
-        height: Math.round((layoutDimensions.value[1]! * printDPI.value) / inchToMillimeter),
+        width: Math.round((layoutDimensions.value[0] * printDPI.value) / inchToMillimeter),
+        height: Math.round((layoutDimensions.value[1] * printDPI.value) / inchToMillimeter),
     }
 })
 const printContainerStyle = computed(() => {

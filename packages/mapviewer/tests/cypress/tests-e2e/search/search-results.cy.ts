@@ -61,8 +61,8 @@ function checkDescendantOf(
 const checkLocation = (expected: number[], result: number[], acceptedDelta = 0.1) => {
     expect(result).to.be.an('Array')
     expect(result.length).to.eq(2)
-    expect(result[0]).to.approximately(expected[0]!, acceptedDelta)
-    expect(result[1]).to.approximately(expected[1]!, acceptedDelta)
+    expect(result[0]).to.approximately(expected[0], acceptedDelta)
+    expect(result[1]).to.approximately(expected[1], acceptedDelta)
 }
 
 interface TestQueryParams {
@@ -94,7 +94,7 @@ function testQueryPositionCrosshairStore({
         // check the crosshair position
         if (expectedCrosshairPosition !== undefined) {
             expect(positionStore.crossHairPosition).to.not.be.undefined
-            checkLocation(expectedCrosshairPosition, positionStore.crossHairPosition!)
+            checkLocation(expectedCrosshairPosition, positionStore.crossHairPosition)
         } else {
             expect(positionStore.crossHairPosition).to.be.undefined
         }
@@ -102,7 +102,7 @@ function testQueryPositionCrosshairStore({
         // check the location of pinnedLocation
         const mapStore = useMapStore(pinia)
         expect(mapStore.pinnedLocation).to.not.be.undefined
-        checkLocation(expectedPinnedLocation, mapStore.pinnedLocation!)
+        checkLocation(expectedPinnedLocation, mapStore.pinnedLocation)
     })
 }
 
@@ -130,10 +130,10 @@ describe('Test the search bar result handling', () => {
                     lat: expectedCenterEpsg4326[1],
                     rank: 1,
                     // we create an extent of 1km around the center
-                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0]! - 500} ${
-                        expectedCenterDefaultProjection[1]! - 500
-                    },${expectedCenterDefaultProjection[0]! + 500} ${
-                        expectedCenterDefaultProjection[1]! + 500
+                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0] - 500} ${
+                        expectedCenterDefaultProjection[1] - 500
+                    },${expectedCenterDefaultProjection[0] + 500} ${
+                        expectedCenterDefaultProjection[1] + 500
                     })`,
                     label: expectedLocationLabel,
                     origin: 'kantone',
@@ -171,10 +171,10 @@ describe('Test the search bar result handling', () => {
                     lat: expectedCenterEpsg4326[1],
                     rank: 1,
                     // we create an extent of 1km around the center
-                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0]! - 500} ${
-                        expectedCenterDefaultProjection[1]! - 500
-                    },${expectedCenterDefaultProjection[0]! + 500} ${
-                        expectedCenterDefaultProjection[1]! + 500
+                    geom_st_box2d: `BOX(${expectedCenterDefaultProjection[0] - 500} ${
+                        expectedCenterDefaultProjection[1] - 500
+                    },${expectedCenterDefaultProjection[0] + 500} ${
+                        expectedCenterDefaultProjection[1] + 500
                     })`,
                     label: expectedLocationLabel,
                 },
@@ -352,7 +352,7 @@ describe('Test the search bar result handling', () => {
         cy.getPinia().should((pinia) => {
             const mapStore = useMapStore(pinia)
             expect(mapStore.pinnedLocation).to.not.be.undefined
-            checkLocation(expectedCenterDefaultProjection, mapStore.pinnedLocation!)
+            checkLocation(expectedCenterDefaultProjection, mapStore.pinnedLocation)
         })
         // clearing selected entry by clearing the search bar and re-entering a search text
         cy.get('[data-cy="searchbar-clear"]').click()
@@ -372,7 +372,7 @@ describe('Test the search bar result handling', () => {
             const mapStore = useMapStore(pinia)
             expect(mapStore.previewedPinnedLocation, 'preview pinned location should be set').to.not
                 .be.undefined
-            checkLocation(expectedCenterDefaultProjection, mapStore.previewedPinnedLocation!)
+            checkLocation(expectedCenterDefaultProjection, mapStore.previewedPinnedLocation)
         })
         // Location - Leave
         cy.get('@locationSearchResults').first().trigger('mouseleave')
@@ -438,7 +438,7 @@ describe('Test the search bar result handling', () => {
         cy.getPinia().should((pinia) => {
             const mapStore = useMapStore(pinia)
             expect(mapStore.pinnedLocation).to.not.be.undefined
-            checkLocation(expectedCenterDefaultProjection, mapStore.pinnedLocation!)
+            checkLocation(expectedCenterDefaultProjection, mapStore.pinnedLocation)
         })
 
         cy.log('Search bar dropdown should be hidden after centering on the feature')
@@ -496,9 +496,9 @@ describe('Test the search bar result handling', () => {
         cy.get('[data-cy="search-results-featuresearch"] [data-cy="search-result-entry"]').click()
         cy.url().should((url) => {
             const center = new URLSearchParams(url.split('map')[1]).get('center')
-            const [x, y] = center!.split(',').map(parseFloat)
-            expect(x).to.be.closeTo(expectedCenterDefaultProjection[0]!, 1)
-            expect(y).to.be.closeTo(expectedCenterDefaultProjection[1]!, 1)
+            const [x, y] = center.split(',').map(parseFloat)
+            expect(x).to.be.closeTo(expectedCenterDefaultProjection[0], 1)
+            expect(y).to.be.closeTo(expectedCenterDefaultProjection[1], 1)
         })
 
         // Check that the infobox for the selected feature is visible
@@ -581,7 +581,7 @@ describe('Test the search bar result handling', () => {
         cy.getPinia().should((pinia) => {
             const mapStore = useMapStore(pinia)
             expect(mapStore.pinnedLocation).to.not.be.undefined
-            checkLocation(coordinates, mapStore.pinnedLocation!, 0.25)
+            checkLocation(coordinates, mapStore.pinnedLocation, 0.25)
         })
 
         // ----------------------------------------------------------------------

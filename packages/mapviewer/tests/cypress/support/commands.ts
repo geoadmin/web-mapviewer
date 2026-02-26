@@ -144,7 +144,7 @@ function goToView(view: 'embed' | 'map', options?: GoToViewOptions): void {
     const defIntercepts = getDefaultFixturesAndIntercepts()
     const intercepts = fixturesAndIntercepts
     for (const intercept in defIntercepts) {
-        let interceptCallback: InterceptCallback = defIntercepts[intercept]!
+        let interceptCallback: InterceptCallback = defIntercepts[intercept]
         if (intercept in intercepts) {
             interceptCallback = intercepts[intercept]!
         }
@@ -437,12 +437,12 @@ Cypress.Commands.add('getRandomTimestampFromSeries', (layer) => {
     expect(layer).to.haveOwnProperty('timeBehaviour')
     expect(layer).to.haveOwnProperty('timestamps')
     expect(layer.timestamps).to.be.an('Array')
-    expect(layer.timestamps!.length).to.be.greaterThan(1)
+    expect(layer.timestamps.length).to.be.greaterThan(1)
     const defaultTimestamp = layer.timeBehaviour
     let randomTimestampFromLayer = defaultTimestamp
     do {
         randomTimestampFromLayer =
-            layer.timestamps![randomIntBetween(0, layer.timestamps!.length - 1)]
+            layer.timestamps[randomIntBetween(0, layer.timestamps.length - 1)]
     } while (randomTimestampFromLayer === defaultTimestamp)
     return cy.wrap(randomTimestampFromLayer)
 })
@@ -470,9 +470,6 @@ export interface PartialLayer {
 
 Cypress.Commands.add('checkOlLayer', (args) => {
     let layers: PartialLayer[] = []
-    if (!args) {
-        throw new Error(`Invalid checkOlLayer argument: ${args}`)
-    }
     if (Array.isArray(args)) {
         layers = args.slice().map((arg) => {
             if (typeof arg === 'string') {
@@ -531,10 +528,10 @@ Cypress.Commands.add('checkOlLayer', (args) => {
                 expect(olLayer, `[${layer.id}] layer at index ${index} not found`).not.to.be.null
                 expect(olLayer, `[${layer.id}] layer at index ${index} not found`).not.to.be
                     .undefined
-                expect(olLayer!.getVisible(), `[${layer.id}] layer.isVisible`).to.be.equal(
+                expect(olLayer.getVisible(), `[${layer.id}] layer.isVisible`).to.be.equal(
                     layer.isVisible
                 )
-                expect(olLayer!.getOpacity(), `[${layer.id}] layer.opacity`).to.be.equal(
+                expect(olLayer.getOpacity(), `[${layer.id}] layer.opacity`).to.be.equal(
                     layer.opacity
                 )
                 // The rendered flag is set asynchronously; therefore, we need to do some retry here

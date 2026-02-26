@@ -139,7 +139,7 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
             return
         }
 
-        const targetEl = olMap!.getTargetElement?.() ?? (olMap!.getTarget() as HTMLElement | null)
+        const targetEl = olMap.getTargetElement?.() ?? (olMap.getTarget() as HTMLElement | null)
         targetEl?.classList.add(cursorGrabbingClass)
     }
 
@@ -155,7 +155,7 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
 
         updateStoreFeatureCoordinatesGeometry(feature as Feature<SimpleGeometry>, dispatcher)
 
-        const targetEl = olMap!.getTargetElement?.() ?? (olMap!.getTarget() as HTMLElement | null)
+        const targetEl = olMap.getTargetElement?.() ?? (olMap.getTarget() as HTMLElement | null)
         targetEl?.classList.remove(cursorGrabbingClass)
     }
 

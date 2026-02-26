@@ -14,12 +14,12 @@ export function readPrintConfigFromUrlParam(urlParamValue?: string): NewPrintSer
         const params = urlParamValue.split(',')
         if (params.length === 2) {
             return {
-                layout: params[0]!,
-                dpi: parseInt(params[1]!),
+                layout: params[0],
+                dpi: parseInt(params[1]),
             }
         } else if (params.length === 1) {
             return {
-                layout: params[0]!,
+                layout: params[0],
                 dpi: PRINT_DEFAULT_DPI,
             }
         }

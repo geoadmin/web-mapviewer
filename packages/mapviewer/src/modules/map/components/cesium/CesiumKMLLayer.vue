@@ -62,7 +62,7 @@ async function createSource(): Promise<KmlDataSourceType> {
 function resetKmlDescription(kmlDataSource: KmlDataSource) {
     const descriptionMap = kmlUtils.getFeatureDescriptionMap(kmlData.value ?? '')
     kmlDataSource.entities.values.forEach((entity: Entity) => {
-        entity.description = new ConstantProperty(descriptionMap.get(entity.id)!)
+        entity.description = new ConstantProperty(descriptionMap.get(entity.id))
     })
 }
 

@@ -117,7 +117,7 @@ describe('Background layer is correctly set', () => {
         expect(getBackgroundLayerId()).to.be.a('string')
         expect(getBackgroundLayerId()).to.eq(bgLayer.id)
         expect(getBackgroundLayer()).toBeDefined()
-        expect(getBackgroundLayer()!.id).to.eq(bgLayer.id)
+        expect(getBackgroundLayer().id).to.eq(bgLayer.id)
     })
     it('does not permit to select a background that has not the flag isBackground set to true', () => {
         const layersStore = useLayersStore()
@@ -137,8 +137,8 @@ describe('Add layer creates copy of layers config (so that we may add multiple t
         }
 
         // The uuid should not get cloned but be generated new
-        const { uuid: expectedUuid, ...expectedWithoutUuid } = expected!
-        const { uuid: resultUuid, ...resultWithoutUuid } = result!
+        const { uuid: expectedUuid, ...expectedWithoutUuid } = expected
+        const { uuid: resultUuid, ...resultWithoutUuid } = result
 
         expect(result).to.not.equal(expected)
         expect(resultUuid).to.not.equal(expectedUuid)
@@ -167,7 +167,7 @@ describe('Add layer creates copy of layers config (so that we may add multiple t
         checkRefNotEqButDeepEq(firstLayer, layers[0])
         // now the same test, but by grabbing the first layer's config directly from the store's config
         checkRefNotEqButDeepEq(
-            layersStore.config.find((layer) => layer.id === firstLayer.id),
+            layersStore.config.find((layer) => layer.id === firstLayer.id) as Layer | undefined,
             layers[0]
         )
     })
@@ -182,7 +182,7 @@ describe('Add layer creates copy of layers config (so that we may add multiple t
         expect(addedLayers).to.have.lengthOf(1)
         const [firstAddedLayer] = addedLayers
         expect(firstAddedLayer).toBeDefined()
-        expect(firstAddedLayer!.isVisible).to.be.false
+        expect(firstAddedLayer.isVisible).to.be.false
     })
     it('add a duplicate layer and manage it separately', () => {
         const layersStore = useLayersStore()
@@ -199,13 +199,13 @@ describe('Add layer creates copy of layers config (so that we may add multiple t
 
         const [firstActiveLayer, secondActiveLayer] = layersStore.activeLayers
 
-        expect(firstActiveLayer!.isVisible).to.be.false
-        expect(firstActiveLayer!.opacity).to.be.equal(1)
-        expect(firstActiveLayer!.timeConfig.currentTimeEntry?.year).to.be.equal(1900)
+        expect(firstActiveLayer.isVisible).to.be.false
+        expect(firstActiveLayer.opacity).to.be.equal(1)
+        expect(firstActiveLayer.timeConfig.currentTimeEntry?.year).to.be.equal(1900)
 
-        expect(secondActiveLayer!.isVisible).to.be.true
-        expect(secondActiveLayer!.opacity).to.be.equal(0.65)
-        expect(secondActiveLayer!.timeConfig.currentTimeEntry?.year).to.be.equal(2024)
+        expect(secondActiveLayer.isVisible).to.be.true
+        expect(secondActiveLayer.opacity).to.be.equal(0.65)
+        expect(secondActiveLayer.timeConfig.currentTimeEntry?.year).to.be.equal(2024)
     })
 })
 
@@ -228,13 +228,13 @@ describe('Update layer', () => {
 
         const layersStore = useLayersStore()
 
-        expect(layersStore.activeLayers[1]!.name).to.be.equal('Second layer')
-        expect(layersStore.activeLayers[1]!.isVisible).to.be.true
-        expect(layersStore.activeLayers[1]!.timeConfig.currentTimeEntry?.year).to.be.equal(2024)
+        expect(layersStore.activeLayers[1].name).to.be.equal('Second layer')
+        expect(layersStore.activeLayers[1].isVisible).to.be.true
+        expect(layersStore.activeLayers[1].timeConfig.currentTimeEntry?.year).to.be.equal(2024)
         layersStore.updateLayer(secondLayer.id, clone, dispatcher)
-        expect(layersStore.activeLayers[1]!.name).to.be.equal('Update second layer name')
-        expect(layersStore.activeLayers[1]!.isVisible).to.be.false
-        expect(layersStore.activeLayers[1]!.timeConfig.currentTimeEntry?.year).to.be.equal(1900)
+        expect(layersStore.activeLayers[1].name).to.be.equal('Update second layer name')
+        expect(layersStore.activeLayers[1].isVisible).to.be.false
+        expect(layersStore.activeLayers[1].timeConfig.currentTimeEntry?.year).to.be.equal(1900)
     })
 })
 
@@ -262,20 +262,20 @@ describe('Update layers', () => {
 
         expect(layersStore.activeLayers.length).to.eq(3)
 
-        expect(layersStore.activeLayers[1]!.name).to.be.equal('Second layer')
-        expect(layersStore.activeLayers[1]!.isVisible).to.be.true
-        expect(layersStore.activeLayers[1]!.timeConfig.currentTimeEntry?.year).to.be.equal(2024)
-        expect(layersStore.activeLayers[2]!.name).to.be.equal('Second layer')
-        expect(layersStore.activeLayers[2]!.isVisible).to.be.true
-        expect(layersStore.activeLayers[2]!.timeConfig.currentTimeEntry?.year).to.be.equal(2024)
+        expect(layersStore.activeLayers[1].name).to.be.equal('Second layer')
+        expect(layersStore.activeLayers[1].isVisible).to.be.true
+        expect(layersStore.activeLayers[1].timeConfig.currentTimeEntry?.year).to.be.equal(2024)
+        expect(layersStore.activeLayers[2].name).to.be.equal('Second layer')
+        expect(layersStore.activeLayers[2].isVisible).to.be.true
+        expect(layersStore.activeLayers[2].timeConfig.currentTimeEntry?.year).to.be.equal(2024)
 
         layersStore.updateLayers([clone], dispatcher)
-        expect(layersStore.activeLayers[1]!.name).to.be.equal('Update second layer name')
-        expect(layersStore.activeLayers[1]!.isVisible).to.be.false
-        expect(layersStore.activeLayers[1]!.timeConfig.currentTimeEntry?.year).to.be.equal(1900)
-        expect(layersStore.activeLayers[2]!.name).to.be.equal('Update second layer name')
-        expect(layersStore.activeLayers[2]!.isVisible).to.be.false
-        expect(layersStore.activeLayers[2]!.timeConfig.currentTimeEntry?.year).to.be.equal(1900)
+        expect(layersStore.activeLayers[1].name).to.be.equal('Update second layer name')
+        expect(layersStore.activeLayers[1].isVisible).to.be.false
+        expect(layersStore.activeLayers[1].timeConfig.currentTimeEntry?.year).to.be.equal(1900)
+        expect(layersStore.activeLayers[2].name).to.be.equal('Update second layer name')
+        expect(layersStore.activeLayers[2].isVisible).to.be.false
+        expect(layersStore.activeLayers[2].timeConfig.currentTimeEntry?.year).to.be.equal(1900)
     })
     it('Update duplicate layers by layer ID with partial update', () => {
         const layersStore = useLayersStore()
@@ -285,12 +285,12 @@ describe('Update layers', () => {
 
         expect(layersStore.activeLayers.length).to.eq(3)
 
-        expect(layersStore.activeLayers[1]!.name).to.be.equal('Second layer')
-        expect(layersStore.activeLayers[1]!.isVisible).to.be.true
-        expect(layersStore.activeLayers[1]!.timeConfig.currentTimeEntry?.year).to.be.equal(2024)
-        expect(layersStore.activeLayers[2]!.name).to.be.equal('Second layer')
-        expect(layersStore.activeLayers[2]!.isVisible).to.be.true
-        expect(layersStore.activeLayers[2]!.timeConfig.currentTimeEntry?.year).to.be.equal(2024)
+        expect(layersStore.activeLayers[1].name).to.be.equal('Second layer')
+        expect(layersStore.activeLayers[1].isVisible).to.be.true
+        expect(layersStore.activeLayers[1].timeConfig.currentTimeEntry?.year).to.be.equal(2024)
+        expect(layersStore.activeLayers[2].name).to.be.equal('Second layer')
+        expect(layersStore.activeLayers[2].isVisible).to.be.true
+        expect(layersStore.activeLayers[2].timeConfig.currentTimeEntry?.year).to.be.equal(2024)
 
         layersStore.updateLayers(
             [
@@ -304,12 +304,12 @@ describe('Update layers', () => {
             dispatcher
         )
         expect(layersStore.activeLayers.length).to.eq(3)
-        expect(layersStore.activeLayers[1]!.name).to.be.equal('Update second layer name')
-        expect(layersStore.activeLayers[1]!.isVisible).to.be.false
-        expect(layersStore.activeLayers[1]!.opacity).to.be.equal(0.8)
-        expect(layersStore.activeLayers[2]!.name).to.be.equal('Update second layer name')
-        expect(layersStore.activeLayers[2]!.isVisible).to.be.false
-        expect(layersStore.activeLayers[2]!.opacity).to.be.equal(0.8)
+        expect(layersStore.activeLayers[1].name).to.be.equal('Update second layer name')
+        expect(layersStore.activeLayers[1].isVisible).to.be.false
+        expect(layersStore.activeLayers[1].opacity).to.be.equal(0.8)
+        expect(layersStore.activeLayers[2].name).to.be.equal('Update second layer name')
+        expect(layersStore.activeLayers[2].isVisible).to.be.false
+        expect(layersStore.activeLayers[2].opacity).to.be.equal(0.8)
     })
     it('Update duplicate layers by index with partial update', () => {
         const layersStore = useLayersStore()
@@ -318,12 +318,12 @@ describe('Update layers', () => {
         layersStore.setTimedLayerCurrentTimeEntry(2, timeEntries[0], dispatcher)
 
         expect(layersStore.activeLayers.length).to.eq(3)
-        expect(layersStore.activeLayers[1]!.name).to.be.equal('Second layer')
-        expect(layersStore.activeLayers[1]!.isVisible).to.be.true
-        expect(layersStore.activeLayers[1]!.timeConfig.currentTimeEntry?.year).to.be.equal(2024)
-        expect(layersStore.activeLayers[2]!.name).to.be.equal('Second layer')
-        expect(layersStore.activeLayers[2]!.isVisible).to.be.true
-        expect(layersStore.activeLayers[2]!.timeConfig.currentTimeEntry?.year).to.be.equal(2024)
+        expect(layersStore.activeLayers[1].name).to.be.equal('Second layer')
+        expect(layersStore.activeLayers[1].isVisible).to.be.true
+        expect(layersStore.activeLayers[1].timeConfig.currentTimeEntry?.year).to.be.equal(2024)
+        expect(layersStore.activeLayers[2].name).to.be.equal('Second layer')
+        expect(layersStore.activeLayers[2].isVisible).to.be.true
+        expect(layersStore.activeLayers[2].timeConfig.currentTimeEntry?.year).to.be.equal(2024)
 
         layersStore.updateLayers(
             [
@@ -337,12 +337,12 @@ describe('Update layers', () => {
             dispatcher
         )
         expect(layersStore.activeLayers.length).to.eq(3)
-        expect(layersStore.activeLayers[1]!.name).to.be.equal('Update second layer name')
-        expect(layersStore.activeLayers[1]!.isVisible).to.be.false
-        expect(layersStore.activeLayers[1]!.opacity).to.be.equal(0.8)
-        expect(layersStore.activeLayers[2]!.name).to.be.equal('Update second layer name')
-        expect(layersStore.activeLayers[2]!.isVisible).to.be.false
-        expect(layersStore.activeLayers[2]!.opacity).to.be.equal(0.8)
+        expect(layersStore.activeLayers[1].name).to.be.equal('Update second layer name')
+        expect(layersStore.activeLayers[1].isVisible).to.be.false
+        expect(layersStore.activeLayers[1].opacity).to.be.equal(0.8)
+        expect(layersStore.activeLayers[2].name).to.be.equal('Update second layer name')
+        expect(layersStore.activeLayers[2].isVisible).to.be.false
+        expect(layersStore.activeLayers[2].opacity).to.be.equal(0.8)
     })
 })
 
@@ -373,7 +373,7 @@ describe('Visible layers are filtered correctly by the store', () => {
         expect(getVisibleLayers()).to.be.an('Array').lengthOf(1)
         const [layer] = getVisibleLayers()
         expect(layer).toBeDefined()
-        expect(layer!.id).to.eq(firstLayer.id)
+        expect(layer.id).to.eq(firstLayer.id)
     })
     it('removes a layer from the visible layers as soon as its visibility is toggled', () => {
         const layersStore = useLayersStore()

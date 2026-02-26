@@ -47,11 +47,11 @@ function stitchMultiLineStringRecurse(
             return
         }
 
-        const firstPoint: SingleCoordinate = currentLineBeingStitched[0]!
+        const firstPoint: SingleCoordinate = currentLineBeingStitched[0]
         const lastPoint: SingleCoordinate =
-            currentLineBeingStitched[currentLineBeingStitched.length - 1]!
-        const lineFirstPoint: SingleCoordinate = line[0]!
-        const lineLastPoint: SingleCoordinate = line[line.length - 1]!
+            currentLineBeingStitched[currentLineBeingStitched.length - 1]
+        const lineFirstPoint: SingleCoordinate = line[0]
+        const lineLastPoint: SingleCoordinate = line[line.length - 1]
 
         if (canPointsBeStitched(firstPoint, lineLastPoint, tolerance)) {
             currentLineBeingStitched = [...line, ...currentLineBeingStitched]

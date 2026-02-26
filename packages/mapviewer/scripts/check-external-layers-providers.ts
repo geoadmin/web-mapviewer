@@ -49,7 +49,7 @@ interface ProviderObject {
     provider: string
     url: string
     status?: number
-    error?: string
+    error?: unknown
     headers?: Record<string, string>
     content?: string
 }
@@ -181,12 +181,7 @@ async function handleWms(provider: string, content: string, result: Result): Pro
         return isProviderMapValid
     }
     for (const getMapUrl of getMapUrls) {
-        const url = setWmsGetMapParams(
-            new URL(`${getMapUrl}`),
-            firstLeaf.id,
-            crs,
-            style!
-        ).toString()
+        const url = setWmsGetMapParams(new URL(`${getMapUrl}`), firstLeaf.id, crs, style).toString()
 
         try {
             const { response, redirectHeaders } = await fetchMapTile(url, provider)
@@ -236,10 +231,10 @@ async function handleWmts(provider: string, content: string, result: Result): Pr
         tileCol: '0',
     }
     if (firstWmtsLayer.tileMatrixSets && firstWmtsLayer.tileMatrixSets.length > 0) {
-        const firstTileMatrixSet = firstWmtsLayer.tileMatrixSets[0]!
+        const firstTileMatrixSet = firstWmtsLayer.tileMatrixSets[0]
         params.tileMatrixSet = firstTileMatrixSet.id
         if (firstTileMatrixSet.tileMatrix && firstTileMatrixSet.tileMatrix.length > 0) {
-            params.tileMatrix = firstTileMatrixSet.tileMatrix[0]!.id
+            params.tileMatrix = firstTileMatrixSet.tileMatrix[0].id
         }
     }
     if (firstWmtsLayer.style) {
@@ -317,7 +312,7 @@ function replaceUrlPlaceholders(urlTemplate: string, params: Record<string, stri
         const lowerKey = key.toLowerCase()
 
         if (normalizedParams.hasOwnProperty(lowerKey)) {
-            return normalizedParams[lowerKey]!
+            return normalizedParams[lowerKey]
         } else {
             throw new Error(`Missing value for placeholder: ${key}`)
         }
@@ -521,13 +516,11 @@ const checkProviderResponseContent: CheckProviderCallback = (
                     throw new Error(`No valid ${type} layers found`)
                 }
             } catch (error) {
-                console.error(
-                    `Invalid provider ${provider}, ${type} get Cap parsing failed: ${String(error)}`
-                )
+                console.error(`Invalid provider ${provider}, ${type} get Cap parsing failed`, error)
                 result[resultArrayKey].push({
                     provider,
                     url,
-                    error: `${String(error)}`,
+                    error,
                     content: content.slice(0, SIZE_OF_CONTENT_DISPLAY),
                 })
                 return false
@@ -570,22 +563,21 @@ const checkProviderResponseContentGetMap: CheckProviderCallback = async (
         isValid = true
     } catch (error) {
         if (isWmsUrl(url)) {
-            console.error(
-                `Invalid provider ${provider}, WMS get Map content parsing failed: ${String(error)}`
-            )
+            console.error(`Invalid provider ${provider}, WMS get Map content parsing failed`, error)
             result.invalid_wms.push({
                 provider: provider,
                 url: url,
-                error: `${String(error)}`,
+                error,
             })
         } else if (isWmtsUrl(url)) {
             console.error(
-                `Invalid provider ${provider}, WMTS get Tiles content parsing failed: ${String(error)}`
+                `Invalid provider ${provider}, WMTS get Tiles content parsing failed`,
+                error
             )
             result.invalid_wmts.push({
                 provider: provider,
                 url: url,
-                error: `${String(error)}`,
+                error,
             })
         }
     }
@@ -669,7 +661,7 @@ async function main(): Promise<void> {
             } where invalids and ${result.invalid_cors.length} don't support CORS`
         )
     } catch (error) {
-        console.error(`Failed to write results: ${String(error)}`)
+        console.error(`Failed to write results`, error)
     }
 }
 

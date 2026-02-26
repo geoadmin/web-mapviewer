@@ -147,15 +147,15 @@ function createSourceForProjection(): void {
 
 function warnForMissingFeatureSupport() {
     if (kmlData.value.indexOf('<GroundOverlay') !== -1) {
-        store.dispatch('addWarnings', {
-            warnings: [
+        uiStore.addWarnings(
+            [
                 new WarningMessage('kml_ol_missing_feature_support', {
                     layerName: layerName.value,
                     layerType: kmlLayerConfig.kmzContent ? 'KMZ' : 'KML',
                 }),
             ],
-            ...dispatcher,
-        })
+            dispatcher
+        )
     }
 }
 </script>

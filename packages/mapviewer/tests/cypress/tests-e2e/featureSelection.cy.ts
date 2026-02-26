@@ -236,7 +236,7 @@ describe('Testing the feature selection', () => {
 
             cy.url().should((url) => {
                 const layer = new URLSearchParams(url.split('map')[1])
-                    .get('layers')!
+                    .get('layers')
                     .split('@features')
                 expect(layer.length).to.eq(1)
             })
@@ -249,7 +249,7 @@ describe('Testing the feature selection', () => {
 
             cy.url().should((url) => {
                 const layer = new URLSearchParams(url.split('map')[1])
-                    .get('layers')!
+                    .get('layers')
                     .split('@features')
                 expect(layer.length).to.eq(1)
             })
@@ -587,7 +587,7 @@ describe('Testing the feature selection', () => {
                     assertDefined(pixel3)
                     expect(pixel3).to.be.an('array').with.length(2)
 
-                    cy.get('[data-cy="ol-map"]').click(pixel3[0]!, pixel3[1]!, { ctrlKey: false })
+                    cy.get('[data-cy="ol-map"]').click(pixel3[0], pixel3[1], { ctrlKey: false })
                     cy.log('One feature should be selected after clicking on the map')
                     cy.get('[data-cy="highlighted-features"]')
                         .as('highlightedFeatures')
@@ -597,14 +597,14 @@ describe('Testing the feature selection', () => {
                         .as('featureItems')
                         .should('have.length', 1)
 
-                    cy.get('[data-cy="ol-map"]').click(pixel1[0]!, pixel1[1]!, { ctrlKey: true })
+                    cy.get('[data-cy="ol-map"]').click(pixel1[0], pixel1[1], { ctrlKey: true })
                     cy.log(
                         'Two features should be selected after clicking on a feature on the map with CTRL (one added)'
                     )
                     cy.get('@highlightedFeatures').should('be.visible')
                     cy.get('@featureItems').should('have.length', 2)
 
-                    cy.get('[data-cy="ol-map"]').click(pixel1[0]!, pixel1[1]!, { ctrlKey: true })
+                    cy.get('[data-cy="ol-map"]').click(pixel1[0], pixel1[1], { ctrlKey: true })
                     cy.log(
                         'One feature should be left selected after clicking on one feature on the map with CTRL (one removed)'
                     )

@@ -1224,8 +1224,8 @@ describe('Drawing module tests', () => {
             cy.goToMapView({
                 queryParams: {
                     adminId: kmlFileAdminId,
-                    E: center[0] as number,
-                    N: center[1] as number,
+                    E: center[0],
+                    N: center[1],
                 },
                 withHash: false,
             })

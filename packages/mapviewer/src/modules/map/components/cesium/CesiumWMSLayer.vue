@@ -88,7 +88,7 @@ function createProvider() {
         layers: layerId.value,
         maximumLevel: MAXIMUM_LEVEL_OF_DETAILS,
         enablePickFeatures: false,
-        rectangle: Rectangle.fromDegrees(...DEFAULT_PROJECTION.getBoundsAs(WGS84)!.flatten),
+        rectangle: Rectangle.fromDegrees(...DEFAULT_PROJECTION.getBoundsAs(WGS84).flatten),
     })
 }
 const { refreshLayer } = useAddImageryLayer(

@@ -96,7 +96,7 @@ export function useFieldValidation<T extends FieldValidationTypes>(
 
     const validMessage = computed<string>(() => {
         if (toValue(validFieldMessage)) {
-            return toValue(validFieldMessage)!
+            return toValue(validFieldMessage)
         }
         return ''
     })

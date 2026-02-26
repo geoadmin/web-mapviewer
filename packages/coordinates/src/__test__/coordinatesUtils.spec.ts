@@ -40,10 +40,10 @@ describe('Unit test for coordinatesUtils', () => {
                 expect(bounds).to.be.an('Object')
                 expect(
                     coordinatesUtils.wrapXCoordinates(
-                        [bounds!.lowerX - 1, bounds!.center[1]],
+                        [bounds.lowerX - 1, bounds.center[1]],
                         projection
                     )
-                ).to.deep.equal([bounds!.upperX - 1, bounds!.center[1]])
+                ).to.deep.equal([bounds.upperX - 1, bounds.center[1]])
             }
             testLowerWrap(WGS84)
             testLowerWrap(WEBMERCATOR)
@@ -53,10 +53,10 @@ describe('Unit test for coordinatesUtils', () => {
                 expect(bounds).to.be.an('Object')
                 expect(
                     coordinatesUtils.wrapXCoordinates(
-                        [bounds!.upperX + 1, bounds!.center[1]],
+                        [bounds.upperX + 1, bounds.center[1]],
                         projection
                     )
-                ).to.deep.equal([bounds!.lowerX + 1, bounds!.center[1]])
+                ).to.deep.equal([bounds.lowerX + 1, bounds.center[1]])
             }
             testUpperWrap(WGS84)
             testUpperWrap(WEBMERCATOR)
@@ -75,15 +75,15 @@ describe('Unit test for coordinatesUtils', () => {
                 const bounds = projection.bounds
                 expect(bounds).to.be.an('Object')
                 const lowOutOfBoundCoordinate: SingleCoordinate = [
-                    bounds!.lowerX - 1,
-                    bounds!.center[1],
+                    bounds.lowerX - 1,
+                    bounds.center[1],
                 ]
-                const inBoundCoordinate: SingleCoordinate = [bounds!.lowerX, bounds!.center[1]]
-                const inBoundCoordinate2: SingleCoordinate = [bounds!.center[0], bounds!.center[1]]
-                const inBoundCoordinate3: SingleCoordinate = [bounds!.upperX, bounds!.center[1]]
+                const inBoundCoordinate: SingleCoordinate = [bounds.lowerX, bounds.center[1]]
+                const inBoundCoordinate2: SingleCoordinate = [bounds.center[0], bounds.center[1]]
+                const inBoundCoordinate3: SingleCoordinate = [bounds.upperX, bounds.center[1]]
                 const upOutOfBoundCoordinate: SingleCoordinate = [
-                    bounds!.upperX + 1,
-                    bounds!.center[1],
+                    bounds.upperX + 1,
+                    bounds.center[1],
                 ]
                 const original = [
                     lowOutOfBoundCoordinate,
@@ -95,11 +95,11 @@ describe('Unit test for coordinatesUtils', () => {
                 const result = coordinatesUtils.wrapXCoordinates(original, projection)
                 expect(result).to.be.an('Array').lengthOf(original.length)
                 const [first, second, third, fourth, fifth] = result
-                expect(first).to.deep.equal([bounds!.upperX - 1, lowOutOfBoundCoordinate[1]])
+                expect(first).to.deep.equal([bounds.upperX - 1, lowOutOfBoundCoordinate[1]])
                 expect(second).to.deep.equal(inBoundCoordinate, 'wrong lowerX handling')
                 expect(third).to.deep.equal(inBoundCoordinate2, 'wrong center handling')
                 expect(fourth).to.deep.equal(inBoundCoordinate3, 'wrong upperX handling')
-                expect(fifth).to.deep.equal([bounds!.lowerX + 1, upOutOfBoundCoordinate[1]])
+                expect(fifth).to.deep.equal([bounds.lowerX + 1, upOutOfBoundCoordinate[1]])
             }
             testMultipleWrap(WGS84)
             testMultipleWrap(WEBMERCATOR)

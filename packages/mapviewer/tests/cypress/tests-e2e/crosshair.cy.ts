@@ -25,7 +25,7 @@ describe('Testing the crosshair URL param', () => {
             })
         })
         it('sets the crosshair at the given coordinate if provided in the URL (and not at map center)', () => {
-            const crossHairPosition = DEFAULT_PROJECTION.bounds!.center.map(
+            const crossHairPosition = DEFAULT_PROJECTION.bounds.center.map(
                 (value: number) => value + 1000
             )
             cy.goToMapView({
@@ -59,7 +59,7 @@ describe('Testing the crosshair URL param', () => {
                 expect(positionStore.crossHairPosition).to.eql(positionStore.center)
             })
 
-            const newCrossHairPosition = DEFAULT_PROJECTION.bounds!.center.map(
+            const newCrossHairPosition = DEFAULT_PROJECTION.bounds.center.map(
                 (value: number) => value - 12345
             )
             changeUrlParam(

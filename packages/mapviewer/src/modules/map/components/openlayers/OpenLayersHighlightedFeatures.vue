@@ -130,7 +130,7 @@ const popoverCoordinate = computed((): SingleCoordinate | undefined => {
     // selected features. We will find the most southern coordinate present in all features and use it as anchor.
     const mostSouthernFeature = selectedFeatures.value
         .filter((feature) => feature.geometry !== undefined)
-        .map((feature) => feature.geometry!)
+        .map((feature) => feature.geometry)
         .map((geometry) => geoJsonUtils.transformIntoTurfEquivalent(geometry, projection.value))
         .filter((turfGeom) => turfGeom !== undefined)
         .map((turfGeom) => explode(turfGeom))

@@ -37,7 +37,7 @@ export default function loadAvailableIconSets(
                                 const uiStore = useUIStore()
                                 uiStore.addWarnings(
                                     new WarningMessage('kml_icon_set_not_found', {
-                                        iconSetName: iconArgs!.set,
+                                        iconSetName: iconArgs.set,
                                     }),
                                     dispatcher
                                 )

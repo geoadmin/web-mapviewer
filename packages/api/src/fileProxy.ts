@@ -52,8 +52,8 @@ function transformFileUrl(fileUrl: string): string | undefined {
     if (!parts || !parts.length || parts.length < 4) {
         return
     }
-    const protocol = parts[1]!
-    const resource = parts[3]!
+    const protocol = parts[1]
+    const resource = parts[3]
     return `${protocol}/${encodeURIComponent(resource)}`
 }
 
@@ -68,7 +68,7 @@ function proxifyUrl(url: string): string {
 function unProxifyUrl(proxifiedUrl: string): string {
     if (proxifiedUrl.startsWith(getServiceProxyBaseUrl())) {
         const url = proxifiedUrl.replace(getServiceProxyBaseUrl(), '')
-        return `${url.split('/')[0]}://${decodeURIComponent(url.split('/')[1]!)}`
+        return `${url.split('/')[0]}://${decodeURIComponent(url.split('/')[1])}`
     }
 
     return proxifiedUrl

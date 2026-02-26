@@ -11,12 +11,14 @@ const { showList = false, entries = [] } = defineProps<{
 
 const emit = defineEmits(['chooseEntry', 'hide'])
 
-const searchList = useTemplateRef<HTMLDivElement>('searchList')
+const searchListEntries = useTemplateRef<HTMLDivElement[]>('searchListEntries')
 
 function goToSpecific(value: number) {
     const key = entries.findIndex((entry) => entry.year === value)
     if (key >= 0) {
-        const elem = searchList.value?.querySelector(`[tabindex="${key}"]`) as HTMLElement
+        const elem = searchListEntries.value.find(
+            (entry) => entry.getAttribute('tabindex') === key.toString()
+        )
         nextTick(() => {
             elem?.scrollIntoView()
             elem?.focus()
@@ -33,7 +35,9 @@ function goToSpecific(value: number) {
 function goToPrevious(currentKey: number) {
     if (currentKey > 0) {
         const key = currentKey - 1
-        const elem = searchList.value?.querySelector(`[tabindex="${key}"]`) as HTMLElement
+        const elem = searchListEntries.value.find(
+            (entry) => entry.getAttribute('tabindex') === key.toString()
+        )
         elem?.focus()
     }
 }
@@ -41,20 +45,22 @@ function goToPrevious(currentKey: number) {
 function goToNext(currentKey: number) {
     if (currentKey < entries.length - 1) {
         const key = currentKey + 1
-        const elem = searchList.value?.querySelector(`[tabindex="${key}"]`) as HTMLElement
+        const elem = searchListEntries.value.find(
+            (entry) => entry.getAttribute('tabindex') === key.toString()
+        )
         elem?.focus()
     }
 }
 
 function goToFirst() {
-    const elem = searchList.value?.querySelector('[tabindex="0"]') as HTMLElement
+    const elem = searchListEntries.value.find((entry) => entry.getAttribute('tabindex') === '0')
     elem?.focus()
 }
 
 function goToLast() {
-    const elem = searchList.value?.querySelector(
-        `[tabindex="${entries.length - 1}"]`
-    ) as HTMLElement
+    const elem = searchListEntries.value.find(
+        (entry) => entry.getAttribute('tabindex') === (entries.length - 1).toString()
+    )
     elem?.focus()
 }
 
@@ -66,14 +72,12 @@ defineExpose({ goToFirst, goToSpecific })
         v-show="showList"
         class="entries-list-container rounded-bottom overflow-auto border shadow"
     >
-        <div
-            ref="searchList"
-            class="entries-list"
-        >
+        <div class="entries-list">
             <div
                 v-for="(entry, key) in entries"
                 :key="JSON.stringify(entry)"
                 :tabindex="key"
+                ref="searchListEntries"
                 :data-cy="`time-slider-dropdown-entry-${entry.year}`"
                 class="entries-list-item px-2 py-1 text-nowrap"
                 @keydown.up.prevent="goToPrevious(key)"

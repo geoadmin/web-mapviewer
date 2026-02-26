@@ -56,7 +56,7 @@ export const defaultLocal: string =
             return navigatorLang
         })
         .find((navigatorLang) => isSupportedLang(navigatorLang))
-        ?.split('-')[0] ?? SUPPORTED_LANG[0]!
+        ?.split('-')[0] ?? SUPPORTED_LANG[0]
 
 log.info({
     title: 'I18n setup',

@@ -27,7 +27,7 @@ export default function setTimedLayerCurrentYear(
     )
     // if this layer has a 3D counterpart, we also update its timestamp (keep it in sync)
     if ('idIn3d' in layer && layer.idIn3d !== undefined) {
-        const layerIn3d = this.getLayerConfigById((layer as GeoAdminLayer).idIn3d!)
+        const layerIn3d = this.getLayerConfigById((layer as GeoAdminLayer).idIn3d)
         if (layerIn3d?.timeConfig) {
             timeConfigUtils.updateCurrentTimeEntry(
                 layerIn3d.timeConfig,

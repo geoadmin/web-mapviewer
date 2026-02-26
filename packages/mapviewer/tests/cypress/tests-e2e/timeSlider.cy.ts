@@ -10,7 +10,7 @@ describe('Cypress tests covering the time slider, its functionalities and its UR
             if (!string) {
                 return NaN
             }
-            return parseInt(string.match(/[\d.]+/g)![0])
+            return parseInt(string.match(/[\d.]+/g)[0])
         }
         const preSelectedYear = 2019
         const standard_layer = 'test.wmts.layer'

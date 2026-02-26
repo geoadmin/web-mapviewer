@@ -1,3 +1,5 @@
+import type { GeoAdminLayer, Layer } from '@swissgeo/layers'
+
 import { topicsAPI } from '@swissgeo/api'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
@@ -18,16 +20,11 @@ export default function loadTopic(
     const layersStore = useLayersStore()
     const uiStore = useUIStore()
 
-    const {
-        changeLayers,
-        openGeocatalogSection,
-        changeBackgroundLayer = true
-    } = options
+    const { changeLayers, openGeocatalogSection, changeBackgroundLayer = true } = options
 
     topicsAPI
-        .loadTopicTreeForTopic(i18nStore.lang, this.current, layersStore.config)
+        .loadTopicTreeForTopic(i18nStore.lang, this.current, layersStore.config as GeoAdminLayer[])
         .then(({ tree, warnings }) => {
-
             if (ENVIRONMENT === 'development' && warnings.length > 0) {
                 uiStore.addWarnings(warnings, dispatcher)
             }
@@ -41,7 +38,10 @@ export default function loadTopic(
             // by default, if nothing is specified, we change the background layer
             if (changeBackgroundLayer) {
                 if (this.currentTopic.defaultBackgroundLayer) {
-                    layersStore.setBackground(this.currentTopic.defaultBackgroundLayer.id, dispatcher)
+                    layersStore.setBackground(
+                        this.currentTopic.defaultBackgroundLayer.id,
+                        dispatcher
+                    )
                 } else if (changeLayers) {
                     layersStore.setBackground(undefined, dispatcher)
                 }
@@ -62,19 +62,20 @@ export default function loadTopic(
                 )
 
                 // Filter layersToActivate to only include layers that are currently active
-                const layersToKeep = this.currentTopic.layersToActivate.filter(layer =>
-                    activeLayerIds.has(layer.id)
-                ).map(layer => {
-                    const activeLayer = activeLayersMap.get(layer.id)
-                    layer.isVisible = activeLayer?.isVisible || false
-                    layer.opacity = activeLayer?.opacity ?? layer.opacity
-                    // If the active layer has a time config and current time entry, update the new layer's time config
-                    if (activeLayer?.timeConfig?.currentTimeEntry && layer.timeConfig) {
-                        layer.timeConfig.currentTimeEntry = activeLayer.timeConfig.currentTimeEntry
-                    }
+                const layersToKeep = this.currentTopic.layersToActivate
+                    .filter((layer) => activeLayerIds.has(layer.id))
+                    .map((layer) => {
+                        const activeLayer = activeLayersMap.get(layer.id) as Layer
+                        layer.isVisible = activeLayer?.isVisible || false
+                        layer.opacity = activeLayer?.opacity ?? layer.opacity
+                        // If the active layer has a time config and current time entry, update the new layer's time config
+                        if (activeLayer?.timeConfig?.currentTimeEntry && layer.timeConfig) {
+                            layer.timeConfig.currentTimeEntry =
+                                activeLayer.timeConfig.currentTimeEntry
+                        }
 
-                    return layer
-                })
+                        return layer
+                    })
                 // Only set layers if there are any to keep
                 if (layersToKeep.length > 0) {
                     layersStore.setLayers(layersToKeep, dispatcher)

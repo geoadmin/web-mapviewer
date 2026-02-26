@@ -128,7 +128,7 @@ export function useMovableElement(config: MovableElementConfig): void {
     }
 
     function initialize(): void {
-        const grab = grabElement!
+        const grab = grabElement
         grab.addEventListener('pointerdown', onPointerDown)
         grab.style.cursor = 'move'
         grab.style.touchAction = 'none' // prevent scrolling while dragging
@@ -174,7 +174,7 @@ export function useMovableElement(config: MovableElementConfig): void {
         left: number,
         movementSource: MovementSourceType = MovementSource.POINTER_DRAG
     ): void {
-        const el = element!
+        const el = element
         const style = el.style
 
         if (
@@ -206,7 +206,7 @@ export function useMovableElement(config: MovableElementConfig): void {
      *   element is valid here.
      */
     function constrainElementWithinViewport(deltaX: number, deltaY: number): void {
-        const el = element!
+        const el = element
         const rect = el.getBoundingClientRect()
 
         const newLeft = clamp(

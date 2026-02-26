@@ -55,7 +55,7 @@ describe('Unit test functions from SwissCoordinateSystem', () => {
                         return {
                             start: 0,
                             end:
-                                SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX[0]! -
+                                SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX[0] -
                                 acceptableDeltaInMercatorZoomLevel,
                             expected: 0,
                         }
@@ -68,7 +68,7 @@ describe('Unit test functions from SwissCoordinateSystem', () => {
                         }
                     }
                     const nextZoomLevel =
-                        SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX[lv95Zoom + 1]!
+                        SWISSTOPO_TILEGRID_ZOOM_TO_STANDARD_ZOOM_MATRIX[lv95Zoom + 1]
                     return {
                         start: mercatorZoom + acceptableDeltaInMercatorZoomLevel,
                         end: nextZoomLevel,
@@ -96,20 +96,20 @@ describe('Unit test functions from SwissCoordinateSystem', () => {
     })
     describe('getZoomForResolution', () => {
         it('returns zoom=0 if the resolution is too great', () => {
-            expect(LV95.getZoomForResolution(LV95_RESOLUTIONS[0]! + 1)).to.eq(0)
-            expect(LV03.getZoomForResolution(LV95_RESOLUTIONS[0]! + 1)).to.eq(0)
+            expect(LV95.getZoomForResolution(LV95_RESOLUTIONS[0] + 1)).to.eq(0)
+            expect(LV03.getZoomForResolution(LV95_RESOLUTIONS[0] + 1)).to.eq(0)
         })
         it('returns zoom correctly while resolution is exactly on a threshold', () => {
             for (let i = 0; i < LV95_RESOLUTIONS.length - 1; i++) {
-                expect(LV95.getZoomForResolution(LV95_RESOLUTIONS[i]!)).to.eq(i)
-                expect(LV03.getZoomForResolution(LV95_RESOLUTIONS[i]!)).to.eq(i)
+                expect(LV95.getZoomForResolution(LV95_RESOLUTIONS[i])).to.eq(i)
+                expect(LV03.getZoomForResolution(LV95_RESOLUTIONS[i])).to.eq(i)
             }
         })
         it('returns zoom correctly while resolution is in between the two thresholds', () => {
             for (let i = 0; i < LV95_RESOLUTIONS.length - 2; i++) {
                 for (
-                    let resolution = LV95_RESOLUTIONS[i]! - 1;
-                    resolution > LV95_RESOLUTIONS[i + 1]!;
+                    let resolution = LV95_RESOLUTIONS[i] - 1;
+                    resolution > LV95_RESOLUTIONS[i + 1];
                     resolution--
                 ) {
                     expect(LV95.getZoomForResolution(resolution)).to.eq(
@@ -124,7 +124,7 @@ describe('Unit test functions from SwissCoordinateSystem', () => {
             }
         })
         it('returns the max zoom available, event if the resolution is smaller than expected', () => {
-            const smallestResolution = LV95_RESOLUTIONS[LV95_RESOLUTIONS.length - 1]!
+            const smallestResolution = LV95_RESOLUTIONS[LV95_RESOLUTIONS.length - 1]
             expect(LV95.getZoomForResolution(smallestResolution - 0.1)).to.eq(
                 LV95_RESOLUTIONS.indexOf(smallestResolution)
             )

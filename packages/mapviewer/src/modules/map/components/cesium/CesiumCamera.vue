@@ -208,7 +208,7 @@ function initCamera(): void {
     sscController.maximumZoomDistance = CAMERA_MAX_ZOOM_DISTANCE
 
     viewerInstance.scene.postRender.addEventListener(
-        limitCameraCenter(LV95.getBoundsAs(WGS84)!.flatten)
+        limitCameraCenter(LV95.getBoundsAs(WGS84).flatten)
     )
     viewerInstance.scene.postRender.addEventListener(
         limitCameraPitchRoll(CAMERA_MIN_PITCH, CAMERA_MAX_PITCH, 0.0, 0.0)

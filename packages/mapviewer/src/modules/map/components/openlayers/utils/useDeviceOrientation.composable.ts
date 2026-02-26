@@ -129,7 +129,7 @@ export default function useDeviceOrientation(): {
                 headingDegree.value =
                     360 -
                     (orientationSampled.value.absolute.compassHeading ??
-                        orientationSampled.value.default.compassHeading!)
+                        orientationSampled.value.default.compassHeading)
                 heading.value = toRadians(headingDegree.value)
             } else if (orientationSampled.value.absolute.degree) {
                 headingDegree.value = orientationSampled.value.absolute.degree
@@ -168,7 +168,7 @@ export default function useDeviceOrientation(): {
     })
 
     function rotateMap(value: number): void {
-        olMap!.getView().animate({
+        olMap.getView().animate({
             rotation: value,
             duration: ANIMATION_DURATION_MS,
         })

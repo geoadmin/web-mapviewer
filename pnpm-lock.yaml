@@ -451,6 +451,18 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 25.3.0
+      prettier:
+        specifier: 'catalog:'
+        version: 3.8.1
+      prettier-plugin-jsdoc:
+        specifier: 'catalog:'
+        version: 1.5.0(prettier@3.8.1)
+      prettier-plugin-packagejson:
+        specifier: 'catalog:'
+        version: 3.0.0(prettier@3.8.1)
+      prettier-plugin-tailwindcss:
+        specifier: 'catalog:'
+        version: 0.7.2(prettier-plugin-jsdoc@1.5.0(prettier@3.8.1))(prettier@3.8.1)
       tsx:
         specifier: 'catalog:'
         version: 4.21.0
@@ -12321,8 +12333,7 @@ snapshots:
 
   binary-extensions@2.3.0: {}
 
-  binary-searching@2.0.5:
-    optional: true
+  binary-searching@2.0.5: {}
 
   birpc@2.6.1: {}
 
@@ -12551,8 +12562,7 @@ snapshots:
 
   commander@6.2.1: {}
 
-  comment-parser@1.4.1:
-    optional: true
+  comment-parser@1.4.1: {}
 
   common-tags@1.8.2: {}
 
@@ -12825,16 +12835,14 @@ snapshots:
 
   dequal@2.0.3: {}
 
-  detect-indent@7.0.2:
-    optional: true
+  detect-indent@7.0.2: {}
 
   detect-libc@1.0.3:
     optional: true
 
   detect-libc@2.1.2: {}
 
-  detect-newline@4.0.1:
-    optional: true
+  detect-newline@4.0.1: {}
 
   devlop@1.1.0:
     dependencies:
@@ -13647,8 +13655,7 @@ snapshots:
     optionalDependencies:
       semver: 5.7.2
 
-  git-hooks-list@4.1.1:
-    optional: true
+  git-hooks-list@4.1.1: {}
 
   gitconfig@2.0.8:
     dependencies:
@@ -14007,8 +14014,7 @@ snapshots:
 
   is-plain-obj@2.1.0: {}
 
-  is-plain-obj@4.1.0:
-    optional: true
+  is-plain-obj@4.1.0: {}
 
   is-plain-object@5.0.0: {}
 
@@ -15212,21 +15218,18 @@ snapshots:
       prettier: 3.8.1
     transitivePeerDependencies:
       - supports-color
-    optional: true
 
   prettier-plugin-packagejson@3.0.0(prettier@3.8.1):
     dependencies:
       sort-package-json: 3.6.0
     optionalDependencies:
       prettier: 3.8.1
-    optional: true
 
   prettier-plugin-tailwindcss@0.7.2(prettier-plugin-jsdoc@1.5.0(prettier@3.8.1))(prettier@3.8.1):
     dependencies:
       prettier: 3.8.1
     optionalDependencies:
       prettier-plugin-jsdoc: 1.5.0(prettier@3.8.1)
-    optional: true
 
   prettier@3.8.1: {}
 
@@ -15785,8 +15788,7 @@ snapshots:
 
   smob@1.5.0: {}
 
-  sort-object-keys@2.0.1:
-    optional: true
+  sort-object-keys@2.0.1: {}
 
   sort-package-json@3.6.0:
     dependencies:
@@ -15797,7 +15799,6 @@ snapshots:
       semver: 7.7.3
       sort-object-keys: 2.0.1
       tinyglobby: 0.2.15
-    optional: true
 
   sortablejs@1.15.7: {}
 

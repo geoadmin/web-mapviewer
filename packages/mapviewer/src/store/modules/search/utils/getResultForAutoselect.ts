@@ -19,5 +19,5 @@ export default function getResultForAutoselect(results: SearchResult[]): SearchR
     const locationResult = results.find((result) => result.resultType === 'LOCATION')
 
     // If a location result is found, return it; otherwise, return the first result
-    return locationResult ?? results[0]! // the outer function established that this element should exist
+    return locationResult ?? results[0] // the outer function established that this element should exist
 }

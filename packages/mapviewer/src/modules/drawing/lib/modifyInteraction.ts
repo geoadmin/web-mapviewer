@@ -283,7 +283,7 @@ export default class Modify extends PointerInteraction {
     // ---------------------- private helpers ----------------------
 
     private addFeature_(feature: Feature<SimpleGeometry>): void {
-        const geometry = feature.getGeometry() as SimpleGeometry | null
+        const geometry = feature.getGeometry()
         if (geometry) {
             const writer =
                 this.SEGMENT_WRITERS_[geometry.getType() as keyof typeof this.SEGMENT_WRITERS_]
@@ -318,7 +318,7 @@ export default class Modify extends PointerInteraction {
         for (let i = nodesToRemove.length - 1; i >= 0; --i) {
             const nodeToRemove = nodesToRemove[i]
             for (let j = this.dragSegments_.length - 1; j >= 0; --j) {
-                if (this.dragSegments_ && this.dragSegments_[j]![0] === nodeToRemove) {
+                if (this.dragSegments_ && this.dragSegments_[j][0] === nodeToRemove) {
                     this.dragSegments_.splice(j, 1)
                 }
             }
@@ -378,7 +378,7 @@ export default class Modify extends PointerInteraction {
             if (!points[i]) {
                 continue
             }
-            const coordinates = points[i]!
+            const coordinates = points[i]
             const segmentData: SegmentData = {
                 feature,
                 geometry,
@@ -396,7 +396,7 @@ export default class Modify extends PointerInteraction {
             if (!coordinates[i] || !coordinates[i + 1]) {
                 continue
             }
-            const segment: Segment = [coordinates[i]!, coordinates[i + 1]!]
+            const segment: Segment = [coordinates[i], coordinates[i + 1]]
             const segmentData: SegmentData = {
                 feature,
                 geometry,
@@ -416,12 +416,12 @@ export default class Modify extends PointerInteraction {
             if (!lines[j]) {
                 continue
             }
-            const coordinates = lines[j]!
+            const coordinates = lines[j]
             for (let i = 0; i < coordinates.length - 1; i++) {
                 if (!coordinates[i] || !coordinates[i + 1]) {
                     continue
                 }
-                const segment: Segment = [coordinates[i]!, coordinates[i + 1]!]
+                const segment: Segment = [coordinates[i], coordinates[i + 1]]
                 const segmentData: SegmentData = {
                     feature,
                     geometry,
@@ -440,12 +440,12 @@ export default class Modify extends PointerInteraction {
             if (!rings[j]) {
                 continue
             }
-            const coordinates = rings[j]!
+            const coordinates = rings[j]
             for (let i = 0; i < coordinates.length - 1; i++) {
                 if (!coordinates[i] || !coordinates[i + 1]) {
                     continue
                 }
-                const segment: Segment = [coordinates[i]!, coordinates[i + 1]!]
+                const segment: Segment = [coordinates[i], coordinates[i + 1]]
                 const segmentData: SegmentData = {
                     feature,
                     geometry,
@@ -467,17 +467,17 @@ export default class Modify extends PointerInteraction {
             if (!polygons[k]) {
                 continue
             }
-            const rings = polygons[k]!
+            const rings = polygons[k]
             for (let j = 0; j < rings.length; j++) {
                 if (!rings[j]) {
                     continue
                 }
-                const coordinates = rings[j]!
+                const coordinates = rings[j]
                 for (let i = 0; i < coordinates.length - 1; i++) {
                     if (!coordinates[i] || !coordinates[i + 1]) {
                         continue
                     }
-                    const segment: Segment = [coordinates[i]!, coordinates[i + 1]!]
+                    const segment: Segment = [coordinates[i], coordinates[i + 1]]
                     const segmentData: SegmentData = {
                         feature,
                         geometry,
@@ -609,8 +609,8 @@ export default class Modify extends PointerInteraction {
             return
         }
         const vertex: Coordinate = [
-            evtCoordinate[0]! + this.delta_[0],
-            evtCoordinate[1]! + this.delta_[1],
+            evtCoordinate[0] + this.delta_[0],
+            evtCoordinate[1] + this.delta_[1],
         ]
         const features: FeatureLike[] = []
         const geometries: SimpleGeometry[] = []
@@ -643,7 +643,7 @@ export default class Modify extends PointerInteraction {
             const index = dragSegment[1]
 
             while (vertex.length < geometry.getStride()) {
-                vertex.push(segment[index][vertex.length]!)
+                vertex.push(segment[index][vertex.length])
             }
 
             switch (geometry.getType()) {
@@ -654,13 +654,13 @@ export default class Modify extends PointerInteraction {
                     break
                 case 'MultiPoint':
                     coordinates = (geometry as MultiPoint).getCoordinates()
-                    coordinates[segmentData.index!] = vertex
+                    coordinates[segmentData.index] = vertex
                     segment[0] = vertex
                     segment[1] = vertex
                     break
                 case 'LineString':
                     coordinates = (geometry as LineString).getCoordinates()
-                    coordinates[segmentData.index! + index] = vertex
+                    coordinates[segmentData.index + index] = vertex
                     segment[index] = vertex
                     break
                 case 'MultiLineString': {
@@ -668,11 +668,11 @@ export default class Modify extends PointerInteraction {
                         continue
                     }
                     const mlCoords = (geometry as MultiLineString).getCoordinates()
-                    const line = mlCoords[depth[0]!]
+                    const line = mlCoords[depth[0]]
                     if (!line) {
                         continue
                     }
-                    line[segmentData.index! + index] = vertex
+                    line[segmentData.index + index] = vertex
                     coordinates = mlCoords
                     segment[index] = vertex
                     break
@@ -682,11 +682,11 @@ export default class Modify extends PointerInteraction {
                         continue
                     }
                     const polygonCoords = (geometry as Polygon).getCoordinates()
-                    const polygon = polygonCoords[depth[0]!]
+                    const polygon = polygonCoords[depth[0]]
                     if (!polygon) {
                         continue
                     }
-                    polygon[segmentData.index! + index] = vertex
+                    polygon[segmentData.index + index] = vertex
                     coordinates = polygonCoords
                     segment[index] = vertex
                     break
@@ -696,15 +696,15 @@ export default class Modify extends PointerInteraction {
                         continue
                     }
                     const mpCoords = (geometry as MultiPolygon).getCoordinates()
-                    const multiPolygon = mpCoords[depth[1]!]
+                    const multiPolygon = mpCoords[depth[1]]
                     if (!multiPolygon) {
                         continue
                     }
-                    const ring = multiPolygon[depth[0]!]
+                    const ring = multiPolygon[depth[0]]
                     if (!ring) {
                         continue
                     }
-                    ring[segmentData.index! + index] = vertex
+                    ring[segmentData.index + index] = vertex
                     coordinates = mpCoords
                     segment[index] = vertex
                     break
@@ -760,7 +760,7 @@ export default class Modify extends PointerInteraction {
         if (vertexFeature) {
             const projection = evt.map.getView().getProjection()
             const insertVertices: SegmentData[] = []
-            const vertex = (vertexFeature.getGeometry() as Point).getCoordinates()
+            const vertex = (vertexFeature.getGeometry()).getCoordinates()
             const vertexExtent = boundingExtent([vertex])
             const segmentDataMatches = this.rBush_.getInExtent(vertexExtent)
             const componentSegments: Record<
@@ -795,22 +795,22 @@ export default class Modify extends PointerInteraction {
                     if (
                         closestVertex &&
                         coordinatesEqual(closestVertex, vertex) &&
-                        !componentSegments[uid]![0]
+                        !componentSegments[uid][0]
                     ) {
                         this.dragSegments_.push([segmentDataMatch, 0])
-                        componentSegments[uid]![0] = segmentDataMatch
+                        componentSegments[uid][0] = segmentDataMatch
                     }
                     continue
                 }
 
-                if (coordinatesEqual(segment[0], vertex) && !componentSegments[uid]![0]) {
+                if (coordinatesEqual(segment[0], vertex) && !componentSegments[uid][0]) {
                     this.dragSegments_.push([segmentDataMatch, 0])
-                    componentSegments[uid]![0] = segmentDataMatch
+                    componentSegments[uid][0] = segmentDataMatch
                     continue
                 }
 
-                if (coordinatesEqual(segment[1], vertex) && !componentSegments[uid]![1]) {
-                    if (componentSegments[uid]![0] && componentSegments[uid]![0]!.index === 0) {
+                if (coordinatesEqual(segment[1], vertex) && !componentSegments[uid][1]) {
+                    if (componentSegments[uid][0] && componentSegments[uid][0].index === 0) {
                         let coordinates: Coordinate[] | Coordinate[][] =
                             segmentDataMatch.geometry.getCoordinates() as
                                 | Coordinate[]
@@ -820,12 +820,12 @@ export default class Modify extends PointerInteraction {
                             case 'MultiLineString':
                                 continue
                             case 'MultiPolygon':
-                                coordinates = coordinates[depth![1]!] as Coordinate[]
+                                coordinates = coordinates[depth[1]] as Coordinate[]
                             // falls through
                             case 'Polygon':
                                 if (
                                     segmentDataMatch.index !==
-                                    coordinates[depth![0]!]!.length - 2
+                                    coordinates[depth[0]].length - 2
                                 ) {
                                     continue
                                 }
@@ -836,14 +836,14 @@ export default class Modify extends PointerInteraction {
                     }
 
                     this.dragSegments_.push([segmentDataMatch, 1])
-                    componentSegments[uid]![1] = segmentDataMatch
+                    componentSegments[uid][1] = segmentDataMatch
                     continue
                 }
 
                 if (
                     getUid(segment) in (this.vertexSegments_ ?? {}) &&
-                    !componentSegments[uid]![0] &&
-                    !componentSegments[uid]![1] &&
+                    !componentSegments[uid][0] &&
+                    !componentSegments[uid][1] &&
                     this.insertVertexCondition_(evt)
                 ) {
                     insertVertices.push(segmentDataMatch)
@@ -855,7 +855,7 @@ export default class Modify extends PointerInteraction {
             }
 
             for (let j = insertVertices.length - 1; j >= 0; --j) {
-                this.insertVertex_(insertVertices[j]!, vertex.slice())
+                this.insertVertex_(insertVertices[j], vertex.slice())
             }
         }
         return !!this.vertexFeature_
@@ -867,7 +867,7 @@ export default class Modify extends PointerInteraction {
         const feature = segmentData.feature
         const geometry = segmentData.geometry
         const depth = segmentData.depth
-        const index = segmentData.index!
+        const index = segmentData.index
 
         let coordinates: Coordinate[] | Coordinate[][] | Coordinate[][][]
 
@@ -878,19 +878,19 @@ export default class Modify extends PointerInteraction {
         switch (geometry.getType()) {
             case 'MultiLineString': {
                 const coords = (geometry as MultiLineString).getCoordinates()
-                coords[depth![0]!]!.splice(index + 1, 0, vertex)
+                coords[depth[0]].splice(index + 1, 0, vertex)
                 coordinates = coords
                 break
             }
             case 'Polygon': {
                 const coords = (geometry as Polygon).getCoordinates()
-                coords[depth![0]!]!.splice(index + 1, 0, vertex)
+                coords[depth[0]].splice(index + 1, 0, vertex)
                 coordinates = coords
                 break
             }
             case 'MultiPolygon': {
                 const coords = (geometry as MultiPolygon).getCoordinates()
-                coords[depth![1]!]![depth![0]!]!.splice(index + 1, 0, vertex)
+                coords[depth[1]][depth[0]].splice(index + 1, 0, vertex)
                 coordinates = coords
                 break
             }
@@ -937,12 +937,12 @@ export default class Modify extends PointerInteraction {
             if (!this.dragSegments_[i]) {
                 continue
             }
-            const segmentData = this.dragSegments_[i]![0]
+            const segmentData = this.dragSegments_[i][0]
             const geometry = segmentData.geometry
             if (geometry.getType() === 'Circle') {
                 const coordinates = (geometry as Circle).getCenter()
-                const centerSegmentData = segmentData.featureSegments![0]
-                const circumferenceSegmentData = segmentData.featureSegments![1]
+                const centerSegmentData = segmentData.featureSegments[0]
+                const circumferenceSegmentData = segmentData.featureSegments[1]
                 if (!centerSegmentData || !circumferenceSegmentData) {
                     continue
                 }
@@ -1004,7 +1004,7 @@ export default class Modify extends PointerInteraction {
                 (feature: FeatureLike, _layer: Layer, geometry?: SimpleGeometry) => {
                     geometry =
                         geometry ||
-                        ((feature as Feature<Geometry>).getGeometry()! as SimpleGeometry)
+                        ((feature as Feature<Geometry>).getGeometry() as SimpleGeometry)
                     if (
                         geometry.getType() === 'Point' &&
                         this.features_.getArray().includes(feature as Feature<SimpleGeometry>)
@@ -1026,7 +1026,7 @@ export default class Modify extends PointerInteraction {
         }
 
         const viewExtent = fromUserExtent(createExtent(pixelCoordinate, tempExtent), projection)
-        const buffer = map.getView().getResolution()! * this.pixelTolerance_
+        const buffer = map.getView().getResolution() * this.pixelTolerance_
         const box = toUserExtent(bufferExtent(viewExtent, buffer, tempExtent), projection)
 
         const sortByDistance = (a: SegmentData, b: SegmentData) => {
@@ -1045,14 +1045,14 @@ export default class Modify extends PointerInteraction {
 
         if (nodes && nodes.length > 0) {
             node = nodes.sort(sortByDistance)[0]
-            vertex = this.closestOnSegmentData(pixelCoordinate, node!, projection, box)
+            vertex = this.closestOnSegmentData(pixelCoordinate, node, projection, box)
         }
 
         if (vertex && node) {
             const closestSegment = node.segment
             const vertexPixel = map.getPixelFromCoordinate(vertex)
             let dist = coordinateDistance(pixel, vertexPixel)
-            if (hitPointGeometry! || dist <= this.pixelTolerance_) {
+            if (hitPointGeometry || dist <= this.pixelTolerance_) {
                 const vertexSegments: Record<string, boolean> = {}
                 vertexSegments[getUid(closestSegment)] = true
 
@@ -1062,8 +1062,8 @@ export default class Modify extends PointerInteraction {
                     pixelCoordinate &&
                     pixelCoordinate.length >= 2
                 ) {
-                    this.delta_[0] = vertex[0]! - pixelCoordinate[0]!
-                    this.delta_[1] = vertex[1]! - pixelCoordinate[1]!
+                    this.delta_[0] = vertex[0] - pixelCoordinate[0]
+                    this.delta_[1] = vertex[1] - pixelCoordinate[1]
                 }
                 if (
                     node.geometry.getType() === 'Circle' &&
@@ -1085,14 +1085,14 @@ export default class Modify extends PointerInteraction {
                     const geometries: Record<string, boolean> = {}
                     geometries[getUid(node.geometry)] = true
                     for (let i = 1; i < nodes.length; i++) {
-                        const segment = nodes[i]!.segment
+                        const segment = nodes[i].segment
                         if (
                             (coordinatesEqual(closestSegment[0], segment[0]) &&
                                 coordinatesEqual(closestSegment[1], segment[1])) ||
                             (coordinatesEqual(closestSegment[0], segment[1]) &&
                                 coordinatesEqual(closestSegment[1], segment[0]))
                         ) {
-                            const geometryUid = getUid(nodes[i]!.geometry)
+                            const geometryUid = getUid(nodes[i].geometry)
                             if (!(geometryUid in geometries)) {
                                 geometries[geometryUid] = true
                                 vertexSegments[getUid(segment)] = true
@@ -1134,7 +1134,7 @@ export default class Modify extends PointerInteraction {
                     const item = segment[s]
                     const feature = Array.isArray(item)
                         ? (item[0] as SegmentData).feature
-                        : (item as SegmentData).feature
+                        : (item).feature
                     if (feature && !features.includes(feature)) {
                         this.featuresBeingModified_.push(feature)
                     }
@@ -1161,7 +1161,7 @@ export default class Modify extends PointerInteraction {
             this.vertexFeature_ = vertexFeature
             this.overlay_.getSource()?.addFeature(vertexFeature)
         } else {
-            const geometry = vertexFeature.getGeometry() as Point
+            const geometry = vertexFeature.getGeometry()
             geometry.setCoordinates(coordinates)
         }
         vertexFeature.set('features', features)
@@ -1198,7 +1198,7 @@ export default class Modify extends PointerInteraction {
 
         for (let i = dragSegments.length - 1; i >= 0; --i) {
             const dragSegment = dragSegments[i]
-            const segmentData = dragSegment![0]
+            const segmentData = dragSegment[0]
             let uid = getUid(segmentData.feature)
             if (segmentData.depth) {
                 uid += '-' + segmentData.depth.join('-')
@@ -1206,21 +1206,21 @@ export default class Modify extends PointerInteraction {
             if (!(uid in segmentsByFeature)) {
                 segmentsByFeature[uid] = {}
             }
-            if (dragSegment![1] === 0 && segmentsByFeature[uid]) {
-                segmentsByFeature[uid]!.right = segmentData
-                segmentsByFeature[uid]!.index = segmentData.index
-            } else if (dragSegment![1] === 1 && segmentsByFeature[uid]) {
-                segmentsByFeature[uid]!.left = segmentData
-                segmentsByFeature[uid]!.index = (segmentData.index ?? 0) + 1
+            if (dragSegment[1] === 0 && segmentsByFeature[uid]) {
+                segmentsByFeature[uid].right = segmentData
+                segmentsByFeature[uid].index = segmentData.index
+            } else if (dragSegment[1] === 1 && segmentsByFeature[uid]) {
+                segmentsByFeature[uid].left = segmentData
+                segmentsByFeature[uid].index = (segmentData.index ?? 0) + 1
             }
         }
 
         for (const uid in segmentsByFeature) {
-            const right = segmentsByFeature[uid]!.right
-            const left = segmentsByFeature[uid]!.left
-            let index = segmentsByFeature[uid]!.index ?? 0
+            const right = segmentsByFeature[uid].right
+            const left = segmentsByFeature[uid].left
+            let index = segmentsByFeature[uid].index ?? 0
             let newIndex = index - 1
-            const segmentData: SegmentData = left ?? right!
+            const segmentData: SegmentData = left ?? right
             if (newIndex < 0) {
                 newIndex = 0
             }
@@ -1234,8 +1234,8 @@ export default class Modify extends PointerInteraction {
             deleted = false
             switch (geometry.getType()) {
                 case 'MultiLineString':
-                    if (coordinates[segmentData.depth![0]!]!.length > 2) {
-                        coordinates[segmentData.depth![0]!]!.splice(index, 1)
+                    if (coordinates[segmentData.depth[0]].length > 2) {
+                        coordinates[segmentData.depth[0]].splice(index, 1)
                         deleted = true
                     }
                     break
@@ -1246,10 +1246,10 @@ export default class Modify extends PointerInteraction {
                     }
                     break
                 case 'MultiPolygon':
-                    component = component[segmentData.depth![1]!] as Coordinate[]
+                    component = component[segmentData.depth[1]] as Coordinate[]
                 // falls through
                 case 'Polygon':
-                    component = component[segmentData.depth![0]!] as Coordinate[]
+                    component = component[segmentData.depth[0]] as Coordinate[]
                     if (component.length > 4) {
                         if (index === component.length - 1) {
                             index = 0
@@ -1258,7 +1258,7 @@ export default class Modify extends PointerInteraction {
                         deleted = true
                         if (index === 0) {
                             component.pop()
-                            component.push(component[0]!)
+                            component.push(component[0])
                             newIndex = component.length - 2
                         }
                     }
@@ -1377,7 +1377,7 @@ export default class Modify extends PointerInteraction {
     ): Coordinate | undefined {
         const coordinate = fromUserCoordinate(point, viewProjection)
         const index = segmentData.index ?? 0
-        const segments = this.subsegmentsFunction?.(segmentData.feature, index, viewExtent!) ?? [
+        const segments = this.subsegmentsFunction?.(segmentData.feature, index, viewExtent) ?? [
             segmentData.segment,
         ]
         if (!segments.length) {
@@ -1394,8 +1394,8 @@ export default class Modify extends PointerInteraction {
             .reduce((previous, current) => (previous[0] < current[0] ? previous : current))[1]
         const closestSegment = segments[closestIndex]
         const tempSegment: Segment = [
-            fromUserCoordinate(closestSegment![0], viewProjection),
-            fromUserCoordinate(closestSegment![1], viewProjection),
+            fromUserCoordinate(closestSegment[0], viewProjection),
+            fromUserCoordinate(closestSegment[1], viewProjection),
         ]
         return toUserCoordinate(closestOnSegment(coordinate, tempSegment), viewProjection)
     }

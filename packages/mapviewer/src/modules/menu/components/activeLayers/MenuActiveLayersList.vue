@@ -8,7 +8,7 @@ import type { Layer } from '@swissgeo/layers'
 
 import log from '@swissgeo/log'
 // eslint-disable-next-line import/no-named-as-default
-import Sortable  from 'sortablejs'
+import Sortable from 'sortablejs'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
@@ -35,7 +35,7 @@ const layersStore = useLayersStore()
 
 // Users are used to have layers ordered top to bottom (the first layer is on top), but we store them in the opposite order.
 // So here we swap the order of this array to match the desired order on the UI
-const activeLayers = computed<Layer[]>(() => layersStore.activeLayers.slice().reverse())
+const activeLayers = computed<Layer[]>(() => layersStore.activeLayers.slice().reverse() as Layer[])
 const reverseIndex = (index: number) => layersStore.activeLayers.length - 1 - index
 
 let sortable: Sortable | undefined

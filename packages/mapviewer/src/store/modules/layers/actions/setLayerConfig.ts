@@ -1,4 +1,4 @@
-import type { GeoAdminLayer, LayerTimeConfigEntry } from '@swissgeo/layers'
+import type { Layer, GeoAdminLayer, LayerTimeConfigEntry } from '@swissgeo/layers'
 
 import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
 import { markRaw } from 'vue'
@@ -18,7 +18,7 @@ export default function setLayerConfig(
     config: GeoAdminLayer[],
     dispatcher: ActionDispatcher
 ): void {
-    const activeLayerBeforeConfigChange = [...this.activeLayers]
+    const activeLayerBeforeConfigChange: Layer[] = [...(this.activeLayers as Layer[])]
     if (Array.isArray(config)) {
         // Use markRaw to prevent deep reactivity on large config array (performance optimization for DevTools)
         // this config will not be mutated partially, only fully replaced when needed
@@ -49,5 +49,5 @@ export default function setLayerConfig(
             return layerUtils.cloneLayer(layer)
         }
     })
-    rerunSearchLayerSearchable(this.activeLayers)
+    rerunSearchLayerSearchable(this.activeLayers as Layer[])
 }

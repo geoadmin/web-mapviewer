@@ -449,7 +449,7 @@ export const legacyPermalinkManagementRouterPlugin: RouterPlugin = (router): voi
                                 ],
                             })
                             handleLegacyParams(legacyParams, legacyEmbed ? EMBED_VIEW : MAP_VIEW, {
-                                config: layersStore.config,
+                                config: layersStore.config as GeoAdminLayer[],
                                 projection: positionStore.projection,
                             })
                                 .then((newRoute) => {

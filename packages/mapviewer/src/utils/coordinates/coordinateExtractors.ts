@@ -182,8 +182,8 @@ function extractMgrsCoordinates(text: string): [number, number] | undefined {
     return undefined
 }
 
-const LV95_BOUNDS_IN_WGS84 = LV95.getBoundsAs(WGS84)!
-const LV95_BOUNDS_IN_METRIC_MERCATOR = LV95.getBoundsAs(WEBMERCATOR)!
+const LV95_BOUNDS_IN_WGS84 = LV95.getBoundsAs(WGS84)
+const LV95_BOUNDS_IN_METRIC_MERCATOR = LV95.getBoundsAs(WEBMERCATOR)
 
 const numericalExtractor = (regexMatches: RegExpExecArray | null): [number, number] | undefined => {
     if (!regexMatches || !regexMatches.groups) {

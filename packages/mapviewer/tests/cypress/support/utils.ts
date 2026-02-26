@@ -118,7 +118,7 @@ export function testErrorMessage(message: string) {
 
         const error = uiStore.errors.values().next().value
         expect(error).to.be.an('Object')
-        expect(error!.msg).to.eq(message)
+        expect(error.msg).to.eq(message)
     })
     // Check error in UI
     cy.get('[data-cy="error-window"]').should('be.visible')
@@ -131,9 +131,9 @@ export function checkPosition(
     expectedY: number
 ) {
     expect(position).to.be.an('Array')
-    expect(position!.length).to.eq(2)
-    expect(position![0]).to.approximately(expectedX, 0.1)
-    expect(position![1]).to.approximately(expectedY, 0.1)
+    expect(position.length).to.eq(2)
+    expect(position[0]).to.approximately(expectedX, 0.1)
+    expect(position[1]).to.approximately(expectedY, 0.1)
 }
 
 export function checkUrlParams(

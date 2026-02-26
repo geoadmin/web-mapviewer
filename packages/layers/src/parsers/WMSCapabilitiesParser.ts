@@ -1,4 +1,4 @@
-import type { FlatExtent, CoordinateSystem } from '@swissgeo/coordinates'
+import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
 
 import {
     allCoordinateSystems,
@@ -195,7 +195,7 @@ function getLayerExtent(
     }
     // Finally, search the extent in the parents
     if (!layerExtent && parents.length > 0) {
-        return getLayerExtent(capabilities, layerId, parents[0]!, parents.slice(1), projection)
+        return getLayerExtent(capabilities, layerId, parents[0], parents.slice(1), projection)
     }
 
     if (!layerExtent) {
@@ -287,8 +287,8 @@ function getDimensions(
                 .map((v) => {
                     if (v.includes('/')) {
                         const [min, max, res] = v.split('/')
-                        const minYear = parseDimensionYear(min!)
-                        const maxYear = parseDimensionYear(max!)
+                        const minYear = parseDimensionYear(min)
+                        const maxYear = parseDimensionYear(max)
                         if (minYear === undefined || maxYear === undefined) {
                             log.warn(
                                 `Unsupported dimension min/max value "${min}"/"${max}" for layer ${layerId}`
@@ -297,7 +297,7 @@ function getDimensions(
                         }
                         let step = 1
 
-                        const periodMatch = /P(\d+)Y/.exec(res!)
+                        const periodMatch = /P(\d+)Y/.exec(res)
 
                         if (periodMatch && periodMatch[1]) {
                             step = parseInt(periodMatch[1])
@@ -354,7 +354,7 @@ function getLayerAttributes(
         if (ignoreError) {
             return {}
         }
-        throw new CapabilitiesError(msg, 'no_layer_found')
+        throw new CapabilitiesError(msg, { key: 'no_layer_found' })
     }
 
     if (!capabilities.version || !WMS_SUPPORTED_VERSIONS.includes(capabilities.version)) {
@@ -368,7 +368,7 @@ function getLayerAttributes(
         if (ignoreError) {
             return {}
         }
-        throw new CapabilitiesError(msg, 'no_wms_version_found')
+        throw new CapabilitiesError(msg, { key: 'no_wms_version_found' })
     }
 
     let availableProjections: CoordinateSystem[] = getLayerProjections(layer)
@@ -377,7 +377,7 @@ function getLayerAttributes(
         )
         .map((crs) =>
             allCoordinateSystems.find((projection) => projection.epsg === crs.toUpperCase())
-        ) as CoordinateSystem[] // let's assume that the filtering won't remove any for now
+        ) // let's assume that the filtering won't remove any for now
 
     // by default, WGS84 must be supported
     if (availableProjections.length === 0) {
@@ -436,7 +436,9 @@ function getFeatureInfoCapability(
             if (ignoreError) {
                 return
             }
-            throw new CapabilitiesError('Invalid GetFeatureInfo data', 'invalid_get_feature_info')
+            throw new CapabilitiesError('Invalid GetFeatureInfo data', {
+                key: 'invalid_get_feature_info',
+            })
         }
         const formats: string[] = []
         if (capabilities.Capability.Request.GetFeatureInfo.Format) {
@@ -524,7 +526,7 @@ function getExternalLayer(
         if (ignoreErrors) {
             return
         }
-        throw new CapabilitiesError(msg, 'no_layer_found')
+        throw new CapabilitiesError(msg, { key: 'no_layer_found' })
     }
 
     // Go through the child to get valid layers
@@ -590,10 +592,10 @@ function parse(content: string, originUrl: URL): WMSCapabilitiesResponse {
             titleColor: LogPreDefinedColor.Indigo,
             messages: [`Failed to parse capabilities of ${originUrl?.toString()}`, error],
         })
-        throw new CapabilitiesError(
-            `Failed to parse WMS Capabilities: invalid content: ${error?.toString()}`,
-            'invalid_wms_capabilities'
-        )
+        throw new CapabilitiesError(`Failed to parse WMS Capabilities: invalid content`, {
+            key: 'invalid_wms_capabilities',
+            cause: error,
+        })
     }
 }
 

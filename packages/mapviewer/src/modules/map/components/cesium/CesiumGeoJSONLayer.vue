@@ -69,7 +69,7 @@ async function createSource(): Promise<GeoJsonDataSource> {
 useAddDataSourceLayer(
     viewer,
     createSource(),
-    (entity, opacity) => setEntityStyle(entity, geoJsonStyle.value!, opacity),
+    (entity, opacity) => setEntityStyle(entity, geoJsonStyle.value, opacity),
     toRef(opacity),
     toRef(layerId)
 )

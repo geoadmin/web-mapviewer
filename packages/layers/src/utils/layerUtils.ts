@@ -215,7 +215,7 @@ function makeExternalWMTSLayer(values: Partial<ExternalWMTSLayer>): ExternalWMTS
  */
 function makeExternalWMSLayer(values: Partial<ExternalWMSLayer>): ExternalWMSLayer {
     const hasDescription = (values?.abstract?.length ?? 0) > 0 || (values?.legends?.length ?? 0) > 0
-    const attributions = [{ name: new URL(values.baseUrl!).hostname }]
+    const attributions = [{ name: new URL(values.baseUrl).hostname }]
     const hasLegend = (values?.legends ?? []).length > 0
 
     const defaults: Omit<DefaultLayerConfig<ExternalWMSLayer>, 'wmsOperations'> = {
@@ -708,7 +708,7 @@ function getTopicForIdentifyAndTooltipRequests(layer: Layer): string {
         return 'ech'
     }
     // otherwise we return the first topic to make our backend requests for identify and htmlPopup
-    return geoadminLayer.topics[0]!
+    return geoadminLayer.topics[0]
 }
 
 /** Clone a layer but give it a new uuid */

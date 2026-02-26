@@ -5,5 +5,5 @@ import type { LayersStore } from '@/store/modules/layers/types'
 export default function getActiveLayerByIndex(
     this: LayersStore
 ): (index: number) => Layer | undefined {
-    return (index: number) => this.activeLayers.at(index)
+    return (index: number) => this.activeLayers.at(index) as Layer | undefined
 }

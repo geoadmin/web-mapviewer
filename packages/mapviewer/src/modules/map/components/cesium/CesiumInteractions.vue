@@ -343,7 +343,7 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
             .forEach((geoJSonLayer: Layer) => {
                 const identified = identifyGeoJSONFeatureAt(
                     geoJSonLayer as GeoAdminGeoJSONLayer,
-                    coordinates as SingleCoordinate,
+                    coordinates,
                     positionStore.projection,
                     positionStore.resolution
                 )
@@ -382,12 +382,12 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
                 })
         })
 
-    handleClickHighlight(features as SelectableFeature<false>[], coordinates!)
+    handleClickHighlight(features as SelectableFeature<false>[], coordinates)
 
     if ((!Array.isArray(coordinates) || !coordinates.length) && features.length) {
-        const featureCoords = Array.isArray(features[0]!.coordinates?.[0])
-            ? features[0]!.coordinates[0]
-            : features[0]!.coordinates
+        const featureCoords = Array.isArray(features[0].coordinates?.[0])
+            ? features[0].coordinates[0]
+            : features[0].coordinates
         coordinates = proj4(
             positionStore.projection.epsg,
             WEBMERCATOR.epsg,
@@ -520,7 +520,7 @@ function onMouseMove(event: ScreenSpaceEventHandler.MotionEvent): void {
             object &&
             cesiumStore.layersTooltipConfig
                 .map((layerConfig) => layerConfig.layerId)
-                .includes(getLayerIdFrom3dFeature(object)!)
+                .includes(getLayerIdFrom3dFeature(object))
         ) {
             hoveredHighlightPostProcessor.selected = [object]
             viewerInstance.scene.requestRender()

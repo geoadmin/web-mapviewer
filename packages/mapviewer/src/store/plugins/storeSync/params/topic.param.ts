@@ -1,4 +1,3 @@
-import type { Topic } from '@swissgeo/api'
 import type { RouteLocationNormalizedGeneric } from 'vue-router'
 
 import useTopicsStore from '@/store/modules/topics'
@@ -24,7 +23,7 @@ const topicParamConfig = new UrlParamConfig<string>({
             queryValue,
             !!queryValue &&
                 useTopicsStore()
-                    .config.map((topic: Topic) => topic.id)
+                    .config.map((topic) => topic.id)
                     .includes(queryValue),
             'topic'
         ),

@@ -130,7 +130,7 @@ function getIframeHosts(value: string): string[] {
                 return iframe.src
             }
         })
-        .filter((host): host is string => Boolean(host) && !WHITELISTED_HOSTNAMES.includes(host!))
+        .filter((host): host is string => Boolean(host) && !WHITELISTED_HOSTNAMES.includes(host))
 }
 </script>
 

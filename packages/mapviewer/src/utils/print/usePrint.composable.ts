@@ -184,7 +184,7 @@ class GeoAdminCustomizer extends BaseCustomizer {
         if (scale && anchor && anchor.length > 0 && size && size.length > 0) {
             symbolizer.graphicXOffset = symbolizer.graphicXOffset
                 ? adjustWidth(
-                      (size[0]! / 2 - anchor[0]! + symbolizer.graphicXOffset) * scale,
+                      (size[0] / 2 - anchor[0] + symbolizer.graphicXOffset) * scale,
                       this.printResolution
                   )
                 : 0
@@ -192,7 +192,7 @@ class GeoAdminCustomizer extends BaseCustomizer {
             symbolizer.graphicYOffset = Math.round(1000 * (symbolizer.graphicYOffset ?? 0)) / 1000
         }
         if (scale && size && size.length > 0) {
-            symbolizer.graphicWidth = adjustWidth(size[0]! * scale, this.printResolution)
+            symbolizer.graphicWidth = adjustWidth(size[0] * scale, this.printResolution)
         }
         symbolizer.graphicXOffset = symbolizer.graphicXOffset ?? 0
         symbolizer.graphicYOffset = symbolizer.graphicYOffset ?? 0

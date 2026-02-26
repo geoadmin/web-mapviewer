@@ -25,7 +25,7 @@ const isFormValid = ref<boolean>(false)
 const activateValidation = ref<boolean>(false)
 
 function createVideo(): string {
-    const url = generatedMediaLink.value as string
+    const url = generatedMediaLink.value
     if (url.includes('youtube.com/') || url.includes('youtu.be/')) {
         // taken from https://stackoverflow.com/questions/3452546/how-do-i-get-the-youtube-video-id-from-a-url/71010058#71010058
         const youtubeRegExp = /(youtu.*be.*)\/(watch\?v=|embed\/|v|shorts|)(.*?((?=[&#?])|$))/

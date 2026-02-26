@@ -143,12 +143,12 @@ export default function usePrintAreaRenderer(map: MaybeRef<Map>): void {
         const w = ((((size.width / POINTS_PER_INCH) * MM_PER_INCHES) / 1000.0) * scale) / resolution
         const h =
             ((((size.height / POINTS_PER_INCH) * MM_PER_INCHES) / 1000.0) * scale) / resolution
-        const center = [mapSize[0]! / 2, mapSize[1]! / 2]
+        const center = [mapSize[0] / 2, mapSize[1] / 2]
 
-        const minx = center[0]! - w / 2
-        const miny = center[1]! - h / 2
-        const maxx = center[0]! + w / 2
-        const maxy = center[1]! + h / 2
+        const minx = center[0] - w / 2
+        const miny = center[1] - h / 2
+        const maxx = center[0] + w / 2
+        const maxy = center[1] + h / 2
 
         log.debug({
             title: 'usePrintAreaRenderer / calculatePageBoundsPixels',
@@ -187,8 +187,8 @@ export default function usePrintAreaRenderer(map: MaybeRef<Map>): void {
             return
         }
 
-        const height = size[1]!
-        const width = size[0]!
+        const height = size[1]
+        const width = size[0]
 
         const printRectangle = calculatePageBoundsPixels(selectedScale.value, printLayoutSize.value)
 

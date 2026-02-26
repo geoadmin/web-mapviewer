@@ -44,17 +44,17 @@ function reprojectActiveLayersExtent(
     dispatcher: ActionDispatcher
 ): void {
     const layersStore = useLayersStore()
-    const updatedLayers: Layer[] = layersStore.activeLayers
+    const updatedLayers = layersStore.activeLayers
         .filter((layer) => layer.extent)
-        .map((layer: Layer) => {
+        .map((layer) => {
             const updatedLayer = cloneDeep(layer)
             updatedLayer.extent = extentUtils.projExtent(
                 oldProjection,
                 newProjection,
-                updatedLayer.extent!
+                updatedLayer.extent
             )
             return updatedLayer
-        })
+        }) as Layer[]
     if (updatedLayers.length > 0) {
         layersStore.updateLayers(updatedLayers, dispatcher)
     }

@@ -375,7 +375,7 @@ export function getLetterDesignator(latitude: number): string {
         if (index < 0 || index > bandLetters.length - 1) {
             throw new Error('Latitude out of range')
         }
-        return bandLetters[index]!
+        return bandLetters[index]
     } else if (latitude > 84 || latitude < -80) {
         // This is here as an error flag to show that the Latitude is outside MGRS limits
         return 'Z'

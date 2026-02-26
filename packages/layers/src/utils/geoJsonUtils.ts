@@ -117,7 +117,7 @@ function transformIntoTurfEquivalent(
     fromProjection?: CoordinateSystem
 ): Feature | undefined {
     const geometryWGS84 = reprojectGeoJsonGeometry(
-        geometry.type === 'GeometryCollection' ? geometry.geometries[0]! : geometry,
+        geometry.type === 'GeometryCollection' ? geometry.geometries[0] : geometry,
         WGS84,
         fromProjection
     )
@@ -159,7 +159,7 @@ function getGeoJsonFeatureCenter(
         center = proj4(inputProjection.epsg, outputProjection.epsg, center)
     }
     if (center.length > 2) {
-        return [center[0]!, center[1]!]
+        return [center[0], center[1]]
     }
     return center as SingleCoordinate
 }

@@ -99,7 +99,7 @@ describe('splitIfTooManyPoints', () => {
         expect(result).to.be.an('Array').lengthOf(1)
         expect(result).to.not.be.undefined
         if (result && result.length > 0) {
-            expect(result[0]!.coordinates).to.be.an('Array').lengthOf(3000)
+            expect(result[0].coordinates).to.be.an('Array').lengthOf(3000)
         }
     })
     it('splits if one coordinates above the limit', () => {
@@ -107,8 +107,8 @@ describe('splitIfTooManyPoints', () => {
         expect(result).to.be.an('Array').lengthOf(2)
         expect(result).to.not.be.undefined
         if (result && result.length > 1) {
-            expect(result[0]!.coordinates).to.be.an('Array').lengthOf(3000)
-            expect(result[1]!.coordinates).to.be.an('Array').lengthOf(1)
+            expect(result[0].coordinates).to.be.an('Array').lengthOf(3000)
+            expect(result[1].coordinates).to.be.an('Array').lengthOf(1)
         }
     })
     it('creates as many sub-chunks as necessary', () => {
@@ -117,9 +117,9 @@ describe('splitIfTooManyPoints', () => {
         expect(result).to.not.be.undefined
         if (result && result.length === 5) {
             for (let i = 0; i < 4; i++) {
-                expect(result[i]!.coordinates).to.be.an('Array').lengthOf(3000)
+                expect(result[i].coordinates).to.be.an('Array').lengthOf(3000)
             }
-            expect(result[4]!.coordinates).to.be.an('Array').lengthOf(123)
+            expect(result[4].coordinates).to.be.an('Array').lengthOf(123)
         }
     })
 })

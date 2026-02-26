@@ -120,14 +120,14 @@ function checkPrintRequest(body: MFPSpec, expectedValues: MFPSpec) {
         ).to.eq(1)
         expect(attributes.legend, 'it should define a legend object').to.be.an('object')
         const legendAttributes = attributes.legend
-        expect(legendAttributes!.name, 'the legend attribute has a name').to.equals('Legend')
+        expect(legendAttributes.name, 'the legend attribute has a name').to.equals('Legend')
         if (legend.classes) {
-            expect(legendAttributes!.classes, 'the legend classes in print spec are defined')
+            expect(legendAttributes.classes, 'the legend classes in print spec are defined')
                 .to.be.an('array')
                 .lengthOf(legend.classes.length)
 
             legend.classes.forEach((expectedLegend, index) => {
-                const actualLegend = legendAttributes!.classes![index]
+                const actualLegend = legendAttributes.classes[index]
                 expect(actualLegend, `the legend class at index ${index} is defined`).to.be.an(
                     'object'
                 )
@@ -143,7 +143,7 @@ function checkPrintRequest(body: MFPSpec, expectedValues: MFPSpec) {
                         .to.be.an('array')
                         .lengthOf(expectedLegend.icons.length)
                     expectedLegend.icons.forEach((icon: string, iconIndex: number) => {
-                        const actualIcon = actualLegend.icons![iconIndex]
+                        const actualIcon = actualLegend.icons[iconIndex]
                         expect(actualIcon, `The icon at index ${iconIndex} is defined`).to.be.an(
                             'string'
                         )
@@ -168,16 +168,16 @@ function checkPrintRequest(body: MFPSpec, expectedValues: MFPSpec) {
 
     const mapAttributes = attributes.map
     expect(mapAttributes, 'the map attributes in print spec is defined').to.be.an('object')
-    expect(mapAttributes!.scale, 'the map scale is well defined').to.equals(scale)
-    expect(mapAttributes!.dpi, 'the map dpi is well defined').to.equals(dpi)
-    expect(mapAttributes!.projection, 'the map projection is well defined').to.equals(projection)
+    expect(mapAttributes.scale, 'the map scale is well defined').to.equals(scale)
+    expect(mapAttributes.dpi, 'the map dpi is well defined').to.equals(dpi)
+    expect(mapAttributes.projection, 'the map projection is well defined').to.equals(projection)
 
     const layersInSpec = body.attributes.map?.layers
     expect(layersInSpec, 'the map attribute contains a list of layers')
         .to.be.an('array')
         .lengthOf(layers.length)
     layers.forEach((layer: Partial<MFPLayer>, index: number) => {
-        const layerInSpec = layersInSpec![index]
+        const layerInSpec = layersInSpec[index]
         expect(layerInSpec, `the layer print layer at index ${index} is defined`).to.be.an('object')
         assertDefined(layerInSpec)
         expect(layerInSpec.type, `the print layer type matches the map layer type`).to.equals(
@@ -360,7 +360,7 @@ describe('Testing print', () => {
                 },
                 (req) => {
                     const headers = { 'Cache-Control': 'no-cache' }
-                    req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop()! }), headers)
+                    req.reply(kmlMetadataTemplate({ id: req.url.split('/').pop() }), headers)
                 }
             ).as('kmlGetAdminRequest')
             cy.goToMapView({

@@ -59,7 +59,7 @@ describe('Testing legacyPermalink router plugin', () => {
         }
         fakeStoreInput = {
             config: [layerConfig],
-            projection: allCoordinateSystems[0]!,
+            projection: allCoordinateSystems[0],
         }
         exisitingParams = new URLSearchParams()
     })
@@ -105,7 +105,7 @@ describe('Testing legacyPermalink router plugin', () => {
                 testHandleLegacyParam(param, legacyValue)
                 const { z } = newQuery
                 expect(z).to.be.a('string')
-                expect(parseFloat(z as string)).to.approximately(newValues[index]!, 0.01)
+                expect(parseFloat(z as string)).to.approximately(newValues[index], 0.01)
             })
         })
         it('N', () => {

@@ -11,7 +11,7 @@ export default function visibleLayers(this: LayersStore): Layer[] {
         // it is like the layer is not visible (even though the checkbox is still active)
         if (
             layer.timeConfig &&
-            timeConfigUtils.hasMultipleTimestamps(layer) &&
+            timeConfigUtils.hasMultipleTimestamps(layer as Layer) &&
             layer.timeConfig.currentTimeEntry === null
         ) {
             return false
@@ -30,5 +30,5 @@ export default function visibleLayers(this: LayersStore): Layer[] {
             return !(layer as KMLLayer).isEdited
         }
         return true
-    })
+    }) as Layer[]
 }

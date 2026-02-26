@@ -39,7 +39,7 @@ export default function useImportFile() {
             return
         }
 
-        uiStore.setLoadingBarRequester((source as File).name ?? source, dispatcher)
+        uiStore.setLoadingBarRequester((source as File).name ?? (source as string), dispatcher)
 
         try {
             const layer = await parseLayerFromFile(source, projection.value)
@@ -89,7 +89,10 @@ export default function useImportFile() {
                 uiStore.addErrors(generateErrorMessageFromErrorType(error), dispatcher)
             }
         } finally {
-            uiStore.clearLoadingBarRequester((source as File).name ?? source, dispatcher)
+            uiStore.clearLoadingBarRequester(
+                (source as File).name ?? (source as string),
+                dispatcher
+            )
         }
     }
 

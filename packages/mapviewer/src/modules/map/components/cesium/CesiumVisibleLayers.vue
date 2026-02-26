@@ -13,21 +13,22 @@ const layersStore = useLayersStore()
 const positionStore = usePositionStore()
 const cesiumStore = useCesiumStore()
 
-const visibleImageryLayers = computed<Layer[]>(() =>
-    layersStore.visibleLayers.filter(isImageryLayer).map((imageryLayer) => {
-        // If this layer has a 3D counterpart, try to map to the 3D config while keeping the 2D opacity
-        // idIn3d only exists on GeoAdmin layers
-        const withIdIn3d = imageryLayer as Partial<GeoAdminLayer>
-        if (withIdIn3d.idIn3d) {
-            const configIn3d = layersStore.config.find(
-                (layer: GeoAdminLayer) => layer.id === withIdIn3d.idIn3d
-            )
-            if (configIn3d) {
-                return { ...configIn3d, opacity: imageryLayer.opacity }
+const visibleImageryLayers = computed<Layer[]>(
+    () =>
+        layersStore.visibleLayers.filter(isImageryLayer).map((imageryLayer) => {
+            // If this layer has a 3D counterpart, try to map to the 3D config while keeping the 2D opacity
+            // idIn3d only exists on GeoAdmin layers
+            const withIdIn3d = imageryLayer as Partial<GeoAdminLayer>
+            if (withIdIn3d.idIn3d) {
+                const configIn3d = layersStore.config.find(
+                    (layer) => layer.id === withIdIn3d.idIn3d
+                )
+                if (configIn3d) {
+                    return { ...configIn3d, opacity: imageryLayer.opacity }
+                }
             }
-        }
-        return imageryLayer
-    })
+            return imageryLayer
+        }) as Layer[]
 )
 const visiblePrimitiveLayers = computed<Layer[]>(() =>
     layersStore.visibleLayers.filter(isPrimitiveLayer)

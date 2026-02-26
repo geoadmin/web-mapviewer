@@ -1,4 +1,5 @@
 import type { LayerFeature } from '@swissgeo/api'
+import type { GeoAdminLayer } from '@swissgeo/layers'
 
 import { featuresAPI } from '@swissgeo/api'
 import { extentUtils } from '@swissgeo/coordinates'
@@ -22,9 +23,11 @@ export default function updateFeatures(this: FeaturesStore, dispatcher: ActionDi
     const positionStore = usePositionStore()
     const uiStore = useUIStore()
 
+    const layersConfig: GeoAdminLayer[] = layersStore.config as GeoAdminLayer[]
+
     this.selectedLayerFeatures.forEach((feature) => {
         // we avoid requesting the drawings and external layers, they're not handled here
-        const currentFeatureLayer = layersStore.config.find(
+        const currentFeatureLayer: GeoAdminLayer | undefined = layersConfig.find(
             (layer) => layer.id === feature.layer.id
         )
         if (currentFeatureLayer) {

@@ -16,7 +16,12 @@ import {
 } from '@swissgeo/staging-config'
 import axios from 'axios'
 
-import type { PrintCapabilitiesResponse, PrintConfig, PrintLayout } from '@/utils/print/types'
+import type {
+    PrintCapabilitiesResponse,
+    PrintConfig,
+    PrintLayout,
+    PrintLayoutAttribute,
+} from '@/utils/print/types'
 
 import { ENVIRONMENT } from '@/config'
 
@@ -106,7 +111,7 @@ function readPrintCapabilities(): Promise<PrintLayout[]> {
                                             this.value !== undefined
                                         )
                                     },
-                                }
+                                } as PrintLayoutAttribute
                             }),
                             isReadyToPrint: function () {
                                 return !this.attributes.some((attribute) => !attribute.isValid)
@@ -269,7 +274,7 @@ function transformOlMapToPrintParams(map: MFPMap, config: PrintConfig): MFPSpec 
             ...logConfig('transformOlMapToPrintParams'),
             messages: ["Couldn't encode map to print request", error],
         })
-        throw new PrintError(`Couldn't encode map to print request: ${error?.toString()}`)
+        throw new PrintError("Couldn't encode map to print request", { cause: error })
     }
 }
 
@@ -346,7 +351,7 @@ async function createPrintJob(map: MFPMap, config: PrintConfig): Promise<MFPRepo
             dpi,
         })
         if (!isPrintingSpecSizeValid(printingSpec)) {
-            throw new PrintError('Printing spec is too large', 'print_request_too_large')
+            throw new PrintError('Printing spec is too large', { key: 'print_request_too_large' })
         }
         log.debug({
             ...logConfig('createPrintJob'),
@@ -362,7 +367,7 @@ async function createPrintJob(map: MFPMap, config: PrintConfig): Promise<MFPRepo
         if (error instanceof PrintError) {
             throw error
         } else {
-            throw new PrintError(`Error while creating print job: ${error?.toString()}`)
+            throw new PrintError('Error while creating print job', { cause: error })
         }
     }
 }
@@ -417,9 +422,9 @@ export class PrintError extends Error {
     readonly key: string | undefined
     readonly name: string
 
-    constructor(message: string, key?: string) {
-        super(message)
-        this.key = key
+    constructor(message: string, options?: { key?: string; cause?: unknown }) {
+        super(message, { cause: options?.cause })
+        this.key = options?.key
         this.name = 'PrintError'
     }
 }

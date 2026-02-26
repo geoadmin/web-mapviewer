@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Topic } from '@swissgeo/api'
+import type { GeoAdminLayer } from '@swissgeo/layers'
 
 import { computed, ref, useTemplateRef } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -30,8 +31,8 @@ const showTopicSelectionPopup = ref(false)
 // The id needs to be exposed and is used by the MenuTray to close sections.
 const sectionId = 'topicsSection'
 const currentTopic = computed(() => topicsStore.current)
-const currentTopicTree = computed(() => topicsStore.tree)
-const allTopics = computed(() => topicsStore.config)
+const currentTopicTree = computed<GeoAdminLayer[]>(() => topicsStore.tree as GeoAdminLayer[])
+const allTopics = computed<Topic[]>(() => topicsStore.config as Topic[])
 
 const showTopicTree = computed(() => {
     // // We only want the topic tree open whenever the user has chosen a different topic

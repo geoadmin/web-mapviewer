@@ -46,7 +46,7 @@ export default function useMapInteractions(map: MaybeRef<Map>): void {
 
     const isCurrentlyDrawing = computed(() => drawingStore.overlay.show)
     const activeVectorLayers = computed(() =>
-        layersStore.activeLayers.filter((layer: Layer) =>
+        layersStore.activeLayers.filter((layer) =>
             [LayerType.KML, LayerType.GPX, LayerType.GEOJSON].includes(layer.type)
         )
     )
@@ -165,7 +165,7 @@ export default function useMapInteractions(map: MaybeRef<Map>): void {
                                 layerFilter: (layer) => layer.get('id') === olLayer.get('id'),
                                 hitTolerance: DRAWING_HIT_TOLERANCE,
                             })
-                            .map((olFeature) => createLayerFeature(olFeature, vectorLayer))
+                            .map((olFeature) => createLayerFeature(olFeature, vectorLayer as Layer))
                             // unique filter on features (OL sometimes return twice the same features)
                             .filter(
                                 (feature, index, self) =>
@@ -205,8 +205,8 @@ export default function useMapInteractions(map: MaybeRef<Map>): void {
             event.type === 'contextmenu'
         mapStore.click(
             {
-                coordinate: event.coordinate! as SingleCoordinate,
-                pixelCoordinate: event.pixel! as SingleCoordinate,
+                coordinate: event.coordinate as SingleCoordinate,
+                pixelCoordinate: event.pixel as SingleCoordinate,
                 features: [],
                 clickType: ClickType.ContextMenu,
             },

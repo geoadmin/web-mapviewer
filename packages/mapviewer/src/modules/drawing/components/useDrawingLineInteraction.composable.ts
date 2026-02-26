@@ -20,7 +20,7 @@ export default function useDrawingLineInteraction(config: UseDrawingLineInteract
 
     const { removeLastPoint } = useDrawingModeInteraction({
         geometryType: 'Polygon',
-        editingStyle: styleFunction as StyleFunction,
+        editingStyle: styleFunction,
         editableFeatureArgs: {
             featureType,
             fillColor: drawingStore.edit.preferred.color,

@@ -2,7 +2,7 @@
 import type { Map } from 'ol'
 
 import log from '@swissgeo/log'
-import { isNumber, round } from '@swissgeo/numbers'
+import { round } from '@swissgeo/numbers'
 import { computed, defineAsyncComponent, inject, onBeforeMount, onBeforeUnmount } from 'vue'
 
 import type { ActionDispatcher } from '@/store/types'
@@ -48,37 +48,37 @@ const orientationParameters = computed(() => {
         {
             title: 'Default listener',
             parameters: [
-                { key: 'Absolute', value: `${orientation.value.default.absolute}` },
-                { key: 'Alpha', value: roundIfNumber(orientation.value.default.degree, 2) },
+                { key: 'Absolute', value: orientation.value.default.absolute.toString() },
+                { key: 'Alpha', value: round(orientation.value.default.degree, 2).toFixed(2) },
                 {
                     key: 'Alpha Sampled',
-                    value: roundIfNumber(orientationSampled.value.default.degree, 0),
+                    value: round(orientationSampled.value.default.degree, 0).toFixed(0),
                 },
                 {
                     key: 'webkitCompassHeading Sampled',
-                    value: roundIfNumber(orientationSampled.value.default.compassHeading, 0),
+                    value: round(orientationSampled.value.default.compassHeading, 0).toFixed(0),
                 },
             ],
         },
         {
             title: 'Absolute listener',
             parameters: [
-                { key: 'Alpha', value: roundIfNumber(orientation.value.absolute.degree, 2) },
+                { key: 'Alpha', value: round(orientation.value.absolute.degree, 2).toFixed(2) },
                 {
                     key: 'Alpha Sampled',
-                    value: roundIfNumber(orientationSampled.value.absolute.degree, 0),
+                    value: round(orientationSampled.value.absolute.degree, 0).toFixed(0),
                 },
                 {
                     key: 'webkitCompassHeading Sampled',
-                    value: roundIfNumber(orientationSampled.value.absolute.compassHeading, 0),
+                    value: round(orientationSampled.value.absolute.compassHeading, 0).toFixed(0),
                 },
             ],
         },
         {
             title: 'Heading',
             parameters: [
-                { key: 'Heading degree', value: roundIfNumber(headingDegree.value, 0) },
-                { key: 'Heading radian', value: roundIfNumber(heading.value, 6) },
+                { key: 'Heading degree', value: round(headingDegree.value, 0).toFixed(0) },
+                { key: 'Heading radian', value: round(heading.value, 6).toFixed(6) },
             ],
         },
         {
@@ -103,12 +103,12 @@ onBeforeUnmount(() => {
     olMap.un('pointerdrag', disableTrackingAndAutoRotation)
 })
 
-function roundIfNumber(v: unknown, d: number): string {
-    return isNumber(v) ? String(round(v as number, d)) : String(v)
-}
-
 function disableTrackingAndAutoRotation(): void {
-    if (isTracking.value && geolocationStore.position && geolocationStore.position !== positionStore.center) {
+    if (
+        isTracking.value &&
+        geolocationStore.position &&
+        geolocationStore.position !== positionStore.center
+    ) {
         // When the map has been dragged we disabled geolocation tracking to avoid to re-center the
         // map when the user want to have something else in the center. Also disabled the auto rotation
         // because auto rotation rotate the map using the position as center and it doesn't make sense

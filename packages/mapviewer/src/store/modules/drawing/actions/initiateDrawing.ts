@@ -109,9 +109,13 @@ export default async function initiateDrawing(
             // checking if the layer is already in the active layers, if so hiding it (we will show it through the system layers)
             const index = layersStore.getIndexOfActiveLayerById(this.layer.config.id)
             if (index === -1) {
-                layersStore.addLayer(this.layer.config, dispatcher)
+                layersStore.addLayer(this.layer.config as KMLLayer, dispatcher)
             } else {
-                layersStore.updateLayer<KMLLayer>(this.layer.config, { isEdited: true }, dispatcher)
+                layersStore.updateLayer<KMLLayer>(
+                    this.layer.config as KMLLayer,
+                    { isEdited: true },
+                    dispatcher
+                )
             }
         }
 

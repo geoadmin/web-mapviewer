@@ -26,13 +26,13 @@ describe('Testing layersParamParser', () => {
         customAttributes: LayerCustomAttributes = {}
     ): void {
         expect(layer).toBeDefined()
-        expect(layer!.id).to.eq(id)
-        expect(layer!.isVisible).to.eq(isVisible, `isVisible parsing failed for layer ${id}`)
-        expect(layer!.opacity).to.eq(opacity, `opacity parsing failed for layer ${id}`)
+        expect(layer.id).to.eq(id)
+        expect(layer.isVisible).to.eq(isVisible, `isVisible parsing failed for layer ${id}`)
+        expect(layer.opacity).to.eq(opacity, `opacity parsing failed for layer ${id}`)
         Object.keys(customAttributes).forEach((key) => {
-            expect(layer!.customAttributes).toBeDefined()
-            expect(layer!.customAttributes).to.haveOwnProperty(key)
-            expect(layer!.customAttributes![key]).to.eq(
+            expect(layer.customAttributes).toBeDefined()
+            expect(layer.customAttributes).to.haveOwnProperty(key)
+            expect(layer.customAttributes[key]).to.eq(
                 customAttributes[key],
                 `custom param "${key}" parsing failed for layer ${id}`
             )
@@ -106,7 +106,7 @@ describe('Testing layersParamParser', () => {
                 queryString += layer.id
                 if (layer.customAttributes) {
                     Object.keys(layer.customAttributes).forEach((key) => {
-                        queryString += `@${key}=${layer.customAttributes![key]}`
+                        queryString += `@${key}=${layer.customAttributes[key]}`
                     })
                 }
                 if ('isVisible' in layer) {
@@ -204,11 +204,11 @@ describe('Testing layersParamParser', () => {
                 expect(result).to.be.an('Array').with.lengthOf(1)
                 const [layer] = result
                 expect(layer).toBeDefined()
-                expect(layer!.type).to.eq(LayerType.KML)
-                expect(layer!.id).to.eq(kmlFileUrl)
-                expect(layer!.baseUrl).to.eq(kmlFileUrl)
-                expect(layer!.isVisible).to.be.false
-                expect(layer!.opacity).to.eq(0.6)
+                expect(layer.type).to.eq(LayerType.KML)
+                expect(layer.id).to.eq(kmlFileUrl)
+                expect(layer.baseUrl).to.eq(kmlFileUrl)
+                expect(layer.isVisible).to.be.false
+                expect(layer.opacity).to.eq(0.6)
             })
             it('parses an external WMTS layer correctly', () => {
                 const baseUrl = 'https://fake.wmts.admin.ch'
@@ -218,11 +218,11 @@ describe('Testing layersParamParser', () => {
                 expect(results).to.be.an('Array').length(1)
                 const [externalWMTSLayer] = results
                 expect(externalWMTSLayer).to.be.an('Object')
-                expect(externalWMTSLayer!.id).to.eq(layerId)
-                expect(externalWMTSLayer!.type).to.eq(LayerType.WMTS)
-                expect(externalWMTSLayer!.baseUrl).to.eq(baseUrl)
-                expect(externalWMTSLayer!.isVisible).to.be.true
-                expect(externalWMTSLayer!.opacity).to.eq(1.0)
+                expect(externalWMTSLayer.id).to.eq(layerId)
+                expect(externalWMTSLayer.type).to.eq(LayerType.WMTS)
+                expect(externalWMTSLayer.baseUrl).to.eq(baseUrl)
+                expect(externalWMTSLayer.isVisible).to.be.true
+                expect(externalWMTSLayer.opacity).to.eq(1.0)
             })
             it('parses an external WMS layer correctly', () => {
                 const baseUrl = 'https://fake.wms.admin.ch'
@@ -232,11 +232,11 @@ describe('Testing layersParamParser', () => {
                 expect(results).to.be.an('Array').length(1)
                 const [externalWMSLayer] = results
                 expect(externalWMSLayer).to.be.an('Object')
-                expect(externalWMSLayer!.id).to.eq(layerId)
-                expect(externalWMSLayer!.type).to.eq(LayerType.WMS)
-                expect(externalWMSLayer!.baseUrl).to.eq(baseUrl)
-                expect(externalWMSLayer!.isVisible).to.be.true
-                expect(externalWMSLayer!.opacity).to.eq(0.8)
+                expect(externalWMSLayer.id).to.eq(layerId)
+                expect(externalWMSLayer.type).to.eq(LayerType.WMS)
+                expect(externalWMSLayer.baseUrl).to.eq(baseUrl)
+                expect(externalWMSLayer.isVisible).to.be.true
+                expect(externalWMSLayer.opacity).to.eq(0.8)
             })
         })
     })

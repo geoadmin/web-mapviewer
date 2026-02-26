@@ -34,8 +34,8 @@ const calculateOffset = (point1: number[], point2: number[], distance: number) =
     }
 
     // Vector from point1 to point2
-    const dx = point2[0]! - point1[0]!
-    const dy = point2[1]! - point1[1]!
+    const dx = point2[0] - point1[0]
+    const dy = point2[1] - point1[1]
 
     // Normalize the vector
     const length = Math.sqrt(dx * dx + dy * dy)
@@ -59,15 +59,15 @@ const updateButtonPositions = () => {
         log.warn('Not enough coordinates to position the extend buttons')
         return
     }
-    const firstOffset = calculateOffset(coordinates[0]!, coordinates[1]!, BASE_OFFSET_DISTANCE)
+    const firstOffset = calculateOffset(coordinates[0], coordinates[1], BASE_OFFSET_DISTANCE)
 
     const distance =
         BASE_OFFSET_DISTANCE +
         (selectedFeatureType.value === 'MEASURE' ? MEASURE_ADDITIONAL_OFFSET : 0)
 
     const lastOffset = calculateOffset(
-        coordinates[coordinates.length - 1]!,
-        coordinates[coordinates.length - 2]!,
+        coordinates[coordinates.length - 1],
+        coordinates[coordinates.length - 2],
         distance
     )
 
