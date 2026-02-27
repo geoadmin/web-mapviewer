@@ -25,7 +25,6 @@ description:
       from trusted federal and cantonal sources, the viewer supports informed
       decisions and provides transparent access to Switzerland’s authoritative
       spatial information.
-    documentation: https://www.geo.admin.ch/en/map-viewer-help
     apiDocumentation: https://api3.geo.admin.ch/
     features:
       - Display maps
