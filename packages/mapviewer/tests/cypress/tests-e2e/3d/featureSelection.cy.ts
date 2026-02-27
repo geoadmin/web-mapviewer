@@ -45,7 +45,7 @@ describe('Testing the feature selection in 3D', () => {
 
             cy.get('[data-cy="file-input-text"]').should('contain.value', fileName)
             cy.get('[data-cy="import-file-close-button"]:visible').click()
-            cy.getPinia().then((pinia) => {
+            cy.getPinia().should((pinia) => {
                 const layersStore = useLayersStore(pinia)
                 expect(layersStore.activeLayers.length).to.eq(2)
                 expect(layersStore.visibleLayers.length).to.eq(2)
@@ -56,7 +56,7 @@ describe('Testing the feature selection in 3D', () => {
             cy.log('Verifying that the KML layer is loaded')
             cy.window()
                 .its('cesiumViewer')
-                .then((viewer: ShallowRef<Viewer>) => {
+                .should((viewer: ShallowRef<Viewer>) => {
                     const currentViewer: Viewer = toValue(viewer)
                     expectLayerCountToBe(currentViewer, 2)
                     expect(currentViewer.dataSources.length).to.eq(1)
