@@ -2,16 +2,12 @@ import log from '@swissgeo/log'
 import { isTimestampYYYYMMDD } from '@swissgeo/numbers'
 import { Interval } from 'luxon'
 
-import type {Layer, LayerTimeConfig, LayerTimeConfigEntry} from '@/types';
+import type { Layer, LayerTimeConfig, LayerTimeConfigEntry } from '@/types'
 
 import {
     ALL_YEARS_TIMESTAMP,
     CURRENT_YEAR_TIMESTAMP,
-    
-    
-    
-    LayerType,
-    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA
+    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
 } from '@/types'
 
 const hasTimestamp = (timeConfig: LayerTimeConfig, timestamp: string): boolean =>
@@ -23,7 +19,10 @@ const getTimeEntryForYear = (
 ): LayerTimeConfigEntry | undefined => {
     const yearAsInterval = Interval.fromISO(`${year}-01-01/P1Y`)
     return timeConfig.timeEntries.find((entry: LayerTimeConfigEntry) => {
-        if (entry.nonTimeBasedValue && [ALL_YEARS_TIMESTAMP, CURRENT_YEAR_TIMESTAMP].includes(entry.nonTimeBasedValue)) {
+        if (
+            entry.nonTimeBasedValue &&
+            [ALL_YEARS_TIMESTAMP, CURRENT_YEAR_TIMESTAMP].includes(entry.nonTimeBasedValue)
+        ) {
             return year === YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA
         }
         if (yearAsInterval.isValid && entry.interval) {
@@ -156,7 +155,10 @@ const hasMultipleTimestamps = (layer: Layer): boolean => {
 }
 
 export function getYearFromLayerTimeEntry(timeEntry: LayerTimeConfigEntry): number | undefined {
-    if (timeEntry.nonTimeBasedValue && [ALL_YEARS_TIMESTAMP, CURRENT_YEAR_TIMESTAMP].includes(timeEntry.nonTimeBasedValue)) {
+    if (
+        timeEntry.nonTimeBasedValue &&
+        [ALL_YEARS_TIMESTAMP, CURRENT_YEAR_TIMESTAMP].includes(timeEntry.nonTimeBasedValue)
+    ) {
         return YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA
     }
     if (timeEntry.interval && timeEntry.interval.start?.year !== undefined) {
@@ -183,7 +185,7 @@ const getTimeEntryForInterval = (
 /** Returns timestamp for WMS or WMTS layer from config data */
 function getTimestampFromConfig(layer: Layer): string | undefined {
     let timestamp = layer.timeConfig?.currentTimeEntry?.timestamp
-    if (!timestamp && layer.type === LayerType.WMTS) {
+    if (!timestamp && layer.type === 'WMTS') {
         // for WMTS layer fallback to current
         timestamp = CURRENT_YEAR_TIMESTAMP
     }

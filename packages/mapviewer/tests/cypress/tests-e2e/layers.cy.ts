@@ -4,7 +4,6 @@ import type { ExternalWMSLayer, ExternalWMTSLayer, GeoAdminWMSLayer, Layer } fro
 import type { Pinia } from 'pinia'
 
 import { WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
-import { LayerType } from '@swissgeo/layers'
 import { assertDefined } from 'support/utils'
 
 import { SUPPORTED_LANG } from '@/modules/i18n'
@@ -1329,7 +1328,7 @@ describe('Test of layer handling', () => {
                 const layersStore = useLayersStore(pinia)
                 return layersStore.activeLayers.some(
                     (layer) =>
-                        layer.type === LayerType.WMS &&
+                        layer.type === 'WMS' &&
                         !layer.isExternal &&
                         (layer as GeoAdminWMSLayer).lang === langBefore
                 )
@@ -1360,7 +1359,7 @@ describe('Test of layer handling', () => {
                 const layersStore = useLayersStore(pinia)
                 return layersStore.activeLayers.some(
                     (layer) =>
-                        layer.type === LayerType.WMS &&
+                        layer.type === 'WMS' &&
                         !layer.isExternal &&
                         (layer as GeoAdminWMSLayer).lang === langAfter
                 )

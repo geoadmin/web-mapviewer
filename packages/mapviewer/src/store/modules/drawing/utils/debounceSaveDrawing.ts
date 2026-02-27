@@ -9,7 +9,6 @@ import type { ActionDispatcher } from '@/store/types'
 import { ENVIRONMENT, IS_TESTING_WITH_CYPRESS } from '@/config'
 import { generateKmlString } from '@/modules/drawing/lib/export-utils'
 import useDrawingStore from '@/store/modules/drawing'
-import { DrawingSaveState } from '@/store/modules/drawing/types'
 import { isOnlineMode } from '@/store/modules/drawing/utils/isOnlineMode'
 import useLayersStore from '@/store/modules/layers'
 import usePositionStore from '@/store/modules/position'
@@ -36,8 +35,8 @@ function clearPendingSaveDrawing() {
  */
 function willModify() {
     const drawingStore = useDrawingStore()
-    if (drawingStore.save.state !== DrawingSaveState.SaveError) {
-        drawingStore.setDrawingSaveState(DrawingSaveState.UnsavedChanges, dispatcher)
+    if (drawingStore.save.state !== 'SAVE_ERROR') {
+        drawingStore.setDrawingSaveState('UNSAVED_CHANGES', dispatcher)
     }
 }
 
@@ -81,7 +80,7 @@ async function saveDrawing({ retryOnError = true }: { retryOnError?: boolean }) 
         await saveLocalDrawing(kmlData)
         // This has to be set so that the snot shared drawing warning is not shown after drawing an offline drawing
         // and then opening the drawing overlay and leaving it without drawing something
-        drawingStore.setDrawingSaveState(DrawingSaveState.Initial, dispatcher)
+        drawingStore.setDrawingSaveState('INITIAL', dispatcher)
         return
     }
     const layersStore = useLayersStore()
@@ -97,7 +96,7 @@ async function saveDrawing({ retryOnError = true }: { retryOnError?: boolean }) 
             ],
         })
         clearPendingSaveDrawing()
-        drawingStore.setDrawingSaveState(DrawingSaveState.Saving, dispatcher)
+        drawingStore.setDrawingSaveState('SAVING', dispatcher)
 
         const kmlData = generateKmlString(
             positionStore.projection,
@@ -164,14 +163,14 @@ async function saveDrawing({ retryOnError = true }: { retryOnError?: boolean }) 
                 layersStore.addLayer(kmlLayer, dispatcher)
             }
         }
-        drawingStore.setDrawingSaveState(DrawingSaveState.Saved, dispatcher)
+        drawingStore.setDrawingSaveState('SAVED', dispatcher)
     } catch (e) {
         log.error({
             title: 'Drawing store / saveDrawing',
             titleColor: LogPreDefinedColor.Lime,
             messages: ['Could not save KML layer: ', e],
         })
-        drawingStore.setDrawingSaveState(DrawingSaveState.SaveError, dispatcher)
+        drawingStore.setDrawingSaveState('SAVE_ERROR', dispatcher)
         if (!IS_TESTING_WITH_CYPRESS && retryOnError) {
             // Retry saving in 5 seconds
             debounceSaveDrawing({ debounceTime: 5000, retryOnError: false }).catch((error) => {

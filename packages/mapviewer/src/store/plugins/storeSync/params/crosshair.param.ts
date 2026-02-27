@@ -4,6 +4,7 @@ import type { RouteLocationNormalizedGeneric } from 'vue-router'
 import { round } from '@swissgeo/numbers'
 import { isEqual } from 'lodash'
 
+import type { CrossHair } from '@/store/modules/position/types'
 import type { ValidationResponse } from '@/store/plugins/storeSync/validation'
 
 import usePositionStore from '@/store/modules/position'
@@ -12,15 +13,14 @@ import UrlParamConfig, {
     STORE_DISPATCHER_ROUTER_PLUGIN,
 } from '@/store/plugins/storeSync/UrlParamConfig.class'
 import { getDefaultValidationResponse } from '@/store/plugins/storeSync/validation'
-import { isEnumValue } from '@/utils/utils'
 
 interface ParsedCrosshair {
-    crossHair?: CrossHairs
+    crossHair?: CrossHair
     crossHairPosition?: SingleCoordinate
 }
 
 function parseCrosshairParam(urlParamValue?: string): ParsedCrosshair {
-    let crossHair: CrossHairs | undefined
+    let crossHair: CrossHair | undefined
     let crossHairPosition: SingleCoordinate | undefined
 
     if (urlParamValue) {
@@ -42,14 +42,14 @@ function parseCrosshairParam(urlParamValue?: string): ParsedCrosshair {
 function setValuesInStore(to: RouteLocationNormalizedGeneric, urlParamValue?: string) {
     const positionStore = usePositionStore()
 
-    let crossHair: CrossHairs | undefined
+    let crossHair: CrossHair | undefined
     let crossHairPosition: [number, number] | undefined
 
     if (typeof urlParamValue === 'string') {
         const parsedValue = parseCrosshairParam(urlParamValue)
 
         if (parsedValue.crossHair || parsedValue.crossHairPosition) {
-            crossHair = parsedValue.crossHair ?? CrossHairs.Marker
+            crossHair = parsedValue.crossHair ?? 'marker'
             crossHairPosition = parsedValue.crossHairPosition
         }
     }
@@ -83,24 +83,12 @@ function extractValueFromStore(): string | undefined {
     return
 }
 
-function parseCrossHairValue(crosshair?: string): CrossHairs | undefined {
+function parseCrossHairValue(crosshair?: string): CrossHair | undefined {
     if (!crosshair) {
         return undefined
     }
-    if (isEnumValue<CrossHairs>(CrossHairs.Bowl, crosshair)) {
-        return CrossHairs.Bowl
-    }
-    if (isEnumValue<CrossHairs>(CrossHairs.Circle, crosshair)) {
-        return CrossHairs.Circle
-    }
-    if (isEnumValue<CrossHairs>(CrossHairs.Cross, crosshair)) {
-        return CrossHairs.Cross
-    }
-    if (isEnumValue<CrossHairs>(CrossHairs.Marker, crosshair)) {
-        return CrossHairs.Marker
-    }
-    if (isEnumValue<CrossHairs>(CrossHairs.Point, crosshair)) {
-        return CrossHairs.Point
+    if (CrossHairs.includes(crosshair as CrossHair)) {
+        return crosshair as CrossHair
     }
     return undefined
 }

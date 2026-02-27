@@ -9,7 +9,7 @@ import type {
 } from '@/types'
 
 import { generateLayerObject } from '@/api'
-import { LayerType, YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from '@/types'
+import { YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from '@/types'
 
 import rawLayerConfig from './rawLayerConfig.json'
 
@@ -251,7 +251,7 @@ describe('Test layer config parsing', () => {
             const layer = parseLayer(layerId)
 
             expect(layer).to.not.be.undefined
-            expect(layer.type).to.eq(LayerType.GEOJSON)
+            expect(layer.type).to.eq('GEOJSON')
             const geoJsonLayer = layer as GeoAdminGeoJSONLayer
 
             expect(geoJsonLayer.geoJsonUrl).to.eq(

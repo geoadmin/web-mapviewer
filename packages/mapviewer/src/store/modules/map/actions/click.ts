@@ -10,7 +10,6 @@ import type { ActionDispatcher } from '@/store/types'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
-import { ClickType } from '@/store/modules/map/types'
 import useUIStore from '@/store/modules/ui'
 
 export default function click(
@@ -30,13 +29,13 @@ export default function click(
     const featuresStore = useFeaturesStore()
     const layersStore = useLayersStore()
     const uiStore = useUIStore()
-    if (clickInfo.clickType === ClickType.DrawBox) {
+    if (clickInfo.clickType === 'DRAW_BOX') {
         // If the click is a box selection, we set the rectangle selection extent to the
         // coordinates of the click.
         this.setRectangleSelectionExtent(clickInfo.coordinate as FlatExtent, dispatcher)
     } else if (
-        clickInfo.clickType === ClickType.CtrlLeftSingleClick ||
-        clickInfo.clickType === ClickType.ContextMenu
+        clickInfo.clickType === 'CTRL_LEFT_SINGLE_CLICK' ||
+        clickInfo.clickType === 'CONTEXT_MENU'
     ) {
         // If the click is a ctrl left single click or a right click, we keep the rectangle selection extent
     } else {
@@ -47,12 +46,12 @@ export default function click(
     if (!drawingStore.overlay.show) {
         // if a click occurs, we only take it into account (for identify and fullscreen toggle)
         // when the user is not currently drawing something on the map.
-        const isCtrlLeftSingleClick = clickInfo.clickType === ClickType.CtrlLeftSingleClick
-        const isContextMenuClick = clickInfo.clickType === ClickType.ContextMenu
+        const isCtrlLeftSingleClick = clickInfo.clickType === 'CTRL_LEFT_SINGLE_CLICK'
+        const isContextMenuClick = clickInfo.clickType === 'CONTEXT_MENU'
         const isIdentifyingFeature =
-            clickInfo.clickType === ClickType.LeftSingleClick ||
-            clickInfo.clickType === ClickType.CtrlLeftSingleClick ||
-            clickInfo.clickType === ClickType.DrawBox
+            clickInfo.clickType === 'LEFT_SINGLE_CLICK' ||
+            clickInfo.clickType === 'CTRL_LEFT_SINGLE_CLICK' ||
+            clickInfo.clickType === 'DRAW_BOX'
 
         if (isIdentifyingFeature) {
             const identifyMode: IdentifyMode = isCtrlLeftSingleClick ? 'TOGGLE' : 'NEW'

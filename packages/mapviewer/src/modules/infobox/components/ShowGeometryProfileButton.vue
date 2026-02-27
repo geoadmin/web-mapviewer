@@ -2,7 +2,6 @@
 import type { LayerFeature, SelectableFeature } from '@swissgeo/api'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { LayerType } from '@swissgeo/layers'
 import { useI18n } from 'vue-i18n'
 
 import type { ActionDispatcher } from '@/store/types'
@@ -23,7 +22,7 @@ function showProfile() {
     if (!feature.isEditable) {
         // PB-800 : to avoid a coastline paradox we simplify the geometry of GPXs
         // as they might be coming directly from a GPS device (meaning polluted with GPS uncertainty/error)
-        simplifyGeometry = (feature as LayerFeature).layer.type === LayerType.GPX
+        simplifyGeometry = (feature as LayerFeature).layer.type === 'GPX'
     }
     profileStore.setProfileFeature(
         feature,

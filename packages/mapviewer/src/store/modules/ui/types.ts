@@ -6,17 +6,14 @@ import type useUiStore from '@/store/modules/ui'
  * 'default' is not the default value, but the default behavior, which depends on the UI size:
  * 'bottomPanel' on phones, 'tooltip' on desktop
  */
-export type FeatureInfoPositions = 'default' | 'bottomPanel' | 'tooltip' | 'none'
+export type FeatureInfoPosition = 'default' | 'bottomPanel' | 'tooltip' | 'none'
 
 /**
  * Describes the different mode the UI can have. Either desktop / tablet (menu is always shown, info
  * box is a side tray) or phone (menu has to be opened with a button, info box is a swipeable
  * element)
  */
-export enum UIModes {
-    Desktop,
-    Phone,
-}
+export type UIMode = 'desktop' | 'phone'
 
 /**
  * Module that stores all information related to the UI, for instance if a portion of the UI (like
@@ -65,14 +62,14 @@ export interface UIStoreState {
      * menu has to be opened through a button, for desktop it is always shown) and how the
      * information about a selected feature are shown.
      */
-    mode: UIModes
+    mode: UIMode
     /**
      * Expected position of the features tooltip position when selecting features.
      *
      * The default position is set to NONE, as we want people who want to share a feature without
      * the tooltip to have a very simple URL.
      */
-    featureInfoPosition: FeatureInfoPositions
+    featureInfoPosition: FeatureInfoPosition
     /**
      * Hostname on which the application is running (use to display warnings to the user on
      * 'non-production' hosts)

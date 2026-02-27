@@ -3,7 +3,6 @@ import { registerProj4, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
 import proj4 from 'proj4'
 
 import useMapStore from '@/store/modules/map'
-import { ClickType } from '@/store/modules/map/types'
 
 registerProj4(proj4)
 
@@ -27,7 +26,7 @@ describe('Testing click', () => {
             const mapStore = useMapStore(pinia)
             const clickInfo = mapStore.clickInfo
             expect(clickInfo?.clickType).to.equal(
-                ClickType.LeftSingleClick,
+                'LEFT_SINGLE_CLICK',
                 'Click type is correctly detected'
             )
 
@@ -44,7 +43,6 @@ describe('Testing click', () => {
                 'Cesium height is correctly passed along'
             )
         })
-
 
         // since switching to fake tileset and tiles for testing
         // these tests here do not functioning properly, they are commented until we find

@@ -15,7 +15,6 @@ import type {
 import type Circle from 'ol/geom/Circle'
 
 import { gpxUtils, kmlUtils } from '@swissgeo/api/utils'
-import { LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { DEFAULT_FEATURE_IDENTIFICATION_TOLERANCE } from '@swissgeo/staging-config/constants'
 import {
@@ -37,7 +36,6 @@ import type { ActionDispatcher } from '@/store/types'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
-import { ClickType } from '@/store/modules/map/types'
 import usePositionStore from '@/store/modules/position'
 import { createLayerFeature } from '@/utils/layerUtils'
 
@@ -98,11 +96,11 @@ export function useDragBoxSelect(): {
 
         const dragBox = polygon(dragBoxCoordinates as number[][][])
         const visibleLayers = layersStore.visibleLayers.filter((layer) =>
-            [LayerType.GEOJSON, LayerType.GPX, LayerType.KML].includes(layer.type)
+            ['GEOJSON', 'GPX', 'KML'].includes(layer.type)
         )
         const vectorFeatures: LayerFeature[] = visibleLayers
             .flatMap((layer) => {
-                if (layer.type === LayerType.KML) {
+                if (layer.type === 'KML') {
                     const kmlFeatures = kmlUtils.parseKml(
                         layer as KMLLayer,
                         positionStore.projection,
@@ -111,7 +109,7 @@ export function useDragBoxSelect(): {
                     )
                     return kmlFeatures.map((feature) => ({ feature: feature, layer }))
                 }
-                if (layer.type === LayerType.GPX) {
+                if (layer.type === 'GPX') {
                     const gpxData = (layer as GPXLayer).gpxData
                     if (!gpxData) {
                         return []
@@ -121,7 +119,7 @@ export function useDragBoxSelect(): {
                         ? gpxFeatures.map((feature) => ({ feature: feature, layer }))
                         : []
                 }
-                if (layer.type === LayerType.GEOJSON) {
+                if (layer.type === 'GEOJSON') {
                     const geojsonFormat = new GeoJSON()
                     // Use type assertion to access geoJsonData
                     const geoJsonData = (layer as GeoAdminGeoJSONLayer).geoJsonData
@@ -145,7 +143,7 @@ export function useDragBoxSelect(): {
             {
                 coordinate: selectExtent as FlatExtent,
                 features: vectorFeatures,
-                clickType: ClickType.DrawBox,
+                clickType: 'DRAW_BOX',
             },
             dispatcher
         )

@@ -6,7 +6,7 @@ import type Feature from 'ol/Feature'
 import type { LineString, MultiLineString, MultiPolygon, Point, Polygon } from 'ol/geom'
 
 import { allCoordinateSystems, extentUtils, LV95 } from '@swissgeo/coordinates'
-import { ALL_YEARS_TIMESTAMP, CURRENT_YEAR_TIMESTAMP, LayerType } from '@swissgeo/layers'
+import { ALL_YEARS_TIMESTAMP, CURRENT_YEAR_TIMESTAMP } from '@swissgeo/layers'
 import { geoJsonUtils, layerUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
 import { getApi3BaseUrl } from '@swissgeo/staging-config'
@@ -236,7 +236,7 @@ async function identifyOnExternalLayer(config: IdentifyConfig): Promise<LayerFea
         // If we use different projection, we also need to project out initial coordinate
         requestedCoordinate = proj4(projection.epsg, requestProjection.epsg, coordinate)
     }
-    if (layer.type === LayerType.WMS) {
+    if (layer.type === 'WMS') {
         return await identifyOnExternalWmsLayer({
             ...config,
             coordinate: requestedCoordinate,
@@ -483,7 +483,7 @@ async function identifyOnExternalWmsLayer(config: IdentifyConfig): Promise<Layer
                     outputProjection ?? projection,
                     projection
                 ),
-                popupDataCanBeTrusted: !layer.isExternal && layer.type !== LayerType.KML,
+                popupDataCanBeTrusted: !layer.isExternal && layer.type !== 'KML',
             }
             return layerFeature
         })
@@ -657,7 +657,7 @@ function parseGeomAdminFeature(
         coordinates: center,
         extent: featureExtent,
         geometry: featureGeoJSONGeometry,
-        popupDataCanBeTrusted: !layer.isExternal && layer.type !== LayerType.KML,
+        popupDataCanBeTrusted: !layer.isExternal && layer.type !== 'KML',
     }
     return layerFeature
 }

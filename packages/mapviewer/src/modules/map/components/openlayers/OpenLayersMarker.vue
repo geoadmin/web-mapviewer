@@ -10,22 +10,23 @@ import Feature from 'ol/Feature'
 import { Point } from 'ol/geom'
 import { computed, inject, watch } from 'vue'
 
+import type { OpenLayersMarkerStyle } from '@/modules/map/components/openlayers/utils/markerStyle'
+
 import {
     getMarkerStyle,
     highlightFeatureStyle,
-    OpenLayersMarkerStyles,
 } from '@/modules/map/components/openlayers/utils/markerStyle'
 import useVectorLayer from '@/modules/map/components/openlayers/utils/useVectorLayer.composable'
 
 const {
     position,
-    markerStyle = OpenLayersMarkerStyles.Balloon,
+    markerStyle = 'balloon',
     zIndex = -1,
     selectFeatureCallback = () => {},
     deselectAfterSelect = false,
 } = defineProps<{
     position: SingleCoordinate | SingleCoordinate[]
-    markerStyle?: OpenLayersMarkerStyles
+    markerStyle?: OpenLayersMarkerStyle
     zIndex?: number
     selectFeatureCallback?: (_feature: Feature) => void
     deselectAfterSelect?: boolean
@@ -71,7 +72,7 @@ watch(
  */
 function featuresForPosition(
     position: SingleCoordinate,
-    style: OpenLayersMarkerStyles
+    style: OpenLayersMarkerStyle
 ): Feature<Point> | undefined {
     if (!Array.isArray(position)) {
         return undefined

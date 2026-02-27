@@ -9,7 +9,6 @@ import type { Size } from 'ol/size'
 import type Style from 'ol/style/Style'
 
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
-import { KMLStyle } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import {
     DEFAULT_TITLE_OFFSET,
@@ -776,7 +775,7 @@ function parseKml(
         featureProjection: projection.epsg,
     })
 
-    if (kmlLayer.style === KMLStyle.GEOADMIN) {
+    if (kmlLayer.style === 'GEOADMIN') {
         features.forEach((olFeature) => {
             const editableFeature = getEditableFeatureFromKmlFeature(
                 olFeature,

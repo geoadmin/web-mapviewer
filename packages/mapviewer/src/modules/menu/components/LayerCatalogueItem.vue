@@ -9,7 +9,6 @@ import type { ExternalWMSLayer, GeoAdminGroupOfLayers, Layer } from '@swissgeo/l
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { LV95 } from '@swissgeo/coordinates'
-import { LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { booleanContains, polygon } from '@turf/turf'
 import { computed, onMounted, ref, watch } from 'vue'
@@ -62,10 +61,10 @@ const showItem = computed(() => {
 })
 
 const isGroupOfLayers = (layer: Layer): layer is GeoAdminGroupOfLayers => {
-    return layer.type === LayerType.GROUP
+    return layer.type === 'GROUP'
 }
 const isWmsLayer = (layer: Layer): layer is ExternalWMSLayer => {
-    return layer.type === LayerType.WMS
+    return layer.type === 'WMS'
 }
 
 const hasChildren = computed(

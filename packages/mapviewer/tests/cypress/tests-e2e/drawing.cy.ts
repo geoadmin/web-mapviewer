@@ -9,7 +9,6 @@ import type { Pinia } from 'pinia'
 
 import { featureStyleUtils, kmlUtils } from '@swissgeo/api/utils'
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
-import { LayerType } from '@swissgeo/layers'
 import { randomIntBetween } from '@swissgeo/numbers'
 import { getServiceKmlBaseUrl } from '@swissgeo/staging-config'
 import { recurse } from 'cypress-recurse'
@@ -22,10 +21,11 @@ import {
     kmlMetadataTemplate,
 } from 'support/drawing'
 
-import { DEFAULT_PROJECTION } from '@/config'
+import { DEFAULT_PROJECTION, ENVIRONMENT } from '@/config'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
+import useUIStore from '@/store/modules/ui'
 
 registerProj4(proj4)
 
@@ -79,7 +79,6 @@ describe('Drawing module tests', () => {
                     )
                 )
         }
-
         function addDescription(description: string): void {
             cy.get('[data-cy="drawing-style-feature-description"]').type(description)
             cy.get('[data-cy="drawing-style-feature-description"]').should(
@@ -93,7 +92,6 @@ describe('Drawing module tests', () => {
                 })
             })
         }
-
         // we use the description to identify the feature and check its
         // geometry type, number of points and type (measure or linepolygon)
         function checkDrawnFeature(
@@ -129,15 +127,11 @@ describe('Drawing module tests', () => {
             cy.goToDrawing()
         })
         it('can create marker/icons and edit them', () => {
-            // it should load all icon sets as soon as we enter the drawing module
-            cy.wait('@icon-sets')
-            cy.wait('@icon-set-default')
-
             cy.clickDrawingTool('MARKER')
             cy.get('[data-cy="ol-map"]:visible').click()
 
             cy.wait('@post-kml').then((interception) => {
-                const kmlUrl = `${getServiceKmlBaseUrl()}api/kml/files/${interception.response?.body.id}`
+                const kmlUrl = `${getServiceKmlBaseUrl(ENVIRONMENT)}api/kml/files/${interception.response?.body.id}`
                 const bgLayer = 'test.background.layer2'
 
                 cy.log(
@@ -250,7 +244,7 @@ describe('Drawing module tests', () => {
                 cy.log('Test text placement and offset')
                 cy.get('[data-cy="drawing-style-text-button"]').click()
                 cy.get('[data-cy="drawing-style-placement-selector-top-left"]').click()
-                cy.getPinia().then((pinia) => {
+                cy.getPinia().should((pinia) => {
                     const drawingStore = useDrawingStore(pinia)
                     expect(drawingStore.feature.current?.textPlacement).to.eq('top-left')
                     const offset = drawingStore.feature.current?.textOffset
@@ -279,12 +273,9 @@ describe('Drawing module tests', () => {
                     description
                 )
                 waitForKmlUpdate(`<description>${description}</description>`)
-                cy.getPinia().then((pinia) => {
-                    const featuresStore2 = useFeaturesStore(pinia)
-                    cy.wrap(featuresStore2.selectedFeatures[0]?.description).should(
-                        'eq',
-                        description
-                    )
+                cy.getPinia().should((pinia) => {
+                    const featuresStore = useFeaturesStore(pinia)
+                    expect(featuresStore.selectedFeatures[0]?.description).to.eq(description)
                 })
 
                 cy.log('Can generate and display media links')
@@ -570,6 +561,10 @@ describe('Drawing module tests', () => {
         })
         it('can create line / measurement, extend it, and delete the last node by right click / button, and make a polygon', () => {
             cy.viewport(1920, 1080)
+            cy.waitUntilState((pinia) => {
+                const uiStore = useUIStore(pinia)
+                return uiStore.isDesktopMode && uiStore.showFeatureInfoInTooltip
+            })
             cy.clickDrawingTool('LINEPOLYGON')
 
             const lineCoordinates: SingleCoordinate[] = [
@@ -980,7 +975,7 @@ describe('Drawing module tests', () => {
                 const layers = layersStore.activeLayers
                 expect(layers).to.be.an('Array').lengthOf(1)
                 const [drawingLayer] = layers
-                expect(drawingLayer?.type).to.eq(LayerType.KML)
+                expect(drawingLayer?.type).to.eq('KML')
                 expect(drawingLayer?.isVisible).to.be.true
             })
 
@@ -1010,15 +1005,14 @@ describe('Drawing module tests', () => {
 
                 cy.log(`Check that the drawings has been added to the active layers: ${kmlId}`)
                 cy.get(
-                    `[data-cy^="active-layer-name-${getServiceKmlBaseUrl()}api/kml/files/${kmlId}-"]`
+                    `[data-cy^="active-layer-name-${getServiceKmlBaseUrl(ENVIRONMENT)}api/kml/files/${kmlId}-"]`
                 )
                     .should('be.visible')
                     .contains('Drawing')
                 cy.waitUntilState((pinia: Pinia) => {
                     const layersStore = useLayersStore(pinia)
                     return !!layersStore.activeLayers.find(
-                        (layer) =>
-                            layer.type === LayerType.KML && (layer as KMLLayer).fileId === kmlId
+                        (layer) => layer.type === 'KML' && (layer as KMLLayer).fileId === kmlId
                     )
                 })
 
@@ -1030,15 +1024,14 @@ describe('Drawing module tests', () => {
 
                 cy.log(`Check that the KML file ${kmlId} is present on the active layer list`)
                 cy.get(
-                    `[data-cy^="active-layer-name-${getServiceKmlBaseUrl()}api/kml/files/${kmlId}-"]`
+                    `[data-cy^="active-layer-name-${getServiceKmlBaseUrl(ENVIRONMENT)}api/kml/files/${kmlId}-"]`
                 )
                     .should('be.visible')
                     .contains('Drawing')
                 cy.waitUntilState((pinia: Pinia) => {
                     const layersStore = useLayersStore(pinia)
                     return !!layersStore.activeLayers.find(
-                        (layer) =>
-                            layer.type === LayerType.KML && (layer as KMLLayer).fileId === kmlId
+                        (layer) => layer.type === 'KML' && (layer as KMLLayer).fileId === kmlId
                     )
                 })
 
@@ -1049,7 +1042,7 @@ describe('Drawing module tests', () => {
                 // if closing the drawing module without changing anything, no copy must be made
                 cy.closeDrawingMode()
                 cy.get(
-                    `[data-cy^="active-layer-name-${getServiceKmlBaseUrl()}api/kml/files/${kmlId}-"]`
+                    `[data-cy^="active-layer-name-${getServiceKmlBaseUrl(ENVIRONMENT)}api/kml/files/${kmlId}-"]`
                 )
                     .should('be.visible')
                     .contains('Drawing')
@@ -1092,10 +1085,10 @@ describe('Drawing module tests', () => {
                             `Check that the old kml has been removed from the active layer and that the new one has been added`
                         )
                         cy.get(
-                            `[data-cy^="active-layer-name-${getServiceKmlBaseUrl()}api/kml/files/${kmlId}-"]`
+                            `[data-cy^="active-layer-name-${getServiceKmlBaseUrl(ENVIRONMENT)}api/kml/files/${kmlId}-"]`
                         ).should('not.exist')
                         cy.get(
-                            `[data-cy^="active-layer-name-${getServiceKmlBaseUrl()}api/kml/files/${newNewKmlId}-"]`
+                            `[data-cy^="active-layer-name-${getServiceKmlBaseUrl(ENVIRONMENT)}api/kml/files/${newNewKmlId}-"]`
                         )
                             .should('be.visible')
                             .contains('Drawing')
@@ -1115,7 +1108,7 @@ describe('Drawing module tests', () => {
             // load map with an injected kml layer containing a text
             const kmlFileId = 'test-fileID12345678900'
             const kmlFileAdminId = 'test-fileAdminID12345678900'
-            const kmlFileUrl = `${getServiceKmlBaseUrl()}api/kml/files/${kmlFileId}`
+            const kmlFileUrl = `${getServiceKmlBaseUrl(ENVIRONMENT)}api/kml/files/${kmlFileId}`
             const kmlUrlParam = `KML|${kmlFileUrl}@adminId=${kmlFileAdminId}`
 
             cy.log(
@@ -1173,8 +1166,8 @@ describe('Drawing module tests', () => {
             // load map with an injected kml layer containing a text
             const kmlFileId = 'test-fileID12345678900'
             const kmlFileAdminId = 'test-fileAdminID12345678900'
-            const kmlFileUrl = `${getServiceKmlBaseUrl()}api/kml/files/${kmlFileId}`
-            const kmlAdminUrl = `${getServiceKmlBaseUrl()}api/kml/admin/${kmlFileId}`
+            const kmlFileUrl = `${getServiceKmlBaseUrl(ENVIRONMENT)}api/kml/files/${kmlFileId}`
+            const kmlAdminUrl = `${getServiceKmlBaseUrl(ENVIRONMENT)}api/kml/admin/${kmlFileId}`
             const kmlMetadata = {
                 admin_id: kmlFileAdminId,
                 author: 'mf-geoadmin3',
@@ -1569,7 +1562,7 @@ describe('Drawing module tests', () => {
             )
             cy.readClipboardValue().should((clipboardText) => {
                 expect(clipboardText).to.contain(
-                    `KML%7C${getServiceKmlBaseUrl()}api/kml/files/${kmlId}`
+                    `KML%7C${getServiceKmlBaseUrl(ENVIRONMENT)}api/kml/files/${kmlId}`
                 )
                 expect(clipboardText).to.not.contain(`@adminId`)
             })
@@ -1578,7 +1571,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-share-admin-link"]').realClick()
             cy.readClipboardValue().should((clipboardText) => {
                 expect(clipboardText).to.contain(
-                    `KML%7C${getServiceKmlBaseUrl()}api/kml/files/${kmlId}`
+                    `KML%7C${getServiceKmlBaseUrl(ENVIRONMENT)}api/kml/files/${kmlId}`
                 )
                 expect(clipboardText).to.contain(`@adminId=${adminId}`)
             })

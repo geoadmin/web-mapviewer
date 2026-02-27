@@ -39,12 +39,12 @@ import { equals as arrayEquals } from 'ol/array'
 import Collection from 'ol/Collection'
 import CollectionEventType from 'ol/CollectionEventType'
 import {
-    wrapX as wrapXCoordinate,
     closestOnSegment,
     distance as coordinateDistance,
     equals as coordinatesEqual,
     squaredDistance as squaredCoordinateDistance,
     squaredDistanceToSegment,
+    wrapX as wrapXCoordinate,
 } from 'ol/coordinate'
 import { altKeyOnly, always, primaryAction, singleClick } from 'ol/events/condition'
 import BaseEvent from 'ol/events/Event'
@@ -79,10 +79,7 @@ const CIRCLE_CIRCUMFERENCE_INDEX = 1
 
 const tempExtent: Extent = [0, 0, 0, 0]
 
-export enum ModifyEventType {
-    MODIFYSTART = 'modifystart',
-    MODIFYEND = 'modifyend',
-}
+export type ModifyEventType = 'modifystart' | 'modifyend'
 
 /** A line segment between two coordinates (2 coordinates, 2D). */
 export type Segment = [Coordinate, Coordinate]
@@ -967,9 +964,7 @@ export default class Modify extends PointerInteraction {
             }
         }
         if (this.featuresBeingModified_) {
-            this.dispatchEvent(
-                new ModifyEvent(ModifyEventType.MODIFYEND, this.featuresBeingModified_, evt)
-            )
+            this.dispatchEvent(new ModifyEvent('modifyend', this.featuresBeingModified_, evt))
             this.featuresBeingModified_ = null
         }
         return false
@@ -1143,9 +1138,7 @@ export default class Modify extends PointerInteraction {
             if (this.featuresBeingModified_.getLength() === 0) {
                 this.featuresBeingModified_ = null
             } else {
-                this.dispatchEvent(
-                    new ModifyEvent(ModifyEventType.MODIFYSTART, this.featuresBeingModified_, evt)
-                )
+                this.dispatchEvent(new ModifyEvent('modifystart', this.featuresBeingModified_, evt))
             }
         }
     }
@@ -1178,9 +1171,7 @@ export default class Modify extends PointerInteraction {
             this.willModifyFeatures_(evt, this.dragSegments_)
             const removed = this.removeVertex_()
             if (this.featuresBeingModified_) {
-                this.dispatchEvent(
-                    new ModifyEvent(ModifyEventType.MODIFYEND, this.featuresBeingModified_, evt)
-                )
+                this.dispatchEvent(new ModifyEvent('modifyend', this.featuresBeingModified_, evt))
             }
             this.featuresBeingModified_ = null
             return removed

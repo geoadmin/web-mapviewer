@@ -4,12 +4,11 @@
  * visibility, opacity or position in the layer stack)
  */
 
-import type { FlatExtent, CoordinateSystem } from '@swissgeo/coordinates'
-import type { ExternalLayer, KMLLayer, GPXLayer, Layer } from '@swissgeo/layers'
+import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
+import type { ExternalLayer, GPXLayer, KMLLayer, Layer, KMLStyle } from '@swissgeo/layers'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { WGS84 } from '@swissgeo/coordinates'
-import { KMLStyle, LayerType } from '@swissgeo/layers'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
 import GeoadminTooltip from '@swissgeo/tooltip'
 import { computed, onMounted, ref, useTemplateRef } from 'vue'
@@ -65,13 +64,18 @@ const layerDownButton = useTemplateRef<HTMLButtonElement>('layerDownButton')
 const currentKmlStyle = ref<KMLStyle | undefined>((layer as KMLLayer)?.style)
 const id = computed<string>(() => layer.id)
 
-const kmlStylesAsDropdownItems = computed<DropdownItem<KMLStyle>[]>(() =>
-    Object.values(KMLStyle).map((style: KMLStyle) => ({
-        id: style,
-        title: style.toLowerCase(),
-        value: style,
-    }))
-)
+const kmlStylesAsDropdownItems = computed<DropdownItem<KMLStyle>[]>(() => [
+    {
+        id: 'DEFAULT',
+        title: 'default',
+        value: 'DEFAULT',
+    },
+    {
+        id: 'GEOADMIN',
+        title: 'geoadmin',
+        value: 'GEOADMIN',
+    },
+])
 const isLocalFile = computed<boolean>(() => layersStore.isLocalFile(layer))
 const hasDataDisclaimer = computed<boolean>(() =>
     layersStore.hasDataDisclaimer(id.value, {
@@ -87,7 +91,7 @@ const hasMultipleTimestamps = computed<boolean>(() => timeConfigUtils.hasMultipl
 
 const isPhoneMode = computed<boolean>(() => uiStore.isPhoneMode)
 const is3dActive = computed<boolean>(() => cesiumStore.active)
-const isLayerKml = computed<boolean>(() => layer.type === LayerType.KML)
+const isLayerKml = computed<boolean>(() => layer.type === 'KML')
 const isLayerClampedToGround = computed<boolean>({
     get: () => 'clampToGround' in layer && !!layer.clampToGround,
     set: (value: boolean) => {
@@ -105,15 +109,15 @@ const isLayerClampedToGround = computed<boolean>({
 const showSpinner = computed<boolean>(() => layer.isLoading && layer.isExternal && !layer.hasError)
 
 const layerExtent = computed<FlatExtent | undefined>(() => {
-    if (layer.type === LayerType.KML) {
+    if (layer.type === 'KML') {
         return (layer as KMLLayer).extent
-    } else if (layer.type === LayerType.GPX) {
+    } else if (layer.type === 'GPX') {
         return (layer as GPXLayer).extent
     }
     return undefined
 })
 const layerExtentProjection = computed<CoordinateSystem>(() => {
-    if (layer.type === LayerType.KML) {
+    if (layer.type === 'KML') {
         return (layer as KMLLayer).extentProjection ?? WGS84
     }
     return WGS84

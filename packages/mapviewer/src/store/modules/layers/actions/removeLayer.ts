@@ -1,7 +1,5 @@
 import type { GeoAdminGeoJSONLayer, Layer } from '@swissgeo/layers'
 
-import { LayerType } from '@swissgeo/layers'
-
 import type {
     GetLayerIdOptions,
     GetLayerIdResult,
@@ -57,7 +55,7 @@ export default function removeLayer(
         )
     }
     removedLayers.forEach((layer) => {
-        if (layer.type === LayerType.GEOJSON) {
+        if (layer.type === 'GEOJSON') {
             const geoJsonLayer = layer as GeoAdminGeoJSONLayer
             if (geoJsonLayer.updateDelay && geoJsonLayer.updateDelay > 0) {
                 clearAutoReload(geoJsonLayer)

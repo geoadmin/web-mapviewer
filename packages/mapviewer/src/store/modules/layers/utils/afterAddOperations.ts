@@ -6,7 +6,6 @@ import type {
     Layer,
 } from '@swissgeo/layers'
 
-import { LayerType } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
 import type { ActionDispatcher } from '@/store/types'
@@ -24,7 +23,7 @@ import loadLayerFromCapabilities, {
  * its state)
  */
 export default function afterAddOperations(layer: Layer, dispatcher: ActionDispatcher) {
-    if (layer.type === LayerType.COG) {
+    if (layer.type === 'COG') {
         loadCOGMetadataAndUpdateLayer(layer as CloudOptimizedGeoTIFFLayer, dispatcher).catch(
             (error) => {
                 log.error({
@@ -34,7 +33,7 @@ export default function afterAddOperations(layer: Layer, dispatcher: ActionDispa
                 })
             }
         )
-    } else if (layer.type === LayerType.GEOJSON) {
+    } else if (layer.type === 'GEOJSON') {
         const { promise } = loadGeoJsonDataAndStyle(layer as GeoAdminGeoJSONLayer, dispatcher)
         promise.catch((error) => {
             log.error({
@@ -43,7 +42,7 @@ export default function afterAddOperations(layer: Layer, dispatcher: ActionDispa
                 messages: ['Error while loading data and style for a GeoJSON layer', layer, error],
             })
         })
-    } else if (layer.type === LayerType.GPX) {
+    } else if (layer.type === 'GPX') {
         loadGpxData(layer as GPXLayer, dispatcher).catch((error) => {
             log.error({
                 title: 'Layers store / afterAddOperations',
@@ -51,7 +50,7 @@ export default function afterAddOperations(layer: Layer, dispatcher: ActionDispa
                 messages: ['Error while loading data for a GPX layer', layer, error],
             })
         })
-    } else if (layer.type === LayerType.KML) {
+    } else if (layer.type === 'KML') {
         loadKmlKmzData(layer as KMLLayer, dispatcher).catch((error) => {
             log.error({
                 title: 'Layers store / afterAddOperations',

@@ -49,13 +49,10 @@ const profileStore = useProfileStore()
 const uiStore = useUiStore()
 const mapStore = useMapStore()
 
-const selectedFeatures = computed(() => featuresStore.selectedFeatures)
-const selectedEditableFeatures = computed(() => featuresStore.selectedEditableFeatures)
 const selectedLayerFeatures = computed(() => featuresStore.selectedLayerFeatures)
 const isCurrentlyDrawing = computed(() => drawingStore.overlay.show)
 const projection = computed(() => positionStore.projection)
 const highlightedFeatureId = computed(() => featuresStore.highlightedFeatureId)
-const tooltipFeatureInfo = computed(() => uiStore.showFeatureInfoInTooltip)
 const profileFeature = computed(() => profileStore.feature)
 const currentGeometryElements = computed(() => {
     const geometry = profileFeature.value?.geometry
@@ -112,8 +109,8 @@ const segmentTransformedAsOlFeatures = computed((): Feature[] => {
 const southPole = point([0.0, -90.0])
 const popoverCoordinate = computed((): SingleCoordinate | undefined => {
     // if we are dealing with any editable feature while drawing, we return its last coordinate
-    if (isCurrentlyDrawing.value && selectedEditableFeatures.value.length > 0) {
-        const [topEditableFeature] = selectedEditableFeatures.value
+    if (isCurrentlyDrawing.value && featuresStore.selectedEditableFeatures.length > 0) {
+        const [topEditableFeature] = featuresStore.selectedEditableFeatures
         if (
             topEditableFeature &&
             topEditableFeature.coordinates &&
@@ -128,7 +125,7 @@ const popoverCoordinate = computed((): SingleCoordinate | undefined => {
     }
     // If no editable feature is selected while drawing, we place the popover depending on the geometry of all
     // selected features. We will find the most southern coordinate present in all features and use it as anchor.
-    const mostSouthernFeature = selectedFeatures.value
+    const mostSouthernFeature = featuresStore.selectedFeatures
         .filter((feature) => feature.geometry !== undefined)
         .map((feature) => feature.geometry)
         .map((geometry) => geoJsonUtils.transformIntoTurfEquivalent(geometry, projection.value))
@@ -196,11 +193,11 @@ function setBottomPanelFeatureInfoPosition(): void {
 
 <template>
     <OpenLayersPopover
-        v-if="tooltipFeatureInfo && selectedFeatures.length > 0"
+        v-if="uiStore.showFeatureInfoInTooltip && featuresStore.selectedFeatures.length > 0"
         :coordinates="popoverCoordinate"
         :title="isCurrentlyDrawing ? t('draw_modify_description') : t('object_information')"
         authorize-print
-        :use-content-padding="selectedEditableFeatures.length > 0"
+        :use-content-padding="featuresStore.selectedEditableFeatures.length > 0"
         mode="FLOATING"
         @close="clearAllSelectedFeatures"
     >
@@ -215,7 +212,7 @@ function setBottomPanelFeatureInfoPosition(): void {
             </button>
         </template>
         <FeatureStyleEdit
-            v-for="feature in selectedEditableFeatures"
+            v-for="feature in featuresStore.selectedEditableFeatures"
             :key="feature.id"
             :read-only="!isCurrentlyDrawing"
             :feature="feature"

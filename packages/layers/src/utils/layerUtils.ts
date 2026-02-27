@@ -20,22 +20,19 @@ import type {
     GeoAdminWMTSLayer,
     GPXLayer,
     KMLLayer,
+    KMLStyle,
     Layer,
     LayerAttribution,
 } from '@/types/layers'
 
 import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config'
-import { DEFAULT_OPACITY, KMLStyle, LayerType, WMTSEncodingType } from '@/types/layers'
+import { DEFAULT_OPACITY } from '@/types/layers'
 import timeConfigUtils from '@/utils/timeConfigUtils'
 import { InvalidLayerDataError } from '@/validation'
 
 export const EMPTY_KML_DATA = '<kml></kml>'
 
 const ENC_PIPE = '%7C'
-
-function transformToLayerTypeEnum(value: string): LayerType | undefined {
-    return Object.values(LayerType).includes(value as LayerType) ? (value as LayerType) : undefined
-}
 
 /**
  * Determine if a file URL is a local file or a remote URL.
@@ -84,7 +81,7 @@ function makeGeoAdminWMSLayer(values: Partial<GeoAdminWMSLayer>): GeoAdminWMSLay
     const defaults: DefaultLayerConfig<GeoAdminWMSLayer> = {
         uuid: uuidv4(),
         isExternal: false,
-        type: LayerType.WMS,
+        type: 'WMS',
         opacity: DEFAULT_OPACITY,
         isVisible: true,
         isLoading: false,
@@ -123,7 +120,7 @@ function makeGeoAdminWMSLayer(values: Partial<GeoAdminWMSLayer>): GeoAdminWMSLay
 function makeGeoAdminWMTSLayer(values: Partial<GeoAdminWMTSLayer>): GeoAdminWMTSLayer {
     const defaults: DefaultLayerConfig<GeoAdminWMTSLayer> = {
         uuid: uuidv4(),
-        type: LayerType.WMTS,
+        type: 'WMTS',
         idIn3d: undefined,
         technicalName: undefined,
         opacity: 1.0,
@@ -169,13 +166,13 @@ function makeExternalWMTSLayer(values: Partial<ExternalWMTSLayer>): ExternalWMTS
     const defaults: DefaultLayerConfig<ExternalWMTSLayer> = {
         uuid: uuidv4(),
         isExternal: true,
-        type: LayerType.WMTS,
+        type: 'WMTS',
         opacity: DEFAULT_OPACITY,
         isVisible: true,
         abstract: '',
         legends: [],
         availableProjections: [],
-        getTileEncoding: WMTSEncodingType.REST,
+        getTileEncoding: 'REST',
         urlTemplate: '',
         style: '',
         tileMatrixSets: [],
@@ -238,7 +235,7 @@ function makeExternalWMSLayer(values: Partial<ExternalWMSLayer>): ExternalWMSLay
         dimensions: [],
         currentYear: undefined,
         customAttributes: undefined,
-        type: LayerType.WMS,
+        type: 'WMS',
         isExternal: true,
         hasError: false,
         hasWarning: false,
@@ -299,7 +296,7 @@ function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
     if (values.style !== undefined) {
         style = values.style
     } else {
-        style = isExternal ? KMLStyle.DEFAULT : KMLStyle.GEOADMIN
+        style = isExternal ? 'DEFAULT' : 'GEOADMIN'
     }
 
     let fileId = values.fileId
@@ -345,7 +342,7 @@ function makeKMLLayer(values: Partial<KMLLayer>): KMLLayer {
         isLocalFile: isLocal,
         attributions,
         style,
-        type: LayerType.KML,
+        type: 'KML',
         hasTooltip: false,
         hasError: false,
         hasWarning: false,
@@ -400,7 +397,7 @@ function makeGPXLayer(values: Partial<GPXLayer>): GPXLayer {
         extent: undefined,
         name: name,
         id: `GPX|${encodeExternalLayerParam(values.gpxFileUrl)}`,
-        type: LayerType.GPX,
+        type: 'GPX',
         opacity: 0,
         isVisible: false,
         attributions,
@@ -436,7 +433,7 @@ function makeGeoAdminVectorLayer(values: Partial<GeoAdminVectorLayer>): GeoAdmin
 
     const defaults: DefaultLayerConfig<GeoAdminVectorLayer> = {
         uuid: uuidv4(),
-        type: LayerType.VECTOR,
+        type: 'VECTOR',
         technicalName: '',
         attributions,
         opacity: 0,
@@ -480,7 +477,7 @@ function makeGeoAdmin3DLayer(values: Partial<GeoAdmin3DLayer>): GeoAdmin3DLayer 
         use3dTileSubFolder: false,
         urlTimestampToUse: undefined,
         name: values.name ?? values.id ?? '3D layer',
-        type: LayerType.VECTOR,
+        type: 'VECTOR',
         opacity: 1,
         isVisible: true,
         attributions,
@@ -528,7 +525,7 @@ function makeCloudOptimizedGeoTIFFLayer(
     const defaults: CloudOptimizedGeoTIFFLayer = {
         uuid: uuidv4(),
         baseUrl: fileSource,
-        type: LayerType.COG,
+        type: 'COG',
         isLocalFile: isLocal,
         fileSource: undefined,
         data: undefined,
@@ -565,7 +562,7 @@ function makeGeoAdminAggregateLayer(
 ): GeoAdminAggregateLayer {
     const defaults: DefaultLayerConfig<GeoAdminAggregateLayer> = {
         uuid: uuidv4(),
-        type: LayerType.AGGREGATE,
+        type: 'AGGREGATE',
         subLayers: [],
         opacity: 1,
         isVisible: true,
@@ -600,7 +597,7 @@ function makeGeoAdminAggregateLayer(
 function makeGeoAdminGeoJSONLayer(values: Partial<GeoAdminGeoJSONLayer>): GeoAdminGeoJSONLayer {
     const defaults: DefaultLayerConfig<GeoAdminGeoJSONLayer> = {
         uuid: uuidv4(),
-        type: LayerType.GEOJSON,
+        type: 'GEOJSON',
         updateDelay: 0,
         styleUrl: '',
         geoJsonUrl: '',
@@ -642,7 +639,7 @@ function makeGeoAdminGroupOfLayers(values: Partial<GeoAdminGroupOfLayers>): GeoA
     const defaults: DefaultLayerConfig<GeoAdminGroupOfLayers> = {
         uuid: uuidv4(),
         layers: [],
-        type: LayerType.GROUP,
+        type: 'GROUP',
         opacity: 1,
         isVisible: true,
         attributions: [],
@@ -735,7 +732,7 @@ function getWmtsXyzUrl(
     }
 ): string | undefined {
     const { addTimestamp = false, baseUrlOverride } = options ?? {}
-    if (wmtsLayerConfig?.type === LayerType.WMTS && projection) {
+    if (wmtsLayerConfig?.type === 'WMTS' && projection) {
         let timestamp = '{Time}'
         if (addTimestamp) {
             timestamp = timeConfigUtils.getTimestampFromConfig(wmtsLayerConfig) ?? '{Time}'
@@ -757,8 +754,7 @@ function getWmtsXyzUrl(
     return
 }
 
-export interface GeoadminLayerUtils {
-    transformToLayerTypeEnum: typeof transformToLayerTypeEnum
+export interface SwissGeoLayerUtils {
     makeGPXLayer: typeof makeGPXLayer
     makeKMLLayer: typeof makeKMLLayer
     makeGeoAdminWMSLayer: typeof makeGeoAdminWMSLayer
@@ -779,8 +775,7 @@ export interface GeoadminLayerUtils {
     getWmtsXyzUrl: typeof getWmtsXyzUrl
 }
 
-export const layerUtils: GeoadminLayerUtils = {
-    transformToLayerTypeEnum,
+export const layerUtils: SwissGeoLayerUtils = {
     makeGPXLayer,
     makeKMLLayer,
     makeGeoAdminWMSLayer,
