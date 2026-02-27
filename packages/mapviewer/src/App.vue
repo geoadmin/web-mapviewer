@@ -23,7 +23,7 @@ const dispatcher = { dispatcher: 'App.vue' }
 
 let debouncedOnResize
 const showFeedbackPopup = computed(() => {
-    return store.state.ui.errors.size + store.state.ui.warnings.size > 0
+    return store.getters.getFirstError || store.getters.getFirstWarning
 })
 const showDebugToolbar = computed(() => !IS_TESTING_WITH_CYPRESS && store.getters.hasDevSiteWarning)
 

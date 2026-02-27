@@ -23,7 +23,7 @@ const store = useStore()
 const showBody = ref(true)
 const hasDevSiteWarning = computed(() => store.getters.hasDevSiteWarning)
 
-const warningCount = computed(() => store.state.ui.warnings.size)
+const warningCount = computed(() => store.getters.getNumberOfNonAcknowledgedWarnings)
 
 const { t } = useI18n()
 
@@ -43,7 +43,7 @@ const emit = defineEmits(['close'])
         >
             <span
                 v-if="title"
-                class="me-auto text-truncate"
+                class="text-truncate me-auto"
             >
                 {{ t(title) }}
                 <span v-if="warningCount > 1">({{ warningCount }})</span>
