@@ -1,7 +1,6 @@
 import 'cypress-real-events'
 import 'cypress-wait-until'
 import '@4tw/cypress-drag-drop'
-import type { GeoAdminLayer } from '@swissgeo/layers'
 import type { Layer as OLLayer } from 'ol/layer'
 import type { Pinia } from 'pinia'
 
@@ -116,7 +115,7 @@ function waitAllLayersLoaded(options?: {
                 const layers: string = queryParams.layers as string
                 const layersConfig = layersStore.config
                 target += Object.keys(queryParams)
-                    .filter((key) => layersConfig.find((layer: GeoAdminLayer) => layer.id === key)) // this removes all parameters that are not layers ids
+                    .filter((key) => layersConfig.find((layer) => layer.id === key)) // this removes all parameters that are not layers ids
                     .filter((key) => !layers.split(',').includes(key)).length // we removes all layers that are in the query params
                 // filter out standard params, legacy specific params, non layers config
             }

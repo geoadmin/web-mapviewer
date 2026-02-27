@@ -401,11 +401,7 @@ describe('Test of layer handling', () => {
                     mockExternalWmts2.isVisible = false
                     mockExternalWmts3.isVisible = true
                     mockExternalWmts3.opacity = 0.8
-                    const layerObjects2 = [
-                        mockExternalWmts1,
-                        mockExternalWmts2,
-                        mockExternalWmts3,
-                    ]
+                    const layerObjects2 = [mockExternalWmts1, mockExternalWmts2, mockExternalWmts3]
                     // reads and sets non default layer config; visible and opacity
                     cy.goToMapView({
                         queryParams: {
@@ -991,7 +987,7 @@ describe('Test of layer handling', () => {
                     const layersStore27 = useLayersStore(pinia)
                     const activeLayers5 = layersStore27.activeLayers
                     expect(activeLayers5).to.be.an('Array').length(visibleLayerIds.length)
-                    const layer3 = activeLayers5.find((layer: Layer) => layer.id === timedLayerId)
+                    const layer3 = activeLayers5.find((layer) => layer.id === timedLayerId)
                     expect(layer3).not.to.be.undefined
                     expect(layer3.timeConfig.currentTimeEntry?.timestamp).to.eq(timestamp)
                 })
@@ -1040,9 +1036,7 @@ describe('Test of layer handling', () => {
                         .to.be.an('Array')
                         .length(visibleLayerIds.length + 1)
                     expect(activeLayers6[3]).not.to.be.undefined
-                    expect(activeLayers6[3].timeConfig.currentTimeEntry?.timestamp).to.eq(
-                        timestamp
-                    )
+                    expect(activeLayers6[3].timeConfig.currentTimeEntry?.timestamp).to.eq(timestamp)
                     expect(activeLayers6[3]?.isVisible).to.be.true
                     expect(activeLayers6[3]?.opacity).to.eq(0)
                 })

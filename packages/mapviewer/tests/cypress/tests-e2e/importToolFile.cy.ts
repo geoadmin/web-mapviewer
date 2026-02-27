@@ -1,5 +1,6 @@
 /// <reference types="cypress" />
 
+import type { SearchResponse } from '@swissgeo/api'
 import type { Viewer } from 'cesium'
 import type BaseLayer from 'ol/layer/Base'
 import type VectorLayer from 'ol/layer/Vector'
@@ -458,7 +459,7 @@ describe('The Import File Tool', () => {
             expect(result[0]).to.approximately(expected[0], acceptedDelta)
             expect(result[1]).to.approximately(expected[1], acceptedDelta)
         }
-        const emptySearchResponse = {
+        const emptySearchResponse: SearchResponse = {
             results: [],
         }
         cy.intercept('**/rest/services/ech/SearchServer*?type=layers*', {

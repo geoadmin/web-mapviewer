@@ -338,10 +338,14 @@ let lastIdentifiedFeatures: MockFeature[] = []
  * Features IDs will start from 1 + offset (if an offset is given) and coordinates will be randomly
  * selected within the LV95 extent (or within the selection box, if one is given).
  *
- * @param coordinates {[Number, Number] | undefined} : if this is set, the coordinates of each
- *   feature generated is set to the given coordinates rather than random coordinates.
+ * @param options.coordinates If this is set, the coordinates of each feature generated is set to
+ *   the given coordinates rather than random coordinates.
  */
-function addFeatureIdentificationIntercepts(): void {
+export function addFeatureIdentificationIntercepts(
+    options: { coordinates?: SingleCoordinate } = {}
+): void {
+    const { coordinates } = options
+
     let featureTemplate: MockFeature
     let featureDetailTemplate: MockFeatureDetail
     cy.fixture('features/features.fixture').then((featuresFixture: { results: MockFeature[] }) => {

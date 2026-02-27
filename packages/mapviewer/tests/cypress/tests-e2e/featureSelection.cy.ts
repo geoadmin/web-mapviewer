@@ -1,18 +1,19 @@
+import type { SingleCoordinate } from '@swissgeo/coordinates'
 import type Map from 'ol/Map'
 import type { MockFeature } from 'support/intercepts'
 
 import { registerProj4 } from '@swissgeo/coordinates'
 import { DEFAULT_FEATURE_COUNT_RECTANGLE_SELECTION } from '@swissgeo/staging-config/constants'
 import proj4 from 'proj4'
+import { addFeatureIdentificationIntercepts } from 'support/intercepts'
 import { assertDefined, checkUrlParams } from 'support/utils'
 
 import type { FeatureInfoPositions } from '@/store/modules/ui/types'
 
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
+import usePositionStore from '@/store/modules/position'
 import useUIStore from '@/store/modules/ui'
-
-import { addFeatureIdentificationIntercepts } from '../support/intercepts'
 
 registerProj4(proj4)
 
@@ -102,38 +103,40 @@ describe('Testing the feature selection', () => {
         })
         it('Centers correctly the map when pre-selected features are present', () => {
             cy.log('We ensure that when no center is defined, we are on the center of the extent')
-            const preDefinedCenter = [2671500, 1190000]
+            const preDefinedCenter: SingleCoordinate = [2671500, 1190000]
 
             // we override the interception to ensure the features are in a fixed position
-            cy.goToMapView(
-                {
+            cy.goToMapView({
+                queryParams: {
                     layers: `${standardLayer}@features=1:2:3:4:5:6:7:8:9:10`,
                 },
-                true,
-                {},
-                {
+                fixturesAndIntercepts: {
                     addFeatureIdentificationIntercepts: () =>
-                        addFeatureIdentificationIntercepts(preDefinedCenter),
-                }
-            )
+                        addFeatureIdentificationIntercepts({ coordinates: preDefinedCenter }),
+                },
+            })
 
-            cy.readStoreValue('state.position.center').should((storeCenter) => {
-                expect(storeCenter.length).to.eq(2)
-                expect(storeCenter[0]).to.to.approximately(preDefinedCenter[0], 0.01)
-                expect(storeCenter[1]).to.to.approximately(preDefinedCenter[1], 0.01)
+            cy.getPinia().should((pinia) => {
+                const positionStore = usePositionStore(pinia)
+                expect(positionStore.center.length).to.eq(2)
+                expect(positionStore.center[0]).to.to.approximately(preDefinedCenter[0], 0.01)
+                expect(positionStore.center[1]).to.to.approximately(preDefinedCenter[1], 0.01)
             })
 
             cy.log(
                 'We ensure that when a center is defined, we are on that center on application startup'
             )
             cy.goToMapView({
-                layers: `${standardLayer}@features=1:2:3:4:5:6:7:8:9:10`,
-                center: `${preDefinedCenter.join(',')}`,
+                queryParams: {
+                    layers: `${standardLayer}@features=1:2:3:4:5:6:7:8:9:10`,
+                    center: `${preDefinedCenter.join(',')}`,
+                },
             })
-            cy.readStoreValue('state.position.center').should((storeCenter) => {
-                expect(storeCenter.length).to.eq(2)
-                expect(storeCenter[0]).to.to.approximately(preDefinedCenter[0], 0.01)
-                expect(storeCenter[1]).to.to.approximately(preDefinedCenter[1], 0.01)
+            cy.getPinia().should((pinia) => {
+                const positionStore = usePositionStore(pinia)
+                expect(positionStore.center.length).to.eq(2)
+                expect(positionStore.center[0]).to.to.approximately(preDefinedCenter[0], 0.01)
+                expect(positionStore.center[1]).to.to.approximately(preDefinedCenter[1], 0.01)
             })
         })
         it('Adds pre-selected features and place the tooltip according to URL param on a bigger screen', () => {
