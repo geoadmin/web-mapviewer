@@ -6,7 +6,7 @@ import {
     defineConfigWithVueTs,
     vueTsConfigs,
 } from '@vue/eslint-config-typescript'
-import pluginCypress from 'eslint-plugin-cypress/flat'
+import pluginCypress from 'eslint-plugin-cypress'
 import mocha from 'eslint-plugin-mocha'
 import perfectionist from 'eslint-plugin-perfectionist'
 import pluginVue from 'eslint-plugin-vue'
@@ -70,7 +70,7 @@ export default defineConfigWithVueTs(
                 { type: 'alphabetical', internalPattern: ['^@/.*'] },
             ],
             'vue/html-indent': ['error', 4],
-            'no-useless-assignment': 'off'
+            'no-useless-assignment': 'off',
         },
     },
     {

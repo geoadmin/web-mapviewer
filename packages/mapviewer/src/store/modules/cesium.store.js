@@ -68,7 +68,7 @@ export default {
          */
         showConstructions: true,
         /**
-         * Flag telling if the 3D viewer should show the labels ()
+         * Flag telling if the 3D viewer should show the labels (ch.swisstopo.swissnames3d.3d)
          *
          * @type Boolean
          */
