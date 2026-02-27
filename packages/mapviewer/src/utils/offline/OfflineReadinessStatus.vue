@@ -13,8 +13,10 @@ import SimpleWindow from '@/utils/components/SimpleWindow.vue'
 // check for updates every hour
 const period = 60 * 60 * 1000
 
-const { withText = false } = defineProps<{
+const { withText = false, autoReloadOnUpdate = true } = defineProps<{
     withText?: boolean
+    /** Automatically reload the page when a new service worker takes control */
+    autoReloadOnUpdate?: boolean
 }>()
 
 const isServiceWorkerActive = ref(false)
@@ -73,6 +75,26 @@ const { offlineReady, needRefresh, updateServiceWorker } = useRegisterSW({
                 isServiceWorkerActive.value = sw.state === 'activated'
                 if (isServiceWorkerActive.value) {
                     registerPeriodicSync(serviceWorkerUrl, registration)
+                }
+            })
+        }
+
+        // Listen for when a new service worker takes control
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.addEventListener('controllerchange', () => {
+                log.info({
+                    title: 'OfflineReadinessStatus',
+                    titleColor: LogPreDefinedColor.Sky,
+                    messages: ['New service worker has taken control'],
+                })
+                
+                if (autoReloadOnUpdate) {
+                    log.info({
+                        title: 'OfflineReadinessStatus',
+                        titleColor: LogPreDefinedColor.Sky,
+                        messages: ['Auto-reloading page with new service worker'],
+                    })
+                    window.location.reload()
                 }
             })
         }
