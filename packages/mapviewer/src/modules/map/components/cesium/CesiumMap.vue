@@ -2,23 +2,8 @@
 import '@geoblocks/cesium-compass'
 import { WEBMERCATOR } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
-import {
-    CesiumTerrainProvider,
-    Color,
-    PostProcessStageCollection,
-    ShadowMode,
-    Viewer,
-} from 'cesium'
-import {
-    computed,
-    onBeforeMount,
-    onMounted,
-    onUnmounted,
-    provide,
-    ref,
-    useTemplateRef,
-    watch,
-} from 'vue'
+import { CesiumTerrainProvider, Color, ShadowMode, Viewer, } from 'cesium'
+import { computed, onBeforeMount, onMounted, onUnmounted, provide, ref, useTemplateRef, watch, } from 'vue'
 import { useStore } from 'vuex'
 
 import { TERRAIN_URL } from '@/config/cesium.config'
@@ -123,12 +108,6 @@ async function createViewer() {
     scene.pickTranslucentDepth = true
     scene.backgroundColor = Color.TRANSPARENT
 
-    const postProcessStages = new PostProcessStageCollection()
-    postProcessStages.ambientOcclusion.enabled = true
-    postProcessStages.bloom.enabled = false
-    postProcessStages.fxaa.enabled = true
-    scene.postProcessStages = postProcessStages
-
     const globe = scene.globe
     globe.baseColor = Color.WHITE
     globe.depthTestAgainstTerrain = true
@@ -175,7 +154,7 @@ provide('getViewer', () => viewer)
             <cesium-compass
                 v-show="isDesktopMode"
                 ref="compassElement"
-                class="position-absolute start-50 translate-middle-x cesium-compass"
+                class="position-absolute translate-middle-x cesium-compass start-50"
             />
         </template>
     </div>
