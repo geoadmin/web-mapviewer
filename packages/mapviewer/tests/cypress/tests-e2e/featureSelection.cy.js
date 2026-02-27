@@ -8,7 +8,6 @@ import { FeatureInfoPositions } from '@/store/modules/ui.store'
 import { addFeatureIdentificationIntercepts } from '../support/intercepts'
 
 registerProj4(proj4)
-
 describe('Testing the feature selection', () => {
     context('Feature pre-selection in the URL', () => {
         const timeLayer = 'test.timeenabled.wmts.layer'

@@ -11,6 +11,8 @@ import { viteStaticCopy } from 'vite-plugin-static-copy'
 import vueDevTools from 'vite-plugin-vue-devtools'
 
 import generateBuildInfo from './vite-plugins/vite-plugin-generate-build-info'
+import moveServiceWorkerFile from './vite-plugins/vite-plugin-move-sw'
+import versionServiceWorkerPath from './vite-plugins/vite-plugin-version-sw-path'
 
 // We take the version from APP_VERSION but if not set, then take
 // it from git describe command
@@ -40,7 +42,7 @@ const stagings = {
  * @param id
  * @returns
  */
-function manualChunks(id) {
+function manualChunks(id: string) {
     // Put all files from the src/utils into the chunk named utils.js
     if (id.includes('/src/utils/')) {
         return 'utils'
@@ -68,13 +70,13 @@ export default defineConfig(({ mode }) => {
             {
                 ...(process.env.USE_HTTPS
                     ? basicSsl({
-                          /** Name of certification */
-                          name: 'localhost',
-                          /** Custom trust domains */
-                          domains: ['localhost', '192.168.*.*'],
-                          /** Custom certification directory */
-                          certDir: './devServer/cert',
-                      })
+                        /** Name of certification */
+                        name: 'localhost',
+                        /** Custom trust domains */
+                        domains: ['localhost', '192.168.*.*'],
+                        /** Custom certification directory */
+                        certDir: './devServer/cert',
+                    })
                     : {}),
                 apply: 'serve',
             },
@@ -87,7 +89,7 @@ export default defineConfig(({ mode }) => {
                     },
                 },
             }),
-            generateBuildInfo(stagings[definitiveMode], appVersion),
+            generateBuildInfo(stagings[definitiveMode], appVersion, mode),
             // CesiumJS requires static files from the following 4 folders to be included in the build
             // https://cesium.com/learn/cesiumjs-learn/cesiumjs-quickstart/#install-with-npm
             viteStaticCopy({
@@ -114,49 +116,56 @@ export default defineConfig(({ mode }) => {
             mode === 'test'
                 ? {}
                 : VitePWA({
-                      devOptions: {
-                          enabled: true,
-                          type: 'module',
-                      },
+                    devOptions: {
+                        enabled: true,
+                        type: 'module',
+                    },
 
-                      strategies: 'injectManifest',
-                      srcDir: 'src',
-                      filename: 'service-workers.ts',
-                      registerType: 'autoUpdate',
-                      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg'],
-                      injectRegister: false,
-                      injectManifest: {
-                          // 5MB max (default is 2MB, some of our chunks and Cesium files are larger than that)
-                          maximumFileSizeToCacheInBytes: 5 * 1000 * 1000,
-                      },
+                    strategies: 'injectManifest',
+                    srcDir: 'src',
+                    filename: 'service-workers.ts',
+                    registerType: 'autoUpdate',
+                    includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg'],
+                    injectRegister: false,
+                    injectManifest: {
+                        // 5MB max (default is 2MB, some of our chunks and Cesium files are larger than that)
+                        maximumFileSizeToCacheInBytes: 5 * 1000 * 1000,
+                    },
 
-                      pwaAssets: {
-                          disabled: false,
-                          config: true,
-                      },
+                    pwaAssets: {
+                        disabled: false,
+                        config: true,
+                    },
 
-                      manifest: {
-                          name: 'map.geo.admin.ch',
-                          short_name: 'geoadmin',
-                          description:
-                              'Maps of Switzerland - Swiss Confederation - map.geo.admin.ch',
-                          theme_color: '#ffffff',
-                          icons: [
-                              { src: '/icon-192.png', type: 'image/png', sizes: '192x192' },
-                              { src: '/icon-512.png', type: 'image/png', sizes: '512x512' },
-                          ],
-                          related_applications: [
-                              {
-                                  platform: 'play',
-                                  url: 'https://play.google.com/store/apps/details?id=ch.admin.swisstopo',
-                              },
-                              {
-                                  platform: 'itunes',
-                                  url: 'https://apps.apple.com/us/app/swisstopo/id1505986543',
-                              },
-                          ],
-                      },
-                  }),
+                    manifest: {
+                        name: 'map.geo.admin.ch',
+                        short_name: 'geoadmin',
+                        description:
+                            'Maps of Switzerland - Swiss Confederation - map.geo.admin.ch',
+                        theme_color: '#ffffff',
+                        icons: [
+                            { src: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+                            { src: '/icon-512.png', type: 'image/png', sizes: '512x512' },
+                        ],
+                        related_applications: [
+                            {
+                                platform: 'play',
+                                url: 'https://play.google.com/store/apps/details?id=ch.admin.swisstopo',
+                            },
+                            {
+                                platform: 'itunes',
+                                url: 'https://apps.apple.com/us/app/swisstopo/id1505986543',
+                            },
+                        ],
+                    },
+                }),
+            // Service worker versioning plugins - enabled for all non-test builds
+            ...(mode !== 'test'
+                ? [
+                    versionServiceWorkerPath(appVersion, stagings[definitiveMode]),
+                    moveServiceWorkerFile(appVersion),
+                ]
+                : []),
             mode === 'development' ? vueDevTools() : {},
         ],
         resolve: {

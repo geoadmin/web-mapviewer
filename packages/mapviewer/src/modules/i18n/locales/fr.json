@@ -488,6 +488,8 @@
     "offline_refresh": "Rafraîchir la page",
     "offline_save": "Enregistrer carte",
     "offline_save_new_data": "Sauvegarder une nouvelle carte",
+    "offline_sw_configuration_error": "Erreur de configuration du service worker. Le mode hors ligne pourrait ne pas fonctionner correctement.",
+    "offline_sw_secure_context_required": "Le service worker nécessite un contexte sécurisé (HTTPS avec un certificat de confiance).",
     "offline_save_warning": "- Vous allez télécharger ~50MB de carte (jusqu'à l'échelle 1:25'000) - Ne lockez pas votre appareil et ne quittez pas ce site durant le processus de téléchargement. Désactivez le mode « privé »",
     "offline_show": "Afficher le menu hors-ligne",
     "offline_show_extent": "Afficher l'étendue",

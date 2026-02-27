@@ -488,6 +488,8 @@
     "offline_refresh": "Ricarica la pagina",
     "offline_save": "Salvare la mappa",
     "offline_save_new_data": "Salvare una nuova mappa",
+    "offline_sw_configuration_error": "Errore di configurazione del service worker. La funzionalità offline potrebbe non funzionare correttamente.",
+    "offline_sw_secure_context_required": "Il service worker richiede un contesto sicuro (HTTPS con un certificato attendibile).",
     "offline_save_warning": "- Saranno scaricati ~50MB di carte (fino alla scala 1:25000) - Non bloccare il dispositivo e non abbandonare questa pagina durante il download. Disattivare la modalità \\\"privata\\\"",
     "offline_show": "Mostra il menu offline",
     "offline_show_extent": "Mostrare l'estensione",

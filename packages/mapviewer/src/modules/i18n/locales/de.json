@@ -488,6 +488,8 @@
     "offline_refresh": "Seite aktualisieren",
     "offline_save": "Karte Speichern",
     "offline_save_new_data": "Neue Karte speichern ",
+    "offline_sw_configuration_error": "Fehler in der Service-Worker-Konfiguration. Die Offline-Funktionalität funktioniert möglicherweise nicht korrekt.",
+    "offline_sw_secure_context_required": "Der Service Worker erfordert einen sicheren Kontext (HTTPS mit einem vertrauenswürdigen Zertifikat).",
     "offline_save_warning": "- ~50MB Kartenmaterial wird heruntergeladen werden (bis Massstab 1:25'000) - Bitte diese Seite während dem Speichervorgang nicht verlassen und das Gerät nicht sperren. \\\"Private\\\" mode des Browsers muss deaktiviert sein.",
     "offline_show": "Zeige Offline Menu",
     "offline_show_extent": "Ausschnitt anzeigen",
