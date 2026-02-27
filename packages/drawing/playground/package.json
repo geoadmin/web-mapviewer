@@ -1,0 +1,21 @@
+{
+    "name": "@swissgeo/drawing-playground",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "nuxt build",
+        "dev": "nuxt dev",
+        "generate": "nuxt generate"
+    },
+    "dependencies": {
+        "@swissgeo/drawing": "latest",
+        "@swissgeo/layers": "workspace:*",
+        "@swissgeo/log": "workspace:*",
+        "@swissgeo/staging-config": "workspace:*",
+        "axios": "catalog:",
+        "nuxt": "catalog:",
+        "ol": "catalog:",
+        "pako": "catalog:",
+        "proj4": "catalog:"
+    }
+}

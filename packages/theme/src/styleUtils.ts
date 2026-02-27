@@ -48,6 +48,10 @@ const redStroke = new Stroke({
     width: STROKE_WIDTH,
     color: hexToRgba(red),
 })
+const redStrokeSubtle = new Stroke({
+    width: STROKE_WIDTH,
+    color: hexToRgba(red, 0.5),
+})
 
 const malibuStroke = new Stroke({
     width: STROKE_WIDTH,
@@ -195,6 +199,7 @@ export const styleUtils = {
     whiteSketchFill,
     redFill,
     redStroke,
+    redStrokeSubtle,
     malibuStroke,
     dashedRedStroke,
     gpxStrokeStyle,

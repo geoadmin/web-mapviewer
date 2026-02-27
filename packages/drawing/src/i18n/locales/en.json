@@ -1,0 +1,30 @@
+{
+    "@swissgeo/drawing": {
+        "draw_mode_title": "Draw & Measure",
+        "confirm_remove_all_features": "Do you really want to delete your entire drawing?",
+        "confirm_no_cancel": " This action can't be cancelled.",
+        "close": "Close",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "share": "Share",
+        "export": "Export",
+        "drawing_empty_cannot_edit_name": "Please add something to the drawing before editing its name.",
+        "draw_annotation": "Text",
+        "draw_linepolygon": "Line",
+        "draw_marker": "Marker",
+        "draw_measure": "Measure",
+        "file_name": "Drawing name",
+        "draw_new_text": "New text",
+        "draw_layer_label": "Drawing",
+        "draw_file_saving": "Saving ...",
+        "draw_file_save_error": "Saving of the KML  file failed",
+        "draw_file_saved": "All changes have been saved.",
+        "draw_file_load_error": "Loading of the KML file failed",
+        "drawing_not_shared_admin_warning": "You have not copied/saved the link enabling you to edit your drawing at a later date. You risk not being able to edit your drawing if you reload or close the page.",
+        "draw_share_admin_link": "Link to edit your drawing / style",
+        "draw_share_user_link": "Link to share your drawing / style",
+        "copy_url": "Copy the link",
+        "copy_success": "Link copied!",
+        "warning": "Warning"
+    }
+}

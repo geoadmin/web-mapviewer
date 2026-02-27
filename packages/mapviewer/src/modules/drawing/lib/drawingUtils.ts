@@ -1,14 +1,15 @@
 import type { SingleCoordinate } from '@swissgeo/coordinates'
-import type Feature from 'ol/Feature'
-import type { SimpleGeometry } from 'ol/geom'
-
+import type Feature, { FeatureLike } from 'ol/Feature'
+import type { EditableFeature } from '@swissgeo/api'
 import { featuresAPI } from '@swissgeo/api'
-import GeoJSON from 'ol/format/GeoJSON'
+import type { SimpleGeometry } from 'ol/geom'
 import { LineString, Point, Polygon } from 'ol/geom'
+import GeoJSON from 'ol/format/GeoJSON'
 
 import type { ActionDispatcher } from '@/store/types'
 
 import useDrawingStore from '@/store/modules/drawing'
+import { Style } from 'ol/style'
 
 /**
  * Checks if point is at target within tolerance.

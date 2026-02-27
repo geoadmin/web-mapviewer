@@ -4,7 +4,6 @@ import type { Staging } from '@swissgeo/staging-config'
 import log from '@swissgeo/log'
 import { getServiceKmlBaseUrl } from '@swissgeo/staging-config'
 import axios from 'axios'
-import FormData from 'form-data'
 import { gzip } from 'pako'
 
 import type { FileAPIMetadataResponse, OnlineFileCompliance } from '@/types/files'
@@ -179,7 +178,12 @@ function createKml(kmlContent: string, staging: Staging = 'production'): Promise
 }
 
 /** Update a KML on the backend */
-function updateKml(id: string, adminId: string, kmlContent: string, staging: Staging = 'production'): Promise<KMLMetadata> {
+function updateKml(
+    id: string,
+    adminId: string,
+    kmlContent: string,
+    staging: Staging = 'production'
+): Promise<KMLMetadata> {
     return new Promise((resolve, reject) => {
         validateId(id, reject)
         validateAdminId(adminId, reject)
@@ -280,7 +284,10 @@ function getKmlFromUrl(url: string): Promise<string> {
 }
 
 /** Get the KML's metadata by its adminId */
-function getKmlMetadataByAdminId(adminId: string, staging: Staging = 'production'): Promise<KMLMetadata> {
+function getKmlMetadataByAdminId(
+    adminId: string,
+    staging: Staging = 'production'
+): Promise<KMLMetadata> {
     return new Promise((resolve, reject) => {
         validateAdminId(adminId, reject)
         axios
@@ -317,7 +324,10 @@ function getKmlMetadataByAdminId(adminId: string, staging: Staging = 'production
  * If this KML file is not managed by our infrastructure (e.g., external KML), this will reject the
  * request (the promise will be rejected)
  */
-function loadKmlMetadata(kmlLayer: KMLLayer, staging: Staging = 'production'): Promise<KMLMetadata> {
+function loadKmlMetadata(
+    kmlLayer: KMLLayer,
+    staging: Staging = 'production'
+): Promise<KMLMetadata> {
     return new Promise((resolve, reject) => {
         if (!kmlLayer) {
             reject(new Error('Missing KML layer, cannot load metadata'))

@@ -50,6 +50,10 @@ const config: UserConfig = {
                     dest: './scss/',
                 },
                 {
+                    src: normalizePath(`${__dirname}/src/css/*`),
+                    dest: './css/',
+                },
+                {
                     src: normalizePath(`${__dirname}/src/fonts/*`),
                     dest: './fonts/',
                     overwrite: false,

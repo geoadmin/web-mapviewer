@@ -1,0 +1,85 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: 'Noto Sans', sans-serif;
+
+  /* from https://github.com/swiss/designsystem/blob/main/css/skins/default.postcss */
+  --color-red-50: #ffedee;
+  --color-red-100: #fae1e2;
+  --color-red-200: #ffccce;
+  --color-red-300: #fa9da1;
+  --color-red-400: #fc656b;
+  --color-red-500: #e53940;
+  --color-red-600: #d8232a;
+  --color-red-700: #bf1f25;
+  --color-red-800: #99191e;
+  --color-red-900: #801519;
+  --color-primary-50: var(--color-red-50);
+  --color-primary-100: var(--color-red-100);
+  --color-primary-200: var(--color-red-200);
+  --color-primary-300: var(--color-red-300);
+  --color-primary-400: var(--color-red-400);
+  --color-primary-500: var(--color-red-500);
+  --color-primary-600: var(--color-red-600);
+  --color-primary-700: var(--color-red-700);
+  --color-primary-800: var(--color-red-800);
+  --color-primary-900: var(--color-red-900);
+
+  /* from https://github.com/swiss/designsystem/blob/main/css/skins/default.postcss */
+  --color-gray-50: #f0f4f7;
+  --color-gray-100: #dfe4e9;
+  --color-gray-200: #acb4bd;
+  --color-gray-300: #828e9a;
+  --color-gray-400: #596978;
+  --color-gray-500: #46596b;
+  --color-gray-600: #2f4356;
+  --color-gray-700: #263645;
+  --color-gray-800: #1c2834;
+  --color-gray-900: #131b22;
+  --color-secondary-50: var(--color-gray-50);
+  --color-secondary-100: var(--color-gray-100);
+  --color-secondary-200: var(--color-gray-200);
+  --color-secondary-300: var(--color-gray-300);
+  --color-secondary-400: var(--color-gray-400);
+  --color-secondary-500: var(--color-gray-500);
+  --color-secondary-600: var(--color-gray-600);
+  --color-secondary-700: var(--color-gray-700);
+  --color-secondary-800: var(--color-gray-800);
+  --color-secondary-900: var(--color-gray-900);
+
+  /* from https://github.com/swiss/designsystem/blob/main/css/skins/freebrand.postcss */
+  --color-green-50: #eaffe9;
+  --color-green-100: #d3ebd2;
+  --color-green-200: #bdd8bc;
+  --color-green-300: #a7c4a6;
+  --color-green-400: #91b191;
+  --color-green-500: #7c9f7c;
+  --color-green-600: #678d67;
+  --color-green-700: #537b54;
+  --color-green-800: #3e6940;
+  --color-green-900: #2a582e;
+
+  /* from https://github.com/swiss/designsystem/blob/main/css/skins/intranet.postcss */
+  --color-blue-50: #eff6ff;
+  --color-blue-100: #dbeafe;
+  --color-blue-200: #bfdbfe;
+  --color-blue-300: #93c5fd;
+  --color-blue-400: #60a5fa;
+  --color-blue-500: #3b82f6;
+  --color-blue-600: #2563eb;
+  --color-blue-700: #1d4ed8;
+  --color-blue-800: #1e40af;
+  --color-blue-900: #1e3a8a;
+}
+
+:root {
+  --ui-primary: var(--color-gray-400);
+
+  --ui-error: var(--color-red-600);
+
+  --ui-warning: var(--color-amber-500);
+  --ui-info: var(--color-blue-400);
+  --ui-success: var(--color-green-500);
+}

@@ -6,6 +6,7 @@ import type { Size } from 'ol/size'
 import { DEFAULT_ICON_SIZE, DEFAULT_TITLE_OFFSET } from '@swissgeo/staging-config/constants'
 import { styleUtils } from '@swissgeo/theme'
 import { fromString } from 'ol/color'
+import RenderFeature from 'ol/render/Feature'
 import { Fill, Stroke, Text } from 'ol/style'
 import Icon from 'ol/style/Icon'
 import Style from 'ol/style/Style'
@@ -243,6 +244,9 @@ function calculateTextOffsetFromPlacement(
 
 /** Calculates the width of a feature text given a text and a text scale */
 function calculateFeatureTextWidth(text: string, textScale: number): number {
+    if (!document) {
+        return 0
+    }
     const canvas = document.createElement('canvas')
     const context = canvas.getContext('2d')
     // In unit tests the context is not available
@@ -353,9 +357,13 @@ function geoadminStyleFunction(
             scale: editableFeature.iconSize?.iconScale,
         })
     }
+    const featureGeometry = feature.getGeometry()
+    if (!featureGeometry || featureGeometry instanceof RenderFeature) {
+        return undefined
+    }
     const styles = [
         new Style({
-            geometry: feature.get('geodesic')?.getGeodesicGeom() ?? feature.getGeometry(),
+            geometry: featureGeometry,
             image,
             text: new Text({
                 text: editableFeature?.title ?? feature.get('name'),
@@ -407,11 +415,10 @@ function geoadminStyleFunction(
             })
         )
     }
-    const polygonGeom = feature.get('geodesic')?.getGeodesicPolygonGeom()
-    if (polygonGeom) {
+    if (featureGeometry.getType() === 'Polygon') {
         styles.push(
             new Style({
-                geometry: polygonGeom,
+                geometry: featureGeometry,
                 fill: isDrawing
                     ? styleUtils.whiteSketchFill
                     : new Fill({

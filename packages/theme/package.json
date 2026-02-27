@@ -19,6 +19,7 @@
             "import": "./dist/index.css",
             "require": "./dist/index.umd.cjs"
         },
+        "./css/*": "./dist/css/*",
         "./scss": "./dist/scss/index.scss",
         "./scss/*": "./dist/scss/*",
         "./fonts/*": "./dist/fonts/*"
@@ -53,8 +54,11 @@
     },
     "peerDependencies": {
         "@fortawesome/fontawesome-svg-core": "catalog:",
-        "bootstrap": "catalog:",
         "ol": "catalog:",
         "stylelint": "catalog:"
+    },
+    "optionalDependencies": {
+        "bootstrap": "catalog:",
+        "tailwindcss": "catalog:"
     }
 }

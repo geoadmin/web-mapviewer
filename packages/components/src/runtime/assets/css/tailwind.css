@@ -1,0 +1,8 @@
+@import 'tailwindcss';
+
+@import "@swissgeo/theme/css/geoadmin-tailwind.css";
+
+@import "@nuxt/ui";
+
+/* Helping tailwindcss know where our components are. */
+@source "../../components";

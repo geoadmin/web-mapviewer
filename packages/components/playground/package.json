@@ -1,0 +1,15 @@
+{
+    "name": "@swissgeo/components-playground",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "nuxt build",
+        "dev": "nuxt dev",
+        "generate": "nuxt generate"
+    },
+    "dependencies": {
+        "@nuxt/ui": "catalog:",
+        "@swissgeo/components": "latest",
+        "nuxt": "^4.3.0"
+    }
+}

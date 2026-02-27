@@ -48,3 +48,7 @@ package-lock.json
 
 # Dev
 .specstory
+
+# NuxtUI
+**/packages/**/auto-imports.d.ts
+**/packages/**/components.d.ts

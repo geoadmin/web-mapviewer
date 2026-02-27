@@ -1,0 +1,89 @@
+{
+    "name": "@swissgeo/drawing",
+    "version": "1.0.0",
+    "description": "NuxtUI module that contains SwissGeo drawing component",
+    "repository": "geoadmin/web-mapviewer",
+    "license": "BSD-3-Clause",
+    "type": "module",
+    "exports": {
+        ".": {
+            "types": "./dist/types.d.mts",
+            "import": "./dist/module.mjs"
+        }
+    },
+    "main": "./dist/module.mjs",
+    "typesVersions": {
+        "*": {
+            ".": [
+                "./dist/types.d.mts"
+            ]
+        }
+    },
+    "files": [
+        "dist"
+    ],
+    "workspaces": [
+        "playground"
+    ],
+    "scripts": {
+        "dev": "npm run dev:prepare && nuxt dev playground",
+        "dev:build": "nuxt build playground",
+        "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxt prepare playground",
+        "lint": "eslint .",
+        "prepack": "nuxt-module-build build",
+        "prepare": "nuxt-module-build build --stub && nuxt-module-build prepare  && pnpm run prepack",
+        "release": "npm run lint && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
+        "test": "vitest run",
+        "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit",
+        "test:watch": "vitest watch"
+    },
+    "dependencies": {
+        "@nuxt/kit": "catalog:",
+        "@swissgeo/api": "workspace:*",
+        "@swissgeo/components": "workspace:*",
+        "@swissgeo/coordinates": "workspace:*",
+        "@swissgeo/layers": "workspace:*",
+        "@swissgeo/log": "workspace:*",
+        "@swissgeo/numbers": "workspace:*",
+        "@swissgeo/staging-config": "workspace:*",
+        "@swissgeo/theme": "workspace:*",
+        "@tmcw/togeojson": "catalog:",
+        "@turf/turf": "catalog:",
+        "axios": "catalog:",
+        "uuid": "catalog:"
+    },
+    "devDependencies": {
+        "@nuxt/devtools": "catalog:",
+        "@nuxt/eslint-config": "catalog:",
+        "@nuxt/icon": "catalog:",
+        "@nuxt/module-builder": "catalog:",
+        "@nuxt/schema": "catalog:",
+        "@nuxt/test-utils": "catalog:",
+        "@nuxt/ui": "catalog:",
+        "@nuxtjs/i18n": "catalog:",
+        "@pinia/nuxt": "catalog:",
+        "@swissgeo/config-eslint": "workspace:",
+        "@types/node": "catalog:",
+        "changelogen": "catalog:",
+        "eslint": "catalog:",
+        "nuxt": "catalog:",
+        "tailwindcss": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+        "vitest": "catalog:",
+        "vue-tsc": "catalog:"
+    },
+    "peerDependencies": {
+        "@nuxt/ui": "catalog:",
+        "@swissgeo/layers": "workspace:*",
+        "@swissgeo/log": "workspace:*",
+        "@swissgeo/staging-config": "workspace:*",
+        "axios": "catalog:",
+        "ol": "catalog:",
+        "pako": "catalog:",
+        "pinia": "catalog:",
+        "proj4": "catalog:",
+        "vue": "catalog:",
+        "vue-i18n": "catalog:"
+    }
+}

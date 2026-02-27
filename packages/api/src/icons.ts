@@ -1,3 +1,5 @@
+import type { Staging } from '@swissgeo/staging-config'
+
 import log from '@swissgeo/log'
 import { getViewerDedicatedServicesBaseUrl } from '@swissgeo/staging-config'
 import axios from 'axios'
@@ -66,12 +68,14 @@ function generateIconURL(icon: DrawingIcon, iconColor: string = '#ff0000') {
  * Also retrieve all available icons for those icon sets (so no need to do any additional request to
  * the backend after that)
  */
-async function loadAllIconSetsFromBackend(): Promise<DrawingIconSet[]> {
+async function loadAllIconSetsFromBackend(
+    staging: Staging = 'production'
+): Promise<DrawingIconSet[]> {
     const sets: DrawingIconSet[] = []
     try {
         const rawSets = (
             await axios.get<IconAPIIconSetsResponse>(
-                `${getViewerDedicatedServicesBaseUrl()}icons/sets`
+                `${getViewerDedicatedServicesBaseUrl(staging)}icons/sets`
             )
         ).data.items
         for (const rawSet of rawSets) {

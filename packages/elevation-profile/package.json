@@ -35,9 +35,6 @@
         "@fortawesome/free-regular-svg-icons": "catalog:",
         "@fortawesome/free-solid-svg-icons": "catalog:",
         "@fortawesome/vue-fontawesome": "catalog:",
-        "@swissgeo/api": "workspace:*",
-        "@swissgeo/coordinates": "workspace:*",
-        "@swissgeo/log": "workspace:*",
         "@swissgeo/numbers": "workspace:*",
         "@swissgeo/staging-config": "workspace:*",
         "@swissgeo/tooltip": "workspace:*",
@@ -46,9 +43,7 @@
         "chart.js": "catalog:",
         "chartjs-plugin-zoom": "catalog:",
         "proj4": "catalog:",
-        "vue": "catalog:",
-        "vue-chartjs": "catalog:",
-        "vue-i18n": "catalog:"
+        "vue-chartjs": "catalog:"
     },
     "devDependencies": {
         "@intlify/core-base": "catalog:",
@@ -75,7 +70,12 @@
         "vue-tsc": "catalog:"
     },
     "peerDependencies": {
-        "proj4": "catalog:"
+        "@swissgeo/api": "workspace:*",
+        "@swissgeo/coordinates": "workspace:*",
+        "@swissgeo/log": "workspace:*",
+        "proj4": "catalog:",
+        "vue": "catalog:",
+        "vue-i18n": "catalog:"
     },
     "optionalDependencies": {
         "cesium": "catalog:",

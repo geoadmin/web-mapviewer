@@ -13,6 +13,7 @@ export type BackendServices =
     | 'vectorTiles'
     | 'proxy'
     | 'viewerSpecific'
+    | 'viewer'
 
 export type ServiceBaseUrl = {
     [key in Staging]: string
@@ -129,6 +130,11 @@ export const servicesBaseUrl: ServicesBaseUrl = {
         integration: 'https://sys-map.int.bgdi.ch/api/',
         production: 'https://map.geo.admin.ch/api/',
     },
+    viewer: {
+        development: 'https://sys-map.dev.bgdi.ch/',
+        integration: 'https://sys-map.int.bgdi.ch/',
+        production: 'https://map.geo.admin.ch/',
+    },
 }
 
 /** Adds a slash at the end of the URL if there is none */
@@ -154,6 +160,7 @@ const baseUrlOverrides: Record<BackendServices, string | undefined> = {
     vectorTiles: undefined,
     proxy: undefined,
     viewerSpecific: undefined,
+    viewer: undefined,
 }
 
 export function hasBaseUrlOverrides(): boolean {
@@ -212,6 +219,10 @@ export function getVectorTilesBaseUrl(staging: Staging = 'production'): string {
     return getBaseUrl('vectorTiles', staging)
 }
 
+export function getViewerBaseUrl(staging: Staging = 'production'): string {
+    return getBaseUrl('viewer', staging)
+}
+
 export default {
     setBaseUrlOverrides,
     getBaseUrl,
@@ -225,4 +236,5 @@ export default {
     getWmtsBaseUrl,
     get3dTilesBaseUrl,
     getVectorTilesBaseUrl,
+    getViewerBaseUrl,
 }
