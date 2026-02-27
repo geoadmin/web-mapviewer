@@ -219,10 +219,10 @@ const tooltipContent = computed<string>(() => {
     const title = t('offline_modal_title')
     let extraInfoKey = 'wait_data_loading'
     if (swInsecureContext.value) {
-        return `${title}: Service worker requires a secure context (HTTPS with a trusted certificate).`
+        return `${title}: ${t('offline_sw_secure_context_required')}`
     }
     if (swValidationFailed.value) {
-        return `${title}: Service worker configuration error. Offline functionality may not work correctly.`
+        return `${title}: ${t('offline_sw_configuration_error')}`
     }
     if (needRefresh.value) {
         extraInfoKey = 'offline_cache_obsolete'
@@ -296,10 +296,10 @@ function refreshCache() {
                 size="sm"
             />
             <span v-if="withText && swInsecureContext">
-                Service worker requires HTTPS with a trusted certificate
+                {{ t('offline_sw_secure_context_required') }}
             </span>
             <span v-if="withText && swValidationFailed">
-                Service worker configuration error
+                {{ t('offline_sw_configuration_error') }}
             </span>
             <span v-if="withText && !swValidationFailed && !offlineReady && !needRefresh">
                 {{ t('wait_data_loading') }}

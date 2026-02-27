@@ -1,3 +1,4 @@
+/* eslint-disable no-console */ 
 /**
  * Vite plugin that validates the service worker registration path and emits a build validation file.
  *
@@ -21,7 +22,6 @@ export default function versionServiceWorkerPath(appVersion, staging) {
 
         generateBundle(options, bundle) {
             swPatternFound = false
-            // eslint-disable-next-line no-console
             console.log('[vite-plugin-version-sw-path] Scanning bundles for SW registration...')
 
             for (const fileName in bundle) {
@@ -33,7 +33,6 @@ export default function versionServiceWorkerPath(appVersion, staging) {
                     const workboxPattern = /new\s+(\w+)\("\.\/service-workers\.js"/g
 
                     if (workboxPattern.test(chunk.code)) {
-                        // eslint-disable-next-line no-console
                         console.log(
                             `[vite-plugin-version-sw-path] Found SW registration in ${fileName}`
                         )
@@ -42,7 +41,6 @@ export default function versionServiceWorkerPath(appVersion, staging) {
 
                     // Pattern 2: Look for standalone string references to the root SW path
                     if (chunk.code.includes('"./service-workers.js"')) {
-                        // eslint-disable-next-line no-console
                         console.log(
                             `[vite-plugin-version-sw-path] Found SW path reference in ${fileName}`
                         )
@@ -83,13 +81,11 @@ export default function versionServiceWorkerPath(appVersion, staging) {
                     JSON.stringify(validationData, null, 2),
                     'utf-8'
                 )
-                // eslint-disable-next-line no-console
                 console.log(
                     `[vite-plugin-version-sw-path] Validation file written: ${validationFilePath}`
                 )
 
                 if (!swPatternFound) {
-                    // eslint-disable-next-line no-console
                     console.error(
                         '[vite-plugin-version-sw-path] ERROR: SW versioning validation FAILED'
                     )
