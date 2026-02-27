@@ -24,7 +24,6 @@ import updateDrawingPreferences from '@/store/modules/drawing/actions/updateDraw
 import { isDrawingEmpty } from '@/store/modules/drawing/getters/isDrawingEmpty'
 import isDrawingModified from '@/store/modules/drawing/getters/isDrawingModified'
 import showNotSharedDrawingWarning from '@/store/modules/drawing/getters/showNotSharedDrawingWarning'
-import { DrawingSaveState, EditMode, OnlineMode } from '@/store/modules/drawing/types'
 
 const defaultDrawingTitle = 'draw_mode_title'
 
@@ -36,7 +35,7 @@ const state = (): DrawingStoreState => ({
     },
     edit: {
         featureType: undefined,
-        mode: EditMode.Off,
+        mode: 'OFF',
         reverseLineStringExtension: false,
         preferred: {
             size: featureStyleUtils.MEDIUM,
@@ -54,11 +53,11 @@ const state = (): DrawingStoreState => ({
         title: defaultDrawingTitle,
     },
     save: {
-        state: DrawingSaveState.Initial,
+        state: 'INITIAL',
         pending: undefined,
     },
     // online: true,
-    onlineMode: OnlineMode.Online,
+    onlineMode: 'ONLINE',
     name: undefined,
     isDrawingNew: true,
     isDrawingEditShared: false,

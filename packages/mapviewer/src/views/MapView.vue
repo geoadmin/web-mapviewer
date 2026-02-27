@@ -17,7 +17,6 @@ import MenuModule from '@/modules/menu/MenuModule.vue'
 import useCesiumStore from '@/store/modules/cesium'
 import useDrawingStore from '@/store/modules/drawing'
 import useUIStore from '@/store/modules/ui'
-import { UIModes } from '@/store/modules/ui/types'
 import AppVersion from '@/utils/components/AppVersion.vue'
 import DragDropOverlay from '@/utils/components/DragDropOverlay.vue'
 import LoadingBar from '@/utils/components/LoadingBar.vue'
@@ -29,41 +28,34 @@ const cesiumStore = useCesiumStore()
 const uiStore = useUIStore()
 const drawingStore = useDrawingStore()
 
-const is3DActive = computed(() => cesiumStore.active)
-const isDrawingMode = computed(() => drawingStore.overlay.show)
-const isPhoneMode = computed(() => uiStore.mode === UIModes.Phone)
-const showLoadingBar = computed(() => uiStore.showLoadingBar)
-const showDragAndDropOverlay = computed(() => uiStore.showDragAndDropOverlay)
-const loadDrawingModule = computed(() => {
-    return isDrawingMode.value && !is3DActive.value
-})
+const loadDrawingModule = computed<boolean>(() => drawingStore.overlay.show && !cesiumStore.active)
 </script>
 
 <template>
     <div class="view no-print">
-        <LoadingBar v-show="showLoadingBar" />
+        <LoadingBar v-show="uiStore.showLoadingBar" />
         <MapModule>
             <MenuModule />
             <MapToolbox
                 geoloc-button
-                :full-screen-button="!isDrawingMode"
-                :toggle3d-button="!isDrawingMode"
+                :full-screen-button="!drawingStore.overlay.show"
+                :toggle3d-button="!drawingStore.overlay.show"
                 compass-button
             >
-                <TimeSliderButton v-if="!is3DActive" />
+                <TimeSliderButton v-if="!cesiumStore.active" />
             </MapToolbox>
             <!-- we place the drawing module here so that it can receive the OpenLayers map instance through provide/inject -->
             <DrawingModule v-if="loadDrawingModule" />
             <template #footer>
                 <MapFooter>
                     <template
-                        v-if="isPhoneMode"
+                        v-if="uiStore.isPhoneMode"
                         #top-left
                     >
                         <div class="d-flex flex-column align-items-start">
                             <BackgroundSelector class="background-selector p-2" />
                             <OpenLayersScale
-                                v-if="!is3DActive"
+                                v-if="!cesiumStore.active"
                                 class="p-1"
                             />
                         </div>
@@ -71,7 +63,7 @@ const loadDrawingModule = computed(() => {
                     <template #top-right>
                         <div class="d-flex flex-column align-items-end">
                             <BackgroundSelector
-                                v-if="!isPhoneMode"
+                                v-if="!uiStore.isPhoneMode"
                                 class="background-selector p-2"
                             />
                             <MapFooterAttributionList class="rounded-top-2 rounded-end-0" />
@@ -81,19 +73,19 @@ const loadDrawingModule = computed(() => {
                         <InfoboxModule />
                     </template>
                     <template
-                        v-if="!isPhoneMode"
+                        v-if="!uiStore.isPhoneMode"
                         #bottom-left
                     >
-                        <template v-if="!is3DActive">
+                        <template v-if="!cesiumStore.active">
                             <OpenLayersScale />
                             <OpenLayersMouseTracker />
                         </template>
-                        <template v-if="is3DActive">
+                        <template v-if="cesiumStore.active">
                             <CesiumMouseTracker />
                         </template>
                     </template>
                     <template
-                        v-if="!isPhoneMode"
+                        v-if="!uiStore.isPhoneMode"
                         #bottom-right
                     >
                         <AppVersion />
@@ -103,7 +95,7 @@ const loadDrawingModule = computed(() => {
                 </MapFooter>
             </template>
         </MapModule>
-        <DragDropOverlay v-if="showDragAndDropOverlay" />
+        <DragDropOverlay v-if="uiStore.showDragAndDropOverlay" />
     </div>
 </template>
 

@@ -11,11 +11,10 @@ import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { ENVIRONMENT, IS_TESTING_WITH_CYPRESS } from '@/config'
+import { isOnlineMode } from '@/store/modules/drawing/utils/isOnlineMode'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
-
-import { isOnlineMode } from '../utils/isOnlineMode'
 
 interface InitiateDrawingOptions {
     adminId?: string

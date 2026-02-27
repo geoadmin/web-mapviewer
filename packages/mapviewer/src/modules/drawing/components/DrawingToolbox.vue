@@ -16,7 +16,6 @@ import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxBut
 import SharePopup from '@/modules/drawing/components/SharePopup.vue'
 import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
 import useDrawingStore from '@/store/modules/drawing'
-import { DrawingSaveState, EditMode } from '@/store/modules/drawing/types'
 import { isOnlineMode } from '@/store/modules/drawing/utils/isOnlineMode'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
@@ -86,7 +85,7 @@ const isAllowDeleteLastPoint = computed<boolean>(
         // Allow deleting the last point only if we are drawing line or measure
         // or when extending line
         isDrawingLineOrMeasure.value ||
-        (drawingStore.edit.mode === EditMode.Extend &&
+        (drawingStore.edit.mode === 'EXTEND' &&
             selectedLineString.value !== undefined &&
             selectedLineCoordinates.value !== undefined &&
             selectedLineCoordinates.value.length > 2)
@@ -96,20 +95,18 @@ const drawingName = computed<string | undefined>({
     set: (value) => debounceSaveDrawingName(value),
 })
 const isDrawingStateError = computed(
-    () =>
-        drawingStore.save.state === DrawingSaveState.LoadError ||
-        drawingStore.save.state === DrawingSaveState.SaveError
+    () => drawingStore.save.state === 'LOAD_ERROR' || drawingStore.save.state === 'SAVE_ERROR'
 )
 /** Return a different translation key depending on the saving status */
 const drawingStateMessage = computed(() => {
     switch (drawingStore.save.state) {
-        case DrawingSaveState.Saving:
+        case 'SAVING':
             return t('draw_file_saving')
-        case DrawingSaveState.Saved:
+        case 'SAVED':
             return t('draw_file_saved')
-        case DrawingSaveState.SaveError:
+        case 'SAVE_ERROR':
             return t('draw_file_load_error')
-        case DrawingSaveState.LoadError:
+        case 'LOAD_ERROR':
             return t('draw_file_save_error')
         default:
             return undefined

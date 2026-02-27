@@ -17,7 +17,6 @@ import { ENVIRONMENT } from '@/config'
 import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/help/common/SendActionButtons.vue'
 import useDrawingStore from '@/store/modules/drawing'
-import { OnlineMode } from '@/store/modules/drawing/types'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
@@ -195,7 +194,7 @@ function onEmailValidate(validation: ValidationResult) {
 async function generateShortLink() {
     const createdShortlink = await shortLinkAPI.createShortLink({
         url: window.location.href,
-        staging: ENVIRONMENT
+        staging: ENVIRONMENT,
     })
     if (createdShortlink) {
         shortLink.value = createdShortlink
@@ -224,10 +223,10 @@ function toggleDrawingOverlay() {
         },
         dispatcher
     )
-    if (drawingStore.onlineMode === OnlineMode.Online) {
-        drawingStore.setOnlineMode(OnlineMode.OfflineWhileOnline, dispatcher)
-    } else if (drawingStore.onlineMode === OnlineMode.None) {
-        drawingStore.setOnlineMode(OnlineMode.Offline, dispatcher)
+    if (drawingStore.onlineMode === 'ONLINE') {
+        drawingStore.setOnlineMode('OFFLINE_WHILE_ONLINE', dispatcher)
+    } else if (drawingStore.onlineMode === 'NONE') {
+        drawingStore.setOnlineMode('OFFLINE', dispatcher)
     }
 }
 

@@ -7,7 +7,6 @@ import type { ComponentPublicInstance } from 'vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { kmlUtils } from '@swissgeo/api/utils'
-import { LayerType } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { WarningMessage } from '@swissgeo/log/Message'
 import { computed, inject, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
@@ -23,7 +22,6 @@ import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
 import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
 import useDrawingStore from '@/store/modules/drawing'
-import { EditMode } from '@/store/modules/drawing/types'
 import addKmlFeaturesToDrawingLayer from '@/store/modules/drawing/utils/addKmlFeaturesToDrawingLayer'
 import useLayersStore from '@/store/modules/layers'
 import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
@@ -114,7 +112,7 @@ watch(availableIconSets, () => {
 
 onMounted(() => {
     const kmlLayerWithAdminId: KMLLayer | undefined = layersStore.activeLayers
-        .filter((layer) => layer.type === LayerType.KML)
+        .filter((layer) => layer.type === 'KML')
         .map((layer) => layer as KMLLayer)
         .find((kmlLayer) => !!kmlLayer.adminId)
 
@@ -179,7 +177,7 @@ const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
 
 function removeLastPoint() {
     // Only delete the last point when we are drawing a feature (or editing it)
-    if (!!drawingStore.edit.featureType || drawingStore.edit.mode === EditMode.Extend) {
+    if (!!drawingStore.edit.featureType || drawingStore.edit.mode === 'EXTEND') {
         drawingInteractions.value?.removeLastPoint()
     }
 }
@@ -222,7 +220,7 @@ function closeDrawing() {
         <DrawingTooltip />
         <DrawingInteractions ref="drawingInteractions" />
         <AddVertexButtonOverlay
-            v-if="drawingStore.edit.mode === EditMode.Modify && lineStringGeometry"
+            v-if="drawingStore.edit.mode === 'MODIFY' && lineStringGeometry"
             :coordinates="lineStringGeometry.coordinates"
         />
         <ModalWithBackdrop

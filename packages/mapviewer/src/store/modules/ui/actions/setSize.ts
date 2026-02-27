@@ -4,10 +4,8 @@ import {
     MAX_WIDTH_SHOW_FLOATING_TOOLTIP,
 } from '@swissgeo/staging-config/constants'
 
-import type { UIStore } from '@/store/modules/ui/types'
+import type { UIStore, UIMode } from '@/store/modules/ui/types'
 import type { ActionDispatcher } from '@/store/types'
-
-import { UIModes } from '@/store/modules/ui/types'
 
 export default function setSize(
     this: UIStore,
@@ -22,12 +20,12 @@ export default function setSize(
         this.featureInfoPosition = 'bottomPanel'
     }
 
-    let wantedUiMode: UIModes
+    let wantedUiMode: UIMode
     if (this.width < BREAKPOINT_PHONE_WIDTH || this.height < BREAKPOINT_PHONE_HEIGHT) {
-        wantedUiMode = UIModes.Phone
+        wantedUiMode = 'phone'
     } else {
         // so the UI mode Desktop also includes the tablet mode.
-        wantedUiMode = UIModes.Desktop
+        wantedUiMode = 'desktop'
     }
     if (wantedUiMode !== this.mode) {
         this.setUiMode(wantedUiMode, dispatcher)

@@ -5,7 +5,6 @@ import type { Viewer } from 'cesium'
 import type { ShallowRef } from 'vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { LayerType } from '@swissgeo/layers'
 import log from '@swissgeo/log'
 import { LineString, Point, Polygon } from 'ol/geom'
 import { computed, inject, onMounted, ref, watch } from 'vue'
@@ -91,11 +90,7 @@ function highlightSelectedFeatures(): void {
             const hasLayer = (obj: LayerFeature | EditableFeature): obj is LayerFeature =>
                 !!obj && typeof obj === 'object' && 'layer' in obj
 
-            if (
-                hasLayer(f) &&
-                f.layer.type === LayerType.VECTOR &&
-                'use3dTileSubFolder' in f.layer
-            ) {
+            if (hasLayer(f) && f.layer.type === 'VECTOR' && 'use3dTileSubFolder' in f.layer) {
                 return
             }
 

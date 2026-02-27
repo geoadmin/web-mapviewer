@@ -9,7 +9,6 @@ import type { ActionDispatcher } from '@/store/types'
 
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import useDrawingStore from '@/store/modules/drawing'
-import { OnlineMode } from '@/store/modules/drawing/types'
 import useMapStore from '@/store/modules/map'
 import useUIStore from '@/store/modules/ui'
 
@@ -50,10 +49,10 @@ function openDrawingModule() {
         },
         dispatcher
     )
-    if (drawingStore.onlineMode === OnlineMode.Offline) {
-        drawingStore.setOnlineMode(OnlineMode.OnlineWhileOffline, dispatcher)
-    } else if (drawingStore.onlineMode === OnlineMode.None) {
-        drawingStore.setOnlineMode(OnlineMode.Online, dispatcher)
+    if (drawingStore.onlineMode === 'OFFLINE') {
+        drawingStore.setOnlineMode('ONLINE_WHILE_OFFLINE', dispatcher)
+    } else if (drawingStore.onlineMode === 'NONE') {
+        drawingStore.setOnlineMode('ONLINE', dispatcher)
     }
 }
 </script>

@@ -11,7 +11,6 @@ import { DEFAULT_PROJECTION } from '@/config'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
 import usePositionStore from '@/store/modules/position'
-import { CrossHairs } from '@/store/modules/position/types'
 import useSearchStore from '@/store/modules/search'
 
 registerProj4(proj4)
@@ -642,7 +641,7 @@ describe('Test the search bar result handling', () => {
             cy.goToMapView({
                 queryParams: {
                     swisssearch: swissSearchString,
-                    crosshair: CrossHairs.Cross,
+                    crosshair: 'cross',
                 },
                 withHash: false,
             })
@@ -650,7 +649,7 @@ describe('Test the search bar result handling', () => {
                 searchQuery: swissSearchString,
                 expectedCenter: swissSearchXYCoordinates,
                 expectedPinnedLocation: swissSearchXYCoordinates,
-                expectedCrosshair: CrossHairs.Cross,
+                expectedCrosshair: 'cross',
                 expectedCrosshairPosition: swissSearchXYCoordinates,
             })
         })
@@ -679,7 +678,7 @@ describe('Test the search bar result handling', () => {
             cy.goToMapView({
                 queryParams: {
                     swisssearch: swissSearchString,
-                    crosshair: CrossHairs.Cross,
+                    crosshair: 'cross',
                 },
                 withHash: true,
             })
@@ -687,7 +686,7 @@ describe('Test the search bar result handling', () => {
                 searchQuery: swissSearchString,
                 expectedCenter: swissSearchXYCoordinates,
                 expectedPinnedLocation: swissSearchXYCoordinates,
-                expectedCrosshair: CrossHairs.Cross,
+                expectedCrosshair: 'cross',
                 expectedCrosshairPosition: swissSearchXYCoordinates,
             })
         })
@@ -699,7 +698,7 @@ describe('Test the search bar result handling', () => {
             cy.goToMapView({
                 queryParams: {
                     swisssearch: swissSearchString,
-                    crosshair: `${CrossHairs.Cross},${crossHairX},${crossHairY}`,
+                    crosshair: `${'cross'},${crossHairX},${crossHairY}`,
                 },
                 withHash: true,
             })
@@ -707,7 +706,7 @@ describe('Test the search bar result handling', () => {
                 searchQuery: swissSearchString,
                 expectedCenter: swissSearchXYCoordinates,
                 expectedPinnedLocation: swissSearchXYCoordinates,
-                expectedCrosshair: CrossHairs.Cross,
+                expectedCrosshair: 'cross',
                 expectedCrosshairPosition: crossHairXYCoordinates,
             })
         })

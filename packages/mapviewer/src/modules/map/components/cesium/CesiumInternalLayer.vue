@@ -16,7 +16,6 @@ import type {
     Layer,
 } from '@swissgeo/layers'
 
-import { LayerType } from '@swissgeo/layers'
 import { computed } from 'vue'
 
 import CesiumGeoJSONLayer from '@/modules/map/components/cesium/CesiumGeoJSONLayer.vue'
@@ -38,13 +37,13 @@ const { layerConfig, zIndex, projection, isTimeSliderActive, parentLayerOpacity 
 const positionStore = usePositionStore()
 const resolution = computed(() => positionStore.resolution)
 
-const isWMTS = computed(() => layerConfig.type === LayerType.WMTS)
+const isWMTS = computed(() => layerConfig.type === 'WMTS')
 const wmtsLayerConfig = computed(() => layerConfig as GeoAdminWMTSLayer | ExternalWMTSLayer)
-const isWMS = computed(() => layerConfig.type === LayerType.WMS)
+const isWMS = computed(() => layerConfig.type === 'WMS')
 const wmsLayerConfig = computed(() => layerConfig as GeoAdminWMSLayer | ExternalWMSLayer)
-const isGroup = computed(() => layerConfig.type === LayerType.GROUP)
+const isGroup = computed(() => layerConfig.type === 'GROUP')
 const groupConfig = computed(() => layerConfig as GeoAdminGroupOfLayers)
-const isAggregate = computed(() => layerConfig.type === LayerType.AGGREGATE)
+const isAggregate = computed(() => layerConfig.type === 'AGGREGATE')
 const aggregateConfig = computed(() => layerConfig as GeoAdminAggregateLayer)
 
 function shouldAggregateSubLayerBeVisible(subLayer: {
@@ -59,7 +58,7 @@ function shouldAggregateSubLayerBeVisible(subLayer: {
 
 <template>
     <CesiumVectorLayer
-        v-if="layerConfig.type === LayerType.VECTOR"
+        v-if="layerConfig.type === 'VECTOR'"
         :layer-config="layerConfig as GeoAdmin3DLayer"
     />
     <CesiumWMTSLayer
@@ -100,15 +99,15 @@ function shouldAggregateSubLayerBeVisible(subLayer: {
         </div>
     </div>
     <CesiumGeoJSONLayer
-        v-if="layerConfig.type === LayerType.GEOJSON && !layerConfig.isLoading"
+        v-if="layerConfig.type === 'GEOJSON' && !layerConfig.isLoading"
         :geo-json-config="layerConfig as GeoAdminGeoJSONLayer"
     />
     <CesiumKMLLayer
-        v-if="layerConfig.type === LayerType.KML && !layerConfig.isLoading"
+        v-if="layerConfig.type === 'KML' && !layerConfig.isLoading"
         :kml-layer-config="layerConfig as KMLLayer"
     />
     <CesiumGPXLayer
-        v-if="layerConfig.type === LayerType.GPX && !layerConfig.isLoading"
+        v-if="layerConfig.type === 'GPX' && !layerConfig.isLoading"
         :gpx-layer-config="layerConfig as GPXLayer"
     />
     <slot />

@@ -1,7 +1,6 @@
 import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { DrawingSaveState } from '@/store/modules/drawing/types'
 import { isOnlineMode } from '@/store/modules/drawing/utils/isOnlineMode'
 import useLayersStore from '@/store/modules/layers'
 
@@ -10,7 +9,7 @@ export default function deleteCurrentDrawing(this: DrawingStore, dispatcher: Act
         return
     }
     this.clearDrawingFeatures(dispatcher)
-    this.setDrawingSaveState(DrawingSaveState.Initial, dispatcher)
+    this.setDrawingSaveState('INITIAL', dispatcher)
     this.setDrawingMode(undefined, dispatcher)
     this.setIsDrawingEditShared(false, dispatcher)
 

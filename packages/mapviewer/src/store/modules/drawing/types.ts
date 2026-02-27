@@ -15,43 +15,50 @@ import type { Raw } from 'vue'
 
 import type useDrawingStore from '@/store/modules/drawing'
 
-export enum DrawingSaveState {
-    /** First state when entering the drawing mode */
-    Initial = 'INITIAL',
-    /** Drawing has been loaded */
-    Loaded = 'LOADED',
-    /** Pending changes -> drawing has been modified and is not saved */
-    UnsavedChanges = 'UNSAVED_CHANGES',
-    /** Drawing is being saved */
-    Saving = 'SAVING',
-    /** Drawing has been saved and no pending changes are remaining */
-    Saved = 'SAVED',
-    /** Could not save drawing */
-    SaveError = 'SAVE_ERROR',
-    /** Could not load drawing */
-    LoadError = 'LOAD_ERROR',
-}
+/**
+ * Possible states of the drawing save process:
+ *
+ * - INITIAL: First state when entering the drawing mode
+ * - LOADED: Drawing has been loaded
+ * - UNSAVED_CHANGES: Pending changes -> drawing has been modified and is not saved
+ * - SAVING: Drawing is being saved
+ * - SAVED: Drawing has been saved and no pending changes are remaining
+ * - SAVE_ERROR: Could not save drawing
+ * - LOAD_ERROR: Could not load drawing
+ */
+export type DrawingSaveState =
+    | 'INITIAL'
+    | 'LOADED'
+    | 'UNSAVED_CHANGES'
+    | 'SAVING'
+    | 'SAVED'
+    | 'SAVE_ERROR'
+    | 'LOAD_ERROR'
 
-export enum EditMode {
-    Off = 'OFF',
-    /** Mode for modifying existing features */
-    Modify = 'MODIFY',
-    /** Mode for extending existing features (for line only) */
-    Extend = 'EXTEND',
-}
+/**
+ * Mode when editing features:
+ *
+ * - OFF: No editing mode selected
+ * - MODIFY: Modify existing features
+ * - EXTEND: Extend existing features (for line only)
+ */
+export type EditMode = 'OFF' | 'MODIFY' | 'EXTEND'
 
-export enum OnlineMode {
-    // No online/offline mode selected
-    None = 'NONE',
-    // KML is saved online
-    Online = 'ONLINE',
-    // KML is saved only locally
-    Offline = 'OFFLINE',
-    // KML is saved online but an Offline drawing is also currently open
-    OnlineWhileOffline = 'ONLINE_WHILE_OFFLINE',
-    // KML is saved locally but an Online drawing is also currently open
-    OfflineWhileOnline = 'OFFLINE_WHILE_ONLINE',
-}
+/**
+ * KML is saved online using the KML backend service Options:
+ *
+ * - ONLINE: KML is saved online
+ * - OFFLINE: KML is saved only locally
+ * - ONLINE_WHILE_OFFLINE: KML is saved online but an Offline drawing is also currently open
+ * - OFFLINE_WHILE_ONLINE: KML is saved locally but an Online drawing is also currently open
+ * - NONE: No online/offline mode selected
+ */
+export type OnlineMode =
+    | 'ONLINE'
+    | 'OFFLINE'
+    | 'ONLINE_WHILE_OFFLINE'
+    | 'OFFLINE_WHILE_ONLINE'
+    | 'NONE'
 
 export interface DrawingPreferences {
     size: FeatureStyleSize

@@ -3,13 +3,8 @@ import type { NormalizedExtent, SingleCoordinate, CoordinateSystem } from '@swis
 import type usePositionStore from '@/store/modules/position'
 import type { CoordinateFormat } from '@/utils/coordinates/coordinateFormat'
 
-export enum CrossHairs {
-    Cross = 'cross',
-    Circle = 'circle',
-    Bowl = 'bowl',
-    Point = 'point',
-    Marker = 'marker',
-}
+export const CrossHairs = ['cross', 'circle', 'bowl', 'point', 'marker'] as const
+export type CrossHair = (typeof CrossHairs)[number]
 
 export interface CameraPosition {
     /** X position of the camera in the 3D reference system (metric mercator) */
@@ -64,7 +59,7 @@ export interface PositionStoreState {
      * 1:100'000, etc...)
      */
     projection: CoordinateSystem
-    crossHair?: CrossHairs
+    crossHair?: CrossHair
     crossHairPosition?: SingleCoordinate
     /**
      * Position of the view when we are in 3D, always expressed in EPSG:3857 (only projection system

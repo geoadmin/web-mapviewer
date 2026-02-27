@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { GeoAdminLayer, Layer } from '@swissgeo/layers'
 
-import { LayerType } from '@swissgeo/layers'
 import { computed } from 'vue'
 
 import CesiumInternalLayer from '@/modules/map/components/cesium/CesiumInternalLayer.vue'
@@ -39,11 +38,11 @@ const startingZIndexForImageryLayers = computed(
 )
 
 function isImageryLayer(layer: Layer): boolean {
-    return [LayerType.WMTS, LayerType.WMS, LayerType.AGGREGATE].includes(layer.type)
+    return ['WMTS', 'WMS', 'AGGREGATE'].includes(layer.type)
 }
 
 function isPrimitiveLayer(layer: Layer): boolean {
-    return [LayerType.GEOJSON, LayerType.KML, LayerType.GPX].includes(layer.type)
+    return ['GEOJSON', 'KML', 'GPX'].includes(layer.type)
 }
 </script>
 

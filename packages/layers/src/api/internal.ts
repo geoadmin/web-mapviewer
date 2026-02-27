@@ -14,7 +14,6 @@ import type {
 } from '@/index'
 
 import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config'
-import { LayerType } from '@/index'
 import { layerUtils, timeConfigUtils } from '@/utils'
 
 export interface LayerConfigResponse {
@@ -150,7 +149,7 @@ export function generateLayerObject(
             break
         case 'wmts': {
             return layerUtils.makeGeoAdminWMTSLayer({
-                type: LayerType.WMTS,
+                type: 'WMTS',
                 name,
                 id,
                 baseUrl: _urlWithTrailingSlash(getWmtsBaseUrl(staging)),
@@ -173,7 +172,7 @@ export function generateLayerObject(
         }
         case 'wms': {
             return layerUtils.makeGeoAdminWMSLayer({
-                type: LayerType.WMS,
+                type: 'WMS',
                 name,
                 id: id,
                 idIn3d: layerConfig.config3d,
@@ -197,7 +196,7 @@ export function generateLayerObject(
         }
         case 'geojson': {
             return layerUtils.makeGeoAdminGeoJSONLayer({
-                type: LayerType.GEOJSON,
+                type: 'GEOJSON',
                 name,
                 id,
                 opacity,
@@ -250,10 +249,7 @@ export function generateLayerObject(
                     lang,
                     staging
                 )
-                if (
-                    subLayer &&
-                    (subLayer.type === LayerType.WMS || subLayer.type === LayerType.WMTS)
-                ) {
+                if (subLayer && (subLayer.type === 'WMS' || subLayer.type === 'WMTS')) {
                     subLayers.push(
                         layerUtils.makeAggregateSubLayer({
                             subLayerId,

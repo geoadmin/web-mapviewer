@@ -9,7 +9,6 @@ import type { Pinia } from 'pinia'
 
 import { featureStyleUtils, kmlUtils } from '@swissgeo/api/utils'
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
-import { LayerType } from '@swissgeo/layers'
 import { randomIntBetween } from '@swissgeo/numbers'
 import { getServiceKmlBaseUrl } from '@swissgeo/staging-config'
 import { recurse } from 'cypress-recurse'
@@ -26,6 +25,7 @@ import { DEFAULT_PROJECTION, ENVIRONMENT } from '@/config'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
+import useUIStore from '@/store/modules/ui'
 
 registerProj4(proj4)
 
@@ -79,7 +79,6 @@ describe('Drawing module tests', () => {
                     )
                 )
         }
-
         function addDescription(description: string): void {
             cy.get('[data-cy="drawing-style-feature-description"]').type(description)
             cy.get('[data-cy="drawing-style-feature-description"]').should(
@@ -93,7 +92,6 @@ describe('Drawing module tests', () => {
                 })
             })
         }
-
         // we use the description to identify the feature and check its
         // geometry type, number of points and type (measure or linepolygon)
         function checkDrawnFeature(
@@ -563,6 +561,10 @@ describe('Drawing module tests', () => {
         })
         it('can create line / measurement, extend it, and delete the last node by right click / button, and make a polygon', () => {
             cy.viewport(1920, 1080)
+            cy.waitUntilState((pinia) => {
+                const uiStore = useUIStore(pinia)
+                return uiStore.isDesktopMode && uiStore.showFeatureInfoInTooltip
+            })
             cy.clickDrawingTool('LINEPOLYGON')
 
             const lineCoordinates: SingleCoordinate[] = [
@@ -973,7 +975,7 @@ describe('Drawing module tests', () => {
                 const layers = layersStore.activeLayers
                 expect(layers).to.be.an('Array').lengthOf(1)
                 const [drawingLayer] = layers
-                expect(drawingLayer?.type).to.eq(LayerType.KML)
+                expect(drawingLayer?.type).to.eq('KML')
                 expect(drawingLayer?.isVisible).to.be.true
             })
 
@@ -1010,8 +1012,7 @@ describe('Drawing module tests', () => {
                 cy.waitUntilState((pinia: Pinia) => {
                     const layersStore = useLayersStore(pinia)
                     return !!layersStore.activeLayers.find(
-                        (layer) =>
-                            layer.type === LayerType.KML && (layer as KMLLayer).fileId === kmlId
+                        (layer) => layer.type === 'KML' && (layer as KMLLayer).fileId === kmlId
                     )
                 })
 
@@ -1030,8 +1031,7 @@ describe('Drawing module tests', () => {
                 cy.waitUntilState((pinia: Pinia) => {
                     const layersStore = useLayersStore(pinia)
                     return !!layersStore.activeLayers.find(
-                        (layer) =>
-                            layer.type === LayerType.KML && (layer as KMLLayer).fileId === kmlId
+                        (layer) => layer.type === 'KML' && (layer as KMLLayer).fileId === kmlId
                     )
                 })
 

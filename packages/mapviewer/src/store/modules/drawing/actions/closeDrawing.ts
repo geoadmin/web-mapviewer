@@ -6,7 +6,6 @@ import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
-import { OnlineMode } from '@/store/modules/drawing/types'
 import debounceSaveDrawing from '@/store/modules/drawing/utils/debounceSaveDrawing'
 import { isOnlineMode } from '@/store/modules/drawing/utils/isOnlineMode'
 import useFeaturesStore from '@/store/modules/features'
@@ -66,14 +65,14 @@ export default async function closeDrawing(this: DrawingStore, dispatcher: Actio
             delete this.layer.config
         }
 
-        if (this.onlineMode === OnlineMode.Offline) {
-            this.setOnlineMode(OnlineMode.None, dispatcher)
-        } else if (this.onlineMode === OnlineMode.OfflineWhileOnline) {
-            this.setOnlineMode(OnlineMode.Online, dispatcher)
-        } else if (this.onlineMode === OnlineMode.Online) {
-            this.setOnlineMode(OnlineMode.None, dispatcher)
-        } else if (this.onlineMode === OnlineMode.OnlineWhileOffline) {
-            this.setOnlineMode(OnlineMode.Offline, dispatcher)
+        if (this.onlineMode === 'OFFLINE') {
+            this.setOnlineMode('NONE', dispatcher)
+        } else if (this.onlineMode === 'OFFLINE_WHILE_ONLINE') {
+            this.setOnlineMode('ONLINE', dispatcher)
+        } else if (this.onlineMode === 'ONLINE') {
+            this.setOnlineMode('NONE', dispatcher)
+        } else if (this.onlineMode === 'ONLINE_WHILE_OFFLINE') {
+            this.setOnlineMode('OFFLINE', dispatcher)
         }
         this.overlay.show = false
         this.edit.featureType = undefined
