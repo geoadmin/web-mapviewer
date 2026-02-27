@@ -1,16 +1,20 @@
+import type { Staging } from '@swissgeo/staging-config'
+
 import log from '@swissgeo/log'
+import { getWmtsBaseUrl, getApi3BaseUrl } from '@swissgeo/staging-config'
 import axios from 'axios'
 
-import { servicesBaseUrl, type Staging } from '@swissgeo/staging-config'
+import type {
+    AggregateSubLayer,
+    GeoAdminLayer,
+    GeoAdminWMSLayer,
+    GeoAdminWMTSLayer,
+    LayerAttribution,
+    LayerTimeConfigEntry,
+} from '@/index'
 
 import { DEFAULT_GEOADMIN_MAX_WMTS_RESOLUTION } from '@/config'
-import {
-    type AggregateSubLayer,
-    type GeoAdminLayer,
-    type LayerAttribution,
-    type LayerTimeConfigEntry,
-    LayerType,
-} from '@/index'
+import { LayerType } from '@/index'
 import { layerUtils, timeConfigUtils } from '@/utils'
 
 export interface LayerConfigResponse {
@@ -149,7 +153,7 @@ export function generateLayerObject(
                 type: LayerType.WMTS,
                 name,
                 id,
-                baseUrl: _urlWithTrailingSlash(servicesBaseUrl.wmts[staging]),
+                baseUrl: _urlWithTrailingSlash(getWmtsBaseUrl(staging)),
                 idIn3d: layerConfig.config3d,
                 technicalName: serverLayerName,
                 opacity,
@@ -199,8 +203,8 @@ export function generateLayerObject(
                 opacity,
                 isVisible: false,
                 attributions,
-                geoJsonUrl: enforceHttpsProtocol(layerConfig.geojsonUrl!),
-                styleUrl: enforceHttpsProtocol(layerConfig.styleUrl!),
+                geoJsonUrl: enforceHttpsProtocol(layerConfig.geojsonUrl),
+                styleUrl: enforceHttpsProtocol(layerConfig.styleUrl),
                 updateDelay: layerConfig.updateDelay,
                 hasLegend,
                 hasTooltip: false,
@@ -234,9 +238,9 @@ export function generateLayerObject(
 
             // here id would be "parent.layer" in the example above
             const subLayers: AggregateSubLayer[] = []
-            layerConfig.subLayersIds!.forEach((subLayerId: string) => {
+            layerConfig.subLayersIds.forEach((subLayerId: string) => {
                 // each subLayerId is one of the "subLayersIds", so "i.am.a.sub.layer_1" or "i.am.a.sub.layer_2" from the example above
-                const subLayerRawConfig = allOtherLayers[subLayerId]!
+                const subLayerRawConfig = allOtherLayers[subLayerId]
                 // the "real" layer ID (the one that will be used to request the backend) is the serverLayerName of this config
                 // (see example above, that would be "hey.i.am.not.the.same.as.the.sublayer.id")
                 const subLayer = generateLayerObject(
@@ -246,11 +250,14 @@ export function generateLayerObject(
                     lang,
                     staging
                 )
-                if (subLayer) {
+                if (
+                    subLayer &&
+                    (subLayer.type === LayerType.WMS || subLayer.type === LayerType.WMTS)
+                ) {
                     subLayers.push(
                         layerUtils.makeAggregateSubLayer({
                             subLayerId,
-                            layer: subLayer,
+                            layer: subLayer as GeoAdminWMSLayer | GeoAdminWMTSLayer,
                             minResolution: subLayerRawConfig.minResolution,
                             maxResolution: subLayerRawConfig.maxResolution,
                         })
@@ -294,7 +301,7 @@ export function getGeoadminLayerDescription(
     return new Promise((resolve, reject) => {
         axios
             .get(
-                `${servicesBaseUrl.api3[staging]}rest/services/all/MapServer/${layerId}/legend?lang=${lang}`
+                `${getApi3BaseUrl(staging)}rest/services/all/MapServer/${layerId}/legend?lang=${lang}`
             )
             .then((response) => resolve(response.data))
             .catch((error) => {
@@ -318,17 +325,18 @@ export function loadGeoadminLayersConfig(
         const layersConfig: GeoAdminLayer[] = []
         axios
             .get<Record<string, LayerConfigResponse>>(
-                `${servicesBaseUrl.api3[staging]}rest/services/all/MapServer/layersConfig?lang=${lang}`
+                `${getApi3BaseUrl(staging)}rest/services/all/MapServer/layersConfig?lang=${lang}`
             )
             .then(({ data: rawLayersConfig }) => {
                 if (Object.keys(rawLayersConfig).length > 0) {
                     Object.keys(rawLayersConfig).forEach((rawLayerId) => {
-                        const rawLayer = rawLayersConfig[rawLayerId]!
+                        const rawLayer = rawLayersConfig[rawLayerId]
                         const layer = generateLayerObject(
                             rawLayer,
                             rawLayerId,
                             rawLayersConfig,
-                            lang
+                            lang,
+                            staging
                         )
                         if (layer) {
                             layersConfig.push(layer)

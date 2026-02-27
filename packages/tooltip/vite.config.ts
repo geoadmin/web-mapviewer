@@ -1,10 +1,10 @@
+import type { UserConfig } from 'vite'
+
 import tailwindcss from '@tailwindcss/vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import dts from 'unplugin-dts/vite'
-import { fileURLToPath, URL } from 'url'
 import vueDevTools from 'vite-plugin-vue-devtools'
-import type { UserConfig } from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 const config: UserConfig = {
@@ -13,6 +13,7 @@ const config: UserConfig = {
             entry: [resolve(__dirname, 'src/index.ts')],
             name: '@swissgeo/tooltip',
         },
+        sourcemap: true,
         rollupOptions: {
             external: ['vue', 'ol', 'cesium', 'tailwindcss'],
             output: {
@@ -27,7 +28,7 @@ const config: UserConfig = {
     },
     resolve: {
         alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url)),
+            '@': resolve(__dirname, 'src'),
         },
     },
     plugins: [

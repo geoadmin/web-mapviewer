@@ -1,9 +1,8 @@
-import type { FlatExtent } from '@swissgeo/coordinates'
+import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
 
 import {
     allCoordinateSystems,
     coordinatesUtils,
-    CoordinateSystem,
     extentUtils,
     WEBMERCATOR,
     WGS84,
@@ -12,126 +11,27 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { range } from 'lodash'
 import { default as olWMSCapabilities } from 'ol/format/WMSCapabilities'
 
-import type { CapabilitiesParser, ExternalLayerParsingOptions } from '@/parsers/parser'
-import type { ExternalLayerTimeDimension, LayerTimeConfig } from '@/types'
-
-import {
-    type BoundingBox,
-    type ExternalLayerGetFeatureInfoCapability,
-    type ExternalWMSLayer,
-    type LayerAttribution,
-    type LayerLegend,
-    WMS_SUPPORTED_VERSIONS,
+import type {
+    CapabilitiesParser,
+    ExternalLayerParsingOptions,
+    ExternalLayerTimeDimension,
+    LayerTimeConfig,
+    WMSBoundingBox,
+    WMSCapabilitiesResponse,
+    WMSCapabilityLayer,
+    WMSCapabilityLayerStyle,
+} from '@/types'
+import type {
+    ExternalLayerGetFeatureInfoCapability,
+    ExternalWMSLayer,
+    LayerAttribution,
+    LayerLegend,
 } from '@/types/layers'
+
+import { WMS_SUPPORTED_VERSIONS } from '@/types/layers'
 import { layerUtils } from '@/utils'
-import { makeTimeConfig, makeTimeConfigEntry } from '@/utils/timeConfigUtils'
+import timeConfigUtils from '@/utils/timeConfigUtils'
 import { CapabilitiesError } from '@/validation'
-
-interface WMSBoundingBox {
-    crs: string
-    extent: [number, number, number, number]
-    res: [number | null, number | null]
-}
-
-interface WMSLegendURL {
-    Format: string
-    size: [number, number]
-    OnlineResource: string
-}
-
-interface WMSCapabilityLayerStyle {
-    LegendURL: WMSLegendURL[]
-    Identifier: string
-    isDefault: boolean
-}
-interface WMSCapabilityLayerDimension {
-    name: string
-    default: string
-    values: string
-    current?: boolean
-}
-
-export interface WMSCapabilityLayer {
-    Dimension?: WMSCapabilityLayerDimension[]
-    Name: string
-    parent: WMSCapabilityLayer
-    Title: string
-    Layer?: WMSCapabilityLayer[]
-    CRS: string[]
-    Abstract: string
-    queryable: boolean
-    WGS84BoundingBox?: { crs: string; dimensions: unknown }[]
-    BoundingBox?: WMSBoundingBox[]
-    EX_GeographicBoundingBox: [number, number, number, number]
-    Attribution: {
-        LogoUrl: {
-            Format: string
-            OnlineResource: string
-            size: [number, number]
-        }
-        OnlineResource: string
-        Title: string
-    }
-    Style: WMSCapabilityLayerStyle[]
-}
-
-interface DCPType {
-    HTTP: {
-        Get?: {
-            OnlineResource: string
-        }
-        Post?: {
-            OnlineResource: string
-        }
-    }
-}
-
-interface Request {
-    DCPType: DCPType[]
-    Format: string[]
-}
-
-/**
- * GetMap and GetCapabilities are mandatory according to WMS OGC specification, GetFeatureInfo is
- * optional
- */
-export interface WMSRequestCapabilities {
-    GetCapabilities: Request
-    GetMap: Request
-    GetFeatureInfo?: Request
-    GetLegendGraphic?: Request
-}
-
-interface WMSCapability {
-    Layer?: WMSCapabilityLayer
-    TileMatrixSet: Array<{
-        BoundingBox: BoundingBox[]
-        Identifier: string
-        SupportedCRS?: string
-        TileMatrix: object[]
-    }>
-    Request: WMSRequestCapabilities
-    UserDefinedSymbolization?: {
-        SupportSLD: boolean
-    }
-}
-
-export interface WMSCapabilitiesResponse {
-    originUrl: URL
-    version: string
-    Capability?: WMSCapability
-    ServiceProvider?: {
-        ProviderName?: string
-        ProviderSite?: string
-    }
-    OperationsMetadata?: Record<string, unknown>
-    Service: {
-        Title: string
-        OnlineResource: string
-        MaxWidth?: number
-        MaxHeight?: number
-    }
-}
 
 type WMSLayerAndItsParents = {
     layer?: WMSCapabilityLayer
@@ -295,7 +195,7 @@ function getLayerExtent(
     }
     // Finally, search the extent in the parents
     if (!layerExtent && parents.length > 0) {
-        return getLayerExtent(capabilities, layerId, parents[0]!, parents.slice(1), projection)
+        return getLayerExtent(capabilities, layerId, parents[0], parents.slice(1), projection)
     }
 
     if (!layerExtent) {
@@ -387,8 +287,8 @@ function getDimensions(
                 .map((v) => {
                     if (v.includes('/')) {
                         const [min, max, res] = v.split('/')
-                        const minYear = parseDimensionYear(min!)
-                        const maxYear = parseDimensionYear(max!)
+                        const minYear = parseDimensionYear(min)
+                        const maxYear = parseDimensionYear(max)
                         if (minYear === undefined || maxYear === undefined) {
                             log.warn(
                                 `Unsupported dimension min/max value "${min}"/"${max}" for layer ${layerId}`
@@ -397,7 +297,7 @@ function getDimensions(
                         }
                         let step = 1
 
-                        const periodMatch = /P(\d+)Y/.exec(res!)
+                        const periodMatch = /P(\d+)Y/.exec(res)
 
                         if (periodMatch && periodMatch[1]) {
                             step = parseInt(periodMatch[1])
@@ -430,8 +330,9 @@ function getTimeConfig(dimensions?: ExternalLayerTimeDimension[]): LayerTimeConf
         return
     }
     const timeEntries =
-        timeDimension.values?.map((value: string) => makeTimeConfigEntry(value)) ?? []
-    return makeTimeConfig(timeDimension.defaultValue, timeEntries)
+        timeDimension.values?.map((value: string) => timeConfigUtils.makeTimeConfigEntry(value)) ??
+        []
+    return timeConfigUtils.makeTimeConfig(timeDimension.defaultValue, timeEntries)
 }
 
 function getLayerAttributes(
@@ -453,7 +354,7 @@ function getLayerAttributes(
         if (ignoreError) {
             return {}
         }
-        throw new CapabilitiesError(msg, 'no_layer_found')
+        throw new CapabilitiesError(msg, { key: 'no_layer_found' })
     }
 
     if (!capabilities.version || !WMS_SUPPORTED_VERSIONS.includes(capabilities.version)) {
@@ -467,7 +368,7 @@ function getLayerAttributes(
         if (ignoreError) {
             return {}
         }
-        throw new CapabilitiesError(msg, 'no_wms_version_found')
+        throw new CapabilitiesError(msg, { key: 'no_wms_version_found' })
     }
 
     let availableProjections: CoordinateSystem[] = getLayerProjections(layer)
@@ -476,7 +377,7 @@ function getLayerAttributes(
         )
         .map((crs) =>
             allCoordinateSystems.find((projection) => projection.epsg === crs.toUpperCase())
-        ) as CoordinateSystem[] // let's assume that the filtering won't remove any for now
+        ) // let's assume that the filtering won't remove any for now
 
     // by default, WGS84 must be supported
     if (availableProjections.length === 0) {
@@ -535,7 +436,9 @@ function getFeatureInfoCapability(
             if (ignoreError) {
                 return
             }
-            throw new CapabilitiesError('Invalid GetFeatureInfo data', 'invalid_get_feature_info')
+            throw new CapabilitiesError('Invalid GetFeatureInfo data', {
+                key: 'invalid_get_feature_info',
+            })
         }
         const formats: string[] = []
         if (capabilities.Capability.Request.GetFeatureInfo.Format) {
@@ -565,6 +468,7 @@ function getFeatureInfoCapability(
  * @param options.params URL parameters to pass to WMS server
  * @param options.ignoreError Don't throw exception in case of error, but return a default value or
  *   undefined
+ * @param options.parentsArray Optional parents array (internal parameter for recursion)
  * @returns Layer object, or undefined in case of error (and ignoreError is equal to true)
  */
 function getExternalLayer(
@@ -577,29 +481,42 @@ function getExternalLayer(
         return
     }
 
-    const { outputProjection = WGS84, initialValues = {}, ignoreErrors = true } = options ?? {}
-    const { currentYear, params } = initialValues
+    const {
+        outputProjection = WGS84,
+        initialValues = {},
+        ignoreErrors = true,
+        parentsArray,
+    } = options ?? {}
+    const { currentYear, params, opacity = 1, isVisible } = initialValues
 
-    let layerId: string
-    if (typeof layerOrLayerId === 'string') {
-        layerId = layerOrLayerId
+    let layer: WMSCapabilityLayer | undefined
+    let parents: WMSCapabilityLayer[] | undefined
+
+    // If we have a layer object, use it directly with provided parents
+    if (typeof layerOrLayerId !== 'string') {
+        layer = layerOrLayerId
+        parents = (parentsArray as WMSCapabilityLayer[]) ?? []
     } else {
-        layerId = layerOrLayerId.Name
-    }
-    if (!capabilities.Capability?.Layer?.Layer) {
-        return
+        // If we have a layer ID, search for it
+        const layerId = layerOrLayerId
+        if (!capabilities.Capability?.Layer?.Layer) {
+            return
+        }
+
+        const layerAndParents = findLayerRecurse(
+            layerId,
+            [capabilities.Capability.Layer],
+            [capabilities.Capability.Layer]
+        )
+        if (!layerAndParents) {
+            return
+        }
+        layer = layerAndParents.layer
+        parents = layerAndParents.parents
     }
 
-    const layerAndParents = findLayerRecurse(
-        layerId,
-        [capabilities.Capability.Layer],
-        [capabilities.Capability.Layer]
-    )
-    if (!layerAndParents) {
-        return
-    }
-    const { layer, parents } = layerAndParents
     if (!layer) {
+        const layerId = typeof layerOrLayerId === 'string' ? layerOrLayerId : layerOrLayerId.Name
         const msg = `No WMS layer ${layerId} found in Capabilities ${capabilities.originUrl.toString()}`
         log.error({
             title: 'WMS Capabilities parser',
@@ -609,22 +526,46 @@ function getExternalLayer(
         if (ignoreErrors) {
             return
         }
-        throw new CapabilitiesError(msg, 'no_layer_found')
+        throw new CapabilitiesError(msg, { key: 'no_layer_found' })
     }
+
     // Go through the child to get valid layers
     let layers: ExternalWMSLayer[] = []
 
     if (layer.Layer?.length) {
-        layers = layer.Layer.map((l) => getExternalLayer(capabilities, l.Name, options)).filter(
-            (layer) => !!layer
-        )
+        layers = layer.Layer.map((l) => {
+            if (l.Layer?.length) {
+                return getExternalLayer(capabilities, l.Name, options)
+            }
+            const childParents = []
+            parents?.forEach((parent) => childParents.push(parent))
+            childParents.push(layer)
+            return layerUtils.makeExternalWMSLayer({
+                ...getLayerAttributes(
+                    capabilities,
+                    l,
+                    childParents,
+                    outputProjection,
+                    ignoreErrors
+                ),
+                format: 'png',
+                isLoading: false,
+                getFeatureInfoCapability: getFeatureInfoCapability(capabilities, ignoreErrors),
+                currentYear,
+                customAttributes: params,
+            })
+        }).filter((layer) => !!layer)
     }
+
     return layerUtils.makeExternalWMSLayer({
         ...getLayerAttributes(capabilities, layer, parents ?? [], outputProjection, ignoreErrors),
         format: 'png',
+        ...initialValues,
         isLoading: false,
         getFeatureInfoCapability: getFeatureInfoCapability(capabilities, ignoreErrors),
         currentYear,
+        opacity,
+        isVisible,
         customAttributes: params,
         layers,
     })
@@ -651,10 +592,10 @@ function parse(content: string, originUrl: URL): WMSCapabilitiesResponse {
             titleColor: LogPreDefinedColor.Indigo,
             messages: [`Failed to parse capabilities of ${originUrl?.toString()}`, error],
         })
-        throw new CapabilitiesError(
-            `Failed to parse WMS Capabilities: invalid content: ${error?.toString()}`,
-            'invalid_wms_capabilities'
-        )
+        throw new CapabilitiesError(`Failed to parse WMS Capabilities: invalid content`, {
+            key: 'invalid_wms_capabilities',
+            cause: error,
+        })
     }
 }
 

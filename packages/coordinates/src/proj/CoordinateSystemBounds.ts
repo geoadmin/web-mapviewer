@@ -1,9 +1,9 @@
+import type { Coord } from '@turf/turf'
 import type { Feature, FeatureCollection, GeoJsonProperties, LineString } from 'geojson'
 
 import {
     bboxPolygon,
     booleanPointInPolygon,
-    type Coord,
     distance,
     lineSplit,
     lineString,
@@ -12,7 +12,7 @@ import {
 import { sortBy } from 'lodash'
 
 import type { SingleCoordinate } from '@/coordinatesUtils'
-import type { CoordinatesChunk } from '@/proj/CoordinatesChunk'
+import type { CoordinatesChunk } from '@/proj/types'
 
 interface CoordinateSystemBoundsProps {
     lowerX: number
@@ -44,7 +44,7 @@ function reassembleLineSegments(
                 throw new Error('Feature missing geometry')
             }
         })
-        const closest = candidateFeatures.shift()!
+        const closest = candidateFeatures.shift()
         const closestOrigin = closest.geometry.coordinates[closest.geometry.coordinates.length - 1]
         if (closestOrigin) {
             origin = closestOrigin
@@ -106,8 +106,19 @@ export default class CoordinateSystemBounds {
         this.flatten = [this.lowerX, this.lowerY, this.upperX, this.upperY]
     }
 
-    isInBounds(x: number, y: number): boolean {
-        return x >= this.lowerX && x <= this.upperX && y >= this.lowerY && y <= this.upperY
+    isInBounds(x: number, y: number): boolean
+    isInBounds(coordinate: SingleCoordinate): boolean
+
+    isInBounds(xOrCoordinate: number | SingleCoordinate, y?: number): boolean {
+        if (typeof xOrCoordinate === 'number') {
+            return (
+                xOrCoordinate >= this.lowerX &&
+                xOrCoordinate <= this.upperX &&
+                y >= this.lowerY &&
+                y <= this.upperY
+            )
+        }
+        return this.isInBounds(xOrCoordinate[0], xOrCoordinate[1])
     }
 
     /**
@@ -133,7 +144,7 @@ export default class CoordinateSystemBounds {
             return
         }
         // checking if we require splitting
-        if (coordinates.find((coordinate) => !this.isInBounds(coordinate[0], coordinate[1]))) {
+        if (coordinates.find((coordinate) => !this.isInBounds(coordinate))) {
             const boundsAsPolygon = bboxPolygon(this.flatten)
             const paths = lineSplit(lineString(coordinates), boundsAsPolygon)
             if (coordinates[0]) {

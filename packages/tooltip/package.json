@@ -1,7 +1,8 @@
 {
     "name": "@swissgeo/tooltip",
-    "version": "0.0.1",
-    "description": "Tooltip for geoadmin",
+    "version": "1.0.1",
+    "description": "Tooltip for SWISSGEO projects.",
+    "license": "BSD-3-Clause",
     "type": "module",
     "exports": {
         ".": {
@@ -13,11 +14,6 @@
             "./dist/tooltip.css"
         ]
     },
-    "main": "./dist/index.umd.cjs",
-    "module": "./dist/index.js",
-    "files": [
-        "dist"
-    ],
     "scripts": {
         "build": "pnpm run type-check && pnpm run generate-types && vite build",
         "build:dev": "pnpm run build --mode development",
@@ -30,6 +26,7 @@
         "lint:no-fix": "eslint && pnpm run lint:styles:no-fix",
         "lint:styles": "stylelint \"**/*.{vue,scss}\" --fix",
         "lint:styles:no-fix": "stylelint \"**/*.{vue,scss}\"",
+        "prepare": "pnpm run build",
         "preview": "vite preview",
         "type-check": "vue-tsc --build"
     },
@@ -38,9 +35,7 @@
     },
     "devDependencies": {
         "@microsoft/api-extractor": "catalog:",
-        "@prettier/plugin-xml": "catalog:",
         "@swissgeo/config-eslint": "workspace:*",
-        "@swissgeo/config-prettier": "workspace:*",
         "@swissgeo/config-stylelint": "workspace:*",
         "@swissgeo/config-typescript": "workspace:*",
         "@tailwindcss/vite": "catalog:",
@@ -49,11 +44,6 @@
         "@vitejs/plugin-vue": "catalog:",
         "@vue/tsconfig": "catalog:",
         "eslint": "catalog:",
-        "postcss-html": "catalog:",
-        "prettier": "catalog:",
-        "prettier-plugin-jsdoc": "catalog:",
-        "prettier-plugin-packagejson": "catalog:",
-        "prettier-plugin-tailwindcss": "catalog:",
         "stylelint": "catalog:",
         "tailwindcss": "catalog:",
         "typescript": "catalog:",

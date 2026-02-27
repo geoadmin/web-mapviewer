@@ -1,10 +1,4 @@
-export const BASE_URL_PROD = 'https://api3.geo.admin.ch/'
-export const BASE_URL_INT = 'https://sys-api3.int.bgdi.ch/'
-export const BASE_URL_DEV = 'https://sys-api3.dev.bgdi.ch/'
-
-export type SupportedLocales = 'en' | 'de' | 'fr' | 'it' | 'rm'
-// mimicing values from https://github.com/geoadmin/web-mapviewer/blob/36043456b820b03f380804a63e2cac1a8a1850bc/packages/mapviewer/src/config/staging.config.js#L1-L7
-export type Staging = 'development' | 'integration' | 'production'
+import { LogPreDefinedColor } from '@swissgeo/log'
 
 export const BORDER_COLOR: string = 'rgb(255, 99, 132)'
 export const FILL_COLOR: string = 'rgba(255, 99, 132, 0.7)'
@@ -17,3 +11,8 @@ export const FILL_COLOR: string = 'rgba(255, 99, 132, 0.7)'
  * the worst hiking time estimation when using something like 5m than if I use this 12.5 meters.
  */
 export const GEOMETRY_SIMPLIFICATION_TOLERANCE = 12.5 // meters
+
+export const logConfig = {
+    title: '@swissgeo/elevation-profile',
+    titleColor: LogPreDefinedColor.Teal,
+}

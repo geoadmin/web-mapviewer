@@ -1,10 +1,11 @@
 {
     "extends": "./tsconfig.base.json",
-    "include": [
-        "${configDir}/src/**/*.vue"
-    ],
+    "include": ["${configDir}/src/**/*.vue"],
     "compilerOptions": {
         // we can't (sadly) activate this option when using Vue (it breaks vue-tsc "parsing")
-        "isolatedDeclarations": false
+        "isolatedDeclarations": false,
+
+        "strict": true,
+        "noImplicitThis": true
     }
 }

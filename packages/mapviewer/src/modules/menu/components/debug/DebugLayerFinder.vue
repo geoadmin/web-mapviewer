@@ -1,0 +1,157 @@
+<script setup lang="ts">
+import type { GeoAdminLayer } from '@swissgeo/layers'
+
+import { LayerType } from '@swissgeo/layers'
+import { timeConfigUtils } from '@swissgeo/layers/utils'
+import { computed, ref } from 'vue'
+
+import DebugLayerFinderFilter from '@/modules/menu/components/debug/DebugLayerFinderFilter.vue'
+import useLayersStore from '@/store/modules/layers'
+import SimpleWindow from '@/utils/components/SimpleWindow.vue'
+
+const layersStore = useLayersStore()
+
+const onlyTimeEnabled = ref(null)
+const with3DConfig = ref(null)
+const withTooltip = ref(null)
+const withLegend = ref(null)
+
+const layers = computed<GeoAdminLayer[]>(() => layersStore.config as GeoAdminLayer[])
+const possibleLayerTypes = [LayerType.WMTS, LayerType.WMS, LayerType.AGGREGATE, LayerType.GEOJSON]
+const currentLayerType = ref([...possibleLayerTypes])
+
+const dispatcher = { name: 'DebugLayerFinder.vue' }
+
+const filteredLayers = computed<GeoAdminLayer[]>(() => {
+    if (!currentLayerType.value) {
+        return []
+    }
+    return layers.value.filter((layer) => {
+        return (
+            possibleLayerTypes.includes(layer.type) &&
+            currentLayerType.value.includes(layer.type) &&
+            (onlyTimeEnabled.value === null ||
+                timeConfigUtils.hasMultipleTimestamps(layer) === onlyTimeEnabled.value) &&
+            (with3DConfig.value === null || !!layer.idIn3d === with3DConfig.value) &&
+            (withTooltip.value === null || layer.hasTooltip === withTooltip.value) &&
+            (withLegend.value === null || layer.hasLegend === withLegend.value)
+        )
+    })
+})
+
+function addLayer(layerConfig: GeoAdminLayer) {
+    layersStore.addLayer(
+        layerConfig,
+        {
+            initialValues: { isVisible: true },
+        },
+        dispatcher
+    )
+}
+
+function toggleLayerType(type: LayerType) {
+    if (currentLayerType.value.includes(type)) {
+        currentLayerType.value = currentLayerType.value.filter((t) => t !== type)
+    } else {
+        currentLayerType.value.push(type)
+    }
+}
+</script>
+
+<template>
+    <SimpleWindow
+        title="Layer finder"
+        movable
+        resizeable
+        wide
+        initial-position="top-left"
+    >
+        <div>
+            <div class="d-flex justify-content-stretch">
+                <div class="btn-group">
+                    <button
+                        v-for="type in possibleLayerTypes"
+                        :key="type"
+                        class="btn"
+                        :class="{
+                            'btn-outline-secondary': !currentLayerType.includes(type),
+                            'btn-success': currentLayerType.includes(type),
+                        }"
+                        @click="toggleLayerType(type)"
+                    >
+                        {{ type }}
+                    </button>
+                </div>
+            </div>
+            <div class="d-grid layer-filters">
+                <div class="row g-1 align-items-center">
+                    <div class="col-auto">
+                        <label class="col-form-label">Time enabled</label>
+                    </div>
+                    <div class="col-auto">
+                        <DebugLayerFinderFilter @change="(value) => (onlyTimeEnabled = value)" />
+                    </div>
+                </div>
+                <div class="row g-1 align-items-center">
+                    <div class="col-auto">
+                        <label class="col-form-label">with 3D config</label>
+                    </div>
+                    <div class="col-auto">
+                        <DebugLayerFinderFilter @change="(value) => (with3DConfig = value)" />
+                    </div>
+                </div>
+                <div class="row g-1 align-items-center">
+                    <div class="col-auto">
+                        <label class="col-form-label">With tooltip</label>
+                    </div>
+                    <div class="col-auto">
+                        <DebugLayerFinderFilter @change="(value) => (withTooltip = value)" />
+                    </div>
+                </div>
+                <div class="row g-1 align-items-center">
+                    <div class="col-auto">
+                        <label class="col-form-label">With legend</label>
+                    </div>
+                    <div class="col-auto">
+                        <DebugLayerFinderFilter @change="(value) => (withLegend = value)" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                {{ filteredLayers.length }} layer{{ filteredLayers.length > 1 ? 's' : '' }}
+            </div>
+            <div class="layer-list card-body m-0 overflow-y-auto p-0">
+                <div
+                    v-for="(layer, index) in filteredLayers"
+                    :key="layer.id + layer.uuid"
+                    class="d-flex justify-content-end align-content-center mb-1 p-1"
+                    :class="{ 'bg-body-secondary': index % 2 === 0 }"
+                >
+                    <div class="align-self-center flex-grow-1">
+                        {{ layer.name }}
+                    </div>
+                    <div class="align-self-center me-1">
+                        <button
+                            class="btn btn-secondary btn-sm"
+                            @click="addLayer(layer)"
+                        >
+                            +
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </SimpleWindow>
+</template>
+
+<style lang="scss" scoped>
+.layer-filters {
+    grid-template-columns: 1fr 1fr;
+    justify-items: end;
+}
+.layer-list {
+    max-height: min(250px, 50vh);
+}
+</style>

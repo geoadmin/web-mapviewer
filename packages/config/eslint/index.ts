@@ -1,18 +1,41 @@
+import type { FlatConfig } from '@typescript-eslint/utils/ts-eslint'
+
 import jsESLint from '@eslint/js'
 import markdown from '@eslint/markdown'
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
 import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
 import pluginChaiFriendly from 'eslint-plugin-chai-friendly'
-import pluginCypress from 'eslint-plugin-cypress/flat'
+import pluginCypress from 'eslint-plugin-cypress'
+import pluginImport from 'eslint-plugin-import'
 import mocha from 'eslint-plugin-mocha'
 import perfectionist from 'eslint-plugin-perfectionist'
 import pluginVue from 'eslint-plugin-vue'
 import globals from 'globals'
-import tsESLint, { plugin as tsESLintPlugin } from 'typescript-eslint'
-import type { FlatConfig } from '@typescript-eslint/utils/ts-eslint'
+import tsESLint from 'typescript-eslint'
 
 type PartialRules = Partial<Record<string, FlatConfig.RuleEntry>>
 type PartialConfig = Partial<FlatConfig.Config>
+
+const commonTsAndJsRules: PartialRules = {
+    eqeqeq: ['error', 'always'],
+    'no-console': 'error',
+    'no-var': 'error',
+    // Enforce a consistent brace style for all control statements
+    curly: ['error', 'all'],
+    // Enforce opening braces on the same line and closing brace on a new line
+    'brace-style': ['error', '1tbs', { allowSingleLine: false }],
+    'perfectionist/sort-imports': [
+        'error',
+        {
+            type: 'alphabetical',
+            internalPattern: ['^@/.*'],
+        },
+    ],
+    'import/consistent-type-specifier-style': ['error', 'prefer-top-level'],
+    // has some issue (with typescript-eslint for instance), so we disable it (TS does already a good job at detecting unresolved imports)
+    'import/no-unresolved': 'off',
+    'no-useless-assignment': 'off',
+}
 
 const noUnusedVarsRules: PartialRules = {
     'no-unused-vars': [
@@ -47,6 +70,13 @@ const standardTSRules: PartialRules = {
     ],
     '@typescript-eslint/consistent-type-exports': 'error',
     '@typescript-eslint/no-import-type-side-effects': 'error',
+    '@typescript-eslint/consistent-type-imports': [
+        'error',
+        {
+            prefer: 'type-imports',
+            fixStyle: 'separate-type-imports',
+        },
+    ],
 }
 
 const chaiFriendlyRules: PartialConfig = {
@@ -99,17 +129,20 @@ const allIgnores: string[] = [
 ]
 
 export const vueConfig: FlatConfig.ConfigArray = defineConfigWithVueTs(
+    pluginImport.flatConfigs.recommended,
+    pluginImport.flatConfigs.typescript,
     pluginVue.configs['flat/essential'],
+    tsESLint.configs.recommended,
     vueTsConfigs.recommendedTypeCheckedOnly,
     {
         files: ['**/*.vue'],
         plugins: {
-            '@typescript-eslint': tsESLintPlugin,
+            perfectionist,
         },
         rules: {
+            ...commonTsAndJsRules,
             'vue/html-indent': ['error', 4],
-            // TODO: switch to 'error' (or remove this line) after complete TS migration
-            'vue/block-lang': 'off',
+            'vue/block-lang': 'error',
             ...noUnusedVarsRules,
         },
     }
@@ -149,7 +182,6 @@ export const jsConfig: FlatConfig.ConfigArray = [
             mocha,
             'chai-friendly': pluginChaiFriendly,
             perfectionist,
-            '@typescript-eslint': tsESLintPlugin,
         },
         languageOptions: {
             ecmaVersion: 'latest',
@@ -168,14 +200,8 @@ export const jsConfig: FlatConfig.ConfigArray = [
             sourceType: 'module',
         },
         rules: {
-            eqeqeq: ['error', 'always'],
+            ...commonTsAndJsRules,
             'mocha/no-exclusive-tests': 'error',
-            'no-console': 'error',
-            'no-var': 'error',
-            'perfectionist/sort-imports': [
-                'error',
-                { type: 'alphabetical', internalPattern: ['^@/.*'] },
-            ],
             ...noUnusedVarsRules,
         },
     },
@@ -187,6 +213,8 @@ export const jsConfig: FlatConfig.ConfigArray = [
 ]
 
 const defaultConfig: FlatConfig.ConfigArray = tsESLint.config(
+    pluginImport.flatConfigs.recommended,
+    pluginImport.flatConfigs.typescript,
     ...jsConfig,
     tsESLint.configs.recommended,
     ...markdownConfig,
@@ -198,6 +226,9 @@ const defaultConfig: FlatConfig.ConfigArray = tsESLint.config(
         files: ['**/*.ts', '**/*.tsx'],
         // no need to check our snippets
         ignores: ['**/*.md'],
+        plugins: {
+            perfectionist,
+        },
         languageOptions: {
             parserOptions: {
                 projectService: true,
@@ -206,7 +237,10 @@ const defaultConfig: FlatConfig.ConfigArray = tsESLint.config(
         },
         // switching to TypeScript unused var rule (instead of JS rule), so that no error is raised
         // on unused param from abstract function arguments
-        rules: standardTSRules,
+        rules: {
+            ...standardTSRules,
+            ...commonTsAndJsRules,
+        },
     },
     // we have to declare that AFTER the TS specifics, our unit test rules from the JS config are otherwise ignored (when the tests are written in TS)
     unitTestsConfig

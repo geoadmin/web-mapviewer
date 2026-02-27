@@ -1,19 +1,39 @@
 {
     "name": "@swissgeo/config-prettier",
-    "version": "0.0.1",
-    "description": "Shared Prettier config",
+    "version": "1.0.1",
+    "description": "Shared Prettier config for SWISSGEO projects.",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/geoadmin/web-mapviewer.git",
+        "directory": "packages/config/prettier"
+    },
+    "license": "BSD-3-Clause",
     "type": "module",
-    "main": "index.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.umd.cjs"
+        }
+    },
     "scripts": {
+        "build": "pnpm run type-check && pnpm run generate-types && vite build",
+        "generate-types": "tsc --declaration",
+        "prepare": "pnpm run build",
         "type-check": "tsc -p tsconfig.json"
     },
     "devDependencies": {
+        "@microsoft/api-extractor": "catalog:",
         "@swissgeo/config-typescript": "workspace:*",
-        "typescript": "catalog:"
+        "typescript": "catalog:",
+        "unplugin-dts": "catalog:",
+        "vite": "catalog:"
     },
     "peerDependencies": {
+        "prettier": "catalog:"
+    },
+    "optionalDependencies": {
         "@prettier/plugin-xml": "catalog:",
-        "prettier": "catalog:",
         "prettier-plugin-jsdoc": "catalog:",
         "prettier-plugin-packagejson": "catalog:",
         "prettier-plugin-tailwindcss": "catalog:"

@@ -1,7 +1,8 @@
 {
     "name": "@swissgeo/log",
-    "version": "0.0.1",
-    "description": "Logging utils for geoadmin",
+    "version": "1.0.1",
+    "description": "Logging utils for SWISSGEO projects.",
+    "license": "BSD-3-Clause",
     "type": "module",
     "exports": {
         ".": {
@@ -28,19 +29,14 @@
         "generate-types": "tsc --declaration",
         "lint": "eslint --fix",
         "lint:no-fix": "eslint",
+        "prepare": "pnpm run build",
         "type-check": "tsc -p tsconfig.json"
     },
     "devDependencies": {
         "@microsoft/api-extractor": "catalog:",
-        "@prettier/plugin-xml": "catalog:",
         "@swissgeo/config-eslint": "workspace:*",
-        "@swissgeo/config-prettier": "workspace:*",
         "@swissgeo/config-typescript": "workspace:*",
         "eslint": "catalog:",
-        "prettier": "catalog:",
-        "prettier-plugin-jsdoc": "catalog:",
-        "prettier-plugin-packagejson": "catalog:",
-        "prettier-plugin-tailwindcss": "catalog:",
         "typescript": "catalog:",
         "unplugin-dts": "catalog:",
         "vite": "catalog:"

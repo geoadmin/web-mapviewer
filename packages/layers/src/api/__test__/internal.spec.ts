@@ -1,15 +1,15 @@
 import { assertType, describe, expect, it } from 'vitest'
 
-import { generateLayerObject } from '@/api'
-import {
-    type GeoAdminAggregateLayer,
-    type GeoAdminGeoJSONLayer,
-    type GeoAdminLayer,
-    type GeoAdminWMSLayer,
-    type GeoAdminWMTSLayer,
-    LayerType,
-    YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA,
+import type {
+    GeoAdminAggregateLayer,
+    GeoAdminGeoJSONLayer,
+    GeoAdminLayer,
+    GeoAdminWMSLayer,
+    GeoAdminWMTSLayer,
 } from '@/types'
+
+import { generateLayerObject } from '@/api'
+import { LayerType, YEAR_TO_DESCRIBE_ALL_OR_CURRENT_DATA } from '@/types'
 
 import rawLayerConfig from './rawLayerConfig.json'
 
@@ -235,14 +235,14 @@ describe('Test layer config parsing', () => {
             const aggregateLayer = layer as GeoAdminAggregateLayer
 
             expect(aggregateLayer.subLayers).toHaveLength(2)
-            expect(aggregateLayer.subLayers[0]!.subLayerId).to.eq(
+            expect(aggregateLayer.subLayers[0].subLayerId).to.eq(
                 'ch.bfs.gebaeude_wohnungs_register_waermequelle_heizung_wmts'
             )
-            expect(aggregateLayer.subLayers[0]!.minResolution).to.eq(10)
-            expect(aggregateLayer.subLayers[1]!.subLayerId).to.eq(
+            expect(aggregateLayer.subLayers[0].minResolution).to.eq(10)
+            expect(aggregateLayer.subLayers[1].subLayerId).to.eq(
                 'ch.bfs.gebaeude_wohnungs_register_waermequelle_heizung_wms'
             )
-            expect(aggregateLayer.subLayers[1]!.maxResolution).to.eq(10)
+            expect(aggregateLayer.subLayers[1].maxResolution).to.eq(10)
         })
     })
     describe('GeoJSON', () => {
@@ -251,7 +251,7 @@ describe('Test layer config parsing', () => {
             const layer = parseLayer(layerId)
 
             expect(layer).to.not.be.undefined
-            expect(layer!.type).to.eq(LayerType.GEOJSON)
+            expect(layer.type).to.eq(LayerType.GEOJSON)
             const geoJsonLayer = layer as GeoAdminGeoJSONLayer
 
             expect(geoJsonLayer.geoJsonUrl).to.eq(

@@ -1,8 +1,9 @@
 import type { CoordinateSystem } from '@swissgeo/coordinates'
+import type { MaybeRefOrGetter } from 'vue'
 
 import log from '@swissgeo/log'
 import axios, { AxiosError } from 'axios'
-import { type MaybeRefOrGetter, toValue } from 'vue'
+import { toValue } from 'vue'
 
 import type { ExternalWMSLayer, ExternalWMTSLayer } from '@/types'
 
@@ -37,7 +38,7 @@ function handleFileContent(
     } else {
         throw new CapabilitiesError(
             `Unsupported url ${fullUrl} response content; Content-Type=${contentType}`,
-            'unsupported_content_type'
+            { key: 'unsupported_content_type' }
         )
     }
 }
@@ -100,7 +101,7 @@ export function useCapabilities(
             if (!response || response.status !== 200 || !response.headers) {
                 throw new CapabilitiesError(
                     `Failed to fetch ${fullUrl.toString()}; status_code=${response.status}`,
-                    'network_error'
+                    { key: 'network_error' }
                 )
             }
             const props = handleFileContent(
@@ -110,17 +111,19 @@ export function useCapabilities(
                 response.headers['Content-Type'] as string
             )
             if (props?.layers?.length === 0) {
-                throw new CapabilitiesError(
-                    `No valid layer found in ${fullUrl.toString()}`,
-                    'no_layer_found'
-                )
+                throw new CapabilitiesError(`No valid layer found in ${fullUrl.toString()}`, {
+                    key: 'no_layer_found',
+                })
             }
             return props
         } catch (error) {
             if (error instanceof Error) {
                 log.error(`Failed to fetch url ${fullUrl}`, error)
                 if (error instanceof AxiosError) {
-                    throw new CapabilitiesError(error.message, 'network_error')
+                    throw new CapabilitiesError(error.message, {
+                        key: 'network_error',
+                        cause: error,
+                    })
                 }
                 throw error
             }

@@ -1,0 +1,408 @@
+import type { ExternalWMSLayer, GeoAdminLayer, Layer } from '@swissgeo/layers'
+
+import { LayerType } from '@swissgeo/layers'
+import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
+import { describe, expect, it } from 'vitest'
+
+import legacyLayerParamUtils from '@/utils/legacyLayerParamUtils'
+
+describe('Test parsing of legacy URL param into new params', () => {
+    describe('test getLayersFromLegacyUrlParams', () => {
+        const fakeLayerConfig: GeoAdminLayer[] = [
+            layerUtils.makeGeoAdminWMSLayer({
+                name: 'Test layer WMS',
+                id: 'test.wms.layer',
+                technicalName: 'test.wms.layer',
+                opacity: 0.8,
+                attributions: [{ name: 'attribution.test.wms.layer' }],
+                baseUrl: 'https://base-url/',
+                format: 'png',
+                timeConfig: timeConfigUtils.makeTimeConfig(),
+            }),
+            layerUtils.makeGeoAdminWMTSLayer({
+                name: 'Test layer WMTS',
+                id: 'test.wmts.layer',
+                technicalName: 'test.wmts.layer',
+                attributions: [{ name: 'test' }],
+            }),
+            layerUtils.makeGeoAdminWMTSLayer({
+                name: 'Test timed layer WMTS',
+                technicalName: 'test.timed.wmts.layer',
+                id: 'test.timed.wmts.layer',
+                opacity: 0.8,
+                attributions: [{ name: 'attribution.test.timed.wmts.layer' }],
+                timeConfig: timeConfigUtils.makeTimeConfig('123', [
+                    timeConfigUtils.makeTimeConfigEntry('123'),
+                    timeConfigUtils.makeTimeConfigEntry('456'),
+                    timeConfigUtils.makeTimeConfigEntry('789'),
+                ]),
+            }),
+        ]
+        it('Parses layers IDs and pass them along', () => {
+            const result = legacyLayerParamUtils.getLayersFromLegacyUrlParams(
+                fakeLayerConfig,
+                'test.wms.layer',
+                undefined,
+                undefined,
+                undefined
+            )
+            expect(result).to.be.an('Array').length(1)
+            const [firstLayer] = result
+            expect(firstLayer?.id).to.eq('test.wms.layer')
+        })
+        it('Parses visibility when specified', () => {
+            const checkOneLayerVisibility = (flagValue: boolean) => {
+                const result = legacyLayerParamUtils.getLayersFromLegacyUrlParams(
+                    fakeLayerConfig,
+                    `test.wms.layer`,
+                    `${flagValue}`,
+                    undefined,
+                    undefined
+                )
+                expect(result).to.be.an('Array').length(1)
+                const [firstLayer] = result
+                expect(firstLayer).to.haveOwnProperty('isVisible')
+                expect(firstLayer.isVisible).to.eq(
+                    flagValue,
+                    'param layer_visibility was not parsed correctly'
+                )
+            }
+            checkOneLayerVisibility(true)
+            checkOneLayerVisibility(false)
+        })
+        it('sets visibility to true when layers_visibility is not present', () => {
+            const result = legacyLayerParamUtils.getLayersFromLegacyUrlParams(
+                fakeLayerConfig,
+                'test.wms.layer',
+                undefined,
+                undefined,
+                undefined
+            )
+            expect(result).to.be.an('Array').length(1)
+            const [firstLayer] = result
+            expect(firstLayer.isVisible).to.be.true
+        })
+        it('Parses opacity when specified', () => {
+            const checkOneLayerOpacity = (opacity: number) => {
+                const result = legacyLayerParamUtils.getLayersFromLegacyUrlParams(
+                    fakeLayerConfig,
+                    `test.wms.layer`,
+                    undefined,
+                    `${opacity}`,
+                    undefined
+                )
+                expect(result).to.be.an('Array').length(1)
+                const [firstLayer] = result
+                expect(firstLayer).to.haveOwnProperty('opacity')
+                expect(firstLayer.opacity).to.eq(opacity)
+            }
+            for (let i = 0; i <= 10; i += 1) {
+                checkOneLayerOpacity(i / 10.0)
+            }
+        })
+        it('Parses timestamps when specified', () => {
+            const checkOneLayerTimestamps = (timestamp: string) => {
+                const result = legacyLayerParamUtils.getLayersFromLegacyUrlParams(
+                    fakeLayerConfig,
+                    `test.timed.wmts.layer`,
+                    undefined,
+                    undefined,
+                    `${timestamp}`
+                )
+                expect(result).to.be.an('Array').length(1)
+                const [firstLayer] = result
+                expect(firstLayer).to.haveOwnProperty('timeConfig')
+                expect(firstLayer.timeConfig.currentTimeEntry?.timestamp).to.eq(timestamp)
+            }
+            fakeLayerConfig[2].timeConfig.timeEntries.forEach((entry) =>
+                checkOneLayerTimestamps(entry.timestamp)
+            )
+        })
+        it('Parses multiples layers with all params set', () => {
+            const result = legacyLayerParamUtils.getLayersFromLegacyUrlParams(
+                fakeLayerConfig,
+                'test.wmts.layer,test.wms.layer,test.timed.wmts.layer',
+                'false,true,false',
+                '0.6,0.5,0.8',
+                ',,456'
+            )
+            expect(result).to.be.an('Array').length(3)
+            const [wmtsLayer, wmsLayer, timedWmtsLayer] = result
+            const checkLayer = (
+                layer: Layer,
+                expectedId: string,
+                expectedOpacity: number,
+                expectedVisibility: boolean,
+                expecedTimestamp: string | undefined = undefined
+            ) => {
+                expect(layer.id).to.eq(expectedId)
+                expect(layer).to.haveOwnProperty('opacity')
+                expect(layer.opacity).to.eq(expectedOpacity)
+                expect(layer).to.haveOwnProperty('isVisible')
+                expect(layer.isVisible).to.eq(expectedVisibility)
+                if (expecedTimestamp) {
+                    expect(layer).to.haveOwnProperty('timeConfig')
+                    expect(layer.timeConfig.currentTimeEntry?.timestamp).to.eq(expecedTimestamp)
+                }
+            }
+            checkLayer(wmtsLayer, 'test.wmts.layer', 0.6, false)
+            checkLayer(wmsLayer, 'test.wms.layer', 0.5, true)
+            checkLayer(timedWmtsLayer, 'test.timed.wmts.layer', 0.8, false, '456')
+        })
+        describe('support for legacy external layers URL format', () => {
+            it('Parses KML layers IDs correctly', () => {
+                const kmlFileUrl = 'https://public.geo.admin.ch/super-legit-file-id'
+                const result = legacyLayerParamUtils.getLayersFromLegacyUrlParams(
+                    fakeLayerConfig,
+                    `KML||${kmlFileUrl}`,
+                    undefined,
+                    undefined,
+                    undefined
+                )
+                expect(result).to.be.an('Array').length(1)
+                const [kmlLayer] = result
+                expect(kmlLayer.id).to.eq(`KML|${kmlFileUrl}`)
+                expect(kmlLayer.type).to.eq(LayerType.KML)
+                expect(kmlLayer.baseUrl).to.eq(kmlFileUrl)
+            })
+            it('Handles opacity/visibility correctly with external layers', () => {
+                const result = legacyLayerParamUtils.getLayersFromLegacyUrlParams(
+                    fakeLayerConfig,
+                    'KML||https://we-dont-care-about-this-url',
+                    'true',
+                    '0.65',
+                    undefined
+                )
+                expect(result).to.be.an('Array').length(1)
+                const [kmlLayer] = result
+                expect(kmlLayer.opacity).to.eq(0.65)
+                expect(kmlLayer.isVisible).to.be.true
+            })
+            it('parses a legacy external WMS layer correctly', () => {
+                const wmsLayerName = 'Name of the WMS layer, with a comma'
+                const wmsBaseUrl = 'https://fake.url?SERVICE=GetMap&'
+                const wmsLayerId = 'fake.layer.id'
+                const wmsVersion = '9.9.9'
+                const legacyLayerUrlString = `WMS||${wmsLayerName}||${wmsBaseUrl}||${wmsLayerId}||${wmsVersion}`
+
+                const result = legacyLayerParamUtils.getLayersFromLegacyUrlParams(
+                    fakeLayerConfig,
+                    `${encodeURIComponent(legacyLayerUrlString)}`,
+                    `true`,
+                    `0.45`,
+                    undefined
+                )
+                expect(result).to.be.an('Array').length(1)
+                const [externalWmsLayer] = result
+                expect(externalWmsLayer.type).to.eq(LayerType.WMS)
+                expect(externalWmsLayer.opacity).to.eq(0.45)
+                expect((externalWmsLayer as ExternalWMSLayer).wmsVersion).to.eq(wmsVersion)
+                expect(externalWmsLayer.id).to.eq(wmsLayerId)
+                expect(externalWmsLayer.name).to.eq(wmsLayerName)
+                expect(externalWmsLayer.baseUrl).to.eq(wmsBaseUrl)
+            })
+            it('parses a legacy external WMTS layer correctly', () => {
+                const wmtsLayerId = 'fake.wmts.id'
+                const wmtsGetCapabilitesUrl = 'https://fake.wmts.server/WMTSCapabilities.xml'
+                const legacyLayerUrlString = encodeURIComponent(
+                    `WMTS||${wmtsLayerId}||${wmtsGetCapabilitesUrl}`
+                )
+                const result = legacyLayerParamUtils.getLayersFromLegacyUrlParams(
+                    fakeLayerConfig,
+                    `${legacyLayerUrlString}`,
+                    `false`,
+                    `0.77`,
+                    undefined
+                )
+                expect(result).to.be.an('Array').length(1)
+                const [externalWmtsLayer] = result
+                expect(externalWmtsLayer.type).to.eq(LayerType.WMTS)
+                expect(externalWmtsLayer.opacity).to.eq(0.77)
+                expect(externalWmtsLayer.isVisible).to.be.false
+                expect(externalWmtsLayer.id).to.eq(wmtsLayerId)
+                expect(externalWmtsLayer.baseUrl).to.eq(wmtsGetCapabilitesUrl)
+            })
+            it('does not parse an external layer if it is in the current format', () => {
+                const wmtsResult = legacyLayerParamUtils.getLayersFromLegacyUrlParams(
+                    fakeLayerConfig,
+                    'WMTS|https://url.to.wmts.server|layer.id',
+                    undefined,
+                    undefined,
+                    undefined
+                )
+                expect(wmtsResult).to.be.an('Array').empty
+                const wmsResult = legacyLayerParamUtils.getLayersFromLegacyUrlParams(
+                    fakeLayerConfig,
+                    `WMS|${'https://wms.server.url?PARAM1=x&'}|layer.id`,
+                    undefined,
+                    undefined,
+                    undefined
+                )
+                expect(wmsResult).to.be.an('Array').empty
+            })
+            describe('utility functions for legacy Parameter Handling', () => {
+                it('ensure the parseOpacity Function always returns a valid value', () => {
+                    const correct_opacity = legacyLayerParamUtils.parseOpacity('0.321')
+                    expect(correct_opacity).to.equal(0.321)
+                    const opacity_too_low = legacyLayerParamUtils.parseOpacity('-0.2')
+                    expect(opacity_too_low).to.equal(0)
+                    const opacity_too_high = legacyLayerParamUtils.parseOpacity('1.45')
+                    expect(opacity_too_high).to.equal(1)
+                    const opacity_NaN = legacyLayerParamUtils.parseOpacity('test')
+                    expect(opacity_NaN).to.equal(1)
+                })
+                it('Makes sure the isLegacyParams function recognize a legacy URL', () => {
+                    expect(legacyLayerParamUtils.isLegacyParams('?test=true')).to.equal(true)
+                    expect(legacyLayerParamUtils.isLegacyParams('/?test=true')).to.equal(true)
+                    expect(legacyLayerParamUtils.isLegacyParams('/?test')).to.equal(true)
+                })
+                it("Makes sure the isLegacyParams function don't match new URL", () => {
+                    expect(legacyLayerParamUtils.isLegacyParams(undefined)).to.equal(false)
+                    expect(legacyLayerParamUtils.isLegacyParams('')).to.equal(false)
+                    expect(legacyLayerParamUtils.isLegacyParams('/?')).to.equal(false)
+                    expect(legacyLayerParamUtils.isLegacyParams('?')).to.equal(false)
+                    expect(legacyLayerParamUtils.isLegacyParams('#/map?test')).to.equal(false)
+                    expect(legacyLayerParamUtils.isLegacyParams('/#/map?test')).to.equal(false)
+                    expect(legacyLayerParamUtils.isLegacyParams('#?test=false')).to.equal(false)
+                    expect(legacyLayerParamUtils.isLegacyParams('#/?test=false')).to.equal(false)
+                })
+            })
+        })
+        describe('ensure layers parameter handler for feature preselection works as intended', () => {
+            /**
+             * Small precision regarding the createLayersParamForFeaturePreselection, which is what
+             * we are testing here : This function is only called when : there is a layer-id
+             * parameter set and that layer is already within the query 'layers' parameters. This
+             * means we do not need to test if there is no param_key set, or if there is no layers
+             * set
+             */
+
+            // This function deals mostly with the special parameters and features id order,
+            // As they are not important, but could break the tests if we made a simple string comparison
+            // layer.id@time=123@features=1,2 is the same end result as layer.id@features=2,1@time=123
+            function compareLayersStrings(layerString1: string, layerString2: string) {
+                const [layer1AndParams, visibility1, opacity1] = layerString1.split(',')
+                const [layer2AndParams, visibility2, opacity2] = layerString2.split(',')
+                expect(visibility1).to.eq(visibility2)
+                expect(opacity1).to.eq(opacity2)
+                const layer1Split = layer1AndParams.split('@')
+                const layer2Split = layer2AndParams.split('@')
+                layer1Split.sort()
+                layer2Split.sort()
+                expect(layer1Split.length).to.eq(layer2Split.length)
+                for (let i = 0; i < layer1Split.length; i++) {
+                    if (layer1Split[i].includes('features')) {
+                        expect(layer2Split[i].includes('features')).to.eq(true)
+                        const features_1 = layer1Split[i].split('=')[1].split(':')
+                        const features_2 = layer2Split[i].split('=')[1].split(':')
+                        features_1.sort()
+                        features_2.sort()
+                        expect(features_1.join(':')).to.eq(features_2.join(':'))
+                    } else {
+                        expect(layer1Split[i]).to.eq(layer2Split[i])
+                    }
+                }
+            }
+            function testLayersStringCreation(params: {
+                layerId: string
+                featuresId: string | null
+                layers: string
+                expectedResult: string
+            }) {
+                const result = legacyLayerParamUtils.createLayersParamForFeaturePreselection(
+                    params.layerId,
+                    params.featuresId ?? '',
+                    params.layers
+                )
+
+                const [layer1, layer2] = result.split(';')
+                const [expectedLayer1, expectedLayer2] = params.expectedResult.split(';')
+                expect(layer1).to.be.a('string')
+                expect(layer2).to.be.a('string')
+                compareLayersStrings(layer1, expectedLayer1)
+                compareLayersStrings(layer2, expectedLayer2)
+            }
+            it('adds a Feature parameter when the layer has no parameter at all', () => {
+                testLayersStringCreation({
+                    layerId: 'layer.id',
+                    featuresId: '1,2,3',
+                    layers: 'layer.id;layer.id2',
+                    expectedResult: 'layer.id@features=1:2:3;layer.id2',
+                })
+            })
+            it('adds a Feature parameter when the layer only has visibility and opacity params', () => {
+                testLayersStringCreation({
+                    layerId: 'layer.id',
+                    featuresId: '1,2,3',
+                    layers: 'layer.id,,0.3;layer.id2',
+                    expectedResult: 'layer.id@features=1:2:3,,0.3;layer.id2',
+                })
+            })
+            it('adds a Feature parameter when there is a time parameter given', () => {
+                testLayersStringCreation({
+                    layerId: 'layer.id',
+                    featuresId: '1,2,3',
+                    layers: 'layer.id@time=1234;layer.id2',
+                    expectedResult: 'layer.id@time=1234@features=1:2:3;layer.id2',
+                })
+            })
+            it("combines existing features between the already given features and the legacy parameter's features", () => {
+                testLayersStringCreation({
+                    layerId: 'layer.id',
+                    featuresId: '1,2,3',
+                    layers: 'layer.id@features=3:4:5;layer.id2',
+                    expectedResult: 'layer.id@features=1:2:3:4:5;layer.id2',
+                })
+            })
+            it('combines existing features when all parameters are set', () => {
+                testLayersStringCreation({
+                    layerId: 'layer.id',
+                    featuresId: '1,2,3',
+                    layers: 'layer.id@features=3:4:5@time=1234,f,0.2;layer.id2',
+                    expectedResult: 'layer.id@time=1234@features=1:2:3:4:5,f,0.2;layer.id2',
+                })
+            })
+            it('does not add a feature parameter when the feature ids are an empty string', () => {
+                testLayersStringCreation({
+                    layerId: 'layer.id',
+                    featuresId: '',
+                    layers: 'layer.id;layer.id2',
+                    expectedResult: 'layer.id;layer.id2',
+                })
+            })
+            it('does not add a feature parameter when the feature ids are null', () => {
+                // I am not certain this is possible, but I prefer to test it anyway
+                testLayersStringCreation({
+                    layerId: 'layer.id',
+                    featuresId: null,
+                    layers: 'layer.id;layer.id2',
+                    expectedResult: 'layer.id;layer.id2',
+                })
+            })
+            it('does not add a feature parameter when the feature ids are all empty strings', () => {
+                testLayersStringCreation({
+                    layerId: 'layer.id',
+                    featuresId: ',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,',
+                    layers: 'layer.id;layer.id2',
+                    expectedResult: 'layer.id;layer.id2',
+                })
+            })
+            it('adds a feature value for each non empty string in the features ids', () => {
+                testLayersStringCreation({
+                    layerId: 'layer.id',
+                    featuresId: ',,,,,,,,,,,,,,,,,,,,,1,,,,,,,,,,,,,,,,,,,,,,,,34',
+                    layers: 'layer.id;layer.id2',
+                    expectedResult: 'layer.id@features=1:34;layer.id2',
+                })
+            })
+            it('preserve an existing feature parameter when there are no features Ids to add', () => {
+                testLayersStringCreation({
+                    layerId: 'layer.id',
+                    featuresId: ',,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,',
+                    layers: 'layer.id@features=12:14;layer.id2',
+                    expectedResult: 'layer.id@features=12:14;layer.id2',
+                })
+            })
+        })
+    })
+})

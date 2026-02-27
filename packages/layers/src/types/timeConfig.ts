@@ -1,4 +1,4 @@
-import { Interval } from 'luxon'
+import type { Interval } from 'luxon'
 
 /**
  * Year we are using to describe the timestamp "all data" for WMS (and also for WMTS as there is no
@@ -57,4 +57,5 @@ export interface LayerTimeConfigEntry {
     timestamp: string
     nonTimeBasedValue?: string
     interval?: Interval
+    year?: number
 }

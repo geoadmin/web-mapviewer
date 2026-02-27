@@ -1,11 +1,11 @@
-import { resolve } from 'path'
+import type { UserConfig } from 'vite'
+
 import vue from '@vitejs/plugin-vue'
+import { resolve } from 'path'
 import dts from 'unplugin-dts/vite'
-import { fileURLToPath, URL } from 'url'
-import { defineConfig, type UserConfig } from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
-const config: UserConfig = defineConfig({
+const config: UserConfig = {
     build: {
         lib: {
             entry: {
@@ -19,7 +19,7 @@ const config: UserConfig = defineConfig({
             name: '@swissgeo/layers',
         },
         rollupOptions: {
-            external: ['vue'],
+            external: ['vue', '@swissgeo/log'],
             output: {
                 exports: 'named',
                 globals: {
@@ -30,7 +30,7 @@ const config: UserConfig = defineConfig({
     },
     resolve: {
         alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url)),
+            '@': resolve(__dirname, 'src'),
         },
     },
     plugins: [
@@ -41,9 +41,6 @@ const config: UserConfig = defineConfig({
             processor: 'vue',
         }),
     ],
-    test: {
-        environment: 'jsdom',
-    },
-})
+}
 
 export default config

@@ -1,0 +1,41 @@
+<script setup lang="ts">
+import type { GeoAdmin3DLayer } from '@swissgeo/layers'
+import type { Viewer } from 'cesium'
+import type { ShallowRef } from 'vue'
+
+import log from '@swissgeo/log'
+import { Cesium3DTileset } from 'cesium'
+import { computed, inject, toRef } from 'vue'
+
+import useAddPrimitiveLayer from '@/modules/map/components/cesium/utils/useAddPrimitiveLayer.composable'
+
+const { layerConfig } = defineProps<{ layerConfig: GeoAdmin3DLayer }>()
+const viewer = inject<ShallowRef<Viewer | undefined>>('viewer')
+if (!viewer) {
+    log.error({
+        title: 'CesiumVectorLayer.vue',
+        messages: ['Viewer not initialized, cannot create vector layer'],
+    })
+    throw new Error('Viewer not initialized, cannot create vector layer')
+}
+
+const url = computed(() => {
+    let rootFolder = ''
+    if (layerConfig.use3dTileSubFolder) {
+        rootFolder = '3d-tiles/'
+    }
+    let timeFolder = ''
+    if (layerConfig.urlTimestampToUse) {
+        timeFolder = `/${layerConfig.urlTimestampToUse}`
+    }
+    return `${layerConfig.baseUrl}${rootFolder}${layerConfig.id}${timeFolder}/tileset.json`
+})
+
+useAddPrimitiveLayer(viewer, Cesium3DTileset.fromUrl(url.value), toRef(layerConfig.opacity), {
+    withEnhancedLabelStyle: layerConfig.id === 'ch.swisstopo.swissnames3d.3d',
+})
+</script>
+
+<template>
+    <slot />
+</template>

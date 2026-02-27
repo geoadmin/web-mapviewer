@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import coordinatesUtils, { type SingleCoordinate } from '@/coordinatesUtils'
-import { type FlatExtent, getExtentIntersectionWithCurrentProjection } from '@/extentUtils'
+import type { SingleCoordinate } from '@/coordinatesUtils'
+import type { FlatExtent } from '@/extentUtils'
+
+import coordinatesUtils from '@/coordinatesUtils'
+import { getExtentIntersectionWithCurrentProjection, getExtentCenter } from '@/extentUtils'
 import { LV95, WGS84 } from '@/proj'
 
 describe('Test extent utils', () => {
@@ -27,7 +30,7 @@ describe('Test extent utils', () => {
             const extent = [singleCoordinate, singleCoordinate].flat() as FlatExtent
             const result = getExtentIntersectionWithCurrentProjection(extent, WGS84, LV95)
             expect(result).to.be.an('Array').lengthOf(4)
-            expectExtentIs(result!, [...singleCoordinateInLV95, ...singleCoordinateInLV95])
+            expectExtentIs(result, [...singleCoordinateInLV95, ...singleCoordinateInLV95])
         })
         it('returns undefined if a single coordinate outside of bounds is given', () => {
             const singleCoordinateOutOfLV95Bounds = [8.2, 40]
@@ -48,7 +51,7 @@ describe('Test extent utils', () => {
                 LV95
             )
             expect(result).to.be.an('Array').lengthOf(4)
-            expectExtentIs(result!, [...LV95.bounds.bottomLeft, ...LV95.bounds.topRight])
+            expectExtentIs(result, [...LV95.bounds.bottomLeft, ...LV95.bounds.topRight])
         })
         it('reproject and cut an extent that is partially bigger than LV95 bounds', () => {
             const result = getExtentIntersectionWithCurrentProjection(
@@ -58,7 +61,7 @@ describe('Test extent utils', () => {
                 LV95
             )
             expect(result).to.be.an('Array').lengthOf(4)
-            expectExtentIs(result!, [...LV95.bounds.bottomLeft, ...LV95.bounds.topRight])
+            expectExtentIs(result, [...LV95.bounds.bottomLeft, ...LV95.bounds.topRight])
         })
         it('only gives back the portion of an extent that is within LV95 bounds', () => {
             const singleCoordinateInsideLV95: SingleCoordinate = [7.54, 48.12]
@@ -74,7 +77,16 @@ describe('Test extent utils', () => {
                 LV95
             )
             expect(result).to.be.an('Array').lengthOf(4)
-            expectExtentIs(result!, [...LV95.bounds.bottomLeft, ...singleCoordinateInLV95])
+            expectExtentIs(result, [...LV95.bounds.bottomLeft, ...singleCoordinateInLV95])
+        })
+    })
+    describe('getExtentCenter', () => {
+        it('calculates the center of an extent', () => {
+            const extent: FlatExtent = [0, 0, 30, 70]
+            const center = getExtentCenter(extent)
+            expect(center).to.be.an('Array').lengthOf(2)
+            expect(center[0]).to.be.closeTo(15, 0.0001)
+            expect(center[1]).to.be.closeTo(35, 0.0001)
         })
     })
 })

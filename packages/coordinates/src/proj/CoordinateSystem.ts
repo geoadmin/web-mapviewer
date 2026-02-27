@@ -191,13 +191,22 @@ export default abstract class CoordinateSystem {
         return
     }
 
+    isInBounds(x: number, y: number): boolean
+    isInBounds(coordinate: SingleCoordinate): boolean
+
     /**
-     * Tells if a coordinate (described by X and Y) is in bound of this coordinate system.
+     * Tells if a coordinate is in bound of this coordinate system.
      *
      * Will return false if no bounds are defined for this coordinate system
      */
-    isInBounds(x: number, y: number): boolean {
-        return !!this.bounds?.isInBounds(x, y)
+    isInBounds(xOrCoordinate: number | SingleCoordinate, y?: number): boolean {
+        if (!this.bounds) {
+            return false
+        }
+        if (typeof xOrCoordinate === 'number') {
+            return this.bounds.isInBounds(xOrCoordinate, y)
+        }
+        return this.bounds.isInBounds(xOrCoordinate[0], xOrCoordinate[1])
     }
 
     /**
@@ -228,25 +237,27 @@ export default abstract class CoordinateSystem {
 
     /**
      * Returns the corresponding resolution to the given zoom level and center (some coordinate
-     * system must take some deformation into account the further north we are)
+     * system must take some deformation into account the further north we are, and will require to
+     * receive the coordinate of the center of the view)
      *
      * @abstract
      * @param zoom A zoom level
      * @param center The current center of view, expressed with this coordinate system
      * @returns The resolution at the given zoom level, in the context of this coordinate system
      */
-    abstract getResolutionForZoomAndCenter(zoom: number, center: SingleCoordinate): number
+    abstract getResolutionForZoom(zoom: number, center?: SingleCoordinate): number
 
     /**
      * Returns the zoom level to match the given resolution and center (some coordinate system must
-     * take some deformation into account the further north we are)
+     * take some deformation into account the further north we are, and will require to receive the
+     * coordinate of the center of the view)
      *
      * @abstract
      * @param resolution The resolution of the map, expressed in meter per pixel
      * @param center The current center of view, expressed in this coordinate system
      * @returns The corresponding zoom level, in the context of this coordinate system
      */
-    abstract getZoomForResolutionAndCenter(resolution: number, center: SingleCoordinate): number
+    abstract getZoomForResolution(resolution: number, center?: SingleCoordinate): number
 
     /**
      * Returns a rounded value of a coordinate value, in the context of this coordinate system. This

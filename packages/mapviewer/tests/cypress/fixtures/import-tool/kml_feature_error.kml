@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name><![CDATA[uetlibergwege_kml]]></name>
+    <visibility>1</visibility>
+    <open>1</open>
+    <Snippet
+        ><![CDATA[created using <a href="https://www.gpsvisualizer.com/?ref=ge&time=20230818080749">GPS Visualizer</a>]]></Snippet>
+    <Folder id="Tracks">
+      <name>Tracks</name>
+      <visibility>1</visibility>
+      <open>0</open>
+      <Placemark>
+        <name><![CDATA[Swiss Map Mobile data]]></name>
+        <Snippet />
+        <description><![CDATA[&nbsp;]]></description>
+        <Style>
+            <LineStyle>
+                <color>ff000000</color>
+                <width>2</width>
+            </LineStyle>
+        </Style>
+        <LineString>
+            <tessellate>1</tessellate>
+            <altitudeMode>clampToGround</altitudeMode>
+            <coordinates>8.511875,47.35233 </coordinates> 
+            <!-- LineString is expected to have at least two coordinates https://docs.ogc.org/is/12-007r2/12-007r2.html#488-->
+        </LineString>
+      </Placemark>
+    </Folder>
+  </Document>
+</kml>

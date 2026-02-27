@@ -1,5 +1,6 @@
 // mimicking values from https://github.com/geoadmin/web-mapviewer/blob/36043456b820b03f380804a63e2cac1a8a1850bc/packages/mapviewer/src/config/staging.config.js#L1-L7
 export type Staging = 'development' | 'integration' | 'production'
+export type SupportedLocales = 'en' | 'de' | 'fr' | 'it' | 'rm'
 
 export type BackendServices =
     | 'wms'
@@ -130,4 +131,98 @@ export const servicesBaseUrl: ServicesBaseUrl = {
     },
 }
 
-export default servicesBaseUrl
+/** Adds a slash at the end of the URL if there is none */
+function enforceEndingSlashInUrl(url?: string): string | undefined {
+    if (url && !url.endsWith('/')) {
+        return `${url}/`
+    }
+    return url
+}
+
+export function getDefaultBaseUrl(service: BackendServices, staging: Staging = 'production') {
+    return servicesBaseUrl[service][staging]
+}
+
+const baseUrlOverrides: Record<BackendServices, string | undefined> = {
+    wms: undefined,
+    wmts: undefined,
+    api3: undefined,
+    data: undefined,
+    kml: undefined,
+    shortlink: undefined,
+    tiles3D: undefined,
+    vectorTiles: undefined,
+    proxy: undefined,
+    viewerSpecific: undefined,
+}
+
+export function hasBaseUrlOverrides(): boolean {
+    return Object.values(baseUrlOverrides).some((value) => value !== undefined)
+}
+
+export function getBaseUrlOverride(service: BackendServices): string | undefined {
+    return baseUrlOverrides[service]
+}
+
+export function setBaseUrlOverrides(service: BackendServices, value?: string) {
+    baseUrlOverrides[service] = enforceEndingSlashInUrl(value)
+}
+
+export function getBaseUrl(service: BackendServices, staging: Staging = 'production'): string {
+    return baseUrlOverrides[service] ?? getDefaultBaseUrl(service, staging)
+}
+
+export function getApi3BaseUrl(staging: Staging = 'production'): string {
+    return getBaseUrl('api3', staging)
+}
+
+export function getViewerDedicatedServicesBaseUrl(staging: Staging = 'production'): string {
+    return getBaseUrl('viewerSpecific', staging)
+}
+
+export function getServiceKmlBaseUrl(staging: Staging = 'production'): string {
+    return getBaseUrl('kml', staging)
+}
+
+export function getServiceProxyBaseUrl(staging: Staging = 'production'): string {
+    return getBaseUrl('proxy', staging)
+}
+
+export function getServiceShortLinkBaseUrl(staging: Staging = 'production'): string {
+    return getBaseUrl('shortlink', staging)
+}
+
+export function getDataBaseUrl(staging: Staging = 'production'): string {
+    return getBaseUrl('data', staging)
+}
+
+export function getWmsBaseUrl(staging: Staging = 'production'): string {
+    return getBaseUrl('wms', staging)
+}
+
+export function getWmtsBaseUrl(staging: Staging = 'production'): string {
+    return getBaseUrl('wmts', staging)
+}
+
+export function get3dTilesBaseUrl(staging: Staging = 'production'): string {
+    return getBaseUrl('tiles3D', staging)
+}
+
+export function getVectorTilesBaseUrl(staging: Staging = 'production'): string {
+    return getBaseUrl('vectorTiles', staging)
+}
+
+export default {
+    setBaseUrlOverrides,
+    getBaseUrl,
+    getApi3BaseUrl,
+    getViewerDedicatedServicesBaseUrl,
+    getServiceKmlBaseUrl,
+    getServiceProxyBaseUrl,
+    getServiceShortLinkBaseUrl,
+    getDataBaseUrl,
+    getWmsBaseUrl,
+    getWmtsBaseUrl,
+    get3dTilesBaseUrl,
+    getVectorTilesBaseUrl,
+}

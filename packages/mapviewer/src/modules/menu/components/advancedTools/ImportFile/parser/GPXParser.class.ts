@@ -1,0 +1,90 @@
+import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
+import type { GPXLayer } from '@swissgeo/layers'
+
+import { gpxUtils } from '@swissgeo/api/utils'
+import { extentUtils, WGS84 } from '@swissgeo/coordinates'
+import { layerUtils } from '@swissgeo/layers/utils'
+import GPX from 'ol/format/GPX'
+
+import EmptyFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/EmptyFileContentError.error'
+import InvalidFileContentError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/InvalidFileContentError.error'
+import OutOfBoundsError from '@/modules/menu/components/advancedTools/ImportFile/parser/errors/OutOfBoundsError.error'
+import FileParser from '@/modules/menu/components/advancedTools/ImportFile/parser/FileParser.class'
+
+/** Checks if file is GPX */
+export function isGpx(fileContent: ArrayBuffer | string): boolean {
+    let stringValue: string
+    if (typeof fileContent === 'string') {
+        stringValue = fileContent
+    } else {
+        stringValue = new TextDecoder('utf-8').decode(fileContent)
+    }
+    return /<gpx/.test(stringValue) && /<\/gpx\s*>/.test(stringValue)
+}
+
+const gpxMetadataParser = new GPX()
+
+export default class GPXParser extends FileParser<GPXLayer> {
+    constructor() {
+        super({
+            fileExtensions: ['.gpx'],
+            fileContentTypes: ['application/gpx+xml', 'application/xml', 'text/xml'],
+            validateFileContent: isGpx,
+            allowServiceProxy: true,
+        })
+    }
+
+    parseFileContent(
+        fileContent: ArrayBuffer | string | undefined,
+        fileSource: File | string,
+        currentProjection: CoordinateSystem
+    ): Promise<GPXLayer> {
+        if (!fileContent || !isGpx(fileContent)) {
+            throw new InvalidFileContentError()
+        }
+        let gpxAsText: string
+        if (typeof fileContent === 'string') {
+            gpxAsText = fileContent
+        } else {
+            gpxAsText = new TextDecoder('utf-8').decode(fileContent)
+        }
+        const extent = gpxUtils.getGpxExtent(gpxAsText)
+        if (!extent) {
+            throw new EmptyFileContentError()
+        }
+        const extentInCurrentProjection = extentUtils.getExtentIntersectionWithCurrentProjection(
+            extent,
+            WGS84,
+            currentProjection
+        )
+        if (!extentInCurrentProjection) {
+            throw new OutOfBoundsError(
+                `GPX is out of bounds of current projection: ${extent.toString()}`
+            )
+        }
+
+        const olGpxMetadata = gpxMetadataParser.readMetadata(gpxAsText) ?? undefined
+        const gpxMetadata = olGpxMetadata
+            ? {
+                  ...olGpxMetadata,
+                  bounds:
+                      olGpxMetadata.bounds && olGpxMetadata.bounds.length === 4
+                          ? (olGpxMetadata.bounds as FlatExtent)
+                          : undefined,
+              }
+            : undefined
+
+        return new Promise<GPXLayer>((resolve) => {
+            resolve(
+                layerUtils.makeGPXLayer({
+                    opacity: 1.0,
+                    isVisible: true,
+                    extent: extentInCurrentProjection,
+                    gpxFileUrl: this.isLocalFile(fileSource) ? fileSource.name : fileSource,
+                    gpxData: gpxAsText,
+                    gpxMetadata,
+                })
+            )
+        })
+    }
+}

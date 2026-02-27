@@ -1,13 +1,23 @@
 {
     "name": "@swissgeo/staging-config",
-    "version": "0.0.1",
+    "version": "1.0.1",
     "description": "Staging config utils for swissgeo",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/geoadmin/web-mapviewer.git",
+        "directory": "packages/config/staging"
+    },
     "type": "module",
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
             "import": "./dist/index.js",
             "require": "./dist/index.umd.cjs"
+        },
+        "./constants": {
+            "types": "./dist/constants.d.ts",
+            "import": "./dist/constants.js",
+            "require": "./dist/constants.umd.cjs"
         }
     },
     "main": "./dist/index.umd.cjs",
@@ -22,25 +32,20 @@
         "build:dev:watch": "pnpm run build --watch --mode development",
         "build:int": "pnpm run build --mode integration",
         "build:prod": "pnpm run build --mode production",
-        "lint": "eslint --fix",
-        "lint:no-fix": "eslint",
         "dev": "vite",
         "generate-types": "tsc --declaration --declarationDir dist",
+        "lint": "eslint --fix",
+        "lint:no-fix": "eslint",
+        "prepare": "pnpm run build",
         "type-check": "tsc -p tsconfig.json"
     },
     "devDependencies": {
         "@microsoft/api-extractor": "catalog:",
         "@swissgeo/config-eslint": "workspace:*",
-        "@swissgeo/config-prettier": "workspace:*",
         "@swissgeo/config-typescript": "workspace:*",
         "eslint": "catalog:",
-        "prettier": "catalog:",
-        "@prettier/plugin-xml": "catalog:",
-        "prettier-plugin-jsdoc": "catalog:",
-        "prettier-plugin-packagejson": "catalog:",
-        "prettier-plugin-tailwindcss": "catalog:",
-        "unplugin-dts": "catalog:",
         "typescript": "catalog:",
+        "unplugin-dts": "catalog:",
         "vite": "catalog:"
     }
 }

@@ -1,0 +1,94 @@
+import type { LayerFeature } from '@swissgeo/api'
+
+import log, { LogPreDefinedColor } from '@swissgeo/log'
+
+const targetWindow: Window = parent ?? window.parent ?? window.opener ?? window.top
+
+/**
+ * All events fired by the iFrame postMessage implementation.
+ *
+ * - 'gaChange': raised whenever the app changes its state (the URL changed). Payload: a string with
+ *   the new URL of the viewer
+ * - 'gaFeatureSelection': raised when a feature has been selected. Will fire as many events as there
+ *   are feature selected on the map (won't bundle all features into one event). Payload: a JSON
+ *   containing the layerId and featureId of the selected feature
+ * - 'gaMapReady': raised when the map shown has finished loading and is now visible in the HTML DOM.
+ *   No payload with this event.
+ */
+export type IFrameEvents = 'gaChange' | 'gaFeatureSelection' | 'gaMapReady'
+
+/**
+ * Sends information to the iFrame's parent about features, through the use of the postMessage
+ * HTML/Javascript API.
+ *
+ * @param {LayerFeature[]} features List of features for which we want to send information to the
+ *   iFrame's parent
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage
+ * @see https://codepen.io/geoadmin/pen/yOBzqM?editors=0010
+ */
+export function sendFeatureInformationToIFrameParent(features: LayerFeature[]): void {
+    // if no features are given, nothing to do
+    if (!Array.isArray(features) || features.length === 0) {
+        return
+    }
+    log.debug({
+        title: 'IFrame postMessage API',
+        titleColor: LogPreDefinedColor.Violet,
+        messages: ['sending information about selected features to iframe parent'],
+    })
+    // from what I can understand from the codepen, one event is fired per feature with a structured response
+    features.forEach((feature) => {
+        sendEventToParent('gaFeatureSelection', {
+            layerId: feature.layer.id,
+            featureId: feature.id,
+            // if we want to expose more stuff from our features (EGID, EWID, etc...), it should come here...
+        })
+        // mf-geoadmin3 was also sending the same feature in a different unstructured/string format "layerId#featureId"
+        // but this comment here https://github.com/geoadmin/mf-geoadmin3/blob/6a7b99a2cc9980eec27b394ee709305a239549f1/src/components/tooltip/TooltipDirective.js#L661-L668
+        // suggest that this was already to accommodate some legacy support, and was supposed to be removed "soon"
+        // so let's not implement this format in the new viewer and see what happens.
+    })
+}
+
+/**
+ * Is used to notify the parent the state of the app has changed. While embedding with VueJS, it's
+ * not possible to watch the iFrame src attribute, so an event is required to be notified of a
+ * children change.
+ *
+ * This is mainly used so that the iframe generator (menu share -> embed) can change the iframe
+ * snippet if the user decide to move / zoom the map while looking at the preview
+ */
+export function sendChangeEventToParent(): void {
+    sendEventToParent('gaChange', {
+        newUrl: window.location.href,
+    })
+}
+
+export function sendMapReadyEventToParent(): void {
+    log.debug({
+        title: 'IFrame postMessage API',
+        titleColor: LogPreDefinedColor.Violet,
+        messages: ['sending map ready event to iframe parent'],
+    })
+    sendEventToParent('gaMapReady')
+}
+
+function sendEventToParent(type: IFrameEvents, payload?: Record<string, unknown>): void {
+    if (!targetWindow) {
+        log.debug({
+            title: 'IFrame postMessage API',
+            titleColor: LogPreDefinedColor.Violet,
+            messages: [
+                'Embed view loaded as root document of a browser tab, cannot communicate with opener/parent',
+            ],
+        })
+        return
+    }
+    targetWindow.postMessage(
+        {
+            type,
+            payload,
+        },
+        '*'
+    )
+}

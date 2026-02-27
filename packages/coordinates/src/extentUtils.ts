@@ -1,11 +1,11 @@
 import { round } from '@swissgeo/numbers'
-import { bbox, buffer, point } from '@turf/turf'
-import { type Extent, getIntersection as getExtentIntersection } from 'ol/extent'
+import { bbox, bboxClip, bboxPolygon, buffer, point } from '@turf/turf'
 import proj4 from 'proj4'
 
 import type { SingleCoordinate } from '@/coordinatesUtils'
+import type { CoordinateSystem } from '@/proj'
 
-import { CoordinateSystem, WGS84 } from '@/proj'
+import { WGS84 } from '@/proj'
 
 export type FlatExtent = [number, number, number, number]
 export type NormalizedExtent = [[number, number], [number, number]]
@@ -110,23 +110,25 @@ export function getExtentIntersectionWithCurrentProjection(
             currentProjectionAsExtentProjection
         )
     }
-    let finalExtent: Extent = getExtentIntersection(
-        flattenExtent(extent),
-        currentProjectionAsExtentProjection
-    )
+    let intersectionOfExtents = bbox(bboxClip(bboxPolygon(currentProjectionAsExtentProjection), flattenExtent(extent)))
+
     if (
-        !finalExtent ||
-        // OL now populates the extent with Infinity when nothing is in common, instead returning a null value
-        finalExtent.every((value) => Math.abs(value) === Infinity)
+        !intersectionOfExtents || intersectionOfExtents.length !== 4 ||
+        intersectionOfExtents.every((value) => Math.abs(value) === Infinity)
     ) {
         return undefined
     }
     if (extentProjection.epsg !== currentProjection.epsg) {
         // if we transformed the current projection extent above, we now need to output the correct proj
-        finalExtent = projExtent(extentProjection, currentProjection, finalExtent as FlatExtent)
+        intersectionOfExtents = projExtent(extentProjection, currentProjection, intersectionOfExtents)
     }
 
-    return flattenExtent(finalExtent as FlatExtent)
+    return intersectionOfExtents
+}
+
+export function getExtentCenter(extent: FlatExtent | NormalizedExtent): SingleCoordinate {
+    const [topLeft, bottomRight] = normalizeExtent(extent)
+    return [(topLeft[0] + bottomRight[0]) / 2, (topLeft[1] + bottomRight[1]) / 2]
 }
 
 interface ConfigCreatePixelExtentAround {
@@ -173,20 +175,22 @@ export function createPixelExtentAround(
     return extent
 }
 
-export interface GeoadminExtentUtils {
+export interface SwissGeoExtentUtils {
     projExtent: typeof projExtent
     normalizeExtent: typeof normalizeExtent
     flattenExtent: typeof flattenExtent
     getExtentIntersectionWithCurrentProjection: typeof getExtentIntersectionWithCurrentProjection
     createPixelExtentAround: typeof createPixelExtentAround
+    getExtentCenter: typeof getExtentCenter
 }
 
-const extentUtils: GeoadminExtentUtils = {
+const extentUtils: SwissGeoExtentUtils = {
     projExtent,
     normalizeExtent,
     flattenExtent,
     getExtentIntersectionWithCurrentProjection,
     createPixelExtentAround,
+    getExtentCenter,
 }
 export { extentUtils }
 export default extentUtils

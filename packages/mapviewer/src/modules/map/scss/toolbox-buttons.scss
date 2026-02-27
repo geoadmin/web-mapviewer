@@ -1,0 +1,67 @@
+@import '@swissgeo/theme/scss/geoadmin-theme';
+@import '@/scss/variables.module';
+
+%toolbox-button {
+    border: none;
+    padding: 0;
+    display: block;
+    height: $map-button-diameter;
+    width: $map-button-diameter;
+    border-radius: $map-button-diameter * 0.5;
+    overflow: hidden;
+    cursor: pointer;
+    background-color: $map-button-border-color;
+    text-align: center;
+    font-size: 0; // Needed to fully center the icon
+    margin-bottom: 0.25rem;
+    &:hover {
+        background-color: $map-button-hover-border-color;
+        border-color: $map-button-hover-border-color;
+    }
+    &-icon {
+        height: $map-button-diameter - 5px;
+    }
+    &-inner-circle,
+    .svg-inline--fa {
+        font-size: $map-button-inner-icon-diameter;
+        color: $white;
+    }
+    &.active {
+        background-color: $primary;
+        border-color: $primary;
+        .toolbox-button-inner-circle {
+            fill: $primary;
+        }
+    }
+    &.disabled {
+        background-color: $light-grey;
+        border: $light-grey;
+        cursor: not-allowed;
+    }
+}
+
+.toolbox-button {
+    @extend %toolbox-button;
+}
+
+.toolbox-button-label {
+    font-size: smaller;
+    text-align: center;
+}
+
+.overlay-button {
+    @extend %toolbox-button;
+
+    height: $map-button-diameter * 0.75;
+    width: $map-button-diameter * 0.75;
+    border-radius: $map-button-diameter * 0.5;
+
+    &-icon {
+        height: ($map-button-diameter - 25px);
+    }
+
+    &-inner-circle,
+    .svg-inline--fa {
+        font-size: $map-button-inner-icon-diameter * 0.75;
+    }
+}

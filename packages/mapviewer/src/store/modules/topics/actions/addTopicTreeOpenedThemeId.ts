@@ -1,0 +1,13 @@
+import type { TopicsStore } from '@/store/modules/topics/types'
+import type { ActionDispatcher } from '@/store/types'
+
+export default function addTopicTreeOpenedThemeId(
+    this: TopicsStore,
+    themeId: string,
+    dispatcher: ActionDispatcher
+): void {
+    if (this.openedTreeThemesIds.includes(themeId)) {
+        return
+    }
+    this.openedTreeThemesIds.push(themeId)
+}

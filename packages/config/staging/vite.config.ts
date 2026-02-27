@@ -1,13 +1,14 @@
 import type { UserConfig } from 'vite'
+
 import { resolve } from 'path'
 import dts from 'unplugin-dts/vite'
-import { fileURLToPath, URL } from 'url'
 
 const config: UserConfig = {
     build: {
         lib: {
             entry: {
                 index: resolve(__dirname, 'src/index.ts'),
+                constants: resolve(__dirname, 'src/constants/index.ts'),
             },
             name: '@swissgeo/staging-config',
         },
@@ -19,7 +20,7 @@ const config: UserConfig = {
     },
     resolve: {
         alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url)),
+            '@': resolve(__dirname, 'src'),
         },
     },
     plugins: [

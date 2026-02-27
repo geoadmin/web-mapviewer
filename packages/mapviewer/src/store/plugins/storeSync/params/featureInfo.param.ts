@@ -1,0 +1,52 @@
+import type { RouteLocationNormalizedGeneric } from 'vue-router'
+
+import type { FeatureInfoPositions } from '@/store/modules/ui/types'
+
+import useUIStore from '@/store/modules/ui'
+import UrlParamConfig, {
+    STORE_DISPATCHER_ROUTER_PLUGIN,
+} from '@/store/plugins/storeSync/UrlParamConfig.class'
+import { getDefaultValidationResponse } from '@/store/plugins/storeSync/validation'
+
+function parseFeatureInfoPosition(urlParamValue?: string): FeatureInfoPositions | undefined {
+    if (!urlParamValue) {
+        return undefined
+    }
+    const lowerCaseValue = urlParamValue.toLowerCase()
+    if (lowerCaseValue === 'default') {
+        return 'default'
+    }
+    if (lowerCaseValue === 'tooltip') {
+        return 'tooltip'
+    }
+    if (lowerCaseValue === 'bottompanel') {
+        return 'bottomPanel'
+    }
+    if (lowerCaseValue === 'none') {
+        return 'none'
+    }
+    return undefined
+}
+
+const featureInfoParamConfig = new UrlParamConfig<string>({
+    urlParamName: 'featureInfo',
+    actionsToWatch: ['setFeatureInfoPosition'],
+    extractValueFromStore: () => useUIStore().featureInfoPosition,
+    setValuesInStore: (_: RouteLocationNormalizedGeneric, urlParamValue?: string) => {
+        const position = parseFeatureInfoPosition(urlParamValue)
+        if (position) {
+            useUIStore().setFeatureInfoPosition(position, STORE_DISPATCHER_ROUTER_PLUGIN)
+        }
+    },
+    keepInUrlWhenDefault: false,
+    valueType: String,
+    defaultValue: 'none',
+    validateUrlInput: (queryValue?: string) =>
+        getDefaultValidationResponse(
+            queryValue,
+            parseFeatureInfoPosition(queryValue) !== undefined,
+            'featureInfo'
+        ),
+})
+
+export default featureInfoParamConfig

@@ -1,0 +1,238 @@
+import type { ConfigEnv, PluginOption, UserConfig } from 'vite'
+
+import tailwindcss from '@tailwindcss/vite'
+import basicSsl from '@vitejs/plugin-basic-ssl'
+import vue from '@vitejs/plugin-vue'
+import gitDescribe from 'git-describe'
+import { resolve } from 'path'
+import { defineConfig, normalizePath } from 'vite'
+import ConditionalCompile from 'vite-plugin-conditional-compiler'
+import { VitePWA } from 'vite-plugin-pwa'
+import { viteStaticCopy } from 'vite-plugin-static-copy'
+import vueDevTools from 'vite-plugin-vue-devtools'
+import tsconfigPaths from 'vite-tsconfig-paths'
+
+import generateBuildInfo from './vite-plugins/vite-plugin-generate-build-info'
+
+export type ViteModes = 'development' | 'integration' | 'production' | 'test'
+
+const appVersion: string =
+    // We take the version from APP_VERSION, and if not set from the git describe command
+    process.env.APP_VERSION ??
+    // NOTE: git-describe package adds sometimes `+` signs (what the real git describe command doesn't),
+    // and the `+` sign on the URL is actually a space, so it should be percent encoded.
+    // We therefore swap the '+' sign with '-' for simplification.
+    `v${gitDescribe.gitDescribeSync().semverString?.replace('+', '-')}`
+
+const cesiumFolder: string = `${__dirname}/node_modules/cesium/`
+const cesiumSource: string = `${cesiumFolder}Source/`
+
+const stagings: Record<ViteModes, string> = {
+    development: 'dev',
+    integration: 'int',
+    production: 'prod',
+    test: 'test',
+}
+
+/**
+ * Get the Cesium static directory path based on the mode. In test mode, use a fixed path to avoid
+ * issues with dynamic version paths.
+ */
+function getCesiumStaticDir(mode: ViteModes): string {
+    return mode === 'test' ? './cesium/' : `./${appVersion}/cesium/`
+}
+
+/**
+ * We use manual chunks to reduce the size of the final index.js file to improve startup
+ * performance. Only separate Cesium (large, rarely changes) from the rest.
+ */
+function manualChunks(id: string): string | undefined {
+    // Separate Cesium - it's a large (~3.5MB), standalone library that rarely changes
+    if (id.includes('node_modules') && id.includes('cesium')) {
+        return 'vendor-cesium'
+    }
+    // Put all files from the src/utils into the chunk named utils.js
+    if (id.includes('/src/utils/')) {
+        return 'utils'
+    }
+    // Everything else goes into default chunks
+}
+
+function generatePlugins(mode: ViteModes, isTesting: boolean = false): PluginOption[] {
+    const plugins: PluginOption[] = []
+
+    plugins.push(tsconfigPaths())
+
+    if (process.env.USE_HTTPS) {
+        plugins.push({
+            ...basicSsl({
+                /** Name of certification */
+                name: 'localhost',
+                /** Custom trust domains */
+                domains: ['localhost', '192.168.*.*'],
+                /** Custom certification directory */
+                certDir: './devServer/cert',
+            }),
+            apply: 'serve',
+        })
+    }
+    plugins.push(tailwindcss())
+    plugins.push(
+        vue({
+            template: {
+                compilerOptions: {
+                    isCustomElement: (tag) =>
+                        tag === 'cesium-compass' || tag.startsWith('geoadmin-'),
+                },
+            },
+        })
+    )
+    plugins.push(generateBuildInfo(stagings[mode], appVersion))
+
+    // CesiumJS requires static files from the following 4 folders to be included in the build
+    // https://cesium.com/learn/cesiumjs-learn/cesiumjs-quickstart/#install-with-npm
+    const cesiumStaticDir = getCesiumStaticDir(mode)
+    plugins.push(
+        viteStaticCopy({
+            targets: [
+                {
+                    src: normalizePath(`${cesiumFolder}/Build/Cesium/Workers`),
+                    dest: cesiumStaticDir,
+                    overwrite: false,
+                },
+                {
+                    src: normalizePath(`${cesiumSource}/Assets`),
+                    dest: cesiumStaticDir,
+                    overwrite: false,
+                },
+                {
+                    src: normalizePath(`${cesiumSource}/Widgets`),
+                    dest: cesiumStaticDir,
+                    overwrite: false,
+                },
+                {
+                    src: normalizePath(`${cesiumSource}/ThirdParty`),
+                    dest: cesiumStaticDir,
+                    overwrite: false,
+                },
+            ],
+        })
+    )
+
+    plugins.push(ConditionalCompile() as PluginOption)
+
+    if (!isTesting) {
+        plugins.push(
+            VitePWA({
+                devOptions: {
+                    enabled: true,
+                    type: 'module',
+                },
+
+                strategies: 'injectManifest',
+                srcDir: 'src',
+                filename: 'service-workers.ts',
+                registerType: 'autoUpdate',
+                includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg'],
+                injectRegister: false,
+                injectManifest: {
+                    // 7MB max (default is 2MB, some automatically generated chunks are larger than that)
+                    // Increased to accommodate Vite's automatic chunking without manual intervention
+                    maximumFileSizeToCacheInBytes: 7 * 1000 * 1000,
+                },
+
+                pwaAssets: {
+                    disabled: false,
+                    config: true,
+                },
+
+                manifest: {
+                    name: 'map.geo.admin.ch',
+                    short_name: 'geoadmin',
+                    description: 'Maps of Switzerland - Swiss Confederation - map.geo.admin.ch',
+                    theme_color: '#ffffff',
+                    icons: [
+                        { src: '/icon-192.png', type: 'image/png', sizes: '192x192' },
+                        { src: '/icon-512.png', type: 'image/png', sizes: '512x512' },
+                    ],
+                    related_applications: [
+                        {
+                            platform: 'play',
+                            url: 'https://play.google.com/store/apps/details?id=ch.admin.swisstopo',
+                        },
+                        {
+                            platform: 'itunes',
+                            url: 'https://apps.apple.com/us/app/swisstopo/id1505986543',
+                        },
+                    ],
+                },
+            })
+        )
+    }
+    // Vue dev tools only in development mode and if not testing
+    // during testing the dev tools button can interfere with cypress clicks
+    if (mode === 'development' && !isTesting) {
+        plugins.push(vueDevTools())
+    }
+
+    return plugins
+}
+
+// https://vitejs.dev/config/
+export default defineConfig((configEnv: ConfigEnv): UserConfig => {
+    const { mode } = configEnv
+    // "test" mode is essentially the "development" mode, but with a different plugin composition.
+    // In test mode, we don't want the PWA plugin or the dev tools.
+    // The app is also adding a couple of things to the "window" element when in test mode, so that Cypress can access it.
+    const isTesting = mode === 'test'
+    const definitiveMode: ViteModes = (isTesting ? 'development' : mode) as ViteModes
+    const pluginMode: ViteModes = mode as ViteModes
+    return {
+        base: './',
+        build: {
+            emptyOutDir: true,
+            assetsDir: isTesting ? 'assets' : `${appVersion}/assets`,
+            outDir: `./dist/${stagings[definitiveMode]}`,
+            rollupOptions: {
+                external: ['tailwindcss'],
+                output: {
+                    manualChunks,
+                },
+            },
+        },
+        css: {
+            preprocessorOptions: {
+                scss: {
+                    // Boostrap 5.3.x has too many deprecation warnings (10k+ on a single build)
+                    // TODO: remove as soon as migration to TailwindCSS is done
+                    quietDeps: true,
+                    silenceDeprecations: ['import', 'color-functions'],
+                },
+            },
+        },
+        plugins: generatePlugins(pluginMode, isTesting),
+        resolve: {
+            alias: {
+                '@': resolve(__dirname, 'src'),
+                tests: resolve(__dirname, 'tests'),
+                cesium: normalizePath(cesiumFolder),
+                // making sure we share one OpenLayers instance throughout all libs requiring it
+                ol: resolve(__dirname, 'node_modules/ol'),
+            },
+            dedupe: ['ol'],
+        },
+        // see https://vite.dev/config/#using-environment-variables-in-config
+        define: {
+            __APP_VERSION__: JSON.stringify(appVersion),
+            __VITE_ENVIRONMENT__: JSON.stringify(definitiveMode),
+            __CESIUM_STATIC_PATH__: JSON.stringify(getCesiumStaticDir(pluginMode)),
+            __IS_TESTING_WITH_CYPRESS__: JSON.stringify(isTesting),
+            // opting out explicitly of Option API to reduce the Vue bundle's size,
+            // see https://vuejs.org/api/compile-time-flags#VUE_OPTIONS_API
+            __VUE_OPTIONS_API__: 'false',
+            // Polyfill Node.js process object for browser environment (needed for Cypress tests)
+            // Some dependencies may try to access process.env at module load time
+            'process.env': JSON.stringify({}),
+        },
+    }
+})

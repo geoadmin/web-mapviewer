@@ -1,0 +1,509 @@
+import type { CoordinateSystem, FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
+import type { GPXLayer, KMLLayer, Layer } from '@swissgeo/layers'
+import type { AxiosResponse, CancelToken, CancelTokenSource } from 'axios'
+import type Feature from 'ol/Feature'
+
+import { CustomCoordinateSystem, LV95, WGS84 } from '@swissgeo/coordinates'
+import { LayerType } from '@swissgeo/layers'
+import { geoJsonUtils } from '@swissgeo/layers/utils'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
+import { getApi3BaseUrl } from '@swissgeo/staging-config'
+import { bbox, points } from '@turf/turf'
+import axios from 'axios'
+import proj4 from 'proj4'
+
+import type { DrawingIconSet } from '@/types/icons'
+import type {
+    LayerFeatureSearchResult,
+    LayerSearchResult,
+    LocationSearchResult,
+    SearchResponse,
+    SearchResponseResult,
+    SearchResult,
+} from '@/types/search'
+
+import featuresAPI from '@/features'
+import gpxUtils from '@/utils/gpxUtils'
+import kmlUtils from '@/utils/kmlUtils'
+
+const KML_GPX_SEARCH_FIELDS = ['name', 'description', 'id']
+
+// comes from https://stackoverflow.com/questions/5002111/how-to-strip-html-tags-from-string-in-javascript
+const REGEX_DETECT_HTML_TAGS = /<\/?[^>]+(>|$)/g
+
+/**
+ * Exported so that it may be unit tested, it is intended to only care for search results title and
+ * nothing more
+ */
+function sanitizeTitle(title: string = ''): string {
+    return title.replace(REGEX_DETECT_HTML_TAGS, '')
+}
+
+const generateAxiosSearchRequest = (
+    query: string,
+    lang: string,
+    type: string,
+    cancelToken: CancelToken,
+    extraParams: object = {}
+): Promise<AxiosResponse<SearchResponse>> => {
+    return axios.get<SearchResponse>(`${getApi3BaseUrl()}rest/services/ech/SearchServer`, {
+        cancelToken,
+        params: {
+            sr: LV95.epsgNumber,
+            searchText: query.trim(),
+            lang,
+            type,
+            ...extraParams,
+        },
+    })
+}
+
+function parseLayerResult(result: SearchResponseResult): LayerSearchResult {
+    if (!result.attrs) {
+        throw new SearchError('Invalid layer result, cannot be parsed')
+    }
+    const { label: title, detail: description, layer: layerId } = result.attrs
+    return {
+        resultType: 'LAYER',
+        id: layerId ?? title,
+        title,
+        sanitizedTitle: sanitizeTitle(title),
+        description,
+        layerId: layerId ?? title,
+    }
+}
+
+function parseLocationResult(
+    result: SearchResponseResult,
+    outputProjection: CoordinateSystem,
+    translations?: {
+        kantone: string
+        district: string
+    }
+): LocationSearchResult {
+    if (!result.attrs) {
+        throw new SearchError('Invalid location result, cannot be parsed')
+    }
+    // reading the main values from the attrs
+    const { label: title, detail: description, featureId, origin } = result.attrs
+
+    let coordinate: SingleCoordinate | undefined
+    let zoom = result.attrs.zoomlevel
+    if (result.attrs.lon && result.attrs.lat) {
+        coordinate = [result.attrs.lon, result.attrs.lat]
+        if (outputProjection.epsg !== WGS84.epsg) {
+            coordinate = proj4(WGS84.epsg, outputProjection.epsg, coordinate)
+        }
+    }
+    if (outputProjection.epsg !== LV95.epsg) {
+        // re-projecting result coordinate and zoom to wanted projection
+        zoom = LV95.transformCustomZoomLevelToStandard(zoom)
+        if (outputProjection instanceof CustomCoordinateSystem) {
+            zoom = outputProjection.transformStandardZoomLevelToCustom(zoom)
+        }
+    }
+    // reading the extent from the LineString (if defined)
+    let extent: FlatExtent | undefined
+    if (result.attrs.geom_st_box2d) {
+        const extentMatches = Array.from(
+            result.attrs.geom_st_box2d.matchAll(
+                /BOX\(([0-9\\.]+) ([0-9\\.]+),([0-9\\.]+) ([0-9\\.]+)\)/g
+            )
+        )[0]
+        if (Array.isArray(extentMatches) && extentMatches.length >= 5) {
+            let bottomLeft = [Number(extentMatches[1]), Number(extentMatches[2])]
+            let topRight = [Number(extentMatches[3]), Number(extentMatches[4])]
+            if (outputProjection.epsg !== LV95.epsg) {
+                bottomLeft = proj4(LV95.epsg, outputProjection.epsg, bottomLeft)
+                topRight = proj4(LV95.epsg, outputProjection.epsg, topRight)
+            }
+            // checking if both point are the same (can happen if what is shown is a point of interest)
+            if (bottomLeft[0] !== topRight[0] && bottomLeft[1] !== topRight[1]) {
+                extent = [...bottomLeft, ...topRight] as FlatExtent
+            }
+        }
+    }
+    // when no zoom and no extent are given, we go 1:25'000 map by default
+    if (!zoom && !extent) {
+        zoom = outputProjection.get1_25000ZoomLevel()
+    }
+    let newOrigin
+    if (origin === 'district' && translations?.district) {
+        newOrigin = translations.district
+    }
+    if (origin === 'kantone' && translations?.kantone) {
+        newOrigin = translations.kantone
+    }
+    const newTitle = newOrigin ? `${newOrigin} ${title}` : title
+    return {
+        resultType: 'LOCATION',
+        id: featureId,
+        title: newTitle,
+        sanitizedTitle: sanitizeTitle(title),
+        description,
+        featureId: featureId ?? description,
+        coordinate,
+        extent,
+        zoom,
+    }
+}
+
+async function searchLayers(
+    queryString: string,
+    lang: string,
+    cancelToken: CancelToken,
+    limit?: number
+) {
+    try {
+        const layerResponse = await generateAxiosSearchRequest(
+            queryString,
+            lang,
+            'layers',
+            cancelToken,
+            { limit }
+        )
+        if (!layerResponse?.data || !layerResponse?.data?.results) {
+            return []
+        }
+        // checking that there is something of interest to parse
+        const resultWithAttrs = layerResponse?.data.results?.filter(
+            (result: SearchResponseResult) => !!result.attrs
+        )
+        return resultWithAttrs?.map(parseLayerResult) ?? []
+    } catch (error) {
+        log.error({
+            title: 'Search API',
+            titleColor: LogPreDefinedColor.Amber,
+            messages: [`Failed to search layer, fallback to empty result`, error],
+        })
+        return []
+    }
+}
+
+/**
+ * Search locations for this query string in our backend, returning results reprojected to the
+ * outputProjection (if it isn't LV95 already)
+ */
+async function searchLocation(
+    outputProjection: CoordinateSystem,
+    queryString: string,
+    lang: string,
+    cancelToken: CancelToken,
+    limit?: number,
+    translations?: {
+        kantone: string
+        district: string
+    }
+): Promise<LocationSearchResult[]> {
+    try {
+        const locationResponse = await generateAxiosSearchRequest(
+            queryString,
+            lang,
+            'locations',
+            cancelToken,
+            { limit }
+        )
+        if (!locationResponse?.data || !locationResponse?.data?.results) {
+            return []
+        }
+        // checking that there is something of interest to parse
+        const resultWithAttrs = locationResponse?.data.results?.filter(
+            (result: SearchResponseResult) => !!result.attrs
+        )
+        return (
+            resultWithAttrs.map((location) =>
+                parseLocationResult(location, outputProjection, translations)
+            ) ?? []
+        )
+    } catch (error) {
+        log.error({
+            title: 'Search API',
+            titleColor: LogPreDefinedColor.Amber,
+            messages: [`Failed to search locations, fallback to empty result`, error],
+        })
+        return []
+    }
+}
+
+async function searchLayerFeatures(
+    outputProjection: CoordinateSystem,
+    queryString: string,
+    layer: Layer,
+    lang: string,
+    cancelToken: CancelTokenSource
+): Promise<SearchResult[]> {
+    try {
+        const layerFeatureResponse = await generateAxiosSearchRequest(
+            queryString,
+            lang,
+            'featuresearch',
+            cancelToken.token,
+            {
+                features: layer.id,
+                timeEnabled: false,
+            }
+        )
+        // checking that there is something of interest to parse
+        const resultWithAttrs = layerFeatureResponse?.data.results?.filter((result) => result.attrs)
+        return (
+            resultWithAttrs.map((layerFeature) => {
+                const layerContent = parseLayerResult(layerFeature)
+                const locationContent = parseLocationResult(layerFeature, outputProjection)
+                const title = `<strong>${layer.name}</strong><br/>${layerContent.title}`
+                return {
+                    ...layerContent,
+                    ...locationContent,
+                    resultType: 'FEATURE',
+                    title,
+                    layer,
+                }
+            }) ?? []
+        )
+    } catch (error) {
+        log.error({
+            title: 'Search API',
+            titleColor: LogPreDefinedColor.Amber,
+            messages: [
+                `Failed to search layer features for layer ${layer.id}, fallback to empty result`,
+                error,
+            ],
+        })
+        return []
+    }
+}
+
+/** Searches for the query string in the feature inside the provided search fields */
+function isQueryInFeature(feature: Feature, queryString: string, searchFields: string[]): boolean {
+    const queryStringClean = queryString
+        .trim()
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // replaces all special characters and accents
+    return searchFields.some((field) => {
+        const value = feature.get(field)?.toString()
+        return !!value && value.trim().toLowerCase().includes(queryStringClean)
+    })
+}
+
+/** Searches for the query string in the vector layer */
+function searchFeatures(
+    features: Feature[],
+    outputProjection: CoordinateSystem,
+    queryString: string,
+    layer: KMLLayer | GPXLayer
+): SearchResult[] {
+    try {
+        if (!features || !features.length) {
+            return []
+        }
+        const includedFeatures = features.filter((feature) =>
+            isQueryInFeature(feature, queryString, KML_GPX_SEARCH_FIELDS)
+        )
+        if (!includedFeatures.length) {
+            return []
+        }
+        return includedFeatures.map((feature) =>
+            createSearchResultFromLayer(layer, feature, outputProjection)
+        )
+    } catch (error) {
+        log.error({
+            title: 'Search API',
+            titleColor: LogPreDefinedColor.Amber,
+            messages: [
+                `Failed to search layer features for layer ${layer.id}, fallback to empty result`,
+                error,
+            ],
+        })
+        return []
+    }
+}
+
+/** Searches for features in KML and GPX layers based on a query string and output projection */
+function searchLayerFeaturesKMLGPX(
+    layersToSearch: Layer[],
+    queryString: string,
+    outputProjection: CoordinateSystem,
+    resolution: number,
+    iconSets: DrawingIconSet[]
+): SearchResult[] {
+    return layersToSearch.reduce((returnLayers: SearchResult[], currentLayer: Layer) => {
+        if (currentLayer.type === LayerType.KML) {
+            const kmlLayer = currentLayer as KMLLayer
+            return returnLayers.concat(
+                searchFeatures(
+                    kmlUtils.parseKml(kmlLayer, outputProjection, iconSets, resolution),
+                    outputProjection,
+                    queryString,
+                    kmlLayer
+                )
+            )
+        }
+        if (currentLayer.type === LayerType.GPX) {
+            const gpxLayer = currentLayer as GPXLayer
+            const gpxData = gpxLayer.gpxData
+            if (!gpxData) {
+                return returnLayers
+            }
+            const gpxFeatures = gpxUtils.parseGpx(gpxData, outputProjection)
+            if (!gpxFeatures) {
+                return returnLayers
+            }
+            return returnLayers.concat(
+                ...searchFeatures(gpxFeatures, outputProjection, queryString, gpxLayer)
+            )
+        }
+        return returnLayers
+    }, [])
+}
+
+/** Creates the SearchResult for a layer */
+function createSearchResultFromLayer(
+    layer: KMLLayer | GPXLayer,
+    feature: Feature,
+    outputProjection: CoordinateSystem
+): LayerFeatureSearchResult {
+    const featureName: string = feature.get('name') || layer.name || '' // this needs || to avoid using empty string when feature.get("name") is an empty string
+    const coordinates: SingleCoordinate[] = featuresAPI.extractOlFeatureCoordinates(feature)
+    const zoom: number = outputProjection.get1_25000ZoomLevel()
+
+    const coordinatePoints = points(coordinates)
+    let extent: number[] = bbox(coordinatePoints)
+    if (extent.length > 4) {
+        extent = extent.slice(0, 4)
+    }
+
+    const featureId = feature.getId() ? `${feature.getId()}` : layer.id
+    return {
+        resultType: 'FEATURE',
+        id: featureId,
+        title: featureName,
+        sanitizedTitle: sanitizeTitle(featureName),
+        description: feature.get('description') ?? '',
+        featureId: featureId,
+        coordinate: geoJsonUtils.getGeoJsonFeatureCenter(
+            coordinatePoints,
+            outputProjection,
+            outputProjection
+        ),
+        extent: extent as FlatExtent,
+        zoom,
+        layer,
+        layerId: layer.id,
+    }
+}
+
+interface SearchConfig {
+    /** The projection in which the search results must be returned */
+    outputProjection: CoordinateSystem
+    /** The query string that describe what is wanted from the search */
+    queryString: string
+    /** The lang ISO code in which the search must be conducted */
+    lang: string
+    /** The resolution of the map in which the search must be conducted, in meters per pixel */
+    resolution: number
+    /** List of searchable layers for which to fire search requests. */
+    layersToSearch?: Layer[]
+    /** The maximum number of results to return */
+    limit?: number
+    iconSets?: DrawingIconSet[]
+    /** Translations for location origin prefixes (e.g., "Ct." for kantone, "District" for district) */
+    translations?: {
+        kantone: string
+        district: string
+    }
+}
+
+let cancelTokenSource: CancelTokenSource | undefined
+async function search(config: SearchConfig): Promise<SearchResult[]> {
+    const {
+        outputProjection,
+        queryString,
+        lang,
+        resolution,
+        layersToSearch = [],
+        limit,
+        iconSets = [],
+        translations,
+    } = config
+
+    if (!outputProjection) {
+        const errorMessage = `A valid output projection is required to start a search request`
+        log.error(errorMessage)
+        throw new SearchError(errorMessage)
+    }
+    if (!lang || lang.length !== 2) {
+        const errorMessage = `A valid lang ISO code is required to start a search request, received: ${lang}`
+        log.error(errorMessage)
+        throw new SearchError(errorMessage)
+    }
+    if (!queryString || queryString.length < 2) {
+        const errorMessage = `At least to character are needed to launch a backend search, received: ${queryString}`
+        log.error(errorMessage)
+        throw new SearchError(errorMessage)
+    }
+    // if a request is currently pending, we cancel it to start the new one
+    if (cancelTokenSource) {
+        cancelTokenSource.cancel('new search query')
+    }
+    // CancelToken is only a type and can't be imported as a "class" directly. So calling `axios.CancelToken` is required.
+    // eslint-disable-next-line import/no-named-as-default-member
+    cancelTokenSource = axios.CancelToken.source()
+    const allResults: SearchResult[] = [
+        ...(await searchLayers(queryString, lang, cancelTokenSource?.token, limit)),
+        ...(await searchLocation(
+            outputProjection,
+            queryString,
+            lang,
+            cancelTokenSource?.token,
+            limit,
+            translations
+        )),
+    ]
+
+    const searchableLayers = layersToSearch.filter(
+        (layer) => 'searchable' in layer && !!layer.searchable
+    )
+    for (const searchableLayer of searchableLayers) {
+        allResults.push(
+            ...(await searchLayerFeatures(
+                outputProjection,
+                queryString,
+                searchableLayer,
+                lang,
+                cancelTokenSource
+            ))
+        )
+    }
+
+    allResults.push(
+        ...searchLayerFeaturesKMLGPX(
+            layersToSearch,
+            queryString,
+            outputProjection,
+            resolution,
+            iconSets
+        )
+    )
+
+    cancelTokenSource = undefined
+
+    return allResults.flat()
+}
+
+/**
+ * Error when building/sending/parsing a search request
+ *
+ * @property message Technical english message
+ */
+export class SearchError extends Error {
+    constructor(message?: string) {
+        super(message)
+        this.name = 'SearchError'
+    }
+}
+
+export const searchAPI = {
+    search,
+    sanitizeTitle,
+}
+export default searchAPI

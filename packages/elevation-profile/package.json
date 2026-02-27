@@ -1,7 +1,8 @@
 {
     "name": "@swissgeo/elevation-profile",
-    "version": "0.0.1",
+    "version": "1.0.3",
     "description": "Components to request and display an elevation profile over Switzerland",
+    "license": "BSD-3-Clause",
     "type": "module",
     "exports": {
         ".": {
@@ -13,26 +14,20 @@
             "./dist/elevation-profile.css"
         ]
     },
-    "main": "./dist/index.umd.cjs",
-    "module": "./dist/index.js",
-    "files": [
-        "dist"
-    ],
     "scripts": {
         "build": "pnpm run type-check && pnpm run generate-types && vite build",
         "build:dev": "pnpm run build --mode development",
         "build:dev:watch": "pnpm run build --watch --mode development",
         "build:int": "pnpm run build --mode integration",
         "build:prod": "pnpm run build --mode production",
+        "dev": "vite",
+        "generate-types": "vue-tsc --declaration",
         "lint": "eslint --fix && pnpm run lint:styles",
         "lint:no-fix": "eslint && pnpm run lint:styles:no-fix",
         "lint:styles": "stylelint \"**/*.{vue,scss}\" --fix",
         "lint:styles:no-fix": "stylelint \"**/*.{vue,scss}\"",
-        "dev": "vite",
-        "generate-types": "vue-tsc --declaration",
+        "prepare": "pnpm run build",
         "preview": "vite preview",
-        "test:unit": "vitest --run --mode development --environment jsdom",
-        "test:unit:watch": "vitest --mode development --environment jsdom",
         "type-check": "vue-tsc --build"
     },
     "dependencies": {
@@ -40,9 +35,11 @@
         "@fortawesome/free-regular-svg-icons": "catalog:",
         "@fortawesome/free-solid-svg-icons": "catalog:",
         "@fortawesome/vue-fontawesome": "catalog:",
+        "@swissgeo/api": "workspace:*",
         "@swissgeo/coordinates": "workspace:*",
         "@swissgeo/log": "workspace:*",
         "@swissgeo/numbers": "workspace:*",
+        "@swissgeo/staging-config": "workspace:*",
         "@swissgeo/tooltip": "workspace:*",
         "@turf/turf": "catalog:",
         "axios": "catalog:",
@@ -67,15 +64,14 @@
         "@vue/tsconfig": "catalog:",
         "chai": "catalog:",
         "eslint": "catalog:",
-        "postcss-html": "catalog:",
         "stylelint": "catalog:",
         "tailwindcss": "catalog:",
         "typescript": "catalog:",
         "unplugin-dts": "catalog:",
         "vite": "catalog:",
+        "vite-plugin-static-copy": "catalog:",
         "vite-plugin-vue-devtools": "catalog:",
         "vite-tsconfig-paths": "catalog:",
-        "vitest": "catalog:",
         "vue-tsc": "catalog:"
     },
     "peerDependencies": {

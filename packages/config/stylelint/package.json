@@ -1,9 +1,17 @@
 {
     "name": "@swissgeo/config-stylelint",
-    "private": true,
+    "version": "1.0.1",
+    "description": "Shared Stylelint config for SWISSGEO projects.",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/geoadmin/web-mapviewer.git",
+        "directory": "packages/config/stylelint"
+    },
+    "license": "BSD-3-Clause",
     "type": "module",
     "main": "index.js",
     "dependencies": {
+        "postcss-html": "catalog:",
         "stylelint-config-recommended-scss": "catalog:",
         "stylelint-config-recommended-vue": "catalog:",
         "stylelint-order": "catalog:",
@@ -14,7 +22,6 @@
         "typescript": "catalog:"
     },
     "peerDependencies": {
-        "stylelint": "catalog:",
-        "postcss-html": "catalog:"
+        "stylelint": "catalog:"
     }
 }

@@ -1,12 +1,27 @@
 {
     "name": "@swissgeo/config-eslint",
-    "version": "0.0.1",
-    "description": "Shared ESLint config",
+    "version": "1.0.1",
+    "description": "Shared ESLint config for SWISSGEO projects.",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/geoadmin/web-mapviewer.git",
+        "directory": "packages/config/eslint"
+    },
+    "license": "BSD-3-Clause",
     "type": "module",
-    "main": "index.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.js",
+            "require": "./dist/index.umd.cjs"
+        }
+    },
     "scripts": {
+        "build": "pnpm run type-check && pnpm run generate-types && vite build",
+        "generate-types": "tsc --declaration",
         "lint": "eslint --fix",
         "lint:no-fix": "eslint",
+        "prepare": "pnpm run build",
         "type-check": "tsc -p tsconfig.json"
     },
     "dependencies": {
@@ -17,6 +32,7 @@
         "@vue/eslint-config-typescript": "catalog:",
         "eslint-plugin-chai-friendly": "catalog:",
         "eslint-plugin-cypress": "catalog:",
+        "eslint-plugin-import": "catalog:",
         "eslint-plugin-mocha": "catalog:",
         "eslint-plugin-perfectionist": "catalog:",
         "eslint-plugin-prettier": "catalog:",
@@ -24,13 +40,16 @@
         "typescript-eslint": "catalog:"
     },
     "devDependencies": {
+        "@microsoft/api-extractor": "catalog:",
         "@swissgeo/config-typescript": "workspace:*",
+        "@types/node": "catalog:",
         "globals": "catalog:",
-        "typescript": "catalog:"
+        "typescript": "catalog:",
+        "unplugin-dts": "catalog:",
+        "vite": "catalog:"
     },
     "peerDependencies": {
-        "eslint": "catalog:",
-        "@swissgeo/config-prettier": "workspace:*",
-        "@swissgeo/config-stylelint": "workspace:*"
+        "@swissgeo/config-stylelint": "workspace:*",
+        "eslint": "catalog:"
     }
 }

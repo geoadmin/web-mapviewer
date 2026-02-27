@@ -1,0 +1,16 @@
+{
+    "extends": "@swissgeo/config-typescript/tsconfig.vue.json",
+    // @see https://docs.cypress.io/app/tooling/typescript-support
+    "compilerOptions": {
+        "target": "ESNext",
+        "lib": ["es6", "dom", "ES2024"],
+        "sourceMap": true,
+        "types": ["cypress", "node"],
+        "jsx": "preserve",
+        "allowJs": true,
+        "paths": {
+            "@/*": ["../../src/*"]
+        }
+    },
+    "include": ["**/*.cy.ts", "**/*.cy.js", "**/*.vue", "**/*.ts", "**/*.js", "../../types/*.ts"]
+}

@@ -1,7 +1,8 @@
 {
     "name": "@swissgeo/numbers",
-    "version": "0.0.1",
-    "description": "Numbers utils for geoadmin",
+    "version": "1.0.2",
+    "description": "Numbers utils for SWISSGEO projects.",
+    "license": "BSD-3-Clause",
     "type": "module",
     "exports": {
         ".": {
@@ -23,8 +24,9 @@
         "generate-types": "tsc --declaration",
         "lint": "eslint --fix",
         "lint:no-fix": "eslint",
-        "test:unit": "vitest --run --mode development --environment jsdom",
-        "test:unit:watch": "vitest --mode development --environment jsdom",
+        "prepare": "pnpm run build",
+        "test:unit": "vitest run",
+        "test:unit:watch": "vitest watch",
         "type-check": "tsc -p tsconfig.json"
     },
     "dependencies": {
@@ -32,17 +34,11 @@
     },
     "devDependencies": {
         "@microsoft/api-extractor": "catalog:",
-        "@prettier/plugin-xml": "catalog:",
         "@swissgeo/config-eslint": "workspace:*",
-        "@swissgeo/config-prettier": "workspace:*",
         "@swissgeo/config-typescript": "workspace:*",
         "@types/chai": "catalog:",
         "chai": "catalog:",
         "eslint": "catalog:",
-        "prettier": "catalog:",
-        "prettier-plugin-jsdoc": "catalog:",
-        "prettier-plugin-packagejson": "catalog:",
-        "prettier-plugin-tailwindcss": "catalog:",
         "typescript": "catalog:",
         "unplugin-dts": "catalog:",
         "vite": "catalog:",

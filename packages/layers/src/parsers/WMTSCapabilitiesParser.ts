@@ -1,129 +1,35 @@
-import type { FlatExtent, SingleCoordinate } from '@swissgeo/coordinates'
+import type { CoordinateSystem, FlatExtent } from '@swissgeo/coordinates'
 
-import { allCoordinateSystems, CoordinateSystem, extentUtils, WGS84 } from '@swissgeo/coordinates'
+import { allCoordinateSystems, extentUtils, WGS84 } from '@swissgeo/coordinates'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { default as olWMTSCapabilities } from 'ol/format/WMTSCapabilities'
 import { optionsFromCapabilities } from 'ol/source/WMTS'
 
-import type { CapabilitiesParser, ExternalLayerParsingOptions } from '@/parsers/parser'
-import type { LayerTimeConfig } from '@/types/timeConfig'
-
-import {
-    type BoundingBox,
-    type ExternalLayerTimeDimension,
-    type ExternalWMTSLayer,
-    type LayerAttribution,
-    type LayerLegend,
-    LayerType,
-    type TileMatrixSet,
-    WMTSEncodingType,
+import type {
+    BoundingBox,
+    CapabilitiesParser,
+    ExternalLayerParsingOptions,
+    ExternalLayerTimeDimension,
+    ExternalWMTSLayer,
+    LayerAttribution,
+    LayerLegend,
+    LayerTimeConfig,
+    TileMatrixSet,
+    WMTSCapabilitiesResponse,
+    WMTSCapabilitiesTileMatrixSet,
+    WMTSCapabilityLayer,
+    WMTSCapabilityLayerDimension,
+    WMTSCapabilityLayerStyle,
+    WMTSLegendURL,
+    WMTSOnlineResource,
+    WMTSTileMatrixSetLink,
 } from '@/types'
+import type { TileMatrix } from '@/types/layers'
+
+import { LayerType, WMTSEncodingType } from '@/types'
 import layerUtils from '@/utils/layerUtils'
-import { makeTimeConfig, makeTimeConfigEntry } from '@/utils/timeConfigUtils'
+import timeConfigUtils from '@/utils/timeConfigUtils'
 import { CapabilitiesError } from '@/validation'
-
-interface WMTSBoundingBox {
-    lowerCorner?: SingleCoordinate
-    upperCorner?: SingleCoordinate
-    extent?: FlatExtent
-    crs?: string
-    dimensions?: number
-}
-
-interface WMTSLegendURL {
-    format: string
-    width: number
-    height: number
-    href: string
-}
-
-interface WMTSCapabilityLayerStyle {
-    LegendURL: WMTSLegendURL[]
-    Identifier: string
-    isDefault: boolean
-}
-
-interface WMTSCapabilityLayerDimension {
-    Identifier: string
-    Default: string
-    Value: string
-}
-
-interface WMTSCapabilityResourceURL {
-    format: string
-    template: string
-    resourceType: string
-}
-
-interface WMTSCapabilityLayer {
-    Dimension?: WMTSCapabilityLayerDimension[]
-    ResourceURL: WMTSCapabilityResourceURL[]
-    Identifier: string
-    Title: string
-    WGS84BoundingBox?: FlatExtent
-    BoundingBox?: WMTSBoundingBox[]
-    TileMatrixSetLink: WMTSTileMatrixSetLink[]
-    Style: WMTSCapabilityLayerStyle[]
-    Abstract: string
-}
-
-interface WMTSTileMatrixSetLink {
-    TileMatrixSet: string
-    TileMatrixSetLimits: Array<{
-        MaxTileCol: number
-        MaxTileRow: number
-        MinTileCol: number
-        MinTileRow: number
-        TileMatrix: string
-    }>
-}
-
-interface WMTSCapabilitiesTileMatrixSet {
-    BoundingBox: BoundingBox[]
-    Identifier: string
-    SupportedCRS?: string
-    TileMatrix: object[]
-}
-
-interface OnlineResourceConstraint {
-    AllowedValues: {
-        Value: string[]
-    }
-}
-
-interface OnlineResource {
-    href: string
-    Constraint?: OnlineResourceConstraint[]
-}
-
-interface OperationMetadata {
-    DCP: {
-        HTTP: {
-            Get?: OnlineResource[]
-            Post?: OnlineResource[]
-        }
-    }
-}
-
-export interface WMTSCapabilitiesResponse {
-    originUrl: URL
-    version: string
-    Contents?: {
-        Layer?: WMTSCapabilityLayer[]
-        TileMatrixSet: WMTSCapabilitiesTileMatrixSet[]
-    }
-    ServiceProvider?: {
-        ProviderName?: string
-        ProviderSite?: string
-    }
-    OperationsMetadata?: Record<string, OperationMetadata>
-    ServiceIdentification?: {
-        ServiceTypeVersion: string
-        ServiceType?: string
-        Title?: string
-        Abstract?: string
-    }
-}
 
 function parseCrs(crs?: string): CoordinateSystem | undefined {
     let epsgNumber = crs?.split(':').pop()
@@ -184,9 +90,8 @@ function getLayerExtent(
     if (layer.WGS84BoundingBox?.length) {
         layerExtent = layer.WGS84BoundingBox
         extentProjection = WGS84
-    }
-    // Some providers don't use the WGS84BoundingBox but use the BoundingBox instead
-    else if (layer.BoundingBox) {
+    } else if (layer.BoundingBox) {
+        // Some providers don't use the WGS84BoundingBox but use the BoundingBox instead
         // search for a matching proj bounding box
         const matching = layer.BoundingBox.find((bbox) => parseCrs(bbox.crs ?? '') === projection)
 
@@ -342,10 +247,22 @@ function getTileMatrixSets(
                 })
                 return
             }
+            const tileMatrix: TileMatrix[] = []
+            for (const matrix of set.TileMatrix) {
+                tileMatrix.push({
+                    id: matrix.Identifier,
+                    scaleDenominator: matrix.ScaleDenominator,
+                    topLeftCorner: matrix.TopLeftCorner,
+                    tileWidth: matrix.TileWidth,
+                    tileHeight: matrix.TileHeight,
+                    matrixWidth: matrix.MatrixWidth,
+                    matrixHeight: matrix.MatrixHeight,
+                })
+            }
             return {
                 id: set.Identifier,
                 projection: projection,
-                tileMatrix: set.TileMatrix,
+                tileMatrix,
             }
         })
         .filter((set) => !!set)
@@ -364,8 +281,7 @@ function getDimensions(layer: WMTSCapabilityLayer): ExternalLayerTimeDimension[]
         dimensions.push({
             id: identifier,
             values: entriesForIdentifier.flatMap((d) => d.Value),
-            defaultValue: entriesForIdentifier[0]!.Default,
-            // TODO: find if "current" is part of the WMTS spec
+            defaultValue: entriesForIdentifier[0].Default,
         })
     }
     return dimensions
@@ -394,7 +310,7 @@ function getLayerAttributes(
         if (ignoreError) {
             return {}
         }
-        throw new CapabilitiesError(msg, 'invalid_wmts_capabilities')
+        throw new CapabilitiesError(msg, { key: 'invalid_wmts_capabilities' })
     }
 
     let getCapUrl: string | undefined
@@ -406,9 +322,9 @@ function getLayerAttributes(
     ) {
         const httpOperations = capabilities.OperationsMetadata.GetCapabilities.DCP.HTTP
         if (httpOperations.Get && httpOperations.Get.length > 0) {
-            getCapUrl = httpOperations.Get[0]!.href
+            getCapUrl = httpOperations.Get[0].href
         } else if (httpOperations.Post && httpOperations.Post.length > 0) {
-            getCapUrl = httpOperations.Post[0]!.href
+            getCapUrl = httpOperations.Post[0].href
         }
     }
     if (!getCapUrl) {
@@ -422,15 +338,15 @@ function getLayerAttributes(
         capabilities.OperationsMetadata.GetTile !== undefined
     ) {
         const httpOperations = capabilities.OperationsMetadata.GetTile.DCP.HTTP
-        let onlineResource: OnlineResource | undefined
+        let onlineResource: WMTSOnlineResource | undefined
         if (httpOperations.Get && httpOperations.Get.length > 0) {
             onlineResource = httpOperations.Get[0]!
         } else if (httpOperations.Post && httpOperations.Post.length > 0) {
             onlineResource = httpOperations.Post[0]!
         }
         if (onlineResource?.Constraint && onlineResource?.Constraint?.length > 0) {
-            getTileEncoding = onlineResource.Constraint[0]!.AllowedValues
-                .Value[0]! as WMTSEncodingType
+            getTileEncoding = onlineResource.Constraint[0].AllowedValues
+                .Value[0] as WMTSEncodingType
         }
     }
 
@@ -486,8 +402,10 @@ function getTimeConfig(
         return
     }
 
-    const timeEntries = timeDimension.values?.map((value) => makeTimeConfigEntry(value))
-    return makeTimeConfig(timeDimension.defaultValue, timeEntries)
+    const timeEntries = timeDimension.values?.map((value) =>
+        timeConfigUtils.makeTimeConfigEntry(value)
+    )
+    return timeConfigUtils.makeTimeConfig(timeDimension.defaultValue, timeEntries)
 }
 
 function getExternalLayer(
@@ -511,7 +429,6 @@ function getExternalLayer(
     }
 
     const layer = getCapabilitiesLayer(capabilities, layerId)
-
     if (!layer) {
         const msg = `No WMTS layer ${layerId} found in Capabilities ${capabilities.originUrl.toString()}`
         log.error({
@@ -522,13 +439,35 @@ function getExternalLayer(
         if (ignoreErrors) {
             return
         }
-        throw new CapabilitiesError(msg, 'no_layer_found')
+        throw new CapabilitiesError(msg, { key: 'no_layer_found' })
     }
     const attributes = getLayerAttributes(capabilities, layer, outputProjection, ignoreErrors)
 
-    if (!attributes) {
+    if (!attributes || !attributes.id) {
         log.error(`No attributes found for layer ${layer.Identifier}`)
         return
+    }
+
+    let olOptions
+    try {
+        olOptions =
+            optionsFromCapabilities(capabilities, {
+                layer: attributes.id,
+                projection: outputProjection.epsg,
+            }) ?? undefined
+    } catch (error) {
+        log.warn({
+            title: 'WMTS Capabilities parser',
+            titleColor: LogPreDefinedColor.Indigo,
+            messages: [`Failed to get OpenLayers options for layer ${attributes.id}`, error],
+        })
+        if (!ignoreErrors) {
+            throw new CapabilitiesError('Failed to parse WMTS layer options', {
+                key: 'invalid_wmts_layer',
+                cause: error,
+            })
+        }
+        olOptions = undefined
     }
 
     return layerUtils.makeExternalWMTSLayer({
@@ -537,11 +476,7 @@ function getExternalLayer(
         opacity,
         isVisible,
         isLoading: false,
-        options:
-            optionsFromCapabilities(capabilities, {
-                layer: attributes.id,
-                projection: outputProjection.epsg,
-            }) ?? undefined,
+        options: olOptions,
         timeConfig: getTimeConfig(attributes.dimensions),
         currentYear,
     })
@@ -563,7 +498,7 @@ function parse(content: string, originUrl: URL): WMTSCapabilitiesResponse {
         if (!capabilities.version) {
             throw new CapabilitiesError(
                 `No version found in Capabilities ${originUrl.toString()}`,
-                'invalid_wmts_capabilities'
+                { key: 'invalid_wmts_capabilities' }
             )
         }
         capabilities.originUrl = originUrl
@@ -574,10 +509,10 @@ function parse(content: string, originUrl: URL): WMTSCapabilitiesResponse {
             titleColor: LogPreDefinedColor.Indigo,
             messages: [`Failed to parse capabilities of ${originUrl?.toString()}`, error],
         })
-        throw new CapabilitiesError(
-            `Failed to parse WMTS Capabilities: invalid content: ${error?.toString()}`,
-            'invalid_wmts_capabilities'
-        )
+        throw new CapabilitiesError('Failed to parse WMTS Capabilities: invalid content', {
+            key: 'invalid_wmts_capabilities',
+            cause: error,
+        })
     }
 }
 

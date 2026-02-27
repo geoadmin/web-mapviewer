@@ -10,16 +10,19 @@
         "build:int": "pnpm --recursive --if-present run build:int",
         "build:prod": "pnpm --recursive --if-present run build:prod",
         "dev": "pnpm --filter=web-mapviewer run dev ",
+        "dev:https": "pnpm --filter=web-mapviewer run dev:https ",
         "force-reinstall": "node ./scripts/force-pnpm-reinstall.js",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
         "lint": "pnpm run --recursive --parallel --no-bail --if-present lint",
         "lint:no-fix": "pnpm run --recursive --parallel --no-bail --if-present lint:no-fix ",
-        "preview": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview",
-        "preview:dev": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:dev ",
-        "preview:int": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:int",
-        "preview:prod": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:prod",
-        "preview:test": "pnpm run build-libs && pnpm --filter=web-mapviewer run preview:test",
+        "preview": "pnpm --filter=web-mapviewer run preview",
+        "preview:dev": "pnpm --filter=web-mapviewer run preview:dev ",
+        "preview:int": "pnpm --filter=web-mapviewer run preview:int",
+        "preview:prod": "pnpm --filter=web-mapviewer run preview:prod",
+        "preview:test": "pnpm --filter=web-mapviewer run preview:test",
+        "publish": "pnpm --filter=!web-mapviewer --filter=!@swissgeo/layers --recursive publish --access public --tag latest",
+        "publish:prepare": "pnpm --filter=!web-mapviewer --filter=!@swissgeo/layers --recursive --parallel build",
         "test:component": "pnpm --filter=web-mapviewer run test:component",
         "test:component:ci": "pnpm --filter=web-mapviewer run test:component:ci",
         "test:e2e": "pnpm --filter=web-mapviewer run test:e2e",
@@ -27,13 +30,22 @@
         "test:e2e:headless": "pnpm --filter=web-mapviewer run test:e2e:headless",
         "test:unit": "pnpm run --recursive --parallel --no-bail --if-present test:unit",
         "test:unit:watch": "pnpm run --recursive --if-present  test:unit:watch",
-        "update:workspace": "node ./scripts/update-pnpm-workspace.js"
+        "update:workspace": "tsx ./scripts/update-pnpm-workspace.ts"
     },
     "engines": {
         "node": ">=22.18",
         "pnpm": ">=10.15"
     },
     "devDependencies": {
+        "@prettier/plugin-xml": "catalog:",
+        "@swissgeo/config-prettier": "workspace:*",
+        "@types/node": "catalog:",
+        "prettier": "catalog:",
+        "prettier-plugin-jsdoc": "catalog:",
+        "prettier-plugin-packagejson": "catalog:",
+        "prettier-plugin-tailwindcss": "catalog:",
+        "tsx": "catalog:",
+        "vitest": "catalog:",
         "yaml": "catalog:"
     },
     "pnpm": {
@@ -44,6 +56,10 @@
             "sharp",
             "vue-demi"
         ],
+        "patchedDependencies": {
+            "@geoblocks/mapfishprint@0.2.22": "patches/@geoblocks__mapfishprint@0.2.22.patch",
+            "ol@10.8.0": "patches/ol@10.8.0.patch"
+        },
         "ignoredBuiltDependencies": [
             "core-js",
             "cypress",
@@ -51,9 +67,6 @@
             "esbuild",
             "protobufjs",
             "sharp"
-        ],
-        "patchedDependencies": {
-            "vite": "patches/vite.patch"
-        }
+        ]
     }
 }

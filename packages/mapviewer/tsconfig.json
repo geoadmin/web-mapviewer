@@ -1,0 +1,13 @@
+{
+    "extends": "@swissgeo/config-typescript/tsconfig.vue.json",
+    "include": ["**/*.ts", "**/*.vue", "vite.config.ts"],
+    "exclude": [
+        "eslint.config.mts",
+        // the tests/cypress folder is managed as a separate TS project (it has its own tsconfig.json)
+        "tests/cypress"
+    ],
+    "compilerOptions": {
+        "target": "ESNext",
+        "lib": ["ES2024"]
+    }
+}

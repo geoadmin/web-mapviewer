@@ -1,0 +1,426 @@
+import type { KMLLayer, KMLMetadata } from '@swissgeo/layers'
+import type { Staging } from '@swissgeo/staging-config'
+
+import log from '@swissgeo/log'
+import { getServiceKmlBaseUrl } from '@swissgeo/staging-config'
+import axios from 'axios'
+import FormData from 'form-data'
+import { gzip } from 'pako'
+
+import type { FileAPIMetadataResponse, OnlineFileCompliance } from '@/types/files'
+
+import LogColorPerService from '@/config/log'
+import fileProxyAPI from '@/fileProxy'
+
+const logConfig = (functionName: string) => ({
+    title: `KML File API / ${functionName}`,
+    titleColor: LogColorPerService.files,
+})
+
+function generateKMLMetadataFromAPIData(
+    data: FileAPIMetadataResponse,
+    preExistingAdminId?: string
+): KMLMetadata {
+    let id: string | undefined
+    let adminId: string | undefined = preExistingAdminId
+    let created: Date | undefined
+    let updated: Date | undefined
+    let author: string | undefined
+    let authorVersion: string | undefined
+
+    if ('id' in data) {
+        id = data.id
+    }
+    if (!adminId && 'admin_id' in data) {
+        adminId = data.admin_id
+    }
+    if ('created' in data && typeof data.created === 'string') {
+        created = new Date(data.created)
+    }
+    if ('updated' in data && typeof data.updated === 'string') {
+        updated = new Date(data.updated)
+    }
+    if ('author' in data && typeof data.author === 'string') {
+        author = data.author
+    }
+    if ('author_version' in data && typeof data.author_version === 'string') {
+        authorVersion = data.author_version
+    }
+    if (!id || !created || !updated || !author || !authorVersion) {
+        throw new Error(`Missing required fields in KML metadata response: ${JSON.stringify(data)}`)
+    }
+
+    let metadataLink: string | undefined
+    let kmlLink: string | undefined
+
+    if ('links' in data) {
+        const links = data.links
+        if ('self' in links && typeof links.self === 'string') {
+            metadataLink = links.self
+        }
+        if ('kml' in links && typeof links.kml === 'string') {
+            kmlLink = links.kml
+        }
+    }
+
+    if (!metadataLink) {
+        throw new Error(`Missing metadata link in KML metadata response: ${JSON.stringify(data)}`)
+    }
+    if (!kmlLink) {
+        throw new Error(`Missing KML link in KML metadata response: ${JSON.stringify(data)}`)
+    }
+
+    return {
+        id,
+        adminId,
+        created,
+        updated,
+        author,
+        authorVersion,
+        links: {
+            metadata: metadataLink,
+            kml: kmlLink,
+        },
+    }
+}
+
+// using a function so that any URL override made while using the app will be taken into account
+function getKMLBaseUrl(staging: Staging = 'production'): string {
+    return `${getServiceKmlBaseUrl(staging)}api/kml/`
+}
+
+type PromiseReject = (reason: Error) => void
+
+function validateId(id: string | undefined, reject: PromiseReject) {
+    if (!id) {
+        const errorMessage = `Needs a valid kml ID`
+        log.error({
+            ...logConfig('validateId'),
+            messages: [errorMessage, id],
+        })
+        reject(new Error(errorMessage))
+    }
+}
+
+function validateAdminId(adminId: string | undefined, reject: PromiseReject) {
+    if (!adminId) {
+        const errorMessage = `Needs a valid kml adminId`
+        log.error({
+            ...logConfig('validateAdminId'),
+            messages: [errorMessage, adminId],
+        })
+        reject(new Error(errorMessage))
+    }
+}
+
+function validateKmlContent(kmlContent: string | undefined, reject: PromiseReject) {
+    if (!kmlContent || !kmlContent.length) {
+        const errorMessage = `Needs a valid KML`
+        log.error({
+            ...logConfig('validateKmlContent'),
+            messages: [errorMessage, kmlContent],
+        })
+        reject(new Error(errorMessage))
+    }
+}
+
+function generateFormDataForKML(kmlContent: string, reject: PromiseReject): FormData {
+    validateKmlContent(kmlContent, reject)
+    const form = new FormData()
+    const kmz = gzip(kmlContent)
+    const blob = new Blob([kmz], { type: 'application/vnd.google-earth.kml+xml' })
+    form.append('kml', blob)
+    form.append('author', 'web-mapviewer')
+    form.append('author_version', '1.0.0')
+    return form
+}
+
+/**
+ * Get KML file URL on service-kml backend/S3 bucket
+ *
+ * @param id KML ID
+ * @returns URL to the KML file on our service-kml backend
+ */
+function getKmlUrl(id: string, staging: Staging = 'production'): string {
+    return `${getKMLBaseUrl(staging)}files/${id}`
+}
+
+/** Publish a new KML on the backend and receives back the metadata of the new file */
+function createKml(kmlContent: string, staging: Staging = 'production'): Promise<KMLMetadata> {
+    return new Promise((resolve, reject) => {
+        const form = generateFormDataForKML(kmlContent, reject)
+        axios
+            .post<FileAPIMetadataResponse>(`${getKMLBaseUrl(staging)}admin`, form)
+            .then((response) => {
+                if (
+                    response.status === 201 &&
+                    response.data &&
+                    response.data.id &&
+                    response.data.admin_id
+                ) {
+                    resolve(generateKMLMetadataFromAPIData(response.data))
+                } else {
+                    const msg = 'Incorrect response while creating a file'
+                    log.error({
+                        ...logConfig('createKml'),
+                        messages: [msg, response],
+                    })
+                    reject(new Error(msg))
+                }
+            })
+            .catch((error) => {
+                log.error({
+                    ...logConfig('createKml'),
+                    messages: ['Error while creating a file', kmlContent, error],
+                })
+                reject(new Error(error))
+            })
+    })
+}
+
+/** Update a KML on the backend */
+function updateKml(id: string, adminId: string, kmlContent: string, staging: Staging = 'production'): Promise<KMLMetadata> {
+    return new Promise((resolve, reject) => {
+        validateId(id, reject)
+        validateAdminId(adminId, reject)
+        const form = generateFormDataForKML(kmlContent, reject)
+        form.append('admin_id', adminId)
+        axios
+            .put<FileAPIMetadataResponse>(`${getKMLBaseUrl(staging)}admin/${id}`, form)
+            .then((response) => {
+                if (
+                    response.status === 200 &&
+                    response.data &&
+                    response.data.id &&
+                    response.data.admin_id
+                ) {
+                    resolve(generateKMLMetadataFromAPIData(response.data))
+                } else {
+                    const msg = `Incorrect response while updating file with id=${id}`
+                    log.error({
+                        ...logConfig('updateKml'),
+                        messages: [msg, response],
+                    })
+                    reject(new Error(msg))
+                }
+            })
+            .catch((error) => {
+                log.error({
+                    ...logConfig('updateKml'),
+                    messages: ['Error while updating file with id=', id, kmlContent, error],
+                })
+                reject(new Error(error))
+            })
+    })
+}
+
+/** Delete a KML on the backend */
+function deleteKml(id: string, adminId: string, staging: Staging = 'production'): Promise<void> {
+    return new Promise((resolve, reject) => {
+        validateId(id, reject)
+        validateAdminId(adminId, reject)
+        const form = new FormData()
+        form.append('admin_id', adminId)
+        axios
+            .request({
+                method: 'DELETE',
+                url: `${getKMLBaseUrl(staging)}admin/${id}`,
+                data: form,
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            })
+            .then((response) => {
+                if (response.status === 200 && response.data.id) {
+                    resolve()
+                } else {
+                    const msg = `Incorrect response while deleting file with id=${id}`
+                    log.error({
+                        ...logConfig('deleteKml'),
+                        messages: [msg, response],
+                    })
+                    reject(new Error(msg))
+                }
+            })
+            .catch((error) => {
+                log.error({
+                    ...logConfig('deleteKml'),
+                    messages: ['Error while deleting file with id=', id, error],
+                })
+                reject(new Error(error))
+            })
+    })
+}
+
+/** Get the KML file's content from the given URL */
+function getKmlFromUrl(url: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        axios
+            .get(url)
+            .then((response) => {
+                if (response.status === 200 && response.data) {
+                    resolve(response.data)
+                } else {
+                    const msg = `Incorrect response while getting file with url=${url}`
+                    log.error({
+                        ...logConfig('getKmlFromUrl'),
+                        messages: [msg, response],
+                    })
+                    reject(new Error(msg))
+                }
+            })
+            .catch((error) => {
+                log.error({
+                    ...logConfig('getKmlFromUrl'),
+                    messages: ['Error while getting file with url=', url, error],
+                })
+                reject(new Error(error))
+            })
+    })
+}
+
+/** Get the KML's metadata by its adminId */
+function getKmlMetadataByAdminId(adminId: string, staging: Staging = 'production'): Promise<KMLMetadata> {
+    return new Promise((resolve, reject) => {
+        validateAdminId(adminId, reject)
+        axios
+            .get<FileAPIMetadataResponse>(`${getKMLBaseUrl(staging)}admin`, {
+                params: {
+                    admin_id: adminId,
+                },
+            })
+            .then((response) => {
+                if (response.status === 200 && response.data) {
+                    resolve(generateKMLMetadataFromAPIData(response.data))
+                } else {
+                    const msg = `Incorrect response while getting metadata for kml admin_id=${adminId}`
+                    log.error({
+                        ...logConfig('getKmlMetadataByAdminId'),
+                        messages: [msg, response],
+                    })
+                    reject(new Error(msg))
+                }
+            })
+            .catch((error) => {
+                log.error({
+                    ...logConfig('getKmlMetadataByAdminId'),
+                    messages: ['Error while getting metadata for kml admin_id=', adminId, error],
+                })
+                reject(new Error(error))
+            })
+    })
+}
+
+/**
+ * Get KML metadata for a KML layer (using its fileId to request the backend)
+ *
+ * If this KML file is not managed by our infrastructure (e.g., external KML), this will reject the
+ * request (the promise will be rejected)
+ */
+function loadKmlMetadata(kmlLayer: KMLLayer, staging: Staging = 'production'): Promise<KMLMetadata> {
+    return new Promise((resolve, reject) => {
+        if (!kmlLayer) {
+            reject(new Error('Missing KML layer, cannot load metadata'))
+        }
+        if (!kmlLayer.fileId || kmlLayer.isExternal) {
+            reject(
+                new Error(
+                    `This KML is not one managed by our infrastructure, metadata loading is not possible ${kmlLayer.id}`
+                )
+            )
+        }
+        axios
+            .get(`${getKMLBaseUrl(staging)}admin/${kmlLayer.fileId}`)
+            .then((response) => {
+                if (response.status === 200 && response.data) {
+                    const metadata = generateKMLMetadataFromAPIData(response.data, kmlLayer.adminId)
+                    resolve(metadata)
+                } else {
+                    const msg = `Incorrect response while getting metadata for KML layer ${kmlLayer.id}`
+                    log.error({
+                        ...logConfig('loadKmlMetadata'),
+                        messages: [msg, response],
+                    })
+                    reject(new Error(msg))
+                }
+            })
+            .catch((error) => {
+                log.error({
+                    ...logConfig('loadKmlMetadata'),
+                    messages: ['Error while getting metadata for KML layer', kmlLayer.id, error],
+                })
+                reject(new Error(error))
+            })
+    })
+}
+
+/** Load the content of a file from a given URL as ArrayBuffer. */
+async function getFileContentFromUrl(url: string): Promise<ArrayBuffer> {
+    const response = await axios.get(url, { responseType: 'arraybuffer' })
+    return response.data
+}
+
+/**
+ * Get a file MIME type through a HEAD request, and reading the Content-Type header returned by this
+ * request. Returns `null` if the HEAD request failed, or if no Content-Type header is set.
+ *
+ * Will attempt to get the HEAD request through service-proxy if the first HEAD request failed.
+ *
+ * Will return if the first HEAD request was successful through a boolean called `supportCORS`, if
+ * this is `true` it means that the first HEAD request could go through CORS checks.
+ *
+ * Also returns a flag telling if the file supports HTTPS or not.
+ */
+async function checkOnlineFileCompliance(url: string): Promise<OnlineFileCompliance> {
+    const supportsHTTPS = url.startsWith('https://')
+    if (supportsHTTPS) {
+        try {
+            const headResponse = await axios.head(url)
+            let mimeType: string | undefined
+            if (headResponse?.headers) {
+                mimeType = headResponse.headers['content-type']
+            }
+            return {
+                mimeType,
+                supportsCORS: true,
+                supportsHTTPS,
+            }
+        } catch (error) {
+            log.error({
+                ...logConfig('checkOnlineFileCompliance'),
+                messages: ['HEAD request on URL', url, 'failed with', error],
+            })
+        }
+    }
+    try {
+        const proxyHeadResponse = await axios.head(fileProxyAPI.proxifyUrl(url))
+        let mimeType: string | undefined
+        if (proxyHeadResponse?.headers) {
+            mimeType = proxyHeadResponse.headers['content-type']
+        }
+        return {
+            mimeType,
+            supportsCORS: false,
+            supportsHTTPS,
+        }
+    } catch (errorWithProxy) {
+        log.error({
+            ...logConfig('checkOnlineFileCompliance'),
+            messages: ['HEAD request through proxy on URL', url, 'failed with', errorWithProxy],
+        })
+        return { mimeType: undefined, supportsCORS: false, supportsHTTPS }
+    }
+}
+
+export const filesAPI = {
+    getKmlUrl,
+    createKml,
+    updateKml,
+    deleteKml,
+    getKmlFromUrl,
+    getKmlMetadataByAdminId,
+    loadKmlMetadata,
+    getFileContentFromUrl,
+    checkOnlineFileCompliance,
+}
+export default filesAPI
