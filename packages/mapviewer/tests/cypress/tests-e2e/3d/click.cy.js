@@ -18,7 +18,7 @@ describe('Testing click', () => {
             sr: WEBMERCATOR.epsgNumber,
         })
         cy.waitUntilCesiumTilesLoaded()
-        cy.get('[data-cy="cesium-map"] .cesium-viewer').click()
+        cy.get('[data-cy="cesium-map"]').click()
         cy.readStoreValue('state.map.clickInfo').then((clickInfo) => {
             expect(clickInfo.clickType).to.equal(
                 ClickType.LEFT_SINGLECLICK,

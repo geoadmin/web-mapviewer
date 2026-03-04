@@ -3,6 +3,7 @@ import { Cesium3DTileset } from 'cesium'
 import { computed, inject, toRef } from 'vue'
 
 import GeoAdmin3DLayer from '@/api/layers/GeoAdmin3DLayer.class'
+import { CESIUM_BUILDING_LAYER_ID, CESIUM_LABELS_LAYER_ID } from '@/config/cesium.config'
 import useAddPrimitiveLayer from '@/modules/map/components/cesium/utils/useAddPrimitiveLayer.composable'
 
 const { layerConfig } = defineProps({
@@ -30,9 +31,17 @@ const url = computed(() => {
     return `${baseUrl.value}${rootFolder}${layerId.value}${timeFolder}/tileset.json`
 })
 
-useAddPrimitiveLayer(getViewer(), Cesium3DTileset.fromUrl(url.value), toRef(opacity), {
-    withEnhancedLabelStyle: layerId.value === 'ch.swisstopo.swissnames3d.3d',
-})
+useAddPrimitiveLayer(
+    getViewer(),
+    Cesium3DTileset.fromUrl(url.value, {
+        // with default value 16 we do not load a lot of building tiles (leading to gaps)
+        maximumScreenSpaceError: layerId.value === CESIUM_BUILDING_LAYER_ID ? 10 : 16,
+    }),
+    toRef(opacity),
+    {
+        withEnhancedLabelStyle: layerId.value === CESIUM_LABELS_LAYER_ID,
+    }
+)
 </script>
 
 <template>
