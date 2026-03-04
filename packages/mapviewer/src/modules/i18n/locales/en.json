@@ -488,6 +488,8 @@
     "offline_refresh": "Refresh the page",
     "offline_save": "Save map",
     "offline_save_new_data": "Save new map",
+    "offline_sw_configuration_error": "Service worker configuration error. Offline functionality may not work correctly.",
+    "offline_sw_secure_context_required": "Service worker requires a secure context (HTTPS with a trusted certificate).",
     "offline_save_warning": "- ~50MB of maps will be downloaded (until scale 1:25'000) - Don't lock your device or navigate away from this site during the download process. Deactivate \\\"private\\\" mode of your browser.",
     "offline_show": "Show offline menu",
     "offline_show_extent": "Show extent",

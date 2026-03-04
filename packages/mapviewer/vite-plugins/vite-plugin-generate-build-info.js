@@ -40,7 +40,7 @@ async function getGitUserEmail() {
  *
  * The app version is received as parameter of the plugin (when added to vite plugin array)
  */
-export default function generateBuildInfo(staging, version) {
+export default function generateBuildInfo(staging, version, mode) {
     return {
         name: 'vite-plugin-generate-build-info',
         buildEnd: {
@@ -88,6 +88,13 @@ export default function generateBuildInfo(staging, version) {
                                 dirty: !!localChanges,
                                 localChanges: localChanges,
                                 prNumber: process.env.PULL_REQUEST_ID,
+                            },
+                            serviceWorker: {
+                                path:
+                                    mode !== 'test'
+                                        ? `${version}/service-workers.js`
+                                        : 'service-workers.js',
+                                version: version,
                             },
                         },
                         null,

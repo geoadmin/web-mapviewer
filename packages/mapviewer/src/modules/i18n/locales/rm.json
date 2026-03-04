@@ -488,6 +488,8 @@
     "offline_refresh": "Chargiar giu la pagina",
     "offline_save": "Arcurnar charta",
     "offline_save_new_data": "Memorisar la nova charta",
+    "offline_sw_configuration_error": "Errur da configuraziun dal service worker. La funcziunalitad offline pudess betg funcziunar correctamain.",
+    "offline_sw_secure_context_required": "Il service worker pretenda in context segir (HTTPS cun in certificat fidà).",
     "offline_save_warning": "Chargiar e memorisar la charta d'ina grondezza da ~50MB?",
     "offline_show": "Mussar il menu offline",
     "offline_show_extent": "Mussar l'extract",
