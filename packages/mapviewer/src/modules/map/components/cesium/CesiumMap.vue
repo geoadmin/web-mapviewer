@@ -2,13 +2,7 @@
 import '@geoblocks/cesium-compass'
 import { WEBMERCATOR } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
-import {
-    CesiumTerrainProvider,
-    Color,
-    PostProcessStageCollection,
-    ShadowMode,
-    Viewer,
-} from 'cesium'
+import { CesiumTerrainProvider, Color, ShadowMode, Viewer } from 'cesium'
 import {
     computed,
     onBeforeMount,
@@ -123,11 +117,7 @@ async function createViewer() {
     scene.pickTranslucentDepth = true
     scene.backgroundColor = Color.TRANSPARENT
 
-    const postProcessStages = new PostProcessStageCollection()
-    postProcessStages.ambientOcclusion.enabled = true
-    postProcessStages.bloom.enabled = false
-    postProcessStages.fxaa.enabled = true
-    scene.postProcessStages = postProcessStages
+    // no custom post-processing since Cesium >1.119.0, as it creates visual artifacts on the terrain
 
     const globe = scene.globe
     globe.baseColor = Color.WHITE
@@ -175,7 +165,7 @@ provide('getViewer', () => viewer)
             <cesium-compass
                 v-show="isDesktopMode"
                 ref="compassElement"
-                class="position-absolute start-50 translate-middle-x cesium-compass"
+                class="position-absolute translate-middle-x cesium-compass start-50"
             />
         </template>
     </div>

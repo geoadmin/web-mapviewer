@@ -1,15 +1,8 @@
 <script setup>
 import { WEBMERCATOR, WGS84 } from '@geoadmin/coordinates'
 import log from '@geoadmin/log'
-import { bbox } from '@turf/turf'
-import { centroid } from '@turf/turf'
-import {
-    Cartesian2,
-    Cartographic,
-    Math,
-    PostProcessStageLibrary,
-    ScreenSpaceEventType,
-} from 'cesium'
+import { bbox, centroid } from '@turf/turf'
+import { Cartographic, Math, PostProcessStageLibrary, ScreenSpaceEventType } from 'cesium'
 import GeoJSON from 'ol/format/GeoJSON'
 import { LineString, Point, Polygon } from 'ol/geom'
 import proj4 from 'proj4'
@@ -107,19 +100,22 @@ function initialize3dHighlights() {
     clickedHighlightPostProcessor.uniforms.length = 0
     clickedHighlightPostProcessor.selected = []
 }
-function getCoordinateAtScreenCoordinate(x, y) {
-    const cartesian = getViewer()?.scene.pickPosition(new Cartesian2(x, y))
-    let coordinates = []
+
+/**
+ * @param {Cartesian2} position
+ * @returns {SingleCoordinate | undefined}
+ */
+function getCoordinateAtScreenCoordinate(position) {
+    const cartesian = getViewer()?.scene.pickPosition(position)
     if (cartesian) {
         const cartCoords = Cartographic.fromCartesian(cartesian)
-        coordinates = proj4(WGS84.epsg, projection.value.epsg, [
+        return proj4(WGS84.epsg, projection.value.epsg, [
             (cartCoords.longitude * 180) / Math.PI,
             (cartCoords.latitude * 180) / Math.PI,
         ])
-    } else {
-        log.error('no coordinate found at this screen coordinates', [x, y])
     }
-    return coordinates
+    log.error('no coordinate found at this screen coordinates', position)
+    return undefined
 }
 
 function getlayerIdFrom3dFeature(feature) {
@@ -182,7 +178,7 @@ function onClick(event) {
     const viewer = getViewer()
     unhighlightGroup(viewer)
     const features = []
-    let coordinates = getCoordinateAtScreenCoordinate(event.position.x, event.position.y)
+    let coordinates = getCoordinateAtScreenCoordinate(event.position)
 
     const objects = viewer.scene.drillPick(event.position)
 
@@ -228,7 +224,7 @@ function onClick(event) {
 
     handleClickHighlight(features, coordinates)
 
-    if (!coordinates.length && features.length) {
+    if (!coordinates && features.length) {
         const featureCoords = Array.isArray(features[0].coordinates[0])
             ? features[0].coordinates[0]
             : features[0].coordinates
@@ -313,10 +309,9 @@ function create3dKmlFeature(viewer, kmlFeature, kmlLayer) {
 }
 
 function onContextMenu(event) {
-    const coordinates = getCoordinateAtScreenCoordinate(event.position.x, event.position.y)
     store.dispatch('click', {
         clickInfo: new ClickInfo({
-            coordinate: coordinates,
+            coordinate: getCoordinateAtScreenCoordinate(event.position),
             pixelCoordinate: [event.position.x, event.position.y],
             clickType: ClickType.CONTEXTMENU,
         }),
