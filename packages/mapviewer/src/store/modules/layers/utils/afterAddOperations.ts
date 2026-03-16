@@ -24,17 +24,19 @@ import loadLayerFromCapabilities, {
  */
 export default function afterAddOperations(layer: Layer, dispatcher: ActionDispatcher) {
     if (layer.type === 'COG') {
-        loadCOGMetadataAndUpdateLayer(layer as CloudOptimizedGeoTIFFLayer, dispatcher).catch(
-            (error) => {
-                log.error({
-                    title: 'Layers store / afterAddOperations',
-                    titleColor: LogPreDefinedColor.Green,
-                    messages: ['Error while loading metadata for a COG layer', layer, error],
-                })
-            }
-        )
+        layer.loadedPromise = loadCOGMetadataAndUpdateLayer(
+            layer as CloudOptimizedGeoTIFFLayer,
+            dispatcher
+        ).catch((error) => {
+            log.error({
+                title: 'Layers store / afterAddOperations',
+                titleColor: LogPreDefinedColor.Green,
+                messages: ['Error while loading metadata for a COG layer', layer, error],
+            })
+        })
     } else if (layer.type === 'GEOJSON') {
         const { promise } = loadGeoJsonDataAndStyle(layer as GeoAdminGeoJSONLayer, dispatcher)
+        layer.loadedPromise = promise
         promise.catch((error) => {
             log.error({
                 title: 'Layers store / afterAddOperations',
@@ -43,7 +45,7 @@ export default function afterAddOperations(layer: Layer, dispatcher: ActionDispa
             })
         })
     } else if (layer.type === 'GPX') {
-        loadGpxData(layer as GPXLayer, dispatcher).catch((error) => {
+        layer.loadedPromise = loadGpxData(layer as GPXLayer, dispatcher).catch((error) => {
             log.error({
                 title: 'Layers store / afterAddOperations',
                 titleColor: LogPreDefinedColor.Green,
@@ -51,7 +53,7 @@ export default function afterAddOperations(layer: Layer, dispatcher: ActionDispa
             })
         })
     } else if (layer.type === 'KML') {
-        loadKmlKmzData(layer as KMLLayer, dispatcher).catch((error) => {
+        layer.loadedPromise = loadKmlKmzData(layer as KMLLayer, dispatcher).catch((error) => {
             log.error({
                 title: 'Layers store / afterAddOperations',
                 titleColor: LogPreDefinedColor.Green,
@@ -59,7 +61,7 @@ export default function afterAddOperations(layer: Layer, dispatcher: ActionDispa
             })
         })
     } else if (isAnExternalLayerRequiringCapabilitesLoading(layer)) {
-        loadLayerFromCapabilities(layer, dispatcher).catch((error) => {
+        layer.loadedPromise = loadLayerFromCapabilities(layer, dispatcher).catch((error) => {
             log.error({
                 title: 'Layers store / afterAddOperations',
                 titleColor: LogPreDefinedColor.Green,

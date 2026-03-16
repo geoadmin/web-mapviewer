@@ -45,9 +45,7 @@ export default function useMapInteractions(map: MaybeRef<Map>): void {
 
     const isCurrentlyDrawing = computed(() => drawingStore.overlay.show)
     const activeVectorLayers = computed(() =>
-        layersStore.activeLayers.filter((layer) =>
-            ['KML', 'GPX', 'GEOJSON'].includes(layer.type)
-        )
+        layersStore.activeLayers.filter((layer) => ['KML', 'GPX', 'GEOJSON'].includes(layer.type))
     )
 
     // NOTE: we cannot use the {constraintResolution: true} as it has zooming issue with some devices and/or os

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { EditableFeature, EditableFeatureTypes } from '@swissgeo/api'
 import type { SingleCoordinate } from '@swissgeo/coordinates'
+import type { KMLLayer } from '@swissgeo/layers'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import GeoadminTooltip from '@swissgeo/tooltip'
@@ -14,9 +15,7 @@ import DrawingExporter from '@/modules/drawing/components/DrawingExporter.vue'
 import DrawingHeader from '@/modules/drawing/components/DrawingHeader.vue'
 import DrawingToolboxButton from '@/modules/drawing/components/DrawingToolboxButton.vue'
 import SharePopup from '@/modules/drawing/components/SharePopup.vue'
-import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
 import useDrawingStore from '@/store/modules/drawing'
-import { isOnlineMode } from '@/store/modules/drawing/utils/isOnlineMode'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
@@ -45,9 +44,15 @@ const allEditableFeatureTypes = ref<EditableFeatureTypes[]>([
 const drawMenuOpen = ref<boolean>(true)
 const showClearConfirmationModal = ref<boolean>(false)
 const showShareModal = ref<boolean>(false)
-const showNotSharedDrawingWarningModal = ref<boolean>(false)
 const isClosingDrawing = ref<boolean>(false)
 const showNoActiveKmlWarning = computed<boolean>(() => layersStore.activeKmlLayer === undefined)
+const showNotSharedDrawingWarning = computed<boolean>(
+    () =>
+        !drawingStore.isDrawingEditShared &&
+        drawingStore.online &&
+        !drawingStore.hasLoadedDrawingWithOnlyAdminId
+)
+const showNotSharedDrawingWarningModal = ref<boolean>(false)
 
 const tooltipText = computed<string>(() =>
     t(showNoActiveKmlWarning.value ? 'drawing_empty_cannot_edit_name' : '')
@@ -112,7 +117,6 @@ const drawingStateMessage = computed(() => {
             return undefined
     }
 })
-const online = computed(() => isOnlineMode(drawingStore.onlineMode, true))
 
 function onCloseClearConfirmation(confirmed: boolean) {
     showClearConfirmationModal.value = false
@@ -123,21 +127,20 @@ function onCloseClearConfirmation(confirmed: boolean) {
 
 function closeDrawing() {
     isClosingDrawing.value = true
-    if (drawingStore.showNotSharedDrawingWarning) {
+    if (showNotSharedDrawingWarning.value) {
         showNotSharedDrawingWarningModal.value = true
     } else {
         emits('closeDrawing')
     }
 }
 
-function onAcceptWarningModal() {
+function onCloseWarningModal(withConfirmation: boolean) {
     showNotSharedDrawingWarningModal.value = false
-    emits('closeDrawing')
-}
-
-function onCloseWarningModal() {
-    isClosingDrawing.value = false
-    showNotSharedDrawingWarningModal.value = false
+    if (withConfirmation) {
+        emits('closeDrawing')
+    } else {
+        isClosingDrawing.value = false
+    }
 }
 
 function selectDrawingMode(drawingMode: EditableFeatureTypes) {
@@ -178,7 +181,7 @@ const debounceSaveDrawingName = debounce(saveDrawingName, 200)
                     :disabled="!showNoActiveKmlWarning"
                 >
                     <div
-                        v-if="online"
+                        v-if="drawingStore.online"
                         class="d-flex justify-content-center align-items-center mx-4 mt-3 gap-2"
                     >
                         <label
@@ -255,7 +258,7 @@ const debounceSaveDrawingName = debounce(saveDrawingName, 200)
                             <DrawingExporter :is-drawing-empty="drawingStore.isDrawingEmpty" />
                         </div>
                         <div
-                            v-if="online"
+                            v-if="drawingStore.online"
                             class="col d-grid"
                         >
                             <button
@@ -286,7 +289,7 @@ const debounceSaveDrawingName = debounce(saveDrawingName, 200)
                         </div>
                     </div>
                     <div
-                        v-if="uiStore.isDesktopMode && online"
+                        v-if="uiStore.isDesktopMode && drawingStore.online"
                         class="row mt-2"
                     >
                         <div
@@ -345,11 +348,16 @@ const debounceSaveDrawingName = debounce(saveDrawingName, 200)
             v-if="showNotSharedDrawingWarningModal"
             fluid
             :title="t('warning')"
-            @close="onCloseWarningModal()"
+            show-confirmation-buttons
+            confirm-key="close"
+            @close="onCloseWarningModal"
         >
-            <ShareWarningPopup
-                :kml-layer="layersStore.activeKmlLayer"
-                @accept="onAcceptWarningModal()"
+            <p data-cy="drawing-not-shared-admin-warning">
+                {{ t('drawing_not_shared_admin_warning') }}
+            </p>
+            <SharePopup
+                :kml-layer="layersStore.activeKmlLayer as KMLLayer"
+                hide-public-url
             />
         </ModalWithBackdrop>
     </teleport>

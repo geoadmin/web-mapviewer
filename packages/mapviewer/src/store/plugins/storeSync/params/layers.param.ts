@@ -11,7 +11,7 @@ import type {
 } from '@swissgeo/layers'
 import type { RouteLocation, RouteLocationNormalizedGeneric } from 'vue-router'
 
-import { featuresAPI } from '@swissgeo/api'
+import { featuresAPI, filesAPI } from '@swissgeo/api'
 import { extentUtils } from '@swissgeo/coordinates'
 import { DEFAULT_OPACITY } from '@swissgeo/layers'
 import { geoJsonUtils, layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
@@ -20,10 +20,12 @@ import { ErrorMessage, WarningMessage } from '@swissgeo/log/Message'
 
 import type { ValidationResponse } from '@/store/plugins/storeSync/validation'
 
+import { ENVIRONMENT } from '@/config'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import useI18nStore from '@/store/modules/i18n'
 import useLayersStore from '@/store/modules/layers'
+import loadKmlKmzData from '@/store/modules/layers/utils/loadKmlKmzData'
 import usePositionStore from '@/store/modules/position'
 import useUIStore from '@/store/modules/ui'
 import {
@@ -256,13 +258,24 @@ function dispatchLayersFromUrlIntoStore(
 
             if (layerObject) {
                 if (layerObject.type === 'KML' && (layerObject as KMLLayer).adminId) {
-                    drawingStore.toggleDrawingOverlay(
-                        {
-                            show: true,
-                        },
-                        STORE_DISPATCHER_ROUTER_PLUGIN
-                    )
-                    drawingStore.setIsVisitWithAdminId(true, STORE_DISPATCHER_ROUTER_PLUGIN)
+                    drawingStore
+                        .initiateDrawing(
+                            {
+                                online: true,
+                                preExistingDrawing: layerObject as KMLLayer,
+                            },
+                            STORE_DISPATCHER_ROUTER_PLUGIN
+                        )
+                        .catch((error) => {
+                            log.error({
+                                title: 'Layers URL param / dispatchLayersFromUrlIntoStore',
+                                titleColor: LogPreDefinedColor.Red,
+                                messages: [
+                                    `Failed to initiate drawing for KML layer ${parsedLayer.id}`,
+                                    error,
+                                ],
+                            })
+                        })
                 }
                 log.debug({
                     title: 'Layers URL param / dispatchLayersFromUrlIntoStore',

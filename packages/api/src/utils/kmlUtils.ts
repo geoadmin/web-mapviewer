@@ -594,7 +594,8 @@ function getEditableFeatureFromKmlFeature(
         iconSize,
         textPlacement,
         showDescriptionOnMap,
-    } as EditableFeature
+        isEditable: true,
+    }
 }
 
 /**
@@ -855,7 +856,11 @@ export interface KMZObject {
  * @returns Returns a KMZ unzip object
  */
 async function unzipKmz(kmzContent: ArrayBuffer, kmzFileName: string): Promise<KMZObject> {
-    const kmz: KMZObject = { name: kmzFileName, files: new Map<string, ArrayBuffer>(), kmz: kmzContent }
+    const kmz: KMZObject = {
+        name: kmzFileName,
+        files: new Map<string, ArrayBuffer>(),
+        kmz: kmzContent,
+    }
     const zip = new JSZip()
     try {
         await zip.loadAsync(kmzContent)

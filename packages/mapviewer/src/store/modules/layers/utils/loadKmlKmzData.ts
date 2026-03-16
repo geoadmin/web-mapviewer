@@ -1,4 +1,4 @@
-import type { KMLLayer } from '@swissgeo/layers'
+import type { KMLLayer, KMLMetadata } from '@swissgeo/layers'
 
 import { filesAPI, fileProxyAPI } from '@swissgeo/api'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
@@ -32,14 +32,27 @@ async function loadMetadata(kmlLayer: KMLLayer, dispatcher: ActionDispatcher): P
     uiStore.setLoadingBarRequester(`${LOADING_BAR_REQUEST_NAME}/metadata`, dispatcher)
 
     try {
-        const metadata = await filesAPI.loadKmlMetadata(kmlLayer, ENVIRONMENT)
-        layersStore.updateLayer<KMLLayer>(
-            kmlLayer.id,
-            {
-                kmlMetadata: metadata,
-            },
-            dispatcher
-        )
+        let metadata: KMLMetadata | undefined
+        if (kmlLayer.fileId) {
+            metadata = await filesAPI.loadKmlMetadata(kmlLayer, ENVIRONMENT)
+        } else if (kmlLayer.adminId) {
+            metadata = await filesAPI.getKmlMetadataByAdminId(kmlLayer.adminId, ENVIRONMENT)
+        }
+        if (metadata) {
+            layersStore.updateLayer<KMLLayer>(
+                kmlLayer.id,
+                {
+                    kmlMetadata: metadata,
+                },
+                dispatcher
+            )
+        } else {
+            log.warn({
+                title: 'Layer store / loadKmlKmzData',
+                titleColor: LogPreDefinedColor.Indigo,
+                messages: [`KML metadata not found for layer ${kmlLayer?.id}`],
+            })
+        }
     } catch (error) {
         log.error({
             title: 'Layer store / loadKmlKmzData',

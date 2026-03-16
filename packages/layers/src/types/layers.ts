@@ -98,6 +98,8 @@ export interface Layer {
     readonly isExternal: boolean
     /** Set to true if some parts of the layer (e.g. metadata) are still loading */
     isLoading: boolean
+    /** Promise that resolves when the layer is fully loaded */
+    loadedPromise?: Promise<void>
     /** Time series config */
     timeConfig: LayerTimeConfig
     /**
@@ -318,8 +320,8 @@ export interface KMLLayer extends FileLayer {
      */
     linkFiles?: Record<string, ArrayBuffer>
     /**
-     * KMZ content as ArrayBuffer. This is used to load the KMZ in the 3D viewer (Cesium), so that it
-     * is able to link all the files inside the KMZ archive.
+     * KMZ content as ArrayBuffer. This is used to load the KMZ in the 3D viewer (Cesium), so that
+     * it is able to link all the files inside the KMZ archive.
      */
     kmzContent?: ArrayBuffer
     /**

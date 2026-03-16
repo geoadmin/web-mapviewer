@@ -1,10 +1,10 @@
 import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
-export default function setIsVisitWithAdminId(
+export default function setDrawingHasLoaded(
     this: DrawingStore,
-    isVisitingWithAdminId: boolean,
+    hasLoaded: boolean,
     dispatcher: ActionDispatcher
 ) {
-    this.isVisitWithAdminId = isVisitingWithAdminId
+    this.layer.hasLoaded = hasLoaded
 }

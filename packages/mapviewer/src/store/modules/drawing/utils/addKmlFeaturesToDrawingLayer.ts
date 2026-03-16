@@ -62,6 +62,7 @@ export default function addKmlFeaturesToDrawingLayer(
             dispatcher
         )
         drawingStore.setDrawingSaveState('LOADED', dispatcher)
+        drawingStore.setDrawingHasLoaded(true, dispatcher)
     } catch (error) {
         if (!kmlLayer.isLocalFile) {
             log.error({

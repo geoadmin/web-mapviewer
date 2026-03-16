@@ -292,8 +292,8 @@ Cypress.Commands.add('closeDrawingMode', (closeDrawingNotSharedAdmin = true) => 
     if (closeDrawingNotSharedAdmin) {
         // Close the drawing not shared admin modal if it is open
         cy.get('body').then(($body) => {
-            if ($body.find('[data-cy="drawing-share-admin-close"]').length > 0) {
-                cy.get('[data-cy="drawing-share-admin-close"]').click()
+            if ($body.find('[data-cy="drawing-not-shared-admin-warning"]').length > 0) {
+                cy.get('[data-cy="modal-confirm-button"]').click()
             }
         })
         cy.waitUntilState((pinia) => {

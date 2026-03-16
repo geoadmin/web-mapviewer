@@ -3,7 +3,7 @@ import type Feature from 'ol/Feature'
 import type { Component, ComponentPublicInstance } from 'vue'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
-import { computed, ref, useTemplateRef } from 'vue'
+import { watch, computed, ref, useTemplateRef } from 'vue'
 
 import type {
     DrawingInteractionExposed,
@@ -62,9 +62,12 @@ const specializedInteractionComponent = computed<Component | undefined>(() => {
             selectedInteraction = undefined
         }
     }
-    // Make sure that the select interaction is disabled when we are in draw / extend mode
-    selectInteraction.value?.setActive(!selectedInteraction)
     return selectedInteraction
+})
+
+watch(specializedInteractionComponent, (newInteractionComponent) => {
+    // Make sure that the select interaction is disabled when we are in draw/extend mode
+    selectInteraction.value?.setActive(!newInteractionComponent)
 })
 
 const specializedProps = computed(() => {

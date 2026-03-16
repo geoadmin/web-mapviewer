@@ -4,7 +4,7 @@ import type { ComputedRef } from 'vue'
 
 import { feedbackAPI, filesAPI, shortLinkAPI } from '@swissgeo/api'
 import { layerUtils } from '@swissgeo/layers/utils'
-import log from '@swissgeo/log'
+import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { FEEDBACK_EMAIL_SUBJECT } from '@swissgeo/staging-config/constants'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -18,6 +18,7 @@ import HeaderLink from '@/modules/menu/components/header/HeaderLink.vue'
 import SendActionButtons from '@/modules/menu/components/help/common/SendActionButtons.vue'
 import useDrawingStore from '@/store/modules/drawing'
 import useLayersStore from '@/store/modules/layers'
+import useMapStore from '@/store/modules/map'
 import useUIStore from '@/store/modules/ui'
 import DropdownButton from '@/utils/components/DropdownButton.vue'
 import EmailInput from '@/utils/components/EmailInput.vue'
@@ -33,6 +34,7 @@ const acceptedFileTypes = ['.kml', '.gpx', '.pdf', '.zip', '.jpg', '.jpeg', '.pn
 const { t } = useI18n()
 const drawingStore = useDrawingStore()
 const layersStore = useLayersStore()
+const mapStore = useMapStore()
 const uiStore = useUIStore()
 
 const feedbackCategories: DropdownItem<string>[] = [
@@ -216,18 +218,24 @@ function openForm() {
 }
 
 function toggleDrawingOverlay() {
-    drawingStore.toggleDrawingOverlay(
-        {
-            kmlId: temporaryKmlId,
-            title: 'feedback_drawing',
-        },
-        dispatcher
-    )
-    if (drawingStore.onlineMode === 'ONLINE') {
-        drawingStore.setOnlineMode('OFFLINE_WHILE_ONLINE', dispatcher)
-    } else if (drawingStore.onlineMode === 'NONE') {
-        drawingStore.setOnlineMode('OFFLINE', dispatcher)
-    }
+    // when entering the drawing menu, we need to clear the location popup
+    mapStore.clearLocationPopupCoordinates(dispatcher)
+    drawingStore
+        .initiateDrawing(
+            {
+                online: false,
+                temporaryKmlId,
+                title: 'feedback_drawing',
+            },
+            dispatcher
+        )
+        .catch((error) => {
+            log.error({
+                title: 'ReportProblemButton / toggleDrawingOverlay',
+                titleColor: LogPreDefinedColor.Red,
+                messages: ['Failed to initiate drawing', error],
+            })
+        })
 }
 
 function selectItem(dropdownItem: DropdownItem<string>) {

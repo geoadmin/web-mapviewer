@@ -19,14 +19,15 @@ const dispatcher: ActionDispatcher = { name: 'SharePopup.vue' }
 const drawingStore = useDrawingStore()
 const { t } = useI18n()
 
-const { kmlLayer } = defineProps({
-    kmlLayer: Object as () => KMLLayer | undefined,
-})
+const { kmlLayer, hidePublicUrl = false } = defineProps<{
+    hidePublicUrl?: boolean
+    kmlLayer?: KMLLayer
+}>()
 
-const adminUrlCopied = ref(false)
-const fileUrlCopied = ref(false)
-const shareUrl: Ref<string | undefined> = ref(' ')
-const adminShareUrl: Ref<string | undefined> = ref(' ')
+const adminUrlCopied = ref<boolean>(false)
+const fileUrlCopied = ref<boolean>(false)
+const shareUrl = ref<string | undefined>()
+const adminShareUrl = ref<string | undefined>()
 
 const baseUrl = computed(() => {
     return `${location.origin}/#`
@@ -100,7 +101,7 @@ async function updateShareUrl() {
         try {
             shareUrl.value = await shortLinkAPI.createShortLink({
                 url: fileUrl.value,
-                staging: ENVIRONMENT
+                staging: ENVIRONMENT,
             })
         } catch (_) {
             // Fallback to normal url
@@ -113,7 +114,7 @@ async function updateAdminShareUrl() {
         try {
             adminShareUrl.value = await shortLinkAPI.createShortLink({
                 url: adminUrl.value,
-                staging: ENVIRONMENT
+                staging: ENVIRONMENT,
             })
         } catch (_) {
             // Fallback to normal url
@@ -125,7 +126,10 @@ async function updateAdminShareUrl() {
 
 <template>
     <div class="ga-share">
-        <div class="form-group">
+        <div
+            v-if="!hidePublicUrl"
+            class="form-group"
+        >
             <label>{{ t('draw_share_user_link') }}:</label>
             <div class="input-group input-group share-link-input mb-3">
                 <input
@@ -147,7 +151,7 @@ async function updateAdminShareUrl() {
             </div>
         </div>
         <div
-            v-if="adminUrl"
+            v-if="kmlLayer.adminId"
             class="form-group"
         >
             <label>{{ t('draw_share_admin_link') }}:</label>
