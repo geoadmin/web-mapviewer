@@ -6,22 +6,21 @@ import {
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 import { isValidUrl } from '@/utils/utils'
 
-// //https://sys-{wms,wmts,api3}.{dev,int}.bgdi.ch/
-// or http://localhost{:port_number}
-const allowed_url_regexes = {
-    wms_url: /^https:\/\/sys-wms.(dev|int).bgdi.ch\/?$/g,
-    wmts_url: /^https:\/\/sys-wmts.(dev|int).bgdi.ch\/?$/g,
-    api3: /^https:\/\/sys-api3.(dev|int).bgdi.ch\/?$/g,
-    localhost: /^http:\/\/localhost(:\d{2,6})?\/?$/g,
+// https://sys-{wms,wmts,api3}.{dev,int}.bgdi.ch/ or http://localhost{:port_number}
+const ALLOWED_BGDI_URL = /^https:\/\/sys-(wms|wmts|api3)\.(dev|int)\.bgdi\.ch(\/[^?]*)?(\?.*)?$/
+const ALLOWED_LOCALHOST_URL = /^http:\/\/localhost(:\d{2,6})?(\/[^?]*)?(\?.*)?$/
+
+/**
+ * To protect against XSS attacks, we only allow the override of the base URL if the URL is
+ * whitelisted.
+ */
+export function isBaseUrlOverrideAllowed(url) {
+    return ALLOWED_BGDI_URL.test(url) || ALLOWED_LOCALHOST_URL.test(url)
 }
 
 export default function createBaseUrlOverrideParamConfig({ urlParamName, baseUrlPropertyName }) {
     function dispatchBaseUrlOverride(to, store, urlParamValue) {
-        if (
-            isValidUrl(urlParamValue) &&
-            (allowed_url_regexes[urlParamName]?.match(urlParamValue) ||
-                allowed_url_regexes.localhost.match(urlParamValue))
-        ) {
+        if (isValidUrl(urlParamValue) && isBaseUrlOverrideAllowed(urlParamValue)) {
             setBaseUrlOverrides(baseUrlPropertyName, urlParamValue)
         } else {
             setBaseUrlOverrides(baseUrlPropertyName, null)
