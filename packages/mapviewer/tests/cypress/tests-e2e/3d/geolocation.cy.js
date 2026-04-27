@@ -9,9 +9,33 @@ import {
     checkStorePosition,
 } from '@/../tests/cypress/tests-e2e/utils'
 
+const { GeolocationPositionError } = window
+
 registerProj4(proj4)
 
 describe('Geolocation on 3D cypress', () => {
+    context(
+        'Test geolocation when first time activating it',
+        {
+            env: {
+                browserPermissions: {
+                    geolocation: 'ask',
+                },
+            },
+        },
+        () => {
+            it('Prompt the user to authorize geolocation when the geolocation button is clicked for the first time', () => {
+                cy.goToMapView({ '3d': true })
+                getGeolocationButtonAndClickIt()
+                cy.on('window:alert', () => {
+                    throw new Error(
+                        'Should not raise an alert, but ask for permission through a prompt in the web browser GUI'
+                    )
+                })
+            })
+        }
+    )
+
     context(
         'Test geolocation when geolocation is authorized',
         {
@@ -88,4 +112,29 @@ describe('Geolocation on 3D cypress', () => {
             })
         }
     )
+
+    context('Test geolocation when geolocation is failed to be retrieved', () => {
+        it('shows an error telling the user geolocation is denied', () => {
+            cy.goToMapView({ '3d': true }, true, {
+                errorCode: GeolocationPositionError.PERMISSION_DENIED,
+            })
+            getGeolocationButtonAndClickIt()
+            testErrorMessage('geoloc_permission_denied')
+        })
+
+        it('shows an alert telling the user geolocation is not able to be retrieved due to time out', () => {
+            cy.goToMapView({ '3d': true }, true, {
+                errorCode: GeolocationPositionError.TIMEOUT,
+            })
+            getGeolocationButtonAndClickIt()
+            testErrorMessage('geoloc_time_out')
+        })
+        it('shows an alert telling the user geolocation is not available for other reason', () => {
+            cy.goToMapView({ '3d': true }, true, {
+                errorCode: GeolocationPositionError.POSITION_UNAVAILABLE,
+            })
+            getGeolocationButtonAndClickIt()
+            testErrorMessage('geoloc_unknown')
+        })
+    })
 })
