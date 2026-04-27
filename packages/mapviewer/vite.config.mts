@@ -172,6 +172,7 @@ export default defineConfig(({ mode }) => {
             __VITE_ENVIRONMENT__: JSON.stringify(definitiveMode),
             __CESIUM_STATIC_PATH__: JSON.stringify(cesiumStaticDir),
             __IS_TESTING_WITH_CYPRESS__: JSON.stringify(mode === 'test'),
+            __SKIP_3D_TESTS__: JSON.stringify(process.env.VITE_SKIP_3D_TESTS === 'true'),
             // explicitly opting-out of Option API to reduce the Vue bundle's size
             // see https://vuejs.org/api/compile-time-flags#VUE_OPTIONS_API
             __VUE_OPTIONS_API__: 'false',

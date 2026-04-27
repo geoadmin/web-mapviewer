@@ -29,6 +29,10 @@ export default defineConfig({
 
     e2e: {
         setupNodeEvents(on, config) {
+            // skipping 3D tests if VITE_SKIP_3D_TESTS is set to true
+            if (process.env.VITE_SKIP_3D_TESTS === 'true') {
+                config.excludeSpecPattern = ['tests/cypress/tests-e2e/3d/**/*.cy.js']
+            }
             on('before:browser:launch', (browser, launchOptions) => {
                 // see https://www.bigbinary.com/blog/how-we-fixed-the-cypress-out-of-memory-error-in-chromium-browsers
                 if (['chrome', 'edge'].includes(browser.name)) {
@@ -104,6 +108,7 @@ export default defineConfig({
                     })
                 },
             })
+            return config
         },
         baseUrl: 'http://localhost:8080',
         specPattern: 'tests/cypress/tests-e2e/**/*.cy.js',

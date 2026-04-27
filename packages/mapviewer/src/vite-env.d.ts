@@ -7,6 +7,7 @@ declare const __VITE_ENVIRONMENT__: 'development' | 'integration' | 'production'
 declare const __APP_VERSION__: string
 declare const __CESIUM_STATIC_PATH__: string
 declare const __IS_TESTING_WITH_CYPRESS__: boolean
+declare const __SKIP_3D_TESTS__: boolean
 
 interface ImportMetaEnv {
     // stuff from .env.{staging} files
@@ -22,6 +23,7 @@ interface ImportMetaEnv {
     readonly VITE_APP_3D_TILES_BASE_URL: string
     readonly VITE_APP_VECTORTILES_BASE_URL: string
     readonly VITE_APP_SERVICE_PROXY_BASE_URL: string
+    readonly VITE_SKIP_3D_TESTS?: string
 }
 
 interface ImportMeta {
