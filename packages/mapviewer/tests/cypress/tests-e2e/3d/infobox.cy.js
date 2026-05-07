@@ -1,0 +1,79 @@
+/// <reference types="cypress" />
+
+import { LV95, WEBMERCATOR } from '@geoadmin/coordinates'
+
+describe('The infobox in 3D', () => {
+    const layer = 'test.wmts.layer'
+    const feature = {
+        geometry: { type: 'Point', coordinates: LV95.bounds.center },
+        layerBodId: 'ch.babs.kulturgueter',
+        bbox: [
+            LV95.bounds.center[0] - 1000,
+            LV95.bounds.center[1] - 1000,
+            LV95.bounds.center[0] + 1000,
+            LV95.bounds.center[1] + 1000,
+        ],
+        featureId: 1234,
+        layerName: 'A nice test layer',
+        type: 'Feature',
+        id: 1234,
+        properties: {
+            zkob: 'This is a test feature',
+            link_title: 'This is a test feature',
+            link_uri: 'http://localhost:8080/',
+            link_2_title: null,
+            link_2_uri: null,
+            link_3_title: 'This is a test feature',
+            link_3_uri: null,
+            label: 'This is a test feature',
+            pdf_list: null,
+            x: 1234.0,
+            y: 1234.0,
+        },
+    }
+
+    beforeEach(() => {
+        cy.intercept('**/MapServer/identify**', { results: [feature] })
+        cy.intercept(`**/MapServer/${layer}/**geometryFormat**`, feature)
+        cy.intercept('**/MapServer/**/htmlPopup**', {
+            fixture: 'html-popup.fixture.html',
+        })
+    })
+
+    // since we've been serving fake tiles to Cesium, the location popup is broken as Cesium can't return proper coordinates
+    // we need to fix this Cesium fake tile issue before reactivating this test context
+    // TODO : BGDIINF_SB-3181
+    context.skip('Cesium map', () => {
+        beforeEach(() => {
+            cy.goToMapView({ layers: layer, '3d': true, sr: WEBMERCATOR.epsgNumber }, true)
+            cy.waitUntilCesiumTilesLoaded()
+        })
+        // generateInfoboxTestsForMapSelector('[data-cy="cesium-map"]')
+    })
+
+    context('transition from 2D to 3D (and back to 2D)', () => {
+        beforeEach(() => {
+            cy.goToMapView({ layers: layer })
+
+            cy.get('[data-cy="ol-map"]').click()
+            cy.waitUntilState((_, getters) => {
+                return getters.selectedFeatures.length > 0
+            })
+            cy.get('[data-cy="highlighted-features"]').should('be.visible')
+        })
+        it('keeps the selected features when going 3D', () => {
+            cy.get('[data-cy="3d-button"]').click()
+            // waiting for 3D to be loaded
+            cy.readWindowValue('cesiumViewer').then(() => {
+                cy.get('[data-cy="highlighted-features"]').should('be.visible')
+            })
+        })
+        it('keeps the selected features when going back to 2D', () => {
+            cy.get('[data-cy="3d-button"]').click()
+            cy.readWindowValue('cesiumViewer').then(() => {
+                cy.get('[data-cy="3d-button"]').click()
+                cy.get('[data-cy="highlighted-features"]').should('be.visible')
+            })
+        })
+    })
+})

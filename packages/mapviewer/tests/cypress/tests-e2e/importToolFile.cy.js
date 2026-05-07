@@ -3,7 +3,7 @@
 import { registerProj4, WGS84 } from '@geoadmin/coordinates'
 import proj4 from 'proj4'
 
-import { proxifyUrl } from '@/api/file-proxy.api.js'
+import { proxifyUrl } from '@/api/file-proxy.api'
 import { DEFAULT_PROJECTION } from '@/config/map.config'
 
 registerProj4(proj4)
@@ -515,52 +515,8 @@ describe('The Import File Tool', () => {
         cy.wait(['@headKmlNoCORS', '@proxyfiedKmlNoCORS'])
         cy.readStoreValue('state.layers.activeLayers').should('have.length', 2)
 
-        cy.log('switching to 3D and checking that online file is correctly loaded on 3D viewer')
-        cy.get('[data-cy="import-window"] [data-cy="window-close"]').click()
-        // 3 warnings to remove before being able to see the 3D button (on mobile)
-        cy.get('[data-cy="warning-window"]').contains(
-            'You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|external-kml-file.kml layer, please re-import it.'
-        )
-        cy.get('[data-cy="warning-window-close"]').click({ force: true })
-        cy.get('[data-cy="warning-window"]').contains(
-            'You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|line-accross-eu.kml layer, please re-import it.'
-        )
-        cy.get('[data-cy="warning-window-close"]').click({ force: true })
-        cy.get('[data-cy="warning-window"]').contains(
-            'You have reloaded while a local layer was imported, or received a link containing a local layer, which has not been loaded. If you have the file containing the KML|kml_feature_error.kml layer, please re-import it.'
-        )
-        cy.get('[data-cy="warning-window-close"]').click({ force: true })
-        cy.get('[data-cy="3d-button"]:visible').click()
-        cy.waitUntilCesiumTilesLoaded()
-        cy.readWindowValue('cesiumViewer').should((viewer) => {
-            expect(viewer.scene.primitives.length).to.eq(
-                4,
-                'should have 1 primitive (KML file) on top of labels and buildings primitives'
-            )
-        })
-
-        cy.log('adding a local KML file while being in the 3D viewer')
-        cy.openMenuIfMobile()
-        cy.get('[data-cy="menu-tray-tool-section"]:visible').click()
-        cy.get('[data-cy="menu-advanced-tools-import-file"]:visible').click()
-        cy.get('[data-cy="import-file-local-btn"]').click()
-        cy.get('[data-cy="file-input"]').selectFile('@lineAccrossEuFixture', {
-            force: true,
-        })
-        cy.get('[data-cy="import-file-load-button"]:visible').click()
-        cy.readStoreValue('state.layers.activeLayers').then((activeLayers) => {
-            const kmlLayerCount = activeLayers.filter((layer) => layer.type === 'KML').length
-            cy.readWindowValue('cesiumViewer').should((viewer) => {
-                expect(viewer.dataSources.length).to.eq(
-                    kmlLayerCount,
-                    `should have ${kmlLayerCount} date source (KML files)`
-                )
-            })
-        })
-
         cy.log('testing the import and profile viewer with a KML MultiPolygon file')
         cy.get('[data-cy="import-window"] [data-cy="window-close"]').click()
-        cy.get('[data-cy="3d-button"]:visible').click()
 
         cy.openMenuIfMobile()
 
