@@ -4,7 +4,6 @@ import type { AxiosResponse, CancelToken, CancelTokenSource } from 'axios'
 import type Feature from 'ol/Feature'
 
 import { CustomCoordinateSystem, LV95, WGS84 } from '@swissgeo/coordinates'
-import { LayerType } from '@swissgeo/layers'
 import { geoJsonUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { getApi3BaseUrl } from '@swissgeo/staging-config'
@@ -327,7 +326,7 @@ function searchLayerFeaturesKMLGPX(
     iconSets: DrawingIconSet[]
 ): SearchResult[] {
     return layersToSearch.reduce((returnLayers: SearchResult[], currentLayer: Layer) => {
-        if (currentLayer.type === LayerType.KML) {
+        if (currentLayer.type === 'KML') {
             const kmlLayer = currentLayer as KMLLayer
             return returnLayers.concat(
                 searchFeatures(
@@ -338,7 +337,7 @@ function searchLayerFeaturesKMLGPX(
                 )
             )
         }
-        if (currentLayer.type === LayerType.GPX) {
+        if (currentLayer.type === 'GPX') {
             const gpxLayer = currentLayer as GPXLayer
             const gpxData = gpxLayer.gpxData
             if (!gpxData) {

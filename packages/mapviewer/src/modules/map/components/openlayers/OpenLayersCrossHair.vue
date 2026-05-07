@@ -1,27 +1,27 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
+import type { OpenLayersMarkerStyle } from '@/modules/map/components/openlayers/utils/markerStyle'
+
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import OpenLayersMarker from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
-import { OpenLayersMarkerStyles } from '@/modules/map/components/openlayers/utils/markerStyle'
 import usePositionStore from '@/store/modules/position'
-import { CrossHairs } from '@/store/modules/position/types'
 
 const positionStore = usePositionStore()
 const crossHair = computed(() => positionStore.crossHair)
 const crossHairPosition = computed(() => positionStore.crossHairPosition)
-const crossHairStyle = computed(() => {
+const crossHairStyle = computed<OpenLayersMarkerStyle | undefined>(() => {
     switch (crossHair.value) {
-        case CrossHairs.Point:
-            return OpenLayersMarkerStyles.Point
-        case CrossHairs.Cross:
-            return OpenLayersMarkerStyles.Cross
-        case CrossHairs.Bowl:
-            return OpenLayersMarkerStyles.Bowl
-        case CrossHairs.Marker:
-            return OpenLayersMarkerStyles.Balloon
-        case CrossHairs.Circle:
-            return OpenLayersMarkerStyles.Circle
+        case 'point':
+            return 'point'
+        case 'cross':
+            return 'cross'
+        case 'bowl':
+            return 'bowl'
+        case 'marker':
+            return 'balloon'
+        case 'circle':
+            return 'circle'
     }
     return undefined
 })

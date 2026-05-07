@@ -7,7 +7,6 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { DrawingSaveState } from '@/store/modules/drawing/types'
 import debounceSaveDrawing from '@/store/modules/drawing/utils/debounceSaveDrawing'
 import useProfileStore from '@/store/modules/profile'
 
@@ -17,7 +16,7 @@ export default function updateCurrentDrawingFeature(
     dispatcher: ActionDispatcher
 ) {
     if (this.feature.current) {
-        this.save.state = DrawingSaveState.UnsavedChanges
+        this.save.state = 'UNSAVED_CHANGES'
 
         Object.assign(this.feature.current, valuesToUpdate)
 
@@ -68,10 +67,10 @@ export default function updateCurrentDrawingFeature(
 
         debounceSaveDrawing()
             .then(() => {
-                this.save.state = DrawingSaveState.Saved
+                this.save.state = 'SAVED'
             })
             .catch((error) => {
-                this.save.state = DrawingSaveState.SaveError
+                this.save.state = 'SAVE_ERROR'
                 log.error({
                     title: 'Drawing store / updateCurrentDrawingFeature',
                     titleColor: LogPreDefinedColor.Lime,

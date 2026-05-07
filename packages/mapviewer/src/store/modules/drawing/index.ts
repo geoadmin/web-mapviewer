@@ -11,32 +11,27 @@ import initiateDrawing from '@/store/modules/drawing/actions/initiateDrawing'
 import loadAvailableIconSets from '@/store/modules/drawing/actions/loadAvailableIconSets'
 import setCurrentlyDrawnFeature from '@/store/modules/drawing/actions/setCurrentlyDrawnFeature'
 import setDrawingFeatures from '@/store/modules/drawing/actions/setDrawingFeatures'
+import setDrawingHasLoaded from '@/store/modules/drawing/actions/setDrawingHasLoaded'
 import setDrawingMode from '@/store/modules/drawing/actions/setDrawingMode'
 import setDrawingName from '@/store/modules/drawing/actions/setDrawingName'
 import setDrawingSaveState from '@/store/modules/drawing/actions/setDrawingSaveState'
 import setEditingMode from '@/store/modules/drawing/actions/setEditingMode'
 import setIsDrawingEditShared from '@/store/modules/drawing/actions/setIsDrawingEditShared'
-import setIsVisitWithAdminId from '@/store/modules/drawing/actions/setIsVisitWithAdminId'
-import setOnlineMode from '@/store/modules/drawing/actions/setOnlineMode'
-import toggleDrawingOverlay from '@/store/modules/drawing/actions/toggleDrawingOverlay'
 import updateCurrentDrawingFeature from '@/store/modules/drawing/actions/updateCurrentDrawingFeature'
 import updateDrawingPreferences from '@/store/modules/drawing/actions/updateDrawingPreferences'
 import { isDrawingEmpty } from '@/store/modules/drawing/getters/isDrawingEmpty'
-import isDrawingModified from '@/store/modules/drawing/getters/isDrawingModified'
-import showNotSharedDrawingWarning from '@/store/modules/drawing/getters/showNotSharedDrawingWarning'
-import { DrawingSaveState, EditMode, OnlineMode } from '@/store/modules/drawing/types'
 
 const defaultDrawingTitle = 'draw_mode_title'
 
 const state = (): DrawingStoreState => ({
     layer: {
         ol: undefined,
-        config: undefined,
         temporaryKmlId: undefined,
+        hasLoaded: false,
     },
     edit: {
         featureType: undefined,
-        mode: EditMode.Off,
+        mode: 'OFF',
         reverseLineStringExtension: false,
         preferred: {
             size: featureStyleUtils.MEDIUM,
@@ -54,25 +49,21 @@ const state = (): DrawingStoreState => ({
         title: defaultDrawingTitle,
     },
     save: {
-        state: DrawingSaveState.Initial,
+        state: 'INITIAL',
         pending: undefined,
     },
-    // online: true,
-    onlineMode: OnlineMode.Online,
+    online: true,
     name: undefined,
     isDrawingNew: true,
     isDrawingEditShared: false,
-    isVisitWithAdminId: false,
+    hasLoadedDrawingWithOnlyAdminId: false,
 })
 
 const getters: DrawingStoreGetters = {
     isDrawingEmpty,
-    isDrawingModified,
-    showNotSharedDrawingWarning,
 }
 
 const actions = {
-    setOnlineMode,
     deleteCurrentDrawing,
     clearDrawingFeatures,
     deleteDrawingFeature,
@@ -82,14 +73,13 @@ const actions = {
     setDrawingMode,
     setDrawingName,
     setIsDrawingEditShared,
-    setIsVisitWithAdminId,
-    toggleDrawingOverlay,
     updateCurrentDrawingFeature,
     setDrawingSaveState,
     setCurrentlyDrawnFeature,
     initiateDrawing,
     closeDrawing,
     updateDrawingPreferences,
+    setDrawingHasLoaded,
 }
 
 const useDrawingStore = defineStore('drawing', {

@@ -16,7 +16,6 @@ import type {
 } from 'axios'
 
 import { LV95 } from '@swissgeo/coordinates'
-import { LayerType } from '@swissgeo/layers'
 import { EXTERNAL_SERVER_TIMEOUT, setWmsGetMapParams } from '@swissgeo/layers/api'
 import { wmsCapabilitiesParser, wmtsCapabilitiesParser } from '@swissgeo/layers/parsers'
 import axios, { AxiosError } from 'axios'
@@ -221,7 +220,7 @@ async function handleWmts(provider: string, content: string, result: Result): Pr
     })
 
     const firstLayer = findFirstLeaf(layers)
-    if (!firstLayer || firstLayer.type !== LayerType.WMTS) {
+    if (!firstLayer || firstLayer.type !== 'WMTS') {
         return false
     }
     const firstWmtsLayer = firstLayer as ExternalWMTSLayer
@@ -326,7 +325,7 @@ function findFirstLeaf(layers: ExternalLayer[]): ExternalLayer | undefined {
     }
 
     for (const layer of layers) {
-        if (layer.type !== LayerType.WMS) {
+        if (layer.type !== 'WMS') {
             return layer
         }
 

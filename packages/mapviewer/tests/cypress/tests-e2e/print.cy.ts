@@ -681,7 +681,6 @@ describe('Testing print', () => {
                                 })
                             })
                             .filter((legend) => legend !== undefined)
-                        console.log('woot', expectedLegend)
 
                         checkPrintRequest(body, {
                             ...defaultSpec,

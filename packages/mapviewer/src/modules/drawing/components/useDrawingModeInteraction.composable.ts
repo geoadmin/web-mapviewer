@@ -26,7 +26,6 @@ import type { ActionDispatcher } from '@/store/types'
 import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
 import { editingFeatureStyleFunction } from '@/modules/drawing/lib/style'
 import useDrawingStore from '@/store/modules/drawing'
-import { EditMode } from '@/store/modules/drawing/types'
 import usePositionStore from '@/store/modules/position'
 import { GeodesicGeometries } from '@/utils/geodesicManager'
 
@@ -254,7 +253,7 @@ export default function useDrawingModeInteraction(config?: UseDrawingModeInterac
                 drawingStore.edit.reverseLineStringExtension
             )
             drawingStore.setEditingMode(
-                EditMode.Modify,
+                'MODIFY',
                 drawingStore.edit.reverseLineStringExtension,
                 dispatcher
             )

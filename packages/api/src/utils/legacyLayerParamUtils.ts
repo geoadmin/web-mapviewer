@@ -1,7 +1,6 @@
 import type { GeoAdminLayer, KMLLayer, Layer } from '@swissgeo/layers'
 import type { Staging } from '@swissgeo/staging-config'
 
-import { KMLStyle } from '@swissgeo/layers'
 import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
 import log from '@swissgeo/log'
 
@@ -114,7 +113,7 @@ function getLayersFromLegacyUrlParams(
             layer = layerUtils.makeKMLLayer({
                 kmlFileUrl: url,
                 isVisible: true,
-                style: KMLStyle.GEOADMIN,
+                style: 'GEOADMIN',
             })
         }
         if (layerId.startsWith('GPX||')) {
@@ -219,7 +218,10 @@ function getBackgroundLayerFromLegacyUrlParams(
  * @param adminId KML admin ID
  * @returns KML Layer
  */
-async function getKmlLayerFromLegacyAdminIdParam(adminId: string, staging: Staging = 'production'): Promise<KMLLayer> {
+async function getKmlLayerFromLegacyAdminIdParam(
+    adminId: string,
+    staging: Staging = 'production'
+): Promise<KMLLayer> {
     const kmlMetadata = await filesAPI.getKmlMetadataByAdminId(adminId, staging)
     return layerUtils.makeKMLLayer({
         kmlFileUrl: kmlMetadata.links.kml,

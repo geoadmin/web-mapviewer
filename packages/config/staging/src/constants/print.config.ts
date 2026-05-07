@@ -6,15 +6,7 @@ export const PRINT_DPI_COMPENSATION: number = 144
 //So when there is a non 0 scale, we set its minimum to 0.0001
 export const MIN_PRINT_SCALE_SIZE: number = 0.0001
 
-export enum PrintLayout {
-    A0 = 'A0',
-    A1 = 'A1',
-    A2 = 'A2',
-    A3 = 'A3',
-    A4 = 'A4',
-    A5 = 'A5',
-    A6 = 'A6',
-}
+export type PrintLayout = 'A0' | 'A1' | 'A2' | 'A3' | 'A4' | 'A5' | 'A6'
 
 /** Dimensions in mm of the viewport for each print format */
 export const PRINT_DIMENSIONS: Record<PrintLayout, [number, number]> = {

@@ -25,6 +25,7 @@ const config: UserConfig = {
                 'ol',
             ],
         },
+        sourcemap: true,
     },
     css: {
         preprocessorOptions: {
@@ -43,6 +44,9 @@ const config: UserConfig = {
     plugins: [
         tsconfigPaths(),
         tailwindcss(),
+        dts({
+            bundleTypes: true,
+        }),
         viteStaticCopy({
             targets: [
                 {
@@ -52,13 +56,10 @@ const config: UserConfig = {
                 {
                     src: normalizePath(`${__dirname}/src/fonts/*`),
                     dest: './fonts/',
-                    overwrite: false,
                 },
             ],
-        }),
-        dts({
-            bundleTypes: true,
-            exclude: ['./dist/fonts'],
+            // can create some race-conditioned error with the fonts folder if left to the default "writeBundle" hook.
+            hook: 'closeBundle',
         }),
     ],
 }

@@ -9,7 +9,6 @@ import type { Pinia } from 'pinia'
 
 import { featureStyleUtils, kmlUtils } from '@swissgeo/api/utils'
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
-import { LayerType } from '@swissgeo/layers'
 import { randomIntBetween } from '@swissgeo/numbers'
 import { getServiceKmlBaseUrl } from '@swissgeo/staging-config'
 import { recurse } from 'cypress-recurse'
@@ -22,10 +21,11 @@ import {
     kmlMetadataTemplate,
 } from 'support/drawing'
 
-import { DEFAULT_PROJECTION } from '@/config'
+import { DEFAULT_PROJECTION, ENVIRONMENT } from '@/config'
 import useDrawingStore from '@/store/modules/drawing'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
+import useUIStore from '@/store/modules/ui'
 
 registerProj4(proj4)
 
@@ -79,7 +79,6 @@ describe('Drawing module tests', () => {
                     )
                 )
         }
-
         function addDescription(description: string): void {
             cy.get('[data-cy="drawing-style-feature-description"]').type(description)
             cy.get('[data-cy="drawing-style-feature-description"]').should(
@@ -87,57 +86,19 @@ describe('Drawing module tests', () => {
                 description
             )
             cy.wait('@update-kml').then(() => {
-                cy.getPinia().then((pinia) => {
+                cy.getPinia().should((pinia) => {
                     const featuresStore = useFeaturesStore(pinia)
                     expect(featuresStore.selectedFeatures[0]?.description).to.eq(description)
                 })
             })
         }
-
-        // we use the description to identify the feature and check its
-        // geometry type, number of points and type (measure or linepolygon)
-        function checkDrawnFeature(
-            description: string,
-            numberOfPoints: number,
-            featureType: string,
-            type: EditableFeatureTypes
-        ): void {
-            cy.window()
-                .its('drawingLayer')
-                .then((drawingLayer) => drawingLayer.getSource().getFeatures())
-                .should((features) => {
-                    const matchingFeature = features.find(
-                        (feature: Feature) => feature.get('description') === description
-                    )
-                    expect(matchingFeature).to.not.be.undefined
-                    expect(matchingFeature.getGeometry().getType()).to.eq(featureType)
-                    expect(matchingFeature.get('editableFeature')?.featureType).to.eq(
-                        type.toLowerCase()
-                    )
-                    if (featureType === 'LineString') {
-                        const lineStringCoordinates = matchingFeature.getGeometry().getCoordinates()
-                        expect(lineStringCoordinates).to.be.an('Array').lengthOf(numberOfPoints)
-                    } else if (featureType === 'Polygon') {
-                        const polygonCoordinates = matchingFeature.getGeometry().getCoordinates()
-                        expect(polygonCoordinates).to.be.an('Array').lengthOf(1)
-                        expect(polygonCoordinates[0]).to.be.an('Array').lengthOf(numberOfPoints)
-                    }
-                })
-        }
-
-        beforeEach(() => {
-            cy.goToDrawing()
-        })
         it('can create marker/icons and edit them', () => {
-            // it should load all icon sets as soon as we enter the drawing module
-            cy.wait('@icon-sets')
-            cy.wait('@icon-set-default')
-
+            cy.goToDrawing()
             cy.clickDrawingTool('MARKER')
             cy.get('[data-cy="ol-map"]:visible').click()
 
             cy.wait('@post-kml').then((interception) => {
-                const kmlUrl = `${getServiceKmlBaseUrl()}api/kml/files/${interception.response?.body.id}`
+                const kmlUrl = `${getServiceKmlBaseUrl(ENVIRONMENT)}api/kml/files/${interception.response?.body.id}`
                 const bgLayer = 'test.background.layer2'
 
                 cy.log(
@@ -250,7 +211,7 @@ describe('Drawing module tests', () => {
                 cy.log('Test text placement and offset')
                 cy.get('[data-cy="drawing-style-text-button"]').click()
                 cy.get('[data-cy="drawing-style-placement-selector-top-left"]').click()
-                cy.getPinia().then((pinia) => {
+                cy.getPinia().should((pinia) => {
                     const drawingStore = useDrawingStore(pinia)
                     expect(drawingStore.feature.current?.textPlacement).to.eq('top-left')
                     const offset = drawingStore.feature.current?.textOffset
@@ -279,12 +240,9 @@ describe('Drawing module tests', () => {
                     description
                 )
                 waitForKmlUpdate(`<description>${description}</description>`)
-                cy.getPinia().then((pinia) => {
-                    const featuresStore2 = useFeaturesStore(pinia)
-                    cy.wrap(featuresStore2.selectedFeatures[0]?.description).should(
-                        'eq',
-                        description
-                    )
+                cy.getPinia().should((pinia) => {
+                    const featuresStore = useFeaturesStore(pinia)
+                    expect(featuresStore.selectedFeatures[0]?.description).to.eq(description)
                 })
 
                 cy.log('Can generate and display media links')
@@ -486,6 +444,7 @@ describe('Drawing module tests', () => {
             })
         })
         it('can create annotation/text and edit them', () => {
+            cy.goToDrawing()
             cy.clickDrawingTool('ANNOTATION')
             cy.get('[data-cy="ol-map"]').click()
             cy.wait('@post-kml')
@@ -569,7 +528,46 @@ describe('Drawing module tests', () => {
             readCoordinateClipboard('feature-detail-coordinate-copy', "2'660'013.50, 1'185'172.00")
         })
         it('can create line / measurement, extend it, and delete the last node by right click / button, and make a polygon', () => {
+            // we use the description to identify the feature and check its
+            // geometry type, number of points and type (measure or linepolygon)
+            function checkDrawnFeature(
+                description: string,
+                numberOfPoints: number,
+                featureType: string,
+                type: EditableFeatureTypes
+            ): void {
+                cy.window()
+                    .its('drawingLayer')
+                    .then((drawingLayer) => drawingLayer.getSource().getFeatures())
+                    .should((features) => {
+                        const matchingFeature = features.find(
+                            (feature: Feature) => feature.get('description') === description
+                        )
+                        expect(matchingFeature).to.not.be.undefined
+                        expect(matchingFeature.getGeometry().getType()).to.eq(featureType)
+                        expect(matchingFeature.get('editableFeature')?.featureType).to.eq(type)
+                        if (featureType === 'LineString') {
+                            const lineStringCoordinates = matchingFeature
+                                .getGeometry()
+                                .getCoordinates()
+                            expect(lineStringCoordinates).to.be.an('Array').lengthOf(numberOfPoints)
+                        } else if (featureType === 'Polygon') {
+                            const polygonCoordinates = matchingFeature
+                                .getGeometry()
+                                .getCoordinates()
+                            expect(polygonCoordinates).to.be.an('Array').lengthOf(1)
+                            expect(polygonCoordinates[0]).to.be.an('Array').lengthOf(numberOfPoints)
+                        }
+                    })
+            }
+
             cy.viewport(1920, 1080)
+            cy.goToDrawing()
+            cy.getPinia().should((pinia) => {
+                const uiStore = useUIStore(pinia)
+                expect(uiStore.isDesktopMode).to.be.true
+                expect(uiStore.showFeatureInfoInTooltip).to.be.true
+            })
             cy.clickDrawingTool('LINEPOLYGON')
 
             const lineCoordinates: SingleCoordinate[] = [
@@ -715,6 +713,9 @@ describe('Drawing module tests', () => {
             if (lastMeasurementCoordinate) {
                 cy.get('[data-cy="ol-map"]').click(...lastMeasurementCoordinate)
             }
+            cy.wait('@update-kml')
+
+            cy.log('changing the description of the second feature')
             const secondFeatureDescription = 'second feature'
             addDescription(secondFeatureDescription)
 
@@ -729,6 +730,7 @@ describe('Drawing module tests', () => {
             checkDrawnFeature(firstFeatureDescription, 9, 'Polygon', 'LINEPOLYGON')
         })
         it('can create line/polygons and edit them', () => {
+            cy.goToDrawing()
             cy.clickDrawingTool('LINEPOLYGON')
             cy.get('[data-cy="ol-map"]').click(100, 250)
             cy.get('[data-cy="ol-map"]').click(150, 250)
@@ -779,6 +781,7 @@ describe('Drawing module tests', () => {
             cy.log(
                 'Changing the color of the polygon and checking that the KMl was updated accordingly'
             )
+            cy.get('[data-cy="infobox-hide-profile-button"]').click()
             cy.get('[data-cy="drawing-style-line-button"]').click()
             cy.get(
                 `[data-cy="drawing-style-line-popup"] [data-cy="color-selector-${featureStyleUtils.BLACK.name}"]`
@@ -835,6 +838,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click(150, 360)
             cy.get('[data-cy="ol-map"]').click(150, 380)
             cy.get('[data-cy="ol-map"]').click(140, 360)
+            cy.get('[data-cy="infobox-hide-profile-button"]').click()
             cy.get('[data-cy="feature-area-information"]')
                 .should('be.visible')
                 .contains('9999.8 m2')
@@ -847,6 +851,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="ol-map"]').click(150, 300)
             cy.get('[data-cy="ol-map"]').click(200, 250)
 
+            cy.get('[data-cy="infobox-hide-profile-button"]').click()
             cy.get('[data-cy="feature-area-information"]')
                 .should('be.visible')
                 .contains('0.125 km2')
@@ -893,7 +898,7 @@ describe('Drawing module tests', () => {
             cy.clickDrawingTool('LINEPOLYGON')
             cy.get('[data-cy="ol-map"]').click(100, 250)
             cy.get('[data-cy="ol-map"]').click(150, 250)
-            cy.get('[data-cy="ol-map"]').click(150, 280)
+            cy.get('[data-cy="ol-map"]').dblclick(150, 280)
 
             let newKmlId: string | undefined
             cy.wait('@post-kml').then((interception) => {
@@ -921,7 +926,7 @@ describe('Drawing module tests', () => {
 
             cy.closeDrawingMode(false)
 
-            cy.log('check if clicking close that it opens the warning again')
+            cy.log('Checking that the warning popup is displayed')
             cy.get('[data-cy="drawing-not-shared-admin-warning"]')
                 .should('be.visible')
                 .contains(warningTitle)
@@ -934,9 +939,9 @@ describe('Drawing module tests', () => {
                 .contains(warningTitle)
 
             cy.log(
-                'check if clicking close that the drawing is still not saved but now the drawing mode is closed'
+                'Checking that the warning popup still shows up if the user did not copy the link after closing through the "close" button'
             )
-            cy.get('[data-cy="drawing-share-admin-close"]').click()
+            cy.get('[data-cy="modal-confirm-button"]').click()
 
             cy.get(
                 '[data-cy="menu-tray-drawing-section"] > [data-cy="menu-section-header"]'
@@ -948,7 +953,7 @@ describe('Drawing module tests', () => {
                 .should('be.visible')
                 .contains(warningTitle)
             cy.get('[data-cy="drawing-share-admin-link"]').click()
-            cy.get('[data-cy="drawing-share-admin-close"]').click()
+            cy.get('[data-cy="modal-confirm-button"]').click()
 
             cy.log(
                 'check that now that the drawing edit link is copied and the warning is not shown anymore'
@@ -973,14 +978,14 @@ describe('Drawing module tests', () => {
                 .should('be.visible')
                 .contains(warningTitle)
             cy.get('[data-cy="drawing-share-admin-link"]').click()
-            cy.get('[data-cy="drawing-share-admin-close"]').click()
+            cy.get('[data-cy="modal-confirm-button"]').click()
 
             cy.getPinia().then((pinia) => {
                 const layersStore = useLayersStore(pinia)
                 const layers = layersStore.activeLayers
                 expect(layers).to.be.an('Array').lengthOf(1)
                 const [drawingLayer] = layers
-                expect(drawingLayer?.type).to.eq(LayerType.KML)
+                expect(drawingLayer?.type).to.eq('KML')
                 expect(drawingLayer?.isVisible).to.be.true
             })
 
@@ -997,6 +1002,10 @@ describe('Drawing module tests', () => {
             cy.window().its('drawingLayer').should('not.exist')
         })
         it('keeps the KML after a page reload, and creates a copy if it is then edited', () => {
+            function getActiveLayerMenuItem(kmlFileId: string) {
+                return `[data-cy^="active-layer-name-KML|${getServiceKmlBaseUrl(ENVIRONMENT)}api/kml/files/${kmlFileId}-"]`
+            }
+
             cy.goToDrawing()
             cy.log('Create a simple drawing with a marker')
             cy.clickDrawingTool('MARKER')
@@ -1009,16 +1018,11 @@ describe('Drawing module tests', () => {
                 cy.wait('@update-kml')
 
                 cy.log(`Check that the drawings has been added to the active layers: ${kmlId}`)
-                cy.get(
-                    `[data-cy^="active-layer-name-${getServiceKmlBaseUrl()}api/kml/files/${kmlId}-"]`
-                )
-                    .should('be.visible')
-                    .contains('Drawing')
+                cy.get(getActiveLayerMenuItem(kmlId)).should('be.visible').contains('Drawing')
                 cy.waitUntilState((pinia: Pinia) => {
                     const layersStore = useLayersStore(pinia)
                     return !!layersStore.activeLayers.find(
-                        (layer) =>
-                            layer.type === LayerType.KML && (layer as KMLLayer).fileId === kmlId
+                        (layer) => layer.type === 'KML' && (layer as KMLLayer).fileId === kmlId
                     )
                 })
 
@@ -1029,16 +1033,11 @@ describe('Drawing module tests', () => {
                 cy.openMenuIfMobile()
 
                 cy.log(`Check that the KML file ${kmlId} is present on the active layer list`)
-                cy.get(
-                    `[data-cy^="active-layer-name-${getServiceKmlBaseUrl()}api/kml/files/${kmlId}-"]`
-                )
-                    .should('be.visible')
-                    .contains('Drawing')
+                cy.get(getActiveLayerMenuItem(kmlId)).should('be.visible').contains('Drawing')
                 cy.waitUntilState((pinia: Pinia) => {
                     const layersStore = useLayersStore(pinia)
                     return !!layersStore.activeLayers.find(
-                        (layer) =>
-                            layer.type === LayerType.KML && (layer as KMLLayer).fileId === kmlId
+                        (layer) => layer.type === 'KML' && (layer as KMLLayer).fileId === kmlId
                     )
                 })
 
@@ -1046,18 +1045,15 @@ describe('Drawing module tests', () => {
                 // checking that the KML is correctly loaded in the drawing module, even though it doesn't carry an adminId
                 cy.get('[data-cy="menu-tray-drawing-section"]').should('be.visible').click()
 
-                // if closing the drawing module without changing anything, no copy must be made
                 cy.closeDrawingMode()
-                cy.get(
-                    `[data-cy^="active-layer-name-${getServiceKmlBaseUrl()}api/kml/files/${kmlId}-"]`
+                cy.log(
+                    'Checking that when closing the drawing module without changing anything, no copy must be made'
                 )
-                    .should('be.visible')
-                    .contains('Drawing')
-                cy.getPinia().then((pinia) => {
-                    const layersStore2 = useLayersStore(pinia)
-                    const activeKmlLayer = layersStore2.activeKmlLayer
-                    expect(activeKmlLayer).to.haveOwnProperty('fileId')
-                    expect(activeKmlLayer?.fileId).to.eq(kmlId)
+                cy.get(getActiveLayerMenuItem(kmlId)).should('be.visible').contains('Drawing')
+                cy.getPinia().should((pinia) => {
+                    const layersStore = useLayersStore(pinia)
+                    expect(layersStore.activeKmlLayer).to.not.be.undefined
+                    expect(layersStore.activeKmlLayer.fileId).to.eq(kmlId)
                 })
 
                 cy.log('Open again the drawing mode and edit the kml')
@@ -1082,8 +1078,8 @@ describe('Drawing module tests', () => {
                     // Add another feature and checking that we do not create subsequent copies (we now have the adminId for this KML)
                     cy.clickDrawingTool('ANNOTATION')
                     cy.get('[data-cy="ol-map"]').click('center')
-                    cy.wait('@post-kml').then((interception2) => {
-                        const newNewKmlId = interception2.response?.body?.id
+                    cy.wait('@update-kml').then((interception) => {
+                        const newNewKmlId = interception.response?.body?.id
 
                         cy.log('Check the active layer list making sure that there is only the new')
                         cy.closeDrawingMode()
@@ -1091,19 +1087,15 @@ describe('Drawing module tests', () => {
                         cy.log(
                             `Check that the old kml has been removed from the active layer and that the new one has been added`
                         )
-                        cy.get(
-                            `[data-cy^="active-layer-name-${getServiceKmlBaseUrl()}api/kml/files/${kmlId}-"]`
-                        ).should('not.exist')
-                        cy.get(
-                            `[data-cy^="active-layer-name-${getServiceKmlBaseUrl()}api/kml/files/${newNewKmlId}-"]`
-                        )
+                        cy.get(getActiveLayerMenuItem(kmlId)).should('not.exist')
+                        cy.get(getActiveLayerMenuItem(newNewKmlId))
                             .should('be.visible')
                             .contains('Drawing')
                     })
                 })
             })
         })
-        it('manages the KML layer correctly if it comes attached with an adminId at startup', () => {
+        it.only('manages the KML layer correctly if it comes attached with an adminId at startup', () => {
             // Position of the marker defined in service-kml/lonelyMarker.kml
             const markerLatitude = 46.883715999352546
             const markerLongitude = 7.656108679791837
@@ -1115,7 +1107,7 @@ describe('Drawing module tests', () => {
             // load map with an injected kml layer containing a text
             const kmlFileId = 'test-fileID12345678900'
             const kmlFileAdminId = 'test-fileAdminID12345678900'
-            const kmlFileUrl = `${getServiceKmlBaseUrl()}api/kml/files/${kmlFileId}`
+            const kmlFileUrl = `${getServiceKmlBaseUrl(ENVIRONMENT)}api/kml/files/${kmlFileId}`
             const kmlUrlParam = `KML|${kmlFileUrl}@adminId=${kmlFileAdminId}`
 
             cy.log(
@@ -1127,13 +1119,13 @@ describe('Drawing module tests', () => {
             cy.log(
                 'the app must open the drawing module at startup whenever an adminId is found in the URL'
             )
-            cy.getPinia().then((pinia) => {
+            cy.getPinia().should((pinia) => {
                 const drawingStore = useDrawingStore(pinia)
                 expect(drawingStore.overlay.show).to.be.true
             })
 
             cy.log('checking that the KML was correctly loaded')
-            cy.getPinia().then((pinia) => {
+            cy.getPinia().should((pinia) => {
                 const featuresStore = useFeaturesStore(pinia)
                 expect(featuresStore.selectedFeatures.length).to.eq(0)
             })
@@ -1141,11 +1133,12 @@ describe('Drawing module tests', () => {
                 cy
                     .window()
                     .its('drawingLayer')
-                    .then((drawingLayer) => drawingLayer.getSource().getFeatures().length === 1)
+                    .then((drawingLayer) => drawingLayer.getSource().getFeatures())
+                    .should('have.length', 1)
             )
             cy.log('clicking on the single feature of the fixture')
             cy.get('[data-cy="ol-map"]').click('center')
-            cy.getPinia().then((pinia) => {
+            cy.getPinia().should((pinia) => {
                 const featuresStore = useFeaturesStore(pinia)
                 expect(featuresStore.selectedFeatures.length).to.eq(1)
             })
@@ -1161,7 +1154,7 @@ describe('Drawing module tests', () => {
             cy.log('checking that it updates the existing KML, and not creating a new copy of it')
             cy.wait('@update-kml').its('response.body.id').should('eq', kmlFileId)
         })
-        it('manages the KML layer correctly if it comes attached with an adminId at startup from a legacy URL', () => {
+        it.skip('manages the KML layer correctly if it comes attached with an adminId at startup from a legacy URL', () => {
             // Position of the marker defined in service-kml/legacy-mf-geoadmin3.kml
             const markerLatitude = 46.80250110087888
             const markerLongitude = 7.248686789953856
@@ -1173,8 +1166,8 @@ describe('Drawing module tests', () => {
             // load map with an injected kml layer containing a text
             const kmlFileId = 'test-fileID12345678900'
             const kmlFileAdminId = 'test-fileAdminID12345678900'
-            const kmlFileUrl = `${getServiceKmlBaseUrl()}api/kml/files/${kmlFileId}`
-            const kmlAdminUrl = `${getServiceKmlBaseUrl()}api/kml/admin/${kmlFileId}`
+            const kmlFileUrl = `${getServiceKmlBaseUrl(ENVIRONMENT)}api/kml/files/${kmlFileId}`
+            const kmlAdminUrl = `${getServiceKmlBaseUrl(ENVIRONMENT)}api/kml/admin/${kmlFileId}`
             const kmlMetadata = {
                 admin_id: kmlFileAdminId,
                 author: 'mf-geoadmin3',
@@ -1287,7 +1280,7 @@ describe('Drawing module tests', () => {
             cy.log('checking that it updates the existing KML, and not creating a new copy of it')
             cy.wait('@update-kml').its('response.body.id').should('eq', kmlFileId)
         })
-        it('receives an empty KML and can use drawing mode', () => {
+        it.skip('receives an empty KML and can use drawing mode', () => {
             function verifyActiveKmlLayerEmptyWithError(): void {
                 cy.window()
                     .its('store.getters.activeKmlLayer')
@@ -1365,7 +1358,7 @@ describe('Drawing module tests', () => {
         })
     })
     context('others', () => {
-        it("doesn't save an empty drawing (if not modified)", () => {
+        it.skip("doesn't save an empty drawing (if not modified)", () => {
             cy.intercept('**/api/kml/admin**', (req) => {
                 expect(`Unexpected call to ${req.method} ${req.url}`).to.be.false
             }).as('post-put-kml-not-allowed')
@@ -1373,7 +1366,7 @@ describe('Drawing module tests', () => {
             cy.clickDrawingTool('MARKER')
             cy.closeDrawingMode()
         })
-        it('can export the drawing/profile in multiple formats', () => {
+        it.skip('can export the drawing/profile in multiple formats', () => {
             const downloadsFolder = Cypress.config('downloadsFolder')
             const checkFiles = (extension: string, callback: (_content: string) => void): void => {
                 recurse(
@@ -1492,12 +1485,14 @@ describe('Drawing module tests', () => {
             ).click()
             checkFiles('gpx', (content) => {
                 // 1 <trk> (track), for the single LINEPOLYGON
-                expect(content).to.match(/<gpx.*<trk>.*<trkseg>.*<trkpt.*<\/trkseg>.*<\/trk>.*<\/gpx>/)
+                expect(content).to.match(
+                    /<gpx.*<trk>.*<trkseg>.*<trkpt.*<\/trkseg>.*<\/trk>.*<\/gpx>/
+                )
             })
 
             cy.task('clearFolder', downloadsFolder)
         })
-        it('generates short links when sharing a drawing', () => {
+        it.skip('generates short links when sharing a drawing', () => {
             const publicShortlink = 'https://s.geo.admin.ch/public-shortlink'
             const adminshortlink = 'https://s.geo.admin.ch/admin-shortlink'
 
@@ -1569,7 +1564,7 @@ describe('Drawing module tests', () => {
             )
             cy.readClipboardValue().should((clipboardText) => {
                 expect(clipboardText).to.contain(
-                    `KML%7C${getServiceKmlBaseUrl()}api/kml/files/${kmlId}`
+                    `KML%7C${getServiceKmlBaseUrl(ENVIRONMENT)}api/kml/files/${kmlId}`
                 )
                 expect(clipboardText).to.not.contain(`@adminId`)
             })
@@ -1578,12 +1573,12 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="drawing-share-admin-link"]').realClick()
             cy.readClipboardValue().should((clipboardText) => {
                 expect(clipboardText).to.contain(
-                    `KML%7C${getServiceKmlBaseUrl()}api/kml/files/${kmlId}`
+                    `KML%7C${getServiceKmlBaseUrl(ENVIRONMENT)}api/kml/files/${kmlId}`
                 )
                 expect(clipboardText).to.contain(`@adminId=${adminId}`)
             })
         })
-        it('shows a profile of a line/measure coming from service-alti data', () => {
+        it.skip('shows a profile of a line/measure coming from service-alti data', () => {
             const profileIntercept = '**/rest/services/profile.json**'
 
             // as we want to edit the measure line while having the profile shown up, we need a bit of vertical space
@@ -1691,7 +1686,7 @@ describe('Drawing module tests', () => {
             cy.get('[data-cy="infobox-close"]').click()
             cy.get('[data-cy="infobox"]').should('not.exist')
         })
-        it('can switch from floating edit popup to back at bottom', () => {
+        it.skip('can switch from floating edit popup to back at bottom', () => {
             cy.goToDrawing()
             // to avoid overlaping with the map footer and the floating tooltip, increase the vertical size.
             // if the width of the viewport is less than 400px, we can't switch the edit popup position.

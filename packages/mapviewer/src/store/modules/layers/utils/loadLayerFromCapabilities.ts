@@ -5,7 +5,7 @@ import type {
     WMSCapabilitiesResponse,
 } from '@swissgeo/layers'
 
-import { CapabilitiesError, LayerType } from '@swissgeo/layers'
+import { CapabilitiesError } from '@swissgeo/layers'
 import { readWmsCapabilities, readWmtsCapabilities } from '@swissgeo/layers/api'
 import { wmsCapabilitiesParser, wmtsCapabilitiesParser } from '@swissgeo/layers/parsers'
 import { timeConfigUtils } from '@swissgeo/layers/utils'
@@ -25,9 +25,7 @@ import usePositionStore from '@/store/modules/position'
  * @param layer
  */
 export function isAnExternalLayerRequiringCapabilitesLoading(layer: Layer): boolean {
-    return (
-        layer.isExternal && layer.isLoading && [LayerType.WMS, LayerType.WMTS].includes(layer.type)
-    )
+    return layer.isExternal && layer.isLoading && ['WMS', 'WMTS'].includes(layer.type)
 }
 
 /**
@@ -50,7 +48,7 @@ export default async function loadLayerFromCapabilities(
     let parsedLayer: ExternalWMSLayer | ExternalWMTSLayer | undefined
 
     try {
-        if (layer.type === LayerType.WMS) {
+        if (layer.type === 'WMS') {
             const capabilities = await readWmsCapabilities(layer.baseUrl, i18nStore.lang)
             parsedLayer = wmsCapabilitiesParser.getExternalLayer(
                 capabilities as unknown as WMSCapabilitiesResponse,

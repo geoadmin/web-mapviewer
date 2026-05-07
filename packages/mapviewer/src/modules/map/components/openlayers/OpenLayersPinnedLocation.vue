@@ -3,7 +3,6 @@ import type { ActionDispatcher } from '@/store/types'
 
 import { useLayerZIndexCalculation } from '@/modules/map/components/common/z-index.composable'
 import OpenLayersMarker from '@/modules/map/components/openlayers/OpenLayersMarker.vue'
-import { OpenLayersMarkerStyles } from '@/modules/map/components/openlayers/utils/markerStyle'
 import useMapStore from '@/store/modules/map'
 
 const mapStore = useMapStore()
@@ -21,7 +20,7 @@ function selectFeatureCallback(): void {
     <OpenLayersMarker
         v-if="mapStore.pinnedLocation"
         :position="mapStore.pinnedLocation"
-        :marker-style="OpenLayersMarkerStyles.Balloon"
+        marker-style="balloon"
         :z-index="zIndexDroppedPin"
         :deselect-after-select="true"
         :select-feature-callback="selectFeatureCallback"
@@ -29,7 +28,7 @@ function selectFeatureCallback(): void {
     <OpenLayersMarker
         v-if="mapStore.previewedPinnedLocation"
         :position="mapStore.previewedPinnedLocation"
-        :marker-style="OpenLayersMarkerStyles.Balloon"
+        marker-style="balloon"
         :z-index="zIndexPreviewPosition"
     />
 </template>

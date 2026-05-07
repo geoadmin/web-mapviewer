@@ -1,6 +1,5 @@
 import type { KMLLayer, Layer } from '@swissgeo/layers'
 
-import { LayerType } from '@swissgeo/layers'
 import { EXTERNAL_PROVIDER_WHITELISTED_URL_REGEXES } from '@swissgeo/staging-config/constants'
 
 import type { LayerActionFilter, LayersStore } from '@/store/modules/layers/types'
@@ -12,7 +11,7 @@ export default function hasDataDisclaimer(
         this.getActiveLayersById(layerId, options).some(
             (layer: Layer) =>
                 (layer && layer.isExternal && !checkLayerUrlWhitelisting(options?.baseUrl)) ||
-                (layer.type === LayerType.KML && !(layer as KMLLayer).adminId)
+                (layer.type === 'KML' && !(layer as KMLLayer).adminId)
         )
 }
 

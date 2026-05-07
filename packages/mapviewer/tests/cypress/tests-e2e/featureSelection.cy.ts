@@ -8,7 +8,7 @@ import proj4 from 'proj4'
 import { addFeatureIdentificationIntercepts } from 'support/intercepts'
 import { assertDefined, checkUrlParams } from 'support/utils'
 
-import type { FeatureInfoPositions } from '@/store/modules/ui/types'
+import type { FeatureInfoPosition } from '@/store/modules/ui/types'
 
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
@@ -56,7 +56,7 @@ describe('Testing the feature selection', () => {
             cy.get('[data-cy="feature-item"]').should('have.length', 10)
         }
 
-        function checkFeatureInfoPosition(expectedPosition: FeatureInfoPositions): void {
+        function checkFeatureInfoPosition(expectedPosition: FeatureInfoPosition): void {
             cy.getPinia().then((pinia) => {
                 const uiStore = useUIStore(pinia)
                 expect(uiStore.featureInfoPosition).to.equal(expectedPosition)

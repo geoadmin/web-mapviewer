@@ -9,7 +9,6 @@ import type { Size } from 'ol/size'
 import type Style from 'ol/style/Style'
 
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
-import { KMLStyle } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import {
     DEFAULT_TITLE_OFFSET,
@@ -595,7 +594,8 @@ function getEditableFeatureFromKmlFeature(
         iconSize,
         textPlacement,
         showDescriptionOnMap,
-    } as EditableFeature
+        isEditable: true,
+    }
 }
 
 /**
@@ -776,7 +776,7 @@ function parseKml(
         featureProjection: projection.epsg,
     })
 
-    if (kmlLayer.style === KMLStyle.GEOADMIN) {
+    if (kmlLayer.style === 'GEOADMIN') {
         features.forEach((olFeature) => {
             const editableFeature = getEditableFeatureFromKmlFeature(
                 olFeature,
@@ -856,7 +856,11 @@ export interface KMZObject {
  * @returns Returns a KMZ unzip object
  */
 async function unzipKmz(kmzContent: ArrayBuffer, kmzFileName: string): Promise<KMZObject> {
-    const kmz: KMZObject = { name: kmzFileName, files: new Map<string, ArrayBuffer>(), kmz: kmzContent }
+    const kmz: KMZObject = {
+        name: kmzFileName,
+        files: new Map<string, ArrayBuffer>(),
+        kmz: kmzContent,
+    }
     const zip = new JSZip()
     try {
         await zip.loadAsync(kmzContent)

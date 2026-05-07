@@ -3,7 +3,7 @@ import type Feature from 'ol/Feature'
 import type { Component, ComponentPublicInstance } from 'vue'
 
 import log, { LogPreDefinedColor } from '@swissgeo/log'
-import { computed, ref, useTemplateRef } from 'vue'
+import { watch, computed, ref, useTemplateRef } from 'vue'
 
 import type {
     DrawingInteractionExposed,
@@ -18,7 +18,6 @@ import DrawingTextInteraction from '@/modules/drawing/components/DrawingTextInte
 import ExtendLineInteraction from '@/modules/drawing/components/ExtendLineInteraction.vue'
 import ExtendMeasureInteraction from '@/modules/drawing/components/ExtendMeasureInteraction.vue'
 import useDrawingStore from '@/store/modules/drawing'
-import { EditMode } from '@/store/modules/drawing/types'
 
 const selectInteraction =
     useTemplateRef<ComponentPublicInstance<SelectInteractionExposed>>('selectInteraction')
@@ -44,7 +43,7 @@ const specializedInteractionComponent = computed<Component | undefined>(() => {
             selectedInteraction = DrawingMeasureInteraction
             break
     }
-    if (drawingStore.edit.mode === EditMode.Extend) {
+    if (drawingStore.edit.mode === 'EXTEND') {
         const isMeasure =
             selectedLineFeature.value?.get('editableFeature')?.featureType === 'MEASURE'
         const isLine =
@@ -63,13 +62,16 @@ const specializedInteractionComponent = computed<Component | undefined>(() => {
             selectedInteraction = undefined
         }
     }
-    // Make sure that the select interaction is disabled when we are in draw / extend mode
-    selectInteraction.value?.setActive(!selectedInteraction)
     return selectedInteraction
 })
 
+watch(specializedInteractionComponent, (newInteractionComponent) => {
+    // Make sure that the select interaction is disabled when we are in draw/extend mode
+    selectInteraction.value?.setActive(!newInteractionComponent)
+})
+
 const specializedProps = computed(() => {
-    if (drawingStore.edit.mode === EditMode.Extend) {
+    if (drawingStore.edit.mode === 'EXTEND') {
         return {
             startingFeature: selectedLineFeature.value,
         }
@@ -83,7 +85,7 @@ function onDrawEnd(feature: Feature | undefined) {
 
 function removeLastPoint() {
     currentInteraction.value?.removeLastPoint()
-    if (drawingStore.edit.mode !== EditMode.Off) {
+    if (drawingStore.edit.mode !== 'OFF') {
         selectInteraction.value?.removeLastPoint()
     }
 }

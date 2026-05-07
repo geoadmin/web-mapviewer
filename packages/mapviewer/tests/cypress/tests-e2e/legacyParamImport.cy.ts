@@ -4,7 +4,6 @@ import type { EditableFeature, LayerFeature } from '@swissgeo/api'
 import type { ExternalWMSLayer, ExternalWMTSLayer, KMLLayer } from '@swissgeo/layers'
 
 import { registerProj4, WGS84 } from '@swissgeo/coordinates'
-import { KMLStyle, LayerType } from '@swissgeo/layers'
 import proj4 from 'proj4'
 import { assertDefined } from 'support/utils'
 
@@ -206,11 +205,11 @@ describe('Test on legacy param import', () => {
                 expect(layersStore.activeLayers).to.be.an('Array').length(1)
                 const [kmlLayer] = layersStore.activeLayers
                 assertDefined(kmlLayer)
-                expect(kmlLayer.type).to.eq(LayerType.KML)
+                expect(kmlLayer.type).to.eq('KML')
                 expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer.opacity).to.eq(0.6)
                 expect(kmlLayer.isVisible).to.be.true
-                expect((kmlLayer as KMLLayer).style).to.eq(KMLStyle.GEOADMIN)
+                expect((kmlLayer as KMLLayer).style).to.eq('geoadmin')
             })
         })
         it('is able to import an external KML from a legacy adminId query param', () => {
@@ -227,7 +226,7 @@ describe('Test on legacy param import', () => {
                 expect(layersStore.activeLayers).to.be.an('Array').length(1)
                 const [kmlLayer] = layersStore.activeLayers
                 assertDefined(kmlLayer)
-                expect(kmlLayer.type).to.eq(LayerType.KML)
+                expect(kmlLayer.type).to.eq('KML')
                 expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer.opacity).to.eq(1)
                 expect(kmlLayer.isVisible).to.be.true
@@ -248,7 +247,7 @@ describe('Test on legacy param import', () => {
                 expect(layersStore.activeLayers).to.be.an('Array').length(1)
                 const [kmlLayer] = layersStore.activeLayers
                 assertDefined(kmlLayer)
-                expect(kmlLayer.type).to.eq(LayerType.KML)
+                expect(kmlLayer.type).to.eq('KML')
                 expect(kmlLayer.baseUrl).to.eq(`${kmlServiceBaseUrl}${kmlServiceFilePath}`)
                 expect(kmlLayer.opacity).to.eq(1)
                 expect(kmlLayer.isVisible).to.be.true

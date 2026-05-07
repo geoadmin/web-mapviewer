@@ -11,7 +11,6 @@ import type Feature from 'ol/Feature'
 import { featuresAPI, searchAPI } from '@swissgeo/api'
 import { gpxUtils, kmlUtils } from '@swissgeo/api/utils'
 import { extentUtils } from '@swissgeo/coordinates'
-import { LayerType } from '@swissgeo/layers'
 import { layerUtils } from '@swissgeo/layers/utils'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
@@ -123,7 +122,7 @@ export default function selectResultEntry(
             // For imported KML and GPX files
             let features: Feature[] = []
 
-            if (featureEntry.layer.type === LayerType.KML) {
+            if (featureEntry.layer.type === 'KML') {
                 const kmlLayer: KMLLayer = featureEntry.layer as KMLLayer
 
                 features = kmlUtils.parseKml(
@@ -132,7 +131,7 @@ export default function selectResultEntry(
                     [],
                     positionStore.resolution
                 )
-            } else if (featureEntry.layer.type === LayerType.GPX) {
+            } else if (featureEntry.layer.type === 'GPX') {
                 const gpxLayer = featureEntry.layer as GPXLayer
 
                 if (gpxLayer.gpxData) {

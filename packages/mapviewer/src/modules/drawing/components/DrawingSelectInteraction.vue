@@ -8,8 +8,6 @@
 import type { EditableFeature } from '@swissgeo/api'
 import type Feature from 'ol/Feature'
 import type Map from 'ol/Map'
-import type { StyleFunction } from 'ol/style/Style'
-import type { ShallowRef } from 'vue'
 
 import { featuresAPI } from '@swissgeo/api'
 import { DRAWING_HIT_TOLERANCE } from '@swissgeo/staging-config/constants'
@@ -36,17 +34,17 @@ const drawingStore = useDrawingStore()
 const featuresStore = useFeaturesStore()
 
 const selectInteraction = new SelectInteraction({
-    style: editingFeatureStyleFunction as StyleFunction,
+    style: editingFeatureStyleFunction,
     toggleCondition: () => false,
-    layers: drawingStore.layer.ol ? [drawingStore.layer.ol] : undefined,
-    // As we've seen with the old viewer, some small features were hard
+    layers: [drawingStore.layer.ol],
+    // As we've seen with the mf-geoadmin3 viewer, some small features were hard
     // to select. We will try to add a bigger hit tolerance to mitigate that.
     hitTolerance: DRAWING_HIT_TOLERANCE,
 })
 const { removeLastPoint } = useModifyInteraction(selectInteraction.getFeatures())
 
 /** OpenLayers feature currently selected */
-const currentlySelectedOlFeature: ShallowRef<Feature | undefined> = shallowRef()
+const currentlySelectedOlFeature = shallowRef<Feature | undefined>()
 
 watch(
     () => drawingStore.feature.current,
@@ -86,9 +84,9 @@ watch(
 )
 
 onMounted(() => {
-    selectInteraction.setActive(true)
-    selectInteraction.on('select', onSelectChange)
     olMap?.addInteraction(selectInteraction)
+    selectInteraction.on('select', onSelectChange)
+    selectInteraction.setActive(true)
 })
 onBeforeUnmount(() => {
     olMap?.removeInteraction(selectInteraction)

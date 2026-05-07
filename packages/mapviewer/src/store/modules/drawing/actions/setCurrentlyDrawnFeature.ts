@@ -5,7 +5,6 @@ import log, { LogPreDefinedColor } from '@swissgeo/log'
 import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
-import { EditMode } from '@/store/modules/drawing/types'
 import debounceSaveDrawing from '@/store/modules/drawing/utils/debounceSaveDrawing'
 import useFeaturesStore from '@/store/modules/features'
 import useProfileStore from '@/store/modules/profile'
@@ -21,7 +20,7 @@ export default function setCurrentlyDrawnFeature(
     const profileStore = useProfileStore()
 
     if (this.feature.current) {
-        this.edit.mode = EditMode.Modify
+        this.edit.mode = 'MODIFY'
         featureStore.setSelectedFeatures([this.feature.current], dispatcher)
         // showing the profile for measure and line/polygon features
         if (
@@ -41,7 +40,7 @@ export default function setCurrentlyDrawnFeature(
             })
         }
     } else {
-        this.edit.mode = EditMode.Off
+        this.edit.mode = 'OFF'
         featureStore.clearAllSelectedFeatures(dispatcher)
     }
 }

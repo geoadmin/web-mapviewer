@@ -1,32 +1,26 @@
 <script setup lang="ts">
 import type { EditableFeature } from '@swissgeo/api'
-import type { KMLLayer } from '@swissgeo/layers'
 import type { LineString } from 'geojson'
 import type Map from 'ol/Map'
 import type { ComponentPublicInstance } from 'vue'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { kmlUtils } from '@swissgeo/api/utils'
-import { LayerType } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { WarningMessage } from '@swissgeo/log/Message'
-import { computed, inject, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, useTemplateRef, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { DrawingInteractionExposed } from '@/modules/drawing/types/interaction'
 import type { ActionDispatcher } from '@/store/types'
 
-import { IS_TESTING_WITH_CYPRESS } from '@/config'
 import AddVertexButtonOverlay from '@/modules/drawing/components/AddVertexButtonOverlay.vue'
 import DrawingInteractions from '@/modules/drawing/components/DrawingInteractions.vue'
 import DrawingToolbox from '@/modules/drawing/components/DrawingToolbox.vue'
 import DrawingTooltip from '@/modules/drawing/components/DrawingTooltip.vue'
-import ShareWarningPopup from '@/modules/drawing/components/ShareWarningPopup.vue'
 import useDrawingStore from '@/store/modules/drawing'
-import { EditMode } from '@/store/modules/drawing/types'
 import addKmlFeaturesToDrawingLayer from '@/store/modules/drawing/utils/addKmlFeaturesToDrawingLayer'
 import useLayersStore from '@/store/modules/layers'
-import ModalWithBackdrop from '@/utils/components/ModalWithBackdrop.vue'
 
 const dispatcher: ActionDispatcher = { name: 'DrawingModule.vue' }
 
@@ -50,13 +44,8 @@ const layersStore = useLayersStore()
 
 const drawingInteractions =
     useTemplateRef<ComponentPublicInstance<DrawingInteractionExposed>>('drawingInteractions')
-const showNotSharedDrawingWarningModal = ref<boolean>(false)
-const drawingHasBeenInitialized = ref<boolean>(false)
 
 const { t } = useI18n()
-
-// Computed from stores
-const availableIconSets = computed(() => drawingStore.iconSets)
 
 const selectedLineFeature = computed<EditableFeature | undefined>(() => {
     if (
@@ -76,110 +65,96 @@ const lineStringGeometry = computed<LineString | undefined>(() => {
     return undefined
 })
 const hasLoaded = computed<boolean>(() => {
-    return drawingStore.layer.config?.isLoading === false && !!drawingStore.layer.config?.kmlData
+    return (
+        !layersStore.activeKmlLayer ||
+        (!layersStore.activeKmlLayer.isLoading && !!layersStore.activeKmlLayer.kmlData)
+    )
 })
 
 // Workaround for legacy drawings and icon set mapping
-watch(availableIconSets, () => {
-    const source = drawingStore.layer.ol?.getSource()
-    if (!source) {
-        return
-    }
-    log.debug({
-        title: 'DrawingModule',
-        titleColor: LogPreDefinedColor.Lime,
-        messages: ['New icon sets available, updating all drawing features', source.getFeatures()],
-    })
-
-    drawingStore.feature.all.forEach((feature) => {
-        if (feature.icon) {
-            const iconArgs = kmlUtils.parseIconUrl(feature.icon.imageURL)
-            const icon = kmlUtils.getIcon(
-                iconArgs,
-                undefined /*iconStyle*/,
-                availableIconSets.value,
-                () => {
-                    // Fallback warning handler (Pinia app store could be used if available)
-                    log.warn(
-                        new WarningMessage('kml_icon_set_not_found', { iconSetName: iconArgs.set })
-                    )
-                }
-            )
-            if (icon) {
-                feature.icon = icon
-            }
+watch(
+    () => drawingStore.iconSets,
+    () => {
+        const source = drawingStore.layer.ol?.getSource()
+        if (!source) {
+            return
         }
-    })
+        log.debug({
+            title: 'DrawingModule',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: [
+                'New icon sets available, updating all drawing features',
+                source.getFeatures(),
+            ],
+        })
+
+        drawingStore.feature.all.forEach((feature) => {
+            if (feature.icon) {
+                const iconArgs = kmlUtils.parseIconUrl(feature.icon.imageURL)
+                const icon = kmlUtils.getIcon(
+                    iconArgs,
+                    undefined /*iconStyle*/,
+                    drawingStore.iconSets,
+                    () => {
+                        // Fallback warning handler (Pinia app store could be used if available)
+                        log.warn(
+                            new WarningMessage('kml_icon_set_not_found', {
+                                iconSetName: iconArgs.set,
+                            })
+                        )
+                    }
+                )
+                if (icon) {
+                    feature.icon = icon
+                }
+            }
+        })
+    }
+)
+watch(hasLoaded, (newState) => {
+    if (newState) {
+        addKmlFeaturesToDrawingLayer(layersStore.activeKmlLayer, {
+            retryOnError: true,
+        })
+    }
 })
 
 onMounted(() => {
-    const kmlLayerWithAdminId: KMLLayer | undefined = layersStore.activeLayers
-        .filter((layer) => layer.type === LayerType.KML)
-        .map((layer) => layer as KMLLayer)
-        .find((kmlLayer) => !!kmlLayer.adminId)
-
-    drawingStore
-        .initiateDrawing(
-            {
-                preExistingDrawing: kmlLayerWithAdminId,
-                // TODO PB-2027: pass the adminId present in the URL at app startup
-            },
-            dispatcher
-        )
-        .then(() => {
-            drawingHasBeenInitialized.value = true
-            if (drawingStore.layer.ol) {
-                olMap.addLayer(drawingStore.layer.ol)
-            } else {
-                log.error({
-                    title: 'DrawingModule',
-                    titleColor: LogPreDefinedColor.Lime,
-                    messages: ['Drawing layer not found/not created'],
-                })
-            }
+    if (drawingStore.layer.ol) {
+        olMap.addLayer(drawingStore.layer.ol)
+    } else {
+        log.error({
+            title: 'DrawingModule',
+            titleColor: LogPreDefinedColor.Lime,
+            messages: ['Drawing layer not found/not created'],
         })
-        .catch((error) => {
-            log.error({
-                title: 'DrawingModule',
-                titleColor: LogPreDefinedColor.Lime,
-                messages: ['Error while initializing drawing', error],
-            })
-        })
+    }
 
     // If a KML was previously created with the drawing module, add it back for further editing
-    if (drawingStore.layer.config) {
+    if (layersStore.activeKmlLayer) {
         if (hasLoaded.value) {
-            addKmlFeaturesToDrawingLayer(drawingStore.layer.config as KMLLayer, {
+            addKmlFeaturesToDrawingLayer(layersStore.activeKmlLayer, {
                 retryOnError: true,
             })
         }
     } else {
         drawingStore.setDrawingName(t('draw_layer_label'), dispatcher)
+        drawingStore.setDrawingHasLoaded(true, dispatcher)
     }
 
     // Listening for "Delete" keystroke and right-click to remove last point
     document.addEventListener('keyup', removeLastPointOnDeleteKeyUp, { passive: true })
     document.addEventListener('contextmenu', removeLastPointOnRightClick, { passive: true })
-    window.addEventListener('beforeunload', beforeUnloadHandler)
 })
 
 onBeforeUnmount(() => {
     document.removeEventListener('contextmenu', removeLastPointOnRightClick)
     document.removeEventListener('keyup', removeLastPointOnDeleteKeyUp)
-    window.removeEventListener('beforeunload', beforeUnloadHandler)
 })
-
-const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
-    // Show alert when trying to close the tab, except during Cypress tests
-    if (!IS_TESTING_WITH_CYPRESS && drawingStore.showNotSharedDrawingWarning) {
-        showNotSharedDrawingWarningModal.value = true
-        event.preventDefault()
-    }
-}
 
 function removeLastPoint() {
     // Only delete the last point when we are drawing a feature (or editing it)
-    if (!!drawingStore.edit.featureType || drawingStore.edit.mode === EditMode.Extend) {
+    if (!!drawingStore.edit.featureType || drawingStore.edit.mode === 'EXTEND') {
         drawingInteractions.value?.removeLastPoint()
     }
 }
@@ -214,7 +189,7 @@ function closeDrawing() {
 </script>
 
 <template>
-    <div v-if="drawingHasBeenInitialized">
+    <div v-if="drawingStore.layer.hasLoaded">
         <DrawingToolbox
             @remove-last-point="removeLastPoint"
             @close-drawing="closeDrawing"
@@ -222,20 +197,9 @@ function closeDrawing() {
         <DrawingTooltip />
         <DrawingInteractions ref="drawingInteractions" />
         <AddVertexButtonOverlay
-            v-if="drawingStore.edit.mode === EditMode.Modify && lineStringGeometry"
+            v-if="drawingStore.edit.mode === 'MODIFY' && lineStringGeometry"
             :coordinates="lineStringGeometry.coordinates"
         />
-        <ModalWithBackdrop
-            v-if="showNotSharedDrawingWarningModal"
-            fluid
-            :title="t('warning')"
-            @close="showNotSharedDrawingWarningModal = false"
-        >
-            <ShareWarningPopup
-                :kml-layer="drawingStore.layer.config as KMLLayer"
-                @accept="showNotSharedDrawingWarningModal = false"
-            />
-        </ModalWithBackdrop>
     </div>
     <div v-else>
         <FontAwesomeIcon

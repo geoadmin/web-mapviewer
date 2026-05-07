@@ -1,6 +1,6 @@
 import type { RouteLocationNormalizedGeneric } from 'vue-router'
 
-import type { FeatureInfoPositions } from '@/store/modules/ui/types'
+import type { FeatureInfoPosition } from '@/store/modules/ui/types'
 
 import useUIStore from '@/store/modules/ui'
 import UrlParamConfig, {
@@ -8,7 +8,7 @@ import UrlParamConfig, {
 } from '@/store/plugins/storeSync/UrlParamConfig.class'
 import { getDefaultValidationResponse } from '@/store/plugins/storeSync/validation'
 
-function parseFeatureInfoPosition(urlParamValue?: string): FeatureInfoPositions | undefined {
+function parseFeatureInfoPosition(urlParamValue?: string): FeatureInfoPosition | undefined {
     if (!urlParamValue) {
         return undefined
     }

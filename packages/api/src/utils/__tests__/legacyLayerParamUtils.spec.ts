@@ -1,6 +1,5 @@
 import type { ExternalWMSLayer, GeoAdminLayer, Layer } from '@swissgeo/layers'
 
-import { LayerType } from '@swissgeo/layers'
 import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
 import { describe, expect, it } from 'vitest'
 
@@ -162,7 +161,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 expect(result).to.be.an('Array').length(1)
                 const [kmlLayer] = result
                 expect(kmlLayer.id).to.eq(`KML|${kmlFileUrl}`)
-                expect(kmlLayer.type).to.eq(LayerType.KML)
+                expect(kmlLayer.type).to.eq('KML')
                 expect(kmlLayer.baseUrl).to.eq(kmlFileUrl)
             })
             it('Handles opacity/visibility correctly with external layers', () => {
@@ -194,7 +193,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 )
                 expect(result).to.be.an('Array').length(1)
                 const [externalWmsLayer] = result
-                expect(externalWmsLayer.type).to.eq(LayerType.WMS)
+                expect(externalWmsLayer.type).to.eq('WMS')
                 expect(externalWmsLayer.opacity).to.eq(0.45)
                 expect((externalWmsLayer as ExternalWMSLayer).wmsVersion).to.eq(wmsVersion)
                 expect(externalWmsLayer.id).to.eq(wmsLayerId)
@@ -216,7 +215,7 @@ describe('Test parsing of legacy URL param into new params', () => {
                 )
                 expect(result).to.be.an('Array').length(1)
                 const [externalWmtsLayer] = result
-                expect(externalWmtsLayer.type).to.eq(LayerType.WMTS)
+                expect(externalWmtsLayer.type).to.eq('WMTS')
                 expect(externalWmtsLayer.opacity).to.eq(0.77)
                 expect(externalWmtsLayer.isVisible).to.be.false
                 expect(externalWmtsLayer.id).to.eq(wmtsLayerId)

@@ -18,7 +18,6 @@ import type { ActionDispatcher } from '@/store/types'
 import { updateStoreFeatureCoordinatesGeometry } from '@/modules/drawing/lib/drawingUtils'
 import { editingVertexStyleFunction } from '@/modules/drawing/lib/style'
 import useDrawingStore from '@/store/modules/drawing'
-import { EditMode } from '@/store/modules/drawing/types'
 
 const dispatcher: ActionDispatcher = { name: 'useModifyInteraction.composable' }
 const cursorGrabbingClass = 'cursor-grabbing'
@@ -68,7 +67,7 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
     watch(
         () => drawingStore.edit.mode,
         (newValue) => {
-            if (newValue === EditMode.Extend && features.getLength() > 0) {
+            if (newValue === 'EXTEND' && features.getLength() > 0) {
                 const selectedFeature = features.item(0)
                 if (selectedFeature && drawingStore.edit.reverseLineStringExtension) {
                     const geom = selectedFeature.getGeometry()
@@ -79,7 +78,7 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
                     }
                 }
                 modifyInteraction.setActive(false)
-            } else if (newValue === EditMode.Modify) {
+            } else if (newValue === 'MODIFY') {
                 modifyInteraction.setActive(true)
             } else {
                 modifyInteraction.setActive(true)
@@ -96,11 +95,7 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
     })
 
     onBeforeUnmount(() => {
-        drawingStore.setEditingMode(
-            EditMode.Off,
-            drawingStore.edit.reverseLineStringExtension,
-            dispatcher
-        )
+        drawingStore.setEditingMode('OFF', drawingStore.edit.reverseLineStringExtension, dispatcher)
 
         olMap.removeInteraction(modifyInteraction)
 
@@ -109,7 +104,7 @@ export default function useModifyInteraction(features: Collection<Feature<Geomet
     })
 
     function removeLastPoint() {
-        if (drawingStore.edit.mode === EditMode.Off) {
+        if (drawingStore.edit.mode === 'OFF') {
             return
         }
 

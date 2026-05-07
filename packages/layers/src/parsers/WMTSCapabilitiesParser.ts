@@ -23,10 +23,10 @@ import type {
     WMTSLegendURL,
     WMTSOnlineResource,
     WMTSTileMatrixSetLink,
+    WMTSEncodingType,
 } from '@/types'
 import type { TileMatrix } from '@/types/layers'
 
-import { LayerType, WMTSEncodingType } from '@/types'
 import layerUtils from '@/utils/layerUtils'
 import timeConfigUtils from '@/utils/timeConfigUtils'
 import { CapabilitiesError } from '@/validation'
@@ -331,7 +331,7 @@ function getLayerAttributes(
         getCapUrl = capabilities.originUrl.toString()
     }
 
-    let getTileEncoding: WMTSEncodingType = WMTSEncodingType.REST
+    let getTileEncoding: WMTSEncodingType = 'REST'
     if (
         capabilities.OperationsMetadata &&
         'GetTile' in capabilities.OperationsMetadata &&
@@ -471,7 +471,7 @@ function getExternalLayer(
     }
 
     return layerUtils.makeExternalWMTSLayer({
-        type: LayerType.WMTS,
+        type: 'WMTS',
         ...attributes,
         opacity,
         isVisible,

@@ -6,7 +6,6 @@ import type {
     Layer,
 } from '@swissgeo/layers'
 
-import { LayerType } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 
 import type { ActionDispatcher } from '@/store/types'
@@ -24,18 +23,20 @@ import loadLayerFromCapabilities, {
  * its state)
  */
 export default function afterAddOperations(layer: Layer, dispatcher: ActionDispatcher) {
-    if (layer.type === LayerType.COG) {
-        loadCOGMetadataAndUpdateLayer(layer as CloudOptimizedGeoTIFFLayer, dispatcher).catch(
-            (error) => {
-                log.error({
-                    title: 'Layers store / afterAddOperations',
-                    titleColor: LogPreDefinedColor.Green,
-                    messages: ['Error while loading metadata for a COG layer', layer, error],
-                })
-            }
-        )
-    } else if (layer.type === LayerType.GEOJSON) {
+    if (layer.type === 'COG') {
+        layer.loadedPromise = loadCOGMetadataAndUpdateLayer(
+            layer as CloudOptimizedGeoTIFFLayer,
+            dispatcher
+        ).catch((error) => {
+            log.error({
+                title: 'Layers store / afterAddOperations',
+                titleColor: LogPreDefinedColor.Green,
+                messages: ['Error while loading metadata for a COG layer', layer, error],
+            })
+        })
+    } else if (layer.type === 'GEOJSON') {
         const { promise } = loadGeoJsonDataAndStyle(layer as GeoAdminGeoJSONLayer, dispatcher)
+        layer.loadedPromise = promise
         promise.catch((error) => {
             log.error({
                 title: 'Layers store / afterAddOperations',
@@ -43,16 +44,16 @@ export default function afterAddOperations(layer: Layer, dispatcher: ActionDispa
                 messages: ['Error while loading data and style for a GeoJSON layer', layer, error],
             })
         })
-    } else if (layer.type === LayerType.GPX) {
-        loadGpxData(layer as GPXLayer, dispatcher).catch((error) => {
+    } else if (layer.type === 'GPX') {
+        layer.loadedPromise = loadGpxData(layer as GPXLayer, dispatcher).catch((error) => {
             log.error({
                 title: 'Layers store / afterAddOperations',
                 titleColor: LogPreDefinedColor.Green,
                 messages: ['Error while loading data for a GPX layer', layer, error],
             })
         })
-    } else if (layer.type === LayerType.KML) {
-        loadKmlKmzData(layer as KMLLayer, dispatcher).catch((error) => {
+    } else if (layer.type === 'KML') {
+        layer.loadedPromise = loadKmlKmzData(layer as KMLLayer, dispatcher).catch((error) => {
             log.error({
                 title: 'Layers store / afterAddOperations',
                 titleColor: LogPreDefinedColor.Green,
@@ -60,7 +61,7 @@ export default function afterAddOperations(layer: Layer, dispatcher: ActionDispa
             })
         })
     } else if (isAnExternalLayerRequiringCapabilitesLoading(layer)) {
-        loadLayerFromCapabilities(layer, dispatcher).catch((error) => {
+        layer.loadedPromise = loadLayerFromCapabilities(layer, dispatcher).catch((error) => {
             log.error({
                 title: 'Layers store / afterAddOperations',
                 titleColor: LogPreDefinedColor.Green,

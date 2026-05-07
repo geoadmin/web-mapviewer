@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { KMLLayer } from '@swissgeo/layers'
 import type { Map } from 'ol'
 
 import log from '@swissgeo/log'
@@ -9,7 +10,7 @@ import type { ActionDispatcher } from '@/store/types'
 
 import MenuSection from '@/modules/menu/components/menu/MenuSection.vue'
 import useDrawingStore from '@/store/modules/drawing'
-import { OnlineMode } from '@/store/modules/drawing/types'
+import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
 import useUIStore from '@/store/modules/ui'
 
@@ -23,6 +24,7 @@ const emits = defineEmits<{
 const { t } = useI18n()
 
 const drawingStore = useDrawingStore()
+const layersStore = useLayersStore()
 const mapStore = useMapStore()
 const uiStore = useUIStore()
 
@@ -44,17 +46,24 @@ function openDrawingModule() {
 
     // when entering the drawing menu, we need to clear the location popup
     mapStore.clearLocationPopupCoordinates(dispatcher)
-    drawingStore.toggleDrawingOverlay(
-        {
-            title: 'draw_mode_title',
-        },
-        dispatcher
-    )
-    if (drawingStore.onlineMode === OnlineMode.Offline) {
-        drawingStore.setOnlineMode(OnlineMode.OnlineWhileOffline, dispatcher)
-    } else if (drawingStore.onlineMode === OnlineMode.None) {
-        drawingStore.setOnlineMode(OnlineMode.Online, dispatcher)
-    }
+    drawingStore
+        .initiateDrawing(
+            {
+                online: true,
+                preExistingDrawing: layersStore.activeLayers
+                    .filter((layer) => layer.type === 'KML')
+                    .map((layer) => layer as KMLLayer)
+                    .find((kmlLayer) => !kmlLayer.isExternal),
+                title: 'draw_mode_title',
+            },
+            dispatcher
+        )
+        .catch((error) => {
+            log.error({
+                title: 'MenuDrawingSection.vue',
+                messages: ['Failed to initiate drawing', error],
+            })
+        })
 }
 </script>
 

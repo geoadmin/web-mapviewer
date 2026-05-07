@@ -1,6 +1,5 @@
 import type { GeoAdminGeoJSONLayer, Layer } from '@swissgeo/layers'
 
-import { LayerType } from '@swissgeo/layers'
 import { layerUtils, timeConfigUtils } from '@swissgeo/layers/utils'
 
 export default function cloneActiveLayerConfig(
@@ -26,7 +25,7 @@ export default function cloneActiveLayerConfig(
                     )
                 )
             }
-            if (updateDelay && clone.type === LayerType.GEOJSON) {
+            if (updateDelay && clone.type === 'GEOJSON') {
                 ;(clone as GeoAdminGeoJSONLayer).updateDelay = updateDelay
             }
         }

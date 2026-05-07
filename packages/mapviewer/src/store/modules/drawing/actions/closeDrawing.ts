@@ -6,9 +6,7 @@ import type { DrawingStore } from '@/store/modules/drawing/types'
 import type { ActionDispatcher } from '@/store/types'
 
 import { IS_TESTING_WITH_CYPRESS } from '@/config'
-import { OnlineMode } from '@/store/modules/drawing/types'
 import debounceSaveDrawing from '@/store/modules/drawing/utils/debounceSaveDrawing'
-import { isOnlineMode } from '@/store/modules/drawing/utils/isOnlineMode'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 import useUIStore from '@/store/modules/ui'
@@ -16,11 +14,16 @@ import useUIStore from '@/store/modules/ui'
 const LOADING_BAR_REQUESTER = 'closing-drawing'
 
 export default async function closeDrawing(this: DrawingStore, dispatcher: ActionDispatcher) {
+    const isDrawingModified =
+        this.save.state !== 'INITIAL' &&
+        this.save.state !== 'LOADED' &&
+        this.save.state !== 'LOAD_ERROR'
+
     log.debug({
         title: 'Drawing store / closeDrawing',
         titleColor: LogPreDefinedColor.Lime,
         messages: [
-            `Closing drawing menu: isModified=${this.isDrawingModified}, isNew=${this.isDrawingNew}, isEmpty=${this.isDrawingEmpty}`,
+            `Closing drawing menu: isModified=${isDrawingModified}, isNew=${this.isDrawingNew}, isEmpty=${this.isDrawingEmpty}`,
         ],
     })
 
@@ -39,15 +42,15 @@ export default async function closeDrawing(this: DrawingStore, dispatcher: Actio
         }
 
         // Save on close when modified and (not new or not empty)
-        if (this.isDrawingModified && (!this.isDrawingNew || !this.isDrawingEmpty)) {
+        if (isDrawingModified && (!this.isDrawingNew || !this.isDrawingEmpty)) {
             await debounceSaveDrawing({ debounceTime: 0, retryOnError: false })
         }
 
-        if (this.layer.config) {
+        if (layersStore.activeKmlLayer) {
             // flagging the layer as not edited anymore (not displayed on the map by the drawing module anymore)
-            if (isOnlineMode(this.onlineMode)) {
+            if (this.online) {
                 layersStore.updateLayer<KMLLayer>(
-                    this.layer.config as KMLLayer,
+                    layersStore.activeKmlLayer,
                     {
                         isEdited: false,
                     },
@@ -56,25 +59,14 @@ export default async function closeDrawing(this: DrawingStore, dispatcher: Actio
             } else {
                 layersStore.updateSystemLayer<KMLLayer>(
                     {
-                        id: this.layer.config.id,
+                        id: layersStore.activeKmlLayer.id,
                         isEdited: false,
                     },
                     dispatcher
                 )
             }
-
-            delete this.layer.config
         }
 
-        if (this.onlineMode === OnlineMode.Offline) {
-            this.setOnlineMode(OnlineMode.None, dispatcher)
-        } else if (this.onlineMode === OnlineMode.OfflineWhileOnline) {
-            this.setOnlineMode(OnlineMode.Online, dispatcher)
-        } else if (this.onlineMode === OnlineMode.Online) {
-            this.setOnlineMode(OnlineMode.None, dispatcher)
-        } else if (this.onlineMode === OnlineMode.OnlineWhileOffline) {
-            this.setOnlineMode(OnlineMode.Offline, dispatcher)
-        }
         this.overlay.show = false
         this.edit.featureType = undefined
         this.layer.ol?.getSource()?.clear()

@@ -6,7 +6,6 @@ import type { LayerTooltipConfig } from '@swissgeo/staging-config/constants'
 import type { ShallowRef } from 'vue'
 
 import { extentUtils, WEBMERCATOR, WGS84 } from '@swissgeo/coordinates'
-import { LayerType } from '@swissgeo/layers'
 import log, { LogPreDefinedColor } from '@swissgeo/log'
 import { get3dTilesBaseUrl } from '@swissgeo/staging-config'
 import { bbox, centroid } from '@turf/turf'
@@ -40,7 +39,6 @@ import useCesiumStore from '@/store/modules/cesium'
 import useFeaturesStore from '@/store/modules/features'
 import useLayersStore from '@/store/modules/layers'
 import useMapStore from '@/store/modules/map'
-import { ClickType } from '@/store/modules/map/types'
 import usePositionStore from '@/store/modules/position'
 import { identifyGeoJSONFeatureAt } from '@/utils/identifyOnVectorLayer'
 
@@ -60,9 +58,7 @@ const mapStore = useMapStore()
 
 const selectedFeatures = computed(() => featuresStore.selectedFeatures)
 const visiblePrimitiveLayers = computed(() =>
-    layersStore.visibleLayers.filter((l: Layer) =>
-        [LayerType.GEOJSON, LayerType.KML, LayerType.GPX].includes(l.type)
-    )
+    layersStore.visibleLayers.filter((l: Layer) => ['GEOJSON', 'KML', 'GPX'].includes(l.type))
 )
 
 const viewer = inject<ShallowRef<Viewer | undefined>>('viewer')
@@ -184,7 +180,7 @@ function getCoordinateAtScreenCoordinate(x: number, y: number): SingleCoordinate
                 titleColor: LogPreDefinedColor.Orange,
                 messages: ['Using camera fallback for coordinate (test mode)', [x, y]],
             })
-            
+
             // Use camera position as approximate coordinate for tests
             const camera = viewerInstance.camera
             const cartographic = camera.positionCartographic
@@ -199,7 +195,7 @@ function getCoordinateAtScreenCoordinate(x: number, y: number): SingleCoordinate
                 messages: ['no coordinate found at this screen coordinates', [x, y]],
             })
         }
-        
+
         return coordinates
     } catch (error) {
         log.error({
@@ -339,7 +335,7 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
     // if there is a GeoJSON layer currently visible, we will find it and search for features under the mouse cursor
     if (Array.isArray(coordinates) && coordinates.length === 2) {
         visiblePrimitiveLayers.value
-            .filter((layer: Layer) => layer.type === LayerType.GEOJSON)
+            .filter((layer: Layer) => layer.type === 'GEOJSON')
             .forEach((geoJSonLayer: Layer) => {
                 const identified = identifyGeoJSONFeatureAt(
                     geoJSonLayer as GeoAdminGeoJSONLayer,
@@ -354,7 +350,7 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
     }
 
     visiblePrimitiveLayers.value
-        .filter((layer: Layer) => layer.type === LayerType.KML)
+        .filter((layer: Layer) => layer.type === 'KML')
         .forEach((kmlLayer: Layer) => {
             objects
                 .filter((obj) => obj.id?.layerId === kmlLayer.id)
@@ -400,7 +396,7 @@ function onClick(event: ScreenSpaceEventHandler.PositionedEvent): void {
                 coordinate: coordinates,
                 pixelCoordinate: [event.position.x, event.position.y],
                 features: features as SelectableFeature<false>[],
-                clickType: ClickType.LeftSingleClick,
+                clickType: 'LEFT_SINGLE_CLICK',
             },
             dispatcher
         )
@@ -498,7 +494,7 @@ function onContextMenu(event: ScreenSpaceEventHandler.PositionedEvent): void {
             {
                 coordinate: coordinates,
                 pixelCoordinate: [event.position.x, event.position.y],
-                clickType: ClickType.ContextMenu,
+                clickType: 'CONTEXT_MENU',
             },
             dispatcher
         )
