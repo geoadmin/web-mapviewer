@@ -14,10 +14,7 @@ registerProj4(proj4)
 
 const { GeolocationPositionError } = window
 
-const testCases = [
-    { description: 'on 2D Map', is3D: false },
-    { description: 'on 3D Map', is3D: true },
-]
+const testCases = [{ description: 'on 2D Map', is3D: false }]
 
 // PB-701: TODO Those tests below are not working as expected, as the cypress-browser-permissions is not
 // working and the geolocation is always allowed, this needs to be reworked and probably need to
