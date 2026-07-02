@@ -29,9 +29,11 @@ const { sourceId, sourceName, sourceUrl, hasDataDisclaimer, isLast } = definePro
         :id="`source-${sourceId}`"
         :href="sourceUrl"
         :target="sourceUrl ? '_blank' : null"
+        :rel="sourceUrl ? 'noopener noreferrer' : null"
         class="map-footer-attribution-source clear-no-ios-long-press"
         :class="{ 'text-primary': hasDataDisclaimer, 'is-link': sourceUrl || hasDataDisclaimer }"
         :data-cy="`layer-copyright-${sourceName}`"
+        :title="sourceName"
     >
         {{ `${sourceName}${isLast ? '' : ','}` }}
     </component>
