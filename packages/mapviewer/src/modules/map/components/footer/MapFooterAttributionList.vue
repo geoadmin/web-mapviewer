@@ -53,12 +53,8 @@ const isCompact = computed(() => sources.value.length > COMPACT_SOURCE_COUNT)
 const hiddenSourceCount = computed(() =>
     isCompact.value ? sources.value.length - COMPACT_SOURCE_COUNT : 0
 )
-const inlineSources = computed(() =>
-    isCompact.value ? sources.value.slice(0, COMPACT_SOURCE_COUNT) : sources.value
-)
-const expandedSources = computed(() =>
-    isCompact.value ? sources.value.slice(COMPACT_SOURCE_COUNT) : []
-)
+const inlineSources = computed(() => sources.value.slice(0, COMPACT_SOURCE_COUNT))
+const expandedSources = computed(() => sources.value.slice(COMPACT_SOURCE_COUNT))
 const toggleButtonText = computed(() => (isExpanded.value ? '-' : `+${hiddenSourceCount.value}`))
 
 const expandButtonLabel = computed(() => {
@@ -129,8 +125,8 @@ function toggleExpanded() {
         </button>
         <div
             v-if="isCompact"
+            v-show="isExpanded"
             class="map-footer-attribution-expanded-list"
-            :class="{ 'map-footer-attribution-expanded-list-hidden': !isExpanded }"
             data-cy="attribution-expanded-list"
         >
             <div
@@ -224,10 +220,6 @@ function toggleExpanded() {
     box-shadow: 0 2px 6px rgba($black, 0.2);
     text-align: left;
     white-space: normal;
-}
-
-.map-footer-attribution-expanded-list-hidden {
-    display: none;
 }
 
 .map-footer-attribution-expanded-item {
