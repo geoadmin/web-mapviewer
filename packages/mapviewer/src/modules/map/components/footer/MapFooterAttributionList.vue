@@ -81,14 +81,14 @@ function toggleExpanded() {
 <template>
     <div
         v-click-outside="closeExpanded"
-        class="map-footer-attribution"
+        class="map-footer-attribution d-inline-flex align-items-center flex-wrap"
         data-cy="layers-copyrights"
     >
         <span v-if="sources.length > 0">{{ t('copyright_data') }}</span>
         <div
             v-for="(source, index) in inlineSources"
             :key="source.name"
-            class="map-footer-attribution-inline-item"
+            class="d-inline-flex"
         >
             <ThirdPartyDisclaimer
                 v-if="source.hasDataDisclaimer"
@@ -116,7 +116,7 @@ function toggleExpanded() {
         <button
             v-if="isCompact"
             type="button"
-            class="map-footer-attribution-toggle"
+            class="map-footer-attribution-toggle btn btn-light btn-sm ms-1 border px-1 py-0"
             data-cy="attribution-expand-toggle"
             :title="expandButtonLabel"
             @click="toggleExpanded"
@@ -124,15 +124,14 @@ function toggleExpanded() {
             {{ toggleButtonText }}
         </button>
         <div
-            v-if="isCompact"
-            v-show="isExpanded"
-            class="map-footer-attribution-expanded-list"
+            v-if="isCompact && isExpanded"
+            class="map-footer-attribution-expanded-list position-absolute d-flex flex-column end-0 gap-1 overflow-y-auto rounded border bg-white p-2 text-start text-wrap shadow-sm"
             data-cy="attribution-expanded-list"
         >
             <div
                 v-for="(source, index) in expandedSources"
                 :key="source.name"
-                class="map-footer-attribution-expanded-item"
+                class="d-flex lh-base"
             >
                 <ThirdPartyDisclaimer
                     v-if="source.hasDataDisclaimer"
@@ -171,60 +170,18 @@ function toggleExpanded() {
     text-align: center;
     position: relative;
     pointer-events: all;
-    display: inline-flex;
-    flex-wrap: wrap;
-    align-items: center;
     max-width: calc(100vw - 0.5rem);
 }
 
-.map-footer-attribution-inline-item {
-    display: inline-flex;
-    min-width: 0;
-}
-
 .map-footer-attribution-toggle {
-    margin-left: 2px;
-    padding: 0 0.35rem;
-    border: 1px solid rgba($black, 0.25);
-    border-radius: 0.2rem;
-    background: rgba($white, 0.85);
-    color: $black;
-    font: inherit;
+    font-size: inherit;
     line-height: 1.2;
-
-    &:hover {
-        text-decoration: underline;
-    }
-
-    &:focus-visible {
-        outline: 2px solid $primary;
-        outline-offset: 2px;
-    }
 }
 
 .map-footer-attribution-expanded-list {
-    position: absolute;
-    right: 0;
     bottom: calc(100% + 0.25rem);
     z-index: $zindex-desktop-footer-infobox;
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
     max-width: min(24rem, calc(100vw - 1rem));
     max-height: 30vh;
-    padding: 0.4rem 0.6rem;
-    overflow-y: auto;
-    background: rgba($white, 0.97);
-    border: 1px solid rgba($black, 0.15);
-    border-radius: 0.2rem;
-    box-shadow: 0 2px 6px rgba($black, 0.2);
-    text-align: left;
-    white-space: normal;
-}
-
-.map-footer-attribution-expanded-item {
-    display: flex;
-    min-width: 0;
-    line-height: 1.45;
 }
 </style>
