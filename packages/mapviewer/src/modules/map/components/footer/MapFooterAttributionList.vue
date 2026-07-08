@@ -8,7 +8,7 @@ import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 
 const store = useStore()
 const { t } = useI18n()
-const COMPACT_SOURCE_COUNT = 3
+const VISIBLE_SOURCE_COUNT = 4
 const isExpanded = ref(false)
 
 const visibleLayers = computed(() => store.getters.visibleLayers)
@@ -29,6 +29,7 @@ const layers = computed(() => {
 const sources = computed(() => {
     return layers.value
         .flatMap((layer) => {
+            const isLocalFile = store.getters.isLocalFile(layer)
             return (layer.attributions ?? []).map((attribution) => {
                 return {
                     id: attribution.name.replace(/[._]/g, '-'),
@@ -39,7 +40,8 @@ const sources = computed(() => {
                         layer.isExternal,
                         layer.baseUrl
                     ),
-                    isLocalFile: store.getters.isLocalFile(layer),
+                    isLocalFile,
+                    isTruncated: isLocalFile,
                 }
             })
         })
@@ -49,12 +51,15 @@ const sources = computed(() => {
         })
 })
 
-const isCompact = computed(() => sources.value.length > COMPACT_SOURCE_COUNT)
+const primarySources = computed(() => sources.value.filter((source) => !source.isLocalFile))
+const localSources = computed(() => sources.value.filter((source) => source.isLocalFile))
+const orderedSources = computed(() => [...primarySources.value, ...localSources.value])
+const isCompact = computed(() => orderedSources.value.length > VISIBLE_SOURCE_COUNT)
 const hiddenSourceCount = computed(() =>
-    isCompact.value ? sources.value.length - COMPACT_SOURCE_COUNT : 0
+    isCompact.value ? orderedSources.value.length - VISIBLE_SOURCE_COUNT : 0
 )
-const inlineSources = computed(() => sources.value.slice(0, COMPACT_SOURCE_COUNT))
-const expandedSources = computed(() => sources.value.slice(COMPACT_SOURCE_COUNT))
+const inlineSources = computed(() => orderedSources.value.slice(0, VISIBLE_SOURCE_COUNT))
+const expandedSources = computed(() => orderedSources.value.slice(VISIBLE_SOURCE_COUNT))
 const toggleButtonText = computed(() => (isExpanded.value ? '-' : `+${hiddenSourceCount.value}`))
 
 const expandButtonLabel = computed(() => {
@@ -102,6 +107,7 @@ function toggleExpanded() {
                     :source-url="source.url"
                     :has-data-disclaimer="true"
                     :is-last="!isCompact && index === inlineSources.length - 1"
+                    :is-truncated="source.isTruncated"
                 />
             </ThirdPartyDisclaimer>
             <MapFooterAttributionItem
@@ -111,6 +117,7 @@ function toggleExpanded() {
                 :source-url="source.url"
                 :has-data-disclaimer="false"
                 :is-last="!isCompact && index === inlineSources.length - 1"
+                :is-truncated="source.isTruncated"
             />
         </div>
         <button
@@ -145,6 +152,7 @@ function toggleExpanded() {
                         :source-url="source.url"
                         :has-data-disclaimer="true"
                         :is-last="true"
+                        :is-truncated="source.isTruncated"
                     />
                 </ThirdPartyDisclaimer>
                 <MapFooterAttributionItem
@@ -154,6 +162,7 @@ function toggleExpanded() {
                     :source-url="source.url"
                     :has-data-disclaimer="false"
                     :is-last="true"
+                    :is-truncated="source.isTruncated"
                 />
             </div>
         </div>
