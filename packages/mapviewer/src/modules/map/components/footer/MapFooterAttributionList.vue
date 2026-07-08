@@ -8,7 +8,6 @@ import ThirdPartyDisclaimer from '@/utils/components/ThirdPartyDisclaimer.vue'
 
 const store = useStore()
 const { t } = useI18n()
-const VISIBLE_SOURCE_COUNT = 4
 const isExpanded = ref(false)
 
 const visibleLayers = computed(() => store.getters.visibleLayers)
@@ -51,15 +50,19 @@ const sources = computed(() => {
         })
 })
 
+const VISIBLE_SOURCE_COUNT = 4
 const primarySources = computed(() => sources.value.filter((source) => !source.isLocalFile))
 const localSources = computed(() => sources.value.filter((source) => source.isLocalFile))
-const orderedSources = computed(() => [...primarySources.value, ...localSources.value])
-const isCompact = computed(() => orderedSources.value.length > VISIBLE_SOURCE_COUNT)
-const hiddenSourceCount = computed(() =>
-    isCompact.value ? orderedSources.value.length - VISIBLE_SOURCE_COUNT : 0
+const visibleLocalSourceCount = computed(() =>
+    Math.max(VISIBLE_SOURCE_COUNT - primarySources.value.length, 0)
 )
-const inlineSources = computed(() => orderedSources.value.slice(0, VISIBLE_SOURCE_COUNT))
-const expandedSources = computed(() => orderedSources.value.slice(VISIBLE_SOURCE_COUNT))
+const inlineSources = computed(() => [
+    ...primarySources.value,
+    ...localSources.value.slice(0, visibleLocalSourceCount.value),
+])
+const expandedSources = computed(() => localSources.value.slice(visibleLocalSourceCount.value))
+const hiddenSourceCount = computed(() => expandedSources.value.length)
+const isCompact = computed(() => hiddenSourceCount.value > 0)
 const toggleButtonText = computed(() => (isExpanded.value ? '-' : `+${hiddenSourceCount.value}`))
 
 const expandButtonLabel = computed(() => {
