@@ -57,6 +57,9 @@ catalogs:
     '@mapbox/togeojson':
       specifier: ^0.16.2
       version: 0.16.2
+    '@mapbox/vector-tile':
+      specifier: ^2.0.4
+      version: 2.0.4
     '@nuintun/qrcode':
       specifier: ^5.0.3
       version: 5.0.3
@@ -237,6 +240,9 @@ catalogs:
     pako:
       specifier: ^2.1.0
       version: 2.1.0
+    pbf:
+      specifier: ^4.0.1
+      version: 4.0.1
     postcss-html:
       specifier: ^1.8.1
       version: 1.8.1
@@ -728,6 +734,9 @@ importers:
       '@mapbox/togeojson':
         specifier: 'catalog:'
         version: 0.16.2
+      '@mapbox/vector-tile':
+        specifier: 'catalog:'
+        version: 2.0.4
       '@popperjs/core':
         specifier: 'catalog:'
         version: 2.11.8
@@ -788,6 +797,9 @@ importers:
       pako:
         specifier: 'catalog:'
         version: 2.1.0
+      pbf:
+        specifier: 'catalog:'
+        version: 4.0.1
       print-js:
         specifier: 'catalog:'
         version: 1.6.0
