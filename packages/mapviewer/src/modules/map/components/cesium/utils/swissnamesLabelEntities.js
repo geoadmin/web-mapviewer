@@ -3,6 +3,7 @@ import {
     Cartesian3,
     Cartographic,
     Color,
+    DistanceDisplayCondition,
     HorizontalOrigin,
     LabelStyle,
     sampleTerrainMostDetailed,
@@ -13,17 +14,39 @@ const LABEL_HEIGHT_OFFSET = 2
 const STEM_OUTLINE_WIDTH = 1
 const LABEL_FONT_FAMILY = 'Arial, sans-serif'
 const STEM_FONT_FAMILY = 'monospace'
-const LABEL_BACKGROUND_COLOR = Color.fromCssColorString('#30343a').withAlpha(0.72)
+const LABEL_BACKGROUND_COLOR = Color.fromCssColorString('#22262b').withAlpha(0.88)
 const LABEL_BACKGROUND_PADDING = new Cartesian2(5, 2)
+const LAKE_LABEL_COLOR = Color.fromCssColorString('#54aaff')
+const PEAK_LABEL_COLOR = Color.fromCssColorString('#ff7a4d')
+
+// A label stays visible while the camera is within its layer's altitude band, so the same
+// dataset thinning that gates tile fetching also gates label display distance. Regular
+// layers are additionally capped so oblique views do not stack town/village names into a
+// dense band along the horizon; only landmark tiers (country/canton-sized altitude bands)
+// may render that far out.
+const LANDMARK_ALTITUDE_BAND = 1000000
+const LANDMARK_LABEL_DISPLAY_DISTANCE = 500000
+const REGULAR_LABEL_DISPLAY_DISTANCE = 25000
 
 function getLabelColor(type) {
     if (type === 'SEE') {
-        return Color.fromCssColorString('#2385e0')
+        return LAKE_LABEL_COLOR
     }
     if (type === 'GIPFEL') {
-        return Color.fromCssColorString('#ec4c1b')
+        return PEAK_LABEL_COLOR
     }
     return Color.WHITE
+}
+
+export function getSwissnamesLabelDistanceStyle(layer) {
+    const altitudeBand = layer.maxAlt ?? LANDMARK_ALTITUDE_BAND
+    const maxDistance =
+        altitudeBand >= LANDMARK_ALTITUDE_BAND
+            ? LANDMARK_LABEL_DISPLAY_DISTANCE
+            : Math.min(altitudeBand, REGULAR_LABEL_DISPLAY_DISTANCE)
+    return {
+        distanceDisplayCondition: new DistanceDisplayCondition(0, maxDistance),
+    }
 }
 
 function getLabelGraphics({
@@ -31,6 +54,7 @@ function getLabelGraphics({
     fontSize,
     fontFamily,
     color,
+    distanceStyle,
     outlineColor = Color.WHITE,
     outlineWidth = 0,
     showBackground = false,
@@ -50,6 +74,7 @@ function getLabelGraphics({
         verticalOrigin,
         horizontalOrigin: HorizontalOrigin.CENTER,
         disableDepthTestDistance: 0,
+        ...distanceStyle,
         ...(pixelOffset ? { pixelOffset } : {}),
     }
 }
@@ -61,10 +86,11 @@ function addLabelEntity(entities, position, labelOptions) {
     })
 }
 
-function addLabel(entities, position, text, fontSize, color) {
+function addLabel(entities, position, text, fontSize, color, distanceStyle) {
     const baseLabelOptions = {
         color,
         fontSize,
+        distanceStyle,
     }
     return [
         addLabelEntity(entities, position, {
@@ -105,6 +131,7 @@ export async function getSwissnamesTerrainPositions(viewer, features) {
 
 export function addSwissnamesFeatureLabels(entities, features, positions, layer) {
     const labels = []
+    const distanceStyle = getSwissnamesLabelDistanceStyle(layer)
     entities.suspendEvents()
     try {
         features.forEach((feature, index) => {
@@ -116,7 +143,8 @@ export function addSwissnamesFeatureLabels(entities, features, positions, layer)
                         position,
                         feature.text,
                         layer.fontSize,
-                        getLabelColor(feature.type)
+                        getLabelColor(feature.type),
+                        distanceStyle
                     )
                 )
             }
