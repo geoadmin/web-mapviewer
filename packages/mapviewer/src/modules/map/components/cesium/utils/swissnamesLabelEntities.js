@@ -14,10 +14,10 @@ const LABEL_HEIGHT_OFFSET = 2
 const STEM_OUTLINE_WIDTH = 1
 const LABEL_FONT_FAMILY = 'Arial, sans-serif'
 const STEM_FONT_FAMILY = 'monospace'
-const LABEL_BACKGROUND_COLOR = Color.fromCssColorString('#22262b').withAlpha(0.88)
+const LABEL_BACKGROUND_COLOR = Color.fromCssColorString('#15191e').withAlpha(0.94)
 const LABEL_BACKGROUND_PADDING = new Cartesian2(5, 2)
-const LAKE_LABEL_COLOR = Color.fromCssColorString('#54aaff')
-const PEAK_LABEL_COLOR = Color.fromCssColorString('#ff7a4d')
+const LAKE_LABEL_COLOR = Color.fromCssColorString('#b8e1ff')
+const PEAK_LABEL_COLOR = Color.fromCssColorString('#ffc2a8')
 
 // A label stays visible while the camera is within its layer's altitude band, so the same
 // dataset thinning that gates tile fetching also gates label display distance. Regular
