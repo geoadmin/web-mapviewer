@@ -1,5 +1,5 @@
 <script setup>
-const { sourceId, sourceName, sourceUrl, hasDataDisclaimer, isLast } = defineProps({
+const { sourceId, sourceName, sourceUrl, hasDataDisclaimer, isLast, isTruncated } = defineProps({
     sourceId: {
         type: String,
         required: true,
@@ -20,6 +20,10 @@ const { sourceId, sourceName, sourceUrl, hasDataDisclaimer, isLast } = definePro
         type: Boolean,
         default: false,
     },
+    isTruncated: {
+        type: Boolean,
+        default: false,
+    },
 })
 </script>
 
@@ -29,9 +33,15 @@ const { sourceId, sourceName, sourceUrl, hasDataDisclaimer, isLast } = definePro
         :id="`source-${sourceId}`"
         :href="sourceUrl"
         :target="sourceUrl ? '_blank' : null"
+        :rel="sourceUrl ? 'noopener noreferrer' : null"
         class="map-footer-attribution-source clear-no-ios-long-press"
-        :class="{ 'text-primary': hasDataDisclaimer, 'is-link': sourceUrl || hasDataDisclaimer }"
+        :class="{
+            'text-primary': hasDataDisclaimer,
+            'is-link': sourceUrl || hasDataDisclaimer,
+            'is-truncated': isTruncated,
+        }"
         :data-cy="`layer-copyright-${sourceName}`"
+        :title="sourceName"
     >
         {{ `${sourceName}${isLast ? '' : ','}` }}
     </component>
@@ -43,6 +53,15 @@ const { sourceId, sourceName, sourceUrl, hasDataDisclaimer, isLast } = definePro
 .map-footer-attribution-source {
     margin-left: 2px;
     color: $black;
+
+    &.is-truncated {
+        display: inline-block;
+        max-width: min(16rem, 28vw);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        vertical-align: bottom;
+        white-space: nowrap;
+    }
 
     &.is-link {
         text-decoration: none;
