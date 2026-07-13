@@ -109,7 +109,7 @@ function toggleExpanded() {
                     :source-name="source.name"
                     :source-url="source.url"
                     :has-data-disclaimer="true"
-                    :is-last="!isCompact && index === inlineSources.length - 1"
+                    :is-last="index === inlineSources.length - 1"
                     :is-truncated="source.isTruncated"
                 />
             </ThirdPartyDisclaimer>
@@ -119,7 +119,7 @@ function toggleExpanded() {
                 :source-name="source.name"
                 :source-url="source.url"
                 :has-data-disclaimer="false"
-                :is-last="!isCompact && index === inlineSources.length - 1"
+                :is-last="index === inlineSources.length - 1"
                 :is-truncated="source.isTruncated"
             />
         </div>
