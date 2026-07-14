@@ -2,16 +2,13 @@ import log from '@geoadmin/log'
 import { CustomDataSource } from 'cesium'
 import { onBeforeUnmount, onMounted } from 'vue'
 
+import { createSwissnamesLabelDataAdapter } from '@/api/swissnames.api'
 import {
     getSwissnamesCameraRectangle,
     getSwissnamesEffectiveCameraAltitude,
     getVisibleSwissnamesTileEntries,
 } from '@/modules/map/components/cesium/utils/swissnamesCamera'
-import {
-    buildSwissnamesConfigUrl,
-    isSwissnamesLayerVisibleAtAltitude,
-    normalizeSwissnamesConfig,
-} from '@/modules/map/components/cesium/utils/swissnamesLabels'
+import { isSwissnamesLayerVisibleAtAltitude } from '@/modules/map/components/cesium/utils/swissnamesLabels'
 import { createSwissnamesTileLoader } from '@/modules/map/components/cesium/utils/swissnamesTileLoader'
 
 export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
@@ -20,14 +17,6 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
     let labelsConfig = null
     let hasCameraListener = false
     let isDestroyed = false
-
-    function getConfigUrl() {
-        return buildSwissnamesConfigUrl(layerConfig.baseUrl, layerConfig.id)
-    }
-
-    function getConfigBaseUrl() {
-        return getConfigUrl().replace(/\/mbtiles-layers\.json$/, '')
-    }
 
     function canUseViewer(targetViewer = viewer) {
         return Boolean(targetViewer && !targetViewer.isDestroyed())
@@ -51,9 +40,10 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
         }
     }
 
+    const dataAdapter = createSwissnamesLabelDataAdapter(layerConfig.baseUrl, layerConfig.id)
     const tileLoader = createSwissnamesTileLoader({
         canRenderLabels,
-        getConfigBaseUrl,
+        getConfigBaseUrl: () => dataAdapter.configBaseUrl,
         getEntities: () => dataSource?.entities ?? null,
         getLabelsConfig: () => labelsConfig,
         getViewer: () => viewer,
@@ -81,14 +71,6 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
         requestRender()
     }
 
-    async function loadConfig() {
-        const response = await fetch(getConfigUrl())
-        if (!response.ok) {
-            throw new Error(`Swissnames labels config returned HTTP ${response.status}`)
-        }
-        labelsConfig = normalizeSwissnamesConfig(await response.json())
-    }
-
     onMounted(async () => {
         const mountedViewer = typeof getViewer === 'function' ? getViewer() : null
         viewer = mountedViewer
@@ -102,7 +84,7 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
                 removeDataSource(mountedViewer)
                 return
             }
-            await loadConfig()
+            labelsConfig = await dataAdapter.loadConfig()
             if (isDestroyed) {
                 removeDataSource(mountedViewer)
                 return

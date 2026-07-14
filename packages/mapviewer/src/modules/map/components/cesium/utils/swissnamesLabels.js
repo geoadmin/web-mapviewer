@@ -9,8 +9,6 @@ import {
 } from 'cesium'
 import Pbf from 'pbf'
 
-const DEFAULT_FONT_SIZE = 13
-const DEFAULT_MIN_ALT = 0
 const MAX_VISIBLE_TILE_COUNT = 50000
 const WEB_MERCATOR_TILING_SCHEME = new WebMercatorTilingScheme()
 const WEB_MERCATOR_PROJECTION = WEB_MERCATOR_TILING_SCHEME.projection
@@ -45,13 +43,6 @@ function assertPositiveNumber(value, fieldName) {
     }
 }
 
-function assertZoom(zoom) {
-    assertFiniteNumber(zoom, 'zoom')
-    if (!Number.isInteger(zoom) || zoom < 0) {
-        throw new TypeError('Invalid Swissnames label zoom')
-    }
-}
-
 function assertFiniteFields(value, fieldName, fields) {
     if (!value) {
         throw new TypeError(`Invalid Swissnames label ${fieldName}`)
@@ -59,14 +50,6 @@ function assertFiniteFields(value, fieldName, fields) {
     for (const field of fields) {
         assertFiniteNumber(value[field], `${fieldName}.${field}`)
     }
-}
-
-function normalizeOptionalNumber(value, defaultValue, fieldName) {
-    if (value === null || value === undefined) {
-        return defaultValue
-    }
-    assertFiniteNumber(value, fieldName)
-    return value
 }
 
 function clampLatitude(latitude) {
@@ -107,43 +90,8 @@ function firstNonEmptyValue(...values) {
     return values.find((value) => value !== null && value !== undefined && value !== '') ?? ''
 }
 
-/**
- * Builds the Swissnames MBTiles config URL for a GeoAdmin 3D layer.
- *
- * @param {string} baseUrl 3D tiles base URL for the current environment
- * @param {string} layerId Swissnames 3D layer id
- * @returns {string}
- */
-export function buildSwissnamesConfigUrl(baseUrl, layerId) {
-    return joinUrlParts(baseUrl, layerId, 'v1', 'mbtiles-layers.json')
-}
-
 export function buildSwissnamesTileUrl(configBaseUrl, s3BaseUrl, layerFile, tile) {
     return `${joinUrlParts(configBaseUrl, s3BaseUrl, layerFile, tile.z, tile.x, tile.y)}.pbf`
-}
-
-export function normalizeSwissnamesConfig(config) {
-    if (!config || !Array.isArray(config.layers)) {
-        throw new TypeError('Invalid Swissnames labels config')
-    }
-    return {
-        version: config.version,
-        s3BaseUrl: config.s3BaseUrl ?? '',
-        layers: config.layers.map((layer) => normalizeSwissnamesLayer(layer)),
-    }
-}
-
-export function normalizeSwissnamesLayer(layer) {
-    if (!layer?.file) {
-        throw new TypeError('Invalid Swissnames label layer file')
-    }
-    assertZoom(layer.zoom)
-    return {
-        ...layer,
-        fontSize: normalizeOptionalNumber(layer.fontSize, DEFAULT_FONT_SIZE, 'fontSize'),
-        maxAlt: normalizeOptionalNumber(layer.maxAlt, Infinity, 'maxAlt'),
-        minAlt: normalizeOptionalNumber(layer.minAlt, DEFAULT_MIN_ALT, 'minAlt'),
-    }
 }
 
 export function isSwissnamesLayerVisibleAtAltitude(layer, altitude) {

@@ -2,7 +2,6 @@ import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
 import {
-    buildSwissnamesConfigUrl,
     buildSwissnamesTileKey,
     buildSwissnamesTileUrl,
     extractSwissnamesFeatureProperties,
@@ -10,17 +9,10 @@ import {
     getVisibleSwissnamesTiles,
     isSwissnamesLayerVisibleAtAltitude,
     mvtPointToWgs84,
-    normalizeSwissnamesConfig,
 } from '@/modules/map/components/cesium/utils/swissnamesLabels'
 
 describe('Swissnames labels helpers', () => {
-    it('builds config and tile URLs without duplicating slashes', () => {
-        expect(
-            buildSwissnamesConfigUrl(
-                'https://sys-3d.dev.bgdi.ch/',
-                '/ch.swisstopo.swissnames3d.3d/'
-            )
-        ).to.equal('https://sys-3d.dev.bgdi.ch/ch.swisstopo.swissnames3d.3d/v1/mbtiles-layers.json')
+    it('builds tile URLs without duplicating slashes', () => {
         expect(
             buildSwissnamesTileUrl(
                 'https://sys-3d.dev.bgdi.ch/ch.swisstopo.swissnames3d.3d/v1/',
@@ -31,37 +23,6 @@ describe('Swissnames labels helpers', () => {
         ).to.equal(
             'https://sys-3d.dev.bgdi.ch/ch.swisstopo.swissnames3d.3d/v1/20260320/zoomlevel4/11/1071/724.pbf'
         )
-    })
-
-    it('normalizes config layers and preserves altitude bands', () => {
-        const normalized = normalizeSwissnamesConfig({
-            version: '1.0',
-            s3BaseUrl: '/20260320',
-            layers: [
-                { file: 'zoomlevel0', zoom: 9, minAlt: 100, maxAlt: null },
-                { file: 'zoomlevel1', zoom: 10 },
-            ],
-        })
-
-        expect(normalized.version).to.equal('1.0')
-        expect(normalized.s3BaseUrl).to.equal('/20260320')
-        expect(normalized.layers[0].maxAlt).to.equal(Infinity)
-        expect(normalized.layers[0].minAlt).to.equal(100)
-        expect(normalized.layers[0].fontSize).to.equal(13)
-        expect(normalized.layers[1].minAlt).to.equal(0)
-    })
-
-    it('rejects invalid layer numbers', () => {
-        expect(() =>
-            normalizeSwissnamesConfig({
-                layers: [{ file: 'zoomlevel0', zoom: 9.5 }],
-            })
-        ).to.throw(TypeError, 'Invalid Swissnames label zoom')
-        expect(() =>
-            normalizeSwissnamesConfig({
-                layers: [{ file: 'zoomlevel0', zoom: 9, minAlt: Number.NaN }],
-            })
-        ).to.throw(TypeError, 'Invalid Swissnames label minAlt')
     })
 
     it('selects layers by min and max altitude', () => {
