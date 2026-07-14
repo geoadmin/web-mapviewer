@@ -83,7 +83,9 @@ async function loadFile() {
         await handleFileSource(fileUrl.value, false)
         if (!fileUrl.value.match(/^https:\/\//)) {
             store.dispatch('addWarnings', {
-                warnings: [new WarningMessage('import_http_external_file_warning', {})],
+                warnings: [
+                    new WarningMessage({ msg: 'import_http_external_file_warning', params: {} }),
+                ],
                 dispatcher: 'Import File Online Tab',
             })
         }

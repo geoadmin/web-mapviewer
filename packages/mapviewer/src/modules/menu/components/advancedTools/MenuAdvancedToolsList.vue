@@ -45,7 +45,7 @@ function onToggleCompareSlider() {
 
     if (hasNoVisibleLayer.value) {
         store.dispatch('addWarnings', {
-            warnings: [new WarningMessage('no_layers_info_compare')],
+            warnings: [new WarningMessage({ msg: 'no_layers_info_compare' })],
             ...dispatcher,
         })
     }

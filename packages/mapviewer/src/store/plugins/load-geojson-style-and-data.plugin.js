@@ -92,7 +92,7 @@ function loadDataAndStyle(geoJsonLayer) {
                 )
                 const clone = geoJsonLayer.clone()
                 clone.isLoading = false
-                clone.addErrorMessage(new ErrorMessage('loading_error_network_failure'))
+                clone.addErrorMessage(new ErrorMessage({ msg: 'loading_error_network_failure' }))
                 return clone
             }),
     }

@@ -34,6 +34,12 @@ async function loadMetadata(store, kmlLayer) {
             },
             ...dispatcher,
         })
+        if (kmlLayer.adminId) {
+            store.dispatch('setShowDrawingOverlay', {
+                show: true,
+                ...dispatcher,
+            })
+        }
     } catch (error) {
         log.error(`Error while fetching KML metadata for layer ${kmlLayer?.id}`, error)
     }
@@ -95,15 +101,20 @@ async function loadData(store, kmlLayer) {
     }
     if (!mimeType && !loadedContent) {
         log.error('[load-kml-kmz-data] could not get content for KML', kmlLayer.kmlFileUrl)
+        const errorMessage = new ErrorMessage({
+            msg: kmlLayer.isExternal
+                ? 'loading_error_network_failure'
+                : 'loading_error_file_deleted',
+            sourceId: kmlLayer.id,
+        })
         store.dispatch('addLayerError', {
             layerId: kmlLayer.id,
             isExternal: kmlLayer.isExternal,
             baseUrl: kmlLayer.baseUrl,
-            error: new ErrorMessage(
-                kmlLayer.isExternal ? 'loading_error_network_failure' : 'loading_error_file_deleted'
-            ),
+            error: errorMessage,
             ...dispatcher,
         })
+        store.dispatch('addErrors', { errors: [errorMessage] }, dispatcher)
         // stopping there, there won't be anything to do with this file
         return
     }
@@ -142,13 +153,15 @@ async function loadData(store, kmlLayer) {
         log.error(
             `[load-kml-kmz-data] Error while fetching KML data for layer ${kmlLayer?.id}: ${error}`
         )
+        const errorMessage = generateErrorMessageFromErrorType(error, kmlLayer)
         store.dispatch('addLayerError', {
             layerId: kmlLayer.id,
             isExternal: kmlLayer.isExternal,
             baseUrl: kmlLayer.baseUrl,
-            error: generateErrorMessageFromErrorType(error),
+            error: errorMessage,
             ...dispatcher,
         })
+        store.dispatch('addErrors', { errors: [errorMessage], dispatcher })
     }
 }
 
