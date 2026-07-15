@@ -15,7 +15,7 @@ async function flushPromises() {
 }
 
 describe('Swissnames tile loader', () => {
-    it('cancels an invisible request without blacklisting a later reload', async () => {
+    it('cancels invisible requests without blocking later loads', async () => {
         const signals = []
         let loadCount = 0
 
@@ -63,5 +63,24 @@ describe('Swissnames tile loader', () => {
         await flushPromises()
         loader.setVisibleEntries([])
         expect(signals[2].aborted).to.equal(true)
+        await flushPromises()
+
+        const pendingEntries = Array.from({ length: 32 }, (_value, index) => ({
+            key: `zoomlevel4/11/${index}/0`,
+            layer: ENTRY.layer,
+            tile: { z: 11, x: index, y: 0 },
+        }))
+        loader.setVisibleEntries(pendingEntries)
+        expect(loadCount).to.equal(35)
+
+        loader.setVisibleEntries([
+            { key: 'zoomlevel4/11/32/0', layer: ENTRY.layer, tile: { z: 11, x: 32, y: 0 } },
+        ])
+        expect(signals.slice(3, 35).every((signal) => signal.aborted)).to.equal(true)
+        expect(loadCount).to.equal(36)
+        expect(signals[35].aborted).to.equal(false)
+
+        loader.clear()
+        await flushPromises()
     })
 })

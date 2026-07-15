@@ -120,6 +120,7 @@ export function createSwissnamesTileLoader({
         for (const [key, abortController] of pendingTileRequests.entries()) {
             if (!isTileVisible(key)) {
                 abortController.abort()
+                pendingTileRequests.delete(key)
             }
         }
 
