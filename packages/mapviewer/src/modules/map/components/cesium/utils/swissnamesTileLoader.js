@@ -22,8 +22,8 @@ export function createSwissnamesTileLoader({
 
     const tileCache = new Map()
     const pendingTileRequests = new Map()
-    const failedTiles = new Set()
-    const loggedFailures = new Set()
+    const suppressedTileKeys = new Set()
+    const retryingTileKeys = new Set()
 
     function isTileVisible(key) {
         return visibleTileKeys.has(key)
@@ -39,22 +39,10 @@ export function createSwissnamesTileLoader({
         }, TILE_RETRY_DELAY)
     }
 
-    function logTileFailureOnce(key, message, error = null) {
-        if (loggedFailures.has(key)) {
-            return
-        }
-        loggedFailures.add(key)
-        if (error) {
-            log.warn(message, error)
-        } else {
-            log.warn(message)
-        }
-    }
-
     function canStartTileLoad(key) {
         return (
             isTileVisible(key) &&
-            !failedTiles.has(key) &&
+            !suppressedTileKeys.has(key) &&
             !pendingTileRequests.has(key) &&
             !tileCache.has(key)
         )
@@ -90,6 +78,7 @@ export function createSwissnamesTileLoader({
         try {
             const features = await loadFeatures(layer, tile, abortController.signal)
             if (!isTileVisible(key) || !canRenderLabels()) {
+                retryingTileKeys.delete(key)
                 return
             }
             if (features.length === 0) {
@@ -97,10 +86,17 @@ export function createSwissnamesTileLoader({
             } else {
                 await addTileLabels(layer, key, features)
             }
+            retryingTileKeys.delete(key)
         } catch (error) {
             if (error?.name !== 'AbortError') {
-                failedTiles.add(key)
-                logTileFailureOnce(key, `Swissnames tile ${key} failed`, error)
+                if (!retryingTileKeys.has(key)) {
+                    retryingTileKeys.add(key)
+                    scheduleRetry()
+                } else {
+                    retryingTileKeys.delete(key)
+                    suppressedTileKeys.add(key)
+                    log.warn(`Swissnames tile ${key} failed`, error)
+                }
             }
         } finally {
             const ownsPendingRequest = pendingTileRequests.get(key) === abortController
@@ -138,8 +134,8 @@ export function createSwissnamesTileLoader({
         }
         tileCache.clear()
         pendingTileRequests.clear()
-        failedTiles.clear()
-        loggedFailures.clear()
+        suppressedTileKeys.clear()
+        retryingTileKeys.clear()
         visibleTileKeys.clear()
     }
 

@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { describe, it } from 'vitest'
+import { afterEach, describe, it, vi } from 'vitest'
 
 import { createSwissnamesTileLoader } from '@/modules/map/components/cesium/utils/swissnamesTileLoader'
 
@@ -13,6 +13,10 @@ async function flushPromises() {
     await Promise.resolve()
     await Promise.resolve()
 }
+
+afterEach(() => {
+    vi.useRealTimers()
+})
 
 describe('Swissnames tile loader', () => {
     it('cancels invisible requests without blocking later loads', async () => {
@@ -82,5 +86,48 @@ describe('Swissnames tile loader', () => {
 
         loader.clear()
         await flushPromises()
+    })
+
+    it('retries failed tiles once', async () => {
+        vi.useFakeTimers()
+        const persistentEntry = {
+            key: 'zoomlevel4/11/1072/724',
+            layer: ENTRY.layer,
+            tile: { z: 11, x: 1072, y: 724 },
+        }
+        const requestedTiles = []
+        let loader = null
+        loader = createSwissnamesTileLoader({
+            canRenderLabels: () => true,
+            getEntities: () => null,
+            loadFeatures: async (_layer, tile) => {
+                requestedTiles.push(tile.x)
+                if (tile.x === persistentEntry.tile.x) {
+                    throw new Error('Persistent failure')
+                }
+                if (requestedTiles.filter((tileX) => tileX === ENTRY.tile.x).length === 1) {
+                    throw new Error('Transient failure')
+                }
+                return []
+            },
+            requestRender: () => {},
+            retry: () => loader.setVisibleEntries([ENTRY, persistentEntry]),
+        })
+
+        loader.setVisibleEntries([ENTRY, persistentEntry])
+        await flushPromises()
+        expect(requestedTiles).to.deep.equal([ENTRY.tile.x, persistentEntry.tile.x])
+
+        await vi.advanceTimersByTimeAsync(500)
+        expect(requestedTiles).to.deep.equal([
+            ENTRY.tile.x,
+            persistentEntry.tile.x,
+            ENTRY.tile.x,
+            persistentEntry.tile.x,
+        ])
+
+        loader.setVisibleEntries([ENTRY, persistentEntry])
+        expect(requestedTiles).to.have.length(4)
+        loader.clear()
     })
 })

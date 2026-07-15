@@ -125,6 +125,10 @@ export function createSwissnamesLabelDataAdapter(baseUrl, layerId, fetchData = f
         const key = `${layer.id}/${tile.z}/${tile.x}/${tile.y}`
         const response = await fetchData(`${tileBaseUrl}/${key}.pbf`, { signal })
         if (!response.ok) {
+            // The prototype publication returns 403 for sparse tiles.
+            if (response.status === 403) {
+                return []
+            }
             throw new Error(`Swissnames tile ${key} returned HTTP ${response.status}`)
         }
         return decodeFeatures(await response.arrayBuffer(), tile)
