@@ -59,6 +59,17 @@ describe('Swissnames label data adapter', () => {
         expect(requests).to.deep.equal([`${BASE_URL}${LAYER_ID}/v1/mbtiles-layers.json`])
     })
 
+    it('reports manifest HTTP failures', async () => {
+        const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, async () => ({
+            ok: false,
+            status: 503,
+        }))
+
+        const error = await getError(adapter.loadLayers())
+
+        expect(error.message).to.equal('Swissnames labels config returned HTTP 503')
+    })
+
     it('rejects incomplete manifest layers', async () => {
         const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, async () =>
             jsonResponse({
