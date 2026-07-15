@@ -22,62 +22,171 @@ function jsonResponse(data) {
     }
 }
 
+function pbfResponse(encodedTile) {
+    const buffer = Uint8Array.from(atob(encodedTile), (character) => character.charCodeAt(0)).buffer
+    return { arrayBuffer: async () => buffer, ok: true }
+}
+
 describe('Swissnames label data adapter', () => {
     it('fetches and normalizes the prototype manifest', async () => {
         const requests = []
-        const adapter = createSwissnamesLabelDataAdapter(BASE_URL, `/${LAYER_ID}/`, async (url) => {
+        const fetchData = async (url) => {
             requests.push(url)
             return jsonResponse({
-                version: '1.0',
                 s3BaseUrl: '/20260320',
                 layers: [
-                    { file: 'zoomlevel0', zoom: 9, minAlt: 100, maxAlt: null },
-                    { file: 'zoomlevel1', zoom: 10 },
+                    {
+                        file: 'zoomlevel0',
+                        fontSize: 18,
+                        maxAlt: null,
+                        minAlt: 0,
+                        zoom: 9,
+                    },
                 ],
             })
-        })
+        }
+        const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, fetchData)
 
-        const config = await adapter.loadConfig()
-
+        expect(await adapter.loadLayers()).to.deep.equal([
+            {
+                id: 'zoomlevel0',
+                fontSize: 18,
+                maxAlt: Infinity,
+                minAlt: 0,
+                tileZoom: 9,
+            },
+        ])
         expect(requests).to.deep.equal([`${BASE_URL}${LAYER_ID}/v1/mbtiles-layers.json`])
-        expect(adapter.configBaseUrl).to.equal(`${BASE_URL}${LAYER_ID}/v1`)
-        expect(config.version).to.equal('1.0')
-        expect(config.s3BaseUrl).to.equal('/20260320')
-        expect(config.layers[0].maxAlt).to.equal(Infinity)
-        expect(config.layers[0].minAlt).to.equal(100)
-        expect(config.layers[0].fontSize).to.equal(13)
-        expect(config.layers[1].minAlt).to.equal(0)
     })
 
-    it('rejects invalid manifest layers', async () => {
-        const invalidZoomAdapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, async () =>
-            jsonResponse({ layers: [{ file: 'zoomlevel0', zoom: 9.5 }] })
+    it('rejects incomplete manifest layers', async () => {
+        const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, async () =>
+            jsonResponse({
+                s3BaseUrl: '/20260320',
+                layers: [{ file: 'zoomlevel0', fontSize: 18, maxAlt: null, zoom: 9 }],
+            })
         )
-        const invalidAltitudeAdapter = createSwissnamesLabelDataAdapter(
-            BASE_URL,
-            LAYER_ID,
-            async () =>
-                jsonResponse({
-                    layers: [{ file: 'zoomlevel0', zoom: 9, minAlt: Number.NaN }],
+
+        const error = await getError(adapter.loadLayers())
+
+        expect(error).to.be.instanceOf(TypeError)
+        expect(error.message).to.equal('Invalid Swissnames label minAlt')
+    })
+
+    it('owns the prototype tile URL and reports HTTP failures', async () => {
+        const requests = []
+        const fetchData = async (url) => {
+            requests.push(url)
+            if (requests.length === 1) {
+                return jsonResponse({
+                    s3BaseUrl: '/20260320',
+                    layers: [
+                        {
+                            file: 'zoomlevel4',
+                            fontSize: 13,
+                            maxAlt: 150000,
+                            minAlt: 0,
+                            zoom: 11,
+                        },
+                    ],
                 })
-        )
+            }
+            return { ok: false, status: 403 }
+        }
+        const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, fetchData)
+        const [layer] = await adapter.loadLayers()
 
-        expect((await getError(invalidZoomAdapter.loadConfig())).message).to.equal(
-            'Invalid Swissnames label zoom'
+        const error = await getError(adapter.loadFeatures(layer, { z: 11, x: 1071, y: 724 }))
+
+        expect(requests[1]).to.equal(
+            `${BASE_URL}${LAYER_ID}/v1/20260320/zoomlevel4/11/1071/724.pbf`
         )
-        expect((await getError(invalidAltitudeAdapter.loadConfig())).message).to.equal(
-            'Invalid Swissnames label minAlt'
-        )
+        expect(error.message).to.equal('Swissnames tile zoomlevel4/11/1071/724 returned HTTP 403')
     })
+    it('decodes the producer PBF contract and forwards request cancellation', async () => {
+        const tileBuffer = Uint8Array.from(
+            atob(
+                'Gkh4AgoGbGFiZWxzKIAgGgROYW1lGgRUWVBFIggKBkdJUEZFTCISChBHcm9zcyBNdXR0ZW5ob3JuEg8YARIEAAEBACIFCZ48wgY='
+            ),
+            (character) => character.charCodeAt(0)
+        ).buffer
+        const requests = []
+        const fetchData = async (url, options = {}) => {
+            requests.push({ url, options })
+            if (requests.length === 1) {
+                return jsonResponse({
+                    s3BaseUrl: '/20260320',
+                    layers: [
+                        {
+                            file: 'zoomlevel4',
+                            fontSize: 13,
+                            maxAlt: 150000,
+                            minAlt: 0,
+                            zoom: 11,
+                        },
+                    ],
+                })
+            }
+            return {
+                arrayBuffer: async () => tileBuffer,
+                ok: true,
+            }
+        }
+        const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, fetchData)
+        const [layer] = await adapter.loadLayers()
+        const abortController = new AbortController()
 
-    it('reports manifest HTTP failures', async () => {
-        const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, async () => ({
-            ok: false,
-            status: 503,
-        }))
-
-        expect((await getError(adapter.loadConfig())).message).to.equal(
-            'Swissnames labels config returned HTTP 503'
+        const [feature] = await adapter.loadFeatures(
+            layer,
+            { z: 11, x: 1071, y: 724 },
+            abortController.signal
         )
+
+        expect(requests[1].options.signal).to.equal(abortController.signal)
+        expect(feature.text).to.equal('Gross Muttenhorn')
+        expect(feature.type).to.equal('GIPFEL')
+        expect(feature.lon).to.be.closeTo(8.427157, 0.000001)
+        expect(feature.lat).to.be.closeTo(46.546554, 0.000001)
+    })
+    it('filters point labels buffered into adjacent tiles', async () => {
+        const responses = [
+            jsonResponse({
+                s3BaseUrl: '/20260320',
+                layers: [
+                    {
+                        file: 'zoomlevel4',
+                        fontSize: 13,
+                        maxAlt: 150000,
+                        minAlt: 0,
+                        zoom: 11,
+                    },
+                ],
+            }),
+            pbfResponse(
+                'Gmd4AgoGbGFiZWxzKIAgGgROYW1lGgRUWVBFIgUKA09SVCILCglVbnRlcnNlZW4iFgoUTWF0dGVuIGIuIEludGVybGFrZW4SDxgBEgQAAQEAIgUJ4ifOPRIPGAESBAACAQAiBQmWMMRA'
+            ),
+            pbfResponse(
+                'GnF4AgoGbGFiZWxzKIAgGgROYW1lGgRUWVBFIgUKA09SVCIICgZHSVBGRUwiDAoKU2Nod2FsbWVyZSIWChRNYXR0ZW4gYi4gSW50ZXJsYWtlbhIPGAESBAACAQEiBQn+HfwtEg4YARIEAAMBACIECZYwRA=='
+            ),
+        ]
+        const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, async () =>
+            responses.shift()
+        )
+        const [layer] = await adapter.loadLayers()
+
+        const bufferedTileFeatures = await adapter.loadFeatures(layer, {
+            z: 11,
+            x: 1068,
+            y: 722,
+        })
+        const owningTileFeatures = await adapter.loadFeatures(layer, { z: 11, x: 1068, y: 723 })
+
+        const mattenLabels = [...bufferedTileFeatures, ...owningTileFeatures].filter(
+            (feature) => feature.text === 'Matten b. Interlaken'
+        )
+
+        expect(bufferedTileFeatures.map(({ text }) => text)).to.not.include('Matten b. Interlaken')
+        expect(owningTileFeatures.map(({ text }) => text)).to.include('Matten b. Interlaken')
+        expect(mattenLabels).to.have.length(1)
     })
 })

@@ -1,33 +1,22 @@
+import { VectorTile } from '@mapbox/vector-tile'
+import Pbf from 'pbf'
+
 /**
  * Temporary adapter for the PB-2246 prototype publication.
  *
  * Producer hand-off:
  *
- * - Publish finite `fontSize` and `minAlt` values for every layer to remove client defaults.
- * - Publish an explicit open-ended altitude value to remove the `null` to `Infinity` mapping.
+ * - Publish manifest fields as `id` and `tileZoom` to remove the `file`/`zoom` mapping.
+ * - Publish an explicit open-ended altitude contract to remove the `null` to `Infinity` mapping.
+ * - Publish feature properties as `text` and `type` to remove the `Name`/`TYPE` mapping.
+ * - Publish point labels only in their owning tile to remove the vector-tile buffer filter.
  *
- * This boundary owns only manifest transport and adaptation.
+ * PBF decoding and `toGeoJSON` are transport work. They remain until the publication changes to a
+ * format that Cesium can render as tiled text labels directly.
  */
 
 const CONFIG_PATH = 'v1/mbtiles-layers.json'
-const DEFAULT_FONT_SIZE = 13
-const DEFAULT_MIN_ALT = 0
-
-function trimSlashes(value) {
-    return `${value}`.replace(/^\/+|\/+$/g, '')
-}
-
-function joinUrlParts(...parts) {
-    return parts
-        .filter((part) => part !== null && part !== undefined && part !== '')
-        .map((part, index) => {
-            if (index === 0) {
-                return `${part}`.replace(/\/+$/g, '')
-            }
-            return trimSlashes(part)
-        })
-        .join('/')
-}
+const VECTOR_LAYER_NAME = 'labels'
 
 function assertFiniteNumber(value, fieldName) {
     if (!Number.isFinite(value)) {
@@ -35,66 +24,114 @@ function assertFiniteNumber(value, fieldName) {
     }
 }
 
-function assertZoom(zoom) {
-    assertFiniteNumber(zoom, 'zoom')
-    if (!Number.isInteger(zoom) || zoom < 0) {
-        throw new TypeError('Invalid Swissnames label zoom')
-    }
-}
-
-function normalizeOptionalNumber(value, defaultValue, fieldName) {
-    if (value === null || value === undefined) {
-        return defaultValue
-    }
-    assertFiniteNumber(value, fieldName)
-    return value
-}
-
-function normalizeLayer(layer) {
+function adaptLayer(layer) {
     if (!layer?.file) {
         throw new TypeError('Invalid Swissnames label layer file')
     }
-    assertZoom(layer.zoom)
+    if (!Number.isInteger(layer.zoom) || layer.zoom < 0) {
+        throw new TypeError('Invalid Swissnames label zoom')
+    }
+    assertFiniteNumber(layer.minAlt, 'minAlt')
+    assertFiniteNumber(layer.fontSize, 'fontSize')
+    if (layer.maxAlt !== null) {
+        assertFiniteNumber(layer.maxAlt, 'maxAlt')
+    }
     return {
-        ...layer,
-        fontSize: normalizeOptionalNumber(layer.fontSize, DEFAULT_FONT_SIZE, 'fontSize'),
-        maxAlt: normalizeOptionalNumber(layer.maxAlt, Infinity, 'maxAlt'),
-        minAlt: normalizeOptionalNumber(layer.minAlt, DEFAULT_MIN_ALT, 'minAlt'),
+        id: layer.file,
+        fontSize: layer.fontSize,
+        maxAlt: layer.maxAlt ?? Infinity,
+        minAlt: layer.minAlt,
+        tileZoom: layer.zoom,
     }
 }
 
-function normalizeConfig(config) {
-    if (!config || !Array.isArray(config.layers)) {
+function adaptConfig(config) {
+    if (!config || typeof config.s3BaseUrl !== 'string' || !Array.isArray(config.layers)) {
         throw new TypeError('Invalid Swissnames labels config')
     }
     return {
-        version: config.version,
-        s3BaseUrl: config.s3BaseUrl ?? '',
-        layers: config.layers.map(normalizeLayer),
+        s3BaseUrl: config.s3BaseUrl,
+        layers: config.layers.map(adaptLayer),
+    }
+}
+function adaptFeature(feature, tile) {
+    const point = feature.loadGeometry()?.[0]?.[0]
+    // Tile buffers repeat edge labels in neighboring tiles; [0, extent) selects one copy.
+    if (
+        !point ||
+        point.x < 0 ||
+        point.x >= feature.extent ||
+        point.y < 0 ||
+        point.y >= feature.extent
+    ) {
+        return null
+    }
+    const { geometry } = feature.toGeoJSON(tile.x, tile.y, tile.z)
+    const text = feature.properties.Name
+    if (geometry?.type !== 'Point' || typeof text !== 'string' || !text) {
+        return null
+    }
+    const [lon, lat] = geometry.coordinates
+    return {
+        lon,
+        lat,
+        text,
+        type: typeof feature.properties.TYPE === 'string' ? feature.properties.TYPE : '',
     }
 }
 
+function decodeFeatures(buffer, tile) {
+    const layer = new VectorTile(new Pbf(buffer)).layers[VECTOR_LAYER_NAME]
+    if (!layer) {
+        return []
+    }
+    const features = []
+    for (let index = 0; index < layer.length; index += 1) {
+        const feature = adaptFeature(layer.feature(index), tile)
+        if (feature) {
+            features.push(feature)
+        }
+    }
+    return features
+}
+
 /**
- * Creates the adapter for the temporary PB-2246 publication contract.
+ * Creates the PB-2246 publication adapter used by the Swissnames renderer.
  *
  * @param {string} baseUrl 3D data base URL for the current environment
  * @param {string} layerId Swissnames layer ID
  * @param {typeof fetch} fetchData Fetch implementation
- * @returns {{ configBaseUrl: string; loadConfig: Function }}
+ * @returns {{ loadFeatures: Function; loadLayers: Function }}
  */
 export function createSwissnamesLabelDataAdapter(baseUrl, layerId, fetchData = fetch) {
-    const configUrl = joinUrlParts(baseUrl, layerId, CONFIG_PATH)
+    const configUrl = `${baseUrl}${layerId}/${CONFIG_PATH}`
+    const configBaseUrl = configUrl.replace(/\/mbtiles-layers\.json$/, '')
+    let tileBaseUrl = null
 
-    async function loadConfig() {
+    async function loadLayers() {
         const response = await fetchData(configUrl)
         if (!response.ok) {
             throw new Error(`Swissnames labels config returned HTTP ${response.status}`)
         }
-        return normalizeConfig(await response.json())
+        const config = adaptConfig(await response.json())
+        tileBaseUrl = `${configBaseUrl}${config.s3BaseUrl}`
+        return config.layers
+    }
+
+    async function loadFeatures(layer, tile, signal) {
+        if (!tileBaseUrl) {
+            throw new Error('Swissnames labels config must be loaded before its tiles')
+        }
+        const key = `${layer.id}/${tile.z}/${tile.x}/${tile.y}`
+        const response = await fetchData(`${tileBaseUrl}/${key}.pbf`, { signal })
+        if (!response.ok) {
+            throw new Error(`Swissnames tile ${key} returned HTTP ${response.status}`)
+        }
+        return decodeFeatures(await response.arrayBuffer(), tile)
     }
 
     return {
-        configBaseUrl: configUrl.replace(/\/mbtiles-layers\.json$/, ''),
-        loadConfig,
+        loadFeatures,
+        loadLayers,
     }
 }

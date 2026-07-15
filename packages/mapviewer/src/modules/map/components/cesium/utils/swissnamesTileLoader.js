@@ -5,20 +5,15 @@ import {
     getSwissnamesTerrainPositions,
     updateSwissnamesLabelVisibility,
 } from '@/modules/map/components/cesium/utils/swissnamesLabelEntities'
-import {
-    buildSwissnamesTileUrl,
-    decodeSwissnamesFeatures,
-} from '@/modules/map/components/cesium/utils/swissnamesLabels'
 
 const MAX_CONCURRENT_FETCHES = 32
 const TILE_RETRY_DELAY = 500
 
 export function createSwissnamesTileLoader({
     canRenderLabels,
-    getConfigBaseUrl,
     getEntities,
-    getLabelsConfig,
     getViewer,
+    loadFeatures,
     requestRender,
     retry,
 }) {
@@ -26,7 +21,7 @@ export function createSwissnamesTileLoader({
     let visibleTileKeys = new Set()
 
     const tileCache = new Map()
-    const pendingTiles = new Set()
+    const pendingTileRequests = new Map()
     const failedTiles = new Set()
     const loggedFailures = new Set()
 
@@ -60,42 +55,9 @@ export function createSwissnamesTileLoader({
         return (
             isTileVisible(key) &&
             !failedTiles.has(key) &&
-            !pendingTiles.has(key) &&
+            !pendingTileRequests.has(key) &&
             !tileCache.has(key)
         )
-    }
-
-    async function fetchTileBuffer(layer, tile, key) {
-        const response = await fetch(
-            buildSwissnamesTileUrl(
-                getConfigBaseUrl(),
-                getLabelsConfig().s3BaseUrl,
-                layer.file,
-                tile
-            )
-        )
-        if (!isTileVisible(key)) {
-            return null
-        }
-        if (!response.ok) {
-            failedTiles.add(key)
-            logTileFailureOnce(key, `Swissnames tile ${key} returned HTTP ${response.status}`)
-            return null
-        }
-        const buffer = await response.arrayBuffer()
-        return isTileVisible(key) ? buffer : null
-    }
-
-    function decodeTileFeatures(tile, key, buffer) {
-        if (!buffer) {
-            return null
-        }
-        const features = decodeSwissnamesFeatures(buffer, tile)
-        if (features.length === 0) {
-            tileCache.set(key, [])
-            return null
-        }
-        return features
     }
 
     async function addTileLabels(layer, key, features) {
@@ -119,28 +81,48 @@ export function createSwissnamesTileLoader({
         if (!canStartTileLoad(key)) {
             return
         }
-        if (pendingTiles.size >= MAX_CONCURRENT_FETCHES) {
+        if (pendingTileRequests.size >= MAX_CONCURRENT_FETCHES) {
             scheduleRetry()
             return
         }
-        pendingTiles.add(key)
+        const abortController = new AbortController()
+        pendingTileRequests.set(key, abortController)
         try {
-            const buffer = await fetchTileBuffer(layer, tile, key)
-            const features = decodeTileFeatures(tile, key, buffer)
-            if (features) {
+            const features = await loadFeatures(layer, tile, abortController.signal)
+            if (!isTileVisible(key) || !canRenderLabels()) {
+                return
+            }
+            if (features.length === 0) {
+                tileCache.set(key, [])
+            } else {
                 await addTileLabels(layer, key, features)
             }
         } catch (error) {
-            failedTiles.add(key)
-            logTileFailureOnce(key, `Swissnames tile ${key} failed`, error)
+            if (error?.name !== 'AbortError') {
+                failedTiles.add(key)
+                logTileFailureOnce(key, `Swissnames tile ${key} failed`, error)
+            }
         } finally {
-            pendingTiles.delete(key)
+            const ownsPendingRequest = pendingTileRequests.get(key) === abortController
+            if (ownsPendingRequest) {
+                pendingTileRequests.delete(key)
+                if (abortController.signal.aborted && isTileVisible(key)) {
+                    scheduleRetry()
+                }
+            }
             requestRender()
         }
     }
 
     function setVisibleEntries(visibleEntries) {
         visibleTileKeys = new Set(visibleEntries.map(({ key }) => key))
+
+        for (const [key, abortController] of pendingTileRequests.entries()) {
+            if (!isTileVisible(key)) {
+                abortController.abort()
+            }
+        }
+
         updateSwissnamesLabelVisibility(tileCache, visibleTileKeys)
         visibleEntries.forEach(({ layer, tile, key }) => loadTile(layer, tile, key))
     }
@@ -150,8 +132,11 @@ export function createSwissnamesTileLoader({
             window.clearTimeout(retryTimer)
             retryTimer = null
         }
+        for (const abortController of pendingTileRequests.values()) {
+            abortController.abort()
+        }
         tileCache.clear()
-        pendingTiles.clear()
+        pendingTileRequests.clear()
         failedTiles.clear()
         loggedFailures.clear()
         visibleTileKeys.clear()

@@ -25,9 +25,9 @@ export function getSwissnamesEffectiveCameraAltitude(viewer) {
 }
 
 export function getVisibleSwissnamesTileEntries(layer, rectangle) {
-    return getVisibleSwissnamesTiles(rectangle, layer.zoom).map((tile) => ({
+    return getVisibleSwissnamesTiles(rectangle, layer.tileZoom).map((tile) => ({
         layer,
         tile,
-        key: buildSwissnamesTileKey(layer.file, tile),
+        key: buildSwissnamesTileKey(layer.id, tile),
     }))
 }

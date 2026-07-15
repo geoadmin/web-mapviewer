@@ -14,7 +14,7 @@ import { createSwissnamesTileLoader } from '@/modules/map/components/cesium/util
 export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
     let viewer = null
     let dataSource = null
-    let labelsConfig = null
+    let labelLayers = null
     let hasCameraListener = false
     let isDestroyed = false
 
@@ -43,10 +43,9 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
     const dataAdapter = createSwissnamesLabelDataAdapter(layerConfig.baseUrl, layerConfig.id)
     const tileLoader = createSwissnamesTileLoader({
         canRenderLabels,
-        getConfigBaseUrl: () => dataAdapter.configBaseUrl,
         getEntities: () => dataSource?.entities ?? null,
-        getLabelsConfig: () => labelsConfig,
         getViewer: () => viewer,
+        loadFeatures: dataAdapter.loadFeatures,
         requestRender,
         retry: () => {
             if (!isDestroyed) {
@@ -56,7 +55,7 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
     })
 
     function updateLabels() {
-        if (isDestroyed || !labelsConfig || !canRenderLabels()) {
+        if (isDestroyed || !labelLayers || !canRenderLabels()) {
             return
         }
         const rectangle = getSwissnamesCameraRectangle(viewer)
@@ -64,7 +63,7 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
             return
         }
         const altitude = getSwissnamesEffectiveCameraAltitude(viewer)
-        const visibleEntries = labelsConfig.layers
+        const visibleEntries = labelLayers
             .filter((layer) => isSwissnamesLayerVisibleAtAltitude(layer, altitude))
             .flatMap((layer) => getVisibleSwissnamesTileEntries(layer, rectangle))
         tileLoader.setVisibleEntries(visibleEntries)
@@ -84,7 +83,7 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
                 removeDataSource(mountedViewer)
                 return
             }
-            labelsConfig = await dataAdapter.loadConfig()
+            labelLayers = await dataAdapter.loadLayers()
             if (isDestroyed) {
                 removeDataSource(mountedViewer)
                 return
@@ -106,6 +105,7 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
         }
         hasCameraListener = false
     }
+
     function removeDataSource(targetViewer = viewer) {
         if (isDataSourceAttached(targetViewer)) {
             dataSource.show = false
