@@ -2,8 +2,8 @@ import log from '@geoadmin/log'
 
 import {
     addSwissnamesFeatureLabels,
+    evictInvisibleSwissnamesLabels,
     getSwissnamesTerrainPositions,
-    updateSwissnamesLabelVisibility,
 } from '@/modules/map/components/cesium/utils/swissnamesLabelEntities'
 
 const MAX_CONCURRENT_FETCHES = 32
@@ -120,7 +120,7 @@ export function createSwissnamesTileLoader({
             }
         }
 
-        updateSwissnamesLabelVisibility(tileCache, visibleTileKeys)
+        evictInvisibleSwissnamesLabels(getEntities(), tileCache, visibleTileKeys)
         visibleEntries.forEach(({ layer, tile, key }) => loadTile(layer, tile, key))
     }
 

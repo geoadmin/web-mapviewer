@@ -130,4 +130,29 @@ describe('Swissnames tile loader', () => {
         expect(requestedTiles).to.have.length(4)
         loader.clear()
     })
+
+    it('loads an evicted tile again when it becomes visible', async () => {
+        let loadCount = 0
+        const loader = createSwissnamesTileLoader({
+            canRenderLabels: () => true,
+            getEntities: () => null,
+            loadFeatures: async () => {
+                loadCount += 1
+                return []
+            },
+            requestRender: () => {},
+            retry: () => {},
+        })
+
+        loader.setVisibleEntries([ENTRY])
+        await flushPromises()
+        expect(loadCount).to.equal(1)
+
+        loader.setVisibleEntries([])
+        loader.setVisibleEntries([ENTRY])
+        await flushPromises()
+        expect(loadCount).to.equal(2)
+
+        loader.clear()
+    })
 })

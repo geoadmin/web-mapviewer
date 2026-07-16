@@ -155,11 +155,24 @@ export function addSwissnamesFeatureLabels(entities, features, positions, layer)
     return labels
 }
 
-export function updateSwissnamesLabelVisibility(tileCache, visibleKeys) {
-    for (const [key, labels] of tileCache.entries()) {
-        const show = visibleKeys.has(key)
-        labels.forEach((labelEntity) => {
-            labelEntity.show = show
-        })
+export function evictInvisibleSwissnamesLabels(entities, tileCache, visibleKeys) {
+    let eventsSuspended = false
+    try {
+        for (const [key, labels] of tileCache.entries()) {
+            if (!visibleKeys.has(key)) {
+                if (labels.length > 0) {
+                    if (!eventsSuspended) {
+                        entities.suspendEvents()
+                        eventsSuspended = true
+                    }
+                    labels.forEach((labelEntity) => entities.remove(labelEntity))
+                }
+                tileCache.delete(key)
+            }
+        }
+    } finally {
+        if (eventsSuspended) {
+            entities.resumeEvents()
+        }
     }
 }
