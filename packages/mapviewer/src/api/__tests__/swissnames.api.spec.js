@@ -84,7 +84,7 @@ describe('Swissnames label data adapter', () => {
         expect(error.message).to.equal('Invalid Swissnames label minAlt')
     })
 
-    it('owns the prototype tile URL and normalizes sparse tiles', async () => {
+    it('owns tile URLs and remembers sparse tiles for the adapter lifetime', async () => {
         const requests = []
         const tileStatuses = [403, 503]
         const fetchData = async (url) => {
@@ -108,15 +108,18 @@ describe('Swissnames label data adapter', () => {
         const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, fetchData)
         const [layer] = await adapter.loadLayers()
 
-        const features = await adapter.loadFeatures(layer, { z: 11, x: 1071, y: 724 })
+        const sparseTile = { z: 11, x: 1071, y: 724 }
+        const features = await adapter.loadFeatures(layer, sparseTile)
 
         expect(requests[1]).to.equal(
             `${BASE_URL}${LAYER_ID}/v1/20260320/zoomlevel4/11/1071/724.pbf`
         )
         expect(features).to.deep.equal([])
+        expect(await adapter.loadFeatures(layer, sparseTile)).to.deep.equal([])
+        expect(requests).to.have.length(2)
 
-        const error = await getError(adapter.loadFeatures(layer, { z: 11, x: 1071, y: 724 }))
-        expect(error.message).to.equal('Swissnames tile zoomlevel4/11/1071/724 returned HTTP 503')
+        const error = await getError(adapter.loadFeatures(layer, { z: 11, x: 1072, y: 724 }))
+        expect(error.message).to.equal('Swissnames tile zoomlevel4/11/1072/724 returned HTTP 503')
     })
     it('decodes the producer PBF contract and forwards request cancellation', async () => {
         const tileBuffer = Uint8Array.from(

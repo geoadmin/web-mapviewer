@@ -107,6 +107,7 @@ export function createSwissnamesLabelDataAdapter(baseUrl, layerId, fetchData = f
     const configUrl = `${baseUrl}${layerId}/${CONFIG_PATH}`
     const configBaseUrl = configUrl.replace(/\/mbtiles-layers\.json$/, '')
     let tileBaseUrl = null
+    const unavailableTileKeys = new Set()
 
     async function loadLayers() {
         const response = await fetchData(configUrl)
@@ -123,10 +124,14 @@ export function createSwissnamesLabelDataAdapter(baseUrl, layerId, fetchData = f
             throw new Error('Swissnames labels config must be loaded before its tiles')
         }
         const key = `${layer.id}/${tile.z}/${tile.x}/${tile.y}`
+        if (unavailableTileKeys.has(key)) {
+            return []
+        }
         const response = await fetchData(`${tileBaseUrl}/${key}.pbf`, { signal })
         if (!response.ok) {
             // The prototype publication returns 403 for sparse tiles.
             if (response.status === 403) {
+                unavailableTileKeys.add(key)
                 return []
             }
             throw new Error(`Swissnames tile ${key} returned HTTP ${response.status}`)
