@@ -17,6 +17,12 @@ describe('Swissnames labels helpers', () => {
         expect(isSwissnamesLayerVisibleAtAltitude(layer, 500)).to.equal(false)
     })
 
+    it('keeps layers without an upper altitude bound visible', () => {
+        const layer = { minAlt: 0, maxAlt: null }
+
+        expect(isSwissnamesLayerVisibleAtAltitude(layer, 10000000)).to.equal(true)
+    })
+
     it('builds deterministic tile keys', () => {
         expect(buildSwissnamesTileKey('zoomlevel4', { z: 11, x: 1071, y: 724 })).to.equal(
             'zoomlevel4/11/1071/724'

@@ -5,6 +5,9 @@ import { createSwissnamesLabelDataAdapter } from '@/api/swissnames.api'
 
 const BASE_URL = 'https://sys-3d.dev.bgdi.ch/'
 const LAYER_ID = 'ch.swisstopo.swissnames3d.3d'
+const TILE = { z: 9, x: 264, y: 181 }
+const TILE_PBF =
+    'Gjx4AgoGbGFiZWxzKIAgGgR0ZXh0GgR0eXBlIgUKA09SVCIJCgdHZW7DqHZlEg8YARIEAAEBACIFCZQvoi4='
 
 async function getError(promise) {
     try {
@@ -16,47 +19,78 @@ async function getError(promise) {
 }
 
 function jsonResponse(data) {
-    return {
-        ok: true,
-        json: async () => data,
-    }
+    return { ok: true, json: async () => data }
 }
 
-function pbfResponse(encodedTile) {
+function pbfResponse(encodedTile = TILE_PBF) {
     const buffer = Uint8Array.from(atob(encodedTile), (character) => character.charCodeAt(0)).buffer
     return { arrayBuffer: async () => buffer, ok: true }
 }
 
+function manifest(layer = {}) {
+    return {
+        version: '2.0',
+        s3BaseUrl: '/20260716',
+        tileAvailability: 'availability.json',
+        layers: [
+            {
+                id: 'zoomlevel0',
+                fontSize: 18,
+                maxAlt: null,
+                maxDistance: 500000,
+                minAlt: 0,
+                tileZoom: 9,
+                ...layer,
+            },
+        ],
+    }
+}
+
+function availability(paths = ['264/181']) {
+    return { layers: { zoomlevel0: paths } }
+}
+
 describe('Swissnames label data adapter', () => {
-    it('fetches and normalizes the prototype manifest', async () => {
+    it('loads the version 2 manifest and exact tile availability', async () => {
         const requests = []
-        const fetchData = async (url) => {
+        const responses = [jsonResponse(manifest()), jsonResponse(availability())]
+        const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, async (url) => {
             requests.push(url)
-            return jsonResponse({
-                s3BaseUrl: '/20260320',
-                layers: [
-                    {
-                        file: 'zoomlevel0',
-                        fontSize: 18,
-                        maxAlt: null,
-                        minAlt: 0,
-                        zoom: 9,
-                    },
-                ],
-            })
-        }
-        const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, fetchData)
+            return responses.shift()
+        })
 
         expect(await adapter.loadLayers()).to.deep.equal([
             {
                 id: 'zoomlevel0',
                 fontSize: 18,
-                maxAlt: Infinity,
+                maxAlt: null,
+                maxDistance: 500000,
                 minAlt: 0,
                 tileZoom: 9,
             },
         ])
-        expect(requests).to.deep.equal([`${BASE_URL}${LAYER_ID}/v1/mbtiles-layers.json`])
+        expect(requests).to.deep.equal([
+            `${BASE_URL}${LAYER_ID}/v2/mbtiles-layers.json`,
+            `${BASE_URL}${LAYER_ID}/v2/20260716/availability.json`,
+        ])
+    })
+
+    it('skips unavailable tiles and decodes the canonical tile contract', async () => {
+        const requests = []
+        const responses = [jsonResponse(manifest()), jsonResponse(availability()), pbfResponse()]
+        const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, async (url) => {
+            requests.push(url)
+            return responses.shift()
+        })
+        const [layer] = await adapter.loadLayers()
+
+        expect(await adapter.loadFeatures(layer, { z: 9, x: 265, y: 181 })).to.deep.equal([])
+        const [feature] = await adapter.loadFeatures(layer, TILE)
+
+        expect(feature.text).to.equal(String.fromCodePoint(0x47, 0x65, 0x6e, 0xe8, 0x76, 0x65))
+        expect(feature.type).to.equal('ORT')
+        expect(feature.lon).to.be.closeTo(6.143074, 0.000001)
+        expect(feature.lat).to.be.closeTo(46.20823, 0.000001)
     })
 
     it('reports manifest HTTP failures', async () => {
@@ -70,141 +104,92 @@ describe('Swissnames label data adapter', () => {
         expect(error.message).to.equal('Swissnames labels config returned HTTP 503')
     })
 
-    it('rejects incomplete manifest layers', async () => {
+    it('rejects publications with a different contract version', async () => {
         const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, async () =>
-            jsonResponse({
-                s3BaseUrl: '/20260320',
-                layers: [{ file: 'zoomlevel0', fontSize: 18, maxAlt: null, zoom: 9 }],
-            })
+            jsonResponse({ ...manifest(), version: '3.0' })
+        )
+
+        const error = await getError(adapter.loadLayers())
+
+        expect(error.message).to.equal('Invalid Swissnames labels config')
+    })
+
+    it('rejects incomplete version 2 layers', async () => {
+        const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, async () =>
+            jsonResponse(manifest({ maxDistance: undefined }))
         )
 
         const error = await getError(adapter.loadLayers())
 
         expect(error).to.be.instanceOf(TypeError)
-        expect(error.message).to.equal('Invalid Swissnames label minAlt')
+        expect(error.message).to.equal('Invalid Swissnames label maxDistance')
     })
 
-    it('owns tile URLs and remembers sparse tiles for the adapter lifetime', async () => {
-        const requests = []
-        const tileStatuses = [403, 503]
-        const fetchData = async (url) => {
-            requests.push(url)
-            if (requests.length === 1) {
-                return jsonResponse({
-                    s3BaseUrl: '/20260320',
-                    layers: [
-                        {
-                            file: 'zoomlevel4',
-                            fontSize: 13,
-                            maxAlt: 150000,
-                            minAlt: 0,
-                            zoom: 11,
-                        },
-                    ],
-                })
-            }
-            return { ok: false, status: tileStatuses.shift() }
-        }
-        const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, fetchData)
-        const [layer] = await adapter.loadLayers()
-
-        const sparseTile = { z: 11, x: 1071, y: 724 }
-        const features = await adapter.loadFeatures(layer, sparseTile)
-
-        expect(requests[1]).to.equal(
-            `${BASE_URL}${LAYER_ID}/v1/20260320/zoomlevel4/11/1071/724.pbf`
-        )
-        expect(features).to.deep.equal([])
-        expect(await adapter.loadFeatures(layer, sparseTile)).to.deep.equal([])
-        expect(requests).to.have.length(2)
-
-        const error = await getError(adapter.loadFeatures(layer, { z: 11, x: 1072, y: 724 }))
-        expect(error.message).to.equal('Swissnames tile zoomlevel4/11/1072/724 returned HTTP 503')
-    })
-    it('decodes the producer PBF contract and forwards request cancellation', async () => {
-        const tileBuffer = Uint8Array.from(
-            atob(
-                'Gkh4AgoGbGFiZWxzKIAgGgROYW1lGgRUWVBFIggKBkdJUEZFTCISChBHcm9zcyBNdXR0ZW5ob3JuEg8YARIEAAEBACIFCZ48wgY='
-            ),
-            (character) => character.charCodeAt(0)
-        ).buffer
-        const requests = []
-        const fetchData = async (url, options = {}) => {
-            requests.push({ url, options })
-            if (requests.length === 1) {
-                return jsonResponse({
-                    s3BaseUrl: '/20260320',
-                    layers: [
-                        {
-                            file: 'zoomlevel4',
-                            fontSize: 13,
-                            maxAlt: 150000,
-                            minAlt: 0,
-                            zoom: 11,
-                        },
-                    ],
-                })
-            }
-            return {
-                arrayBuffer: async () => tileBuffer,
-                ok: true,
-            }
-        }
-        const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, fetchData)
-        const [layer] = await adapter.loadLayers()
-        const abortController = new AbortController()
-
-        const [feature] = await adapter.loadFeatures(
-            layer,
-            { z: 11, x: 1071, y: 724 },
-            abortController.signal
+    it.each(['fontSize', 'maxDistance'])('rejects non-positive %s', async (fieldName) => {
+        const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, async () =>
+            jsonResponse(manifest({ [fieldName]: 0 }))
         )
 
-        expect(requests[1].options.signal).to.equal(abortController.signal)
-        expect(feature.text).to.equal('Gross Muttenhorn')
-        expect(feature.type).to.equal('GIPFEL')
-        expect(feature.lon).to.be.closeTo(8.427157, 0.000001)
-        expect(feature.lat).to.be.closeTo(46.546554, 0.000001)
+        const error = await getError(adapter.loadLayers())
+
+        expect(error.message).to.equal(`Invalid Swissnames label ${fieldName}`)
     })
-    it('filters point labels buffered into adjacent tiles', async () => {
+
+    it('reports availability HTTP failures', async () => {
+        const responses = [jsonResponse(manifest()), { ok: false, status: 503 }]
+        const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, async () =>
+            responses.shift()
+        )
+
+        const error = await getError(adapter.loadLayers())
+
+        expect(error.message).to.equal('Swissnames tile availability returned HTTP 503')
+    })
+
+    it('does not expose partially loaded config after invalid availability', async () => {
+        const responses = [jsonResponse(manifest()), jsonResponse({ layers: {} })]
+        const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, async () =>
+            responses.shift()
+        )
+
+        await getError(adapter.loadLayers())
+        const error = await getError(adapter.loadFeatures({ id: 'zoomlevel0' }, TILE))
+
+        expect(error.message).to.equal('Swissnames labels config must be loaded before its tiles')
+    })
+
+    it('reports listed tile HTTP failures', async () => {
         const responses = [
-            jsonResponse({
-                s3BaseUrl: '/20260320',
-                layers: [
-                    {
-                        file: 'zoomlevel4',
-                        fontSize: 13,
-                        maxAlt: 150000,
-                        minAlt: 0,
-                        zoom: 11,
-                    },
-                ],
-            }),
-            pbfResponse(
-                'Gmd4AgoGbGFiZWxzKIAgGgROYW1lGgRUWVBFIgUKA09SVCILCglVbnRlcnNlZW4iFgoUTWF0dGVuIGIuIEludGVybGFrZW4SDxgBEgQAAQEAIgUJ4ifOPRIPGAESBAACAQAiBQmWMMRA'
-            ),
-            pbfResponse(
-                'GnF4AgoGbGFiZWxzKIAgGgROYW1lGgRUWVBFIgUKA09SVCIICgZHSVBGRUwiDAoKU2Nod2FsbWVyZSIWChRNYXR0ZW4gYi4gSW50ZXJsYWtlbhIPGAESBAACAQEiBQn+HfwtEg4YARIEAAMBACIECZYwRA=='
-            ),
+            jsonResponse(manifest()),
+            jsonResponse(availability()),
+            { ok: false, status: 503 },
         ]
         const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, async () =>
             responses.shift()
         )
         const [layer] = await adapter.loadLayers()
 
-        const bufferedTileFeatures = await adapter.loadFeatures(layer, {
-            z: 11,
-            x: 1068,
-            y: 722,
-        })
-        const owningTileFeatures = await adapter.loadFeatures(layer, { z: 11, x: 1068, y: 723 })
+        const error = await getError(adapter.loadFeatures(layer, TILE))
 
-        const mattenLabels = [...bufferedTileFeatures, ...owningTileFeatures].filter(
-            (feature) => feature.text === 'Matten b. Interlaken'
+        expect(error.message).to.equal('Swissnames tile zoomlevel0/9/264/181 returned HTTP 503')
+    })
+
+    it('forwards tile request cancellation', async () => {
+        const requests = []
+        const responses = [jsonResponse(manifest()), jsonResponse(availability()), pbfResponse()]
+        const adapter = createSwissnamesLabelDataAdapter(
+            BASE_URL,
+            LAYER_ID,
+            async (url, options = {}) => {
+                requests.push({ url, options })
+                return responses.shift()
+            }
         )
+        const [layer] = await adapter.loadLayers()
+        const abortController = new AbortController()
 
-        expect(bufferedTileFeatures.map(({ text }) => text)).to.not.include('Matten b. Interlaken')
-        expect(owningTileFeatures.map(({ text }) => text)).to.include('Matten b. Interlaken')
-        expect(mattenLabels).to.have.length(1)
+        await adapter.loadFeatures(layer, TILE, abortController.signal)
+
+        expect(requests[2].options.signal).to.equal(abortController.signal)
     })
 })

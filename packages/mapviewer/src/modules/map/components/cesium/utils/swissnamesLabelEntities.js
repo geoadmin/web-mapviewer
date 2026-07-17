@@ -19,15 +19,6 @@ const LABEL_BACKGROUND_PADDING = new Cartesian2(5, 2)
 const LAKE_LABEL_COLOR = Color.fromCssColorString('#b8e1ff')
 const PEAK_LABEL_COLOR = Color.fromCssColorString('#ffc2a8')
 
-// A label stays visible while the camera is within its layer's altitude band, so the same
-// dataset thinning that gates tile fetching also gates label display distance. Regular
-// layers are additionally capped so oblique views do not stack town/village names into a
-// dense band along the horizon; only landmark tiers (country/canton-sized altitude bands)
-// may render that far out.
-const LANDMARK_ALTITUDE_BAND = 1000000
-const LANDMARK_LABEL_DISPLAY_DISTANCE = 500000
-const REGULAR_LABEL_DISPLAY_DISTANCE = 25000
-
 function getLabelColor(type) {
     if (type === 'SEE') {
         return LAKE_LABEL_COLOR
@@ -39,13 +30,8 @@ function getLabelColor(type) {
 }
 
 export function getSwissnamesLabelDistanceStyle(layer) {
-    const altitudeBand = layer.maxAlt ?? LANDMARK_ALTITUDE_BAND
-    const maxDistance =
-        altitudeBand >= LANDMARK_ALTITUDE_BAND
-            ? LANDMARK_LABEL_DISPLAY_DISTANCE
-            : Math.min(altitudeBand, REGULAR_LABEL_DISPLAY_DISTANCE)
     return {
-        distanceDisplayCondition: new DistanceDisplayCondition(0, maxDistance),
+        distanceDisplayCondition: new DistanceDisplayCondition(0, layer.maxDistance),
     }
 }
 

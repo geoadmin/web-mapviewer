@@ -2,20 +2,13 @@ import { VectorTile } from '@mapbox/vector-tile'
 import Pbf from 'pbf'
 
 /**
- * Temporary adapter for the PB-2246 prototype publication.
- *
- * Producer hand-off:
- *
- * - Publish manifest fields as `id` and `tileZoom` to remove the `file`/`zoom` mapping.
- * - Publish an explicit open-ended altitude contract to remove the `null` to `Infinity` mapping.
- * - Publish feature properties as `text` and `type` to remove the `Name`/`TYPE` mapping.
- * - Publish point labels only in their owning tile to remove the vector-tile buffer filter.
+ * Adapter for the PB-2246 version 2 publication.
  *
  * PBF decoding and `toGeoJSON` are transport work. They remain until the publication changes to a
  * format that Cesium can render as tiled text labels directly.
  */
 
-const CONFIG_PATH = 'v1/mbtiles-layers.json'
+const PUBLICATION_PATH = 'v2'
 const VECTOR_LAYER_NAME = 'labels'
 
 function assertFiniteNumber(value, fieldName) {
@@ -24,60 +17,70 @@ function assertFiniteNumber(value, fieldName) {
     }
 }
 
-function adaptLayer(layer) {
-    if (!layer?.file) {
-        throw new TypeError('Invalid Swissnames label layer file')
-    }
-    if (!Number.isInteger(layer.zoom) || layer.zoom < 0) {
-        throw new TypeError('Invalid Swissnames label zoom')
-    }
-    assertFiniteNumber(layer.minAlt, 'minAlt')
-    assertFiniteNumber(layer.fontSize, 'fontSize')
-    if (layer.maxAlt !== null) {
-        assertFiniteNumber(layer.maxAlt, 'maxAlt')
-    }
-    return {
-        id: layer.file,
-        fontSize: layer.fontSize,
-        maxAlt: layer.maxAlt ?? Infinity,
-        minAlt: layer.minAlt,
-        tileZoom: layer.zoom,
+function assertPositiveNumber(value, fieldName) {
+    assertFiniteNumber(value, fieldName)
+    if (value <= 0) {
+        throw new TypeError(`Invalid Swissnames label ${fieldName}`)
     }
 }
 
-function adaptConfig(config) {
-    if (!config || typeof config.s3BaseUrl !== 'string' || !Array.isArray(config.layers)) {
-        throw new TypeError('Invalid Swissnames labels config')
+function validateLayer(layer) {
+    if (!layer?.id) {
+        throw new TypeError('Invalid Swissnames label layer id')
     }
-    return {
-        s3BaseUrl: config.s3BaseUrl,
-        layers: config.layers.map(adaptLayer),
+    if (!Number.isInteger(layer.tileZoom) || layer.tileZoom < 0) {
+        throw new TypeError('Invalid Swissnames label zoom')
+    }
+    assertFiniteNumber(layer.minAlt, 'minAlt')
+    assertPositiveNumber(layer.fontSize, 'fontSize')
+    assertPositiveNumber(layer.maxDistance, 'maxDistance')
+    if (layer.maxAlt !== null) {
+        assertFiniteNumber(layer.maxAlt, 'maxAlt')
     }
 }
-function adaptFeature(feature, tile) {
-    const point = feature.loadGeometry()?.[0]?.[0]
-    // Tile buffers repeat edge labels in neighboring tiles; [0, extent) selects one copy.
+
+function validateConfig(config) {
     if (
-        !point ||
-        point.x < 0 ||
-        point.x >= feature.extent ||
-        point.y < 0 ||
-        point.y >= feature.extent
+        !config ||
+        config.version !== '2.0' ||
+        typeof config.s3BaseUrl !== 'string' ||
+        typeof config.tileAvailability !== 'string' ||
+        !Array.isArray(config.layers)
+    ) {
+        throw new TypeError('Invalid Swissnames labels config')
+    }
+    config.layers.forEach(validateLayer)
+    return config
+}
+
+function getAvailableTiles(availability, layers) {
+    if (!availability?.layers) {
+        throw new TypeError('Invalid Swissnames tile availability')
+    }
+    return new Set(
+        layers.flatMap((layer) => {
+            const paths = availability.layers[layer.id]
+            if (!Array.isArray(paths) || paths.some((path) => typeof path !== 'string')) {
+                throw new TypeError(`Invalid Swissnames tile availability for ${layer.id}`)
+            }
+            return paths.map((path) => `${layer.id}/${path}`)
+        })
+    )
+}
+
+function decodeFeature(feature, tile) {
+    const { geometry } = feature.toGeoJSON(tile.x, tile.y, tile.z)
+    const { text, type } = feature.properties
+    if (
+        geometry?.type !== 'Point' ||
+        typeof text !== 'string' ||
+        !text ||
+        typeof type !== 'string'
     ) {
         return null
     }
-    const { geometry } = feature.toGeoJSON(tile.x, tile.y, tile.z)
-    const text = feature.properties.Name
-    if (geometry?.type !== 'Point' || typeof text !== 'string' || !text) {
-        return null
-    }
     const [lon, lat] = geometry.coordinates
-    return {
-        lon,
-        lat,
-        text,
-        type: typeof feature.properties.TYPE === 'string' ? feature.properties.TYPE : '',
-    }
+    return { lon, lat, text, type }
 }
 
 function decodeFeatures(buffer, tile) {
@@ -87,7 +90,7 @@ function decodeFeatures(buffer, tile) {
     }
     const features = []
     for (let index = 0; index < layer.length; index += 1) {
-        const feature = adaptFeature(layer.feature(index), tile)
+        const feature = decodeFeature(layer.feature(index), tile)
         if (feature) {
             features.push(feature)
         }
@@ -104,43 +107,45 @@ function decodeFeatures(buffer, tile) {
  * @returns {{ loadFeatures: Function; loadLayers: Function }}
  */
 export function createSwissnamesLabelDataAdapter(baseUrl, layerId, fetchData = fetch) {
-    const configUrl = `${baseUrl}${layerId}/${CONFIG_PATH}`
-    const configBaseUrl = configUrl.replace(/\/mbtiles-layers\.json$/, '')
-    let tileBaseUrl = null
-    const unavailableTileKeys = new Set()
+    const publicationUrl = `${baseUrl}${layerId}/${PUBLICATION_PATH}`
+    const configUrl = `${publicationUrl}/mbtiles-layers.json`
+    let publication = null
 
     async function loadLayers() {
         const response = await fetchData(configUrl)
         if (!response.ok) {
             throw new Error(`Swissnames labels config returned HTTP ${response.status}`)
         }
-        const config = adaptConfig(await response.json())
-        tileBaseUrl = `${configBaseUrl}${config.s3BaseUrl}`
+        const config = validateConfig(await response.json())
+        const nextTileBaseUrl = `${publicationUrl}${config.s3BaseUrl}`
+        const availabilityResponse = await fetchData(
+            `${nextTileBaseUrl}/${config.tileAvailability}`
+        )
+        if (!availabilityResponse.ok) {
+            throw new Error(
+                `Swissnames tile availability returned HTTP ${availabilityResponse.status}`
+            )
+        }
+        const availableTiles = getAvailableTiles(await availabilityResponse.json(), config.layers)
+        publication = { availableTiles, tileBaseUrl: nextTileBaseUrl }
         return config.layers
     }
 
     async function loadFeatures(layer, tile, signal) {
-        if (!tileBaseUrl) {
+        if (!publication) {
             throw new Error('Swissnames labels config must be loaded before its tiles')
         }
         const key = `${layer.id}/${tile.z}/${tile.x}/${tile.y}`
-        if (unavailableTileKeys.has(key)) {
+        // Each layer has one tileZoom, so availability paths only need x/y.
+        if (!publication.availableTiles.has(`${layer.id}/${tile.x}/${tile.y}`)) {
             return []
         }
-        const response = await fetchData(`${tileBaseUrl}/${key}.pbf`, { signal })
+        const response = await fetchData(`${publication.tileBaseUrl}/${key}.pbf`, { signal })
         if (!response.ok) {
-            // The prototype publication returns 403 for sparse tiles.
-            if (response.status === 403) {
-                unavailableTileKeys.add(key)
-                return []
-            }
             throw new Error(`Swissnames tile ${key} returned HTTP ${response.status}`)
         }
         return decodeFeatures(await response.arrayBuffer(), tile)
     }
 
-    return {
-        loadFeatures,
-        loadLayers,
-    }
+    return { loadFeatures, loadLayers }
 }

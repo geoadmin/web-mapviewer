@@ -41,7 +41,7 @@ function clampTileCoordinate(value, zoom) {
 }
 
 export function isSwissnamesLayerVisibleAtAltitude(layer, altitude) {
-    return altitude >= layer.minAlt && altitude < layer.maxAlt
+    return altitude >= layer.minAlt && (layer.maxAlt === null || altitude < layer.maxAlt)
 }
 
 export function buildSwissnamesTileKey(layerId, tile) {
