@@ -50,17 +50,11 @@ export function createSwissnamesTileLoader({
 
     async function addTileLabels(layer, key, features) {
         const viewer = getViewer()
-        if (!viewer) {
-            return
-        }
         const positions = await getSwissnamesTerrainPositions(viewer, features)
         if (!isTileVisible(key) || !canRenderLabels()) {
             return
         }
         const entities = getEntities()
-        if (!entities) {
-            return
-        }
         const labels = addSwissnamesFeatureLabels(entities, features, positions, layer)
         tileCache.set(key, labels)
     }
