@@ -67,7 +67,7 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
     }
 
     onMounted(async () => {
-        const mountedViewer = typeof getViewer === 'function' ? getViewer() : null
+        const mountedViewer = getViewer()
         viewer = mountedViewer
         if (!mountedViewer) {
             log.error('Failed to load Swissnames labels: missing Cesium viewer')
