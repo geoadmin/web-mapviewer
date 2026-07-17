@@ -107,7 +107,6 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
         isDestroyed = true
         tileLoader.clear()
         disposeCameraListener?.()
-        disposeCameraListener = null
         removeDataSource()
         viewer = null
     })
