@@ -43,7 +43,7 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
     const dataAdapter = createSwissnamesLabelDataAdapter(layerConfig.baseUrl, layerConfig.id)
     const tileLoader = createSwissnamesTileLoader({
         canRenderLabels,
-        getEntities: () => dataSource?.entities ?? null,
+        getEntities: () => dataSource.entities,
         getViewer: () => viewer,
         loadFeatures: dataAdapter.loadFeatures,
         requestRender,
