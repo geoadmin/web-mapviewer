@@ -15,7 +15,7 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
     let viewer = null
     let dataSource = null
     let labelLayers = null
-    let hasCameraListener = false
+    let disposeCameraListener = null
     let isDestroyed = false
 
     function canUseViewer(targetViewer = viewer) {
@@ -88,8 +88,7 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
                 removeDataSource(mountedViewer)
                 return
             }
-            mountedViewer.camera.moveEnd.addEventListener(updateLabels)
-            hasCameraListener = true
+            disposeCameraListener = mountedViewer.camera.moveEnd.addEventListener(updateLabels)
             updateLabels()
         } catch (error) {
             removeDataSource(mountedViewer)
@@ -98,13 +97,6 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
             }
         }
     })
-
-    function removeCameraListener() {
-        if (canUseViewer() && hasCameraListener) {
-            viewer.camera.moveEnd.removeEventListener(updateLabels)
-        }
-        hasCameraListener = false
-    }
 
     function removeDataSource(targetViewer = viewer) {
         if (isDataSourceAttached(targetViewer)) {
@@ -118,7 +110,8 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
     onBeforeUnmount(() => {
         isDestroyed = true
         tileLoader.clear()
-        removeCameraListener()
+        disposeCameraListener?.()
+        disposeCameraListener = null
         removeDataSource()
         viewer = null
     })
