@@ -77,10 +77,17 @@ describe('Swissnames tile loader', () => {
         loader.setVisibleEntries(pendingEntries)
         expect(loadCount).to.equal(35)
 
-        loader.setVisibleEntries([
-            { key: 'zoomlevel4/11/32/0', layer: ENTRY.layer, tile: { z: 11, x: 32, y: 0 } },
-        ])
+        const replacementEntry = {
+            key: 'zoomlevel4/11/32/0',
+            layer: ENTRY.layer,
+            tile: { z: 11, x: 32, y: 0 },
+        }
+        loader.setVisibleEntries([replacementEntry])
         expect(signals.slice(3, 35).every((signal) => signal.aborted)).to.equal(true)
+        expect(loadCount).to.equal(35)
+
+        await flushPromises()
+        loader.setVisibleEntries([replacementEntry])
         expect(loadCount).to.equal(36)
         expect(signals[35].aborted).to.equal(false)
 
