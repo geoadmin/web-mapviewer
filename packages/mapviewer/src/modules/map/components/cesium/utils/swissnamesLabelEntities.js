@@ -145,16 +145,15 @@ export function evictInvisibleSwissnamesLabels(entities, tileCache, visibleKeys)
     let eventsSuspended = false
     try {
         for (const [key, labels] of tileCache.entries()) {
-            if (!visibleKeys.has(key)) {
-                if (labels.length > 0) {
-                    if (!eventsSuspended) {
-                        entities.suspendEvents()
-                        eventsSuspended = true
-                    }
-                    labels.forEach((labelEntity) => entities.remove(labelEntity))
-                }
-                tileCache.delete(key)
+            if (visibleKeys.has(key)) {
+                continue
             }
+            if (labels.length > 0 && !eventsSuspended) {
+                entities.suspendEvents()
+                eventsSuspended = true
+            }
+            labels.forEach((labelEntity) => entities.remove(labelEntity))
+            tileCache.delete(key)
         }
     } finally {
         if (eventsSuspended) {
