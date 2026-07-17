@@ -118,10 +118,8 @@ export function createSwissnamesTileLoader({
     }
 
     function clear() {
-        if (retryTimer) {
-            window.clearTimeout(retryTimer)
-            retryTimer = null
-        }
+        window.clearTimeout(retryTimer)
+        retryTimer = null
         for (const abortController of pendingTileRequests.values()) {
             abortController.abort()
         }
