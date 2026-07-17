@@ -72,16 +72,16 @@ function addLabelEntity(entities, position, labelOptions) {
     })
 }
 
-function addLabel(entities, position, text, fontSize, color, distanceStyle) {
+function addLabel(entities, position, feature, layer, distanceStyle) {
     const baseLabelOptions = {
-        color,
-        fontSize,
+        color: getLabelColor(feature.type),
+        fontSize: layer.fontSize,
         distanceStyle,
     }
     return [
         addLabelEntity(entities, position, {
             ...baseLabelOptions,
-            text,
+            text: feature.text,
             fontFamily: LABEL_FONT_FAMILY,
             showBackground: true,
             verticalOrigin: VerticalOrigin.BOTTOM,
@@ -122,18 +122,10 @@ export function addSwissnamesFeatureLabels(entities, features, positions, layer)
     try {
         features.forEach((feature, index) => {
             const position = positions[index]
-            if (position) {
-                labels.push(
-                    ...addLabel(
-                        entities,
-                        position,
-                        feature.text,
-                        layer.fontSize,
-                        getLabelColor(feature.type),
-                        distanceStyle
-                    )
-                )
+            if (!position) {
+                return
             }
+            labels.push(...addLabel(entities, position, feature, layer, distanceStyle))
         })
     } finally {
         entities.resumeEvents()
