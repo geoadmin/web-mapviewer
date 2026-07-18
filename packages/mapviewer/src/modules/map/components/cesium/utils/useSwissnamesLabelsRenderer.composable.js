@@ -51,7 +51,7 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
     })
 
     function updateLabels() {
-        if (!labelLayers || !canRenderLabels()) {
+        if (!canRenderLabels()) {
             return
         }
         const rectangle = getSwissnamesCameraRectangle(viewer)
