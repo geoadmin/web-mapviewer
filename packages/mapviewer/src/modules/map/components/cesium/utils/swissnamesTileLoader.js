@@ -82,16 +82,17 @@ export function createSwissnamesTileLoader({
             }
             retryingTileKeys.delete(key)
         } catch (error) {
-            if (error?.name !== 'AbortError') {
-                if (!retryingTileKeys.has(key)) {
-                    retryingTileKeys.add(key)
-                    scheduleRetry()
-                } else {
-                    retryingTileKeys.delete(key)
-                    suppressedTileKeys.add(key)
-                    log.warn(`Swissnames tile ${key} failed`, error)
-                }
+            if (error?.name === 'AbortError') {
+                return
             }
+            const wasRetrying = retryingTileKeys.delete(key)
+            if (!wasRetrying) {
+                retryingTileKeys.add(key)
+                scheduleRetry()
+                return
+            }
+            suppressedTileKeys.add(key)
+            log.warn(`Swissnames tile ${key} failed`, error)
         } finally {
             const ownsPendingRequest = pendingTileRequests.get(key) === abortController
             if (ownsPendingRequest) {
