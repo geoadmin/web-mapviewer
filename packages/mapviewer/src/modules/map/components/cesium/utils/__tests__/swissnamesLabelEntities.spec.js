@@ -1,10 +1,10 @@
-import { EntityCollection } from 'cesium'
+import { Cartesian3, EntityCollection } from 'cesium'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
 import {
+    addSwissnamesFeatureLabels,
     evictInvisibleSwissnamesLabels,
-    getSwissnamesLabelDistanceStyle,
 } from '@/modules/map/components/cesium/utils/swissnamesLabelEntities'
 
 describe('Swissnames label eviction', () => {
@@ -36,19 +36,19 @@ describe('Swissnames label eviction', () => {
 })
 
 describe('Swissnames label distance styling', () => {
-    it('uses the publication display cutoff', () => {
-        const local = getSwissnamesLabelDistanceStyle({ maxDistance: 20000 })
-        const street = getSwissnamesLabelDistanceStyle({ maxDistance: 5000 })
-
-        expect(local.distanceDisplayCondition.near).to.equal(0)
-        expect(local.distanceDisplayCondition.far).to.equal(20000)
-        expect(street.distanceDisplayCondition.far).to.equal(5000)
-    })
-
     it('keeps labels fully readable up to the cutoff (no scale or fade curves)', () => {
-        const style = getSwissnamesLabelDistanceStyle({ maxDistance: 25000 })
+        const entities = new EntityCollection()
+        const [label] = addSwissnamesFeatureLabels(
+            entities,
+            [{ text: 'Brienzersee', type: 'SEE' }],
+            [Cartesian3.ZERO],
+            { fontSize: 12, maxDistance: 25000 }
+        )
+        const distanceCondition = label.label.distanceDisplayCondition.getValue()
 
-        expect(style).to.not.have.property('scaleByDistance')
-        expect(style).to.not.have.property('translucencyByDistance')
+        expect(distanceCondition.near).to.equal(0)
+        expect(distanceCondition.far).to.equal(25000)
+        expect(label.label.scaleByDistance).to.equal(undefined)
+        expect(label.label.translucencyByDistance).to.equal(undefined)
     })
 })

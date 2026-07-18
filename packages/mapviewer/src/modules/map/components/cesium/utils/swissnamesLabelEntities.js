@@ -29,12 +29,6 @@ function getLabelColor(type) {
     return Color.WHITE
 }
 
-export function getSwissnamesLabelDistanceStyle(layer) {
-    return {
-        distanceDisplayCondition: new DistanceDisplayCondition(0, layer.maxDistance),
-    }
-}
-
 function getLabelGraphics({
     text,
     fontSize,
@@ -117,7 +111,9 @@ export async function getSwissnamesTerrainPositions(viewer, features) {
 
 export function addSwissnamesFeatureLabels(entities, features, positions, layer) {
     const labels = []
-    const distanceStyle = getSwissnamesLabelDistanceStyle(layer)
+    const distanceStyle = {
+        distanceDisplayCondition: new DistanceDisplayCondition(0, layer.maxDistance),
+    }
     entities.suspendEvents()
     try {
         features.forEach((feature, index) => {
