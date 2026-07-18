@@ -69,31 +69,17 @@ function getAvailableTiles(availability, layers) {
 }
 
 function decodeFeature(feature, tile) {
-    const { geometry } = feature.toGeoJSON(tile.x, tile.y, tile.z)
+    const { coordinates } = feature.toGeoJSON(tile.x, tile.y, tile.z).geometry
     const { text, type } = feature.properties
-    if (
-        geometry?.type !== 'Point' ||
-        typeof text !== 'string' ||
-        !text ||
-        typeof type !== 'string'
-    ) {
-        return null
-    }
-    const [lon, lat] = geometry.coordinates
+    const [lon, lat] = coordinates
     return { lon, lat, text, type }
 }
 
 function decodeFeatures(buffer, tile) {
     const layer = new VectorTile(new Pbf(buffer)).layers[VECTOR_LAYER_NAME]
-    if (!layer) {
-        return []
-    }
     const features = []
     for (let index = 0; index < layer.length; index += 1) {
-        const feature = decodeFeature(layer.feature(index), tile)
-        if (feature) {
-            features.push(feature)
-        }
+        features.push(decodeFeature(layer.feature(index), tile))
     }
     return features
 }
