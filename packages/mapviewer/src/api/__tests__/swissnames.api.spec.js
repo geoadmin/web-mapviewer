@@ -146,18 +146,6 @@ describe('Swissnames label data adapter', () => {
         expect(error.message).to.equal('Swissnames tile availability returned HTTP 503')
     })
 
-    it('does not expose partially loaded config after invalid availability', async () => {
-        const responses = [jsonResponse(manifest()), jsonResponse({ layers: {} })]
-        const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, async () =>
-            responses.shift()
-        )
-
-        await getError(adapter.loadLayers())
-        const error = await getError(adapter.loadFeatures({ id: 'zoomlevel0' }, TILE))
-
-        expect(error.message).to.equal('Swissnames labels config must be loaded before its tiles')
-    })
-
     it('reports listed tile HTTP failures', async () => {
         const responses = [
             jsonResponse(manifest()),

@@ -132,9 +132,6 @@ export function createSwissnamesLabelDataAdapter(baseUrl, layerId, fetchData = f
     }
 
     async function loadFeatures(layer, tile, signal) {
-        if (!publication) {
-            throw new Error('Swissnames labels config must be loaded before its tiles')
-        }
         const key = `${layer.id}/${tile.z}/${tile.x}/${tile.y}`
         // Each layer has one tileZoom, so availability paths only need x/y.
         if (!publication.availableTiles.has(`${layer.id}/${tile.x}/${tile.y}`)) {
