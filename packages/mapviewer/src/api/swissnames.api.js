@@ -4,25 +4,13 @@ import Pbf from 'pbf'
 /**
  * Adapter for the PB-2246 version 2 publication.
  *
+ * The producer validates the publication before exposure; this adapter gates version compatibility.
  * PBF decoding and `toGeoJSON` are transport work. They remain until the publication changes to a
  * format that Cesium can render as tiled text labels directly.
  */
 
 const PUBLICATION_PATH = 'v2'
 const VECTOR_LAYER_NAME = 'labels'
-
-function validateConfig(config) {
-    if (
-        !config ||
-        config.version !== '2.0' ||
-        typeof config.s3BaseUrl !== 'string' ||
-        typeof config.tileAvailability !== 'string' ||
-        !Array.isArray(config.layers)
-    ) {
-        throw new TypeError('Invalid Swissnames labels config')
-    }
-    return config
-}
 
 function getAvailableTiles(availability, layers) {
     return new Set(
@@ -66,7 +54,10 @@ export function createSwissnamesLabelDataAdapter(baseUrl, layerId, fetchData = f
         if (!response.ok) {
             throw new Error(`Swissnames labels config returned HTTP ${response.status}`)
         }
-        const config = validateConfig(await response.json())
+        const config = await response.json()
+        if (config.version !== '2.0') {
+            throw new TypeError('Invalid Swissnames labels config')
+        }
         const nextTileBaseUrl = `${publicationUrl}${config.s3BaseUrl}`
         const availabilityResponse = await fetchData(
             `${nextTileBaseUrl}/${config.tileAvailability}`
