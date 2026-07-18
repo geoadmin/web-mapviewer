@@ -40,7 +40,7 @@ describe('Swissnames labels helpers', () => {
             { x: 268, y: 179, z: 9 },
         ])
         expect(
-            getVisibleSwissnamesTiles({ west: -180, east: 180, north: 85, south: -85 }, 13, 10)
+            getVisibleSwissnamesTiles({ west: -180, east: 180, north: 85, south: -85 }, 13)
         ).to.deep.equal([])
         expect(
             getVisibleSwissnamesTiles({ west: -180, east: 180, north: 90, south: -90 }, 0)

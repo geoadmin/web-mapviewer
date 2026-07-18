@@ -28,7 +28,7 @@ export function buildSwissnamesTileKey(layerId, tile) {
     return `${layerId}/${tile.z}/${tile.x}/${tile.y}`
 }
 
-export function getVisibleSwissnamesTiles(rectangle, zoom, maxTileCount = MAX_VISIBLE_TILE_COUNT) {
+export function getVisibleSwissnamesTiles(rectangle, zoom) {
     const northWestTile = positionToTileXY(rectangle.west, rectangle.north, zoom)
     const southEastTile = positionToTileXY(rectangle.east, rectangle.south, zoom)
     const xMin = northWestTile.x
@@ -37,7 +37,7 @@ export function getVisibleSwissnamesTiles(rectangle, zoom, maxTileCount = MAX_VI
     const yMax = southEastTile.y
     const xCount = xMax - xMin + 1
     const yCount = yMax - yMin + 1
-    if (xCount * yCount > maxTileCount) {
+    if (xCount * yCount > MAX_VISIBLE_TILE_COUNT) {
         return []
     }
     const tiles = []
