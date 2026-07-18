@@ -25,17 +25,10 @@ function validateConfig(config) {
 }
 
 function getAvailableTiles(availability, layers) {
-    if (!availability?.layers) {
-        throw new TypeError('Invalid Swissnames tile availability')
-    }
     return new Set(
-        layers.flatMap((layer) => {
-            const paths = availability.layers[layer.id]
-            if (!Array.isArray(paths) || paths.some((path) => typeof path !== 'string')) {
-                throw new TypeError(`Invalid Swissnames tile availability for ${layer.id}`)
-            }
-            return paths.map((path) => `${layer.id}/${path}`)
-        })
+        layers.flatMap((layer) =>
+            availability.layers[layer.id].map((path) => `${layer.id}/${path}`)
+        )
     )
 }
 
