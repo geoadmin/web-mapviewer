@@ -114,27 +114,6 @@ describe('Swissnames label data adapter', () => {
         expect(error.message).to.equal('Invalid Swissnames labels config')
     })
 
-    it('rejects incomplete version 2 layers', async () => {
-        const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, async () =>
-            jsonResponse(manifest({ maxDistance: undefined }))
-        )
-
-        const error = await getError(adapter.loadLayers())
-
-        expect(error).to.be.instanceOf(TypeError)
-        expect(error.message).to.equal('Invalid Swissnames label maxDistance')
-    })
-
-    it.each(['fontSize', 'maxDistance'])('rejects non-positive %s', async (fieldName) => {
-        const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, async () =>
-            jsonResponse(manifest({ [fieldName]: 0 }))
-        )
-
-        const error = await getError(adapter.loadLayers())
-
-        expect(error.message).to.equal(`Invalid Swissnames label ${fieldName}`)
-    })
-
     it('reports availability HTTP failures', async () => {
         const responses = [jsonResponse(manifest()), { ok: false, status: 503 }]
         const adapter = createSwissnamesLabelDataAdapter(BASE_URL, LAYER_ID, async () =>

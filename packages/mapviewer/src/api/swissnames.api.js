@@ -11,34 +11,6 @@ import Pbf from 'pbf'
 const PUBLICATION_PATH = 'v2'
 const VECTOR_LAYER_NAME = 'labels'
 
-function assertFiniteNumber(value, fieldName) {
-    if (!Number.isFinite(value)) {
-        throw new TypeError(`Invalid Swissnames label ${fieldName}`)
-    }
-}
-
-function assertPositiveNumber(value, fieldName) {
-    assertFiniteNumber(value, fieldName)
-    if (value <= 0) {
-        throw new TypeError(`Invalid Swissnames label ${fieldName}`)
-    }
-}
-
-function validateLayer(layer) {
-    if (!layer?.id) {
-        throw new TypeError('Invalid Swissnames label layer id')
-    }
-    if (!Number.isInteger(layer.tileZoom) || layer.tileZoom < 0) {
-        throw new TypeError('Invalid Swissnames label zoom')
-    }
-    assertFiniteNumber(layer.minAlt, 'minAlt')
-    assertPositiveNumber(layer.fontSize, 'fontSize')
-    assertPositiveNumber(layer.maxDistance, 'maxDistance')
-    if (layer.maxAlt !== null) {
-        assertFiniteNumber(layer.maxAlt, 'maxAlt')
-    }
-}
-
 function validateConfig(config) {
     if (
         !config ||
@@ -49,7 +21,6 @@ function validateConfig(config) {
     ) {
         throw new TypeError('Invalid Swissnames labels config')
     }
-    config.layers.forEach(validateLayer)
     return config
 }
 
