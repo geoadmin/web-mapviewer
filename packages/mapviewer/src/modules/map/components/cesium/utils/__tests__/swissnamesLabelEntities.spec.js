@@ -1,4 +1,4 @@
-import { Cartesian3, EntityCollection } from 'cesium'
+import { Cartesian2, Cartesian3, EntityCollection, LabelStyle, VerticalOrigin } from 'cesium'
 import { expect } from 'chai'
 import { describe, it } from 'vitest'
 
@@ -38,7 +38,7 @@ describe('Swissnames label eviction', () => {
 describe('Swissnames label distance styling', () => {
     it('keeps labels fully readable up to the cutoff (no scale or fade curves)', () => {
         const entities = new EntityCollection()
-        const [label] = addSwissnamesFeatureLabels(
+        const [label, stem] = addSwissnamesFeatureLabels(
             entities,
             [{ text: 'Brienzersee', type: 'SEE' }],
             [Cartesian3.ZERO],
@@ -46,6 +46,16 @@ describe('Swissnames label distance styling', () => {
         )
         const distanceCondition = label.label.distanceDisplayCondition.getValue()
 
+        expect(entities.values).to.deep.equal([label, stem])
+        expect(label.label.text.getValue()).to.equal('Brienzersee')
+        expect(label.label.font.getValue()).to.equal('12px Arial, sans-serif')
+        expect(label.label.showBackground.getValue()).to.equal(true)
+        expect(label.label.verticalOrigin.getValue()).to.equal(VerticalOrigin.BOTTOM)
+        expect(stem.label.text.getValue()).to.equal('|')
+        expect(stem.label.font.getValue()).to.equal('12px monospace')
+        expect(stem.label.style.getValue()).to.equal(LabelStyle.FILL_AND_OUTLINE)
+        expect(stem.label.pixelOffset.getValue()).to.deep.equal(new Cartesian2(0, 4))
+        expect(stem.label.distanceDisplayCondition.getValue()).to.deep.equal(distanceCondition)
         expect(distanceCondition.near).to.equal(0)
         expect(distanceCondition.far).to.equal(25000)
         expect(label.label.scaleByDistance).to.equal(undefined)

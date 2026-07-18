@@ -29,67 +29,44 @@ function getLabelColor(type) {
     return Color.WHITE
 }
 
-function getLabelGraphics({
-    text,
-    fontSize,
-    fontFamily,
-    color,
-    distanceStyle,
-    outlineColor = Color.WHITE,
-    outlineWidth = 0,
-    showBackground = false,
-    verticalOrigin,
-    pixelOffset = null,
-}) {
-    return {
-        text,
-        font: `${fontSize}px ${fontFamily}`,
-        fillColor: color,
-        outlineColor,
-        outlineWidth,
-        style: outlineWidth > 0 ? LabelStyle.FILL_AND_OUTLINE : LabelStyle.FILL,
-        showBackground,
+function addLabel(entities, position, feature, layer, distanceStyle) {
+    const sharedGraphics = {
+        fillColor: getLabelColor(feature.type),
+        outlineColor: Color.WHITE,
         backgroundColor: LABEL_BACKGROUND_COLOR,
         backgroundPadding: LABEL_BACKGROUND_PADDING,
-        verticalOrigin,
         horizontalOrigin: HorizontalOrigin.CENTER,
         disableDepthTestDistance: 0,
         ...distanceStyle,
-        ...(pixelOffset ? { pixelOffset } : {}),
     }
-}
 
-function addLabelEntity(entities, position, labelOptions) {
-    return entities.add({
+    const textLabel = entities.add({
         position,
-        label: getLabelGraphics(labelOptions),
-    })
-}
-
-function addLabel(entities, position, feature, layer, distanceStyle) {
-    const baseLabelOptions = {
-        color: getLabelColor(feature.type),
-        fontSize: layer.fontSize,
-        distanceStyle,
-    }
-    return [
-        addLabelEntity(entities, position, {
-            ...baseLabelOptions,
+        label: {
+            ...sharedGraphics,
             text: feature.text,
-            fontFamily: LABEL_FONT_FAMILY,
+            font: `${layer.fontSize}px ${LABEL_FONT_FAMILY}`,
+            outlineWidth: 0,
+            style: LabelStyle.FILL,
             showBackground: true,
             verticalOrigin: VerticalOrigin.BOTTOM,
-        }),
-        addLabelEntity(entities, position, {
-            ...baseLabelOptions,
+        },
+    })
+    const stemLabel = entities.add({
+        position,
+        label: {
+            ...sharedGraphics,
             text: '|',
-            fontFamily: STEM_FONT_FAMILY,
-            outlineColor: Color.WHITE,
+            font: `${layer.fontSize}px ${STEM_FONT_FAMILY}`,
             outlineWidth: STEM_OUTLINE_WIDTH,
+            style: LabelStyle.FILL_AND_OUTLINE,
+            showBackground: false,
             verticalOrigin: VerticalOrigin.TOP,
             pixelOffset: new Cartesian2(0, 4),
-        }),
-    ]
+        },
+    })
+
+    return [textLabel, stemLabel]
 }
 
 export async function getSwissnamesTerrainPositions(viewer, features) {
