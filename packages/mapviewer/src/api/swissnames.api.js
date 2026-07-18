@@ -20,18 +20,15 @@ function getAvailableTiles(availability, layers) {
     )
 }
 
-function decodeFeature(feature, tile) {
-    const { coordinates } = feature.toGeoJSON(tile.x, tile.y, tile.z).geometry
-    const { text, type } = feature.properties
-    const [lon, lat] = coordinates
-    return { lon, lat, text, type }
-}
-
 function decodeFeatures(buffer, tile) {
     const layer = new VectorTile(new Pbf(buffer)).layers[VECTOR_LAYER_NAME]
     const features = []
     for (let index = 0; index < layer.length; index += 1) {
-        features.push(decodeFeature(layer.feature(index), tile))
+        const feature = layer.feature(index)
+        const { coordinates } = feature.toGeoJSON(tile.x, tile.y, tile.z).geometry
+        const { text, type } = feature.properties
+        const [lon, lat] = coordinates
+        features.push({ lon, lat, text, type })
     }
     return features
 }
