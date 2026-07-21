@@ -22,13 +22,14 @@ const LAKE_COLOR = Color.fromCssColorString('#b8e1ff')
 const PEAK_COLOR = Color.fromCssColorString('#ffc2a8')
 
 function getColor(type) {
-    if (type === 'SEE') {
-        return LAKE_COLOR
+    switch (type) {
+        case 'SEE':
+            return LAKE_COLOR
+        case 'GIPFEL':
+            return PEAK_COLOR
+        default:
+            return Color.WHITE
     }
-    if (type === 'GIPFEL') {
-        return PEAK_COLOR
-    }
-    return Color.WHITE
 }
 
 function addLabels(collection, feature) {
