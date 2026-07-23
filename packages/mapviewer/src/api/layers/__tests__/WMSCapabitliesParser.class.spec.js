@@ -658,6 +658,37 @@ describe('WMSCapabilitiesParser - layer extent', () => {
         expect(layer.extent[1][0]).toBeCloseTo(expected[1][0], 1)
         expect(layer.extent[1][1]).toBeCloseTo(expected[1][1], 1)
     })
+    it('Returns a null extent instead of NaN when a global EX_GeographicBoundingBox is reprojected to Web Mercator', () => {
+        // A EX_GeographicBoundingBox of -180,-90,180,90 is a common, spec-legal way for WMS
+        // servers to advertise a layer covering the whole globe. Reprojecting latitude +/-90 to
+        // Web Mercator is mathematically undefined and must not silently yield NaN coordinates.
+        const content = `<?xml version='1.0' encoding="UTF-8" standalone="no"?>
+        <WMS_Capabilities version="1.3.0">
+            <Capability>
+                <Layer>
+                    <Title>WMS BGDI</Title>
+                    <Layer queryable="1" opaque="0" cascaded="1">
+                        <Name>ch.swisstopo-vd.official-survey</Name>
+                        <Title>OpenData-AV</Title>
+                        <EX_GeographicBoundingBox>
+                            <westBoundLongitude>-180</westBoundLongitude>
+                            <eastBoundLongitude>180</eastBoundLongitude>
+                            <southBoundLatitude>-90</southBoundLatitude>
+                            <northBoundLatitude>90</northBoundLatitude>
+                        </EX_GeographicBoundingBox>
+                    </Layer>
+                </Layer>
+            </Capability>
+        </WMS_Capabilities>
+        `
+        const capabilities = new WMSCapabilitiesParser(content, 'https://wms.geo.admin.ch')
+        const layer = capabilities.getExternalLayerObject(
+            'ch.swisstopo-vd.official-survey',
+            WEBMERCATOR
+        )
+        expect(layer.id).toBe('ch.swisstopo-vd.official-survey')
+        expect(layer.extent).toBeNull()
+    })
 })
 
 describe('EX_GeographicBoundingBox - Group of layers', () => {

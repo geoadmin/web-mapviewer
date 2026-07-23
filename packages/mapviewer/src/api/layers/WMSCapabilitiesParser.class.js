@@ -12,6 +12,35 @@ import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 import { WMS_SUPPORTED_VERSIONS } from '@/config/map.config'
 
+/**
+ * Reproject a two-point extent, guarding against non-finite results.
+ *
+ * Proj4 silently returns NaN/Infinity when asked to reproject coordinates that are outside the
+ * valid domain of the target projection (e.g. latitude +/-90 into Web Mercator, which is undefined
+ * at the poles). Some WMS servers advertise EX_GeographicBoundingBox / BoundingBox values covering
+ * the whole globe (-180,-90,180,90), which triggers this. Without this guard, the resulting extent
+ * silently corrupts the map view (NaN center/zoom).
+ *
+ * @param {String} fromEpsg Source projection EPSG code
+ * @param {String} toEpsg Target projection EPSG code
+ * @param {[Number, Number]} lowerLeft Lower left corner of the extent, in the source projection
+ * @param {[Number, Number]} upperRight Upper right corner of the extent, in the source projection
+ * @returns {[[Number, Number], [Number, Number]] | null} The reprojected extent, or null if the
+ *   reprojection produced a non-finite result
+ */
+function reprojectExtent(fromEpsg, toEpsg, lowerLeft, upperRight) {
+    const extent = [proj4(fromEpsg, toEpsg, lowerLeft), proj4(fromEpsg, toEpsg, upperRight)]
+    if (extent.flat().some((value) => !Number.isFinite(value))) {
+        log.error(
+            `Failed to reproject extent from ${fromEpsg} to ${toEpsg}, non-finite result`,
+            lowerLeft,
+            upperRight
+        )
+        return null
+    }
+    return extent
+}
+
 function findLayer(layerId, startFrom, parents) {
     let found = {}
     const layers = startFrom
@@ -376,20 +405,24 @@ export default class WMSCapabilitiesParser {
                 if (bbox.crs === WGS84.epsg && projection.epsg === WEBMERCATOR.epsg) {
                     extent = WGS84.getExtentInOrderXY(extent)
                 }
-                layerExtent = [
-                    proj4(bbox.crs, projection.epsg, [extent[0], extent[1]]),
-                    proj4(bbox.crs, projection.epsg, [extent[2], extent[3]]),
-                ]
+                layerExtent = reprojectExtent(
+                    bbox.crs,
+                    projection.epsg,
+                    [extent[0], extent[1]],
+                    [extent[2], extent[3]]
+                )
             }
         }
         // Fallback to the EX_GeographicBoundingBox
         if (!layerExtent && layer.EX_GeographicBoundingBox) {
             const bbox = layer.EX_GeographicBoundingBox
             if (projection !== WGS84) {
-                layerExtent = [
-                    proj4(WGS84.epsg, projection.epsg, [bbox[0], bbox[1]]),
-                    proj4(WGS84.epsg, projection.epsg, [bbox[2], bbox[3]]),
-                ]
+                layerExtent = reprojectExtent(
+                    WGS84.epsg,
+                    projection.epsg,
+                    [bbox[0], bbox[1]],
+                    [bbox[2], bbox[3]]
+                )
             } else {
                 layerExtent = [
                     [bbox[0], bbox[1]],
