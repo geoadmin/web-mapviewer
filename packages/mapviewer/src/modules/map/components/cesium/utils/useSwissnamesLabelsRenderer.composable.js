@@ -10,12 +10,14 @@ import {
     HorizontalOrigin,
     LabelCollection,
     LabelStyle,
+    NearFarScalar,
     VerticalOrigin,
 } from 'cesium'
 import { onBeforeUnmount, onMounted } from 'vue'
 
 const PUBLICATION_PATH = 'v3/tileset.json'
 const HEIGHT_OFFSET = 2
+const FADE_START_RATIO = 0.76
 const BACKGROUND_COLOR = Color.fromCssColorString('#15191e').withAlpha(0.94)
 const BACKGROUND_PADDING = new Cartesian2(5, 2)
 const LAKE_COLOR = Color.fromCssColorString('#b8e1ff')
@@ -34,6 +36,7 @@ function getColor(type) {
 
 function addLabels(collection, feature) {
     const fontSize = feature.getProperty('fontSize')
+    const maxDistance = feature.getProperty('maxDistance')
     const position = Cartesian3.fromDegrees(
         feature.getProperty('longitude'),
         feature.getProperty('latitude'),
@@ -45,9 +48,12 @@ function addLabels(collection, feature) {
         fillColor: getColor(feature.getProperty('type')),
         horizontalOrigin: HorizontalOrigin.CENTER,
         disableDepthTestDistance: 0,
-        distanceDisplayCondition: new DistanceDisplayCondition(
-            0,
-            feature.getProperty('maxDistance')
+        distanceDisplayCondition: new DistanceDisplayCondition(0, maxDistance),
+        translucencyByDistance: new NearFarScalar(
+            maxDistance * FADE_START_RATIO,
+            1,
+            maxDistance,
+            0
         ),
     }
     return [
