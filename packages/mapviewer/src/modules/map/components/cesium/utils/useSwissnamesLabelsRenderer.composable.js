@@ -15,7 +15,7 @@ import {
 } from 'cesium'
 import { onBeforeUnmount, onMounted } from 'vue'
 
-const PUBLICATION_PATH = 'v3/tileset.json'
+const PUBLICATION_PATH = 'v4-language-experiment/tileset.json'
 const HEIGHT_OFFSET = 2
 const FADE_START_RATIO = 0.76
 const BACKGROUND_COLOR = Color.fromCssColorString('#15191e').withAlpha(0.94)
