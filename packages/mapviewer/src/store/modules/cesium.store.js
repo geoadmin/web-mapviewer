@@ -10,8 +10,8 @@ import {
 const labelLayer = new GeoAdmin3DLayer({
     layerId: CESIUM_LABELS_LAYER_ID,
     layerName: '3d_labels',
-    urlTimestampToUse: '20180716',
-    use3dTileSubFolder: true,
+    urlTimestampToUse: 'v2',
+    use3dTileSubFolder: false,
 })
 const vegetationLayer = new GeoAdmin3DLayer({
     layerId: CESIUM_VEGETATION_LAYER_ID,
