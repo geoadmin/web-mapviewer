@@ -15,7 +15,6 @@ import {
 } from 'cesium'
 import { onBeforeUnmount, onMounted } from 'vue'
 
-const HEIGHT_OFFSET = 2
 const FADE_START_RATIO = 0.76
 const BACKGROUND_COLOR = Color.fromCssColorString('#15191e').withAlpha(0.94)
 const BACKGROUND_PADDING = new Cartesian2(5, 2)
@@ -39,7 +38,7 @@ function addLabels(collection, feature) {
     const position = Cartesian3.fromDegrees(
         feature.getProperty('longitude'),
         feature.getProperty('latitude'),
-        HEIGHT_OFFSET
+        feature.getProperty('heightOffset')
     )
     const shared = {
         position,
