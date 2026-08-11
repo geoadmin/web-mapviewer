@@ -65,16 +65,6 @@ function addLabels(collection, feature) {
             backgroundPadding: BACKGROUND_PADDING,
             verticalOrigin: VerticalOrigin.BOTTOM,
         }),
-        collection.add({
-            ...shared,
-            text: '|',
-            font: `${fontSize}px monospace`,
-            style: LabelStyle.FILL_AND_OUTLINE,
-            outlineColor: Color.WHITE,
-            outlineWidth: 1,
-            pixelOffset: new Cartesian2(0, 4),
-            verticalOrigin: VerticalOrigin.TOP,
-        }),
     ]
 }
 
