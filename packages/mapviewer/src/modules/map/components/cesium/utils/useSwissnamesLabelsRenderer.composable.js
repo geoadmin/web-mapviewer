@@ -6,11 +6,11 @@ import {
     Cesium3DTileset,
     Color,
     DistanceDisplayCondition,
-    HeightReference,
     HorizontalOrigin,
     LabelCollection,
     LabelStyle,
     NearFarScalar,
+    PolylineCollection,
     VerticalOrigin,
 } from 'cesium'
 import { onBeforeUnmount, onMounted } from 'vue'
@@ -32,66 +32,86 @@ function getColor(type) {
     }
 }
 
-function addLabels(collection, feature) {
-    const fontSize = feature.getProperty('fontSize')
-    const maxDistance = feature.getProperty('maxDistance')
-    const position = Cartesian3.fromDegrees(
+function getPosition(feature, heightProperty) {
+    return Cartesian3.fromDegrees(
         feature.getProperty('longitude'),
         feature.getProperty('latitude'),
-        feature.getProperty('heightOffset')
+        feature.getProperty(heightProperty)
     )
-    const shared = {
+}
+
+function addConnector(collection, positions, distanceDisplayCondition) {
+    return collection.add({
+        positions,
+        width: 1,
+        distanceDisplayCondition,
+    })
+}
+
+function addLabel(collection, feature, position, distanceDisplayCondition) {
+    const maxDistance = feature.getProperty('maxDistance')
+    return collection.add({
         position,
-        heightReference: HeightReference.RELATIVE_TO_TERRAIN,
+        text: feature.getProperty('text'),
+        font: `${feature.getProperty('fontSize')}px Arial, sans-serif`,
+        style: LabelStyle.FILL,
         fillColor: getColor(feature.getProperty('type')),
+        showBackground: true,
+        backgroundColor: BACKGROUND_COLOR,
+        backgroundPadding: BACKGROUND_PADDING,
         horizontalOrigin: HorizontalOrigin.CENTER,
+        verticalOrigin: VerticalOrigin.BOTTOM,
         disableDepthTestDistance: 0,
-        distanceDisplayCondition: new DistanceDisplayCondition(0, maxDistance),
+        distanceDisplayCondition,
         translucencyByDistance: new NearFarScalar(
             maxDistance * FADE_START_RATIO,
             1,
             maxDistance,
             0
         ),
+    })
+}
+
+function addFeature(labelCollection, connectorCollection, feature) {
+    const groundPosition = getPosition(feature, 'groundHeight')
+    const labelPosition = getPosition(feature, 'labelHeight')
+    const distance = new DistanceDisplayCondition(0, feature.getProperty('maxDistance'))
+    return {
+        connector: addConnector(connectorCollection, [groundPosition, labelPosition], distance),
+        label: addLabel(labelCollection, feature, labelPosition, distance),
     }
-    return [
-        collection.add({
-            ...shared,
-            text: feature.getProperty('text'),
-            font: `${fontSize}px Arial, sans-serif`,
-            style: LabelStyle.FILL,
-            showBackground: true,
-            backgroundColor: BACKGROUND_COLOR,
-            backgroundPadding: BACKGROUND_PADDING,
-            verticalOrigin: VerticalOrigin.BOTTOM,
-        }),
-    ]
 }
 
 export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
     let viewer = null
     let tileset = null
     let labels = null
+    let connectors = null
     let isUnmounted = false
     const visibleTiles = new Set()
-    const activeLabels = new Map()
+    const activeFeatures = new Map()
     const disposers = []
 
     function synchronizeLabels() {
-        for (const [tile, tileLabels] of activeLabels) {
-            if (!visibleTiles.has(tile)) {
-                tileLabels.forEach((label) => labels.remove(label))
-                activeLabels.delete(tile)
+        for (const [tile, tileFeatures] of activeFeatures) {
+            if (visibleTiles.has(tile)) {
+                continue
             }
+            for (const { connector, label } of tileFeatures) {
+                connectors.remove(connector)
+                labels.remove(label)
+            }
+            activeFeatures.delete(tile)
         }
         for (const tile of visibleTiles) {
-            if (!activeLabels.has(tile)) {
-                const tileLabels = []
-                for (let index = 0; index < tile.content.featuresLength; index += 1) {
-                    tileLabels.push(...addLabels(labels, tile.content.getFeature(index)))
-                }
-                activeLabels.set(tile, tileLabels)
+            if (activeFeatures.has(tile)) {
+                continue
             }
+            const tileFeatures = []
+            for (let index = 0; index < tile.content.featuresLength; index += 1) {
+                tileFeatures.push(addFeature(labels, connectors, tile.content.getFeature(index)))
+            }
+            activeFeatures.set(tile, tileFeatures)
         }
         visibleTiles.clear()
     }
@@ -111,6 +131,7 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
             }
             loadedTileset.style = new Cesium3DTileStyle({ show: false })
             tileset = viewer.scene.primitives.add(loadedTileset)
+            connectors = viewer.scene.primitives.add(new PolylineCollection())
             labels = viewer.scene.primitives.add(new LabelCollection({ scene: viewer.scene }))
             disposers.push(
                 tileset.tileVisible.addEventListener((tile) => visibleTiles.add(tile)),
@@ -126,6 +147,9 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
         disposers.forEach((dispose) => dispose())
         if (labels) {
             viewer.scene.primitives.remove(labels)
+        }
+        if (connectors) {
+            viewer.scene.primitives.remove(connectors)
         }
         if (tileset) {
             viewer.scene.primitives.remove(tileset)
