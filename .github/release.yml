@@ -1,36 +1,28 @@
+---
 # .github/release.yml
 # WARNING this file is managed by terraform and cannot be edited manually, see
-# geoadmin/infra-terraform-bgdi/tf/github/geoadmin/modules/service-repository-semver/release_config.tf
+# tf/github/geoadmin/modules/github-auto-release-notes-config/main.tf
 
 changelog:
   exclude:
     labels:
-      - ignore-for-release
-      - skip-changelog
-      - skip-rn
       - skip-release-note
-      - no-release-note
-      - no-rn
-      - no-changelog
+      - refactoring
       - new-release
     authors:
       - terraform-bgdi
   categories:
-    - title: Breaking Changes 🛠
+    - title: ":boom: Breaking Changes"
       labels:
         - breaking-change
-    - title: New Features
+    - title: ":sparkles: New Features"
       labels:
         - feature
-        - enhancement
-    - title: Data Updates
+    - title: ":card_index_dividers: Data Updates"
       labels:
-        - data
         - data-integration
-    - title: Bug Fixes
+    - title: ":bug: Bug Fixes"
       labels:
-        - fix
-        - bugfix
         - bug
     - title: Other Changes
       labels:
