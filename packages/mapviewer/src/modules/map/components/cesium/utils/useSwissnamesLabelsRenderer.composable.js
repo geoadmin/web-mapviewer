@@ -116,7 +116,7 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
         visibleTiles.clear()
     }
 
-    onMounted(async () => {
+    async function initializeRenderer() {
         viewer = getViewer()
         if (!viewer) {
             log.error('Failed to load Swissnames labels: missing Cesium viewer')
@@ -140,7 +140,9 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
         } catch (error) {
             log.error('Failed to load Swissnames labels', error)
         }
-    })
+    }
+
+    onMounted(initializeRenderer)
 
     onBeforeUnmount(() => {
         isUnmounted = true
