@@ -49,3 +49,5 @@ pnpm install
 ```
 
 You can use `-h` option to get more detail on the script.
+
+DUMMY
