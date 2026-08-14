@@ -135,7 +135,7 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
             labels = viewer.scene.primitives.add(new LabelCollection({ scene: viewer.scene }))
             disposers.push(
                 tileset.tileVisible.addEventListener((tile) => visibleTiles.add(tile)),
-                viewer.scene.postRender.addEventListener(synchronizeLabels)
+                viewer.scene.preUpdate.addEventListener(synchronizeLabels)
             )
         } catch (error) {
             log.error('Failed to load Swissnames labels', error)
