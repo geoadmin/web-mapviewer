@@ -18,7 +18,6 @@ import {
 import { onBeforeUnmount, onMounted, toValue, watch } from 'vue'
 
 import { PRIMITIVE_DISABLE_DEPTH_TEST_DISTANCE } from '@/config/cesium.config'
-import { CESIUM_SWISSNAMES3D_STYLE } from '@/modules/map/components/cesium/utils/swissnamesStyle'
 
 /**
  * This function goes throw the primitive collection and update passed properties
@@ -91,20 +90,13 @@ export function updateCollectionProperties(collection, properties) {
  * @param {Viewer} cesiumViewer
  * @param {Promise<Cesium3DTileset> | Cesium3DTileset} tileSet
  * @param {Ref<Number>} opacity
- * @param {Object} options
- * @param {Boolean} options.withEnhancedLabelStyle
  */
-export default function useAddPrimitiveLayer(cesiumViewer, tileSet, opacity, options = {}) {
+export default function useAddPrimitiveLayer(cesiumViewer, tileSet, opacity) {
     let layer
-
-    const { withEnhancedLabelStyle = false } = options
 
     onMounted(async () => {
         try {
             const loadedTileSet = await tileSet
-            if (withEnhancedLabelStyle) {
-                loadedTileSet.style = CESIUM_SWISSNAMES3D_STYLE
-            }
             layer = cesiumViewer.scene.primitives.add(loadedTileSet)
             updateCollectionProperties(layer, {
                 opacity: toValue(opacity),
