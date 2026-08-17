@@ -89,12 +89,19 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
     let connectors = null
     let isUnmounted = false
     const visibleTiles = new Set()
+    // Keep labels through one missing frame because tileVisible is a per-frame signal.
+    const pendingRemovalTiles = new Set()
     const activeFeatures = new Map()
     const disposers = []
 
     function synchronizeLabels() {
         for (const [tile, tileFeatures] of activeFeatures) {
             if (visibleTiles.has(tile)) {
+                pendingRemovalTiles.delete(tile)
+                continue
+            }
+            if (!pendingRemovalTiles.has(tile)) {
+                pendingRemovalTiles.add(tile)
                 continue
             }
             for (const { connector, label } of tileFeatures) {
@@ -102,8 +109,10 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
                 labels.remove(label)
             }
             activeFeatures.delete(tile)
+            pendingRemovalTiles.delete(tile)
         }
         for (const tile of visibleTiles) {
+            pendingRemovalTiles.delete(tile)
             if (activeFeatures.has(tile)) {
                 continue
             }
