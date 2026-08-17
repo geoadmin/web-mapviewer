@@ -99,11 +99,12 @@ describe('useSwissnamesLabelsRenderer', () => {
         cesium.polylineCollections.length = 0
     })
 
-    it('reconciles labels before Cesium builds the frame', async () => {
+    it('keeps labels until Cesium unloads their tile', async () => {
         const postRender = cesium.createEvent()
         const preUpdate = cesium.createEvent()
         const tileVisible = cesium.createEvent()
-        const loadedTileset = { tileVisible, style: null, destroy: vi.fn() }
+        const tileUnload = cesium.createEvent()
+        const loadedTileset = { tileVisible, tileUnload, style: null, destroy: vi.fn() }
         cesium.fromUrl.mockResolvedValue(loadedTileset)
         const primitives = {
             add: vi.fn((primitive) => primitive),
@@ -127,8 +128,8 @@ describe('useSwissnamesLabelsRenderer', () => {
         await initialization
 
         expect(cesium.fromUrl).toHaveBeenCalledOnce()
-        expect(postRender.size()).toBe(0)
-        expect(preUpdate.size()).toBe(1)
+        expect(postRender.size()).toBe(1)
+        expect(preUpdate.size()).toBe(0)
 
         const feature = {
             getProperty: vi.fn((property) => {
@@ -145,15 +146,26 @@ describe('useSwissnamesLabelsRenderer', () => {
                 return values[property]
             }),
         }
-        tileVisible.raise({ content: { featuresLength: 1, getFeature: () => feature } })
+        const tile = { content: { featuresLength: 1, getFeature: () => feature } }
+        tileVisible.raise(tile)
         expect(cesium.labelCollections[0].add).not.toHaveBeenCalled()
 
-        preUpdate.raise()
+        postRender.raise()
         expect(cesium.labelCollections[0].add).toHaveBeenCalledOnce()
         expect(cesium.polylineCollections[0].add).toHaveBeenCalledOnce()
 
+        postRender.raise()
+        expect(cesium.labelCollections[0].remove).not.toHaveBeenCalled()
+        expect(cesium.polylineCollections[0].remove).not.toHaveBeenCalled()
+
+        tileUnload.raise(tile)
+        postRender.raise()
+        expect(cesium.labelCollections[0].remove).toHaveBeenCalledOnce()
+        expect(cesium.polylineCollections[0].remove).toHaveBeenCalledOnce()
+
         lifecycle.beforeUnmount()
-        expect(preUpdate.size()).toBe(0)
+        expect(postRender.size()).toBe(0)
+        expect(tileUnload.size()).toBe(0)
         expect(primitives.remove).toHaveBeenCalledTimes(3)
     })
 })

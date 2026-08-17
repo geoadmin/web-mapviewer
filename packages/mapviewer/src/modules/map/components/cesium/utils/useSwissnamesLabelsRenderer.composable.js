@@ -88,31 +88,28 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
     let labels = null
     let connectors = null
     let isUnmounted = false
+    // tileVisible is a per-frame signal. Keep created labels until Cesium evicts their tile.
     const visibleTiles = new Set()
-    // Keep labels through one missing frame because tileVisible is a per-frame signal.
-    const pendingRemovalTiles = new Set()
+    // Tileset events queue work because Cesium forbids collection changes during traversal.
+    const unloadedTiles = new Set()
+    // Track each rendered label and connector by its owning tile for deterministic cleanup.
     const activeFeatures = new Map()
     const disposers = []
 
     function synchronizeLabels() {
-        for (const [tile, tileFeatures] of activeFeatures) {
-            if (visibleTiles.has(tile)) {
-                pendingRemovalTiles.delete(tile)
-                continue
-            }
-            if (!pendingRemovalTiles.has(tile)) {
-                pendingRemovalTiles.add(tile)
-                continue
-            }
+        // Remove the rendered objects of tiles that Cesium evicted from its cache.
+        for (const tile of unloadedTiles) {
+            const tileFeatures = activeFeatures.get(tile) ?? []
             for (const { connector, label } of tileFeatures) {
                 connectors.remove(connector)
                 labels.remove(label)
             }
             activeFeatures.delete(tile)
-            pendingRemovalTiles.delete(tile)
+            visibleTiles.delete(tile)
         }
+        unloadedTiles.clear()
+        // Repeated tileVisible events are idempotent because each active tile is added once.
         for (const tile of visibleTiles) {
-            pendingRemovalTiles.delete(tile)
             if (activeFeatures.has(tile)) {
                 continue
             }
@@ -134,17 +131,22 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
         try {
             const tilesetUrl = `${layerConfig.baseUrl}${layerConfig.id}/${layerConfig.urlTimestampToUse}/tileset.json`
             const loadedTileset = await Cesium3DTileset.fromUrl(tilesetUrl)
+            // Loading can finish after unmount. Destroy a tileset that was never attached to the scene.
             if (isUnmounted) {
                 loadedTileset.destroy()
                 return
             }
+            // The tileset provides tile selection and feature metadata. It does not render its source points.
             loadedTileset.style = new Cesium3DTileStyle({ show: false })
             tileset = viewer.scene.primitives.add(loadedTileset)
+            // Dedicated collections render the visible labels and their terrain connectors.
             connectors = viewer.scene.primitives.add(new PolylineCollection())
             labels = viewer.scene.primitives.add(new LabelCollection({ scene: viewer.scene }))
             disposers.push(
                 tileset.tileVisible.addEventListener((tile) => visibleTiles.add(tile)),
-                viewer.scene.preUpdate.addEventListener(synchronizeLabels)
+                tileset.tileUnload.addEventListener((tile) => unloadedTiles.add(tile)),
+                // Tileset events run during traversal, so change primitive collections after rendering.
+                viewer.scene.postRender.addEventListener(synchronizeLabels)
             )
         } catch (error) {
             log.error('Failed to load Swissnames labels', error)
