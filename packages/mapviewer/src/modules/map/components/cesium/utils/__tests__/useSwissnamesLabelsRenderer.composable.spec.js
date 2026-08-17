@@ -168,4 +168,31 @@ describe('useSwissnamesLabelsRenderer', () => {
         expect(tileUnload.size()).toBe(0)
         expect(primitives.remove).toHaveBeenCalledTimes(3)
     })
+
+    it('destroys a tileset that finishes loading after unmount', async () => {
+        const loadedTileset = { destroy: vi.fn() }
+        cesium.fromUrl.mockResolvedValue(loadedTileset)
+        const primitives = {
+            add: vi.fn((primitive) => primitive),
+            remove: vi.fn(),
+        }
+        const scene = {
+            primitives,
+            requestRender: vi.fn(),
+        }
+        const viewer = { scene }
+
+        useSwissnamesLabelsRenderer(() => viewer, {
+            baseUrl: 'https://example.test/',
+            id: 'swissnames/',
+            urlTimestampToUse: 'current',
+        })
+
+        const initialization = lifecycle.mounted()
+        lifecycle.beforeUnmount()
+        await initialization
+
+        expect(loadedTileset.destroy).toHaveBeenCalledOnce()
+        expect(primitives.add).not.toHaveBeenCalled()
+    })
 })
