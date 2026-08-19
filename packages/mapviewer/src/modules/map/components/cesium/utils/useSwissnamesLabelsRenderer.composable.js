@@ -75,10 +75,16 @@ function addLabel(collection, feature, position, distanceDisplayCondition) {
 function addFeature(labelCollection, connectorCollection, feature) {
     const groundPosition = getPosition(feature, 'groundHeight')
     const labelPosition = getPosition(feature, 'labelHeight')
-    const distance = new DistanceDisplayCondition(0, feature.getProperty('maxDistance'))
+    const maxDistance = feature.getProperty('maxDistance')
+    const labelDistance = new DistanceDisplayCondition(0, maxDistance)
+    const connectorDistance = new DistanceDisplayCondition(0, maxDistance * FADE_START_RATIO)
     return {
-        connector: addConnector(connectorCollection, [groundPosition, labelPosition], distance),
-        label: addLabel(labelCollection, feature, labelPosition, distance),
+        connector: addConnector(
+            connectorCollection,
+            [groundPosition, labelPosition],
+            connectorDistance
+        ),
+        label: addLabel(labelCollection, feature, labelPosition, labelDistance),
     }
 }
 
