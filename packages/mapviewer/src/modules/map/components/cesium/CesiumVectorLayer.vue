@@ -36,6 +36,9 @@ useAddPrimitiveLayer(
     Cesium3DTileset.fromUrl(url.value, {
         // with default value 16 we do not load a lot of building tiles (leading to gaps)
         maximumScreenSpaceError: layerId.value === CESIUM_BUILDING_LAYER_ID ? 10 : 16,
+        cacheBytes: layerId.value === CESIUM_BUILDING_LAYER_ID ? 256 * 1024 ** 2 : undefined,
+        maximumCacheOverflowBytes:
+            layerId.value === CESIUM_BUILDING_LAYER_ID ? 128 * 1024 ** 2 : undefined,
     }),
     opacity
 )
