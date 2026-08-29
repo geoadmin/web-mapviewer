@@ -45,7 +45,7 @@ export function normalizeAngle(rotation) {
  * @returns {Array} - The reprojected extent.
  */
 function reprojectExtent(extent, sourceProjection, targetProjection) {
-    return extent.map((point) => proj4(sourceProjection, targetProjection, point));
+    return extent.map((point) => proj4(sourceProjection, targetProjection, point))
 }
 
 /**
@@ -269,11 +269,14 @@ const actions = {
             }
         }
     },
-    zoomToExtent: ({ commit, state, rootState }, { extent, extentProjection, maxZoom, dispatcher }) => {
+    zoomToExtent: (
+        { commit, state, rootState },
+        { extent, extentProjection, maxZoom, dispatcher }
+    ) => {
         // If the extentProjection is not defined, we assume the extent is in the current projection
         // and we don't need to reproject it.
         if (extentProjection?.epsg && extentProjection.epsg !== state.projection.epsg) {
-            extent = reprojectExtent(extent, extentProjection.epsg, state.projection.epsg);
+            extent = reprojectExtent(extent, extentProjection.epsg, state.projection.epsg)
         }
         const normalizedExtent = extent ? normalizeExtent(extent) : null
         if (normalizedExtent && Array.isArray(normalizedExtent) && normalizedExtent.length === 2) {
@@ -289,12 +292,19 @@ const actions = {
                 (points[0][1] + points[1][1]) / 2.0, // minY + maxY / 2
             ])
 
-            if (centerOfExtent && Array.isArray(centerOfExtent) && centerOfExtent.length === 2) {
+            if (
+                centerOfExtent &&
+                Array.isArray(centerOfExtent) &&
+                centerOfExtent.length === 2 &&
+                centerOfExtent.every(Number.isFinite)
+            ) {
                 commit('setCenter', {
                     x: centerOfExtent[0],
                     y: centerOfExtent[1],
                     dispatcher: `${dispatcher}/zoomToExtent`,
                 })
+            } else {
+                log.error('zoomToExtent: computed center of extent is not finite, ignoring', extent)
             }
             const extentSize = {
                 width: normalizedExtent[1][0] - normalizedExtent[0][0],
