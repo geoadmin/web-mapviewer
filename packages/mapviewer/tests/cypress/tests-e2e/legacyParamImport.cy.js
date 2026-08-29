@@ -122,7 +122,7 @@ describe('Test on legacy param import', () => {
         const kmlServiceFilePath = `${kmlServiceBasePath}/files/${kmlId}`
         beforeEach(() => {
             // serving a dummy KML so that we don't get a 404
-            cy.intercept(`**${kmlServiceFilePath}`, '<kml />').as('get-kml')
+            cy.intercept(`**${kmlServiceFilePath}`, '<kml></kml>').as('get-kml')
             cy.intercept(`**${kmlServiceAdminPath}?admin_id=${adminId}`, (request) => {
                 request.reply({
                     id: kmlId,
