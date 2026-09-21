@@ -55,7 +55,7 @@ function addLabel(collection, feature, position, distanceDisplayCondition) {
         style: LabelStyle.FILL_AND_OUTLINE,
         fillColor: getColor(feature.getProperty('type')),
         outlineColor: Color.WHITE,
-        outlineWidth: 4,
+        outlineWidth: 2,
         showBackground: false,
         horizontalOrigin: HorizontalOrigin.CENTER,
         verticalOrigin: VerticalOrigin.BOTTOM,
