@@ -73,7 +73,6 @@ vi.mock('cesium', () => {
     }
 
     return {
-        BlendOption: { TRANSLUCENT: 1 },
         Cartesian2: class {},
         Cartesian3: { fromDegrees: vi.fn((...coordinates) => coordinates) },
         Cesium3DTileStyle: class {},

@@ -1,0 +1,14 @@
+diff --git a/Source/Scene/Picking.js b/Source/Scene/Picking.js
+--- a/Source/Scene/Picking.js
++++ b/Source/Scene/Picking.js
+@@ -655,6 +655,10 @@
+   );
+   frameState.tilesetPassState = pickTilesetPassState;
+ 
++  // When labels change, Cesium can still try to draw them using referenced information
++  // that it has already deleted. Clearing the old drawing instructions makes Cesium
++  // create new ones using the right information.
++  frameState.commandList.length = 0;
+   scene.updateEnvironment();
+   environmentState.renderTranslucentDepthForPick = true;
+   passState = pickDepthFramebuffer.update(

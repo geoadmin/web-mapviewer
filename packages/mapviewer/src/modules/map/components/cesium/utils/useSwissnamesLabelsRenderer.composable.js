@@ -1,6 +1,5 @@
 import log from '@geoadmin/log'
 import {
-    BlendOption,
     Cartesian3,
     Cesium3DTileStyle,
     Cesium3DTileset,
@@ -146,14 +145,7 @@ export default function useSwissnamesLabelsRenderer(getViewer, layerConfig) {
             tileset = viewer.scene.primitives.add(loadedTileset)
             // Dedicated collections render the visible labels and their terrain connectors.
             connectors = viewer.scene.primitives.add(new PolylineCollection())
-            // Keep the translucent path previously selected by label backgrounds. Mixed blending
-            // can retain a destroyed glyph vertex array during translucent depth picking.
-            labels = viewer.scene.primitives.add(
-                new LabelCollection({
-                    scene: viewer.scene,
-                    blendOption: BlendOption.TRANSLUCENT,
-                })
-            )
+            labels = viewer.scene.primitives.add(new LabelCollection({ scene: viewer.scene }))
             disposers.push(
                 tileset.tileVisible.addEventListener((tile) => visibleTiles.add(tile)),
                 tileset.tileUnload.addEventListener((tile) => unloadedTiles.add(tile)),
