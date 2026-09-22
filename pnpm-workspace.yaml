@@ -165,3 +165,6 @@ catalog:
     write-yaml-file: ^5.0.0
     yaml: ^2.9.0
     yargs: ^18.0.0
+
+patchedDependencies:
+    '@cesium/engine@26.0.0': patches/@cesium__engine@26.0.0.patch

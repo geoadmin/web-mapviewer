@@ -379,6 +379,9 @@ catalogs:
       specifier: ^18.0.0
       version: 18.0.0
 
+patchedDependencies:
+  '@cesium/engine@26.0.0': 65de79cf816f0c1227d82d8f5f45179ddf7e697963ad141c32b38ce49c68f6b4
+
 importers:
 
   .:
@@ -718,7 +721,7 @@ importers:
         version: link:../geoadmin-tooltip
       '@geoblocks/cesium-compass':
         specifier: 'catalog:'
-        version: 0.6.0(@cesium/engine@26.0.0)
+        version: 0.6.0(@cesium/engine@26.0.0(patch_hash=65de79cf816f0c1227d82d8f5f45179ddf7e697963ad141c32b38ce49c68f6b4))
       '@geoblocks/mapfishprint':
         specifier: 'catalog:'
         version: 0.3.0(ol@10.8.0)
@@ -8913,7 +8916,7 @@ snapshots:
 
   '@canvas/image-data@1.1.0': {}
 
-  '@cesium/engine@26.0.0':
+  '@cesium/engine@26.0.0(patch_hash=65de79cf816f0c1227d82d8f5f45179ddf7e697963ad141c32b38ce49c68f6b4)':
     dependencies:
       '@cesium/wasm-splats': 0.1.0-alpha.2
       '@spz-loader/core': 0.3.1
@@ -8941,7 +8944,7 @@ snapshots:
 
   '@cesium/widgets@16.0.0':
     dependencies:
-      '@cesium/engine': 26.0.0
+      '@cesium/engine': 26.0.0(patch_hash=65de79cf816f0c1227d82d8f5f45179ddf7e697963ad141c32b38ce49c68f6b4)
       nosleep.js: 0.12.0
 
   '@csstools/color-helpers@6.0.2': {}
@@ -9293,9 +9296,9 @@ snapshots:
       '@fortawesome/fontawesome-svg-core': 7.2.0
       vue: 3.5.29(typescript@5.9.3)
 
-  '@geoblocks/cesium-compass@0.6.0(@cesium/engine@26.0.0)':
+  '@geoblocks/cesium-compass@0.6.0(@cesium/engine@26.0.0(patch_hash=65de79cf816f0c1227d82d8f5f45179ddf7e697963ad141c32b38ce49c68f6b4))':
     dependencies:
-      '@cesium/engine': 26.0.0
+      '@cesium/engine': 26.0.0(patch_hash=65de79cf816f0c1227d82d8f5f45179ddf7e697963ad141c32b38ce49c68f6b4)
       lit: 3.3.2
 
   '@geoblocks/mapfishprint@0.3.0(ol@10.8.0)':
@@ -12006,7 +12009,7 @@ snapshots:
 
   cesium@1.142.0:
     dependencies:
-      '@cesium/engine': 26.0.0
+      '@cesium/engine': 26.0.0(patch_hash=65de79cf816f0c1227d82d8f5f45179ddf7e697963ad141c32b38ce49c68f6b4)
       '@cesium/widgets': 16.0.0
 
   chai@6.2.2: {}

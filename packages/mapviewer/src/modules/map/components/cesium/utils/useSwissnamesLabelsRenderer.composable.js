@@ -1,6 +1,5 @@
 import log from '@geoadmin/log'
 import {
-    Cartesian2,
     Cartesian3,
     Cesium3DTileStyle,
     Cesium3DTileset,
@@ -16,10 +15,9 @@ import {
 import { onBeforeUnmount, onMounted } from 'vue'
 
 const FADE_START_RATIO = 0.76
-const BACKGROUND_COLOR = Color.fromCssColorString('#15191e').withAlpha(0.94)
-const BACKGROUND_PADDING = new Cartesian2(5, 2)
-const LAKE_COLOR = Color.fromCssColorString('#b8e1ff')
-const PEAK_COLOR = Color.fromCssColorString('#ffc2a8')
+const PLACE_COLOR = Color.fromCssColorString('#000000')
+const LAKE_COLOR = Color.fromCssColorString('#0c1fad')
+const PEAK_COLOR = Color.fromCssColorString('#f5ae95')
 
 function getColor(type) {
     switch (type) {
@@ -28,7 +26,7 @@ function getColor(type) {
         case 'GIPFEL':
             return PEAK_COLOR
         default:
-            return Color.WHITE
+            return PLACE_COLOR
     }
 }
 
@@ -53,12 +51,12 @@ function addLabel(collection, feature, position, distanceDisplayCondition) {
     return collection.add({
         position,
         text: feature.getProperty('text'),
-        font: `${feature.getProperty('fontSize')}px Arial, sans-serif`,
-        style: LabelStyle.FILL,
+        font: `${feature.getProperty('fontSize') + 2}px Arial, sans-serif`,
+        style: LabelStyle.FILL_AND_OUTLINE,
         fillColor: getColor(feature.getProperty('type')),
-        showBackground: true,
-        backgroundColor: BACKGROUND_COLOR,
-        backgroundPadding: BACKGROUND_PADDING,
+        outlineColor: Color.WHITE,
+        outlineWidth: 2,
+        showBackground: false,
         horizontalOrigin: HorizontalOrigin.CENTER,
         verticalOrigin: VerticalOrigin.BOTTOM,
         disableDepthTestDistance: 0,
