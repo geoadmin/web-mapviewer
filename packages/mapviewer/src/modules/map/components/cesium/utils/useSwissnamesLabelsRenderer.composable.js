@@ -16,7 +16,7 @@ import { onBeforeUnmount, onMounted } from 'vue'
 
 const FADE_START_RATIO = 0.76
 const FONT_SIZE_INCREASE = 2
-const OUTLINE_WIDTH = 4
+const OUTLINE_WIDTH = 3
 const PLACE_COLOR = Color.fromCssColorString('#000000')
 const LAKE_COLOR = Color.fromCssColorString('#0c1fad')
 const PEAK_COLOR = Color.fromCssColorString('#ec6446')
