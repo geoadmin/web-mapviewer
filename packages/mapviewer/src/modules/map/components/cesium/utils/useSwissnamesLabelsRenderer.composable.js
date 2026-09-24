@@ -19,7 +19,7 @@ const FONT_SIZE_INCREASE = 2
 const OUTLINE_WIDTH = 5
 const PLACE_COLOR = Color.fromCssColorString('#000000')
 const LAKE_COLOR = Color.fromCssColorString('#0c1fad')
-const PEAK_COLOR = Color.fromCssColorString('#ec6446')
+const PEAK_COLOR = Color.fromCssColorString('#4a4a4a')
 
 function getColor(type) {
     switch (type) {
