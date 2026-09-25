@@ -15,9 +15,11 @@ import {
 import { onBeforeUnmount, onMounted } from 'vue'
 
 const FADE_START_RATIO = 0.76
+const FONT_SIZE_INCREASE = 2
+const OUTLINE_WIDTH = 5
 const PLACE_COLOR = Color.fromCssColorString('#000000')
 const LAKE_COLOR = Color.fromCssColorString('#0c1fad')
-const PEAK_COLOR = Color.fromCssColorString('#f5ae95')
+const PEAK_COLOR = Color.fromCssColorString('#3a4044')
 
 function getColor(type) {
     switch (type) {
@@ -51,11 +53,11 @@ function addLabel(collection, feature, position, distanceDisplayCondition) {
     return collection.add({
         position,
         text: feature.getProperty('text'),
-        font: `${feature.getProperty('fontSize') + 2}px Arial, sans-serif`,
+        font: `${feature.getProperty('fontSize') + FONT_SIZE_INCREASE}px Arial, sans-serif`,
         style: LabelStyle.FILL_AND_OUTLINE,
         fillColor: getColor(feature.getProperty('type')),
         outlineColor: Color.WHITE,
-        outlineWidth: 2,
+        outlineWidth: OUTLINE_WIDTH,
         showBackground: false,
         horizontalOrigin: HorizontalOrigin.CENTER,
         verticalOrigin: VerticalOrigin.BOTTOM,
