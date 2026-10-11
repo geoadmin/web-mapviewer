@@ -291,3 +291,57 @@ describe('WMTSCapabilitiesParser of wmts-ogc-sample.xml', () => {
         expect(layer.timeConfig.currentTimestamp).toBe('Time A')
     })
 })
+
+describe('WMTSCapabilitiesParser - layer extent edge cases', () => {
+    it('Returns a null extent instead of NaN when a global WGS84BoundingBox is reprojected to Web Mercator', () => {
+        // A WGS84BoundingBox of -180,-90,180,90 is a common, spec-legal way for WMTS servers to
+        // advertise a layer covering the whole globe. Reprojecting latitude +/-90 to Web Mercator
+        // is mathematically undefined and must not silently yield NaN coordinates.
+        const content = `<?xml version="1.0" encoding="UTF-8"?>
+        <Capabilities xmlns="http://www.opengis.net/wmts/1.0"
+            xmlns:ows="http://www.opengis.net/ows/1.1"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            version="1.0.0">
+            <Contents>
+                <Layer>
+                    <ows:Title>Global Layer</ows:Title>
+                    <ows:Identifier>GlobalLayer</ows:Identifier>
+                    <ows:WGS84BoundingBox>
+                        <ows:LowerCorner>-180 -90</ows:LowerCorner>
+                        <ows:UpperCorner>180 90</ows:UpperCorner>
+                    </ows:WGS84BoundingBox>
+                    <Style isDefault="true">
+                        <ows:Identifier>default</ows:Identifier>
+                    </Style>
+                    <Format>image/png</Format>
+                    <TileMatrixSetLink>
+                        <TileMatrixSet>google3857</TileMatrixSet>
+                    </TileMatrixSetLink>
+                    <ResourceURL
+                        format="image/png"
+                        resourceType="tile"
+                        template="http://www.example.com/wmts/global/{TileMatrix}/{TileRow}/{TileCol}.png"
+                    />
+                </Layer>
+                <TileMatrixSet>
+                    <ows:Identifier>google3857</ows:Identifier>
+                    <ows:SupportedCRS>urn:ogc:def:crs:EPSG::3857</ows:SupportedCRS>
+                    <TileMatrix>
+                        <ows:Identifier>0</ows:Identifier>
+                        <ScaleDenominator>559082264.0287178</ScaleDenominator>
+                        <TopLeftCorner>-20037508.3428 20037508.3428</TopLeftCorner>
+                        <TileWidth>256</TileWidth>
+                        <TileHeight>256</TileHeight>
+                        <MatrixWidth>1</MatrixWidth>
+                        <MatrixHeight>1</MatrixHeight>
+                    </TileMatrix>
+                </TileMatrixSet>
+            </Contents>
+        </Capabilities>
+        `
+        const capabilities = new WMTSCapabilitiesParser(content, 'https://example.com')
+        const layer = capabilities.getExternalLayerObject('GlobalLayer', WEBMERCATOR)
+        expect(layer.id).toBe('GlobalLayer')
+        expect(layer.extent).toBeNull()
+    })
+})

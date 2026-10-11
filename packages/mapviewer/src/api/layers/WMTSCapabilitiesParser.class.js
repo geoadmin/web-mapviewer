@@ -15,6 +15,35 @@ import { CapabilitiesError } from '@/api/layers/layers-external.api'
 import LayerTimeConfig from '@/api/layers/LayerTimeConfig.class'
 import LayerTimeConfigEntry from '@/api/layers/LayerTimeConfigEntry.class'
 
+/**
+ * Reproject a two-point extent, guarding against non-finite results.
+ *
+ * Proj4 silently returns NaN/Infinity when asked to reproject coordinates that are outside the
+ * valid domain of the target projection (e.g. latitude +/-90 into Web Mercator, which is undefined
+ * at the poles). Some WMTS servers advertise a WGS84BoundingBox / BoundingBox covering the whole
+ * globe (-180,-90,180,90), which triggers this. Without this guard, the resulting extent silently
+ * corrupts the map view (NaN center/zoom).
+ *
+ * @param {String} fromEpsg Source projection EPSG code
+ * @param {String} toEpsg Target projection EPSG code
+ * @param {[Number, Number]} lowerLeft Lower left corner of the extent, in the source projection
+ * @param {[Number, Number]} upperRight Upper right corner of the extent, in the source projection
+ * @returns {[[Number, Number], [Number, Number]] | null} The reprojected extent, or null if the
+ *   reprojection produced a non-finite result
+ */
+function reprojectExtent(fromEpsg, toEpsg, lowerLeft, upperRight) {
+    const extent = [proj4(fromEpsg, toEpsg, lowerLeft), proj4(fromEpsg, toEpsg, upperRight)]
+    if (extent.flat().some((value) => !Number.isFinite(value))) {
+        log.error(
+            `Failed to reproject extent from ${fromEpsg} to ${toEpsg}, non-finite result`,
+            lowerLeft,
+            upperRight
+        )
+        return null
+    }
+    return extent
+}
+
 function parseCrs(crs) {
     let epsgNumber = crs?.split(':').pop()
     if (/84/.test(epsgNumber)) {
@@ -319,10 +348,12 @@ export default class WMTSCapabilitiesParser {
         }
         // Convert the extent if needed
         if (layerExtent && extentEpsg && projection.epsg !== extentEpsg) {
-            layerExtent = [
-                proj4(extentEpsg, projection.epsg, layerExtent[0]),
-                proj4(extentEpsg, projection.epsg, layerExtent[1]),
-            ]
+            layerExtent = reprojectExtent(
+                extentEpsg,
+                projection.epsg,
+                layerExtent[0],
+                layerExtent[1]
+            )
         }
         if (!layerExtent) {
             const msg = `No layer extent found for ${layerId}`
