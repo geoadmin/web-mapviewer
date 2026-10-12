@@ -51,7 +51,7 @@ function setCenterIfInBounds(store, center) {
     } else {
         log.warn(`current geolocation is out of bounds: ${JSON.stringify(center)}`)
         store.dispatch('addErrors', {
-            errors: [new ErrorMessage('geoloc_out_of_bounds', null)],
+            errors: [new ErrorMessage({ msg: 'geoloc_out_of_bounds' })],
             ...dispatcher,
         })
     }
@@ -114,14 +114,14 @@ const handlePositionError = (error, store, state, options = {}) => {
                 ...dispatcher,
             })
             store.dispatch('addErrors', {
-                errors: [new ErrorMessage('geoloc_permission_denied')],
+                errors: [new ErrorMessage({ msg: 'geoloc_permission_denied' })],
                 ...dispatcher,
             })
             break
         case GeolocationPositionError.TIMEOUT:
             store.dispatch('setGeolocation', { active: false, ...dispatcher })
             store.dispatch('addErrors', {
-                errors: [new ErrorMessage('geoloc_time_out')],
+                errors: [new ErrorMessage({ msg: 'geoloc_time_out' })],
                 ...dispatcher,
             })
             break
@@ -135,7 +135,7 @@ const handlePositionError = (error, store, state, options = {}) => {
                 }
             } else {
                 store.dispatch('addErrors', {
-                    errors: [new ErrorMessage('geoloc_unknown')],
+                    errors: [new ErrorMessage({ msg: 'geoloc_unknown' })],
                     ...dispatcher,
                 })
                 if (reactivate) {
