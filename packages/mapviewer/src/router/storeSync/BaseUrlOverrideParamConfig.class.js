@@ -6,9 +6,21 @@ import {
 import AbstractParamConfig from '@/router/storeSync/abstractParamConfig.class'
 import { isValidUrl } from '@/utils/utils'
 
+// https://sys-{wms,wmts,api3}.{dev,int}.bgdi.ch/ or http://localhost{:port_number}
+const ALLOWED_BGDI_URL = /^https:\/\/sys-(wms|wmts|api3)\.(dev|int)\.bgdi\.ch(\/[^?]*)?(\?.*)?$/
+const ALLOWED_LOCALHOST_URL = /^http:\/\/localhost(:\d{2,6})?(\/[^?]*)?(\?.*)?$/
+
+/**
+ * To protect against XSS attacks, we only allow the override of the base URL if the URL is
+ * whitelisted.
+ */
+export function isBaseUrlOverrideAllowed(url) {
+    return ALLOWED_BGDI_URL.test(url) || ALLOWED_LOCALHOST_URL.test(url)
+}
+
 export default function createBaseUrlOverrideParamConfig({ urlParamName, baseUrlPropertyName }) {
     function dispatchBaseUrlOverride(to, store, urlParamValue) {
-        if (isValidUrl(urlParamValue)) {
+        if (isValidUrl(urlParamValue) && isBaseUrlOverrideAllowed(urlParamValue)) {
             setBaseUrlOverrides(baseUrlPropertyName, urlParamValue)
         } else {
             setBaseUrlOverrides(baseUrlPropertyName, null)

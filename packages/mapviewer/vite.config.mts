@@ -60,7 +60,8 @@ export default defineConfig(({ mode }) => {
             outDir: `./dist/${stagings[definitiveMode]}`,
             rollupOptions: {
                 output: {
-                    manualChunks,
+                    // cypress testing is not compatible with manual chunks, so we disable it for test mode
+                    ...(mode !== 'test' && { manualChunks }),
                 },
             },
         },

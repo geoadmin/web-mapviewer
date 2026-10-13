@@ -4,6 +4,7 @@ import { cypressBrowserPermissionsPlugin } from 'cypress-browser-permissions'
 import vitePreprocessor from 'cypress-vite'
 import { existsSync, readdirSync, unlinkSync } from 'node:fs'
 import { join } from 'node:path'
+import { env } from 'node:process'
 
 import viteConfig from './vite.config.mts'
 
@@ -59,6 +60,11 @@ export default defineConfig({
                 vitePreprocessor({
                     configFile: './vite.config.mts',
                     mode: 'test',
+                    define: {
+                        // Cypress 15 runs test bundles in the browser where `process` is not available
+                        'process.env.NODE_ENV': JSON.stringify('test'),
+                        'process.env': '{}',
+                    },
                 })
             )
 
@@ -107,6 +113,10 @@ export default defineConfig({
         },
         baseUrl: 'http://localhost:8080',
         specPattern: 'tests/cypress/tests-e2e/**/*.cy.js',
+        excludeSpecPattern:
+            env.VITE_SKIP_3D_TESTS === 'true'
+                ? 'tests/cypress/tests-e2e/3d/**/*.cy.js'
+                : [],
         supportFile: 'tests/cypress/support/e2e.js',
     },
 

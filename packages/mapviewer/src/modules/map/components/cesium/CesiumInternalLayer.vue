@@ -10,9 +10,11 @@ import { useStore } from 'vuex'
 
 import AbstractLayer from '@/api/layers/AbstractLayer.class'
 import LayerTypes from '@/api/layers/LayerTypes.enum'
+import { CESIUM_LABELS_LAYER_ID } from '@/config/cesium.config'
 import CesiumGeoJSONLayer from '@/modules/map/components/cesium/CesiumGeoJSONLayer.vue'
 import CesiumGPXLayer from '@/modules/map/components/cesium/CesiumGPXLayer.vue'
 import CesiumKMLLayer from '@/modules/map/components/cesium/CesiumKMLLayer.vue'
+import CesiumSwissnamesLabelsLayer from '@/modules/map/components/cesium/CesiumSwissnamesLabelsLayer.vue'
 import CesiumVectorLayer from '@/modules/map/components/cesium/CesiumVectorLayer.vue'
 import CesiumWMSLayer from '@/modules/map/components/cesium/CesiumWMSLayer.vue'
 import CesiumWMTSLayer from '@/modules/map/components/cesium/CesiumWMTSLayer.vue'
@@ -43,6 +45,7 @@ const { layerConfig, zIndex, projection, isTimeSliderActive, parentLayerOpacity 
 const store = useStore()
 
 const resolution = computed(() => store.getters.resolution)
+const isSwissnamesLabelsLayer = computed(() => layerConfig.id === CESIUM_LABELS_LAYER_ID)
 
 function shouldAggregateSubLayerBeVisible(subLayer) {
     // min and max resolution are set in the API file to the lowest/highest possible value if undefined, so we don't
@@ -52,8 +55,12 @@ function shouldAggregateSubLayerBeVisible(subLayer) {
 </script>
 
 <template>
+    <CesiumSwissnamesLabelsLayer
+        v-if="layerConfig.type === LayerTypes.VECTOR && isSwissnamesLabelsLayer"
+        :layer-config="layerConfig"
+    />
     <CesiumVectorLayer
-        v-if="layerConfig.type === LayerTypes.VECTOR"
+        v-if="layerConfig.type === LayerTypes.VECTOR && !isSwissnamesLabelsLayer"
         :layer-config="layerConfig"
     />
     <CesiumWMTSLayer

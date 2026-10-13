@@ -7,7 +7,6 @@ import {
     type Chart,
     type ChartData,
     type ChartOptions,
-    type Point as ChartPoint,
     type ScaleOptions,
     type TooltipItem,
     type TooltipModel,
@@ -171,7 +170,7 @@ const chartJsData: ComputedRef<ChartData<'line'>> = computed(() => {
                     x: point.dist ?? 0,
                     y: point.elevation,
                     ...point,
-                })) as ChartPoint[],
+                })),
                 parsing: {
                     xAxisKey: 'dist',
                     yAxisKey: 'elevation',
