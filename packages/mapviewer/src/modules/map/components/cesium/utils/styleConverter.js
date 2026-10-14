@@ -82,6 +82,21 @@ function getStyleForEntity(entity, geoJsonStyle) {
 }
 
 /**
+ * Gives Cesium the URL of an icon, so that Cesium loads the image itself. OpenLayers loads the
+ * image of an icon only when it renders the icon. An image that is not loaded has a width of 0 and
+ * stops the Cesium render loop. For the other shapes, OpenLayers draws a canvas.
+ *
+ * @param {Object} vectorOptions
+ * @returns {String | HTMLCanvasElement | undefined}
+ */
+function getBillboardImage(vectorOptions) {
+    if (vectorOptions.type === 'icon') {
+        return vectorOptions.src
+    }
+    return getOlImageStyleForShape(vectorOptions)?.getImage(DEVICE_PIXEL_RATIO)
+}
+
+/**
  * @param {Entity} entity
  * @param {Object} geoJsonStyle
  * @param {Number} opacity
@@ -96,13 +111,11 @@ export function setEntityStyle(entity, geoJsonStyle, opacity = 1.0) {
                 disableDepthTestDistance: 5000,
                 ...vectorOptions,
             }
-            // Here we use our OL style generator to extract the HTMLCanvas of an image (we already
-            // deal with all the possibilities of our style JSON here)
-            const olIcon = getOlImageStyleForShape(vectorOptions)
-            if (olIcon) {
+            const image = getBillboardImage(vectorOptions)
+            if (image) {
                 entity.billboard = new BillboardGraphics({
                     ...graphicsOptions,
-                    image: olIcon.getImage(DEVICE_PIXEL_RATIO),
+                    image,
                     color: Color.WHITE.withAlpha(opacity),
                     pixelOffset: new Cartesian2(0, BILLBOARD_PIXEL_OFFSET_Y),
                 })
