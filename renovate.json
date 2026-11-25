@@ -1,7 +1,7 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
     "extends": ["github>swissgeo/.github:renovate-preset"],
-    "reviewers": ["keetraxx", "romankaravia"],
+    "reviewers": ["keetraxx", "romankaravia", "schtibe"],
     "baseBranchPatterns": ["develop"],
     "lockFileMaintenance": {
         "enabled": true
