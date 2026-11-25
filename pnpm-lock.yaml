@@ -157,7 +157,7 @@ catalogs:
       specifier: ^1.37.1
       version: 1.37.1
     cypress-vite:
-      specifier: 1.10.0
+      specifier: ^1.10.0
       version: 1.10.0
     cypress-wait-until:
       specifier: ^3.0.2
@@ -207,9 +207,6 @@ catalogs:
     googleapis:
       specifier: ^171.4.0
       version: 171.4.0
-    hammerjs:
-      specifier: ^2.0.8
-      version: 2.0.8
     jquery:
       specifier: ^4.0.0
       version: 4.0.0
@@ -770,9 +767,6 @@ importers:
       geotiff:
         specifier: 'catalog:'
         version: 3.0.3
-      hammerjs:
-        specifier: 'catalog:'
-        version: 2.0.8
       jquery:
         specifier: 'catalog:'
         version: 4.0.0
