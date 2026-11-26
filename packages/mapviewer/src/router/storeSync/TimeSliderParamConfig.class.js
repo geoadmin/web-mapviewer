@@ -21,7 +21,7 @@ function dispatchTimeSliderFromUrlParam(to, store, urlParamValue) {
                 dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
             })
         )
-        if (store.getters.visibleLayers.some(layer => layer.hasMultipleTimestamps)) {
+        if (store.getters.visibleLayers.some((layer) => layer.hasMultipleTimestamps)) {
             promisesForAllDispatch.push(
                 store.dispatch('setTimeSliderActive', {
                     timeSliderActive: true,
@@ -52,7 +52,7 @@ function validateUrlInput(store, query) {
             validationObject.warnings = []
         }
         validationObject.warnings.push(
-            new WarningMessage('time_slider_no_time_layer_active_url_warning', {})
+            new WarningMessage({ msg: 'time_slider_no_time_layer_active_url_warning' })
         )
     }
     return validationObject

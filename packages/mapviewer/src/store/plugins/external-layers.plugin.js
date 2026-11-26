@@ -112,13 +112,16 @@ async function updateExternalLayer(store, capabilities, layer, projection) {
         return updated
     } catch (error) {
         log.error(`Failed to update external layer ${layer.id}: `, error)
+        const errorMessage = new ErrorMessage({ msg: error.key ?? 'error', sourceId: layer.id })
         store.dispatch('addLayerError', {
             layerId: layer.id,
             isExternal: layer.isExternal,
             baseUrl: layer.baseUrl,
-            error: new ErrorMessage(error.key ?? 'error'),
+            error: errorMessage,
             ...dispatcher,
         })
+        store.dispatch('addErrors', [errorMessage], dispatcher)
+
         return null
     }
 }

@@ -186,13 +186,6 @@ function dispatchLayersFromUrlIntoStore(to, store, urlParamValue) {
             if (layerObject) {
                 if (layerObject.type === LayerTypes.KML && layerObject.adminId) {
                     promisesForAllDispatch.push(
-                        store.dispatch('setShowDrawingOverlay', {
-                            show: true,
-                            dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
-                        })
-                    )
-
-                    promisesForAllDispatch.push(
                         store.dispatch('setIsVisitWithAdminId', {
                             value: true,
                             dispatcher: STORE_DISPATCHER_ROUTER_PLUGIN,
@@ -285,11 +278,17 @@ function validateUrlInput(store, query) {
         .filter((layer) => !store.getters.getLayerConfigById(layer.id))
         .forEach((layer) => {
             if (!layer.baseUrl) {
-                faultyLayers.push(new ErrorMessage('url_layer_error', { layer: layer.id }))
+                faultyLayers.push(
+                    new ErrorMessage({ msg: 'url_layer_error', params: { layer: layer.id } })
+                )
             } else if (!layer.baseUrl?.match(url_matcher)?.length > 0) {
                 localLayers.push(
-                    new WarningMessage('url_external_layer_no_scheme_warning', {
-                        layer: `${layer.type}|${layer.baseUrl}`,
+                    new WarningMessage({
+                        msg: 'url_external_layer_no_scheme_warning',
+                        params: {
+                            layer: `${layer.type}|${layer.baseUrl}`,
+                        },
+                        sourceId: layer.baseUrl,
                     })
                 )
             }
@@ -322,6 +321,7 @@ export default class LayerParamConfig extends AbstractParamConfig {
                 'setSelectedFeatures',
                 'addSelectedFeatures',
                 'updateLayer',
+                'updateLayers',
             ],
             setValuesInStore: dispatchLayersFromUrlIntoStore,
             extractValueFromStore: generateLayerUrlParamFromStoreValues,
